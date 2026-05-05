@@ -142,10 +142,7 @@ describe("resolveEC2Credential", () => {
     ctx.mockIdentity.get.mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({
-        credentials: [
-          rawCredential,
-          { ...rawCredential, id: "cred-2", blob: secondCredBlob },
-        ],
+        credentials: [rawCredential, { ...rawCredential, id: "cred-2", blob: secondCredBlob }],
       }),
     })
 

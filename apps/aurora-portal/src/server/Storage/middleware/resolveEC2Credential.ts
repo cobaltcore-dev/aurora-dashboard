@@ -27,9 +27,7 @@ interface CredentialBlob {
  * current user + project. Returns the credential if found, null otherwise.
  * Never creates credentials — creation is handled by the tRPC router.
  */
-export async function resolveEC2Credential(
-  ctx: AuroraPortalContext
-): Promise<Ec2CredentialResult | null> {
+export async function resolveEC2Credential(ctx: AuroraPortalContext): Promise<Ec2CredentialResult | null> {
   const token = ctx.openstack?.getToken()
   const userId = token?.tokenData.user?.id
   const projectId = token?.tokenData.project?.id
@@ -51,9 +49,7 @@ export async function resolveEC2Credential(
   }
 
   const data: CredentialsResponse = await response.json()
-  const ec2Cred = data.credentials?.find(
-    (c) => c.type === "ec2" && c.project_id === projectId
-  )
+  const ec2Cred = data.credentials?.find((c) => c.type === "ec2" && c.project_id === projectId)
 
   if (!ec2Cred) {
     return null

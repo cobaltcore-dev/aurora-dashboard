@@ -90,11 +90,11 @@ function S3CredentialsPage() {
       {toast && <Toast {...toast} />}
 
       {newSecret && (
-        <div className="p-4 bg-juno-grey-blue-10 rounded border border-juno-grey-blue-3">
-          <p className="font-bold mb-2">
+        <div className="bg-juno-grey-blue-10 border-juno-grey-blue-3 rounded border p-4">
+          <p className="mb-2 font-bold">
             <Trans>Secret Key (shown once — copy it now):</Trans>
           </p>
-          <code className="break-all text-sm">{newSecret}</code>
+          <code className="text-sm break-all">{newSecret}</code>
           <div className="mt-2">
             <Button
               size="small"
@@ -118,18 +118,11 @@ function S3CredentialsPage() {
         </div>
       )}
 
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-juno-grey-light-1">
-          {isLoading ? (
-            <Trans>Loading...</Trans>
-          ) : (
-            <Trans>{credentials.length} credential(s) for this project</Trans>
-          )}
+      <div className="flex items-center justify-between">
+        <span className="text-juno-grey-light-1 text-sm">
+          {isLoading ? <Trans>Loading...</Trans> : <Trans>{credentials.length} credential(s) for this project</Trans>}
         </span>
-        <Button
-          onClick={() => createMutation.mutate({ project_id: projectId })}
-          disabled={createMutation.isPending}
-        >
+        <Button onClick={() => createMutation.mutate({ project_id: projectId })} disabled={createMutation.isPending}>
           {createMutation.isPending ? <Trans>Creating...</Trans> : <Trans>Create Credential</Trans>}
         </Button>
       </div>
@@ -148,18 +141,16 @@ function S3CredentialsPage() {
                 <code className="text-sm">{cred.access}</code>
               </DataGridCell>
               <DataGridCell>
-                <span className="text-sm text-juno-grey-light-1">{cred.user_id}</span>
+                <span className="text-juno-grey-light-1 text-sm">{cred.user_id}</span>
               </DataGridCell>
               <DataGridCell>
-                <span className="text-sm text-juno-grey-light-1">{cred.project_id}</span>
+                <span className="text-juno-grey-light-1 text-sm">{cred.project_id}</span>
               </DataGridCell>
               <DataGridCell>
                 <Button
                   size="small"
                   variant="primary-danger"
-                  onClick={() =>
-                    deleteMutation.mutate({ project_id: projectId, credentialId: cred.id })
-                  }
+                  onClick={() => deleteMutation.mutate({ project_id: projectId, credentialId: cred.id })}
                   disabled={deleteMutation.isPending}
                 >
                   <Trans>Delete</Trans>

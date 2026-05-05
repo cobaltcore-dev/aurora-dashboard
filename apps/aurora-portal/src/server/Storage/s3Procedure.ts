@@ -14,26 +14,24 @@ export const NO_S3_CREDENTIALS = "NO_S3_CREDENTIALS" as const
  *     (frontend catches this globally to show the credential creation prompt)
  *   - if found → adds getS3Client() to ctx
  */
-export const s3ProtectedProcedure = projectScopedProcedure.use(
-  async function resolveS3Credentials(opts) {
-    const { ctx, next } = opts
+export const s3ProtectedProcedure = projectScopedProcedure.use(async function resolveS3Credentials(opts) {
+  const { ctx, next } = opts
 
-    const credentials = await resolveEC2Credential(ctx)
+  const credentials = await resolveEC2Credential(ctx)
 
-    if (!credentials) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: NO_S3_CREDENTIALS,
-      })
-    }
-
-    const { access, secret } = credentials
-
-    return next({
-      ctx: {
-        ...ctx,
-        getS3Client: (): S3Client => createS3Client(access, secret),
-      },
+  if (!credentials) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: NO_S3_CREDENTIALS,
     })
   }
-)
+
+  const { access, secret } = credentials
+
+  return next({
+    ctx: {
+      ...ctx,
+      getS3Client: (): S3Client => createS3Client(access, secret),
+    },
+  })
+})

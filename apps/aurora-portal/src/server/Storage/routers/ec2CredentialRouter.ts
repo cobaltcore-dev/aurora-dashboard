@@ -66,9 +66,7 @@ export const ec2CredentialRouter = {
       }
 
       const data: CredentialsListResponse = await response.json()
-      const ec2Creds = (data.credentials ?? []).filter(
-        (c) => c.type === "ec2" && c.project_id === input.project_id
-      )
+      const ec2Creds = (data.credentials ?? []).filter((c) => c.type === "ec2" && c.project_id === input.project_id)
 
       return ec2Creds.map((c) => {
         const blob: CredentialBlob = JSON.parse(c.blob)
@@ -143,9 +141,7 @@ export const ec2CredentialRouter = {
       }
 
       const identityService = ctx.openstack.service("identity")
-      const response = await identityService.del(
-        `credentials/${input.credentialId}`
-      )
+      const response = await identityService.del(`credentials/${input.credentialId}`)
 
       if (!response.ok && response.status !== 404) {
         throw new TRPCError({

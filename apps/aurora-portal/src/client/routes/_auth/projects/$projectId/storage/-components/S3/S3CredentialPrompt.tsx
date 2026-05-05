@@ -32,16 +32,16 @@ export function S3CredentialPrompt({ onSuccess }: S3CredentialPromptProps) {
 
   if (newSecret) {
     return (
-      <Stack direction="vertical" gap="4" className="max-w-lg mx-auto mt-16">
+      <Stack direction="vertical" gap="4" className="mx-auto mt-16 max-w-lg">
         {toast && <Toast {...toast} />}
         <h2 className="text-lg font-semibold">
           <Trans>S3 Credential Created</Trans>
         </h2>
-        <div className="p-4 bg-juno-grey-blue-10 rounded border border-juno-grey-blue-3">
-          <p className="font-bold mb-2">
+        <div className="bg-juno-grey-blue-10 border-juno-grey-blue-3 rounded border p-4">
+          <p className="mb-2 font-bold">
             <Trans>Secret Key (shown once — copy it now):</Trans>
           </p>
-          <code className="break-all text-sm">{newSecret}</code>
+          <code className="text-sm break-all">{newSecret}</code>
           <div className="mt-3 flex gap-2">
             <Button
               size="small"
@@ -63,7 +63,7 @@ export function S3CredentialPrompt({ onSuccess }: S3CredentialPromptProps) {
             </Button>
           </div>
         </div>
-        <p className="text-sm text-juno-grey-light-1">
+        <p className="text-juno-grey-light-1 text-sm">
           <Trans>Store this secret key securely. It will not be shown again.</Trans>
         </p>
       </Stack>
@@ -71,15 +71,15 @@ export function S3CredentialPrompt({ onSuccess }: S3CredentialPromptProps) {
   }
 
   return (
-    <Stack direction="vertical" gap="4" className="max-w-lg mx-auto mt-16">
+    <Stack direction="vertical" gap="4" className="mx-auto mt-16 max-w-lg">
       {toast && <Toast {...toast} />}
       <h2 className="text-lg font-semibold">
         <Trans>S3 Object Storage — Setup Required</Trans>
       </h2>
       <p className="text-juno-grey-light-1">
         <Trans>
-          S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your
-          requests. You need to create credentials before accessing S3 resources.
+          S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your requests. You need
+          to create credentials before accessing S3 resources.
         </Trans>
       </p>
       <div>

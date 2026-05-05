@@ -77,9 +77,7 @@ const createMockContext = (shouldFailAuth = false) => {
   } as unknown as AuroraPortalContext & { mockIdentity: typeof mockIdentity }
 }
 
-const createCaller = createCallerFactory(
-  auroraRouter({ storage: { s3: { ec2Credentials: ec2CredentialRouter } } })
-)
+const createCaller = createCallerFactory(auroraRouter({ storage: { s3: { ec2Credentials: ec2CredentialRouter } } }))
 
 // ============================================================================
 // ec2Credentials.list
@@ -123,10 +121,7 @@ describe("ec2Credentials.list", () => {
     ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({
-        credentials: [
-          rawCredential,
-          { ...rawCredential, id: "other-cred", project_id: "other-project" },
-        ],
+        credentials: [rawCredential, { ...rawCredential, id: "other-cred", project_id: "other-project" }],
       }),
     })
     const caller = createCaller(ctx)
@@ -141,9 +136,9 @@ describe("ec2Credentials.list", () => {
     const ctx = createMockContext(true)
     const caller = createCaller(ctx)
 
-    await expect(
-      caller.storage.s3.ec2Credentials.list({ project_id: TEST_PROJECT_ID })
-    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+    await expect(caller.storage.s3.ec2Credentials.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
+      new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+    )
   })
 
   it("throws INTERNAL_SERVER_ERROR when identity API returns non-ok", async () => {
@@ -151,9 +146,7 @@ describe("ec2Credentials.list", () => {
     ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: false, status: 500 })
     const caller = createCaller(ctx)
 
-    await expect(
-      caller.storage.s3.ec2Credentials.list({ project_id: TEST_PROJECT_ID })
-    ).rejects.toThrow(TRPCError)
+    await expect(caller.storage.s3.ec2Credentials.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(TRPCError)
   })
 })
 
@@ -185,10 +178,7 @@ describe("ec2Credentials.create", () => {
 
     await caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })
 
-    expect(ctx.mockIdentity.post).toHaveBeenCalledWith(
-      "credentials",
-      expect.stringContaining('"type":"ec2"')
-    )
+    expect(ctx.mockIdentity.post).toHaveBeenCalledWith("credentials", expect.stringContaining('"type":"ec2"'))
     const [, body] = (ctx.mockIdentity.post as ReturnType<typeof vi.fn>).mock.calls[0]
     const parsed = JSON.parse(body)
     expect(parsed.credential.type).toBe("ec2")
@@ -206,18 +196,16 @@ describe("ec2Credentials.create", () => {
     ;(ctx.mockIdentity.post as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: false, status: 403 })
     const caller = createCaller(ctx)
 
-    await expect(
-      caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })
-    ).rejects.toThrow(TRPCError)
+    await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toThrow(TRPCError)
   })
 
   it("throws UNAUTHORIZED when session is invalid", async () => {
     const ctx = createMockContext(true)
     const caller = createCaller(ctx)
 
-    await expect(
-      caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })
-    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+    await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
+      new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+    )
   })
 })
 
@@ -249,9 +237,7 @@ describe("ec2Credentials.delete", () => {
       credentialId: TEST_CREDENTIAL_ID,
     })
 
-    expect(ctx.mockIdentity.del).toHaveBeenCalledWith(
-      `credentials/${TEST_CREDENTIAL_ID}`
-    )
+    expect(ctx.mockIdentity.del).toHaveBeenCalledWith(`credentials/${TEST_CREDENTIAL_ID}`)
   })
 
   it("returns success when credential is already gone (404)", async () => {
