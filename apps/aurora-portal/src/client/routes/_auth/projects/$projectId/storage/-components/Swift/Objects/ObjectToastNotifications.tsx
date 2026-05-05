@@ -352,7 +352,7 @@ export const getObjectsBulkDeleteErrorToast = (errorMessage: string, config: Toa
       description={
         <span>
           <Trans>One or more objects could not be deleted:</Trans>
-          <pre className="mt-1 text-xs whitespace-pre-wrap">{errorMessage}</pre>
+          <span className="mt-1 block text-xs whitespace-pre-wrap">{errorMessage}</span>
         </span>
       }
     />
