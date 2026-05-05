@@ -52,6 +52,9 @@ msgstr "{emptiedCount, plural, one {# container} other {# containers}} successfu
 msgid "{numberDeleted} object was permanently deleted."
 msgstr "{numberDeleted} object was permanently deleted."
 
+msgid "{numberDeleted} objects were deleted successfully, but some deletions failed."
+msgstr "{numberDeleted} objects were deleted successfully, but some deletions failed."
+
 msgid "{numberDeleted} objects were permanently deleted."
 msgstr "{numberDeleted} objects were permanently deleted."
 

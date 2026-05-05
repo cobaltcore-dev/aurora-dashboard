@@ -290,7 +290,7 @@ describe("DeleteObjectsModal", () => {
       })
     })
 
-    test("calls both onSuccess and onError in partial-success case", async () => {
+    test("calls only onError with combined message in partial-success case", async () => {
       mutationResult = {
         numberDeleted: 1,
         numberNotFound: 0,
@@ -302,7 +302,7 @@ describe("DeleteObjectsModal", () => {
       renderModal({ onSuccess, onError })
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
-        expect(onSuccess).toHaveBeenCalledWith(1)
+        expect(onSuccess).not.toHaveBeenCalled()
         // deleted keys exclude the failed path
         expect(onError).toHaveBeenCalledWith(
           expect.stringContaining("Forbidden"),

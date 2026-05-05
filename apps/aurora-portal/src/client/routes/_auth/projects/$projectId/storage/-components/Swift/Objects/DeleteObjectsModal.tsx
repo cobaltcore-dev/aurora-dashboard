@@ -44,9 +44,12 @@ export const DeleteObjectsModal = ({
         const deletedKeys = objectKeys.filter(
           (key) => !failedPaths.has(`/${encodeURIComponent(container)}/${encodeURIComponent(key)}`)
         )
+
+        const { numberDeleted } = result
+
         const partialResultMessage =
-          result.numberDeleted > 0
-            ? `${t`${result.numberDeleted} objects were deleted successfully, but some deletions failed.`}\n${errorMessages}`
+          numberDeleted > 0
+            ? `${t`${numberDeleted} objects were deleted successfully, but some deletions failed.`}\n${errorMessages}`
             : errorMessages
         onError?.(partialResultMessage, deletedKeys)
       } else {
