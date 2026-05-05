@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test"
 import * as dotenv from "dotenv"
 
 // Load .env file for local development
-dotenv.config()
+dotenv.config({ quiet: true })
 
 /**
  * Playwright configuration for Aurora Portal E2E tests

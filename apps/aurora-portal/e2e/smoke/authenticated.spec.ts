@@ -45,5 +45,4 @@ test.describe("Authenticated OpenStack UIs", () => {
     // Verify projects page loaded with search input
     await expect(page.locator('input[placeholder="Search..."]')).toBeVisible()
   })
-
 })
