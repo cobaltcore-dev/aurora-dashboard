@@ -89,7 +89,7 @@ const renderModal = ({
   account?: string
   onClose?: () => void
   onSuccess?: (numberDeleted: number) => void
-  onError?: (errorMessage: string) => void
+  onError?: (errorMessage: string, deletedKeys: string[]) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
