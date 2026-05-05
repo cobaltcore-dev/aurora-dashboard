@@ -1,26 +1,32 @@
 import { parseErrorObject } from "./responseErrorHandler"
 import { SignalOpenstackError, SignalOpenstackApiError } from "./error"
+import type { ProxyConfig } from "./shared-types"
 
-// Proxy support for mitmproxy/debugging - scoped to this package only
-let openstackProxyDispatcher: unknown
-
-if (process.env.GLOBAL_AGENT_HTTP_PROXY) {
+/**
+ * Creates a proxy dispatcher from the provided proxy configuration
+ * TLS certificate validation is disabled when using a proxy since the proxy
+ * (e.g., mitmproxy) acts as a man-in-the-middle for debugging purposes
+ * @param proxyConfig - Proxy configuration object
+ * @returns Undici ProxyAgent dispatcher or undefined if creation fails
+ */
+function createProxyDispatcher(proxyConfig: ProxyConfig): unknown {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import needed for optional undici dependency
     const { ProxyAgent } = require("undici")
-    const proxyUrl = process.env.GLOBAL_AGENT_HTTP_PROXY
-    openstackProxyDispatcher = new ProxyAgent({
-      uri: proxyUrl,
-      // Allow self-signed certificates (for mitmproxy)
+    const dispatcher = new ProxyAgent({
+      uri: proxyConfig.uri,
+      // Always disable TLS validation for proxy debugging (mitmproxy uses self-signed certs)
       requestTls: {
-        rejectUnauthorized: process.env.NODE_TLS_REJECT_UNAUTHORIZED !== "0",
+        rejectUnauthorized: false,
       },
     })
     // Redact credentials from URL if present (user:pass@host)
-    const redactedUrl = proxyUrl.replace(/\/\/([^:]+):([^@]+)@/, "//$1:***@")
+    const redactedUrl = proxyConfig.uri.replace(/\/\/([^:]+):([^@]+)@/, "//$1:***@")
     console.log("✅ [signal-openstack] Proxy configured:", redactedUrl)
+    return dispatcher
   } catch (err) {
     console.warn("⚠️ [signal-openstack] Could not configure proxy:", err)
+    return undefined
   }
 }
 
@@ -34,6 +40,7 @@ interface RequestParams {
     queryParams?: Record<string, string | string[] | number | boolean | null | undefined>
     signal?: AbortSignal
     debug?: boolean
+    proxy?: ProxyConfig
   }
 }
 
@@ -167,12 +174,15 @@ const request = ({ method, path, options = {} }: RequestParams) => {
     console.debug(`===Signal Openstack Debug: `, JSON.stringify(debugData, null, 2))
   }
 
+  // Create proxy dispatcher if proxy config is provided
+  const proxyDispatcher = options.proxy ? createProxyDispatcher(options.proxy) : undefined
+
   return fetch(url.toString(), {
     headers,
     method,
     body,
     signal: options.signal,
-    ...(openstackProxyDispatcher ? { dispatcher: openstackProxyDispatcher } : {}),
+    ...(proxyDispatcher ? { dispatcher: proxyDispatcher } : {}),
     // ✅ Enable duplex for streaming uploads
     //@ts-expect-error No overload matches this call.
     duplex: "half", // TypeScript types don't include duplex yet
