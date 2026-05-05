@@ -35,6 +35,7 @@ export function SignalOpenstackService(
       headers,
       debug,
       queryParams,
+      proxy,
     } = {
       ...serviceOptions,
       ...clientOptions,
@@ -55,6 +56,7 @@ export function SignalOpenstackService(
       headers: { ...headers, "X-Auth-Token": token.authToken },
       debug,
       queryParams,
+      proxy,
     }
   }
 
