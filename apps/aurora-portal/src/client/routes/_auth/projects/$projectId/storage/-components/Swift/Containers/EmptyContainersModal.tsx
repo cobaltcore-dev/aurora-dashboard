@@ -25,7 +25,6 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
   const { t } = useLingui()
   const projectId = useProjectId()
 
-  const containerNamesRef = useRef<string[]>([])
   // Cancellation flag — set to true by handleClose so the for loop stops
   // issuing further mutateAsync calls after the user clicks Cancel.
   const cancelledRef = useRef(false)
@@ -43,7 +42,6 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
   }
 
   const handleConfirm = async () => {
-    containerNamesRef.current = containers.map((c) => c.name)
     cancelledRef.current = false
 
     let emptiedCount = 0
