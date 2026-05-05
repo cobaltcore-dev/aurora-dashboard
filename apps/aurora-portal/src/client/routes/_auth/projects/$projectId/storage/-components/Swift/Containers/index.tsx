@@ -93,10 +93,14 @@ export const SwiftContainers = () => {
     totalDeleted: number
     errors: string[]
   }) => {
-    // Only clear selection when all containers succeeded — failed ones remain
-    // selected so the user can retry without having to re-select them.
     if (errors.length === 0) {
       setSelectedContainers([])
+    } else {
+      setSelectedContainers((previouslySelectedContainers) =>
+        previouslySelectedContainers.filter((containerName) =>
+          errors.some((errorMessage) => errorMessage.includes(containerName))
+        )
+      )
     }
     setToastData(getContainersEmptyCompleteToast(emptiedCount, totalDeleted, errors, { onDismiss: handleToastDismiss }))
   }
