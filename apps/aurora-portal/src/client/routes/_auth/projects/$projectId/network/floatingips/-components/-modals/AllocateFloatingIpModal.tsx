@@ -45,7 +45,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     data: dnsDomains = [],
     isLoading: isDnsDomainsLoading,
     error: dnsDomainsError,
-  } = trpcReact.network.floatingIp.listDnsDomains.useQuery()
+  } = trpcReact.network.floatingIp.listDnsDomains.useQuery({ project_id: projectId })
 
   const {
     data: availablePorts = [],

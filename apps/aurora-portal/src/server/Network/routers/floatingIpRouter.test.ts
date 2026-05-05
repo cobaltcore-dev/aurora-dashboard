@@ -558,7 +558,7 @@ describe("floatingIpRouter.listDnsDomains", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.floatingIp.listDnsDomains()
+    const result = await caller.floatingIp.listDnsDomains({ project_id: TEST_PROJECT_ID })
 
     expect(Array.isArray(result)).toBe(true)
     expect(result).toHaveLength(1)
@@ -571,7 +571,7 @@ describe("floatingIpRouter.listDnsDomains", () => {
     const ctx = createMockContext({ useDesignateOnly: true })
     const caller = createCaller(ctx)
 
-    const result = await caller.floatingIp.listDnsDomains()
+    const result = await caller.floatingIp.listDnsDomains({ project_id: TEST_PROJECT_ID })
 
     expect(result).toHaveLength(1)
     expect(ctx.openstack?.service).toHaveBeenCalledWith("dns")
@@ -583,7 +583,7 @@ describe("floatingIpRouter.listDnsDomains", () => {
     const ctx = createMockContext({ noDnsService: true, noDesignateService: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.listDnsDomains()).rejects.toThrow(
+    await expect(caller.floatingIp.listDnsDomains({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Dns service is not available",
@@ -595,7 +595,7 @@ describe("floatingIpRouter.listDnsDomains", () => {
     const ctx = createMockContext({ parseError: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.listDnsDomains()).rejects.toThrow(
+    await expect(caller.floatingIp.listDnsDomains({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({
         code: "PARSE_ERROR",
         message: "Failed to parse response in floatingIpRouter.listDnsDomains",
@@ -607,7 +607,7 @@ describe("floatingIpRouter.listDnsDomains", () => {
     const ctx = createMockContext({ invalidSession: true })
     const caller = createCaller(ctx)
 
-    await expect(caller.floatingIp.listDnsDomains()).rejects.toThrow(
+    await expect(caller.floatingIp.listDnsDomains({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({
         code: "UNAUTHORIZED",
         message: "The session is invalid",

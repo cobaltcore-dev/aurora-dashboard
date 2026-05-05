@@ -1,4 +1,4 @@
-import { projectScopedProcedure, protectedProcedure } from "@/server/trpc"
+import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
@@ -167,7 +167,7 @@ export const floatingIpRouter = {
         return parseOrThrow(ExternalNetworksResponseSchema, data, "floatingIpRouter.listExternalNetworks").networks
       }, "list external networks for floating IP create operation")
     }),
-  listDnsDomains: protectedProcedure.query(async ({ ctx }): Promise<DnsDomain[]> => {
+  listDnsDomains: projectScopedProcedure.query(async ({ ctx }): Promise<DnsDomain[]> => {
     return withErrorHandling(async () => {
       const dnsService = ctx.openstack?.service("dns") ?? ctx.openstack?.service("designate")
       validateOpenstackService(dnsService, "dns")
