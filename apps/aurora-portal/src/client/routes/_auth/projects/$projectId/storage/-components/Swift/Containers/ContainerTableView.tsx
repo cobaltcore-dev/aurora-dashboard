@@ -96,7 +96,8 @@ export const ContainerTableView = ({
     overscan: 10,
   })
 
-  const allSelected = containers.length > 0 && selectedContainers.length === containers.length
+  const selectedSet = new Set(selectedContainers)
+  const allSelected = containers.length > 0 && containers.every((c) => selectedSet.has(c.name))
 
   const handleSelectAll = () => {
     if (allSelected) {
