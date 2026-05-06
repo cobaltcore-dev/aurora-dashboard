@@ -42,10 +42,10 @@ export async function SignalOpenstackSession(
     // Validate the token
     authHeaders["X-Auth-Token"] = authConfig.auth.identity.token.id
     authHeaders["X-Subject-Token"] = authConfig.auth.identity.token.id
-    response = await get(endpoint, { headers: authHeaders, debug: debug })
+    response = await get(endpoint, { headers: authHeaders, debug: debug, proxy: options.proxy })
   } else {
     // Create a new token
-    response = await post(endpoint, authConfig, { headers: authHeaders, debug: debug })
+    response = await post(endpoint, authConfig, { headers: authHeaders, debug: debug, proxy: options.proxy })
   }
 
   const authToken = response.headers.get("X-Subject-Token")
@@ -64,7 +64,10 @@ export async function SignalOpenstackSession(
   // public functions
   async function terminate() {
     if (isValid()) {
-      await del(endpoint, { headers: { "X-Auth-Token": token!.authToken, "X-Subject-Token": token!.authToken } })
+      await del(endpoint, {
+        headers: { "X-Auth-Token": token!.authToken, "X-Subject-Token": token!.authToken },
+        proxy: options.proxy,
+      })
     }
     token = undefined
   }
@@ -75,6 +78,7 @@ export async function SignalOpenstackSession(
     const response = await post(endpoint, rescopeConfig, {
       headers: { ...defaultHeaders, "X-Auth-Token": token.authToken },
       debug: debug,
+      proxy: options.proxy,
     })
     const data = await response.json()
     token = SignalOpenstackToken({
