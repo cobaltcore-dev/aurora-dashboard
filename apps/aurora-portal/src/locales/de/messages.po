@@ -548,6 +548,9 @@ msgstr "Sicherheitsgruppe wird erstellt..."
 msgid "Creating..."
 msgstr ""
 
+msgid "Creation Date"
+msgstr ""
+
 msgid "Credential deleted."
 msgstr ""
 
@@ -988,6 +991,10 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
+#. placeholder {0}: error.message
+msgid "Failed to load buckets: {0}"
+msgstr ""
+
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Fehler beim Laden der Container-ACLs: {errorMessage}"
 
@@ -1393,6 +1400,9 @@ msgstr "Mehr laden"
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
 
+msgid "Loading buckets..."
+msgstr ""
+
 msgid "Loading container properties..."
 msgstr "Container-Eigenschaften werden geladen..."
 
@@ -1629,6 +1639,9 @@ msgstr "new-folder-name"
 
 msgid "No"
 msgstr "Nein"
+
+msgid "No buckets found."
+msgstr ""
 
 msgid "No containers found"
 msgstr "Keine Container gefunden"
@@ -1951,6 +1964,9 @@ msgstr "Details der RBAC-Richtlinie:"
 msgid "Read ACLs"
 msgstr "Lese-ACLs"
 
+msgid "Region"
+msgstr ""
+
 msgid "Reject"
 msgstr "Ablehnen"
 
@@ -2054,6 +2070,9 @@ msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
 msgid "S3 (dev)"
+msgstr ""
+
+msgid "S3 Buckets"
 msgstr ""
 
 msgid "S3 Credential Created"
@@ -2604,6 +2623,9 @@ msgstr "Image-Sichtbarkeit kann nicht aktualisiert werden"
 
 msgid "Unable to Upload Image File"
 msgstr "Image-Datei kann nicht hochgeladen werden"
+
+msgid "Unknown"
+msgstr ""
 
 msgid "Unnamed"
 msgstr "Unbenannt"

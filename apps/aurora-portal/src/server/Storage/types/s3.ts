@@ -30,3 +30,30 @@ export const deleteEc2CredentialInputSchema = projectScopedInputSchema.extend({
 
 export type Ec2Credential = z.infer<typeof ec2CredentialSchema>
 export type Ec2CredentialWithSecret = z.infer<typeof ec2CredentialWithSecretSchema>
+
+// ============================================================================
+// BUCKET SCHEMAS
+// ============================================================================
+
+export const bucketSchema = z.object({
+  name: z.string(),
+  creationDate: z.string().optional(),
+})
+
+export const bucketDetailsSchema = bucketSchema.extend({
+  objectCount: z.number().optional(),
+  sizeBytes: z.number().optional(),
+})
+
+export const listBucketsInputSchema = projectScopedInputSchema
+
+export const getBucketDetailsInputSchema = projectScopedInputSchema.extend({
+  bucketName: z.string().min(1),
+})
+
+// ============================================================================
+// BUCKET TYPES
+// ============================================================================
+
+export type Bucket = z.infer<typeof bucketSchema>
+export type BucketDetails = z.infer<typeof bucketDetailsSchema>
