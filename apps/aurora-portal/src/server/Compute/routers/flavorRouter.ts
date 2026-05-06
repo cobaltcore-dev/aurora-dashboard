@@ -77,16 +77,33 @@ export const flavorRouter = {
         // Fetch public and private flavors separately.
         // is_public=false returns only private flavors accessible to the current project
         // (either created by it or explicitly shared with it), preventing cross-project visibility.
+        let privateFlavorError: string | undefined
         const [publicFlavors, privateFlavors] = await Promise.all([
           fetchFlavors(compute, "true"),
-          fetchFlavors(compute, "false").catch(() => [] as Flavor[]),
+          fetchFlavors(compute, "false").catch((err: unknown) => {
+            // Swallow expected authorization errors — many users simply don't have
+            // access to private flavors and that's fine.
+            if (err instanceof TRPCError && err.code !== "INTERNAL_SERVER_ERROR") {
+              return [] as Flavor[]
+            }
+            // For real server errors (500/502/503), surface a warning but still
+            // return the public flavors so the page isn't completely broken.
+            privateFlavorError = ERROR_CODES.FLAVORS_FETCH_FAILED
+            return [] as Flavor[]
+          }),
         ])
 
-        const flavors = [...publicFlavors, ...privateFlavors].filter(
-          (f, idx, arr) => arr.findIndex((o) => o.id === f.id) === idx
-        )
+        const seen = new Set<string>()
+        const flavors = [...publicFlavors, ...privateFlavors].filter((f) => {
+          if (seen.has(f.id)) return false
+          seen.add(f.id)
+          return true
+        })
 
-        return filterAndSortFlavors(flavors, searchTerm, sortBy as keyof Flavor, sortDirection)
+        return {
+          flavors: filterAndSortFlavors(flavors, searchTerm, sortBy as keyof Flavor, sortDirection),
+          privateFlavorError,
+        }
       } catch (error) {
         if (error instanceof TRPCError) {
           throw error

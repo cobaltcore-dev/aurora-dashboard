@@ -1,4 +1,4 @@
-import React, { use, Suspense, useState, startTransition, useEffect } from "react"
+import React, { use, Suspense, useState, startTransition } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { useLingui } from "@lingui/react/macro"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
@@ -266,30 +266,39 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
 
   const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
   const [isAddingAccess, setIsAddingAccess] = useState(false)
-  const [flavorAccessPromise, setFlavorAccessPromise] = useState<Promise<FlavorAccess[]> | null>(null)
 
   const permissionsPromise = React.useMemo(
     () => (isOpen ? createPermissionsPromise(client, project) : null),
     [client, project, isOpen]
   )
 
-  useEffect(() => {
-    if (isOpen && flavor?.id) {
-      const safePromise = createFlavorAccessPromise(client, project, flavor.id).catch((error) => {
+  const flavorAccessPromise = React.useMemo(() => {
+    if (!isOpen || !flavor?.id) return null
+    setMessage(null)
+    return createFlavorAccessPromise(client, project, flavor.id)
+      .then((access) =>
+        access.filter((entry, idx, arr) => arr.findIndex((e) => e.tenant_id === entry.tenant_id) === idx)
+      )
+      .catch((error) => {
         const msg = translateError((error as Error)?.message || "GET_FLAVOR_ACCESS_FAILED")
         setMessage({ text: msg, type: "error" })
         return [] as FlavorAccess[]
       })
-      startTransition(() => {
-        setFlavorAccessPromise(safePromise)
-      })
-    }
   }, [isOpen, flavor?.id, client, project])
+
+  const [flavorAccessOverride, setFlavorAccessOverride] = useState<{
+    key: string
+    promise: Promise<FlavorAccess[]>
+  } | null>(null)
+
+  const accessKey = `${isOpen}-${flavor?.id}`
+  const activeFlavorAccessPromise =
+    flavorAccessOverride?.key === accessKey ? flavorAccessOverride.promise : flavorAccessPromise
 
   const handleClose = () => {
     setMessage(null)
     setIsAddingAccess(false)
-    setFlavorAccessPromise(null)
+    setFlavorAccessOverride(null)
     onClose()
   }
 
@@ -298,11 +307,11 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
       (entry, idx, arr) => arr.findIndex((e) => e.tenant_id === entry.tenant_id) === idx
     )
     startTransition(() => {
-      setFlavorAccessPromise(Promise.resolve(deduplicated))
+      setFlavorAccessOverride({ key: accessKey, promise: Promise.resolve(deduplicated) })
     })
   }
 
-  if (!isOpen || !flavor || !permissionsPromise || !flavorAccessPromise) {
+  if (!isOpen || !flavor || !permissionsPromise || !activeFlavorAccessPromise) {
     return null
   }
   const flavorName = flavor.name
@@ -323,7 +332,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
         <Suspense fallback={<AccessLoading />}>
           <AccessContent
             permissionsPromise={permissionsPromise}
-            flavorAccessPromise={flavorAccessPromise}
+            flavorAccessPromise={activeFlavorAccessPromise}
             client={client}
             project={project}
             flavor={flavor}

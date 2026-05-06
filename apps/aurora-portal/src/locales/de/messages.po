@@ -1840,11 +1840,14 @@ msgstr "{rowDisplayName} vorschauen"
 msgid "Private"
 msgstr "Privat"
 
+msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
+msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist möglicherweise unvollständig."
+
 msgid "production, linux"
 msgstr "production, linux"
 
 msgid "Project"
-msgstr ""
+msgstr "Projekt"
 
 msgid "Project id"
 msgstr "Projekt-ID"

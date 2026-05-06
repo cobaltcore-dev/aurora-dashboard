@@ -59,7 +59,7 @@ function FlavorsContent({
   createModalOpen,
   setCreateModalOpen,
 }: {
-  flavorsPromise: Promise<Flavor[]>
+  flavorsPromise: Promise<{ flavors: Flavor[]; privateFlavorError?: string }>
   permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean; canManageAccess: boolean }>
   client: TrpcClient
   project: string
@@ -73,7 +73,7 @@ function FlavorsContent({
   setCreateModalOpen: (open: boolean) => void
 }) {
   const { t } = useLingui()
-  const flavors = use(flavorsPromise)
+  const { flavors, privateFlavorError } = use(flavorsPromise)
   const permissions = use(permissionsPromise)
 
   return (
@@ -85,6 +85,14 @@ function FlavorsContent({
         onClose={() => setCreateModalOpen(false)}
         onSuccess={onFlavorCreated}
       />
+
+      {privateFlavorError && (
+        <Message
+          className="mb-4"
+          text={t`Private flavors could not be loaded. You may be seeing an incomplete list.`}
+          variant="warning"
+        />
+      )}
 
       <ListToolbar
         sortSettings={sortSettings}

@@ -132,7 +132,7 @@ describe("flavorRouter", () => {
         "name",
         "desc"
       )
-      expect(result).toEqual([publicFlavor, privateFlavor])
+      expect(result).toEqual({ flavors: [publicFlavor, privateFlavor], privateFlavorError: undefined })
     })
 
     it("should deduplicate flavors with the same id", async () => {
@@ -150,19 +150,35 @@ describe("flavorRouter", () => {
       expect(ids).toEqual([...new Set(ids)])
     })
 
-    it("should return only public flavors when private fetch fails", async () => {
+    it("should return only public flavors and no error when private fetch fails with auth error", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
       vi.mocked(flavorHelpers.fetchFlavors).mockImplementation(async (_compute, isPublic) => {
-        if (isPublic === "false") throw new Error("403 Forbidden")
+        if (isPublic === "false") throw new TRPCError({ code: "FORBIDDEN", message: "FLAVORS_FORBIDDEN" })
         return [publicFlavor]
       })
       vi.mocked(flavorHelpers.filterAndSortFlavors).mockImplementation((flavors) => flavors)
 
       const result = await caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })
 
-      expect(result).toEqual([publicFlavor])
+      expect(result).toEqual({ flavors: [publicFlavor], privateFlavorError: undefined })
+    })
+
+    it("should return public flavors with privateFlavorError when private fetch fails with server error", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      vi.mocked(flavorHelpers.fetchFlavors).mockImplementation(async (_compute, isPublic) => {
+        if (isPublic === "false")
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "FLAVORS_SERVER_ERROR" })
+        return [publicFlavor]
+      })
+      vi.mocked(flavorHelpers.filterAndSortFlavors).mockImplementation((flavors) => flavors)
+
+      const result = await caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })
+
+      expect(result).toEqual({ flavors: [publicFlavor], privateFlavorError: "FLAVORS_FETCH_FAILED" })
     })
 
     it("should use default values for optional parameters", async () => {
