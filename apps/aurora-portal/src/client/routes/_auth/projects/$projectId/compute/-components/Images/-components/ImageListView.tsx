@@ -90,6 +90,7 @@ interface ImagePageProps {
   activeImages: Array<string>
   deactivatedImages: Array<string>
   onImageUpdated: (image: GlanceImage) => void
+  onImageDeleted: (imageId: string) => void
   onMemberStatusChanged: () => void
 }
 
@@ -119,6 +120,7 @@ export function ImageListView({
   activeImages,
   deactivatedImages,
   onImageUpdated,
+  onImageDeleted,
   onMemberStatusChanged,
 }: ImagePageProps) {
   const projectId = useProjectId()
@@ -206,9 +208,9 @@ export function ImageListView({
   })
 
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
-    onSuccess: () => {
+    onSuccess: (updatedImage) => {
       utils.compute.listImagesWithPagination.invalidate()
-      utils.compute.getImageById.invalidate()
+      utils.compute.getImageById.setData({ project_id: projectId, imageId: updatedImage.id }, updatedImage)
     },
   })
 
@@ -310,10 +312,11 @@ export function ImageListView({
 
     try {
       const operations = convertToJsonPatchOperations(updatedProperties, selectedImage)
-      await updateImageMutation.mutateAsync({ project_id: projectId, imageId, operations })
+      const updatedImage = await updateImageMutation.mutateAsync({ project_id: projectId, imageId, operations })
       setEditDetailsModalOpen(false)
       setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
-      setSelectedImage(null)
+      setSelectedImage(updatedImage)
+      onImageUpdated(updatedImage)
       return true
     } catch (error) {
       const { message } = error as TRPCClientError<InferrableClientTypes>
@@ -383,6 +386,7 @@ export function ImageListView({
       await deleteImageMutation.mutateAsync({ project_id: projectId, imageId })
 
       setToastData(getImageDeletedToast(imageName, { onDismiss: handleToastDismiss }))
+      onImageDeleted(imageId)
     } catch (error) {
       const { message } = error as TRPCClientError<InferrableClientTypes>
 
