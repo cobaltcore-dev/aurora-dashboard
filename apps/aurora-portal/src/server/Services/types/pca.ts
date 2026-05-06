@@ -2,14 +2,16 @@ import { z } from "zod"
 
 /** PCA (Private Certificate Authority) - Clavis service schemas for certificate authority management  */
 
+/** Dates as Unix timestamp. */
+const CertificateValiditySchema = z.object({
+  not_after: z.number().int(),
+  not_before: z.number().int(),
+})
+
 const CertificateAuthorityCertificateSchema = z.object({
   /** PEM encoded certificate data. */
   pem: z.string(),
-  /** Dates as Unix timestamp. */
-  validity: z.object({
-    not_after: z.number().int(),
-    not_before: z.number().int(),
-  }),
+  validity: CertificateValiditySchema,
 })
 
 const CertificateAuthorityCertificateChainSchema = z.object({
@@ -71,5 +73,24 @@ export const CertificateAuthoritiesListSchema = z.object({
   certificate_authorities: z.array(CertificateAuthoritySchema),
 })
 
-export type CertificateAuthority = z.infer<typeof CertificateAuthoritySchema>
-export type CertificateAuthoritiesList = z.infer<typeof CertificateAuthoritiesListSchema>
+export const CertificateAuthorityCertificatesInputSchema = z.object({
+  certificate_authority_id: z.string().min(1),
+})
+
+export const CertificateSchema = z.object({
+  certificate: CertificateAuthorityCertificateSchema,
+  certificate_authority_id: z.string(),
+  certificate_chain: CertificateAuthorityCertificateChainSchema.optional(),
+  configuration: z.object({
+    validity: CertificateValiditySchema,
+  }),
+  csr: z.string().optional(),
+  id: z.string(),
+  project_id: z.string(),
+})
+
+export const CertificatesListSchema = z.object({
+  certificates: z.array(CertificateSchema),
+})
+
+export type Certificate = z.infer<typeof CertificateSchema>

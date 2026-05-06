@@ -20,11 +20,54 @@ const validListResponse = {
   ],
 }
 
-const createMockContext = (opts?: { noClavis?: boolean; usePcaFallback?: boolean; parseError?: boolean }) => {
-  const { noClavis = false, usePcaFallback = false, parseError = false } = opts || {}
+const validCertificatesResponse = {
+  certificates: [
+    {
+      id: "cert-1",
+      certificate_authority_id: "ca-1",
+      project_id: TEST_PROJECT_ID,
+      certificate: {
+        pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+        validity: {
+          not_before: 1705315200,
+          not_after: 1736851200,
+        },
+      },
+      certificate_chain: {
+        certificates: [{ pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----" }],
+        pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+      },
+      configuration: {
+        validity: {
+          not_before: 1705315200,
+          not_after: 1736851200,
+        },
+      },
+      csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
+    },
+  ],
+}
 
-  const getMock = vi.fn().mockResolvedValue({
-    json: vi.fn().mockResolvedValue(parseError ? { invalid: true } : validListResponse),
+const createMockContext = (opts?: {
+  noClavis?: boolean
+  usePcaFallback?: boolean
+  parseError?: boolean
+  certificateParseError?: boolean
+}) => {
+  const { noClavis = false, usePcaFallback = false, parseError = false, certificateParseError = false } = opts || {}
+
+  const getMock = vi.fn().mockImplementation((url: string) => {
+    const responseBody = url.includes("/certificates")
+      ? certificateParseError
+        ? { invalid: true }
+        : validCertificatesResponse
+      : parseError
+        ? { invalid: true }
+        : validListResponse
+
+    return Promise.resolve({
+      json: vi.fn().mockResolvedValue(responseBody),
+    })
   })
 
   const clavisService = {
@@ -112,6 +155,69 @@ describe("clavisRouter", () => {
         new TRPCError({
           code: "PARSE_ERROR",
           message: "Failed to parse response in clavisRouter.list",
+        })
+      )
+    })
+  })
+
+  describe("listCertificates", () => {
+    it("returns certificates for a certificate authority", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx as never)
+
+      const result = await caller.clavis.ca.listCertificates({
+        project_id: TEST_PROJECT_ID,
+        certificate_authority_id: "ca-1",
+      })
+
+      expect(result).toEqual(validCertificatesResponse.certificates)
+      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates")
+    })
+
+    it("falls back to pca service when clavis is unavailable", async () => {
+      const ctx = createMockContext({ noClavis: true, usePcaFallback: true })
+      const caller = createCaller(ctx as never)
+
+      const result = await caller.clavis.ca.listCertificates({
+        project_id: TEST_PROJECT_ID,
+        certificate_authority_id: "ca-1",
+      })
+
+      expect(result).toEqual(validCertificatesResponse.certificates)
+      expect(ctx.__serviceMock).toHaveBeenNthCalledWith(1, "clavis")
+      expect(ctx.__serviceMock).toHaveBeenNthCalledWith(2, "pca")
+    })
+
+    it("throws INTERNAL_SERVER_ERROR when both clavis and pca services are unavailable", async () => {
+      const ctx = createMockContext({ noClavis: true, usePcaFallback: false })
+      const caller = createCaller(ctx as never)
+
+      await expect(
+        caller.clavis.ca.listCertificates({
+          project_id: TEST_PROJECT_ID,
+          certificate_authority_id: "ca-1",
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Clavis service is not available",
+        })
+      )
+    })
+
+    it("throws PARSE_ERROR on invalid certificate response payload", async () => {
+      const ctx = createMockContext({ certificateParseError: true })
+      const caller = createCaller(ctx as never)
+
+      await expect(
+        caller.clavis.ca.listCertificates({
+          project_id: TEST_PROJECT_ID,
+          certificate_authority_id: "ca-1",
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "PARSE_ERROR",
+          message: "Failed to parse response in clavisRouter.listCertificates",
         })
       )
     })

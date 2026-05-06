@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest"
-import { CertificateAuthoritiesListSchema, CertificateAuthoritySchema } from "./pca"
+import {
+  CertificateAuthoritiesListSchema,
+  CertificateAuthoritySchema,
+  CertificateAuthorityCertificatesInputSchema,
+  CertificateSchema,
+  CertificatesListSchema,
+} from "./pca"
 import { omit } from "@/server/helpers/object"
 
 describe("PCA (Private Certificate Authority) Schema Validation", () => {
@@ -691,6 +697,320 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       }
 
       expect(CertificateAuthoritiesListSchema.safeParse(realWorldResponse).success).toBe(true)
+    })
+  })
+
+  describe("CertificateAuthorityCertificatesInputSchema", () => {
+    it("should validate with required certificate_authority_id", () => {
+      expect(
+        CertificateAuthorityCertificatesInputSchema.safeParse({
+          certificate_authority_id: "ca-123",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject without certificate_authority_id", () => {
+      expect(CertificateAuthorityCertificatesInputSchema.safeParse({}).success).toBe(false)
+    })
+
+    it("should reject with empty certificate_authority_id", () => {
+      expect(
+        CertificateAuthorityCertificatesInputSchema.safeParse({
+          certificate_authority_id: "",
+        }).success
+      ).toBe(false)
+    })
+
+    it("should require certificate_authority_id as non-empty string", () => {
+      expect(
+        CertificateAuthorityCertificatesInputSchema.safeParse({
+          certificate_authority_id: "ca-456",
+        }).success
+      ).toBe(true)
+    })
+  })
+
+  describe("CertificateSchema", () => {
+    const minimalValidCertificate = {
+      id: "cert-123",
+      certificate_authority_id: "ca-123",
+      project_id: "project-1",
+      certificate: {
+        pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+        validity: {
+          not_before: 1705315200,
+          not_after: 1736851200,
+        },
+      },
+      configuration: {
+        validity: {
+          not_before: 1705315200,
+          not_after: 1736851200,
+        },
+      },
+    }
+
+    const completeValidCertificate = {
+      id: "cert-456",
+      certificate_authority_id: "ca-123",
+      project_id: "project-1",
+      certificate: {
+        pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+        validity: {
+          not_before: 1705315200,
+          not_after: 1736851200,
+        },
+      },
+      certificate_chain: {
+        certificates: [
+          { pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----" },
+          { pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...XYZ789==\n-----END CERTIFICATE-----" },
+        ],
+        pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...XYZ789==\n-----END CERTIFICATE-----",
+      },
+      configuration: {
+        validity: {
+          not_before: 1705315200,
+          not_after: 1736851200,
+        },
+      },
+      csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
+    }
+
+    it("should validate minimal valid certificate", () => {
+      expect(CertificateSchema.safeParse(minimalValidCertificate).success).toBe(true)
+    })
+
+    it("should validate complete valid certificate with all fields", () => {
+      expect(CertificateSchema.safeParse(completeValidCertificate).success).toBe(true)
+    })
+
+    it("should require id", () => {
+      const result = CertificateSchema.safeParse(omit(minimalValidCertificate, "id"))
+      expect(result.success).toBe(false)
+    })
+
+    it("should require certificate_authority_id", () => {
+      const result = CertificateSchema.safeParse(omit(minimalValidCertificate, "certificate_authority_id"))
+      expect(result.success).toBe(false)
+    })
+
+    it("should require project_id", () => {
+      const result = CertificateSchema.safeParse(omit(minimalValidCertificate, "project_id"))
+      expect(result.success).toBe(false)
+    })
+
+    it("should require certificate object with pem and validity", () => {
+      const result = CertificateSchema.safeParse(omit(minimalValidCertificate, "certificate"))
+      expect(result.success).toBe(false)
+    })
+
+    it("should require configuration object with validity", () => {
+      const result = CertificateSchema.safeParse(omit(minimalValidCertificate, "configuration"))
+      expect(result.success).toBe(false)
+    })
+
+    it("should allow certificate_chain to be omitted", () => {
+      expect(CertificateSchema.safeParse(minimalValidCertificate).success).toBe(true)
+    })
+
+    it("should allow csr to be omitted", () => {
+      expect(CertificateSchema.safeParse(minimalValidCertificate).success).toBe(true)
+    })
+
+    it("should validate certificate_chain with multiple certificates", () => {
+      expect(CertificateSchema.safeParse(completeValidCertificate).success).toBe(true)
+    })
+
+    it("should validate certificate with Unix timestamp validity dates", () => {
+      expect(
+        CertificateSchema.safeParse({
+          ...minimalValidCertificate,
+          certificate: {
+            pem: "-----BEGIN CERTIFICATE-----\n...",
+            validity: {
+              not_before: 0,
+              not_after: 2147483647,
+            },
+          },
+        }).success
+      ).toBe(true)
+    })
+  })
+
+  describe("CertificatesListSchema", () => {
+    const validCertificate = {
+      id: "cert-123",
+      certificate_authority_id: "ca-123",
+      project_id: "project-1",
+      certificate: {
+        pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+        validity: {
+          not_before: 1705315200,
+          not_after: 1736851200,
+        },
+      },
+      configuration: {
+        validity: {
+          not_before: 1705315200,
+          not_after: 1736851200,
+        },
+      },
+    }
+
+    it("should validate list response with single certificate", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: [validCertificate],
+        }).success
+      ).toBe(true)
+    })
+
+    it("should validate list response with multiple certificates", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: [
+            { ...validCertificate, id: "cert-1" },
+            { ...validCertificate, id: "cert-2" },
+            { ...validCertificate, id: "cert-3" },
+          ],
+        }).success
+      ).toBe(true)
+    })
+
+    it("should validate empty certificates array", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: [],
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject list response without certificates key", () => {
+      expect(CertificatesListSchema.safeParse({}).success).toBe(false)
+    })
+
+    it("should reject list response with null certificates", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: null,
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject list response with invalid certificate in array", () => {
+      const result = CertificatesListSchema.safeParse({
+        certificates: [{ id: "cert-123" }],
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it("should validate list with certificates having different validity dates", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: [
+            {
+              ...validCertificate,
+              id: "cert-1",
+              certificate: {
+                pem: "-----BEGIN CERTIFICATE-----\n...",
+                validity: { not_before: 1000000000, not_after: 1100000000 },
+              },
+            },
+            {
+              ...validCertificate,
+              id: "cert-2",
+              certificate: {
+                pem: "-----BEGIN CERTIFICATE-----\n...",
+                validity: { not_before: 1700000000, not_after: 1800000000 },
+              },
+            },
+          ],
+        }).success
+      ).toBe(true)
+    })
+
+    it("should validate list with certificates with and without CSR", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: [
+            { ...validCertificate, id: "cert-1" },
+            {
+              ...validCertificate,
+              id: "cert-2",
+              csr: "-----BEGIN CERTIFICATE REQUEST-----\n...",
+            },
+          ],
+        }).success
+      ).toBe(true)
+    })
+
+    it("should validate list with certificates with and without certificate_chain", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: [
+            { ...validCertificate, id: "cert-1" },
+            {
+              ...validCertificate,
+              id: "cert-2",
+              certificate_chain: {
+                certificates: [{ pem: "-----BEGIN CERTIFICATE-----\n..." }],
+                pem: "-----BEGIN CERTIFICATE-----\n...",
+              },
+            },
+          ],
+        }).success
+      ).toBe(true)
+    })
+
+    it("should validate real-world certificate list response", () => {
+      const realWorldResponse = {
+        certificates: [
+          {
+            id: "cert-prod-001",
+            certificate_authority_id: "ca-prod-001",
+            project_id: "prod-project",
+            certificate: {
+              pem: "-----BEGIN CERTIFICATE-----\n...",
+              validity: {
+                not_before: 1705315200,
+                not_after: 1736851200,
+              },
+            },
+            certificate_chain: {
+              certificates: [{ pem: "-----BEGIN CERTIFICATE-----\n..." }, { pem: "-----BEGIN CERTIFICATE-----\n..." }],
+              pem: "-----BEGIN CERTIFICATE-----\n...",
+            },
+            configuration: {
+              validity: {
+                not_before: 1705315200,
+                not_after: 1736851200,
+              },
+            },
+            csr: "-----BEGIN CERTIFICATE REQUEST-----\n...",
+          },
+          {
+            id: "cert-prod-002",
+            certificate_authority_id: "ca-prod-001",
+            project_id: "prod-project",
+            certificate: {
+              pem: "-----BEGIN CERTIFICATE-----\n...",
+              validity: {
+                not_before: 1705315200,
+                not_after: 1736851200,
+              },
+            },
+            configuration: {
+              validity: {
+                not_before: 1705315200,
+                not_after: 1736851200,
+              },
+            },
+          },
+        ],
+      }
+
+      expect(CertificatesListSchema.safeParse(realWorldResponse).success).toBe(true)
     })
   })
 })
