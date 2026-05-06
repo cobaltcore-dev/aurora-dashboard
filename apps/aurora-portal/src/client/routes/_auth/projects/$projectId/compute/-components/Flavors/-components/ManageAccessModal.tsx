@@ -289,6 +289,9 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
     if (isOpen) setMessage(null)
   }, [isOpen, flavor?.id])
 
+  // After add/remove, the server returns the updated list. We store it as an override so
+  // the UI reflects the change immediately without refetching. The key prevents a stale
+  // override from a previously opened flavor from leaking into the current modal session.
   const [flavorAccessOverride, setFlavorAccessOverride] = useState<{
     key: string
     promise: Promise<FlavorAccess[]>
