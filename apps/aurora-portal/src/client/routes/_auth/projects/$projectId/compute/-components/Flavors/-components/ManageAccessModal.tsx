@@ -1,4 +1,4 @@
-import React, { use, Suspense, useState, startTransition, useEffect } from "react"
+import React, { use, Suspense, useState, startTransition, useEffect, useMemo } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { useLingui } from "@lingui/react/macro"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
@@ -267,12 +267,12 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
   const [isAddingAccess, setIsAddingAccess] = useState(false)
 
-  const permissionsPromise = React.useMemo(
+  const permissionsPromise = useMemo(
     () => (isOpen ? createPermissionsPromise(client, project) : null),
     [client, project, isOpen]
   )
 
-  const flavorAccessPromise = React.useMemo(() => {
+  const flavorAccessPromise = useMemo(() => {
     if (!isOpen || !flavor?.id) return null
     return createFlavorAccessPromise(client, project, flavor.id)
       .then((access) =>
