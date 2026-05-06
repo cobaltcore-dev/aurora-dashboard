@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import { omit } from "@/server/helpers/object"
 import EventEmitter from "node:events"
-import { Readable, Transform } from "node:stream"
+import { Readable, Transform, pipeline } from "node:stream"
 import { projectScopedProcedure, protectedProcedure } from "../../trpc"
 import { octetInputParser } from "@trpc/server/http"
 import {
@@ -409,7 +409,7 @@ export const imageRouter = {
           // Create a Transform stream to track progress
           // This doesn't buffer - it just observes chunks as they flow through
           const progressTracker = new Transform({
-            async transform(chunk: Buffer, encoding, callback) {
+            transform(chunk: Buffer, _encoding, callback) {
               progress.uploaded += chunk.length
 
               // Emit progress event for real-time subscription updates
@@ -419,19 +419,19 @@ export const imageRouter = {
                 percent: progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0,
               })
 
-              // Yield control to allow progress subscriptions to run between chunks
-              // This is important for real-time updates without blocking
-              await new Promise((resolve) => setTimeout(resolve, 0))
-
               // Pass the chunk through unmodified
               callback(null, chunk)
             },
           })
 
-          // Convert Node.js stream to Web Stream API
-          // Pipe through progress tracker before converting
-          const trackedStream = validatedFile.pipe(progressTracker)
-          const webStream = Readable.toWeb(trackedStream)
+          // pipeline() propagates errors across all streams, preventing unhandled
+          // 'error' events that would otherwise crash the server process.
+          // We drive the pipeline by converting the output to a Web Stream for Glance.
+          const passthrough = new Transform({ transform(chunk, _enc, cb) { cb(null, chunk) } })
+          pipeline(validatedFile, progressTracker, passthrough, (err) => {
+            if (err) passthrough.destroy(err)
+          })
+          const webStream = Readable.toWeb(passthrough)
 
           // Upload to Glance with progress tracking
           const uploadResponse = await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
