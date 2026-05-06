@@ -1846,9 +1846,6 @@ msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist m
 msgid "production, linux"
 msgstr "production, linux"
 
-msgid "Project"
-msgstr "Projekt"
-
 msgid "Project id"
 msgstr "Projekt-ID"
 

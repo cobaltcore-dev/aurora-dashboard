@@ -55,14 +55,6 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
             {flavor["OS-FLV-DISABLED:disabled"] ? <Trans>Yes</Trans> : <Trans>No</Trans>}
           </DescriptionDefinition>
         </DescriptionList>
-        {flavor["os-flavor-access:is_public"] === false && flavor.project_id && (
-          <DescriptionList alignTerms="right">
-            <DescriptionTerm>
-              <Trans>Project</Trans>
-            </DescriptionTerm>
-            <DescriptionDefinition>{flavor.project_id}</DescriptionDefinition>
-          </DescriptionList>
-        )}
       </Stack>
 
       <Stack direction="vertical" gap="2">
