@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Message, Spinner, Stack } from "@cloudoperators/juno-ui-components"
@@ -25,9 +25,6 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
   const { t } = useLingui()
   const projectId = useProjectId()
 
-  // Cancellation flag — set to true by handleClose so the for loop stops
-  // issuing further mutateAsync calls after the user clicks Cancel.
-  const cancelledRef = useRef(false)
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
 
   const utils = trpcReact.useUtils()
@@ -35,24 +32,18 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
   const emptyContainerMutation = trpcReact.storage.swift.emptyContainer.useMutation()
 
   const handleClose = () => {
-    cancelledRef.current = true
     emptyContainerMutation.reset()
     setProgress(null)
     onClose()
   }
 
   const handleConfirm = async () => {
-    cancelledRef.current = false
-
     let emptiedCount = 0
     let totalDeleted = 0
     const errors: string[] = []
     const total = containers.length
 
     for (let i = 0; i < containers.length; i++) {
-      // Stop issuing new requests if the user cancelled
-      if (cancelledRef.current) break
-
       setProgress({ current: i + 1, total })
       const container = containers[i]
 
@@ -66,14 +57,9 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
       }
     }
 
-    // Always refresh the list so already-processed containers appear up-to-date,
-    // even if the user cancelled mid-loop.
     if (emptiedCount > 0) {
       await utils.storage.swift.listContainers.invalidate()
     }
-
-    // Don't fire callbacks if the user cancelled mid-loop
-    if (cancelledRef.current) return
 
     onComplete?.({ emptiedCount, totalDeleted, errors })
 
@@ -93,13 +79,13 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
     <Modal
       title={t`Empty Containers`}
       open={isOpen}
-      // Disable Cancel while the loop is running to prevent misleading the user
-      // into thinking the operation was stopped when it may still be in-flight.
-      onCancel={isPending ? undefined : handleClose}
-      confirmButtonLabel={t`Empty`}
-      cancelButtonLabel={isPending ? undefined : t`Cancel`}
+      onCancel={handleClose}
+      confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}
+      cancelButtonLabel={t`Cancel`}
       onConfirm={handleConfirm}
       disableConfirmButton={isPending}
+      disableCancelButton={isPending}
+      disableCloseButton={isPending}
       size="small"
     >
       {isPending ? (
@@ -108,7 +94,7 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
           {progress && (
             <p className="text-theme-light text-sm">
               <Trans>
-                Emptying {progressCurrent} of {progressTotal}...
+                Emptying container {progressCurrent} of {progressTotal}, please wait...
               </Trans>
             </p>
           )}
