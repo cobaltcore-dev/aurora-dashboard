@@ -46,11 +46,13 @@ Note: TLS certificate validation is automatically disabled when using a proxy, s
 mitmproxy -p 8888
 ```
 
-3. **Run the development server with proxy support:**
+3. **Start the development server:**
 
 ```bash
-pnpm dev:proxy
+pnpm dev
 ```
+
+The proxy configuration is automatically loaded from `.env` via `dotenv.config()` in `server.ts`.
 
 ### What you'll see in mitmproxy
 
@@ -67,13 +69,9 @@ The proxy is implemented at the `fetch()` level in the `@cobaltcore-dev/signal-o
 
 ### Disabling the proxy
 
-Simply run the normal dev command:
+Comment out the `GLOBAL_AGENT_HTTP_PROXY` line in `.env` and restart the server with Ctrl+C → `pnpm dev`.
 
-```bash
-pnpm dev
-```
-
-Or comment out the proxy variable in `.env`.
+**Important:** After changing `.env`, you must **fully restart** the server (Ctrl+C then start again). tsx watch does not detect .env changes automatically.
 
 ## Policy Engine Configuration
 

@@ -173,6 +173,14 @@ const request = ({ method, path, options = {} }: RequestParams) => {
   // Create proxy dispatcher if proxy config is provided
   const proxyDispatcher = options.proxy ? createProxyDispatcher(options.proxy) : undefined
 
+  if (process.env.NODE_ENV !== "production") {
+    if (options.debug && proxyDispatcher) {
+      console.log("✅ [signal-openstack] Using proxy dispatcher for request to:", url.toString())
+    } else if (options.debug && options.proxy && !proxyDispatcher) {
+      console.warn("⚠️ [signal-openstack] Proxy config provided but dispatcher creation failed")
+    }
+  }
+
   return fetch(url.toString(), {
     headers,
     method,
