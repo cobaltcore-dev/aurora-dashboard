@@ -427,7 +427,11 @@ export const imageRouter = {
           // pipeline() propagates errors across all streams, preventing unhandled
           // 'error' events that would otherwise crash the server process.
           // We drive the pipeline by converting the output to a Web Stream for Glance.
-          const passthrough = new Transform({ transform(chunk, _enc, cb) { cb(null, chunk) } })
+          const passthrough = new Transform({
+            transform(chunk, _enc, cb) {
+              cb(null, chunk)
+            },
+          })
           pipeline(validatedFile, progressTracker, passthrough, (err) => {
             if (err) passthrough.destroy(err)
           })
