@@ -9,32 +9,32 @@ import {
   Certificate,
 } from "../types/pca"
 
-const CLAVIS_BASE_URL = "v1/certificate-authorities"
+const PCA_BASE_URL = "v1/certificate-authorities"
 
-export const clavisRouter = {
+export const pcaRouter = {
   list: projectScopedProcedure.query(async ({ ctx }) => {
     return withErrorHandling(async () => {
-      const clavisService = ctx.openstack?.service("clavis") ?? ctx.openstack?.service("pca")
-      validateOpenstackService(clavisService, "clavis")
+      const pca = ctx.openstack?.service("clavis")
+      validateOpenstackService(pca, "clavis")
 
-      const response = await clavisService.get(CLAVIS_BASE_URL)
+      const response = await pca.get(PCA_BASE_URL)
       const data = await response.json()
 
-      return parseOrThrow(CertificateAuthoritiesListSchema, data, "clavisRouter.list").certificate_authorities
+      return parseOrThrow(CertificateAuthoritiesListSchema, data, "pcaRouter.list").certificate_authorities
     }, "list certificate authorities")
   }),
   listCertificates: projectScopedProcedure
     .input(CertificateAuthorityCertificatesInputSchema)
     .query(async ({ input, ctx }): Promise<Certificate[]> => {
       return withErrorHandling(async () => {
-        const clavisService = ctx.openstack?.service("clavis") ?? ctx.openstack?.service("pca")
-        validateOpenstackService(clavisService, "clavis")
+        const pca = ctx.openstack?.service("clavis")
+        validateOpenstackService(pca, "clavis")
 
-        const url = `${CLAVIS_BASE_URL}/${input.certificate_authority_id}/certificates`
-        const response = await clavisService.get(url)
+        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates`
+        const response = await pca.get(url)
         const data = await response.json()
 
-        return parseOrThrow(CertificatesListSchema, data, "clavisRouter.listCertificates").certificates
+        return parseOrThrow(CertificatesListSchema, data, "pcaRouter.listCertificates").certificates
       }, "list certificates for certificate authority")
     }),
 }

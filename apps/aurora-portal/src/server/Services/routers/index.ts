@@ -1,8 +1,8 @@
 import { auroraRouter } from "../../trpc"
-import { clavisRouter } from "./pcaRouter"
+import { pcaRouter } from "./pcaRouter"
 
 export const serviceRouters = {
   services: auroraRouter({
-    ca: clavisRouter,
+    pca: pcaRouter,
   }),
 }

@@ -74,6 +74,7 @@ export const CertificateAuthoritiesListSchema = z.object({
 })
 
 export const CertificateAuthorityCertificatesInputSchema = z.object({
+  project_id: z.string(),
   certificate_authority_id: z.string().min(1),
 })
 

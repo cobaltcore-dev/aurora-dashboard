@@ -701,21 +701,35 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
   })
 
   describe("CertificateAuthorityCertificatesInputSchema", () => {
-    it("should validate with required certificate_authority_id", () => {
+    it("should validate with required project_id and certificate_authority_id", () => {
       expect(
         CertificateAuthorityCertificatesInputSchema.safeParse({
+          project_id: "project-1",
           certificate_authority_id: "ca-123",
         }).success
       ).toBe(true)
     })
 
     it("should reject without certificate_authority_id", () => {
-      expect(CertificateAuthorityCertificatesInputSchema.safeParse({}).success).toBe(false)
+      expect(
+        CertificateAuthorityCertificatesInputSchema.safeParse({
+          project_id: "project-1",
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject without project_id", () => {
+      expect(
+        CertificateAuthorityCertificatesInputSchema.safeParse({
+          certificate_authority_id: "ca-123",
+        }).success
+      ).toBe(false)
     })
 
     it("should reject with empty certificate_authority_id", () => {
       expect(
         CertificateAuthorityCertificatesInputSchema.safeParse({
+          project_id: "project-1",
           certificate_authority_id: "",
         }).success
       ).toBe(false)
@@ -724,6 +738,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
     it("should require certificate_authority_id as non-empty string", () => {
       expect(
         CertificateAuthorityCertificatesInputSchema.safeParse({
+          project_id: "project-1",
           certificate_authority_id: "ca-456",
         }).success
       ).toBe(true)
