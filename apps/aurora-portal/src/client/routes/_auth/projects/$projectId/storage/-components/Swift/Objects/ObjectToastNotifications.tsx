@@ -321,3 +321,40 @@ export const getObjectUploadErrorToast = (
     />
   ),
 })
+
+export const getObjectsBulkDeletedToast = (numberDeleted: number, config: ToastConfig): ToastProps => ({
+  variant: "success",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Objects Deleted</Trans>}
+      description={
+        numberDeleted === 1 ? (
+          <Trans>{numberDeleted} object was permanently deleted.</Trans>
+        ) : (
+          <Trans>{numberDeleted} objects were permanently deleted.</Trans>
+        )
+      }
+    />
+  ),
+})
+
+export const getObjectsBulkDeleteErrorToast = (errorMessage: string, config: ToastConfig): ToastProps => ({
+  variant: "error",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Failed to Delete Objects</Trans>}
+      description={
+        <span>
+          <Trans>One or more objects could not be deleted:</Trans>
+          <span className="mt-1 block text-xs whitespace-pre-wrap">{errorMessage}</span>
+        </span>
+      }
+    />
+  ),
+})
