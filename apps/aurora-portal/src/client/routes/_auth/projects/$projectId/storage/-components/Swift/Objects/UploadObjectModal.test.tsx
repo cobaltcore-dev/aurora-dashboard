@@ -405,7 +405,7 @@ describe("UploadObjectModal", () => {
       expect(onClose).toHaveBeenCalled()
     })
 
-    test("does not call onClose while upload is in progress", async () => {
+    test("disables Cancel button while upload is in progress", async () => {
       let resolveUpload!: () => void
       mockMutate.mockImplementation(
         () =>
@@ -413,18 +413,14 @@ describe("UploadObjectModal", () => {
             resolveUpload = resolve
           })
       )
-      const onClose = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onClose })
+      renderModal()
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
       await user.click(screen.getByRole("button", { name: /^Upload$/i }))
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Uploading\.\.\./i })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled()
       })
-      // Cancel click should be ignored while pending
-      await user.click(screen.getByRole("button", { name: /Cancel/i }))
-      expect(onClose).not.toHaveBeenCalled()
       resolveUpload()
     })
 

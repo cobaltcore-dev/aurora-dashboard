@@ -168,6 +168,8 @@ export const UploadObjectModal = ({
       cancelButtonLabel={t`Cancel`}
       size="small"
       disableConfirmButton={isPending || !selectedFile}
+      disableCancelButton={isPending}
+      disableCloseButton={isPending}
     >
       <Stack direction="vertical" gap="4">
         {/* File drop zone — mirrors CreateImageModal pattern */}
