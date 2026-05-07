@@ -2,7 +2,6 @@ import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
 import type { FastifyRequest } from "fastify"
 import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 import { SessionCookie } from "./sessionCookie"
-import * as dotenv from "dotenv"
 import { AuthConfig } from "./Authentication/types/models"
 
 export interface AuroraContext {
@@ -21,39 +20,58 @@ export interface AuroraContext {
   >
 }
 
-// Load the identity endpoint from the environment
-dotenv.config()
-const identityEndpoint = process.env.IDENTITY_ENDPOINT
-// Ensure it ends with a single slash
-const normalizedEndpoint = identityEndpoint?.endsWith("/") ? identityEndpoint : `${identityEndpoint}/`
+// Helper function to get the normalized identity endpoint
+// Read from environment on each call to avoid caching issues on server restart
+function getIdentityEndpoint(): string {
+  const identityEndpoint = process.env.IDENTITY_ENDPOINT
+  // Ensure it ends with a single slash
+  return identityEndpoint?.endsWith("/") ? identityEndpoint : `${identityEndpoint}/`
+}
 
-// Build proxy configuration from environment variables (for mitmproxy debugging)
+// Helper function to build proxy configuration from environment variables
 // Proxy is ONLY enabled in development mode for security reasons
 // When a proxy is configured, TLS validation is automatically disabled
-const proxyConfig =
-  process.env.NODE_ENV !== "production" && process.env.GLOBAL_AGENT_HTTP_PROXY
+function getProxyConfig() {
+  return process.env.NODE_ENV !== "production" && process.env.GLOBAL_AGENT_HTTP_PROXY
     ? {
         uri: process.env.GLOBAL_AGENT_HTTP_PROXY,
       }
     : undefined
-
-// Log proxy configuration status at startup
-if (process.env.NODE_ENV === "production" && process.env.GLOBAL_AGENT_HTTP_PROXY) {
-  console.warn("⚠️ [context] GLOBAL_AGENT_HTTP_PROXY is set but ignored in production mode for security reasons")
-} else if (proxyConfig) {
-  // Redact credentials from URL if present (user:pass@host)
-  const redactedUrl = proxyConfig.uri.replace(/\/\/([^:]+):([^@]+)@/, "//$1:***@")
-  console.log("✅ [context] Proxy configured:", redactedUrl)
 }
 
-const defaultSignalOpenstackOptions = {
-  interfaceName: process.env.DEFAULT_ENDPOINT_INTERFACE || "public",
-  debug: process.env.NODE_ENV !== "production",
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  },
-  proxy: proxyConfig,
+// Helper function to get default SignalOpenstack options
+// Read from environment on each call to support configuration changes on restart
+function getDefaultSignalOpenstackOptions() {
+  const proxyConfig = getProxyConfig()
+
+  if (process.env.NODE_ENV !== "production" && proxyConfig) {
+    console.log("ℹ️ [context] Creating SignalOpenstack options WITH proxy:", proxyConfig.uri)
+  }
+
+  return {
+    interfaceName: process.env.DEFAULT_ENDPOINT_INTERFACE || "public",
+    debug: process.env.NODE_ENV !== "production",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    proxy: proxyConfig,
+  }
+}
+
+// Log configuration at module load time (shown on server startup)
+// This happens once per server start, before any requests
+if (process.env.NODE_ENV === "production" && process.env.GLOBAL_AGENT_HTTP_PROXY) {
+  console.warn("⚠️ [context] GLOBAL_AGENT_HTTP_PROXY is set but ignored in production mode for security reasons")
+} else if (getProxyConfig()) {
+  // Redact credentials from URL if present (user:pass@host)
+  const redactedUrl = getProxyConfig()!.uri.replace(/\/\/([^:]+):([^@]+)@/, "//$1:***@")
+  console.log("ℹ️ [context] Proxy configured:", redactedUrl)
+}
+
+if (process.env.NODE_ENV !== "production") {
+  console.log("ℹ️ [endpoint] Identity endpoint:", getIdentityEndpoint())
+  console.log("ℹ️ [context] Default endpoint interface:", process.env.DEFAULT_ENDPOINT_INTERFACE)
 }
 
 // Global registry of pending rescope operations per session
@@ -92,10 +110,14 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
   const currentAuthToken = sessionCookie.get()
   let openstackSession: Awaited<SignalOpenstackSessionType> | undefined = undefined
 
+  // Get current configuration (reads from environment on each request)
+  const identityEndpoint = getIdentityEndpoint()
+  const signalOpenstackOptions = getDefaultSignalOpenstackOptions()
+
   // If we have a token, initialize the session
   if (currentAuthToken) {
     openstackSession = await SignalOpenstackSession(
-      normalizedEndpoint,
+      identityEndpoint,
       {
         auth: {
           identity: {
@@ -104,7 +126,7 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
           },
         },
       },
-      defaultSignalOpenstackOptions
+      signalOpenstackOptions
     ).catch((err: Error) => {
       // If the token is invalid, clear the cookie
       console.error("[createContext] Token validation failed:", err.message)
@@ -186,7 +208,7 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
   // Create a new session (Login)
   const createSession: AuroraPortalContext["createSession"] = async (params) => {
     openstackSession = await SignalOpenstackSession(
-      normalizedEndpoint,
+      identityEndpoint,
       {
         auth: {
           identity: {
@@ -195,7 +217,7 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
           },
         },
       },
-      defaultSignalOpenstackOptions
+      signalOpenstackOptions
     )
     const token = openstackSession.getToken()
     sessionCookie.set(token?.authToken)
