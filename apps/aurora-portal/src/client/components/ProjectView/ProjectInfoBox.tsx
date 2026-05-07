@@ -36,7 +36,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   const navigate = useNavigate()
   const matches = useMatches()
 
-  const { projectId } = useParams({ strict: false }) as { projectId: string }
+  const { projectId, provider } = useParams({ strict: false }) as { projectId: string; provider: string }
 
   useEffect(() => {
     const handleTitleChange = (e: CustomEvent<{ title: string }>) => {
@@ -101,7 +101,14 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
             }),
         })
       } else if (section === "storage") {
-        items.push({ label: sectionLabel })
+        items.push({
+          label: sectionLabel,
+          onClick: () =>
+            navigate({
+              to: "/projects/$projectId/storage/$provider/containers",
+              params: { projectId, provider },
+            }),
+        })
       }
     }
 
@@ -143,6 +150,15 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
               navigate({
                 to: "/projects/$projectId/network/floatingips",
                 params: { projectId },
+              }),
+          })
+        } else if (section === "storage" && service === "containers") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/projects/$projectId/storage/$provider/containers",
+                params: { projectId, provider },
               }),
           })
         } else {
