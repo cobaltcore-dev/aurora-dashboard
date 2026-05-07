@@ -4,7 +4,8 @@ import { TRPCError } from "@trpc/server"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import { omit } from "@/server/helpers/object"
 import EventEmitter from "node:events"
-import { Readable, Transform, pipeline } from "node:stream"
+import { Readable, Transform } from "node:stream"
+import { pipeline } from "node:stream/promises"
 import { projectScopedProcedure, protectedProcedure } from "../../trpc"
 import { octetInputParser } from "@trpc/server/http"
 import {
@@ -424,24 +425,20 @@ export const imageRouter = {
             },
           })
 
-          // pipeline() propagates errors across all streams, preventing unhandled
-          // 'error' events that would otherwise crash the server process.
-          // We drive the pipeline by converting the output to a Web Stream for Glance.
-          const passthrough = new Transform({
-            transform(chunk, _enc, cb) {
-              cb(null, chunk)
-            },
-          })
-          pipeline(validatedFile, progressTracker, passthrough, (err) => {
-            if (err) passthrough.destroy(err)
-          })
+          // pipeline() (promise-based) wires up error propagation across all Node.js
+          // streams so a read error on validatedFile flows into progressTracker and
+          // then into passthrough. When passthrough errors, Readable.toWeb() surfaces
+          // the error to the Glance fetch body reader, causing glance.put to reject —
+          // so the mutation reliably throws instead of returning { success: true }.
+          // We attach a no-op catch to prevent an unhandled-rejection warning for the
+          // rare case where pipeline rejects after glance.put has already thrown.
+          const passthrough = new Transform({ transform(chunk, _enc, cb) { cb(null, chunk) } })
+          pipeline(validatedFile, progressTracker, passthrough).catch(() => {})
           const webStream = Readable.toWeb(passthrough)
 
           // Upload to Glance with progress tracking
           const uploadResponse = await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
-            headers: {
-              "Content-Type": "application/octet-stream",
-            },
+            headers: { "Content-Type": "application/octet-stream" },
           })
 
           if (!uploadResponse?.ok) {
