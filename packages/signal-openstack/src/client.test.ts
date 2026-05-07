@@ -3,26 +3,28 @@ import { SignalOpenstackError } from "./error"
 import { Mock } from "vitest"
 
 // Helper to create a proper mock Response object with clone support
-function createMockResponse(options: {
-  ok?: boolean
-  status?: number
-  statusText?: string
-  headers?: Record<string, string>
-  body?: unknown
-  contentType?: string
-} = {}) {
+function createMockResponse(
+  options: {
+    ok?: boolean
+    status?: number
+    statusText?: string
+    headers?: Record<string, string>
+    body?: unknown
+    contentType?: string
+  } = {}
+) {
   const {
     ok = true,
     status = 200,
     statusText = "OK",
     headers = {},
     body = {},
-    contentType = "application/json"
+    contentType = "application/json",
   } = options
 
   const responseHeaders = new Headers({
     "content-type": contentType,
-    ...headers
+    ...headers,
   })
 
   const mockResponse = {
@@ -31,17 +33,17 @@ function createMockResponse(options: {
     statusText,
     headers: responseHeaders,
     json: async () => body,
-    text: async () => typeof body === "string" ? body : JSON.stringify(body),
-    clone: function() {
+    text: async () => (typeof body === "string" ? body : JSON.stringify(body)),
+    clone: function () {
       return {
         ok: this.ok,
         status: this.status,
         statusText: this.statusText,
         headers: this.headers,
         text: this.text,
-        json: this.json
+        json: this.json,
       }
-    }
+    },
   }
 
   return mockResponse
@@ -453,23 +455,23 @@ describe("client", () => {
         statusText: "OK",
         json: () => vi.fn().mockResolvedValue({}),
         headers: new Headers({ "content-type": "application/json" }),
-        clone: function() {
+        clone: function () {
           return {
             ok: this.ok,
             status: this.status,
             statusText: this.statusText,
             headers: this.headers,
-            text: async () => JSON.stringify({})
+            text: async () => JSON.stringify({}),
           }
-        }
+        },
       }
       global.fetch = vi.fn().mockResolvedValue(mockResponse)
       await client.del("/", { host: "http://localhost", debug: true })
 
       // Verify logger.debug was called with the correct message structure
       expect(logSpy).toHaveBeenCalled()
-      const logCall = logSpy.mock.calls.find(call =>
-        typeof call[0] === 'string' && call[0].includes('DELETE') && call[0].includes('DEBUG')
+      const logCall = logSpy.mock.calls.find(
+        (call) => typeof call[0] === "string" && call[0].includes("DELETE") && call[0].includes("DEBUG")
       )
       expect(logCall).toBeDefined()
 
@@ -484,15 +486,15 @@ describe("client", () => {
         statusText: "OK",
         headers: new Headers({
           "content-type": "application/json",
-          "x-openstack-request-id": "req-12345"
+          "x-openstack-request-id": "req-12345",
         }),
-        clone: function() {
+        clone: function () {
           return {
             ...this,
             text: async () => JSON.stringify({ result: "success" }),
-            headers: this.headers
+            headers: this.headers,
           }
-        }
+        },
       }
       global.fetch = vi.fn().mockResolvedValue(mockResponse)
 
@@ -500,8 +502,8 @@ describe("client", () => {
 
       // Verify response logging
       expect(logSpy).toHaveBeenCalled()
-      const responseLogCall = logSpy.mock.calls.find(call =>
-        typeof call[0] === 'string' && call[0].includes('Response 200')
+      const responseLogCall = logSpy.mock.calls.find(
+        (call) => typeof call[0] === "string" && call[0].includes("Response 200")
       )
       expect(responseLogCall).toBeDefined()
 

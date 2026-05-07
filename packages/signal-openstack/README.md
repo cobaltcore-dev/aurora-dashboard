@@ -88,7 +88,9 @@ import { SignalOpenstackSession } from "@cobaltcore-dev/signal-openstack"
 import { S3Client } from "@aws-sdk/client-s3"
 
 const session = SignalOpenstackSession("http://identity", {
-  auth: { /* ... */ },
+  auth: {
+    /* ... */
+  },
 })
 
 // Get the S3 endpoint URL
@@ -213,14 +215,21 @@ Signal-Openstack includes a built-in structured logger with colorized output and
 Enable debug logging by setting `debug: true` in your session or service options:
 
 ```ts
-const session = SignalOpenstackSession("http://identity", {
-  auth: { /* ... */ },
-}, {
-  debug: true  // Enable debug logging
-})
+const session = SignalOpenstackSession(
+  "http://identity",
+  {
+    auth: {
+      /* ... */
+    },
+  },
+  {
+    debug: true, // Enable debug logging
+  }
+)
 ```
 
 Debug mode will log:
+
 - Request details (method, URL, headers, body, query parameters)
 - Response details (status, headers, body preview)
 - Service endpoint resolution
@@ -251,14 +260,20 @@ const safeData = redactSensitiveData(myObject)
 Signal-Openstack supports proxy debugging for inspecting OpenStack API traffic:
 
 ```ts
-const session = SignalOpenstackSession("http://identity", {
-  auth: { /* ... */ },
-}, {
-  debug: true,
-  proxy: {
-    uri: "http://localhost:8080"  // mitmproxy default port
+const session = SignalOpenstackSession(
+  "http://identity",
+  {
+    auth: {
+      /* ... */
+    },
+  },
+  {
+    debug: true,
+    proxy: {
+      uri: "http://localhost:8080", // mitmproxy default port
+    },
   }
-})
+)
 ```
 
 **Note**: TLS certificate validation is automatically disabled when using a proxy to support debugging tools like mitmproxy that use self-signed certificates.

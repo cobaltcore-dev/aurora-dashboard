@@ -41,7 +41,6 @@ interface RequestParams {
   }
 }
 
-
 const buildRequestUrl = function ({
   base,
   path,
