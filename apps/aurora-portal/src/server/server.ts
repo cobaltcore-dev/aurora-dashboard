@@ -52,9 +52,13 @@ async function startServer() {
   // stream as the body. tRPC's octetInputParser expects to receive a ReadableStream —
   // payload is the Node.js IncomingMessage / Readable piped from the HTTP body.
   // Using parseAs:"buffer" would buffer everything in memory; undefined causes a 400.
-  server.addContentTypeParser("application/octet-stream", (_req, payload, done) => {
-    done(null, payload)
-  })
+  server.addContentTypeParser(
+    "application/octet-stream",
+    { bodyLimit: 5 * 1024 * 1024 * 1024 },
+    (_req, payload, done) => {
+      done(null, payload)
+    }
+  )
 
   // OPTIONAL: Direct HTTP endpoint for image file uploads (without tRPC)
   // Use this if you need a fallback or alternative upload method
