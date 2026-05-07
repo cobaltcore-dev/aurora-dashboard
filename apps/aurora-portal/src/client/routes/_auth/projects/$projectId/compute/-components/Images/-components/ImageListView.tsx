@@ -90,7 +90,7 @@ interface ImagePageProps {
   activeImages: Array<string>
   deactivatedImages: Array<string>
   onImageUpdated: (image: GlanceImage) => void
-  onImageDeleted: (imageId: string) => void
+  onImageDeleted: (imageIds: string | string[]) => void
   onMemberStatusChanged: () => void
 }
 
@@ -506,7 +506,7 @@ export function ImageListView({
         setToastData(getBulkDeletePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
       }
 
-      result.successful.forEach((imageId) => onImageDeleted(imageId))
+      if (result.successful.length > 0) onImageDeleted(result.successful)
     } catch (error) {
       const { message } = error as TRPCClientError<InferrableClientTypes>
 

@@ -78,7 +78,7 @@ type ImagesContentProps = {
   isFetchingNextPage: boolean
   fetchNextPage: () => void
   onImageUpdated: (image: GlanceImage) => void
-  onImageDeleted: (imageId: string) => void
+  onImageDeleted: (imageIds: string | string[]) => void
   onMemberStatusChanged: () => void
 }
 
@@ -382,8 +382,13 @@ export const Images = ({ client, project }: ImagesProps) => {
     setImageOverrides((prev) => new Map(prev).set(updatedImage.id, updatedImage))
   }, [])
 
-  const handleImageDeleted = useCallback((imageId: string) => {
-    setDeletedImageIds((prev) => new Set(prev).add(imageId))
+  const handleImageDeleted = useCallback((imageIds: string | string[]) => {
+    setDeletedImageIds((prev) => {
+      const next = new Set(prev)
+      if (Array.isArray(imageIds)) imageIds.forEach((id) => next.add(id))
+      else next.add(imageIds)
+      return next
+    })
   }, [])
 
   const handleMemberStatusChanged = useCallback(() => {

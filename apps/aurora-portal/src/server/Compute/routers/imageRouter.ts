@@ -407,45 +407,41 @@ export const imageRouter = {
         try {
           const progress = uploadProgress.get(validatedImageId)!
 
-          // Create a Transform stream to track progress
-          // This doesn't buffer - it just observes chunks as they flow through
           const progressTracker = new Transform({
             transform(chunk: Buffer, _encoding, callback) {
               progress.uploaded += chunk.length
-
-              // Emit progress event for real-time subscription updates
               uploadProgressEmitter.emit(`progress:${validatedImageId}`, {
                 uploaded: progress.uploaded,
                 total: progress.total,
                 percent: progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0,
               })
-
-              // Pass the chunk through unmodified
               callback(null, chunk)
             },
           })
 
-          // pipeline() (promise-based) wires up error propagation across all Node.js
-          // streams so a read error on validatedFile flows into progressTracker and
-          // then into passthrough. When passthrough errors, Readable.toWeb() surfaces
-          // the error to the Glance fetch body reader, causing glance.put to reject —
-          // so the mutation reliably throws instead of returning { success: true }.
-          // We attach a no-op catch to prevent an unhandled-rejection warning for the
-          // rare case where pipeline rejects after glance.put has already thrown.
-          const passthrough = new Transform({
-            transform(chunk, _enc, cb) {
-              cb(null, chunk)
-            },
-          })
-          pipeline(validatedFile, progressTracker, passthrough).catch(() => {})
+          // pipeline() propagates stream errors into passthrough → web stream → glance.put,
+          // so a read failure reliably rejects the mutation.
+          const passthrough = new Transform({ transform(chunk, _enc, cb) { cb(null, chunk) } })
+          const pipelinePromise = pipeline(validatedFile, progressTracker, passthrough)
+          // Suppress unhandled-rejection for the case where glance.put throws first
+          pipelinePromise.catch(() => {})
           const webStream = Readable.toWeb(passthrough)
 
-          // Upload to Glance with progress tracking
-          const uploadResponse = await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
-            headers: { "Content-Type": "application/octet-stream" },
-          })
+          let uploadResponse: Awaited<ReturnType<typeof glance.put>>
+          try {
+            uploadResponse = await glance.put(`v2/images/${validatedImageId}/file`, webStream, {
+              headers: { "Content-Type": "application/octet-stream" },
+            })
+          } catch (err) {
+            // Glance rejected — destroy streams so no further progress events are emitted
+            passthrough.destroy()
+            progressTracker.destroy()
+            throw err
+          }
 
           if (!uploadResponse?.ok) {
+            passthrough.destroy()
+            progressTracker.destroy()
             throw ImageErrorHandlers.upload(
               uploadResponse as unknown as SignalOpenstackApiError,
               validatedImageId,
@@ -453,7 +449,6 @@ export const imageRouter = {
             )
           }
 
-          // Emit completion event
           uploadProgressEmitter.emit(`progress:${validatedImageId}:complete`)
 
           return {
@@ -461,7 +456,6 @@ export const imageRouter = {
             imageId: validatedImageId,
           }
         } catch (error) {
-          // Emit error event for subscriptions
           uploadProgressEmitter.emit(`progress:${validatedImageId}:error`, error)
 
           throw ImageErrorHandlers.upload(
@@ -470,7 +464,6 @@ export const imageRouter = {
             "application/octet-stream"
           )
         } finally {
-          // Always cleanup progress tracking
           uploadProgress.delete(validatedImageId)
         }
       }, "upload image")
