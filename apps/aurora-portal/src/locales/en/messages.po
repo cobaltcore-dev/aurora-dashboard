@@ -1022,6 +1022,10 @@ msgstr "Failed to load metadata configuration."
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Failed to load object metadata: {metadataErrorMessage}"
 
+#. placeholder {0}: error.message
+msgid "Failed to load objects: {0}"
+msgstr "Failed to load objects: {0}"
+
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
 
@@ -1685,6 +1689,9 @@ msgstr "No limit"
 msgid "No objects found"
 msgstr "No objects found"
 
+msgid "No objects found."
+msgstr "No objects found."
+
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "No objects match your search. Try adjusting your search term."
 
@@ -2071,6 +2078,9 @@ msgstr "RX/TX Factor must be an integer ≥ 1."
 
 msgid "S3 (dev)"
 msgstr "S3 (dev)"
+
+msgid "S3 Bucket: {bucketName}"
+msgstr "S3 Bucket: {bucketName}"
 
 msgid "S3 Buckets"
 msgstr "S3 Buckets"

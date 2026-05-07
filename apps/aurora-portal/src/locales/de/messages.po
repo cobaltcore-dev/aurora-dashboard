@@ -1022,6 +1022,10 @@ msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 
+#. placeholder {0}: error.message
+msgid "Failed to load objects: {0}"
+msgstr ""
+
 msgid "Failed to load security groups"
 msgstr "Security Groups konnten nicht geladen werden"
 
@@ -1685,6 +1689,9 @@ msgstr "Kein Limit"
 msgid "No objects found"
 msgstr "Keine Objekte gefunden"
 
+msgid "No objects found."
+msgstr ""
+
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
@@ -2070,6 +2077,9 @@ msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
 msgid "S3 (dev)"
+msgstr ""
+
+msgid "S3 Bucket: {bucketName}"
 msgstr ""
 
 msgid "S3 Buckets"
