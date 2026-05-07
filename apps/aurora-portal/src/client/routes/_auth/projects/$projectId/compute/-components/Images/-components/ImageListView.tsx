@@ -505,6 +505,8 @@ export function ImageListView({
       } else {
         setToastData(getBulkDeletePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
       }
+
+      result.successful.forEach((imageId) => onImageDeleted(imageId))
     } catch (error) {
       const { message } = error as TRPCClientError<InferrableClientTypes>
 
