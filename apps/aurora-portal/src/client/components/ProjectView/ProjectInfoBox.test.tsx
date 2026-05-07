@@ -12,7 +12,7 @@ let mockMatches: { routeId: string; staticData?: Record<string, unknown> }[] = [
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
   useMatches: () => mockMatches,
-  useParams: () => ({ projectId: "test-project" }),
+  useParams: () => ({ projectId: "test-project", provider: "swift" }),
   useRouteContext: vi.fn(() => ({
     pageTitle: "Test Page Title",
     pageTitleRef: { current: "Test Page Title" },
@@ -151,6 +151,40 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => {
         expect(screen.getByText("Network")).toBeInTheDocument()
         expect(screen.getByText("Security Groups")).toBeInTheDocument()
+      })
+    })
+
+    it("renders Storage > Swift on containers list", async () => {
+      mockMatches = [
+        { routeId: PROJECT_ROUTE_ID },
+        {
+          routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
+          staticData: { section: "storage", service: "containers" },
+        },
+      ]
+
+      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
+
+      await waitFor(() => {
+        expect(screen.getByText("Storage")).toBeInTheDocument()
+        expect(screen.getByText("Swift")).toBeInTheDocument()
+      })
+    })
+
+    it("renders Storage > Swift on object browser (detail)", async () => {
+      mockMatches = [
+        { routeId: PROJECT_ROUTE_ID },
+        {
+          routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
+          staticData: { section: "storage", service: "containers", isDetail: true },
+        },
+      ]
+
+      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
+
+      await waitFor(() => {
+        expect(screen.getByText("Storage")).toBeInTheDocument()
+        expect(screen.getByText("Swift")).toBeInTheDocument()
       })
     })
 
@@ -389,6 +423,46 @@ describe("ProjectInfoBox", () => {
       expect(mockNavigate).toHaveBeenCalledWith({
         to: "/projects/$projectId/network/floatingips",
         params: { projectId: "test-project" },
+      })
+    })
+
+    it("clicking Storage breadcrumb on a service page navigates to swift containers", async () => {
+      mockMatches = [
+        { routeId: PROJECT_ROUTE_ID },
+        {
+          routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
+          staticData: { section: "storage", service: "containers" },
+        },
+      ]
+
+      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
+
+      await waitFor(() => screen.getByText("Storage"))
+      fireEvent.click(screen.getByText("Storage"))
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/storage/$provider/containers",
+        params: { projectId: "test-project", provider: "swift" },
+      })
+    })
+
+    it("clicking Swift breadcrumb on object browser detail navigates to containers list", async () => {
+      mockMatches = [
+        { routeId: PROJECT_ROUTE_ID },
+        {
+          routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
+          staticData: { section: "storage", service: "containers", isDetail: true },
+        },
+      ]
+
+      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
+
+      await waitFor(() => screen.getByText("Swift"))
+      fireEvent.click(screen.getByText("Swift"))
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/storage/$provider/containers",
+        params: { projectId: "test-project", provider: "swift" },
       })
     })
   })
