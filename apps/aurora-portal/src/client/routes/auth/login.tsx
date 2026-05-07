@@ -51,7 +51,7 @@ const textinputstyles = `
 `
 
 export function AuthLoginPage() {
-  const { isAuthenticated, user, login } = useAuth()
+  const { isAuthenticated, login } = useAuth()
   const isLoading = useRouterState({ select: (s) => s.isLoading })
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
@@ -108,8 +108,9 @@ export function AuthLoginPage() {
     setLoginError(null)
   }
 
-  // Redirect effect: Handle cases where isAuthenticated becomes true after initial render
-  // This fixes the race condition where login completes but beforeLoad doesn't trigger
+  // Redirect effect: Handle race condition where isAuthenticated becomes true after component mounts
+  // (e.g., during login flow). The beforeLoad guard handles direct navigation to /auth/login while
+  // already authenticated, but this effect handles the case where authentication completes mid-render.
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       const savedRedirect = sessionStorage.getItem("redirect_after_login")
@@ -133,18 +134,6 @@ export function AuthLoginPage() {
   }, [isAuthenticated, isLoading, search.redirect, navigate])
 
   const isLoggingIn = isLoading || isSubmitting
-
-  if (isAuthenticated) {
-    const username = user?.name
-    return (
-      <div className="border-theme-light mt-8 w-full max-w-md justify-center rounded-lg border p-6 shadow-lg">
-        <h2 className="text-xl font-semibold">
-          <Trans>Welcome back, {username}!</Trans>
-        </h2>
-        <Trans>You are already signed in.</Trans>
-      </div>
-    )
-  }
 
   const logoutReason = sessionStorage.getItem("logout_reason")
   const wasInactive = logoutReason === "inactive" || logoutReason === "expired"

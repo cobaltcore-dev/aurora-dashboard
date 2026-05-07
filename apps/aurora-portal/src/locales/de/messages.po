@@ -2722,9 +2722,6 @@ msgstr "Sichtbarkeit"
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
 
-msgid "Welcome back, {username}!"
-msgstr "Willkommen zurück, {username}!"
-
 msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
 msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung der nächsten Generation. Wir sind bestrebt, die Art und Weise, wie Sie mit Ihrer Cloud-Infrastruktur interagieren und diese verwalten, zu vereinfachen. Mit Effizienz, Skalierbarkeit und Benutzerfreundlichkeit im Kern konzipiert, ermöglicht Aurora Ihnen, Prozesse zu optimieren und das volle Potenzial Ihrer Cloud-Ressourcen auszuschöpfen."
 
@@ -2745,9 +2742,6 @@ msgstr "Sie sind dabei, <0>{activeCount} Image(s)</0> zu deaktivieren. Deaktivie
 
 msgid "You are about to delete {deletableCount} image(s). This action cannot be undone."
 msgstr "Sie sind dabei, {deletableCount} Image(s) zu löschen. Diese Aktion kann nicht rückgängig gemacht werden."
-
-msgid "You are already signed in."
-msgstr "Sie sind bereits angemeldet."
 
 msgid "You are currently on the dashboard route."
 msgstr "Sie befinden sich derzeit auf der Dashboard-Route."
