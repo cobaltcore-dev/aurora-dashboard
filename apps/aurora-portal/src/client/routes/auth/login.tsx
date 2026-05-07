@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { createFileRoute, redirect, useRouterState } from "@tanstack/react-router"
 import { useAuth } from "../../store/AuthProvider"
 import { z } from "zod"
@@ -51,7 +51,7 @@ const textinputstyles = `
 `
 
 export function AuthLoginPage() {
-  const { isAuthenticated, user, login } = useAuth()
+  const { isAuthenticated, login } = useAuth()
   const isLoading = useRouterState({ select: (s) => s.isLoading })
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
@@ -108,19 +108,32 @@ export function AuthLoginPage() {
     setLoginError(null)
   }
 
-  const isLoggingIn = isLoading || isSubmitting
+  // Redirect effect: Handle race condition where isAuthenticated becomes true after component mounts
+  // (e.g., during login flow). The beforeLoad guard handles direct navigation to /auth/login while
+  // already authenticated, but this effect handles the case where authentication completes mid-render.
+  useEffect(() => {
+    if (!isAuthenticated || isLoading) return
 
-  if (isAuthenticated) {
-    const username = user?.name
-    return (
-      <div className="border-theme-light mt-8 w-full max-w-md justify-center rounded-lg border p-6 shadow-lg">
-        <h2 className="text-xl font-semibold">
-          <Trans>Welcome back, {username}!</Trans>
-        </h2>
-        <Trans>You are already signed in.</Trans>
-      </div>
-    )
-  }
+    const savedRedirect = sessionStorage.getItem("redirect_after_login")
+    const searchRedirect = search.redirect
+
+    let redirectTo = `/projects`
+
+    if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
+      redirectTo = savedRedirect
+    } else if (searchRedirect && typeof searchRedirect === "string" && searchRedirect.startsWith("/")) {
+      redirectTo = searchRedirect
+    }
+
+    sessionStorage.removeItem("redirect_after_login")
+
+    navigate({
+      to: redirectTo,
+      replace: true,
+    })
+  }, [isAuthenticated, isLoading, search.redirect, navigate])
+
+  const isLoggingIn = isLoading || isSubmitting
 
   const logoutReason = sessionStorage.getItem("logout_reason")
   const wasInactive = logoutReason === "inactive" || logoutReason === "expired"
