@@ -57,3 +57,17 @@ export const getBucketDetailsInputSchema = projectScopedInputSchema.extend({
 
 export type Bucket = z.infer<typeof bucketSchema>
 export type BucketDetails = z.infer<typeof bucketDetailsSchema>
+
+// ============================================================================
+// S3 STATUS SCHEMAS
+// ============================================================================
+
+export const s3StatusSchema = z.object({
+  hasCredentials: z.boolean(),
+})
+
+// ============================================================================
+// S3 STATUS TYPES
+// ============================================================================
+
+export type S3Status = z.infer<typeof s3StatusSchema>

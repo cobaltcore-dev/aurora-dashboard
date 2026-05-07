@@ -93,7 +93,7 @@ export const ec2CredentialRouter = {
 
       const identityService = ctx.openstack.service("identity")
       const access = randomBytes(20).toString("hex").toUpperCase()
-      const secret = randomBytes(40).toString("base64url")
+      const secret = randomBytes(40).toString("base64")
       const response = await identityService.post(
         "credentials",
         JSON.stringify({

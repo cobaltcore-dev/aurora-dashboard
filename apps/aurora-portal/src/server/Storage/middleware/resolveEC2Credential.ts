@@ -55,6 +55,11 @@ export async function resolveEC2Credential(ctx: AuroraPortalContext): Promise<Ec
     return null
   }
 
-  const blob: CredentialBlob = JSON.parse(ec2Cred.blob)
-  return { credentialId: ec2Cred.id, access: blob.access, secret: blob.secret }
+  try {
+    const blob: CredentialBlob = JSON.parse(ec2Cred.blob)
+    return { credentialId: ec2Cred.id, access: blob.access, secret: blob.secret }
+  } catch (error) {
+    console.error("[s3] Failed to parse credential blob:", error)
+    return null
+  }
 }

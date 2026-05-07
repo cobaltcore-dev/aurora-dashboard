@@ -41,7 +41,7 @@ export function BucketListView() {
 
   if (!buckets || buckets.length === 0) {
     return (
-      <DataGrid columns={3}>
+      <DataGrid columns={2}>
         <DataGridRow>
           <DataGridHeadCell>
             <Trans>Name</Trans>
@@ -49,12 +49,9 @@ export function BucketListView() {
           <DataGridHeadCell>
             <Trans>Creation Date</Trans>
           </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Region</Trans>
-          </DataGridHeadCell>
         </DataGridRow>
         <DataGridRow>
-          <DataGridCell colSpan={3}>
+          <DataGridCell colSpan={2}>
             <span className="text-juno-grey-light-1 text-sm">
               <Trans>No buckets found.</Trans>
             </span>

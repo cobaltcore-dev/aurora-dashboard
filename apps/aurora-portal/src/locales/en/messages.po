@@ -320,6 +320,9 @@ msgstr "Ceph Objects — {containerName}"
 msgid "Check out our source code on GitHub!"
 msgstr "Check out our source code on GitHub!"
 
+msgid "Checking S3 credentials..."
+msgstr "Checking S3 credentials..."
+
 msgid "Checksum"
 msgstr "Checksum"
 
@@ -1963,9 +1966,6 @@ msgstr "RBAC Policy Details:"
 
 msgid "Read ACLs"
 msgstr "Read ACLs"
-
-msgid "Region"
-msgstr "Region"
 
 msgid "Reject"
 msgstr "Reject"

@@ -38,12 +38,17 @@ export function mapS3ErrorToTRPCError(
 
   const s3Error = error as S3ErrorShape
   const errorCode = s3Error.Code ?? s3Error.name ?? ""
-  const trpcCode = S3_ERROR_MAP[errorCode] ?? "INTERNAL_SERVER_ERROR"
+  const trpcCode = S3_ERROR_MAP[errorCode] ?? "BAD_REQUEST"
+
+  // Log unmapped errors for future improvements
+  if (!S3_ERROR_MAP[errorCode] && errorCode) {
+    console.warn(`[s3] Unmapped S3 error code: ${errorCode}`)
+  }
 
   const parts = [`Failed to ${context.operation}`]
   if (context.bucket) parts.push(`bucket: ${context.bucket}`)
   if (context.key) parts.push(`key: ${context.key}`)
-  if (s3Error.message && trpcCode === "INTERNAL_SERVER_ERROR") {
+  if (s3Error.message) {
     parts.push(s3Error.message)
   }
 

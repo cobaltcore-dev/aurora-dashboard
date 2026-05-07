@@ -1,6 +1,7 @@
 import { ListBucketsCommand, HeadBucketCommand } from "@aws-sdk/client-s3"
-import { s3ProtectedProcedure } from "../s3Procedure"
+import { s3ProtectedProcedure, s3Procedure } from "../s3Procedure"
 import { mapS3ErrorToTRPCError } from "../helpers/s3ErrorMapper"
+import { projectScopedInputSchema } from "../../trpc"
 import {
   bucketSchema,
   bucketDetailsSchema,
@@ -8,9 +9,14 @@ import {
   getBucketDetailsInputSchema,
   type Bucket,
   type BucketDetails,
+  type S3Status,
 } from "../types/s3"
 
 export const s3BucketRouter = {
+  status: s3Procedure.input(projectScopedInputSchema).query(async ({ ctx }): Promise<S3Status> => {
+    return { hasCredentials: !!ctx.s3Credentials }
+  }),
+
   list: s3ProtectedProcedure.input(listBucketsInputSchema).query(async ({ ctx }): Promise<Bucket[]> => {
     const s3 = ctx.getS3Client()
 
