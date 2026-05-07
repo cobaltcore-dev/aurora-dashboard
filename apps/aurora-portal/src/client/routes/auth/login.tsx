@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { createFileRoute, redirect, useRouterState } from "@tanstack/react-router"
 import { useAuth } from "../../store/AuthProvider"
 import { z } from "zod"
@@ -107,6 +107,30 @@ export function AuthLoginPage() {
   const dismissError = () => {
     setLoginError(null)
   }
+
+  // Redirect effect: Handle cases where isAuthenticated becomes true after initial render
+  // This fixes the race condition where login completes but beforeLoad doesn't trigger
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      const savedRedirect = sessionStorage.getItem("redirect_after_login")
+      const searchRedirect = search.redirect
+
+      let redirectTo = `/projects`
+
+      if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
+        redirectTo = savedRedirect
+      } else if (searchRedirect && typeof searchRedirect === "string" && searchRedirect.startsWith("/")) {
+        redirectTo = searchRedirect
+      }
+
+      sessionStorage.removeItem("redirect_after_login")
+
+      navigate({
+        to: redirectTo,
+        replace: true,
+      })
+    }
+  }, [isAuthenticated, isLoading, search.redirect, navigate])
 
   const isLoggingIn = isLoading || isSubmitting
 
