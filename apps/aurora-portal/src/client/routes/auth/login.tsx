@@ -112,25 +112,25 @@ export function AuthLoginPage() {
   // (e.g., during login flow). The beforeLoad guard handles direct navigation to /auth/login while
   // already authenticated, but this effect handles the case where authentication completes mid-render.
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
-      const savedRedirect = sessionStorage.getItem("redirect_after_login")
-      const searchRedirect = search.redirect
+    if (!isAuthenticated || isLoading) return
 
-      let redirectTo = `/projects`
+    const savedRedirect = sessionStorage.getItem("redirect_after_login")
+    const searchRedirect = search.redirect
 
-      if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
-        redirectTo = savedRedirect
-      } else if (searchRedirect && typeof searchRedirect === "string" && searchRedirect.startsWith("/")) {
-        redirectTo = searchRedirect
-      }
+    let redirectTo = `/projects`
 
-      sessionStorage.removeItem("redirect_after_login")
-
-      navigate({
-        to: redirectTo,
-        replace: true,
-      })
+    if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
+      redirectTo = savedRedirect
+    } else if (searchRedirect && typeof searchRedirect === "string" && searchRedirect.startsWith("/")) {
+      redirectTo = searchRedirect
     }
+
+    sessionStorage.removeItem("redirect_after_login")
+
+    navigate({
+      to: redirectTo,
+      replace: true,
+    })
   }, [isAuthenticated, isLoading, search.redirect, navigate])
 
   const isLoggingIn = isLoading || isSubmitting
