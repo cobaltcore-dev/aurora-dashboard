@@ -432,7 +432,11 @@ export const imageRouter = {
           // so the mutation reliably throws instead of returning { success: true }.
           // We attach a no-op catch to prevent an unhandled-rejection warning for the
           // rare case where pipeline rejects after glance.put has already thrown.
-          const passthrough = new Transform({ transform(chunk, _enc, cb) { cb(null, chunk) } })
+          const passthrough = new Transform({
+            transform(chunk, _enc, cb) {
+              cb(null, chunk)
+            },
+          })
           pipeline(validatedFile, progressTracker, passthrough).catch(() => {})
           const webStream = Readable.toWeb(passthrough)
 
