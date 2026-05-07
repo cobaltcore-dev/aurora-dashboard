@@ -23,7 +23,7 @@ test.describe("Project Detail View", () => {
     await page.waitForTimeout(500)
 
     // Click on demo project
-    const demoProjectHeading = page.locator('h1.juno-content-heading', { hasText: "demo" })
+    const demoProjectHeading = page.locator("h1.juno-content-heading", { hasText: "demo" })
     await demoProjectHeading.click()
 
     // Wait for project detail page to load
@@ -33,33 +33,33 @@ test.describe("Project Detail View", () => {
 
   test("has all required navigation links", async ({ page }) => {
     // Check for Images link
-    const imagesLink = page.locator('a', { hasText: "Images" })
+    const imagesLink = page.locator("a", { hasText: "Images" })
     await expect(imagesLink).toBeVisible()
 
     // Check for Flavors link
-    const flavorsLink = page.locator('a', { hasText: "Flavors" })
+    const flavorsLink = page.locator("a", { hasText: "Flavors" })
     await expect(flavorsLink).toBeVisible()
 
     // Check for Security Groups link
-    const securityGroupsLink = page.locator('a', { hasText: "Security Groups" })
+    const securityGroupsLink = page.locator("a", { hasText: "Security Groups" })
     await expect(securityGroupsLink).toBeVisible()
 
     // Check for Floating IPs link
-    const floatingIPsLink = page.locator('a', { hasText: "Floating IPs" })
+    const floatingIPsLink = page.locator("a", { hasText: "Floating IPs" })
     await expect(floatingIPsLink).toBeVisible()
 
     // Check for Swift link
-    const swiftLink = page.locator('a', { hasText: "Swift" })
+    const swiftLink = page.locator("a", { hasText: "Swift" })
     await expect(swiftLink).toBeVisible()
   })
 
   test("navigation links are clickable", async ({ page }) => {
     // Test that Images link is clickable
-    const imagesLink = page.locator('a', { hasText: "Images" }).first()
+    const imagesLink = page.locator("a", { hasText: "Images" }).first()
     await expect(imagesLink).toBeEnabled()
 
     // Verify link has href attribute
-    const href = await imagesLink.getAttribute('href')
+    const href = await imagesLink.getAttribute("href")
     expect(href).toBeTruthy()
   })
 })

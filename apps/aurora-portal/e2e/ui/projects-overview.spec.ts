@@ -32,7 +32,7 @@ test.describe("Projects Overview Page", () => {
     await page.waitForTimeout(500)
 
     // Verify the demo project is visible in results
-    const demoProjectHeading = page.locator('h1.juno-content-heading', { hasText: "demo" })
+    const demoProjectHeading = page.locator("h1.juno-content-heading", { hasText: "demo" })
     await expect(demoProjectHeading).toBeVisible()
 
     // Verify the heading has the correct styling classes
@@ -41,7 +41,7 @@ test.describe("Projects Overview Page", () => {
 
   test("demo project appears in initial project list", async ({ page }) => {
     // Without searching, verify demo project is in the list
-    const demoProjectHeading = page.locator('h1.juno-content-heading', { hasText: "demo" })
+    const demoProjectHeading = page.locator("h1.juno-content-heading", { hasText: "demo" })
 
     // Should be visible (might need to scroll)
     await expect(demoProjectHeading).toBeVisible({ timeout: 5000 })
