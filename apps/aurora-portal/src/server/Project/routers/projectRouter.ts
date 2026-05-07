@@ -105,7 +105,7 @@ export const projectRouter = {
     const parsedData = projectsResponseSchema.safeParse(data)
 
     if (!parsedData.success) {
-      console.error("Zod Parsing Error:", parsedData.error.format())
+      console.error("Zod Parsing Error:", parsedData.error.message)
       return undefined
     }
     return parsedData.data.projects
