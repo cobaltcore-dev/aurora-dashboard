@@ -421,7 +421,11 @@ export const imageRouter = {
 
           // pipeline() propagates stream errors into passthrough → web stream → glance.put,
           // so a read failure reliably rejects the mutation.
-          const passthrough = new Transform({ transform(chunk, _enc, cb) { cb(null, chunk) } })
+          const passthrough = new Transform({
+            transform(chunk, _enc, cb) {
+              cb(null, chunk)
+            },
+          })
           const pipelinePromise = pipeline(validatedFile, progressTracker, passthrough)
           // Suppress unhandled-rejection for the case where glance.put throws first
           pipelinePromise.catch(() => {})
