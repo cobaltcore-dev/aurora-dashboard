@@ -60,8 +60,8 @@ async function auroraLogin(page: Page, domain: string, username: string, passwor
   // Submit login form
   await page.click('button:has-text("Sign In")')
 
-  // Wait for redirect to accounts page after successful login
-  await page.waitForURL("**/accounts/**", { timeout: 10000 })
+  // Wait for redirect to projects page after successful login
+  await page.waitForURL("**/projects", { timeout: 10000 })
 
   // Verify we're logged in by checking we're not on login page
   const currentUrl = page.url()

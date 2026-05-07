@@ -16,29 +16,17 @@ test.describe("Authenticated OpenStack UIs", () => {
     await loginAsTestUser(page)
   })
 
-  test("accounts page loads without errors", async ({ page }) => {
-    // Already on /accounts/** from login
+  test("projects page loads without errors", async ({ page }) => {
+    // Already on /projects from login
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(page)
 
-    // Verify accounts page content exists
+    // Verify projects page content exists
     await expect(page.locator("body")).not.toBeEmpty()
   })
 
-  test("projects list loads without errors", async ({ page }) => {
-    // Extract account ID from current URL
-    const currentUrl = page.url()
-    const accountIdMatch = currentUrl.match(/\/accounts\/([^/]+)/)
-
-    if (!accountIdMatch) {
-      throw new Error("Could not extract account ID from URL")
-    }
-
-    const accountId = accountIdMatch[1]
-
-    // Navigate to projects list
-    await page.goto(`/accounts/${accountId}/projects`)
-
+  test("projects list shows search functionality", async ({ page }) => {
+    // Should already be on /projects from login
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(page)
 
