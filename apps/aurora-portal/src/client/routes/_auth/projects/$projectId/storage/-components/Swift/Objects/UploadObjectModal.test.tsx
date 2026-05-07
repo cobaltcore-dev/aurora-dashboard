@@ -55,6 +55,7 @@ const renderModal = ({
   isOpen = true,
   currentPrefix = "",
   container = "test-container",
+  projectId = "test-project-id",
   account = undefined as string | undefined,
   onClose = vi.fn(),
   onSuccess = vi.fn(),
@@ -67,6 +68,7 @@ const renderModal = ({
           isOpen={isOpen}
           currentPrefix={currentPrefix}
           container={container}
+          projectId={projectId}
           account={account}
           onClose={onClose}
           onSuccess={onSuccess}
@@ -201,6 +203,7 @@ describe("UploadObjectModal", () => {
           expect.objectContaining({
             context: expect.objectContaining({
               headers: expect.objectContaining({
+                "x-upload-project-id": "test-project-id",
                 "x-upload-container": "my-bucket",
                 "x-upload-object": "docs/report.pdf",
                 "x-upload-id": expect.stringContaining("my-bucket:docs/report.pdf:"),
@@ -436,7 +439,13 @@ describe("UploadObjectModal", () => {
       rerender(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <UploadObjectModal isOpen={true} currentPrefix="" container="test-container" onClose={onClose} />
+            <UploadObjectModal
+              isOpen={true}
+              currentPrefix=""
+              container="test-container"
+              projectId="test-project-id"
+              onClose={onClose}
+            />
           </PortalProvider>
         </I18nProvider>
       )

@@ -10,6 +10,7 @@ interface UploadObjectModalProps {
   isOpen: boolean
   currentPrefix: string
   container: string
+  projectId: string
   account?: string
   onClose: () => void
   onSuccess?: (objectName: string) => void
@@ -20,6 +21,7 @@ export const UploadObjectModal = ({
   isOpen,
   currentPrefix,
   container,
+  projectId,
   account,
   onClose,
   onSuccess,
@@ -114,6 +116,7 @@ export const UploadObjectModal = ({
       // no shared mutable state, safe for concurrent uploads.
       const uploadContext = {
         headers: {
+          "x-upload-project-id": projectId,
           "x-upload-container": container,
           "x-upload-object": objectName,
           "x-upload-type": selectedFile.type || "application/octet-stream",
