@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest"
 import {
   CertificateAuthoritiesListSchema,
+  CertificateAuthorityResponseSchema,
   CertificateAuthoritySchema,
-  CertificateAuthorityCertificatesInputSchema,
+  CertificateAuthorityIdInputSchema,
   CertificateSchema,
   CertificatesListSchema,
 } from "./pca"
@@ -339,12 +340,12 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
           certificate: {
             pem: "-----BEGIN CERTIFICATE-----\n...",
             validity: {
-              not_before: 1705315200,
+              not_before: 1705315200.5,
               not_after: 1736851200,
             },
           },
         }).success
-      ).toBe(true)
+      ).toBe(false)
     })
 
     it("should require not_after as integer", () => {
@@ -355,11 +356,11 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
             pem: "-----BEGIN CERTIFICATE-----\n...",
             validity: {
               not_before: 1705315200,
-              not_after: 1736851200,
+              not_after: "1705315200",
             },
           },
         }).success
-      ).toBe(true)
+      ).toBe(false)
     })
 
     it("should accept Unix timestamp integers for validity dates", () => {
@@ -700,10 +701,32 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
     })
   })
 
-  describe("CertificateAuthorityCertificatesInputSchema", () => {
+  describe("CertificateAuthorityResponseSchema", () => {
+    it("should validate response with a valid CA", () => {
+      expect(
+        CertificateAuthorityResponseSchema.safeParse({
+          certificate_authority: minimalValidCA,
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject response without certificate_authority key", () => {
+      expect(CertificateAuthorityResponseSchema.safeParse({}).success).toBe(false)
+    })
+
+    it("should reject response with invalid CA", () => {
+      expect(
+        CertificateAuthorityResponseSchema.safeParse({
+          certificate_authority: { id: "ca-123" },
+        }).success
+      ).toBe(false)
+    })
+  })
+
+  describe("CertificateAuthorityIdInputSchema", () => {
     it("should validate with required project_id and certificate_authority_id", () => {
       expect(
-        CertificateAuthorityCertificatesInputSchema.safeParse({
+        CertificateAuthorityIdInputSchema.safeParse({
           project_id: "project-1",
           certificate_authority_id: "ca-123",
         }).success
@@ -712,7 +735,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
 
     it("should reject without certificate_authority_id", () => {
       expect(
-        CertificateAuthorityCertificatesInputSchema.safeParse({
+        CertificateAuthorityIdInputSchema.safeParse({
           project_id: "project-1",
         }).success
       ).toBe(false)
@@ -720,7 +743,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
 
     it("should reject without project_id", () => {
       expect(
-        CertificateAuthorityCertificatesInputSchema.safeParse({
+        CertificateAuthorityIdInputSchema.safeParse({
           certificate_authority_id: "ca-123",
         }).success
       ).toBe(false)
@@ -728,7 +751,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
 
     it("should reject with empty certificate_authority_id", () => {
       expect(
-        CertificateAuthorityCertificatesInputSchema.safeParse({
+        CertificateAuthorityIdInputSchema.safeParse({
           project_id: "project-1",
           certificate_authority_id: "",
         }).success
@@ -737,7 +760,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
 
     it("should require certificate_authority_id as non-empty string", () => {
       expect(
-        CertificateAuthorityCertificatesInputSchema.safeParse({
+        CertificateAuthorityIdInputSchema.safeParse({
           project_id: "project-1",
           certificate_authority_id: "ca-456",
         }).success

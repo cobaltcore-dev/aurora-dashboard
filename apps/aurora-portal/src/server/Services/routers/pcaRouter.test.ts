@@ -20,6 +20,19 @@ const validListResponse = {
   ],
 }
 
+const validGetByIdResponse = {
+  certificate_authority: {
+    id: "ca-1",
+    project_id: TEST_PROJECT_ID,
+    state: "READY" as const,
+    configuration: {
+      subject: {
+        common_name: "ca.example.com",
+      },
+    },
+  },
+}
+
 const validCertificatesResponse = {
   certificates: [
     {
@@ -48,17 +61,23 @@ const validCertificatesResponse = {
   ],
 }
 
-const createMockContext = (opts?: { noClavis?: boolean; parseError?: boolean; certificateParseError?: boolean }) => {
-  const { noClavis = false, parseError = false, certificateParseError = false } = opts || {}
+const createMockContext = (opts?: {
+  noClavis?: boolean
+  parseError?: boolean
+  certificateParseError?: boolean
+  getByIdParseError?: boolean
+}) => {
+  const { noClavis = false, parseError = false, certificateParseError = false, getByIdParseError = false } = opts || {}
 
   const getMock = vi.fn().mockImplementation((url: string) => {
-    const responseBody = url.includes("/certificates")
-      ? certificateParseError
-        ? { invalid: true }
-        : validCertificatesResponse
-      : parseError
-        ? { invalid: true }
-        : validListResponse
+    let responseBody: unknown
+    if (url.includes("/certificates")) {
+      responseBody = certificateParseError ? { invalid: true } : validCertificatesResponse
+    } else if (url === "v1/certificate-authorities") {
+      responseBody = parseError ? { invalid: true } : validListResponse
+    } else {
+      responseBody = getByIdParseError ? { invalid: true } : validGetByIdResponse
+    }
 
     return Promise.resolve({
       json: vi.fn().mockResolvedValue(responseBody),
@@ -136,6 +155,55 @@ describe("pcaRouter", () => {
         new TRPCError({
           code: "PARSE_ERROR",
           message: "Failed to parse response in pcaRouter.list",
+        })
+      )
+    })
+  })
+
+  describe("getById", () => {
+    it("returns certificate authority for valid response", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx as never)
+
+      const result = await caller.services.pca.getById({
+        project_id: TEST_PROJECT_ID,
+        certificate_authority_id: "ca-1",
+      })
+
+      expect(result).toEqual(validGetByIdResponse.certificate_authority)
+      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1")
+    })
+
+    it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
+      const ctx = createMockContext({ noClavis: true })
+      const caller = createCaller(ctx as never)
+
+      await expect(
+        caller.services.pca.getById({
+          project_id: TEST_PROJECT_ID,
+          certificate_authority_id: "ca-1",
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Clavis service is not available",
+        })
+      )
+    })
+
+    it("throws PARSE_ERROR on invalid Clavis response payload", async () => {
+      const ctx = createMockContext({ getByIdParseError: true })
+      const caller = createCaller(ctx as never)
+
+      await expect(
+        caller.services.pca.getById({
+          project_id: TEST_PROJECT_ID,
+          certificate_authority_id: "ca-1",
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "PARSE_ERROR",
+          message: "Failed to parse response in pcaRouter.getById",
         })
       )
     })
