@@ -45,6 +45,7 @@ type RequiredSortSettings = {
 type ImagesContentProps = {
   imagesPromise: ReturnType<typeof createImagesPromise>
   imageOverrides: Map<string, GlanceImage>
+  deletedImageIds: Set<string>
   permissionsPromise: Promise<{
     canCreate: boolean
     canDelete: boolean
@@ -77,12 +78,14 @@ type ImagesContentProps = {
   isFetchingNextPage: boolean
   fetchNextPage: () => void
   onImageUpdated: (image: GlanceImage) => void
+  onImageDeleted: (imageIds: string | string[]) => void
   onMemberStatusChanged: () => void
 }
 
 function ImagesContent({
   imagesPromise,
   imageOverrides,
+  deletedImageIds,
   permissionsPromise,
   searchTerm,
   setSearchTerm,
@@ -108,13 +111,16 @@ function ImagesContent({
   isFetchingNextPage,
   fetchNextPage,
   onImageUpdated,
+  onImageDeleted,
   onMemberStatusChanged,
 }: ImagesContentProps) {
   const { t } = useLingui()
   const imagesData = use(imagesPromise)
   const permissions = use(permissionsPromise)
 
-  const images = imagesData.images.map((img) => imageOverrides.get(img.id) ?? img)
+  const images = imagesData.images
+    .filter((img) => !deletedImageIds.has(img.id))
+    .map((img) => imageOverrides.get(img.id) ?? img)
 
   const activeFilterSettings =
     memberStatusView === "pending" || memberStatusView === "accepted"
@@ -247,6 +253,7 @@ function ImagesContent({
         activeImages={activeImages}
         deactivatedImages={deactivatedImages}
         onImageUpdated={onImageUpdated}
+        onImageDeleted={onImageDeleted}
         onMemberStatusChanged={onMemberStatusChanged}
       />
     </>
@@ -320,6 +327,7 @@ export const Images = ({ client, project }: ImagesProps) => {
   const [allImages, setAllImages] = useState<GlanceImage[]>([])
   const [nextMarker, setNextMarker] = useState<string | undefined>()
   const [imageOverrides, setImageOverrides] = useState<Map<string, GlanceImage>>(new Map())
+  const [deletedImageIds, setDeletedImageIds] = useState<Set<string>>(new Set())
   const [imagesPromise, setImagesPromise] = useState<ReturnType<typeof createImagesPromise>>(
     () =>
       new Promise(() => {
@@ -372,6 +380,15 @@ export const Images = ({ client, project }: ImagesProps) => {
   // Sync URL params to state and refetch when URL changes (single source of truth)
   const handleImageUpdated = useCallback((updatedImage: GlanceImage) => {
     setImageOverrides((prev) => new Map(prev).set(updatedImage.id, updatedImage))
+  }, [])
+
+  const handleImageDeleted = useCallback((imageIds: string | string[]) => {
+    setDeletedImageIds((prev) => {
+      const next = new Set(prev)
+      if (Array.isArray(imageIds)) imageIds.forEach((id) => next.add(id))
+      else next.add(imageIds)
+      return next
+    })
   }, [])
 
   const handleMemberStatusChanged = useCallback(() => {
@@ -536,6 +553,7 @@ export const Images = ({ client, project }: ImagesProps) => {
         <ImagesContent
           imagesPromise={imagesPromise}
           imageOverrides={imageOverrides}
+          deletedImageIds={deletedImageIds}
           permissionsPromise={permissionsPromise}
           searchTerm={searchTerm}
           setSearchTerm={handleSearchChange}
@@ -561,6 +579,7 @@ export const Images = ({ client, project }: ImagesProps) => {
           isFetchingNextPage={isFetchingNextPage}
           fetchNextPage={fetchNextPage}
           onImageUpdated={handleImageUpdated}
+          onImageDeleted={handleImageDeleted}
           onMemberStatusChanged={handleMemberStatusChanged}
         />
       </Suspense>

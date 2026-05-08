@@ -26,6 +26,31 @@ dotenv.config()
 const identityEndpoint = process.env.IDENTITY_ENDPOINT
 // Ensure it ends with a single slash
 const normalizedEndpoint = identityEndpoint?.endsWith("/") ? identityEndpoint : `${identityEndpoint}/`
+
+// Build proxy configuration from environment variables (for mitmproxy debugging)
+// Proxy is ONLY enabled in development mode for security reasons
+// When a proxy is configured, TLS validation is automatically disabled
+const proxyConfig =
+  process.env.NODE_ENV !== "production" && process.env.GLOBAL_AGENT_HTTP_PROXY
+    ? {
+        uri: process.env.GLOBAL_AGENT_HTTP_PROXY,
+      }
+    : undefined
+
+// Log proxy configuration status at startup
+if (process.env.NODE_ENV === "production" && process.env.GLOBAL_AGENT_HTTP_PROXY) {
+  console.warn("⚠️ [context] GLOBAL_AGENT_HTTP_PROXY is set but ignored in production mode for security reasons")
+} else if (proxyConfig) {
+  // Redact credentials from URL if present (user:pass@host)
+  const redactedUrl = proxyConfig.uri.replace(/\/\/([^:]+):([^@]+)@/, "//$1:***@")
+  console.log("ℹ️ [context] Proxy configured:", redactedUrl)
+}
+
+if (process.env.NODE_ENV !== "production") {
+  console.log("ℹ️ [endpoint] Identity endpoint:", normalizedEndpoint)
+  console.log("ℹ️ [context] Default endpoint interface:", process.env.DEFAULT_ENDPOINT_INTERFACE)
+}
+
 const defaultSignalOpenstackOptions = {
   interfaceName: process.env.DEFAULT_ENDPOINT_INTERFACE || "public",
   debug: process.env.NODE_ENV !== "production",
@@ -33,6 +58,7 @@ const defaultSignalOpenstackOptions = {
     Accept: "application/json",
     "Content-Type": "application/json",
   },
+  proxy: proxyConfig,
 }
 
 // Global registry of pending rescope operations per session

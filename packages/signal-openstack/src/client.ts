@@ -1,5 +1,31 @@
 import { parseErrorObject } from "./responseErrorHandler"
 import { SignalOpenstackError, SignalOpenstackApiError } from "./error"
+import type { ProxyConfig } from "./shared-types"
+import { logger, loggerConfig } from "./logger"
+
+/**
+ * Creates a proxy dispatcher from the provided proxy configuration
+ * TLS certificate validation is disabled when using a proxy since the proxy
+ * (e.g., mitmproxy) acts as a man-in-the-middle for debugging purposes
+ * @param proxyConfig - Proxy configuration object
+ * @returns Undici ProxyAgent dispatcher or undefined if creation fails
+ */
+function createProxyDispatcher(proxyConfig: ProxyConfig): unknown {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import needed for optional undici dependency
+    const { ProxyAgent } = require("undici")
+    return new ProxyAgent({
+      uri: proxyConfig.uri,
+      // Always disable TLS validation for proxy debugging (mitmproxy uses self-signed certs)
+      requestTls: {
+        rejectUnauthorized: false,
+      },
+    })
+  } catch (err) {
+    logger.warn("Could not configure proxy", err)
+    return undefined
+  }
+}
 
 interface RequestParams {
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD"
@@ -11,51 +37,7 @@ interface RequestParams {
     queryParams?: Record<string, string | string[] | number | boolean | null | undefined>
     signal?: AbortSignal
     debug?: boolean
-  }
-}
-
-function redactSensitiveData<T>(obj: T): T {
-  const sensitiveKeys: string[] = ["password", "token", "secret", "key", "auth_token"]
-
-  // Handle non-serializable objects
-  try {
-    const redacted: T = JSON.parse(
-      JSON.stringify(obj, (key, value) => {
-        // Handle special types
-        if (value instanceof ReadableStream) return "[ReadableStream]"
-        if (value instanceof FormData) return "[FormData]"
-        if (value instanceof Blob) return "[Blob]"
-        if (value instanceof ArrayBuffer) return "[ArrayBuffer]"
-        if (value instanceof AbortSignal) return "[AbortSignal]"
-        return value
-      })
-    )
-
-    function redactRecursive(item: unknown): void {
-      if (typeof item === "object" && item !== null && !Array.isArray(item)) {
-        const objectItem = item as Record<string, unknown>
-        for (const [key, value] of Object.entries(objectItem)) {
-          if (sensitiveKeys.some((sensitive: string) => key.toLowerCase().includes(sensitive))) {
-            objectItem[key] = "*****"
-          } else if (typeof value === "object" && value !== null) {
-            redactRecursive(value)
-          }
-        }
-      } else if (Array.isArray(item)) {
-        item.forEach((element) => {
-          if (typeof element === "object" && element !== null) {
-            redactRecursive(element)
-          }
-        })
-      }
-    }
-
-    redactRecursive(redacted)
-    return redacted
-  } catch (error) {
-    console.warn("Redaction failed:", error)
-    // Fallback if serialization fails
-    return obj
+    proxy?: ProxyConfig
   }
 }
 
@@ -140,8 +122,24 @@ const request = ({ method, path, options = {} }: RequestParams) => {
   }
 
   if (options.debug) {
-    const debugData = redactSensitiveData({ method, path, options, url })
-    console.debug(`===Signal Openstack Debug: `, JSON.stringify(debugData, null, 2))
+    logger.debug(`${method} ${url.pathname}${url.search}`, {
+      method,
+      url: url.toString(),
+      headers,
+      body: options.body,
+      queryParams: options.queryParams,
+    })
+  }
+
+  // Create proxy dispatcher if proxy config is provided
+  const proxyDispatcher = options.proxy ? createProxyDispatcher(options.proxy) : undefined
+
+  if (process.env.NODE_ENV !== "production") {
+    if (options.debug && proxyDispatcher) {
+      console.log("✅ [signal-openstack] Using proxy dispatcher for request to:", url.toString())
+    } else if (options.debug && options.proxy && !proxyDispatcher) {
+      console.warn("⚠️ [signal-openstack] Proxy config provided but dispatcher creation failed")
+    }
   }
 
   return fetch(url.toString(), {
@@ -149,11 +147,50 @@ const request = ({ method, path, options = {} }: RequestParams) => {
     method,
     body,
     signal: options.signal,
+    ...(proxyDispatcher ? { dispatcher: proxyDispatcher } : {}),
     // ✅ Enable duplex for streaming uploads
     //@ts-expect-error No overload matches this call.
     duplex: "half", // TypeScript types don't include duplex yet
   })
     .then(async (response) => {
+      // Log response if debug is enabled
+      if (options.debug) {
+        // Clone the response so we can read it for logging without consuming the original
+        const clonedResponse = response.clone()
+        const contentType = clonedResponse.headers.get("content-type")
+
+        // Convert headers to object for logging
+        const responseHeaders: Record<string, string> = {}
+        clonedResponse.headers.forEach((value, key) => {
+          responseHeaders[key] = value
+        })
+
+        // Try to read response body preview (first N chars based on config)
+        let bodyPreview: string
+        try {
+          if (contentType?.includes("application/json")) {
+            const text = await clonedResponse.text()
+            const maxLen = loggerConfig.maxBodyPreviewLength
+            bodyPreview = text.length > maxLen ? text.substring(0, maxLen) + "..." : text
+          } else if (contentType?.includes("text/")) {
+            const text = await clonedResponse.text()
+            const maxLen = loggerConfig.maxBodyPreviewLength
+            bodyPreview = text.length > maxLen ? text.substring(0, maxLen) + "..." : text
+          } else {
+            bodyPreview = `[Binary content: ${contentType || "unknown type"}]`
+          }
+        } catch {
+          bodyPreview = "[Error reading body]"
+        }
+
+        logger.debug(`Response ${response.status} ${response.statusText}`, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: responseHeaders,
+          bodyPreview,
+        })
+      }
+
       if (response.ok) {
         return response
       } else {
