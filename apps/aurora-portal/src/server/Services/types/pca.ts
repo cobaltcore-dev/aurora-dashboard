@@ -94,6 +94,11 @@ export const CertificateAuthorityIdInputSchema = z.object({
   certificate_authority_id: z.string().min(1),
 })
 
+// Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates/{certificate_id} - Get Certificate details
+export const CertificateIdInputSchema = CertificateAuthorityIdInputSchema.extend({
+  certificate_id: z.string().min(1),
+})
+
 export const CertificateSchema = z.object({
   certificate: CertificateAuthorityCertificateSchema,
   certificate_authority_id: z.string(),
@@ -104,6 +109,10 @@ export const CertificateSchema = z.object({
   csr: z.string().optional(),
   id: z.string(),
   project_id: z.string(),
+})
+
+export const CertificateResponseSchema = z.object({
+  certificate: CertificateSchema,
 })
 
 export const CertificatesListSchema = z.object({

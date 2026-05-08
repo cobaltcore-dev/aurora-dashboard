@@ -4,6 +4,8 @@ import {
   CertificateAuthorityResponseSchema,
   CertificateAuthoritySchema,
   CertificateAuthorityIdInputSchema,
+  CertificateIdInputSchema,
+  CertificateResponseSchema,
   CertificateSchema,
   CertificatesListSchema,
 } from "./pca"
@@ -768,6 +770,37 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
     })
   })
 
+  describe("CertificateIdInputSchema", () => {
+    it("should validate with required project_id, certificate_authority_id and certificate_id", () => {
+      expect(
+        CertificateIdInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          certificate_id: "cert-123",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject without certificate_id", () => {
+      expect(
+        CertificateIdInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject with empty certificate_id", () => {
+      expect(
+        CertificateIdInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          certificate_id: "",
+        }).success
+      ).toBe(false)
+    })
+  })
+
   describe("CertificateSchema", () => {
     const minimalValidCertificate = {
       id: "cert-123",
@@ -873,6 +906,47 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
           },
         }).success
       ).toBe(true)
+    })
+  })
+
+  describe("CertificateResponseSchema", () => {
+    const validCertificate = {
+      id: "cert-123",
+      certificate_authority_id: "ca-123",
+      project_id: "project-1",
+      certificate: {
+        pem: "-----BEGIN CERTIFICATE-----\n...",
+        validity: {
+          not_before: 1705315200,
+          not_after: 1736851200,
+        },
+      },
+      configuration: {
+        validity: {
+          not_before: 1705315200,
+          not_after: 1736851200,
+        },
+      },
+    }
+
+    it("should validate response with a valid certificate", () => {
+      expect(
+        CertificateResponseSchema.safeParse({
+          certificate: validCertificate,
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject response without certificate key", () => {
+      expect(CertificateResponseSchema.safeParse({}).success).toBe(false)
+    })
+
+    it("should reject response with invalid certificate", () => {
+      expect(
+        CertificateResponseSchema.safeParse({
+          certificate: { id: "cert-123" },
+        }).success
+      ).toBe(false)
     })
   })
 

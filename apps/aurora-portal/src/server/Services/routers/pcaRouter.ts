@@ -9,6 +9,8 @@ import {
   Certificate,
   CertificateAuthority,
   CertificateAuthorityResponseSchema,
+  CertificateIdInputSchema,
+  CertificateResponseSchema,
 } from "../types/pca"
 
 /** PCA (Private Certificate Authority) - Clavis service for certificate authority management  */
@@ -53,5 +55,19 @@ export const pcaRouter = {
 
         return parseOrThrow(CertificatesListSchema, data, "pcaRouter.listCertificates").certificates
       }, "list certificates for certificate authority")
+    }),
+  getByIdCertificate: projectScopedProcedure
+    .input(CertificateIdInputSchema)
+    .query(async ({ input, ctx }): Promise<Certificate> => {
+      return withErrorHandling(async () => {
+        const pca = ctx.openstack?.service("clavis")
+        validateOpenstackService(pca, "clavis")
+
+        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates/${input.certificate_id}`
+        const response = await pca.get(url)
+        const data = await response.json()
+
+        return parseOrThrow(CertificateResponseSchema, data, "pcaRouter.getByIdCertificate").certificate
+      }, "get certificate details")
     }),
 }
