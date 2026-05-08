@@ -148,6 +148,38 @@ describe("ec2Credentials.list", () => {
 
     await expect(caller.storage.s3.ec2Credentials.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(TRPCError)
   })
+
+  it("throws INTERNAL_SERVER_ERROR when credential blob is invalid JSON", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        credentials: [{ ...rawCredential, blob: "invalid-json{" }],
+      }),
+    })
+    const caller = createCaller(ctx)
+
+    await expect(caller.storage.s3.ec2Credentials.list({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: expect.stringContaining("Failed to parse EC2 credential blob"),
+    })
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when credential blob is missing required fields", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        credentials: [{ ...rawCredential, blob: JSON.stringify({ secret: "only-secret" }) }],
+      }),
+    })
+    const caller = createCaller(ctx)
+
+    await expect(caller.storage.s3.ec2Credentials.list({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: expect.stringContaining("Invalid EC2 credential format"),
+    })
+  })
 })
 
 // ============================================================================
@@ -206,6 +238,38 @@ describe("ec2Credentials.create", () => {
     await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
     )
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when created credential blob is invalid JSON", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.post as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        credential: { ...rawCredential, blob: "invalid-json{" },
+      }),
+    })
+    const caller = createCaller(ctx)
+
+    await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: expect.stringContaining("Failed to parse created credential response"),
+    })
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when created credential blob is missing secret", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.post as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        credential: { ...rawCredential, blob: JSON.stringify({ access: TEST_ACCESS }) },
+      }),
+    })
+    const caller = createCaller(ctx)
+
+    await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: expect.stringContaining("Created credential has invalid format"),
+    })
   })
 })
 

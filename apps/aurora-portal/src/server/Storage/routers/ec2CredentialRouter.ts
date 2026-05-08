@@ -69,13 +69,30 @@ export const ec2CredentialRouter = {
       const ec2Creds = (data.credentials ?? []).filter((c) => c.type === "ec2" && c.project_id === input.project_id)
 
       return ec2Creds.map((c) => {
-        const blob: CredentialBlob = JSON.parse(c.blob)
-        return ec2CredentialSchema.parse({
-          id: c.id,
-          access: blob.access,
-          user_id: c.user_id,
-          project_id: c.project_id,
-        })
+        try {
+          const blob: CredentialBlob = JSON.parse(c.blob)
+          const result = ec2CredentialSchema.safeParse({
+            id: c.id,
+            access: blob.access,
+            user_id: c.user_id,
+            project_id: c.project_id,
+          })
+          if (!result.success) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: `Invalid EC2 credential format for credential ${c.id}`,
+            })
+          }
+          return result.data
+        } catch (error) {
+          if (error instanceof TRPCError) {
+            throw error
+          }
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to parse EC2 credential blob for credential ${c.id}`,
+          })
+        }
       })
     }),
 
@@ -114,15 +131,32 @@ export const ec2CredentialRouter = {
       }
 
       const data: CredentialCreateResponse = await response.json()
-      const blob: CredentialBlob = JSON.parse(data.credential.blob)
 
-      return ec2CredentialWithSecretSchema.parse({
-        id: data.credential.id,
-        access: blob.access,
-        secret: blob.secret,
-        user_id: data.credential.user_id,
-        project_id: data.credential.project_id,
-      })
+      try {
+        const blob: CredentialBlob = JSON.parse(data.credential.blob)
+        const result = ec2CredentialWithSecretSchema.safeParse({
+          id: data.credential.id,
+          access: blob.access,
+          secret: blob.secret,
+          user_id: data.credential.user_id,
+          project_id: data.credential.project_id,
+        })
+        if (!result.success) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Created credential has invalid format",
+          })
+        }
+        return result.data
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to parse created credential response",
+        })
+      }
     }),
 
   /**
