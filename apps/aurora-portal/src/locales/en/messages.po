@@ -1918,6 +1918,9 @@ msgstr "Preview {rowDisplayName}"
 msgid "Private"
 msgstr "Private"
 
+msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
+msgstr "Private flavors could not be loaded. You may be seeing an incomplete list."
+
 msgid "production, linux"
 msgstr "production, linux"
 
