@@ -1,4 +1,4 @@
-import React, { use, Suspense, useState, startTransition, useEffect } from "react"
+import React, { use, Suspense, useState, startTransition, useEffect, useMemo } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { useLingui } from "@lingui/react/macro"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
@@ -238,9 +238,9 @@ function AccessContent({
           />
         )}
 
-        {flavorAccess.map((access, index) => (
+        {flavorAccess.map((access) => (
           <TenantAccessRow
-            key={`${access.tenant_id}-${index}`}
+            key={access.tenant_id}
             access={access}
             isDeleting={deletingTenants.has(access.tenant_id)}
             onDelete={() => handleRemoveTenant(access.tenant_id)}
@@ -262,38 +262,62 @@ function AccessContent({
 
 export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen, onClose, project, flavor }) => {
   const { t } = useLingui()
+  const { translateError } = useErrorTranslation()
 
   const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
   const [isAddingAccess, setIsAddingAccess] = useState(false)
-  const [flavorAccessPromise, setFlavorAccessPromise] = useState<Promise<FlavorAccess[]> | null>(null)
 
-  const permissionsPromise = React.useMemo(
+  const permissionsPromise = useMemo(
     () => (isOpen ? createPermissionsPromise(client, project) : null),
     [client, project, isOpen]
   )
 
-  useEffect(() => {
-    if (isOpen && flavor?.id) {
-      startTransition(() => {
-        setFlavorAccessPromise(createFlavorAccessPromise(client, project, flavor.id))
+  const flavorAccessPromise = useMemo(() => {
+    if (!isOpen || !flavor?.id) return null
+    return createFlavorAccessPromise(client, project, flavor.id)
+      .then((access) =>
+        access.filter((entry, idx, arr) => arr.findIndex((e) => e.tenant_id === entry.tenant_id) === idx)
+      )
+      .catch((error) => {
+        const msg = translateError((error as Error)?.message || "GET_FLAVOR_ACCESS_FAILED")
+        setMessage({ text: msg, type: "error" })
+        return [] as FlavorAccess[]
       })
-    }
   }, [isOpen, flavor?.id, client, project])
+
+  useEffect(() => {
+    if (isOpen) setMessage(null)
+  }, [isOpen, flavor?.id])
+
+  // After add/remove, the server returns the updated list. We store it as an override so
+  // the UI reflects the change immediately without refetching. The key prevents a stale
+  // override from a previously opened flavor from leaking into the current modal session.
+  const [flavorAccessOverride, setFlavorAccessOverride] = useState<{
+    key: string
+    promise: Promise<FlavorAccess[]>
+  } | null>(null)
+
+  const accessKey = `${isOpen}-${flavor?.id}`
+  const activeFlavorAccessPromise =
+    flavorAccessOverride?.key === accessKey ? flavorAccessOverride.promise : flavorAccessPromise
 
   const handleClose = () => {
     setMessage(null)
     setIsAddingAccess(false)
-    setFlavorAccessPromise(null)
+    setFlavorAccessOverride(null)
     onClose()
   }
 
   const handleAccessUpdate = (access: FlavorAccess[]) => {
+    const deduplicated = access.filter(
+      (entry, idx, arr) => arr.findIndex((e) => e.tenant_id === entry.tenant_id) === idx
+    )
     startTransition(() => {
-      setFlavorAccessPromise(Promise.resolve(access))
+      setFlavorAccessOverride({ key: accessKey, promise: Promise.resolve(deduplicated) })
     })
   }
 
-  if (!isOpen || !flavor || !permissionsPromise || !flavorAccessPromise) {
+  if (!isOpen || !flavor || !permissionsPromise || !activeFlavorAccessPromise) {
     return null
   }
   const flavorName = flavor.name
@@ -314,7 +338,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
         <Suspense fallback={<AccessLoading />}>
           <AccessContent
             permissionsPromise={permissionsPromise}
-            flavorAccessPromise={flavorAccessPromise}
+            flavorAccessPromise={activeFlavorAccessPromise}
             client={client}
             project={project}
             flavor={flavor}

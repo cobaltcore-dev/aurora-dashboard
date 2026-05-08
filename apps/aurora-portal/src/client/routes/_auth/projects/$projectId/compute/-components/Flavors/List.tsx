@@ -1,5 +1,6 @@
 import { use, Suspense, useState, startTransition } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useSearch, useNavigate } from "@tanstack/react-router"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { Message, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
@@ -7,6 +8,7 @@ import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { FlavorListContainer } from "./-components/FlavorListContainer"
 import { CreateFlavorModal } from "./-components/CreateFlavorModal"
+import type { FlavorsSearchParams } from "@/client/routes/_auth/projects/$projectId/compute/flavors"
 
 interface FlavorsProps {
   client: TrpcClient
@@ -57,7 +59,7 @@ function FlavorsContent({
   createModalOpen,
   setCreateModalOpen,
 }: {
-  flavorsPromise: Promise<Flavor[]>
+  flavorsPromise: Promise<{ flavors: Flavor[]; privateFlavorError?: string }>
   permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean; canManageAccess: boolean }>
   client: TrpcClient
   project: string
@@ -71,7 +73,7 @@ function FlavorsContent({
   setCreateModalOpen: (open: boolean) => void
 }) {
   const { t } = useLingui()
-  const flavors = use(flavorsPromise)
+  const { flavors, privateFlavorError } = use(flavorsPromise)
   const permissions = use(permissionsPromise)
 
   return (
@@ -83,6 +85,14 @@ function FlavorsContent({
         onClose={() => setCreateModalOpen(false)}
         onSuccess={onFlavorCreated}
       />
+
+      {privateFlavorError && (
+        <Message
+          className="mb-4"
+          text={t`Private flavors could not be loaded. You may be seeing an incomplete list.`}
+          variant="warning"
+        />
+      )}
 
       <ListToolbar
         sortSettings={sortSettings}
@@ -110,6 +120,8 @@ function FlavorsContent({
 }
 export const Flavors = ({ client, project }: FlavorsProps) => {
   const { t } = useLingui()
+  const navigate = useNavigate()
+  const searchParams = useSearch({ strict: false }) as FlavorsSearchParams
 
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
     options: [
@@ -119,11 +131,11 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
       { label: t`Root Disk`, value: "disk" },
       { label: t`Swap`, value: "swap" },
     ],
-    sortBy: "name",
-    sortDirection: "asc",
+    sortBy: searchParams.sortBy || "name",
+    sortDirection: searchParams.sortDirection || "asc",
   })
 
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState(searchParams.search || "")
   const [success, setSuccess] = useState<{ message: string; timestamp: number } | undefined>()
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
@@ -166,6 +178,14 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     }
 
     setSortSettings(settings)
+    navigate({
+      search: ((prev: FlavorsSearchParams) => ({
+        ...prev,
+        sortBy: settings.sortBy,
+        sortDirection: settings.sortDirection,
+      })) as unknown as true,
+      replace: true,
+    })
     startTransition(() => {
       setFlavorsPromise(createFlavorsPromise(client, project, settings.sortBy, settings.sortDirection, searchTerm))
     })
@@ -175,6 +195,13 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     const searchValue = typeof term === "string" ? term : ""
     setSearchTerm(searchValue)
 
+    navigate({
+      search: ((prev: FlavorsSearchParams) => ({
+        ...prev,
+        search: searchValue || undefined,
+      })) as unknown as true,
+      replace: true,
+    })
     startTransition(() => {
       setFlavorsPromise(
         createFlavorsPromise(client, project, sortSettings.sortBy, sortSettings.sortDirection, searchValue)
