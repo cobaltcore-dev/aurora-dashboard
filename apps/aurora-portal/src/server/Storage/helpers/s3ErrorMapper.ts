@@ -38,7 +38,7 @@ export function mapS3ErrorToTRPCError(
 
   const s3Error = error as S3ErrorShape
   const errorCode = s3Error.Code ?? s3Error.name ?? ""
-  const trpcCode = S3_ERROR_MAP[errorCode] ?? "BAD_REQUEST"
+  const trpcCode = S3_ERROR_MAP[errorCode] ?? "INTERNAL_SERVER_ERROR"
 
   // Log unmapped errors for future improvements
   if (!S3_ERROR_MAP[errorCode] && errorCode) {
