@@ -800,10 +800,10 @@ msgid "Empty Containers"
 msgstr "Container leeren"
 
 msgid "Emptying container {progressCurrent} of {progressTotal}, please wait..."
-msgstr ""
+msgstr "Container {progressCurrent} von {progressTotal} wird geleert, bitte warten..."
 
 msgid "Emptying..."
-msgstr ""
+msgstr "Wird geleert..."
 
 msgid "Enable file listing"
 msgstr "Dateilisting aktivieren"
