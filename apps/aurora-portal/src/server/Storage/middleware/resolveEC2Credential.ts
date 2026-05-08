@@ -41,25 +41,25 @@ export async function resolveEC2Credential(ctx: AuroraPortalContext): Promise<Ec
     return null
   }
 
-  const response = await identityService.get("credentials", {
-    queryParams: { user_id: userId, type: "ec2" },
-  })
-  if (!response.ok) {
-    return null
-  }
-
-  const data: CredentialsResponse = await response.json()
-  const ec2Cred = data.credentials?.find((c) => c.type === "ec2" && c.project_id === projectId)
-
-  if (!ec2Cred) {
-    return null
-  }
-
   try {
+    const response = await identityService.get("credentials", {
+      queryParams: { user_id: userId, type: "ec2" },
+    })
+    if (!response.ok) {
+      return null
+    }
+
+    const data: CredentialsResponse = await response.json()
+    const ec2Cred = data.credentials?.find((c) => c.type === "ec2" && c.project_id === projectId)
+
+    if (!ec2Cred) {
+      return null
+    }
+
     const blob: CredentialBlob = JSON.parse(ec2Cred.blob)
     return { credentialId: ec2Cred.id, access: blob.access, secret: blob.secret }
   } catch (error) {
-    console.error("[s3] Failed to parse credential blob:", error)
+    console.error("[s3] Failed to resolve EC2 credential:", error)
     return null
   }
 }
