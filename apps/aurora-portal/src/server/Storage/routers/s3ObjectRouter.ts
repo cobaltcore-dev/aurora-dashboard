@@ -55,7 +55,7 @@ export const s3ObjectRouter = {
         nextContinuationToken: response.NextContinuationToken,
       })
     } catch (error) {
-      mapS3ErrorToTRPCError(error, {
+      throw mapS3ErrorToTRPCError(error, {
         operation: "list objects",
         bucket: bucketName,
       })
@@ -89,7 +89,7 @@ export const s3ObjectRouter = {
           metadata: response.Metadata,
         })
       } catch (error) {
-        mapS3ErrorToTRPCError(error, {
+        throw mapS3ErrorToTRPCError(error, {
           operation: "get object details",
           bucket: bucketName,
           key: objectKey,

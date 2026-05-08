@@ -29,7 +29,7 @@ export const s3BucketRouter = {
         })
       )
     } catch (error) {
-      mapS3ErrorToTRPCError(error, { operation: "list buckets" })
+      throw mapS3ErrorToTRPCError(error, { operation: "list buckets" })
     }
   }),
 
@@ -46,7 +46,7 @@ export const s3BucketRouter = {
           name: bucketName,
         })
       } catch (error) {
-        mapS3ErrorToTRPCError(error, { operation: "get bucket details", bucket: bucketName })
+        throw mapS3ErrorToTRPCError(error, { operation: "get bucket details", bucket: bucketName })
       }
     }),
 }

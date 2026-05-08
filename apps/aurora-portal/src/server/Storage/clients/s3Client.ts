@@ -5,6 +5,13 @@ import { S3Client } from "@aws-sdk/client-s3"
  * forcePathStyle is required for Ceph — it does not support virtual-hosted-style URLs.
  */
 export function createS3Client(access: string, secret: string, endpoint?: string, region?: string): S3Client {
+  if (!access?.trim()) {
+    throw new Error("S3 access key is not configured")
+  }
+  if (!secret?.trim()) {
+    throw new Error("S3 secret key is not configured")
+  }
+
   const resolvedEndpoint = endpoint ?? process.env.CEPH_S3_ENDPOINT
   if (!resolvedEndpoint) {
     throw new Error(
