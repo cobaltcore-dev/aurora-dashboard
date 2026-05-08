@@ -1,0 +1,97 @@
+import { z } from "zod"
+
+/** PCA (Private Certificate Authority) - Clavis service schemas for certificate authority management  */
+
+/** Dates as Unix timestamp. */
+const CertificateValiditySchema = z.object({
+  not_after: z.number().int(),
+  not_before: z.number().int(),
+})
+
+const CertificateAuthorityCertificateSchema = z.object({
+  /** PEM encoded certificate data. */
+  pem: z.string(),
+  validity: CertificateValiditySchema,
+})
+
+const CertificateAuthorityCertificateChainSchema = z.object({
+  certificates: z.array(z.object({ pem: z.string() })),
+  /** Concatenated PEM certificates of the chain. */
+  pem: z.string(),
+})
+
+const CertificateAuthorityAdditionalAttributeSchema = z.object({
+  /** ASN.1 Object Identifier of the attribute */
+  key: z.array(z.number().int()),
+  value: z.string(),
+})
+
+const CertificateAuthoritySubjectSchema = z.object({
+  additional_attribute: z.array(CertificateAuthorityAdditionalAttributeSchema).optional(),
+  /** Typically domain name */
+  common_name: z.string(),
+  /** Country codes (ISO 3166-1 alpha-2). */
+  country: z.array(z.string()).optional(),
+  /** Locality/city names. */
+  locality: z.array(z.string()).optional(),
+  /** Organization names. */
+  organization: z.array(z.string()).optional(),
+  /** Organizational unit names. */
+  organizational_unit: z.array(z.string()).optional(),
+  /** Postal/ZIP codes. */
+  postal_code: z.array(z.string()).optional(),
+  /** State or province names. */
+  province: z.array(z.string()).optional(),
+  serial_number: z.string().optional(),
+  street_address: z.array(z.string()).optional(),
+})
+
+export const CertificateAuthoritySchema = z.object({
+  certificate: CertificateAuthorityCertificateSchema.optional(),
+  /** Details of Certificate Authority certificate's issuers chain. */
+  certificate_chain: CertificateAuthorityCertificateChainSchema.optional(),
+  configuration: z.object({
+    /** X.509 subject of Certificate Authority. Required on create operation. */
+    subject: CertificateAuthoritySubjectSchema,
+  }),
+  csr: z.string().optional(),
+  id: z.string(),
+  /**
+   * Required on import certificate operation.
+   * Certificate Authority certificate chain, in PEM format. Consists of concatenated string
+   * of Certificate Authority certificate, followed by its intermediate issuing CAs certificates
+   * and root issuing CA certificate last.
+   */
+  imported_certificate_chain: z.string().optional(),
+  /** Identifier of OpenStack project that Certificate Authority belongs. */
+  project_id: z.string(),
+  /** Current operational state of Certificate Authority. */
+  state: z.enum(["CREATING", "AWAITING_CERTIFICATE", "READY", "FAILED", "UNEXPECTED"]),
+})
+
+export const CertificateAuthoritiesListSchema = z.object({
+  certificate_authorities: z.array(CertificateAuthoritySchema),
+})
+
+export const CertificateAuthorityCertificatesInputSchema = z.object({
+  project_id: z.string(),
+  certificate_authority_id: z.string().min(1),
+})
+
+export const CertificateSchema = z.object({
+  certificate: CertificateAuthorityCertificateSchema,
+  certificate_authority_id: z.string(),
+  certificate_chain: CertificateAuthorityCertificateChainSchema.optional(),
+  configuration: z.object({
+    validity: CertificateValiditySchema,
+  }),
+  csr: z.string().optional(),
+  id: z.string(),
+  project_id: z.string(),
+})
+
+export const CertificatesListSchema = z.object({
+  certificates: z.array(CertificateSchema),
+})
+
+export type Certificate = z.infer<typeof CertificateSchema>

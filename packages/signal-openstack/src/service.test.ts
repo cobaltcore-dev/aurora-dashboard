@@ -321,6 +321,38 @@ describe("service", () => {
     })
   })
 
+  describe("getEndpoint", () => {
+    it("should return the endpoint URL for the service", () => {
+      const service = SignalOpenstackService("service1", token, { region: "region", interfaceName: "public" })
+      const endpoint = service.getEndpoint()
+      expect(endpoint).toBe("http://localhost/service1")
+    })
+
+    it("should return endpoint with default interface when not specified", () => {
+      const service = SignalOpenstackService("service1", token, { region: "region" })
+      const endpoint = service.getEndpoint()
+      expect(endpoint).toBe("http://localhost/service1")
+    })
+
+    it("should allow overriding region and interface", () => {
+      const service = SignalOpenstackService("service1", token, { region: "unknown", interfaceName: "unknown" })
+      const endpoint = service.getEndpoint({ region: "region", interfaceName: "public" })
+      expect(endpoint).toBe("http://localhost/service1")
+    })
+
+    it("should return null for non-existent endpoint", () => {
+      const service = SignalOpenstackService("service1", token, { region: "nonexistent" })
+      const endpoint = service.getEndpoint()
+      expect(endpoint).toBeNull()
+    })
+
+    it("should use service-level settings by default", () => {
+      const service = SignalOpenstackService("service1", token, { region: "region", interfaceName: "public" })
+      const endpoint = service.getEndpoint()
+      expect(endpoint).toBe("http://localhost/service1")
+    })
+  })
+
   describe("Real-world scenarios", () => {
     beforeEach(() => {
       globalThis.fetch = vi.fn().mockResolvedValue({

@@ -112,8 +112,9 @@ function RouteComponent() {
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
-    onSuccess: () => {
-      utils.compute.getImageById.invalidate({ project_id: projectId, imageId })
+    onSuccess: (updatedImage) => {
+      utils.compute.getImageById.setData({ project_id: projectId, imageId }, updatedImage)
+      utils.compute.listImagesWithPagination.invalidate()
     },
   })
 

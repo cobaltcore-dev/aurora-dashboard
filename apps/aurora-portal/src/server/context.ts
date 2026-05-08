@@ -43,7 +43,12 @@ if (process.env.NODE_ENV === "production" && process.env.GLOBAL_AGENT_HTTP_PROXY
 } else if (proxyConfig) {
   // Redact credentials from URL if present (user:pass@host)
   const redactedUrl = proxyConfig.uri.replace(/\/\/([^:]+):([^@]+)@/, "//$1:***@")
-  console.log("✅ [context] Proxy configured:", redactedUrl)
+  console.log("ℹ️ [context] Proxy configured:", redactedUrl)
+}
+
+if (process.env.NODE_ENV !== "production") {
+  console.log("ℹ️ [endpoint] Identity endpoint:", normalizedEndpoint)
+  console.log("ℹ️ [context] Default endpoint interface:", process.env.DEFAULT_ENDPOINT_INTERFACE)
 }
 
 const defaultSignalOpenstackOptions = {

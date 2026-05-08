@@ -18,8 +18,10 @@ import {
   getContainerUpdateErrorToast,
   getContainerAclUpdatedToast,
   getContainerAclUpdateErrorToast,
+  getContainersEmptyCompleteToast,
 } from "./ContainerToastNotifications"
 import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
+import { EmptyContainersModal } from "./EmptyContainersModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "../../../$provider/containers/"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -36,6 +38,8 @@ export const SwiftContainers = () => {
   const { sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [emptyAllModalOpen, setEmptyAllModalOpen] = useState(false)
+  const [selectedContainers, setSelectedContainers] = useState<string[]>([])
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
@@ -78,6 +82,27 @@ export const SwiftContainers = () => {
 
   const handleAclError = (containerName: string, errorMessage: string) => {
     setToastData(getContainerAclUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+  }
+
+  const handleEmptyAllComplete = ({
+    emptiedCount,
+    totalDeleted,
+    errors,
+  }: {
+    emptiedCount: number
+    totalDeleted: number
+    errors: string[]
+  }) => {
+    if (errors.length === 0) {
+      setSelectedContainers([])
+    } else {
+      // Extract the container name from each error string formatted as "<containerName>: <message>".
+      // Using exact name extraction avoids the false-positive substring match that
+      // errorMessage.includes(containerName) would produce (e.g. "foo" matched inside "foobar" error).
+      const failedContainerNames = new Set(errors.map((e) => e.split(": ")[0]))
+      setSelectedContainers((prev) => prev.filter((name) => failedContainerNames.has(name)))
+    }
+    setToastData(getContainersEmptyCompleteToast(emptiedCount, totalDeleted, errors, { onDismiss: handleToastDismiss }))
   }
 
   const sortSettings: SortSettings = {
@@ -199,6 +224,13 @@ export const SwiftContainers = () => {
   const quotaBytes = accountInfo?.quotaBytes || 0
   const remainingBytes = quotaBytes > 0 ? quotaBytes - bytesUsed : 0
 
+  // Resolve selected ContainerSummary objects from the full unfiltered list so
+  // the modal always operates on what was actually selected — not the filtered
+  // subset currently visible in the table.
+  const selectedContainerSummaries = (containers || []).filter((c) => selectedContainers.includes(c.name))
+  const hasSelection = selectedContainerSummaries.length > 0
+  const selectedCount = selectedContainerSummaries.length
+
   return (
     <div className="relative">
       <ListToolbar
@@ -221,6 +253,9 @@ export const SwiftContainers = () => {
               <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
                 <Trans>Create Container</Trans>
               </Button>
+              <Button variant="primary-danger" onClick={() => setEmptyAllModalOpen(true)} disabled={!hasSelection}>
+                {hasSelection ? <Trans>Empty All ({selectedCount})</Trans> : <Trans>Empty All</Trans>}
+              </Button>
             </Stack>
           </Stack>
         }
@@ -241,6 +276,15 @@ export const SwiftContainers = () => {
         onPropertiesError={handlePropertiesError}
         onAclSuccess={handleAclSuccess}
         onAclError={handleAclError}
+        selectedContainers={selectedContainers}
+        setSelectedContainers={setSelectedContainers}
+      />
+
+      <EmptyContainersModal
+        isOpen={emptyAllModalOpen}
+        containers={selectedContainerSummaries}
+        onClose={() => setEmptyAllModalOpen(false)}
+        onComplete={handleEmptyAllComplete}
       />
 
       {toastData && (
