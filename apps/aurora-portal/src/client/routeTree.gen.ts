@@ -37,6 +37,7 @@ import { Route as AuthProjectsProjectIdStorageS3BucketsIndexRouteImport } from "
 import { Route as AuthProjectsProjectIdStorageProviderContainersIndexRouteImport } from "./routes/_auth/projects/$projectId/storage/$provider/containers/index"
 import { Route as AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRouteImport } from "./routes/_auth/projects/$projectId/network/securitygroups/$securityGroupId/index"
 import { Route as AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRouteImport } from "./routes/_auth/projects/$projectId/network/floatingips/$floatingIpId/index"
+import { Route as AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRouteImport } from "./routes/_auth/projects/$projectId/storage/s3/buckets/$bucketName/objects/index"
 import { Route as AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRouteImport } from "./routes/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/index"
 
 const AboutRoute = AboutRouteImport.update({
@@ -200,6 +201,14 @@ const AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRoute =
     path: "/floatingips/$floatingIpId/",
     getParentRoute: () => AuthProjectsProjectIdNetworkRoute,
   } as any)
+const AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRoute =
+  AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRouteImport.update(
+    {
+      id: "/buckets/$bucketName/objects/",
+      path: "/buckets/$bucketName/objects/",
+      getParentRoute: () => AuthProjectsProjectIdStorageS3Route,
+    } as any,
+  )
 const AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute =
   AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRouteImport.update(
     {
@@ -238,6 +247,7 @@ export interface FileRoutesByFullPath {
   "/projects/$projectId/storage/s3/buckets/": typeof AuthProjectsProjectIdStorageS3BucketsIndexRoute
   "/projects/$projectId/storage/s3/credentials/": typeof AuthProjectsProjectIdStorageS3CredentialsIndexRoute
   "/projects/$projectId/storage/$provider/containers/$containerName/objects/": typeof AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute
+  "/projects/$projectId/storage/s3/buckets/$bucketName/objects/": typeof AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRoute
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
@@ -264,6 +274,7 @@ export interface FileRoutesByTo {
   "/projects/$projectId/storage/s3/buckets": typeof AuthProjectsProjectIdStorageS3BucketsIndexRoute
   "/projects/$projectId/storage/s3/credentials": typeof AuthProjectsProjectIdStorageS3CredentialsIndexRoute
   "/projects/$projectId/storage/$provider/containers/$containerName/objects": typeof AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute
+  "/projects/$projectId/storage/s3/buckets/$bucketName/objects": typeof AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -296,6 +307,7 @@ export interface FileRoutesById {
   "/_auth/projects/$projectId/storage/s3/buckets/": typeof AuthProjectsProjectIdStorageS3BucketsIndexRoute
   "/_auth/projects/$projectId/storage/s3/credentials/": typeof AuthProjectsProjectIdStorageS3CredentialsIndexRoute
   "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/": typeof AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute
+  "/_auth/projects/$projectId/storage/s3/buckets/$bucketName/objects/": typeof AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -328,6 +340,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/storage/s3/buckets/"
     | "/projects/$projectId/storage/s3/credentials/"
     | "/projects/$projectId/storage/$provider/containers/$containerName/objects/"
+    | "/projects/$projectId/storage/s3/buckets/$bucketName/objects/"
   fileRoutesByTo: FileRoutesByTo
   to:
     | "/"
@@ -354,6 +367,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/storage/s3/buckets"
     | "/projects/$projectId/storage/s3/credentials"
     | "/projects/$projectId/storage/$provider/containers/$containerName/objects"
+    | "/projects/$projectId/storage/s3/buckets/$bucketName/objects"
   id:
     | "__root__"
     | "/"
@@ -385,6 +399,7 @@ export interface FileRouteTypes {
     | "/_auth/projects/$projectId/storage/s3/buckets/"
     | "/_auth/projects/$projectId/storage/s3/credentials/"
     | "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/"
+    | "/_auth/projects/$projectId/storage/s3/buckets/$bucketName/objects/"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -592,6 +607,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRouteImport
       parentRoute: typeof AuthProjectsProjectIdNetworkRoute
     }
+    "/_auth/projects/$projectId/storage/s3/buckets/$bucketName/objects/": {
+      id: "/_auth/projects/$projectId/storage/s3/buckets/$bucketName/objects/"
+      path: "/buckets/$bucketName/objects"
+      fullPath: "/projects/$projectId/storage/s3/buckets/$bucketName/objects/"
+      preLoaderRoute: typeof AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRouteImport
+      parentRoute: typeof AuthProjectsProjectIdStorageS3Route
+    }
     "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/": {
       id: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/"
       path: "/storage/$provider/containers/$containerName/objects"
@@ -671,6 +693,7 @@ const AuthProjectsProjectIdComputeImagesRouteWithChildren =
 interface AuthProjectsProjectIdStorageS3RouteChildren {
   AuthProjectsProjectIdStorageS3BucketsIndexRoute: typeof AuthProjectsProjectIdStorageS3BucketsIndexRoute
   AuthProjectsProjectIdStorageS3CredentialsIndexRoute: typeof AuthProjectsProjectIdStorageS3CredentialsIndexRoute
+  AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRoute: typeof AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRoute
 }
 
 const AuthProjectsProjectIdStorageS3RouteChildren: AuthProjectsProjectIdStorageS3RouteChildren =
@@ -679,6 +702,8 @@ const AuthProjectsProjectIdStorageS3RouteChildren: AuthProjectsProjectIdStorageS
       AuthProjectsProjectIdStorageS3BucketsIndexRoute,
     AuthProjectsProjectIdStorageS3CredentialsIndexRoute:
       AuthProjectsProjectIdStorageS3CredentialsIndexRoute,
+    AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRoute:
+      AuthProjectsProjectIdStorageS3BucketsBucketNameObjectsIndexRoute,
   }
 
 const AuthProjectsProjectIdStorageS3RouteWithChildren =

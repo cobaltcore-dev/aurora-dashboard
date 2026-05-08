@@ -1,4 +1,5 @@
 import { Trans } from "@lingui/react/macro"
+import { Link } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import {
@@ -74,7 +75,12 @@ export function BucketListView() {
       {buckets.map((bucket: Bucket) => (
         <DataGridRow key={bucket.name}>
           <DataGridCell>
-            <span className="font-mono text-sm">{bucket.name}</span>
+            <Link
+              to="/projects/$projectId/storage/s3/buckets/$bucketName/objects"
+              params={{ projectId: projectId ?? "", bucketName: bucket.name }}
+            >
+              <span className="hover:text-juno-blue cursor-pointer font-mono text-sm underline">{bucket.name}</span>
+            </Link>
           </DataGridCell>
           <DataGridCell>
             <span className="text-juno-grey-light-1 text-sm">
