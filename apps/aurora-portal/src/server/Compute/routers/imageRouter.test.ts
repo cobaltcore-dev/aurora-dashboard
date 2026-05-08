@@ -842,6 +842,31 @@ describe("imageRouter", () => {
         mockCtx.mockGlance.put.mockRejectedValue({ statusCode: 409, message: "Conflict" })
         await expect(callUpload(caller)).rejects.toThrow()
       })
+
+      it("should reject and not return success when the input stream errors", async () => {
+        const mockCtx = createMockContext()
+        setUploadHeaders(mockCtx, { uploadId: "550e8400-e29b-41d4-a716-446655440000", projectId: "test-project-id" })
+        const caller = createCaller(mockCtx)
+
+        // glance.put consumes the body — if the stream errors it should reject
+        mockCtx.mockGlance.put.mockImplementation(async (_path: string, body: ReadableStream) => {
+          const reader = body.getReader()
+          while (true) {
+            const { done } = await reader.read()
+            if (done) break
+          }
+          return { ok: true }
+        })
+
+        // Feed an erroring ReadableStream
+        const erroringStream = new ReadableStream({
+          start(controller) {
+            controller.error(new Error("disk read failure"))
+          },
+        })
+
+        await expect(caller.image.uploadImage(erroringStream as never)).rejects.toThrow()
+      })
     })
   })
 

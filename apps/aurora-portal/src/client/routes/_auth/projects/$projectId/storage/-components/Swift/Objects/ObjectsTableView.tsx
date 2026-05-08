@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import {
+  Checkbox,
   DataGrid,
   DataGridHeadCell,
   DataGridRow,
@@ -67,8 +68,8 @@ const isBrowserPreviewable = (contentType: string | undefined): boolean => {
   return false
 }
 
-// Define column template — 4 columns: name | last modified | size | actions
-const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
+// Define column template — 5 columns: checkbox | name | last modified | size | actions
+const GRID_COLUMN_TEMPLATE = "40px minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
 interface ObjectsTableViewProps {
   rows: BrowserRow[]
@@ -88,6 +89,8 @@ interface ObjectsTableViewProps {
   onTempUrlCopySuccess: (objectName: string) => void
   onEditMetadataSuccess: (objectName: string) => void
   onEditMetadataError: (objectName: string, errorMessage: string) => void
+  selectedObjects: string[]
+  setSelectedObjects: (objects: string[]) => void
 }
 
 export const ObjectsTableView = ({
@@ -108,6 +111,8 @@ export const ObjectsTableView = ({
   onTempUrlCopySuccess,
   onEditMetadataSuccess,
   onEditMetadataError,
+  selectedObjects,
+  setSelectedObjects,
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -259,11 +264,32 @@ export const ObjectsTableView = ({
     return Number.isNaN(d.getTime()) ? t`N/A` : d.toLocaleString()
   }
 
+  // Only object rows (not folders) are selectable
+  const selectableRows = rows.filter((r): r is ObjectRow => r.kind === "object")
+  const selectedSet = new Set(selectedObjects)
+  const allSelected = selectableRows.length > 0 && selectableRows.every((r) => selectedSet.has(r.name))
+
+  const handleSelectAll = () => {
+    if (allSelected) {
+      setSelectedObjects([])
+    } else {
+      setSelectedObjects(selectableRows.map((r) => r.name))
+    }
+  }
+
+  const handleSelectObject = (name: string) => {
+    if (selectedObjects.includes(name)) {
+      setSelectedObjects(selectedObjects.filter((n) => n !== name))
+    } else {
+      setSelectedObjects([...selectedObjects, name])
+    }
+  }
+
   if (rows.length === 0) {
     return (
-      <DataGrid columns={4} className="objects" data-testid="no-objects">
+      <DataGrid columns={5} className="objects" data-testid="no-objects">
         <DataGridRow>
-          <DataGridCell colSpan={4}>
+          <DataGridCell colSpan={5}>
             <div className="py-8 text-center">
               <h3 className="text-lg font-semibold">
                 <Trans>No objects found</Trans>
@@ -291,12 +317,15 @@ export const ObjectsTableView = ({
         {/* Table Header with scrollbar padding */}
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
           <DataGrid
-            columns={4}
+            columns={5}
             gridColumnTemplate={GRID_COLUMN_TEMPLATE}
             className="objects"
             data-testid="objects-table-header"
           >
             <DataGridRow>
+              <DataGridHeadCell>
+                <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-objects" />
+              </DataGridHeadCell>
               <DataGridHeadCell>
                 <Trans>Object Name</Trans>
               </DataGridHeadCell>
@@ -330,6 +359,7 @@ export const ObjectsTableView = ({
               const isFolder = row.kind === "folder"
               const isDownloading = !isFolder && downloadingRow?.name === row.name
               const rowDisplayName = row.displayName
+              const isSelected = !isFolder && selectedObjects.includes(row.name)
 
               return (
                 <div
@@ -349,6 +379,17 @@ export const ObjectsTableView = ({
                   }}
                   data-testid={`object-row-${row.name}`}
                 >
+                  {/* Checkbox — only for object rows; folders get an empty cell */}
+                  <DataGridCell onClick={(e) => e.stopPropagation()}>
+                    {!isFolder && (
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={() => handleSelectObject(row.name)}
+                        data-testid={`select-object-${row.name}`}
+                      />
+                    )}
+                  </DataGridCell>
+
                   {/* Name */}
                   <DataGridCell className="min-w-0 overflow-hidden">
                     {isFolder ? (

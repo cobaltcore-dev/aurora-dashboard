@@ -326,6 +326,9 @@ importers:
 
   packages/signal-openstack:
     dependencies:
+      undici:
+        specifier: ^7.3.0
+        version: 7.24.7
       zod:
         specifier: ^4.0.0
         version: 4.3.6

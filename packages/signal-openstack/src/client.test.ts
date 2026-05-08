@@ -2,10 +2,57 @@ import * as client from "./client"
 import { SignalOpenstackError } from "./error"
 import { Mock } from "vitest"
 
+// Helper to create a proper mock Response object with clone support
+function createMockResponse(
+  options: {
+    ok?: boolean
+    status?: number
+    statusText?: string
+    headers?: Record<string, string>
+    body?: unknown
+    contentType?: string
+  } = {}
+) {
+  const {
+    ok = true,
+    status = 200,
+    statusText = "OK",
+    headers = {},
+    body = {},
+    contentType = "application/json",
+  } = options
+
+  const responseHeaders = new Headers({
+    "content-type": contentType,
+    ...headers,
+  })
+
+  const mockResponse = {
+    ok,
+    status,
+    statusText,
+    headers: responseHeaders,
+    json: async () => body,
+    text: async () => (typeof body === "string" ? body : JSON.stringify(body)),
+    clone: function () {
+      return {
+        ok: this.ok,
+        status: this.status,
+        statusText: this.statusText,
+        headers: this.headers,
+        text: this.text,
+        json: this.json,
+      }
+    },
+  }
+
+  return mockResponse
+}
+
 describe("client", () => {
   describe("GET", () => {
     beforeEach(() => {
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
+      global.fetch = vi.fn().mockResolvedValue(createMockResponse())
     })
     it("should respond to get", async () => {
       expect(client.get).toBeDefined()
@@ -401,25 +448,66 @@ describe("client", () => {
       await expect(client.del("/", { host: "http://localhost" })).rejects.toThrow("error")
     })
     it("should log debug info", async () => {
-      console.debug = vi.fn()
-      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => vi.fn().mockResolvedValue({}) })
+      const logSpy = vi.spyOn(console, "log")
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: () => vi.fn().mockResolvedValue({}),
+        headers: new Headers({ "content-type": "application/json" }),
+        clone: function () {
+          return {
+            ok: this.ok,
+            status: this.status,
+            statusText: this.statusText,
+            headers: this.headers,
+            text: async () => JSON.stringify({}),
+          }
+        },
+      }
+      global.fetch = vi.fn().mockResolvedValue(mockResponse)
       await client.del("/", { host: "http://localhost", debug: true })
-      expect(console.debug).toHaveBeenCalledWith(
-        "===Signal Openstack Debug: ",
-        JSON.stringify(
-          {
-            method: "DELETE",
-            path: "/",
-            options: {
-              host: "http://localhost",
-              debug: true,
-            },
-            url: "http://localhost/",
-          },
-          null,
-          2
-        )
+
+      // Verify logger.debug was called with the correct message structure
+      expect(logSpy).toHaveBeenCalled()
+      const logCall = logSpy.mock.calls.find(
+        (call) => typeof call[0] === "string" && call[0].includes("DELETE") && call[0].includes("DEBUG")
       )
+      expect(logCall).toBeDefined()
+
+      logSpy.mockRestore()
+    })
+
+    it("should log response info when debug is enabled", async () => {
+      const logSpy = vi.spyOn(console, "log")
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        headers: new Headers({
+          "content-type": "application/json",
+          "x-openstack-request-id": "req-12345",
+        }),
+        clone: function () {
+          return {
+            ...this,
+            text: async () => JSON.stringify({ result: "success" }),
+            headers: this.headers,
+          }
+        },
+      }
+      global.fetch = vi.fn().mockResolvedValue(mockResponse)
+
+      await client.get("/test", { host: "http://localhost", debug: true })
+
+      // Verify response logging
+      expect(logSpy).toHaveBeenCalled()
+      const responseLogCall = logSpy.mock.calls.find(
+        (call) => typeof call[0] === "string" && call[0].includes("Response 200")
+      )
+      expect(responseLogCall).toBeDefined()
+
+      logSpy.mockRestore()
     })
   })
 

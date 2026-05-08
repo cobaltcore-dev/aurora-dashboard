@@ -3,6 +3,7 @@ import type { SignalOpenstackOptions } from "./shared-types"
 import type { SignalOpenstackTokenType } from "./token"
 import * as client from "./client"
 import { SignalOpenstackError } from "./error"
+import { logger } from "./logger"
 
 export interface ServiceActionOptions extends SignalOpenstackOptions {
   queryParams?: Record<string, string | number | boolean | string[]>
@@ -35,6 +36,7 @@ export function SignalOpenstackService(
       headers,
       debug,
       queryParams,
+      proxy,
     } = {
       ...serviceOptions,
       ...clientOptions,
@@ -43,7 +45,12 @@ export function SignalOpenstackService(
     const serviceEndpoint = token.serviceEndpoint(name, { interfaceName, region })
 
     if (debug) {
-      console.debug("===Signal Openstack Debug: ", { name, region, interfaceName, serviceEndpoint })
+      logger.debug("Service endpoint resolution", {
+        service: name,
+        region,
+        interface: interfaceName,
+        endpoint: serviceEndpoint,
+      })
     }
 
     if (serviceEndpoint === undefined || serviceEndpoint === null) {
@@ -55,6 +62,7 @@ export function SignalOpenstackService(
       headers: { ...headers, "X-Auth-Token": token.authToken },
       debug,
       queryParams,
+      proxy,
     }
   }
 
@@ -63,9 +71,22 @@ export function SignalOpenstackService(
     return service?.endpoints
   }
 
+  /**
+   * Get the endpoint URL for the current service based on the service-level region and interface
+   * This is useful when you need to pass the endpoint URL to external clients (e.g., AWS SDK for S3)
+   * @param options Optional override for region and interfaceName (defaults to service-level settings)
+   * @returns The endpoint URL string or null if not found
+   */
+  function getEndpoint(options?: { region?: string; interfaceName?: string }): string | null {
+    const interfaceName = options?.interfaceName || serviceOptions.interfaceName || "public"
+    const region = options?.region || serviceOptions.region
+    return token.serviceEndpoint(name, { interfaceName, region })
+  }
+
   // expose the public functions
   return {
     availableEndpoints,
+    getEndpoint,
     head: async (path: ActionPath, options?: ServiceActionOptions) => client.head(path, clientParams(options)),
 
     get: async (path: ActionPath, options?: ServiceActionOptions) => client.get(path, clientParams(options)),
