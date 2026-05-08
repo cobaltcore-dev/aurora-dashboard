@@ -10,9 +10,13 @@ import { expectPageLoaded, expectNoJavaScriptErrors } from "../helpers/test-help
  * - Search functionality
  * - Project visibility
  *
+ * Requires TEST_PROJECT environment variable to specify which project to test.
+ *
  * Run with: pnpm test:e2e e2e/ui/projects-overview.spec.ts
  */
 test.describe("Projects Overview Page", () => {
+  const testProject = process.env.TEST_PROJECT || "demo"
+
   test.beforeEach(async ({ page }) => {
     // Login and land on projects overview
     await loginAsTestUser(page)
@@ -20,30 +24,30 @@ test.describe("Projects Overview Page", () => {
     await expectNoJavaScriptErrors(page)
   })
 
-  test("can search and find demo project", async ({ page }) => {
+  test("can search and find test project", async ({ page }) => {
     // Get the search input
     const searchInput = page.locator('input[placeholder="Search..."]')
     await expect(searchInput).toBeVisible()
 
-    // Search for "demo" project
-    await searchInput.fill("demo")
+    // Search for test project
+    await searchInput.fill(testProject)
 
     // Wait a bit for search results to filter
     await page.waitForTimeout(500)
 
-    // Verify the demo project is visible in results
-    const demoProjectHeading = page.locator("h1.juno-content-heading", { hasText: "demo" })
-    await expect(demoProjectHeading).toBeVisible()
+    // Verify the test project is visible in results
+    const projectHeading = page.locator("h1.juno-content-heading", { hasText: testProject })
+    await expect(projectHeading).toBeVisible()
 
     // Verify the heading has the correct styling classes
-    await expect(demoProjectHeading).toHaveClass(/text-theme-accent/)
+    await expect(projectHeading).toHaveClass(/text-theme-accent/)
   })
 
-  test("demo project appears in initial project list", async ({ page }) => {
-    // Without searching, verify demo project is in the list
-    const demoProjectHeading = page.locator("h1.juno-content-heading", { hasText: "demo" })
+  test("test project appears in initial project list", async ({ page }) => {
+    // Without searching, verify test project is in the list
+    const projectHeading = page.locator("h1.juno-content-heading", { hasText: testProject })
 
     // Should be visible (might need to scroll)
-    await expect(demoProjectHeading).toBeVisible({ timeout: 5000 })
+    await expect(projectHeading).toBeVisible({ timeout: 5000 })
   })
 })

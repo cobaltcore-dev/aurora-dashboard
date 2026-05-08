@@ -8,23 +8,27 @@ import { expectPageLoaded, expectNoJavaScriptErrors } from "../helpers/test-help
  * Tests the project detail page navigation and menu items.
  * Verifies that all expected navigation links are present.
  *
+ * Requires TEST_PROJECT environment variable to specify which project to test.
+ *
  * Run with: pnpm test:e2e e2e/ui/project-detail.spec.ts
  */
 test.describe("Project Detail View", () => {
+  const testProject = process.env.TEST_PROJECT || "demo"
+
   test.beforeEach(async ({ page }) => {
     // Login and land on projects overview
     await loginAsTestUser(page)
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(page)
 
-    // Search for demo project
+    // Search for test project
     const searchInput = page.locator('input[placeholder="Search..."]')
-    await searchInput.fill("demo")
+    await searchInput.fill(testProject)
     await page.waitForTimeout(500)
 
-    // Click on demo project
-    const demoProjectHeading = page.locator("h1.juno-content-heading", { hasText: "demo" })
-    await demoProjectHeading.click()
+    // Click on test project
+    const projectHeading = page.locator("h1.juno-content-heading", { hasText: testProject })
+    await projectHeading.click()
 
     // Wait for project detail page to load
     await expectPageLoaded(page)
