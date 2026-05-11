@@ -393,6 +393,15 @@ describe("pcaRouter", () => {
 
       expect(result).toEqual(validCreateCAResponse.certificate_authority)
       expect(ctx.__postMock).toHaveBeenCalledWith("v1/certificate-authorities", expect.any(Object))
+      const [, request] = ctx.__postMock.mock.calls[0]
+      expect(JSON.parse(request.body)).toEqual({
+        project_id: TEST_PROJECT_ID,
+        configuration: {
+          subject: {
+            common_name: "new-ca.example.com",
+          },
+        },
+      })
     })
 
     it("throws PARSE_ERROR on invalid create response payload", async () => {
@@ -438,6 +447,16 @@ describe("pcaRouter", () => {
 
       expect(result).toEqual(validCreateCertificateResponse.certificate)
       expect(ctx.__postMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates", expect.any(Object))
+      const [, request] = ctx.__postMock.mock.calls[0]
+      expect(JSON.parse(request.body)).toEqual({
+        configuration: {
+          validity: {
+            not_before: 1705315200,
+            not_after: 1736851200,
+          },
+        },
+        csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
+      })
     })
 
     it("throws PARSE_ERROR on invalid create certificate response payload", async () => {
