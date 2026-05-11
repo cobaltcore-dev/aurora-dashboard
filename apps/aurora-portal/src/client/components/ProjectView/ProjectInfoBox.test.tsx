@@ -236,18 +236,19 @@ describe("ProjectInfoBox", () => {
   })
 
   describe("Breadcrumb navigation", () => {
-    it("clicking project name navigates to projects list", async () => {
+    it("clicking project name navigates to project overview", async () => {
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
 
       await waitFor(() => screen.getByText("My Project"))
       fireEvent.click(screen.getByText("My Project"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects",
+        to: "/projects/$projectId",
+        params: { projectId: "test-project" },
       })
     })
 
-    it("clicking Compute breadcrumb on a service page navigates to compute overview", async () => {
+    it("Compute breadcrumb on a service page is not clickable", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         { routeId: `${PROJECT_ROUTE_ID}/compute/images/`, staticData: { section: "compute", service: "images" } },
@@ -258,13 +259,10 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Compute"))
       fireEvent.click(screen.getByText("Compute"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/compute/overview",
-        params: { projectId: "test-project" },
-      })
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
-    it("clicking Compute breadcrumb on a detail page navigates to compute overview", async () => {
+    it("Compute breadcrumb on a detail page is not clickable", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -278,10 +276,7 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Compute"))
       fireEvent.click(screen.getByText("Compute"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/compute/overview",
-        params: { projectId: "test-project" },
-      })
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     it("clicking Images breadcrumb on image detail navigates to images list", async () => {
@@ -324,7 +319,7 @@ describe("ProjectInfoBox", () => {
       })
     })
 
-    it("clicking Network breadcrumb on a service page navigates to network overview", async () => {
+    it("Network breadcrumb on a service page is not clickable", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -338,10 +333,7 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Network"))
       fireEvent.click(screen.getByText("Network"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/network/overview",
-        params: { projectId: "test-project" },
-      })
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     it("clicking Security Groups breadcrumb on detail navigates to securitygroups list", async () => {

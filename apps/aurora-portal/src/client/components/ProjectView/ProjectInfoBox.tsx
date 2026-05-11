@@ -74,31 +74,13 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     items.push({
       label: projectInfo.name,
-      onClick: () => navigate({ to: "/projects" }),
+      onClick: () => navigate({ to: "/projects/$projectId", params: { projectId } }),
     })
 
     if (sectionLabel && section) {
       if (isSectionPage || isOverviewPage) {
         items.push({ label: sectionLabel, active: true })
-      } else if (section === "compute") {
-        items.push({
-          label: sectionLabel,
-          onClick: () =>
-            navigate({
-              to: "/projects/$projectId/compute/overview",
-              params: { projectId },
-            }),
-        })
-      } else if (section === "network") {
-        items.push({
-          label: sectionLabel,
-          onClick: () =>
-            navigate({
-              to: "/projects/$projectId/network/overview",
-              params: { projectId },
-            }),
-        })
-      } else if (section === "storage") {
+      } else {
         items.push({ label: sectionLabel })
       }
     }
@@ -165,7 +147,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   const breadcrumbs = buildBreadcrumbs()
 
   return (
-    <Stack direction="vertical" className="my-6" gap="2">
+    <Stack direction="vertical" className="mt-8 mb-4" gap="2">
       <Breadcrumb>
         {breadcrumbs.map((item, index) => (
           <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
