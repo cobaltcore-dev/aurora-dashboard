@@ -44,9 +44,10 @@ function resolveS3Config(ctx: AuroraPortalContext): { endpoint?: string; region:
  * Base S3 middleware - resolves EC2 credentials and S3 config, but does NOT throw on missing credentials.
  * Adds to context:
  *   - s3Credentials: EC2CredentialResult | null
- *   - getS3Client: () => S3Client | undefined
+ *   - getS3Client: () => S3Client - throws FORBIDDEN if credentials missing
  *
  * Use this for procedures that need to check credential status without failing.
+ * Note: getS3Client() throws TRPCError when called without credentials.
  */
 const s3CredentialMiddleware = projectScopedProcedure.use(async function resolveS3(opts) {
   const { ctx, next } = opts
