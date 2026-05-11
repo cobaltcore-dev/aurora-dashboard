@@ -31,10 +31,6 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
-#. placeholder {0}: credentials.length
-msgid "{0} credential(s) for this project"
-msgstr ""
-
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} Container"
 
@@ -587,9 +583,6 @@ msgstr ""
 msgid "Creation Date"
 msgstr ""
 
-msgid "Credential deleted."
-msgstr ""
-
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
@@ -731,9 +724,6 @@ msgstr "Festplattenformat"
 msgid "Disk format is required"
 msgstr "Festplattenformat ist erforderlich"
 
-msgid "Dismiss"
-msgstr ""
-
 msgid "DNS"
 msgstr "DNS"
 
@@ -778,9 +768,6 @@ msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
 
 msgid "e.g., production, linux, ubuntu"
 msgstr "z. B. production, linux, ubuntu"
-
-msgid "EC2 credential created. Save the secret key — it won't be shown again."
-msgstr ""
 
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -1007,10 +994,6 @@ msgstr "{failedCount} von {totalCount} Image(s) konnten nicht gelöscht werden. 
 
 msgid "Failed to Delete Container"
 msgstr "Fehler beim Löschen des Containers"
-
-#. placeholder {0}: err.message
-msgid "Failed to delete credential: {0}"
-msgstr ""
 
 msgid "Failed to delete flavor. Please try again."
 msgstr "Fehler beim Löschen des Flavors. Bitte versuchen Sie es erneut."
@@ -1725,9 +1708,6 @@ msgstr "Keine benutzerdefinierten Metadaten. Klicken Sie auf \"Eigenschaft hinzu
 msgid "No custom properties defined"
 msgstr "Keine benutzerdefinierten Eigenschaften definiert"
 
-msgid "No EC2 credentials yet. Click \"Create Credential\" to generate one."
-msgstr ""
-
 msgid "No extra specs found. Click \"Add Metadata\" to create one."
 msgstr "Keine Metadata gefunden. Klicken Sie auf \"Metadata hinzufügen\", um eine zu erstellen."
 
@@ -2154,9 +2134,6 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
-msgid "S3 (dev)"
-msgstr ""
-
 msgid "S3 Bucket: {bucketName}"
 msgstr ""
 
@@ -2164,9 +2141,6 @@ msgid "S3 Buckets"
 msgstr ""
 
 msgid "S3 Credential Created"
-msgstr ""
-
-msgid "S3 Object Storage — EC2 Credentials"
 msgstr ""
 
 msgid "S3 Object Storage — Setup Required"

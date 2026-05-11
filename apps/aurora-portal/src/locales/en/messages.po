@@ -31,10 +31,6 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
-#. placeholder {0}: credentials.length
-msgid "{0} credential(s) for this project"
-msgstr "{0} credential(s) for this project"
-
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} container"
 
@@ -587,9 +583,6 @@ msgstr "Creating..."
 msgid "Creation Date"
 msgstr "Creation Date"
 
-msgid "Credential deleted."
-msgstr "Credential deleted."
-
 msgid "Custom"
 msgstr "Custom"
 
@@ -731,9 +724,6 @@ msgstr "Disk Format"
 msgid "Disk format is required"
 msgstr "Disk format is required"
 
-msgid "Dismiss"
-msgstr "Dismiss"
-
 msgid "DNS"
 msgstr "DNS"
 
@@ -778,9 +768,6 @@ msgstr "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 
 msgid "e.g., production, linux, ubuntu"
 msgstr "e.g., production, linux, ubuntu"
-
-msgid "EC2 credential created. Save the secret key — it won't be shown again."
-msgstr "EC2 credential created. Save the secret key — it won't be shown again."
 
 msgid "Edit"
 msgstr "Edit"
@@ -1007,10 +994,6 @@ msgstr "Failed to delete {failedCount} of {totalCount} image(s). Some images may
 
 msgid "Failed to Delete Container"
 msgstr "Failed to Delete Container"
-
-#. placeholder {0}: err.message
-msgid "Failed to delete credential: {0}"
-msgstr "Failed to delete credential: {0}"
 
 msgid "Failed to delete flavor. Please try again."
 msgstr "Failed to delete flavor. Please try again."
@@ -1725,9 +1708,6 @@ msgstr "No custom metadata. Click \"Add Property\" to create one."
 msgid "No custom properties defined"
 msgstr "No custom properties defined"
 
-msgid "No EC2 credentials yet. Click \"Create Credential\" to generate one."
-msgstr "No EC2 credentials yet. Click \"Create Credential\" to generate one."
-
 msgid "No extra specs found. Click \"Add Metadata\" to create one."
 msgstr "No extra specs found. Click \"Add Metadata\" to create one."
 
@@ -2154,9 +2134,6 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Factor must be an integer ≥ 1."
 
-msgid "S3 (dev)"
-msgstr "S3 (dev)"
-
 msgid "S3 Bucket: {bucketName}"
 msgstr "S3 Bucket: {bucketName}"
 
@@ -2165,9 +2142,6 @@ msgstr "S3 Buckets"
 
 msgid "S3 Credential Created"
 msgstr "S3 Credential Created"
-
-msgid "S3 Object Storage — EC2 Credentials"
-msgstr "S3 Object Storage — EC2 Credentials"
 
 msgid "S3 Object Storage — Setup Required"
 msgstr "S3 Object Storage — Setup Required"
