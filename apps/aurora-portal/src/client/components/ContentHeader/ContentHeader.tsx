@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Divider, ContentHeading } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import ClipboardText from "../ClipboardText"
@@ -5,7 +6,7 @@ import ClipboardText from "../ClipboardText"
 interface ContentHeaderProps {
   title: string
   projectId: string
-  actions?: React.ReactNode
+  actions?: ReactNode
 }
 
 export function ContentHeader({ title, projectId, actions }: ContentHeaderProps) {
