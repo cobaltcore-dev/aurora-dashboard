@@ -167,7 +167,7 @@ describe("SideNavBar", () => {
         )
 
         expect(screen.queryByText("Storage")).toBeInTheDocument()
-        expect(screen.queryByText("S3 (dev)")).toBeInTheDocument()
+        expect(screen.queryByText("S3 Buckets")).toBeInTheDocument()
         expect(screen.queryByText("Swift")).not.toBeInTheDocument()
       })
     })
@@ -273,7 +273,7 @@ describe("SideNavBar", () => {
 
         expect(screen.queryByText("Compute")).toBeInTheDocument()
         expect(screen.queryByText("Storage")).toBeInTheDocument()
-        expect(screen.queryByText("S3 (dev)")).toBeInTheDocument()
+        expect(screen.queryByText("S3 Buckets")).toBeInTheDocument()
       })
 
       it("handles malformed service data gracefully", () => {
