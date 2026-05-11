@@ -65,12 +65,49 @@ const validGetByIdCertificateResponse = {
   certificate: validCertificatesResponse.certificates[0],
 }
 
+const validCreateCAResponse = {
+  certificate_authority: {
+    id: "ca-new",
+    project_id: TEST_PROJECT_ID,
+    state: "CREATING" as const,
+    configuration: {
+      subject: {
+        common_name: "new-ca.example.com",
+      },
+    },
+  },
+}
+
+const validCreateCertificateResponse = {
+  certificate: {
+    id: "cert-new",
+    certificate_authority_id: "ca-1",
+    project_id: TEST_PROJECT_ID,
+    certificate: {
+      pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+      validity: {
+        not_before: 1705315200,
+        not_after: 1736851200,
+      },
+    },
+    configuration: {
+      validity: {
+        not_before: 1705315200,
+        not_after: 1736851200,
+      },
+    },
+    csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
+  },
+}
+
 const createMockContext = (opts?: {
   noClavis?: boolean
   parseError?: boolean
   certificateParseError?: boolean
   getByIdParseError?: boolean
   getByIdCertificateParseError?: boolean
+  createCAParseError?: boolean
+  createCertificateParseError?: boolean
 }) => {
   const {
     noClavis = false,
@@ -78,6 +115,8 @@ const createMockContext = (opts?: {
     certificateParseError = false,
     getByIdParseError = false,
     getByIdCertificateParseError = false,
+    createCAParseError = false,
+    createCertificateParseError = false,
   } = opts || {}
 
   const getMock = vi.fn().mockImplementation((url: string) => {
@@ -97,8 +136,22 @@ const createMockContext = (opts?: {
     })
   })
 
+  const postMock = vi.fn().mockImplementation((url: string) => {
+    let responseBody: unknown
+    if (url.includes("/certificates")) {
+      responseBody = createCertificateParseError ? { invalid: true } : validCreateCertificateResponse
+    } else {
+      responseBody = createCAParseError ? { invalid: true } : validCreateCAResponse
+    }
+
+    return Promise.resolve({
+      json: vi.fn().mockResolvedValue(responseBody),
+    })
+  })
+
   const clavisService = {
     get: getMock,
+    post: postMock,
   }
 
   const serviceMock = vi.fn().mockImplementation((serviceName: string) => {
@@ -120,6 +173,7 @@ const createMockContext = (opts?: {
     getMultipartData: vi.fn(),
     __serviceMock: serviceMock,
     __getMock: getMock,
+    __postMock: postMock,
   }
 }
 
@@ -318,6 +372,99 @@ describe("pcaRouter", () => {
         new TRPCError({
           code: "PARSE_ERROR",
           message: "Failed to parse response in pcaRouter.getByIdCertificate",
+        })
+      )
+    })
+  })
+
+  describe("create", () => {
+    it("creates certificate authority for valid input", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx as never)
+
+      const result = await caller.services.pca.create({
+        project_id: TEST_PROJECT_ID,
+        configuration: {
+          subject: {
+            common_name: "new-ca.example.com",
+          },
+        },
+      })
+
+      expect(result).toEqual(validCreateCAResponse.certificate_authority)
+      expect(ctx.__postMock).toHaveBeenCalledWith("v1/certificate-authorities", expect.any(Object))
+    })
+
+    it("throws PARSE_ERROR on invalid create response payload", async () => {
+      const ctx = createMockContext({ createCAParseError: true })
+      const caller = createCaller(ctx as never)
+
+      await expect(
+        caller.services.pca.create({
+          project_id: TEST_PROJECT_ID,
+          configuration: {
+            subject: {
+              common_name: "new-ca.example.com",
+            },
+          },
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "PARSE_ERROR",
+          message: "Failed to parse response in pcaRouter.create",
+        })
+      )
+    })
+  })
+
+  describe("createCertificate", () => {
+    it("creates certificate for valid input", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx as never)
+
+      const result = await caller.services.pca.createCertificate({
+        project_id: TEST_PROJECT_ID,
+        certificate_authority_id: "ca-1",
+        certificate: {
+          configuration: {
+            validity: {
+              not_before: 1705315200,
+              not_after: 1736851200,
+            },
+          },
+          csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
+        },
+      })
+
+      expect(result).toEqual(validCreateCertificateResponse.certificate)
+      expect(ctx.__postMock).toHaveBeenCalledWith(
+        "v1/certificate-authorities/ca-1/certificates",
+        expect.any(Object)
+      )
+    })
+
+    it("throws PARSE_ERROR on invalid create certificate response payload", async () => {
+      const ctx = createMockContext({ createCertificateParseError: true })
+      const caller = createCaller(ctx as never)
+
+      await expect(
+        caller.services.pca.createCertificate({
+          project_id: TEST_PROJECT_ID,
+          certificate_authority_id: "ca-1",
+          certificate: {
+            configuration: {
+              validity: {
+                not_before: 1705315200,
+                not_after: 1736851200,
+              },
+            },
+            csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
+          },
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "PARSE_ERROR",
+          message: "Failed to parse response in pcaRouter.createCertificate",
         })
       )
     })

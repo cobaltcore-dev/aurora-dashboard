@@ -111,11 +111,8 @@ export const CertificateIdInputSchema = CertificateAuthorityIdInputSchema.extend
   certificate_id: z.string().min(1),
 })
 
-const CertificateConfigurationSchema = z.object({
-  csr: z.string(),
-  configuration: z.object({
-    validity: CertificateValiditySchema,
-  }),
+export const CertificateConfigurationSchema = z.object({
+  validity: CertificateValiditySchema,
 })
 
 // Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates - Create new Certificate
@@ -124,14 +121,16 @@ export const CreateCertificateInputSchema = z.object({
   certificate_authority_id: z.string().min(1),
   certificate: z.object({
     configuration: CertificateConfigurationSchema,
+    csr: z.string(),
   }),
 })
 
 export const CertificateSchema = z.object({
-  ...CertificateConfigurationSchema.shape,
   certificate: CertificateAuthorityCertificateSchema,
   certificate_authority_id: z.string(),
   certificate_chain: CertificateAuthorityCertificateChainSchema.optional(),
+  configuration: CertificateConfigurationSchema,
+  csr: z.string().optional(),
   id: z.string(),
   project_id: z.string(),
 })

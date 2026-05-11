@@ -1,13 +1,16 @@
 import { describe, it, expect } from "vitest"
 import {
   CertificateAuthoritiesListSchema,
+  CertificateAuthorityCreateSchema,
   CertificateAuthorityResponseSchema,
   CertificateAuthoritySchema,
+  CertificateConfigurationSchema,
   CertificateAuthorityIdInputSchema,
   CertificateIdInputSchema,
   CertificateResponseSchema,
   CertificateSchema,
   CertificatesListSchema,
+  CreateCertificateInputSchema,
 } from "./pca"
 import { omit } from "@/server/helpers/object"
 
@@ -767,6 +770,83 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
           certificate_authority_id: "ca-456",
         }).success
       ).toBe(true)
+    })
+  })
+
+  describe("CertificateAuthorityCreateSchema", () => {
+    it("should validate create input with subject.common_name", () => {
+      expect(
+        CertificateAuthorityCreateSchema.safeParse({
+          configuration: {
+            subject: { common_name: "ca.example.com" },
+          },
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject create input without subject.common_name", () => {
+      expect(
+        CertificateAuthorityCreateSchema.safeParse({
+          configuration: {
+            subject: {},
+          },
+        }).success
+      ).toBe(false)
+    })
+  })
+
+  describe("CertificateConfigurationSchema", () => {
+    it("should validate certificate configuration payload", () => {
+      expect(
+        CertificateConfigurationSchema.safeParse({
+          validity: {
+            not_after: 1736851200,
+            not_before: 1705315200,
+          },
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject certificate configuration payload without validity", () => {
+      expect(CertificateConfigurationSchema.safeParse({}).success).toBe(false)
+    })
+  })
+
+  describe("CreateCertificateInputSchema", () => {
+    it("should validate create certificate input", () => {
+      expect(
+        CreateCertificateInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          certificate: {
+            configuration: {
+              validity: {
+                not_after: 1736851200,
+                not_before: 1705315200,
+              },
+            },
+            csr: "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+          },
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject create certificate input with empty certificate_authority_id", () => {
+      expect(
+        CreateCertificateInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "",
+          certificate: {
+            configuration: {
+              validity: {
+                not_after: 1736851200,
+                not_before: 1705315200,
+              },
+            },
+            csr: "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+          },
+        }).success
+      ).toBe(false)
     })
   })
 
