@@ -37,7 +37,7 @@ export const pcaRouter = {
    */
   create: projectScopedProcedure
     .input(CertificateAuthorityCreateSchema)
-    .query(async ({ input, ctx }): Promise<CertificateAuthority> => {
+    .mutation(async ({ input, ctx }): Promise<CertificateAuthority> => {
       return withErrorHandling(async () => {
         const pca = ctx.openstack?.service("clavis")
         validateOpenstackService(pca, "clavis")
@@ -79,7 +79,7 @@ export const pcaRouter = {
     }),
   createCertificate: projectScopedProcedure
     .input(CreateCertificateInputSchema)
-    .query(async ({ input, ctx }): Promise<Certificate> => {
+    .mutation(async ({ input, ctx }): Promise<Certificate> => {
       return withErrorHandling(async () => {
         const pca = ctx.openstack?.service("clavis")
         validateOpenstackService(pca, "clavis")
