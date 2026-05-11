@@ -77,12 +77,7 @@ export const CertificateAuthoritiesListSchema = z.object({
   certificate_authorities: z.array(CertificateAuthoritySchema),
 })
 
-/**
- * Input schema for creating a Certificate Authority.
- *
- * Used by:
- * - POST /v1/certificate-authorities - Create new Certificate Authority
- */
+// Used by: /v1/certificate-authorities -  Create new Certificate Authority
 export const CertificateAuthorityCreateSchema = z.object({
   configuration: z.object({
     subject: CertificateAuthoritySubjectSchema,

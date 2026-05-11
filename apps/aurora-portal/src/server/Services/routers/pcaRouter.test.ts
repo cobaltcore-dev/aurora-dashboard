@@ -437,10 +437,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validCreateCertificateResponse.certificate)
-      expect(ctx.__postMock).toHaveBeenCalledWith(
-        "v1/certificate-authorities/ca-1/certificates",
-        expect.any(Object)
-      )
+      expect(ctx.__postMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates", expect.any(Object))
     })
 
     it("throws PARSE_ERROR on invalid create certificate response payload", async () => {
