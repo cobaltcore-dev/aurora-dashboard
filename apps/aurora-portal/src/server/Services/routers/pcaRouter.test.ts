@@ -149,7 +149,10 @@ const createMockContext = (opts?: {
     })
   })
 
+  const delMock = vi.fn().mockResolvedValue(undefined)
+
   const clavisService = {
+    del: delMock,
     get: getMock,
     post: postMock,
   }
@@ -172,6 +175,7 @@ const createMockContext = (opts?: {
     terminateSession: vi.fn(),
     getMultipartData: vi.fn(),
     __serviceMock: serviceMock,
+    __delMock: delMock,
     __getMock: getMock,
     __postMock: postMock,
   }
@@ -271,6 +275,38 @@ describe("pcaRouter", () => {
         new TRPCError({
           code: "PARSE_ERROR",
           message: "Failed to parse response in pcaRouter.getById",
+        })
+      )
+    })
+  })
+
+  describe("delete", () => {
+    it("deletes certificate authority for valid input", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx as never)
+
+      const result = await caller.services.pca.delete({
+        project_id: TEST_PROJECT_ID,
+        certificate_authority_id: "ca-1",
+      })
+
+      expect(result).toBeUndefined()
+      expect(ctx.__delMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1")
+    })
+
+    it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
+      const ctx = createMockContext({ noClavis: true })
+      const caller = createCaller(ctx as never)
+
+      await expect(
+        caller.services.pca.delete({
+          project_id: TEST_PROJECT_ID,
+          certificate_authority_id: "ca-1",
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Clavis service is not available",
         })
       )
     })
