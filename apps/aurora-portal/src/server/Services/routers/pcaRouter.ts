@@ -13,6 +13,7 @@ import {
   CertificateResponseSchema,
   CertificateAuthorityCreateSchema,
   CreateCertificateInputSchema,
+  CertificateAuthorityImportInputSchema,
 } from "../types/pca"
 
 /** PCA (Private Certificate Authority) - Clavis service for certificate authority management  */
@@ -76,7 +77,27 @@ export const pcaRouter = {
         await pca.del(url)
       }, "delete certificate authority")
     }),
-  //
+  /**
+   * Imports Certificate Authority certificate
+   * Transitioning the CA from AWAITING_CERTIFICATE to READY state
+   * after which the CA becomes fully operational and can issue certificates to end entities
+   */
+  import: projectScopedProcedure
+    .input(CertificateAuthorityImportInputSchema)
+    .mutation(async ({ input, ctx }): Promise<CertificateAuthority> => {
+      return withErrorHandling(async () => {
+        const pca = ctx.openstack?.service("clavis")
+        validateOpenstackService(pca, "clavis")
+
+        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}:importCertificate`
+        const response = await pca.post(url, {
+          body: JSON.stringify({ imported_certificate_chain: input.imported_certificate_chain }),
+        })
+        const data = await response.json()
+
+        return parseOrThrow(CertificateAuthorityResponseSchema, data, "pcaRouter.import").certificate_authority
+      }, "import certificate of certificate authority")
+    }),
   listCertificates: projectScopedProcedure
     .input(CertificateAuthorityIdInputSchema)
     .query(async ({ input, ctx }): Promise<Certificate[]> => {

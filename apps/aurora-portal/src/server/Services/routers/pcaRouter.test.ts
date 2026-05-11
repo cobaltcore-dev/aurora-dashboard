@@ -108,6 +108,7 @@ const createMockContext = (opts?: {
   getByIdCertificateParseError?: boolean
   createCAParseError?: boolean
   createCertificateParseError?: boolean
+  importCAParseError?: boolean
 }) => {
   const {
     noClavis = false,
@@ -117,6 +118,7 @@ const createMockContext = (opts?: {
     getByIdCertificateParseError = false,
     createCAParseError = false,
     createCertificateParseError = false,
+    importCAParseError = false,
   } = opts || {}
 
   const getMock = vi.fn().mockImplementation((url: string) => {
@@ -140,6 +142,8 @@ const createMockContext = (opts?: {
     let responseBody: unknown
     if (url.includes("/certificates")) {
       responseBody = createCertificateParseError ? { invalid: true } : validCreateCertificateResponse
+    } else if (url.includes(":importCertificate")) {
+      responseBody = importCAParseError ? { invalid: true } : validCreateCAResponse
     } else {
       responseBody = createCAParseError ? { invalid: true } : validCreateCAResponse
     }
@@ -498,6 +502,50 @@ describe("pcaRouter", () => {
         new TRPCError({
           code: "PARSE_ERROR",
           message: "Failed to parse response in pcaRouter.createCertificate",
+        })
+      )
+    })
+  })
+
+  describe("import", () => {
+    it("imports certificate for valid input", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx as never)
+
+      const result = await caller.services.pca.import({
+        project_id: TEST_PROJECT_ID,
+        certificate_authority_id: "ca-1",
+        imported_certificate_chain:
+          "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+      })
+
+      expect(result).toEqual(validCreateCAResponse.certificate_authority)
+      expect(ctx.__postMock).toHaveBeenCalledWith(
+        "v1/certificate-authorities/ca-1:importCertificate",
+        expect.any(Object)
+      )
+      const [, request] = ctx.__postMock.mock.calls[ctx.__postMock.mock.calls.length - 1]
+      expect(JSON.parse(request.body)).toEqual({
+        imported_certificate_chain:
+          "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+      })
+    })
+
+    it("throws PARSE_ERROR on invalid import response payload", async () => {
+      const ctx = createMockContext({ importCAParseError: true })
+      const caller = createCaller(ctx as never)
+
+      await expect(
+        caller.services.pca.import({
+          project_id: TEST_PROJECT_ID,
+          certificate_authority_id: "ca-1",
+          imported_certificate_chain:
+            "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "PARSE_ERROR",
+          message: "Failed to parse response in pcaRouter.import",
         })
       )
     })

@@ -77,7 +77,7 @@ export const CertificateAuthoritiesListSchema = z.object({
   certificate_authorities: z.array(CertificateAuthoritySchema),
 })
 
-// Used by: /v1/certificate-authorities -  Create new Certificate Authority
+// Used by: /v1/certificate-authorities - Create new Certificate Authority
 export const CertificateAuthorityCreateSchema = z.object({
   configuration: z.object({
     subject: CertificateAuthoritySubjectSchema,
@@ -90,15 +90,17 @@ export const CertificateAuthorityCreateSchema = z.object({
  * Used by:
  * - GET /v1/certificate-authorities/{certificate_authority_id} - Show Certificate Authority details
  * - DELETE /v1/certificate-authorities/{certificate_authority_id} - Delete Certificate Authority
- * - POST /v1/certificate-authorities/{certificate_authority_id}:importCertificate - Import certificate of Certificate Authority
- *
  * - GET /v1/certificate-authorities/{certificate_authority_id}/certificates - List Certificates
- * - POST /v1/certificate-authorities/{certificate_authority_id}/certificates - Create new Certificate
  *
  */
 export const CertificateAuthorityIdInputSchema = z.object({
   project_id: z.string(),
   certificate_authority_id: z.string().min(1),
+})
+
+// Used by: /v1/certificate-authorities/{certificate_authority_id}:importCertificate - Import certificate of Certificate Authority
+export const CertificateAuthorityImportInputSchema = CertificateAuthorityIdInputSchema.extend({
+  imported_certificate_chain: z.string().min(1),
 })
 
 // Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates/{certificate_id} - Get Certificate details
