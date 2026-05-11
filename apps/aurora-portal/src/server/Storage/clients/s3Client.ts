@@ -19,8 +19,10 @@ export function createS3Client(access: string, secret: string, endpoint?: string
     )
   }
 
+  const resolvedRegion = region ?? process.env.CEPH_REGION ?? "default"
+
   return new S3Client({
-    region: region ?? process.env.CEPH_REGION ?? "default",
+    region: resolvedRegion,
     endpoint: resolvedEndpoint,
     credentials: {
       accessKeyId: access,

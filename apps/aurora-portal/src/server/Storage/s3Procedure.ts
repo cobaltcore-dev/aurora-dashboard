@@ -8,32 +8,34 @@ import { createS3Client } from "./clients/s3Client"
 export const NO_S3_CREDENTIALS = "NO_S3_CREDENTIALS" as const
 
 function resolveS3Config(ctx: AuroraPortalContext): { endpoint?: string; region: string } {
-  // Try S3-compatible service types in priority order
-  for (const serviceType of ["s3", "object-store-ceph", "ceph"]) {
-    try {
-      const service = ctx.openstack?.service(serviceType)
-      const endpoint = service?.getEndpoint?.()
+  const region = process.env.CEPH_REGION || "default"
 
-      if (endpoint) {
-        // Skip Swift URLs (contain /swift/ or /v1/AUTH_)
-        if (endpoint.includes("/swift/") || endpoint.includes("/v1/AUTH_")) {
-          continue
-        }
+  // Try to get endpoint from Ceph service catalog
+  try {
+    const service = ctx.openstack?.service("ceph")
+    const endpoint = service?.getEndpoint?.()
 
-        // Use region from env var (service.getEndpoint doesn't return region)
-        const region = process.env.CEPH_REGION || "default"
-        return { endpoint, region }
+    if (endpoint) {
+      // Extract base URL by removing Swift path
+      // Ceph RGW serves both Swift and S3 APIs on the same host
+      // Swift: https://rgw.st1.qa-de-1.cloud.sap/swift/v1/AUTH_xxx
+      // S3:    https://rgw.st1.qa-de-1.cloud.sap
+      const swiftIndex = endpoint.indexOf("/swift/")
+
+      if (swiftIndex !== -1) {
+        return { endpoint: endpoint.substring(0, swiftIndex), region }
       }
-    } catch {
-      // Service not available in catalog
-      continue
+
+      // Already a base URL without Swift path
+      return { endpoint, region }
     }
+  } catch (error) {
+    // Ceph service not available in catalog, fall through to env fallback
+    console.warn("[s3] Failed to resolve Ceph service from catalog:", error)
   }
 
   // Fallback to environment variables
-  const fallback = process.env.CEPH_S3_ENDPOINT
-  const fallbackRegion = process.env.CEPH_REGION || "default"
-  return { endpoint: fallback, region: fallbackRegion }
+  return { endpoint: process.env.CEPH_S3_ENDPOINT, region }
 }
 
 /**
