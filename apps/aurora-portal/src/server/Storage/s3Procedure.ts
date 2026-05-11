@@ -17,18 +17,15 @@ function resolveS3Config(ctx: AuroraPortalContext): { endpoint?: string; region:
       if (endpoint) {
         // Skip Swift URLs (contain /swift/ or /v1/AUTH_)
         if (endpoint.includes("/swift/") || endpoint.includes("/v1/AUTH_")) {
-          console.log(`[s3] skipping Swift endpoint (${serviceType}): ${endpoint}`)
           continue
         }
 
         // Use region from env var (service.getEndpoint doesn't return region)
         const region = process.env.CEPH_REGION || "default"
-        console.log(`[s3] resolved from catalog (${serviceType}): endpoint=${endpoint}, region=${region}`)
         return { endpoint, region }
       }
     } catch {
       // Service not available in catalog
-      console.log(`[s3] service ${serviceType} not available`)
       continue
     }
   }
@@ -36,7 +33,6 @@ function resolveS3Config(ctx: AuroraPortalContext): { endpoint?: string; region:
   // Fallback to environment variables
   const fallback = process.env.CEPH_S3_ENDPOINT
   const fallbackRegion = process.env.CEPH_REGION || "default"
-  console.log("[s3] using env fallback: endpoint=", fallback, "region=", fallbackRegion)
   return { endpoint: fallback, region: fallbackRegion }
 }
 
