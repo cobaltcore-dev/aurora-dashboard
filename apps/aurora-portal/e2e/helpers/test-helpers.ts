@@ -34,18 +34,22 @@ export async function expectNoJavaScriptErrors(page: Page) {
   // Give page time to fully render and execute
   await page.waitForTimeout(1000)
 
-  // Filter out known harmless errors if needed
-  const criticalErrors = errors.filter((error) => {
-    // Example: ignore ResizeObserver errors (common in many apps)
-    if (error.includes("ResizeObserver")) return false
-    // Ignore React development warnings about setState during render
-    // These are warnings, not critical errors that break functionality
-    if (error.includes("Cannot update a component") && error.includes("while rendering")) return false
-    // Ignore React warnings about nested buttons (Juno UI component issue)
-    // These are HTML validation warnings but don't break functionality
-    if (error.includes("cannot be a descendant of") || error.includes("cannot contain a nested")) return false
-    return true
-  })
+  // Filter out known harmless errors, but only in development mode
+  // In production, we want to catch all errors
+  const isDevelopment = process.env.NODE_ENV !== "production"
+  const criticalErrors = isDevelopment
+    ? errors.filter((error) => {
+        // Example: ignore ResizeObserver errors (common in many apps)
+        if (error.includes("ResizeObserver")) return false
+        // Ignore React development warnings about setState during render
+        // These are warnings, not critical errors that break functionality
+        if (error.includes("Cannot update a component") && error.includes("while rendering")) return false
+        // Ignore React warnings about nested buttons (Juno UI component issue)
+        // These are HTML validation warnings but don't break functionality
+        if (error.includes("cannot be a descendant of") || error.includes("cannot contain a nested")) return false
+        return true
+      })
+    : errors // In production, report all errors without filtering
 
   expect(criticalErrors, `Expected no JavaScript errors, but found: ${criticalErrors.join(", ")}`).toEqual([])
 }
