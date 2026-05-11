@@ -12,6 +12,7 @@ import {
   CertificateIdInputSchema,
   CertificateResponseSchema,
   CertificateAuthorityCreateSchema,
+  CreateCertificateInputSchema,
 } from "../types/pca"
 
 /** PCA (Private Certificate Authority) - Clavis service for certificate authority management  */
@@ -47,7 +48,7 @@ export const pcaRouter = {
         // Certificate Authority creation initiated successfully (async operation)
         return parseOrThrow(CertificateAuthorityResponseSchema, data, "pcaRouter.create").certificate_authority
       }, "create certificate authority")
-  }),
+    }),
   getById: projectScopedProcedure
     .input(CertificateAuthorityIdInputSchema)
     .query(async ({ input, ctx }): Promise<CertificateAuthority> => {
@@ -75,6 +76,20 @@ export const pcaRouter = {
 
         return parseOrThrow(CertificatesListSchema, data, "pcaRouter.listCertificates").certificates
       }, "list certificates for certificate authority")
+    }),
+  createCertificate: projectScopedProcedure
+    .input(CreateCertificateInputSchema)
+    .query(async ({ input, ctx }): Promise<Certificate> => {
+      return withErrorHandling(async () => {
+        const pca = ctx.openstack?.service("clavis")
+        validateOpenstackService(pca, "clavis")
+
+        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates`
+        const response = await pca.post(url, { body: JSON.stringify(input.certificate) })
+        const data = await response.json()
+
+        return parseOrThrow(CertificateResponseSchema, data, "pcaRouter.createCertificate").certificate
+      }, "create certificate for certificate authority")
     }),
   getByIdCertificate: projectScopedProcedure
     .input(CertificateIdInputSchema)
