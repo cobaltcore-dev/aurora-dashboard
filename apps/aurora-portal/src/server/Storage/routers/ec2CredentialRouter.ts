@@ -52,10 +52,8 @@ export const ec2CredentialRouter = {
       }
 
       const identityService = ctx.openstack.service("identity")
-      console.log("[ec2] identity endpoints:", identityService.availableEndpoints())
       const response = await identityService.get("credentials", {
         queryParams: { user_id: userId, type: "ec2" },
-        debug: true,
       })
 
       if (!response.ok) {
