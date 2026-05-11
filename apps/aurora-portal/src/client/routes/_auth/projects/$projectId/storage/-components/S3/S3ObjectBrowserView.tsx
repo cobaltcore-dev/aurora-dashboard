@@ -101,9 +101,10 @@ export function S3ObjectBrowserView({ bucketName }: S3ObjectBrowserViewProps) {
   }
 
   if (error) {
+    const errorMessage = error.message
     return (
       <p className="text-juno-red mt-4 text-sm">
-        <Trans>Failed to load objects: {error.message}</Trans>
+        <Trans>Failed to load objects: {errorMessage}</Trans>
       </p>
     )
   }

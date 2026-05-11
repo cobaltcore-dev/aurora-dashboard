@@ -20,9 +20,10 @@ export function S3CredentialPrompt({ onSuccess }: S3CredentialPromptProps) {
       utils.storage.s3.ec2Credentials.list.invalidate()
     },
     onError: (err) => {
+      const errorMessage = err.message
       setToast({
         variant: "error",
-        children: <Trans>Failed to create credential: {err.message}</Trans>,
+        children: <Trans>Failed to create credential: {errorMessage}</Trans>,
         autoDismiss: true,
         autoDismissTimeout: 5000,
         onDismiss: () => setToast(null),

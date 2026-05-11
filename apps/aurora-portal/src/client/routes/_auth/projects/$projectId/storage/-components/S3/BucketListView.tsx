@@ -33,9 +33,10 @@ export function BucketListView() {
   }
 
   if (error) {
+    const errorMessage = error.message
     return (
       <p className="text-juno-red mt-4 text-sm">
-        <Trans>Failed to load buckets: {error.message}</Trans>
+        <Trans>Failed to load buckets: {errorMessage}</Trans>
       </p>
     )
   }
