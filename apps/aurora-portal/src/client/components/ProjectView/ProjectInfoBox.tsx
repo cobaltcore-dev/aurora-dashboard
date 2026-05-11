@@ -1,6 +1,4 @@
 import { Breadcrumb, BreadcrumbItem, Stack } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
-import ClipboardText from "../ClipboardText"
 import { useRouteContext, useMatches, useNavigate, useParams } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
 import { isRouteInfo } from "@/client/routes/routeInfo"
@@ -167,20 +165,12 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   const breadcrumbs = buildBreadcrumbs()
 
   return (
-    <Stack direction="vertical" className="my-6" gap="2">
-      <Stack direction="horizontal" alignment="center">
-        <Breadcrumb>
-          {breadcrumbs.map((item, index) => (
-            <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
-          ))}
-        </Breadcrumb>
-        <div className="text-theme-light ml-auto flex items-center gap-1">
-          <span className="font-semibold">
-            <Trans>Project ID</Trans>:{" "}
-          </span>
-          <ClipboardText text={projectInfo.id} truncateAt={15} />
-        </div>
-      </Stack>
+    <Stack direction="vertical">
+      <Breadcrumb>
+        {breadcrumbs.map((item, index) => (
+          <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
+        ))}
+      </Breadcrumb>
     </Stack>
   )
 }

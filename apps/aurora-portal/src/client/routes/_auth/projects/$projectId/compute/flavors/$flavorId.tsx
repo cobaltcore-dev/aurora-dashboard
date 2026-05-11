@@ -1,7 +1,6 @@
 import {
   Button,
   ButtonRow,
-  ContentHeading,
   Stack,
   Spinner,
   PopupMenu,
@@ -21,6 +20,7 @@ import { EditSpecModal } from "../-components/Flavors/-components/EditSpecModal"
 import { ManageAccessModal } from "../-components/Flavors/-components/ManageAccessModal"
 import { DeleteFlavorModal } from "../-components/Flavors/-components/DeleteFlavorModal"
 import { useModal } from "@/client/utils/useModal"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors/$flavorId")({
   staticData: { section: "compute", service: "flavors", isDetail: true } satisfies RouteInfo,
@@ -150,30 +150,33 @@ function RouteComponent() {
 
   const hasMoreActions = canManageAccess || canDeleteFlavor
 
+  const headerActions = (
+    <ButtonRow>
+      {hasMoreActions && (
+        <PopupMenu>
+          <PopupMenuToggle as="div">
+            <Button icon="moreVert">
+              <Trans>More Actions</Trans>
+            </Button>
+          </PopupMenuToggle>
+          <PopupMenuOptions>
+            {canManageAccess && <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} />}
+            {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
+          </PopupMenuOptions>
+        </PopupMenu>
+      )}
+      {canManageSpecs && (
+        <Button onClick={toggleSpecModal} variant="primary">
+          <Trans>Metadata</Trans>
+        </Button>
+      )}
+    </ButtonRow>
+  )
+
   return (
     <>
-      <ContentHeading>{flavor.name}</ContentHeading>
+      <ContentHeader title={flavor.name} projectId={projectId} actions={headerActions} />
       <Stack direction="vertical">
-        <ButtonRow>
-          {hasMoreActions && (
-            <PopupMenu>
-              <PopupMenuToggle as="div">
-                <Button icon="moreVert">
-                  <Trans>More Actions</Trans>
-                </Button>
-              </PopupMenuToggle>
-              <PopupMenuOptions>
-                {canManageAccess && <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} />}
-                {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
-              </PopupMenuOptions>
-            </PopupMenu>
-          )}
-          {canManageSpecs && (
-            <Button onClick={toggleSpecModal} variant="primary">
-              <Trans>Metadata</Trans>
-            </Button>
-          )}
-        </ButtonRow>
         <FlavorDetailsView flavor={flavor} />
       </Stack>
 

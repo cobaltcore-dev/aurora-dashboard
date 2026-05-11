@@ -47,14 +47,6 @@ describe("ProjectInfoBox", () => {
   })
 
   describe("Rendering", () => {
-    it("renders project ID", async () => {
-      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
-      await waitFor(() => {
-        expect(screen.getByText(/Project ID/)).toBeInTheDocument()
-        expect(screen.getByText(/project-123/)).toBeInTheDocument()
-      })
-    })
-
     it("renders project name in breadcrumb", async () => {
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
       await waitFor(() => {
