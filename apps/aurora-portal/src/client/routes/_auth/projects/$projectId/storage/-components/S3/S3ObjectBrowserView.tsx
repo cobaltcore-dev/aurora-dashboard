@@ -38,6 +38,7 @@ export function S3ObjectBrowserView({ bucketName }: S3ObjectBrowserViewProps) {
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined)
   const [allObjects, setAllObjects] = useState<S3Object[]>([])
   const [allFolders, setAllFolders] = useState<S3FolderPrefix[]>([])
+  const [hasMore, setHasMore] = useState(false)
 
   const { data, isLoading, error } = trpcReact.storage.s3.objects.list.useQuery(
     {
@@ -65,6 +66,8 @@ export function S3ObjectBrowserView({ bucketName }: S3ObjectBrowserViewProps) {
         setAllObjects(data.objects)
         setAllFolders(data.folders)
       }
+      // Update hasMore state
+      setHasMore(data.isTruncated ?? false)
     }
   }, [data, continuationToken])
 
@@ -73,6 +76,7 @@ export function S3ObjectBrowserView({ bucketName }: S3ObjectBrowserViewProps) {
     setContinuationToken(undefined)
     setAllObjects([])
     setAllFolders([])
+    setHasMore(false)
     navigate({
       to: ".",
       search: { prefix: prefix ? encodePrefix(prefix) : undefined },
@@ -103,8 +107,6 @@ export function S3ObjectBrowserView({ bucketName }: S3ObjectBrowserViewProps) {
       </p>
     )
   }
-
-  const hasMore = data?.isTruncated ?? false
 
   return (
     <Stack direction="vertical" gap="4">
