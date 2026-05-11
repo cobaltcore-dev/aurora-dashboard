@@ -328,6 +328,9 @@ msgstr "Bulk upload of archive files"
 msgid "Cancel"
 msgstr "Cancel"
 
+msgid "Cancel upload"
+msgstr "Cancel upload"
+
 msgid "Cannot delete. Container contains objects. Please empty it first."
 msgstr "Cannot delete. Container contains objects. Please empty it first."
 
@@ -2653,6 +2656,9 @@ msgstr "Updating security group..."
 msgid "Upload"
 msgstr "Upload"
 
+msgid "Upload Cancelled"
+msgstr "Upload Cancelled"
+
 msgid "Upload failed: {uploadError}"
 msgstr "Upload failed: {uploadError}"
 
@@ -2661,6 +2667,9 @@ msgstr "Upload Object"
 
 msgid "Upload object to:"
 msgstr "Upload object to:"
+
+msgid "Upload of \"{objectName}\" was cancelled."
+msgstr "Upload of \"{objectName}\" was cancelled."
 
 msgid "Uploading..."
 msgstr "Uploading..."

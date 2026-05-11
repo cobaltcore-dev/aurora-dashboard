@@ -7,6 +7,7 @@ import { logger } from "./logger"
 
 export interface ServiceActionOptions extends SignalOpenstackOptions {
   queryParams?: Record<string, string | number | boolean | string[]>
+  signal?: AbortSignal
 }
 
 /**
@@ -37,6 +38,7 @@ export function SignalOpenstackService(
       debug,
       queryParams,
       proxy,
+      signal,
     } = {
       ...serviceOptions,
       ...clientOptions,
@@ -63,6 +65,7 @@ export function SignalOpenstackService(
       debug,
       queryParams,
       proxy,
+      signal,
     }
   }
 

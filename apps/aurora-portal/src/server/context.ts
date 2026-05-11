@@ -119,6 +119,15 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
   opts.req.raw.on("close", () => {
     if (!opts.req.raw.complete) abort()
   })
+
+  // Prevent unhandled 'error' event crash when the client aborts mid-upload.
+  // Node.js emits ECONNRESET on req.raw when the TCP connection is reset —
+  // without a listener this bubbles up as an uncaught exception and kills the process.
+  opts.req.raw.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "ECONNRESET" || err.code === "ECONNABORTED") {
+      abort()
+    }
+  })
   // Expose the signal on the Fastify request object so it can be accessed
   // anywhere that has access to req (e.g. non-tRPC routes like upload-image-direct).
   Object.defineProperty(opts.req, "signal", { value: abortController.signal, writable: false })

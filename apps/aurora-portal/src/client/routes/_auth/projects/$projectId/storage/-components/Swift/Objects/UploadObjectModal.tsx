@@ -15,6 +15,7 @@ interface UploadObjectModalProps {
   onClose: () => void
   onSuccess?: (objectName: string) => void
   onError?: (objectName: string, errorMessage: string) => void
+  onCancelled?: (objectName: string) => void
 }
 
 export const UploadObjectModal = ({
@@ -26,6 +27,7 @@ export const UploadObjectModal = ({
   onClose,
   onSuccess,
   onError,
+  onCancelled,
 }: UploadObjectModalProps) => {
   const { t } = useLingui()
 
@@ -38,8 +40,13 @@ export const UploadObjectModal = ({
 
   const submittedNameRef = useRef("")
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const utils = trpcReact.useUtils()
+
+  const handleCancelUpload = () => {
+    abortControllerRef.current?.abort()
+  }
 
   // Subscribe to upload progress — uploadId is set before the upload starts
   // so the subscription is active from the very first byte.
@@ -106,6 +113,9 @@ export const UploadObjectModal = ({
     submittedNameRef.current = selectedFile.name
     setUploadError(null)
 
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     // Compute uploadId client-side before upload starts — subscription must be
     // active before the first progress event fires from the BFF.
     setUploadId(activeUploadId)
@@ -126,18 +136,39 @@ export const UploadObjectModal = ({
         },
       }
 
-      await trpcClient.storage.swift.uploadObject.mutate(selectedFile, { context: uploadContext })
+      await trpcClient.storage.swift.uploadObject.mutate(selectedFile, {
+        context: uploadContext,
+        signal: controller.signal,
+      })
 
       utils.storage.swift.listObjects.invalidate({ container })
+      setIsPending(false)
+      setUploadId(null)
+      abortControllerRef.current = null
       onSuccess?.(submittedNameRef.current)
       handleClose()
     } catch (err) {
+      const isAborted =
+        err instanceof Error &&
+        (err.name === "AbortError" ||
+          err.message === "Request canceled" ||
+          err.message.includes("signal is aborted") ||
+          err.message.includes("aborted"))
+      if (isAborted) {
+        setIsPending(false)
+        setUploadId(null)
+        abortControllerRef.current = null
+        onCancelled?.(submittedNameRef.current)
+        handleClose()
+        return
+      }
       const message = err instanceof Error ? err.message : String(err)
       setUploadError(message)
       onError?.(submittedNameRef.current, message)
     } finally {
       setIsPending(false)
       setUploadId(null)
+      abortControllerRef.current = null
     }
   }
 
@@ -162,13 +193,12 @@ export const UploadObjectModal = ({
         </span>
       }
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={isPending ? handleCancelUpload : handleClose}
       confirmButtonLabel={isPending ? t`Uploading...` : t`Upload`}
       onConfirm={handleSubmit}
-      cancelButtonLabel={t`Cancel`}
+      cancelButtonLabel={isPending ? t`Cancel upload` : t`Cancel`}
       size="small"
       disableConfirmButton={isPending || !selectedFile}
-      disableCancelButton={isPending}
       disableCloseButton={isPending}
     >
       <Stack direction="vertical" gap="4">
@@ -245,7 +275,7 @@ export const UploadObjectModal = ({
 
         {/* Upload progress */}
         {isPending && (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             <span className="text-theme-light flex items-center gap-2 text-sm">
               <Spinner size="small" />
               {progressPct !== null ? <Trans>Uploading... {progressPct}%</Trans> : <Trans>Uploading...</Trans>}
