@@ -165,7 +165,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   const breadcrumbs = buildBreadcrumbs()
 
   return (
-    <Stack direction="vertical">
+    <Stack direction="vertical" className="my-6" gap="2">
       <Breadcrumb>
         {breadcrumbs.map((item, index) => (
           <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
