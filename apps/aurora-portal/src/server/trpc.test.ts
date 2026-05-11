@@ -45,6 +45,7 @@ const createMockContext = (opts?: {
 
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
+    signal: new AbortController().signal,
     openstack: mockOpenstackSession,
     getUserInfo: vi.fn().mockResolvedValue({
       availableDomains,
