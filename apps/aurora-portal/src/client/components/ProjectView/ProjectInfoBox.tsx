@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, Stack } from "@cloudoperators/juno-ui-components"
+import { Breadcrumb, BreadcrumbItem } from "@cloudoperators/juno-ui-components"
 import { useRouteContext, useMatches, useNavigate, useParams } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
 import { isRouteInfo } from "@/client/routes/routeInfo"
@@ -181,12 +181,10 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   const breadcrumbs = buildBreadcrumbs()
 
   return (
-    <Stack direction="vertical" className="mt-8 mb-4" gap="2">
-      <Breadcrumb>
-        {breadcrumbs.map((item, index) => (
-          <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
-        ))}
-      </Breadcrumb>
-    </Stack>
+    <Breadcrumb className="mt-8 mb-4">
+      {breadcrumbs.map((item, index) => (
+        <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
+      ))}
+    </Breadcrumb>
   )
 }
