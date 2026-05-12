@@ -77,6 +77,13 @@ export const CertificateAuthoritiesListSchema = z.object({
   certificate_authorities: z.array(CertificateAuthoritySchema),
 })
 
+// Used by: /v1/certificate-authorities -  Create new Certificate Authority
+export const CertificateAuthorityCreateSchema = z.object({
+  configuration: z.object({
+    subject: CertificateAuthoritySubjectSchema,
+  }),
+})
+
 /**
  * Input schema for Certificate Authority resource identification.
  *
@@ -99,13 +106,25 @@ export const CertificateIdInputSchema = CertificateAuthorityIdInputSchema.extend
   certificate_id: z.string().min(1),
 })
 
+export const CertificateConfigurationSchema = z.object({
+  validity: CertificateValiditySchema,
+})
+
+// Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates - Create new Certificate
+export const CreateCertificateInputSchema = z.object({
+  project_id: z.string(),
+  certificate_authority_id: z.string().min(1),
+  certificate: z.object({
+    configuration: CertificateConfigurationSchema,
+    csr: z.string(),
+  }),
+})
+
 export const CertificateSchema = z.object({
   certificate: CertificateAuthorityCertificateSchema,
   certificate_authority_id: z.string(),
   certificate_chain: CertificateAuthorityCertificateChainSchema.optional(),
-  configuration: z.object({
-    validity: CertificateValiditySchema,
-  }),
+  configuration: CertificateConfigurationSchema,
   csr: z.string().optional(),
   id: z.string(),
   project_id: z.string(),

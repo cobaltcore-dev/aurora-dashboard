@@ -383,6 +383,7 @@ export const SwiftObjects = () => {
       />
 
       <UploadObjectModal
+        projectId={projectId}
         isOpen={uploadModalOpen}
         currentPrefix={currentPrefix}
         container={containerName}
