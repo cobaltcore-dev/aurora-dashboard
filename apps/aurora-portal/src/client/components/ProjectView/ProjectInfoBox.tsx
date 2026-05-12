@@ -25,7 +25,7 @@ const SERVICE_LABELS: Record<string, string> = {
   flavors: "Flavors",
   securitygroups: "Security Groups",
   floatingips: "Floating IPs",
-  containers: "Swift",
+  containers: "Object Storage (Swift)",
 }
 
 export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {

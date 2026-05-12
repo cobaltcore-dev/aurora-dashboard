@@ -1783,8 +1783,8 @@ msgstr "Object name is required"
 msgid "Object properties"
 msgstr "Object properties"
 
-msgid "Object Storage"
-msgstr "Object Storage"
+msgid "Object Storage (Swift)"
+msgstr "Object Storage (Swift)"
 
 msgid "Object Type"
 msgstr "Object Type"
@@ -2328,9 +2328,6 @@ msgstr "Swap (MiB)"
 
 msgid "Swap Disk must be an integer ≥ 0."
 msgstr "Swap Disk must be an integer ≥ 0."
-
-msgid "Swift"
-msgstr "Swift"
 
 msgid "Symlinks"
 msgstr "Symlinks"

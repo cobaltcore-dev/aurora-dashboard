@@ -76,7 +76,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
       ? [
           {
             service: "containers",
-            label: t`Swift`,
+            label: t`Object Storage (Swift)`,
             to: "/projects/$projectId/storage/$provider/containers" as const,
             params: { projectId, provider: "swift" },
           },

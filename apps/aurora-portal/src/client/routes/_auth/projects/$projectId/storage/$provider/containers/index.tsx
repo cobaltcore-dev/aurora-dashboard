@@ -127,7 +127,7 @@ function StorageDashboard() {
   switch (provider) {
     case "swift":
     case "ceph":
-      pageTitle = t`Object Storage`
+      pageTitle = t`Object Storage (Swift)`
       break
     default:
       pageTitle = t`Storage Overview`

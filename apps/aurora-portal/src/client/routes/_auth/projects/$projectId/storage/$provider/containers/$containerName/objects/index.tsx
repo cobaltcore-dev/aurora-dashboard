@@ -2,7 +2,7 @@ import { createFileRoute, redirect, useParams } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Trans } from "@lingui/react/macro"
 import { SwiftObjects } from "../../../../-components/Swift/Objects"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
@@ -135,9 +135,7 @@ function ObjectsDashboard() {
   const { prefix, sortBy, sortDirection, search } = Route.useSearch()
 
   const { setPageTitle } = Route.useRouteContext()
-  const { t } = useLingui()
-
-  const pageTitle = provider === "swift" || provider === "ceph" ? t`Object Storage` : t`Storage Overview`
+  const pageTitle = containerName
 
   useEffect(() => {
     setPageTitle(pageTitle)
