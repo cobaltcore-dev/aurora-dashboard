@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import { Images } from "../-components/Images/List"
 import type { RouteInfo } from "@/client/routes/routeInfo"
-import { ContentHeading } from "@cloudoperators/juno-ui-components"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/")({
   staticData: { section: "compute", service: "images" } satisfies RouteInfo,
@@ -16,7 +16,7 @@ function RouteComponent() {
   setPageTitle(t`Images`)
   return (
     <>
-      <ContentHeading>{t`Images`}</ContentHeading>
+      <ContentHeader title={t`Images`} projectId={projectId} />
       <Images client={trpcClient!} project={projectId} />
     </>
   )

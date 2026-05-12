@@ -1784,7 +1784,10 @@ msgid "Object properties"
 msgstr "Objekt-Eigenschaften"
 
 msgid "Object Storage"
-msgstr "Object Storage"
+msgstr ""
+
+msgid "Object Storage (Swift)"
+msgstr "Object Storage (Swift)"
 
 msgid "Object Type"
 msgstr "Objekttyp"
@@ -1923,6 +1926,9 @@ msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist m
 
 msgid "production, linux"
 msgstr "production, linux"
+
+msgid "Project"
+msgstr "Projekt"
 
 msgid "Project id"
 msgstr "Projekt-ID"
@@ -2325,9 +2331,6 @@ msgstr "Swap (MiB)"
 
 msgid "Swap Disk must be an integer ≥ 0."
 msgstr "Swap-Disk muss eine ganze Zahl ≥ 0 sein."
-
-msgid "Swift"
-msgstr "Swift"
 
 msgid "Symlinks"
 msgstr "Symlinks"
