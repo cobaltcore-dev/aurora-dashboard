@@ -334,6 +334,9 @@ msgstr "Cannot delete. Container contains objects. Please empty it first."
 msgid "Capabilities"
 msgstr "Capabilities"
 
+msgid "Ceph"
+msgstr "Ceph"
+
 msgid "Ceph Objects — {containerName}"
 msgstr "Ceph Objects — {containerName}"
 

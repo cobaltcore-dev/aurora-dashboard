@@ -334,6 +334,9 @@ msgstr "Löschen nicht möglich. Container enthält Objekte. Bitte leeren Sie ih
 msgid "Capabilities"
 msgstr "Capabilities"
 
+msgid "Ceph"
+msgstr ""
+
 msgid "Ceph Objects — {containerName}"
 msgstr "Ceph-Objekte — {containerName}"
 
