@@ -799,8 +799,11 @@ msgstr "Empty container:"
 msgid "Empty Containers"
 msgstr "Empty Containers"
 
-msgid "Emptying {progressCurrent} of {progressTotal}..."
-msgstr "Emptying {progressCurrent} of {progressTotal}..."
+msgid "Emptying container {progressCurrent} of {progressTotal}, please wait..."
+msgstr "Emptying container {progressCurrent} of {progressTotal}, please wait..."
+
+msgid "Emptying..."
+msgstr "Emptying..."
 
 msgid "Enable file listing"
 msgstr "Enable file listing"

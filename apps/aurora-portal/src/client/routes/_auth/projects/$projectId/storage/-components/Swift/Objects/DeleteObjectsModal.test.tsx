@@ -16,31 +16,34 @@ vi.mock("@/client/hooks/useProjectId", () => ({
 
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
-const mockReset = vi.fn()
-const mockInvalidate = vi.fn()
-
 type BulkDeleteResult = {
   numberDeleted: number
   numberNotFound: number
   errors: { path: string; status: string; error: string }[]
 }
 
-let mutationError: string | null = null
-let mutationResult: BulkDeleteResult = { numberDeleted: 3, numberNotFound: 0, errors: [] }
-
-let capturedMutationOptions: {
+type MutationOptions = {
   onSuccess?: (result: BulkDeleteResult) => void
   onError?: (error: { message: string }) => void
   onSettled?: () => void
-} = {}
+}
 
-const mockMutate = vi.fn().mockImplementation(() => {
-  if (mutationError) {
-    capturedMutationOptions.onError?.({ message: mutationError })
-  } else {
-    capturedMutationOptions.onSuccess?.(mutationResult)
+const { mockReset, mockInvalidate, mockMutate, mockState } = vi.hoisted(() => {
+  const mockState = {
+    mutationError: null as string | null,
+    mutationResult: { numberDeleted: 3, numberNotFound: 0, errors: [] } as BulkDeleteResult,
+    isPending: false,
+    capturedOptions: {} as MutationOptions,
   }
-  capturedMutationOptions.onSettled?.()
+  const mockMutate = vi.fn().mockImplementation(() => {
+    if (mockState.mutationError) {
+      mockState.capturedOptions.onError?.({ message: mockState.mutationError })
+    } else {
+      mockState.capturedOptions.onSuccess?.(mockState.mutationResult)
+    }
+    mockState.capturedOptions.onSettled?.()
+  })
+  return { mockReset: vi.fn(), mockInvalidate: vi.fn(), mockMutate, mockState }
 })
 
 vi.mock("@/client/trpcClient", () => ({
@@ -55,9 +58,9 @@ vi.mock("@/client/trpcClient", () => ({
     storage: {
       swift: {
         bulkDelete: {
-          useMutation: (options: typeof capturedMutationOptions) => {
-            capturedMutationOptions = options ?? {}
-            return { mutate: mockMutate, reset: mockReset, isPending: false }
+          useMutation: (options: MutationOptions) => {
+            mockState.capturedOptions = options ?? {}
+            return { mutate: mockMutate, reset: mockReset, isPending: mockState.isPending }
           },
         },
       },
@@ -113,9 +116,10 @@ const renderModal = ({
 describe("DeleteObjectsModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
-    mutationError = null
-    mutationResult = { numberDeleted: 3, numberNotFound: 0, errors: [] }
-    capturedMutationOptions = {}
+    mockState.mutationError = null
+    mockState.mutationResult = { numberDeleted: 3, numberNotFound: 0, errors: [] }
+    mockState.capturedOptions = {}
+    mockState.isPending = false
     await act(async () => {
       i18n.activate("en")
     })
@@ -199,6 +203,31 @@ describe("DeleteObjectsModal", () => {
     })
   })
 
+  describe("Pending state", () => {
+    test("shows Deleting... label on confirm button while isPending", () => {
+      mockState.isPending = true
+      renderModal()
+      expect(screen.getByRole("button", { name: /Deleting\.\.\./i })).toBeInTheDocument()
+    })
+
+    test("disables confirm button while isPending", () => {
+      mockState.isPending = true
+      renderModal()
+      expect(screen.getByRole("button", { name: /Deleting\.\.\./i })).toBeDisabled()
+    })
+
+    test("disables cancel button while isPending", () => {
+      mockState.isPending = true
+      renderModal()
+      expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled()
+    })
+
+    test("shows Delete label on confirm button when not pending", () => {
+      renderModal()
+      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeInTheDocument()
+    })
+  })
+
   describe("Submission", () => {
     test("calls mutate with fully-qualified object paths on Delete click", async () => {
       const user = userEvent.setup()
@@ -254,7 +283,7 @@ describe("DeleteObjectsModal", () => {
     })
 
     test("calls onSuccess when errors array is empty even with numberNotFound > 0", async () => {
-      mutationResult = { numberDeleted: 2, numberNotFound: 1, errors: [] }
+      mockState.mutationResult = { numberDeleted: 2, numberNotFound: 1, errors: [] }
       const onSuccess = vi.fn()
       const user = userEvent.setup()
       renderModal({ onSuccess })
@@ -267,7 +296,7 @@ describe("DeleteObjectsModal", () => {
 
   describe("Error handling", () => {
     test("calls onError with message when mutation throws", async () => {
-      mutationError = "Bulk delete failed with status 500"
+      mockState.mutationError = "Bulk delete failed with status 500"
       const onError = vi.fn()
       const user = userEvent.setup()
       renderModal({ onError })
@@ -278,7 +307,7 @@ describe("DeleteObjectsModal", () => {
     })
 
     test("calls onError not onSuccess when mutation throws", async () => {
-      mutationError = "Internal Server Error"
+      mockState.mutationError = "Internal Server Error"
       const onSuccess = vi.fn()
       const onError = vi.fn()
       const user = userEvent.setup()
@@ -291,7 +320,7 @@ describe("DeleteObjectsModal", () => {
     })
 
     test("calls only onError with combined message in partial-success case", async () => {
-      mutationResult = {
+      mockState.mutationResult = {
         numberDeleted: 1,
         numberNotFound: 0,
         errors: [{ path: "/test-container/file-b.png", status: "403", error: "Forbidden" }],
@@ -312,7 +341,7 @@ describe("DeleteObjectsModal", () => {
     })
 
     test("calls onError with per-path details when result contains errors", async () => {
-      mutationResult = {
+      mockState.mutationResult = {
         numberDeleted: 1,
         numberNotFound: 0,
         errors: [{ path: "/test-container/file-b.png", status: "403", error: "Forbidden" }],
@@ -330,7 +359,7 @@ describe("DeleteObjectsModal", () => {
     })
 
     test("calls onClose after error via onSettled", async () => {
-      mutationError = "Server error"
+      mockState.mutationError = "Server error"
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })

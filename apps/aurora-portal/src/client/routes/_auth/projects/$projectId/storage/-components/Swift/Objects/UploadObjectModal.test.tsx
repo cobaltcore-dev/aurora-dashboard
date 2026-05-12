@@ -55,6 +55,7 @@ const renderModal = ({
   isOpen = true,
   currentPrefix = "",
   container = "test-container",
+  projectId = "test-project-id",
   account = undefined as string | undefined,
   onClose = vi.fn(),
   onSuccess = vi.fn(),
@@ -67,6 +68,7 @@ const renderModal = ({
           isOpen={isOpen}
           currentPrefix={currentPrefix}
           container={container}
+          projectId={projectId}
           account={account}
           onClose={onClose}
           onSuccess={onSuccess}
@@ -201,6 +203,7 @@ describe("UploadObjectModal", () => {
           expect.objectContaining({
             context: expect.objectContaining({
               headers: expect.objectContaining({
+                "x-upload-project-id": "test-project-id",
                 "x-upload-container": "my-bucket",
                 "x-upload-object": "docs/report.pdf",
                 "x-upload-id": expect.stringContaining("my-bucket:docs/report.pdf:"),
@@ -402,7 +405,7 @@ describe("UploadObjectModal", () => {
       expect(onClose).toHaveBeenCalled()
     })
 
-    test("does not call onClose while upload is in progress", async () => {
+    test("disables Cancel button while upload is in progress", async () => {
       let resolveUpload!: () => void
       mockMutate.mockImplementation(
         () =>
@@ -410,18 +413,14 @@ describe("UploadObjectModal", () => {
             resolveUpload = resolve
           })
       )
-      const onClose = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onClose })
+      renderModal()
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
       await user.click(screen.getByRole("button", { name: /^Upload$/i }))
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Uploading\.\.\./i })).toBeInTheDocument()
+        expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled()
       })
-      // Cancel click should be ignored while pending
-      await user.click(screen.getByRole("button", { name: /Cancel/i }))
-      expect(onClose).not.toHaveBeenCalled()
       resolveUpload()
     })
 
@@ -436,7 +435,13 @@ describe("UploadObjectModal", () => {
       rerender(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <UploadObjectModal isOpen={true} currentPrefix="" container="test-container" onClose={onClose} />
+            <UploadObjectModal
+              isOpen={true}
+              currentPrefix=""
+              container="test-container"
+              projectId="test-project-id"
+              onClose={onClose}
+            />
           </PortalProvider>
         </I18nProvider>
       )
