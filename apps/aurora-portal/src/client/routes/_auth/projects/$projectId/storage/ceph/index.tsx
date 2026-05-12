@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { CredentialPrompt } from "./-components/Ceph/Containers"
+import { CredentialPrompt } from "../-components/Ceph/Containers"
 import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 

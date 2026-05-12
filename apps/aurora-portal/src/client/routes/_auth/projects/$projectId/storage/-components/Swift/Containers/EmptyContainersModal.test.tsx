@@ -17,17 +17,13 @@ vi.mock("@/client/hooks/useProjectId", () => ({
 
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
-const mockReset = vi.fn()
-const mockInvalidate = vi.fn()
-
-// Controls how mutateAsync behaves per container name:
-// null = always succeed with 3 deleted, string = error message for all
-let mutationError: string | null = null
-let mutationDeletedCount = 3
-
-const mockMutateAsync = vi.fn().mockImplementation(async () => {
-  if (mutationError) throw new Error(mutationError)
-  return mutationDeletedCount
+const { mockReset, mockInvalidate, mockMutateAsync, mockState } = vi.hoisted(() => {
+  const mockState = { mutationError: null as string | null, mutationDeletedCount: 3, isPending: false }
+  const mockMutateAsync = vi.fn().mockImplementation(async () => {
+    if (mockState.mutationError) throw new Error(mockState.mutationError)
+    return mockState.mutationDeletedCount
+  })
+  return { mockReset: vi.fn(), mockInvalidate: vi.fn(), mockMutateAsync, mockState }
 })
 
 vi.mock("@/client/trpcClient", () => ({
@@ -45,7 +41,7 @@ vi.mock("@/client/trpcClient", () => ({
           useMutation: () => ({
             mutateAsync: mockMutateAsync,
             reset: mockReset,
-            isPending: false,
+            isPending: mockState.isPending,
           }),
         },
       },
@@ -91,8 +87,9 @@ const renderModal = ({
 describe("EmptyContainersModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
-    mutationError = null
-    mutationDeletedCount = 3
+    mockState.mutationError = null
+    mockState.mutationDeletedCount = 3
+    mockState.isPending = false
     await act(async () => {
       i18n.activate("en")
     })
@@ -184,6 +181,31 @@ describe("EmptyContainersModal", () => {
     })
   })
 
+  describe("Pending state", () => {
+    test("disables confirm button while isPending", () => {
+      mockState.isPending = true
+      renderModal()
+      expect(screen.getByRole("button", { name: /Emptying\.\.\./i })).toBeDisabled()
+    })
+
+    test("disables cancel button while isPending", () => {
+      mockState.isPending = true
+      renderModal()
+      expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled()
+    })
+
+    test("shows Emptying... label on confirm button while isPending", () => {
+      mockState.isPending = true
+      renderModal()
+      expect(screen.getByRole("button", { name: /Emptying\.\.\./i })).toBeInTheDocument()
+    })
+
+    test("shows Empty label on confirm button when not pending", () => {
+      renderModal()
+      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeInTheDocument()
+    })
+  })
+
   describe("Confirmation", () => {
     test("calls mutateAsync for each selected container on confirm", async () => {
       const user = userEvent.setup()
@@ -207,7 +229,7 @@ describe("EmptyContainersModal", () => {
     })
 
     test("calls onComplete with correct emptied count and total deleted objects", async () => {
-      mutationDeletedCount = 5
+      mockState.mutationDeletedCount = 5
       const onComplete = vi.fn()
       const user = userEvent.setup()
       renderModal({ onComplete })
@@ -228,7 +250,7 @@ describe("EmptyContainersModal", () => {
     })
 
     test("calls onComplete with totalDeleted 0 when all containers return 0 objects", async () => {
-      mutationDeletedCount = 0
+      mockState.mutationDeletedCount = 0
       const onComplete = vi.fn()
       const user = userEvent.setup()
       renderModal({ onComplete })
@@ -241,7 +263,7 @@ describe("EmptyContainersModal", () => {
 
   describe("Error handling", () => {
     test("calls onComplete with errors when mutation fails", async () => {
-      mutationError = "Bulk delete failed"
+      mockState.mutationError = "Bulk delete failed"
       const onComplete = vi.fn()
       const user = userEvent.setup()
       renderModal({ onComplete })
@@ -276,7 +298,7 @@ describe("EmptyContainersModal", () => {
     })
 
     test("calls onClose after error", async () => {
-      mutationError = "Server error"
+      mockState.mutationError = "Server error"
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })

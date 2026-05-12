@@ -69,25 +69,69 @@ export const CertificateAuthoritySchema = z.object({
   state: z.enum(["CREATING", "AWAITING_CERTIFICATE", "READY", "FAILED", "UNEXPECTED"]),
 })
 
+export const CertificateAuthorityResponseSchema = z.object({
+  certificate_authority: CertificateAuthoritySchema,
+})
+
 export const CertificateAuthoritiesListSchema = z.object({
   certificate_authorities: z.array(CertificateAuthoritySchema),
 })
 
-export const CertificateAuthorityCertificatesInputSchema = z.object({
+// Used by: /v1/certificate-authorities -  Create new Certificate Authority
+export const CertificateAuthorityCreateSchema = z.object({
+  configuration: z.object({
+    subject: CertificateAuthoritySubjectSchema,
+  }),
+})
+
+/**
+ * Input schema for Certificate Authority resource identification.
+ *
+ * Used by:
+ * - GET /v1/certificate-authorities/{certificate_authority_id} - Show Certificate Authority details
+ * - DELETE /v1/certificate-authorities/{certificate_authority_id} - Delete Certificate Authority
+ * - POST /v1/certificate-authorities/{certificate_authority_id}:importCertificate - Import certificate of Certificate Authority
+ *
+ * - GET /v1/certificate-authorities/{certificate_authority_id}/certificates - List Certificates
+ * - POST /v1/certificate-authorities/{certificate_authority_id}/certificates - Create new Certificate
+ *
+ */
+export const CertificateAuthorityIdInputSchema = z.object({
   project_id: z.string(),
   certificate_authority_id: z.string().min(1),
+})
+
+// Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates/{certificate_id} - Get Certificate details
+export const CertificateIdInputSchema = CertificateAuthorityIdInputSchema.extend({
+  certificate_id: z.string().min(1),
+})
+
+export const CertificateConfigurationSchema = z.object({
+  validity: CertificateValiditySchema,
+})
+
+// Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates - Create new Certificate
+export const CreateCertificateInputSchema = z.object({
+  project_id: z.string(),
+  certificate_authority_id: z.string().min(1),
+  certificate: z.object({
+    configuration: CertificateConfigurationSchema,
+    csr: z.string(),
+  }),
 })
 
 export const CertificateSchema = z.object({
   certificate: CertificateAuthorityCertificateSchema,
   certificate_authority_id: z.string(),
   certificate_chain: CertificateAuthorityCertificateChainSchema.optional(),
-  configuration: z.object({
-    validity: CertificateValiditySchema,
-  }),
+  configuration: CertificateConfigurationSchema,
   csr: z.string().optional(),
   id: z.string(),
   project_id: z.string(),
+})
+
+export const CertificateResponseSchema = z.object({
+  certificate: CertificateSchema,
 })
 
 export const CertificatesListSchema = z.object({
@@ -95,3 +139,4 @@ export const CertificatesListSchema = z.object({
 })
 
 export type Certificate = z.infer<typeof CertificateSchema>
+export type CertificateAuthority = z.infer<typeof CertificateAuthoritySchema>
