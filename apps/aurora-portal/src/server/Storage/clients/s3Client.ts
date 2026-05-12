@@ -3,27 +3,26 @@ import { S3Client } from "@aws-sdk/client-s3"
 /**
  * Creates an S3Client configured for Ceph RGW.
  * forcePathStyle is required for Ceph — it does not support virtual-hosted-style URLs.
+ *
+ * @param access - AWS access key ID
+ * @param secret - AWS secret access key
+ * @param endpoint - S3 endpoint URL (required)
+ * @param region - AWS region (default: "default")
  */
-export function createS3Client(access: string, secret: string, endpoint?: string, region?: string): S3Client {
+export function createS3Client(access: string, secret: string, endpoint: string, region = "default"): S3Client {
   if (!access?.trim()) {
-    throw new Error("S3 access key is not configured")
+    throw new Error("S3 access key is required")
   }
   if (!secret?.trim()) {
-    throw new Error("S3 secret key is not configured")
+    throw new Error("S3 secret key is required")
   }
-
-  const resolvedEndpoint = endpoint ?? process.env.CEPH_S3_ENDPOINT
-  if (!resolvedEndpoint) {
-    throw new Error(
-      "S3 endpoint is not configured. Set CEPH_S3_ENDPOINT environment variable or pass endpoint parameter."
-    )
+  if (!endpoint?.trim()) {
+    throw new Error("S3 endpoint is required")
   }
-
-  const resolvedRegion = region ?? process.env.CEPH_REGION ?? "default"
 
   return new S3Client({
-    region: resolvedRegion,
-    endpoint: resolvedEndpoint,
+    region,
+    endpoint,
     credentials: {
       accessKeyId: access,
       secretAccessKey: secret,

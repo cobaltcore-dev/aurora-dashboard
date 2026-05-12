@@ -10,7 +10,7 @@ export const NO_CEPH_CREDENTIALS = "NO_CEPH_CREDENTIALS" as const
 function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: string } {
   const region = process.env.CEPH_REGION || "default"
 
-  // Try to get endpoint from Ceph service catalog
+  // Get endpoint from Ceph service catalog
   try {
     const service = ctx.openstack?.service("ceph")
     const endpoint = service?.getEndpoint?.()
@@ -30,17 +30,13 @@ function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: 
       return { endpoint, region }
     }
   } catch (error) {
-    // Ceph service not available in catalog, fall through to env fallback
-    console.warn("[ceph] Failed to resolve Ceph service from catalog:", error)
+    console.error("[ceph] Failed to resolve Ceph service from catalog:", error)
+    throw new Error("Ceph service not found in catalog. Ensure the Ceph service is registered in OpenStack.", {
+      cause: error,
+    })
   }
 
-  // Fallback to environment variables
-  const envEndpoint = process.env.CEPH_S3_ENDPOINT
-  if (!envEndpoint) {
-    throw new Error("Ceph S3 endpoint not configured: set CEPH_S3_ENDPOINT or ensure Ceph service is in the catalog")
-  }
-
-  return { endpoint: envEndpoint, region }
+  throw new Error("Ceph service endpoint not found in catalog. Ensure the Ceph service is registered in OpenStack.")
 }
 
 /**

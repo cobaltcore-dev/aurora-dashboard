@@ -45,6 +45,10 @@ const createMockContext = (shouldFailAuth = false, hasCredentials = true) => {
     availableEndpoints: vi.fn().mockReturnValue([]),
   }
 
+  const mockCephService = {
+    getEndpoint: () => "https://test-ceph.example.com",
+  }
+
   const mockToken = {
     tokenData: {
       project: { id: TEST_PROJECT_ID },
@@ -62,7 +66,10 @@ const createMockContext = (shouldFailAuth = false, hasCredentials = true) => {
   }
 
   const mockOpenstack = {
-    service: vi.fn().mockReturnValue(mockIdentity),
+    service: (serviceName: string) => {
+      if (serviceName === "ceph") return mockCephService
+      return mockIdentity
+    },
     getToken: vi.fn().mockReturnValue(mockToken),
   }
 
@@ -72,10 +79,7 @@ const createMockContext = (shouldFailAuth = false, hasCredentials = true) => {
     createSession: vi.fn(),
     terminateSession: vi.fn(),
     openstack: mockOpenstack,
-    rescopeSession: vi.fn().mockResolvedValue({
-      service: vi.fn().mockReturnValue(mockIdentity),
-      getToken: vi.fn().mockReturnValue(mockToken),
-    }),
+    rescopeSession: vi.fn().mockResolvedValue(mockOpenstack),
   } as unknown as AuroraPortalContext
 }
 
