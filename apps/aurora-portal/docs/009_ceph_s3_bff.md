@@ -571,13 +571,6 @@ try {
 
 ### Environment Variables
 
-#### Required
-
-- **`CEPH_S3_ENDPOINT`** (or service catalog)
-  - Base URL for Ceph RGW S3 API
-  - Example: `https://rgw.st1.qa-de-1.cloud.sap`
-  - Can be omitted if Ceph service is registered in the OpenStack service catalog
-
 #### Optional
 
 - **`CEPH_REGION`**
@@ -586,7 +579,7 @@ try {
 
 ### Service Catalog Endpoint Resolution
 
-The BFF attempts to resolve the S3 endpoint from the OpenStack service catalog:
+The BFF resolves the S3 endpoint from the OpenStack service catalog:
 
 1. Query the `"ceph"` service via `ctx.openstack.service("ceph")`
 2. Call `service.getEndpoint()` to get the base URL
@@ -595,7 +588,7 @@ The BFF attempts to resolve the S3 endpoint from the OpenStack service catalog:
    - S3: `https://rgw.example.com` (base URL)
 4. Return the base URL
 
-**Fallback:** If the Ceph service is not in the catalog, fall back to `CEPH_S3_ENDPOINT` env var.
+**Important:** The Ceph service **must** be registered in the OpenStack service catalog. Environment variable fallbacks (e.g., `CEPH_S3_ENDPOINT`) are **not supported** — all configuration comes from the service catalog to ensure consistency across deployments.
 
 ---
 
@@ -854,11 +847,18 @@ pnpm test apps/aurora-portal/src/server/Storage/routers/objectRouter.test.ts
 
 ### Integration Testing
 
-1. **Set up environment:**
+1. **Ensure Ceph service is registered in OpenStack catalog:**
 
    ```bash
-   export CEPH_S3_ENDPOINT="https://rgw.example.com"
-   export CEPH_REGION="default"
+   openstack service list | grep ceph
+   openstack endpoint list --service ceph
+   ```
+
+   If not registered:
+
+   ```bash
+   openstack service create --name ceph --description "Ceph RGW" object-store
+   openstack endpoint create --region RegionOne ceph public https://rgw.example.com
    ```
 
 2. **Create credentials via tRPC:**
@@ -992,32 +992,27 @@ function CephStoragePage() {
 
 ---
 
-### Problem: `Failed to resolve Ceph service from catalog`
+### Problem: `Ceph service not found in catalog` or `Ceph service endpoint not found in catalog`
 
-**Cause:** The `"ceph"` service is not registered in the OpenStack service catalog.
-
-**Solution:**
-
-1. Set `CEPH_S3_ENDPOINT` environment variable explicitly
-2. Or register the Ceph service in the catalog:
-   ```bash
-   openstack service create --name ceph --description "Ceph RGW" object-store
-   openstack endpoint create --region RegionOne ceph public https://rgw.example.com
-   ```
-
----
-
-### Problem: `S3 endpoint is not configured`
-
-**Cause:** Neither `CEPH_S3_ENDPOINT` env var nor service catalog endpoint is available.
+**Cause:** The `"ceph"` service is not registered in the OpenStack service catalog, or the endpoint is missing.
 
 **Solution:**
 
-Set the environment variable:
+Register the Ceph service in the catalog:
 
 ```bash
-export CEPH_S3_ENDPOINT="https://rgw.st1.qa-de-1.cloud.sap"
+openstack service create --name ceph --description "Ceph RGW" object-store
+openstack endpoint create --region RegionOne ceph public https://rgw.example.com
 ```
+
+Verify registration:
+
+```bash
+openstack service list | grep ceph
+openstack endpoint list --service ceph
+```
+
+**Note:** Environment variable fallbacks (e.g., `CEPH_S3_ENDPOINT`) are not supported. All configuration must come from the service catalog.
 
 ---
 
