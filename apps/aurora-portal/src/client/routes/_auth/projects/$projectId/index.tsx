@@ -59,12 +59,13 @@ function RouteComponent() {
     })
   }
 
+  // Storage section - always show Ceph, optionally add Swift
+  const storageLinks: { label: string; to: string }[] = []
   if (serviceIndex["object-store"]?.["swift"]) {
-    const links: { label: string; to: string }[] = []
-    links.push({ label: "Swift", to: `${base}/storage/swift/containers` })
-    links.push({ label: "Containers", to: `${base}/storage/ceph/containers` })
-    cards.push({ title: "Storage", links })
+    storageLinks.push({ label: "Swift", to: `${base}/storage/swift/containers` })
   }
+  storageLinks.push({ label: "Ceph", to: `${base}/storage/ceph/containers` })
+  cards.push({ title: "Storage", links: storageLinks })
 
   return (
     <Stack direction="vertical" gap="6" className="pb-4">
