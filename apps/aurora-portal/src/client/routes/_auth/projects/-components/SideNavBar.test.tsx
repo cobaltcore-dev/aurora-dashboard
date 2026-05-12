@@ -148,7 +148,7 @@ describe("SideNavBar", () => {
           </TestingProvider>
         )
 
-        expect(screen.getByText("Swift")).toBeInTheDocument()
+        expect(screen.getByText("Object Storage (Swift)")).toBeInTheDocument()
       })
 
       it("renders Storage section with S3 (dev) even when swift service is unavailable", () => {

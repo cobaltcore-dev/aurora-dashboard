@@ -5,7 +5,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { SwiftContainers } from "../../-components/Swift/Containers"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
-import { ContentHeading } from "@cloudoperators/juno-ui-components"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const checkServiceAvailability = (
   availableServices: {
@@ -136,7 +136,7 @@ function StorageDashboard() {
 
   return (
     <div>
-      <ContentHeading>{pageTitle}</ContentHeading>
+      <ContentHeader title={pageTitle} projectId={project} />
       {project ? (
         <ErrorBoundary
           fallback={
