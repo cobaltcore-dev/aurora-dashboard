@@ -1,7 +1,9 @@
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router"
-import { Box, ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
+import { Box, Stack } from "@cloudoperators/juno-ui-components"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { Trans } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
   component: RouteComponent,
@@ -33,6 +35,7 @@ function RouteComponent() {
   const { crumbProject, availableServices, projectId } = useLoaderData({
     from: "/_auth/projects/$projectId",
   })
+  const { t } = useLingui()
 
   const serviceIndex = getServiceIndex(availableServices ?? [])
   const base = `/projects/${projectId}`
@@ -65,9 +68,7 @@ function RouteComponent() {
 
   return (
     <Stack direction="vertical" gap="6" className="pb-4">
-      <div>
-        <ContentHeading>{crumbProject?.name}</ContentHeading>
-      </div>
+      <ContentHeader title={crumbProject?.name ?? t`Project`} projectId={projectId} />
       {cards.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((card) => (
