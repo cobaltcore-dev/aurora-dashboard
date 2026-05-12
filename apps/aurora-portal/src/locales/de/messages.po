@@ -439,6 +439,9 @@ msgstr "Container aktualisiert"
 msgid "Container:"
 msgstr "Container:"
 
+msgid "Container: {containerName}"
+msgstr ""
+
 msgid "Containers"
 msgstr "Container"
 
@@ -961,8 +964,7 @@ msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
 msgid "Failed to Create Container"
 msgstr "Fehler beim Erstellen des Containers"
 
-#. placeholder {0}: err.message
-msgid "Failed to create credential: {0}"
+msgid "Failed to create credential: {errorMessage}"
 msgstr ""
 
 msgid "Failed to create extra specs. Please try again."
@@ -1037,10 +1039,6 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
-#. placeholder {0}: error.message
-msgid "Failed to load buckets: {0}"
-msgstr ""
-
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Fehler beim Laden der Container-ACLs: {errorMessage}"
 
@@ -1049,6 +1047,9 @@ msgstr "Fehler beim Laden der Container-Objekte: {errorMessage}"
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Eigenschaften: {errorMessage}"
+
+msgid "Failed to load containers: {errorMessage}"
+msgstr ""
 
 msgid "Failed to load extra specs. Please try again."
 msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
@@ -1065,8 +1066,7 @@ msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 
-#. placeholder {0}: error.message
-msgid "Failed to load objects: {0}"
+msgid "Failed to load objects: {errorMessage}"
 msgstr ""
 
 msgid "Failed to load security groups"
@@ -1453,9 +1453,6 @@ msgstr "Mehr laden"
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
 
-msgid "Loading buckets..."
-msgstr ""
-
 msgid "Loading container properties..."
 msgstr "Container-Eigenschaften werden geladen..."
 
@@ -1693,11 +1690,11 @@ msgstr "new-folder-name"
 msgid "No"
 msgstr "Nein"
 
-msgid "No buckets found."
-msgstr ""
-
 msgid "No containers found"
 msgstr "Keine Container gefunden"
+
+msgid "No containers found."
+msgstr ""
 
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "Keine benutzerdefinierten Metadaten-Eigenschaften gefunden. Klicken Sie auf \"Eigenschaft hinzufügen\", um eine zu erstellen."
@@ -2133,12 +2130,6 @@ msgstr "RX/TX Factor"
 
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
-
-msgid "S3 Bucket: {bucketName}"
-msgstr ""
-
-msgid "S3 Buckets"
-msgstr ""
 
 msgid "S3 Credential Created"
 msgstr ""

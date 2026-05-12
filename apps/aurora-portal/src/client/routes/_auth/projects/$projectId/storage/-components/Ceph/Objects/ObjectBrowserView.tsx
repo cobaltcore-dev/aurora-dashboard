@@ -3,10 +3,10 @@ import { Trans } from "@lingui/react/macro"
 import { Spinner, Stack, Button } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { S3ObjectsTableView } from "./S3ObjectsTableView"
-import { S3ObjectsFileNavigation } from "./S3ObjectsFileNavigation"
+import { ObjectsTableView } from "./ObjectsTableView"
+import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { useSearch, useNavigate } from "@tanstack/react-router"
-import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/s3"
+import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
 
 // Prefix encoding (reuse from Swift pattern)
 const encodePrefix = (prefix: string): string => {
@@ -26,11 +26,11 @@ const decodePrefix = (encoded: string | undefined): string => {
   }
 }
 
-interface S3ObjectBrowserViewProps {
+interface ObjectBrowserViewProps {
   bucketName: string
 }
 
-export function S3ObjectBrowserView({ bucketName }: S3ObjectBrowserViewProps) {
+export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const projectId = useProjectId()
   const navigate = useNavigate()
   const search = useSearch({ strict: false })
@@ -40,10 +40,10 @@ export function S3ObjectBrowserView({ bucketName }: S3ObjectBrowserViewProps) {
   const [allFolders, setAllFolders] = useState<S3FolderPrefix[]>([])
   const [hasMore, setHasMore] = useState(false)
 
-  const { data, isLoading, error } = trpcReact.storage.s3.objects.list.useQuery(
+  const { data, isLoading, error } = trpcReact.storage.ceph.objects.list.useQuery(
     {
       project_id: projectId ?? "",
-      bucketName,
+      containerName: bucketName,
       prefix: currentPrefix || undefined,
       delimiter: "/",
       maxKeys: 1000,
@@ -111,9 +111,9 @@ export function S3ObjectBrowserView({ bucketName }: S3ObjectBrowserViewProps) {
 
   return (
     <Stack direction="vertical" gap="4">
-      <S3ObjectsFileNavigation bucketName={bucketName} prefix={currentPrefix} onPrefixClick={navigateToPrefix} />
+      <ObjectsFileNavigation bucketName={bucketName} prefix={currentPrefix} onPrefixClick={navigateToPrefix} />
 
-      <S3ObjectsTableView
+      <ObjectsTableView
         bucketName={bucketName}
         objects={allObjects}
         folders={allFolders}

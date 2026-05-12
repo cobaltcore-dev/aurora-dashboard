@@ -59,7 +59,7 @@ function RouteComponent() {
   if (serviceIndex["object-store"]?.["swift"]) {
     const links: { label: string; to: string }[] = []
     links.push({ label: "Swift", to: `${base}/storage/swift/containers` })
-    links.push({ label: "S3 Buckets", to: `${base}/storage/s3/buckets` })
+    links.push({ label: "Containers", to: `${base}/storage/ceph/containers` })
     cards.push({ title: "Storage", links })
   }
 

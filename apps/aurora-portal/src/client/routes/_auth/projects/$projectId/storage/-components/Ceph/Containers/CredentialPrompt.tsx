@@ -4,20 +4,20 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { Button, Stack, Toast, ToastProps } from "@cloudoperators/juno-ui-components"
 
-interface S3CredentialPromptProps {
+interface CredentialPromptProps {
   onSuccess: () => void
 }
 
-export function S3CredentialPrompt({ onSuccess }: S3CredentialPromptProps) {
+export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
   const projectId = useProjectId()
   const [toast, setToast] = useState<ToastProps | null>(null)
   const [newSecret, setNewSecret] = useState<string | null>(null)
   const utils = trpcReact.useUtils()
 
-  const createMutation = trpcReact.storage.s3.ec2Credentials.create.useMutation({
+  const createMutation = trpcReact.storage.ceph.ec2Credentials.create.useMutation({
     onSuccess: (data) => {
       setNewSecret(data.secret)
-      utils.storage.s3.ec2Credentials.list.invalidate()
+      utils.storage.ceph.ec2Credentials.list.invalidate()
     },
     onError: (err) => {
       const errorMessage = err.message

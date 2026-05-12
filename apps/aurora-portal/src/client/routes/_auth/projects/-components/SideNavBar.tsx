@@ -83,9 +83,9 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
         ]
       : []),
     {
-      service: "s3-buckets",
-      label: t`S3 Buckets`,
-      to: "/projects/$projectId/storage/s3/buckets" as const,
+      service: "ceph-containers",
+      label: t`Containers`,
+      to: "/projects/$projectId/storage/ceph/containers" as const,
       params: { projectId },
     },
   ]

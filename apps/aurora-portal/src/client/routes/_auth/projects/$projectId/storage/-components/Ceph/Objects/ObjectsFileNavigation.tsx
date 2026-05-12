@@ -1,6 +1,6 @@
 import { Breadcrumb, BreadcrumbItem } from "@cloudoperators/juno-ui-components"
 
-interface S3ObjectsFileNavigationProps {
+interface ObjectsFileNavigationProps {
   bucketName: string
   prefix: string
   onPrefixClick: (prefix: string) => void
@@ -16,7 +16,7 @@ function prefixToSegments(prefix: string): Array<{ label: string; prefix: string
   }))
 }
 
-export function S3ObjectsFileNavigation({ bucketName, prefix, onPrefixClick }: S3ObjectsFileNavigationProps) {
+export function ObjectsFileNavigation({ bucketName, prefix, onPrefixClick }: ObjectsFileNavigationProps) {
   const segments = prefixToSegments(prefix)
 
   return (

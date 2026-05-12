@@ -32,31 +32,31 @@ export type Ec2Credential = z.infer<typeof ec2CredentialSchema>
 export type Ec2CredentialWithSecret = z.infer<typeof ec2CredentialWithSecretSchema>
 
 // ============================================================================
-// BUCKET SCHEMAS
+// CONTAINER SCHEMAS
 // ============================================================================
 
-export const bucketSchema = z.object({
+export const containerSchema = z.object({
   name: z.string(),
   creationDate: z.string().optional(),
 })
 
-export const bucketDetailsSchema = bucketSchema.extend({
+export const containerDetailsSchema = containerSchema.extend({
   objectCount: z.number().optional(),
   sizeBytes: z.number().optional(),
 })
 
-export const listBucketsInputSchema = projectScopedInputSchema
+export const listContainersInputSchema = projectScopedInputSchema
 
-export const getBucketDetailsInputSchema = projectScopedInputSchema.extend({
-  bucketName: z.string().min(1),
+export const getContainerDetailsInputSchema = projectScopedInputSchema.extend({
+  containerName: z.string().min(1),
 })
 
 // ============================================================================
-// BUCKET TYPES
+// CONTAINER TYPES
 // ============================================================================
 
-export type Bucket = z.infer<typeof bucketSchema>
-export type BucketDetails = z.infer<typeof bucketDetailsSchema>
+export type Container = z.infer<typeof containerSchema>
+export type ContainerDetails = z.infer<typeof containerDetailsSchema>
 
 // ============================================================================
 // S3 STATUS SCHEMAS
@@ -89,7 +89,7 @@ export const s3FolderPrefixSchema = z.object({
 })
 
 export const listObjectsInputSchema = projectScopedInputSchema.extend({
-  bucketName: z.string().min(1),
+  containerName: z.string().min(1),
   prefix: z.string().optional(), // Filter by prefix
   delimiter: z.string().optional(), // "/" for folder grouping
   maxKeys: z.number().min(1).max(1000).default(1000),
@@ -104,7 +104,7 @@ export const listObjectsOutputSchema = z.object({
 })
 
 export const getObjectDetailsInputSchema = projectScopedInputSchema.extend({
-  bucketName: z.string().min(1),
+  containerName: z.string().min(1),
   objectKey: z.string().min(1),
 })
 

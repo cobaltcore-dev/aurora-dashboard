@@ -7,7 +7,7 @@ import {
   ec2CredentialWithSecretSchema,
   type Ec2Credential,
   type Ec2CredentialWithSecret,
-} from "../types/s3"
+} from "../types/ceph"
 
 // ============================================================================
 // INTERNAL TYPES (raw Identity API response shapes)

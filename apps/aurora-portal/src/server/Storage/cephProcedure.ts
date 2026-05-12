@@ -5,7 +5,7 @@ import type { AuroraPortalContext } from "../context"
 import type { S3Client } from "@aws-sdk/client-s3"
 import { createS3Client } from "./clients/s3Client"
 
-export const NO_S3_CREDENTIALS = "NO_S3_CREDENTIALS" as const
+export const NO_CEPH_CREDENTIALS = "NO_CEPH_CREDENTIALS" as const
 
 function resolveS3Config(ctx: AuroraPortalContext): { endpoint?: string; region: string } {
   const region = process.env.CEPH_REGION || "default"
@@ -31,7 +31,7 @@ function resolveS3Config(ctx: AuroraPortalContext): { endpoint?: string; region:
     }
   } catch (error) {
     // Ceph service not available in catalog, fall through to env fallback
-    console.warn("[s3] Failed to resolve Ceph service from catalog:", error)
+    console.warn("[ceph] Failed to resolve Ceph service from catalog:", error)
   }
 
   // Fallback to environment variables
@@ -39,15 +39,15 @@ function resolveS3Config(ctx: AuroraPortalContext): { endpoint?: string; region:
 }
 
 /**
- * Base S3 middleware - resolves EC2 credentials and S3 config, but does NOT throw on missing credentials.
+ * Base Ceph middleware - resolves EC2 credentials and S3 config, but does NOT throw on missing credentials.
  * Adds to context:
- *   - s3Credentials: EC2CredentialResult | null
- *   - getS3Client: () => S3Client - throws FORBIDDEN if credentials missing
+ *   - cephCredentials: EC2CredentialResult | null
+ *   - getCephClient: () => S3Client - throws FORBIDDEN if credentials missing
  *
  * Use this for procedures that need to check credential status without failing.
- * Note: getS3Client() throws TRPCError when called without credentials.
+ * Note: getCephClient() throws TRPCError when called without credentials.
  */
-const s3CredentialMiddleware = projectScopedProcedure.use(async function resolveS3(opts) {
+const cephCredentialMiddleware = projectScopedProcedure.use(async function resolveCeph(opts) {
   const { ctx, next } = opts
   const credentials = await resolveEC2Credential(ctx)
   const { endpoint, region } = resolveS3Config(ctx)
@@ -55,12 +55,12 @@ const s3CredentialMiddleware = projectScopedProcedure.use(async function resolve
   return next({
     ctx: {
       ...ctx,
-      s3Credentials: credentials,
-      getS3Client: (): S3Client => {
+      cephCredentials: credentials,
+      getCephClient: (): S3Client => {
         if (!credentials) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: NO_S3_CREDENTIALS,
+            message: NO_CEPH_CREDENTIALS,
           })
         }
         return createS3Client(credentials.access, credentials.secret, endpoint, region)
@@ -70,23 +70,23 @@ const s3CredentialMiddleware = projectScopedProcedure.use(async function resolve
 })
 
 /**
- * Base procedure with S3 credentials resolved (may be null).
+ * Base procedure with Ceph credentials resolved (may be null).
  * For status checks or other operations that handle missing credentials gracefully.
  */
-export const s3Procedure = s3CredentialMiddleware
+export const cephProcedure = cephCredentialMiddleware
 
 /**
  * Protected procedure - requires EC2 credentials to exist.
- * Throws FORBIDDEN with NO_S3_CREDENTIALS if credentials not found.
- * For actual S3 operations (list buckets, get objects, etc).
+ * Throws FORBIDDEN with NO_CEPH_CREDENTIALS if credentials not found.
+ * For actual Ceph S3 operations (list containers, get objects, etc).
  */
-export const s3ProtectedProcedure = s3CredentialMiddleware.use(async function requireCredentials(opts) {
+export const cephProtectedProcedure = cephCredentialMiddleware.use(async function requireCredentials(opts) {
   const { ctx, next } = opts
 
-  if (!ctx.s3Credentials) {
+  if (!ctx.cephCredentials) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: NO_S3_CREDENTIALS,
+      message: NO_CEPH_CREDENTIALS,
     })
   }
 

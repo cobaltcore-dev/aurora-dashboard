@@ -1,11 +1,11 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { S3CredentialPrompt } from "./-components/S3/S3CredentialPrompt"
+import { CredentialPrompt } from "./-components/Ceph/Containers"
 import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 
-export const Route = createFileRoute("/_auth/projects/$projectId/storage/s3")({
+export const Route = createFileRoute("/_auth/projects/$projectId/storage/ceph")({
   component: S3Layout,
 })
 
@@ -13,7 +13,7 @@ function S3Layout() {
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
-  const { data: status, isLoading } = trpcReact.storage.s3.buckets.status.useQuery(
+  const { data: status, isLoading } = trpcReact.storage.ceph.containers.status.useQuery(
     { project_id: projectId ?? "" },
     { enabled: !!projectId }
   )
@@ -31,9 +31,9 @@ function S3Layout() {
 
   if (!status?.hasCredentials) {
     return (
-      <S3CredentialPrompt
+      <CredentialPrompt
         onSuccess={async () => {
-          await utils.storage.s3.buckets.status.refetch()
+          await utils.storage.ceph.containers.status.refetch()
         }}
       />
     )

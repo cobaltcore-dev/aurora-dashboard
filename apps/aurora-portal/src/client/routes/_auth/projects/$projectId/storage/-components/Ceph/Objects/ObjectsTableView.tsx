@@ -2,9 +2,9 @@ import { DataGrid, DataGridRow, DataGridCell, DataGridHeadCell } from "@cloudope
 import { Trans } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/s3"
+import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
 
-interface S3ObjectsTableViewProps {
+interface ObjectsTableViewProps {
   bucketName: string
   objects: S3Object[]
   folders: S3FolderPrefix[]
@@ -12,7 +12,7 @@ interface S3ObjectsTableViewProps {
   onFolderClick: (prefix: string) => void
 }
 
-export function S3ObjectsTableView({ objects, folders, currentPrefix, onFolderClick }: S3ObjectsTableViewProps) {
+export function ObjectsTableView({ objects, folders, currentPrefix, onFolderClick }: ObjectsTableViewProps) {
   if (folders.length === 0 && objects.length === 0) {
     return (
       <DataGrid columns={4}>

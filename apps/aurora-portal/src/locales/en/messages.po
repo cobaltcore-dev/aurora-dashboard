@@ -439,6 +439,9 @@ msgstr "Container Updated"
 msgid "Container:"
 msgstr "Container:"
 
+msgid "Container: {containerName}"
+msgstr "Container: {containerName}"
+
 msgid "Containers"
 msgstr "Containers"
 
@@ -961,9 +964,8 @@ msgstr "Failed to copy the temporary URL to the clipboard"
 msgid "Failed to Create Container"
 msgstr "Failed to Create Container"
 
-#. placeholder {0}: err.message
-msgid "Failed to create credential: {0}"
-msgstr "Failed to create credential: {0}"
+msgid "Failed to create credential: {errorMessage}"
+msgstr "Failed to create credential: {errorMessage}"
 
 msgid "Failed to create extra specs. Please try again."
 msgstr "Failed to create extra specs. Please try again."
@@ -1037,10 +1039,6 @@ msgstr "Failed to fetch flavors from server."
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Failed to generate temporary URL: {generalError}"
 
-#. placeholder {0}: error.message
-msgid "Failed to load buckets: {0}"
-msgstr "Failed to load buckets: {0}"
-
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Failed to load container ACLs: {errorMessage}"
 
@@ -1049,6 +1047,9 @@ msgstr "Failed to load container objects: {errorMessage}"
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Failed to load container properties: {errorMessage}"
+
+msgid "Failed to load containers: {errorMessage}"
+msgstr "Failed to load containers: {errorMessage}"
 
 msgid "Failed to load extra specs. Please try again."
 msgstr "Failed to load extra specs. Please try again."
@@ -1065,9 +1066,8 @@ msgstr "Failed to load metadata configuration."
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Failed to load object metadata: {metadataErrorMessage}"
 
-#. placeholder {0}: error.message
-msgid "Failed to load objects: {0}"
-msgstr "Failed to load objects: {0}"
+msgid "Failed to load objects: {errorMessage}"
+msgstr "Failed to load objects: {errorMessage}"
 
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
@@ -1453,9 +1453,6 @@ msgstr "Load More"
 msgid "Loading ACLs..."
 msgstr "Loading ACLs..."
 
-msgid "Loading buckets..."
-msgstr "Loading buckets..."
-
 msgid "Loading container properties..."
 msgstr "Loading container properties..."
 
@@ -1693,11 +1690,11 @@ msgstr "new-folder-name"
 msgid "No"
 msgstr "No"
 
-msgid "No buckets found."
-msgstr "No buckets found."
-
 msgid "No containers found"
 msgstr "No containers found"
+
+msgid "No containers found."
+msgstr "No containers found."
 
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "No custom metadata properties found. Click \"Add Property\" to create one."
@@ -2133,12 +2130,6 @@ msgstr "RX/TX Factor"
 
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Factor must be an integer ≥ 1."
-
-msgid "S3 Bucket: {bucketName}"
-msgstr "S3 Bucket: {bucketName}"
-
-msgid "S3 Buckets"
-msgstr "S3 Buckets"
 
 msgid "S3 Credential Created"
 msgstr "S3 Credential Created"

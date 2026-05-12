@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { AuroraPortalContext } from "../../context"
-import { s3BucketRouter } from "./s3BucketRouter"
+import { containerRouter } from "./containerRouter"
 import { createCallerFactory, auroraRouter } from "../../trpc"
 
 // ============================================================================
@@ -77,7 +77,7 @@ const createMockContext = (shouldFailAuth = false, hasCredentials = true) => {
   } as unknown as AuroraPortalContext
 }
 
-const createCaller = createCallerFactory(auroraRouter({ storage: { s3: { buckets: s3BucketRouter } } }))
+const createCaller = createCallerFactory(auroraRouter({ storage: { ceph: { containers: containerRouter } } }))
 
 // ============================================================================
 // buckets.list
@@ -96,7 +96,7 @@ describe("buckets.list", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.s3.buckets.list({ project_id: TEST_PROJECT_ID })
+    const result = await caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })
 
     expect(result).toEqual([{ name: TEST_BUCKET_NAME, creationDate: TEST_CREATION_DATE.toISOString() }])
   })
@@ -106,7 +106,7 @@ describe("buckets.list", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.s3.buckets.list({ project_id: TEST_PROJECT_ID })
+    const result = await caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })
 
     expect(result).toEqual([])
   })
@@ -116,7 +116,7 @@ describe("buckets.list", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.s3.buckets.list({ project_id: TEST_PROJECT_ID })
+    const result = await caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })
 
     expect(result).toEqual([])
   })
@@ -125,7 +125,7 @@ describe("buckets.list", () => {
     const ctx = createMockContext(true)
     const caller = createCaller(ctx)
 
-    await expect(caller.storage.s3.buckets.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
+    await expect(caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
     )
   })
@@ -134,7 +134,7 @@ describe("buckets.list", () => {
     const ctx = createMockContext(false, false)
     const caller = createCaller(ctx)
 
-    await expect(caller.storage.s3.buckets.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
+    await expect(caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
       new TRPCError({ code: "FORBIDDEN", message: "NO_S3_CREDENTIALS" })
     )
   })
@@ -145,7 +145,7 @@ describe("buckets.list", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    await expect(caller.storage.s3.buckets.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(TRPCError)
+    await expect(caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(TRPCError)
   })
 })
 
@@ -163,9 +163,9 @@ describe("buckets.getDetails", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.s3.buckets.getDetails({
+    const result = await caller.storage.ceph.containers.getDetails({
       project_id: TEST_PROJECT_ID,
-      bucketName: TEST_BUCKET_NAME,
+      containerName: TEST_BUCKET_NAME,
     })
 
     expect(result).toEqual({ name: TEST_BUCKET_NAME })
@@ -178,7 +178,7 @@ describe("buckets.getDetails", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.storage.s3.buckets.getDetails({ project_id: TEST_PROJECT_ID, bucketName: "nonexistent" })
+      caller.storage.ceph.containers.getDetails({ project_id: TEST_PROJECT_ID, containerName: "nonexistent" })
     ).rejects.toMatchObject({ code: "NOT_FOUND" })
   })
 
@@ -187,7 +187,7 @@ describe("buckets.getDetails", () => {
     const caller = createCaller(ctx)
 
     await expect(
-      caller.storage.s3.buckets.getDetails({ project_id: TEST_PROJECT_ID, bucketName: TEST_BUCKET_NAME })
+      caller.storage.ceph.containers.getDetails({ project_id: TEST_PROJECT_ID, containerName: TEST_BUCKET_NAME })
     ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
   })
 })

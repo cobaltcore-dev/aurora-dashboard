@@ -10,23 +10,23 @@ import {
   Spinner,
   Stack,
 } from "@cloudoperators/juno-ui-components"
-import type { Bucket } from "@/server/Storage/types/s3"
+import type { Container } from "@/server/Storage/types/ceph"
 
-export function BucketListView() {
+export function ContainerListView() {
   const projectId = useProjectId()
 
   const {
     data: buckets,
     isLoading,
     error,
-  } = trpcReact.storage.s3.buckets.list.useQuery({ project_id: projectId ?? "" }, { enabled: !!projectId })
+  } = trpcReact.storage.ceph.containers.list.useQuery({ project_id: projectId ?? "" }, { enabled: !!projectId })
 
   if (isLoading) {
     return (
       <Stack direction="horizontal" gap="2" alignment="center" className="mt-8">
         <Spinner />
         <span className="text-juno-grey-light-1 text-sm">
-          <Trans>Loading buckets...</Trans>
+          <Trans>Loading containers...</Trans>
         </span>
       </Stack>
     )
@@ -36,7 +36,7 @@ export function BucketListView() {
     const errorMessage = error.message
     return (
       <p className="text-juno-red mt-4 text-sm">
-        <Trans>Failed to load buckets: {errorMessage}</Trans>
+        <Trans>Failed to load containers: {errorMessage}</Trans>
       </p>
     )
   }
@@ -55,7 +55,7 @@ export function BucketListView() {
         <DataGridRow>
           <DataGridCell colSpan={2}>
             <span className="text-juno-grey-light-1 text-sm">
-              <Trans>No buckets found.</Trans>
+              <Trans>No containers found.</Trans>
             </span>
           </DataGridCell>
         </DataGridRow>
@@ -73,12 +73,12 @@ export function BucketListView() {
           <Trans>Creation Date</Trans>
         </DataGridHeadCell>
       </DataGridRow>
-      {buckets.map((bucket: Bucket) => (
+      {buckets.map((bucket: Container) => (
         <DataGridRow key={bucket.name}>
           <DataGridCell>
             <Link
-              to="/projects/$projectId/storage/s3/buckets/$bucketName/objects"
-              params={{ projectId: projectId ?? "", bucketName: bucket.name }}
+              to="/projects/$projectId/storage/ceph/containers/$containerName/objects"
+              params={{ projectId: projectId ?? "", containerName: bucket.name }}
             >
               <span className="hover:text-juno-blue cursor-pointer font-mono text-sm underline">{bucket.name}</span>
             </Link>
