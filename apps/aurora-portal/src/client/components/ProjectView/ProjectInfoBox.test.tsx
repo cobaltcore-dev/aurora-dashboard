@@ -146,7 +146,7 @@ describe("ProjectInfoBox", () => {
       })
     })
 
-    it("renders Storage > Swift on containers list", async () => {
+    it("renders Storage > Object Storage (Swift) on containers list", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -159,11 +159,11 @@ describe("ProjectInfoBox", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Storage")).toBeInTheDocument()
-        expect(screen.getByText("Swift")).toBeInTheDocument()
+        expect(screen.getByText("Object Storage (Swift)")).toBeInTheDocument()
       })
     })
 
-    it("renders Storage > Swift on object browser (detail)", async () => {
+    it("renders Storage > Object Storage (Swift) on object browser (detail)", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -176,7 +176,7 @@ describe("ProjectInfoBox", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Storage")).toBeInTheDocument()
-        expect(screen.getByText("Swift")).toBeInTheDocument()
+        expect(screen.getByText("Object Storage (Swift)")).toBeInTheDocument()
       })
     })
 
@@ -282,7 +282,7 @@ describe("ProjectInfoBox", () => {
       })
     })
 
-    it("Compute breadcrumb on a service page is not clickable", async () => {
+    it("Compute breadcrumb on a service page navigates to compute overview", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         { routeId: `${PROJECT_ROUTE_ID}/compute/images/`, staticData: { section: "compute", service: "images" } },
@@ -293,10 +293,13 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Compute"))
       fireEvent.click(screen.getByText("Compute"))
 
-      expect(mockNavigate).not.toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId: "test-project" },
+      })
     })
 
-    it("Compute breadcrumb on a detail page is not clickable", async () => {
+    it("Compute breadcrumb on a detail page navigates to compute overview", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -310,7 +313,10 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Compute"))
       fireEvent.click(screen.getByText("Compute"))
 
-      expect(mockNavigate).not.toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/compute/overview",
+        params: { projectId: "test-project" },
+      })
     })
 
     it("clicking Images breadcrumb on image detail navigates to images list", async () => {
@@ -353,7 +359,7 @@ describe("ProjectInfoBox", () => {
       })
     })
 
-    it("Network breadcrumb on a service page is not clickable", async () => {
+    it("Network breadcrumb on a service page navigates to network overview", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -367,7 +373,10 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Network"))
       fireEvent.click(screen.getByText("Network"))
 
-      expect(mockNavigate).not.toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/network/overview",
+        params: { projectId: "test-project" },
+      })
     })
 
     it("clicking Security Groups breadcrumb on detail navigates to securitygroups list", async () => {
@@ -430,7 +439,7 @@ describe("ProjectInfoBox", () => {
       })
     })
 
-    it("clicking Swift breadcrumb on object browser detail navigates to containers list", async () => {
+    it("clicking Object Storage (Swift) breadcrumb on object browser detail navigates to containers list", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -441,8 +450,8 @@ describe("ProjectInfoBox", () => {
 
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
 
-      await waitFor(() => screen.getByText("Swift"))
-      fireEvent.click(screen.getByText("Swift"))
+      await waitFor(() => screen.getByText("Object Storage (Swift)"))
+      fireEvent.click(screen.getByText("Object Storage (Swift)"))
 
       expect(mockNavigate).toHaveBeenCalledWith({
         to: "/projects/$projectId/storage/$provider/containers",

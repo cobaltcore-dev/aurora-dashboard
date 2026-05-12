@@ -1783,6 +1783,9 @@ msgstr " Objektname ist erforderlich"
 msgid "Object properties"
 msgstr "Objekt-Eigenschaften"
 
+msgid "Object Storage"
+msgstr ""
+
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"
 
