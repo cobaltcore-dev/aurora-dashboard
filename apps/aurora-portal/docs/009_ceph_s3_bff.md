@@ -142,11 +142,15 @@ storage.ceph
 Lists EC2 credentials for the current user scoped to the given project. **The secret key is never returned** — only the access key ID.
 
 **Input:**
+
 ```typescript
-{ project_id: string }
+{
+  project_id: string
+}
 ```
 
 **Output:**
+
 ```typescript
 Ec2Credential[]
 
@@ -159,6 +163,7 @@ interface Ec2Credential {
 ```
 
 **Example:**
+
 ```typescript
 const credentials = await trpc.storage.ceph.ec2Credentials.list.query({
   project_id: "abc123",
@@ -173,20 +178,25 @@ const credentials = await trpc.storage.ceph.ec2Credentials.list.query({
 Creates a new EC2 credential for the current user scoped to the given project. **The secret key is returned exactly once** in this response and never stored or shown again.
 
 **Input:**
+
 ```typescript
-{ project_id: string }
+{
+  project_id: string
+}
 ```
 
 **Output:**
+
 ```typescript
 Ec2CredentialWithSecret
 
 interface Ec2CredentialWithSecret extends Ec2Credential {
-  secret: string  // Secret access key (returned ONLY on creation)
+  secret: string // Secret access key (returned ONLY on creation)
 }
 ```
 
 **Example:**
+
 ```typescript
 const credential = await trpc.storage.ceph.ec2Credentials.create.mutate({
   project_id: "abc123",
@@ -194,7 +204,7 @@ const credential = await trpc.storage.ceph.ec2Credentials.create.mutate({
 
 // Save the secret immediately!
 console.log("Access Key:", credential.access)
-console.log("Secret Key:", credential.secret)  // ONLY shown here
+console.log("Secret Key:", credential.secret) // ONLY shown here
 ```
 
 **Important:** Display the secret key to the user immediately and instruct them to save it securely. It cannot be retrieved later.
@@ -206,6 +216,7 @@ console.log("Secret Key:", credential.secret)  // ONLY shown here
 Deletes an EC2 credential by ID. Returns success even if the credential is not found (idempotent).
 
 **Input:**
+
 ```typescript
 {
   project_id: string,
@@ -214,11 +225,15 @@ Deletes an EC2 credential by ID. Returns success even if the credential is not f
 ```
 
 **Output:**
+
 ```typescript
-{ success: true }
+{
+  success: true
+}
 ```
 
 **Example:**
+
 ```typescript
 await trpc.storage.ceph.ec2Credentials.delete.mutate({
   project_id: "abc123",
@@ -235,16 +250,23 @@ await trpc.storage.ceph.ec2Credentials.delete.mutate({
 Checks whether the current user has EC2 credentials configured for Ceph S3 access. **Does not throw** on missing credentials.
 
 **Input:**
+
 ```typescript
-{ project_id: string }
+{
+  project_id: string
+}
 ```
 
 **Output:**
+
 ```typescript
-{ hasCredentials: boolean }
+{
+  hasCredentials: boolean
+}
 ```
 
 **Example:**
+
 ```typescript
 const { hasCredentials } = await trpc.storage.ceph.containers.status.query({
   project_id: "abc123",
@@ -262,11 +284,15 @@ if (!hasCredentials) {
 Lists all S3 buckets (containers) accessible with the user's EC2 credentials.
 
 **Input:**
+
 ```typescript
-{ project_id: string }
+{
+  project_id: string
+}
 ```
 
 **Output:**
+
 ```typescript
 Container[]
 
@@ -277,6 +303,7 @@ interface Container {
 ```
 
 **Example:**
+
 ```typescript
 const containers = await trpc.storage.ceph.containers.list.query({
   project_id: "abc123",
@@ -293,6 +320,7 @@ console.log(containers)
 Retrieves metadata for a specific container (bucket). Currently returns basic information; can be extended to include object count and size if Ceph RGW provides those headers.
 
 **Input:**
+
 ```typescript
 {
   project_id: string,
@@ -301,6 +329,7 @@ Retrieves metadata for a specific container (bucket). Currently returns basic in
 ```
 
 **Output:**
+
 ```typescript
 ContainerDetails
 
@@ -312,6 +341,7 @@ interface ContainerDetails {
 ```
 
 **Example:**
+
 ```typescript
 const details = await trpc.storage.ceph.containers.getDetails.query({
   project_id: "abc123",
@@ -328,6 +358,7 @@ const details = await trpc.storage.ceph.containers.getDetails.query({
 Lists objects in a container with optional prefix filtering, delimiter for folder-style hierarchy, and pagination support.
 
 **Input:**
+
 ```typescript
 {
   project_id: string,
@@ -340,6 +371,7 @@ Lists objects in a container with optional prefix filtering, delimiter for folde
 ```
 
 **Output:**
+
 ```typescript
 ListObjectsOutput
 
@@ -351,32 +383,38 @@ interface ListObjectsOutput {
 }
 
 interface S3Object {
-  key: string              // Full path: "photos/2024/img.jpg"
-  lastModified?: string    // ISO 8601
-  size: number             // Bytes
-  etag?: string            // ETag/MD5
-  storageClass?: string    // e.g., "STANDARD"
+  key: string // Full path: "photos/2024/img.jpg"
+  lastModified?: string // ISO 8601
+  size: number // Bytes
+  etag?: string // ETag/MD5
+  storageClass?: string // e.g., "STANDARD"
 }
 
 interface S3FolderPrefix {
-  prefix: string  // e.g., "photos/2024/"
+  prefix: string // e.g., "photos/2024/"
 }
 ```
 
 **Example:**
+
 ```typescript
 // List top-level items (folders + objects)
-const { objects, folders, isTruncated, nextContinuationToken } =
-  await trpc.storage.ceph.objects.list.query({
-    project_id: "abc123",
-    containerName: "my-bucket",
-    delimiter: "/",  // Enable folder hierarchy
-  })
+const { objects, folders, isTruncated, nextContinuationToken } = await trpc.storage.ceph.objects.list.query({
+  project_id: "abc123",
+  containerName: "my-bucket",
+  delimiter: "/", // Enable folder hierarchy
+})
 
-console.log("Folders:", folders.map(f => f.prefix))
+console.log(
+  "Folders:",
+  folders.map((f) => f.prefix)
+)
 // ["documents/", "photos/", "videos/"]
 
-console.log("Objects:", objects.map(o => o.key))
+console.log(
+  "Objects:",
+  objects.map((o) => o.key)
+)
 // ["README.txt", "config.json"]
 
 // List objects inside "photos/"
@@ -402,6 +440,7 @@ const photosPage = await trpc.storage.ceph.objects.list.query({
 Retrieves metadata for a specific object without downloading its content (S3 `HeadObject` operation).
 
 **Input:**
+
 ```typescript
 {
   project_id: string,
@@ -411,6 +450,7 @@ Retrieves metadata for a specific object without downloading its content (S3 `He
 ```
 
 **Output:**
+
 ```typescript
 S3ObjectDetails
 
@@ -421,11 +461,12 @@ interface S3ObjectDetails {
   etag?: string
   contentType?: string
   storageClass?: string
-  metadata?: Record<string, string>  // Custom user metadata
+  metadata?: Record<string, string> // Custom user metadata
 }
 ```
 
 **Example:**
+
 ```typescript
 const details = await trpc.storage.ceph.objects.getDetails.query({
   project_id: "abc123",
@@ -452,24 +493,24 @@ The `mapS3ErrorToTRPCError` helper maps AWS SDK S3 error codes to tRPC error cod
 
 #### Mapped Error Codes
 
-| S3 Error Code              | tRPC Code              | Description                        |
-|----------------------------|------------------------|------------------------------------|
-| `NoSuchBucket`             | `NOT_FOUND`            | Bucket does not exist              |
-| `NoSuchKey`                | `NOT_FOUND`            | Object does not exist              |
-| `NoSuchUpload`             | `NOT_FOUND`            | Multipart upload ID not found      |
-| `BucketAlreadyExists`      | `CONFLICT`             | Bucket name already taken          |
-| `BucketAlreadyOwnedByYou`  | `CONFLICT`             | Bucket already owned by you        |
-| `BucketNotEmpty`           | `PRECONDITION_FAILED`  | Cannot delete non-empty bucket     |
-| `AccessDenied`             | `FORBIDDEN`            | Insufficient permissions           |
-| `AllAccessDisabled`        | `FORBIDDEN`            | All access disabled                |
-| `InvalidAccessKeyId`       | `UNAUTHORIZED`         | Invalid access key                 |
-| `SignatureDoesNotMatch`    | `UNAUTHORIZED`         | Invalid secret key                 |
-| `TokenRefreshRequired`     | `UNAUTHORIZED`         | Token expired                      |
-| `RequestTimeTooSkewed`     | `UNAUTHORIZED`         | Clock skew too large               |
-| `InvalidBucketName`        | `BAD_REQUEST`          | Invalid bucket name format         |
-| `KeyTooLongError`          | `BAD_REQUEST`          | Object key too long                |
-| `EntityTooLarge`           | `PAYLOAD_TOO_LARGE`    | Object exceeds max size            |
-| `EntityTooSmall`           | `BAD_REQUEST`          | Object below minimum size          |
+| S3 Error Code             | tRPC Code             | Description                    |
+| ------------------------- | --------------------- | ------------------------------ |
+| `NoSuchBucket`            | `NOT_FOUND`           | Bucket does not exist          |
+| `NoSuchKey`               | `NOT_FOUND`           | Object does not exist          |
+| `NoSuchUpload`            | `NOT_FOUND`           | Multipart upload ID not found  |
+| `BucketAlreadyExists`     | `CONFLICT`            | Bucket name already taken      |
+| `BucketAlreadyOwnedByYou` | `CONFLICT`            | Bucket already owned by you    |
+| `BucketNotEmpty`          | `PRECONDITION_FAILED` | Cannot delete non-empty bucket |
+| `AccessDenied`            | `FORBIDDEN`           | Insufficient permissions       |
+| `AllAccessDisabled`       | `FORBIDDEN`           | All access disabled            |
+| `InvalidAccessKeyId`      | `UNAUTHORIZED`        | Invalid access key             |
+| `SignatureDoesNotMatch`   | `UNAUTHORIZED`        | Invalid secret key             |
+| `TokenRefreshRequired`    | `UNAUTHORIZED`        | Token expired                  |
+| `RequestTimeTooSkewed`    | `UNAUTHORIZED`        | Clock skew too large           |
+| `InvalidBucketName`       | `BAD_REQUEST`         | Invalid bucket name format     |
+| `KeyTooLongError`         | `BAD_REQUEST`         | Object key too long            |
+| `EntityTooLarge`          | `PAYLOAD_TOO_LARGE`   | Object exceeds max size        |
+| `EntityTooSmall`          | `BAD_REQUEST`         | Object below minimum size      |
 
 Unmapped error codes are logged and returned as `INTERNAL_SERVER_ERROR`.
 
@@ -481,7 +522,7 @@ All errors include contextual information:
 throw mapS3ErrorToTRPCError(error, {
   operation: "list objects",
   bucket: "my-bucket",
-  key: "path/to/object",  // optional
+  key: "path/to/object", // optional
 })
 ```
 
@@ -600,18 +641,18 @@ async function browseBucket(containerName: string, currentPath: string = "") {
   })
 
   console.log("Folders:")
-  folders.forEach(f => console.log(`  📁 ${f.prefix}`))
+  folders.forEach((f) => console.log(`  📁 ${f.prefix}`))
 
   console.log("Files:")
-  objects.forEach(o => {
+  objects.forEach((o) => {
     const sizeKB = (o.size / 1024).toFixed(2)
     console.log(`  📄 ${o.key} (${sizeKB} KB)`)
   })
 }
 
 // Usage
-await browseBucket("my-bucket", "")            // Root level
-await browseBucket("my-bucket", "photos/")     // Inside "photos/" folder
+await browseBucket("my-bucket", "") // Root level
+await browseBucket("my-bucket", "photos/") // Inside "photos/" folder
 await browseBucket("my-bucket", "photos/2024/") // Nested folder
 ```
 
@@ -625,14 +666,13 @@ async function listAllObjects(containerName: string, prefix?: string) {
   const allObjects: S3Object[] = []
 
   do {
-    const { objects, isTruncated, nextContinuationToken } =
-      await trpc.storage.ceph.objects.list.query({
-        project_id: "abc123",
-        containerName,
-        prefix,
-        delimiter: undefined,  // Flat list (no folders)
-        continuationToken,
-      })
+    const { objects, isTruncated, nextContinuationToken } = await trpc.storage.ceph.objects.list.query({
+      project_id: "abc123",
+      containerName,
+      prefix,
+      delimiter: undefined, // Flat list (no folders)
+      continuationToken,
+    })
 
     allObjects.push(...objects)
     continuationToken = nextContinuationToken
@@ -740,17 +780,17 @@ console.log("Old credential deleted")
 
 ## Comparison: Ceph S3 vs. Swift
 
-| Feature                | Ceph S3 (this BFF)              | Swift BFF                          |
-|------------------------|---------------------------------|------------------------------------|
-| **Authentication**     | EC2 credentials (access + secret) | Keystone token                     |
-| **API Style**          | S3-compatible (AWS SDK)         | OpenStack Swift API                |
-| **Bucket/Container**   | S3 buckets                      | Swift containers                   |
-| **Object Hierarchy**   | `delimiter` + `prefix`          | `delimiter` + `prefix`             |
-| **Metadata**           | User metadata via `x-amz-meta-` | Custom headers via `X-Object-Meta-` |
-| **Large Objects**      | Multipart uploads               | Static/Dynamic Large Objects (SLO/DLO) |
-| **Uploads**            | (Not yet implemented)           | `octetInputParser` streaming       |
-| **Downloads**          | (Not yet implemented)           | Async iterable base64 chunks       |
-| **Temporary URLs**     | Presigned URLs (not yet impl)   | HMAC-SHA256 signed temp URLs       |
+| Feature              | Ceph S3 (this BFF)                | Swift BFF                              |
+| -------------------- | --------------------------------- | -------------------------------------- |
+| **Authentication**   | EC2 credentials (access + secret) | Keystone token                         |
+| **API Style**        | S3-compatible (AWS SDK)           | OpenStack Swift API                    |
+| **Bucket/Container** | S3 buckets                        | Swift containers                       |
+| **Object Hierarchy** | `delimiter` + `prefix`            | `delimiter` + `prefix`                 |
+| **Metadata**         | User metadata via `x-amz-meta-`   | Custom headers via `X-Object-Meta-`    |
+| **Large Objects**    | Multipart uploads                 | Static/Dynamic Large Objects (SLO/DLO) |
+| **Uploads**          | (Not yet implemented)             | `octetInputParser` streaming           |
+| **Downloads**        | (Not yet implemented)             | Async iterable base64 chunks           |
+| **Temporary URLs**   | Presigned URLs (not yet impl)     | HMAC-SHA256 signed temp URLs           |
 
 **When to use which?**
 
@@ -815,12 +855,14 @@ pnpm test apps/aurora-portal/src/server/Storage/routers/objectRouter.test.ts
 ### Integration Testing
 
 1. **Set up environment:**
+
    ```bash
    export CEPH_S3_ENDPOINT="https://rgw.example.com"
    export CEPH_REGION="default"
    ```
 
 2. **Create credentials via tRPC:**
+
    ```typescript
    const credential = await trpc.storage.ceph.ec2Credentials.create.mutate({
      project_id: "your-project-id",
@@ -830,6 +872,7 @@ pnpm test apps/aurora-portal/src/server/Storage/routers/objectRouter.test.ts
    ```
 
 3. **Test bucket operations:**
+
    ```typescript
    const { hasCredentials } = await trpc.storage.ceph.containers.status.query({
      project_id: "your-project-id",
@@ -971,6 +1014,7 @@ function CephStoragePage() {
 **Solution:**
 
 Set the environment variable:
+
 ```bash
 export CEPH_S3_ENDPOINT="https://rgw.st1.qa-de-1.cloud.sap"
 ```
