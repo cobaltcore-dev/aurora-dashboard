@@ -7,7 +7,7 @@ import { createS3Client } from "./clients/s3Client"
 
 export const NO_CEPH_CREDENTIALS = "NO_CEPH_CREDENTIALS" as const
 
-function resolveS3Config(ctx: AuroraPortalContext): { endpoint?: string; region: string } {
+function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: string } {
   const region = process.env.CEPH_REGION || "default"
 
   // Try to get endpoint from Ceph service catalog
@@ -35,7 +35,12 @@ function resolveS3Config(ctx: AuroraPortalContext): { endpoint?: string; region:
   }
 
   // Fallback to environment variables
-  return { endpoint: process.env.CEPH_S3_ENDPOINT, region }
+  const envEndpoint = process.env.CEPH_S3_ENDPOINT
+  if (!envEndpoint) {
+    throw new Error("Ceph S3 endpoint not configured: set CEPH_S3_ENDPOINT or ensure Ceph service is in the catalog")
+  }
+
+  return { endpoint: envEndpoint, region }
 }
 
 /**
