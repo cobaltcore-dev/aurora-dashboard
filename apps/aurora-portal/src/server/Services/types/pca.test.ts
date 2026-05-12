@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest"
 import {
   CertificateAuthoritiesListSchema,
   CertificateAuthorityCreateSchema,
+  CertificateAuthorityImportInputSchema,
   CertificateAuthorityResponseSchema,
   CertificateAuthoritySchema,
   CertificateConfigurationSchema,
@@ -770,6 +771,38 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
           certificate_authority_id: "ca-456",
         }).success
       ).toBe(true)
+    })
+  })
+
+  describe("CertificateAuthorityImportInputSchema", () => {
+    it("should validate import input with all required fields", () => {
+      expect(
+        CertificateAuthorityImportInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          imported_certificate_chain:
+            "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject import input without imported_certificate_chain", () => {
+      expect(
+        CertificateAuthorityImportInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject import input with empty imported_certificate_chain", () => {
+      expect(
+        CertificateAuthorityImportInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          imported_certificate_chain: "",
+        }).success
+      ).toBe(false)
     })
   })
 
