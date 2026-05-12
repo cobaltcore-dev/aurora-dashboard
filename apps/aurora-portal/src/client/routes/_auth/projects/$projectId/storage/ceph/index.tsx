@@ -5,7 +5,7 @@ import { CredentialPrompt } from "../-components/Ceph/Containers"
 import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 
-export const Route = createFileRoute("/_auth/projects/$projectId/storage/ceph")({
+export const Route = createFileRoute("/_auth/projects/$projectId/storage/ceph/")({
   component: S3Layout,
 })
 
