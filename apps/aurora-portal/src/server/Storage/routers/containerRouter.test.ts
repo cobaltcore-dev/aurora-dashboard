@@ -130,12 +130,12 @@ describe("buckets.list", () => {
     )
   })
 
-  it("throws FORBIDDEN with NO_S3_CREDENTIALS when no EC2 credentials exist", async () => {
+  it("throws FORBIDDEN with NO_CEPH_CREDENTIALS when no EC2 credentials exist", async () => {
     const ctx = createMockContext(false, false)
     const caller = createCaller(ctx)
 
     await expect(caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-      new TRPCError({ code: "FORBIDDEN", message: "NO_S3_CREDENTIALS" })
+      new TRPCError({ code: "FORBIDDEN", message: "NO_CEPH_CREDENTIALS" })
     )
   })
 
