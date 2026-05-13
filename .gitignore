@@ -16,5 +16,6 @@ CLAUDE*
 .semantic-release/
 
 test-results/
+playwright-results/
 playwright-report/
 playwright/.cache/
