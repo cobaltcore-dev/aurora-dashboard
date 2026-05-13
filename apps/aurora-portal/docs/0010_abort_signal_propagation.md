@@ -8,7 +8,7 @@ This document describes how request cancellation is implemented across the Auror
 
 When a user cancels an in-flight operation (e.g. clicking "Cancel upload" or closing a modal), the cancellation propagates through the following chain:
 
-```
+```text
 Browser (AbortController.abort())
   → HTTP connection closed (fetch cancelled)
     → Fastify: res.raw / req.raw "close" event
@@ -199,7 +199,7 @@ useEffect(() => {
 
 **Expected server logs on cancel:**
 
-```
+```text
 [testCancellation] req.complete: true
 [testCancellation] signal.aborted: false
 [testCancellation] starting fetch...
@@ -347,7 +347,7 @@ progressTracker.on("error", () => {})
 
 ### Full call chain on cancel
 
-```
+```text
 user clicks "Cancel upload"
   → abortControllerRef.current.abort()
     → controller.signal aborted
