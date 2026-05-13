@@ -338,11 +338,23 @@ await swift.put(url, webStream, {
 })
 ```
 
-Node.js stream error handlers are added to suppress unhandled `ECONNRESET` crashes:
+Node.js stream error handlers suppress abort-related errors and propagate real failures via `destroy()`:
 
 ```typescript
-validatedFile.on("error", () => {})
-progressTracker.on("error", () => {})
+const isAbortLike = (err: unknown) => {
+  const code = (err as NodeJS.ErrnoException | undefined)?.code
+  return code === "ECONNRESET" || code === "ECONNABORTED" || ctx.req.signal.aborted
+}
+
+validatedFile.on("error", (err) => {
+  if (isAbortLike(err)) return
+  progressTracker.destroy(err as Error)
+})
+
+progressTracker.on("error", (err) => {
+  if (isAbortLike(err)) return
+  trackedStream.destroy(err as Error)
+})
 ```
 
 ### Full call chain on cancel
