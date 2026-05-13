@@ -334,11 +334,17 @@ msgstr "Cannot delete. Container contains objects. Please empty it first."
 msgid "Capabilities"
 msgstr "Capabilities"
 
+msgid "Ceph"
+msgstr "Ceph"
+
 msgid "Ceph Objects — {containerName}"
 msgstr "Ceph Objects — {containerName}"
 
 msgid "Check out our source code on GitHub!"
 msgstr "Check out our source code on GitHub!"
+
+msgid "Checking S3 credentials..."
+msgstr "Checking S3 credentials..."
 
 msgid "Checksum"
 msgstr "Checksum"
@@ -436,6 +442,9 @@ msgstr "Container Updated"
 msgid "Container:"
 msgstr "Container:"
 
+msgid "Container: {containerName}"
+msgstr "Container: {containerName}"
+
 msgid "Containers"
 msgstr "Containers"
 
@@ -450,6 +459,9 @@ msgstr "Containers to be emptied ({totalCount})"
 
 msgid "Content type"
 msgstr "Content type"
+
+msgid "Continue"
+msgstr "Continue"
 
 msgid "Copied to clipboard!"
 msgstr "Copied to clipboard!"
@@ -529,6 +541,9 @@ msgstr "Create"
 msgid "Create Container"
 msgstr "Create Container"
 
+msgid "Create Credential"
+msgstr "Create Credential"
+
 msgid "Create Flavor"
 msgstr "Create Flavor"
 
@@ -567,6 +582,12 @@ msgstr "Creating security group rule..."
 
 msgid "Creating security group..."
 msgstr "Creating security group..."
+
+msgid "Creating..."
+msgstr "Creating..."
+
+msgid "Creation Date"
+msgstr "Creation Date"
 
 msgid "Custom"
 msgstr "Custom"
@@ -949,6 +970,9 @@ msgstr "Failed to copy the temporary URL to the clipboard"
 msgid "Failed to Create Container"
 msgstr "Failed to Create Container"
 
+msgid "Failed to create credential: {errorMessage}"
+msgstr "Failed to create credential: {errorMessage}"
+
 msgid "Failed to create extra specs. Please try again."
 msgstr "Failed to create extra specs. Please try again."
 
@@ -1030,6 +1054,9 @@ msgstr "Failed to load container objects: {errorMessage}"
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Failed to load container properties: {errorMessage}"
 
+msgid "Failed to load containers: {errorMessage}"
+msgstr "Failed to load containers: {errorMessage}"
+
 msgid "Failed to load extra specs. Please try again."
 msgstr "Failed to load extra specs. Please try again."
 
@@ -1044,6 +1071,9 @@ msgstr "Failed to load metadata configuration."
 
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Failed to load object metadata: {metadataErrorMessage}"
+
+msgid "Failed to load objects: {errorMessage}"
+msgstr "Failed to load objects: {errorMessage}"
 
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
@@ -1669,6 +1699,9 @@ msgstr "No"
 msgid "No containers found"
 msgstr "No containers found"
 
+msgid "No containers found."
+msgstr "No containers found."
+
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "No custom metadata properties found. Click \"Add Property\" to create one."
 
@@ -1701,6 +1734,9 @@ msgstr "No limit"
 
 msgid "No objects found"
 msgstr "No objects found"
+
+msgid "No objects found."
+msgstr "No objects found."
 
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "No objects match your search. Try adjusting your search term."
@@ -2107,6 +2143,15 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Factor must be an integer ≥ 1."
 
+msgid "S3 Credential Created"
+msgstr "S3 Credential Created"
+
+msgid "S3 Object Storage — Setup Required"
+msgstr "S3 Object Storage — Setup Required"
+
+msgid "S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your requests. You need to create credentials before accessing S3 resources."
+msgstr "S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your requests. You need to create credentials before accessing S3 resources."
+
 msgid "Save"
 msgstr "Save"
 
@@ -2121,6 +2166,12 @@ msgstr "Saving..."
 
 msgid "Search..."
 msgstr "Search..."
+
+msgid "Secret Key (shown once — copy it now):"
+msgstr "Secret Key (shown once — copy it now):"
+
+msgid "Secret key copied to clipboard."
+msgstr "Secret key copied to clipboard."
 
 msgid "Security"
 msgstr "Security"
@@ -2304,6 +2355,9 @@ msgstr "Store old object versions"
 
 msgid "Store old object versions in container:"
 msgstr "Store old object versions in container:"
+
+msgid "Store this secret key securely. It will not be shown again."
+msgstr "Store this secret key securely. It will not be shown again."
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
@@ -2631,6 +2685,9 @@ msgstr "Unable to Update Image Visibility"
 
 msgid "Unable to Upload Image File"
 msgstr "Unable to Upload Image File"
+
+msgid "Unknown"
+msgstr "Unknown"
 
 msgid "Unnamed"
 msgstr "Unnamed"
