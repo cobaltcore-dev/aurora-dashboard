@@ -329,7 +329,7 @@ msgid "Cancel"
 msgstr "Abbrechen"
 
 msgid "Cancel upload"
-msgstr ""
+msgstr "Upload abbrechen"
 
 msgid "Cannot delete. Container contains objects. Please empty it first."
 msgstr "Löschen nicht möglich. Container enthält Objekte. Bitte leeren Sie ihn zuerst."
@@ -1823,7 +1823,7 @@ msgid "Object properties"
 msgstr "Objekt-Eigenschaften"
 
 msgid "Object Storage"
-msgstr ""
+msgstr "Object Storage"
 
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"
@@ -2717,7 +2717,7 @@ msgid "Upload"
 msgstr "Hochladen"
 
 msgid "Upload Cancelled"
-msgstr ""
+msgstr "Upload abgebrochen"
 
 msgid "Upload failed: {uploadError}"
 msgstr "Upload fehlgeschlagen: {uploadError}"
@@ -2729,7 +2729,7 @@ msgid "Upload object to:"
 msgstr "Objekt hochladen nach:"
 
 msgid "Upload of \"{objectName}\" was cancelled."
-msgstr ""
+msgstr "Upload von \"{objectName}\" wurde abgebrochen."
 
 msgid "Uploading..."
 msgstr "Wird hochgeladen..."
