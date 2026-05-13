@@ -1406,13 +1406,27 @@ export const swiftRouter = {
             },
           })
 
-          // Suppress unhandled 'error' events on the Node.js streams.
+          // Suppress abort-related 'error' events on the Node.js streams.
           // When the client aborts mid-upload, Node.js emits ECONNRESET on the
           // underlying Readable. Without listeners these bubble up as uncaught
           // exceptions and crash the process. The abort is already handled via
           // ctx.req.signal → cancellable webStream → swift.put AbortError.
-          validatedFile.on("error", () => {})
-          progressTracker.on("error", () => {})
+          // Non-abort errors (I/O failures, disk errors) are re-emitted so they
+          // surface correctly through swift.put() and the outer catch block.
+          const isAbortLike = (err: unknown) => {
+            const code = (err as NodeJS.ErrnoException | undefined)?.code
+            return code === "ECONNRESET" || code === "ECONNABORTED" || ctx.req.signal.aborted
+          }
+
+          validatedFile.on("error", (err) => {
+            if (isAbortLike(err)) return
+            progressTracker.destroy(err as Error)
+          })
+
+          progressTracker.on("error", (err) => {
+            if (isAbortLike(err)) return
+            throw err
+          })
 
           const trackedStream = validatedFile.pipe(progressTracker)
 
