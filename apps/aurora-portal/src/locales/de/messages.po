@@ -337,11 +337,17 @@ msgstr "Löschen nicht möglich. Container enthält Objekte. Bitte leeren Sie ih
 msgid "Capabilities"
 msgstr "Capabilities"
 
+msgid "Ceph"
+msgstr ""
+
 msgid "Ceph Objects — {containerName}"
 msgstr "Ceph-Objekte — {containerName}"
 
 msgid "Check out our source code on GitHub!"
 msgstr "Schauen Sie sich unseren Quellcode auf GitHub an!"
+
+msgid "Checking S3 credentials..."
+msgstr ""
 
 msgid "Checksum"
 msgstr "Prüfsumme"
@@ -439,6 +445,9 @@ msgstr "Container aktualisiert"
 msgid "Container:"
 msgstr "Container:"
 
+msgid "Container: {containerName}"
+msgstr ""
+
 msgid "Containers"
 msgstr "Container"
 
@@ -453,6 +462,9 @@ msgstr "Zu leerende Container ({totalCount})"
 
 msgid "Content type"
 msgstr "Content type"
+
+msgid "Continue"
+msgstr ""
 
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
@@ -532,6 +544,9 @@ msgstr "Erstellen"
 msgid "Create Container"
 msgstr "Container erstellen"
 
+msgid "Create Credential"
+msgstr ""
+
 msgid "Create Flavor"
 msgstr "Flavor erstellen"
 
@@ -570,6 +585,12 @@ msgstr "Sicherheitsgruppenregel wird erstellt..."
 
 msgid "Creating security group..."
 msgstr "Sicherheitsgruppe wird erstellt..."
+
+msgid "Creating..."
+msgstr ""
+
+msgid "Creation Date"
+msgstr ""
 
 msgid "Custom"
 msgstr "Benutzerdefiniert"
@@ -952,6 +973,9 @@ msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
 msgid "Failed to Create Container"
 msgstr "Fehler beim Erstellen des Containers"
 
+msgid "Failed to create credential: {errorMessage}"
+msgstr ""
+
 msgid "Failed to create extra specs. Please try again."
 msgstr "Fehler beim Erstellen des Extra-Specs. Bitte versuchen Sie es erneut."
 
@@ -1033,6 +1057,9 @@ msgstr "Fehler beim Laden der Container-Objekte: {errorMessage}"
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Eigenschaften: {errorMessage}"
 
+msgid "Failed to load containers: {errorMessage}"
+msgstr ""
+
 msgid "Failed to load extra specs. Please try again."
 msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
 
@@ -1047,6 +1074,9 @@ msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
+
+msgid "Failed to load objects: {errorMessage}"
+msgstr ""
 
 msgid "Failed to load security groups"
 msgstr "Security Groups konnten nicht geladen werden"
@@ -1672,6 +1702,9 @@ msgstr "Nein"
 msgid "No containers found"
 msgstr "Keine Container gefunden"
 
+msgid "No containers found."
+msgstr ""
+
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "Keine benutzerdefinierten Metadaten-Eigenschaften gefunden. Klicken Sie auf \"Eigenschaft hinzufügen\", um eine zu erstellen."
 
@@ -1704,6 +1737,9 @@ msgstr "Kein Limit"
 
 msgid "No objects found"
 msgstr "Keine Objekte gefunden"
+
+msgid "No objects found."
+msgstr ""
 
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff anzupassen."
@@ -2110,6 +2146,15 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
+msgid "S3 Credential Created"
+msgstr ""
+
+msgid "S3 Object Storage — Setup Required"
+msgstr ""
+
+msgid "S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your requests. You need to create credentials before accessing S3 resources."
+msgstr ""
+
 msgid "Save"
 msgstr "Speichern"
 
@@ -2124,6 +2169,12 @@ msgstr "Wird gespeichert..."
 
 msgid "Search..."
 msgstr "Suchen..."
+
+msgid "Secret Key (shown once — copy it now):"
+msgstr ""
+
+msgid "Secret key copied to clipboard."
+msgstr ""
 
 msgid "Security"
 msgstr "Sicherheit"
@@ -2307,6 +2358,9 @@ msgstr "Alte Objekt-Versionen speichern"
 
 msgid "Store old object versions in container:"
 msgstr "Alte Objekt-Versionen in Container speichern:"
+
+msgid "Store this secret key securely. It will not be shown again."
+msgstr ""
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
@@ -2634,6 +2688,9 @@ msgstr "Image-Sichtbarkeit kann nicht aktualisiert werden"
 
 msgid "Unable to Upload Image File"
 msgstr "Image-Datei kann nicht hochgeladen werden"
+
+msgid "Unknown"
+msgstr ""
 
 msgid "Unnamed"
 msgstr "Unbenannt"
