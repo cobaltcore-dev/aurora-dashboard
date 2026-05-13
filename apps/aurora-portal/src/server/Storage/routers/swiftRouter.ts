@@ -1425,7 +1425,7 @@ export const swiftRouter = {
 
           progressTracker.on("error", (err) => {
             if (isAbortLike(err)) return
-            throw err
+            trackedStream.destroy(err as Error)
           })
 
           const trackedStream = validatedFile.pipe(progressTracker)
