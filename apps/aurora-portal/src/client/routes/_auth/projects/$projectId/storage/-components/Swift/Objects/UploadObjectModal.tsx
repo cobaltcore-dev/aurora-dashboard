@@ -57,6 +57,10 @@ export const UploadObjectModal = ({
 
   const handleClose = () => {
     if (isPending) return
+    resetAndClose()
+  }
+
+  const resetAndClose = () => {
     setSelectedFile(null)
     setFileError(null)
     setIsDragging(false)
@@ -142,11 +146,8 @@ export const UploadObjectModal = ({
       })
 
       utils.storage.swift.listObjects.invalidate({ container })
-      setIsPending(false)
-      setUploadId(null)
-      abortControllerRef.current = null
       onSuccess?.(submittedNameRef.current)
-      handleClose()
+      resetAndClose()
     } catch (err) {
       const isAborted =
         err instanceof Error &&
@@ -155,11 +156,8 @@ export const UploadObjectModal = ({
           err.message.includes("signal is aborted") ||
           err.message.includes("aborted"))
       if (isAborted) {
-        setIsPending(false)
-        setUploadId(null)
-        abortControllerRef.current = null
         onCancelled?.(submittedNameRef.current)
-        handleClose()
+        resetAndClose()
         return
       }
       const message = err instanceof Error ? err.message : String(err)
