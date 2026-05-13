@@ -70,7 +70,7 @@
     "@lingui/format-po": "^5.9.5",
     "@lingui/swc-plugin": "^5.11.0",
     "@lingui/vite-plugin": "^5.9.5",
-    "@playwright/test": "^1.59.1",
+    "@playwright/test": "1.59.1",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "^0.10.0",
     "@tanstack/router-plugin": "^1.167.5",
