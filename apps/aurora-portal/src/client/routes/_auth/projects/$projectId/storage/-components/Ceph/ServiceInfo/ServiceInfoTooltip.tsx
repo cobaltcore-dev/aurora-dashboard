@@ -66,11 +66,11 @@ export const ServiceInfoTooltip = () => {
   if (capabilities.serverSideEncryption) capabilityList.push(t`Server-side encryption`)
 
   return (
-    <Tooltip triggerEvent="hover" placement="bottom-end">
+    <Tooltip triggerEvent="click" placement="bottom-end">
       <TooltipTrigger asChild>
         <Icon icon="info" size="20px" className="text-theme-light hover:text-theme-default cursor-pointer" />
       </TooltipTrigger>
-      <TooltipContent className="z-10 w-72 max-h-[80vh] overflow-y-auto text-sm">
+      <TooltipContent className="z-10 max-h-[80vh] w-72 overflow-y-auto text-sm">
         <span className="flex flex-col gap-3 p-1">
           <span className="text-theme-default font-semibold">
             <Trans>Cluster limits and capabilities</Trans>
