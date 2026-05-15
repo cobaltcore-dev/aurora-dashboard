@@ -203,38 +203,40 @@ export class CephAdminClient {
 }
 
 /**
- * Create Ceph Admin API client from environment variables
+ * Create Ceph Admin API client
  *
+ * @param endpoint - Optional Ceph endpoint (from service catalog). If not provided, uses env vars.
  * Required env vars:
- * - CEPH_ADMIN_ENDPOINT (or derive from CEPH_ENDPOINT)
  * - CEPH_ADMIN_ACCESS_KEY
  * - CEPH_ADMIN_SECRET_KEY
+ * - CEPH_ADMIN_ENDPOINT or CEPH_ENDPOINT (if endpoint param not provided)
  * - CEPH_REGION (optional, default: "default")
  *
  * @throws TRPCError with PRECONDITION_FAILED if credentials not configured
  */
-export function createCephAdminClient(): CephAdminClient {
-  const endpoint = process.env.CEPH_ADMIN_ENDPOINT || process.env.CEPH_ENDPOINT
+export function createCephAdminClient(endpoint?: string): CephAdminClient {
+  const resolvedEndpoint = endpoint || process.env.CEPH_ADMIN_ENDPOINT || process.env.CEPH_ENDPOINT
   const accessKey = process.env.CEPH_ADMIN_ACCESS_KEY
   const secretKey = process.env.CEPH_ADMIN_SECRET_KEY
   const region = process.env.CEPH_REGION
 
-  if (!endpoint) {
+  if (!resolvedEndpoint) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
-      message: "Ceph Admin API is not configured. Set CEPH_ADMIN_ENDPOINT environment variable.",
+      message: "Ceph Admin API endpoint not configured. Ensure Ceph service is in catalog or set CEPH_ADMIN_ENDPOINT.",
     })
   }
 
   if (!accessKey || !secretKey) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
-      message: "Ceph Admin API credentials are not configured. Set CEPH_ADMIN_ACCESS_KEY and CEPH_ADMIN_SECRET_KEY environment variables.",
+      message:
+        "Ceph Admin API credentials are not configured. Set CEPH_ADMIN_ACCESS_KEY and CEPH_ADMIN_SECRET_KEY environment variables.",
     })
   }
 
   return new CephAdminClient({
-    endpoint,
+    endpoint: resolvedEndpoint,
     accessKey,
     secretKey,
     region,

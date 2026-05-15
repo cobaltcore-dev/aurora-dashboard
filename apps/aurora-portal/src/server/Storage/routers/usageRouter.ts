@@ -48,9 +48,29 @@ export const usageRouter = {
       })
     }
 
+    // Get Ceph endpoint from service catalog (same as S3 endpoint)
+    let endpoint: string
     try {
-      // Create admin client from environment config
-      const adminClient = createCephAdminClient()
+      const service = ctx.openstack?.service("ceph")
+      const catalogEndpoint = service?.getEndpoint?.()
+      if (!catalogEndpoint) {
+        throw new Error("Ceph service endpoint not found in catalog")
+      }
+      // Extract base URL by removing Swift path (Admin API is at base URL)
+      const swiftIndex = catalogEndpoint.indexOf("/swift/")
+      endpoint = swiftIndex !== -1 ? catalogEndpoint.substring(0, swiftIndex) : catalogEndpoint
+    } catch (error) {
+      console.error("[usageRouter] Failed to resolve Ceph endpoint:", error)
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to resolve Ceph endpoint from service catalog",
+        cause: error,
+      })
+    }
+
+    try {
+      // Create admin client with endpoint from service catalog
+      const adminClient = createCephAdminClient(endpoint)
 
       // Get user stats from Ceph Admin API
       // In Ceph, the "user" (uid) typically maps to OpenStack project ID
