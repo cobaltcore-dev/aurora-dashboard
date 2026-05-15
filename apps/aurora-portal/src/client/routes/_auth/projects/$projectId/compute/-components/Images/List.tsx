@@ -126,7 +126,7 @@ function ImagesContent({
   const paginatedImages = images.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   useEffect(() => {
-    if (currentPage > totalPages) onPageChange(1)
+    if (currentPage !== 1 && currentPage > totalPages) onPageChange(1)
   }, [totalPages, currentPage, onPageChange])
 
   const activeFilterSettings =

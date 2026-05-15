@@ -591,13 +591,17 @@ export function ImageListView({
               <DataGridRow>
                 <DataGridHeadCell>
                   <Checkbox
-                    checked={selectedImages.length === images.length}
+                    checked={(() => {
+                      const currentPageIds = images.map((image) => image.id)
+                      return currentPageIds.length > 0 && currentPageIds.every((id) => selectedImages.includes(id))
+                    })()}
                     onChange={() => {
-                      if (selectedImages.length === images.length) {
-                        return setSelectedImages([])
+                      const currentPageIds = images.map((image) => image.id)
+                      const allSelected = currentPageIds.every((id) => selectedImages.includes(id))
+                      if (allSelected) {
+                        return setSelectedImages(selectedImages.filter((id) => !currentPageIds.includes(id)))
                       }
-
-                      return setSelectedImages(images.map((image) => image.id))
+                      return setSelectedImages([...new Set([...selectedImages, ...currentPageIds])])
                     }}
                   />
                 </DataGridHeadCell>

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, act } from "@testing-library/react"
-import { describe, it, expect, vi, beforeAll } from "vitest"
+import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
@@ -102,6 +102,10 @@ describe("ImageListView — pagination", () => {
     })
   })
 
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it("renders 'no images' message when images array is empty", async () => {
     await act(async () => {
       render(<ImageListView {...defaultProps} images={[]} />, { wrapper: TestingProvider })
@@ -133,7 +137,8 @@ describe("ImageListView — pagination", () => {
       })
     })
 
-    expect(document.querySelector(".juno-pagination")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /previous/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /next/i })).not.toBeInTheDocument()
   })
 
   it("renders pagination when totalPages is greater than 1", async () => {
@@ -145,7 +150,8 @@ describe("ImageListView — pagination", () => {
       })
     })
 
-    expect(document.querySelector(".juno-pagination")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /previous/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /next/i })).toBeInTheDocument()
   })
 
   it("calls onPageChange with next page when next button is clicked", async () => {
@@ -210,6 +216,21 @@ describe("ImageListView — pagination", () => {
       )
     })
 
+    const nextButton = screen.getByRole("button", { name: /next/i })
+    expect(nextButton).toBeDisabled()
+  })
+
+  it("clamps currentPage to totalPages when currentPage exceeds totalPages", async () => {
+    const images = makeImages(50)
+
+    await act(async () => {
+      render(
+        <ImageListView {...defaultProps} images={images} currentPage={5} totalPages={3} onPageChange={vi.fn()} />,
+        { wrapper: TestingProvider }
+      )
+    })
+
+    // When currentPage > totalPages the next button should be disabled (last page)
     const nextButton = screen.getByRole("button", { name: /next/i })
     expect(nextButton).toBeDisabled()
   })
