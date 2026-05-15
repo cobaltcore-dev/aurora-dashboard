@@ -40,9 +40,7 @@ export const ServiceInfoTooltip = () => {
   const { data: serviceInfo } = trpcReact.storage.ceph.serviceInfo.getServiceInfo.useQuery({})
 
   if (!serviceInfo) {
-    return (
-      <Icon icon="info" size="20px" className="text-theme-light" />
-    )
+    return <Icon icon="info" size="20px" className="text-theme-light" />
   }
 
   const limits = serviceInfo.limits
@@ -72,7 +70,7 @@ export const ServiceInfoTooltip = () => {
       <TooltipTrigger asChild>
         <Icon icon="info" size="20px" className="text-theme-light hover:text-theme-default cursor-pointer" />
       </TooltipTrigger>
-      <TooltipContent className="z-10 w-72 text-sm">
+      <TooltipContent className="z-10 w-72 max-h-[80vh] overflow-y-auto text-sm">
         <span className="flex flex-col gap-3 p-1">
           <span className="text-theme-default font-semibold">
             <Trans>Cluster limits and capabilities</Trans>
@@ -87,17 +85,13 @@ export const ServiceInfoTooltip = () => {
             <LimitItem label={t`Max bucket name length`} value={limits.maxBucketNameLength} />
             <LimitItem label={t`Max object name length`} value={limits.maxObjectNameLength} />
             <LimitItem label={t`Container listing limit`} value={limits.bucketListingLimit?.toLocaleString()} />
-            <LimitItem
-              label={t`Max deletes per request`}
-              value={limits.maxDeletesPerRequest?.toLocaleString()}
-            />
-            <LimitItem
-              label={t`Max segments`}
-              value={limits.maxMultipartParts?.toLocaleString()}
-            />
+            <LimitItem label={t`Max deletes per request`} value={limits.maxDeletesPerRequest?.toLocaleString()} />
+            <LimitItem label={t`Max segments`} value={limits.maxMultipartParts?.toLocaleString()} />
             <LimitItem
               label={t`Min segment size`}
-              value={limits.minMultipartPartSize !== undefined ? formatBytesBinary(limits.minMultipartPartSize) : undefined}
+              value={
+                limits.minMultipartPartSize !== undefined ? formatBytesBinary(limits.minMultipartPartSize) : undefined
+              }
             />
           </Section>
 
@@ -111,7 +105,7 @@ export const ServiceInfoTooltip = () => {
           )}
 
           {/* Footer note */}
-          <span className="text-xs text-theme-light border-t pt-2">
+          <span className="text-theme-light border-t pt-2 text-xs">
             {serviceInfo.version && <span>{serviceInfo.version}</span>}
             {serviceInfo.region && <span className="ml-2">• {serviceInfo.region}</span>}
           </span>
