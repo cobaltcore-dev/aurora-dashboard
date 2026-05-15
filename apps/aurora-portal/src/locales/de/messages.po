@@ -358,9 +358,6 @@ msgstr "Ceph-Objekte — {containerName}"
 msgid "Check out our source code on GitHub!"
 msgstr "Schauen Sie sich unseren Quellcode auf GitHub an!"
 
-msgid "Checking S3 credentials..."
-msgstr ""
-
 msgid "Checksum"
 msgstr "Prüfsumme"
 
@@ -459,9 +456,6 @@ msgstr "Container aktualisiert"
 
 msgid "Container:"
 msgstr "Container:"
-
-msgid "Container: {containerName}"
-msgstr ""
 
 msgid "Containers"
 msgstr "Container"

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Trans } from "@lingui/react/macro"
-import { Link } from "@tanstack/react-router"
+import { Link, useParams } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import {
@@ -17,6 +17,7 @@ import { CephUsageOverview } from "../Usage"
 
 export function ContainerListView() {
   const projectId = useProjectId()
+  const { provider } = useParams({ strict: false }) // Get provider from URL
   const [showCredentialPrompt, setShowCredentialPrompt] = useState(false)
 
   const {
@@ -101,10 +102,16 @@ export function ContainerListView() {
             <DataGridRow key={bucket.name}>
               <DataGridCell>
                 <Link
-                  to="/projects/$projectId/storage/ceph/containers/$containerName/objects"
-                  params={{ projectId: projectId ?? "", containerName: bucket.name }}
+                  to="/projects/$projectId/storage/$provider/containers/$containerName/objects"
+                  params={{
+                    projectId: projectId ?? "",
+                    provider: (provider as string) ?? "ceph",
+                    containerName: bucket.name
+                  }}
                 >
-                  <span className="hover:text-juno-blue cursor-pointer font-mono text-sm underline">{bucket.name}</span>
+                  <span className="hover:text-juno-blue cursor-pointer font-mono text-sm underline">
+                    {bucket.name}
+                  </span>
                 </Link>
               </DataGridCell>
               <DataGridCell>

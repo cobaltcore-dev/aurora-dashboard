@@ -1,4 +1,4 @@
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Trans } from "@lingui/react/macro"
 import { Tooltip, TooltipTrigger, TooltipContent, Icon } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
@@ -35,8 +35,6 @@ const Section = ({ title, children }: { title: React.ReactNode; children: React.
   </div>
 )
 
-// ✅ IMPROVEMENT 1: Define capability mapping as a constant
-// Single source of truth for all capabilities
 type CapabilityKey = keyof S3ServiceInfo["capabilities"]
 
 const CAPABILITY_LABELS: Record<CapabilityKey, string> = {
@@ -61,7 +59,6 @@ const CAPABILITY_LABELS: Record<CapabilityKey, string> = {
   eventNotifications: "Event notifications",
 } as const
 
-// ✅ IMPROVEMENT 2: Define limit configuration
 interface LimitConfig {
   key: keyof S3ServiceInfo["limits"]
   label: string
@@ -78,32 +75,21 @@ const LIMIT_CONFIGS: LimitConfig[] = [
   { key: "minMultipartPartSize", label: "Min segment size", formatter: formatBytesBinary },
 ]
 
-// ✅ IMPROVEMENT 3: Extract capability filtering logic
-function getEnabledCapabilities(
-  capabilities: S3ServiceInfo["capabilities"],
-  t: (literals: TemplateStringsArray, ...placeholders: any[]) => string
-): string[] {
+function getEnabledCapabilities(capabilities: S3ServiceInfo["capabilities"]): string[] {
   return (Object.entries(CAPABILITY_LABELS) as [CapabilityKey, string][])
     .filter(([key]) => capabilities[key])
-    .map(([, label]) => t`${label}`)
+    .map(([, label]) => label)
 }
 
-// ✅ IMPROVEMENT 4: Extract limit rendering logic
-function renderLimitItem(
-  config: LimitConfig,
-  limits: S3ServiceInfo["limits"],
-  t: (literals: TemplateStringsArray, ...placeholders: any[]) => string
-) {
+function renderLimitItem(config: LimitConfig, limits: S3ServiceInfo["limits"]) {
   const value = limits[config.key]
   if (value === undefined || value === null) return null
 
   const formattedValue = config.formatter ? config.formatter(value) : value
-  return <LimitItem key={config.key} label={t`${config.label}`} value={formattedValue} />
+  return <LimitItem key={config.key} label={config.label} value={formattedValue} />
 }
 
 export const ServiceInfoTooltip = () => {
-  const { t } = useLingui()
-
   const { data: serviceInfo } = trpcReact.storage.ceph.serviceInfo.getServiceInfo.useQuery({})
 
   if (!serviceInfo) {
@@ -112,8 +98,7 @@ export const ServiceInfoTooltip = () => {
 
   const { limits, capabilities } = serviceInfo
 
-  // ✅ Much cleaner - single line instead of 15 if-statements
-  const capabilityList = getEnabledCapabilities(capabilities, t)
+  const capabilityList = getEnabledCapabilities(capabilities)
 
   return (
     <Tooltip triggerEvent="click" placement="bottom-end">
@@ -128,7 +113,7 @@ export const ServiceInfoTooltip = () => {
 
           {/* Limits */}
           <Section title={<Trans>Limits</Trans>}>
-            {LIMIT_CONFIGS.map((config) => renderLimitItem(config, limits, t))}
+            {LIMIT_CONFIGS.map((config) => renderLimitItem(config, limits))}
           </Section>
 
           {/* Capabilities */}
