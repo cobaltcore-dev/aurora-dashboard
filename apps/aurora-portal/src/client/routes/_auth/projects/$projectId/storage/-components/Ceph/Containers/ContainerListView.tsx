@@ -106,12 +106,10 @@ export function ContainerListView() {
                   params={{
                     projectId: projectId ?? "",
                     provider: (provider as string) ?? "ceph",
-                    containerName: bucket.name
+                    containerName: bucket.name,
                   }}
                 >
-                  <span className="hover:text-juno-blue cursor-pointer font-mono text-sm underline">
-                    {bucket.name}
-                  </span>
+                  <span className="hover:text-juno-blue cursor-pointer font-mono text-sm underline">{bucket.name}</span>
                 </Link>
               </DataGridCell>
               <DataGridCell>

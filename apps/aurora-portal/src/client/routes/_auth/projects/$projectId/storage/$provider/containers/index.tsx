@@ -31,7 +31,6 @@ export const checkServiceAvailability = (
   }
 
   // Check provider availability
-  // Note: Ceph might not be in service catalog but configured via CEPH_S3_ENDPOINT env var
   const hasSwift = Boolean(serviceIndex["object-store"]["swift"])
   const hasCeph = Boolean(serviceIndex["object-store"]["ceph"])
 

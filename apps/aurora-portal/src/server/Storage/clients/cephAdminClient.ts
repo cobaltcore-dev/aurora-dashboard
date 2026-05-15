@@ -210,7 +210,6 @@ export class CephAdminClient {
  * - CEPH_ADMIN_ACCESS_KEY
  * - CEPH_ADMIN_SECRET_KEY
  * - CEPH_ADMIN_ENDPOINT or CEPH_ENDPOINT (if endpoint param not provided)
- * - CEPH_REGION (optional, default: "default")
  *
  * @throws TRPCError with PRECONDITION_FAILED if credentials not configured
  */
@@ -218,7 +217,6 @@ export function createCephAdminClient(endpoint?: string): CephAdminClient {
   const resolvedEndpoint = endpoint || process.env.CEPH_ADMIN_ENDPOINT || process.env.CEPH_ENDPOINT
   const accessKey = process.env.CEPH_ADMIN_ACCESS_KEY
   const secretKey = process.env.CEPH_ADMIN_SECRET_KEY
-  const region = process.env.CEPH_REGION
 
   if (!resolvedEndpoint) {
     throw new TRPCError({
@@ -239,7 +237,6 @@ export function createCephAdminClient(endpoint?: string): CephAdminClient {
     endpoint: resolvedEndpoint,
     accessKey,
     secretKey,
-    region,
   })
 }
 

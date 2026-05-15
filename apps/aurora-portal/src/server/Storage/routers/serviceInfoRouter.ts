@@ -88,7 +88,8 @@ export const serviceInfoRouter = {
 
       // Version info (could be made dynamic if we query Ceph)
       version: "Ceph RADOS Gateway (RGW)",
-      region: process.env.CEPH_REGION || "default",
+      // Region is not used by Ceph RGW, but required by response schema
+      region: "default",
     }
 
     // Validate the response

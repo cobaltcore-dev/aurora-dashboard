@@ -8,7 +8,9 @@ import { createS3Client } from "./clients/s3Client"
 export const NO_CEPH_CREDENTIALS = "NO_CEPH_CREDENTIALS" as const
 
 function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: string } {
-  const region = process.env.CEPH_REGION || "default"
+  // Region is not used by Ceph RGW, but required by AWS SDK
+  // Use a default constant value
+  const region = "default"
 
   // Get endpoint from Ceph service catalog
   try {
