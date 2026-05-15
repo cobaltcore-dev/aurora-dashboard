@@ -154,13 +154,7 @@ describe("ImageListView — pagination", () => {
 
     await act(async () => {
       render(
-        <ImageListView
-          {...defaultProps}
-          images={images}
-          currentPage={1}
-          totalPages={3}
-          onPageChange={onPageChange}
-        />,
+        <ImageListView {...defaultProps} images={images} currentPage={1} totalPages={3} onPageChange={onPageChange} />,
         { wrapper: TestingProvider }
       )
     })
@@ -179,13 +173,7 @@ describe("ImageListView — pagination", () => {
 
     await act(async () => {
       render(
-        <ImageListView
-          {...defaultProps}
-          images={images}
-          currentPage={2}
-          totalPages={3}
-          onPageChange={onPageChange}
-        />,
+        <ImageListView {...defaultProps} images={images} currentPage={2} totalPages={3} onPageChange={onPageChange} />,
         { wrapper: TestingProvider }
       )
     })

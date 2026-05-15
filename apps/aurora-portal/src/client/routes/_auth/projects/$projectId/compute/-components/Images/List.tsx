@@ -372,9 +372,7 @@ export const Images = ({ client, project }: ImagesProps) => {
           member_status: urlMemberStatusFilter,
         }
       )
-      newPromise
-        .catch(() => {})
-        .finally(() => setIsFetching(false))
+      newPromise.catch(() => {}).finally(() => setIsFetching(false))
       setImagesPromise(newPromise)
     })
   }, [client, sortSettings, searchTerm, filterSettings, searchParams.memberStatus])
@@ -403,9 +401,7 @@ export const Images = ({ client, project }: ImagesProps) => {
         ...buildFilterParams(effectiveFilters, filterSettings.filters),
         member_status: urlMemberStatusFilter,
       })
-      newPromise
-        .catch(() => {})
-        .finally(() => setIsFetching(false))
+      newPromise.catch(() => {}).finally(() => setIsFetching(false))
       setImagesPromise(newPromise)
     })
   }, [

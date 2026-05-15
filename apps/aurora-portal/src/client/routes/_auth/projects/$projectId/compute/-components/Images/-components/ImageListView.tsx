@@ -2,7 +2,6 @@ import { useState, ReactNode } from "react"
 import { useProjectId } from "@/client/hooks"
 import type { CreateImageInput, GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import {
-  Button,
   Checkbox,
   ContentHeading,
   DataGrid,
