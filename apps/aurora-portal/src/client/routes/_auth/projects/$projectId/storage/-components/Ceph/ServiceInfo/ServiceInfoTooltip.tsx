@@ -70,8 +70,8 @@ export const ServiceInfoTooltip = () => {
       <TooltipTrigger asChild>
         <Icon icon="info" size="20px" className="text-theme-light hover:text-theme-default cursor-pointer" />
       </TooltipTrigger>
-      <TooltipContent className="z-10 max-h-[80vh] w-72 overflow-y-auto text-sm">
-        <span className="flex flex-col gap-3 p-1">
+      <TooltipContent className="z-10 w-72 !p-0 text-sm">
+        <div className="flex max-h-[70vh] flex-col gap-3 overflow-y-auto p-3">
           <span className="text-theme-default font-semibold">
             <Trans>Cluster limits and capabilities</Trans>
           </span>
@@ -109,7 +109,7 @@ export const ServiceInfoTooltip = () => {
             {serviceInfo.version && <span>{serviceInfo.version}</span>}
             {serviceInfo.region && <span className="ml-2">• {serviceInfo.region}</span>}
           </span>
-        </span>
+        </div>
       </TooltipContent>
     </Tooltip>
   )
