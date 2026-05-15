@@ -121,3 +121,129 @@ export type S3Object = z.infer<typeof s3ObjectSchema>
 export type S3FolderPrefix = z.infer<typeof s3FolderPrefixSchema>
 export type ListObjectsOutput = z.infer<typeof listObjectsOutputSchema>
 export type S3ObjectDetails = z.infer<typeof s3ObjectDetailsSchema>
+
+// ============================================================================
+// USAGE & QUOTA SCHEMAS (CEPH ADMIN API)
+// ============================================================================
+
+/**
+ * Ceph Admin API user stats response schema
+ * Endpoint: GET /admin/user?stats=true&uid={uid}
+ * Docs: https://docs.ceph.com/en/latest/radosgw/adminops/#get-user-info
+ */
+export const cephUserStatsSchema = z.object({
+  num_buckets: z.number().int().nonnegative(),
+  num_objects: z.number().int().nonnegative(),
+  size: z.number().int().nonnegative(), // bytes
+  size_actual: z.number().int().nonnegative().optional(), // actual disk usage
+  size_utilized: z.number().int().nonnegative().optional(), // utilized size
+})
+
+/**
+ * Ceph Admin API quota info schema
+ */
+export const cephQuotaSchema = z.object({
+  enabled: z.boolean(),
+  max_size: z.number().int().optional(), // bytes, -1 = unlimited
+  max_objects: z.number().int().optional(), // -1 = unlimited
+  max_size_kb: z.number().int().optional(), // deprecated, use max_size
+})
+
+/**
+ * Combined usage info for frontend
+ */
+export const usageInfoSchema = z.object({
+  bucketsUsed: z.number().int().nonnegative(),
+  objectsUsed: z.number().int().nonnegative(),
+  bytesUsed: z.number().int().nonnegative(),
+  bytesActual: z.number().int().nonnegative().optional(), // actual disk usage with replication
+  bucketsQuota: z.number().int().nonnegative().optional(),
+  objectsQuota: z.number().int().nonnegative().optional(),
+  bytesQuota: z.number().int().nonnegative().optional(),
+  quotaEnabled: z.boolean().optional(),
+})
+
+export const getUserUsageInputSchema = projectScopedInputSchema
+
+// ============================================================================
+// USAGE & QUOTA TYPES
+// ============================================================================
+
+export type CephUserStats = z.infer<typeof cephUserStatsSchema>
+export type CephQuota = z.infer<typeof cephQuotaSchema>
+export type UsageInfo = z.infer<typeof usageInfoSchema>
+
+// ============================================================================
+// SERVICE INFO SCHEMAS (CLUSTER LIMITS & CAPABILITIES)
+// ============================================================================
+
+/**
+ * S3 Service Information - Cluster limits and capabilities
+ * Similar to Swift /info endpoint but for S3/Ceph
+ */
+export const s3ServiceInfoSchema = z.object({
+  // Limits
+  limits: z.object({
+    maxFileSize: z.number().optional(), // bytes, e.g., 5GB
+    maxBucketNameLength: z.number().optional(), // typically 63
+    maxObjectNameLength: z.number().optional(), // typically 1024
+    bucketListingLimit: z.number().optional(), // max keys per ListObjects request
+    maxDeletesPerRequest: z.number().optional(), // DeleteObjects limit
+    maxMultipartParts: z.number().optional(), // typically 10000
+    minMultipartPartSize: z.number().optional(), // bytes, typically 5MB
+  }),
+
+  // Capabilities (what features are supported)
+  capabilities: z.object({
+    // Storage features
+    bucketVersioning: z.boolean().optional(),
+    objectLocking: z.boolean().optional(),
+    bucketReplication: z.boolean().optional(),
+
+    // Access control
+    bucketPolicies: z.boolean().optional(),
+    bucketACLs: z.boolean().optional(),
+    objectACLs: z.boolean().optional(),
+
+    // Lifecycle
+    lifecycleRules: z.boolean().optional(),
+    objectExpiration: z.boolean().optional(),
+
+    // CORS
+    corsConfiguration: z.boolean().optional(),
+
+    // Website hosting
+    staticWebsiteHosting: z.boolean().optional(),
+
+    // Upload/Download
+    multipartUpload: z.boolean().optional(),
+    presignedUrls: z.boolean().optional(),
+    rangeRequests: z.boolean().optional(),
+
+    // Tagging
+    bucketTagging: z.boolean().optional(),
+    objectTagging: z.boolean().optional(),
+
+    // Monitoring & Logging
+    serverAccessLogging: z.boolean().optional(),
+    eventNotifications: z.boolean().optional(),
+
+    // Advanced
+    objectMetadata: z.boolean().optional(),
+    serverSideEncryption: z.boolean().optional(),
+  }),
+
+  // Additional info
+  version: z.string().optional(), // Ceph/RGW version
+  region: z.string().optional(), // Default region
+})
+
+export const getServiceInfoInputSchema = z.object({
+  // No input needed - service info is global
+})
+
+// ============================================================================
+// SERVICE INFO TYPES
+// ============================================================================
+
+export type S3ServiceInfo = z.infer<typeof s3ServiceInfoSchema>

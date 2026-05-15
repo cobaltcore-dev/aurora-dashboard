@@ -31,6 +31,15 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
+msgid "(approaching limit)"
+msgstr "(approaching limit)"
+
+msgid "(over quota)"
+msgstr "(over quota)"
+
+msgid "(with replication)"
+msgstr "(with replication)"
+
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} container"
 
@@ -199,6 +208,9 @@ msgstr "Activated {successCount} image(s), but {failedCount} image(s) could not 
 msgid "Activating this image will allow it to be used to launch new instances again."
 msgstr "Activating this image will allow it to be used to launch new instances again."
 
+msgid "Actual Disk Usage"
+msgstr "Actual Disk Usage"
+
 msgid "Add"
 msgstr "Add"
 
@@ -322,6 +334,21 @@ msgstr "Boot RAM"
 msgid "Boot size"
 msgstr "Boot size"
 
+msgid "Bucket ACLs"
+msgstr "Bucket ACLs"
+
+msgid "Bucket policies"
+msgstr "Bucket policies"
+
+msgid "Bucket tagging"
+msgstr "Bucket tagging"
+
+msgid "Bucket versioning"
+msgstr "Bucket versioning"
+
+msgid "Buckets"
+msgstr "Buckets"
+
 msgid "Bulk upload of archive files"
 msgstr "Bulk upload of archive files"
 
@@ -360,6 +387,9 @@ msgstr "Click to upload"
 
 msgid "Close"
 msgstr "Close"
+
+msgid "Cluster limits and capabilities"
+msgstr "Cluster limits and capabilities"
 
 msgid "Community"
 msgstr "Community"
@@ -460,9 +490,6 @@ msgstr "Containers to be emptied ({totalCount})"
 msgid "Content type"
 msgstr "Content type"
 
-msgid "Continue"
-msgstr "Continue"
-
 msgid "Copied to clipboard!"
 msgstr "Copied to clipboard!"
 
@@ -492,6 +519,9 @@ msgstr "Copying object..."
 
 msgid "Copying..."
 msgstr "Copying..."
+
+msgid "CORS configuration"
+msgstr "CORS configuration"
 
 msgid "Could not copy \"{objectName}\": {errorMessage}"
 msgstr "Could not copy \"{objectName}\": {errorMessage}"
@@ -1078,6 +1108,10 @@ msgstr "Failed to load objects: {errorMessage}"
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
 
+#. placeholder {0}: error.message
+msgid "Failed to load usage statistics: {0}"
+msgstr "Failed to load usage statistics: {0}"
+
 msgid "Failed to Move Object"
 msgstr "Failed to Move Object"
 
@@ -1447,6 +1481,9 @@ msgstr "Leave empty for all codes"
 msgid "Leave empty for all types"
 msgstr "Leave empty for all types"
 
+msgid "Lifecycle rules"
+msgstr "Lifecycle rules"
+
 msgid "Limits"
 msgstr "Limits"
 
@@ -1519,6 +1556,9 @@ msgstr "Loading Security Group Details..."
 msgid "Loading Server Groups..."
 msgstr "Loading Server Groups..."
 
+msgid "Loading usage statistics..."
+msgstr "Loading usage statistics..."
+
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -1542,6 +1582,9 @@ msgstr "Manage Access for Image - {imageName}"
 
 msgid "Manage OpenStack with "
 msgstr "Manage OpenStack with "
+
+msgid "Max bucket name length"
+msgstr "Max bucket name length"
 
 msgid "Max container name length"
 msgstr "Max container name length"
@@ -1572,6 +1615,9 @@ msgstr "Max meta value length"
 
 msgid "Max object name length"
 msgstr "Max object name length"
+
+msgid "Max segments"
+msgstr "Max segments"
 
 msgid "Max SLO segments"
 msgstr "Max SLO segments"
@@ -1608,6 +1654,9 @@ msgstr "Min Disk (GB)"
 
 msgid "Min RAM (MB)"
 msgstr "Min RAM (MB)"
+
+msgid "Min segment size"
+msgstr "Min segment size"
 
 msgid "Min. Disk"
 msgstr "Min. Disk"
@@ -1650,6 +1699,9 @@ msgstr "Moving object..."
 
 msgid "Moving..."
 msgstr "Moving..."
+
+msgid "Multipart upload"
+msgstr "Multipart upload"
 
 msgid "Must be a non-negative integer"
 msgstr "Must be a non-negative integer"
@@ -1786,6 +1838,9 @@ msgstr "Nothing to do. Container is already empty."
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Object \"{objectName}\" was permanently deleted."
 
+msgid "Object ACLs"
+msgstr "Object ACLs"
+
 msgid "Object Copied"
 msgstr "Object Copied"
 
@@ -1800,6 +1855,12 @@ msgstr "Object count quota"
 
 msgid "Object Deleted"
 msgstr "Object Deleted"
+
+msgid "Object expiration"
+msgstr "Object expiration"
+
+msgid "Object metadata"
+msgstr "Object metadata"
 
 msgid "Object Moved"
 msgstr "Object Moved"
@@ -1819,11 +1880,17 @@ msgstr "Object name is required"
 msgid "Object properties"
 msgstr "Object properties"
 
+msgid "Object Quota"
+msgstr "Object Quota"
+
 msgid "Object Storage"
 msgstr "Object Storage"
 
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"
+
+msgid "Object tagging"
+msgstr "Object tagging"
 
 msgid "Object Type"
 msgstr "Object Type"
@@ -1942,6 +2009,9 @@ msgstr "Port Name"
 msgid "Port Range"
 msgstr "Port Range"
 
+msgid "Pre-signed URLs (temporary URLs)"
+msgstr "Pre-signed URLs (temporary URLs)"
+
 msgid "Press Enter to add"
 msgstr "Press Enter to add"
 
@@ -2031,6 +2101,9 @@ msgstr "RAM must be an integer ≥ 128 MB."
 
 msgid "Range"
 msgstr "Range"
+
+msgid "Range requests"
+msgstr "Range requests"
 
 msgid "RBAC Policies"
 msgstr "RBAC Policies"
@@ -2143,9 +2216,6 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Factor must be an integer ≥ 1."
 
-msgid "S3 Credential Created"
-msgstr "S3 Credential Created"
-
 msgid "S3 Object Storage — Setup Required"
 msgstr "S3 Object Storage — Setup Required"
 
@@ -2166,12 +2236,6 @@ msgstr "Saving..."
 
 msgid "Search..."
 msgstr "Search..."
-
-msgid "Secret Key (shown once — copy it now):"
-msgstr "Secret Key (shown once — copy it now):"
-
-msgid "Secret key copied to clipboard."
-msgstr "Secret key copied to clipboard."
 
 msgid "Security"
 msgstr "Security"
@@ -2260,6 +2324,9 @@ msgstr "Server returned unexpected data format."
 msgid "Server Role:"
 msgstr "Server Role:"
 
+msgid "Server-side encryption"
+msgstr "Server-side encryption"
+
 msgid "Session Expired"
 msgstr "Session Expired"
 
@@ -2335,6 +2402,9 @@ msgstr "Stateful"
 msgid "Static large object support"
 msgstr "Static large object support"
 
+msgid "Static website hosting"
+msgstr "Static website hosting"
+
 msgid "Static website serving"
 msgstr "Static website serving"
 
@@ -2350,14 +2420,20 @@ msgstr "Storage container not found"
 msgid "Storage Overview"
 msgstr "Storage Overview"
 
+msgid "Storage Quota"
+msgstr "Storage Quota"
+
+msgid "Storage Usage"
+msgstr "Storage Usage"
+
+msgid "Storage Used"
+msgstr "Storage Used"
+
 msgid "Store old object versions"
 msgstr "Store old object versions"
 
 msgid "Store old object versions in container:"
 msgstr "Store old object versions in container:"
-
-msgid "Store this secret key securely. It will not be shown again."
-msgstr "Store this secret key securely. It will not be shown again."
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
@@ -2734,6 +2810,12 @@ msgstr "URL Copied"
 msgid "URL for public access"
 msgstr "URL for public access"
 
+msgid "Usage Percentage"
+msgstr "Usage Percentage"
+
+msgid "Usage statistics are not available. Ceph Admin API is not configured."
+msgstr "Usage statistics are not available. Ceph Admin API is not configured."
+
 msgid "Used"
 msgstr "Used"
 
@@ -2877,6 +2959,9 @@ msgstr "You don't have permission to view this flavor's details."
 
 msgid "You have been logged out due to inactivity."
 msgstr "You have been logged out due to inactivity."
+
+msgid "You have exceeded your storage quota. Please delete some objects or contact your administrator to increase the quota."
+msgstr "You have exceeded your storage quota. Please delete some objects or contact your administrator to increase the quota."
 
 msgid "You need to login to access this page."
 msgstr "You need to login to access this page."

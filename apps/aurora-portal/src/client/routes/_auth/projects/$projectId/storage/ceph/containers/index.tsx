@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
 import { ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
 import { ContainerListView } from "../../-components/Ceph/Containers"
+import { ServiceInfoTooltip } from "../../-components/Ceph/ServiceInfo"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/storage/ceph/containers/")({
@@ -12,9 +13,12 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/ceph/co
 function S3BucketsPage() {
   return (
     <Stack direction="vertical" gap="4">
-      <ContentHeading>
-        <Trans>Containers</Trans>
-      </ContentHeading>
+      <Stack direction="horizontal" distribution="between" alignment="center">
+        <ContentHeading>
+          <Trans>Containers</Trans>
+        </ContentHeading>
+        <ServiceInfoTooltip />
+      </Stack>
       <ContainerListView />
     </Stack>
   )
