@@ -319,7 +319,7 @@ export const Images = ({ client, project }: ImagesProps) => {
   })
 
   const [searchTerm, setSearchTerm] = useState(searchParams.search || "")
-  const [currentPage, setCurrentPage] = useState(searchParams.page || 1)
+  const currentPage = searchParams.page ?? 1
   const [selectedImages, setSelectedImages] = useState<Array<string>>([])
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteAllModalOpen, setDeleteAllModalOpen] = useState(false)
@@ -423,7 +423,6 @@ export const Images = ({ client, project }: ImagesProps) => {
       sortDirection: newSortSettings.sortDirection || "desc",
     }
     setSortSettings(settings)
-    setCurrentPage(1)
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         ...prev,
@@ -437,7 +436,6 @@ export const Images = ({ client, project }: ImagesProps) => {
 
   const handleFilterChange = (newFilterSettings: FilterSettings) => {
     setFilterSettings(newFilterSettings)
-    setCurrentPage(1)
     navigate({
       search: ((prev: ImagesSearchParams) =>
         buildUrlSearchParams(newFilterSettings.selectedFilters || [], newFilterSettings.filters, {
@@ -453,7 +451,6 @@ export const Images = ({ client, project }: ImagesProps) => {
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const searchValue = typeof term === "string" ? term : ""
     setSearchTerm(searchValue)
-    setCurrentPage(1)
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         ...prev,
@@ -465,7 +462,6 @@ export const Images = ({ client, project }: ImagesProps) => {
   }
 
   const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
-    setCurrentPage(1)
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         sortBy: prev.sortBy,
@@ -478,7 +474,6 @@ export const Images = ({ client, project }: ImagesProps) => {
 
   const handlePageChange = useCallback(
     (page: number) => {
-      setCurrentPage(page)
       navigate({
         search: ((prev: ImagesSearchParams) => ({
           ...prev,

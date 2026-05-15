@@ -153,7 +153,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   })
 
   const [searchTerm, setSearchTerm] = useState(searchParams.search || "")
-  const [currentPage, setCurrentPage] = useState(searchParams.page || 1)
+  const currentPage = searchParams.page ?? 1
   const [success, setSuccess] = useState<{ message: string; timestamp: number } | undefined>()
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
@@ -196,7 +196,6 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     }
 
     setSortSettings(settings)
-    setCurrentPage(1)
     navigate({
       search: ((prev: FlavorsSearchParams) => ({
         ...prev,
@@ -214,7 +213,6 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const searchValue = typeof term === "string" ? term : ""
     setSearchTerm(searchValue)
-    setCurrentPage(1)
 
     navigate({
       search: ((prev: FlavorsSearchParams) => ({
@@ -233,7 +231,6 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
 
   const handlePageChange = useCallback(
     (page: number) => {
-      setCurrentPage(page)
       navigate({
         search: ((prev: FlavorsSearchParams) => ({
           ...prev,
