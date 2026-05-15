@@ -29,7 +29,7 @@ export const CephUsageOverview = () => {
     return (
       <Stack distribution="center" alignment="center" gap="2" className="py-4">
         <Spinner variant="primary" />
-        <span className="text-sm text-theme-default">
+        <span className="text-theme-default text-sm">
           <Trans>Loading usage statistics...</Trans>
         </span>
       </Stack>
@@ -46,9 +46,10 @@ export const CephUsageOverview = () => {
       )
     }
 
+    const errorMsg = error.message
     return (
       <Message variant="error" className="mb-4">
-        <Trans>Failed to load usage statistics: {error.message}</Trans>
+        <Trans>Failed to load usage statistics: {errorMsg}</Trans>
       </Message>
     )
   }
@@ -67,7 +68,7 @@ export const CephUsageOverview = () => {
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-medium mb-3">
+      <h3 className="mb-3 text-lg font-medium">
         <Trans>Storage Usage</Trans>
       </h3>
 
@@ -98,9 +99,9 @@ export const CephUsageOverview = () => {
             <DataGridCell>
               <Trans>Actual Disk Usage</Trans>
             </DataGridCell>
-            <DataGridCell className="font-mono text-theme-light">
+            <DataGridCell className="text-theme-light font-mono">
               {formatBytesBinary(usage.bytesActual)}
-              <span className="text-xs ml-2">
+              <span className="ml-2 text-xs">
                 <Trans>(with replication)</Trans>
               </span>
             </DataGridCell>
@@ -129,12 +130,12 @@ export const CephUsageOverview = () => {
                   {usagePercentage}%
                 </span>
                 {isApproachingQuota && !isOverQuota && (
-                  <span className="text-xs ml-2 text-theme-warning">
+                  <span className="text-theme-warning ml-2 text-xs">
                     <Trans>(approaching limit)</Trans>
                   </span>
                 )}
                 {isOverQuota && (
-                  <span className="text-xs ml-2 text-theme-error">
+                  <span className="text-theme-error ml-2 text-xs">
                     <Trans>(over quota)</Trans>
                   </span>
                 )}

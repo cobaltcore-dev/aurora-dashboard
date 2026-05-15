@@ -1108,9 +1108,8 @@ msgstr "Failed to load objects: {errorMessage}"
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
 
-#. placeholder {0}: error.message
-msgid "Failed to load usage statistics: {0}"
-msgstr "Failed to load usage statistics: {0}"
+msgid "Failed to load usage statistics: {errorMsg}"
+msgstr "Failed to load usage statistics: {errorMsg}"
 
 msgid "Failed to Move Object"
 msgstr "Failed to Move Object"
