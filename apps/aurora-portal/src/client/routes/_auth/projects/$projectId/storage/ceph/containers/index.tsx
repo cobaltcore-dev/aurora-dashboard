@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
 import { ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
 import { ContainerListView } from "../../-components/Ceph/Containers"
-import { ServiceInfoTooltip } from "../../-components/Ceph/ServiceInfo"
+import { ServiceInfoTooltip } from "../../-components/Ceph/ServiceInfo/ServiceInfoTooltip"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/storage/ceph/containers/")({

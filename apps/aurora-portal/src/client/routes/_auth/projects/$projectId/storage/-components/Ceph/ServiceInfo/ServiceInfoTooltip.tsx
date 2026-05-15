@@ -2,6 +2,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Tooltip, TooltipTrigger, TooltipContent, Icon } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import type { S3ServiceInfo } from "@/server/Storage/types/ceph"
 
 interface LimitItemProps {
   label: string
@@ -11,28 +12,94 @@ interface LimitItemProps {
 const LimitItem = ({ label, value }: LimitItemProps) => {
   if (value === undefined || value === null) return null
   return (
-    <span className="flex items-start gap-1.5">
+    <div className="flex items-start gap-1.5">
       <Icon icon="check" size="16px" className="text-theme-success mt-0.5 shrink-0" />
       <span>
         <span className="font-medium">{label}:</span> {value}
       </span>
-    </span>
+    </div>
   )
 }
 
 const CapabilityItem = ({ label }: { label: string }) => (
-  <span className="flex items-start gap-1.5">
+  <div className="flex items-start gap-1.5">
     <Icon icon="check" size="16px" className="text-theme-success mt-0.5 shrink-0" />
     <span>{label}</span>
-  </span>
+  </div>
 )
 
 const Section = ({ title, children }: { title: React.ReactNode; children: React.ReactNode }) => (
-  <span className="flex flex-col gap-1.5">
-    <span className="text-theme-default block font-semibold">{title}</span>
+  <div className="flex flex-col gap-1.5">
+    <div className="text-theme-default font-semibold">{title}</div>
     {children}
-  </span>
+  </div>
 )
+
+// ✅ IMPROVEMENT 1: Define capability mapping as a constant
+// Single source of truth for all capabilities
+type CapabilityKey = keyof S3ServiceInfo["capabilities"]
+
+const CAPABILITY_LABELS: Record<CapabilityKey, string> = {
+  bucketVersioning: "Bucket versioning",
+  bucketPolicies: "Bucket policies",
+  bucketACLs: "Bucket ACLs",
+  objectACLs: "Object ACLs",
+  lifecycleRules: "Lifecycle rules",
+  objectExpiration: "Object expiration",
+  corsConfiguration: "CORS configuration",
+  staticWebsiteHosting: "Static website hosting",
+  multipartUpload: "Multipart upload",
+  presignedUrls: "Pre-signed URLs (temporary URLs)",
+  rangeRequests: "Range requests",
+  bucketTagging: "Bucket tagging",
+  objectTagging: "Object tagging",
+  objectMetadata: "Object metadata",
+  serverSideEncryption: "Server-side encryption",
+  objectLocking: "Object locking",
+  bucketReplication: "Bucket replication",
+  serverAccessLogging: "Server access logging",
+  eventNotifications: "Event notifications",
+} as const
+
+// ✅ IMPROVEMENT 2: Define limit configuration
+interface LimitConfig {
+  key: keyof S3ServiceInfo["limits"]
+  label: string
+  formatter?: (value: number) => string
+}
+
+const LIMIT_CONFIGS: LimitConfig[] = [
+  { key: "maxFileSize", label: "Max file size", formatter: formatBytesBinary },
+  { key: "maxBucketNameLength", label: "Max bucket name length" },
+  { key: "maxObjectNameLength", label: "Max object name length" },
+  { key: "bucketListingLimit", label: "Container listing limit", formatter: (v) => v.toLocaleString() },
+  { key: "maxDeletesPerRequest", label: "Max deletes per request", formatter: (v) => v.toLocaleString() },
+  { key: "maxMultipartParts", label: "Max segments", formatter: (v) => v.toLocaleString() },
+  { key: "minMultipartPartSize", label: "Min segment size", formatter: formatBytesBinary },
+]
+
+// ✅ IMPROVEMENT 3: Extract capability filtering logic
+function getEnabledCapabilities(
+  capabilities: S3ServiceInfo["capabilities"],
+  t: (literals: TemplateStringsArray, ...placeholders: any[]) => string
+): string[] {
+  return (Object.entries(CAPABILITY_LABELS) as [CapabilityKey, string][])
+    .filter(([key]) => capabilities[key])
+    .map(([, label]) => t`${label}`)
+}
+
+// ✅ IMPROVEMENT 4: Extract limit rendering logic
+function renderLimitItem(
+  config: LimitConfig,
+  limits: S3ServiceInfo["limits"],
+  t: (literals: TemplateStringsArray, ...placeholders: any[]) => string
+) {
+  const value = limits[config.key]
+  if (value === undefined || value === null) return null
+
+  const formattedValue = config.formatter ? config.formatter(value) : value
+  return <LimitItem key={config.key} label={t`${config.label}`} value={formattedValue} />
+}
 
 export const ServiceInfoTooltip = () => {
   const { t } = useLingui()
@@ -43,27 +110,10 @@ export const ServiceInfoTooltip = () => {
     return <Icon icon="info" size="20px" className="text-theme-light" />
   }
 
-  const limits = serviceInfo.limits
-  const capabilities = serviceInfo.capabilities
+  const { limits, capabilities } = serviceInfo
 
-  // Build capabilities list - only show enabled ones
-  const capabilityList: string[] = []
-
-  if (capabilities.bucketVersioning) capabilityList.push(t`Bucket versioning`)
-  if (capabilities.bucketPolicies) capabilityList.push(t`Bucket policies`)
-  if (capabilities.bucketACLs) capabilityList.push(t`Bucket ACLs`)
-  if (capabilities.objectACLs) capabilityList.push(t`Object ACLs`)
-  if (capabilities.lifecycleRules) capabilityList.push(t`Lifecycle rules`)
-  if (capabilities.objectExpiration) capabilityList.push(t`Object expiration`)
-  if (capabilities.corsConfiguration) capabilityList.push(t`CORS configuration`)
-  if (capabilities.staticWebsiteHosting) capabilityList.push(t`Static website hosting`)
-  if (capabilities.multipartUpload) capabilityList.push(t`Multipart upload`)
-  if (capabilities.presignedUrls) capabilityList.push(t`Pre-signed URLs (temporary URLs)`)
-  if (capabilities.rangeRequests) capabilityList.push(t`Range requests`)
-  if (capabilities.bucketTagging) capabilityList.push(t`Bucket tagging`)
-  if (capabilities.objectTagging) capabilityList.push(t`Object tagging`)
-  if (capabilities.objectMetadata) capabilityList.push(t`Object metadata`)
-  if (capabilities.serverSideEncryption) capabilityList.push(t`Server-side encryption`)
+  // ✅ Much cleaner - single line instead of 15 if-statements
+  const capabilityList = getEnabledCapabilities(capabilities, t)
 
   return (
     <Tooltip triggerEvent="click" placement="bottom-end">
@@ -72,27 +122,13 @@ export const ServiceInfoTooltip = () => {
       </TooltipTrigger>
       <TooltipContent className="z-10 w-72 !p-0 text-sm">
         <div className="flex max-h-[70vh] flex-col gap-3 overflow-y-auto p-3">
-          <span className="text-theme-default font-semibold">
+          <div className="text-theme-default font-semibold">
             <Trans>Cluster limits and capabilities</Trans>
-          </span>
+          </div>
 
           {/* Limits */}
           <Section title={<Trans>Limits</Trans>}>
-            <LimitItem
-              label={t`Max file size`}
-              value={limits.maxFileSize !== undefined ? formatBytesBinary(limits.maxFileSize) : undefined}
-            />
-            <LimitItem label={t`Max bucket name length`} value={limits.maxBucketNameLength} />
-            <LimitItem label={t`Max object name length`} value={limits.maxObjectNameLength} />
-            <LimitItem label={t`Container listing limit`} value={limits.bucketListingLimit?.toLocaleString()} />
-            <LimitItem label={t`Max deletes per request`} value={limits.maxDeletesPerRequest?.toLocaleString()} />
-            <LimitItem label={t`Max segments`} value={limits.maxMultipartParts?.toLocaleString()} />
-            <LimitItem
-              label={t`Min segment size`}
-              value={
-                limits.minMultipartPartSize !== undefined ? formatBytesBinary(limits.minMultipartPartSize) : undefined
-              }
-            />
+            {LIMIT_CONFIGS.map((config) => renderLimitItem(config, limits, t))}
           </Section>
 
           {/* Capabilities */}
@@ -104,11 +140,13 @@ export const ServiceInfoTooltip = () => {
             </Section>
           )}
 
-          {/* Footer note */}
-          <span className="text-theme-light border-t pt-2 text-xs">
-            {serviceInfo.version && <span>{serviceInfo.version}</span>}
-            {serviceInfo.region && <span className="ml-2">• {serviceInfo.region}</span>}
-          </span>
+          {/* Footer */}
+          {(serviceInfo.version || serviceInfo.region) && (
+            <div className="text-theme-light border-t pt-2 text-xs">
+              {serviceInfo.version && <span>{serviceInfo.version}</span>}
+              {serviceInfo.region && <span className="ml-2">• {serviceInfo.region}</span>}
+            </div>
+          )}
         </div>
       </TooltipContent>
     </Tooltip>

@@ -334,18 +334,6 @@ msgstr "Boot-RAM"
 msgid "Boot size"
 msgstr "Boot-Größe"
 
-msgid "Bucket ACLs"
-msgstr ""
-
-msgid "Bucket policies"
-msgstr ""
-
-msgid "Bucket tagging"
-msgstr ""
-
-msgid "Bucket versioning"
-msgstr ""
-
 msgid "Buckets"
 msgstr ""
 
@@ -519,9 +507,6 @@ msgstr "Objekt wird kopiert..."
 
 msgid "Copying..."
 msgstr "Wird kopiert..."
-
-msgid "CORS configuration"
-msgstr ""
 
 msgid "Could not copy \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht kopiert werden: {errorMessage}"
@@ -1480,9 +1465,6 @@ msgstr "Leer lassen für alle Codes"
 msgid "Leave empty for all types"
 msgstr "Leer lassen für alle Typen"
 
-msgid "Lifecycle rules"
-msgstr ""
-
 msgid "Limits"
 msgstr "Limits"
 
@@ -1582,9 +1564,6 @@ msgstr "Zugriff für Image verwalten - {imageName}"
 msgid "Manage OpenStack with "
 msgstr "Verwalten Sie OpenStack mit "
 
-msgid "Max bucket name length"
-msgstr ""
-
 msgid "Max container name length"
 msgstr "Maximale Container-Namenslänge"
 
@@ -1614,9 +1593,6 @@ msgstr "Maximale Metadaten-Wertlänge"
 
 msgid "Max object name length"
 msgstr "Maximale Objekt-Namenslänge"
-
-msgid "Max segments"
-msgstr ""
 
 msgid "Max SLO segments"
 msgstr "Maximale SLO-Segmente"
@@ -1653,9 +1629,6 @@ msgstr "Min. Disk (GB)"
 
 msgid "Min RAM (MB)"
 msgstr "Min. RAM (MB)"
-
-msgid "Min segment size"
-msgstr ""
 
 msgid "Min. Disk"
 msgstr "Min. Disk"
@@ -1698,9 +1671,6 @@ msgstr "Objekt wird verschoben..."
 
 msgid "Moving..."
 msgstr "Wird verschoben..."
-
-msgid "Multipart upload"
-msgstr ""
 
 msgid "Must be a non-negative integer"
 msgstr "Muss eine nicht-negative Ganzzahl sein"
@@ -1837,9 +1807,6 @@ msgstr "Nichts zu tun. Container ist bereits leer."
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Objekt \"{objectName}\" wurde dauerhaft gelöscht."
 
-msgid "Object ACLs"
-msgstr ""
-
 msgid "Object Copied"
 msgstr "Objekt kopiert"
 
@@ -1854,12 +1821,6 @@ msgstr "Objekt-Anzahl-Quota"
 
 msgid "Object Deleted"
 msgstr "Objekt gelöscht"
-
-msgid "Object expiration"
-msgstr ""
-
-msgid "Object metadata"
-msgstr ""
 
 msgid "Object Moved"
 msgstr "Objekt verschoben"
@@ -1887,9 +1848,6 @@ msgstr ""
 
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"
-
-msgid "Object tagging"
-msgstr ""
 
 msgid "Object Type"
 msgstr "Objekttyp"
@@ -2008,9 +1966,6 @@ msgstr "Port-Name"
 msgid "Port Range"
 msgstr "Port-Bereich"
 
-msgid "Pre-signed URLs (temporary URLs)"
-msgstr ""
-
 msgid "Press Enter to add"
 msgstr "Enter drücken zum Hinzufügen"
 
@@ -2100,9 +2055,6 @@ msgstr "RAM muss eine ganze Zahl ≥ 128 MB sein."
 
 msgid "Range"
 msgstr "Bereich"
-
-msgid "Range requests"
-msgstr ""
 
 msgid "RBAC Policies"
 msgstr "RBAC-Richtlinien"
@@ -2323,9 +2275,6 @@ msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 msgid "Server Role:"
 msgstr "Serverrolle:"
 
-msgid "Server-side encryption"
-msgstr ""
-
 msgid "Session Expired"
 msgstr "Sitzung abgelaufen"
 
@@ -2400,9 +2349,6 @@ msgstr "Stateful"
 
 msgid "Static large object support"
 msgstr "Unterstützung für statische große Objekte"
-
-msgid "Static website hosting"
-msgstr ""
 
 msgid "Static website serving"
 msgstr "Statisches Website-Serving"

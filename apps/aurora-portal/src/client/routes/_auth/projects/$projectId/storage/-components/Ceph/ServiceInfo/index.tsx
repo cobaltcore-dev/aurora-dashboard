@@ -1,1 +1,0 @@
-export { ServiceInfoTooltip } from "./ServiceInfoTooltip"

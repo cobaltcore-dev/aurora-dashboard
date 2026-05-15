@@ -334,18 +334,6 @@ msgstr "Boot RAM"
 msgid "Boot size"
 msgstr "Boot size"
 
-msgid "Bucket ACLs"
-msgstr "Bucket ACLs"
-
-msgid "Bucket policies"
-msgstr "Bucket policies"
-
-msgid "Bucket tagging"
-msgstr "Bucket tagging"
-
-msgid "Bucket versioning"
-msgstr "Bucket versioning"
-
 msgid "Buckets"
 msgstr "Buckets"
 
@@ -519,9 +507,6 @@ msgstr "Copying object..."
 
 msgid "Copying..."
 msgstr "Copying..."
-
-msgid "CORS configuration"
-msgstr "CORS configuration"
 
 msgid "Could not copy \"{objectName}\": {errorMessage}"
 msgstr "Could not copy \"{objectName}\": {errorMessage}"
@@ -1480,9 +1465,6 @@ msgstr "Leave empty for all codes"
 msgid "Leave empty for all types"
 msgstr "Leave empty for all types"
 
-msgid "Lifecycle rules"
-msgstr "Lifecycle rules"
-
 msgid "Limits"
 msgstr "Limits"
 
@@ -1582,9 +1564,6 @@ msgstr "Manage Access for Image - {imageName}"
 msgid "Manage OpenStack with "
 msgstr "Manage OpenStack with "
 
-msgid "Max bucket name length"
-msgstr "Max bucket name length"
-
 msgid "Max container name length"
 msgstr "Max container name length"
 
@@ -1614,9 +1593,6 @@ msgstr "Max meta value length"
 
 msgid "Max object name length"
 msgstr "Max object name length"
-
-msgid "Max segments"
-msgstr "Max segments"
 
 msgid "Max SLO segments"
 msgstr "Max SLO segments"
@@ -1653,9 +1629,6 @@ msgstr "Min Disk (GB)"
 
 msgid "Min RAM (MB)"
 msgstr "Min RAM (MB)"
-
-msgid "Min segment size"
-msgstr "Min segment size"
 
 msgid "Min. Disk"
 msgstr "Min. Disk"
@@ -1698,9 +1671,6 @@ msgstr "Moving object..."
 
 msgid "Moving..."
 msgstr "Moving..."
-
-msgid "Multipart upload"
-msgstr "Multipart upload"
 
 msgid "Must be a non-negative integer"
 msgstr "Must be a non-negative integer"
@@ -1837,9 +1807,6 @@ msgstr "Nothing to do. Container is already empty."
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Object \"{objectName}\" was permanently deleted."
 
-msgid "Object ACLs"
-msgstr "Object ACLs"
-
 msgid "Object Copied"
 msgstr "Object Copied"
 
@@ -1854,12 +1821,6 @@ msgstr "Object count quota"
 
 msgid "Object Deleted"
 msgstr "Object Deleted"
-
-msgid "Object expiration"
-msgstr "Object expiration"
-
-msgid "Object metadata"
-msgstr "Object metadata"
 
 msgid "Object Moved"
 msgstr "Object Moved"
@@ -1887,9 +1848,6 @@ msgstr "Object Storage"
 
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"
-
-msgid "Object tagging"
-msgstr "Object tagging"
 
 msgid "Object Type"
 msgstr "Object Type"
@@ -2008,9 +1966,6 @@ msgstr "Port Name"
 msgid "Port Range"
 msgstr "Port Range"
 
-msgid "Pre-signed URLs (temporary URLs)"
-msgstr "Pre-signed URLs (temporary URLs)"
-
 msgid "Press Enter to add"
 msgstr "Press Enter to add"
 
@@ -2100,9 +2055,6 @@ msgstr "RAM must be an integer ≥ 128 MB."
 
 msgid "Range"
 msgstr "Range"
-
-msgid "Range requests"
-msgstr "Range requests"
 
 msgid "RBAC Policies"
 msgstr "RBAC Policies"
@@ -2323,9 +2275,6 @@ msgstr "Server returned unexpected data format."
 msgid "Server Role:"
 msgstr "Server Role:"
 
-msgid "Server-side encryption"
-msgstr "Server-side encryption"
-
 msgid "Session Expired"
 msgstr "Session Expired"
 
@@ -2400,9 +2349,6 @@ msgstr "Stateful"
 
 msgid "Static large object support"
 msgstr "Static large object support"
-
-msgid "Static website hosting"
-msgstr "Static website hosting"
 
 msgid "Static website serving"
 msgstr "Static website serving"
