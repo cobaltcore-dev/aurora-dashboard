@@ -1,7 +1,6 @@
 import { Trans } from "@lingui/react/macro"
 import { ContentHeading, Stack } from "@cloudoperators/juno-ui-components"
 import { ContainerListView } from "./ContainerListView"
-import { ServiceInfoTooltip } from "../ServiceInfo/ServiceInfoTooltip"
 
 export { ContainerListView } from "./ContainerListView"
 export { CredentialPrompt } from "./CredentialPrompt"
@@ -19,7 +18,6 @@ export const CephContainers = () => {
         <ContentHeading>
           <Trans>Containers</Trans>
         </ContentHeading>
-        <ServiceInfoTooltip />
       </Stack>
       <ContainerListView />
     </Stack>
