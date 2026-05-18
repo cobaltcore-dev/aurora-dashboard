@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { Trans } from "@lingui/react/macro"
 import { Link, useParams } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
@@ -17,7 +16,6 @@ import { CredentialPrompt } from "./CredentialPrompt"
 export function ContainerListView() {
   const projectId = useProjectId()
   const { provider } = useParams({ strict: false }) // Get provider from URL
-  const [showCredentialPrompt, setShowCredentialPrompt] = useState(false)
 
   const {
     data: buckets,
@@ -46,15 +44,8 @@ export function ContainerListView() {
   if (error) {
     const errorMessage = error.message
     // Check if this is a NO_CEPH_CREDENTIALS error
-    if (errorMessage === "NO_CEPH_CREDENTIALS" || showCredentialPrompt) {
-      return (
-        <CredentialPrompt
-          onSuccess={() => {
-            setShowCredentialPrompt(false)
-            refetch()
-          }}
-        />
-      )
+    if (errorMessage === "NO_CEPH_CREDENTIALS") {
+      return <CredentialPrompt onSuccess={() => refetch()} />
     }
     return (
       <p className="text-juno-red mt-4 text-sm">

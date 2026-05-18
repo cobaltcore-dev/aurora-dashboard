@@ -38,7 +38,9 @@ export const checkServiceAvailability = (
   // TODO: Properly register Ceph in OpenStack service catalog
   const cephFallbackEnabled = true // Set to false once Ceph is in catalog
 
-  const fallbackProvider = hasSwift ? "swift" : hasCeph || cephFallbackEnabled ? "ceph" : null
+  // Effective availability includes fallback flag for Ceph
+  const hasEffectiveCeph = hasCeph || cephFallbackEnabled
+  const fallbackProvider = hasSwift ? "swift" : hasEffectiveCeph ? "ceph" : null
 
   if (provider !== "swift" && provider !== "ceph") {
     if (!fallbackProvider) {
@@ -54,7 +56,7 @@ export const checkServiceAvailability = (
   }
 
   if (provider === "swift" && !hasSwift) {
-    if (!hasCeph) {
+    if (!hasEffectiveCeph) {
       throw redirect({
         to: "/projects/$projectId/compute/overview",
         params: { projectId },
@@ -67,7 +69,7 @@ export const checkServiceAvailability = (
     })
   }
 
-  if (provider === "ceph" && !hasCeph) {
+  if (provider === "ceph" && !hasEffectiveCeph) {
     if (!hasSwift) {
       throw redirect({
         to: "/projects/$projectId/compute/overview",
