@@ -417,18 +417,6 @@ describe("ContainerTableView", () => {
     })
   })
 
-  describe("Footer", () => {
-    test("shows container count in footer", () => {
-      renderView()
-      expect(screen.getByText(/3 containers/i)).toBeInTheDocument()
-    })
-
-    test("footer count matches containers length", () => {
-      renderView({ containers: [makeContainer("only-one")] })
-      expect(screen.getByText(/1 container$/i)).toBeInTheDocument()
-    })
-  })
-
   describe("Context menu", () => {
     test("renders a popup menu trigger for each container row", () => {
       renderView()

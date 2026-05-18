@@ -696,6 +696,32 @@ describe("SwiftContainers (List)", () => {
     })
   })
 
+  describe("Info block", () => {
+    test("shows total container count", () => {
+      renderList()
+      expect(screen.getByText(/3 containers/i)).toBeInTheDocument()
+    })
+
+    test("shows singular 'container' for exactly one container", () => {
+      trpcState.containers = [mockContainers[0]]
+      renderList()
+      expect(screen.getByText(/1 container$/i)).toBeInTheDocument()
+    })
+
+    test("shows 'X of Y containers' when search filter is active", () => {
+      mockContainersUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "alpha" })
+      renderList()
+      expect(screen.getByText(/1 of 3 containers/i)).toBeInTheDocument()
+    })
+
+    test("shows just count (not X of Y) when search matches all containers", () => {
+      mockContainersUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "" })
+      renderList()
+      expect(screen.getByText(/3 containers/i)).toBeInTheDocument()
+      expect(screen.queryByText(/of 3/i)).not.toBeInTheDocument()
+    })
+  })
+
   describe("Quota display", () => {
     test("does not show remaining quota when accountInfo is absent", () => {
       renderList()
@@ -712,7 +738,16 @@ describe("SwiftContainers (List)", () => {
       trpcState.accountInfo = { bytesUsed: 1073741824, quotaBytes: 10737418240, containerCount: 5, objectCount: 100 }
       renderList()
       expect(screen.getByText(/Remaining Quota/i)).toBeInTheDocument()
-      expect(screen.getByText(/9 GiB Capacity/i)).toBeInTheDocument()
+      expect(screen.getByText(/9 GiB/i)).toBeInTheDocument()
+    })
+
+    test("quota is shown inline in the info block, not in the toolbar actions", () => {
+      trpcState.accountInfo = { bytesUsed: 1073741824, quotaBytes: 10737418240, containerCount: 5, objectCount: 100 }
+      renderList()
+      // Both count and quota appear in the same info block line
+      const infoBlock = screen.getByText(/Remaining Quota/i).closest("div")
+      expect(infoBlock).toHaveTextContent(/3 containers/)
+      expect(infoBlock).toHaveTextContent(/Remaining Quota/)
     })
   })
 

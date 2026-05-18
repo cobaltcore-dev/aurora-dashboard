@@ -31,11 +31,18 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
-msgid "{allContainersCount} container"
-msgstr "{allContainersCount} container"
+#. placeholder {0}: (containers || []).length
+msgid "{0} container"
+msgstr "{0} container"
 
-msgid "{allContainersCount} containers"
-msgstr "{allContainersCount} containers"
+#. placeholder {0}: (containers || []).length
+msgid "{0} containers"
+msgstr "{0} containers"
+
+#. placeholder {0}: filteredContainers.length
+#. placeholder {1}: (containers || []).length
+msgid "{0} of {1} containers"
+msgstr "{0} of {1} containers"
 
 msgid "{allCount} items"
 msgstr "{allCount} items"

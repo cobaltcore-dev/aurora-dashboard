@@ -117,29 +117,37 @@ export const ContainerTableView = ({
 
   if (!containers || containers.length === 0) {
     return (
-      <DataGrid columns={4} className="containers" data-testid="no-containers">
-        <DataGridRow>
-          <DataGridCell colSpan={4}>
-            <div className="py-8 text-center">
-              <h3 className="text-lg font-semibold">
-                <Trans>No containers found</Trans>
-              </h3>
-              <p className="text-theme-light mt-2">
-                <Trans>
-                  There are no containers available with the current search criteria. Try adjusting your search term.
-                </Trans>
-              </p>
-            </div>
-          </DataGridCell>
-        </DataGridRow>
-      </DataGrid>
+      <>
+        <DataGrid columns={4} className="containers" data-testid="no-containers">
+          <DataGridRow>
+            <DataGridCell colSpan={4}>
+              <div className="py-8 text-center">
+                <h3 className="text-lg font-semibold">
+                  <Trans>No containers found</Trans>
+                </h3>
+                <p className="text-theme-light mt-2">
+                  <Trans>
+                    There are no containers available with the current search criteria. Try adjusting your search term.
+                  </Trans>
+                </p>
+              </div>
+            </DataGridCell>
+          </DataGridRow>
+        </DataGrid>
+
+        <CreateContainerModal
+          isOpen={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          onSuccess={onCreateSuccess}
+          onError={onCreateError}
+          maxContainerNameLength={maxContainerNameLength}
+        />
+      </>
     )
   }
 
   // Define column template — 6 columns: checkbox, name, count, last modified, size, actions menu
   const gridColumnTemplate = "40px minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
-
-  const allContainersCount = containers.length
 
   return (
     <>
@@ -280,15 +288,6 @@ export const ContainerTableView = ({
               )
             })}
           </div>
-        </div>
-
-        {/* Footer with count */}
-        <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
-          {allContainersCount === 1 ? (
-            <Trans>{allContainersCount} container</Trans>
-          ) : (
-            <Trans>{allContainersCount} containers</Trans>
-          )}
         </div>
       </div>
 
