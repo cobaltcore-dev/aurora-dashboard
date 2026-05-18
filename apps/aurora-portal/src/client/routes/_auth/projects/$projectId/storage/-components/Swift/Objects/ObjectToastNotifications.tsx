@@ -301,6 +301,19 @@ export const getObjectUploadedToast = (objectName: string, config: ToastConfig):
   ),
 })
 
+export const getObjectUploadCancelledToast = (objectName: string, config: ToastConfig): ToastProps => ({
+  variant: "warning",
+  autoDismiss: true,
+  autoDismissTimeout: config.autoDismissTimeout ?? 4000,
+  onDismiss: config.onDismiss,
+  children: (
+    <NotificationText
+      title={<Trans>Upload Cancelled</Trans>}
+      description={<Trans>Upload of "{objectName}" was cancelled.</Trans>}
+    />
+  ),
+})
+
 export const getObjectUploadErrorToast = (
   objectName: string,
   errorMessage: string,

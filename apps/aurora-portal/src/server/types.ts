@@ -6,19 +6,8 @@ export interface Scope {
   project: Project
 }
 
-export interface UploadedFile {
-  filename: string
-  mimetype: string
-  buffer: Buffer<ArrayBufferLike>
-}
-
-export interface FormFields {
-  [key: string]: unknown
-}
-
 declare module "fastify" {
   interface FastifyRequest {
-    uploadedFile?: UploadedFile
-    formFields?: FormFields
+    readonly signal: AbortSignal
   }
 }

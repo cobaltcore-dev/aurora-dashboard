@@ -19,6 +19,7 @@ import {
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
   getObjectUploadedToast,
+  getObjectUploadCancelledToast,
   getObjectUploadErrorToast,
   getObjectsBulkDeletedToast,
   getObjectsBulkDeleteErrorToast,
@@ -683,6 +684,44 @@ describe("ObjectToastNotifications", () => {
       const toast = getObjectUploadedToast("", defaultConfig)
       render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
       expect(screen.getByText("Object Uploaded")).toBeInTheDocument()
+    })
+  })
+
+  // ── getObjectUploadCancelledToast ────────────────────────────────────────────
+
+  describe("getObjectUploadCancelledToast", () => {
+    it("returns warning toast with correct structure", () => {
+      const toast = getObjectUploadCancelledToast("report.pdf", defaultConfig)
+      expect(toast.variant).toBe("warning")
+      expect(toast.autoDismiss).toBe(true)
+      expect(toast.autoDismissTimeout).toBe(4000)
+      expect(toast.onDismiss).toBe(mockOnDismiss)
+      expect(toast.children).toBeDefined()
+    })
+
+    it("renders correct message content", () => {
+      const toast = getObjectUploadCancelledToast("report.pdf", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText("Upload Cancelled")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.getByText(/was cancelled/)).toBeInTheDocument()
+    })
+
+    it("uses custom autoDismissTimeout when provided", () => {
+      const toast = getObjectUploadCancelledToast("report.pdf", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
+      expect(toast.autoDismissTimeout).toBe(3000)
+    })
+
+    it("handles empty object name", () => {
+      const toast = getObjectUploadCancelledToast("", defaultConfig)
+      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      expect(screen.getByText("Upload Cancelled")).toBeInTheDocument()
+    })
+
+    it("calls onDismiss when dismissed", () => {
+      const toast = getObjectUploadCancelledToast("report.pdf", defaultConfig)
+      toast.onDismiss?.()
+      expect(mockOnDismiss).toHaveBeenCalled()
     })
   })
 

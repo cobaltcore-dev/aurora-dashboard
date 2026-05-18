@@ -86,6 +86,7 @@ let capturedOnEditMetadataSuccess: ((objectName: string) => void) | undefined
 let capturedOnEditMetadataError: ((objectName: string, errorMessage: string) => void) | undefined
 let capturedOnUploadSuccess: ((objectName: string) => void) | undefined
 let capturedOnUploadError: ((objectName: string, errorMessage: string) => void) | undefined
+let capturedOnUploadCancelled: ((objectName: string) => void) | undefined
 
 vi.mock("./ObjectsTableView", () => ({
   ObjectsTableView: vi.fn(
@@ -173,9 +174,10 @@ vi.mock("./CreateFolderModal", () => ({
 
 // UploadObjectModal uses tRPC hooks internally — mock it to keep index tests isolated.
 vi.mock("./UploadObjectModal", () => ({
-  UploadObjectModal: vi.fn(({ isOpen, onClose, onSuccess, onError }) => {
+  UploadObjectModal: vi.fn(({ isOpen, onClose, onSuccess, onError, onCancelled }) => {
     capturedOnUploadSuccess = onSuccess
     capturedOnUploadError = onError
+    capturedOnUploadCancelled = onCancelled
     return isOpen ? (
       <div data-testid="upload-object-modal">
         <button onClick={onClose}>Cancel</button>
@@ -236,6 +238,7 @@ vi.mock("./ObjectToastNotifications", () => ({
   getObjectMetadataUpdatedToast: vi.fn(() => ({ variant: "success", children: null })),
   getObjectMetadataUpdateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getObjectUploadedToast: vi.fn(() => ({ variant: "success", children: null })),
+  getObjectUploadCancelledToast: vi.fn(() => ({ variant: "warning", children: null })),
   getObjectUploadErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getObjectsBulkDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
   getObjectsBulkDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
@@ -618,6 +621,15 @@ describe("SwiftObjects (index)", () => {
         capturedOnUploadError?.("report.pdf", "Quota exceeded")
       })
       expect(getObjectUploadErrorToast).toHaveBeenCalledWith("report.pdf", "Quota exceeded", expect.any(Object))
+    })
+
+    test("shows warning toast when upload is cancelled", async () => {
+      const { getObjectUploadCancelledToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      act(() => {
+        capturedOnUploadCancelled?.("report.pdf")
+      })
+      expect(getObjectUploadCancelledToast).toHaveBeenCalledWith("report.pdf", expect.any(Object))
     })
   })
 
