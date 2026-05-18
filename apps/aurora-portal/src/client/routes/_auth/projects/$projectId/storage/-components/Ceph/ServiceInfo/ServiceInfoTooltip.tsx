@@ -93,7 +93,7 @@ export const ServiceInfoTooltip = () => {
   const { data: serviceInfo } = trpcReact.storage.ceph.serviceInfo.getServiceInfo.useQuery({})
 
   if (!serviceInfo) {
-    return <Icon icon="info" size="20px" className="text-theme-light" />
+    return <Icon icon="info" size="20px" className="text-theme-default" />
   }
 
   const { limits, capabilities } = serviceInfo
