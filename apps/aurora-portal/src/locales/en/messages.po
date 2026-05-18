@@ -31,19 +31,6 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
-#. placeholder {0}: (containers || []).length
-msgid "{0} container"
-msgstr "{0} container"
-
-#. placeholder {0}: (containers || []).length
-msgid "{0} containers"
-msgstr "{0} containers"
-
-#. placeholder {0}: filteredContainers.length
-#. placeholder {1}: (containers || []).length
-msgid "{0} of {1} containers"
-msgstr "{0} of {1} containers"
-
 msgid "{allCount} items"
 msgstr "{allCount} items"
 
@@ -56,6 +43,9 @@ msgstr "{emptiedCount, plural, one {# container was already empty.} other {# con
 msgid "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
 msgstr "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
 
+msgid "{filteredCount} of {totalCount} containers"
+msgstr "{filteredCount} of {totalCount} containers"
+
 msgid "{numberDeleted} object was permanently deleted."
 msgstr "{numberDeleted} object was permanently deleted."
 
@@ -67,6 +57,12 @@ msgstr "{numberDeleted} objects were permanently deleted."
 
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
+
+msgid "{totalCount} container"
+msgstr "{totalCount} container"
+
+msgid "{totalCount} containers"
+msgstr "{totalCount} containers"
 
 msgid "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."

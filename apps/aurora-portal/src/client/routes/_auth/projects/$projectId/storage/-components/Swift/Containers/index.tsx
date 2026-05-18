@@ -231,6 +231,10 @@ export const SwiftContainers = () => {
   const hasSelection = selectedContainerSummaries.length > 0
   const selectedCount = selectedContainerSummaries.length
 
+  const totalCount = (containers || []).length
+  const filteredCount = filteredContainers.length
+  const isFiltered = filteredCount !== totalCount
+
   return (
     <div className="relative">
       <ListToolbar
@@ -252,14 +256,14 @@ export const SwiftContainers = () => {
 
       {/* Info block — global DataGrid pattern: container count + remaining quota + limits tooltip */}
       <div className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm">
-        {filteredContainers.length !== (containers || []).length ? (
+        {isFiltered ? (
           <Trans>
-            {filteredContainers.length} of {(containers || []).length} containers
+            {filteredCount} of {totalCount} containers
           </Trans>
-        ) : (containers || []).length === 1 ? (
-          <Trans>{(containers || []).length} container</Trans>
+        ) : totalCount === 1 ? (
+          <Trans>{totalCount} container</Trans>
         ) : (
-          <Trans>{(containers || []).length} containers</Trans>
+          <Trans>{totalCount} containers</Trans>
         )}
         {quotaBytes > 0 && (
           <>
