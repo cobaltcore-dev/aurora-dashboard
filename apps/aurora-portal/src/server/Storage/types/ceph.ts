@@ -123,57 +123,6 @@ export type ListObjectsOutput = z.infer<typeof listObjectsOutputSchema>
 export type S3ObjectDetails = z.infer<typeof s3ObjectDetailsSchema>
 
 // ============================================================================
-// USAGE & QUOTA SCHEMAS (CEPH ADMIN API)
-// ============================================================================
-
-/**
- * Ceph Admin API user stats response schema
- * Endpoint: GET /admin/user?stats=true&uid={uid}
- * Docs: https://docs.ceph.com/en/latest/radosgw/adminops/#get-user-info
- */
-export const cephUserStatsSchema = z.object({
-  num_buckets: z.number().int().nonnegative(),
-  num_objects: z.number().int().nonnegative(),
-  size: z.number().int().nonnegative(), // bytes
-  size_actual: z.number().int().nonnegative().optional(), // actual disk usage
-  size_utilized: z.number().int().nonnegative().optional(), // utilized size
-})
-
-/**
- * Ceph Admin API quota info schema
- */
-export const cephQuotaSchema = z.object({
-  enabled: z.boolean(),
-  max_size: z.number().int().optional(), // bytes, -1 = unlimited
-  max_objects: z.number().int().optional(), // -1 = unlimited
-  max_size_kb: z.number().int().optional(), // deprecated, use max_size
-})
-
-/**
- * Combined usage info for frontend
- */
-export const usageInfoSchema = z.object({
-  bucketsUsed: z.number().int().nonnegative(),
-  objectsUsed: z.number().int().nonnegative(),
-  bytesUsed: z.number().int().nonnegative(),
-  bytesActual: z.number().int().nonnegative().optional(), // actual disk usage with replication
-  bucketsQuota: z.number().int().nonnegative().optional(),
-  objectsQuota: z.number().int().nonnegative().optional(),
-  bytesQuota: z.number().int().nonnegative().optional(),
-  quotaEnabled: z.boolean().optional(),
-})
-
-export const getUserUsageInputSchema = projectScopedInputSchema
-
-// ============================================================================
-// USAGE & QUOTA TYPES
-// ============================================================================
-
-export type CephUserStats = z.infer<typeof cephUserStatsSchema>
-export type CephQuota = z.infer<typeof cephQuotaSchema>
-export type UsageInfo = z.infer<typeof usageInfoSchema>
-
-// ============================================================================
 // SERVICE INFO SCHEMAS (CLUSTER LIMITS & CAPABILITIES)
 // ============================================================================
 

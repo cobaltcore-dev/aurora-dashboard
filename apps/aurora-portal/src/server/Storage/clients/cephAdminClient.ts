@@ -1,6 +1,4 @@
-import { createHmac } from "node:crypto"
 import { TRPCError } from "@trpc/server"
-import { cephUserStatsSchema, cephQuotaSchema, type CephUserStats, type CephQuota } from "../types/ceph"
 
 /**
  * Ceph Admin API Client
@@ -16,21 +14,6 @@ interface CephAdminConfig {
   accessKey: string // Admin access key
   secretKey: string // Admin secret key
   region?: string // Default: "default"
-}
-
-interface CephAdminUserResponse {
-  user_id: string
-  display_name: string
-  email?: string
-  suspended: number
-  max_buckets: number
-  subusers?: unknown[]
-  keys?: unknown[]
-  swift_keys?: unknown[]
-  caps?: unknown[]
-  stats?: CephUserStats
-  bucket_quota?: CephQuota
-  user_quota?: CephQuota
 }
 
 export class CephAdminClient {
@@ -52,153 +35,6 @@ export class CephAdminClient {
     this.endpoint = config.endpoint.replace(/\/$/, "") // Remove trailing slash
     this.accessKey = config.accessKey
     this.secretKey = config.secretKey
-  }
-
-  /**
-   * Generate AWS Signature V2 (older, simpler version used by Ceph Admin API)
-   * Ceph Admin API uses AWS Signature V2, not V4
-   */
-  private generateSignatureV2(method: string, path: string, queryString: string): string {
-    const canonicalString = `${method}\n\n\n\n${path}?${queryString}`
-    const hmac = createHmac("sha1", this.secretKey)
-    hmac.update(canonicalString)
-    return hmac.digest("base64")
-  }
-
-  /**
-   * Build Authorization header for Ceph Admin API
-   */
-  private buildAuthHeader(method: string, path: string, queryString: string): string {
-    const signature = this.generateSignatureV2(method, path, queryString)
-    return `AWS ${this.accessKey}:${signature}`
-  }
-
-  /**
-   * Make authenticated request to Ceph Admin API
-   */
-  private async request<T>(
-    path: string,
-    params: Record<string, string | boolean> = {},
-    method: "GET" | "POST" | "DELETE" = "GET"
-  ): Promise<T> {
-    const queryParams = new URLSearchParams()
-
-    for (const [key, value] of Object.entries(params)) {
-      queryParams.append(key, String(value))
-    }
-
-    const queryString = queryParams.toString()
-    const url = `${this.endpoint}${path}?${queryString}`
-
-    const authHeader = this.buildAuthHeader(method, path, queryString)
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          Authorization: authHeader,
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => "Unknown error")
-        throw new TRPCError({
-          code: response.status === 404 ? "NOT_FOUND" : "INTERNAL_SERVER_ERROR",
-          message: `Ceph Admin API error: ${response.status} ${response.statusText}`,
-          cause: errorText,
-        })
-      }
-
-      const data = await response.json()
-      return data as T
-    } catch (error) {
-      if (error instanceof TRPCError) {
-        throw error
-      }
-
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to connect to Ceph Admin API",
-        cause: error,
-      })
-    }
-  }
-
-  /**
-   * Get user information including stats and quotas
-   *
-   * @param uid - User ID (OpenStack user ID or project ID depending on setup)
-   * @param includeStats - Include usage statistics
-   * @returns User info with stats and quotas
-   */
-  async getUserInfo(uid: string, includeStats = true): Promise<CephAdminUserResponse> {
-    if (!uid?.trim()) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "User ID is required",
-      })
-    }
-
-    return this.request<CephAdminUserResponse>("/admin/user", {
-      uid,
-      stats: includeStats,
-    })
-  }
-
-  /**
-   * Get user usage statistics
-   *
-   * @param uid - User ID
-   * @returns Usage statistics (buckets, objects, bytes)
-   */
-  async getUserStats(uid: string): Promise<CephUserStats> {
-    const userInfo = await this.getUserInfo(uid, true)
-
-    if (!userInfo.stats) {
-      // If stats not present, return zeros
-      return {
-        num_buckets: 0,
-        num_objects: 0,
-        size: 0,
-      }
-    }
-
-    // Validate with Zod
-    const parsed = cephUserStatsSchema.safeParse(userInfo.stats)
-    if (!parsed.success) {
-      console.error("[cephAdminClient] Invalid stats format:", parsed.error)
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Invalid stats format from Ceph Admin API",
-        cause: parsed.error,
-      })
-    }
-
-    return parsed.data
-  }
-
-  /**
-   * Get user quota information
-   *
-   * @param uid - User ID
-   * @returns Quota configuration
-   */
-  async getUserQuota(uid: string): Promise<CephQuota | null> {
-    const userInfo = await this.getUserInfo(uid, false)
-
-    if (!userInfo.user_quota) {
-      return null
-    }
-
-    // Validate with Zod
-    const parsed = cephQuotaSchema.safeParse(userInfo.user_quota)
-    if (!parsed.success) {
-      console.error("[cephAdminClient] Invalid quota format:", parsed.error)
-      return null // Don't fail on quota parsing errors
-    }
-
-    return parsed.data
   }
 }
 
