@@ -31,6 +31,15 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
+msgid "(approaching limit)"
+msgstr ""
+
+msgid "(over quota)"
+msgstr ""
+
+msgid "(with replication)"
+msgstr ""
+
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} Container"
 
@@ -199,6 +208,9 @@ msgstr "{successCount} Image(s) aktiviert, aber {failedCount} Image(s) konnten n
 msgid "Activating this image will allow it to be used to launch new instances again."
 msgstr "Durch die Aktivierung dieses Images kann es wieder zum Starten neuer Instances verwendet werden."
 
+msgid "Actual Disk Usage"
+msgstr ""
+
 msgid "Add"
 msgstr "Hinzufügen"
 
@@ -321,6 +333,9 @@ msgstr "Boot-RAM"
 
 msgid "Boot size"
 msgstr "Boot-Größe"
+
+msgid "Buckets"
+msgstr ""
 
 msgid "Bulk upload of archive files"
 msgstr "Bulk-Upload von Archivdateien"
@@ -1069,6 +1084,9 @@ msgstr ""
 msgid "Failed to load security groups"
 msgstr "Security Groups konnten nicht geladen werden"
 
+msgid "Failed to load usage statistics: {errorMsg}"
+msgstr ""
+
 msgid "Failed to Move Object"
 msgstr "Fehler beim Verschieben des Objekts"
 
@@ -1510,6 +1528,9 @@ msgstr "Security Group-Details werden geladen..."
 msgid "Loading Server Groups..."
 msgstr "Lädt Servergruppen"
 
+msgid "Loading usage statistics..."
+msgstr ""
+
 msgid "Loading..."
 msgstr "Lädt..."
 
@@ -1809,6 +1830,9 @@ msgstr " Objektname ist erforderlich"
 
 msgid "Object properties"
 msgstr "Objekt-Eigenschaften"
+
+msgid "Object Quota"
+msgstr ""
 
 msgid "Object Storage"
 msgstr ""
@@ -2332,6 +2356,15 @@ msgstr "Storage-Container nicht gefunden"
 msgid "Storage Overview"
 msgstr "Speicherübersicht"
 
+msgid "Storage Quota"
+msgstr ""
+
+msgid "Storage Usage"
+msgstr ""
+
+msgid "Storage Used"
+msgstr ""
+
 msgid "Store old object versions"
 msgstr "Alte Objekt-Versionen speichern"
 
@@ -2713,6 +2746,12 @@ msgstr "URL kopiert"
 msgid "URL for public access"
 msgstr "URL für öffentlichen Zugriff"
 
+msgid "Usage Percentage"
+msgstr ""
+
+msgid "Usage statistics are not available. Ceph Admin API is not configured."
+msgstr ""
+
 msgid "Used"
 msgstr "Belegt"
 
@@ -2856,6 +2895,9 @@ msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
 
 msgid "You have been logged out due to inactivity."
 msgstr "Sie wurden aufgrund von Inaktivität abgemeldet."
+
+msgid "You have exceeded your storage quota. Please delete some objects or contact your administrator to increase the quota."
+msgstr ""
 
 msgid "You need to login to access this page."
 msgstr "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."

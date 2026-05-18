@@ -2,6 +2,7 @@ import { swiftRouter } from "./swiftRouter"
 import { ec2CredentialRouter } from "./ec2CredentialRouter"
 import { containerRouter } from "./containerRouter"
 import { objectRouter } from "./objectRouter"
+import { usageRouter } from "./usageRouter"
 import { serviceInfoRouter } from "./serviceInfoRouter"
 import { auroraRouter } from "../../trpc"
 
@@ -19,6 +20,9 @@ export const objectStorageRouters = {
       }),
       objects: auroraRouter({
         ...objectRouter,
+      }),
+      usage: auroraRouter({
+        ...usageRouter,
       }),
       serviceInfo: auroraRouter({
         ...serviceInfoRouter,

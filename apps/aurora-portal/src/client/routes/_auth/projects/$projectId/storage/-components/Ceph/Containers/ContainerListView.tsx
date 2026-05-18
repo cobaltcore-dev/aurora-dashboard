@@ -13,6 +13,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import type { Container } from "@/server/Storage/types/ceph"
 import { CredentialPrompt } from "./CredentialPrompt"
+import { CephUsageOverview } from "../Usage"
 
 export function ContainerListView() {
   const projectId = useProjectId()
@@ -65,6 +66,9 @@ export function ContainerListView() {
 
   return (
     <>
+      {/* Usage Overview */}
+      <CephUsageOverview />
+
       {/* Container List */}
       {!buckets || buckets.length === 0 ? (
         <DataGrid columns={2}>

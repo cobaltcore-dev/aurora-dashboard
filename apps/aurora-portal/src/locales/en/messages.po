@@ -31,6 +31,15 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
+msgid "(approaching limit)"
+msgstr "(approaching limit)"
+
+msgid "(over quota)"
+msgstr "(over quota)"
+
+msgid "(with replication)"
+msgstr "(with replication)"
+
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} container"
 
@@ -199,6 +208,9 @@ msgstr "Activated {successCount} image(s), but {failedCount} image(s) could not 
 msgid "Activating this image will allow it to be used to launch new instances again."
 msgstr "Activating this image will allow it to be used to launch new instances again."
 
+msgid "Actual Disk Usage"
+msgstr "Actual Disk Usage"
+
 msgid "Add"
 msgstr "Add"
 
@@ -321,6 +333,9 @@ msgstr "Boot RAM"
 
 msgid "Boot size"
 msgstr "Boot size"
+
+msgid "Buckets"
+msgstr "Buckets"
 
 msgid "Bulk upload of archive files"
 msgstr "Bulk upload of archive files"
@@ -1069,6 +1084,9 @@ msgstr "Failed to load objects: {errorMessage}"
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
 
+msgid "Failed to load usage statistics: {errorMsg}"
+msgstr "Failed to load usage statistics: {errorMsg}"
+
 msgid "Failed to Move Object"
 msgstr "Failed to Move Object"
 
@@ -1510,6 +1528,9 @@ msgstr "Loading Security Group Details..."
 msgid "Loading Server Groups..."
 msgstr "Loading Server Groups..."
 
+msgid "Loading usage statistics..."
+msgstr "Loading usage statistics..."
+
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -1809,6 +1830,9 @@ msgstr "Object name is required"
 
 msgid "Object properties"
 msgstr "Object properties"
+
+msgid "Object Quota"
+msgstr "Object Quota"
 
 msgid "Object Storage"
 msgstr "Object Storage"
@@ -2332,6 +2356,15 @@ msgstr "Storage container not found"
 msgid "Storage Overview"
 msgstr "Storage Overview"
 
+msgid "Storage Quota"
+msgstr "Storage Quota"
+
+msgid "Storage Usage"
+msgstr "Storage Usage"
+
+msgid "Storage Used"
+msgstr "Storage Used"
+
 msgid "Store old object versions"
 msgstr "Store old object versions"
 
@@ -2713,6 +2746,12 @@ msgstr "URL Copied"
 msgid "URL for public access"
 msgstr "URL for public access"
 
+msgid "Usage Percentage"
+msgstr "Usage Percentage"
+
+msgid "Usage statistics are not available. Ceph Admin API is not configured."
+msgstr "Usage statistics are not available. Ceph Admin API is not configured."
+
 msgid "Used"
 msgstr "Used"
 
@@ -2856,6 +2895,9 @@ msgstr "You don't have permission to view this flavor's details."
 
 msgid "You have been logged out due to inactivity."
 msgstr "You have been logged out due to inactivity."
+
+msgid "You have exceeded your storage quota. Please delete some objects or contact your administrator to increase the quota."
+msgstr "You have exceeded your storage quota. Please delete some objects or contact your administrator to increase the quota."
 
 msgid "You need to login to access this page."
 msgstr "You need to login to access this page."
