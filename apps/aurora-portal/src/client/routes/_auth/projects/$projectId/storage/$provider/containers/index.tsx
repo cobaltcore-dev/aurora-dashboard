@@ -54,7 +54,7 @@ export const checkServiceAvailability = (
   }
 
   if (provider === "swift" && !hasSwift) {
-    if (!hasCeph && !cephFallbackEnabled) {
+    if (!hasCeph) {
       throw redirect({
         to: "/projects/$projectId/compute/overview",
         params: { projectId },
@@ -67,7 +67,7 @@ export const checkServiceAvailability = (
     })
   }
 
-  if (provider === "ceph" && !hasCeph && !cephFallbackEnabled) {
+  if (provider === "ceph" && !hasCeph) {
     if (!hasSwift) {
       throw redirect({
         to: "/projects/$projectId/compute/overview",
