@@ -361,9 +361,6 @@ msgstr "Zum Hochladen klicken"
 msgid "Close"
 msgstr "Schließen"
 
-msgid "Cluster limits and capabilities"
-msgstr ""
-
 msgid "Community"
 msgstr "Community"
 
