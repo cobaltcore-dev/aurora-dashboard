@@ -6,6 +6,6 @@ export default [
   ...config,
   pluginLingui.configs["flat/recommended"],
   {
-    ignores: ["scripts/*", "extensions/*", "*.js", "*.d.ts"], // Add this line
+    ignores: ["scripts/*", "extensions/*", "*.js", "*.d.ts", "playwright-report/**"], // Add this line
   },
 ]

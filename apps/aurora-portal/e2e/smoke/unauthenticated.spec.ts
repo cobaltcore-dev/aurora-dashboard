@@ -1,0 +1,74 @@
+import { test, expect } from "@playwright/test"
+import { expectPageLoaded, expectNoJavaScriptErrors, expectElementVisible } from "../helpers/test-helpers"
+
+/**
+ * Unauthenticated Routes - Smoke Tests
+ *
+ * These tests verify that public routes load without errors.
+ * No authentication is required.
+ *
+ * Run with: pnpm test:e2e e2e/smoke/unauthenticated.spec.ts
+ */
+test.describe("Unauthenticated Routes", () => {
+  test("landing page loads without errors", async ({ page }) => {
+    // Navigate to landing page
+    await page.goto("/")
+
+    // Wait for page to load
+    await expectPageLoaded(page)
+
+    // Verify no JavaScript errors
+    await expectNoJavaScriptErrors(page)
+
+    // Verify key elements are present
+    await expectElementVisible(page, "h1")
+    await expect(page.locator("h1")).toContainText("Aurora")
+
+    // Verify "Enter the Cloud" button exists
+    await expectElementVisible(page, 'button:has-text("Enter the Cloud")')
+  })
+
+  test("about page loads without errors", async ({ page }) => {
+    // Navigate to about page
+    await page.goto("/about")
+
+    // Wait for page to load
+    await expectPageLoaded(page)
+
+    // Verify no JavaScript errors
+    await expectNoJavaScriptErrors(page)
+
+    // Verify page has content
+    await expect(page.locator("body")).not.toBeEmpty()
+  })
+
+  test("login page loads without errors", async ({ page }) => {
+    // Navigate to login page
+    await page.goto("/auth/login")
+
+    // Wait for page to load
+    await expectPageLoaded(page)
+
+    // Verify no JavaScript errors
+    await expectNoJavaScriptErrors(page)
+
+    // Verify login form elements are present
+    await expectElementVisible(page, "input#domain")
+    await expectElementVisible(page, "input#user")
+    await expectElementVisible(page, "input#password")
+    await expectElementVisible(page, 'button:has-text("Sign In")')
+  })
+
+  test("protected route redirects to login", async ({ page }) => {
+    // Try to access accounts page (protected route)
+    await page.goto("/accounts")
+
+    // Should redirect to login
+    await page.waitForURL("**/auth/login**", { timeout: 10000 })
+
+    // Verify we're on login page by checking form elements
+    await expectElementVisible(page, "input#domain")
+    await expectElementVisible(page, "input#user")
+    await expectElementVisible(page, "input#password")
+  })
+})
