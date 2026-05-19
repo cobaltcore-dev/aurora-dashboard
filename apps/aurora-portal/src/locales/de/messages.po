@@ -820,11 +820,11 @@ msgstr "Alle leeren"
 msgid "Empty All ({selectedCount})"
 msgstr "Alle leeren ({selectedCount})"
 
-msgid "Empty container:"
-msgstr "Container leeren:"
-
 msgid "Empty Containers"
 msgstr "Container leeren"
+
+msgid "Empty:"
+msgstr ""
 
 msgid "Emptying container {progressCurrent} of {progressTotal}, please wait..."
 msgstr "Container {progressCurrent} von {progressTotal} wird geleert, bitte warten..."
@@ -1783,12 +1783,6 @@ msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur 
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr "Hinweis: Das Attribut 'stateful' kann nicht geändert werden, wenn diese Security Group derzeit von einem oder mehreren Ports verwendet wird."
 
-msgid "Nothing to do. Container appears empty — the object count may not have synced yet due to a recent operation."
-msgstr "Nichts zu tun. Container scheint leer zu sein — die Objekt-Anzahl ist möglicherweise aufgrund einer kürzlichen Operation noch nicht synchronisiert."
-
-msgid "Nothing to do. Container is already empty."
-msgstr "Nichts zu tun. Container ist bereits leer."
-
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Objekt \"{objectName}\" wurde dauerhaft gelöscht."
 
@@ -2544,6 +2538,12 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Zielprojekt ver
 
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
+
+msgid "This container is already empty — the object count may not have synced yet due to a recent operation."
+msgstr ""
+
+msgid "This container is already empty."
+msgstr ""
 
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "Dies kann auf unzureichende Berechtigungen oder ein vorübergehendes Serviceproblem zurückzuführen sein. Bitte überprüfen Sie Ihre Zugriffsrechte oder aktualisieren Sie die Seite."

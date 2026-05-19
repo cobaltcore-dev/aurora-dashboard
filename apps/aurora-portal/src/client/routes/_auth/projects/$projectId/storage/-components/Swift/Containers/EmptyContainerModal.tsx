@@ -4,6 +4,9 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import {
   Modal,
+  ModalFooter,
+  Button,
+  ButtonRow,
   TextInput,
   Stack,
   Message,
@@ -112,7 +115,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   const modalTitle = (
     <span className="flex max-w-[400px] items-center gap-2">
       <span className="shrink-0">
-        <Trans>Empty container:</Trans>
+        <Trans>Empty:</Trans>
       </span>
       <span className="truncate" title={container.name}>
         {container.name}
@@ -135,9 +138,20 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       title={modalTitle}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={showEmptyInfo ? t`Got it!` : t`Empty`}
-      onConfirm={showEmptyInfo ? handleClose : handleSubmit}
+      confirmButtonLabel={showEmptyInfo ? undefined : t`Empty`}
+      onConfirm={showEmptyInfo ? undefined : handleSubmit}
       cancelButtonLabel={showEmptyInfo ? undefined : t`Cancel`}
+      modalFooter={
+        showEmptyInfo ? (
+          <ModalFooter className="flex justify-end">
+            <ButtonRow>
+              <Button variant="primary" onClick={handleClose} data-testid="empty-info-close-button">
+                <Trans>Close</Trans>
+              </Button>
+            </ButtonRow>
+          </ModalFooter>
+        ) : undefined
+      }
       size="small"
       disableConfirmButton={
         isLoadingObjects ||
@@ -161,16 +175,15 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
         </Stack>
       ) : showEmptyInfo && !objectsError ? (
         // ── Case 2 & 3 ──────────────────────────────────────────────────────
-        <Message variant="info">
+        <p className="text-theme-default py-2">
           {isTrulyEmpty ? (
-            <Trans>Nothing to do. Container is already empty.</Trans>
+            <Trans>This container is already empty.</Trans>
           ) : (
             <Trans>
-              Nothing to do. Container appears empty — the object count may not have synced yet due to a recent
-              operation.
+              This container is already empty — the object count may not have synced yet due to a recent operation.
             </Trans>
           )}
-        </Message>
+        </p>
       ) : !objectsError ? (
         // ── Case 1: container has objects ────────────────────────────────────
         <Stack direction="vertical" gap="6">
