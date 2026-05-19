@@ -60,6 +60,7 @@ const renderModal = ({
   onClose = vi.fn(),
   onSuccess = vi.fn(),
   onError = vi.fn(),
+  onCancelled = vi.fn(),
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -73,6 +74,7 @@ const renderModal = ({
           onClose={onClose}
           onSuccess={onSuccess}
           onError={onError}
+          onCancelled={onCancelled}
         />
       </PortalProvider>
     </I18nProvider>
@@ -209,6 +211,7 @@ describe("UploadObjectModal", () => {
                 "x-upload-id": expect.stringContaining("my-bucket:docs/report.pdf:"),
               }),
             }),
+            signal: expect.any(AbortSignal),
           })
         )
       })
@@ -401,11 +404,11 @@ describe("UploadObjectModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })
-      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      await user.click(screen.getByRole("button", { name: /^Cancel$/i }))
       expect(onClose).toHaveBeenCalled()
     })
 
-    test("disables Cancel button while upload is in progress", async () => {
+    test("shows 'Cancel upload' label on cancel button while upload is in progress", async () => {
       let resolveUpload!: () => void
       mockMutate.mockImplementation(
         () =>
@@ -419,9 +422,26 @@ describe("UploadObjectModal", () => {
       await user.upload(fileInput, makeFile())
       await user.click(screen.getByRole("button", { name: /^Upload$/i }))
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled()
+        expect(screen.getByRole("button", { name: /Cancel upload/i })).toBeInTheDocument()
       })
       resolveUpload()
+    })
+
+    test("calls onCancelled when upload is aborted", async () => {
+      const onCancelled = vi.fn()
+      mockMutate.mockImplementation(async () => {
+        const err = new Error("signal is aborted without reason")
+        err.name = "TRPCClientError"
+        throw err
+      })
+      const user = userEvent.setup()
+      renderModal({ onCancelled })
+      const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
+      await user.upload(fileInput, makeFile("report.pdf"))
+      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await waitFor(() => {
+        expect(onCancelled).toHaveBeenCalledWith("report.pdf")
+      })
     })
 
     test("resets state after close", async () => {
@@ -431,7 +451,7 @@ describe("UploadObjectModal", () => {
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile("report.pdf"))
       expect(screen.getAllByText(/report\.pdf/).length).toBeGreaterThan(0)
-      await user.click(screen.getByRole("button", { name: /Cancel/i }))
+      await user.click(screen.getByRole("button", { name: /^Cancel$/i }))
       rerender(
         <I18nProvider i18n={i18n}>
           <PortalProvider>

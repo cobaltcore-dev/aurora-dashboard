@@ -8,6 +8,10 @@ import { AuthConfig } from "./Authentication/types/models"
 export interface AuroraContext {
   validateSession: () => boolean
   openstack?: Awaited<SignalOpenstackSessionType>
+  // AbortSignal tied to the HTTP connection lifecycle.
+  // Aborted automatically when the client disconnects mid-request.
+  // Pass to every swift.get/put/del/post call to propagate cancellation.
+  signal: AbortSignal
   // Lazy-loaded user information extracted from the OpenStack token
   // Only fetched when needed (e.g., by domainScopedProcedure)
   // Call this function to get user info on-demand
@@ -96,6 +100,37 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
   const sessionCookie = SessionCookie({ req: opts.req, res: opts.res })
   const currentAuthToken = sessionCookie.get()
   let openstackSession: Awaited<SignalOpenstackSessionType> | undefined = undefined
+
+  // Create an AbortController tied to the HTTP connection lifecycle.
+  // We listen on both req and res streams to cover all procedure types:
+  // - res.raw "close": handles queries and JSON mutations — request body is
+  //   fully read before the procedure starts (req.complete = true immediately),
+  //   so the response stream is the only reliable signal of client disconnect.
+  // - req.raw "close": handles streaming uploads (octet-stream mutations) —
+  //   the response hasn't started yet when the client aborts mid-upload,
+  //   so req.raw fires first with req.complete = false.
+  const abortController = new AbortController()
+  const abort = () => abortController.abort()
+
+  opts.res.raw.on("close", () => {
+    if (!opts.res.raw.writableEnded) abort()
+  })
+
+  opts.req.raw.on("close", () => {
+    if (!opts.req.raw.complete) abort()
+  })
+
+  // Prevent unhandled 'error' event crash when the client aborts mid-upload.
+  // Node.js emits ECONNRESET on req.raw when the TCP connection is reset —
+  // without a listener this bubbles up as an uncaught exception and kills the process.
+  opts.req.raw.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "ECONNRESET" || err.code === "ECONNABORTED") {
+      abort()
+    }
+  })
+  // Expose the signal on the Fastify request object so it can be accessed
+  // anywhere that has access to req (e.g. non-tRPC routes like upload-image-direct).
+  Object.defineProperty(opts.req, "signal", { value: abortController.signal, writable: false })
 
   // If we have a token, initialize the session
   if (currentAuthToken) {
@@ -366,6 +401,7 @@ export async function createContext(opts: CreateFastifyContextOptions): Promise<
 
   return {
     req: opts.req,
+    signal: abortController.signal,
     createSession,
     rescopeSession,
     terminateSession,

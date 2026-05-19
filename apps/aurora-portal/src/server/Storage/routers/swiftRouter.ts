@@ -1406,8 +1406,56 @@ export const swiftRouter = {
             },
           })
 
+          // Suppress abort-related 'error' events on the Node.js streams.
+          // When the client aborts mid-upload, Node.js emits ECONNRESET on the
+          // underlying Readable. Without listeners these bubble up as uncaught
+          // exceptions and crash the process. The abort is already handled via
+          // ctx.req.signal → cancellable webStream → swift.put AbortError.
+          // Non-abort errors (I/O failures, disk errors) are re-emitted so they
+          // surface correctly through swift.put() and the outer catch block.
+          const isAbortLike = (err: unknown) => {
+            const code = (err as NodeJS.ErrnoException | undefined)?.code
+            return code === "ECONNRESET" || code === "ECONNABORTED" || ctx.req.signal.aborted
+          }
+
+          validatedFile.on("error", (err) => {
+            if (isAbortLike(err)) return
+            progressTracker.destroy(err as Error)
+          })
+
+          progressTracker.on("error", (err) => {
+            if (isAbortLike(err)) return
+            trackedStream.destroy(err as Error)
+          })
+
           const trackedStream = validatedFile.pipe(progressTracker)
-          const webStream = Readable.toWeb(trackedStream)
+
+          // Wrap in a cancellable ReadableStream tied to ctx.req.signal.
+          // When the client disconnects (Cancel button / tab close), res.raw "close"
+          // fires → ctx.req.signal aborts → the stream closes → swift.put stops
+          // reading and throws AbortError instead of pushing remaining bytes to Swift.
+          const signal = ctx.req.signal
+          const reader = Readable.toWeb(trackedStream).getReader()
+
+          const webStream = new ReadableStream({
+            async pull(streamController) {
+              if (signal.aborted) {
+                streamController.close()
+                reader.cancel()
+                return
+              }
+              const { done, value } = await reader.read()
+              if (done || signal.aborted) {
+                streamController.close()
+                reader.cancel()
+              } else {
+                streamController.enqueue(value)
+              }
+            },
+            cancel() {
+              reader.cancel()
+            },
+          })
 
           // Encode each segment individually to preserve slash separators
           const encodedObject = validatedObject.split("/").map(encodeURIComponent).join("/")
@@ -1420,6 +1468,7 @@ export const swiftRouter = {
               "Content-Type": contentType ?? "application/octet-stream",
               ...(validatedFileSize > 0 ? { "Content-Length": validatedFileSize.toString() } : {}),
             },
+            signal: ctx.req.signal,
           })
 
           if (!uploadResponse?.ok) {
@@ -1480,6 +1529,7 @@ export const swiftRouter = {
     const queue: Array<UploadProgress> = []
     let isComplete = false
     let isError = false
+    let isCancelled = false
     let caughtError: Error | undefined
     let waitResolver: ((value?: unknown) => void) | null = null
 
@@ -1502,17 +1552,26 @@ export const swiftRouter = {
       waitResolver = null
     }
 
+    // Exit the subscription loop when the client disconnects.
+    // Without this the generator hangs until the 30s timeout fires.
+    const onAbort = () => {
+      isCancelled = true
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    ctx.req.signal.addEventListener("abort", onAbort)
     uploadProgressEmitter.on(`progress:${scopedUploadId}`, onProgress)
     uploadProgressEmitter.on(`progress:${scopedUploadId}:complete`, onComplete)
     uploadProgressEmitter.on(`progress:${scopedUploadId}:error`, onError)
 
     try {
-      while (!isComplete && !isError) {
+      while (!isComplete && !isError && !isCancelled) {
         while (queue.length > 0) {
           yield { ...queue.shift()! }
         }
 
-        if (!isComplete && !isError) {
+        if (!isComplete && !isError && !isCancelled) {
           // Bounded wait: if no events arrive within 30 s the upload has likely
           // already completed and the map entry was deleted before we subscribed.
           // Break rather than hanging forever.
@@ -1523,7 +1582,7 @@ export const swiftRouter = {
             }),
             timeout,
           ])
-          if (!isComplete && !isError && queue.length === 0) break
+          if (!isComplete && !isError && !isCancelled && queue.length === 0) break
         }
       }
 
@@ -1536,6 +1595,7 @@ export const swiftRouter = {
         throw caughtError
       }
     } finally {
+      ctx.req.signal.removeEventListener("abort", onAbort)
       uploadProgressEmitter.off(`progress:${scopedUploadId}`, onProgress)
       uploadProgressEmitter.off(`progress:${scopedUploadId}:complete`, onComplete)
       uploadProgressEmitter.off(`progress:${scopedUploadId}:error`, onError)

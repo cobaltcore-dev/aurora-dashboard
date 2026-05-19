@@ -127,10 +127,12 @@ const createMockContext = (shouldFailAuth = false, shouldFailSwift = false) => {
       .mockReturnValue([{ interface: "public", url: "https://swift.example.com/v1/AUTH_test" }]),
   }
 
+  const mockAbortController = new AbortController()
   const mockReqHeaders: Record<string, string> = {}
 
   return {
-    req: { headers: mockReqHeaders },
+    req: { headers: mockReqHeaders, signal: mockAbortController.signal },
+    signal: mockAbortController.signal,
     validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
     createSession: vi.fn().mockResolvedValue({}),
     terminateSession: vi.fn().mockResolvedValue({}),

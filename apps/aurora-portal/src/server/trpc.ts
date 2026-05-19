@@ -107,6 +107,7 @@ export const projectScopedProcedure = protectedProcedure
       ctx: {
         ...ctx,
         openstack: openstackSession,
+        signal: ctx.signal,
       },
     })
   })
@@ -220,6 +221,7 @@ export const domainScopedProcedure = protectedProcedure
       ctx: {
         ...ctx,
         openstack: openstackSession,
+        signal: ctx.signal,
       },
     })
   })
