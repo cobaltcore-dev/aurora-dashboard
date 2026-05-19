@@ -19,7 +19,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
   const navigate = useNavigate()
   const matches = useMatches()
 
-  const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true })
+  const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true, services: true })
 
   const serviceIndex = getServiceIndex(availableServices)
 
@@ -84,6 +84,21 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
       : []),
   ]
 
+  // temporary as clavis is not fully GA, after GA replace with ["pca"]?.["clavis"]
+  const pcaServices = serviceIndex["pca"]?.["clavis-beta"] || serviceIndex["pca"]?.["clavis-dev"]
+  const clavisServices = [
+    ...(pcaServices
+      ? [
+          {
+            service: "pca",
+            label: t`PCA (Clavis)`,
+            to: "/projects/$projectId/services/pca" as const,
+            params: { projectId },
+          },
+        ]
+      : []),
+  ]
+
   const isOverviewActive = activeSection === null
 
   return (
@@ -140,6 +155,23 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
                   onClick={() => navigate({ to, params })}
                   label={label}
                   selected={activeSection === "storage" && activeService === service}
+                />
+              ))}
+            </SideNavigationItem>
+          )}
+
+          {clavisServices.length > 0 && (
+            <SideNavigationItem
+              label={t`Services`}
+              open={openSections.services}
+              onClick={() => setOpenSections((prev) => ({ ...prev, services: !prev.services }))}
+            >
+              {clavisServices.map(({ service, label, to, params }) => (
+                <SideNavigationItem
+                  key={label}
+                  onClick={() => navigate({ to, params })}
+                  label={label}
+                  selected={activeSection === "services" && activeService === service}
                 />
               ))}
             </SideNavigationItem>

@@ -18,6 +18,7 @@ const SECTION_LABELS: Record<string, string> = {
   compute: "Compute",
   network: "Network",
   storage: "Storage",
+  services: "Services",
 }
 
 const SERVICE_LABELS: Record<string, string> = {
@@ -26,6 +27,7 @@ const SERVICE_LABELS: Record<string, string> = {
   securitygroups: "Security Groups",
   floatingips: "Floating IPs",
   containers: "Object Storage (Swift)",
+  pca: "PCA (Clavis)",
 }
 
 export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
@@ -107,6 +109,15 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
               params: { projectId, provider },
             }),
         })
+      } else if (section === "services") {
+        items.push({
+          label: sectionLabel,
+          onClick: () =>
+            navigate({
+              to: "/projects/$projectId/storage/$provider/containers",
+              params: { projectId, provider },
+            }),
+        })
       }
     }
 
@@ -157,6 +168,15 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
               navigate({
                 to: "/projects/$projectId/storage/$provider/containers",
                 params: { projectId, provider },
+              }),
+          })
+        } else if (section === "services" && service === "pca") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/projects/$projectId/services/pca",
+                params: { projectId },
               }),
           })
         } else {
