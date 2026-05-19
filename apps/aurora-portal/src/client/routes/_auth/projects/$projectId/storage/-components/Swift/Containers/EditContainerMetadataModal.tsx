@@ -13,7 +13,6 @@ import {
   DataGridCell,
   Button,
   Checkbox,
-  Badge,
   Tooltip,
   TooltipTrigger,
   TooltipContent,
@@ -564,12 +563,12 @@ export const EditContainerMetadataModal = ({
                   </Stack>
                 </Stack>
               ) : (
-                <Message variant="info">
+                <p className="text-theme-default text-sm">
                   <Trans>
                     Public read access is not enabled. Before configuring static website serving, go to{" "}
-                    <Badge variant="info">Manage Access</Badge> and enable public read access.
+                    <strong>Manage Access</strong> and enable public read access.
                   </Trans>
-                </Message>
+                </p>
               )}
             </div>
 
@@ -660,7 +659,7 @@ export const EditContainerMetadataModal = ({
               </Stack>
 
               {/* Add Property button */}
-              <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-3 justify-end p-2">
+              <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 justify-end p-2">
                 <Button
                   label={t`Add Property`}
                   onClick={() => setIsAddingNew(true)}
