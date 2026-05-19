@@ -1948,6 +1948,9 @@ msgstr "Preview"
 msgid "Preview {rowDisplayName}"
 msgstr "Preview {rowDisplayName}"
 
+msgid "Preview and Edit metadata"
+msgstr "Preview and Edit metadata"
+
 msgid "Private"
 msgstr "Private"
 
