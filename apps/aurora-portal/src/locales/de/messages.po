@@ -1976,7 +1976,7 @@ msgid "projects"
 msgstr "Projekte"
 
 msgid "Projects"
-msgstr ""
+msgstr "Projekte"
 
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Eigenschaften von \"{objectName}\" wurden erfolgreich aktualisiert."
