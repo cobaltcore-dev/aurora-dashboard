@@ -1,6 +1,6 @@
-import { useNavigate } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import { Project } from "@/server/Project/types/models"
-import { Badge, Box, ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Box, ContentHeading } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 
 type ProjectCardProps = {
@@ -11,24 +11,16 @@ type ProjectCardViewProps = {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  const navigate = useNavigate()
   return (
-    <Box
-      className="hover:bg-theme-background-lvl-2 min-h-50 rounded-lg p-6 shadow-md"
-      onClick={() => navigate({ to: "/projects/$projectId", params: { projectId: project.id } })}
-    >
-      <div className="w-full">
-        <ContentHeading className="text-theme-accent">{project.name}</ContentHeading>
+    <Link to="/projects/$projectId" params={{ projectId: project.id }} className="block text-inherit no-underline">
+      <Box className="hover:bg-theme-background-lvl-2 min-h-50 rounded-lg p-6 shadow-md">
+        <div className="w-full">
+          <ContentHeading className="text-theme-accent">{project.name}</ContentHeading>
 
-        {project.enabled ? (
-          <Badge icon text="Active" variant="success" className="mt-1" />
-        ) : (
-          <Badge icon text="Disabled" variant="danger" />
-        )}
-
-        <p className="mt-4 line-clamp-3 pr-4 leading-relaxed">{project.description}</p>
-      </div>
-    </Box>
+          <p className="mt-4 line-clamp-3 pr-4 leading-relaxed">{project.description}</p>
+        </div>
+      </Box>
+    </Link>
   )
 }
 export function ProjectCardView({ projects }: ProjectCardViewProps) {
