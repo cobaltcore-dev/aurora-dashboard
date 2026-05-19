@@ -2542,8 +2542,8 @@ msgstr "Diese Aktion ist dauerhaft. Alle Objekte im Container werden gelöscht u
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
 
-msgid "This container is already empty — the object count may not have synced yet due to a recent operation."
-msgstr "Dieser Container ist bereits leer — die Objekt-Anzahl ist möglicherweise aufgrund einer kürzlichen Operation noch nicht synchronisiert."
+msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
+msgstr "Dieser Container scheint leer zu sein — die Objekt-Anzahl ist möglicherweise aufgrund einer kürzlichen Operation noch nicht synchronisiert."
 
 msgid "This container is already empty."
 msgstr "Dieser Container ist bereits leer."

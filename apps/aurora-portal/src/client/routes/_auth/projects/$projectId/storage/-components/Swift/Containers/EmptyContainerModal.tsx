@@ -181,7 +181,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
             <Trans>This container is already empty.</Trans>
           ) : (
             <Trans>
-              This container is already empty — the object count may not have synced yet due to a recent operation.
+              This container appears empty — the object count may not have synced yet due to a recent operation.
             </Trans>
           )}
         </p>

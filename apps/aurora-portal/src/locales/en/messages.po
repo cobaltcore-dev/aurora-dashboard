@@ -2542,8 +2542,8 @@ msgstr "This action is permanent. All objects in the container will be deleted a
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 
-msgid "This container is already empty — the object count may not have synced yet due to a recent operation."
-msgstr "This container is already empty — the object count may not have synced yet due to a recent operation."
+msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
+msgstr "This container appears empty — the object count may not have synced yet due to a recent operation."
 
 msgid "This container is already empty."
 msgstr "This container is already empty."
