@@ -15,7 +15,11 @@ export function ProjectListView({ projects }: ProjectListViewProps) {
           return (
             <DataGridRow key={project.id}>
               <DataGridCell>
-                <Link to="/projects/$projectId" params={{ projectId: project.id }} className="text-inherit no-underline">
+                <Link
+                  to="/projects/$projectId"
+                  params={{ projectId: project.id }}
+                  className="text-inherit no-underline"
+                >
                   {project.name}
                 </Link>
               </DataGridCell>
