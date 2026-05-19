@@ -139,6 +139,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={showEmptyInfo ? undefined : t`Empty`}
+      confirmButtonVariant="primary-danger"
       onConfirm={showEmptyInfo ? undefined : handleSubmit}
       cancelButtonLabel={showEmptyInfo ? undefined : t`Cancel`}
       modalFooter={
@@ -187,43 +188,19 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       ) : !objectsError ? (
         // ── Case 1: container has objects ────────────────────────────────────
         <Stack direction="vertical" gap="6">
-          <Message variant="warning">
+          <p className="text-theme-default">
             <Trans>
-              <strong>Are you sure?</strong> All objects in the container will be deleted. This cannot be undone.
+              This action is permanent. All objects in the container will be deleted and this cannot be undone.
             </Trans>
             <br />
             <Trans>
-              Please note: for <strong>dynamic</strong> and <strong>static large objects</strong> only the manifests are
-              deleted. The related segments are not deleted.
+              <strong>Please note:</strong> for <strong>dynamic</strong> and <strong>static large objects</strong> only
+              the manifests will be deleted. The related segments will not be deleted.
             </Trans>
-          </Message>
+          </p>
 
           {/* Object list preview — capped at first 100 */}
-          <div className="border-theme-background-lvl-3 max-h-48 overflow-y-auto rounded border">
-            <DataGrid columns={3} className="text-sm">
-              <DataGridRow>
-                <DataGridHeadCell>
-                  <Trans>Name</Trans>
-                </DataGridHeadCell>
-                <DataGridHeadCell>
-                  <Trans>Size</Trans>
-                </DataGridHeadCell>
-                <DataGridHeadCell>
-                  <Trans>Last Modified</Trans>
-                </DataGridHeadCell>
-              </DataGridRow>
-              {(objects as ObjectSummary[]).map((obj) => (
-                <DataGridRow key={obj.name}>
-                  <DataGridCell className="max-w-[200px] truncate" title={obj.name}>
-                    {obj.name}
-                  </DataGridCell>
-                  <DataGridCell>{formatBytesBinary(obj.bytes)}</DataGridCell>
-                  <DataGridCell>
-                    {obj.last_modified ? new Date(obj.last_modified).toLocaleString() : t`N/A`}
-                  </DataGridCell>
-                </DataGridRow>
-              ))}
-            </DataGrid>
+          <div className="border-theme-background-lvl-3 overflow-hidden rounded border">
             {container.count > actualObjectCount && (
               <p className="text-theme-light px-3 py-2 text-xs">
                 {(() => {
@@ -236,6 +213,34 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
                 })()}
               </p>
             )}
+            <DataGrid columns={3} className="text-sm">
+              <DataGridRow>
+                <DataGridHeadCell>
+                  <Trans>Name</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Size</Trans>
+                </DataGridHeadCell>
+                <DataGridHeadCell>
+                  <Trans>Last Modified</Trans>
+                </DataGridHeadCell>
+              </DataGridRow>
+            </DataGrid>
+            <div className="max-h-48 overflow-y-auto">
+              <DataGrid columns={3} className="text-sm">
+                {(objects as ObjectSummary[]).map((obj) => (
+                  <DataGridRow key={obj.name}>
+                    <DataGridCell className="max-w-[200px] truncate" title={obj.name}>
+                      {obj.name}
+                    </DataGridCell>
+                    <DataGridCell>{formatBytesBinary(obj.bytes)}</DataGridCell>
+                    <DataGridCell>
+                      {obj.last_modified ? new Date(obj.last_modified).toLocaleString() : t`N/A`}
+                    </DataGridCell>
+                  </DataGridRow>
+                ))}
+              </DataGrid>
+            </div>
           </div>
 
           <TextInput

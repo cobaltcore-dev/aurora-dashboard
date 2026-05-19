@@ -178,12 +178,12 @@ describe("EmptyContainerModal", () => {
   describe("Case 1: container has objects", () => {
     test("renders warning message (Are you sure)", () => {
       renderModal()
-      expect(screen.getByText(/Are you sure/i)).toBeInTheDocument()
+      expect(screen.getByText(/This action is permanent/i)).toBeInTheDocument()
     })
 
     test("renders warning about large objects", () => {
       renderModal()
-      expect(screen.getByText(/dynamic/i)).toBeInTheDocument()
+      expect(screen.getByText(/Please note/i)).toBeInTheDocument()
       expect(screen.getByText(/static large objects/i)).toBeInTheDocument()
     })
 
