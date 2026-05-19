@@ -73,9 +73,6 @@ msgstr "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objec
 msgid "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
 
-msgid "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
-msgstr "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
-
 msgid "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
 
@@ -333,9 +330,6 @@ msgstr "Cancel"
 
 msgid "Cancel upload"
 msgstr "Cancel upload"
-
-msgid "Cannot delete. Container contains objects. Please empty it first."
-msgstr "Cannot delete. Container contains objects. Please empty it first."
 
 msgid "Capabilities"
 msgstr "Capabilities"
@@ -1254,9 +1248,6 @@ msgstr "Get Involved"
 
 msgid "GitHub"
 msgstr "GitHub"
-
-msgid "Got it!"
-msgstr "Got it!"
 
 msgid "Grant access to a user from a different project."
 msgstr "Grant access to a user from a different project."
@@ -2428,8 +2419,14 @@ msgstr "Tenant ID"
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
 
+msgid "The container cannot be deleted as it contains objects. Empty the container first."
+msgstr "The container cannot be deleted as it contains objects. Empty the container first."
+
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 msgstr "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
+
+msgid "The container will be deleted. This action is permanent and cannot be undone."
+msgstr "The container will be deleted. This action is permanent and cannot be undone."
 
 msgid "The extra spec could not be found. It may have already been deleted."
 msgstr "The extra spec could not be found. It may have already been deleted."
@@ -2493,6 +2490,9 @@ msgstr "The specified user has access. A token for the user (scoped to any proje
 
 msgid "The tenant ID provided is invalid. Please check your input."
 msgstr "The tenant ID provided is invalid. Please check your input."
+
+msgid "The text must match \"delete\""
+msgstr "The text must match \"delete\""
 
 msgid "The text must match “detach” in lowercase."
 msgstr "The text must match “detach” in lowercase."
@@ -2605,6 +2605,9 @@ msgstr "To confirm this action, type the word <0>“detach”</0> in the field b
 msgid "To confirm this action, type the word <0>\"release\"</0> in the field below."
 msgstr "To confirm this action, type the word <0>\"release\"</0> in the field below."
 
+msgid "To confirm type <0>delete</0> in the field below."
+msgstr "To confirm type <0>delete</0> in the field below."
+
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Together, we can unlock the true potential of your cloud infrastructure."
 
@@ -2628,6 +2631,9 @@ msgstr "Try Again"
 
 msgid "Type"
 msgstr "Type"
+
+msgid "Type \"delete\" to confirm"
+msgstr "Type \"delete\" to confirm"
 
 msgid "Type \"detach\" to confirm"
 msgstr "Type \"detach\" to confirm"

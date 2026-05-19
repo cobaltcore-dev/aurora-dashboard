@@ -73,9 +73,6 @@ msgstr "<0>Sind Sie sicher?</0> Ordner <1>\"{folderDisplayName}\"</1> und alle d
 msgid "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
 msgstr "<0>Sind Sie sicher?</0> Objekt <1>\"{displayName}\"</1> wird dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
-msgid "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
-msgstr "<0>Sind Sie sicher?</0> Der Container wird gelöscht. Dies kann nicht rückgängig gemacht werden."
-
 msgid "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
 msgstr "<0>Sind Sie sicher?</0> Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
@@ -333,9 +330,6 @@ msgstr "Abbrechen"
 
 msgid "Cancel upload"
 msgstr "Upload abbrechen"
-
-msgid "Cannot delete. Container contains objects. Please empty it first."
-msgstr "Löschen nicht möglich. Container enthält Objekte. Bitte leeren Sie ihn zuerst."
 
 msgid "Capabilities"
 msgstr "Capabilities"
@@ -1254,9 +1248,6 @@ msgstr "Mitmachen"
 
 msgid "GitHub"
 msgstr "GitHub"
-
-msgid "Got it!"
-msgstr "Verstanden!"
 
 msgid "Grant access to a user from a different project."
 msgstr "Zugriff für einen Benutzer aus einem anderen Projekt gewähren."
@@ -2428,8 +2419,14 @@ msgstr "Projekt ID"
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
 
+msgid "The container cannot be deleted as it contains objects. Empty the container first."
+msgstr "Der Container kann nicht gelöscht werden, da er Objekte enthält. Leeren Sie den Container zuerst."
+
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 msgstr "Die Container-Metadaten melden Objekte, aber keine wurden aufgelistet. Dies kann eine vorübergehende Synchronisierungsverzögerung sein — bitte warten Sie einen Moment und versuchen Sie es erneut."
+
+msgid "The container will be deleted. This action is permanent and cannot be undone."
+msgstr "Der Container wird gelöscht. Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden."
 
 msgid "The extra spec could not be found. It may have already been deleted."
 msgstr "Das Metadata konnte nicht gefunden werden. Möglicherweise wurde es bereits gelöscht."
@@ -2493,6 +2490,9 @@ msgstr "Der angegebene Benutzer hat Zugriff. Ein Token für den Benutzer (auf ei
 
 msgid "The tenant ID provided is invalid. Please check your input."
 msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Eingabe."
+
+msgid "The text must match \"delete\""
+msgstr "Der Text muss \"delete\" entsprechen"
 
 msgid "The text must match “detach” in lowercase."
 msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
@@ -2605,6 +2605,9 @@ msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>“detach”</0> i
 msgid "To confirm this action, type the word <0>\"release\"</0> in the field below."
 msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>\"release\"</0> in das Feld unten ein."
 
+msgid "To confirm type <0>delete</0> in the field below."
+msgstr "Geben Sie zur Bestätigung <0>delete</0> in das Feld unten ein."
+
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Gemeinsam können wir das volle Potenzial Ihrer Cloud-Infrastruktur erschließen."
 
@@ -2628,6 +2631,9 @@ msgstr "Erneut versuchen"
 
 msgid "Type"
 msgstr "Typ"
+
+msgid "Type \"delete\" to confirm"
+msgstr "Geben Sie \"delete\" zur Bestätigung ein"
 
 msgid "Type \"detach\" to confirm"
 msgstr "\"detach\" zur Bestätigung eingeben"

@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Message, Spinner, Icon, Checkbox } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  ModalFooter,
+  Button,
+  ButtonRow,
+  TextInput,
+  Stack,
+  Message,
+  Spinner,
+  Checkbox,
+} from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -18,16 +28,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   const projectId = useProjectId()
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
   const [versionsConfirmed, setVersionsConfirmed] = useState(false)
-
-  const handleCopyName = () => {
-    if (!container) return
-    navigator.clipboard.writeText(container.name).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
-  }
 
   const utils = trpcReact.useUtils()
 
@@ -94,8 +95,8 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   const handleSubmit = () => {
     if (!container) return
     if (objectsError || metaError) return
-    if (confirmName.trim() !== container.name) {
-      setNameError(t`Container name does not match`)
+    if (confirmName.trim() !== "delete") {
+      setNameError(t`The text must match "delete"`)
       return
     }
     deleteContainerMutation.mutate({ project_id: projectId, container: container.name })
@@ -126,16 +127,6 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       <span className="truncate" title={container.name}>
         {container.name}
       </span>
-      {!isLoadingObjects && !hasObjects && (
-        <button
-          type="button"
-          onClick={handleCopyName}
-          title={copied ? t`Copied!` : t`Copy container name`}
-          className="text-theme-light hover:text-theme-default inline-flex items-center transition-colors"
-        >
-          <Icon icon={copied ? "checkCircle" : "contentCopy"} size="16" />
-        </button>
-      )}
     </span>
   )
 
@@ -144,15 +135,27 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       title={modalTitle}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={hasObjects ? t`Got it!` : t`Delete`}
-      onConfirm={hasObjects ? handleClose : handleSubmit}
+      confirmButtonLabel={hasObjects ? undefined : t`Delete`}
+      confirmButtonVariant={hasObjects ? undefined : "primary-danger"}
+      onConfirm={hasObjects ? undefined : handleSubmit}
       cancelButtonLabel={hasObjects ? undefined : t`Cancel`}
+      modalFooter={
+        hasObjects ? (
+          <ModalFooter className="flex justify-end">
+            <ButtonRow>
+              <Button variant="primary" onClick={handleClose} data-testid="delete-has-objects-close-button">
+                <Trans>Close</Trans>
+              </Button>
+            </ButtonRow>
+          </ModalFooter>
+        ) : undefined
+      }
       size="small"
       disableConfirmButton={
         isLoadingObjects ||
         hasPreflightError ||
         deleteContainerMutation.isPending ||
-        (!hasObjects && confirmName !== container.name) ||
+        (!hasObjects && confirmName.trim() !== "delete") ||
         (!hasObjects && isVersioned && !versionsConfirmed)
       }
     >
@@ -184,26 +187,28 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       ) : hasObjects ? (
         // ── Container has objects — block deletion ───────────────────────────
         <Stack direction="vertical" gap="3">
-          <Message variant="danger">
-            <Trans>Cannot delete. Container contains objects. Please empty it first.</Trans>
-          </Message>
+          <p className="text-theme-default">
+            <Trans>The container cannot be deleted as it contains objects. Empty the container first.</Trans>
+          </p>
           {isConsistencyDelay && (
-            <Message variant="info">
+            <p className="text-theme-default">
               <Trans>
                 The container metadata reports objects but none were listed. This may be a temporary synchronization
                 delay — please wait a moment and try again.
               </Trans>
-            </Message>
+            </p>
           )}
         </Stack>
       ) : (
         // ── Container is empty — allow deletion ──────────────────────────────
         <Stack direction="vertical" gap="6">
-          <Message variant="warning">
+          <p className="text-theme-default">
+            <Trans>The container will be deleted. This action is permanent and cannot be undone.</Trans>
+            <br />
             <Trans>
-              <strong>Are you sure?</strong> The container will be deleted. This cannot be undone.
+              To confirm type <strong>delete</strong> in the field below.
             </Trans>
-          </Message>
+          </p>
           {isVersioned && (
             <Checkbox
               label={t`I confirm that all existing versions will also be deleted`}
@@ -213,7 +218,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
             />
           )}
           <TextInput
-            label={t`Type container name to confirm`}
+            label={t`Type "delete" to confirm`}
             required
             value={confirmName}
             onChange={handleConfirmNameChange}
@@ -222,7 +227,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
             errortext={nameError || undefined}
             disabled={deleteContainerMutation.isPending}
             autoFocus
-            placeholder={container.name}
+            placeholder={t`delete`}
           />
         </Stack>
       )}
