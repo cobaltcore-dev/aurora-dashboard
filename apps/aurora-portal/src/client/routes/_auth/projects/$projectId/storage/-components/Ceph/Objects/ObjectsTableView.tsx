@@ -72,7 +72,7 @@ export function ObjectsTableView({ objects, folders, currentPrefix, onFolderClic
           >
             <DataGridCell>
               <div className="flex items-center gap-2">
-                <MdFolder className="text-juno-grey-light-1" />
+                <MdFolder className="text-theme-default" />
                 <span className="font-mono text-sm">{displayName}</span>
               </div>
             </DataGridCell>
@@ -90,7 +90,7 @@ export function ObjectsTableView({ objects, folders, currentPrefix, onFolderClic
           <DataGridRow key={obj.key}>
             <DataGridCell>
               <div className="flex items-center gap-2">
-                <MdDescription className="text-juno-grey-light-1" />
+                <MdDescription className="text-theme-default" />
                 <span className="font-mono text-sm">{displayName}</span>
               </div>
             </DataGridCell>
