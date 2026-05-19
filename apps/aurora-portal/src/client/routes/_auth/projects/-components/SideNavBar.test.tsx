@@ -12,6 +12,7 @@ let mockMatches: { staticData?: Record<string, unknown> }[] = []
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
   useMatches: () => mockMatches,
+  useParams: () => ({}),
 }))
 
 const TestingProvider = ({ children }: { children: ReactNode }) => (
