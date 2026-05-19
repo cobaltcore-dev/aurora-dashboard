@@ -5,6 +5,8 @@ import { ProjectCardView } from "@/client/routes/_auth/projects/-components/Proj
 import { ProjectListView } from "@/client/routes/_auth/projects/-components/ProjectListView"
 import { RouteError } from "@/client/components/Error/RouteError"
 import { TRPCClientError } from "@trpc/client"
+import { ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 
 import { z } from "zod"
 
@@ -64,6 +66,9 @@ function ProjectsOverview() {
     <div>
       <div className="mx-auto h-full w-full max-w-full p-4 lg:w-3/4 xl:w-2/3 2xl:w-5/8">
         <div className="mx-auto w-full">
+          <ContentHeading className="px-4 pt-4">
+            <Trans>Projects</Trans>
+          </ContentHeading>
           <ProjectsOverviewNavBar
             viewMode={viewMode}
             setViewMode={setViewMode}
