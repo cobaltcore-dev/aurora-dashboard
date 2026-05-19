@@ -4,8 +4,8 @@ import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { trpcReact } from "@/client/trpcClient"
-import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { Button, Spinner, Stack, Toast, ToastProps } from "@cloudoperators/juno-ui-components"
+import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { ContainerTableView } from "./ContainerTableView"
 import {
   getContainerCreatedToast,
@@ -231,6 +231,10 @@ export const SwiftContainers = () => {
   const hasSelection = selectedContainerSummaries.length > 0
   const selectedCount = selectedContainerSummaries.length
 
+  const totalCount = (containers || []).length
+  const filteredCount = filteredContainers.length
+  const isFiltered = filteredCount !== totalCount
+
   return (
     <div className="relative">
       <ListToolbar
@@ -239,27 +243,39 @@ export const SwiftContainers = () => {
         onSort={handleSortChange}
         onSearch={handleSearchChange}
         actions={
-          <Stack direction="vertical" alignment="end" gap="4">
-            {accountInfo && quotaBytes > 0 && (
-              <Stack direction="vertical" alignment="end" className="text-sm">
-                <div className="text-theme-default">
-                  <Trans>Remaining Quota:</Trans>{" "}
-                  <span className="font-semibold">{formatBytesBinary(remainingBytes)} Capacity</span>
-                </div>
-              </Stack>
-            )}
-            <Stack direction="horizontal" gap="4" alignment="center">
-              <ContainerLimitsTooltip serviceInfo={serviceInfo} accountInfo={accountInfo} />
-              <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
-                <Trans>Create Container</Trans>
-              </Button>
-              <Button variant="primary-danger" onClick={() => setEmptyAllModalOpen(true)} disabled={!hasSelection}>
-                {hasSelection ? <Trans>Empty All ({selectedCount})</Trans> : <Trans>Empty All</Trans>}
-              </Button>
-            </Stack>
+          <Stack direction="horizontal" gap="4" alignment="center">
+            <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
+              <Trans>Create Container</Trans>
+            </Button>
+            <Button variant="primary-danger" onClick={() => setEmptyAllModalOpen(true)} disabled={!hasSelection}>
+              {hasSelection ? <Trans>Empty All ({selectedCount})</Trans> : <Trans>Empty All</Trans>}
+            </Button>
           </Stack>
         }
       />
+
+      {/* Info block — global DataGrid pattern: container count + remaining quota + limits tooltip */}
+      <div className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm">
+        {isFiltered ? (
+          <Trans>
+            {filteredCount} of {totalCount} containers
+          </Trans>
+        ) : totalCount === 1 ? (
+          <Trans>{totalCount} container</Trans>
+        ) : (
+          <Trans>{totalCount} containers</Trans>
+        )}
+        {quotaBytes > 0 && (
+          <>
+            <span>,</span>
+            <span>
+              <Trans>Remaining Quota:</Trans>{" "}
+              <span className="text-theme-default font-semibold">{formatBytesBinary(remainingBytes)}</span>
+            </span>
+          </>
+        )}
+        <ContainerLimitsTooltip serviceInfo={serviceInfo} accountInfo={accountInfo} />
+      </div>
 
       <ContainerTableView
         containers={sortedContainers}

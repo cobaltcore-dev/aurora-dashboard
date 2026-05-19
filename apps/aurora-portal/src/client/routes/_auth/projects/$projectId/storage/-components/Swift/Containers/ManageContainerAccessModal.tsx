@@ -329,17 +329,25 @@ export const ManageContainerAccessModal = ({
       confirmButtonLabel={t`Save`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      size="large"
+      size="xl"
       disableConfirmButton={isBusy || isMetaError}
     >
       <div className="max-h-[70vh] overflow-y-auto pr-1 pl-1">
         {/* ── Info message ─────────────────────────────────────────────────── */}
-        <Message variant="info" className="mb-4">
-          <Trans>
-            ACL entries control who can read from or write to this container. Multiple entries are comma-separated.
-            Changes take effect immediately after saving.
-          </Trans>
-        </Message>
+        <div className="mb-4">
+          <p className="text-theme-default mb-2">
+            <Trans>
+              Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot
+              validate these values, and incorrect IDs may apply access to wrong projects and users.
+            </Trans>
+          </p>
+          <p className="text-theme-default">
+            <Trans>
+              ACL entries control who can read from or write to this container. Multiple entries are comma-separated.
+              Changes take effect immediately after saving.
+            </Trans>
+          </p>
+        </div>
 
         {isLoading ? (
           <Stack direction="horizontal" alignment="center" gap="2" className="py-6">
@@ -404,6 +412,71 @@ export const ManageContainerAccessModal = ({
                       disabled={isBusy}
                     />
                   )}
+
+                  {/* ── Parsed ACL preview — inside left column, below button ── */}
+                  {showPreview && (parsedReadEntries.length > 0 || parsedWriteEntries.length > 0) && (
+                    <Stack direction="vertical" gap="4">
+                      {parsedReadEntries.length > 0 && (
+                        <div>
+                          <p className="text-theme-default mb-2 text-sm font-semibold">
+                            <Trans>Read ACLs</Trans>
+                          </p>
+                          <div className="border-theme-background-lvl-3 divide-theme-background-lvl-3 divide-y rounded border">
+                            {parsedReadEntries.map((entry, i) => (
+                              <div key={i} className="flex flex-col gap-1 px-3 py-2">
+                                <div className="flex items-center justify-between gap-3">
+                                  <p
+                                    className="text-theme-default min-w-0 truncate text-sm font-medium"
+                                    title={aclEntryLabel(entry)}
+                                  >
+                                    {aclEntryLabel(entry)}
+                                  </p>
+                                  <p className="text-theme-light shrink-0 text-xs">
+                                    {entry.requiresToken ? (
+                                      <Trans>valid token required: true</Trans>
+                                    ) : (
+                                      <Trans>valid token required: false</Trans>
+                                    )}
+                                  </p>
+                                </div>
+                                <code className="text-theme-light bg-theme-background-lvl-2 block w-full rounded px-2 py-1 font-mono text-xs break-all">
+                                  {entry.raw}
+                                </code>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {parsedWriteEntries.length > 0 && (
+                        <div>
+                          <p className="text-theme-default mb-2 text-sm font-semibold">
+                            <Trans>Write ACLs</Trans>
+                          </p>
+                          <div className="border-theme-background-lvl-3 divide-theme-background-lvl-3 divide-y rounded border">
+                            {parsedWriteEntries.map((entry, i) => (
+                              <div key={i} className="flex flex-col gap-1 px-3 py-2">
+                                <div className="flex items-center justify-between gap-3">
+                                  <p
+                                    className="text-theme-default min-w-0 truncate text-sm font-medium"
+                                    title={aclEntryLabel(entry)}
+                                  >
+                                    {aclEntryLabel(entry)}
+                                  </p>
+                                  <p className="text-theme-light shrink-0 text-xs">
+                                    <Trans>valid token required: true</Trans>
+                                  </p>
+                                </div>
+                                <code className="text-theme-light bg-theme-background-lvl-2 block w-full rounded px-2 py-1 font-mono text-xs break-all">
+                                  {entry.raw}
+                                </code>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </Stack>
+                  )}
                 </Stack>
               </div>
 
@@ -449,71 +522,6 @@ export const ManageContainerAccessModal = ({
                 </p>
               </div>
             </div>
-
-            {/* ── Full-width parsed ACL preview ─────────────────────────────────── */}
-            {showPreview && (parsedReadEntries.length > 0 || parsedWriteEntries.length > 0) && (
-              <Stack direction="vertical" gap="4" className="mt-6">
-                {parsedReadEntries.length > 0 && (
-                  <div>
-                    <p className="text-theme-default mb-2 text-sm font-semibold">
-                      <Trans>Read ACLs</Trans>
-                    </p>
-                    <div className="border-theme-background-lvl-3 divide-theme-background-lvl-3 divide-y rounded border">
-                      {parsedReadEntries.map((entry, i) => (
-                        <div key={i} className="flex flex-col gap-1 px-3 py-2">
-                          <div className="flex items-center justify-between gap-3">
-                            <p
-                              className="text-theme-default min-w-0 truncate text-sm font-medium"
-                              title={aclEntryLabel(entry)}
-                            >
-                              {aclEntryLabel(entry)}
-                            </p>
-                            <p className="text-theme-light shrink-0 text-xs">
-                              {entry.requiresToken ? (
-                                <Trans>valid token required: true</Trans>
-                              ) : (
-                                <Trans>valid token required: false</Trans>
-                              )}
-                            </p>
-                          </div>
-                          <code className="text-theme-light bg-theme-background-lvl-2 block w-full rounded px-2 py-1 font-mono text-xs break-all">
-                            {entry.raw}
-                          </code>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {parsedWriteEntries.length > 0 && (
-                  <div>
-                    <p className="text-theme-default mb-2 text-sm font-semibold">
-                      <Trans>Write ACLs</Trans>
-                    </p>
-                    <div className="border-theme-background-lvl-3 divide-theme-background-lvl-3 divide-y rounded border">
-                      {parsedWriteEntries.map((entry, i) => (
-                        <div key={i} className="flex flex-col gap-1 px-3 py-2">
-                          <div className="flex items-center justify-between gap-3">
-                            <p
-                              className="text-theme-default min-w-0 truncate text-sm font-medium"
-                              title={aclEntryLabel(entry)}
-                            >
-                              {aclEntryLabel(entry)}
-                            </p>
-                            <p className="text-theme-light shrink-0 text-xs">
-                              <Trans>valid token required: true</Trans>
-                            </p>
-                          </div>
-                          <code className="text-theme-light bg-theme-background-lvl-2 block w-full rounded px-2 py-1 font-mono text-xs break-all">
-                            {entry.raw}
-                          </code>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </Stack>
-            )}
 
             {/* Mutation error */}
             {updateMutation.isError && (
