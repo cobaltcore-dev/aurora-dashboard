@@ -95,7 +95,7 @@ msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora g
 msgstr "<0>Optimierte Skalierbarkeit:</0> Aurora ist für Unternehmen jeder Größe konzipiert und wächst mit Ihnen mit, unterstützt einfache Umgebungen und komplexe Multi-Cloud-Setups gleichermaßen."
 
 msgid "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
-msgstr ""
+msgstr "<0>Bitte beachten Sie:</0> Für <1>dynamische</1> und <2>statische große Objekte</2> werden nur die Manifeste gelöscht. Die zugehörigen Segmente werden nicht gelöscht."
 
 msgid "<0>Properties of</0> <1>{displayName}</1>"
 msgstr "<0>Eigenschaften von</0> <1>{displayName}</1>"
@@ -824,7 +824,7 @@ msgid "Empty Containers"
 msgstr "Container leeren"
 
 msgid "Empty:"
-msgstr ""
+msgstr "Leeren:"
 
 msgid "Emptying container {progressCurrent} of {progressTotal}, please wait..."
 msgstr "Container {progressCurrent} von {progressTotal} wird geleert, bitte warten..."
@@ -2537,16 +2537,16 @@ msgid "This action cannot be undone. The target project will lose access to this
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Zielprojekt verliert sofort den Zugriff auf diese Sicherheitsgruppe."
 
 msgid "This action is permanent. All objects in the container will be deleted and this cannot be undone."
-msgstr ""
+msgstr "Diese Aktion ist dauerhaft. Alle Objekte im Container werden gelöscht und dies kann nicht rückgängig gemacht werden."
 
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
 
 msgid "This container is already empty — the object count may not have synced yet due to a recent operation."
-msgstr ""
+msgstr "Dieser Container ist bereits leer — die Objekt-Anzahl ist möglicherweise aufgrund einer kürzlichen Operation noch nicht synchronisiert."
 
 msgid "This container is already empty."
-msgstr ""
+msgstr "Dieser Container ist bereits leer."
 
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "Dies kann auf unzureichende Berechtigungen oder ein vorübergehendes Serviceproblem zurückzuführen sein. Bitte überprüfen Sie Ihre Zugriffsrechte oder aktualisieren Sie die Seite."
