@@ -60,7 +60,11 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     const isDetail = routeInfo?.isDetail ?? false
 
     const sectionLabel = section ? SECTION_LABELS[section] : undefined
-    const serviceLabel = service ? SERVICE_LABELS[service] : undefined
+    // Dynamic service label for containers - depends on provider
+    let serviceLabel = service ? SERVICE_LABELS[service] : undefined
+    if (service === "containers" && provider) {
+      serviceLabel = `Object Storage (${provider === "swift" ? "Swift" : "Ceph"})`
+    }
 
     const isOverviewPage = !isDetail && service === "overview"
     const isServicePage = !isDetail && !!service && service !== "overview"

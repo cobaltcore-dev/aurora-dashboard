@@ -110,16 +110,17 @@ describe("Objects Route - checkServiceAvailability", () => {
       }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
     })
 
-    it("throws redirect when ceph is not available but provider is 'ceph'", () => {
+    it("does not throw when ceph is not in catalog but cephFallbackEnabled is true", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           swift: true,
         },
       })
 
+      // cephFallbackEnabled is hardcoded to true, so Ceph is always available
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers/my-container/objects")
+      }).not.toThrow()
     })
   })
 
@@ -184,26 +185,28 @@ describe("Objects Route - checkServiceAvailability", () => {
       }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
     })
 
-    it("redirects to swift when object-store exists but ceph is missing", () => {
+    it("does not redirect when ceph is not in catalog but cephFallbackEnabled is true", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           swift: true,
         },
       })
 
+      // cephFallbackEnabled is hardcoded to true, so Ceph is always available
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers/my-container/objects")
+      }).not.toThrow()
     })
 
-    it("redirects to projects when neither swift nor ceph is available", () => {
+    it("redirects to ceph when swift is not available (cephFallbackEnabled is true)", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {},
       })
 
+      // cephFallbackEnabled makes Ceph always available as fallback
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/compute/overview")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
     })
   })
 })

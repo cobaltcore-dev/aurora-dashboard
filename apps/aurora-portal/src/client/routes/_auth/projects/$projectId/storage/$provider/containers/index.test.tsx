@@ -109,16 +109,17 @@ describe("Storage Route - checkServiceAvailability", () => {
       }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers")
     })
 
-    it("throws redirect when ceph is not available but provider is 'ceph'", () => {
+    it("does not throw when ceph is not in catalog but cephFallbackEnabled is true", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           swift: true,
         },
       })
 
+      // cephFallbackEnabled is hardcoded to true, so Ceph is always available
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers")
+      }).not.toThrow()
     })
   })
 
