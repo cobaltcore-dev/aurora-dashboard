@@ -5,9 +5,23 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 
 vi.mock("@tanstack/react-router", () => ({
-  Link: ({ to, params, children, className }: { to: string; params: Record<string, string>; children: React.ReactNode; className?: string }) => {
+  Link: ({
+    to,
+    params,
+    children,
+    className,
+  }: {
+    to: string
+    params: Record<string, string>
+    children: React.ReactNode
+    className?: string
+  }) => {
     const href = to.replace("$projectId", params.projectId)
-    return <a href={href} className={className}>{children}</a>
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    )
   },
 }))
 
