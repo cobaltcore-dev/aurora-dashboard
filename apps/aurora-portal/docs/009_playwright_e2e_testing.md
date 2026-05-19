@@ -121,7 +121,19 @@ TEST_PROJECT=your-project-id  # Optional: defaults to first available project
 
 ## Dependencies
 
-- `@playwright/test` (latest)
+- `@playwright/test` (version pinned to match CI image)
 - Existing Aurora Portal test infrastructure (Vitest)
 - Running Aurora Portal instance (dev or production)
 - OpenStack test account (for authenticated tests)
+
+## Docker Images
+
+### Local Development
+
+For local E2E testing, use the official Microsoft Playwright image:
+
+```bash
+docker run --rm --network host -v $(pwd):/work -w /work/apps/aurora-portal \
+  mcr.microsoft.com/playwright:v1.59.1-noble \
+  npx playwright test
+```
