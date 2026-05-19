@@ -316,6 +316,9 @@ msgstr "Basic Info"
 msgid "Basic Information"
 msgstr "Basic Information"
 
+msgid "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
+msgstr "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
+
 msgid "Boot RAM"
 msgstr "Boot RAM"
 
