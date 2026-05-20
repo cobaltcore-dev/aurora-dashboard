@@ -120,8 +120,7 @@ export const ContainerTableView = ({
   }
 
   // Define column template — 6 columns: checkbox, name, count, last modified, size, actions menu
-  const gridColumnTemplate =
-    "40px minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
+  const gridColumnTemplate = "40px minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
   const allContainersCount = containers.length
 
@@ -138,11 +137,7 @@ export const ContainerTableView = ({
           >
             <DataGridRow>
               <DataGridHeadCell>
-                <Checkbox
-                  checked={allSelected}
-                  onChange={handleSelectAll}
-                  data-testid="select-all-containers"
-                />
+                <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-containers" />
               </DataGridHeadCell>
               <DataGridHeadCell>
                 <Trans>Bucket Name</Trans>
@@ -238,9 +233,7 @@ export const ContainerTableView = ({
                     </span>
                   </DataGridCell>
                   <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
-                  <DataGridCell>
-                    {container.last_modified ? formatDate(container.last_modified) : t`N/A`}
-                  </DataGridCell>
+                  <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
                   <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>

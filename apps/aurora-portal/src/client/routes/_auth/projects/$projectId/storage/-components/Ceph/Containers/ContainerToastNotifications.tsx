@@ -56,11 +56,7 @@ export const getBucketCreateErrorToast = (
   onDismiss: config.onDismiss,
 })
 
-export const getBucketEmptiedToast = (
-  bucketName: string,
-  deletedCount: number,
-  config: ToastConfig
-): ToastProps => ({
+export const getBucketEmptiedToast = (bucketName: string, deletedCount: number, config: ToastConfig): ToastProps => ({
   variant: "success",
   children: (
     <NotificationText
@@ -69,9 +65,13 @@ export const getBucketEmptiedToast = (
         deletedCount === 0 ? (
           <Trans>Bucket "{bucketName}" was already empty.</Trans>
         ) : deletedCount === 1 ? (
-          <Trans>Bucket "{bucketName}" was successfully emptied. {deletedCount} object deleted.</Trans>
+          <Trans>
+            Bucket "{bucketName}" was successfully emptied. {deletedCount} object deleted.
+          </Trans>
         ) : (
-          <Trans>Bucket "{bucketName}" was successfully emptied. {deletedCount} objects deleted.</Trans>
+          <Trans>
+            Bucket "{bucketName}" was successfully emptied. {deletedCount} objects deleted.
+          </Trans>
         )
       }
     />
@@ -149,13 +149,7 @@ export const getBucketsEmptyCompleteToast = (
     variant: hasErrors ? "warning" : "success",
     children: (
       <NotificationText
-        title={
-          hasErrors ? (
-            <Trans>Empty All Completed with Errors</Trans>
-          ) : (
-            <Trans>All Buckets Emptied</Trans>
-          )
-        }
+        title={hasErrors ? <Trans>Empty All Completed with Errors</Trans> : <Trans>All Buckets Emptied</Trans>}
         description={
           hasErrors ? (
             <Trans>
@@ -166,8 +160,8 @@ export const getBucketsEmptyCompleteToast = (
             </Trans>
           ) : (
             <Trans>
-              Successfully emptied {emptiedCount} <Plural value={emptiedCount} one="bucket" other="buckets" />,
-              deleting {totalDeleted} <Plural value={totalDeleted} one="object" other="objects" />.
+              Successfully emptied {emptiedCount} <Plural value={emptiedCount} one="bucket" other="buckets" />, deleting{" "}
+              {totalDeleted} <Plural value={totalDeleted} one="object" other="objects" />.
             </Trans>
           )
         }

@@ -87,9 +87,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       onConfirm={isEmpty ? handleClose : handleSubmit}
       cancelButtonLabel={isEmpty ? undefined : t`Cancel`}
       size="small"
-      disableConfirmButton={
-        emptyBucketMutation.isPending || (!isEmpty && confirmName.trim() !== bucket.name)
-      }
+      disableConfirmButton={emptyBucketMutation.isPending || (!isEmpty && confirmName.trim() !== bucket.name)}
     >
       {isEmpty ? (
         <Message variant="info">
@@ -99,15 +97,14 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
         <Stack direction="vertical" gap="6">
           <Message variant="warning">
             <Trans>
-              <strong>Are you sure?</strong> All {bucket.count}{" "}
-              {bucket.count === 1 ? "object" : "objects"} in bucket "{bucket.name}" will be
-              permanently deleted. This action cannot be undone.
+              <strong>Are you sure?</strong> All {bucket.count} {bucket.count === 1 ? "object" : "objects"} in bucket "
+              {bucket.name}" will be permanently deleted. This action cannot be undone.
             </Trans>
           </Message>
 
           <Stack direction="vertical" gap="2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-juno-grey-light-1">
+              <span className="text-juno-grey-light-1 text-sm">
                 <Trans>Bucket to empty:</Trans>
               </span>
               <Button
@@ -118,7 +115,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
                 label={copied ? t`Copied` : t`Copy`}
               />
             </div>
-            <div className="rounded bg-juno-grey-blue-10 p-2 font-mono text-sm">{bucket.name}</div>
+            <div className="bg-juno-grey-blue-10 rounded p-2 font-mono text-sm">{bucket.name}</div>
           </Stack>
 
           <TextInput
