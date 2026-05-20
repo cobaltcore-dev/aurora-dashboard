@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { Button, InputGroup, SearchInput, Stack } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 export type ViewMode = "list" | "card"
@@ -21,11 +21,14 @@ export function ProjectsOverviewNavBar({
   const { t } = useLingui()
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const [inputValue, setInputValue] = useState(searchTerm)
+  const isMountedRef = useRef(false)
 
-  // because Juno dont have a uncontrolled default value we need to
-  // set input to stop laggs, if set from outside (just on loading)
+  // Sync external searchTerm only on initial mount, not on every URL update triggered by typing
   useEffect(() => {
-    setInputValue(searchTerm)
+    if (!isMountedRef.current) {
+      isMountedRef.current = true
+      setInputValue(searchTerm)
+    }
   }, [searchTerm])
 
   useEffect(() => {
@@ -36,7 +39,7 @@ export function ProjectsOverviewNavBar({
     }
   }, [])
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setInputValue(value) // Instant UI update because of controlled value.
 
@@ -49,6 +52,11 @@ export function ProjectsOverviewNavBar({
     }, 300)
   }
 
+  const handleClear = () => {
+    setInputValue("")
+    onSearch("")
+  }
+
   return (
     <>
       <Stack alignment="center" gap="8" className="my-px mt-4 px-4">
@@ -59,6 +67,7 @@ export function ProjectsOverviewNavBar({
               type="text"
               placeholder={t`Search...`}
               onChange={handleSearchChange}
+              onClear={handleClear}
               value={inputValue}
             />
 
