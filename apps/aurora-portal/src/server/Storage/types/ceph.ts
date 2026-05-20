@@ -35,20 +35,26 @@ export type Ec2CredentialWithSecret = z.infer<typeof ec2CredentialWithSecretSche
 // CONTAINER SCHEMAS
 // ============================================================================
 
+/**
+ * Container schema - aligned with Swift ContainerSummary structure
+ * Includes count, bytes, and last_modified for consistent UI rendering
+ */
 export const containerSchema = z.object({
   name: z.string(),
-  creationDate: z.string().optional(),
-})
-
-export const containerDetailsSchema = containerSchema.extend({
-  objectCount: z.number().optional(),
-  sizeBytes: z.number().optional(),
+  count: z.number().default(0), // Number of objects in the bucket
+  bytes: z.number().default(0), // Total size in bytes
+  last_modified: z.string().optional(), // ISO date string of most recent object
+  creationDate: z.string().optional(), // Bucket creation date (Ceph-specific)
 })
 
 export const listContainersInputSchema = projectScopedInputSchema
 
-export const getContainerDetailsInputSchema = projectScopedInputSchema.extend({
-  containerName: z.string().min(1),
+export const createBucketInputSchema = projectScopedInputSchema.extend({
+  bucketName: z.string().min(3).max(63),
+})
+
+export const deleteBucketInputSchema = projectScopedInputSchema.extend({
+  bucketName: z.string().min(1),
 })
 
 // ============================================================================
@@ -56,7 +62,6 @@ export const getContainerDetailsInputSchema = projectScopedInputSchema.extend({
 // ============================================================================
 
 export type Container = z.infer<typeof containerSchema>
-export type ContainerDetails = z.infer<typeof containerDetailsSchema>
 
 // ============================================================================
 // S3 STATUS SCHEMAS

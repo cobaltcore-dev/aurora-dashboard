@@ -322,6 +322,42 @@ msgstr "Boot-RAM"
 msgid "Boot size"
 msgstr "Boot-Größe"
 
+msgid "Bucket name"
+msgstr ""
+
+msgid "Bucket name does not match"
+msgstr ""
+
+msgid "Bucket name is required"
+msgstr ""
+
+msgid "Bucket name must be 63 characters or fewer"
+msgstr ""
+
+msgid "Bucket name must be at least 3 characters"
+msgstr ""
+
+msgid "Bucket name must contain only lowercase letters, numbers, periods, and hyphens"
+msgstr ""
+
+msgid "Bucket name must not be formatted as an IP address"
+msgstr ""
+
+msgid "Bucket name must not contain consecutive periods"
+msgstr ""
+
+msgid "Bucket name must not end with reserved suffix \"{suffix}\""
+msgstr ""
+
+msgid "Bucket name must not start with reserved prefix \"{prefix}\""
+msgstr ""
+
+msgid "Bucket name must start and end with a letter or number"
+msgstr ""
+
+msgid "Bucket to delete:"
+msgstr ""
+
 msgid "Bulk upload of archive files"
 msgstr "Bulk-Upload von Archivdateien"
 
@@ -342,6 +378,9 @@ msgstr ""
 
 msgid "Check out our source code on GitHub!"
 msgstr "Schauen Sie sich unseren Quellcode auf GitHub an!"
+
+msgid "Checking bucket contents..."
+msgstr ""
 
 msgid "Checking S3 credentials..."
 msgstr ""
@@ -460,6 +499,9 @@ msgstr "Zu leerende Container ({totalCount})"
 msgid "Content type"
 msgstr "Content type"
 
+msgid "Copied"
+msgstr ""
+
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
 
@@ -534,6 +576,9 @@ msgstr "CPU"
 
 msgid "Create"
 msgstr "Erstellen"
+
+msgid "Create Bucket"
+msgstr ""
 
 msgid "Create Container"
 msgstr "Container erstellen"
@@ -627,6 +672,9 @@ msgstr "Alle löschen"
 
 msgid "Delete All ({selectedCount})"
 msgstr "Alle löschen ({selectedCount})"
+
+msgid "Delete Bucket"
+msgstr ""
 
 msgid "Delete container:"
 msgstr "Container löschen:"
@@ -954,6 +1002,10 @@ msgstr "Fehler beim Hinzufügen des Mitglieds"
 
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Fehler beim Hinzufügen des Zugriffs für das Project zum Flavor. Bitte versuchen Sie es erneut."
+
+#. placeholder {0}: objectsError.message
+msgid "Failed to check bucket contents: {0}"
+msgstr ""
 
 msgid "Failed to Copy Object"
 msgstr "Fehler beim Kopieren des Objekts"
@@ -1657,6 +1709,9 @@ msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 ode
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
 
+msgid "my-bucket-name"
+msgstr ""
+
 msgid "N/A"
 msgstr "keine Angabe"
 
@@ -2140,6 +2195,9 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
+msgid "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
+msgstr ""
+
 msgid "S3 Object Storage — Setup Required"
 msgstr ""
 
@@ -2521,8 +2579,15 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Security Group 
 msgid "This action cannot be undone. The target project will lose access to this security group immediately."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Zielprojekt verliert sofort den Zugriff auf diese Sicherheitsgruppe."
 
+msgid "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
+msgstr ""
+
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
+
+#. placeholder {0}: actualObjectCount > 1 ? "s" : ""
+msgid "This bucket contains {actualObjectCount} object{0} and cannot be deleted. Delete all objects first."
+msgstr ""
 
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "Dies kann auf unzureichende Berechtigungen oder ein vorübergehendes Serviceproblem zurückzuführen sein. Bitte überprüfen Sie Ihre Zugriffsrechte oder aktualisieren Sie die Seite."
@@ -2634,6 +2699,9 @@ msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
 
 msgid "Type name"
 msgstr "Name eingeben"
+
+msgid "Type the bucket name to confirm"
+msgstr ""
 
 msgid "Type to search containers..."
 msgstr "Zum Suchen von Containern eingeben..."

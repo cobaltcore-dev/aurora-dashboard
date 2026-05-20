@@ -322,6 +322,42 @@ msgstr "Boot RAM"
 msgid "Boot size"
 msgstr "Boot size"
 
+msgid "Bucket name"
+msgstr "Bucket name"
+
+msgid "Bucket name does not match"
+msgstr "Bucket name does not match"
+
+msgid "Bucket name is required"
+msgstr "Bucket name is required"
+
+msgid "Bucket name must be 63 characters or fewer"
+msgstr "Bucket name must be 63 characters or fewer"
+
+msgid "Bucket name must be at least 3 characters"
+msgstr "Bucket name must be at least 3 characters"
+
+msgid "Bucket name must contain only lowercase letters, numbers, periods, and hyphens"
+msgstr "Bucket name must contain only lowercase letters, numbers, periods, and hyphens"
+
+msgid "Bucket name must not be formatted as an IP address"
+msgstr "Bucket name must not be formatted as an IP address"
+
+msgid "Bucket name must not contain consecutive periods"
+msgstr "Bucket name must not contain consecutive periods"
+
+msgid "Bucket name must not end with reserved suffix \"{suffix}\""
+msgstr "Bucket name must not end with reserved suffix \"{suffix}\""
+
+msgid "Bucket name must not start with reserved prefix \"{prefix}\""
+msgstr "Bucket name must not start with reserved prefix \"{prefix}\""
+
+msgid "Bucket name must start and end with a letter or number"
+msgstr "Bucket name must start and end with a letter or number"
+
+msgid "Bucket to delete:"
+msgstr "Bucket to delete:"
+
 msgid "Bulk upload of archive files"
 msgstr "Bulk upload of archive files"
 
@@ -342,6 +378,9 @@ msgstr "Ceph"
 
 msgid "Check out our source code on GitHub!"
 msgstr "Check out our source code on GitHub!"
+
+msgid "Checking bucket contents..."
+msgstr "Checking bucket contents..."
 
 msgid "Checking S3 credentials..."
 msgstr "Checking S3 credentials..."
@@ -460,6 +499,9 @@ msgstr "Containers to be emptied ({totalCount})"
 msgid "Content type"
 msgstr "Content type"
 
+msgid "Copied"
+msgstr "Copied"
+
 msgid "Copied to clipboard!"
 msgstr "Copied to clipboard!"
 
@@ -534,6 +576,9 @@ msgstr "CPU"
 
 msgid "Create"
 msgstr "Create"
+
+msgid "Create Bucket"
+msgstr "Create Bucket"
 
 msgid "Create Container"
 msgstr "Create Container"
@@ -627,6 +672,9 @@ msgstr "Delete All"
 
 msgid "Delete All ({selectedCount})"
 msgstr "Delete All ({selectedCount})"
+
+msgid "Delete Bucket"
+msgstr "Delete Bucket"
 
 msgid "Delete container:"
 msgstr "Delete container:"
@@ -954,6 +1002,10 @@ msgstr "Failed to add member"
 
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Failed to add tenant access to flavor. Please try again."
+
+#. placeholder {0}: objectsError.message
+msgid "Failed to check bucket contents: {0}"
+msgstr "Failed to check bucket contents: {0}"
 
 msgid "Failed to Copy Object"
 msgstr "Failed to Copy Object"
@@ -1657,6 +1709,9 @@ msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 msgstr "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 
+msgid "my-bucket-name"
+msgstr "my-bucket-name"
+
 msgid "N/A"
 msgstr "N/A"
 
@@ -2140,6 +2195,9 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Factor must be an integer ≥ 1."
 
+msgid "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
+msgstr "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
+
 msgid "S3 Object Storage — Setup Required"
 msgstr "S3 Object Storage — Setup Required"
 
@@ -2521,8 +2579,15 @@ msgstr "This action cannot be undone. The security group will be permanently del
 msgid "This action cannot be undone. The target project will lose access to this security group immediately."
 msgstr "This action cannot be undone. The target project will lose access to this security group immediately."
 
+msgid "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
+msgstr "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
+
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
+
+#. placeholder {0}: actualObjectCount > 1 ? "s" : ""
+msgid "This bucket contains {actualObjectCount} object{0} and cannot be deleted. Delete all objects first."
+msgstr "This bucket contains {actualObjectCount} object{0} and cannot be deleted. Delete all objects first."
 
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
@@ -2634,6 +2699,9 @@ msgstr "Type container name to confirm"
 
 msgid "Type name"
 msgstr "Type name"
+
+msgid "Type the bucket name to confirm"
+msgstr "Type the bucket name to confirm"
 
 msgid "Type to search containers..."
 msgstr "Type to search containers..."
