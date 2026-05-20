@@ -99,6 +99,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       setNameError(t`The text must match "delete"`)
       return
     }
+    if (isVersioned && !versionsConfirmed) return
     deleteContainerMutation.mutate({ project_id: projectId, container: container.name })
   }
 
