@@ -87,10 +87,21 @@ The `createS3Client` factory:
 2. Resolves the S3 endpoint:
    - **Primary:** Extract from Ceph service catalog (removes `/swift/v1/...` suffix)
    - **Fallback:** `CEPH_S3_ENDPOINT` environment variable
-3. Resolves the region: `CEPH_REGION` env var or `"default"`
+3. Resolves the region: **`us-east-1`** (configurable via `CEPH_REGION` env var)
+   - **Why `us-east-1`?** AWS SDK special-cases this region and doesn't add `LocationConstraint` in `CreateBucket` requests
+   - This is standard practice for S3-compatible systems (Ceph RGW, MinIO) that don't use AWS-style regions
+   - The region is still used for AWS Signature V4 request signing
 4. Returns a configured AWS SDK v3 `S3Client` with:
    - `forcePathStyle: true` (required for Ceph RGW — it does not support virtual-hosted-style URLs)
    - Static credentials (access key ID + secret access key)
+
+**Region Configuration:**
+
+Ceph RGW doesn't use AWS regions for bucket placement. To ensure compatibility with AWS SDK:
+
+- Default region: `us-east-1` (prevents SDK from adding `CreateBucketConfiguration.LocationConstraint`)
+- Override via environment variable: `CEPH_REGION=your-region` if your Ceph installation requires a specific value
+- The region is used for request signing (AWS Signature V4) but not for bucket creation
 
 ### 3. Middleware Layers
 

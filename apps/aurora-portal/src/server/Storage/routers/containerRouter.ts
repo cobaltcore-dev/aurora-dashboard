@@ -1,9 +1,4 @@
-import {
-  ListBucketsCommand,
-  CreateBucketCommand,
-  DeleteBucketCommand,
-  ListObjectsV2Command,
-} from "@aws-sdk/client-s3"
+import { ListBucketsCommand, CreateBucketCommand, DeleteBucketCommand, ListObjectsV2Command } from "@aws-sdk/client-s3"
 import { cephProtectedProcedure, cephProcedure } from "../cephProcedure"
 import { mapS3ErrorToTRPCError } from "../helpers/s3ErrorMapper"
 import { projectScopedInputSchema } from "../../trpc"
@@ -54,14 +49,20 @@ export const containerRouter = {
 
             // Get last modified from most recent object
             // Objects are typically ordered by key, not date, so we need to find the latest
-            const lastModified = objects.length > 0
-              ? objects.reduce((latest, obj) => {
-                  const objDate = obj.LastModified
-                  if (!objDate) return latest
-                  if (!latest || objDate > latest) return objDate
-                  return latest
-                }, undefined as Date | undefined)?.toISOString()
-              : undefined
+            const lastModified =
+              objects.length > 0
+                ? objects
+                    .reduce(
+                      (latest, obj) => {
+                        const objDate = obj.LastModified
+                        if (!objDate) return latest
+                        if (!latest || objDate > latest) return objDate
+                        return latest
+                      },
+                      undefined as Date | undefined
+                    )
+                    ?.toISOString()
+                : undefined
 
             return containerSchema.parse({
               name: bucketName,
@@ -89,45 +90,41 @@ export const containerRouter = {
     }
   }),
 
-  create: cephProtectedProcedure
-    .input(createBucketInputSchema)
-    .mutation(async ({ ctx, input }): Promise<boolean> => {
-      const s3 = ctx.getCephClient()
-      const { bucketName } = input
+  create: cephProtectedProcedure.input(createBucketInputSchema).mutation(async ({ ctx, input }): Promise<boolean> => {
+    const s3 = ctx.getCephClient()
+    const { bucketName } = input
 
-      // Log the region being used for debugging
-      console.log(`[ceph] Creating bucket "${bucketName}" with region: ${ctx.cephRegion}`)
+    // Log the region being used for debugging
+    console.log(`[ceph] Creating bucket "${bucketName}" with region: ${ctx.cephRegion}`)
 
-      try {
-        // Ceph RGW may not require CreateBucketConfiguration for default region
-        // Try without LocationConstraint first (similar to AWS us-east-1 behavior)
-        await s3.send(
-          new CreateBucketCommand({
-            Bucket: bucketName,
-          })
-        )
-        console.log(`[ceph] Bucket "${bucketName}" created successfully`)
-        return true
-      } catch (error) {
-        console.error(`[ceph] Failed to create bucket "${bucketName}":`, error)
-        throw mapS3ErrorToTRPCError(error, { operation: "create bucket", bucket: bucketName })
-      }
-    }),
-
-  delete: cephProtectedProcedure
-    .input(deleteBucketInputSchema)
-    .mutation(async ({ ctx, input }): Promise<boolean> => {
-      const s3 = ctx.getCephClient()
-      const { bucketName } = input
-
-      try {
-        await s3.send(new DeleteBucketCommand({ Bucket: bucketName }))
-        return true
-      } catch (error) {
-        throw mapS3ErrorToTRPCError(error, {
-          operation: "delete bucket",
-          bucket: bucketName,
+    try {
+      // Ceph RGW may not require CreateBucketConfiguration for default region
+      // Try without LocationConstraint first (similar to AWS us-east-1 behavior)
+      await s3.send(
+        new CreateBucketCommand({
+          Bucket: bucketName,
         })
-      }
-    }),
+      )
+      console.log(`[ceph] Bucket "${bucketName}" created successfully`)
+      return true
+    } catch (error) {
+      console.error(`[ceph] Failed to create bucket "${bucketName}":`, error)
+      throw mapS3ErrorToTRPCError(error, { operation: "create bucket", bucket: bucketName })
+    }
+  }),
+
+  delete: cephProtectedProcedure.input(deleteBucketInputSchema).mutation(async ({ ctx, input }): Promise<boolean> => {
+    const s3 = ctx.getCephClient()
+    const { bucketName } = input
+
+    try {
+      await s3.send(new DeleteBucketCommand({ Bucket: bucketName }))
+      return true
+    } catch (error) {
+      throw mapS3ErrorToTRPCError(error, {
+        operation: "delete bucket",
+        bucket: bucketName,
+      })
+    }
+  }),
 }
