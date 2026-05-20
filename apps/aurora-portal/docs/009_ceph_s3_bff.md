@@ -591,6 +591,7 @@ try {
 ### Environment Variables
 
 None required. All configuration is resolved from the OpenStack service catalog:
+
 - S3 endpoint: extracted from Ceph service endpoints
 - Region: auto-constructed from OpenStack region identifier
 
