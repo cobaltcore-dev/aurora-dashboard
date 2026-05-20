@@ -22,12 +22,6 @@ export function ProjectsOverviewNavBar({
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const [inputValue, setInputValue] = useState(searchTerm)
 
-  // because Juno dont have a uncontrolled default value we need to
-  // set input to stop laggs, if set from outside (just on loading)
-  useEffect(() => {
-    setInputValue(searchTerm)
-  }, [searchTerm])
-
   useEffect(() => {
     return () => {
       if (timerRef.current) {
