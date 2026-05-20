@@ -7,93 +7,68 @@ import { createS3Client } from "./clients/s3Client"
 
 export const NO_CEPH_CREDENTIALS = "NO_CEPH_CREDENTIALS" as const
 
+/**
+ * Resolves S3 endpoint and region configuration from OpenStack service catalog.
+ *
+ * Extracts the Ceph RGW endpoint and constructs the appropriate region identifier
+ * for AWS SDK operations (signing, bucket creation with LocationConstraint).
+ *
+ * @param ctx - Aurora Portal context containing OpenStack token and service catalog
+ * @returns Object with endpoint URL and Ceph-compatible region identifier
+ * @throws Error if OpenStack token, service catalog, Ceph service, or region is not available
+ */
 function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: string } {
-  // Get endpoint from Ceph service catalog
   try {
     const service = ctx.openstack?.service("ceph")
     const endpoint = service?.getEndpoint?.()
 
     if (endpoint) {
-      // Extract base URL by removing Swift path
-      // Ceph RGW serves both Swift and S3 APIs on the same host
-      // Swift: https://rgw.st1.qa-de-1.cloud.sap/swift/v1/AUTH_xxx
-      // S3:    https://rgw.st1.qa-de-1.cloud.sap
+      // Extract base URL by removing Swift path suffix.
+      // Ceph RGW serves both Swift and S3 APIs on the same host but different paths:
+      //   Swift: https://rgw.st1.qa-de-1.cloud.sap/swift/v1/AUTH_xxx
+      //   S3:    https://rgw.st1.qa-de-1.cloud.sap
       const swiftIndex = endpoint.indexOf("/swift/")
       const baseEndpoint = swiftIndex !== -1 ? endpoint.substring(0, swiftIndex) : endpoint
 
-      // Try to get region from OpenStack token's service catalog
-      // If the Ceph service has a region defined in the catalog, use it
-      const region = process.env.CEPH_REGION || "us-east-1"
+      const token = ctx.openstack?.getToken?.()
 
-      try {
-        const token = ctx.openstack?.getToken?.()
-        console.log("[ceph] Token available:", !!token)
-
-        if (token?.tokenData?.catalog) {
-          console.log("[ceph] Service catalog available with", token.tokenData.catalog.length, "services")
-
-          // Log all available regions from token
-          const availableRegions = token.availableRegions
-          console.log("[ceph] Available regions from token:", availableRegions)
-
-          // Find Ceph service in catalog
-          const cephService = token.tokenData.catalog.find(
-            (s) => s.type === "ceph" || s.name === "ceph" || s.type === "object-store" || s.type === "object-store-ceph"
-          )
-
-          if (cephService) {
-            console.log("[ceph] Found Ceph service in catalog:")
-            console.log("  - Service type:", cephService.type)
-            console.log("  - Service name:", cephService.name)
-            console.log("  - Service ID:", cephService.id)
-            console.log("  - Number of endpoints:", cephService.endpoints.length)
-
-            // Log the full service object to see if there's any metadata
-            console.log("  - Full service object:", JSON.stringify(cephService, null, 2))
-
-            // Log all Ceph endpoints with their regions
-            cephService.endpoints.forEach((ep, index) => {
-              console.log(`  - Endpoint ${index + 1}:`)
-              console.log(`    - Region: ${ep.region}`)
-              console.log(`    - Region ID: ${ep.region_id}`)
-              console.log(`    - Interface: ${ep.interface}`)
-              console.log(`    - URL: ${ep.url}`)
-              console.log(`    - ID: ${ep.id}`)
-            })
-
-            // Get region from the first endpoint (they should all be in same region)
-            const cephRegion = cephService.endpoints?.[0]?.region
-
-            if (cephRegion) {
-              // OpenStack catalog has region info - but we still need "us-east-1" for AWS SDK compatibility
-              // Check if there's any AWS-compatible region information in the service metadata
-              console.log(
-                `[ceph] OpenStack catalog region for Ceph: "${cephRegion}", using AWS-compatible region: "${region}"`
-              )
-              console.log(
-                `[ceph] Note: Ceph RGW doesn't expose AWS region mapping in OpenStack catalog - using hardcoded "${region}"`
-              )
-            } else {
-              console.log("[ceph] No region found in Ceph service endpoints")
-            }
-          } else {
-            console.log("[ceph] Ceph service NOT found in catalog. Available services:")
-            token.tokenData.catalog.forEach((s) => {
-              console.log(`  - ${s.type} (${s.name})`)
-            })
-          }
-        } else {
-          console.log("[ceph] No service catalog in token")
-        }
-      } catch (tokenError) {
-        console.warn("[ceph] Error extracting region from OpenStack token:", tokenError)
+      if (!token?.tokenData?.catalog) {
+        throw new Error("OpenStack token or service catalog not available")
       }
 
-      // Ceph RGW doesn't use AWS-style regions for bucket placement
-      // Always use "us-east-1" (or CEPH_REGION env var) to prevent AWS SDK from adding LocationConstraint
-      // This is standard practice for S3-compatible systems (Ceph RGW, MinIO)
-      // The region is used for AWS Signature V4 request signing
-      console.log(`[ceph] Final configuration: endpoint="${baseEndpoint}", region="${region}"`)
+      // Find Ceph service in catalog by checking common type/name patterns
+      const cephService = token.tokenData.catalog.find(
+        (s) => s.type === "ceph" || s.name === "ceph" || s.type === "object-store" || s.type === "object-store-ceph"
+      )
+
+      if (!cephService) {
+        throw new Error("Ceph service not found in OpenStack service catalog")
+      }
+
+      const openstackRegion = cephService.endpoints?.[0]?.region
+
+      if (!openstackRegion) {
+        throw new Error("Region not found in Ceph service endpoints")
+      }
+
+      // Construct Ceph-compatible region identifier using the pattern from Go SDK / Terraform.
+      // Standard format: ceph-objectstore-st1-{region} (e.g., ceph-objectstore-st1-eu-de-2)
+      // Exception: qa-de-1 uses "ec" prefix for historical reasons (ceph-objectstore-ec-st1-qa-de-1)
+      //
+      // This identifier is used for:
+      //   1. AWS Signature V4 request signing (region field in Authorization header)
+      //   2. LocationConstraint in CreateBucket API calls
+      //
+      // See: https://documentation.global.cloud.sap/docs/customer/storage/obj-v2-ceph/ceph-storage-options/
+      const QA_DE_1_REGION = "qa-de-1"
+      const CEPH_REGION_PREFIX_STANDARD = "ceph-objectstore-st1"
+      const CEPH_REGION_PREFIX_EC = "ceph-objectstore-ec-st1"
+
+      const region =
+        openstackRegion === QA_DE_1_REGION
+          ? `${CEPH_REGION_PREFIX_EC}-${openstackRegion}`
+          : `${CEPH_REGION_PREFIX_STANDARD}-${openstackRegion}`
+
       return { endpoint: baseEndpoint, region }
     }
   } catch (error) {
@@ -107,12 +82,16 @@ function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: 
 }
 
 /**
- * Base Ceph middleware - resolves EC2 credentials and S3 config, but does NOT throw on missing credentials.
+ * Base Ceph middleware - resolves EC2 credentials and S3 config.
+ *
+ * Does NOT throw on missing credentials - allows procedures to check credential status gracefully.
+ *
  * Adds to context:
  *   - cephCredentials: EC2CredentialResult | null
- *   - getCephClient: () => S3Client - throws FORBIDDEN if credentials missing
+ *   - cephRegion: string - Ceph-compatible region identifier
+ *   - getCephClient: () => S3Client - factory function that throws FORBIDDEN if credentials missing
  *
- * Use this for procedures that need to check credential status without failing.
+ * Use this for procedures that need to check credential status without failing immediately.
  * Note: getCephClient() throws TRPCError when called without credentials.
  */
 const cephCredentialMiddleware = projectScopedProcedure.use(async function resolveCeph(opts) {
@@ -140,14 +119,16 @@ const cephCredentialMiddleware = projectScopedProcedure.use(async function resol
 
 /**
  * Base procedure with Ceph credentials resolved (may be null).
- * For status checks or other operations that handle missing credentials gracefully.
+ *
+ * Use for status checks or operations that handle missing credentials gracefully.
  */
 export const cephProcedure = cephCredentialMiddleware
 
 /**
  * Protected procedure - requires EC2 credentials to exist.
+ *
  * Throws FORBIDDEN with NO_CEPH_CREDENTIALS if credentials not found.
- * For actual Ceph S3 operations (list containers, get objects, etc).
+ * Use for actual Ceph S3 operations (list buckets, create bucket, delete bucket, etc).
  */
 export const cephProtectedProcedure = cephCredentialMiddleware.use(async function requireCredentials(opts) {
   const { ctx, next } = opts

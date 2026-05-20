@@ -90,29 +90,52 @@ export const containerRouter = {
     }
   }),
 
+  /**
+   * Create a new S3 bucket.
+   *
+   * Uses AWS SDK CreateBucketCommand. The AWS SDK automatically adds LocationConstraint
+   * based on the region configured in the S3 client (resolved from OpenStack service catalog).
+   *
+   * Bucket naming rules (validated client-side and by S3 API):
+   *   - 3-63 characters
+   *   - Lowercase letters, numbers, hyphens, periods only
+   *   - Must start/end with letter or number
+   *   - DNS-safe (no consecutive periods, not IP address format)
+   *   - No reserved prefixes/suffixes
+   *
+   * @throws TRPCError CONFLICT - bucket already exists
+   * @throws TRPCError BAD_REQUEST - invalid bucket name
+   * @throws TRPCError FORBIDDEN - no credentials or access denied
+   */
   create: cephProtectedProcedure.input(createBucketInputSchema).mutation(async ({ ctx, input }): Promise<boolean> => {
     const s3 = ctx.getCephClient()
     const { bucketName } = input
 
-    // Log the region being used for debugging
-    console.log(`[ceph] Creating bucket "${bucketName}" with region: ${ctx.cephRegion}`)
-
     try {
-      // Ceph RGW may not require CreateBucketConfiguration for default region
-      // Try without LocationConstraint first (similar to AWS us-east-1 behavior)
       await s3.send(
         new CreateBucketCommand({
           Bucket: bucketName,
         })
       )
-      console.log(`[ceph] Bucket "${bucketName}" created successfully`)
       return true
     } catch (error) {
-      console.error(`[ceph] Failed to create bucket "${bucketName}":`, error)
       throw mapS3ErrorToTRPCError(error, { operation: "create bucket", bucket: bucketName })
     }
   }),
 
+  /**
+   * Delete an empty S3 bucket.
+   *
+   * Uses AWS SDK DeleteBucketCommand. The bucket must be empty before deletion.
+   * If the bucket contains objects, S3 returns BucketNotEmpty error (mapped to PRECONDITION_FAILED).
+   *
+   * Client-side performs a preflight check to verify the bucket is empty and blocks
+   * the delete action if objects are found.
+   *
+   * @throws TRPCError PRECONDITION_FAILED - bucket not empty
+   * @throws TRPCError NOT_FOUND - bucket does not exist
+   * @throws TRPCError FORBIDDEN - no credentials or access denied
+   */
   delete: cephProtectedProcedure.input(deleteBucketInputSchema).mutation(async ({ ctx, input }): Promise<boolean> => {
     const s3 = ctx.getCephClient()
     const { bucketName } = input

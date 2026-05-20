@@ -22,6 +22,9 @@ msgstr "—"
 msgid "... and {hiddenCount} more"
 msgstr "... and {hiddenCount} more"
 
+msgid "...and {hiddenCount} more"
+msgstr "...and {hiddenCount} more"
+
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" was successfully copied to {destination}."
 
@@ -30,6 +33,12 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
+
+msgid "{allContainersCount} bucket"
+msgstr "{allContainersCount} bucket"
+
+msgid "{allContainersCount} buckets"
+msgstr "{allContainersCount} buckets"
 
 msgid "{allContainersCount} container"
 msgstr "{allContainersCount} container"
@@ -60,6 +69,12 @@ msgstr "{numberDeleted} objects were permanently deleted."
 
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
+
+#. placeholder {0}: bucket.count
+#. placeholder {1}: bucket.count === 1 ? "object" : "objects"
+#. placeholder {2}: bucket.name
+msgid "<0>Are you sure?</0> All {0} {1} in bucket \"{2}\" will be permanently deleted. This action cannot be undone."
+msgstr "<0>Are you sure?</0> All {0} {1} in bucket \"{2}\" will be permanently deleted. This action cannot be undone."
 
 msgid "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
@@ -226,6 +241,9 @@ msgstr "Add Security Group Rule"
 msgid "Add Tenant Access"
 msgstr "Add Tenant Access"
 
+msgid "All Buckets Emptied"
+msgstr "All Buckets Emptied"
+
 msgid "All containers"
 msgstr "All containers"
 
@@ -322,8 +340,35 @@ msgstr "Boot RAM"
 msgid "Boot size"
 msgstr "Boot size"
 
+msgid "Bucket \"{bucketName}\" was already empty."
+msgstr "Bucket \"{bucketName}\" was already empty."
+
+msgid "Bucket \"{bucketName}\" was successfully created."
+msgstr "Bucket \"{bucketName}\" was successfully created."
+
+msgid "Bucket \"{bucketName}\" was successfully deleted."
+msgstr "Bucket \"{bucketName}\" was successfully deleted."
+
+msgid "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} object deleted."
+msgstr "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} object deleted."
+
+msgid "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} objects deleted."
+msgstr "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} objects deleted."
+
+msgid "Bucket Created"
+msgstr "Bucket Created"
+
+msgid "Bucket Deleted"
+msgstr "Bucket Deleted"
+
+msgid "Bucket Emptied"
+msgstr "Bucket Emptied"
+
 msgid "Bucket name"
 msgstr "Bucket name"
+
+msgid "Bucket Name"
+msgstr "Bucket Name"
 
 msgid "Bucket name does not match"
 msgstr "Bucket name does not match"
@@ -358,6 +403,12 @@ msgstr "Bucket name must start and end with a letter or number"
 msgid "Bucket to delete:"
 msgstr "Bucket to delete:"
 
+msgid "Bucket to empty:"
+msgstr "Bucket to empty:"
+
+msgid "Buckets to empty:"
+msgstr "Buckets to empty:"
+
 msgid "Bulk upload of archive files"
 msgstr "Bulk upload of archive files"
 
@@ -381,9 +432,6 @@ msgstr "Check out our source code on GitHub!"
 
 msgid "Checking bucket contents..."
 msgstr "Checking bucket contents..."
-
-msgid "Checking S3 credentials..."
-msgstr "Checking S3 credentials..."
 
 msgid "Checksum"
 msgstr "Checksum"
@@ -481,9 +529,6 @@ msgstr "Container Updated"
 msgid "Container:"
 msgstr "Container:"
 
-msgid "Container: {containerName}"
-msgstr "Container: {containerName}"
-
 msgid "Containers"
 msgstr "Containers"
 
@@ -535,6 +580,9 @@ msgstr "Copying..."
 msgid "Could not copy \"{objectName}\": {errorMessage}"
 msgstr "Could not copy \"{objectName}\": {errorMessage}"
 
+msgid "Could not create bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not create bucket \"{bucketName}\": {errorMessage}"
+
 msgid "Could not create container \"{containerName}\": {errorMessage}"
 msgstr "Could not create container \"{containerName}\": {errorMessage}"
 
@@ -544,6 +592,9 @@ msgstr "Could not create folder \"{folderName}\": {errorMessage}"
 msgid "Could not delete \"{objectName}\": {errorMessage}"
 msgstr "Could not delete \"{objectName}\": {errorMessage}"
 
+msgid "Could not delete bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not delete bucket \"{bucketName}\": {errorMessage}"
+
 msgid "Could not delete container \"{containerName}\": {errorMessage}"
 msgstr "Could not delete container \"{containerName}\": {errorMessage}"
 
@@ -552,6 +603,9 @@ msgstr "Could not delete folder \"{folderName}\": {errorMessage}"
 
 msgid "Could not download \"{objectName}\": {errorMessage}"
 msgstr "Could not download \"{objectName}\": {errorMessage}"
+
+msgid "Could not empty bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not empty bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Could not empty container \"{containerName}\": {errorMessage}"
 msgstr "Could not empty container \"{containerName}\": {errorMessage}"
@@ -859,11 +913,25 @@ msgstr "Empty All"
 msgid "Empty All ({selectedCount})"
 msgstr "Empty All ({selectedCount})"
 
+msgid "Empty All Completed with Errors"
+msgstr "Empty All Completed with Errors"
+
+msgid "Empty Bucket"
+msgstr "Empty Bucket"
+
+msgid "Empty Buckets"
+msgstr "Empty Buckets"
+
 msgid "Empty container:"
 msgstr "Empty container:"
 
 msgid "Empty Containers"
 msgstr "Empty Containers"
+
+#. placeholder {0}: progress.current
+#. placeholder {1}: progress.total
+msgid "Emptying bucket {0} of {1}, please wait..."
+msgstr "Emptying bucket {0} of {1}, please wait..."
 
 msgid "Emptying container {progressCurrent} of {progressTotal}, please wait..."
 msgstr "Emptying container {progressCurrent} of {progressTotal}, please wait..."
@@ -946,6 +1014,9 @@ msgstr "Error - Flavor Details"
 msgid "Error - Image Details"
 msgstr "Error - Image Details"
 
+msgid "Error Loading Buckets: {errorMessage}"
+msgstr "Error Loading Buckets: {errorMessage}"
+
 msgid "Error loading component"
 msgstr "Error loading component"
 
@@ -1016,6 +1087,9 @@ msgstr "Failed to copy object: {errorMessage}"
 msgid "Failed to copy the temporary URL to the clipboard"
 msgstr "Failed to copy the temporary URL to the clipboard"
 
+msgid "Failed to Create Bucket"
+msgstr "Failed to Create Bucket"
+
 msgid "Failed to Create Container"
 msgstr "Failed to Create Container"
 
@@ -1049,6 +1123,9 @@ msgstr "Failed to Deactivate Images"
 msgid "Failed to delete {failedCount} of {totalCount} image(s). Some images may be protected or in use."
 msgstr "Failed to delete {failedCount} of {totalCount} image(s). Some images may be protected or in use."
 
+msgid "Failed to Delete Bucket"
+msgstr "Failed to Delete Bucket"
+
 msgid "Failed to Delete Container"
 msgstr "Failed to Delete Container"
 
@@ -1078,6 +1155,9 @@ msgstr "Failed to delete the flavor. Please try again."
 
 msgid "Failed to Download"
 msgstr "Failed to Download"
+
+msgid "Failed to Empty Bucket"
+msgstr "Failed to Empty Bucket"
 
 msgid "Failed to Empty Container"
 msgstr "Failed to Empty Container"
@@ -1508,6 +1588,9 @@ msgstr "Load More"
 msgid "Loading ACLs..."
 msgstr "Loading ACLs..."
 
+msgid "Loading Buckets..."
+msgstr "Loading Buckets..."
+
 msgid "Loading container properties..."
 msgstr "Loading container properties..."
 
@@ -1748,6 +1831,9 @@ msgstr "new-folder-name"
 msgid "No"
 msgstr "No"
 
+msgid "No buckets found"
+msgstr "No buckets found"
+
 msgid "No containers found"
 msgstr "No containers found"
 
@@ -1828,6 +1914,9 @@ msgstr "Note: for <0>static and dynamic large objects</0> only the manifests are
 
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
+
+msgid "Nothing to do. Bucket is already empty."
+msgstr "Nothing to do. Bucket is already empty."
 
 msgid "Nothing to do. Container appears empty — the object count may not have synced yet due to a recent operation."
 msgstr "Nothing to do. Container appears empty — the object count may not have synced yet due to a recent operation."
@@ -2417,6 +2506,14 @@ msgstr "Successfully deactivated {successCount} of {totalCount} image(s)"
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "Successfully deleted {successCount} of {totalCount} image(s)"
 
+msgid "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
+msgstr "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
+
+#. placeholder {0}: errors.length
+#. placeholder {1}: errors.length
+msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {0} {1, plural, one {bucket} other {buckets}} failed."
+msgstr "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {0} {1, plural, one {bucket} other {buckets}} failed."
+
 msgid "Suggested Images"
 msgstr "Suggested Images"
 
@@ -2543,6 +2640,9 @@ msgstr "The text must match “detach” in lowercase."
 msgid "The text must match “release” in lowercase."
 msgstr "The text must match “release” in lowercase."
 
+msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
+msgstr "There are no buckets available with the current search criteria. Try adjusting your search term."
+
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "There are no containers available with the current search criteria. Try adjusting your search term."
 
@@ -2639,6 +2739,10 @@ msgstr "This tenant already has access to the flavor."
 
 msgid "This tenant does not have access to the flavor."
 msgstr "This tenant does not have access to the flavor."
+
+#. placeholder {0}: totalCount === 1 ? "bucket" : "buckets"
+msgid "This will permanently delete all objects from {totalCount} selected {0}. This action cannot be undone."
+msgstr "This will permanently delete all objects from {totalCount} selected {0}. This action cannot be undone."
 
 msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
 msgstr "To confirm this action, type the word <0>“detach”</0> in the field below."
