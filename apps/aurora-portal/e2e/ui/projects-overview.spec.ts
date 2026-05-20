@@ -17,14 +17,12 @@ import { expectPageLoaded, expectNoJavaScriptErrors } from "../helpers/test-help
 test.describe("Projects Overview Page", () => {
   const testProject = process.env.TEST_PROJECT || "demo"
 
-  test.beforeEach(async ({ page }) => {
-    // Login and land on projects overview
-    await loginAsTestUser(page)
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(page)
-  })
-
   test("can search and find test project", async ({ page }) => {
+    // Login and land on projects overview
+    const errors = await loginAsTestUser(page)
+    await expectPageLoaded(page)
+    await expectNoJavaScriptErrors(errors, page)
+
     // Get the search input
     const searchInput = page.locator('input[placeholder="Search..."]')
     await expect(searchInput).toBeVisible()
@@ -44,6 +42,11 @@ test.describe("Projects Overview Page", () => {
   })
 
   test("test project appears in initial project list", async ({ page }) => {
+    // Login and land on projects overview
+    const errors = await loginAsTestUser(page)
+    await expectPageLoaded(page)
+    await expectNoJavaScriptErrors(errors, page)
+
     // Without searching, verify test project is in the list
     const projectHeading = page.locator("h1.juno-content-heading", { hasText: testProject })
 

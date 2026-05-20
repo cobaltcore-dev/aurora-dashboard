@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test"
-import { expectPageLoaded, expectNoJavaScriptErrors, expectElementVisible } from "../helpers/test-helpers"
+import {
+  expectPageLoaded,
+  expectNoJavaScriptErrors,
+  expectElementVisible,
+  setupErrorTracking,
+} from "../helpers/test-helpers"
 
 /**
  * Unauthenticated Routes - Smoke Tests
@@ -11,6 +16,9 @@ import { expectPageLoaded, expectNoJavaScriptErrors, expectElementVisible } from
  */
 test.describe("Unauthenticated Routes", () => {
   test("landing page loads without errors", async ({ page }) => {
+    // Set up error tracking BEFORE navigation
+    const errors = setupErrorTracking(page)
+
     // Navigate to landing page
     await page.goto("/")
 
@@ -18,7 +26,7 @@ test.describe("Unauthenticated Routes", () => {
     await expectPageLoaded(page)
 
     // Verify no JavaScript errors
-    await expectNoJavaScriptErrors(page)
+    await expectNoJavaScriptErrors(errors, page)
 
     // Verify key elements are present
     await expectElementVisible(page, "h1")
@@ -29,6 +37,9 @@ test.describe("Unauthenticated Routes", () => {
   })
 
   test("about page loads without errors", async ({ page }) => {
+    // Set up error tracking BEFORE navigation
+    const errors = setupErrorTracking(page)
+
     // Navigate to about page
     await page.goto("/about")
 
@@ -36,13 +47,16 @@ test.describe("Unauthenticated Routes", () => {
     await expectPageLoaded(page)
 
     // Verify no JavaScript errors
-    await expectNoJavaScriptErrors(page)
+    await expectNoJavaScriptErrors(errors, page)
 
     // Verify page has content
     await expect(page.locator("body")).not.toBeEmpty()
   })
 
   test("login page loads without errors", async ({ page }) => {
+    // Set up error tracking BEFORE navigation
+    const errors = setupErrorTracking(page)
+
     // Navigate to login page
     await page.goto("/auth/login")
 
@@ -50,7 +64,7 @@ test.describe("Unauthenticated Routes", () => {
     await expectPageLoaded(page)
 
     // Verify no JavaScript errors
-    await expectNoJavaScriptErrors(page)
+    await expectNoJavaScriptErrors(errors, page)
 
     // Verify login form elements are present
     await expectElementVisible(page, "input#domain")

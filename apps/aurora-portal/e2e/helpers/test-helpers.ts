@@ -13,10 +13,18 @@ export async function expectPageLoaded(page: Page, options?: { timeout?: number 
 }
 
 /**
- * Verify no JavaScript errors occurred on the page
- * Collects console errors and page errors
+ * Set up error tracking for a page before navigation
+ * Returns an array that will collect errors during page execution
+ *
+ * IMPORTANT: Call this BEFORE navigation to capture errors during page load
+ *
+ * @example
+ * const errors = setupErrorTracking(page)
+ * await page.goto('/some-page')
+ * await expectPageLoaded(page)
+ * await expectNoJavaScriptErrors(errors, page)
  */
-export async function expectNoJavaScriptErrors(page: Page) {
+export function setupErrorTracking(page: Page): string[] {
   const errors: string[] = []
 
   // Collect console errors
@@ -31,6 +39,22 @@ export async function expectNoJavaScriptErrors(page: Page) {
     errors.push(`Page error: ${error.message}`)
   })
 
+  return errors
+}
+
+/**
+ * Verify no JavaScript errors occurred on the page
+ *
+ * @param errors - Array returned by setupErrorTracking()
+ * @param page - Page instance for waiting
+ *
+ * @example
+ * const errors = setupErrorTracking(page)
+ * await page.goto('/some-page')
+ * await expectPageLoaded(page)
+ * await expectNoJavaScriptErrors(errors, page)
+ */
+export async function expectNoJavaScriptErrors(errors: string[], page: Page) {
   // Give page time to fully render and execute
   await page.waitForTimeout(1000)
 

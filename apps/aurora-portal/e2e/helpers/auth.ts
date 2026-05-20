@@ -1,4 +1,5 @@
 import { Page } from "@playwright/test"
+import { setupErrorTracking } from "./test-helpers"
 
 /**
  * Authentication helper for Aurora Portal E2E tests
@@ -15,8 +16,9 @@ interface LoginOptions {
  *
  * @param page - Playwright page object
  * @param options - Optional configuration (domain override, admin vs member user)
+ * @returns Array that collects errors during login flow (use with expectNoJavaScriptErrors)
  */
-export async function loginAsTestUser(page: Page, options: LoginOptions = {}) {
+export async function loginAsTestUser(page: Page, options: LoginOptions = {}): Promise<string[]> {
   const domain = options.domain || process.env.TEST_DOMAIN
   const username = options.useAdmin ? process.env.TEST_ADMIN_USER : process.env.TEST_MEMBER_USER
   const password = options.useAdmin ? process.env.TEST_ADMIN_PASSWORD : process.env.TEST_MEMBER_PASSWORD
@@ -27,7 +29,7 @@ export async function loginAsTestUser(page: Page, options: LoginOptions = {}) {
     )
   }
 
-  await auroraLogin(page, domain, username, password)
+  return await auroraLogin(page, domain, username, password)
 }
 
 /**
@@ -35,8 +37,12 @@ export async function loginAsTestUser(page: Page, options: LoginOptions = {}) {
  *
  * @param page - Playwright page object
  * @param options - Optional configuration (domain override)
+ * @returns Array that collects errors during login flow (use with expectNoJavaScriptErrors)
  */
-export async function loginAsAdminUser(page: Page, options: Omit<LoginOptions, "useAdmin"> = {}) {
+export async function loginAsAdminUser(
+  page: Page,
+  options: Omit<LoginOptions, "useAdmin"> = {}
+): Promise<string[]> {
   return loginAsTestUser(page, { ...options, useAdmin: true })
 }
 
@@ -47,8 +53,12 @@ export async function loginAsAdminUser(page: Page, options: Omit<LoginOptions, "
  * @param domain - The domain to login to
  * @param username - The username
  * @param password - The password
+ * @returns Array that collects errors during login flow
  */
-async function auroraLogin(page: Page, domain: string, username: string, password: string) {
+async function auroraLogin(page: Page, domain: string, username: string, password: string): Promise<string[]> {
+  // Set up error tracking BEFORE navigation
+  const errors = setupErrorTracking(page)
+
   // Navigate to login page
   await page.goto("/auth/login")
 
@@ -61,11 +71,13 @@ async function auroraLogin(page: Page, domain: string, username: string, passwor
   await page.click('button:has-text("Sign In")')
 
   // Wait for redirect to projects page after successful login
-  await page.waitForURL("**/projects", { timeout: 10000 })
+  await page.waitForURL("/projects", { timeout: 10000 })
 
   // Verify we're logged in by checking we're not on login page
   const currentUrl = page.url()
   if (currentUrl.includes("/auth/login")) {
     throw new Error("Login failed: Still on login page")
   }
+
+  return errors
 }
