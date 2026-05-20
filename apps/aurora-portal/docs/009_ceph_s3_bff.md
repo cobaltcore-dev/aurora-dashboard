@@ -85,23 +85,31 @@ The `createS3Client` factory:
 
 1. Validates that `access` and `secret` are non-empty
 2. Resolves the S3 endpoint:
-   - **Primary:** Extract from Ceph service catalog (removes `/swift/v1/...` suffix)
-   - **Fallback:** `CEPH_S3_ENDPOINT` environment variable
-3. Resolves the region: **`us-east-1`** (configurable via `CEPH_REGION` env var)
-   - **Why `us-east-1`?** AWS SDK special-cases this region and doesn't add `LocationConstraint` in `CreateBucket` requests
-   - This is standard practice for S3-compatible systems (Ceph RGW, MinIO) that don't use AWS-style regions
-   - The region is still used for AWS Signature V4 request signing
+   - Extract from Ceph service catalog (removes `/swift/v1/...` suffix)
+3. Resolves the region from OpenStack service catalog:
+   - Extracts the OpenStack region from Ceph service endpoint (e.g., `qa-de-1`, `eu-de-2`)
+   - Constructs Ceph-compatible region identifier:
+     - Standard format: `ceph-objectstore-st1-{region}` (e.g., `ceph-objectstore-st1-eu-de-2`)
+     - Special case: `qa-de-1` uses `ceph-objectstore-ec-st1-qa-de-1` (with "ec" prefix for historical reasons)
+   - This identifier is used for:
+     - AWS Signature V4 request signing (region field in Authorization header)
+     - LocationConstraint in CreateBucket API calls
 4. Returns a configured AWS SDK v3 `S3Client` with:
    - `forcePathStyle: true` (required for Ceph RGW — it does not support virtual-hosted-style URLs)
    - Static credentials (access key ID + secret access key)
 
 **Region Configuration:**
 
-Ceph RGW doesn't use AWS regions for bucket placement. To ensure compatibility with AWS SDK:
+Region identifiers are automatically constructed from the OpenStack service catalog:
 
-- Default region: `us-east-1` (prevents SDK from adding `CreateBucketConfiguration.LocationConstraint`)
-- Override via environment variable: `CEPH_REGION=your-region` if your Ceph installation requires a specific value
-- The region is used for request signing (AWS Signature V4) but not for bucket creation
+- Extracts region from Ceph service endpoint (e.g., `qa-de-1`, `eu-de-2`, `staging`)
+- Constructs Ceph-compatible identifier using the pattern from Go SDK / Terraform:
+  - Standard: `ceph-objectstore-st1-{region}` (e.g., `ceph-objectstore-st1-eu-de-2`)
+  - Exception: `qa-de-1` → `ceph-objectstore-ec-st1-qa-de-1` (uses "ec" prefix for historical reasons)
+- Used for AWS Signature V4 request signing and LocationConstraint in CreateBucket
+- No environment variable override needed — region is auto-detected
+
+See: https://documentation.global.cloud.sap/docs/customer/storage/obj-v2-ceph/ceph-storage-options/
 
 ### 3. Middleware Layers
 
@@ -582,11 +590,9 @@ try {
 
 ### Environment Variables
 
-#### Optional
-
-- **`CEPH_REGION`**
-  - S3 region name (default: `"default"`)
-  - Used for AWS SDK signature calculation
+None required. All configuration is resolved from the OpenStack service catalog:
+- S3 endpoint: extracted from Ceph service endpoints
+- Region: auto-constructed from OpenStack region identifier
 
 ### Service Catalog Endpoint Resolution
 
@@ -597,9 +603,13 @@ The BFF resolves the S3 endpoint from the OpenStack service catalog:
 3. If the URL contains `/swift/`, remove that suffix:
    - Swift: `https://rgw.example.com/swift/v1/AUTH_xxx`
    - S3: `https://rgw.example.com` (base URL)
-4. Return the base URL
+4. Extract the region from the Ceph service endpoint (e.g., `qa-de-1`)
+5. Construct the Ceph-compatible region identifier:
+   - Standard: `ceph-objectstore-st1-{region}`
+   - Exception: `qa-de-1` → `ceph-objectstore-ec-st1-qa-de-1`
+6. Return the base URL and region identifier
 
-**Important:** The Ceph service **must** be registered in the OpenStack service catalog. Environment variable fallbacks (e.g., `CEPH_S3_ENDPOINT`) are **not supported** — all configuration comes from the service catalog to ensure consistency across deployments.
+**Important:** The Ceph service **must** be registered in the OpenStack service catalog. All configuration comes from the service catalog to ensure consistency across deployments.
 
 ---
 
@@ -810,8 +820,8 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
 ### Not Yet Implemented
 
 1. **Bucket Management**
-   - Create bucket (`CreateBucketCommand`)
-   - Delete bucket (`DeleteBucketCommand`)
+   - ~~Create bucket (`CreateBucketCommand`)~~ ✅ Implemented
+   - ~~Delete bucket (`DeleteBucketCommand`)~~ ✅ Implemented
    - Configure bucket policies, CORS, lifecycle rules
 
 2. **Object Upload/Download**
