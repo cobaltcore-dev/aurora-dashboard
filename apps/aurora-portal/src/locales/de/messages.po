@@ -611,7 +611,7 @@ msgid "Deactivating this image will prevent it from being used to launch new ins
 msgstr "Durch die Deaktivierung dieses Images kann es nicht mehr zum Starten neuer Instances verwendet werden. Bestehende Instances sind nicht betroffen."
 
 msgid "delete"
-msgstr "löschen"
+msgstr "delete"
 
 msgid "Delete"
 msgstr "Löschen"
