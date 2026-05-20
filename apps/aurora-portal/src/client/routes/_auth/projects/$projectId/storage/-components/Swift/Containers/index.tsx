@@ -1,5 +1,5 @@
 import { useState, startTransition } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ContainerSummary } from "@/server/Storage/types/swift"
@@ -257,13 +257,13 @@ export const SwiftContainers = () => {
       {/* Info block — global DataGrid pattern: container count + remaining quota + limits tooltip */}
       <div className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm">
         {isFiltered ? (
-          <Trans>
-            {filteredCount} of {totalCount} containers
-          </Trans>
-        ) : totalCount === 1 ? (
-          <Trans>{totalCount} container</Trans>
+          <Plural
+            value={filteredCount}
+            one={`${filteredCount} of ${totalCount} container`}
+            other={`${filteredCount} of ${totalCount} containers`}
+          />
         ) : (
-          <Trans>{totalCount} containers</Trans>
+          <Plural value={totalCount} one={`${totalCount} container`} other={`${totalCount} containers`} />
         )}
         {quotaBytes > 0 && (
           <>

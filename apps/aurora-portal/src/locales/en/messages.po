@@ -43,8 +43,8 @@ msgstr "{emptiedCount, plural, one {# container was already empty.} other {# con
 msgid "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
 msgstr "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
 
-msgid "{filteredCount} of {totalCount} containers"
-msgstr "{filteredCount} of {totalCount} containers"
+msgid "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
+msgstr "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 
 msgid "{numberDeleted} object was permanently deleted."
 msgstr "{numberDeleted} object was permanently deleted."
@@ -58,11 +58,8 @@ msgstr "{numberDeleted} objects were permanently deleted."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
-msgid "{totalCount} container"
-msgstr "{totalCount} container"
-
-msgid "{totalCount} containers"
-msgstr "{totalCount} containers"
+msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
+msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 
 msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
