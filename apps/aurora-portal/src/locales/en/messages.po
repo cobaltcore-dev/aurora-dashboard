@@ -1972,6 +1972,9 @@ msgstr "Project ID"
 msgid "projects"
 msgstr "projects"
 
+msgid "Projects"
+msgstr "Projects"
+
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Properties of \"{objectName}\" were successfully updated."
 
