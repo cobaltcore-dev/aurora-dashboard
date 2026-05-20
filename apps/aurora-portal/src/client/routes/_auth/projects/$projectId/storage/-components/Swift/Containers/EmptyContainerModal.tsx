@@ -158,7 +158,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
         isLoadingObjects ||
         emptyContainerMutation.isPending ||
         (!showEmptyInfo && !confirmName.trim()) ||
-        (!showEmptyInfo && confirmName !== container.name)
+        (!showEmptyInfo && confirmName.trim() !== container.name)
       }
     >
       {objectsError && (
