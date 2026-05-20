@@ -46,6 +46,8 @@ const CertificateAuthoritySubjectSchema = z.object({
   street_address: z.array(z.string()).optional(),
 })
 
+const CertificateAuthorityStateSchema = z.enum(["CREATING", "AWAITING_CERTIFICATE", "READY", "FAILED", "UNEXPECTED"])
+
 export const CertificateAuthoritySchema = z.object({
   certificate: CertificateAuthorityCertificateSchema.optional(),
   /** Details of Certificate Authority certificate's issuers chain. */
@@ -66,7 +68,7 @@ export const CertificateAuthoritySchema = z.object({
   /** Identifier of OpenStack project that Certificate Authority belongs. */
   project_id: z.string(),
   /** Current operational state of Certificate Authority. */
-  state: z.enum(["CREATING", "AWAITING_CERTIFICATE", "READY", "FAILED", "UNEXPECTED"]),
+  state: CertificateAuthorityStateSchema,
 })
 
 export const CertificateAuthorityResponseSchema = z.object({
@@ -142,3 +144,4 @@ export const CertificatesListSchema = z.object({
 
 export type Certificate = z.infer<typeof CertificateSchema>
 export type CertificateAuthority = z.infer<typeof CertificateAuthoritySchema>
+export type CertificateAuthorityState = z.infer<typeof CertificateAuthorityStateSchema>

@@ -17,13 +17,14 @@ import {
 } from "../types/pca"
 
 /** PCA (Private Certificate Authority) - Clavis service for certificate authority management  */
-const PCA_BASE_URL = "v1/certificate-authorities"
+const PCA_BASE_URL = "certificate-authorities"
 
 export const pcaRouter = {
-  list: projectScopedProcedure.query(async ({ ctx }) => {
+  list: projectScopedProcedure.query(async ({ ctx }): Promise<CertificateAuthority[]> => {
     return withErrorHandling(async () => {
-      const pca = ctx.openstack?.service("clavis")
-      validateOpenstackService(pca, "clavis")
+      // "clavis-beta", "clavis-dev" also valid as a service key, replace pca with "clavis" when API will be GA
+      const pca = ctx.openstack?.service("pca")
+      validateOpenstackService(pca, "pca")
 
       const response = await pca.get(PCA_BASE_URL)
       const data = await response.json()

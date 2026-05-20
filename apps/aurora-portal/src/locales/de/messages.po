@@ -610,6 +610,9 @@ msgstr "Alle löschen"
 msgid "Delete All ({selectedCount})"
 msgstr "Alle löschen ({selectedCount})"
 
+msgid "Delete CA"
+msgstr ""
+
 msgid "Delete container:"
 msgstr "Container löschen:"
 
@@ -1044,6 +1047,9 @@ msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
+
+msgid "Failed to load PCAs"
+msgstr ""
 
 msgid "Failed to load security groups"
 msgstr "Security Groups konnten nicht geladen werden"
@@ -1705,6 +1711,9 @@ msgstr "Keine Objekte gefunden"
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
+msgid "No PCAs found"
+msgstr ""
+
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 
@@ -1863,6 +1872,12 @@ msgstr "Teilweise erfolgreich gelöscht"
 
 msgid "Password"
 msgstr "Passwort"
+
+msgid "PCA"
+msgstr ""
+
+msgid "PCA (Clavis)"
+msgstr ""
 
 msgid "Pending"
 msgstr "Ausstehend"
@@ -2209,6 +2224,12 @@ msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 msgid "Server Role:"
 msgstr "Serverrolle:"
 
+msgid "Services"
+msgstr ""
+
+msgid "Services Overview"
+msgstr ""
+
 msgid "Session Expired"
 msgstr "Sitzung abgelaufen"
 
@@ -2278,6 +2299,9 @@ msgstr "Spezifischer Referrer: {host}"
 msgid "Start typing to search for a container"
 msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
 
+msgid "State"
+msgstr ""
+
 msgid "Stateful"
 msgstr "Stateful"
 
@@ -2307,6 +2331,9 @@ msgstr "Alte Objekt-Versionen in Container speichern:"
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
+
+msgid "Subject information"
+msgstr ""
 
 msgid "Subnet"
 msgstr "Subnet"
@@ -2460,6 +2487,9 @@ msgstr "Keine Gruppen vorhanden"
 
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 msgstr "Keine Images verfügbar. Filtern Sie neu oder erstellen Sie ein neues Image."
+
+msgid "There are no PCAs available for this project."
+msgstr ""
 
 msgid "There are no RBAC policies for this security group"
 msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
