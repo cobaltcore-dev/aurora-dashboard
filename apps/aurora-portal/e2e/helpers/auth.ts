@@ -39,10 +39,7 @@ export async function loginAsTestUser(page: Page, options: LoginOptions = {}): P
  * @param options - Optional configuration (domain override)
  * @returns Array that collects errors during login flow (use with expectNoJavaScriptErrors)
  */
-export async function loginAsAdminUser(
-  page: Page,
-  options: Omit<LoginOptions, "useAdmin"> = {}
-): Promise<string[]> {
+export async function loginAsAdminUser(page: Page, options: Omit<LoginOptions, "useAdmin"> = {}): Promise<string[]> {
   return loginAsTestUser(page, { ...options, useAdmin: true })
 }
 
