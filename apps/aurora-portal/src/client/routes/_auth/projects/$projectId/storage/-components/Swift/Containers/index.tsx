@@ -255,7 +255,10 @@ export const SwiftContainers = () => {
       />
 
       {/* Info block — global DataGrid pattern: container count + remaining quota + limits tooltip */}
-      <div className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm">
+      <div
+        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
+        data-testid="containers-info-block"
+      >
         {isFiltered ? (
           <Plural
             value={filteredCount}
