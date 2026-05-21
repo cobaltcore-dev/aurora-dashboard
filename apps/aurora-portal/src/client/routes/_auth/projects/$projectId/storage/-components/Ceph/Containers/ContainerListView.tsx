@@ -41,7 +41,10 @@ export function ContainerListView() {
     error,
     refetch,
   } = trpcReact.storage.ceph.containers.list.useQuery(
-    { project_id: projectId ?? "" },
+    {
+      project_id: projectId ?? "",
+      includeMetadata: false, // Basic list view doesn't need metadata, load faster
+    },
     {
       enabled: !!projectId,
       retry: false, // Don't retry on NO_CEPH_CREDENTIALS error

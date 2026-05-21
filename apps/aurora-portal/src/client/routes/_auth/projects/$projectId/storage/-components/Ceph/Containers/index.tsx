@@ -108,6 +108,7 @@ export const CephContainers = () => {
   } = trpcReact.storage.ceph.containers.list.useQuery(
     {
       project_id: projectId,
+      includeMetadata: true, // Fetch full metadata for table view with sorting
     },
     {
       enabled: !!projectId,
