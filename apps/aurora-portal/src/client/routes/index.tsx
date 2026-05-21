@@ -18,8 +18,8 @@ export const Route = createFileRoute("/")({
   beforeLoad: async ({ context, search }) => {
     let isAuthenticated = context.auth?.isAuthenticated
 
-    if (!isAuthenticated) {
-      const token = await context.trpcClient?.auth.getCurrentUserSession.query()
+    if (!isAuthenticated && context.trpcClient) {
+      const token = await context.trpcClient.auth.getCurrentUserSession.query()
       if (token) {
         context.auth?.login(token.user, token.expires_at)
         isAuthenticated = true
