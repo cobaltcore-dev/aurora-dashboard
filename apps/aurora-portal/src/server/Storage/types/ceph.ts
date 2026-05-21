@@ -47,7 +47,9 @@ export const containerSchema = z.object({
   creationDate: z.string().optional(), // Bucket creation date (Ceph-specific)
 })
 
-export const listContainersInputSchema = projectScopedInputSchema
+export const listContainersInputSchema = projectScopedInputSchema.extend({
+  includeMetadata: z.boolean().optional().default(false),
+})
 
 export const createBucketInputSchema = projectScopedInputSchema.extend({
   bucketName: z.string().min(3).max(63),

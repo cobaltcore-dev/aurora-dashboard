@@ -17,72 +17,99 @@ export const containerRouter = {
   }),
 
   /**
-   * List all buckets with metadata (count, bytes, last_modified).
-   * Fetches metadata for each bucket in parallel using ListObjectsV2.
+   * List all buckets with optional metadata (count, bytes, last_modified).
+   *
+   * When includeMetadata=false (default): Returns basic bucket info only (fast)
+   * When includeMetadata=true: Fetches full metadata with controlled concurrency (slower)
+   *
+   * Note: Metadata fetching makes one ListObjectsV2 request per bucket, which can be
+   * expensive for many buckets. Use includeMetadata=true only when necessary.
    */
-  list: cephProtectedProcedure.input(listContainersInputSchema).query(async ({ ctx }): Promise<Container[]> => {
+  list: cephProtectedProcedure.input(listContainersInputSchema).query(async ({ input, ctx }): Promise<Container[]> => {
     const s3 = ctx.getCephClient()
+    const { includeMetadata } = input
 
     try {
       const response = await s3.send(new ListBucketsCommand({}))
       const buckets = response.Buckets ?? []
 
-      // Fetch metadata for each bucket in parallel
-      const containersWithMetadata = await Promise.all(
-        buckets.map(async (bucket) => {
-          const bucketName = bucket.Name ?? ""
+      // If metadata not requested, return buckets with basic info only (fast path)
+      if (!includeMetadata) {
+        return buckets.map((bucket) =>
+          containerSchema.parse({
+            name: bucket.Name ?? "",
+            count: 0,
+            bytes: 0,
+            last_modified: undefined,
+            creationDate: bucket.CreationDate?.toISOString(),
+          })
+        )
+      }
 
-          try {
-            // List objects to get count, total size, and last modified
-            // Using MaxKeys=1000 as a reasonable batch size
-            // TODO: Consider pagination for buckets with >1000 objects for accurate counts
-            const listObjResponse = await s3.send(
-              new ListObjectsV2Command({
-                Bucket: bucketName,
-                MaxKeys: 1000,
+      // Fetch metadata for each bucket with controlled concurrency (slow path)
+      // Limit concurrent requests to avoid overwhelming S3 API and hitting rate limits
+      const CONCURRENCY_LIMIT = 5
+      const containersWithMetadata: Container[] = []
+
+      for (let i = 0; i < buckets.length; i += CONCURRENCY_LIMIT) {
+        const batch = buckets.slice(i, i + CONCURRENCY_LIMIT)
+        const batchResults = await Promise.all(
+          batch.map(async (bucket) => {
+            const bucketName = bucket.Name ?? ""
+
+            try {
+              // List objects to get count, total size, and last modified
+              // Using MaxKeys=1000 as a reasonable batch size
+              // TODO: Consider pagination for buckets with >1000 objects for accurate counts
+              const listObjResponse = await s3.send(
+                new ListObjectsV2Command({
+                  Bucket: bucketName,
+                  MaxKeys: 1000,
+                })
+              )
+
+              const objects = listObjResponse.Contents ?? []
+              const count = listObjResponse.KeyCount ?? 0
+              const bytes = objects.reduce((sum, obj) => sum + (obj.Size ?? 0), 0)
+
+              // Get last modified from most recent object
+              // Objects are typically ordered by key, not date, so we need to find the latest
+              const lastModified =
+                objects.length > 0
+                  ? objects
+                      .reduce(
+                        (latest, obj) => {
+                          const objDate = obj.LastModified
+                          if (!objDate) return latest
+                          if (!latest || objDate > latest) return objDate
+                          return latest
+                        },
+                        undefined as Date | undefined
+                      )
+                      ?.toISOString()
+                  : undefined
+
+              return containerSchema.parse({
+                name: bucketName,
+                count,
+                bytes,
+                last_modified: lastModified,
+                creationDate: bucket.CreationDate?.toISOString(),
               })
-            )
-
-            const objects = listObjResponse.Contents ?? []
-            const count = listObjResponse.KeyCount ?? 0
-            const bytes = objects.reduce((sum, obj) => sum + (obj.Size ?? 0), 0)
-
-            // Get last modified from most recent object
-            // Objects are typically ordered by key, not date, so we need to find the latest
-            const lastModified =
-              objects.length > 0
-                ? objects
-                    .reduce(
-                      (latest, obj) => {
-                        const objDate = obj.LastModified
-                        if (!objDate) return latest
-                        if (!latest || objDate > latest) return objDate
-                        return latest
-                      },
-                      undefined as Date | undefined
-                    )
-                    ?.toISOString()
-                : undefined
-
-            return containerSchema.parse({
-              name: bucketName,
-              count,
-              bytes,
-              last_modified: lastModified,
-              creationDate: bucket.CreationDate?.toISOString(),
-            })
-          } catch (error) {
-            // If bucket is inaccessible or listing fails, return minimal data
-            console.error(`Failed to get metadata for bucket ${bucketName}:`, error)
-            return containerSchema.parse({
-              name: bucketName,
-              count: 0,
-              bytes: 0,
-              creationDate: bucket.CreationDate?.toISOString(),
-            })
-          }
-        })
-      )
+            } catch (error) {
+              // If bucket is inaccessible or listing fails, return minimal data
+              console.error(`Failed to get metadata for bucket ${bucketName}:`, error)
+              return containerSchema.parse({
+                name: bucketName,
+                count: 0,
+                bytes: 0,
+                creationDate: bucket.CreationDate?.toISOString(),
+              })
+            }
+          })
+        )
+        containersWithMetadata.push(...batchResults)
+      }
 
       return containersWithMetadata
     } catch (error) {
