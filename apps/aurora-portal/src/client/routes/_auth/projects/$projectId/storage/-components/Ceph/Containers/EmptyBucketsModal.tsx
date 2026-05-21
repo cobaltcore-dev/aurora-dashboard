@@ -122,7 +122,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
               ))}
               {hiddenCount > 0 && (
                 <li className="text-theme-light">
-                  <Trans>...and {hiddenCount} more</Trans>
+                  <Trans>... and {hiddenCount} more</Trans>
                 </li>
               )}
             </ul>

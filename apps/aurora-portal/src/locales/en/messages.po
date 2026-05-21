@@ -22,9 +22,6 @@ msgstr "—"
 msgid "... and {hiddenCount} more"
 msgstr "... and {hiddenCount} more"
 
-msgid "...and {hiddenCount} more"
-msgstr "...and {hiddenCount} more"
-
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" was successfully copied to {destination}."
 
