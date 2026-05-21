@@ -56,6 +56,13 @@ const createMockContext = (shouldFailAuth = false, hasCredentials = true) => {
         name: "test-user",
         password_expires_at: "",
       },
+      catalog: [
+        {
+          type: "ceph",
+          name: "ceph",
+          endpoints: [{ region: "test-region", url: "https://test-ceph.example.com" }],
+        },
+      ],
       expires_at: "",
       issued_at: "",
       methods: [],
@@ -90,8 +97,15 @@ const createCaller = createCallerFactory(auroraRouter({ storage: { ceph: { conta
 describe("buckets.list", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockSend.mockResolvedValue({
+    // First call returns list of buckets
+    mockSend.mockResolvedValueOnce({
       Buckets: [{ Name: TEST_BUCKET_NAME, CreationDate: TEST_CREATION_DATE }],
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Second call returns bucket metadata (ListObjectsV2)
+    mockSend.mockResolvedValueOnce({
+      Contents: [],
+      KeyCount: 0,
       $metadata: { httpStatusCode: 200 },
     })
   })
@@ -102,10 +116,19 @@ describe("buckets.list", () => {
 
     const result = await caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })
 
-    expect(result).toEqual([{ name: TEST_BUCKET_NAME, creationDate: TEST_CREATION_DATE.toISOString() }])
+    expect(result).toEqual([
+      {
+        name: TEST_BUCKET_NAME,
+        creationDate: TEST_CREATION_DATE.toISOString(),
+        count: 0,
+        bytes: 0,
+        last_modified: undefined,
+      },
+    ])
   })
 
   it("returns empty array when no buckets exist", async () => {
+    mockSend.mockReset()
     mockSend.mockResolvedValue({ Buckets: [], $metadata: { httpStatusCode: 200 } })
     const ctx = createMockContext()
     const caller = createCaller(ctx)
@@ -116,6 +139,7 @@ describe("buckets.list", () => {
   })
 
   it("returns empty array when Buckets is undefined", async () => {
+    mockSend.mockReset()
     mockSend.mockResolvedValue({ $metadata: { httpStatusCode: 200 } })
     const ctx = createMockContext()
     const caller = createCaller(ctx)
@@ -144,6 +168,7 @@ describe("buckets.list", () => {
   })
 
   it("maps S3 errors to TRPCError", async () => {
+    mockSend.mockReset()
     const s3Error = Object.assign(new Error("Access denied"), { Code: "AccessDenied" })
     mockSend.mockRejectedValue(s3Error)
     const ctx = createMockContext()

@@ -58,6 +58,13 @@ const createMockContext = (shouldFailAuth = false, hasCredentials = true) => {
         name: "test-user",
         password_expires_at: "",
       },
+      catalog: [
+        {
+          type: "ceph",
+          name: "ceph",
+          endpoints: [{ region: "test-region", url: "https://test-ceph.example.com" }],
+        },
+      ],
       expires_at: "",
       issued_at: "",
       methods: [],
