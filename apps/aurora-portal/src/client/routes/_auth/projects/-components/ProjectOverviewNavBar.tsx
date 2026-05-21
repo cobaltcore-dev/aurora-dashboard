@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { Button, InputGroup, SearchInput, Stack } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 export type ViewMode = "list" | "card"
@@ -20,12 +20,14 @@ export function ProjectsOverviewNavBar({
 }: ProjectsOverviewNavBarProps) {
   const { t } = useLingui()
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const inputFocusedRef = useRef(false)
   const [inputValue, setInputValue] = useState(searchTerm)
 
-  // because Juno dont have a uncontrolled default value we need to
-  // set input to stop laggs, if set from outside (just on loading)
+  // Sync from URL (e.g. back/forward navigation) only when user isn't actively editing
   useEffect(() => {
-    setInputValue(searchTerm)
+    if (!inputFocusedRef.current && !timerRef.current && searchTerm !== inputValue) {
+      setInputValue(searchTerm)
+    }
   }, [searchTerm])
 
   useEffect(() => {
@@ -36,17 +38,27 @@ export function ProjectsOverviewNavBar({
     }
   }, [])
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    setInputValue(value) // Instant UI update because of controlled value.
+    setInputValue(value)
 
     if (timerRef.current) {
       clearTimeout(timerRef.current)
     }
 
     timerRef.current = setTimeout(() => {
+      timerRef.current = null
       onSearch(value)
     }, 300)
+  }
+
+  const handleClear = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+    setInputValue("")
+    onSearch("")
   }
 
   return (
@@ -59,6 +71,13 @@ export function ProjectsOverviewNavBar({
               type="text"
               placeholder={t`Search...`}
               onChange={handleSearchChange}
+              onFocus={() => {
+                inputFocusedRef.current = true
+              }}
+              onBlur={() => {
+                inputFocusedRef.current = false
+              }}
+              onClear={handleClear}
               value={inputValue}
             />
 
