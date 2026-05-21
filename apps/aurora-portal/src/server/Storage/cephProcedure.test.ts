@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
+import type { S3Client } from "@aws-sdk/client-s3"
 import { AuroraPortalContext } from "../context"
 import { cephProcedure, cephProtectedProcedure, NO_CEPH_CREDENTIALS } from "./cephProcedure"
 import { createCallerFactory, auroraRouter } from "../trpc"
@@ -22,6 +23,9 @@ import { createS3Client } from "./clients/s3Client"
 
 const mockResolveEC2Credential = vi.mocked(resolveEC2Credential)
 const mockCreateS3Client = vi.mocked(createS3Client)
+
+// Mock S3Client type for tests
+type MockS3Client = Pick<S3Client, "send">
 
 // ============================================================================
 // MOCK DATA / TEST CONSTANTS
@@ -50,7 +54,15 @@ interface MockContextOptions {
 }
 
 const createMockContext = (options: MockContextOptions = {}) => {
-  const { shouldFailAuth = false, endpoint = TEST_CEPH_ENDPOINT, region = "qa-de-1", hasToken = true, hasCatalog = true, hasCephService = true, hasRegion = true } = options
+  const {
+    shouldFailAuth = false,
+    endpoint = TEST_CEPH_ENDPOINT,
+    region = "qa-de-1",
+    hasToken = true,
+    hasCatalog = true,
+    hasCephService = true,
+    hasRegion = true,
+  } = options
 
   const mockCephService = {
     getEndpoint: () => endpoint,
@@ -138,8 +150,12 @@ describe("cephProcedure", () => {
     describe("endpoint extraction", () => {
       beforeEach(() => {
         vi.clearAllMocks()
-        mockResolveEC2Credential.mockResolvedValue({ credentialId: "cred-id", access: TEST_ACCESS, secret: TEST_SECRET })
-        mockCreateS3Client.mockReturnValue({ send: vi.fn() } as any)
+        mockResolveEC2Credential.mockResolvedValue({
+          credentialId: "cred-id",
+          access: TEST_ACCESS,
+          secret: TEST_SECRET,
+        })
+        mockCreateS3Client.mockReturnValue({ send: vi.fn() } as MockS3Client as S3Client)
       })
 
       it("extracts base endpoint by removing /swift/ suffix", async () => {
@@ -174,8 +190,12 @@ describe("cephProcedure", () => {
     describe("region construction", () => {
       beforeEach(() => {
         vi.clearAllMocks()
-        mockResolveEC2Credential.mockResolvedValue({ credentialId: "cred-id", access: TEST_ACCESS, secret: TEST_SECRET })
-        mockCreateS3Client.mockReturnValue({ send: vi.fn() } as any)
+        mockResolveEC2Credential.mockResolvedValue({
+          credentialId: "cred-id",
+          access: TEST_ACCESS,
+          secret: TEST_SECRET,
+        })
+        mockCreateS3Client.mockReturnValue({ send: vi.fn() } as MockS3Client as S3Client)
       })
 
       it("constructs standard region for non-qa-de-1 regions", async () => {
@@ -210,7 +230,11 @@ describe("cephProcedure", () => {
     describe("error handling", () => {
       beforeEach(() => {
         vi.clearAllMocks()
-        mockResolveEC2Credential.mockResolvedValue({ credentialId: "cred-id", access: TEST_ACCESS, secret: TEST_SECRET })
+        mockResolveEC2Credential.mockResolvedValue({
+          credentialId: "cred-id",
+          access: TEST_ACCESS,
+          secret: TEST_SECRET,
+        })
       })
 
       it("throws when OpenStack token is missing", async () => {
@@ -254,7 +278,7 @@ describe("cephProcedure", () => {
   describe("cephCredentialMiddleware", () => {
     beforeEach(() => {
       vi.clearAllMocks()
-      mockCreateS3Client.mockReturnValue({ send: vi.fn() } as any)
+      mockCreateS3Client.mockReturnValue({ send: vi.fn() } as MockS3Client as S3Client)
     })
 
     it("resolves EC2 credentials and adds to context", async () => {
@@ -286,12 +310,7 @@ describe("cephProcedure", () => {
       const result = await caller.test.getClient({ project_id: TEST_PROJECT_ID })
 
       expect(result.clientCreated).toBe(true)
-      expect(mockCreateS3Client).toHaveBeenCalledWith(
-        TEST_ACCESS,
-        TEST_SECRET,
-        expect.any(String),
-        expect.any(String)
-      )
+      expect(mockCreateS3Client).toHaveBeenCalledWith(TEST_ACCESS, TEST_SECRET, expect.any(String), expect.any(String))
     })
 
     it("returns null credentials when no EC2 credentials exist", async () => {
@@ -321,7 +340,7 @@ describe("cephProcedure", () => {
   describe("cephProtectedProcedure", () => {
     beforeEach(() => {
       vi.clearAllMocks()
-      mockCreateS3Client.mockReturnValue({ send: vi.fn() } as any)
+      mockCreateS3Client.mockReturnValue({ send: vi.fn() } as MockS3Client as S3Client)
     })
 
     it("throws FORBIDDEN with NO_CEPH_CREDENTIALS when credentials missing", async () => {

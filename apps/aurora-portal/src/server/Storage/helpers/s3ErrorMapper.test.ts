@@ -19,9 +19,7 @@ describe("mapS3ErrorToTRPCError", () => {
     it("maps NoSuchBucket to NOT_FOUND", () => {
       const error = Object.assign(new Error("The specified bucket does not exist"), { Code: "NoSuchBucket" })
 
-      expect(() =>
-        mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })
-      ).toThrow(
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
         expect.objectContaining({
           code: "NOT_FOUND",
         })
@@ -55,9 +53,7 @@ describe("mapS3ErrorToTRPCError", () => {
         Code: "BucketAlreadyExists",
       })
 
-      expect(() =>
-        mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })
-      ).toThrow(
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
         expect.objectContaining({
           code: "CONFLICT",
         })
@@ -69,9 +65,7 @@ describe("mapS3ErrorToTRPCError", () => {
         Code: "BucketAlreadyOwnedByYou",
       })
 
-      expect(() =>
-        mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })
-      ).toThrow(
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
         expect.objectContaining({
           code: "CONFLICT",
         })
@@ -83,9 +77,7 @@ describe("mapS3ErrorToTRPCError", () => {
         Code: "BucketNotEmpty",
       })
 
-      expect(() =>
-        mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })
-      ).toThrow(
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
         expect.objectContaining({
           code: "PRECONDITION_FAILED",
         })
@@ -107,9 +99,7 @@ describe("mapS3ErrorToTRPCError", () => {
         Code: "AllAccessDisabled",
       })
 
-      expect(() =>
-        mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })
-      ).toThrow(
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
         expect.objectContaining({
           code: "FORBIDDEN",
         })
@@ -167,9 +157,7 @@ describe("mapS3ErrorToTRPCError", () => {
     it("maps InvalidBucketName to BAD_REQUEST", () => {
       const error = Object.assign(new Error("The specified bucket is not valid"), { Code: "InvalidBucketName" })
 
-      expect(() =>
-        mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })
-      ).toThrow(
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
         expect.objectContaining({
           code: "BAD_REQUEST",
         })
@@ -225,9 +213,7 @@ describe("mapS3ErrorToTRPCError", () => {
     it("reads error code from 'name' property when 'Code' is missing", () => {
       const error = Object.assign(new Error("The specified bucket does not exist"), { name: "NoSuchBucket" })
 
-      expect(() =>
-        mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })
-      ).toThrow(
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
         expect.objectContaining({
           code: "NOT_FOUND",
         })
@@ -249,9 +235,7 @@ describe("mapS3ErrorToTRPCError", () => {
     it("includes bucket in error message when provided", () => {
       const error = Object.assign(new Error("S3 error"), { Code: "NoSuchBucket" })
 
-      expect(() =>
-        mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })
-      ).toThrow(
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
         expect.objectContaining({
           message: expect.stringContaining(`bucket: ${TEST_BUCKET}`),
         })
@@ -274,9 +258,7 @@ describe("mapS3ErrorToTRPCError", () => {
       const errorMessage = "The specified bucket does not exist in this region"
       const error = Object.assign(new Error(errorMessage), { Code: "NoSuchBucket" })
 
-      expect(() =>
-        mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })
-      ).toThrow(
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
         expect.objectContaining({
           message: expect.stringContaining(errorMessage),
         })
@@ -309,7 +291,7 @@ describe("mapS3ErrorToTRPCError", () => {
   })
 
   describe("unmapped error logging", () => {
-    let consoleWarnSpy: any
+    let consoleWarnSpy: ReturnType<typeof vi.spyOn>
 
     beforeEach(() => {
       consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})

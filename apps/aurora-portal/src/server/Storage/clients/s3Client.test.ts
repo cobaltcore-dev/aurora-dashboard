@@ -65,25 +65,21 @@ describe("createS3Client", () => {
 
   describe("access key validation", () => {
     it("throws when access key is empty string", () => {
-      expect(() => createS3Client("", TEST_SECRET, TEST_ENDPOINT, TEST_REGION)).toThrow(
-        "S3 access key is required"
-      )
+      expect(() => createS3Client("", TEST_SECRET, TEST_ENDPOINT, TEST_REGION)).toThrow("S3 access key is required")
     })
 
     it("throws when access key is whitespace only", () => {
-      expect(() => createS3Client("   ", TEST_SECRET, TEST_ENDPOINT, TEST_REGION)).toThrow(
-        "S3 access key is required"
-      )
+      expect(() => createS3Client("   ", TEST_SECRET, TEST_ENDPOINT, TEST_REGION)).toThrow("S3 access key is required")
     })
 
     it("throws when access key is null", () => {
-      expect(() => createS3Client(null as any, TEST_SECRET, TEST_ENDPOINT, TEST_REGION)).toThrow(
+      expect(() => createS3Client(null as unknown as string, TEST_SECRET, TEST_ENDPOINT, TEST_REGION)).toThrow(
         "S3 access key is required"
       )
     })
 
     it("throws when access key is undefined", () => {
-      expect(() => createS3Client(undefined as any, TEST_SECRET, TEST_ENDPOINT, TEST_REGION)).toThrow(
+      expect(() => createS3Client(undefined as unknown as string, TEST_SECRET, TEST_ENDPOINT, TEST_REGION)).toThrow(
         "S3 access key is required"
       )
     })
@@ -91,25 +87,21 @@ describe("createS3Client", () => {
 
   describe("secret key validation", () => {
     it("throws when secret key is empty string", () => {
-      expect(() => createS3Client(TEST_ACCESS, "", TEST_ENDPOINT, TEST_REGION)).toThrow(
-        "S3 secret key is required"
-      )
+      expect(() => createS3Client(TEST_ACCESS, "", TEST_ENDPOINT, TEST_REGION)).toThrow("S3 secret key is required")
     })
 
     it("throws when secret key is whitespace only", () => {
-      expect(() => createS3Client(TEST_ACCESS, "   ", TEST_ENDPOINT, TEST_REGION)).toThrow(
-        "S3 secret key is required"
-      )
+      expect(() => createS3Client(TEST_ACCESS, "   ", TEST_ENDPOINT, TEST_REGION)).toThrow("S3 secret key is required")
     })
 
     it("throws when secret key is null", () => {
-      expect(() => createS3Client(TEST_ACCESS, null as any, TEST_ENDPOINT, TEST_REGION)).toThrow(
+      expect(() => createS3Client(TEST_ACCESS, null as unknown as string, TEST_ENDPOINT, TEST_REGION)).toThrow(
         "S3 secret key is required"
       )
     })
 
     it("throws when secret key is undefined", () => {
-      expect(() => createS3Client(TEST_ACCESS, undefined as any, TEST_ENDPOINT, TEST_REGION)).toThrow(
+      expect(() => createS3Client(TEST_ACCESS, undefined as unknown as string, TEST_ENDPOINT, TEST_REGION)).toThrow(
         "S3 secret key is required"
       )
     })
@@ -125,13 +117,13 @@ describe("createS3Client", () => {
     })
 
     it("throws when endpoint is null", () => {
-      expect(() => createS3Client(TEST_ACCESS, TEST_SECRET, null as any, TEST_REGION)).toThrow(
+      expect(() => createS3Client(TEST_ACCESS, TEST_SECRET, null as unknown as string, TEST_REGION)).toThrow(
         "S3 endpoint is required"
       )
     })
 
     it("throws when endpoint is undefined", () => {
-      expect(() => createS3Client(TEST_ACCESS, TEST_SECRET, undefined as any, TEST_REGION)).toThrow(
+      expect(() => createS3Client(TEST_ACCESS, TEST_SECRET, undefined as unknown as string, TEST_REGION)).toThrow(
         "S3 endpoint is required"
       )
     })
