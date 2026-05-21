@@ -63,7 +63,9 @@ export const containerRouter = {
               //   - count: Will be capped at 1000 (use KeyCount for actual count up to 1000)
               //   - bytes: Only sums first 1000 objects
               //   - last_modified: May miss newer objects beyond the first 1000
-              // TODO: Consider pagination (expensive) or use S3 bucket metrics for accurate data
+              //
+              // This is a deliberate trade-off: fast response time for UI > perfect accuracy.
+              // Full pagination would be prohibitively expensive for large buckets in a list view.
               const listObjResponse = await s3.send(
                 new ListObjectsV2Command({
                   Bucket: bucketName,
