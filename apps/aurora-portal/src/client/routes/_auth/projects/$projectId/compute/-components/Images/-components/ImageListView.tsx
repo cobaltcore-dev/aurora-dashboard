@@ -1,14 +1,14 @@
-import { useState, useEffect, useRef, ReactNode } from "react"
+import { useState, ReactNode } from "react"
 import { useProjectId } from "@/client/hooks"
 import type { CreateImageInput, GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import {
-  Button,
   Checkbox,
   ContentHeading,
   DataGrid,
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
+  Pagination,
   Spinner,
   Stack,
   Toast,
@@ -69,11 +69,10 @@ interface ImagePageProps {
     canDeleteMember: boolean
     canUpdateMember: boolean
   }
-  hasNextPage?: boolean
-  nextMarker?: string
-  isFetchingNextPage?: boolean
   isFetching?: boolean
-  fetchNextPage?: () => void
+  currentPage?: number
+  totalPages?: number
+  onPageChange?: (page: number) => void
   children?: ReactNode
   selectedImages: Array<string>
   setSelectedImages: (images: Array<string>) => void
@@ -99,11 +98,10 @@ export function ImageListView({
   suggestedImages,
   acceptedImages,
   permissions,
-  hasNextPage,
-  nextMarker,
-  isFetchingNextPage,
   isFetching,
-  fetchNextPage,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
   children,
   selectedImages,
   setSelectedImages,
@@ -136,33 +134,6 @@ export function ImageListView({
   const [isCreateInProgress, setCreateInProgress] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
   const [isUploadPending, setIsUploadPending] = useState(false)
-
-  const loadMoreRef = useRef<HTMLDivElement>(null)
-  const fetchedMarkerRef = useRef<string | undefined>(undefined)
-
-  // Reset the guard when pagination is reset so each new dataset can auto-load
-  useEffect(() => {
-    if (!hasNextPage) {
-      fetchedMarkerRef.current = undefined
-    }
-  }, [hasNextPage])
-
-  useEffect(() => {
-    if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && fetchedMarkerRef.current !== nextMarker) {
-          fetchedMarkerRef.current = nextMarker
-          fetchNextPage?.()
-        }
-      },
-      { threshold: 0.5 }
-    )
-
-    observer.observe(loadMoreRef.current)
-    return () => observer.disconnect()
-  }, [hasNextPage, nextMarker, isFetchingNextPage, fetchNextPage])
 
   const utils = trpcReact.useUtils()
 
@@ -601,7 +572,7 @@ export function ImageListView({
 
       <div className="relative">
         {/* Loading overlay when refetching */}
-        {isFetching && !isFetchingNextPage && (
+        {isFetching && (
           <div className="bg-theme-background-lvl-0/50 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
             <Stack direction="vertical" alignment="center" gap="2">
               <Spinner variant="primary" size="large" />
@@ -620,13 +591,17 @@ export function ImageListView({
               <DataGridRow>
                 <DataGridHeadCell>
                   <Checkbox
-                    checked={selectedImages.length === images.length}
+                    checked={(() => {
+                      const currentPageIds = images.map((image) => image.id)
+                      return currentPageIds.length > 0 && currentPageIds.every((id) => selectedImages.includes(id))
+                    })()}
                     onChange={() => {
-                      if (selectedImages.length === images.length) {
-                        return setSelectedImages([])
+                      const currentPageIds = images.map((image) => image.id)
+                      const allSelected = currentPageIds.every((id) => selectedImages.includes(id))
+                      if (allSelected) {
+                        return setSelectedImages(selectedImages.filter((id) => !currentPageIds.includes(id)))
                       }
-
-                      return setSelectedImages(images.map((image) => image.id))
+                      return setSelectedImages([...new Set([...selectedImages, ...currentPageIds])])
                     }}
                   />
                 </DataGridHeadCell>
@@ -686,21 +661,17 @@ export function ImageListView({
               ))}
             </DataGrid>
 
-            {/* Infinite Scroll Trigger */}
-            {hasNextPage && (
-              <div ref={loadMoreRef} className="py-4">
-                <Stack distribution="center" alignment="center">
-                  {isFetchingNextPage ? (
-                    <>
-                      <Spinner variant="primary" size="small" />
-                      <Trans>Loading more...</Trans>
-                    </>
-                  ) : (
-                    <Button onClick={() => fetchNextPage?.()} variant="subdued" disabled={isFetchingNextPage}>
-                      <Trans>Load More</Trans>
-                    </Button>
-                  )}
-                </Stack>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center py-4">
+                <Pagination
+                  variant="input"
+                  currentPage={currentPage}
+                  pages={totalPages}
+                  onPressPrevious={() => onPageChange?.(Math.max(currentPage - 1, 1))}
+                  onPressNext={() => onPageChange?.(Math.min(currentPage + 1, totalPages))}
+                  onSelectChange={(page) => onPageChange?.(page)}
+                />
               </div>
             )}
           </>

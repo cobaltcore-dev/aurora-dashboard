@@ -12,6 +12,7 @@ let mockMatches: { staticData?: Record<string, unknown> }[] = []
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
   useMatches: () => mockMatches,
+  useParams: () => ({}),
 }))
 
 const TestingProvider = ({ children }: { children: ReactNode }) => (
@@ -151,7 +152,7 @@ describe("SideNavBar", () => {
         expect(screen.getByText("Object Storage (Swift)")).toBeInTheDocument()
       })
 
-      it("does not render Storage section when swift service is unavailable", () => {
+      it("renders Storage section with Ceph even when swift service is unavailable", () => {
         const propsWithoutSwift = {
           ...defaultProps,
           availableServices: [
@@ -166,7 +167,9 @@ describe("SideNavBar", () => {
           </TestingProvider>
         )
 
-        expect(screen.queryByText("Storage")).not.toBeInTheDocument()
+        expect(screen.queryByText("Storage")).toBeInTheDocument()
+        expect(screen.queryByText("Ceph")).toBeInTheDocument()
+        expect(screen.queryByText("Swift")).not.toBeInTheDocument()
       })
     })
 
@@ -270,7 +273,8 @@ describe("SideNavBar", () => {
         )
 
         expect(screen.queryByText("Compute")).toBeInTheDocument()
-        expect(screen.queryByText("Storage")).not.toBeInTheDocument()
+        expect(screen.queryByText("Storage")).toBeInTheDocument()
+        expect(screen.queryByText("Ceph")).toBeInTheDocument()
       })
 
       it("handles malformed service data gracefully", () => {

@@ -7,6 +7,7 @@ const flavorsSearchFields = {
   search: z.string().optional(),
   sortBy: z.enum(["name", "vcpus", "ram", "disk", "swap"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
+  page: z.number().int().positive().optional(),
 }
 
 const flavorsSearchSchema = z.object(flavorsSearchFields).passthrough()
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
       sortDirection: flavorsSearchFields.sortDirection.safeParse(search.sortDirection).success
         ? search.sortDirection
         : undefined,
+      page: flavorsSearchFields.page.safeParse(search.page).success ? (search.page as number) : undefined,
     }
   },
   beforeLoad: async ({ context, params }) => {

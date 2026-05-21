@@ -21,6 +21,7 @@ vi.mock("../helpers/flavorHelpers", () => ({
 
 const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, shouldFailCompute = false) => ({
   req: { headers: {} } as FastifyRequest,
+  signal: new AbortController().signal,
   validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
   createSession: vi.fn().mockResolvedValue({}),
   terminateSession: vi.fn().mockResolvedValue({}),

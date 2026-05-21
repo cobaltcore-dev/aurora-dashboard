@@ -10,6 +10,7 @@ import {
   PopupMenuItem,
   Spinner,
   Stack,
+  Pagination,
 } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import { useLingui } from "@lingui/react/macro"
@@ -28,6 +29,9 @@ interface FlavorListContainerProps {
   onFlavorDeleted?: (flavorName: string) => void
   canDeleteFlavor?: boolean
   canMangageAccess?: boolean
+  currentPage?: number
+  totalPages?: number
+  onPageChange?: (page: number) => void
 }
 
 export const FlavorListContainer = ({
@@ -38,6 +42,9 @@ export const FlavorListContainer = ({
   onFlavorDeleted,
   canDeleteFlavor,
   canMangageAccess,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
 }: FlavorListContainerProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -178,6 +185,18 @@ export const FlavorListContainer = ({
           </DataGridRow>
         ))}
       </DataGrid>
+      {totalPages > 1 && (
+        <div className="flex justify-center py-4">
+          <Pagination
+            variant="input"
+            currentPage={currentPage}
+            pages={totalPages}
+            onPressPrevious={() => onPageChange?.(Math.max(currentPage - 1, 1))}
+            onPressNext={() => onPageChange?.(Math.min(currentPage + 1, totalPages))}
+            onSelectChange={(page) => onPageChange?.(page)}
+          />
+        </div>
+      )}
       <DeleteFlavorModal
         client={client}
         isOpen={deleteModalOpen}

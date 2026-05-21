@@ -15,12 +15,9 @@ export const createImagesPromise = (
   sortBy: string,
   sortDirection: string,
   searchTerm: string,
-  filters: ImageFilters,
-  marker?: string
+  filters: ImageFilters
 ) => {
-  // If member_status filter is set (and not "all"), use the dedicated endpoint
   if (filters.member_status && filters.member_status !== "all") {
-    // For member status, return all results as a single page
     return client.compute.listSharedImagesByMemberStatus
       .query({
         project_id: project,
@@ -40,14 +37,12 @@ export const createImagesPromise = (
       }))
   }
 
-  // Otherwise use the regular search endpoint with pagination
-  return client.compute.listImagesWithSearch.query({
+  return client.compute.listImagesWithPagination.query({
     project_id: project,
     sort: `${sortBy}:${sortDirection}`,
     name: searchTerm || undefined,
     ...filters,
-    member_status: undefined, // Don't pass member_status to this endpoint
-    marker,
+    member_status: undefined,
   })
 }
 

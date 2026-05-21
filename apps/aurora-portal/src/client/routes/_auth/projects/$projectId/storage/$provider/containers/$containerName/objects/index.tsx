@@ -4,6 +4,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { SwiftObjects } from "../../../../-components/Swift/Objects"
+import { ObjectBrowserView } from "../../../../-components/Ceph/Objects"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
@@ -30,11 +31,17 @@ export const checkServiceAvailability = (
     })
   }
 
-  // Redirect to default if specific provider not available
+  // Check provider availability
   const hasSwift = Boolean(serviceIndex["object-store"]["swift"])
   const hasCeph = Boolean(serviceIndex["object-store"]["ceph"])
 
-  const fallbackProvider = hasSwift ? "swift" : hasCeph ? "ceph" : null
+  // TEMPORARY: Allow Ceph access even if not in catalog (relies on env config)
+  // TODO: Properly register Ceph in OpenStack service catalog
+  const cephFallbackEnabled = true // Set to false once Ceph is in catalog
+
+  // Effective availability includes fallback flag for Ceph
+  const hasEffectiveCeph = hasCeph || cephFallbackEnabled
+  const fallbackProvider = hasSwift ? "swift" : hasEffectiveCeph ? "ceph" : null
 
   if (provider !== "swift" && provider !== "ceph") {
     if (!fallbackProvider) {
@@ -50,7 +57,7 @@ export const checkServiceAvailability = (
   }
 
   if (provider === "swift" && !hasSwift) {
-    if (!hasCeph) {
+    if (!hasEffectiveCeph) {
       throw redirect({
         to: "/projects/$projectId/compute/overview",
         params: { projectId },
@@ -63,7 +70,7 @@ export const checkServiceAvailability = (
     })
   }
 
-  if (provider === "ceph" && !hasCeph) {
+  if (provider === "ceph" && !hasEffectiveCeph) {
     if (!hasSwift) {
       throw redirect({
         to: "/projects/$projectId/compute/overview",
@@ -157,11 +164,7 @@ function ObjectsDashboard() {
               case "swift":
                 return <SwiftObjects />
               case "ceph":
-                return (
-                  <div className="p-4">
-                    <Trans>Ceph Objects — {containerName}</Trans>
-                  </div>
-                )
+                return <ObjectBrowserView bucketName={containerName} />
               default:
                 return (
                   <div className="p-4">

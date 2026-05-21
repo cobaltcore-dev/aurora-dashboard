@@ -3,6 +3,7 @@ import { z } from "zod"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SwiftContainers } from "../../-components/Swift/Containers"
+import { CephContainers } from "../../-components/Ceph/Containers"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
@@ -29,11 +30,17 @@ export const checkServiceAvailability = (
     })
   }
 
-  // Redirect to default if specific provider not available
+  // Check provider availability
   const hasSwift = Boolean(serviceIndex["object-store"]["swift"])
   const hasCeph = Boolean(serviceIndex["object-store"]["ceph"])
 
-  const fallbackProvider = hasSwift ? "swift" : hasCeph ? "ceph" : null
+  // TEMPORARY: Allow Ceph access even if not in catalog (relies on env config)
+  // TODO: Properly register Ceph in OpenStack service catalog
+  const cephFallbackEnabled = true // Set to false once Ceph is in catalog
+
+  // Effective availability includes fallback flag for Ceph
+  const hasEffectiveCeph = hasCeph || cephFallbackEnabled
+  const fallbackProvider = hasSwift ? "swift" : hasEffectiveCeph ? "ceph" : null
 
   if (provider !== "swift" && provider !== "ceph") {
     if (!fallbackProvider) {
@@ -49,7 +56,7 @@ export const checkServiceAvailability = (
   }
 
   if (provider === "swift" && !hasSwift) {
-    if (!hasCeph) {
+    if (!hasEffectiveCeph) {
       throw redirect({
         to: "/projects/$projectId/compute/overview",
         params: { projectId },
@@ -62,7 +69,7 @@ export const checkServiceAvailability = (
     })
   }
 
-  if (provider === "ceph" && !hasCeph) {
+  if (provider === "ceph" && !hasEffectiveCeph) {
     if (!hasSwift) {
       throw redirect({
         to: "/projects/$projectId/compute/overview",
@@ -150,7 +157,7 @@ function StorageDashboard() {
               case "swift":
                 return <SwiftContainers />
               case "ceph":
-                return <div>Ceph Containers</div> // replace with CephContainers when available
+                return <CephContainers />
               default:
                 return <div>Storage Overview Page</div> // replace when available
             }

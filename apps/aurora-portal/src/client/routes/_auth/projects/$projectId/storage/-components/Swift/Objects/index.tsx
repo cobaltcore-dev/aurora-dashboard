@@ -29,6 +29,7 @@ import {
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
   getObjectUploadedToast,
+  getObjectUploadCancelledToast,
   getObjectUploadErrorToast,
   getObjectsBulkDeletedToast,
   getObjectsBulkDeleteErrorToast,
@@ -164,6 +165,8 @@ export const SwiftObjects = () => {
     setToastData(getFolderCreateErrorToast(folderName, errorMessage, { onDismiss: handleToastDismiss }))
   const handleUploadSuccess = (objectName: string) =>
     setToastData(getObjectUploadedToast(objectName, { onDismiss: handleToastDismiss }))
+  const handleUploadCancelled = (objectName: string) =>
+    setToastData(getObjectUploadCancelledToast(objectName, { onDismiss: handleToastDismiss }))
   const handleUploadError = (objectName: string, errorMessage: string) =>
     setToastData(getObjectUploadErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
   const handleDeleteFolderSuccess = (folderName: string, deletedCount: number) => {
@@ -389,6 +392,7 @@ export const SwiftObjects = () => {
         container={containerName}
         onClose={() => setUploadModalOpen(false)}
         onSuccess={handleUploadSuccess}
+        onCancelled={handleUploadCancelled}
         onError={handleUploadError}
       />
 

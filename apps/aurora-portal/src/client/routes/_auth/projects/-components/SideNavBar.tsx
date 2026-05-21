@@ -1,4 +1,4 @@
-import { useNavigate, useMatches } from "@tanstack/react-router"
+import { useNavigate, useMatches, useParams } from "@tanstack/react-router"
 import { useState } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
@@ -18,6 +18,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
   const { t } = useLingui()
   const navigate = useNavigate()
   const matches = useMatches()
+  const { provider } = useParams({ strict: false }) as { provider?: string }
 
   const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true, services: true })
 
@@ -82,6 +83,12 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
           },
         ]
       : []),
+    {
+      service: "ceph-containers",
+      label: t`Ceph`,
+      to: "/projects/$projectId/storage/$provider/containers" as const,
+      params: { projectId, provider: "ceph" },
+    },
   ]
 
   // temporary as clavis is not fully GA, after GA replace with ["pca"]?.["clavis"]
@@ -149,14 +156,20 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
               open={openSections.storage}
               onClick={() => setOpenSections((prev) => ({ ...prev, storage: !prev.storage }))}
             >
-              {storageServices.map(({ service, label, to, params }) => (
-                <SideNavigationItem
-                  key={label}
-                  onClick={() => navigate({ to, params })}
-                  label={label}
-                  selected={activeSection === "storage" && activeService === service}
-                />
-              ))}
+              {storageServices.map(({ service, label, to, params }) => {
+                // For storage services with provider param, match against current provider
+                const isStorageContainers = activeSection === "storage" && activeService === "containers"
+                const isSelected = isStorageContainers ? params.provider === provider : activeService === service
+
+                return (
+                  <SideNavigationItem
+                    key={label}
+                    onClick={() => navigate({ to, params })}
+                    label={label}
+                    selected={isSelected}
+                  />
+                )
+              })}
             </SideNavigationItem>
           )}
 
