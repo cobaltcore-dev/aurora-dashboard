@@ -56,7 +56,7 @@ describe("App Translation Tests", () => {
     // Check for the expected English text
     if (welcomeTitle) {
       const text = welcomeTitle.textContent || ""
-      expect(text).toMatch(/aurora|manage|openstack/i)
+      expect(text).toMatch(/login|account/i)
     }
   })
 
@@ -81,7 +81,7 @@ describe("App Translation Tests", () => {
     // Check for the expected German text
     if (welcomeTitle) {
       const text = welcomeTitle.textContent || ""
-      expect(text).toMatch(/aurora|verwalten|openstack/i)
+      expect(text).toMatch(/anmelden|konto/i)
     }
   })
 })
