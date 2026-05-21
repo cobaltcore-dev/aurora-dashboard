@@ -52,10 +52,12 @@ export const CertificateAuthoritySchema = z.object({
   certificate: CertificateAuthorityCertificateSchema.optional(),
   /** Details of Certificate Authority certificate's issuers chain. */
   certificate_chain: CertificateAuthorityCertificateChainSchema.optional(),
-  configuration: z.object({
-    /** X.509 subject of Certificate Authority. Required on create operation. */
-    subject: CertificateAuthoritySubjectSchema,
-  }),
+  configuration: z
+    .object({
+      /** X.509 subject of Certificate Authority. Required on create operation. */
+      subject: CertificateAuthoritySubjectSchema,
+    })
+    .optional(),
   csr: z.string().optional(),
   id: z.string(),
   /**

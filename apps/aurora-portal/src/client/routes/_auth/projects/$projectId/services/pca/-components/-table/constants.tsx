@@ -7,25 +7,26 @@ type PcaDisplayState = {
   icon: React.ReactNode
 }
 
+// will replace text and icon after design-sync with Marta
 export const STATE_CONFIG: Record<CertificateAuthorityState, PcaDisplayState> = {
   CREATING: {
-    text: "Active",
+    text: "CREATING",
     icon: <MdCheckCircle size={18} color="white" fill="#4FB81C" />,
   },
   AWAITING_CERTIFICATE: {
-    text: "Down",
+    text: "AWAITING_CERTIFICATE",
     icon: <MdRemoveCircle size={18} color="white" fill="#969696" />,
   },
   READY: {
-    text: "Error",
+    text: "READY",
     icon: <MdError size={18} color="white" fill="#C70000" />,
   },
   FAILED: {
-    text: "Error",
+    text: "FAILED",
     icon: <MdError size={18} color="white" fill="#C70000" />,
   },
   UNEXPECTED: {
-    text: "Error",
+    text: "UNEXPECTED",
     icon: <MdError size={18} color="white" fill="#C70000" />,
   },
 } as const

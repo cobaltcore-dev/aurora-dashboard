@@ -611,7 +611,7 @@ msgid "Delete All ({selectedCount})"
 msgstr "Alle löschen ({selectedCount})"
 
 msgid "Delete CA"
-msgstr ""
+msgstr "Delete CA"
 
 msgid "Delete container:"
 msgstr "Container löschen:"
@@ -1049,7 +1049,7 @@ msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 
 msgid "Failed to load PCAs"
-msgstr ""
+msgstr "Failed to load PCAs"
 
 msgid "Failed to load security groups"
 msgstr "Security Groups konnten nicht geladen werden"
@@ -1712,7 +1712,7 @@ msgid "No objects match your search. Try adjusting your search term."
 msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
 msgid "No PCAs found"
-msgstr ""
+msgstr "No PCAs found"
 
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
@@ -1874,10 +1874,10 @@ msgid "Password"
 msgstr "Passwort"
 
 msgid "PCA"
-msgstr ""
+msgstr "PCA"
 
 msgid "PCA (Clavis)"
-msgstr ""
+msgstr "PCA (Clavis)"
 
 msgid "Pending"
 msgstr "Ausstehend"
@@ -2225,10 +2225,10 @@ msgid "Server Role:"
 msgstr "Serverrolle:"
 
 msgid "Services"
-msgstr ""
+msgstr "Services"
 
 msgid "Services Overview"
-msgstr ""
+msgstr "Services Overview"
 
 msgid "Session Expired"
 msgstr "Sitzung abgelaufen"
@@ -2300,7 +2300,7 @@ msgid "Start typing to search for a container"
 msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
 
 msgid "State"
-msgstr ""
+msgstr "State"
 
 msgid "Stateful"
 msgstr "Stateful"
@@ -2333,7 +2333,7 @@ msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
 
 msgid "Subject information"
-msgstr ""
+msgstr "Subject information"
 
 msgid "Subnet"
 msgstr "Subnet"
@@ -2489,7 +2489,7 @@ msgid "There are no images available for this project with the current filters a
 msgstr "Keine Images verfügbar. Filtern Sie neu oder erstellen Sie ein neues Image."
 
 msgid "There are no PCAs available for this project."
-msgstr ""
+msgstr "There are no PCAs available for this project."
 
 msgid "There are no RBAC policies for this security group"
 msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"

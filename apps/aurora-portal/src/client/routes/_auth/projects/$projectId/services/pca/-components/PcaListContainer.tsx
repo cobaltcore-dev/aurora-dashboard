@@ -11,12 +11,14 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import { TABLE_COLUMNS } from "./-table/constants"
+import { PcaTableRow } from "./-table/PcaTableRow"
 
 export const PcaListContainer = () => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const columns = TABLE_COLUMNS()
 
+  // Check filtering, sorting and search API compatibility with OpenStack -> implement with <ListToolbar />
   const { data: pcas = [], isLoading, isError, error } = trpcReact.services.pca.list.useQuery({ project_id: projectId })
 
   if (isLoading) {
@@ -53,7 +55,6 @@ export const PcaListContainer = () => {
     )
   }
 
-  // Check filtering, sorting and search API compatibility with OpenStack -> implement with <ListToolbar />
   return (
     <DataGrid columns={columns.length}>
       <DataGridRow>
@@ -62,7 +63,7 @@ export const PcaListContainer = () => {
         ))}
       </DataGridRow>
       {pcas.map((pca) => (
-        <div key={pca.id}>{`<PcaTableRow key={pca.id} pca={pca} />`}</div>
+        <PcaTableRow key={pca.id} pca={pca} />
       ))}
     </DataGrid>
   )

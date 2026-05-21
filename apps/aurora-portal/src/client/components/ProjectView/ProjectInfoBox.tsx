@@ -114,8 +114,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
           label: sectionLabel,
           onClick: () =>
             navigate({
-              to: "/projects/$projectId/storage/$provider/containers",
-              params: { projectId, provider },
+              to: "/projects/$projectId/services/overview",
+              params: { projectId },
             }),
         })
       }

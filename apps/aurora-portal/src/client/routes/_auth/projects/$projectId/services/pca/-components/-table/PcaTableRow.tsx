@@ -35,7 +35,7 @@ export const PcaTableRow = ({ pca }: PcaTableRowProps) => {
         </div>
       </DataGridCell>
       <DataGridCell>{pca.id}</DataGridCell>
-      <DataGridCell>{pca.configuration.subject.common_name || "—"}</DataGridCell>
+      <DataGridCell>{pca.configuration?.subject.common_name || "—"}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuOptions>

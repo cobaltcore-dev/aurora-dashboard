@@ -22,7 +22,7 @@ const PCA_BASE_URL = "certificate-authorities"
 export const pcaRouter = {
   list: projectScopedProcedure.query(async ({ ctx }): Promise<CertificateAuthority[]> => {
     return withErrorHandling(async () => {
-      // "clavis-beta", "clavis-dev" also valid as a service key, replace pca with "clavis" when API will be GA
+      // Use "pca" or "clavis" when the service will be GA as "clavis-beta" and "clavis-dev" are dev keys.
       const pca = ctx.openstack?.service("pca")
       validateOpenstackService(pca, "pca")
 
