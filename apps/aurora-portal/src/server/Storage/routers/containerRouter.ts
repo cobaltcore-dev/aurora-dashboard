@@ -59,8 +59,11 @@ export const containerRouter = {
 
             try {
               // List objects to get count, total size, and last modified
-              // Using MaxKeys=1000 as a reasonable batch size
-              // TODO: Consider pagination for buckets with >1000 objects for accurate counts
+              // IMPORTANT: Using MaxKeys=1000 means these are ESTIMATES for buckets with >1000 objects:
+              //   - count: Will be capped at 1000 (use KeyCount for actual count up to 1000)
+              //   - bytes: Only sums first 1000 objects
+              //   - last_modified: May miss newer objects beyond the first 1000
+              // TODO: Consider pagination (expensive) or use S3 bucket metrics for accurate data
               const listObjResponse = await s3.send(
                 new ListObjectsV2Command({
                   Bucket: bucketName,

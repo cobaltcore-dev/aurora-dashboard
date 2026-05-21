@@ -38,13 +38,17 @@ export type Ec2CredentialWithSecret = z.infer<typeof ec2CredentialWithSecretSche
 /**
  * Container schema - aligned with Swift ContainerSummary structure
  * Includes count, bytes, and last_modified for consistent UI rendering
+ *
+ * IMPORTANT: count, bytes, and last_modified are ESTIMATES when buckets contain >1000 objects.
+ * The list endpoint uses MaxKeys=1000 for performance, so these values are based on
+ * a sample of objects. For accurate counts, pagination would be needed (expensive).
  */
 export const containerSchema = z.object({
   name: z.string(),
-  count: z.number().default(0), // Number of objects in the bucket
-  bytes: z.number().default(0), // Total size in bytes
-  last_modified: z.string().optional(), // ISO date string of most recent object
-  creationDate: z.string().optional(), // Bucket creation date (Ceph-specific)
+  count: z.number().default(0), // Estimated number of objects (based on first 1000)
+  bytes: z.number().default(0), // Estimated total size in bytes (based on first 1000)
+  last_modified: z.string().optional(), // ISO date string (may not be the absolute latest if >1000 objects)
+  creationDate: z.string().optional(), // Bucket creation date (Ceph-specific, accurate)
 })
 
 export const listContainersInputSchema = projectScopedInputSchema.extend({
