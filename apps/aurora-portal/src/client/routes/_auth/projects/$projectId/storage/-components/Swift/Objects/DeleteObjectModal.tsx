@@ -111,6 +111,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
+      confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
       size="small"
@@ -132,20 +133,20 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
         </Message>
       ) : (
         <Stack direction="vertical" gap="4">
-          <Message variant="warning">
+          <p className="text-theme-default">
             <Trans>
-              <strong>Are you sure?</strong> Object <span className="font-mono font-semibold">"{displayName}"</span>{" "}
-              will be permanently deleted. This cannot be undone.
+              Object <span className="font-mono font-semibold">"{displayName}"</span> will be permanently deleted. This
+              cannot be undone.
             </Trans>
-          </Message>
+          </p>
           {isSLO && (
             <>
-              <Message variant="info">
+              <p className="text-theme-default">
                 <Trans>
                   This is a <strong>static large object</strong>. By default, all associated segment objects will also
                   be permanently deleted.
                 </Trans>
-              </Message>
+              </p>
               <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
@@ -160,13 +161,13 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
             </>
           )}
           {isDLO && (
-            <Message variant="info">
+            <p className="text-theme-default">
               <Trans>
                 This is a <strong>dynamic large object</strong>. Only the manifest will be deleted — its segment objects
                 (stored under the manifest prefix) are <strong>not</strong> automatically removed and must be deleted
                 separately.
               </Trans>
-            </Message>
+            </p>
           )}
         </Stack>
       )}

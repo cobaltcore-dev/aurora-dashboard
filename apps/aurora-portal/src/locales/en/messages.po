@@ -64,9 +64,6 @@ msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} co
 msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
 
-msgid "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
-msgstr "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
-
 msgid "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
 
@@ -1770,6 +1767,9 @@ msgstr "Note: The 'stateful' attribute cannot be changed if this security group 
 
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Object \"{objectName}\" was permanently deleted."
+
+msgid "Object <0>\"{displayName}\"</0> will be permanently deleted. This cannot be undone."
+msgstr "Object <0>\"{displayName}\"</0> will be permanently deleted. This cannot be undone."
 
 msgid "Object Copied"
 msgstr "Object Copied"

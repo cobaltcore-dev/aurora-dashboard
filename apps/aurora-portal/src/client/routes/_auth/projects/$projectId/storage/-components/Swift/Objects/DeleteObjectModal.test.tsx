@@ -182,9 +182,10 @@ describe("DeleteObjectModal", () => {
       expect(screen.getByTitle("report.pdf")).toBeInTheDocument()
     })
 
-    it("shows warning about permanent deletion", () => {
+    it("shows plain text warning about permanent deletion", () => {
       renderModal()
       expect(screen.getByText(/will be permanently deleted/i)).toBeInTheDocument()
+      expect(screen.queryByText(/Are you sure/i)).not.toBeInTheDocument()
     })
 
     it("does not show SLO or DLO info notes for regular objects", () => {
