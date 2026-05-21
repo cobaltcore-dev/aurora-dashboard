@@ -96,9 +96,7 @@ describe("CredentialPrompt", () => {
       expect(
         screen.getByText(/S3 Object Storage requires EC2 credentials \(access key \+ secret key\)/)
       ).toBeInTheDocument()
-      expect(
-        screen.getByText(/You need to create credentials before accessing S3 resources/)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/You need to create credentials before accessing S3 resources/)).toBeInTheDocument()
     })
 
     test("renders Create Credential button", () => {
