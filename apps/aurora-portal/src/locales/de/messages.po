@@ -367,9 +367,6 @@ msgstr "Compute-Übersicht"
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher Datenverkehr für diese Sicherheitsgruppe erlaubt ist."
 
-msgid "Contact support"
-msgstr "Support kontaktieren"
-
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Eigenschaften des Containers \"{containerName}\" wurden erfolgreich aktualisiert."
 
@@ -1644,9 +1641,6 @@ msgstr "Name"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
-
-msgid "Need help?"
-msgstr "Benötigen Sie Hilfe?"
 
 msgid "Network"
 msgstr "Netzwerk"

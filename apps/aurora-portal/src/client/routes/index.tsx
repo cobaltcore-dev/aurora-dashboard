@@ -147,14 +147,12 @@ export function AuthLoginPage() {
             className="absolute -top-14 right-0 left-0 z-50"
           />
         )}
-
         <ContentHeading className="text-center">
           <Trans>Login to Your Account</Trans>
         </ContentHeading>
         <p className="mb-6 text-center">
           <Trans>Enter your credentials to access your account</Trans>
         </p>
-
         {(search.redirect || wasInactive) && (
           <p className="mb-4 text-center text-sm text-red-500">
             {wasInactive ? (
@@ -164,7 +162,6 @@ export function AuthLoginPage() {
             )}
           </p>
         )}
-
         <form
           className="space-y-4"
           onSubmit={(e) => {
@@ -226,13 +223,6 @@ export function AuthLoginPage() {
             {isLoggingIn ? <Trans>Loading...</Trans> : <Trans>Sign In</Trans>}
           </Button>
         </form>
-
-        <p className="mt-4 text-center text-sm">
-          <Trans>Need help?</Trans>{" "}
-          <a href="#">
-            <Trans>Contact support</Trans>
-          </a>
-        </p>
       </div>
     </div>
   )
