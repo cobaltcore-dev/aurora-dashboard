@@ -422,3 +422,121 @@ describe("objects.getDetails", () => {
     ).rejects.toThrow(TRPCError)
   })
 })
+
+// ============================================================================
+// TESTS: deleteAll
+// ============================================================================
+
+describe("objects.deleteAll", () => {
+  it("deletes all objects from a bucket and returns count", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    // Mock list response with objects
+    mockSend.mockResolvedValueOnce({
+      Contents: [
+        { Key: "file1.txt" },
+        { Key: "file2.txt" },
+        { Key: "file3.txt" },
+      ],
+      IsTruncated: false,
+    })
+
+    // Mock delete response
+    mockSend.mockResolvedValueOnce({
+      Deleted: [{ Key: "file1.txt" }, { Key: "file2.txt" }, { Key: "file3.txt" }],
+    })
+
+    const result = await caller.storage.ceph.objects.deleteAll({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result).toBe(3)
+  })
+
+  it("handles paginated deletion with multiple batches", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    // First batch
+    mockSend.mockResolvedValueOnce({
+      Contents: [{ Key: "file1.txt" }, { Key: "file2.txt" }],
+      IsTruncated: true,
+      NextContinuationToken: "token1",
+    })
+    mockSend.mockResolvedValueOnce({
+      Deleted: [{ Key: "file1.txt" }, { Key: "file2.txt" }],
+    })
+
+    // Second batch
+    mockSend.mockResolvedValueOnce({
+      Contents: [{ Key: "file3.txt" }],
+      IsTruncated: false,
+    })
+    mockSend.mockResolvedValueOnce({
+      Deleted: [{ Key: "file3.txt" }],
+    })
+
+    const result = await caller.storage.ceph.objects.deleteAll({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result).toBe(3)
+  })
+
+  it("returns 0 when bucket is empty", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    mockSend.mockResolvedValueOnce({
+      Contents: [],
+      IsTruncated: false,
+    })
+
+    const result = await caller.storage.ceph.objects.deleteAll({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result).toBe(0)
+  })
+
+  it("throws error when objects have undefined keys", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    // Mock list response with object missing Key
+    mockSend.mockResolvedValueOnce({
+      Contents: [
+        { Key: "file1.txt" },
+        { Key: undefined }, // Invalid object without key
+        { Key: "file3.txt" },
+      ],
+      IsTruncated: false,
+    })
+
+    await expect(
+      caller.storage.ceph.objects.deleteAll({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+      })
+    ).rejects.toThrow(/Encountered 1 object\(s\) without Key field/)
+  })
+
+  it("throws NOT_FOUND when bucket does not exist", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const s3Error = Object.assign(new Error("NoSuchBucket"), { Code: "NoSuchBucket" })
+    mockSend.mockRejectedValue(s3Error)
+
+    await expect(
+      caller.storage.ceph.objects.deleteAll({
+        project_id: TEST_PROJECT_ID,
+        containerName: "nonexistent",
+      })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+})

@@ -134,6 +134,14 @@ export const objectRouter = {
           const objects = listResponse.Contents ?? []
           if (objects.length === 0) break
 
+          // Validate all objects have keys before deletion
+          const objectsWithoutKeys = objects.filter((obj) => !obj.Key)
+          if (objectsWithoutKeys.length > 0) {
+            throw new Error(
+              `Encountered ${objectsWithoutKeys.length} object(s) without Key field in S3 list response. Cannot proceed with deletion.`
+            )
+          }
+
           // Batch delete (up to 1000 objects per request)
           const objectsToDelete = objects.map((obj) => ({ Key: obj.Key! }))
 
