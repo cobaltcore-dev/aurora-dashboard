@@ -1,9 +1,11 @@
 import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
+import { omit } from "@/server/helpers/object"
 import { parseOrThrow } from "@/server/Network/helpers"
 import {
   CertificateAuthoritiesListSchema,
+  CertificateAuthoritySchema,
   CertificateAuthorityIdInputSchema,
   CertificatesListSchema,
   Certificate,
@@ -45,11 +47,10 @@ export const pcaRouter = {
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
 
-        const response = await pca.post(PCA_BASE_URL, { body: JSON.stringify(input) })
+        const response = await pca.post(PCA_BASE_URL, omit(input, "project_id"))
         const data = await response.json()
 
-        // Certificate Authority creation initiated successfully (async operation)
-        return parseOrThrow(CertificateAuthorityResponseSchema, data, "pcaRouter.create").certificate_authority
+        return parseOrThrow(CertificateAuthoritySchema, data, "pcaRouter.create")
       }, "create certificate authority")
     }),
   getById: projectScopedProcedure
