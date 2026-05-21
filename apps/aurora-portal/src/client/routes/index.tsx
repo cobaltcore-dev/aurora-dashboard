@@ -222,11 +222,7 @@ export function AuthLoginPage() {
             />
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoggingIn}
-          >
+          <Button type="submit" className="w-full" disabled={isLoggingIn}>
             {isLoggingIn ? <Trans>Loading...</Trans> : <Trans>Sign In</Trans>}
           </Button>
         </form>
