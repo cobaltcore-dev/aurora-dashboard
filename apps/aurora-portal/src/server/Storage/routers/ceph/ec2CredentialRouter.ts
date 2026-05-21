@@ -1,13 +1,13 @@
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 import { randomBytes } from "crypto"
-import { projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
+import { projectScopedProcedure, projectScopedInputSchema } from "../../../trpc"
 import {
   ec2CredentialSchema,
   ec2CredentialWithSecretSchema,
   type Ec2Credential,
   type Ec2CredentialWithSecret,
-} from "../types/ceph"
+} from "../../types/ceph"
 
 // ============================================================================
 // INTERNAL TYPES (raw Identity API response shapes)

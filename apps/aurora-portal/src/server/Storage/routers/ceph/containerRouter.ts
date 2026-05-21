@@ -1,7 +1,7 @@
 import { ListBucketsCommand, CreateBucketCommand, DeleteBucketCommand, ListObjectsV2Command } from "@aws-sdk/client-s3"
-import { cephProtectedProcedure, cephProcedure } from "../cephProcedure"
-import { mapS3ErrorToTRPCError } from "../helpers/s3ErrorMapper"
-import { projectScopedInputSchema } from "../../trpc"
+import { cephProtectedProcedure, cephProcedure } from "../../cephProcedure"
+import { mapS3ErrorToTRPCError } from "../../helpers/s3ErrorMapper"
+import { projectScopedInputSchema } from "../../../trpc"
 import {
   containerSchema,
   listContainersInputSchema,
@@ -9,7 +9,7 @@ import {
   deleteBucketInputSchema,
   type Container,
   type S3Status,
-} from "../types/ceph"
+} from "../../types/ceph"
 
 export const containerRouter = {
   status: cephProcedure.input(projectScopedInputSchema).query(async ({ ctx }): Promise<S3Status> => {

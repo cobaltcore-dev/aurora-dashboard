@@ -1,7 +1,7 @@
 import { ListObjectsV2Command, HeadObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3"
 import { TRPCError } from "@trpc/server"
-import { cephProtectedProcedure } from "../cephProcedure"
-import { mapS3ErrorToTRPCError } from "../helpers/s3ErrorMapper"
+import { cephProtectedProcedure } from "../../cephProcedure"
+import { mapS3ErrorToTRPCError } from "../../helpers/s3ErrorMapper"
 import {
   listObjectsInputSchema,
   listObjectsOutputSchema,
@@ -11,7 +11,7 @@ import {
   s3FolderPrefixSchema,
   type ListObjectsOutput,
   type S3ObjectDetails,
-} from "../types/ceph"
+} from "../../types/ceph"
 import { z } from "zod"
 
 const deleteAllObjectsInputSchema = z.object({
