@@ -7,6 +7,10 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Button, ContentHeading, Message } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../utils/useErrorTranslation"
 
+function isSafeRedirect(path: unknown): path is string {
+  return typeof path === "string" && path.startsWith("/") && !path.startsWith("//")
+}
+
 export const Route = createFileRoute("/")({
   validateSearch: z.object({
     redirect: z.string().optional().catch(""),
@@ -17,9 +21,9 @@ export const Route = createFileRoute("/")({
 
       let redirectTo = `/projects`
 
-      if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
+      if (isSafeRedirect(savedRedirect)) {
         redirectTo = savedRedirect
-      } else if (search.redirect && typeof search.redirect === "string" && search.redirect.startsWith("/")) {
+      } else if (isSafeRedirect(search.redirect)) {
         redirectTo = search.redirect
       }
 
@@ -47,7 +51,7 @@ const textinputstyles = `
 `
 
 export function AuthLoginPage() {
-  const { isAuthenticated, login } = useAuth()
+  const { isAuthenticated, login, logoutReason } = useAuth()
   const isLoading = useRouterState({ select: (s) => s.isLoading })
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
@@ -73,14 +77,13 @@ export function AuthLoginPage() {
 
       let redirectTo = defaultRedirect
 
-      if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
+      if (isSafeRedirect(savedRedirect)) {
         redirectTo = savedRedirect
-      } else if (searchRedirect && typeof searchRedirect === "string" && searchRedirect.startsWith("/")) {
+      } else if (isSafeRedirect(searchRedirect)) {
         redirectTo = searchRedirect
       }
 
       sessionStorage.removeItem("redirect_after_login")
-      sessionStorage.removeItem("logout_reason")
 
       await navigate({
         to: redirectTo,
@@ -115,9 +118,9 @@ export function AuthLoginPage() {
 
     let redirectTo = `/projects`
 
-    if (savedRedirect && typeof savedRedirect === "string" && savedRedirect.startsWith("/")) {
+    if (isSafeRedirect(savedRedirect)) {
       redirectTo = savedRedirect
-    } else if (searchRedirect && typeof searchRedirect === "string" && searchRedirect.startsWith("/")) {
+    } else if (isSafeRedirect(searchRedirect)) {
       redirectTo = searchRedirect
     }
 
@@ -131,7 +134,6 @@ export function AuthLoginPage() {
 
   const isLoggingIn = isLoading || isSubmitting
 
-  const logoutReason = sessionStorage.getItem("logout_reason")
   const wasInactive = logoutReason === "inactive" || logoutReason === "expired"
 
   return (
@@ -217,17 +219,13 @@ export function AuthLoginPage() {
                 setForm({ ...form, password: e.target.value })
                 if (loginError) setLoginError(null)
               }}
-              onKeyUp={(e) => e.key === "Enter" && signin()}
             />
           </div>
 
           <Button
+            type="submit"
             className="w-full"
             disabled={isLoggingIn}
-            onClick={(e) => {
-              e.preventDefault()
-              signin()
-            }}
           >
             {isLoggingIn ? <Trans>Loading...</Trans> : <Trans>Sign In</Trans>}
           </Button>
