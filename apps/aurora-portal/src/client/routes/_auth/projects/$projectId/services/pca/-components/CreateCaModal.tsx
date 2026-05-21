@@ -3,7 +3,7 @@ import { useForm } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, Spinner, TextInput } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
-// import { useProjectId } from "@/client/hooks"
+import { useProjectId } from "@/client/hooks"
 
 export interface CreateCaModalProps {
   open: boolean
@@ -15,7 +15,7 @@ const isValidCommonName = (value: string) => csrRegex.test(value)
 
 export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
   const { t } = useLingui()
-  // const projectId = useProjectId()
+  const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
   const { isPending, ...createCaMutation } = trpcReact.services.pca.create.useMutation({
@@ -25,11 +25,9 @@ export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
   const formSchema = z.object({
     common_name: z
       .string()
+      .min(1, t`Common name is required.`)
       .trim()
-      // .max(63, t`DNS name must be at most 63 characters.`)
-      .refine((value) => value === "" || isValidCommonName(value), {
-        message: t`Must be a valid CSR name.`,
-      }),
+      .refine((value) => isValidCommonName(value), { message: t`Must be a valid CSR name.` }),
   })
 
   const form = useForm({
@@ -43,8 +41,10 @@ export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
       if (isPending) return
 
       await createCaMutation.mutateAsync({
-        ...(value.common_name && { common_name: value.common_name }),
-        project_id: "",
+        project_id: projectId,
+        configuration: {
+          subject: { common_name: value.common_name },
+        },
       })
       handleClose()
     },
@@ -65,7 +65,7 @@ export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
       title={t`Create Certificate Authority`}
       onCancel={handleClose}
       cancelButtonLabel={t`Cancel`}
-      confirmButtonLabel={t`Create`}
+      confirmButtonLabel={t`Save`}
       onConfirm={form.handleSubmit}
       disableConfirmButton={isPending}
     >
@@ -97,8 +97,8 @@ export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  label={t`Common Name`}
-                  placeholder={t`Enter Common Name (e.g., example.com)`}
+                  label={t`Common name`}
+                  placeholder={t`Enter Common name (e.g., demo-ca.test.sci)`}
                   helptext={t`Enter a valid CSR name.`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                   disabled={isPending}

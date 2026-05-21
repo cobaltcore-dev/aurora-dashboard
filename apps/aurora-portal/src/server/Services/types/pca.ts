@@ -83,11 +83,9 @@ export const CertificateAuthoritiesListSchema = z.object({
 
 // Used by: /v1/certificate-authorities - Create new Certificate Authority
 export const CertificateAuthorityCreateSchema = z.object({
-  configuration: z
-    .object({
-      subject: CertificateAuthoritySubjectSchema,
-    })
-    .optional(),
+  configuration: z.object({
+    subject: CertificateAuthoritySubjectSchema,
+  }),
 })
 
 /**

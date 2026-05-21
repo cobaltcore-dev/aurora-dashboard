@@ -61,7 +61,7 @@ export const PcaListContainer = () => {
 
   return (
     <div className="relative">
-      <Button icon="addCircle" variant="primary" label={t`Create Certificate Authority`} onClick={toggleCreateCa} />
+      <Button variant="primary" label={t`Create Certificate Authority`} onClick={toggleCreateCa} />
       <DataGrid columns={columns.length}>
         <DataGridRow>
           {columns.map((label) => (
