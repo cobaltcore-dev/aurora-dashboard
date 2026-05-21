@@ -150,7 +150,7 @@ describe("CreateFolderModal", () => {
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
     })
 
-    test("renders info message about virtual folders", () => {
+    test("renders info text about virtual folders", () => {
       renderModal()
       expect(screen.getByText(/zero-byte placeholder objects/i)).toBeInTheDocument()
     })
