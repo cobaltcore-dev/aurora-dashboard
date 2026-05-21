@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { createFileRoute, redirect, useRouterState } from "@tanstack/react-router"
 import { useAuth } from "../store/AuthProvider"
 import { z } from "zod"
@@ -37,6 +37,7 @@ export const Route = createFileRoute("/")({
         redirectTo = search.redirect
       }
 
+      sessionStorage.removeItem("redirect_after_login")
       throw redirect({ to: redirectTo })
     }
   },
@@ -71,6 +72,7 @@ export function AuthLoginPage() {
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(null)
+  const skipAutoRedirectRef = useRef(false)
 
   const signin = useCallback(async () => {
     setIsSubmitting(true)
@@ -94,6 +96,7 @@ export function AuthLoginPage() {
       }
 
       sessionStorage.removeItem("redirect_after_login")
+      skipAutoRedirectRef.current = true
 
       await navigate({
         to: redirectTo,
@@ -122,6 +125,11 @@ export function AuthLoginPage() {
   // already authenticated, but this effect handles the case where authentication completes mid-render.
   useEffect(() => {
     if (!isAuthenticated || isLoading) return
+
+    if (skipAutoRedirectRef.current) {
+      skipAutoRedirectRef.current = false
+      return
+    }
 
     const savedRedirect = sessionStorage.getItem("redirect_after_login")
     const searchRedirect = search.redirect
