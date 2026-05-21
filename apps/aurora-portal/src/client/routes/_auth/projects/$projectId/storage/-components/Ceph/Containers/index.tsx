@@ -131,8 +131,14 @@ export const CephContainers = () => {
           comparison = a.bytes - b.bytes
           break
         case "last_modified":
-          if (!a.last_modified || !b.last_modified) {
-            return a.last_modified ? -1 : 1
+          if (!a.last_modified && !b.last_modified) {
+            return 0
+          }
+          if (!a.last_modified) {
+            return 1
+          }
+          if (!b.last_modified) {
+            return -1
           }
           comparison = new Date(a.last_modified).getTime() - new Date(b.last_modified).getTime()
           break
