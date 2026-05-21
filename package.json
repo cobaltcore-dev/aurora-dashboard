@@ -7,6 +7,8 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "check-i18n": "turbo check-i18n",
+    "commit": "cz",
+    "commit:check": "./scripts/check-commit-msg.sh",
     "lint": "turbo lint",
     "test": "turbo test",
     "test:coverage": "turbo test",

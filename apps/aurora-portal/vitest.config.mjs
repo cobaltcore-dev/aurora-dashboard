@@ -10,6 +10,6 @@ export default defineConfig({
     environment: "jsdom",
     watch: true,
     setupFiles: "./vitest.setup.ts",
-    exclude: [...configDefaults.exclude, "**/dist/**"],
+    exclude: [...configDefaults.exclude, "**/dist/**", "**/e2e/**"],
   },
 })
