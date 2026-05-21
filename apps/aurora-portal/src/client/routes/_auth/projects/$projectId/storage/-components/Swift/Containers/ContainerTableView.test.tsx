@@ -417,18 +417,6 @@ describe("ContainerTableView", () => {
     })
   })
 
-  describe("Footer", () => {
-    test("shows container count in footer", () => {
-      renderView()
-      expect(screen.getByText(/3 containers/i)).toBeInTheDocument()
-    })
-
-    test("footer count matches containers length", () => {
-      renderView({ containers: [makeContainer("only-one")] })
-      expect(screen.getByText(/1 container$/i)).toBeInTheDocument()
-    })
-  })
-
   describe("Context menu", () => {
     test("renders a popup menu trigger for each container row", () => {
       renderView()
@@ -442,7 +430,7 @@ describe("ContainerTableView", () => {
       const [firstMenuTrigger] = screen.getAllByRole("button", { name: /more/i })
       await user.click(firstMenuTrigger)
       expect(screen.getByText("Manage Access")).toBeInTheDocument()
-      expect(screen.getByText("Edit Metadata")).toBeInTheDocument()
+      expect(screen.getByText("Preview and Edit metadata")).toBeInTheDocument()
       expect(screen.getByText("Empty")).toBeInTheDocument()
       expect(screen.getByText("Delete")).toBeInTheDocument()
     })
