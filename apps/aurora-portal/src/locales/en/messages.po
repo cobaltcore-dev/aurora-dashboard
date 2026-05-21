@@ -31,12 +31,6 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
-msgid "{allContainersCount} container"
-msgstr "{allContainersCount} container"
-
-msgid "{allContainersCount} containers"
-msgstr "{allContainersCount} containers"
-
 msgid "{allCount} items"
 msgstr "{allCount} items"
 
@@ -48,6 +42,9 @@ msgstr "{emptiedCount, plural, one {# container was already empty.} other {# con
 
 msgid "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
 msgstr "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
+
+msgid "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
+msgstr "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 
 msgid "{numberDeleted} object was permanently deleted."
 msgstr "{numberDeleted} object was permanently deleted."
@@ -61,8 +58,8 @@ msgstr "{numberDeleted} objects were permanently deleted."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
-msgid "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
-msgstr "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
+msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
+msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 
 msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
@@ -72,9 +69,6 @@ msgstr "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objec
 
 msgid "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
-
-msgid "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
-msgstr "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
 
 msgid "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
@@ -93,6 +87,9 @@ msgstr "<0>No Temp URL key configured.</0> A temporary URL key must be set at th
 
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
+
+msgid "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
+msgstr "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
 
 msgid "<0>Properties of</0> <1>{displayName}</1>"
 msgstr "<0>Properties of</0> <1>{displayName}</1>"
@@ -316,6 +313,9 @@ msgstr "Basic Info"
 msgid "Basic Information"
 msgstr "Basic Information"
 
+msgid "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
+msgstr "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
+
 msgid "Boot RAM"
 msgstr "Boot RAM"
 
@@ -330,9 +330,6 @@ msgstr "Cancel"
 
 msgid "Cancel upload"
 msgstr "Cancel upload"
-
-msgid "Cannot delete. Container contains objects. Please empty it first."
-msgstr "Cannot delete. Container contains objects. Please empty it first."
 
 msgid "Capabilities"
 msgstr "Capabilities"
@@ -811,11 +808,11 @@ msgstr "Empty All"
 msgid "Empty All ({selectedCount})"
 msgstr "Empty All ({selectedCount})"
 
-msgid "Empty container:"
-msgstr "Empty container:"
-
 msgid "Empty Containers"
 msgstr "Empty Containers"
+
+msgid "Empty:"
+msgstr "Empty:"
 
 msgid "Emptying container {progressCurrent} of {progressTotal}, please wait..."
 msgstr "Emptying container {progressCurrent} of {progressTotal}, please wait..."
@@ -1245,9 +1242,6 @@ msgstr "Get Involved"
 
 msgid "GitHub"
 msgstr "GitHub"
-
-msgid "Got it!"
-msgstr "Got it!"
 
 msgid "Grant access to a user from a different project."
 msgstr "Grant access to a user from a different project."
@@ -1774,12 +1768,6 @@ msgstr "Note: for <0>static and dynamic large objects</0> only the manifests are
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 
-msgid "Nothing to do. Container appears empty — the object count may not have synced yet due to a recent operation."
-msgstr "Nothing to do. Container appears empty — the object count may not have synced yet due to a recent operation."
-
-msgid "Nothing to do. Container is already empty."
-msgstr "Nothing to do. Container is already empty."
-
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Object \"{objectName}\" was permanently deleted."
 
@@ -1950,6 +1938,9 @@ msgstr "Preview"
 
 msgid "Preview {rowDisplayName}"
 msgstr "Preview {rowDisplayName}"
+
+msgid "Preview and Edit metadata"
+msgstr "Preview and Edit metadata"
 
 msgid "Private"
 msgstr "Private"
@@ -2416,8 +2407,14 @@ msgstr "Tenant ID"
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
 
+msgid "The container cannot be deleted as it contains objects. Empty the container first."
+msgstr "The container cannot be deleted as it contains objects. Empty the container first."
+
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 msgstr "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
+
+msgid "The container will be deleted. This action is permanent and cannot be undone."
+msgstr "The container will be deleted. This action is permanent and cannot be undone."
 
 msgid "The extra spec could not be found. It may have already been deleted."
 msgstr "The extra spec could not be found. It may have already been deleted."
@@ -2482,6 +2479,9 @@ msgstr "The specified user has access. A token for the user (scoped to any proje
 msgid "The tenant ID provided is invalid. Please check your input."
 msgstr "The tenant ID provided is invalid. Please check your input."
 
+msgid "The text must match \"delete\""
+msgstr "The text must match \"delete\""
+
 msgid "The text must match “detach” in lowercase."
 msgstr "The text must match “detach” in lowercase."
 
@@ -2524,8 +2524,17 @@ msgstr "This action cannot be undone. The security group will be permanently del
 msgid "This action cannot be undone. The target project will lose access to this security group immediately."
 msgstr "This action cannot be undone. The target project will lose access to this security group immediately."
 
+msgid "This action is permanent. All objects in the container will be deleted and this cannot be undone."
+msgstr "This action is permanent. All objects in the container will be deleted and this cannot be undone."
+
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
+
+msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
+msgstr "This container appears empty — the object count may not have synced yet due to a recent operation."
+
+msgid "This container is already empty."
+msgstr "This container is already empty."
 
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
@@ -2584,6 +2593,9 @@ msgstr "To confirm this action, type the word <0>“detach”</0> in the field b
 msgid "To confirm this action, type the word <0>\"release\"</0> in the field below."
 msgstr "To confirm this action, type the word <0>\"release\"</0> in the field below."
 
+msgid "To confirm type <0>delete</0> in the field below."
+msgstr "To confirm type <0>delete</0> in the field below."
+
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Together, we can unlock the true potential of your cloud infrastructure."
 
@@ -2607,6 +2619,9 @@ msgstr "Try Again"
 
 msgid "Type"
 msgstr "Type"
+
+msgid "Type \"delete\" to confirm"
+msgstr "Type \"delete\" to confirm"
 
 msgid "Type \"detach\" to confirm"
 msgstr "Type \"detach\" to confirm"
