@@ -64,9 +64,6 @@ msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Co
 msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "<0>Sind Sie sicher?</0> Alle Objekte in den ausgewählten Containern werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
-msgid "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
-msgstr "<0>Sind Sie sicher?</0> Ordner <1>\"{folderDisplayName}\"</1> und alle darin enthaltenen Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
-
 msgid "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
 msgstr "<0>Sind Sie sicher?</0> Objekt <1>\"{displayName}\"</1> wird dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
@@ -1194,6 +1191,9 @@ msgstr "Ordner \"{folderName}\" wurde dauerhaft gelöscht."
 
 msgid "Folder \"{folderName}\" was successfully created."
 msgstr "Ordner \"{folderName}\" wurde erfolgreich erstellt."
+
+msgid "Folder <0>\"{folderDisplayName}\"</0> and all objects within it will be permanently deleted. This cannot be undone."
+msgstr "Ordner <0>\"{folderDisplayName}\"</0> und alle darin enthaltenen Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
 msgid "Folder Created"
 msgstr "Ordner erstellt"

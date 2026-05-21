@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Message, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { FolderRow } from "./"
 
@@ -81,6 +81,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={deleteFolderMutation.isPending ? t`Deleting...` : t`Delete`}
+      confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
       size="small"
@@ -93,19 +94,18 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          <Message variant="warning">
+          <p className="text-theme-default">
             <Trans>
-              <strong>Are you sure?</strong> Folder{" "}
-              <span className="font-mono font-semibold">"{folderDisplayName}"</span> and all objects within it will be
-              permanently deleted. This cannot be undone.
+              Folder <span className="font-mono font-semibold">"{folderDisplayName}"</span> and all objects within it
+              will be permanently deleted. This cannot be undone.
             </Trans>
-          </Message>
-          <Message variant="info">
+          </p>
+          <p className="text-theme-default">
             <Trans>
               Note: for <strong>static and dynamic large objects</strong> only the manifests are deleted — their
               segments outside this folder prefix are not affected.
             </Trans>
-          </Message>
+          </p>
         </Stack>
       )}
     </Modal>
