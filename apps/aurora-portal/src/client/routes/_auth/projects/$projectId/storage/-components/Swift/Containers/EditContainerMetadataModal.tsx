@@ -5,7 +5,6 @@ import {
   Modal,
   TextInput,
   Stack,
-  Message,
   Spinner,
   DataGrid,
   DataGridRow,
@@ -435,20 +434,26 @@ export const EditContainerMetadataModal = ({
       size="large"
       disableConfirmButton={isBusy || isAddingNew || hasEditing || isUnchanged || isMetaFailed}
     >
+      {updateMutation.isError && (
+        <p className="text-theme-error mb-4">
+          {(() => {
+            const errorMessage = updateMutation.error.message
+            return <Trans>Failed to update container: {errorMessage}</Trans>
+          })()}
+        </p>
+      )}
       {isLoading ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-8">
           <Spinner size="small" />
           <Trans>Loading container properties...</Trans>
         </Stack>
       ) : isMetaFailed ? (
-        <Stack direction="vertical" alignment="center" gap="3" className="py-8">
-          <Message variant="danger">
-            {(() => {
-              const errorMessage = metaError?.message ?? "Unknown error"
-              return <Trans>Failed to load container properties: {errorMessage}</Trans>
-            })()}
-          </Message>
-        </Stack>
+        <p className="text-theme-error py-8 text-center">
+          {(() => {
+            const errorMessage = metaError?.message ?? "Unknown error"
+            return <Trans>Failed to load container properties: {errorMessage}</Trans>
+          })()}
+        </p>
       ) : (
         <div className="max-h-[65vh] overflow-y-auto pr-1 pl-1">
           <Stack direction="vertical" gap="6">
@@ -812,17 +817,6 @@ export const EditContainerMetadataModal = ({
                 )}
               </DataGrid>
             </div>
-
-            {/* Mutation error */}
-            {updateMutation.isError &&
-              (() => {
-                const errorMessage = updateMutation.error.message
-                return (
-                  <Message variant="danger">
-                    <Trans>Failed to update container: {errorMessage}</Trans>
-                  </Message>
-                )
-              })()}
           </Stack>
         </div>
       )}

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Message, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, Checkbox } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
 
@@ -117,6 +117,11 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       size="small"
       disableConfirmButton={isLoading || isPending}
     >
+      {metadataError && (
+        <p className="text-theme-error mb-4">
+          <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
+        </p>
+      )}
       {isPending ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
           <Spinner size="small" />
@@ -127,11 +132,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
           <Spinner size="small" />
           <Trans>Loading object info...</Trans>
         </Stack>
-      ) : metadataError ? (
-        <Message variant="danger">
-          <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
-        </Message>
-      ) : (
+      ) : !metadataError ? (
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">
             <Trans>
@@ -147,17 +148,11 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
                   be permanently deleted.
                 </Trans>
               </p>
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={keepSegments}
-                  onChange={(e) => setKeepSegments(e.target.checked)}
-                  className="h-4 w-4"
-                />
-                <span className="text-sm">
-                  <Trans>Keep segments (delete manifest only)</Trans>
-                </span>
-              </label>
+              <Checkbox
+                label={t`Keep segments (delete manifest only)`}
+                checked={keepSegments}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setKeepSegments(e.target.checked)}
+              />
             </>
           )}
           {isDLO && (
@@ -170,7 +165,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
             </p>
           )}
         </Stack>
-      )}
+      ) : null}
     </Modal>
   )
 }

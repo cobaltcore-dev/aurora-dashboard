@@ -9,7 +9,6 @@ import {
   ButtonRow,
   TextInput,
   Stack,
-  Message,
   Spinner,
   DataGrid,
   DataGridRow,
@@ -162,12 +161,12 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       }
     >
       {objectsError && (
-        <Message variant="danger" className="mb-2">
+        <p className="text-theme-error mb-4">
           {(() => {
             const errorMessage = objectsError.message
             return <Trans>Failed to load container objects: {errorMessage}</Trans>
           })()}
-        </Message>
+        </p>
       )}
       {isLoadingObjects ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-4">

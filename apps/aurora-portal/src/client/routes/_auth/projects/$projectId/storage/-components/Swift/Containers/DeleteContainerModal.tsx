@@ -8,7 +8,6 @@ import {
   ButtonRow,
   TextInput,
   Stack,
-  Message,
   Spinner,
   Checkbox,
 } from "@cloudoperators/juno-ui-components"
@@ -161,22 +160,22 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       }
     >
       {(objectsError || metaError) && (
-        <Stack direction="vertical" gap="2" className="mb-2">
+        <Stack direction="vertical" gap="2" className="mb-4">
           {objectsError && (
-            <Message variant="danger">
+            <p className="text-theme-error">
               {(() => {
                 const errorMessage = objectsError.message
                 return <Trans>Failed to load container objects: {errorMessage}</Trans>
               })()}
-            </Message>
+            </p>
           )}
           {metaError && (
-            <Message variant="danger">
+            <p className="text-theme-error">
               {(() => {
                 const errorMessage = metaError.message
                 return <Trans>Failed to load container properties: {errorMessage}</Trans>
               })()}
-            </Message>
+            </p>
           )}
         </Stack>
       )}
