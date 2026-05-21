@@ -15,8 +15,18 @@ export const Route = createFileRoute("/")({
   validateSearch: z.object({
     redirect: z.string().optional().catch(""),
   }),
-  beforeLoad: ({ context, search }) => {
-    if (context.auth?.isAuthenticated) {
+  beforeLoad: async ({ context, search }) => {
+    let isAuthenticated = context.auth?.isAuthenticated
+
+    if (!isAuthenticated) {
+      const token = await context.trpcClient?.auth.getCurrentUserSession.query()
+      if (token) {
+        context.auth?.login(token.user, token.expires_at)
+        isAuthenticated = true
+      }
+    }
+
+    if (isAuthenticated) {
       const savedRedirect = sessionStorage.getItem("redirect_after_login")
 
       let redirectTo = `/projects`
