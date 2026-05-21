@@ -19,14 +19,10 @@ export const Route = createFileRoute("/")({
     let isAuthenticated = context.auth?.isAuthenticated
 
     if (!isAuthenticated && context.trpcClient) {
-      try {
-        const token = await context.trpcClient.auth.getCurrentUserSession.query()
-        if (token) {
-          context.auth?.login(token.user, token.expires_at)
-          isAuthenticated = true
-        }
-      } catch {
-        // network unavailable or no session — show login page
+      const token = await context.trpcClient.auth.getCurrentUserSession.query()
+      if (token) {
+        context.auth?.login(token.user, token.expires_at)
+        isAuthenticated = true
       }
     }
 
