@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem } from "@cloudoperators/juno-ui-components"
+import { Breadcrumb, BreadcrumbItem, KnownIcons } from "@cloudoperators/juno-ui-components"
 import { useRouteContext, useMatches, useNavigate, useParams } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
 import { isRouteInfo } from "@/client/routes/routeInfo"
@@ -70,7 +70,13 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     const isServicePage = !isDetail && !!service && service !== "overview"
     const isSectionPage = !isDetail && !service && !!section
 
-    const items: Array<{ label: string; onClick?: () => void; active?: boolean }> = []
+    const items: Array<{ label?: string; icon?: KnownIcons; onClick?: () => void; active?: boolean }> = []
+
+    items.push({
+      icon: "home",
+      label: "Home",
+      onClick: () => navigate({ to: "/projects" }),
+    })
 
     if (projectInfo.domain?.name) {
       items.push({ label: projectInfo.domain.name })
@@ -187,7 +193,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   return (
     <Breadcrumb className="mt-8 mb-4">
       {breadcrumbs.map((item, index) => (
-        <BreadcrumbItem key={index} label={item.label} onClick={item.onClick} active={item.active} />
+        <BreadcrumbItem key={index} label={item.label} icon={item.icon} onClick={item.onClick} active={item.active} />
       ))}
     </Breadcrumb>
   )

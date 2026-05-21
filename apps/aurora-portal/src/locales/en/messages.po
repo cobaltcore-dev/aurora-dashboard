@@ -295,9 +295,6 @@ msgstr "Attach"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
-msgid "Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a seamless way to provision, configure, and scale your resources across OpenStack environments."
-msgstr "Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a seamless way to provision, configure, and scale your resources across OpenStack environments."
-
 msgid "Back"
 msgstr "Back"
 
@@ -339,9 +336,6 @@ msgstr "Capabilities"
 
 msgid "Ceph"
 msgstr "Ceph"
-
-msgid "Check out our source code on GitHub!"
-msgstr "Check out our source code on GitHub!"
 
 msgid "Checking S3 credentials..."
 msgstr "Checking S3 credentials..."
@@ -739,9 +733,6 @@ msgstr "DNS Name"
 msgid "DNS name must be at most 63 characters."
 msgstr "DNS name must be at most 63 characters."
 
-msgid "Documentation"
-msgstr "Documentation"
-
 msgid "Domain"
 msgstr "Domain"
 
@@ -861,9 +852,6 @@ msgstr "Enter member ID"
 
 msgid "Enter tenant ID"
 msgstr "Enter tenant ID"
-
-msgid "Enter the Cloud"
-msgstr "Enter the Cloud"
 
 msgid "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
 msgstr "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
@@ -1135,9 +1123,6 @@ msgstr "False"
 msgid "Filter by"
 msgstr "Filter by"
 
-msgid "Find detailed guides and references in our docs."
-msgstr "Find detailed guides and references in our docs."
-
 msgid "Fingerprint"
 msgstr "Fingerprint"
 
@@ -1242,9 +1227,6 @@ msgstr "Generating..."
 
 msgid "Get Involved"
 msgstr "Get Involved"
-
-msgid "GitHub"
-msgstr "GitHub"
 
 msgid "Got it!"
 msgstr "Got it!"
@@ -1536,9 +1518,6 @@ msgstr "Manage Access - {flavorName}"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Manage Access for Image - {imageName}"
-
-msgid "Manage OpenStack with "
-msgstr "Manage OpenStack with "
 
 msgid "Max container name length"
 msgstr "Max container name length"
@@ -2769,12 +2748,6 @@ msgstr "Versioning is enabled"
 
 msgid "View Details"
 msgstr "View Details"
-
-msgid "View Docs"
-msgstr "View Docs"
-
-msgid "View Repository"
-msgstr "View Repository"
 
 msgid "Visibility"
 msgstr "Visibility"

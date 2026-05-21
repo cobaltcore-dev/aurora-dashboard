@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setShowInactivityModal(false)
 
     router.navigate({
-      to: "/auth/login",
+      to: "/",
       search: redirectAfterModal ? { redirect: redirectAfterModal } : undefined,
     })
   }, [redirectAfterModal])
