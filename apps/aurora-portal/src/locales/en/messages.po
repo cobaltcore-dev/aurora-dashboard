@@ -715,6 +715,9 @@ msgstr "Delete All ({selectedCount})"
 msgid "Delete Bucket"
 msgstr "Delete Bucket"
 
+msgid "Delete CA"
+msgstr "Delete CA"
+
 msgid "Delete container:"
 msgstr "Delete container:"
 
@@ -1182,6 +1185,9 @@ msgstr "Failed to load object metadata: {metadataErrorMessage}"
 
 msgid "Failed to load objects: {errorMessage}"
 msgstr "Failed to load objects: {errorMessage}"
+
+msgid "Failed to load PCAs"
+msgstr "Failed to load PCAs"
 
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
@@ -1846,6 +1852,9 @@ msgstr "No objects found."
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "No objects match your search. Try adjusting your search term."
 
+msgid "No PCAs found"
+msgstr "No PCAs found"
+
 msgid "No policies match your search"
 msgstr "No policies match your search"
 
@@ -2001,6 +2010,12 @@ msgstr "Partial Delete Success"
 
 msgid "Password"
 msgstr "Password"
+
+msgid "PCA"
+msgstr "PCA"
+
+msgid "PCA (Clavis)"
+msgstr "PCA (Clavis)"
 
 msgid "Pending"
 msgstr "Pending"
@@ -2362,6 +2377,12 @@ msgstr "Server returned unexpected data format."
 msgid "Server Role:"
 msgstr "Server Role:"
 
+msgid "Services"
+msgstr "Services"
+
+msgid "Services Overview"
+msgstr "Services Overview"
+
 msgid "Session Expired"
 msgstr "Session Expired"
 
@@ -2431,6 +2452,9 @@ msgstr "Specific referrer: {host}"
 msgid "Start typing to search for a container"
 msgstr "Start typing to search for a container"
 
+msgid "State"
+msgstr "State"
+
 msgid "Stateful"
 msgstr "Stateful"
 
@@ -2460,6 +2484,9 @@ msgstr "Store old object versions in container:"
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
+
+msgid "Subject information"
+msgstr "Subject information"
 
 msgid "Subnet"
 msgstr "Subnet"
@@ -2633,6 +2660,9 @@ msgstr "There are no groups"
 
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 msgstr "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
+
+msgid "There are no PCAs available for this project."
+msgstr "There are no PCAs available for this project."
 
 msgid "There are no RBAC policies for this security group"
 msgstr "There are no RBAC policies for this security group"

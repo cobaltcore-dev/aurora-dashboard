@@ -67,7 +67,7 @@ export function ProjectsOverviewNavBar({
         <Stack direction="vertical" gap="3" className="w-full">
           <Stack gap="6" className="flex w-full flex-wrap">
             <SearchInput
-              className="flex-shrink-0 flex-grow basis-0"
+              className="shrink-0 grow basis-0"
               type="text"
               placeholder={t`Search...`}
               onChange={handleSearchChange}

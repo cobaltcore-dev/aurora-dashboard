@@ -127,7 +127,7 @@ const createMockContext = (opts?: {
       responseBody = getByIdCertificateParseError ? { invalid: true } : validGetByIdCertificateResponse
     } else if (url.includes("/certificates")) {
       responseBody = certificateParseError ? { invalid: true } : validCertificatesResponse
-    } else if (url === "v1/certificate-authorities") {
+    } else if (url === "certificate-authorities") {
       responseBody = parseError ? { invalid: true } : validListResponse
     } else {
       responseBody = getByIdParseError ? { invalid: true } : validGetByIdResponse
@@ -162,7 +162,7 @@ const createMockContext = (opts?: {
   }
 
   const serviceMock = vi.fn().mockImplementation((serviceName: string) => {
-    if (serviceName === "clavis") {
+    if (serviceName === "clavis" || serviceName === "pca") {
       return noClavis ? null : clavisService
     }
     return null
@@ -206,18 +206,18 @@ describe("pcaRouter", () => {
       const result = await caller.services.pca.list({ project_id: TEST_PROJECT_ID })
 
       expect(result).toEqual(validListResponse.certificate_authorities)
-      expect(ctx.__serviceMock).toHaveBeenCalledWith("clavis")
-      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities")
+      expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
+      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities")
     })
 
-    it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
+    it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
       const ctx = createMockContext({ noClavis: true })
       const caller = createCaller(ctx as never)
 
       await expect(caller.services.pca.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Clavis service is not available",
+          message: "Pca service is not available",
         })
       )
     })
@@ -246,7 +246,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validGetByIdResponse.certificate_authority)
-      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1")
+      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1")
     })
 
     it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
@@ -295,7 +295,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toBeUndefined()
-      expect(ctx.__delMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1")
+      expect(ctx.__delMock).toHaveBeenCalledWith("certificate-authorities/ca-1")
     })
 
     it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
@@ -327,7 +327,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validCertificatesResponse.certificates)
-      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates")
+      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates")
     })
 
     it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
@@ -377,7 +377,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validGetByIdCertificateResponse.certificate)
-      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates/cert-1")
+      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates/cert-1")
     })
 
     it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
@@ -432,7 +432,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validCreateCAResponse.certificate_authority)
-      expect(ctx.__postMock).toHaveBeenCalledWith("v1/certificate-authorities", expect.any(Object))
+      expect(ctx.__postMock).toHaveBeenCalledWith("certificate-authorities", expect.any(Object))
     })
 
     it("throws PARSE_ERROR on invalid create response payload", async () => {
@@ -477,7 +477,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validCreateCertificateResponse.certificate)
-      expect(ctx.__postMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates", expect.any(Object))
+      expect(ctx.__postMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates", expect.any(Object))
     })
 
     it("throws PARSE_ERROR on invalid create certificate response payload", async () => {
@@ -520,10 +520,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validCreateCAResponse.certificate_authority)
-      expect(ctx.__postMock).toHaveBeenCalledWith(
-        "v1/certificate-authorities/ca-1:importCertificate",
-        expect.any(Object)
-      )
+      expect(ctx.__postMock).toHaveBeenCalledWith("certificate-authorities/ca-1:importCertificate", expect.any(Object))
       const [, request] = ctx.__postMock.mock.calls[ctx.__postMock.mock.calls.length - 1]
       expect(JSON.parse(request.body)).toEqual({
         imported_certificate_chain:
