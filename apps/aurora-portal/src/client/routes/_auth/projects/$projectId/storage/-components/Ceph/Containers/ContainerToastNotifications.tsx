@@ -144,6 +144,7 @@ export const getBucketsEmptyCompleteToast = (
 ): ToastProps => {
   const hasErrors = errors.length > 0
   const totalBuckets = emptiedCount + errors.length
+  const errorsLength = errors.length
 
   return {
     variant: hasErrors ? "warning" : "success",
@@ -155,8 +156,8 @@ export const getBucketsEmptyCompleteToast = (
             <Trans>
               Successfully emptied {emptiedCount} of {totalBuckets}{" "}
               <Plural value={totalBuckets} one="bucket" other="buckets" />, deleting {totalDeleted}{" "}
-              <Plural value={totalDeleted} one="object" other="objects" />. {errors.length}{" "}
-              <Plural value={errors.length} one="bucket" other="buckets" /> failed.
+              <Plural value={totalDeleted} one="object" other="objects" />. {errorsLength}{" "}
+              <Plural value={errorsLength} one="bucket" other="buckets" /> failed.
             </Trans>
           ) : (
             <Trans>

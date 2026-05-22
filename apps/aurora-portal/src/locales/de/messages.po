@@ -40,6 +40,9 @@ msgstr ""
 msgid "{allCount} items"
 msgstr "{allCount} Elemente"
 
+msgid "{bucketCount, plural, one {object} other {objects}}"
+msgstr ""
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
 
@@ -67,10 +70,7 @@ msgstr "{progressPct}%"
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Container}}"
 
-#. placeholder {0}: bucket.count
-#. placeholder {1}: bucket.count === 1 ? "object" : "objects"
-#. placeholder {2}: bucket.name
-msgid "<0>Are you sure?</0> All {0} {1} in bucket \"{2}\" will be permanently deleted. This action cannot be undone."
+msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 msgstr ""
 
 msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
@@ -913,9 +913,7 @@ msgstr "Container leeren"
 msgid "Empty:"
 msgstr "Leeren:"
 
-#. placeholder {0}: progress.current
-#. placeholder {1}: progress.total
-msgid "Emptying bucket {0} of {1}, please wait..."
+msgid "Emptying bucket {progressCurrent} of {progressTotal}, please wait..."
 msgstr ""
 
 msgid "Emptying container {progressCurrent} of {progressTotal}, please wait..."
@@ -1056,8 +1054,7 @@ msgstr "Fehler beim Hinzufügen des Mitglieds"
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Fehler beim Hinzufügen des Zugriffs für das Project zum Flavor. Bitte versuchen Sie es erneut."
 
-#. placeholder {0}: objectsError.message
-msgid "Failed to check bucket contents: {0}"
+msgid "Failed to check bucket contents: {errorMessage}"
 msgstr ""
 
 msgid "Failed to Copy Object"
@@ -2503,9 +2500,7 @@ msgstr "{successCount} von {totalCount} Image(s) erfolgreich gelöscht"
 msgid "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
 msgstr ""
 
-#. placeholder {0}: errors.length
-#. placeholder {1}: errors.length
-msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {0} {1, plural, one {bucket} other {buckets}} failed."
+msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
 msgstr ""
 
 msgid "Suggested Images"
@@ -2694,8 +2689,7 @@ msgstr "Diese Aktion ist dauerhaft. Alle Objekte im Container werden gelöscht u
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
 
-#. placeholder {0}: actualObjectCount > 1 ? "s" : ""
-msgid "This bucket contains {actualObjectCount} object{0} and cannot be deleted. Delete all objects first."
+msgid "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
 msgstr ""
 
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
@@ -2755,8 +2749,7 @@ msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."
 msgid "This tenant does not have access to the flavor."
 msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
 
-#. placeholder {0}: totalCount === 1 ? "bucket" : "buckets"
-msgid "This will permanently delete all objects from {totalCount} selected {0}. This action cannot be undone."
+msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr ""
 
 msgid "To confirm this action, type the word <0>“detach”</0> in the field below."

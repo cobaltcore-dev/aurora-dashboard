@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Message, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { Container } from "@/server/Storage/types/ceph"
@@ -71,6 +71,8 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
   const visibleBuckets = buckets.slice(0, MAX_VISIBLE)
   const hiddenCount = totalCount - visibleBuckets.length
   const isPending = emptyBucketMutation.isPending || progress !== null
+  const progressCurrent = progress?.current
+  const progressTotal = progress?.total
 
   return (
     <Modal
@@ -91,7 +93,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
           {progress && (
             <p className="text-theme-light text-sm">
               <Trans>
-                Emptying bucket {progress.current} of {progress.total}, please wait...
+                Emptying bucket {progressCurrent} of {progressTotal}, please wait...
               </Trans>
             </p>
           )}
@@ -100,8 +102,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
         <Stack direction="vertical" gap="4">
           <Message variant="warning">
             <Trans>
-              This will permanently delete all objects from {totalCount} selected{" "}
-              {totalCount === 1 ? "bucket" : "buckets"}. This action cannot be undone.
+              This will permanently delete all objects from {totalCount} selected <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
             </Trans>
           </Message>
 
@@ -110,16 +111,20 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
               <Trans>Buckets to empty:</Trans>
             </p>
             <ul className="list-inside list-disc space-y-1 text-sm">
-              {visibleBuckets.map((bucket) => (
-                <li key={bucket.name} className="font-mono">
-                  {bucket.name}
-                  {bucket.count > 0 && (
-                    <span className="text-theme-light ml-2">
-                      ({bucket.count} {bucket.count === 1 ? "object" : "objects"})
-                    </span>
-                  )}
-                </li>
-              ))}
+              {visibleBuckets.map((bucket) => {
+                const bucketName = bucket.name
+                const bucketCount = bucket.count
+                return (
+                  <li key={bucketName} className="font-mono">
+                    {bucketName}
+                    {bucketCount > 0 && (
+                      <span className="text-theme-light ml-2">
+                        ({bucketCount} <Plural value={bucketCount} one="object" other="objects" />)
+                      </span>
+                    )}
+                  </li>
+                )
+              })}
               {hiddenCount > 0 && (
                 <li className="text-theme-light">
                   <Trans>... and {hiddenCount} more</Trans>

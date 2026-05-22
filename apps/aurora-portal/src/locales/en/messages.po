@@ -40,6 +40,9 @@ msgstr "{allContainersCount} buckets"
 msgid "{allCount} items"
 msgstr "{allCount} items"
 
+msgid "{bucketCount, plural, one {object} other {objects}}"
+msgstr "{bucketCount, plural, one {object} other {objects}}"
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
 
@@ -67,11 +70,8 @@ msgstr "{progressPct}%"
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 
-#. placeholder {0}: bucket.count
-#. placeholder {1}: bucket.count === 1 ? "object" : "objects"
-#. placeholder {2}: bucket.name
-msgid "<0>Are you sure?</0> All {0} {1} in bucket \"{2}\" will be permanently deleted. This action cannot be undone."
-msgstr "<0>Are you sure?</0> All {0} {1} in bucket \"{2}\" will be permanently deleted. This action cannot be undone."
+msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
+msgstr "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 
 msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
@@ -913,10 +913,8 @@ msgstr "Empty Containers"
 msgid "Empty:"
 msgstr "Empty:"
 
-#. placeholder {0}: progress.current
-#. placeholder {1}: progress.total
-msgid "Emptying bucket {0} of {1}, please wait..."
-msgstr "Emptying bucket {0} of {1}, please wait..."
+msgid "Emptying bucket {progressCurrent} of {progressTotal}, please wait..."
+msgstr "Emptying bucket {progressCurrent} of {progressTotal}, please wait..."
 
 msgid "Emptying container {progressCurrent} of {progressTotal}, please wait..."
 msgstr "Emptying container {progressCurrent} of {progressTotal}, please wait..."
@@ -1056,9 +1054,8 @@ msgstr "Failed to add member"
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Failed to add tenant access to flavor. Please try again."
 
-#. placeholder {0}: objectsError.message
-msgid "Failed to check bucket contents: {0}"
-msgstr "Failed to check bucket contents: {0}"
+msgid "Failed to check bucket contents: {errorMessage}"
+msgstr "Failed to check bucket contents: {errorMessage}"
 
 msgid "Failed to Copy Object"
 msgstr "Failed to Copy Object"
@@ -2503,10 +2500,8 @@ msgstr "Successfully deleted {successCount} of {totalCount} image(s)"
 msgid "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
 msgstr "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
 
-#. placeholder {0}: errors.length
-#. placeholder {1}: errors.length
-msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {0} {1, plural, one {bucket} other {buckets}} failed."
-msgstr "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {0} {1, plural, one {bucket} other {buckets}} failed."
+msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
+msgstr "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
 
 msgid "Suggested Images"
 msgstr "Suggested Images"
@@ -2694,9 +2689,8 @@ msgstr "This action is permanent. All objects in the container will be deleted a
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 
-#. placeholder {0}: actualObjectCount > 1 ? "s" : ""
-msgid "This bucket contains {actualObjectCount} object{0} and cannot be deleted. Delete all objects first."
-msgstr "This bucket contains {actualObjectCount} object{0} and cannot be deleted. Delete all objects first."
+msgid "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
+msgstr "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
 
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
 msgstr "This container appears empty — the object count may not have synced yet due to a recent operation."
@@ -2755,9 +2749,8 @@ msgstr "This tenant already has access to the flavor."
 msgid "This tenant does not have access to the flavor."
 msgstr "This tenant does not have access to the flavor."
 
-#. placeholder {0}: totalCount === 1 ? "bucket" : "buckets"
-msgid "This will permanently delete all objects from {totalCount} selected {0}. This action cannot be undone."
-msgstr "This will permanently delete all objects from {totalCount} selected {0}. This action cannot be undone."
+msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
+msgstr "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 
 msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
 msgstr "To confirm this action, type the word <0>“detach”</0> in the field below."

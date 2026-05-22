@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack, Message, Spinner, Button } from "@cloudoperators/juno-ui-components"
 import type { Container } from "@/server/Storage/types/ceph"
@@ -92,6 +92,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
 
   const actualObjectCount = objects?.objects?.length ?? 0
   const isNonEmpty = actualObjectCount > 0
+  const errorMessage = objectsError?.message
 
   return (
     <Modal
@@ -117,7 +118,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
         ) : isNonEmpty ? (
           <Message variant="error">
             <Trans>
-              This bucket contains {actualObjectCount} object{actualObjectCount > 1 ? "s" : ""} and cannot be deleted.
+              This bucket contains {actualObjectCount} <Plural value={actualObjectCount} one="object" other="objects" /> and cannot be deleted.
               Delete all objects first.
             </Trans>
           </Message>
@@ -162,7 +163,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
 
         {objectsError && (
           <Message variant="error">
-            <Trans>Failed to check bucket contents: {objectsError.message}</Trans>
+            <Trans>Failed to check bucket contents: {errorMessage}</Trans>
           </Message>
         )}
       </Stack>
