@@ -434,11 +434,7 @@ describe("objects.deleteAll", () => {
 
     // Mock list response with objects
     mockSend.mockResolvedValueOnce({
-      Contents: [
-        { Key: "file1.txt" },
-        { Key: "file2.txt" },
-        { Key: "file3.txt" },
-      ],
+      Contents: [{ Key: "file1.txt" }, { Key: "file2.txt" }, { Key: "file3.txt" }],
       IsTruncated: false,
     })
 
