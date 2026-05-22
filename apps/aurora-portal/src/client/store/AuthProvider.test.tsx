@@ -464,7 +464,7 @@ describe("AuthProvider", () => {
 
       expect(result.current.showInactivityModal).toBe(false)
       expect(router.navigate).toHaveBeenCalledWith({
-        to: "/auth/login",
+        to: "/",
         search: { redirect: "/dashboard" },
       })
     })
@@ -501,7 +501,7 @@ describe("AuthProvider", () => {
       })
 
       expect(router.navigate).toHaveBeenCalledWith({
-        to: "/auth/login",
+        to: "/",
         search: undefined,
       })
     })
