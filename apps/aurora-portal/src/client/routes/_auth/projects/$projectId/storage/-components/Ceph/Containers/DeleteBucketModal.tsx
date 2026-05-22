@@ -118,8 +118,8 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
         ) : isNonEmpty ? (
           <Message variant="error">
             <Trans>
-              This bucket contains {actualObjectCount} <Plural value={actualObjectCount} one="object" other="objects" /> and cannot be deleted.
-              Delete all objects first.
+              This bucket contains {actualObjectCount} <Plural value={actualObjectCount} one="object" other="objects" />{" "}
+              and cannot be deleted. Delete all objects first.
             </Trans>
           </Message>
         ) : (

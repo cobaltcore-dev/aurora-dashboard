@@ -102,7 +102,8 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
         <Stack direction="vertical" gap="4">
           <Message variant="warning">
             <Trans>
-              This will permanently delete all objects from {totalCount} selected <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
+              This will permanently delete all objects from {totalCount} selected{" "}
+              <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
             </Trans>
           </Message>
 

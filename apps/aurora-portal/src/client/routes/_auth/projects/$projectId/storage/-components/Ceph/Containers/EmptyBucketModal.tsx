@@ -99,7 +99,9 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
         <Stack direction="vertical" gap="6">
           <Message variant="warning">
             <Trans>
-              <strong>Are you sure?</strong> All {bucketCount} <Plural value={bucketCount} one="object" other="objects" /> in bucket "{bucketName}" will be permanently deleted. This action cannot be undone.
+              <strong>Are you sure?</strong> All {bucketCount}{" "}
+              <Plural value={bucketCount} one="object" other="objects" /> in bucket "{bucketName}" will be permanently
+              deleted. This action cannot be undone.
             </Trans>
           </Message>
 
