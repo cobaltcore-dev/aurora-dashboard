@@ -826,6 +826,10 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
         }).success
       ).toBe(false)
     })
+
+    it("should reject create input without configuration", () => {
+      expect(CertificateAuthorityCreateSchema.safeParse({}).success).toBe(false)
+    })
   })
 
   describe("CertificateConfigurationSchema", () => {
