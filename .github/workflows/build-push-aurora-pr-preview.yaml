@@ -48,7 +48,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  DOCKER_PATH: "docker/Dockerfile"
+  DOCKER_PATH: "docker/Dockerfile.public"
   PR_BUILD_LABEL: "pr-build" # if this label is changed, update the workflow condition in the 'if' statement of the 'build-and-push' job and the label check in the 'Check for PR Build label' step
   PR_PREVIEW_LABEL: "pr-preview"
 
