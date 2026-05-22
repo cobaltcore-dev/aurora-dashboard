@@ -12,6 +12,7 @@ import {
   type ListObjectsOutput,
   type S3ObjectDetails,
 } from "../../types/ceph"
+import { S3_MAX_KEYS_PER_REQUEST } from "../../constants"
 import { z } from "zod"
 
 const deleteAllObjectsInputSchema = z.object({
@@ -126,7 +127,7 @@ export const objectRouter = {
           const listResponse = await s3.send(
             new ListObjectsV2Command({
               Bucket: containerName,
-              MaxKeys: 1000, // S3 max per request
+              MaxKeys: S3_MAX_KEYS_PER_REQUEST,
               ContinuationToken: continuationToken,
             })
           )

@@ -40,7 +40,7 @@ export type Ec2CredentialWithSecret = z.infer<typeof ec2CredentialWithSecretSche
  * Includes count, bytes, and last_modified for consistent UI rendering
  *
  * IMPORTANT: count, bytes, and last_modified are ESTIMATES when buckets contain >1000 objects.
- * The list endpoint uses MaxKeys=1000 for performance, so these values are based on
+ * The list endpoint uses S3_MAX_KEYS_PER_REQUEST for performance, so these values are based on
  * a sample of objects. For accurate counts, pagination would be needed (expensive).
  */
 export const containerSchema = z.object({

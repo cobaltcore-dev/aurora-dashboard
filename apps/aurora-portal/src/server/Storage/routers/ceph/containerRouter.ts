@@ -10,6 +10,7 @@ import {
   type Container,
   type S3Status,
 } from "../../types/ceph"
+import { S3_MAX_KEYS_PER_REQUEST } from "../../constants"
 
 export const containerRouter = {
   status: cephProcedure.input(projectScopedInputSchema).query(async ({ ctx }): Promise<S3Status> => {
@@ -59,7 +60,7 @@ export const containerRouter = {
 
             try {
               // List objects to get count, total size, and last modified
-              // IMPORTANT: Using MaxKeys=1000 means these are ESTIMATES for buckets with >1000 objects:
+              // IMPORTANT: Using S3_MAX_KEYS_PER_REQUEST means these are ESTIMATES for buckets with >1000 objects:
               //   - count: Will be capped at 1000 (use KeyCount for actual count up to 1000)
               //   - bytes: Only sums first 1000 objects
               //   - last_modified: May miss newer objects beyond the first 1000
@@ -69,7 +70,7 @@ export const containerRouter = {
               const listObjResponse = await s3.send(
                 new ListObjectsV2Command({
                   Bucket: bucketName,
-                  MaxKeys: 1000,
+                  MaxKeys: S3_MAX_KEYS_PER_REQUEST,
                 })
               )
 
