@@ -66,16 +66,18 @@ const validGetByIdCertificateResponse = {
 }
 
 const validCreateCAResponse = {
-  certificate_authority: {
-    id: "ca-new",
-    project_id: TEST_PROJECT_ID,
-    state: "CREATING" as const,
-    configuration: {
-      subject: {
-        common_name: "new-ca.example.com",
-      },
+  id: "ca-new",
+  project_id: TEST_PROJECT_ID,
+  state: "CREATING" as const,
+  configuration: {
+    subject: {
+      common_name: "new-ca.example.com",
     },
   },
+}
+
+const validImportCAResponse = {
+  certificate_authority: validCreateCAResponse,
 }
 
 const validCreateCertificateResponse = {
@@ -143,7 +145,7 @@ const createMockContext = (opts?: {
     if (url.includes("/certificates")) {
       responseBody = createCertificateParseError ? { invalid: true } : validCreateCertificateResponse
     } else if (url.includes(":importCertificate")) {
-      responseBody = importCAParseError ? { invalid: true } : validCreateCAResponse
+      responseBody = importCAParseError ? { invalid: true } : validImportCAResponse
     } else {
       responseBody = createCAParseError ? { invalid: true } : validCreateCAResponse
     }
@@ -431,8 +433,18 @@ describe("pcaRouter", () => {
         },
       })
 
-      expect(result).toEqual(validCreateCAResponse.certificate_authority)
-      expect(ctx.__postMock).toHaveBeenCalledWith("certificate-authorities", expect.any(Object))
+      expect(result).toEqual(validCreateCAResponse)
+      const lastPostCall = ctx.__postMock.mock.lastCall
+      expect(lastPostCall).toBeDefined()
+      expect(lastPostCall?.[0]).toBe("certificate-authorities")
+      expect(lastPostCall?.[1]).toEqual({
+        configuration: {
+          subject: {
+            common_name: "new-ca.example.com",
+          },
+        },
+      })
+      expect(lastPostCall?.[1]).not.toHaveProperty("project_id")
     })
 
     it("throws PARSE_ERROR on invalid create response payload", async () => {
@@ -519,7 +531,7 @@ describe("pcaRouter", () => {
           "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
       })
 
-      expect(result).toEqual(validCreateCAResponse.certificate_authority)
+      expect(result).toEqual(validImportCAResponse.certificate_authority)
       expect(ctx.__postMock).toHaveBeenCalledWith("certificate-authorities/ca-1:importCertificate", expect.any(Object))
       const [, request] = ctx.__postMock.mock.calls[ctx.__postMock.mock.calls.length - 1]
       expect(JSON.parse(request.body)).toEqual({
