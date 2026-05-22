@@ -66,6 +66,8 @@ const createMockContext = (options: MockContextOptions = {}) => {
 
   const mockCephService = {
     getEndpoint: () => endpoint,
+    availableEndpoints: () =>
+      hasRegion ? [{ region, url: endpoint, interface: "public", id: "test-id", region_id: region }] : [],
   }
 
   const cephCatalogEntry = hasCephService
@@ -95,13 +97,19 @@ const createMockContext = (options: MockContextOptions = {}) => {
       }
     : null
 
-  const mockOpenstack = {
-    service: (serviceName: string) => {
-      if (serviceName === "ceph") return mockCephService
-      return null
-    },
-    getToken: vi.fn().mockReturnValue(mockToken),
-  }
+  const mockOpenstack =
+    hasToken && hasCatalog
+      ? {
+          service: (serviceName: string) => {
+            if (serviceName === "ceph" && hasCephService) return mockCephService
+            return null
+          },
+          getToken: vi.fn().mockReturnValue(mockToken),
+        }
+      : {
+          service: () => null,
+          getToken: vi.fn().mockReturnValue(null),
+        }
 
   return {
     req: { headers: {} },

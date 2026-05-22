@@ -47,6 +47,15 @@ const createMockContext = (shouldFailAuth = false, hasCredentials = true) => {
 
   const mockCephService = {
     getEndpoint: () => "https://test-ceph.example.com",
+    availableEndpoints: () => [
+      {
+        region: "test-region",
+        url: "https://test-ceph.example.com",
+        interface: "public",
+        id: "test-id",
+        region_id: "test-region",
+      },
+    ],
   }
 
   const mockToken = {

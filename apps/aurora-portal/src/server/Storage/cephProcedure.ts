@@ -20,65 +20,56 @@ export const NO_CEPH_CREDENTIALS = "NO_CEPH_CREDENTIALS" as const
 function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: string } {
   try {
     const service = ctx.openstack?.service("ceph")
-    const endpoint = service?.getEndpoint?.()
 
-    if (endpoint) {
-      // Extract base URL by removing Swift path suffix.
-      // Ceph RGW serves both Swift and S3 APIs on the same host but different paths:
-      //   Swift: https://rgw.st1.qa-de-1.cloud.sap/swift/v1/AUTH_xxx
-      //   S3:    https://rgw.st1.qa-de-1.cloud.sap
-      const swiftIndex = endpoint.indexOf("/swift/")
-      const baseEndpoint = swiftIndex !== -1 ? endpoint.substring(0, swiftIndex) : endpoint
-
-      const token = ctx.openstack?.getToken?.()
-
-      if (!token?.tokenData?.catalog) {
-        throw new Error("OpenStack token or service catalog not available")
-      }
-
-      // Find Ceph service in catalog by checking common type/name patterns
-      const cephService = token.tokenData.catalog.find(
-        (s) => s.type === "ceph" || s.name === "ceph" || s.type === "object-store" || s.type === "object-store-ceph"
-      )
-
-      if (!cephService) {
-        throw new Error("Ceph service not found in OpenStack service catalog")
-      }
-
-      const openstackRegion = cephService.endpoints?.[0]?.region
-
-      if (!openstackRegion) {
-        throw new Error("Region not found in Ceph service endpoints")
-      }
-
-      // Construct Ceph-compatible region identifier using the pattern from Go SDK / Terraform.
-      // Standard format: ceph-objectstore-st1-{region} (e.g., ceph-objectstore-st1-eu-de-2)
-      // Exception: qa-de-1 uses "ec" prefix for historical reasons (ceph-objectstore-ec-st1-qa-de-1)
-      //
-      // This identifier is used for:
-      //   1. AWS Signature V4 request signing (region field in Authorization header)
-      //   2. LocationConstraint in CreateBucket API calls
-      //
-      // See: https://documentation.global.cloud.sap/docs/customer/storage/obj-v2-ceph/ceph-storage-options/
-      const QA_DE_1_REGION = "qa-de-1"
-      const CEPH_REGION_PREFIX_STANDARD = "ceph-objectstore-st1"
-      const CEPH_REGION_PREFIX_EC = "ceph-objectstore-ec-st1"
-
-      const region =
-        openstackRegion === QA_DE_1_REGION
-          ? `${CEPH_REGION_PREFIX_EC}-${openstackRegion}`
-          : `${CEPH_REGION_PREFIX_STANDARD}-${openstackRegion}`
-
-      return { endpoint: baseEndpoint, region }
+    if (!service) {
+      throw new Error("Ceph service not found in OpenStack service catalog")
     }
+
+    const endpoint = service.getEndpoint?.()
+
+    if (!endpoint) {
+      throw new Error("Ceph service endpoint not found in catalog. Ensure the Ceph service is registered in OpenStack.")
+    }
+
+    // Extract base URL by removing Swift path suffix.
+    // Ceph RGW serves both Swift and S3 APIs on the same host but different paths:
+    //   Swift: https://rgw.st1.qa-de-1.cloud.sap/swift/v1/AUTH_xxx
+    //   S3:    https://rgw.st1.qa-de-1.cloud.sap
+    const swiftIndex = endpoint.indexOf("/swift/")
+    const baseEndpoint = swiftIndex !== -1 ? endpoint.substring(0, swiftIndex) : endpoint
+
+    const endpoints = service.availableEndpoints?.()
+    const openstackRegion = endpoints?.[0]?.region
+
+    if (!openstackRegion) {
+      throw new Error("Region not found in Ceph service endpoints")
+    }
+
+    // Construct Ceph-compatible region identifier using the pattern from Go SDK / Terraform.
+    // Standard format: ceph-objectstore-st1-{region} (e.g., ceph-objectstore-st1-eu-de-2)
+    // Exception: qa-de-1 uses "ec" prefix for historical reasons (ceph-objectstore-ec-st1-qa-de-1)
+    //
+    // This identifier is used for:
+    //   1. AWS Signature V4 request signing (region field in Authorization header)
+    //   2. LocationConstraint in CreateBucket API calls
+    //
+    // See: https://documentation.global.cloud.sap/docs/customer/storage/obj-v2-ceph/ceph-storage-options/
+    const QA_DE_1_REGION = "qa-de-1"
+    const CEPH_REGION_PREFIX_STANDARD = "ceph-objectstore-st1"
+    const CEPH_REGION_PREFIX_EC = "ceph-objectstore-ec-st1"
+
+    const region =
+      openstackRegion === QA_DE_1_REGION
+        ? `${CEPH_REGION_PREFIX_EC}-${openstackRegion}`
+        : `${CEPH_REGION_PREFIX_STANDARD}-${openstackRegion}`
+
+    return { endpoint: baseEndpoint, region }
   } catch (error) {
     console.error("[ceph] Failed to resolve Ceph service from catalog:", error)
     throw new Error("Ceph service not found in catalog. Ensure the Ceph service is registered in OpenStack.", {
       cause: error,
     })
   }
-
-  throw new Error("Ceph service endpoint not found in catalog. Ensure the Ceph service is registered in OpenStack.")
 }
 
 /**
