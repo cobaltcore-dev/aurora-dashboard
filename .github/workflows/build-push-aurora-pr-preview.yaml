@@ -1,0 +1,243 @@
+# Aurora PR Preview Workflow
+#
+# Automatically builds Docker images for pull requests and manages their deployment
+# via ArgoCD label-based triggers.
+#
+# For detailed documentation, see: docs/aurora-pr-preview-workflow.md
+#
+# Workflow Flow:
+#
+# 1. PR Events (labeled, synchronize, opened, reopened, closed):
+#    - Workflow triggers on PR label changes, new commits, or PR closure
+#    - Concurrency ensures only one workflow runs per PR at a time
+#
+# 2. Build Phase (runs when PR is NOT closed and has 'pr-build' label):
+#    a. Check for 'pr-build' label - skip if not present
+#    b. If new commit pushed (synchronize) and 'pr-preview' label exists:
+#       - Remove 'pr-preview' label (forces ArgoCD to redeploy)
+#    c. Checkout PR code at the exact commit SHA
+#    d. Generate version tag: pr-{PR_NUMBER}-{SHORT_SHA} (e.g., pr-123-a1b2c3d)
+#    e. Build Docker image and push to ghcr.io/{org}/aurora-pr-preview:{version}
+#    f. Add 'pr-preview' label to trigger ArgoCD deployment
+#
+# 3. Cleanup Old Images (runs after successful build):
+#    - Delete previous images for this PR number (pr-{NUMBER}-*)
+#    - Keep only the newly built image (exclude current version tag)
+#    - Prevents accumulation of stale images from multiple commits
+#
+# 4. PR Closure Cleanup (runs when PR is closed):
+#    a. Delete all images for this PR (pr-{NUMBER}-*)
+#    b. Remove 'pr-preview' label from closed PR
+#    c. (Optional) Send Slack notification if cleanup fails
+#
+# Label-based Deployment:
+#   - 'pr-build': Triggers Docker image build
+#   - 'pr-preview': Signals ArgoCD that image is ready for deployment
+#   - Removing 'pr-preview' on new commits forces ArgoCD to pick up new image
+
+name: Build Aurora PR Preview 🔬
+
+on:
+  pull_request:
+    types: [labeled, synchronize, opened, reopened, closed]
+
+# Ensure only one workflow runs per PR at a time
+concurrency:
+  group: aurora-pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  DOCKER_PATH: "docker/Dockerfile"
+  PR_BUILD_LABEL: "pr-build" # if this label is changed, update the workflow condition in the 'if' statement of the 'build-and-push' job and the label check in the 'Check for PR Build label' step
+  PR_PREVIEW_LABEL: "pr-preview"
+
+jobs:
+  build-and-push:
+    name: Build and Push PR Preview Image
+    # Skip if PR is closed or from a forked repository
+    # For labeled events, only build when the added label is the PR build label
+    if: |
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (
+          github.event.action != 'labeled' ||
+          github.event.label.name == 'pr-build'
+      )
+    runs-on: ubuntu-latest
+    outputs:
+      image-built: ${{ steps.build-image.outcome == 'success' }}
+      pr-version: ${{ steps.pr-version.outputs.PR_VERSION }}
+    permissions:
+      contents: read
+      packages: write
+      # Both issues and pull-requests write permissions are needed for label operations
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Check for PR Build label
+        id: check-label
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(l => l.name);
+            const hasPrBuildLabel = labels.includes('${{ env.PR_BUILD_LABEL }}');
+            const hasPrPreviewLabel = labels.includes('${{ env.PR_PREVIEW_LABEL }}');
+
+            console.log(`PR Build Label present: ${hasPrBuildLabel}`);
+            console.log(`PR Preview Label present: ${hasPrPreviewLabel}`);
+            console.log(`Event action: ${context.payload.action}`);
+
+            core.setOutput('should-build', hasPrBuildLabel.toString());
+            core.setOutput('has-preview-label', hasPrPreviewLabel.toString());
+
+      - name: Exit if PR Build label not present
+        if: steps.check-label.outputs.should-build != 'true'
+        run: |
+          echo "Skipping build - '${{ env.PR_BUILD_LABEL }}' label not present"
+          exit 0
+
+      - name: Remove PR Preview label on new commit
+        if: steps.check-label.outputs.should-build == 'true' &&
+          steps.check-label.outputs.has-preview-label == 'true' &&
+          github.event.action == 'synchronize'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            console.log('Removing PR Preview label - new commit detected');
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                name: '${{ env.PR_PREVIEW_LABEL }}'
+              });
+              console.log('PR Preview label removed successfully');
+            } catch (error) {
+              if (error.status === 404) {
+                console.log('Label already removed or does not exist');
+              } else {
+                throw error;
+              }
+            }
+
+      - name: Checkout repository
+        if: steps.check-label.outputs.should-build == 'true'
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Generate PR version tag
+        if: steps.check-label.outputs.should-build == 'true'
+        id: pr-version
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          SHORT_SHA=$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)
+          PR_VERSION="pr-${PR_NUMBER}-${SHORT_SHA}"
+          echo "PR_VERSION=${PR_VERSION}" >> $GITHUB_OUTPUT
+          echo "Building version: ${PR_VERSION}"
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: steps.check-label.outputs.should-build == 'true'
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Docker metadata
+        if: steps.check-label.outputs.should-build == 'true'
+        id: meta
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/aurora-pr-preview
+          tags: |
+            type=raw,value=${{ steps.pr-version.outputs.PR_VERSION }}
+          labels: |
+            org.opencontainers.image.description=PR Preview for Aurora Dashboard
+            org.opencontainers.image.title=Aurora-UI-PR-${{ github.event.pull_request.number }}
+
+      - name: Build and push Docker image
+        if: steps.check-label.outputs.should-build == 'true'
+        id: build-image
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: ${{ env.DOCKER_PATH }}
+
+      - name: Add PR Preview label
+        if: steps.check-label.outputs.should-build == 'true' && success()
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: ['${{ env.PR_PREVIEW_LABEL }}']
+            });
+
+  cleanup-old-images:
+    name: Cleanup Old PR Images
+    needs: build-and-push
+    if: needs.build-and-push.outputs.image-built == 'true'
+    permissions:
+      packages: write
+    uses: cloudoperators/common/.github/workflows/shared-ghcr-cleanup.yaml@d138f9922c75ed1e1ad3ae3bfb68dd8ae3284dc6 # main
+    with:
+      runs-on: ubuntu-latest
+      package: aurora-pr-preview
+      delete-tags: pr-${{ github.event.pull_request.number }}-*
+      exclude-tags: ${{ needs.build-and-push.outputs.pr-version }}
+      delete-partial-images: true
+
+  cleanup:
+    name: Cleanup PR Preview Image
+    # Skip if PR is not closed or from a forked repository
+    if: github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      packages: write
+    uses: cloudoperators/common/.github/workflows/shared-ghcr-cleanup.yaml@d138f9922c75ed1e1ad3ae3bfb68dd8ae3284dc6 # main
+    with:
+      runs-on: ubuntu-latest
+      package: aurora-pr-preview
+      delete-tags: pr-${{ github.event.pull_request.number }}-*
+      delete-partial-images: true
+
+  remove-label:
+    name: Remove PR Preview Label
+    needs: cleanup
+    if: always() && github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Remove PR Preview label
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                name: '${{ env.PR_PREVIEW_LABEL }}'
+              });
+              console.log('PR Preview label removed successfully');
+            } catch (error) {
+              if (error.status === 404) {
+                console.log('Label does not exist or already removed');
+              } else {
+                console.error('Error removing label:', error);
+                throw error;
+              }
+            }
+
+  # notify-on-failure:
+  # will be implemented in a future iteration to send Slack notifications if the cleanup job fails, ensuring that any issues with stale images are promptly addressed by the team.
