@@ -434,7 +434,17 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validCreateCAResponse)
-      expect(ctx.__postMock).toHaveBeenCalledWith("certificate-authorities", expect.any(Object))
+      const lastPostCall = ctx.__postMock.mock.lastCall
+      expect(lastPostCall).toBeDefined()
+      expect(lastPostCall?.[0]).toBe("certificate-authorities")
+      expect(lastPostCall?.[1]).toEqual({
+        configuration: {
+          subject: {
+            common_name: "new-ca.example.com",
+          },
+        },
+      })
+      expect(lastPostCall?.[1]).not.toHaveProperty("project_id")
     })
 
     it("throws PARSE_ERROR on invalid create response payload", async () => {

@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { useForm } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, Spinner, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, Spinner, TextInput, Message } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 
@@ -25,9 +25,9 @@ export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
   const formSchema = z.object({
     common_name: z
       .string()
-      .min(1, t`Common name is required.`)
       .trim()
-      .refine((value) => isValidCommonName(value), { message: t`Must be a valid CSR name.` }),
+      .min(1, t`Common name is required.`)
+      .refine((value) => isValidCommonName(value), { message: t`Must be a valid common name (FQDN).` }),
   })
 
   const form = useForm({
@@ -69,6 +69,12 @@ export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
       onConfirm={form.handleSubmit}
       disableConfirmButton={isPending}
     >
+      {createCaMutation.error?.message && (
+        <Message dismissible={false} variant="error" className="mb-4">
+          {createCaMutation.error.message}
+        </Message>
+      )}
+
       {isPending && (
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
@@ -99,7 +105,7 @@ export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
                   onChange={(e) => field.handleChange(e.target.value)}
                   label={t`Common name`}
                   placeholder={t`Enter Common name (e.g., demo-ca.test.sci)`}
-                  helptext={t`Enter a valid CSR name.`}
+                  helptext={t`Enter a valid common name in FQDN format (e.g., demo-ca.test.sci).`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                   disabled={isPending}
                 />
