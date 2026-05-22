@@ -37,12 +37,6 @@ msgstr "{allContainersCount} bucket"
 msgid "{allContainersCount} buckets"
 msgstr "{allContainersCount} buckets"
 
-msgid "{allContainersCount} container"
-msgstr "{allContainersCount} container"
-
-msgid "{allContainersCount} containers"
-msgstr "{allContainersCount} containers"
-
 msgid "{allCount} items"
 msgstr "{allCount} items"
 
@@ -54,6 +48,9 @@ msgstr "{emptiedCount, plural, one {# container was already empty.} other {# con
 
 msgid "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
 msgstr "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
+
+msgid "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
+msgstr "{filteredCount, plural, one {{filteredCount} of {totalCount} container} other {{filteredCount} of {totalCount} containers}}"
 
 msgid "{numberDeleted} object was permanently deleted."
 msgstr "{numberDeleted} object was permanently deleted."
@@ -67,14 +64,14 @@ msgstr "{numberDeleted} objects were permanently deleted."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
+msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
+msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
+
 #. placeholder {0}: bucket.count
 #. placeholder {1}: bucket.count === 1 ? "object" : "objects"
 #. placeholder {2}: bucket.name
 msgid "<0>Are you sure?</0> All {0} {1} in bucket \"{2}\" will be permanently deleted. This action cannot be undone."
 msgstr "<0>Are you sure?</0> All {0} {1} in bucket \"{2}\" will be permanently deleted. This action cannot be undone."
-
-msgid "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
-msgstr "<0>Are you sure?</0> All objects in the container will be deleted. This cannot be undone."
 
 msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
@@ -84,9 +81,6 @@ msgstr "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objec
 
 msgid "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
-
-msgid "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
-msgstr "<0>Are you sure?</0> The container will be deleted. This cannot be undone."
 
 msgid "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
 msgstr "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
@@ -105,6 +99,9 @@ msgstr "<0>No Temp URL key configured.</0> A temporary URL key must be set at th
 
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
+
+msgid "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
+msgstr "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
 
 msgid "<0>Properties of</0> <1>{displayName}</1>"
 msgstr "<0>Properties of</0> <1>{displayName}</1>"
@@ -310,9 +307,6 @@ msgstr "Attach"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
-msgid "Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a seamless way to provision, configure, and scale your resources across OpenStack environments."
-msgstr "Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a seamless way to provision, configure, and scale your resources across OpenStack environments."
-
 msgid "Back"
 msgstr "Back"
 
@@ -330,6 +324,9 @@ msgstr "Basic Info"
 
 msgid "Basic Information"
 msgstr "Basic Information"
+
+msgid "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
+msgstr "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
 
 msgid "Boot RAM"
 msgstr "Boot RAM"
@@ -415,17 +412,11 @@ msgstr "Cancel"
 msgid "Cancel upload"
 msgstr "Cancel upload"
 
-msgid "Cannot delete. Container contains objects. Please empty it first."
-msgstr "Cannot delete. Container contains objects. Please empty it first."
-
 msgid "Capabilities"
 msgstr "Capabilities"
 
 msgid "Ceph"
 msgstr "Ceph"
-
-msgid "Check out our source code on GitHub!"
-msgstr "Check out our source code on GitHub!"
 
 msgid "Checking bucket contents..."
 msgstr "Checking bucket contents..."
@@ -456,9 +447,6 @@ msgstr "Compute Overview"
 
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Configure the ingress and egress rules that control which traffic is allowed for this security group."
-
-msgid "Contact support"
-msgstr "Contact support"
 
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Container \"{containerName}\" properties were successfully updated."
@@ -838,9 +826,6 @@ msgstr "DNS Name"
 msgid "DNS name must be at most 63 characters."
 msgstr "DNS name must be at most 63 characters."
 
-msgid "Documentation"
-msgstr "Documentation"
-
 msgid "Domain"
 msgstr "Domain"
 
@@ -919,11 +904,11 @@ msgstr "Empty Bucket"
 msgid "Empty Buckets"
 msgstr "Empty Buckets"
 
-msgid "Empty container:"
-msgstr "Empty container:"
-
 msgid "Empty Containers"
 msgstr "Empty Containers"
+
+msgid "Empty:"
+msgstr "Empty:"
 
 #. placeholder {0}: progress.current
 #. placeholder {1}: progress.total
@@ -974,9 +959,6 @@ msgstr "Enter member ID"
 
 msgid "Enter tenant ID"
 msgstr "Enter tenant ID"
-
-msgid "Enter the Cloud"
-msgstr "Enter the Cloud"
 
 msgid "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
 msgstr "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
@@ -1264,9 +1246,6 @@ msgstr "False"
 msgid "Filter by"
 msgstr "Filter by"
 
-msgid "Find detailed guides and references in our docs."
-msgstr "Find detailed guides and references in our docs."
-
 msgid "Fingerprint"
 msgstr "Fingerprint"
 
@@ -1371,9 +1350,6 @@ msgstr "Generating..."
 
 msgid "Get Involved"
 msgstr "Get Involved"
-
-msgid "GitHub"
-msgstr "GitHub"
 
 msgid "Got it!"
 msgstr "Got it!"
@@ -1669,9 +1645,6 @@ msgstr "Manage Access - {flavorName}"
 msgid "Manage Access for Image - {imageName}"
 msgstr "Manage Access for Image - {imageName}"
 
-msgid "Manage OpenStack with "
-msgstr "Manage OpenStack with "
-
 msgid "Max container name length"
 msgstr "Max container name length"
 
@@ -1801,9 +1774,6 @@ msgstr "Name"
 msgid "Name must be 2-50 characters long."
 msgstr "Name must be 2-50 characters long."
 
-msgid "Need help?"
-msgstr "Need help?"
-
 msgid "Network"
 msgstr "Network"
 
@@ -1914,12 +1884,6 @@ msgstr "Note: The 'stateful' attribute cannot be changed if this security group 
 
 msgid "Nothing to do. Bucket is already empty."
 msgstr "Nothing to do. Bucket is already empty."
-
-msgid "Nothing to do. Container appears empty — the object count may not have synced yet due to a recent operation."
-msgstr "Nothing to do. Container appears empty — the object count may not have synced yet due to a recent operation."
-
-msgid "Nothing to do. Container is already empty."
-msgstr "Nothing to do. Container is already empty."
 
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Object \"{objectName}\" was permanently deleted."
@@ -2091,6 +2055,9 @@ msgstr "Preview"
 
 msgid "Preview {rowDisplayName}"
 msgstr "Preview {rowDisplayName}"
+
+msgid "Preview and Edit metadata"
+msgstr "Preview and Edit metadata"
 
 msgid "Private"
 msgstr "Private"
@@ -2568,8 +2535,14 @@ msgstr "Tenant ID"
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
 
+msgid "The container cannot be deleted as it contains objects. Empty the container first."
+msgstr "The container cannot be deleted as it contains objects. Empty the container first."
+
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 msgstr "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
+
+msgid "The container will be deleted. This action is permanent and cannot be undone."
+msgstr "The container will be deleted. This action is permanent and cannot be undone."
 
 msgid "The extra spec could not be found. It may have already been deleted."
 msgstr "The extra spec could not be found. It may have already been deleted."
@@ -2634,6 +2607,9 @@ msgstr "The specified user has access. A token for the user (scoped to any proje
 msgid "The tenant ID provided is invalid. Please check your input."
 msgstr "The tenant ID provided is invalid. Please check your input."
 
+msgid "The text must match \"delete\""
+msgstr "The text must match \"delete\""
+
 msgid "The text must match “detach” in lowercase."
 msgstr "The text must match “detach” in lowercase."
 
@@ -2682,12 +2658,21 @@ msgstr "This action cannot be undone. The target project will lose access to thi
 msgid "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
 msgstr "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
 
+msgid "This action is permanent. All objects in the container will be deleted and this cannot be undone."
+msgstr "This action is permanent. All objects in the container will be deleted and this cannot be undone."
+
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 
 #. placeholder {0}: actualObjectCount > 1 ? "s" : ""
 msgid "This bucket contains {actualObjectCount} object{0} and cannot be deleted. Delete all objects first."
 msgstr "This bucket contains {actualObjectCount} object{0} and cannot be deleted. Delete all objects first."
+
+msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
+msgstr "This container appears empty — the object count may not have synced yet due to a recent operation."
+
+msgid "This container is already empty."
+msgstr "This container is already empty."
 
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
@@ -2750,6 +2735,9 @@ msgstr "To confirm this action, type the word <0>“detach”</0> in the field b
 msgid "To confirm this action, type the word <0>\"release\"</0> in the field below."
 msgstr "To confirm this action, type the word <0>\"release\"</0> in the field below."
 
+msgid "To confirm type <0>delete</0> in the field below."
+msgstr "To confirm type <0>delete</0> in the field below."
+
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Together, we can unlock the true potential of your cloud infrastructure."
 
@@ -2773,6 +2761,9 @@ msgstr "Try Again"
 
 msgid "Type"
 msgstr "Type"
+
+msgid "Type \"delete\" to confirm"
+msgstr "Type \"delete\" to confirm"
 
 msgid "Type \"detach\" to confirm"
 msgstr "Type \"detach\" to confirm"
@@ -2938,12 +2929,6 @@ msgstr "Versioning is enabled"
 
 msgid "View Details"
 msgstr "View Details"
-
-msgid "View Docs"
-msgstr "View Docs"
-
-msgid "View Repository"
-msgstr "View Repository"
 
 msgid "Visibility"
 msgstr "Visibility"

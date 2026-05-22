@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_auth")({
         const redirectPath = location.pathname ? location.pathname : ""
 
         throw redirect({
-          to: "/auth/login",
+          to: "/",
           search: { redirect: redirectPath },
         })
       }

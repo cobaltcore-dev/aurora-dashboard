@@ -48,7 +48,7 @@ export function MainNavigation({ items, handleThemeToggle }: NavigationProps) {
       logo={<Logo className={cn("h-6 w-6 shrink-0 fill-current", textColorClass)} title="Aurora" />}
       applicationName={
         <div className="flex flex-nowrap items-center space-x-2">
-          <Link to="/" className={cn("shrink-0", textColorClass, textHoverClass)}>
+          <Link to="/projects" className={cn("shrink-0", textColorClass, textHoverClass)}>
             Aurora
           </Link>
           {domain && (

@@ -40,7 +40,7 @@
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "semantic-release": "^25.0.0",
-    "turbo": "^2.2.3"
+    "turbo": "^2.9.14"
   },
   "packageManager": "pnpm@10.33.0",
   "dependencies": {

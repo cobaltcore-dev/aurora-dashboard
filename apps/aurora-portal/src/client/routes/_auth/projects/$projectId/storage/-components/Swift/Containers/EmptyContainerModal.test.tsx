@@ -170,24 +170,20 @@ describe("EmptyContainerModal", () => {
     test("confirm button is disabled while loading", () => {
       listObjectsLoading = true
       renderModal()
-      // Both Empty and Got it! buttons would be disabled — find the confirm button
-      const buttons = screen.getAllByRole("button")
-      const confirmButton = buttons.find(
-        (btn) => btn.textContent?.match(/Empty|Got it/i) && !btn.textContent?.match(/Cancel/i)
-      )
-      expect(confirmButton).toBeDisabled()
+      // While loading, showEmptyInfo is false so Empty button is rendered but disabled
+      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
     })
   })
 
   describe("Case 1: container has objects", () => {
     test("renders warning message (Are you sure)", () => {
       renderModal()
-      expect(screen.getByText(/Are you sure/i)).toBeInTheDocument()
+      expect(screen.getByText(/This action is permanent/i)).toBeInTheDocument()
     })
 
     test("renders warning about large objects", () => {
       renderModal()
-      expect(screen.getByText(/dynamic/i)).toBeInTheDocument()
+      expect(screen.getByText(/Please note/i)).toBeInTheDocument()
       expect(screen.getByText(/static large objects/i)).toBeInTheDocument()
     })
 
@@ -247,18 +243,18 @@ describe("EmptyContainerModal", () => {
 
     test("renders info message about already empty container", () => {
       renderModal({ container: makeContainer({ count: 0 }) })
-      expect(screen.getByText(/Nothing to do. Container is already empty/i)).toBeInTheDocument()
+      expect(screen.getByText(/This container is already empty/i)).toBeInTheDocument()
     })
 
-    test("renders Got it! button instead of Empty", () => {
+    test("renders Close button instead of Empty", () => {
       renderModal({ container: makeContainer({ count: 0 }) })
-      expect(screen.getByRole("button", { name: /Got it!/i })).toBeInTheDocument()
+      expect(screen.getByTestId("empty-info-close-button")).toBeInTheDocument()
       expect(screen.queryByRole("button", { name: /^Empty$/i })).not.toBeInTheDocument()
     })
 
-    test("renders Got it! as the only action button", () => {
+    test("renders Close as the only action button", () => {
       renderModal({ container: makeContainer({ count: 0 }) })
-      expect(screen.getByRole("button", { name: /Got it!/i })).toBeInTheDocument()
+      expect(screen.getByTestId("empty-info-close-button")).toBeInTheDocument()
     })
 
     test("does not render confirmation text input", () => {
@@ -271,11 +267,11 @@ describe("EmptyContainerModal", () => {
       expect(screen.queryByTitle(/Copy container name/i)).not.toBeInTheDocument()
     })
 
-    test("calls onClose when Got it! is clicked", async () => {
+    test("calls onClose when Close is clicked", async () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ container: makeContainer({ count: 0 }), onClose })
-      await user.click(screen.getByRole("button", { name: /Got it!/i }))
+      await user.click(screen.getByTestId("empty-info-close-button"))
       expect(onClose).toHaveBeenCalled()
     })
   })
@@ -290,15 +286,15 @@ describe("EmptyContainerModal", () => {
       expect(screen.getByText(/object count may not have synced/i)).toBeInTheDocument()
     })
 
-    test("renders Got it! button instead of Empty", () => {
+    test("renders Close button instead of Empty", () => {
       renderModal({ container: makeContainer({ count: 5 }) })
-      expect(screen.getByRole("button", { name: /Got it!/i })).toBeInTheDocument()
+      expect(screen.getByTestId("empty-info-close-button")).toBeInTheDocument()
       expect(screen.queryByRole("button", { name: /^Empty$/i })).not.toBeInTheDocument()
     })
 
-    test("renders Got it! as the only action button", () => {
+    test("renders Close as the only action button", () => {
       renderModal({ container: makeContainer({ count: 5 }) })
-      expect(screen.getByRole("button", { name: /Got it!/i })).toBeInTheDocument()
+      expect(screen.getByTestId("empty-info-close-button")).toBeInTheDocument()
     })
 
     test("does not render copy icon button", () => {
@@ -306,11 +302,11 @@ describe("EmptyContainerModal", () => {
       expect(screen.queryByTitle(/Copy container name/i)).not.toBeInTheDocument()
     })
 
-    test("calls onClose when Got it! is clicked", async () => {
+    test("calls onClose when Close is clicked", async () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ container: makeContainer({ count: 5 }), onClose })
-      await user.click(screen.getByRole("button", { name: /Got it!/i }))
+      await user.click(screen.getByTestId("empty-info-close-button"))
       expect(onClose).toHaveBeenCalled()
     })
   })
@@ -456,7 +452,7 @@ describe("EmptyContainerModal", () => {
       listObjectsData = []
       listObjectsError = { message: "Not found" }
       renderModal({ container: makeContainer({ count: 0 }) })
-      expect(screen.queryByText(/Nothing to do. Container is already empty/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/This container is already empty/i)).not.toBeInTheDocument()
     })
 
     test("does not render info message when fetch error is present (consistency delay)", () => {

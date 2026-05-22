@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface CreateContainerModalProps {
@@ -98,12 +98,12 @@ export const CreateContainerModal = ({
       disableConfirmButton={createContainerMutation.isPending || !containerName.trim()}
     >
       <Stack direction="vertical" gap="6">
-        <Message variant="info">
+        <p className="text-theme-default">
           <Trans>
             Inside a project, objects are stored in containers. Containers are where you define access permissions and
             quotas.
           </Trans>
-        </Message>
+        </p>
         <TextInput
           label={t`Container name`}
           required

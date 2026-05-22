@@ -163,9 +163,10 @@ describe("ManageContainerAccessModal", () => {
       expect(screen.getByText("special-container")).toBeInTheDocument()
     })
 
-    test("renders info message about ACL entries", () => {
+    test("renders info text about ACL entries and access warning", () => {
       renderModal()
       expect(screen.getByText(/ACL entries control who can read from or write to this container/i)).toBeInTheDocument()
+      expect(screen.getByText(/Before proceeding, ensure that the Project ID/i)).toBeInTheDocument()
     })
 
     test("renders reference panel with ACL examples", () => {
