@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from "./routes/__root"
 import { Route as AboutRouteImport } from "./routes/about"
 import { Route as AuthRouteImport } from "./routes/_auth"
 import { Route as IndexRouteImport } from "./routes/index"
-import { Route as AuthLoginRouteImport } from "./routes/auth/login"
 import { Route as AuthAuroraRouteImport } from "./routes/_auth/aurora"
 import { Route as AuthProjectsIndexRouteImport } from "./routes/_auth/projects/index"
 import { Route as AuthAccountsIndexRouteImport } from "./routes/_auth/accounts/index"
@@ -51,11 +50,6 @@ const AuthRoute = AuthRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: "/auth/login",
-  path: "/auth/login",
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthAuroraRoute = AuthAuroraRouteImport.update({
@@ -215,7 +209,6 @@ export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/about": typeof AboutRoute
   "/aurora": typeof AuthAuroraRoute
-  "/auth/login": typeof AuthLoginRoute
   "/projects/$projectId": typeof AuthProjectsProjectIdRouteWithChildren
   "/accounts/": typeof AuthAccountsIndexRoute
   "/projects/": typeof AuthProjectsIndexRoute
@@ -245,7 +238,6 @@ export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/about": typeof AboutRoute
   "/aurora": typeof AuthAuroraRoute
-  "/auth/login": typeof AuthLoginRoute
   "/accounts": typeof AuthAccountsIndexRoute
   "/projects": typeof AuthProjectsIndexRoute
   "/projects/$projectId": typeof AuthProjectsProjectIdIndexRoute
@@ -273,7 +265,6 @@ export interface FileRoutesById {
   "/_auth": typeof AuthRouteWithChildren
   "/about": typeof AboutRoute
   "/_auth/aurora": typeof AuthAuroraRoute
-  "/auth/login": typeof AuthLoginRoute
   "/_auth/projects/$projectId": typeof AuthProjectsProjectIdRouteWithChildren
   "/_auth/accounts/": typeof AuthAccountsIndexRoute
   "/_auth/projects/": typeof AuthProjectsIndexRoute
@@ -305,7 +296,6 @@ export interface FileRouteTypes {
     | "/"
     | "/about"
     | "/aurora"
-    | "/auth/login"
     | "/projects/$projectId"
     | "/accounts/"
     | "/projects/"
@@ -335,7 +325,6 @@ export interface FileRouteTypes {
     | "/"
     | "/about"
     | "/aurora"
-    | "/auth/login"
     | "/accounts"
     | "/projects"
     | "/projects/$projectId"
@@ -362,7 +351,6 @@ export interface FileRouteTypes {
     | "/_auth"
     | "/about"
     | "/_auth/aurora"
-    | "/auth/login"
     | "/_auth/projects/$projectId"
     | "/_auth/accounts/"
     | "/_auth/projects/"
@@ -393,7 +381,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   AboutRoute: typeof AboutRoute
-  AuthLoginRoute: typeof AuthLoginRoute
 }
 
 declare module "@tanstack/react-router" {
@@ -417,13 +404,6 @@ declare module "@tanstack/react-router" {
       path: "/"
       fullPath: "/"
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/auth/login": {
-      id: "/auth/login"
-      path: "/auth/login"
-      fullPath: "/auth/login"
-      preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/_auth/aurora": {
@@ -733,7 +713,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   AboutRoute: AboutRoute,
-  AuthLoginRoute: AuthLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

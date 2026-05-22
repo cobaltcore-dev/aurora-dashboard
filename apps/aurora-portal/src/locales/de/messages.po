@@ -292,9 +292,6 @@ msgstr "Anhängen"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
-msgid "Aurora empowers you with robust tools to streamline your cloud management effortlessly. Experience a seamless way to provision, configure, and scale your resources across OpenStack environments."
-msgstr "Aurora bietet Ihnen robuste Tools, um Ihre Cloud-Verwaltung nahtlos zu optimieren. Erleben Sie eine mühelose Möglichkeit, Ihre Ressourcen in OpenStack-Umgebungen bereitzustellen, zu konfigurieren und zu skalieren."
-
 msgid "Back"
 msgstr "Zurück"
 
@@ -337,9 +334,6 @@ msgstr "Capabilities"
 msgid "Ceph"
 msgstr ""
 
-msgid "Check out our source code on GitHub!"
-msgstr "Schauen Sie sich unseren Quellcode auf GitHub an!"
-
 msgid "Checking S3 credentials..."
 msgstr ""
 
@@ -369,9 +363,6 @@ msgstr "Compute-Übersicht"
 
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher Datenverkehr für diese Sicherheitsgruppe erlaubt ist."
-
-msgid "Contact support"
-msgstr "Support kontaktieren"
 
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Eigenschaften des Containers \"{containerName}\" wurden erfolgreich aktualisiert."
@@ -736,9 +727,6 @@ msgstr "DNS-Name"
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 
-msgid "Documentation"
-msgstr "Dokumentation"
-
 msgid "Domain"
 msgstr "Domain"
 
@@ -858,9 +846,6 @@ msgstr "Mitglieds-ID eingeben"
 
 msgid "Enter tenant ID"
 msgstr "Project ID eingeben"
-
-msgid "Enter the Cloud"
-msgstr "Die Cloud betreten"
 
 msgid "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
 msgstr "Geben Sie die ID des Projekts ein, mit dem Sie diese Sicherheitsgruppe teilen möchten. Sie finden Projekt-IDs im Konto-/Projekt-Umschalter oder im Identity-Service."
@@ -1132,9 +1117,6 @@ msgstr "False"
 msgid "Filter by"
 msgstr "Filtern nach"
 
-msgid "Find detailed guides and references in our docs."
-msgstr "Finden Sie detaillierte Anleitungen und Referenzen in unserer Dokumentation."
-
 msgid "Fingerprint"
 msgstr "Fingerprint"
 
@@ -1239,9 +1221,6 @@ msgstr "Wird generiert..."
 
 msgid "Get Involved"
 msgstr "Mitmachen"
-
-msgid "GitHub"
-msgstr "GitHub"
 
 msgid "Grant access to a user from a different project."
 msgstr "Zugriff für einen Benutzer aus einem anderen Projekt gewähren."
@@ -1531,9 +1510,6 @@ msgstr "Zugriff verwalten - {flavorName}"
 msgid "Manage Access for Image - {imageName}"
 msgstr "Zugriff für Image verwalten - {imageName}"
 
-msgid "Manage OpenStack with "
-msgstr "Verwalten Sie OpenStack mit "
-
 msgid "Max container name length"
 msgstr "Maximale Container-Namenslänge"
 
@@ -1659,9 +1635,6 @@ msgstr "Name"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
-
-msgid "Need help?"
-msgstr "Benötigen Sie Hilfe?"
 
 msgid "Network"
 msgstr "Netzwerk"
@@ -2784,12 +2757,6 @@ msgstr "Versionierung ist aktiviert"
 
 msgid "View Details"
 msgstr "Details ansehen"
-
-msgid "View Docs"
-msgstr "Dokumentation ansehen"
-
-msgid "View Repository"
-msgstr "Repository ansehen"
 
 msgid "Visibility"
 msgstr "Sichtbarkeit"

@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_auth/accounts/")({
         to: `/projects`,
       })
     } else {
-      throw redirect({ to: "/auth/login" })
+      throw redirect({ to: "/" })
     }
   },
 })
