@@ -18,6 +18,7 @@ The workflow uses two GitHub labels to control the build and deployment process:
 ### Workflow Triggers
 
 The workflow runs on the following PR events:
+
 - `labeled` - When a label is added to the PR
 - `synchronize` - When new commits are pushed to the PR
 - `opened` - When a PR is opened
@@ -107,10 +108,12 @@ The workflow runs on the following PR events:
 ```
 
 ### 1. PR Events
+
 - Workflow triggers on PR label changes, new commits, or PR closure
 - Concurrency control ensures only one workflow runs per PR at a time
 
 ### 2. Build Phase
+
 Runs when PR is NOT closed and has the `pr-build` label:
 
 1. **Check for `pr-build` label** - Skip if not present
@@ -121,6 +124,7 @@ Runs when PR is NOT closed and has the `pr-build` label:
 6. **Add `pr-preview` label** - Adds the label to trigger ArgoCD deployment
 
 ### 3. Cleanup Old Images
+
 Runs after a successful build:
 
 - Deletes previous images for this PR number (matching pattern `pr-{NUMBER}-*`)
@@ -128,6 +132,7 @@ Runs after a successful build:
 - Prevents accumulation of stale images from multiple commits
 
 ### 4. PR Closure Cleanup
+
 Runs when a PR is closed:
 
 1. Delete all images for this PR (matching pattern `pr-{NUMBER}-*`)
@@ -164,17 +169,21 @@ Runs when a PR is closed:
 ## Docker Image Details
 
 ### Registry
+
 Images are pushed to GitHub Container Registry (GHCR):
+
 ```
 ghcr.io/{org}/aurora-pr-preview
 ```
 
 ### Image Tags
+
 Format: `pr-{PR_NUMBER}-{SHORT_SHA}`
 
 Example: `pr-123-a1b2c3d` (PR #123, commit SHA starts with `a1b2c3d`)
 
 ### Dockerfile Location
+
 ```
 docker/Dockerfile
 ```
@@ -182,7 +191,9 @@ docker/Dockerfile
 ## Security
 
 ### Forked Repositories
+
 The workflow includes a safety check that prevents builds from forked repositories:
+
 ```yaml
 github.event.pull_request.head.repo.full_name == github.repository
 ```
@@ -190,33 +201,40 @@ github.event.pull_request.head.repo.full_name == github.repository
 This prevents unauthorized users from triggering builds and consuming resources.
 
 ### Permissions
+
 The workflow requires the following permissions:
+
 - `contents: read` - Read repository contents
 - `packages: write` - Push to GitHub Container Registry
 - `issues: write` - Manage labels
 - `pull-requests: write` - Manage PR labels
 
 ### Label Permissions
+
 Only users with **Triage** role or higher can add labels to PRs, which controls who can trigger builds.
 
 ## Troubleshooting
 
 ### Build Doesn't Start
+
 - Ensure the `pr-build` label is present on the PR
 - Check that the PR is not from a forked repository
 - Verify the workflow file exists and is valid
 
 ### Image Not Found
+
 - Check the GitHub Actions logs for build errors
 - Verify the image was pushed to GHCR: `ghcr.io/{org}/aurora-pr-preview:pr-{NUMBER}-{SHA}`
 - Ensure `GITHUB_TOKEN` has `packages: write` permission
 
 ### ArgoCD Doesn't Deploy
+
 - Verify the `pr-preview` label is present on the PR
 - Check ArgoCD configuration for label-based deployment rules
 - Confirm ArgoCD has access to GHCR
 
 ### Old Images Not Cleaned Up
+
 - Check the cleanup job logs in GitHub Actions
 - Verify the workflow has `packages: write` permission
 - Manually clean up images if needed via GHCR web interface
@@ -224,7 +242,9 @@ Only users with **Triage** role or higher can add labels to PRs, which controls 
 ## Configuration
 
 ### Environment Variables
+
 Defined in the workflow file:
+
 ```yaml
 REGISTRY: ghcr.io
 DOCKER_PATH: "docker/Dockerfile"
@@ -233,6 +253,7 @@ PR_PREVIEW_LABEL: "pr-preview"
 ```
 
 ### Concurrency
+
 ```yaml
 concurrency:
   group: aurora-pr-preview-${{ github.event.pull_request.number }}
