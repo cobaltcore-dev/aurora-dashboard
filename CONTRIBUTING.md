@@ -2,37 +2,98 @@
 
 ## Code of Conduct
 
-All members of the project community must abide by the [SAP Open Source Code of Conduct](https://github.com/SAP/.github/blob/main/CODE_OF_CONDUCT.md).
-Only by respecting each other we can develop a productive, collaborative community.
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting [a project maintainer](.reuse/dep5).
+All members of the project community must abide by the [SAP Open Source Code of Conduct](https://github.com/SAP/.github/blob/main/CODE_OF_CONDUCT.md). Instances of abusive or unacceptable behavior may be reported by contacting [a project maintainer](.reuse/dep5).
 
-## Engaging in Our Project
+## How to Contribute
 
-We use GitHub to manage reviews of pull requests.
+1. **Open an issue** describing the bug or feature before starting work.
+2. The team reviews and assigns the issue if approved.
+3. **Claim the issue** by commenting — avoids duplicate effort.
+4. Fork, branch, implement, and open a pull request.
 
-- If you are a new contributor, see: [Steps to Contribute](#steps-to-contribute)
+Contributions must be licensed under [Apache 2.0](./LICENSE). A Developer Certificate of Origin (DCO) sign-off is required and handled automatically on your first PR.
 
-- Before implementing your change, create an issue that describes the problem you would like to solve or the code that should be enhanced. Please note that you are willing to work on that issue.
+## Development Setup
 
-- The team will review the issue and decide whether it should be implemented as a pull request. In that case, they will assign the issue to you. If the team decides against picking up the issue, the team will post a comment with an explanation.
+### Prerequisites
 
-## Steps to Contribute
+- Node.js >= 24
+- pnpm >= 9
+- Access to an OpenStack environment (Keystone endpoint required)
 
-Should you wish to work on an issue, please claim it first by commenting on the GitHub issue that you want to work on. This is to prevent duplicated efforts from other contributors on the same issue.
+### Install
 
-If you have questions about one of the issues, please comment on them, and one of the maintainers will clarify.
+```bash
+pnpm install
+```
 
-## Contributing Code or Documentation
+### Configure
 
-You are welcome to contribute code in order to fix a bug or to implement a new feature that is logged as an issue.
+```bash
+cp apps/aurora-portal/.env.example apps/aurora-portal/.env
+```
 
-The following rule governs code contributions:
+Set `IDENTITY_ENDPOINT` to your Keystone v3 URL. See the [README](README.md) for details.
 
-- Contributions must be licensed under the [Apache 2.0 License](./LICENSE)
-- Due to legal reasons, contributors will be asked to accept a Developer Certificate of Origin (DCO) when they create the first pull request to this project. This happens in an automated fashion during the submission process. SAP uses [the standard DCO text of the Linux Foundation](https://developercertificate.org/).
+### Run
+
+```bash
+pnpm dev        # start dev server
+pnpm test       # run all tests
+pnpm typecheck  # type checking
+pnpm lint       # lint
+pnpm build      # production build
+```
+
+## Commit Messages
+
+This project enforces [Conventional Commits](https://www.conventionalcommits.org/) via commitlint. Use:
+
+```bash
+pnpm commit     # interactive commit helper (commitizen)
+```
+
+Or write manually following this format:
+
+```
+<type>(<scope>): <subject>
+```
+
+### Types
+
+| Type | When to use |
+|------|-------------|
+| `feat` | New feature (triggers minor release) |
+| `fix` | Bug fix (triggers patch release) |
+| `perf` | Performance improvement (triggers patch release) |
+| `refactor` | Code change, no bug fix or feature |
+| `docs` | Documentation only |
+| `test` | Adding or updating tests |
+| `build` | Build system or dependency changes |
+| `ci` | CI configuration changes |
+| `chore` | Maintenance tasks |
+| `revert` | Revert a previous commit |
+
+### Scopes
+
+Use one of the allowed scopes: `aurora-portal`, `signal-openstack`, `ui`, `bff`, `core`, `portal`, `network`, `identity`, `gardener`, `config`, `ci`, `build`, `docs`, `deps`, `infra`, `playwright`, and others defined in `commitlint.config.mjs`.
+
+### Breaking Changes
+
+Append `!` to the type or add a `BREAKING CHANGE:` footer to trigger a major release:
+
+```bash
+git commit -m "feat(core)!: redesign auth flow
+
+BREAKING CHANGE: session cookie format has changed"
+```
+
+## Pull Requests
+
+- PRs require passing CI (build, lint, typecheck, tests).
+- PR titles must follow the same conventional commit format — enforced by CI.
+- Keep commits atomic and focused.
 
 ## Issues and Planning
 
-- We use GitHub issues to track bugs and enhancement requests.
-
-- Please provide as much context as possible when you open an issue. The information you provide must be comprehensive enough to reproduce that issue for the assignee.
+Use [GitHub Issues](https://github.com/cobaltcore-dev/aurora-dashboard/issues) for bugs and feature requests. Provide enough context to reproduce the issue.
