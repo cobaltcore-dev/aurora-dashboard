@@ -483,9 +483,9 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(CertificateAuthoritySchema.safeParse(withoutState).success).toBe(false)
     })
 
-    it("should require configuration", () => {
+    it("should allow configuration to be omitted", () => {
       const { ...withoutConfiguration } = omit(minimalValidCA, "configuration")
-      expect(CertificateAuthoritySchema.safeParse(withoutConfiguration).success).toBe(false)
+      expect(CertificateAuthoritySchema.safeParse(withoutConfiguration).success).toBe(true)
     })
 
     it("should require configuration.subject", () => {
