@@ -61,18 +61,18 @@ Or write manually following this format:
 
 ### Types
 
-| Type | When to use |
-|------|-------------|
-| `feat` | New feature (triggers minor release) |
-| `fix` | Bug fix (triggers patch release) |
-| `perf` | Performance improvement (triggers patch release) |
-| `refactor` | Code change, no bug fix or feature |
-| `docs` | Documentation only |
-| `test` | Adding or updating tests |
-| `build` | Build system or dependency changes |
-| `ci` | CI configuration changes |
-| `chore` | Maintenance tasks |
-| `revert` | Revert a previous commit |
+| Type       | When to use                                      |
+| ---------- | ------------------------------------------------ |
+| `feat`     | New feature (triggers minor release)             |
+| `fix`      | Bug fix (triggers patch release)                 |
+| `perf`     | Performance improvement (triggers patch release) |
+| `refactor` | Code change, no bug fix or feature               |
+| `docs`     | Documentation only                               |
+| `test`     | Adding or updating tests                         |
+| `build`    | Build system or dependency changes               |
+| `ci`       | CI configuration changes                         |
+| `chore`    | Maintenance tasks                                |
+| `revert`   | Revert a previous commit                         |
 
 ### Scopes
 
