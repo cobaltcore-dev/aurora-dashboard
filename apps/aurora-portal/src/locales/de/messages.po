@@ -724,6 +724,9 @@ msgstr "Alle löschen"
 msgid "Delete All ({selectedCount})"
 msgstr "Alle löschen ({selectedCount})"
 
+msgid "Delete bucket"
+msgstr ""
+
 msgid "Delete Bucket"
 msgstr ""
 

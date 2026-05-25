@@ -175,7 +175,7 @@ export function ContainerListView() {
                   size="small"
                   icon="deleteForever"
                   onClick={() => setDeleteModalBucket(bucket)}
-                  title="Delete bucket"
+                  title={t`Delete bucket`}
                 />
               </DataGridCell>
             </DataGridRow>
