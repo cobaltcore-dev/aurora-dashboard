@@ -233,7 +233,9 @@ export const ContainerTableView = ({
                     </span>
                   </DataGridCell>
                   <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
-                  <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
+                  <DataGridCell>
+                    {formatDate(container.last_modified || container.creationDate || "")}
+                  </DataGridCell>
                   <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>

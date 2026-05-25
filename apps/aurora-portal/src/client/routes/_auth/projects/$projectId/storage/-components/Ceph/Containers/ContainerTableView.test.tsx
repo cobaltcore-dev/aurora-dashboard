@@ -363,9 +363,11 @@ describe("ContainerTableView", () => {
       expect(cells.length).toBeGreaterThan(0)
     })
 
-    test("shows N/A for missing last_modified", () => {
+    test("shows creationDate as fallback when last_modified is missing", () => {
       renderTableView()
-      expect(screen.getByText("N/A")).toBeInTheDocument()
+      // Should show creation date for containers without last_modified
+      const cells = screen.getAllByText(/2024/)
+      expect(cells.length).toBeGreaterThan(0)
     })
   })
 })
