@@ -41,14 +41,8 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   )
 
   const deleteBucketMutation = trpcReact.storage.ceph.containers.delete.useMutation({
-    onSuccess: (_data, variables) => {
-      utils.storage.ceph.containers.list.invalidate()
-      onSuccess?.(variables.bucketName)
-    },
-    onError: (error, variables) => {
-      onError?.(variables.bucketName, error.message)
-    },
     onSettled: () => {
+      utils.storage.ceph.containers.list.invalidate()
       handleClose()
     },
   })
@@ -81,7 +75,21 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
       setNameError(t`Bucket name does not match`)
       return
     }
-    deleteBucketMutation.mutate({ project_id: projectId, bucketName: bucket.name })
+
+    // Capture bucket name before async operation to avoid dereferencing null bucket in callbacks
+    const bucketName = bucket.name
+
+    deleteBucketMutation.mutate(
+      { project_id: projectId, bucketName },
+      {
+        onSuccess: () => {
+          onSuccess?.(bucketName)
+        },
+        onError: (error) => {
+          onError?.(bucketName, error.message)
+        },
+      }
+    )
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

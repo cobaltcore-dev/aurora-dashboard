@@ -42,13 +42,15 @@ const { mockInvalidate, mockMutate, mockReset, mockState } = vi.hoisted(() => {
     objectsError: null as string | null,
     capturedOptions: {} as DeleteMutationOptions,
   }
-  const mockMutate = vi.fn().mockImplementation(() => {
+  const mockMutate = vi.fn().mockImplementation((_variables: unknown, options?: DeleteMutationOptions) => {
+    // Merge options from both useMutation and mutate call
+    const mergedOptions = { ...mockState.capturedOptions, ...options }
     if (mockState.mutationError) {
-      mockState.capturedOptions.onError?.({ message: mockState.mutationError })
+      mergedOptions.onError?.({ message: mockState.mutationError })
     } else {
-      mockState.capturedOptions.onSuccess?.()
+      mergedOptions.onSuccess?.()
     }
-    mockState.capturedOptions.onSettled?.()
+    mergedOptions.onSettled?.()
   })
   return {
     mockInvalidate: vi.fn(),
@@ -363,10 +365,16 @@ describe("DeleteBucketModal", () => {
 
       await waitFor(
         () => {
-          expect(mockMutate).toHaveBeenCalledWith({
-            project_id: mockProjectId,
-            bucketName: mockEmptyBucket.name,
-          })
+          expect(mockMutate).toHaveBeenCalledWith(
+            {
+              project_id: mockProjectId,
+              bucketName: mockEmptyBucket.name,
+            },
+            expect.objectContaining({
+              onSuccess: expect.any(Function),
+              onError: expect.any(Function),
+            })
+          )
         },
         { timeout: 3000 }
       )
