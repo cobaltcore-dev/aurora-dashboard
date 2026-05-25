@@ -31,12 +31,12 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   }
 
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
-    onSuccess: (deletedCount) => {
+    onSuccess: (deletedCount, variables) => {
       utils.storage.ceph.containers.list.invalidate()
-      onSuccess?.(bucket!.name, deletedCount)
+      onSuccess?.(variables.containerName, deletedCount)
     },
-    onError: (error) => {
-      onError?.(bucket!.name, error.message)
+    onError: (error, variables) => {
+      onError?.(variables.containerName, error.message)
     },
     onSettled: () => {
       handleClose()

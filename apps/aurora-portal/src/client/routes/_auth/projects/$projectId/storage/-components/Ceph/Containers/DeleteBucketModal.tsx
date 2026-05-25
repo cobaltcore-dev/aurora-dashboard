@@ -41,12 +41,12 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   )
 
   const deleteBucketMutation = trpcReact.storage.ceph.containers.delete.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       utils.storage.ceph.containers.list.invalidate()
-      onSuccess?.(bucket!.name)
+      onSuccess?.(variables.bucketName)
     },
-    onError: (error) => {
-      onError?.(bucket!.name, error.message)
+    onError: (error, variables) => {
+      onError?.(variables.bucketName, error.message)
     },
     onSettled: () => {
       handleClose()
