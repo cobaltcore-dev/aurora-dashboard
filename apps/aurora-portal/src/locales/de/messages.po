@@ -1621,6 +1621,9 @@ msgstr "Mehr laden"
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
 
+msgid "Loading buckets..."
+msgstr ""
+
 msgid "Loading Buckets..."
 msgstr ""
 
@@ -2509,8 +2512,14 @@ msgstr "Etwas ist schiefgelaufen."
 msgid "Sort by"
 msgstr "Sortieren nach"
 
+msgid "Source:"
+msgstr ""
+
 msgid "Specific referrer: {host}"
 msgstr "Spezifischer Referrer: {host}"
+
+msgid "Start typing to search for a bucket"
+msgstr ""
 
 msgid "Start typing to search for a container"
 msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
@@ -2586,6 +2595,9 @@ msgstr "Symlinks"
 
 msgid "Tags"
 msgstr "Tags"
+
+msgid "Target bucket"
+msgstr ""
 
 msgid "Target container"
 msgstr "Ziel-Container"
@@ -2891,6 +2903,9 @@ msgid "Type name"
 msgstr "Name eingeben"
 
 msgid "Type the bucket name to confirm"
+msgstr ""
+
+msgid "Type to search buckets..."
 msgstr ""
 
 msgid "Type to search containers..."

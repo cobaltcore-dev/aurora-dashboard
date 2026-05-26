@@ -306,7 +306,7 @@ export const objectRouter = {
    */
   copy: cephProtectedProcedure
     .input(copyObjectInputSchema)
-    .query(async ({ ctx, input }): Promise<z.infer<typeof copyObjectOutputSchema>> => {
+    .mutation(async ({ ctx, input }): Promise<z.infer<typeof copyObjectOutputSchema>> => {
       const s3 = ctx.getCephClient!()
       const { sourceBucket, sourceKey, destinationBucket, destinationKey, copyMetadata } = input
 

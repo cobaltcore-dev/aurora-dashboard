@@ -1621,6 +1621,9 @@ msgstr "Load More"
 msgid "Loading ACLs..."
 msgstr "Loading ACLs..."
 
+msgid "Loading buckets..."
+msgstr "Loading buckets..."
+
 msgid "Loading Buckets..."
 msgstr "Loading Buckets..."
 
@@ -2509,8 +2512,14 @@ msgstr "Something went wrong:"
 msgid "Sort by"
 msgstr "Sort by"
 
+msgid "Source:"
+msgstr "Source:"
+
 msgid "Specific referrer: {host}"
 msgstr "Specific referrer: {host}"
+
+msgid "Start typing to search for a bucket"
+msgstr "Start typing to search for a bucket"
 
 msgid "Start typing to search for a container"
 msgstr "Start typing to search for a container"
@@ -2586,6 +2595,9 @@ msgstr "Symlinks"
 
 msgid "Tags"
 msgstr "Tags"
+
+msgid "Target bucket"
+msgstr "Target bucket"
 
 msgid "Target container"
 msgstr "Target container"
@@ -2892,6 +2904,9 @@ msgstr "Type name"
 
 msgid "Type the bucket name to confirm"
 msgstr "Type the bucket name to confirm"
+
+msgid "Type to search buckets..."
+msgstr "Type to search buckets..."
 
 msgid "Type to search containers..."
 msgstr "Type to search containers..."

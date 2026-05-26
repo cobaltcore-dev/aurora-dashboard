@@ -13,6 +13,7 @@ import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
 import { DeleteObjectModal } from "./DeleteObjectModal"
+import { CopyObjectModal } from "./CopyObjectModal"
 
 interface ObjectsTableViewProps {
   bucketName: string
@@ -22,6 +23,8 @@ interface ObjectsTableViewProps {
   onFolderClick: (prefix: string) => void
   onDeleteObjectSuccess: (objectKey: string) => void
   onDeleteObjectError: (objectKey: string, errorMessage: string) => void
+  onCopyObjectSuccess: (objectKey: string, targetBucket: string, targetKey: string) => void
+  onCopyObjectError: (objectKey: string, errorMessage: string) => void
 }
 
 export function ObjectsTableView({
@@ -32,11 +35,17 @@ export function ObjectsTableView({
   onFolderClick,
   onDeleteObjectSuccess,
   onDeleteObjectError,
+  onCopyObjectSuccess,
+  onCopyObjectError,
 }: ObjectsTableViewProps) {
   const [deleteTarget, setDeleteTarget] = useState<{
     key: string
     size?: number
     lastModified?: string
+  } | null>(null)
+  const [copyTarget, setCopyTarget] = useState<{
+    key: string
+    size?: number
   } | null>(null)
 
   // Strip current prefix from display names
@@ -161,10 +170,12 @@ export function ObjectsTableView({
                     <PopupMenuOptions>
                       <PopupMenuItem
                         label="Copy"
-                        onClick={() => {
-                          // TODO: Open copy modal
-                          console.log("Copy", obj.key)
-                        }}
+                        onClick={() =>
+                          setCopyTarget({
+                            key: obj.key,
+                            size: obj.size,
+                          })
+                        }
                       />
                       <PopupMenuItem
                         label="Move"
@@ -208,6 +219,16 @@ export function ObjectsTableView({
         onClose={() => setDeleteTarget(null)}
         onSuccess={onDeleteObjectSuccess}
         onError={onDeleteObjectError}
+      />
+
+      <CopyObjectModal
+        bucketName={bucketName}
+        objectKey={copyTarget?.key ?? ""}
+        objectSize={copyTarget?.size}
+        isOpen={copyTarget !== null}
+        onClose={() => setCopyTarget(null)}
+        onSuccess={onCopyObjectSuccess}
+        onError={onCopyObjectError}
       />
     </>
   )

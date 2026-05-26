@@ -252,6 +252,20 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
             onDismiss: handleToastDismiss,
           })
         }}
+        onCopyObjectSuccess={(objectKey, targetBucket, targetKey) => {
+          setToastData({
+            variant: "success",
+            text: `Copied ${objectKey} to ${targetBucket}/${targetKey}`,
+            onDismiss: handleToastDismiss,
+          })
+        }}
+        onCopyObjectError={(objectKey, errorMessage) => {
+          setToastData({
+            variant: "error",
+            text: `Failed to copy ${objectKey}: ${errorMessage}`,
+            onDismiss: handleToastDismiss,
+          })
+        }}
       />
 
       {hasMore && (
