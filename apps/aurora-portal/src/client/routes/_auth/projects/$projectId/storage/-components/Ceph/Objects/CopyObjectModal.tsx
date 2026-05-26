@@ -133,7 +133,9 @@ export const CopyObjectModal = ({
     const folders: FolderRow[] = objectsData.folders.map((folder) => ({
       kind: "folder" as const,
       name: folder.prefix,
-      displayName: currentPrefix ? folder.prefix.replace(currentPrefix, "").replace(/\/$/, "") : folder.prefix.replace(/\/$/, ""),
+      displayName: currentPrefix
+        ? folder.prefix.replace(currentPrefix, "").replace(/\/$/, "")
+        : folder.prefix.replace(/\/$/, ""),
     }))
 
     const objects: ObjectRow[] = objectsData.objects
@@ -321,9 +323,7 @@ export const CopyObjectModal = ({
   const targetPathDisplay = `${targetBucket}/${currentPrefix}${displayName}`
 
   // Extract initial prefix from source object key
-  const initialPrefix = objectKey.endsWith(displayName)
-    ? objectKey.slice(0, objectKey.length - displayName.length)
-    : ""
+  const initialPrefix = objectKey.endsWith(displayName) ? objectKey.slice(0, objectKey.length - displayName.length) : ""
 
   // Disable submit when destination is identical to source
   const isUnchanged = targetBucket === bucketName && currentPrefix === initialPrefix
@@ -357,14 +357,12 @@ export const CopyObjectModal = ({
         <Stack direction="vertical" gap="4">
           {/* Source object info */}
           <div className="bg-theme-background-lvl-2 rounded p-3">
-            <div className="text-sm text-theme-light">
+            <div className="text-theme-light text-sm">
               <Trans>Source:</Trans>
             </div>
-            <div className="font-mono text-sm mt-1">{`${bucketName}/${objectKey}`}</div>
+            <div className="mt-1 font-mono text-sm">{`${bucketName}/${objectKey}`}</div>
             {objectSize !== undefined && (
-              <div className="text-xs text-theme-light mt-1">
-                {(objectSize / 1024).toFixed(2)} KB
-              </div>
+              <div className="text-theme-light mt-1 text-xs">{(objectSize / 1024).toFixed(2)} KB</div>
             )}
           </div>
 
