@@ -286,6 +286,12 @@ msgstr "Jeder Benutzer kann eine HEAD- oder GET-Operation auf dem Container ausf
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anfrage erforderlich."
 
+msgid "Are you sure you want to delete this folder?"
+msgstr ""
+
+msgid "Are you sure you want to delete this object?"
+msgstr ""
+
 msgid "Associate"
 msgstr "Zuordnen"
 
@@ -649,6 +655,9 @@ msgstr "Image erstellen"
 msgid "Create New Flavor"
 msgstr "Neuen Flavor erstellen"
 
+msgid "Create New Folder"
+msgstr ""
+
 msgid "Create new folder here"
 msgstr "Neuen Ordner hier erstellen"
 
@@ -680,6 +689,9 @@ msgid "Creating..."
 msgstr ""
 
 msgid "Creation Date"
+msgstr ""
+
+msgid "Current location:"
 msgstr ""
 
 msgid "Custom"
@@ -739,11 +751,17 @@ msgstr "Container löschen:"
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
 
+msgid "Delete Folder"
+msgstr ""
+
 msgid "Delete folder:"
 msgstr "Ordner löschen:"
 
 msgid "Delete Images"
 msgstr "Images löschen"
+
+msgid "Delete Object"
+msgstr ""
 
 msgid "Delete object:"
 msgstr "Objekt löschen:"
@@ -949,6 +967,9 @@ msgstr "Floating IP eingeben"
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Floating IP eingeben oder leer lassen für automatische Zuweisung"
 
+msgid "Enter a name for the new folder."
+msgstr ""
+
 msgid "Enter a single port, or define a range by also filling \"Port (to)\". \"Port (to)\" is optional."
 msgstr "Geben Sie einen einzelnen Port ein oder definieren Sie einen Bereich, indem Sie auch \"Port (bis)\" ausfüllen. \"Port (bis)\" ist optional."
 
@@ -1038,6 +1059,9 @@ msgstr "Fehler beim Laden der Objekte: {errorMessage}"
 
 msgid "Error loading security group"
 msgstr "Fehler beim Laden der Security Group"
+
+msgid "Error:"
+msgstr ""
 
 msgid "Ethertype"
 msgstr "Ethertype"
@@ -1339,6 +1363,9 @@ msgstr "Ordner gelöscht"
 msgid "Folder name"
 msgstr "Ordnername"
 
+msgid "Folder Name"
+msgstr ""
+
 msgid "Folder name cannot contain slashes"
 msgstr "Ordnername darf keine Schrägstriche enthalten"
 
@@ -1359,6 +1386,12 @@ msgstr "Weitere Details finden Sie in der <0>Dokumentation</0>."
 
 msgid "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
 msgstr "Vollständiges Lifecycle-Management von Floating IPs, einschließlich Zuweisung, Port-Zuordnung/-Aufhebung, DNS-Einstellungen und Löschung"
+
+msgid "Full path:"
+msgstr ""
+
+msgid "Full Path:"
+msgstr ""
 
 msgid "General Image Data"
 msgstr "Allgemeine Image-Daten"
@@ -1563,6 +1596,9 @@ msgstr "Zuletzt geändert"
 
 msgid "Last modified (UTC)"
 msgstr "Zuletzt geändert (UTC)"
+
+msgid "Last Modified:"
+msgstr ""
 
 msgid "Last updated: {formattedDate}"
 msgstr "Zuletzt aktualisiert: {formattedDate}"
@@ -1800,6 +1836,9 @@ msgstr "Name"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
+
+msgid "Name:"
+msgstr ""
 
 msgid "Network"
 msgstr "Netzwerk"
@@ -2461,6 +2500,9 @@ msgstr "Einloggen"
 msgid "Size"
 msgstr "Größe"
 
+msgid "Size:"
+msgstr ""
+
 msgid "Something went wrong:"
 msgstr "Etwas ist schiefgelaufen."
 
@@ -2689,6 +2731,9 @@ msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
 
+msgid "This action cannot be undone."
+msgstr ""
+
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Flavor wird dauerhaft gelöscht."
 
@@ -2838,6 +2883,9 @@ msgstr "Geben Sie <0>entfernen</0> zur Bestätigung ein:"
 
 msgid "Type container name to confirm"
 msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
+
+msgid "Type DELETE to confirm"
+msgstr ""
 
 msgid "Type name"
 msgstr "Name eingeben"

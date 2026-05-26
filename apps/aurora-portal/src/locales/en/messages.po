@@ -286,6 +286,12 @@ msgstr "Any user can perform a HEAD or GET operation on the container provided t
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Any user has read access to objects. No token is required in the request."
 
+msgid "Are you sure you want to delete this folder?"
+msgstr "Are you sure you want to delete this folder?"
+
+msgid "Are you sure you want to delete this object?"
+msgstr "Are you sure you want to delete this object?"
+
 msgid "Associate"
 msgstr "Associate"
 
@@ -649,6 +655,9 @@ msgstr "Create Image"
 msgid "Create New Flavor"
 msgstr "Create New Flavor"
 
+msgid "Create New Folder"
+msgstr "Create New Folder"
+
 msgid "Create new folder here"
 msgstr "Create new folder here"
 
@@ -681,6 +690,9 @@ msgstr "Creating..."
 
 msgid "Creation Date"
 msgstr "Creation Date"
+
+msgid "Current location:"
+msgstr "Current location:"
 
 msgid "Custom"
 msgstr "Custom"
@@ -739,11 +751,17 @@ msgstr "Delete container:"
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
 
+msgid "Delete Folder"
+msgstr "Delete Folder"
+
 msgid "Delete folder:"
 msgstr "Delete folder:"
 
 msgid "Delete Images"
 msgstr "Delete Images"
+
+msgid "Delete Object"
+msgstr "Delete Object"
 
 msgid "Delete object:"
 msgstr "Delete object:"
@@ -949,6 +967,9 @@ msgstr "Enter a floating IP"
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Enter a floating IP or leave blank to auto-assign one"
 
+msgid "Enter a name for the new folder."
+msgstr "Enter a name for the new folder."
+
 msgid "Enter a single port, or define a range by also filling \"Port (to)\". \"Port (to)\" is optional."
 msgstr "Enter a single port, or define a range by also filling \"Port (to)\". \"Port (to)\" is optional."
 
@@ -1038,6 +1059,9 @@ msgstr "Error Loading Objects: {errorMessage}"
 
 msgid "Error loading security group"
 msgstr "Error loading security group"
+
+msgid "Error:"
+msgstr "Error:"
 
 msgid "Ethertype"
 msgstr "Ethertype"
@@ -1339,6 +1363,9 @@ msgstr "Folder Deleted"
 msgid "Folder name"
 msgstr "Folder name"
 
+msgid "Folder Name"
+msgstr "Folder Name"
+
 msgid "Folder name cannot contain slashes"
 msgstr "Folder name cannot contain slashes"
 
@@ -1359,6 +1386,12 @@ msgstr "For more details, have a look at the <0>documentation</0>."
 
 msgid "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
 msgstr "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
+
+msgid "Full path:"
+msgstr "Full path:"
+
+msgid "Full Path:"
+msgstr "Full Path:"
 
 msgid "General Image Data"
 msgstr "General Image Data"
@@ -1563,6 +1596,9 @@ msgstr "Last Modified"
 
 msgid "Last modified (UTC)"
 msgstr "Last modified (UTC)"
+
+msgid "Last Modified:"
+msgstr "Last Modified:"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
@@ -1800,6 +1836,9 @@ msgstr "Name"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Name must be 2-50 characters long."
+
+msgid "Name:"
+msgstr "Name:"
 
 msgid "Network"
 msgstr "Network"
@@ -2461,6 +2500,9 @@ msgstr "Sign In"
 msgid "Size"
 msgstr "Size"
 
+msgid "Size:"
+msgstr "Size:"
+
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
 
@@ -2689,6 +2731,9 @@ msgstr "There are no RBAC policies for this security group"
 msgid "There are no rules for this security group"
 msgstr "There are no rules for this security group"
 
+msgid "This action cannot be undone."
+msgstr "This action cannot be undone."
+
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "This action cannot be undone. The flavor will be permanently deleted."
 
@@ -2838,6 +2883,9 @@ msgstr "Type <0>remove</0> to confirm:"
 
 msgid "Type container name to confirm"
 msgstr "Type container name to confirm"
+
+msgid "Type DELETE to confirm"
+msgstr "Type DELETE to confirm"
 
 msgid "Type name"
 msgstr "Type name"

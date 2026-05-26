@@ -88,10 +88,11 @@ export const checkServiceAvailability = (
 // Search params schema
 // - prefix: base64-encoded current folder path, safe to carry "/" chars in the URL
 // - sortBy: active sort column key — persisted so deep links and back navigation restore sort state
+//   Accepts both Swift keys (last_modified, bytes) and Ceph keys (lastModified, size) for compatibility
 // - sortDirection: "asc" | "desc" — persisted alongside sortBy
 const objectsSearchSchema = z.object({
   prefix: z.string().optional(),
-  sortBy: z.enum(["name", "last_modified", "bytes"]).optional(),
+  sortBy: z.enum(["name", "last_modified", "bytes", "lastModified", "size"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
   search: z.string().optional(),
 })

@@ -125,6 +125,62 @@ export const s3ObjectDetailsSchema = s3ObjectSchema.extend({
 })
 
 // ============================================================================
+// OBJECT OPERATION SCHEMAS
+// ============================================================================
+
+/**
+ * Delete a single object from a bucket
+ */
+export const deleteObjectInputSchema = projectScopedInputSchema.extend({
+  containerName: z.string().min(1),
+  objectKey: z.string().min(1),
+})
+
+/**
+ * Create a folder (zero-byte object with trailing "/")
+ */
+export const createFolderInputSchema = projectScopedInputSchema.extend({
+  containerName: z.string().min(1),
+  folderPath: z.string().min(1),
+})
+
+/**
+ * Copy an object within or across buckets
+ */
+export const copyObjectInputSchema = projectScopedInputSchema.extend({
+  sourceBucket: z.string().min(1),
+  sourceKey: z.string().min(1),
+  destinationBucket: z.string().min(1),
+  destinationKey: z.string().min(1),
+  copyMetadata: z.boolean().optional().default(true),
+})
+
+export const copyObjectOutputSchema = z.object({
+  key: z.string(),
+  etag: z.string().optional(),
+  lastModified: z.string().optional(),
+})
+
+/**
+ * Move an object within or across buckets (copy + delete)
+ */
+export const moveObjectInputSchema = projectScopedInputSchema.extend({
+  sourceBucket: z.string().min(1),
+  sourceKey: z.string().min(1),
+  destinationBucket: z.string().min(1),
+  destinationKey: z.string().min(1),
+})
+
+/**
+ * Update object metadata (copy to self with REPLACE directive)
+ */
+export const updateMetadataInputSchema = projectScopedInputSchema.extend({
+  containerName: z.string().min(1),
+  objectKey: z.string().min(1),
+  metadata: z.record(z.string(), z.string()),
+})
+
+// ============================================================================
 // S3 OBJECT TYPES
 // ============================================================================
 
@@ -132,6 +188,7 @@ export type S3Object = z.infer<typeof s3ObjectSchema>
 export type S3FolderPrefix = z.infer<typeof s3FolderPrefixSchema>
 export type ListObjectsOutput = z.infer<typeof listObjectsOutputSchema>
 export type S3ObjectDetails = z.infer<typeof s3ObjectDetailsSchema>
+export type CopyObjectOutput = z.infer<typeof copyObjectOutputSchema>
 
 // ============================================================================
 // SERVICE INFO SCHEMAS (CLUSTER LIMITS & CAPABILITIES)

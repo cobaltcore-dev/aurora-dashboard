@@ -1,4 +1,11 @@
-import { ListObjectsV2Command, HeadObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3"
+import {
+  ListObjectsV2Command,
+  HeadObjectCommand,
+  DeleteObjectsCommand,
+  DeleteObjectCommand,
+  PutObjectCommand,
+  CopyObjectCommand,
+} from "@aws-sdk/client-s3"
 import { TRPCError } from "@trpc/server"
 import { cephProtectedProcedure } from "../../cephProcedure"
 import { mapS3ErrorToTRPCError } from "../../helpers/s3ErrorMapper"
@@ -18,6 +25,48 @@ import { z } from "zod"
 const deleteAllObjectsInputSchema = z.object({
   project_id: z.string(),
   containerName: z.string().min(1),
+})
+
+const deleteObjectInputSchema = z.object({
+  project_id: z.string(),
+  containerName: z.string().min(1),
+  objectKey: z.string().min(1),
+})
+
+const createFolderInputSchema = z.object({
+  project_id: z.string(),
+  containerName: z.string().min(1),
+  folderPath: z.string().min(1),
+})
+
+const copyObjectInputSchema = z.object({
+  project_id: z.string(),
+  sourceBucket: z.string().min(1),
+  sourceKey: z.string().min(1),
+  destinationBucket: z.string().min(1),
+  destinationKey: z.string().min(1),
+  copyMetadata: z.boolean().optional().default(true),
+})
+
+const copyObjectOutputSchema = z.object({
+  key: z.string(),
+  etag: z.string().optional(),
+  lastModified: z.string().optional(),
+})
+
+const moveObjectInputSchema = z.object({
+  project_id: z.string(),
+  sourceBucket: z.string().min(1),
+  sourceKey: z.string().min(1),
+  destinationBucket: z.string().min(1),
+  destinationKey: z.string().min(1),
+})
+
+const updateMetadataInputSchema = z.object({
+  project_id: z.string(),
+  containerName: z.string().min(1),
+  objectKey: z.string().min(1),
+  metadata: z.record(z.string(), z.string()),
 })
 
 export const objectRouter = {
@@ -175,6 +224,227 @@ export const objectRouter = {
         throw mapS3ErrorToTRPCError(error, {
           operation: "delete all objects",
           bucket: containerName,
+        })
+      }
+    }),
+
+  /**
+   * Delete a single object from a bucket.
+   *
+   * Uses AWS SDK DeleteObjectCommand. Deleting a non-existent object is considered
+   * a success (S3 is idempotent for deletes).
+   *
+   * @throws TRPCError NOT_FOUND - bucket does not exist
+   * @throws TRPCError FORBIDDEN - no credentials or access denied
+   */
+  delete: cephProtectedProcedure.input(deleteObjectInputSchema).mutation(async ({ ctx, input }): Promise<boolean> => {
+    const s3 = ctx.getCephClient!()
+    const { containerName, objectKey } = input
+
+    try {
+      await s3.send(
+        new DeleteObjectCommand({
+          Bucket: containerName,
+          Key: objectKey,
+        })
+      )
+      return true
+    } catch (error) {
+      throw mapS3ErrorToTRPCError(error, {
+        operation: "delete object",
+        bucket: containerName,
+        key: objectKey,
+      })
+    }
+  }),
+
+  /**
+   * Create a folder (zero-byte object with key ending in "/").
+   *
+   * In S3, folders are virtual - they're just zero-byte objects with keys ending in "/".
+   * This operation is idempotent - creating an existing folder succeeds.
+   *
+   * @throws TRPCError NOT_FOUND - bucket does not exist
+   * @throws TRPCError FORBIDDEN - no credentials or access denied
+   */
+  createFolder: cephProtectedProcedure
+    .input(createFolderInputSchema)
+    .mutation(async ({ ctx, input }): Promise<boolean> => {
+      const s3 = ctx.getCephClient!()
+      const { containerName, folderPath } = input
+
+      // Ensure folder path ends with "/"
+      const normalizedPath = folderPath.endsWith("/") ? folderPath : `${folderPath}/`
+
+      try {
+        await s3.send(
+          new PutObjectCommand({
+            Bucket: containerName,
+            Key: normalizedPath,
+            Body: Buffer.from(""),
+            ContentLength: 0,
+          })
+        )
+        return true
+      } catch (error) {
+        throw mapS3ErrorToTRPCError(error, {
+          operation: "create folder",
+          bucket: containerName,
+          key: normalizedPath,
+        })
+      }
+    }),
+
+  /**
+   * Copy an object within or across buckets.
+   *
+   * Uses AWS SDK CopyObjectCommand. Can optionally preserve or replace metadata.
+   * Note: S3 copy is atomic and supports objects up to 5GB (for larger objects, use multipart copy).
+   *
+   * @throws TRPCError NOT_FOUND - source object or bucket does not exist
+   * @throws TRPCError FORBIDDEN - no credentials or access denied
+   */
+  copy: cephProtectedProcedure
+    .input(copyObjectInputSchema)
+    .query(async ({ ctx, input }): Promise<z.infer<typeof copyObjectOutputSchema>> => {
+      const s3 = ctx.getCephClient!()
+      const { sourceBucket, sourceKey, destinationBucket, destinationKey, copyMetadata } = input
+
+      try {
+        const response = await s3.send(
+          new CopyObjectCommand({
+            CopySource: `/${sourceBucket}/${encodeURIComponent(sourceKey)}`,
+            Bucket: destinationBucket,
+            Key: destinationKey,
+            MetadataDirective: copyMetadata ? "COPY" : "REPLACE",
+          })
+        )
+
+        return copyObjectOutputSchema.parse({
+          key: destinationKey,
+          etag: response.CopyObjectResult?.ETag,
+          lastModified: response.CopyObjectResult?.LastModified?.toISOString(),
+        })
+      } catch (error) {
+        throw mapS3ErrorToTRPCError(error, {
+          operation: "copy object",
+          bucket: sourceBucket,
+          key: sourceKey,
+        })
+      }
+    }),
+
+  /**
+   * Move an object within or across buckets.
+   *
+   * Implemented as Copy + Delete. If the delete fails after a successful copy,
+   * logs a warning but still returns success (the object was copied successfully).
+   *
+   * @throws TRPCError NOT_FOUND - source object or bucket does not exist
+   * @throws TRPCError FORBIDDEN - no credentials or access denied
+   */
+  move: cephProtectedProcedure.input(moveObjectInputSchema).mutation(async ({ ctx, input }): Promise<boolean> => {
+    const s3 = ctx.getCephClient!()
+    const { sourceBucket, sourceKey, destinationBucket, destinationKey } = input
+
+    try {
+      // Step 1: Copy the object
+      await s3.send(
+        new CopyObjectCommand({
+          CopySource: `/${sourceBucket}/${encodeURIComponent(sourceKey)}`,
+          Bucket: destinationBucket,
+          Key: destinationKey,
+          MetadataDirective: "COPY",
+        })
+      )
+
+      // Step 2: Delete the source
+      try {
+        await s3.send(
+          new DeleteObjectCommand({
+            Bucket: sourceBucket,
+            Key: sourceKey,
+          })
+        )
+      } catch (deleteError) {
+        // Log but don't fail - the copy succeeded, which is the primary goal
+        console.error("Move operation: copy succeeded but delete failed", {
+          sourceBucket,
+          sourceKey,
+          error: deleteError,
+        })
+      }
+
+      return true
+    } catch (error) {
+      throw mapS3ErrorToTRPCError(error, {
+        operation: "move object",
+        bucket: sourceBucket,
+        key: sourceKey,
+      })
+    }
+  }),
+
+  /**
+   * Update object metadata by copying the object to itself with new metadata.
+   *
+   * S3 doesn't support direct metadata updates - we must copy the object to itself
+   * with MetadataDirective: "REPLACE". User metadata keys will have "x-amz-meta-" prefix
+   * added automatically by the SDK (strip if provided by user).
+   *
+   * Note: S3 metadata is limited to 2KB total size.
+   *
+   * @throws TRPCError NOT_FOUND - object or bucket does not exist
+   * @throws TRPCError FORBIDDEN - no credentials or access denied
+   * @throws TRPCError BAD_REQUEST - metadata exceeds 2KB limit
+   */
+  updateMetadata: cephProtectedProcedure
+    .input(updateMetadataInputSchema)
+    .mutation(async ({ ctx, input }): Promise<S3ObjectDetails> => {
+      const s3 = ctx.getCephClient!()
+      const { containerName, objectKey, metadata } = input
+
+      // Strip "x-amz-meta-" prefix if user provided it (SDK adds it automatically)
+      const cleanedMetadata: Record<string, string> = {}
+      for (const [key, value] of Object.entries(metadata)) {
+        const cleanKey = key.startsWith("x-amz-meta-") ? key.substring("x-amz-meta-".length) : key
+        cleanedMetadata[cleanKey] = value
+      }
+
+      try {
+        // Copy object to itself with new metadata
+        await s3.send(
+          new CopyObjectCommand({
+            CopySource: `/${containerName}/${encodeURIComponent(objectKey)}`,
+            Bucket: containerName,
+            Key: objectKey,
+            MetadataDirective: "REPLACE",
+            Metadata: cleanedMetadata,
+          })
+        )
+
+        // Fetch updated object details
+        const response = await s3.send(
+          new HeadObjectCommand({
+            Bucket: containerName,
+            Key: objectKey,
+          })
+        )
+
+        return s3ObjectDetailsSchema.parse({
+          key: objectKey,
+          size: response.ContentLength ?? 0,
+          lastModified: response.LastModified?.toISOString(),
+          etag: response.ETag,
+          contentType: response.ContentType,
+          storageClass: response.StorageClass,
+          metadata: response.Metadata,
+        })
+      } catch (error) {
+        throw mapS3ErrorToTRPCError(error, {
+          operation: "update metadata",
+          bucket: containerName,
+          key: objectKey,
         })
       }
     }),
