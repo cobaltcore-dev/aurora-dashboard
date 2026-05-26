@@ -8,6 +8,43 @@ import type { ComponentProps } from "react"
 import type { CertificateAuthority } from "@/server/Services/types/pca"
 import { DeletePcaModal } from "./DeletePcaModal"
 
+const mockProjectId = "project-123"
+const mockMutateAsync = vi.fn().mockResolvedValue(undefined)
+const mockInvalidate = vi.fn()
+
+vi.mock("@/client/hooks", () => ({
+  useProjectId: () => mockProjectId,
+}))
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    useUtils: () => ({
+      services: {
+        pca: {
+          list: {
+            invalidate: mockInvalidate,
+          },
+        },
+      },
+    }),
+    services: {
+      pca: {
+        delete: {
+          useMutation: (options?: { onSettled?: () => void }) => ({
+            isPending: false,
+            mutateAsync: async (input: unknown) => {
+              const result = await mockMutateAsync(input)
+              options?.onSettled?.()
+              return result
+            },
+            error: null,
+          }),
+        },
+      },
+    },
+  },
+}))
+
 const mockCa: CertificateAuthority = {
   id: "ca-123",
   project_id: "project-123",
@@ -64,7 +101,7 @@ describe("DeletePcaModal", () => {
     expect(deleteButton).toBeEnabled()
   })
 
-  it("submits delete request with ca id and closes modal", async () => {
+  it("submits delete request with correct ids, invalidates list, and closes modal", async () => {
     const user = userEvent.setup()
     const onClose = vi.fn()
 
@@ -74,6 +111,11 @@ describe("DeletePcaModal", () => {
     await user.click(screen.getByRole("button", { name: "Delete" }))
 
     await waitFor(() => {
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        project_id: mockProjectId,
+        certificate_authority_id: mockCa.id,
+      })
+      expect(mockInvalidate).toHaveBeenCalledTimes(1)
       expect(onClose).toHaveBeenCalledTimes(1)
     })
   })
