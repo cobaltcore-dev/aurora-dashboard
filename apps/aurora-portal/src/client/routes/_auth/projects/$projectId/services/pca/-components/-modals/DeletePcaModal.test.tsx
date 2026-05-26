@@ -119,4 +119,18 @@ describe("DeletePcaModal", () => {
       expect(onClose).toHaveBeenCalledTimes(1)
     })
   })
+
+  it("calls onSuccess after successful delete", async () => {
+    const user = userEvent.setup()
+    const onSuccess = vi.fn()
+
+    renderModal({ onSuccess })
+
+    await user.type(screen.getByPlaceholderText('Type "delete" to confirm'), "delete")
+    await user.click(screen.getByRole("button", { name: "Delete" }))
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+  })
 })

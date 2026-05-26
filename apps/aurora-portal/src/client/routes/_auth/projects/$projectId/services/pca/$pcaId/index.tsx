@@ -1,10 +1,11 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Button, ContentHeading, Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
+import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { PcaDetailsView } from "./-components/PcaDetailsView"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/")({
   staticData: { section: "services", service: "pca", isDetail: true } satisfies RouteInfo,
@@ -92,10 +93,5 @@ function RouteComponent() {
 
   setPageTitle(pca.configuration?.subject?.common_name || pca.id)
 
-  return (
-    <>
-      <ContentHeading>{pca.configuration?.subject?.common_name || pca.id}</ContentHeading>
-      <div>{`<PcaDetailsView pca={pca}> same as FloatingIpDetailsView`}</div>
-    </>
-  )
+  return <PcaDetailsView pca={pca} />
 }
