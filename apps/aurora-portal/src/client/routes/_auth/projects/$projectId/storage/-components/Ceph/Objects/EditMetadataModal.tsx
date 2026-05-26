@@ -380,7 +380,7 @@ export const EditMetadataModal = ({
                   <Trans>Stored as x-amz-meta-* headers. Keys are case-insensitive.</Trans>
                 </p>
                 <p
-                  className={`text-xs font-mono ${isSizeExceeded ? "text-theme-danger font-semibold" : "text-theme-light"}`}
+                  className={`font-mono text-xs ${isSizeExceeded ? "text-theme-danger font-semibold" : "text-theme-light"}`}
                 >
                   {currentMetadataSize} / {MAX_METADATA_BYTES} bytes
                 </p>
@@ -389,9 +389,7 @@ export const EditMetadataModal = ({
 
             {isSizeExceeded && (
               <Message variant="warning" className="mb-3">
-                <Trans>
-                  Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving.
-                </Trans>
+                <Trans>Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving.</Trans>
               </Message>
             )}
 

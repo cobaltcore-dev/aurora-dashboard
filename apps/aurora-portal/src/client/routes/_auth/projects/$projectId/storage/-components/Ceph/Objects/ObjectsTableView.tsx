@@ -201,10 +201,7 @@ export function ObjectsTableView({
                           })
                         }
                       />
-                      <PopupMenuItem
-                        label="Edit Metadata"
-                        onClick={() => setEditMetadataTarget(obj.key)}
-                      />
+                      <PopupMenuItem label="Edit Metadata" onClick={() => setEditMetadataTarget(obj.key)} />
                       <PopupMenuItem
                         label="Delete"
                         onClick={() =>

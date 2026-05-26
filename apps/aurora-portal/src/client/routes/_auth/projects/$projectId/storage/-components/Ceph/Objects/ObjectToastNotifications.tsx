@@ -76,11 +76,7 @@ export const getObjectDeletedToast = (objectKey: string, config: ToastConfig): T
   }
 }
 
-export const getObjectDeleteErrorToast = (
-  objectKey: string,
-  errorMessage: string,
-  config: ToastConfig
-): ToastProps => {
+export const getObjectDeleteErrorToast = (objectKey: string, errorMessage: string, config: ToastConfig): ToastProps => {
   const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
   return {
     variant: "error",
