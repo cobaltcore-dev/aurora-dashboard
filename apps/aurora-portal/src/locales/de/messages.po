@@ -295,6 +295,9 @@ msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partne
 msgid "Back"
 msgstr "Zurück"
 
+msgid "Back to Certificate Authorities"
+msgstr ""
+
 msgid "Back to Floating IPs"
 msgstr "Zurück zu Floating IPs"
 
@@ -332,6 +335,9 @@ msgid "Capabilities"
 msgstr "Capabilities"
 
 msgid "Ceph"
+msgstr ""
+
+msgid "Certificate Authority not found"
 msgstr ""
 
 msgid "Checking S3 credentials..."
@@ -910,6 +916,9 @@ msgstr "Fehler – Flavor-Details"
 msgid "Error - Image Details"
 msgstr "Fehler – Image-Details"
 
+msgid "Error loading Certificate Authority"
+msgstr ""
+
 msgid "Error loading component"
 msgstr "Fehler beim Laden der Komponente"
 
@@ -1461,6 +1470,9 @@ msgstr "Mehr laden"
 
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
+
+msgid "Loading Certificate Authority Details..."
+msgstr ""
 
 msgid "Loading container properties..."
 msgstr "Container-Eigenschaften werden geladen..."

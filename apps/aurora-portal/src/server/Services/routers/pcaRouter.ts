@@ -57,14 +57,14 @@ export const pcaRouter = {
     .input(CertificateAuthorityIdInputSchema)
     .query(async ({ input, ctx }): Promise<CertificateAuthority> => {
       return withErrorHandling(async () => {
-        const pca = ctx.openstack?.service("clavis")
-        validateOpenstackService(pca, "clavis")
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
         const url = `${PCA_BASE_URL}/${input.certificate_authority_id}`
         const response = await pca.get(url)
         const data = await response.json()
 
-        return parseOrThrow(CertificateAuthorityResponseSchema, data, "pcaRouter.getById").certificate_authority
+        return parseOrThrow(CertificateAuthoritySchema, data, "pcaRouter.getById")
       }, "get certificate authority details")
     }),
   // Permanently deletes a Certificate Authority. This operation is irreversible.

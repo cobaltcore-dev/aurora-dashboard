@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
   DataGridCell,
@@ -8,6 +9,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { CertificateAuthority } from "@/server/Services/types/pca"
 import { useModal } from "@/client/utils/useModal"
+import { useProjectId } from "@/client/hooks"
 import { DeletePcaModal } from "../-modals/DeletePcaModal"
 import { STATE_CONFIG } from "./constants"
 
@@ -17,21 +19,19 @@ interface PcaTableRowProps {
 
 export const PcaTableRow = ({ pca }: PcaTableRowProps) => {
   const { t } = useLingui()
+  const navigate = useNavigate()
+  const projectId = useProjectId()
   const [deletePcaModalOpen, toggleDeletePcaModal] = useModal(false)
 
-  // TODO: I will uncomment it on get-by-id part of the epic and add onClick={navigateToDetailsPage} to <DataGridRow />
-  // const navigate = useNavigate()
-  // const projectId = useProjectId()
-  // const navigateToDetailsPage = () => {
-  //   navigate({
-  //     to: "/projects/$projectId/services/pca/$pcaId",
-  //     params: { projectId, pcaId: pca.id },
-  //   })
-  // }
+  const navigateToDetailsPage = () =>
+    navigate({
+      to: "/projects/$projectId/services/pca/$pcaId",
+      params: { projectId, pcaId: pca.id },
+    })
 
   return (
     <>
-      <DataGridRow key={pca.id} data-testid={`pca-row-${pca.id}`}>
+      <DataGridRow key={pca.id} data-testid={`pca-row-${pca.id}`} onClick={navigateToDetailsPage}>
         <DataGridCell>
           <div className="flex items-center gap-2">
             {STATE_CONFIG[pca.state].icon}

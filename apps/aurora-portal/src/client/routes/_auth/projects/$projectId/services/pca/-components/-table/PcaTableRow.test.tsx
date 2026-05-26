@@ -7,6 +7,16 @@ import { describe, expect, it, vi } from "vitest"
 import type { CertificateAuthority } from "@/server/Services/types/pca"
 import { PcaTableRow } from "./PcaTableRow"
 
+const mockNavigate = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
+}))
+
+vi.mock("@/client/hooks", () => ({
+  useProjectId: () => "project-1",
+}))
+
 vi.mock("../-modals/DeletePcaModal", () => ({
   DeletePcaModal: ({ open }: { open: boolean }) => (open ? <div>Delete CA Modal</div> : null),
 }))
@@ -52,6 +62,18 @@ describe("PcaTableRow", () => {
     })
 
     expect(screen.getByText("—")).toBeInTheDocument()
+  })
+
+  it("navigates to details page when row is clicked", async () => {
+    const user = userEvent.setup()
+    renderRow(basePca)
+
+    await user.click(screen.getByTestId("pca-row-pca-123"))
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: "/projects/$projectId/services/pca/$pcaId",
+      params: { projectId: "project-1", pcaId: "pca-123" },
+    })
   })
 
   it("opens Delete CA modal when Delete CA is clicked", async () => {

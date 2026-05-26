@@ -295,6 +295,9 @@ msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigat
 msgid "Back"
 msgstr "Back"
 
+msgid "Back to Certificate Authorities"
+msgstr "Back to Certificate Authorities"
+
 msgid "Back to Floating IPs"
 msgstr "Back to Floating IPs"
 
@@ -333,6 +336,9 @@ msgstr "Capabilities"
 
 msgid "Ceph"
 msgstr "Ceph"
+
+msgid "Certificate Authority not found"
+msgstr "Certificate Authority not found"
 
 msgid "Checking S3 credentials..."
 msgstr "Checking S3 credentials..."
@@ -910,6 +916,9 @@ msgstr "Error - Flavor Details"
 msgid "Error - Image Details"
 msgstr "Error - Image Details"
 
+msgid "Error loading Certificate Authority"
+msgstr "Error loading Certificate Authority"
+
 msgid "Error loading component"
 msgstr "Error loading component"
 
@@ -1461,6 +1470,9 @@ msgstr "Load More"
 
 msgid "Loading ACLs..."
 msgstr "Loading ACLs..."
+
+msgid "Loading Certificate Authority Details..."
+msgstr "Loading Certificate Authority Details..."
 
 msgid "Loading container properties..."
 msgstr "Loading container properties..."
