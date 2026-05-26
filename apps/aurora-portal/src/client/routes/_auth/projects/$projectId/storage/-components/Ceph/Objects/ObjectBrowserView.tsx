@@ -11,6 +11,17 @@ import { CreateFolderModal } from "./CreateFolderModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects"
 import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
+import {
+  getFolderCreatedToast,
+  getObjectDeletedToast,
+  getObjectDeleteErrorToast,
+  getObjectCopiedToast,
+  getObjectCopyErrorToast,
+  getObjectMovedToast,
+  getObjectMoveErrorToast,
+  getObjectMetadataUpdatedToast,
+  getObjectMetadataUpdateErrorToast,
+} from "./ObjectToastNotifications"
 
 // Prefix encoding (reuse from Swift pattern)
 const encodePrefix = (prefix: string): string => {
@@ -239,46 +250,30 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         currentPrefix={currentPrefix}
         onFolderClick={navigateToPrefix}
         onDeleteObjectSuccess={(objectKey) => {
-          setToastData({
-            variant: "success",
-            text: `Deleted ${objectKey}`,
-            onDismiss: handleToastDismiss,
-          })
+          setToastData(getObjectDeletedToast(objectKey, { onDismiss: handleToastDismiss }))
         }}
         onDeleteObjectError={(objectKey, errorMessage) => {
-          setToastData({
-            variant: "error",
-            text: `Failed to delete ${objectKey}: ${errorMessage}`,
-            onDismiss: handleToastDismiss,
-          })
+          setToastData(getObjectDeleteErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
         }}
-        onCopyObjectSuccess={(objectKey, targetBucket, targetKey) => {
-          setToastData({
-            variant: "success",
-            text: `Copied ${objectKey} to ${targetBucket}/${targetKey}`,
-            onDismiss: handleToastDismiss,
-          })
+        onCopyObjectSuccess={(objectKey, targetBucket, targetKey, wasOverwritten) => {
+          setToastData(
+            getObjectCopiedToast(objectKey, targetBucket, targetKey, { onDismiss: handleToastDismiss }, wasOverwritten)
+          )
         }}
         onCopyObjectError={(objectKey, errorMessage) => {
-          setToastData({
-            variant: "error",
-            text: `Failed to copy ${objectKey}: ${errorMessage}`,
-            onDismiss: handleToastDismiss,
-          })
+          setToastData(getObjectCopyErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
         }}
         onMoveObjectSuccess={(objectKey, targetBucket, targetKey) => {
-          setToastData({
-            variant: "success",
-            text: `Moved ${objectKey} to ${targetBucket}/${targetKey}`,
-            onDismiss: handleToastDismiss,
-          })
+          setToastData(getObjectMovedToast(objectKey, targetBucket, targetKey, { onDismiss: handleToastDismiss }))
         }}
         onMoveObjectError={(objectKey, errorMessage) => {
-          setToastData({
-            variant: "error",
-            text: `Failed to move ${objectKey}: ${errorMessage}`,
-            onDismiss: handleToastDismiss,
-          })
+          setToastData(getObjectMoveErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
+        }}
+        onEditMetadataSuccess={(objectKey) => {
+          setToastData(getObjectMetadataUpdatedToast(objectKey, { onDismiss: handleToastDismiss }))
+        }}
+        onEditMetadataError={(objectKey, errorMessage) => {
+          setToastData(getObjectMetadataUpdateErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
         }}
       />
 
@@ -297,11 +292,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         onClose={() => setIsCreateFolderModalOpen(false)}
         onSuccess={(folderPath) => {
           setIsCreateFolderModalOpen(false)
-          setToastData({
-            variant: "success",
-            text: `Folder created: ${folderPath}`,
-            onDismiss: handleToastDismiss,
-          })
+          setToastData(getFolderCreatedToast(folderPath, { onDismiss: handleToastDismiss }))
           navigateToPrefix(folderPath)
         }}
       />

@@ -15,6 +15,7 @@ import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
 import { DeleteObjectModal } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveObjectModal } from "./MoveObjectModal"
+import { EditMetadataModal } from "./EditMetadataModal"
 
 interface ObjectsTableViewProps {
   bucketName: string
@@ -24,10 +25,12 @@ interface ObjectsTableViewProps {
   onFolderClick: (prefix: string) => void
   onDeleteObjectSuccess: (objectKey: string) => void
   onDeleteObjectError: (objectKey: string, errorMessage: string) => void
-  onCopyObjectSuccess: (objectKey: string, targetBucket: string, targetKey: string) => void
+  onCopyObjectSuccess: (objectKey: string, targetBucket: string, targetKey: string, wasOverwritten: boolean) => void
   onCopyObjectError: (objectKey: string, errorMessage: string) => void
   onMoveObjectSuccess: (objectKey: string, targetBucket: string, targetKey: string) => void
   onMoveObjectError: (objectKey: string, errorMessage: string) => void
+  onEditMetadataSuccess: (objectKey: string) => void
+  onEditMetadataError: (objectKey: string, errorMessage: string) => void
 }
 
 export function ObjectsTableView({
@@ -42,6 +45,8 @@ export function ObjectsTableView({
   onCopyObjectError,
   onMoveObjectSuccess,
   onMoveObjectError,
+  onEditMetadataSuccess,
+  onEditMetadataError,
 }: ObjectsTableViewProps) {
   const [deleteTarget, setDeleteTarget] = useState<{
     key: string
@@ -56,6 +61,7 @@ export function ObjectsTableView({
     key: string
     size?: number
   } | null>(null)
+  const [editMetadataTarget, setEditMetadataTarget] = useState<string | null>(null)
 
   // Strip current prefix from display names
   const stripPrefix = (fullKey: string) => (currentPrefix ? fullKey.replace(currentPrefix, "") : fullKey)
@@ -197,10 +203,7 @@ export function ObjectsTableView({
                       />
                       <PopupMenuItem
                         label="Edit Metadata"
-                        onClick={() => {
-                          // TODO: Open metadata editor
-                          console.log("Edit metadata", obj.key)
-                        }}
+                        onClick={() => setEditMetadataTarget(obj.key)}
                       />
                       <PopupMenuItem
                         label="Delete"
@@ -250,6 +253,15 @@ export function ObjectsTableView({
         onClose={() => setMoveTarget(null)}
         onSuccess={onMoveObjectSuccess}
         onError={onMoveObjectError}
+      />
+
+      <EditMetadataModal
+        bucketName={bucketName}
+        objectKey={editMetadataTarget ?? ""}
+        isOpen={editMetadataTarget !== null}
+        onClose={() => setEditMetadataTarget(null)}
+        onSuccess={onEditMetadataSuccess}
+        onError={onEditMetadataError}
       />
     </>
   )

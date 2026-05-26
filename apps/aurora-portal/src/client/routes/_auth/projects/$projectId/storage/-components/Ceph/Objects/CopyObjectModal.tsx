@@ -23,7 +23,7 @@ interface CopyObjectModalProps {
   objectKey: string
   objectSize?: number
   onClose: () => void
-  onSuccess?: (objectKey: string, targetBucket: string, targetKey: string) => void
+  onSuccess?: (objectKey: string, targetBucket: string, targetKey: string, wasOverwritten: boolean) => void
   onError?: (objectKey: string, errorMessage: string) => void
 }
 
@@ -68,6 +68,8 @@ export const CopyObjectModal = ({
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const [targetExists, setTargetExists] = useState(false)
+  const [checkingTarget, setCheckingTarget] = useState(false)
 
   // Clear pending debounce timer on unmount
   useEffect(
@@ -133,6 +135,7 @@ export const CopyObjectModal = ({
     const folders: FolderRow[] = objectsData.folders.map((folder) => ({
       kind: "folder" as const,
       name: folder.prefix,
+
       displayName: currentPrefix
         ? folder.prefix.replace(currentPrefix, "").replace(/\/$/, "")
         : folder.prefix.replace(/\/$/, ""),
@@ -190,13 +193,52 @@ export const CopyObjectModal = ({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
       const targetKey = `${currentPrefix}${displayName}`
-      onSuccess?.(submittedKeyRef.current, targetBucket, targetKey)
+      onSuccess?.(submittedKeyRef.current, targetBucket, targetKey, targetExists)
       handleClose()
     },
     onError: (error: { message: string }) => {
       onError?.(submittedKeyRef.current, error.message)
     },
   })
+
+  // ── Check if target object exists ─────────────────────────────────────────
+
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+
+  const checkTargetExists = useCallback(async () => {
+    if (!projectId || !targetBucket) return
+
+    const targetKey = `${currentPrefix}${displayName}`
+
+    // Don't check if source and target are the same
+    if (targetBucket === bucketName && targetKey === objectKey) {
+      setTargetExists(false)
+      return
+    }
+
+    setCheckingTarget(true)
+    try {
+      await utils.storage.ceph.objects.getDetails.fetch({
+        project_id: projectId,
+        containerName: targetBucket,
+        objectKey: targetKey,
+      })
+      // If no error, object exists
+      setTargetExists(true)
+    } catch {
+      // Object doesn't exist or error occurred
+      setTargetExists(false)
+    } finally {
+      setCheckingTarget(false)
+    }
+  }, [projectId, targetBucket, currentPrefix, displayName, bucketName, objectKey, utils])
+
+  // Check target existence when target path changes
+  useEffect(() => {
+    if (isOpen) {
+      checkTargetExists()
+    }
+  }, [isOpen, checkTargetExists])
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -315,7 +357,6 @@ export const CopyObjectModal = ({
 
   if (!isOpen) return null
 
-  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
   const isPending = copyMutation.isPending
   const isLoading = isLoadingObjects
 
@@ -537,6 +578,20 @@ export const CopyObjectModal = ({
             className="font-mono"
             helptext={t`The object will be copied to this path. Navigate folders above to change the destination.`}
           />
+
+          {/* Warning if target exists */}
+          {checkingTarget ? (
+            <Message variant="info">
+              <Stack direction="horizontal" alignment="center" gap="2">
+                <Spinner size="small" />
+                <Trans>Checking if object exists...</Trans>
+              </Stack>
+            </Message>
+          ) : targetExists ? (
+            <Message variant="warning">
+              <Trans>An object with this name already exists at the destination and will be overwritten.</Trans>
+            </Message>
+          ) : null}
 
           {/* Copy metadata checkbox */}
           <label className="flex cursor-pointer items-center gap-2">

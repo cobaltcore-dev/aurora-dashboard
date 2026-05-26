@@ -22,6 +22,15 @@ msgstr "—"
 msgid "... and {hiddenCount} more"
 msgstr "... und {hiddenCount} weitere"
 
+msgid "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
+msgstr ""
+
+msgid "\"{displayName}\" was successfully copied to {destination}."
+msgstr ""
+
+msgid "\"{displayName}\" was successfully moved to {destination}."
+msgstr ""
+
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" wurde erfolgreich nach {destination} kopiert."
 
@@ -268,6 +277,9 @@ msgstr "Bereits deaktiviert (wird übersprungen)"
 msgid "Already deactivated (will be skipped):"
 msgstr "Bereits deaktiviert (wird übersprungen):"
 
+msgid "An object with this name already exists at the destination and will be overwritten."
+msgstr ""
+
 msgid "An unexpected error occurred"
 msgstr "Ein unerwarteter Fehler ist aufgetreten"
 
@@ -430,6 +442,9 @@ msgstr ""
 msgid "Checking bucket contents..."
 msgstr ""
 
+msgid "Checking if object exists..."
+msgstr ""
+
 msgid "Checksum"
 msgstr "Prüfsumme"
 
@@ -577,6 +592,9 @@ msgstr "Objekt wird kopiert..."
 msgid "Copying..."
 msgstr "Wird kopiert..."
 
+msgid "Could not copy \"{displayName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not copy \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht kopiert werden: {errorMessage}"
 
@@ -588,6 +606,12 @@ msgstr "Container \"{containerName}\" konnte nicht erstellt werden: {errorMessag
 
 msgid "Could not create folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht erstellt werden: {errorMessage}"
+
+msgid "Could not create folder \"{folderPath}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not delete \"{displayName}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not delete \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht gelöscht werden: {errorMessage}"
@@ -610,8 +634,14 @@ msgstr ""
 msgid "Could not empty container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht geleert werden: {errorMessage}"
 
+msgid "Could not move \"{displayName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
+
+msgid "Could not update \"{displayName}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not update \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht aktualisiert werden: {errorMessage}"
@@ -1066,6 +1096,9 @@ msgstr "Fehler beim Laden der Security Group"
 msgid "Error:"
 msgstr ""
 
+msgid "ETag"
+msgstr ""
+
 msgid "Ethertype"
 msgstr "Ethertype"
 
@@ -1357,6 +1390,9 @@ msgstr "Ordner \"{folderName}\" wurde dauerhaft gelöscht."
 msgid "Folder \"{folderName}\" was successfully created."
 msgstr "Ordner \"{folderName}\" wurde erfolgreich erstellt."
 
+msgid "Folder \"{folderPath}\" was successfully created."
+msgstr ""
+
 msgid "Folder Created"
 msgstr "Ordner erstellt"
 
@@ -1582,6 +1618,9 @@ msgstr "Schlüssel existiert bereits"
 msgid "Key contains invalid characters"
 msgstr "Schlüssel enthält ungültige Zeichen"
 
+msgid "Key contains invalid characters (use only letters, digits, hyphens, underscores)"
+msgstr ""
+
 msgid "Key Features"
 msgstr "Hauptmerkmale"
 
@@ -1593,6 +1632,9 @@ msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
 
 msgid "Key Name"
 msgstr "Keyname"
+
+msgid "Last modified"
+msgstr ""
 
 msgid "Last Modified"
 msgstr "Zuletzt geändert"
@@ -1770,6 +1812,9 @@ msgstr "Metadaten \"{keyToDelete}\" wurden erfolgreich gelöscht."
 
 msgid "Metadata \"{trimmedKey}\" has been added successfully."
 msgstr "Metadaten \"{trimmedKey}\" wurden erfolgreich hinzugefügt."
+
+msgid "Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving."
+msgstr ""
 
 msgid "Min Disk (GB)"
 msgstr "Min. Disk (GB)"
@@ -1958,6 +2003,9 @@ msgid "Note: The 'stateful' attribute cannot be changed if this security group i
 msgstr "Hinweis: Das Attribut 'stateful' kann nicht geändert werden, wenn diese Security Group derzeit von einem oder mehreren Ports verwendet wird."
 
 msgid "Nothing to do. Bucket is already empty."
+msgstr ""
+
+msgid "Object \"{displayName}\" was permanently deleted."
 msgstr ""
 
 msgid "Object \"{objectName}\" was permanently deleted."
@@ -2167,6 +2215,9 @@ msgstr "Projekte"
 msgid "Projects"
 msgstr "Projekte"
 
+msgid "Properties of \"{displayName}\" were successfully updated."
+msgstr ""
+
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Eigenschaften von \"{objectName}\" wurden erfolgreich aktualisiert."
 
@@ -2175,6 +2226,9 @@ msgstr "Eigenschaftsschlüssel"
 
 msgid "property_key"
 msgstr "property_key"
+
+msgid "property-key"
+msgstr ""
 
 msgid "Protect this image from being deleted"
 msgstr "Dieses Image vor dem Löschen schützen"
@@ -2559,6 +2613,9 @@ msgstr "Alte Objekt-Versionen speichern"
 
 msgid "Store old object versions in container:"
 msgstr "Alte Objekt-Versionen in Container speichern:"
+
+msgid "Stored as x-amz-meta-* headers. Keys are case-insensitive."
+msgstr ""
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
