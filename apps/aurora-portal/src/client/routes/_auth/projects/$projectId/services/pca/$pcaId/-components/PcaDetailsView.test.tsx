@@ -40,8 +40,8 @@ describe("PcaDetailsView", () => {
     certificate: {
       pem: "-----BEGIN CERTIFICATE-----\nTEST\n-----END CERTIFICATE-----",
       validity: {
-        not_before: 1,
-        not_after: 1 + 2 * 24 * 60 * 60 * 1000,
+        not_before: 1705315200,
+        not_after: 1705488000,
       },
     },
   }

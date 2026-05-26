@@ -39,11 +39,9 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
     {
       label: t`Duration/validity`,
       value:
-        pca.certificate?.validity.not_before && pca.certificate?.validity.not_after
+        pca.certificate?.validity.not_before !== undefined && pca.certificate?.validity.not_after !== undefined
           ? `${Math.round(
-              (new Date(pca.certificate.validity.not_after).getTime() -
-                new Date(pca.certificate.validity.not_before).getTime()) /
-                (1000 * 60 * 60 * 24)
+              (pca.certificate.validity.not_after - pca.certificate.validity.not_before) / (60 * 60 * 24)
             )} days`
           : undefined,
     },
@@ -55,7 +53,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         <Stack direction="horizontal" distribution="between">
           <Stack gap="2" alignment="center">
             <div className="text-theme-default text-2xl font-semibold">
-              {`${pca.configuration?.subject.common_name} Certificate Authority Details`}
+              {`${pca.configuration?.subject?.common_name} Certificate Authority Details`}
             </div>
             {/* temporary bg, I will resolve this as soon as I will have sync with designers */}
             <div className="bg-aurora-blue-200 flex items-center gap-1 rounded-sm px-1 py-0.5">
