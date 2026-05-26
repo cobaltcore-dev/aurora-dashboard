@@ -631,6 +631,9 @@ msgstr "Alle löschen ({selectedCount})"
 msgid "Delete CA"
 msgstr "Delete CA"
 
+msgid "Delete certificate authority"
+msgstr ""
+
 msgid "Delete container:"
 msgstr "Container löschen:"
 
@@ -667,8 +670,14 @@ msgstr "Ausgewählte löschen"
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "{successCount} Image(s) gelöscht, aber {failedCount} Image(s) konnten nicht gelöscht werden."
 
+msgid "Deleting certificate authority..."
+msgstr ""
+
 msgid "Deleting folder and all its contents..."
 msgstr "Ordner und alle Inhalte werden gelöscht..."
+
+msgid "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
+msgstr ""
 
 msgid "Deleting..."
 msgstr "Wird gelöscht..."
@@ -2503,6 +2512,9 @@ msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Ein
 msgid "The text must match \"delete\""
 msgstr "Der Text muss \"delete\" entsprechen"
 
+msgid "The text must match “delete” in lowercase."
+msgstr ""
+
 msgid "The text must match “detach” in lowercase."
 msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
 
@@ -2620,6 +2632,9 @@ msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>\"release\"</0> in
 msgid "To confirm type <0>delete</0> in the field below."
 msgstr "Geben Sie zur Bestätigung <0>delete</0> in das Feld unten ein."
 
+msgid "To confirm, type <0>\"delete\"</0> in the field below."
+msgstr ""
+
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Gemeinsam können wir das volle Potenzial Ihrer Cloud-Infrastruktur erschließen."
 
@@ -2646,6 +2661,9 @@ msgstr "Typ"
 
 msgid "Type \"delete\" to confirm"
 msgstr "Geben Sie \"delete\" zur Bestätigung ein"
+
+msgid "Type “delete” to confirm"
+msgstr ""
 
 msgid "Type \"detach\" to confirm"
 msgstr "\"detach\" zur Bestätigung eingeben"

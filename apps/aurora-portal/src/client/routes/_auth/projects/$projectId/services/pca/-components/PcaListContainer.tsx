@@ -14,7 +14,7 @@ import { useProjectId } from "@/client/hooks"
 import { TABLE_COLUMNS } from "./-table/constants"
 import { PcaTableRow } from "./-table/PcaTableRow"
 import { useModal } from "@/client/utils/useModal"
-import { CreateCaModal } from "./CreateCaModal"
+import { CreatePcaModal } from "./-modals/CreatePcaModal"
 
 export const PcaListContainer = () => {
   const { t } = useLingui()
@@ -73,7 +73,7 @@ export const PcaListContainer = () => {
         ))}
       </DataGrid>
 
-      {createCaOpen && <CreateCaModal open={createCaOpen} onClose={toggleCreateCa} />}
+      {createCaOpen && <CreatePcaModal open={createCaOpen} onClose={toggleCreateCa} />}
     </div>
   )
 }

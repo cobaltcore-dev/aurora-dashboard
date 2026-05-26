@@ -72,8 +72,8 @@ export const pcaRouter = {
     .input(CertificateAuthorityIdInputSchema)
     .mutation(async ({ input, ctx }): Promise<void> => {
       return withErrorHandling(async () => {
-        const pca = ctx.openstack?.service("clavis")
-        validateOpenstackService(pca, "clavis")
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
         const url = `${PCA_BASE_URL}/${input.certificate_authority_id}`
         // 204 Certificate Authority deleted successfully

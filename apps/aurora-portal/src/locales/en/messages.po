@@ -631,6 +631,9 @@ msgstr "Delete All ({selectedCount})"
 msgid "Delete CA"
 msgstr "Delete CA"
 
+msgid "Delete certificate authority"
+msgstr "Delete certificate authority"
+
 msgid "Delete container:"
 msgstr "Delete container:"
 
@@ -667,8 +670,14 @@ msgstr "Delete Selected"
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 
+msgid "Deleting certificate authority..."
+msgstr "Deleting certificate authority..."
+
 msgid "Deleting folder and all its contents..."
 msgstr "Deleting folder and all its contents..."
+
+msgid "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
+msgstr "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
 
 msgid "Deleting..."
 msgstr "Deleting..."
@@ -2503,6 +2512,9 @@ msgstr "The tenant ID provided is invalid. Please check your input."
 msgid "The text must match \"delete\""
 msgstr "The text must match \"delete\""
 
+msgid "The text must match “delete” in lowercase."
+msgstr "The text must match “delete” in lowercase."
+
 msgid "The text must match “detach” in lowercase."
 msgstr "The text must match “detach” in lowercase."
 
@@ -2620,6 +2632,9 @@ msgstr "To confirm this action, type the word <0>\"release\"</0> in the field be
 msgid "To confirm type <0>delete</0> in the field below."
 msgstr "To confirm type <0>delete</0> in the field below."
 
+msgid "To confirm, type <0>\"delete\"</0> in the field below."
+msgstr "To confirm, type <0>\"delete\"</0> in the field below."
+
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Together, we can unlock the true potential of your cloud infrastructure."
 
@@ -2646,6 +2661,9 @@ msgstr "Type"
 
 msgid "Type \"delete\" to confirm"
 msgstr "Type \"delete\" to confirm"
+
+msgid "Type “delete” to confirm"
+msgstr "Type “delete” to confirm"
 
 msgid "Type \"detach\" to confirm"
 msgstr "Type \"detach\" to confirm"
