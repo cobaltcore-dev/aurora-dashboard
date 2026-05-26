@@ -3,9 +3,13 @@ import userEvent from "@testing-library/user-event"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import type { CertificateAuthority } from "@/server/Services/types/pca"
 import { PcaTableRow } from "./PcaTableRow"
+
+vi.mock("../-modals/DeletePcaModal", () => ({
+  DeletePcaModal: ({ open }: { open: boolean }) => (open ? <div>Delete CA Modal</div> : null),
+}))
 
 describe("PcaTableRow", () => {
   const basePca: CertificateAuthority = {
@@ -50,12 +54,13 @@ describe("PcaTableRow", () => {
     expect(screen.getByText("—")).toBeInTheDocument()
   })
 
-  it("shows disabled Delete CA action", async () => {
+  it("opens Delete CA modal when Delete CA is clicked", async () => {
     const user = userEvent.setup()
     renderRow(basePca)
 
     await user.click(screen.getByRole("button", { name: "More" }))
+    await user.click(screen.getByRole("menuitem", { name: "Delete CA" }))
 
-    expect(screen.getByRole("menuitem", { name: "Delete CA" })).toHaveAttribute("aria-disabled", "true")
+    expect(screen.getByText("Delete CA Modal")).toBeInTheDocument()
   })
 })

@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
-import { CreateCaModal } from "./CreateCaModal"
+import { CreatePcaModal } from "./CreatePcaModal"
 
 const mockProjectId = "project-123"
 const mockMutateAsync = vi.fn().mockResolvedValue({})
@@ -48,12 +48,12 @@ const renderModal = (onClose = vi.fn()) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <CreateCaModal open={true} onClose={onClose} />
+        <CreatePcaModal open={true} onClose={onClose} />
       </PortalProvider>
     </I18nProvider>
   )
 
-describe("CreateCaModal", () => {
+describe("CreatePcaModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     await act(async () => {
