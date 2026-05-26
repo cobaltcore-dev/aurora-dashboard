@@ -25,6 +25,9 @@ Implemented screens and interactions:
 - row action menu with delete certificate authority
 - create modal with FQDN/common name validation
 - delete modal with explicit confirmation by typing `delete`
+- CA details page at `/projects/$projectId/services/pca/$pcaId/` via `PcaDetailsView`
+- details page shows CA metadata, certificate validity, CSR content, and delete action
+- details-page delete flow reuses the shared delete modal and redirects back to the PCA list after success
 
 The list page currently renders the CA state, id, and common name. It also shows the translated empty state when no PCAs are available for the current project.
 
@@ -76,7 +79,6 @@ Error states are surfaced directly in the modal or list view when the BFF call f
 
 The backend already exposes certificate and import operations, but the UI does not yet have dedicated screens for:
 
-- CA detail view
 - certificate list view
 - certificate detail view
 - certificate import flow
