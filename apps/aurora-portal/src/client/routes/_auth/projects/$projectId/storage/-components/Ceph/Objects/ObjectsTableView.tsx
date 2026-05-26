@@ -14,6 +14,7 @@ import { formatBytesBinary } from "@/client/utils/formatBytes"
 import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
 import { DeleteObjectModal } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
+import { MoveObjectModal } from "./MoveObjectModal"
 
 interface ObjectsTableViewProps {
   bucketName: string
@@ -25,6 +26,8 @@ interface ObjectsTableViewProps {
   onDeleteObjectError: (objectKey: string, errorMessage: string) => void
   onCopyObjectSuccess: (objectKey: string, targetBucket: string, targetKey: string) => void
   onCopyObjectError: (objectKey: string, errorMessage: string) => void
+  onMoveObjectSuccess: (objectKey: string, targetBucket: string, targetKey: string) => void
+  onMoveObjectError: (objectKey: string, errorMessage: string) => void
 }
 
 export function ObjectsTableView({
@@ -37,6 +40,8 @@ export function ObjectsTableView({
   onDeleteObjectError,
   onCopyObjectSuccess,
   onCopyObjectError,
+  onMoveObjectSuccess,
+  onMoveObjectError,
 }: ObjectsTableViewProps) {
   const [deleteTarget, setDeleteTarget] = useState<{
     key: string
@@ -44,6 +49,10 @@ export function ObjectsTableView({
     lastModified?: string
   } | null>(null)
   const [copyTarget, setCopyTarget] = useState<{
+    key: string
+    size?: number
+  } | null>(null)
+  const [moveTarget, setMoveTarget] = useState<{
     key: string
     size?: number
   } | null>(null)
@@ -179,10 +188,12 @@ export function ObjectsTableView({
                       />
                       <PopupMenuItem
                         label="Move"
-                        onClick={() => {
-                          // TODO: Open move modal
-                          console.log("Move", obj.key)
-                        }}
+                        onClick={() =>
+                          setMoveTarget({
+                            key: obj.key,
+                            size: obj.size,
+                          })
+                        }
                       />
                       <PopupMenuItem
                         label="Edit Metadata"
@@ -229,6 +240,16 @@ export function ObjectsTableView({
         onClose={() => setCopyTarget(null)}
         onSuccess={onCopyObjectSuccess}
         onError={onCopyObjectError}
+      />
+
+      <MoveObjectModal
+        bucketName={bucketName}
+        objectKey={moveTarget?.key ?? ""}
+        objectSize={moveTarget?.size}
+        isOpen={moveTarget !== null}
+        onClose={() => setMoveTarget(null)}
+        onSuccess={onMoveObjectSuccess}
+        onError={onMoveObjectError}
       />
     </>
   )

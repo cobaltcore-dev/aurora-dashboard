@@ -418,6 +418,9 @@ msgstr "Abbrechen"
 msgid "Cancel upload"
 msgstr "Upload abbrechen"
 
+msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
+msgstr ""
+
 msgid "Capabilities"
 msgstr "Capabilities"
 
@@ -1975,6 +1978,9 @@ msgstr "Objekt-Anzahl-Quota"
 msgid "Object Deleted"
 msgstr "Objekt gelöscht"
 
+msgid "Object metadata will be automatically copied during the move operation."
+msgstr ""
+
 msgid "Object Moved"
 msgstr "Objekt verschoben"
 
@@ -2830,6 +2836,9 @@ msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."
 msgid "This tenant does not have access to the flavor."
 msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
 
+msgid "This will delete the original object after copying it to the destination."
+msgstr ""
+
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr ""
 
@@ -3042,6 +3051,9 @@ msgstr "Details ansehen"
 
 msgid "Visibility"
 msgstr "Sichtbarkeit"
+
+msgid "Warning:"
+msgstr ""
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."

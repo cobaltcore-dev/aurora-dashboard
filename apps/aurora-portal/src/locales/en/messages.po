@@ -418,6 +418,9 @@ msgstr "Cancel"
 msgid "Cancel upload"
 msgstr "Cancel upload"
 
+msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
+msgstr "Cannot move to the same location. Please select a different bucket, folder, or change the name."
+
 msgid "Capabilities"
 msgstr "Capabilities"
 
@@ -1975,6 +1978,9 @@ msgstr "Object count quota"
 msgid "Object Deleted"
 msgstr "Object Deleted"
 
+msgid "Object metadata will be automatically copied during the move operation."
+msgstr "Object metadata will be automatically copied during the move operation."
+
 msgid "Object Moved"
 msgstr "Object Moved"
 
@@ -2830,6 +2836,9 @@ msgstr "This tenant already has access to the flavor."
 msgid "This tenant does not have access to the flavor."
 msgstr "This tenant does not have access to the flavor."
 
+msgid "This will delete the original object after copying it to the destination."
+msgstr "This will delete the original object after copying it to the destination."
+
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 
@@ -3042,6 +3051,9 @@ msgstr "View Details"
 
 msgid "Visibility"
 msgstr "Visibility"
+
+msgid "Warning:"
+msgstr "Warning:"
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."

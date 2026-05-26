@@ -266,6 +266,20 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
             onDismiss: handleToastDismiss,
           })
         }}
+        onMoveObjectSuccess={(objectKey, targetBucket, targetKey) => {
+          setToastData({
+            variant: "success",
+            text: `Moved ${objectKey} to ${targetBucket}/${targetKey}`,
+            onDismiss: handleToastDismiss,
+          })
+        }}
+        onMoveObjectError={(objectKey, errorMessage) => {
+          setToastData({
+            variant: "error",
+            text: `Failed to move ${objectKey}: ${errorMessage}`,
+            onDismiss: handleToastDismiss,
+          })
+        }}
       />
 
       {hasMore && (
