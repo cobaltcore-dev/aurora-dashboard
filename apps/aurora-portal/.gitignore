@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+permission_custom_policies
 *.local
 tmp
 tsx-0

@@ -169,6 +169,14 @@ export function validateUploadInput(
     })
   }
 
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!UUID_RE.test(imageId.trim())) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "imageId must be a valid UUID",
+    })
+  }
+
   // Validate fileStream
   if (!fileStream) {
     throw new TRPCError({

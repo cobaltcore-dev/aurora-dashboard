@@ -25,9 +25,8 @@ const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
 // Initialize Fastify server
 const server = Fastify({
   logger: true,
-  // Increase ALL limits
-  bodyLimit: 5 * 1024 * 1024 * 1024, // 5GB body limit
-  requestTimeout: 600000, // 10 minutes (600 seconds)
+  bodyLimit: 1 * 1024 * 1024, // 1MB default; upload route overrides per-route
+  requestTimeout: 30000, // 30 seconds default
   keepAliveTimeout: 600000, // 10 minutes keep-alive
   routerOptions: {
     maxParamLength: 5000,
@@ -36,8 +35,9 @@ const server = Fastify({
 
 async function startServer() {
   // Register cookie middleware - required for session management and CSRF
+  // TODO: Set COOKIE_SECRET env var in production (random 32+ char string, stored in secret manager)
   server.register(FastifyCookie, {
-    secret: undefined, // Should be set to a secure value in production
+    secret: undefined,
   })
 
   // Register multipart/form-data support
@@ -62,68 +62,73 @@ async function startServer() {
 
   // OPTIONAL: Direct HTTP endpoint for image file uploads (without tRPC)
   // Use this if you need a fallback or alternative upload method
-  server.post(`${BFF_ENDPOINT}/upload-image-direct`, async (request, reply) => {
-    try {
-      // Reuse tRPC context for authentication check
-      const ctx = await createContext({ req: request, res: reply } as CreateFastifyContextOptions)
+  server.post(
+    `${BFF_ENDPOINT}/upload-image-direct`,
+    { config: { rawBody: false }, bodyLimit: 5 * 1024 * 1024 * 1024 },
+    async (request, reply) => {
+      try {
+        // Reuse tRPC context for authentication check
+        const ctx = await createContext({ req: request, res: reply } as CreateFastifyContextOptions)
 
-      if (!ctx.validateSession()) {
-        return reply.code(401).send({ message: "Unauthorized" })
-      }
-
-      // Parse multipart form data with file size limit
-      const data = await request.file({
-        limits: {
-          fileSize: 5 * 1024 * 1024 * 1024, // 5GB max
-        },
-      })
-
-      if (!data) {
-        return reply.code(400).send({ message: "No file" })
-      }
-
-      // Extract additional fields from request
-      const fields: MultipartFields = data.fields
-      const imageId = (fields.imageId as MultipartValue)?.value
-
-      if (!imageId) {
-        return reply.code(400).send({ message: "No imageId provided" })
-      }
-
-      // Upload to Glance
-      const glance = ctx.openstack?.service("glance")
-
-      if (!glance) {
-        return reply.code(500).send({ message: "Glance service unavailable" })
-      }
-
-      const webStream = Readable.toWeb(data.file)
-
-      await glance.put(
-        `v2/images/${imageId}/file`,
-        webStream, // ← Stream the file directly to Glance
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/octet-stream",
-          },
+        if (!ctx.validateSession()) {
+          return reply.code(401).send({ message: "Unauthorized" })
         }
-      )
 
-      return reply.send({ success: true, imageId })
-    } catch (error) {
-      request.log.error(error)
+        // Parse multipart form data with file size limit
+        const data = await request.file({
+          limits: {
+            fileSize: 5 * 1024 * 1024 * 1024, // 5GB max
+          },
+        })
 
-      const { code, message } = error as FastifyError
+        if (!data) {
+          return reply.code(400).send({ message: "No file" })
+        }
 
-      // Handle file size limit specifically
-      if (code === "FST_REQ_FILE_TOO_LARGE") {
-        return reply.code(413).send({ message: "File too large", maxSize: "5GB" })
+        // Extract additional fields from request
+        const fields: MultipartFields = data.fields
+        const imageId = (fields.imageId as MultipartValue)?.value
+
+        const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+        if (!imageId || typeof imageId !== "string" || !UUID_RE.test(imageId)) {
+          return reply.code(400).send({ message: "Invalid imageId — must be a UUID" })
+        }
+
+        // Upload to Glance
+        const glance = ctx.openstack?.service("glance")
+
+        if (!glance) {
+          return reply.code(500).send({ message: "Glance service unavailable" })
+        }
+
+        const webStream = Readable.toWeb(data.file)
+
+        await glance.put(
+          `v2/images/${imageId}/file`,
+          webStream, // ← Stream the file directly to Glance
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/octet-stream",
+            },
+          }
+        )
+
+        return reply.send({ success: true, imageId })
+      } catch (error) {
+        request.log.error(error)
+
+        const { code, message } = error as FastifyError
+
+        // Handle file size limit specifically
+        if (code === "FST_REQ_FILE_TOO_LARGE") {
+          return reply.code(413).send({ message: "File too large", maxSize: "5GB" })
+        }
+
+        return reply.code(500).send({ message })
       }
-
-      return reply.code(500).send({ message })
     }
-  })
+  )
 
   server.register(AuroraFastifyCsrfProtection, {
     tokenRoute: "/csrf-token", // Route to get CSRF token

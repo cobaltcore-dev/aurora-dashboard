@@ -15,7 +15,7 @@ export const sessionRouter = {
     return token?.tokenData || null
   }),
 
-  getAuthToken: publicProcedure.query(async ({ ctx }) => {
+  getAuthToken: protectedProcedure.query(async ({ ctx }) => {
     const token = ctx.openstack?.getToken()
     return token?.authToken || null
   }),
@@ -33,7 +33,7 @@ export const sessionRouter = {
     }
   }),
 
-  setCurrentScope: publicProcedure.input(discriminatedSchema).mutation(async ({ input, ctx }) => {
+  setCurrentScope: protectedProcedure.input(discriminatedSchema).mutation(async ({ input, ctx }) => {
     switch (input.type) {
       case "domain": {
         const session = await ctx.rescopeSession({ domainId: input.domainId })
@@ -79,7 +79,7 @@ export const sessionRouter = {
       return tokenData
     }),
 
-  terminateUserSession: publicProcedure.mutation(async ({ ctx }) => {
+  terminateUserSession: protectedProcedure.mutation(async ({ ctx }) => {
     ctx.terminateSession()
   }),
 

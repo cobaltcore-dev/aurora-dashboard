@@ -36,7 +36,7 @@ describe("SessionCookie", () => {
           path: "/",
           httpOnly: true,
           sameSite: "strict",
-          secure: false,
+          secure: true,
         })
       )
     })
@@ -84,8 +84,7 @@ describe("SessionCookie", () => {
           path: "/",
           httpOnly: true,
           sameSite: "strict",
-          secure: false,
-          expires: expect.any(Date),
+          secure: true,
         })
       )
 
@@ -150,7 +149,7 @@ describe("SessionCookie", () => {
       )
     })
 
-    it("should set secure to false in non-production", () => {
+    it("should set secure to true by default (INSECURE_COOKIES not set)", () => {
       const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set("test-token")
@@ -159,7 +158,7 @@ describe("SessionCookie", () => {
         SessionCookieName,
         "test-token",
         expect.objectContaining({
-          secure: false,
+          secure: true,
         })
       )
     })
