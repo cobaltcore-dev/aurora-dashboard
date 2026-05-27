@@ -43,7 +43,7 @@ export function SessionCookie({ cookieName = SessionCookieName, req, res }: Sess
   const cookieDomain = extractCookieDomain(req.hostname)
 
   const DEFAULT_COOKIE_VALUES = {
-    secure: process.env.NODE_ENV === "production", // Only secure in production
+    secure: process.env.INSECURE_COOKIES !== "true",
     httpOnly: true,
     sameSite: "strict",
     path: "/",
