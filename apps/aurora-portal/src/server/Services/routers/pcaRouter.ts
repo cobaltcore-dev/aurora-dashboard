@@ -133,8 +133,8 @@ export const pcaRouter = {
     .input(CertificateIdInputSchema)
     .query(async ({ input, ctx }): Promise<Certificate> => {
       return withErrorHandling(async () => {
-        const pca = ctx.openstack?.service("clavis")
-        validateOpenstackService(pca, "clavis")
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
         const url = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates/${input.certificate_id}`
         const response = await pca.get(url)

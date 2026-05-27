@@ -298,6 +298,9 @@ msgstr "Back"
 msgid "Back to Certificate Authorities"
 msgstr "Back to Certificate Authorities"
 
+msgid "Back to Certificate Authorities Details page"
+msgstr "Back to Certificate Authorities Details page"
+
 msgid "Back to Floating IPs"
 msgstr "Back to Floating IPs"
 
@@ -342,6 +345,9 @@ msgstr "Ceph"
 
 msgid "Certificate Authority not found"
 msgstr "Certificate Authority not found"
+
+msgid "Certificate not found"
+msgstr "Certificate not found"
 
 msgid "Checking S3 credentials..."
 msgstr "Checking S3 credentials..."
@@ -928,6 +934,9 @@ msgstr "Error - Flavor Details"
 msgid "Error - Image Details"
 msgstr "Error - Image Details"
 
+msgid "Error loading Certificate"
+msgstr "Error loading Certificate"
+
 msgid "Error loading Certificate Authority"
 msgstr "Error loading Certificate Authority"
 
@@ -1492,6 +1501,9 @@ msgstr "Loading ACLs..."
 msgid "Loading Certificate Authority Details..."
 msgstr "Loading Certificate Authority Details..."
 
+msgid "Loading Certificate Details..."
+msgstr "Loading Certificate Details..."
+
 msgid "Loading Certificates issued by Certificate Authority..."
 msgstr "Loading Certificates issued by Certificate Authority..."
 
@@ -1575,6 +1587,9 @@ msgstr "Manage Access - {flavorName}"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Manage Access for Image - {imageName}"
+
+msgid "Manage your Certificate"
+msgstr "Manage your Certificate"
 
 msgid "Manage your Private Certificate Authority infrastructure"
 msgstr "Manage your Private Certificate Authority infrastructure"
