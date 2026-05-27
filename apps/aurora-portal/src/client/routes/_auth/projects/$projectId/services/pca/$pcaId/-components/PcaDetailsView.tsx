@@ -15,6 +15,7 @@ import { useProjectId } from "@/client/hooks"
 import { useModal } from "@/client/utils/useModal"
 import { DeletePcaModal } from "../../-components/-modals/DeletePcaModal"
 import { STATE_CONFIG } from "../../-components/-table/constants"
+import { PcaCertificatesListContainer } from "./PcaCertificatesListContainer"
 
 interface PcaDetailsViewProps {
   pca: CertificateAuthority
@@ -109,6 +110,8 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
           onSuccess={navigateToPcaList}
         />
       )}
+
+      <PcaCertificatesListContainer pcaId={pca.id} />
     </>
   )
 }

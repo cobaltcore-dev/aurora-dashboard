@@ -127,10 +127,10 @@ export const CreateCertificateInputSchema = z.object({
 })
 
 export const CertificateSchema = z.object({
-  certificate: CertificateAuthorityCertificateSchema,
+  certificate: CertificateAuthorityCertificateSchema.optional(),
   certificate_authority_id: z.string(),
   certificate_chain: CertificateAuthorityCertificateChainSchema.optional(),
-  configuration: CertificateConfigurationSchema,
+  configuration: CertificateConfigurationSchema.optional(),
   csr: z.string().optional(),
   id: z.string(),
   project_id: z.string(),

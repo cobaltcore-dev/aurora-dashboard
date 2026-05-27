@@ -538,6 +538,9 @@ msgstr "CPU"
 msgid "Create"
 msgstr "Create"
 
+msgid "Create Certificate"
+msgstr "Create Certificate"
+
 msgid "Create Certificate Authority"
 msgstr "Create Certificate Authority"
 
@@ -1072,6 +1075,9 @@ msgstr "Failed to fetch flavors from server."
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Failed to generate temporary URL: {generalError}"
 
+msgid "Failed to load Certificates issued by Certificate Authority."
+msgstr "Failed to load Certificates issued by Certificate Authority."
+
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Failed to load container ACLs: {errorMessage}"
 
@@ -1423,6 +1429,9 @@ msgstr "IPv4"
 msgid "IPv6"
 msgstr "IPv6"
 
+msgid "Issue End Entity Certificate"
+msgstr "Issue End Entity Certificate"
+
 msgid "It will appear in your image list."
 msgstr "It will appear in your image list."
 
@@ -1482,6 +1491,9 @@ msgstr "Loading ACLs..."
 
 msgid "Loading Certificate Authority Details..."
 msgstr "Loading Certificate Authority Details..."
+
+msgid "Loading Certificates issued by Certificate Authority..."
+msgstr "Loading Certificates issued by Certificate Authority..."
 
 msgid "Loading container properties..."
 msgstr "Loading container properties..."
@@ -1719,6 +1731,9 @@ msgstr "new-folder-name"
 
 msgid "No"
 msgstr "No"
+
+msgid "No Certificates issued by this Certificate Authority found"
+msgstr "No Certificates issued by this Certificate Authority found"
 
 msgid "No containers found"
 msgstr "No containers found"
@@ -2547,6 +2562,9 @@ msgstr "The text must match “detach” in lowercase."
 
 msgid "The text must match “release” in lowercase."
 msgstr "The text must match “release” in lowercase."
+
+msgid "There are no Certificates available for this Certificate Authority."
+msgstr "There are no Certificates available for this Certificate Authority."
 
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "There are no containers available with the current search criteria. Try adjusting your search term."
