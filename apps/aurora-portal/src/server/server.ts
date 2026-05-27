@@ -70,6 +70,8 @@ async function startServer() {
     `${BFF_ENDPOINT}/upload-image-direct`,
     { config: { rawBody: false, rateLimit: { max: 10, timeWindow: "1 minute" } }, bodyLimit: 5 * 1024 * 1024 * 1024 },
     async (request, reply) => {
+      // Override the 30s global timeout — uploads can take minutes for large files
+      request.raw.setTimeout(0)
       try {
         // Reuse tRPC context for authentication check
         const ctx = await createContext({ req: request, res: reply } as CreateFastifyContextOptions)
@@ -143,6 +145,14 @@ async function startServer() {
   })
 
   // Register tRPC plugin to handle API routes
+  // Override timeout for the streaming upload procedure — the 30s global would kill large uploads
+  server.addHook("onRequest", (request, _reply, done) => {
+    if (request.url.includes("/compute.uploadImage")) {
+      request.raw.setTimeout(0)
+    }
+    done()
+  })
+
   await server.register(fastifyTRPCPlugin, {
     prefix: BFF_ENDPOINT, // All tRPC routes will be under this prefix
     trpcOptions: {
