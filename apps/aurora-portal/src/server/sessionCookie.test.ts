@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { SessionCookie, SessionCookieName } from "./sessionCookie"
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
 
@@ -9,6 +9,11 @@ describe("SessionCookie", () => {
     mockRes = {
       setCookie: vi.fn(),
     } as unknown as CreateFastifyContextOptions["res"]
+    delete process.env.INSECURE_COOKIES
+  })
+
+  afterEach(() => {
+    delete process.env.INSECURE_COOKIES
   })
 
   const createMockReq = (hostname: string) =>
@@ -159,6 +164,21 @@ describe("SessionCookie", () => {
         "test-token",
         expect.objectContaining({
           secure: true,
+        })
+      )
+    })
+
+    it("should set secure to false when INSECURE_COOKIES=true", () => {
+      process.env.INSECURE_COOKIES = "true"
+      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const cookie = SessionCookie({ req: mockReq, res: mockRes })
+      cookie.set("test-token")
+
+      expect(mockRes.setCookie).toHaveBeenCalledWith(
+        SessionCookieName,
+        "test-token",
+        expect.objectContaining({
+          secure: false,
         })
       )
     })

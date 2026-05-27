@@ -103,6 +103,13 @@ describe("sessionRouter", () => {
   })
 
   describe("getAuthToken", () => {
+    it("should reject unauthenticated callers with UNAUTHORIZED", async () => {
+      mockContext.validateSession.mockReturnValue(false)
+      await expect(caller.getAuthToken()).rejects.toThrow(
+        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+      )
+    })
+
     it("should return auth token when openstack session exists", async () => {
       const result = await caller.getAuthToken()
 
@@ -205,6 +212,13 @@ describe("sessionRouter", () => {
   })
 
   describe("setCurrentScope", () => {
+    it("should reject unauthenticated callers with UNAUTHORIZED", async () => {
+      mockContext.validateSession.mockReturnValue(false)
+      await expect(caller.setCurrentScope({ type: "unscoped", value: "x" })).rejects.toThrow(
+        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+      )
+    })
+
     describe("domain type", () => {
       it("should rescope to domain and return domain scope", async () => {
         const mockRescopedSession = {
@@ -380,6 +394,13 @@ describe("sessionRouter", () => {
   })
 
   describe("terminateUserSession", () => {
+    it("should reject unauthenticated callers with UNAUTHORIZED", async () => {
+      mockContext.validateSession.mockReturnValue(false)
+      await expect(caller.terminateUserSession()).rejects.toThrow(
+        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+      )
+    })
+
     it("should call terminateSession on context", async () => {
       await caller.terminateUserSession()
 
