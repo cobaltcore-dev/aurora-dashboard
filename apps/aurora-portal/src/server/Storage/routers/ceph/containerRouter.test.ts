@@ -106,6 +106,7 @@ const createCaller = createCallerFactory(auroraRouter({ storage: { ceph: { conta
 describe("buckets.list", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    process.env.CEPH_REGION = "ceph-objectstore-st1-test-region"
     // First call returns list of buckets
     mockSend.mockResolvedValueOnce({
       Buckets: [{ Name: TEST_BUCKET_NAME, CreationDate: TEST_CREATION_DATE }],
