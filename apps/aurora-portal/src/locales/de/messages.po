@@ -310,6 +310,9 @@ msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partne
 msgid "Back"
 msgstr "Zurück"
 
+msgid "Back to Certificate Authorities"
+msgstr ""
+
 msgid "Back to Floating IPs"
 msgstr "Zurück zu Floating IPs"
 
@@ -406,6 +409,9 @@ msgstr ""
 msgid "Bulk upload of archive files"
 msgstr "Bulk-Upload von Archivdateien"
 
+msgid "CA ID"
+msgstr ""
+
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -416,6 +422,9 @@ msgid "Capabilities"
 msgstr "Capabilities"
 
 msgid "Ceph"
+msgstr ""
+
+msgid "Certificate Authority not found"
 msgstr ""
 
 msgid "Checking bucket contents..."
@@ -733,6 +742,12 @@ msgstr ""
 msgid "Delete CA"
 msgstr "Delete CA"
 
+msgid "Delete certificate authority"
+msgstr ""
+
+msgid "Delete Certificate Authority"
+msgstr ""
+
 msgid "Delete container:"
 msgstr "Container löschen:"
 
@@ -769,8 +784,14 @@ msgstr "Ausgewählte löschen"
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "{successCount} Image(s) gelöscht, aber {failedCount} Image(s) konnten nicht gelöscht werden."
 
+msgid "Deleting certificate authority..."
+msgstr ""
+
 msgid "Deleting folder and all its contents..."
 msgstr "Ordner und alle Inhalte werden gelöscht..."
+
+msgid "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
+msgstr ""
 
 msgid "Deleting..."
 msgstr "Wird gelöscht..."
@@ -861,6 +882,9 @@ msgstr "Legen Sie Ihre Datei hier ab"
 
 msgid "Drop your image file here"
 msgstr "Legen Sie Ihre Image-Datei hier ab"
+
+msgid "Duration/validity"
+msgstr ""
 
 msgid "e.g. .r:*,.rlistings"
 msgstr "z. B. .r:*,.rlistings"
@@ -1016,6 +1040,9 @@ msgid "Error - Image Details"
 msgstr "Fehler – Image-Details"
 
 msgid "Error Loading Buckets: {errorMessage}"
+msgstr ""
+
+msgid "Error loading Certificate Authority"
 msgstr ""
 
 msgid "Error loading component"
@@ -1588,6 +1615,9 @@ msgstr "ACLs werden geladen..."
 msgid "Loading Buckets..."
 msgstr ""
 
+msgid "Loading Certificate Authority Details..."
+msgstr ""
+
 msgid "Loading container properties..."
 msgstr "Container-Eigenschaften werden geladen..."
 
@@ -1668,6 +1698,9 @@ msgstr "Zugriff verwalten - {flavorName}"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Zugriff für Image verwalten - {imageName}"
+
+msgid "Manage your Private Certificate Authority infrastructure"
+msgstr ""
 
 msgid "Max container name length"
 msgstr "Maximale Container-Namenslänge"
@@ -2506,6 +2539,9 @@ msgstr "Alte Objekt-Versionen in Container speichern:"
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
 
+msgid "Subject"
+msgstr ""
+
 msgid "Subject information"
 msgstr "Subject information"
 
@@ -2656,6 +2692,9 @@ msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Ein
 msgid "The text must match \"delete\""
 msgstr "Der Text muss \"delete\" entsprechen"
 
+msgid "The text must match “delete” in lowercase."
+msgstr ""
+
 msgid "The text must match “detach” in lowercase."
 msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
 
@@ -2785,6 +2824,9 @@ msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>\"release\"</0> in
 msgid "To confirm type <0>delete</0> in the field below."
 msgstr "Geben Sie zur Bestätigung <0>delete</0> in das Feld unten ein."
 
+msgid "To confirm, type <0>\"delete\"</0> in the field below."
+msgstr ""
+
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Gemeinsam können wir das volle Potenzial Ihrer Cloud-Infrastruktur erschließen."
 
@@ -2811,6 +2853,9 @@ msgstr "Typ"
 
 msgid "Type \"delete\" to confirm"
 msgstr "Geben Sie \"delete\" zur Bestätigung ein"
+
+msgid "Type “delete” to confirm"
+msgstr ""
 
 msgid "Type \"detach\" to confirm"
 msgstr "\"detach\" zur Bestätigung eingeben"
