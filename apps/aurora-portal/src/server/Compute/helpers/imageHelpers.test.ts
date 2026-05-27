@@ -346,17 +346,17 @@ describe("imageHelpers", () => {
       })
 
       it("should trim whitespace from imageId", () => {
-        const imageId = "  image-123  "
+        const imageId = "  550e8400-e29b-41d4-a716-446655440000  "
         const fileSize = 2048
         const fileStream = createMockStream()
 
         const result = validateUploadInput(imageId, fileSize, fileStream)
 
-        expect(result.validatedImageId).toBe("image-123")
+        expect(result.validatedImageId).toBe("550e8400-e29b-41d4-a716-446655440000")
       })
 
       it("should handle fileSize of 0 (size not provided)", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 0
         const fileStream = createMockStream()
 
@@ -366,7 +366,7 @@ describe("imageHelpers", () => {
       })
 
       it("should handle large fileSize (1GB)", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 1024 * 1024 * 1024 // 1GB
         const fileStream = createMockStream()
 
@@ -376,7 +376,7 @@ describe("imageHelpers", () => {
       })
 
       it("should handle very large fileSize (5GB)", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 5 * 1024 * 1024 * 1024 // 5GB
         const fileStream = createMockStream()
 
@@ -395,18 +395,16 @@ describe("imageHelpers", () => {
         expect(result.validatedImageId).toBe(imageId)
       })
 
-      it("should handle alphanumeric imageId", () => {
+      it("should reject alphanumeric imageId (not a UUID)", () => {
         const imageId = "image-abc123xyz789"
         const fileSize = 4096
         const fileStream = createMockStream()
 
-        const result = validateUploadInput(imageId, fileSize, fileStream)
-
-        expect(result.validatedImageId).toBe(imageId)
+        expect(() => validateUploadInput(imageId, fileSize, fileStream)).toThrow("imageId must be a valid UUID")
       })
 
       it("should handle fileSize as undefined (defaults to 0)", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = undefined
         const fileStream = createMockStream()
 
@@ -416,7 +414,7 @@ describe("imageHelpers", () => {
       })
 
       it("should handle fileSize as null (defaults to 0)", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = null
         const fileStream = createMockStream()
 
@@ -426,7 +424,7 @@ describe("imageHelpers", () => {
       })
 
       it("should return object with all three properties", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
         const fileStream = createMockStream()
 
@@ -436,7 +434,7 @@ describe("imageHelpers", () => {
       })
 
       it("should not modify the original fileStream", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
         const fileStream = createMockStream()
 
@@ -532,7 +530,7 @@ describe("imageHelpers", () => {
 
     describe("FileStream validation - missing/falsy values", () => {
       it("should throw BAD_REQUEST for null fileStream", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
 
         expect(() => validateUploadInput(imageId, fileSize, null)).toThrow(TRPCError)
@@ -540,7 +538,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw BAD_REQUEST for undefined fileStream", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
 
         expect(() => validateUploadInput(imageId, fileSize, undefined)).toThrow(TRPCError)
@@ -548,7 +546,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw BAD_REQUEST for false fileStream", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
 
         expect(() => validateUploadInput(imageId, fileSize, false)).toThrow(TRPCError)
@@ -556,7 +554,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw BAD_REQUEST for zero fileStream", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
 
         expect(() => validateUploadInput(imageId, fileSize, 0)).toThrow(TRPCError)
@@ -566,7 +564,7 @@ describe("imageHelpers", () => {
 
     describe("FileStream validation - type checking", () => {
       it("should throw INTERNAL_SERVER_ERROR for string fileStream", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
 
         expect(() => validateUploadInput(imageId, fileSize, "not a stream")).toThrow(TRPCError)
@@ -574,7 +572,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw INTERNAL_SERVER_ERROR for number fileStream", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
 
         expect(() => validateUploadInput(imageId, fileSize, 12345)).toThrow(TRPCError)
@@ -582,7 +580,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw INTERNAL_SERVER_ERROR for object without pipe method", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
         const notAStream = { data: "file" }
 
@@ -591,7 +589,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw INTERNAL_SERVER_ERROR for array fileStream", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
 
         expect(() => validateUploadInput(imageId, fileSize, [1, 2, 3])).toThrow(TRPCError)
@@ -599,7 +597,7 @@ describe("imageHelpers", () => {
       })
 
       it("should accept object with pipe method (stream-like)", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
         const streamLike = { pipe: () => {} }
 
@@ -611,7 +609,7 @@ describe("imageHelpers", () => {
 
     describe("FileSize validation", () => {
       it("should throw BAD_REQUEST for negative fileSize", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = -1024
         const fileStream = createMockStream()
 
@@ -620,7 +618,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw INTERNAL_SERVER_ERROR for non-number fileSize", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = "1024"
         const fileStream = createMockStream()
 
@@ -631,7 +629,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw INTERNAL_SERVER_ERROR for Infinity fileSize", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = Infinity
         const fileStream = createMockStream()
 
@@ -640,7 +638,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw INTERNAL_SERVER_ERROR for NaN fileSize", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = NaN
         const fileStream = createMockStream()
 
@@ -649,7 +647,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw INTERNAL_SERVER_ERROR for object fileSize", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = { size: 1024 }
         const fileStream = createMockStream()
 
@@ -660,7 +658,7 @@ describe("imageHelpers", () => {
       })
 
       it("should allow fileSize of 1 byte", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 1
         const fileStream = createMockStream()
 
@@ -702,7 +700,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw TRPCError with BAD_REQUEST code for missing fileStream", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
         let thrownError: TRPCError | undefined
 
@@ -717,7 +715,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw TRPCError with INTERNAL_SERVER_ERROR code for invalid fileStream type", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
         let thrownError: TRPCError | undefined
 
@@ -732,7 +730,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw TRPCError with BAD_REQUEST code for negative fileSize", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = -1024
         const fileStream = createMockStream()
         let thrownError: TRPCError | undefined
@@ -748,7 +746,7 @@ describe("imageHelpers", () => {
       })
 
       it("should throw TRPCError with INTERNAL_SERVER_ERROR code for invalid fileSize type", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = "not a number"
         const fileStream = createMockStream()
         let thrownError: TRPCError | undefined
@@ -776,7 +774,7 @@ describe("imageHelpers", () => {
       })
 
       it("should validate fileStream before fileSize", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = -1024 // Invalid
 
         // Invalid fileStream - should fail before fileSize validation
@@ -785,7 +783,7 @@ describe("imageHelpers", () => {
       })
 
       it("should validate fileSize after imageId and fileStream are valid", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileStream = createMockStream()
 
         // Valid imageId and fileStream, but invalid fileSize
@@ -799,7 +797,7 @@ describe("imageHelpers", () => {
 
     describe("Return value validation", () => {
       it("should return object with correct property names", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
         const fileStream = createMockStream()
 
@@ -811,18 +809,18 @@ describe("imageHelpers", () => {
       })
 
       it("should trim imageId but return new trimmed string", () => {
-        const imageId = "  image-123  "
+        const imageId = "  550e8400-e29b-41d4-a716-446655440000  "
         const fileSize = 2048
         const fileStream = createMockStream()
 
         const result = validateUploadInput(imageId, fileSize, fileStream)
 
-        expect(result.validatedImageId).toBe("image-123")
+        expect(result.validatedImageId).toBe("550e8400-e29b-41d4-a716-446655440000")
         expect(result.validatedImageId).not.toBe(imageId)
       })
 
       it("should return the same fileStream object reference", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 2048
         const fileStream = createMockStream()
 
@@ -832,7 +830,7 @@ describe("imageHelpers", () => {
       })
 
       it("should return exact fileSize value", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 1234567
         const fileStream = createMockStream()
 
@@ -842,7 +840,7 @@ describe("imageHelpers", () => {
       })
 
       it("should convert undefined fileSize to 0", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = undefined
         const fileStream = createMockStream()
 
@@ -852,7 +850,7 @@ describe("imageHelpers", () => {
       })
 
       it("should convert null fileSize to 0", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = null
         const fileStream = createMockStream()
 
@@ -863,49 +861,40 @@ describe("imageHelpers", () => {
     })
 
     describe("Edge cases", () => {
-      it("should handle imageId with special characters", () => {
+      it("should reject imageId with special characters (not a UUID)", () => {
         const imageId = "image-123!@#$%"
         const fileSize = 2048
         const fileStream = createMockStream()
 
-        const result = validateUploadInput(imageId, fileSize, fileStream)
-
-        expect(result.validatedImageId).toBe(imageId)
+        expect(() => validateUploadInput(imageId, fileSize, fileStream)).toThrow("imageId must be a valid UUID")
       })
 
-      it("should handle imageId with unicode characters", () => {
+      it("should reject imageId with unicode characters (not a UUID)", () => {
         const imageId = "image-🎉-emoji"
         const fileSize = 2048
         const fileStream = createMockStream()
 
-        const result = validateUploadInput(imageId, fileSize, fileStream)
-
-        expect(result.validatedImageId).toBe(imageId)
+        expect(() => validateUploadInput(imageId, fileSize, fileStream)).toThrow("imageId must be a valid UUID")
       })
 
-      it("should handle very long imageId", () => {
+      it("should reject very long imageId (not a UUID)", () => {
         const imageId = "a".repeat(1000)
         const fileSize = 2048
         const fileStream = createMockStream()
 
-        const result = validateUploadInput(imageId, fileSize, fileStream)
-
-        expect(result.validatedImageId).toBe(imageId)
-        expect(result.validatedImageId.length).toBe(1000)
+        expect(() => validateUploadInput(imageId, fileSize, fileStream)).toThrow("imageId must be a valid UUID")
       })
 
-      it("should handle imageId with leading/trailing tabs and newlines", () => {
+      it("should reject imageId with leading/trailing whitespace around non-UUID value", () => {
         const imageId = "\t\n  image-123  \n\t"
         const fileSize = 2048
         const fileStream = createMockStream()
 
-        const result = validateUploadInput(imageId, fileSize, fileStream)
-
-        expect(result.validatedImageId).toBe("image-123")
+        expect(() => validateUploadInput(imageId, fileSize, fileStream)).toThrow("imageId must be a valid UUID")
       })
 
       it("should handle fileSize boundary values", () => {
-        const imageId = "image-123"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileStream = createMockStream()
 
         // Minimum valid
@@ -918,14 +907,14 @@ describe("imageHelpers", () => {
       })
 
       it("should work with minimal valid inputs", () => {
-        const imageId = "id"
+        const imageId = "550e8400-e29b-41d4-a716-446655440000"
         const fileSize = 0
         const fileStream = createMockStream()
 
         const result = validateUploadInput(imageId, fileSize, fileStream)
 
         expect(result).toBeDefined()
-        expect(result.validatedImageId).toBe("id")
+        expect(result.validatedImageId).toBe("550e8400-e29b-41d4-a716-446655440000")
         expect(result.validatedFileSize).toBe(0)
         expect(result.validatedFile).toBe(fileStream)
       })

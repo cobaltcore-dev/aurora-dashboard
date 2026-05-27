@@ -115,7 +115,7 @@ export const imageSchema = z
       )
       .optional(),
   })
-  .passthrough() // Allow custom metadata properties not defined in schema
+  .catchall(z.unknown())
 
 // Image Member Schemas
 export const memberStatusSchema = z.enum(["pending", "accepted", "rejected"])
