@@ -239,5 +239,28 @@ jobs:
               }
             }
 
-  # notify-on-failure:
-  # will be implemented in a future iteration to send Slack notifications if the cleanup job fails, ensuring that any issues with stale images are promptly addressed by the team.
+  notify-on-failure:
+    name: Notify on Cleanup Failure
+    if: github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.cleanup.result == 'failure'
+    needs: [cleanup]
+    permissions: {}
+    uses: cloudoperators/juno/.github/workflows/shared-slack-notification.yaml@f0c9d08e2c9d7c348dd3f24e7ea72ac3db3a6993 # main
+    with:
+      title: "🚨 Aurora PR Preview Image Cleanup Failed 🚨"
+      body: "Failed to delete preview images for PR #${{ github.event.pull_request.number }}. Please check the logs and manually clean up if needed. <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Check the logs>"
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  notify-on-success:
+    name: Notify on Success (Test)
+    if: always()
+    needs: [build-and-push, cleanup-old-images, cleanup, remove-label]
+    permissions: {}
+    uses: cloudoperators/juno/.github/workflows/shared-slack-notification.yaml@f0c9d08e2c9d7c348dd3f24e7ea72ac3db3a6993 # main
+    with:
+      title: "✅ Aurora PR Preview Workflow Completed"
+      body: "Workflow completed for PR #${{ github.event.pull_request.number }}. Action: ${{ github.event.action }}. <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View workflow run>"
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
