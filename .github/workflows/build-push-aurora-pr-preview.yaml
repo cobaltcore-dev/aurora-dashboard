@@ -260,7 +260,7 @@ jobs:
     permissions: {}
     uses: cloudoperators/juno/.github/workflows/shared-slack-notification.yaml@f0c9d08e2c9d7c348dd3f24e7ea72ac3db3a6993 # main
     with:
-      title: "✅ Aurora PR Preview Workflow Completed"
+      title: "✅ Testing PR Preview Workflow - Ignore"
       body: "Workflow completed for PR #${{ github.event.pull_request.number }}. Action: ${{ github.event.action }}. <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View workflow run>"
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
