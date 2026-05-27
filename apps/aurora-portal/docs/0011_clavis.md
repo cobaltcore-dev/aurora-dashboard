@@ -28,8 +28,13 @@ Implemented screens and interactions:
 - CA details page at `/projects/$projectId/services/pca/$pcaId/` via `PcaDetailsView`
 - details page shows CA metadata, certificate validity, CSR content, and delete action
 - details-page delete flow reuses the shared delete modal and redirects back to the PCA list after success
+- certificate list view via `PcaCertificatesListContainer` displays certificates issued by a CA
+- certificates list shows CA ID and certificate ID columns with loading, error, and empty states
+- disabled "Issue End Entity Certificate" button (placeholder for future issue-certificate task)
+- individual certificate rows rendered via `PcaCertificatesTableRow` component
 
-The list page currently renders the CA state, id, and common name. It also shows the translated empty state when no PCAs are available for the current project.
+The PCA list page renders the CA state, id, and common name with translated empty states when no PCAs are available for the current project.
+The certificate list view integrates within the CA details view and fetches certificates via the `listCertificates` endpoint.
 
 ## Implemented BFF
 
@@ -79,7 +84,6 @@ Error states are surfaced directly in the modal or list view when the BFF call f
 
 The backend already exposes certificate and import operations, but the UI does not yet have dedicated screens for:
 
-- certificate list view
 - certificate detail view
 - certificate import flow
 - list filtering, sorting, and search controls
