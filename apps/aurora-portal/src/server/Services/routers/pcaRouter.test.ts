@@ -327,10 +327,11 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validCertificatesResponse.certificates)
+      expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
       expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates")
     })
 
-    it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
+    it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
       const ctx = createMockContext({ noClavis: true })
       const caller = createCaller(ctx as never)
 
@@ -342,7 +343,7 @@ describe("pcaRouter", () => {
       ).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Clavis service is not available",
+          message: "Pca service is not available",
         })
       )
     })

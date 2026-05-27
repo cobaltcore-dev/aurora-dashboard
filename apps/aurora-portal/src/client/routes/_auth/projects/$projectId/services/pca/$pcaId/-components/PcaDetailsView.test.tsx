@@ -26,6 +26,12 @@ vi.mock("../../-components/-modals/DeletePcaModal", () => ({
     ) : null,
 }))
 
+vi.mock("./PcaCertificatesListContainer", () => ({
+  PcaCertificatesListContainer: ({ pcaId }: { pcaId: string }) => (
+    <div data-testid="pca-certificates-list">Certificates list for {pcaId}</div>
+  ),
+}))
+
 describe("PcaDetailsView", () => {
   const basePca: CertificateAuthority = {
     id: "ca-1",
@@ -68,6 +74,8 @@ describe("PcaDetailsView", () => {
     expect(screen.getByText("CA ID")).toBeInTheDocument()
     expect(screen.getByText("ca-1")).toBeInTheDocument()
     expect(screen.getByText("2 days")).toBeInTheDocument()
+    expect(screen.getByTestId("pca-certificates-list")).toBeInTheDocument()
+    expect(screen.getByText("Certificates list for ca-1")).toBeInTheDocument()
   })
 
   it("opens delete modal from details page", async () => {

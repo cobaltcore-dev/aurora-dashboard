@@ -988,14 +988,14 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(result.success).toBe(false)
     })
 
-    it("should require certificate object with pem and validity", () => {
+    it("should allow certificate object to be omitted", () => {
       const result = CertificateSchema.safeParse(omit(minimalValidCertificate, "certificate"))
-      expect(result.success).toBe(false)
+      expect(result.success).toBe(true)
     })
 
-    it("should require configuration object with validity", () => {
+    it("should allow configuration object to be omitted", () => {
       const result = CertificateSchema.safeParse(omit(minimalValidCertificate, "configuration"))
-      expect(result.success).toBe(false)
+      expect(result.success).toBe(true)
     })
 
     it("should allow certificate_chain to be omitted", () => {
