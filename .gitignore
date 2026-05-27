@@ -11,8 +11,6 @@ server/dist
 public/dist
 .claude
 CLAUDE*
-SECURITY_AUDIT.md
-SECURITY_REMEDIATION.md
 
 .releaserc.js.bak
 .semantic-release/
