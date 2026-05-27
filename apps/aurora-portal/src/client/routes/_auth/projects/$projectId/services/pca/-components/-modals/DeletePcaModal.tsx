@@ -10,9 +10,10 @@ export interface DeletePcaModalProps {
   pca: CertificateAuthority
   open: boolean
   onClose: () => void
+  onSuccess?: () => void
 }
 
-export const DeletePcaModal = ({ pca, open, onClose }: DeletePcaModalProps) => {
+export const DeletePcaModal = ({ pca, open, onClose, onSuccess }: DeletePcaModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
@@ -42,6 +43,7 @@ export const DeletePcaModal = ({ pca, open, onClose }: DeletePcaModalProps) => {
         certificate_authority_id: pca.id,
       })
       handleClose()
+      onSuccess?.()
     },
   })
 

@@ -295,6 +295,9 @@ msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partne
 msgid "Back"
 msgstr "Zurück"
 
+msgid "Back to Certificate Authorities"
+msgstr ""
+
 msgid "Back to Floating IPs"
 msgstr "Zurück zu Floating IPs"
 
@@ -322,6 +325,9 @@ msgstr "Boot-Größe"
 msgid "Bulk upload of archive files"
 msgstr "Bulk-Upload von Archivdateien"
 
+msgid "CA ID"
+msgstr ""
+
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -332,6 +338,9 @@ msgid "Capabilities"
 msgstr "Capabilities"
 
 msgid "Ceph"
+msgstr ""
+
+msgid "Certificate Authority not found"
 msgstr ""
 
 msgid "Checking S3 credentials..."
@@ -634,6 +643,9 @@ msgstr "Delete CA"
 msgid "Delete certificate authority"
 msgstr ""
 
+msgid "Delete Certificate Authority"
+msgstr ""
+
 msgid "Delete container:"
 msgstr "Container löschen:"
 
@@ -768,6 +780,9 @@ msgstr "Legen Sie Ihre Datei hier ab"
 
 msgid "Drop your image file here"
 msgstr "Legen Sie Ihre Image-Datei hier ab"
+
+msgid "Duration/validity"
+msgstr ""
 
 msgid "e.g. .r:*,.rlistings"
 msgstr "z. B. .r:*,.rlistings"
@@ -909,6 +924,9 @@ msgstr "Fehler – Flavor-Details"
 
 msgid "Error - Image Details"
 msgstr "Fehler – Image-Details"
+
+msgid "Error loading Certificate Authority"
+msgstr ""
 
 msgid "Error loading component"
 msgstr "Fehler beim Laden der Komponente"
@@ -1462,6 +1480,9 @@ msgstr "Mehr laden"
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
 
+msgid "Loading Certificate Authority Details..."
+msgstr ""
+
 msgid "Loading container properties..."
 msgstr "Container-Eigenschaften werden geladen..."
 
@@ -1542,6 +1563,9 @@ msgstr "Zugriff verwalten - {flavorName}"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Zugriff für Image verwalten - {imageName}"
+
+msgid "Manage your Private Certificate Authority infrastructure"
+msgstr ""
 
 msgid "Max container name length"
 msgstr "Maximale Container-Namenslänge"
@@ -2367,6 +2391,9 @@ msgstr "Alte Objekt-Versionen in Container speichern:"
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
+
+msgid "Subject"
+msgstr ""
 
 msgid "Subject information"
 msgstr "Subject information"

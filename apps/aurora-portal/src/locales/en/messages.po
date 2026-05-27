@@ -295,6 +295,9 @@ msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigat
 msgid "Back"
 msgstr "Back"
 
+msgid "Back to Certificate Authorities"
+msgstr "Back to Certificate Authorities"
+
 msgid "Back to Floating IPs"
 msgstr "Back to Floating IPs"
 
@@ -322,6 +325,9 @@ msgstr "Boot size"
 msgid "Bulk upload of archive files"
 msgstr "Bulk upload of archive files"
 
+msgid "CA ID"
+msgstr "CA ID"
+
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -333,6 +339,9 @@ msgstr "Capabilities"
 
 msgid "Ceph"
 msgstr "Ceph"
+
+msgid "Certificate Authority not found"
+msgstr "Certificate Authority not found"
 
 msgid "Checking S3 credentials..."
 msgstr "Checking S3 credentials..."
@@ -634,6 +643,9 @@ msgstr "Delete CA"
 msgid "Delete certificate authority"
 msgstr "Delete certificate authority"
 
+msgid "Delete Certificate Authority"
+msgstr "Delete Certificate Authority"
+
 msgid "Delete container:"
 msgstr "Delete container:"
 
@@ -768,6 +780,9 @@ msgstr "Drop your file here"
 
 msgid "Drop your image file here"
 msgstr "Drop your image file here"
+
+msgid "Duration/validity"
+msgstr "Duration/validity"
 
 msgid "e.g. .r:*,.rlistings"
 msgstr "e.g. .r:*,.rlistings"
@@ -909,6 +924,9 @@ msgstr "Error - Flavor Details"
 
 msgid "Error - Image Details"
 msgstr "Error - Image Details"
+
+msgid "Error loading Certificate Authority"
+msgstr "Error loading Certificate Authority"
 
 msgid "Error loading component"
 msgstr "Error loading component"
@@ -1462,6 +1480,9 @@ msgstr "Load More"
 msgid "Loading ACLs..."
 msgstr "Loading ACLs..."
 
+msgid "Loading Certificate Authority Details..."
+msgstr "Loading Certificate Authority Details..."
+
 msgid "Loading container properties..."
 msgstr "Loading container properties..."
 
@@ -1542,6 +1563,9 @@ msgstr "Manage Access - {flavorName}"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Manage Access for Image - {imageName}"
+
+msgid "Manage your Private Certificate Authority infrastructure"
+msgstr "Manage your Private Certificate Authority infrastructure"
 
 msgid "Max container name length"
 msgstr "Max container name length"
@@ -2367,6 +2391,9 @@ msgstr "Store old object versions in container:"
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
+
+msgid "Subject"
+msgstr "Subject"
 
 msgid "Subject information"
 msgstr "Subject information"
