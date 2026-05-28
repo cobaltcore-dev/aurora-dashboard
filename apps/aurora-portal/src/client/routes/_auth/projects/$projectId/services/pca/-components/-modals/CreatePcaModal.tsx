@@ -13,12 +13,12 @@ export interface CreateCaModalProps {
 const csrRegex = /^(?=.{1,253}$)(?:\*\.)?(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/
 const isValidCommonName = (value: string) => csrRegex.test(value)
 
-export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
+export const CreatePcaModal = ({ open, onClose }: CreateCaModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
-  const { isPending, ...createCaMutation } = trpcReact.services.pca.create.useMutation({
+  const { isPending, ...createPcaMutation } = trpcReact.services.pca.create.useMutation({
     onSettled: () => utils.services.pca.list.invalidate(),
   })
 
@@ -40,7 +40,7 @@ export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
     onSubmit: async ({ value }) => {
       if (isPending) return
 
-      await createCaMutation.mutateAsync({
+      await createPcaMutation.mutateAsync({
         project_id: projectId,
         configuration: {
           subject: { common_name: value.common_name },
@@ -54,7 +54,7 @@ export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
     if (isPending) return
 
     form.reset()
-    createCaMutation.reset()
+    createPcaMutation.reset()
     onClose()
   }
 
@@ -69,9 +69,9 @@ export const CreateCaModal = ({ open, onClose }: CreateCaModalProps) => {
       onConfirm={form.handleSubmit}
       disableConfirmButton={isPending}
     >
-      {createCaMutation.error?.message && (
+      {createPcaMutation.error?.message && (
         <Message dismissible={false} variant="error" className="mb-4">
-          {createCaMutation.error.message}
+          {createPcaMutation.error.message}
         </Message>
       )}
 

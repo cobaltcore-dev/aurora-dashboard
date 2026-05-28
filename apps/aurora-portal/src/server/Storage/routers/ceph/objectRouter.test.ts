@@ -108,6 +108,7 @@ const createCaller = createCallerFactory(auroraRouter({ storage: { ceph: { objec
 describe("objects.list", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    process.env.CEPH_REGION = "ceph-objectstore-st1-test-region"
   })
 
   it("returns list of objects and folders", async () => {
@@ -297,6 +298,7 @@ describe("objects.list", () => {
 describe("objects.getDetails", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    process.env.CEPH_REGION = "ceph-objectstore-st1-test-region"
   })
 
   it("returns object metadata", async () => {
@@ -437,6 +439,11 @@ describe("objects.getDetails", () => {
 // ============================================================================
 
 describe("objects.deleteAll", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    process.env.CEPH_REGION = "ceph-objectstore-st1-test-region"
+  })
+
   it("deletes all objects from a bucket and returns count", async () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)

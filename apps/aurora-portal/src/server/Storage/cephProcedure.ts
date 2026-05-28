@@ -45,23 +45,11 @@ function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: 
       throw new Error("Region not found in Ceph service endpoints")
     }
 
-    // Construct Ceph-compatible region identifier using the pattern from Go SDK / Terraform.
-    // Standard format: ceph-objectstore-st1-{region} (e.g., ceph-objectstore-st1-eu-de-2)
-    // Exception: qa-de-1 uses "ec" prefix for historical reasons (ceph-objectstore-ec-st1-qa-de-1)
-    //
-    // This identifier is used for:
-    //   1. AWS Signature V4 request signing (region field in Authorization header)
-    //   2. LocationConstraint in CreateBucket API calls
-    //
-    // See: https://documentation.global.cloud.sap/docs/customer/storage/obj-v2-ceph/ceph-storage-options/
-    const QA_DE_1_REGION = "qa-de-1"
-    const CEPH_REGION_PREFIX_STANDARD = "ceph-objectstore-st1"
-    const CEPH_REGION_PREFIX_EC = "ceph-objectstore-ec-st1"
+    if (!process.env.CEPH_REGION) {
+      throw new Error("CEPH_REGION environment variable is required. ")
+    }
 
-    const region =
-      openstackRegion === QA_DE_1_REGION
-        ? `${CEPH_REGION_PREFIX_EC}-${openstackRegion}`
-        : `${CEPH_REGION_PREFIX_STANDARD}-${openstackRegion}`
+    const region = process.env.CEPH_REGION
 
     return { endpoint: baseEndpoint, region }
   } catch (error) {
