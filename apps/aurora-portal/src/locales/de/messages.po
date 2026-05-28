@@ -2620,8 +2620,7 @@ msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Erste {actualObjectCount} von {total} Objekten werden angezeigt"
 
-#. placeholder {0}: modalState.visibleBuckets.length + modalState.hiddenCount
-msgid "Showing first {MAX_COMBO_OPTIONS} of {0} — refine your search to narrow results"
+msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets} — refine your search to narrow results"
 msgstr ""
 
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"

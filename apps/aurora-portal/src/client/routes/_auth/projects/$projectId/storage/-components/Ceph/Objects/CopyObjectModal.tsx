@@ -298,7 +298,8 @@ export const CopyObjectModal = ({
               if (isLoadingBuckets) return t`Loading buckets...`
               if (modalState.searchTerm.trim().length === 0) return t`Start typing to search for a bucket`
               if (modalState.hiddenCount > 0) {
-                return t`Showing first ${MAX_COMBO_OPTIONS} of ${modalState.visibleBuckets.length + modalState.hiddenCount} — refine your search to narrow results`
+                const totalBuckets = modalState.visibleBuckets.length + modalState.hiddenCount
+                return t`Showing first ${MAX_COMBO_OPTIONS} of ${totalBuckets} — refine your search to narrow results`
               }
               return undefined
             })()}
