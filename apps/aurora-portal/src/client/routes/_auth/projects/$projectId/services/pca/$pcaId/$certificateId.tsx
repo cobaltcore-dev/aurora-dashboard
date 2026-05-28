@@ -14,12 +14,12 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { MdContentCopy, MdDownload } from "react-icons/md"
 import { Fragment } from "react/jsx-runtime"
 
-export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/$certificateId/")({
+export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/$certificateId")({
   staticData: { section: "services", service: "pca" } satisfies RouteInfo,
   component: RouteComponent,
 })
 
-function RouteComponent() {
+export function RouteComponent() {
   const { t } = useLingui()
   const navigate = useNavigate()
   const { setPageTitle } = Route.useRouteContext()
@@ -101,7 +101,7 @@ function RouteComponent() {
   ] as const
 
   return (
-    <>
+    <Stack direction="vertical" gap="3">
       <div className="text-theme-default text-2xl font-semibold">{`${certificate.id} Certificate Details`}</div>
 
       <p className="text-theme-highest text-sm">
@@ -136,6 +136,6 @@ function RouteComponent() {
           </Stack>
         </div>
       </Stack>
-    </>
+    </Stack>
   )
 }
