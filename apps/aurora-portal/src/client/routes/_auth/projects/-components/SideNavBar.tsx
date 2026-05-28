@@ -1,5 +1,5 @@
 import { useNavigate, useMatches, useParams } from "@tanstack/react-router"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
@@ -107,6 +107,12 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
   ]
 
   const isOverviewActive = activeSection === null
+
+  useEffect(() => {
+    if (activeSection) {
+      setOpenSections((prev) => ({ ...prev, [activeSection]: true }))
+    }
+  }, [activeSection])
 
   return (
     <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
