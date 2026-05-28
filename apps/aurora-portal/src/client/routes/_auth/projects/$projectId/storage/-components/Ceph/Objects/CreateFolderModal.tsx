@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Button, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { validateFolderName } from "./utils/objectValidation"
 
 interface CreateFolderModalProps {
   bucketName: string
@@ -19,11 +20,23 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
   const [validationError, setValidationError] = useState<string | null>(null)
   const utils = trpcReact.useUtils()
 
+  // Fetch existing folders for duplicate detection
+  const { data: objectsData } = trpcReact.storage.ceph.objects.list.useQuery(
+    {
+      project_id: projectId ?? "",
+      containerName: bucketName,
+      prefix: currentPrefix || undefined,
+      delimiter: "/",
+      maxKeys: 1000,
+    },
+    { enabled: isOpen && !!projectId && !!bucketName }
+  )
+
   const createFolderMutation = trpcReact.storage.ceph.objects.createFolder.useMutation({
     onSuccess: () => {
       // Invalidate all object list queries to refresh the view
       utils.storage.ceph.objects.list.invalidate()
-      const fullPath = currentPrefix + folderName + "/"
+      const fullPath = currentPrefix + folderName.trim() + "/"
       onSuccess(fullPath)
       handleClose()
     },
@@ -36,45 +49,25 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
     onClose()
   }
 
-  const validateFolderName = (name: string): string | null => {
-    if (!name.trim()) {
-      return "Folder name cannot be empty"
-    }
-
-    if (name.length > 255) {
-      return "Folder name is too long (max 255 characters)"
-    }
-
-    // Check for invalid characters
-    // eslint-disable-next-line no-control-regex
-    const invalidChars = /[<>:"|?*\x00-\x1f]/
-    if (invalidChars.test(name)) {
-      return "Folder name contains invalid characters"
-    }
-
-    // Check for leading/trailing slashes
-    if (name.startsWith("/") || name.endsWith("/")) {
-      return "Folder name cannot start or end with /"
-    }
-
-    return null
-  }
-
   const handleFolderNameChange = (value: string) => {
     setFolderName(value)
-    setValidationError(validateFolderName(value))
+    // Get existing folder names for duplicate detection
+    const existingFolders = objectsData?.folders.map((f) => f.prefix) ?? []
+    const error = validateFolderName(value, existingFolders, currentPrefix)
+    setValidationError(error ? t(error.message) : null)
   }
 
   const handleCreate = () => {
     if (!projectId) return
 
-    const error = validateFolderName(folderName)
+    const existingFolders = objectsData?.folders.map((f) => f.prefix) ?? []
+    const error = validateFolderName(folderName, existingFolders, currentPrefix)
     if (error) {
-      setValidationError(error)
+      setValidationError(t(error.message))
       return
     }
 
-    const fullPath = currentPrefix + folderName
+    const fullPath = currentPrefix + folderName.trim()
 
     createFolderMutation.mutate({
       project_id: projectId,
@@ -120,7 +113,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
           <span className="text-juno-grey-light-1 text-sm">
             <Trans>Full path:</Trans>
           </span>
-          <div className="mt-1 font-mono text-sm break-all">{currentPrefix + folderName + "/"}</div>
+          <div className="mt-1 font-mono text-sm break-all">{currentPrefix + folderName.trim() + "/"}</div>
         </div>
 
         {createFolderMutation.error && (

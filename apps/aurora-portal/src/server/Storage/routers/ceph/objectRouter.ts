@@ -16,8 +16,15 @@ import {
   s3ObjectDetailsSchema,
   s3ObjectSchema,
   s3FolderPrefixSchema,
+  deleteObjectInputSchema,
+  createFolderInputSchema,
+  copyObjectInputSchema,
+  copyObjectOutputSchema,
+  moveObjectInputSchema,
+  updateMetadataInputSchema,
   type ListObjectsOutput,
   type S3ObjectDetails,
+  type CopyObjectOutput,
 } from "../../types/ceph"
 import { S3_MAX_KEYS_PER_REQUEST } from "../../constants"
 import { z } from "zod"
@@ -25,48 +32,6 @@ import { z } from "zod"
 const deleteAllObjectsInputSchema = z.object({
   project_id: z.string(),
   containerName: z.string().min(1),
-})
-
-const deleteObjectInputSchema = z.object({
-  project_id: z.string(),
-  containerName: z.string().min(1),
-  objectKey: z.string().min(1),
-})
-
-const createFolderInputSchema = z.object({
-  project_id: z.string(),
-  containerName: z.string().min(1),
-  folderPath: z.string().min(1),
-})
-
-const copyObjectInputSchema = z.object({
-  project_id: z.string(),
-  sourceBucket: z.string().min(1),
-  sourceKey: z.string().min(1),
-  destinationBucket: z.string().min(1),
-  destinationKey: z.string().min(1),
-  copyMetadata: z.boolean().optional().default(true),
-})
-
-const copyObjectOutputSchema = z.object({
-  key: z.string(),
-  etag: z.string().optional(),
-  lastModified: z.string().optional(),
-})
-
-const moveObjectInputSchema = z.object({
-  project_id: z.string(),
-  sourceBucket: z.string().min(1),
-  sourceKey: z.string().min(1),
-  destinationBucket: z.string().min(1),
-  destinationKey: z.string().min(1),
-})
-
-const updateMetadataInputSchema = z.object({
-  project_id: z.string(),
-  containerName: z.string().min(1),
-  objectKey: z.string().min(1),
-  metadata: z.record(z.string(), z.string()),
 })
 
 export const objectRouter = {
@@ -306,7 +271,7 @@ export const objectRouter = {
    */
   copy: cephProtectedProcedure
     .input(copyObjectInputSchema)
-    .mutation(async ({ ctx, input }): Promise<z.infer<typeof copyObjectOutputSchema>> => {
+    .mutation(async ({ ctx, input }): Promise<CopyObjectOutput> => {
       const s3 = ctx.getCephClient!()
       const { sourceBucket, sourceKey, destinationBucket, destinationKey, copyMetadata } = input
 

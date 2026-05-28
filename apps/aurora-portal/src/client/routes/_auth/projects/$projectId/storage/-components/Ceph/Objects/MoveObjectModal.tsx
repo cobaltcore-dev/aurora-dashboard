@@ -212,7 +212,7 @@ export const MoveObjectModal = ({
     }
 
     const trimmedName = newObjectName.trim()
-    submittedKeyRef.current = trimmedName
+    submittedKeyRef.current = objectKey
     const targetKey = `${modalState.currentPrefix}${trimmedName}`
 
     copyMutation.mutate({
