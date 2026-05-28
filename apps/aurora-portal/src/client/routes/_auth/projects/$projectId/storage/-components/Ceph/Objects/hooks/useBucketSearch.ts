@@ -15,9 +15,7 @@ interface UseBucketSearchResult {
  * Debounced bucket search with result limiting
  * Shared between Copy and Move modals
  */
-export const useBucketSearch = (
-  allBuckets: Array<{ name: string }> | undefined
-): UseBucketSearchResult => {
+export const useBucketSearch = (allBuckets: Array<{ name: string }> | undefined): UseBucketSearchResult => {
   const [searchTerm, setSearchTerm] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)

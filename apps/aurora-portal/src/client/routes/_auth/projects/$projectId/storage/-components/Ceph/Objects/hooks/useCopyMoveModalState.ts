@@ -19,11 +19,7 @@ interface UseCopyMoveModalStateParams {
  * Consolidated state management for Copy/Move modals
  * Combines browser navigation, bucket search, and local folder management
  */
-export const useCopyMoveModalState = ({
-  initialBucket,
-  allBuckets,
-  existingRows,
-}: UseCopyMoveModalStateParams) => {
+export const useCopyMoveModalState = ({ initialBucket, allBuckets, existingRows }: UseCopyMoveModalStateParams) => {
   const localFoldersState = useLocalFolders()
 
   const browserState = useObjectBrowser(existingRows, (path) => {
@@ -36,11 +32,14 @@ export const useCopyMoveModalState = ({
   // Target bucket state (not extracted to separate hook since it's simple)
   const [targetBucket, setTargetBucket] = useState(initialBucket)
 
-  const handleBucketChange = useCallback((bucket: string) => {
-    setTargetBucket(bucket)
-    browserState.reset()
-    localFoldersState.clearForBucket(bucket)
-  }, [browserState, localFoldersState])
+  const handleBucketChange = useCallback(
+    (bucket: string) => {
+      setTargetBucket(bucket)
+      browserState.reset()
+      localFoldersState.clearForBucket(bucket)
+    },
+    [browserState, localFoldersState]
+  )
 
   const resetAll = useCallback(() => {
     setTargetBucket(initialBucket)
