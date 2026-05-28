@@ -167,6 +167,13 @@ describe("DeleteObjectModal", () => {
       expect(screen.getByText(/Failed to load object metadata/i)).toBeInTheDocument()
       expect(screen.getByText(/Forbidden/i)).toBeInTheDocument()
     })
+
+    it("disables confirm button when metadata fetch fails", () => {
+      mockMetadataError = { message: "Forbidden" }
+      mockMetadata = null
+      renderModal()
+      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+    })
   })
 
   // ── Regular object (delete variant) ──────────────────────────────────────

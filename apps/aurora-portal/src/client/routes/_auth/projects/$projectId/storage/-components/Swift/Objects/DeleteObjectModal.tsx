@@ -115,7 +115,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={isLoading || isPending}
+      disableConfirmButton={isLoading || isPending || !!metadataError}
     >
       {metadataError && (
         <p className="text-theme-error mb-4">
