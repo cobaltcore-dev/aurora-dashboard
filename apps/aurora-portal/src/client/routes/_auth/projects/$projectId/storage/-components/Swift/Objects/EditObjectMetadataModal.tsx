@@ -42,7 +42,7 @@ interface EditObjectMetadataModalProps {
 // Using a positive allowlist avoids the ESLint no-control-regex rule.
 const VALID_KEY_RE = /^[a-zA-Z0-9!#$%&'*+\-.^_`|~]+$/
 
-// Expected format: "YYYY-MM-DD HH:MM:SS" (UTC).
+// Expected format: "YYYY-MM-DD HH:mm:ss" (UTC).
 // Checks shape first, then rejects semantically invalid dates (e.g. month 13, day 30 in Feb)
 // by parsing as UTC and verifying the parts round-trip back to the same values.
 const TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
@@ -86,7 +86,7 @@ const formatDate = (iso: string): string => {
   })
 }
 
-// Converts a Unix timestamp (seconds) to the "YYYY-MM-DD HH:MM:SS" field format (UTC)
+// Converts a Unix timestamp (seconds) to the "YYYY-MM-DD HH:mm:ss" field format (UTC)
 const formatUnixToTimestamp = (unix: number): string => {
   const d = new Date(unix * 1000)
   const pad = (n: number) => String(n).padStart(2, "0")
@@ -462,7 +462,7 @@ export const EditObjectMetadataModal = ({
                 }, 600)
               }}
               invalid={!!expiresAtError}
-              errortext={expiresAtError ? t`Expected format: YYYY-MM-DD HH:MM:SS` : undefined}
+              errortext={expiresAtError ? t`Expected format: YYYY-MM-DD HH:mm:ss` : undefined}
               placeholder={t`YYYY-MM-DD HH:mm:ss`}
               disabled={isBusy}
             />

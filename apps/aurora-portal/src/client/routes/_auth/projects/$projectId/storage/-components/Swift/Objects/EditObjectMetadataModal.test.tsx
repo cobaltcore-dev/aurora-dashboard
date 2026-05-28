@@ -324,7 +324,7 @@ describe("EditObjectMetadataModal", () => {
       await user.type(screen.getByLabelText(/Expires at/i), "not-a-date")
       act(() => vi.advanceTimersByTime(700))
       await waitFor(() => {
-        expect(screen.getByText(/Expected format: YYYY-MM-DD HH:MM:SS/i)).toBeInTheDocument()
+        expect(screen.getByText(/Expected format: YYYY-MM-DD HH:mm:ss/i)).toBeInTheDocument()
       })
       vi.useRealTimers()
     }, 10000)
