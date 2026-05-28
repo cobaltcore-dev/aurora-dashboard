@@ -202,14 +202,14 @@ export const UploadObjectModal = ({
       <Stack direction="vertical" gap="4">
         {/* Upload error */}
         {uploadError && (
-          <p className="text-theme-error text-sm">
+          <p className="text-theme-error">
             <Trans>Upload failed: {uploadError}</Trans>
           </p>
         )}
 
         {/* Object path preview */}
         {selectedFile && !isPending && (
-          <p className="text-theme-default text-sm">
+          <p className="text-theme-default">
             <Trans>
               Object will be uploaded as: <span className="font-mono font-semibold">{selectedObjectName}</span>
             </Trans>

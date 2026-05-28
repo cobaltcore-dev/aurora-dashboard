@@ -6,7 +6,6 @@ import {
   Modal,
   TextInput,
   Stack,
-  Message,
   Spinner,
   DataGrid,
   DataGridRow,
@@ -357,7 +356,7 @@ export const EditObjectMetadataModal = ({
       title={
         <span className="flex max-w-[400px] items-center gap-1">
           <Trans>
-            <span className="shrink-0">Properties of</span>{" "}
+            <span className="shrink-0">Edit metadata: </span>{" "}
             <span className="truncate font-mono" title={displayName}>
               {displayName}
             </span>
@@ -369,7 +368,7 @@ export const EditObjectMetadataModal = ({
       confirmButtonLabel={isPending ? t`Saving...` : t`Update object`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      size="large"
+      size={isAddingNew ? "xl" : "large"}
       disableConfirmButton={isBusy || !hasChanges || hasEditing || isAddingNew}
     >
       {isLoading ? (
@@ -378,27 +377,34 @@ export const EditObjectMetadataModal = ({
           <Trans>Loading object properties...</Trans>
         </Stack>
       ) : isMetaError ? (
-        <Message variant="danger">
+        <p className="text-theme-error">
           <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
-        </Message>
+        </p>
       ) : (
         <Stack direction="vertical" gap="6">
+          {/* Mutation error */}
+          {updateMutation.isError && (
+            <p className="text-theme-error">
+              <Trans>Failed to update object: {mutationErrorMessage}</Trans>
+            </p>
+          )}
+
           {/* ── Large object notices ──────────────────────────────────────── */}
           {isSLO && (
-            <Message variant="info">
+            <p className="text-theme-default">
               <Trans>
                 This is a <strong>static large object (SLO)</strong> manifest. Metadata changes apply to the manifest
                 only — segment objects are not affected.
               </Trans>
-            </Message>
+            </p>
           )}
           {isDLO && (
-            <Message variant="info">
+            <p className="text-theme-default">
               <Trans>
                 This is a <strong>dynamic large object (DLO)</strong> manifest. Metadata changes apply to the manifest
                 only — segment objects are not affected.
               </Trans>
-            </Message>
+            </p>
           )}
 
           {/* ── Read-only properties ──────────────────────────────────────── */}
@@ -436,35 +442,35 @@ export const EditObjectMetadataModal = ({
           </div>
 
           {/* ── Expires at ───────────────────────────────────────────────── */}
-          <TextInput
-            label={t`Expires at (UTC)`}
-            value={expiresAt}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const value = e.target.value
-              setExpiresAt(value)
-              if (expiresAtDebounceTimer.current) clearTimeout(expiresAtDebounceTimer.current)
-              expiresAtDebounceTimer.current = setTimeout(() => {
-                if (value.trim() && !isValidTimestamp(value.trim())) {
-                  setExpiresAtError("invalid")
-                } else {
-                  setExpiresAtError(null)
-                }
-              }, 600)
-            }}
-            invalid={!!expiresAtError}
-            errortext={expiresAtError ? t`Expected format: YYYY-MM-DD HH:MM:SS` : undefined}
-            placeholder={t`Enter a timestamp like "YYYY-MM-DD HH:mm:ss" to schedule automatic deletion`}
-            helptext={
-              expiresAt.trim()
-                ? t`Enter a timestamp like "YYYY-MM-DD HH:mm:ss" to schedule automatic deletion`
-                : undefined
-            }
-            disabled={isBusy}
-          />
+          <div>
+            <p className="text-theme-light mb-1">
+              <Trans>Enter a timestamp like "YYYY-MM-DD HH:mm:ss" to schedule automatic deletion.</Trans>
+            </p>
+            <TextInput
+              label={t`Expires at (UTC)`}
+              value={expiresAt}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const value = e.target.value
+                setExpiresAt(value)
+                if (expiresAtDebounceTimer.current) clearTimeout(expiresAtDebounceTimer.current)
+                expiresAtDebounceTimer.current = setTimeout(() => {
+                  if (value.trim() && !isValidTimestamp(value.trim())) {
+                    setExpiresAtError("invalid")
+                  } else {
+                    setExpiresAtError(null)
+                  }
+                }, 600)
+              }}
+              invalid={!!expiresAtError}
+              errortext={expiresAtError ? t`Expected format: YYYY-MM-DD HH:MM:SS` : undefined}
+              placeholder={t`YYYY-MM-DD HH:mm:ss`}
+              disabled={isBusy}
+            />
+          </div>
 
           {/* ── Custom metadata ───────────────────────────────────────────── */}
           <div>
-            <Stack direction="horizontal" alignment="center" distribution="between" className="mb-3">
+            <Stack direction="horizontal" alignment="center" distribution="between">
               <p className="text-theme-default text-sm font-semibold">
                 <Trans>Metadata</Trans>
               </p>
@@ -478,6 +484,7 @@ export const EditObjectMetadataModal = ({
                 label={t`Add Property`}
                 onClick={() => setIsAddingNew(true)}
                 variant="primary"
+                size="small"
                 icon="addCircle"
                 disabled={isAddingNew || hasEditing || isBusy}
               />
@@ -593,7 +600,7 @@ export const EditObjectMetadataModal = ({
                         />
                         <Button
                           size="small"
-                          variant="primary-danger"
+                          variant="default"
                           onClick={() => handleDeleteMeta(index)}
                           icon="deleteForever"
                           title={t`Delete`}
@@ -619,13 +626,6 @@ export const EditObjectMetadataModal = ({
               )}
             </DataGrid>
           </div>
-
-          {/* Mutation error */}
-          {updateMutation.isError && (
-            <Message variant="danger">
-              <Trans>Failed to update object: {mutationErrorMessage}</Trans>
-            </Message>
-          )}
         </Stack>
       )}
     </Modal>
