@@ -634,6 +634,9 @@ msgstr "Erstellen"
 msgid "Create Bucket"
 msgstr ""
 
+msgid "Create Certificate"
+msgstr ""
+
 msgid "Create Certificate Authority"
 msgstr "Create Certificate Authority"
 
@@ -1201,6 +1204,9 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
+msgid "Failed to load Certificates issued by Certificate Authority."
+msgstr ""
+
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Fehler beim Laden der Container-ACLs: {errorMessage}"
 
@@ -1555,6 +1561,9 @@ msgstr "IPv4"
 msgid "IPv6"
 msgstr "IPv6"
 
+msgid "Issue End Entity Certificate"
+msgstr ""
+
 msgid "It will appear in your image list."
 msgstr "Es wird in Ihrer Image-Liste angezeigt."
 
@@ -1616,6 +1625,9 @@ msgid "Loading Buckets..."
 msgstr ""
 
 msgid "Loading Certificate Authority Details..."
+msgstr ""
+
+msgid "Loading Certificates issued by Certificate Authority..."
 msgstr ""
 
 msgid "Loading container properties..."
@@ -1859,6 +1871,9 @@ msgid "No"
 msgstr "Nein"
 
 msgid "No buckets found"
+msgstr ""
+
+msgid "No Certificates issued by this Certificate Authority found"
 msgstr ""
 
 msgid "No containers found"
@@ -2702,6 +2717,9 @@ msgid "The text must match “release” in lowercase."
 msgstr "Der Text muss “release” in Kleinbuchstaben entsprechen."
 
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
+msgstr ""
+
+msgid "There are no Certificates available for this Certificate Authority."
 msgstr ""
 
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
