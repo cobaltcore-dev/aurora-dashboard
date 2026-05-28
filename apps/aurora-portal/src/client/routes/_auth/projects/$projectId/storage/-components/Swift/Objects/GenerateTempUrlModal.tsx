@@ -290,13 +290,17 @@ export const GenerateTempUrlModal = ({
 
         {/* General error */}
         {generalError && (
-          <p className="text-theme-error">
+          <p className="text-theme-error" role="alert" aria-live="assertive">
             <Trans>Failed to generate temporary URL: {generalError}</Trans>
           </p>
         )}
 
         {/* Clipboard copy error */}
-        {copyError && <p className="text-theme-error">{copyError}</p>}
+        {copyError && (
+          <p className="text-theme-error" role="alert" aria-live="assertive">
+            {copyError}
+          </p>
+        )}
 
         {/* Expiry selector */}
         <Select label={t`Expires in`} value={selectedPreset} onChange={handlePresetChange} disabled={isPending}>
