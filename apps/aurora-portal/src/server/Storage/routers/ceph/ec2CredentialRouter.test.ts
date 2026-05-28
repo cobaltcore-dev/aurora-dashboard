@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { AuroraPortalContext } from "../../context"
+import { AuroraPortalContext } from "../../../context"
 import { ec2CredentialRouter } from "./ec2CredentialRouter"
-import { createCallerFactory, auroraRouter } from "../../trpc"
+import { createCallerFactory, auroraRouter } from "../../../trpc"
 
 // ============================================================================
 // MOCK DATA

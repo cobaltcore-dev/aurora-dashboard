@@ -7,47 +7,70 @@ import { createS3Client } from "./clients/s3Client"
 
 export const NO_CEPH_CREDENTIALS = "NO_CEPH_CREDENTIALS" as const
 
+/**
+ * Resolves S3 endpoint and region configuration from OpenStack service catalog.
+ *
+ * Extracts the Ceph RGW endpoint and constructs the appropriate region identifier
+ * for AWS SDK operations (signing, bucket creation with LocationConstraint).
+ *
+ * @param ctx - Aurora Portal context containing OpenStack token and service catalog
+ * @returns Object with endpoint URL and Ceph-compatible region identifier
+ * @throws Error if OpenStack token, service catalog, Ceph service, or region is not available
+ */
 function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: string } {
-  // Region is not used by Ceph RGW, but required by AWS SDK
-  // Use a default constant value
-  const region = "default"
-
-  // Get endpoint from Ceph service catalog
   try {
     const service = ctx.openstack?.service("ceph")
-    const endpoint = service?.getEndpoint?.()
 
-    if (endpoint) {
-      // Extract base URL by removing Swift path
-      // Ceph RGW serves both Swift and S3 APIs on the same host
-      // Swift: https://rgw.st1.qa-de-1.cloud.sap/swift/v1/AUTH_xxx
-      // S3:    https://rgw.st1.qa-de-1.cloud.sap
-      const swiftIndex = endpoint.indexOf("/swift/")
-
-      if (swiftIndex !== -1) {
-        return { endpoint: endpoint.substring(0, swiftIndex), region }
-      }
-
-      // Already a base URL without Swift path
-      return { endpoint, region }
+    if (!service) {
+      throw new Error("Ceph service not found in OpenStack service catalog")
     }
+
+    const endpoint = service.getEndpoint?.()
+
+    if (!endpoint) {
+      throw new Error("Ceph service endpoint not found in catalog. Ensure the Ceph service is registered in OpenStack.")
+    }
+
+    // Extract base URL by removing Swift path suffix.
+    // Ceph RGW serves both Swift and S3 APIs on the same host but different paths:
+    //   Swift: https://rgw.st1.qa-de-1.cloud.sap/swift/v1/AUTH_xxx
+    //   S3:    https://rgw.st1.qa-de-1.cloud.sap
+    const swiftIndex = endpoint.indexOf("/swift/")
+    const baseEndpoint = swiftIndex !== -1 ? endpoint.substring(0, swiftIndex) : endpoint
+
+    const endpoints = service.availableEndpoints?.()
+    const openstackRegion = endpoints?.[0]?.region
+
+    if (!openstackRegion) {
+      throw new Error("Region not found in Ceph service endpoints")
+    }
+
+    if (!process.env.CEPH_REGION) {
+      throw new Error("CEPH_REGION environment variable is required. ")
+    }
+
+    const region = process.env.CEPH_REGION
+
+    return { endpoint: baseEndpoint, region }
   } catch (error) {
     console.error("[ceph] Failed to resolve Ceph service from catalog:", error)
     throw new Error("Ceph service not found in catalog. Ensure the Ceph service is registered in OpenStack.", {
       cause: error,
     })
   }
-
-  throw new Error("Ceph service endpoint not found in catalog. Ensure the Ceph service is registered in OpenStack.")
 }
 
 /**
- * Base Ceph middleware - resolves EC2 credentials and S3 config, but does NOT throw on missing credentials.
+ * Base Ceph middleware - resolves EC2 credentials and S3 config.
+ *
+ * Does NOT throw on missing credentials - allows procedures to check credential status gracefully.
+ *
  * Adds to context:
  *   - cephCredentials: EC2CredentialResult | null
- *   - getCephClient: () => S3Client - throws FORBIDDEN if credentials missing
+ *   - cephRegion: string - Ceph-compatible region identifier
+ *   - getCephClient: () => S3Client - factory function that throws FORBIDDEN if credentials missing
  *
- * Use this for procedures that need to check credential status without failing.
+ * Use this for procedures that need to check credential status without failing immediately.
  * Note: getCephClient() throws TRPCError when called without credentials.
  */
 const cephCredentialMiddleware = projectScopedProcedure.use(async function resolveCeph(opts) {
@@ -59,6 +82,7 @@ const cephCredentialMiddleware = projectScopedProcedure.use(async function resol
     ctx: {
       ...ctx,
       cephCredentials: credentials,
+      cephRegion: region,
       getCephClient: (): S3Client => {
         if (!credentials) {
           throw new TRPCError({
@@ -74,14 +98,16 @@ const cephCredentialMiddleware = projectScopedProcedure.use(async function resol
 
 /**
  * Base procedure with Ceph credentials resolved (may be null).
- * For status checks or other operations that handle missing credentials gracefully.
+ *
+ * Use for status checks or operations that handle missing credentials gracefully.
  */
 export const cephProcedure = cephCredentialMiddleware
 
 /**
  * Protected procedure - requires EC2 credentials to exist.
+ *
  * Throws FORBIDDEN with NO_CEPH_CREDENTIALS if credentials not found.
- * For actual Ceph S3 operations (list containers, get objects, etc).
+ * Use for actual Ceph S3 operations (list buckets, create bucket, delete bucket, etc).
  */
 export const cephProtectedProcedure = cephCredentialMiddleware.use(async function requireCredentials(opts) {
   const { ctx, next } = opts

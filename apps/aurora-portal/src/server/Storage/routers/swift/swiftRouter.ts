@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
-import { protectedProcedure, projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
+import { protectedProcedure, projectScopedProcedure, projectScopedInputSchema } from "../../../trpc"
 import { octetInputParser } from "@trpc/server/http"
 import {
   validateSwiftService,
@@ -22,7 +22,7 @@ import {
   isFolderMarker,
   generateTempUrlSignature,
   constructTempUrl,
-} from "../helpers/swiftHelpers"
+} from "../../helpers/swiftHelpers"
 import {
   listContainersInputSchema,
   updateAccountMetadataInputSchema,
@@ -56,7 +56,7 @@ import {
   TempUrl,
   generateTempUrlInputSchema,
   downloadObjectInputSchema,
-} from "../types/swift"
+} from "../../types/swift"
 
 // ============================================================================
 // UPLOAD PROGRESS TRACKING

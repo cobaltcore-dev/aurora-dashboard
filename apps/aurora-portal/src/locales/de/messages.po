@@ -31,8 +31,17 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
+msgid "{allContainersCount} bucket"
+msgstr ""
+
+msgid "{allContainersCount} buckets"
+msgstr ""
+
 msgid "{allCount} items"
 msgstr "{allCount} Elemente"
+
+msgid "{bucketCount, plural, one {object} other {objects}}"
+msgstr ""
 
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
@@ -60,6 +69,9 @@ msgstr "{progressPct}%"
 
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Container}}"
+
+msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
+msgstr ""
 
 msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "<0>Sind Sie sicher?</0> Alle Objekte in den ausgewählten Containern werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
@@ -217,6 +229,9 @@ msgstr "Sicherheitsgruppenregel hinzufügen"
 msgid "Add Tenant Access"
 msgstr "Projektzugriff hinzufügen"
 
+msgid "All Buckets Emptied"
+msgstr ""
+
 msgid "All containers"
 msgstr "Alle Container"
 
@@ -319,6 +334,75 @@ msgstr "Boot-RAM"
 msgid "Boot size"
 msgstr "Boot-Größe"
 
+msgid "Bucket \"{bucketName}\" was already empty."
+msgstr ""
+
+msgid "Bucket \"{bucketName}\" was successfully created."
+msgstr ""
+
+msgid "Bucket \"{bucketName}\" was successfully deleted."
+msgstr ""
+
+msgid "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} object deleted."
+msgstr ""
+
+msgid "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} objects deleted."
+msgstr ""
+
+msgid "Bucket Created"
+msgstr ""
+
+msgid "Bucket Deleted"
+msgstr ""
+
+msgid "Bucket Emptied"
+msgstr ""
+
+msgid "Bucket name"
+msgstr ""
+
+msgid "Bucket Name"
+msgstr ""
+
+msgid "Bucket name does not match"
+msgstr ""
+
+msgid "Bucket name is required"
+msgstr ""
+
+msgid "Bucket name must be 63 characters or fewer"
+msgstr ""
+
+msgid "Bucket name must be at least 3 characters"
+msgstr ""
+
+msgid "Bucket name must contain only lowercase letters, numbers, periods, and hyphens"
+msgstr ""
+
+msgid "Bucket name must not be formatted as an IP address"
+msgstr ""
+
+msgid "Bucket name must not contain consecutive periods"
+msgstr ""
+
+msgid "Bucket name must not end with reserved suffix \"{suffix}\""
+msgstr ""
+
+msgid "Bucket name must not start with reserved prefix \"{prefix}\""
+msgstr ""
+
+msgid "Bucket name must start and end with a letter or number"
+msgstr ""
+
+msgid "Bucket to delete:"
+msgstr ""
+
+msgid "Bucket to empty:"
+msgstr ""
+
+msgid "Buckets to empty:"
+msgstr ""
+
 msgid "Bulk upload of archive files"
 msgstr "Bulk-Upload von Archivdateien"
 
@@ -343,7 +427,7 @@ msgstr ""
 msgid "Certificate not found"
 msgstr ""
 
-msgid "Checking S3 credentials..."
+msgid "Checking bucket contents..."
 msgstr ""
 
 msgid "Checksum"
@@ -445,9 +529,6 @@ msgstr "Container aktualisiert"
 msgid "Container:"
 msgstr "Container:"
 
-msgid "Container: {containerName}"
-msgstr ""
-
 msgid "Containers"
 msgstr "Container"
 
@@ -462,6 +543,9 @@ msgstr "Zu leerende Container ({totalCount})"
 
 msgid "Content type"
 msgstr "Content type"
+
+msgid "Copied"
+msgstr ""
 
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
@@ -496,6 +580,9 @@ msgstr "Wird kopiert..."
 msgid "Could not copy \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht kopiert werden: {errorMessage}"
 
+msgid "Could not create bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not create container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht erstellt werden: {errorMessage}"
 
@@ -505,6 +592,9 @@ msgstr "Ordner \"{folderName}\" konnte nicht erstellt werden: {errorMessage}"
 msgid "Could not delete \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht gelöscht werden: {errorMessage}"
 
+msgid "Could not delete bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not delete container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht gelöscht werden: {errorMessage}"
 
@@ -513,6 +603,9 @@ msgstr "Ordner \"{folderName}\" konnte nicht gelöscht werden: {errorMessage}"
 
 msgid "Could not download \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht heruntergeladen werden: {errorMessage}"
+
+msgid "Could not empty bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not empty container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht geleert werden: {errorMessage}"
@@ -537,6 +630,9 @@ msgstr "CPU"
 
 msgid "Create"
 msgstr "Erstellen"
+
+msgid "Create Bucket"
+msgstr ""
 
 msgid "Create Certificate"
 msgstr ""
@@ -639,6 +735,12 @@ msgstr "Alle löschen"
 
 msgid "Delete All ({selectedCount})"
 msgstr "Alle löschen ({selectedCount})"
+
+msgid "Delete bucket"
+msgstr ""
+
+msgid "Delete Bucket"
+msgstr ""
 
 msgid "Delete CA"
 msgstr "Delete CA"
@@ -838,11 +940,23 @@ msgstr "Alle leeren"
 msgid "Empty All ({selectedCount})"
 msgstr "Alle leeren ({selectedCount})"
 
+msgid "Empty All Completed with Errors"
+msgstr ""
+
+msgid "Empty Bucket"
+msgstr ""
+
+msgid "Empty Buckets"
+msgstr ""
+
 msgid "Empty Containers"
 msgstr "Container leeren"
 
 msgid "Empty:"
 msgstr "Leeren:"
+
+msgid "Emptying bucket {progressCurrent} of {progressTotal}, please wait..."
+msgstr ""
 
 msgid "Emptying container {progressCurrent} of {progressTotal}, please wait..."
 msgstr "Container {progressCurrent} von {progressTotal} wird geleert, bitte warten..."
@@ -928,6 +1042,9 @@ msgstr "Fehler – Flavor-Details"
 msgid "Error - Image Details"
 msgstr "Fehler – Image-Details"
 
+msgid "Error Loading Buckets: {errorMessage}"
+msgstr ""
+
 msgid "Error loading Certificate"
 msgstr ""
 
@@ -991,6 +1108,9 @@ msgstr "Fehler beim Hinzufügen des Mitglieds"
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Fehler beim Hinzufügen des Zugriffs für das Project zum Flavor. Bitte versuchen Sie es erneut."
 
+msgid "Failed to check bucket contents: {errorMessage}"
+msgstr ""
+
 msgid "Failed to Copy Object"
 msgstr "Fehler beim Kopieren des Objekts"
 
@@ -999,6 +1119,9 @@ msgstr "Fehler beim Kopieren des Objekts: {errorMessage}"
 
 msgid "Failed to copy the temporary URL to the clipboard"
 msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
+
+msgid "Failed to Create Bucket"
+msgstr ""
 
 msgid "Failed to Create Container"
 msgstr "Fehler beim Erstellen des Containers"
@@ -1033,6 +1156,9 @@ msgstr "Fehler beim Deaktivieren der Images"
 msgid "Failed to delete {failedCount} of {totalCount} image(s). Some images may be protected or in use."
 msgstr "{failedCount} von {totalCount} Image(s) konnten nicht gelöscht werden. Einige Images sind möglicherweise geschützt oder werden verwendet."
 
+msgid "Failed to Delete Bucket"
+msgstr ""
+
 msgid "Failed to Delete Container"
 msgstr "Fehler beim Löschen des Containers"
 
@@ -1062,6 +1188,9 @@ msgstr "Das Löschen des Flavor ist fehlgeschlagen. Bitte versuchen Sie es erneu
 
 msgid "Failed to Download"
 msgstr "Fehler beim Herunterladen"
+
+msgid "Failed to Empty Bucket"
+msgstr ""
 
 msgid "Failed to Empty Container"
 msgstr "Fehler beim Leeren des Containers"
@@ -1285,6 +1414,9 @@ msgstr "Wird generiert..."
 msgid "Get Involved"
 msgstr "Mitmachen"
 
+msgid "Got it!"
+msgstr ""
+
 msgid "Grant access to a user from a different project."
 msgstr "Zugriff für einen Benutzer aus einem anderen Projekt gewähren."
 
@@ -1494,6 +1626,9 @@ msgstr "Mehr laden"
 
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
+
+msgid "Loading Buckets..."
+msgstr ""
 
 msgid "Loading Certificate Authority Details..."
 msgstr ""
@@ -1711,6 +1846,9 @@ msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 ode
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
 
+msgid "my-bucket-name"
+msgstr ""
+
 msgid "N/A"
 msgstr "keine Angabe"
 
@@ -1743,6 +1881,9 @@ msgstr "new-folder-name"
 
 msgid "No"
 msgstr "Nein"
+
+msgid "No buckets found"
+msgstr ""
 
 msgid "No Certificates issued by this Certificate Authority found"
 msgstr ""
@@ -1830,6 +1971,9 @@ msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur 
 
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr "Hinweis: Das Attribut 'stateful' kann nicht geändert werden, wenn diese Security Group derzeit von einem oder mehreren Ports verwendet wird."
+
+msgid "Nothing to do. Bucket is already empty."
+msgstr ""
 
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Objekt \"{objectName}\" wurde dauerhaft gelöscht."
@@ -2206,6 +2350,9 @@ msgstr "RX/TX Factor"
 msgid "RX/TX Factor must be an integer ≥ 1."
 msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 
+msgid "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
+msgstr ""
+
 msgid "S3 Object Storage — Setup Required"
 msgstr ""
 
@@ -2440,6 +2587,12 @@ msgstr "{successCount} von {totalCount} Image(s) erfolgreich deaktiviert"
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich gelöscht"
 
+msgid "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
+msgstr ""
+
+msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
+msgstr ""
+
 msgid "Suggested Images"
 msgstr "Empfohlene Images"
 
@@ -2578,6 +2731,9 @@ msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
 msgid "The text must match “release” in lowercase."
 msgstr "Der Text muss “release” in Kleinbuchstaben entsprechen."
 
+msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
+msgstr ""
+
 msgid "There are no Certificates available for this Certificate Authority."
 msgstr ""
 
@@ -2620,11 +2776,17 @@ msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Die Security Group 
 msgid "This action cannot be undone. The target project will lose access to this security group immediately."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Das Zielprojekt verliert sofort den Zugriff auf diese Sicherheitsgruppe."
 
+msgid "This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket must be empty before deletion."
+msgstr ""
+
 msgid "This action is permanent. All objects in the container will be deleted and this cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Alle Objekte im Container werden gelöscht und dies kann nicht rückgängig gemacht werden."
 
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
+
+msgid "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
+msgstr ""
 
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
 msgstr "Dieser Container scheint leer zu sein — die Objekt-Anzahl ist möglicherweise aufgrund einer kürzlichen Operation noch nicht synchronisiert."
@@ -2682,6 +2844,9 @@ msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."
 
 msgid "This tenant does not have access to the flavor."
 msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
+
+msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
+msgstr ""
 
 msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
 msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>“detach”</0> in das Feld unten ein."
@@ -2754,6 +2919,9 @@ msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
 
 msgid "Type name"
 msgstr "Name eingeben"
+
+msgid "Type the bucket name to confirm"
+msgstr ""
 
 msgid "Type to search containers..."
 msgstr "Zum Suchen von Containern eingeben..."
