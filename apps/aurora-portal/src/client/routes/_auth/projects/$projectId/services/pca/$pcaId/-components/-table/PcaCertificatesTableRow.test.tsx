@@ -3,9 +3,15 @@ import userEvent from "@testing-library/user-event"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi, beforeEach } from "vitest"
 import type { Certificate } from "@/server/Services/types/pca"
 import { PcaCertificatesTableRow } from "./PcaCertificatesTableRow"
+
+const mockNavigate = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
+}))
 
 const baseCertificate: Certificate = {
   id: "cert-123",
@@ -23,6 +29,10 @@ const renderRow = (certificate: Certificate) =>
   )
 
 describe("PcaCertificatesTableRow", () => {
+  beforeEach(() => {
+    mockNavigate.mockClear()
+  })
+
   it("renders row with correct data-testid", () => {
     renderRow(baseCertificate)
 
@@ -39,6 +49,19 @@ describe("PcaCertificatesTableRow", () => {
     renderRow(baseCertificate)
 
     expect(screen.getByText("cert-123")).toBeInTheDocument()
+  })
+
+  it("navigates to certificate details page on row click", async () => {
+    const user = userEvent.setup()
+    renderRow(baseCertificate)
+
+    await user.click(screen.getByTestId("pca-certificate-row-cert-123"))
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      from: "/projects/$projectId/services/pca/$pcaId/",
+      to: "$certificateId",
+      params: expect.any(Function),
+    })
   })
 
   it("renders disabled Create Certificate menu item", async () => {

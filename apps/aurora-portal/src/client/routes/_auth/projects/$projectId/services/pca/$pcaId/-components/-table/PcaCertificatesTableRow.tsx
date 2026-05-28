@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
   DataGridCell,
@@ -14,16 +15,21 @@ interface PcaCertificatesTableRowProps {
 
 export const PcaCertificatesTableRow = ({ certificate }: PcaCertificatesTableRowProps) => {
   const { t } = useLingui()
+  const navigate = useNavigate()
 
-  // I will enable this button on get-by-id certificate task of the EPIC
-  // const navigateToDetailsPage = () =>
-  //   navigate({
-  //     to: "/projects/$projectId/services/pca/$pcaId",
-  //     params: { projectId, pcaId: pca.id },
-  //   })
+  const navigateToCertificateDetailsPage = () =>
+    navigate({
+      from: "/projects/$projectId/services/pca/$pcaId/",
+      to: "$certificateId",
+      params: (prev) => ({ ...prev, certificateId: certificate.id }),
+    })
 
   return (
-    <DataGridRow key={certificate.id} data-testid={`pca-certificate-row-${certificate.id}`}>
+    <DataGridRow
+      key={certificate.id}
+      data-testid={`pca-certificate-row-${certificate.id}`}
+      onClick={navigateToCertificateDetailsPage}
+    >
       <DataGridCell>{certificate.certificate_authority_id}</DataGridCell>
       <DataGridCell>{certificate.id}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">

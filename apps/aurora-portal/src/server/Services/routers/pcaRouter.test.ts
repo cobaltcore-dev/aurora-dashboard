@@ -59,9 +59,7 @@ const validCertificatesResponse = {
   ],
 }
 
-const validGetByIdCertificateResponse = {
-  certificate: validCertificatesResponse.certificates[0],
-}
+const validGetByIdCertificateResponse = validCertificatesResponse.certificates[0]
 
 const validCreateCAResponse = {
   id: "ca-new",
@@ -377,11 +375,11 @@ describe("pcaRouter", () => {
         certificate_id: "cert-1",
       })
 
-      expect(result).toEqual(validGetByIdCertificateResponse.certificate)
+      expect(result).toEqual(validGetByIdCertificateResponse)
       expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates/cert-1")
     })
 
-    it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
+    it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
       const ctx = createMockContext({ noClavis: true })
       const caller = createCaller(ctx as never)
 
@@ -394,7 +392,7 @@ describe("pcaRouter", () => {
       ).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Clavis service is not available",
+          message: "Pca service is not available",
         })
       )
     })
