@@ -37,9 +37,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
       // Invalidate all object list queries to refresh the view
       utils.storage.ceph.objects.list.invalidate()
       // Use the exact path that was submitted (with trailing slash for display)
-      const submittedFullPath = variables.folderPath.endsWith("/")
-        ? variables.folderPath
-        : `${variables.folderPath}/`
+      const submittedFullPath = variables.folderPath.endsWith("/") ? variables.folderPath : `${variables.folderPath}/`
       onSuccess(submittedFullPath)
       handleClose()
     },
