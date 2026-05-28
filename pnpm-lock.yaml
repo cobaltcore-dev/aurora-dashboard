@@ -294,6 +294,113 @@ importers:
         specifier: ^4.1.2
         version: 4.1.4(@types/node@24.12.2)(jsdom@29.0.2)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
 
+  apps/dashboard:
+    dependencies:
+      '@cobaltcore-dev/aurora':
+        specifier: workspace:*
+        version: link:../../packages/aurora
+      react:
+        specifier: ^19.1.0
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.5(react@19.2.5)
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+    devDependencies:
+      '@cobaltcore-dev/aurora-config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@fastify/vite':
+        specifier: ^8.4.1
+        version: 8.4.1(fastify@5.8.5)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+      '@lingui/swc-plugin':
+        specifier: ^5.11.0
+        version: 5.11.0(@lingui/core@5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(typescript@6.0.3)))
+      '@tailwindcss/vite':
+        specifier: ^4.1.18
+        version: 4.2.2(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+      '@tanstack/router-plugin':
+        specifier: ^1.167.5
+        version: 1.167.22(@tanstack/react-router@1.168.22(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.12.2
+      '@types/react':
+        specifier: ^19.1.5
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.1.5
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react-swc':
+        specifier: ^4.2.2
+        version: 4.3.0(@swc/helpers@0.5.21)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+      eslint:
+        specifier: ^10.0.2
+        version: 10.2.0(jiti@2.6.1)
+      tailwindcss:
+        specifier: ^4.1.7
+        version: 4.2.2
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
+      vite:
+        specifier: ^8.0.0
+        version: 8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)
+      vite-plugin-svgr:
+        specifier: ^5.0.0
+        version: 5.2.0(rollup@4.60.0)(typescript@6.0.3)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+      vite-tsconfig-paths:
+        specifier: ^6.1.1
+        version: 6.1.1(typescript@6.0.3)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+
+  packages/aurora:
+    dependencies:
+      '@cobaltcore-dev/aurora-portal':
+        specifier: workspace:*
+        version: link:../../apps/aurora-portal
+      fastify:
+        specifier: ^5.8.1
+        version: 5.8.5
+      react:
+        specifier: ^19.0.0
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.5(react@19.2.5)
+      zod:
+        specifier: ^4.0.0
+        version: 4.3.6
+    devDependencies:
+      '@cobaltcore-dev/aurora-config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.12.2
+      '@types/react':
+        specifier: ^19.1.5
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.1.5
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react-swc':
+        specifier: ^4.2.2
+        version: 4.3.0(@swc/helpers@0.5.21)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
+      vite:
+        specifier: ^8.0.0
+        version: 8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)
+      vite-tsconfig-paths:
+        specifier: ^6.1.1
+        version: 6.1.1(typescript@6.0.3)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+      vitest:
+        specifier: ^4.1.2
+        version: 4.1.4(@types/node@24.12.2)(jsdom@29.0.2)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+
   packages/config:
     dependencies:
       '@eslint/js':

@@ -11,6 +11,12 @@ import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
+import { messages as enMessages } from "../locales/en/messages"
+
+// Initialise i18n here so AuroraApp is self-contained and consumers don't need
+// to set up Lingui before mounting the component.
+i18n.load({ en: enMessages })
+i18n.activate("en")
 
 type AppProps = {
   theme?: "theme-dark" | "theme-light"

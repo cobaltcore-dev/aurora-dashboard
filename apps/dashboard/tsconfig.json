@@ -1,0 +1,19 @@
+{
+  "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.react.json",
+  "include": ["src/client/**/*.ts", "src/client/**/*.tsx"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "incremental": false,
+    "paths": {
+      "@cobaltcore-dev/aurora-portal/client": ["../../packages/aurora/src/types/aurora-portal.client.d.ts"],
+      "@cobaltcore-dev/aurora-portal/server": ["../../packages/aurora/src/types/aurora-portal.server.d.ts"],
+      "@/*": ["../aurora-portal/src/*"]
+    },
+    "types": ["vite/client", "vite-plugin-svgr/client"]
+  }
+}

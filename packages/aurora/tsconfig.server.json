@@ -1,0 +1,14 @@
+{
+  "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.lib.json",
+  "include": ["src/server", "src/types"],
+  "exclude": ["src/client", "node_modules", "dist"],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist/server",
+    "declaration": true,
+    "declarationMap": true,
+    "paths": {
+      "@cobaltcore-dev/aurora-portal/server": ["./src/types/aurora-portal.server.d.ts"]
+    }
+  }
+}

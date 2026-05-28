@@ -3,6 +3,10 @@
   "private": true,
   "version": "1.0.0",
   "main": "dist/client/index.js",
+  "exports": {
+    "./server": { "default": "./src/server/index.ts" },
+    "./client": { "default": "./src/client/AuroraApp.tsx" }
+  },
   "scripts": {
     "build": "pnpm build:client && pnpm build:server",
     "build:client": "vite build --mode=production",
@@ -11,11 +15,11 @@
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
     "clean:cache": "rm -rf .turbo",
     "compile": "lingui compile --typescript --verbose",
-    "dev": "tsx watch src/server/server.ts --tsconfig tsconfig.server.json",
+    "dev": "tsx watch src/server/main.ts --tsconfig tsconfig.server.json",
     "extract": "lingui extract --clean",
     "lint": "eslint",
     "preview": "vite preview",
-    "prod": "NODE_ENV=production node dist/server/server.js",
+    "prod": "NODE_ENV=production node dist/server/main.js",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:e2e": "playwright test",

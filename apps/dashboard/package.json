@@ -1,0 +1,40 @@
+{
+  "name": "@cobaltcore-dev/dashboard",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "pnpm build:client && pnpm build:server",
+    "build:client": "vite build --mode=production",
+    "build:server": "tsc -p tsconfig.server.json",
+    "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
+    "clean:cache": "rm -rf .turbo",
+    "dev": "tsx watch src/server/server.ts --tsconfig tsconfig.server.json",
+    "lint": "eslint",
+    "preview": "vite preview",
+    "prod": "NODE_ENV=production node dist/server/server.js",
+    "typecheck": "tsc --project tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@cobaltcore-dev/aurora": "workspace:*",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tsx": "^4.21.0"
+  },
+  "devDependencies": {
+    "@cobaltcore-dev/aurora-config": "workspace:*",
+    "@fastify/vite": "^8.4.1",
+    "@lingui/swc-plugin": "^5.11.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/router-plugin": "^1.167.5",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
+    "@vitejs/plugin-react-swc": "^4.2.2",
+    "eslint": "^10.0.2",
+    "tailwindcss": "^4.1.7",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.0",
+    "vite-plugin-svgr": "^5.0.0",
+    "vite-tsconfig-paths": "^6.1.1"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "esModuleInterop": true,
+    "outDir": "./dist",
+    "target": "ESNext",
+    "rootDir": "./src",
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "nodenext",
+    "incremental": false,
+    "resolveJsonModule": true,
+    "paths": {
+      "@cobaltcore-dev/aurora/server": ["../../packages/aurora/src/types/aurora-portal.server.d.ts"]
+    }
+  },
+  "include": ["src/server"],
+  "exclude": ["node_modules", "dist", "src/client"]
+}

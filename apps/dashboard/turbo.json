@@ -1,0 +1,11 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "dev": {
+      "dependsOn": ["@cobaltcore-dev/aurora#build", "@cobaltcore-dev/signal-openstack#build", "@cobaltcore-dev/policy-engine#build"]
+    },
+    "build": {
+      "dependsOn": ["@cobaltcore-dev/aurora#build", "@cobaltcore-dev/signal-openstack#build", "@cobaltcore-dev/policy-engine#build"]
+    }
+  }
+}

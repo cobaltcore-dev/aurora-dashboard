@@ -1,0 +1,15 @@
+{
+  "extends": "@cobaltcore-dev/aurora-config/typescript/base.json",
+  "include": ["src/client", "src/types"],
+  "exclude": ["node_modules", "dist"],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["vite/client"],
+    "paths": {
+      "@cobaltcore-dev/aurora-portal/client": ["./src/types/aurora-portal.client.d.ts"],
+      "@cobaltcore-dev/aurora-portal/server": ["./src/types/aurora-portal.server.d.ts"],
+      "@/*": ["../../apps/aurora-portal/src/*"]
+    }
+  }
+}
