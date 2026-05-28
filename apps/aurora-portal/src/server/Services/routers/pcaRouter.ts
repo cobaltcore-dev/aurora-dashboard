@@ -1,11 +1,14 @@
 import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
+import { omit } from "@/server/helpers/object"
 import { parseOrThrow } from "@/server/Network/helpers"
 import {
   CertificateAuthoritiesListSchema,
+  CertificateAuthoritySchema,
   CertificateAuthorityIdInputSchema,
   CertificatesListSchema,
+  CertificateSchema,
   Certificate,
   CertificateAuthority,
   CertificateAuthorityResponseSchema,
@@ -17,13 +20,14 @@ import {
 } from "../types/pca"
 
 /** PCA (Private Certificate Authority) - Clavis service for certificate authority management  */
-const PCA_BASE_URL = "v1/certificate-authorities"
+const PCA_BASE_URL = "certificate-authorities"
 
 export const pcaRouter = {
-  list: projectScopedProcedure.query(async ({ ctx }) => {
+  list: projectScopedProcedure.query(async ({ ctx }): Promise<CertificateAuthority[]> => {
     return withErrorHandling(async () => {
-      const pca = ctx.openstack?.service("clavis")
-      validateOpenstackService(pca, "clavis")
+      // Use "pca" or "clavis" when the service will be GA as "clavis-beta" and "clavis-dev" are dev keys.
+      const pca = ctx.openstack?.service("pca")
+      validateOpenstackService(pca, "pca")
 
       const response = await pca.get(PCA_BASE_URL)
       const data = await response.json()
@@ -40,28 +44,28 @@ export const pcaRouter = {
     .input(CertificateAuthorityCreateSchema)
     .mutation(async ({ input, ctx }): Promise<CertificateAuthority> => {
       return withErrorHandling(async () => {
-        const pca = ctx.openstack?.service("clavis")
-        validateOpenstackService(pca, "clavis")
+        // Use "pca" or "clavis" when the service will be GA as "clavis-beta" and "clavis-dev" are dev keys.
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
-        const response = await pca.post(PCA_BASE_URL, { body: JSON.stringify(input) })
+        const response = await pca.post(PCA_BASE_URL, omit(input, "project_id"))
         const data = await response.json()
 
-        // Certificate Authority creation initiated successfully (async operation)
-        return parseOrThrow(CertificateAuthorityResponseSchema, data, "pcaRouter.create").certificate_authority
+        return parseOrThrow(CertificateAuthoritySchema, data, "pcaRouter.create")
       }, "create certificate authority")
     }),
   getById: projectScopedProcedure
     .input(CertificateAuthorityIdInputSchema)
     .query(async ({ input, ctx }): Promise<CertificateAuthority> => {
       return withErrorHandling(async () => {
-        const pca = ctx.openstack?.service("clavis")
-        validateOpenstackService(pca, "clavis")
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
         const url = `${PCA_BASE_URL}/${input.certificate_authority_id}`
         const response = await pca.get(url)
         const data = await response.json()
 
-        return parseOrThrow(CertificateAuthorityResponseSchema, data, "pcaRouter.getById").certificate_authority
+        return parseOrThrow(CertificateAuthoritySchema, data, "pcaRouter.getById")
       }, "get certificate authority details")
     }),
   // Permanently deletes a Certificate Authority. This operation is irreversible.
@@ -69,8 +73,8 @@ export const pcaRouter = {
     .input(CertificateAuthorityIdInputSchema)
     .mutation(async ({ input, ctx }): Promise<void> => {
       return withErrorHandling(async () => {
-        const pca = ctx.openstack?.service("clavis")
-        validateOpenstackService(pca, "clavis")
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
         const url = `${PCA_BASE_URL}/${input.certificate_authority_id}`
         // 204 Certificate Authority deleted successfully
@@ -102,8 +106,8 @@ export const pcaRouter = {
     .input(CertificateAuthorityIdInputSchema)
     .query(async ({ input, ctx }): Promise<Certificate[]> => {
       return withErrorHandling(async () => {
-        const pca = ctx.openstack?.service("clavis")
-        validateOpenstackService(pca, "clavis")
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
         const url = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates`
         const response = await pca.get(url)
@@ -130,14 +134,14 @@ export const pcaRouter = {
     .input(CertificateIdInputSchema)
     .query(async ({ input, ctx }): Promise<Certificate> => {
       return withErrorHandling(async () => {
-        const pca = ctx.openstack?.service("clavis")
-        validateOpenstackService(pca, "clavis")
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
         const url = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates/${input.certificate_id}`
         const response = await pca.get(url)
         const data = await response.json()
 
-        return parseOrThrow(CertificateResponseSchema, data, "pcaRouter.getByIdCertificate").certificate
+        return parseOrThrow(CertificateSchema, data, "pcaRouter.getByIdCertificate")
       }, "get certificate details")
     }),
 }

@@ -21,14 +21,12 @@ const validListResponse = {
 }
 
 const validGetByIdResponse = {
-  certificate_authority: {
-    id: "ca-1",
-    project_id: TEST_PROJECT_ID,
-    state: "READY" as const,
-    configuration: {
-      subject: {
-        common_name: "ca.example.com",
-      },
+  id: "ca-1",
+  project_id: TEST_PROJECT_ID,
+  state: "READY" as const,
+  configuration: {
+    subject: {
+      common_name: "ca.example.com",
     },
   },
 }
@@ -61,21 +59,21 @@ const validCertificatesResponse = {
   ],
 }
 
-const validGetByIdCertificateResponse = {
-  certificate: validCertificatesResponse.certificates[0],
-}
+const validGetByIdCertificateResponse = validCertificatesResponse.certificates[0]
 
 const validCreateCAResponse = {
-  certificate_authority: {
-    id: "ca-new",
-    project_id: TEST_PROJECT_ID,
-    state: "CREATING" as const,
-    configuration: {
-      subject: {
-        common_name: "new-ca.example.com",
-      },
+  id: "ca-new",
+  project_id: TEST_PROJECT_ID,
+  state: "CREATING" as const,
+  configuration: {
+    subject: {
+      common_name: "new-ca.example.com",
     },
   },
+}
+
+const validImportCAResponse = {
+  certificate_authority: validCreateCAResponse,
 }
 
 const validCreateCertificateResponse = {
@@ -127,7 +125,7 @@ const createMockContext = (opts?: {
       responseBody = getByIdCertificateParseError ? { invalid: true } : validGetByIdCertificateResponse
     } else if (url.includes("/certificates")) {
       responseBody = certificateParseError ? { invalid: true } : validCertificatesResponse
-    } else if (url === "v1/certificate-authorities") {
+    } else if (url === "certificate-authorities") {
       responseBody = parseError ? { invalid: true } : validListResponse
     } else {
       responseBody = getByIdParseError ? { invalid: true } : validGetByIdResponse
@@ -143,7 +141,7 @@ const createMockContext = (opts?: {
     if (url.includes("/certificates")) {
       responseBody = createCertificateParseError ? { invalid: true } : validCreateCertificateResponse
     } else if (url.includes(":importCertificate")) {
-      responseBody = importCAParseError ? { invalid: true } : validCreateCAResponse
+      responseBody = importCAParseError ? { invalid: true } : validImportCAResponse
     } else {
       responseBody = createCAParseError ? { invalid: true } : validCreateCAResponse
     }
@@ -162,7 +160,7 @@ const createMockContext = (opts?: {
   }
 
   const serviceMock = vi.fn().mockImplementation((serviceName: string) => {
-    if (serviceName === "clavis") {
+    if (serviceName === "clavis" || serviceName === "pca") {
       return noClavis ? null : clavisService
     }
     return null
@@ -206,18 +204,18 @@ describe("pcaRouter", () => {
       const result = await caller.services.pca.list({ project_id: TEST_PROJECT_ID })
 
       expect(result).toEqual(validListResponse.certificate_authorities)
-      expect(ctx.__serviceMock).toHaveBeenCalledWith("clavis")
-      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities")
+      expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
+      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities")
     })
 
-    it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
+    it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
       const ctx = createMockContext({ noClavis: true })
       const caller = createCaller(ctx as never)
 
       await expect(caller.services.pca.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Clavis service is not available",
+          message: "Pca service is not available",
         })
       )
     })
@@ -245,11 +243,11 @@ describe("pcaRouter", () => {
         certificate_authority_id: "ca-1",
       })
 
-      expect(result).toEqual(validGetByIdResponse.certificate_authority)
-      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1")
+      expect(result).toEqual(validGetByIdResponse)
+      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1")
     })
 
-    it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
+    it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
       const ctx = createMockContext({ noClavis: true })
       const caller = createCaller(ctx as never)
 
@@ -261,12 +259,12 @@ describe("pcaRouter", () => {
       ).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Clavis service is not available",
+          message: "Pca service is not available",
         })
       )
     })
 
-    it("throws PARSE_ERROR on invalid Clavis response payload", async () => {
+    it("throws PARSE_ERROR on invalid pca response payload", async () => {
       const ctx = createMockContext({ getByIdParseError: true })
       const caller = createCaller(ctx as never)
 
@@ -295,10 +293,10 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toBeUndefined()
-      expect(ctx.__delMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1")
+      expect(ctx.__delMock).toHaveBeenCalledWith("certificate-authorities/ca-1")
     })
 
-    it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
+    it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
       const ctx = createMockContext({ noClavis: true })
       const caller = createCaller(ctx as never)
 
@@ -310,7 +308,7 @@ describe("pcaRouter", () => {
       ).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Clavis service is not available",
+          message: "Pca service is not available",
         })
       )
     })
@@ -327,10 +325,11 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validCertificatesResponse.certificates)
-      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates")
+      expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
+      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates")
     })
 
-    it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
+    it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
       const ctx = createMockContext({ noClavis: true })
       const caller = createCaller(ctx as never)
 
@@ -342,7 +341,7 @@ describe("pcaRouter", () => {
       ).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Clavis service is not available",
+          message: "Pca service is not available",
         })
       )
     })
@@ -376,11 +375,11 @@ describe("pcaRouter", () => {
         certificate_id: "cert-1",
       })
 
-      expect(result).toEqual(validGetByIdCertificateResponse.certificate)
-      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates/cert-1")
+      expect(result).toEqual(validGetByIdCertificateResponse)
+      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates/cert-1")
     })
 
-    it("throws INTERNAL_SERVER_ERROR when clavis service is unavailable", async () => {
+    it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
       const ctx = createMockContext({ noClavis: true })
       const caller = createCaller(ctx as never)
 
@@ -393,7 +392,7 @@ describe("pcaRouter", () => {
       ).rejects.toThrow(
         new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Clavis service is not available",
+          message: "Pca service is not available",
         })
       )
     })
@@ -431,8 +430,18 @@ describe("pcaRouter", () => {
         },
       })
 
-      expect(result).toEqual(validCreateCAResponse.certificate_authority)
-      expect(ctx.__postMock).toHaveBeenCalledWith("v1/certificate-authorities", expect.any(Object))
+      expect(result).toEqual(validCreateCAResponse)
+      const lastPostCall = ctx.__postMock.mock.lastCall
+      expect(lastPostCall).toBeDefined()
+      expect(lastPostCall?.[0]).toBe("certificate-authorities")
+      expect(lastPostCall?.[1]).toEqual({
+        configuration: {
+          subject: {
+            common_name: "new-ca.example.com",
+          },
+        },
+      })
+      expect(lastPostCall?.[1]).not.toHaveProperty("project_id")
     })
 
     it("throws PARSE_ERROR on invalid create response payload", async () => {
@@ -477,7 +486,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validCreateCertificateResponse.certificate)
-      expect(ctx.__postMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates", expect.any(Object))
+      expect(ctx.__postMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates", expect.any(Object))
     })
 
     it("throws PARSE_ERROR on invalid create certificate response payload", async () => {
@@ -519,11 +528,8 @@ describe("pcaRouter", () => {
           "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
       })
 
-      expect(result).toEqual(validCreateCAResponse.certificate_authority)
-      expect(ctx.__postMock).toHaveBeenCalledWith(
-        "v1/certificate-authorities/ca-1:importCertificate",
-        expect.any(Object)
-      )
+      expect(result).toEqual(validImportCAResponse.certificate_authority)
+      expect(ctx.__postMock).toHaveBeenCalledWith("certificate-authorities/ca-1:importCertificate", expect.any(Object))
       const [, request] = ctx.__postMock.mock.calls[ctx.__postMock.mock.calls.length - 1]
       expect(JSON.parse(request.body)).toEqual({
         imported_certificate_chain:

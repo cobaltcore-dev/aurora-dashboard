@@ -47,9 +47,9 @@ export function SessionExpirationTimer(props: {
       }
 
       // Only navigate if not already on login page
-      if (pathname !== "/auth/login") {
+      if (pathname !== "/") {
         navigate({
-          to: "/auth/login",
+          to: "/",
           search: {
             redirect: pathname || undefined,
           },

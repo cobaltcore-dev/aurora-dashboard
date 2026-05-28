@@ -483,9 +483,9 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(CertificateAuthoritySchema.safeParse(withoutState).success).toBe(false)
     })
 
-    it("should require configuration", () => {
+    it("should allow configuration to be omitted", () => {
       const { ...withoutConfiguration } = omit(minimalValidCA, "configuration")
-      expect(CertificateAuthoritySchema.safeParse(withoutConfiguration).success).toBe(false)
+      expect(CertificateAuthoritySchema.safeParse(withoutConfiguration).success).toBe(true)
     })
 
     it("should require configuration.subject", () => {
@@ -826,6 +826,10 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
         }).success
       ).toBe(false)
     })
+
+    it("should reject create input without configuration", () => {
+      expect(CertificateAuthorityCreateSchema.safeParse({}).success).toBe(false)
+    })
   })
 
   describe("CertificateConfigurationSchema", () => {
@@ -984,14 +988,14 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(result.success).toBe(false)
     })
 
-    it("should require certificate object with pem and validity", () => {
+    it("should allow certificate object to be omitted", () => {
       const result = CertificateSchema.safeParse(omit(minimalValidCertificate, "certificate"))
-      expect(result.success).toBe(false)
+      expect(result.success).toBe(true)
     })
 
-    it("should require configuration object with validity", () => {
+    it("should allow configuration object to be omitted", () => {
       const result = CertificateSchema.safeParse(omit(minimalValidCertificate, "configuration"))
-      expect(result.success).toBe(false)
+      expect(result.success).toBe(true)
     })
 
     it("should allow certificate_chain to be omitted", () => {

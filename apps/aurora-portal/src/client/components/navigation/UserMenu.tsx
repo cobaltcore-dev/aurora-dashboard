@@ -18,7 +18,7 @@ export function UserMenu() {
   const navigate = useNavigate()
 
   const handleLogin = () => {
-    navigate({ to: "/auth/login" })
+    navigate({ to: "/" })
   }
 
   const handleLogout = async () => {

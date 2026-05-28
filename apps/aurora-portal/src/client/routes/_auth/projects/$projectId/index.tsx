@@ -67,6 +67,14 @@ function RouteComponent() {
   storageLinks.push({ label: "Ceph", to: `${base}/storage/ceph/containers` })
   cards.push({ title: "Storage", links: storageLinks })
 
+  // temporary as clavis is not fully GA, after GA replace with ["pca"]?.["clavis"]
+  if (serviceIndex["pca"]?.["clavis-dev"] || serviceIndex["pca"]?.["clavis-beta"]) {
+    cards.push({
+      title: "Services",
+      links: [{ label: "PCA (Clavis)", to: `${base}/services/pca` }],
+    })
+  }
+
   return (
     <Stack direction="vertical" gap="6" className="pb-4">
       <ContentHeader title={crumbProject?.name ?? t`Project`} projectId={projectId} />
