@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -14,6 +14,8 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack, MdWarning } from "react-icons/md"
 import { useVirtualizer } from "@tanstack/react-virtual"
+import { useCopyMoveModalState } from "./hooks/useCopyMoveModalState"
+import { validateObjectName } from "./utils/objectValidation"
 
 const MAX_COMBO_OPTIONS = 50
 
@@ -55,69 +57,9 @@ export const MoveObjectModal = ({
   const utils = trpcReact.useUtils()
   const submittedKeyRef = useRef("")
 
-  // ── State ─────────────────────────────────────────────────────────────────
-  const [targetBucket, setTargetBucket] = useState(bucketName)
-  const [currentPrefix, setCurrentPrefix] = useState("")
   const [newObjectName, setNewObjectName] = useState("")
   const [newObjectNameError, setNewObjectNameError] = useState<string | null>(null)
-  // Locally created folders — keyed by bucket, stored as full prefix paths.
-  const [localFolders, setLocalFolders] = useState<Record<string, string[]>>({})
-  const [newFolderName, setNewFolderName] = useState("")
-  const [newFolderError, setNewFolderError] = useState<string | null>(null)
-  const [showNewFolderInput, setShowNewFolderInput] = useState(false)
-  const [bucketSearch, setBucketSearch] = useState("")
-  const [debouncedSearch, setDebouncedSearch] = useState("")
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
-
-  // Clear pending debounce timer on unmount
-  useEffect(
-    () => () => {
-      if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    },
-    []
-  )
-
-  // Reset browser state when modal opens or target bucket changes
-  useEffect(() => {
-    if (isOpen) {
-      setCurrentPrefix("")
-      setLocalFolders((prev) => {
-        const next = { ...prev }
-        delete next[targetBucket]
-        return next
-      })
-      setNewFolderName("")
-      setNewFolderError(null)
-      setShowNewFolderInput(false)
-      setBucketSearch("")
-      setDebouncedSearch("")
-      setNewObjectNameError(null)
-    }
-  }, [isOpen, targetBucket])
-
-  // Reset name field when modal opens with object
-  useEffect(() => {
-    if (isOpen && objectKey) {
-      const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
-      setNewObjectName(displayName)
-    }
-  }, [isOpen, objectKey])
-
-  useEffect(() => {
-    if (!isOpen) {
-      setTargetBucket(bucketName)
-      setCurrentPrefix("")
-      setLocalFolders({})
-      setNewFolderName("")
-      setNewFolderError(null)
-      setShowNewFolderInput(false)
-      setBucketSearch("")
-      setDebouncedSearch("")
-      setNewObjectName("")
-      setNewObjectNameError(null)
-    }
-  }, [isOpen, bucketName])
 
   // ── Data fetching ─────────────────────────────────────────────────────────
 
@@ -126,16 +68,38 @@ export const MoveObjectModal = ({
     { enabled: isOpen && !!projectId }
   )
 
+  const modalState = useCopyMoveModalState({
+    initialBucket: bucketName,
+    allBuckets: buckets ?? [],
+    existingRows: [],
+  })
+
   const { data: objectsData, isLoading: isLoadingObjects } = trpcReact.storage.ceph.objects.list.useQuery(
     {
       project_id: projectId ?? "",
-      containerName: targetBucket,
-      prefix: currentPrefix || undefined,
+      containerName: modalState.targetBucket,
+      prefix: modalState.currentPrefix || undefined,
       delimiter: "/",
       maxKeys: 1000,
     },
-    { enabled: isOpen && !!targetBucket && !!projectId }
+    { enabled: isOpen && !!modalState.targetBucket && !!projectId }
   )
+
+  // Initialize object name when modal opens
+  useEffect(() => {
+    if (isOpen && objectKey) {
+      const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+      setNewObjectName(displayName)
+      modalState.resetAll()
+    }
+  }, [isOpen, objectKey])
+
+  useEffect(() => {
+    if (!isOpen) {
+      setNewObjectName("")
+      setNewObjectNameError(null)
+    }
+  }, [isOpen])
 
   // ── Build rows from S3 response ───────────────────────────────────────────
 
@@ -145,20 +109,20 @@ export const MoveObjectModal = ({
     const folders: FolderRow[] = objectsData.folders.map((folder) => ({
       kind: "folder" as const,
       name: folder.prefix,
-      displayName: currentPrefix
-        ? folder.prefix.replace(currentPrefix, "").replace(/\/$/, "")
+      displayName: modalState.currentPrefix
+        ? folder.prefix.replace(modalState.currentPrefix, "").replace(/\/$/, "")
         : folder.prefix.replace(/\/$/, ""),
     }))
 
     const objects: ObjectRow[] = objectsData.objects
       .filter((obj) => {
-        const stripped = currentPrefix ? obj.key.replace(currentPrefix, "") : obj.key
+        const stripped = modalState.currentPrefix ? obj.key.replace(modalState.currentPrefix, "") : obj.key
         return stripped !== "" && stripped !== "/"
       })
       .map((obj) => ({
         kind: "object" as const,
         name: obj.key,
-        displayName: currentPrefix ? obj.key.replace(currentPrefix, "") : obj.key,
+        displayName: modalState.currentPrefix ? obj.key.replace(modalState.currentPrefix, "") : obj.key,
       }))
 
     return [...folders, ...objects]
@@ -167,10 +131,10 @@ export const MoveObjectModal = ({
   // ── Rows: merge server data with locally created folders ──────────────────
 
   const serverRows = buildRows()
-  const bucketLocalFolders = localFolders[targetBucket] ?? []
+  const bucketLocalFolders = modalState.localFolders[modalState.targetBucket] ?? []
   const localFolderRows: BrowserRow[] = bucketLocalFolders
     .filter((fp) => {
-      const withoutPrefix = fp.startsWith(currentPrefix) ? fp.slice(currentPrefix.length) : null
+      const withoutPrefix = fp.startsWith(modalState.currentPrefix) ? fp.slice(modalState.currentPrefix.length) : null
       if (!withoutPrefix) return false
       const parts = withoutPrefix.split("/").filter(Boolean)
       return parts.length === 1
@@ -179,7 +143,7 @@ export const MoveObjectModal = ({
     .map((fp) => ({
       kind: "folder" as const,
       name: fp,
-      displayName: fp.slice(currentPrefix.length).replace(/\/$/, ""),
+      displayName: fp.slice(modalState.currentPrefix.length).replace(/\/$/, ""),
     }))
 
   const rows: BrowserRow[] = [
@@ -188,27 +152,15 @@ export const MoveObjectModal = ({
     ...serverRows.filter((r) => r.kind === "object"),
   ]
 
-  const filteredBuckets =
-    debouncedSearch.trim().length > 0
-      ? (buckets ?? []).filter((b) => b.name.toLowerCase().includes(debouncedSearch.toLowerCase()))
-      : []
-
-  const visibleBuckets = filteredBuckets.slice(0, MAX_COMBO_OPTIONS)
-  const hiddenCount = filteredBuckets.length - visibleBuckets.length
-
   // ── Move mutation = copy + delete ─────────────────────────────────────────
-  // S3 has no native move. We copy to the destination then delete the source.
-  // Both mutations are chained: delete fires in copyMutation.onSuccess.
 
   const deleteMutation = trpcReact.storage.ceph.objects.delete.useMutation({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
-      const targetKey = `${currentPrefix}${newObjectName.trim()}`
-      onSuccess?.(submittedKeyRef.current, targetBucket, targetKey)
+      const targetKey = `${modalState.currentPrefix}${newObjectName.trim()}`
+      onSuccess?.(submittedKeyRef.current, modalState.targetBucket, targetKey)
     },
     onError: (error: { message: string }) => {
-      // Copy succeeded but delete failed — report as move error so the user
-      // knows the source object still exists.
       onError?.(submittedKeyRef.current, error.message)
     },
     onSettled: () => {
@@ -218,7 +170,6 @@ export const MoveObjectModal = ({
 
   const copyMutation = trpcReact.storage.ceph.objects.copy.useMutation({
     onSuccess: () => {
-      // Copy succeeded — now delete the source to complete the move.
       deleteMutation.mutate({
         project_id: projectId ?? "",
         containerName: bucketName,
@@ -239,121 +190,38 @@ export const MoveObjectModal = ({
     onClose()
   }
 
-  const handleBucketSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setBucketSearch(value)
-    if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    debounceTimer.current = setTimeout(() => setDebouncedSearch(value), 300)
-  }, [])
-
   const handleBucketChange = (value?: string | number | string[] | undefined) => {
     const v = Array.isArray(value) ? value[0] : typeof value === "number" ? String(value) : value
     if (v) {
-      setTargetBucket(v)
-      setCurrentPrefix("")
+      modalState.setTargetBucket(v)
     }
-  }
-
-  const handleFolderClick = (folderName: string) => {
-    setCurrentPrefix(folderName)
-    setShowNewFolderInput(false)
-    setNewFolderName("")
-    setNewFolderError(null)
-  }
-
-  const handleNavigateUp = () => {
-    if (!currentPrefix) return
-    const parts = currentPrefix.replace(/\/$/, "").split("/")
-    parts.pop()
-    setCurrentPrefix(parts.length > 0 ? parts.join("/") + "/" : "")
-    setShowNewFolderInput(false)
-    setNewFolderName("")
-    setNewFolderError(null)
-  }
-
-  const validateNewFolderName = useCallback(
-    (name: string): boolean => {
-      const trimmed = name.trim()
-      if (!trimmed) {
-        setNewFolderError(t`Folder name is required`)
-        return false
-      }
-      if (trimmed.includes("/")) {
-        setNewFolderError(t`Folder name cannot contain slashes`)
-        return false
-      }
-      if (trimmed !== name) {
-        setNewFolderError(t`Folder name cannot have leading or trailing whitespace`)
-        return false
-      }
-      const newPath = `${currentPrefix}${trimmed}/`
-      if (rows.some((r) => r.name === newPath)) {
-        setNewFolderError(t`A folder with this name already exists`)
-        return false
-      }
-      setNewFolderError(null)
-      return true
-    },
-    [rows, currentPrefix, t]
-  )
-
-  const validateObjectName = useCallback(
-    (name: string): boolean => {
-      const trimmed = name.trim()
-      if (!trimmed) {
-        setNewObjectNameError(t`Object name is required`)
-        return false
-      }
-      if (trimmed.includes("/")) {
-        setNewObjectNameError(t`Object name cannot contain slashes`)
-        return false
-      }
-      if (trimmed !== name) {
-        setNewObjectNameError(t`Object name cannot have leading or trailing whitespace`)
-        return false
-      }
-      setNewObjectNameError(null)
-      return true
-    },
-    [t]
-  )
-
-  const handleCreateFolder = () => {
-    if (!validateNewFolderName(newFolderName)) return
-    const trimmed = newFolderName.trim()
-    const newPath = `${currentPrefix}${trimmed}/`
-    setLocalFolders((prev) => ({
-      ...prev,
-      [targetBucket]: [...(prev[targetBucket] ?? []), newPath],
-    }))
-    setNewFolderName("")
-    setShowNewFolderInput(false)
-    setNewFolderError(null)
-    setCurrentPrefix(newPath)
   }
 
   const handleNewFolderKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleCreateFolder()
-    if (e.key === "Escape") {
-      setShowNewFolderInput(false)
-      setNewFolderName("")
-      setNewFolderError(null)
-    }
+    if (e.key === "Enter") modalState.createFolder()
+    if (e.key === "Escape") modalState.cancelCreateFolder()
   }
 
   const handleMove = () => {
     if (!projectId) return
-    if (!validateObjectName(newObjectName)) return
+
+    const error = validateObjectName(newObjectName)
+    if (error) {
+      setNewObjectNameError(t(error.message))
+      return
+    }
+
     const trimmedName = newObjectName.trim()
     submittedKeyRef.current = trimmedName
-    const targetKey = `${currentPrefix}${trimmedName}`
+    const targetKey = `${modalState.currentPrefix}${trimmedName}`
+
     copyMutation.mutate({
       project_id: projectId,
       sourceBucket: bucketName,
       sourceKey: objectKey,
-      destinationBucket: targetBucket,
+      destinationBucket: modalState.targetBucket,
       destinationKey: targetKey,
-      copyMetadata: true, // Always copy metadata in move operation
+      copyMetadata: true,
     })
   }
 
@@ -376,15 +244,12 @@ export const MoveObjectModal = ({
   const isPending = copyMutation.isPending || deleteMutation.isPending
   const isLoading = isLoadingObjects
 
-  // ── Read-only target path preview ──────────────────────────────────────────
-  const targetPathDisplay = `${targetBucket}/${currentPrefix}${newObjectName.trim() || displayName}`
-
-  // Extract initial prefix from source object key
+  const targetPathDisplay = `${modalState.targetBucket}/${modalState.currentPrefix}${newObjectName.trim() || displayName}`
   const initialPrefix = objectKey.endsWith(displayName) ? objectKey.slice(0, objectKey.length - displayName.length) : ""
-
-  // Disable submit when destination is identical to source
   const isUnchanged =
-    targetBucket === bucketName && currentPrefix === initialPrefix && newObjectName.trim() === displayName
+    modalState.targetBucket === bucketName &&
+    modalState.currentPrefix === initialPrefix &&
+    newObjectName.trim() === displayName
 
   return (
     <Modal
@@ -451,27 +316,25 @@ export const MoveObjectModal = ({
             )}
           </div>
 
-          {/* Target bucket — ComboBox with debounced search */}
+          {/* Target bucket */}
           <ComboBox
             label={t`Target bucket`}
-            value={targetBucket}
+            value={modalState.targetBucket}
             onChange={handleBucketChange}
-            onInputChange={handleBucketSearch}
+            onInputChange={modalState.handleSearchChange}
             placeholder={t`Type to search buckets...`}
             helptext={(() => {
               if (isLoadingBuckets) return t`Loading buckets...`
-              if (bucketSearch.trim().length === 0) return t`Start typing to search for a bucket`
-              if (hiddenCount > 0) {
-                const maxOptions = MAX_COMBO_OPTIONS
-                const totalCount = filteredBuckets.length
-                return t`Showing first ${maxOptions} of ${totalCount} — refine your search to narrow results`
+              if (modalState.searchTerm.trim().length === 0) return t`Start typing to search for a bucket`
+              if (modalState.hiddenCount > 0) {
+                return t`Showing first ${MAX_COMBO_OPTIONS} of ${modalState.visibleBuckets.length + modalState.hiddenCount} — refine your search to narrow results`
               }
               return undefined
             })()}
             disabled={isLoadingBuckets || isPending}
             required
           >
-            {visibleBuckets.map((b) => (
+            {modalState.visibleBuckets.map((b) => (
               <ComboBoxOption key={b.name} value={b.name}>
                 {b.name}
               </ComboBoxOption>
@@ -488,11 +351,7 @@ export const MoveObjectModal = ({
                 size="small"
                 variant="subdued"
                 icon="addCircle"
-                onClick={() => {
-                  setShowNewFolderInput(true)
-                  setNewFolderName("")
-                  setNewFolderError(null)
-                }}
+                onClick={modalState.startCreateFolder}
                 disabled={isPending}
                 title={t`Create new folder here`}
               >
@@ -502,10 +361,10 @@ export const MoveObjectModal = ({
 
             {/* Breadcrumb / back navigation */}
             <div className="border-theme-background-lvl-2 bg-theme-background-lvl-1 flex items-center gap-2 border-b px-3 py-2 text-sm">
-              {currentPrefix ? (
+              {modalState.currentPrefix ? (
                 <button
                   type="button"
-                  onClick={handleNavigateUp}
+                  onClick={modalState.navigateUp}
                   className="text-theme-link hover:text-theme-default flex items-center gap-1"
                 >
                   <MdArrowBack size={16} />
@@ -516,7 +375,9 @@ export const MoveObjectModal = ({
                   <Trans>Root</Trans>
                 </span>
               )}
-              {currentPrefix && <span className="text-theme-light truncate font-mono text-xs">/ {currentPrefix}</span>}
+              {modalState.currentPrefix && (
+                <span className="text-theme-light truncate font-mono text-xs">/ {modalState.currentPrefix}</span>
+              )}
             </div>
 
             {/* Object browser list */}
@@ -526,7 +387,7 @@ export const MoveObjectModal = ({
                   <Spinner size="small" />
                   <Trans>Loading...</Trans>
                 </Stack>
-              ) : allBrowserRows.length === 0 && !showNewFolderInput ? (
+              ) : allBrowserRows.length === 0 && !modalState.showNewFolderInput ? (
                 <div className="text-theme-light px-4 py-6 text-center text-sm">
                   <Trans>This folder is empty — use New Folder to create one.</Trans>
                 </div>
@@ -552,7 +413,7 @@ export const MoveObjectModal = ({
                           <button
                             type="button"
                             className="hover:bg-theme-background-lvl-2 focus-visible:outline-theme-focus flex w-full items-center gap-2 px-4 py-2 text-left text-sm focus-visible:outline focus-visible:outline-2"
-                            onClick={() => handleFolderClick(row.name)}
+                            onClick={() => modalState.navigateToPrefix(row.name)}
                           >
                             <MdFolder size={16} className="text-theme-light shrink-0" />
                             <span className="truncate">{row.displayName}</span>
@@ -570,41 +431,32 @@ export const MoveObjectModal = ({
               )}
 
               {/* Inline new folder input */}
-              {showNewFolderInput && (
+              {modalState.showNewFolderInput && (
                 <div className="border-theme-background-lvl-2 border-t px-4 py-3">
                   <Stack direction="vertical" gap="2">
                     <Stack direction="horizontal" gap="2" alignment="center">
                       <MdCreateNewFolder size={16} className="text-theme-light shrink-0" />
                       <TextInput
-                        value={newFolderName}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setNewFolderName(e.target.value)
-                          if (newFolderError) setNewFolderError(null)
-                        }}
+                        value={modalState.newFolderName}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          modalState.setNewFolderName(e.target.value)
+                        }
                         onKeyDown={handleNewFolderKeyDown}
                         placeholder={t`new-folder-name`}
-                        invalid={!!newFolderError}
-                        errortext={newFolderError ?? undefined}
+                        invalid={!!modalState.newFolderError}
+                        errortext={modalState.newFolderError ?? undefined}
                         autoFocus
                         className="flex-1"
                       />
                       <Button
                         size="small"
                         variant="primary"
-                        onClick={handleCreateFolder}
-                        disabled={!newFolderName.trim()}
+                        onClick={modalState.createFolder}
+                        disabled={!modalState.newFolderName.trim()}
                       >
                         <Trans>Create</Trans>
                       </Button>
-                      <Button
-                        size="small"
-                        variant="subdued"
-                        onClick={() => {
-                          setShowNewFolderInput(false)
-                          setNewFolderName("")
-                          setNewFolderError(null)
-                        }}
-                      >
+                      <Button size="small" variant="subdued" onClick={modalState.cancelCreateFolder}>
                         <Trans>Cancel</Trans>
                       </Button>
                     </Stack>
@@ -614,7 +466,7 @@ export const MoveObjectModal = ({
             </div>
           </div>
 
-          {/* Read-only target path preview */}
+          {/* Target path preview */}
           <TextInput
             label={t`Target path`}
             value={targetPathDisplay}

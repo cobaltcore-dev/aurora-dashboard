@@ -1414,6 +1414,9 @@ msgstr "Ordnername darf keine führenden oder nachfolgenden Leerzeichen haben"
 msgid "Folder name is required"
 msgstr "Ordnername ist erforderlich"
 
+msgid "Folder name is too long (max 255 characters)"
+msgstr ""
+
 msgid "folder-name"
 msgstr "folder-name"
 
@@ -2553,6 +2556,10 @@ msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Erste {actualObjectCount} von {total} Objekten werden angezeigt"
+
+#. placeholder {0}: modalState.visibleBuckets.length + modalState.hiddenCount
+msgid "Showing first {MAX_COMBO_OPTIONS} of {0} — refine your search to narrow results"
+msgstr ""
 
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 msgstr "Erste {maxOptions} von {totalCount} werden angezeigt — verfeinern Sie Ihre Suche, um die Ergebnisse einzugrenzen"

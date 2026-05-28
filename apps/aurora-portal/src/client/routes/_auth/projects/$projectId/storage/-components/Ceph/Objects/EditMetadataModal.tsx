@@ -15,6 +15,7 @@ import {
   Button,
 } from "@cloudoperators/juno-ui-components"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { validateMetadataKey } from "./utils/objectValidation"
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -37,18 +38,6 @@ interface EditMetadataModalProps {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
-
-// S3 metadata key validation: alphanumeric, hyphen, underscore
-const VALID_KEY_RE = /^[a-zA-Z0-9_-]+$/
-
-type MetaKeyError = "required" | "invalid-chars" | "no-alnum"
-
-const validateMetaKey = (key: string): MetaKeyError | null => {
-  if (!key.trim()) return "required"
-  if (!VALID_KEY_RE.test(key)) return "invalid-chars"
-  if (!/[a-zA-Z0-9]/.test(key)) return "no-alnum"
-  return null
-}
 
 const formatDate = (iso: string): string => {
   const date = new Date(iso)
@@ -228,15 +217,9 @@ export const EditMetadataModal = ({
 
   const handleSaveEdit = (index: number) => {
     const entry = metadata[index]
-    const keyError = validateMetaKey(entry.key)
-    if (keyError) {
-      const msg =
-        keyError === "required"
-          ? t`Key is required`
-          : keyError === "invalid-chars"
-            ? t`Key contains invalid characters (use only letters, digits, hyphens, underscores)`
-            : t`Key must contain at least one alphanumeric character`
-      setMetaErrors((prev) => ({ ...prev, [`edit-${index}`]: msg }))
+    const error = validateMetadataKey(entry.key)
+    if (error) {
+      setMetaErrors((prev) => ({ ...prev, [`edit-${index}`]: t(error.message) }))
       return
     }
     const isDuplicate = metadata.some((e, i) => i !== index && e.key.toLowerCase() === entry.key.toLowerCase())
@@ -272,15 +255,9 @@ export const EditMetadataModal = ({
   }
 
   const handleAddNew = () => {
-    const keyError = validateMetaKey(newKey)
-    if (keyError) {
-      setNewKeyError(
-        keyError === "required"
-          ? t`Key is required`
-          : keyError === "invalid-chars"
-            ? t`Key contains invalid characters (use only letters, digits, hyphens, underscores)`
-            : t`Key must contain at least one alphanumeric character`
-      )
+    const error = validateMetadataKey(newKey)
+    if (error) {
+      setNewKeyError(t(error.message))
       return
     }
     const isDuplicate = metadata.some((e) => e.key.toLowerCase() === newKey.trim().toLowerCase())

@@ -1414,6 +1414,9 @@ msgstr "Folder name cannot have leading or trailing whitespace"
 msgid "Folder name is required"
 msgstr "Folder name is required"
 
+msgid "Folder name is too long (max 255 characters)"
+msgstr "Folder name is too long (max 255 characters)"
+
 msgid "folder-name"
 msgstr "folder-name"
 
@@ -2553,6 +2556,10 @@ msgstr "Showing {filteredCount} of {totalCount} {itemName}"
 
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Showing first {actualObjectCount} of {total} objects"
+
+#. placeholder {0}: modalState.visibleBuckets.length + modalState.hiddenCount
+msgid "Showing first {MAX_COMBO_OPTIONS} of {0} — refine your search to narrow results"
+msgstr "Showing first {MAX_COMBO_OPTIONS} of {0} — refine your search to narrow results"
 
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 msgstr "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
