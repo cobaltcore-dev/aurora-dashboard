@@ -170,15 +170,13 @@ export function ContainerListView() {
                 </span>
               </DataGridCell>
               <DataGridCell>
-                <div className="flex justify-end">
-                  <Button
-                    variant="subdued"
-                    size="small"
-                    icon="deleteForever"
-                    onClick={() => setDeleteModalBucket(bucket)}
-                    title={t`Delete bucket`}
-                  />
-                </div>
+                <Button
+                  variant="subdued"
+                  size="small"
+                  icon="deleteForever"
+                  onClick={() => setDeleteModalBucket(bucket)}
+                  title={t`Delete bucket`}
+                />
               </DataGridCell>
             </DataGridRow>
           ))}
