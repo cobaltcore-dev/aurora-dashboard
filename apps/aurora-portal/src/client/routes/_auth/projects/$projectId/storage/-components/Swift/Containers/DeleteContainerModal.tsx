@@ -160,7 +160,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       }
     >
       {(objectsError || metaError) && (
-        <Stack direction="vertical" gap="2" className="mb-4">
+        <Stack direction="vertical" gap="2" className="mb-4" role="alert" aria-live="assertive">
           {objectsError && (
             <p className="text-theme-error">
               {(() => {
