@@ -35,20 +35,32 @@ export type Ec2CredentialWithSecret = z.infer<typeof ec2CredentialWithSecretSche
 // CONTAINER SCHEMAS
 // ============================================================================
 
+/**
+ * Container schema - aligned with Swift ContainerSummary structure
+ * Includes count, bytes, and last_modified for consistent UI rendering
+ *
+ * IMPORTANT: count, bytes, and last_modified are ESTIMATES when buckets contain >1000 objects.
+ * The list endpoint uses S3_MAX_KEYS_PER_REQUEST for performance, so these values are based on
+ * a sample of objects. For accurate counts, pagination would be needed (expensive).
+ */
 export const containerSchema = z.object({
   name: z.string(),
-  creationDate: z.string().optional(),
+  count: z.number().default(0), // Estimated number of objects (based on first 1000)
+  bytes: z.number().default(0), // Estimated total size in bytes (based on first 1000)
+  last_modified: z.string().optional(), // ISO date string (may not be the absolute latest if >1000 objects)
+  creationDate: z.string().optional(), // Bucket creation date (Ceph-specific, accurate)
 })
 
-export const containerDetailsSchema = containerSchema.extend({
-  objectCount: z.number().optional(),
-  sizeBytes: z.number().optional(),
+export const listContainersInputSchema = projectScopedInputSchema.extend({
+  includeMetadata: z.boolean().optional().default(false),
 })
 
-export const listContainersInputSchema = projectScopedInputSchema
+export const createBucketInputSchema = projectScopedInputSchema.extend({
+  bucketName: z.string().min(3).max(63),
+})
 
-export const getContainerDetailsInputSchema = projectScopedInputSchema.extend({
-  containerName: z.string().min(1),
+export const deleteBucketInputSchema = projectScopedInputSchema.extend({
+  bucketName: z.string().min(1),
 })
 
 // ============================================================================
@@ -56,7 +68,6 @@ export const getContainerDetailsInputSchema = projectScopedInputSchema.extend({
 // ============================================================================
 
 export type Container = z.infer<typeof containerSchema>
-export type ContainerDetails = z.infer<typeof containerDetailsSchema>
 
 // ============================================================================
 // S3 STATUS SCHEMAS

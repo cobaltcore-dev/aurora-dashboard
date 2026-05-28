@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { AuroraPortalContext } from "../../context"
+import { AuroraPortalContext } from "../../../context"
 import { containerRouter } from "./containerRouter"
-import { createCallerFactory, auroraRouter } from "../../trpc"
+import { createCallerFactory, auroraRouter } from "../../../trpc"
 
 // ============================================================================
 // MOCK AWS SDK S3 CLIENT
@@ -10,7 +10,7 @@ import { createCallerFactory, auroraRouter } from "../../trpc"
 
 const mockSend = vi.fn()
 
-vi.mock("../clients/s3Client", () => ({
+vi.mock("../../clients/s3Client", () => ({
   createS3Client: vi.fn(() => ({ send: mockSend })),
 }))
 
@@ -45,6 +45,15 @@ const createMockContext = (shouldFailAuth = false, hasCredentials = true) => {
 
   const mockCephService = {
     getEndpoint: () => "https://test-ceph.example.com",
+    availableEndpoints: () => [
+      {
+        region: "test-region",
+        url: "https://test-ceph.example.com",
+        interface: "public",
+        id: "test-id",
+        region_id: "test-region",
+      },
+    ],
   }
 
   const mockToken = {
@@ -56,6 +65,13 @@ const createMockContext = (shouldFailAuth = false, hasCredentials = true) => {
         name: "test-user",
         password_expires_at: "",
       },
+      catalog: [
+        {
+          type: "ceph",
+          name: "ceph",
+          endpoints: [{ region: "test-region", url: "https://test-ceph.example.com" }],
+        },
+      ],
       expires_at: "",
       issued_at: "",
       methods: [],
@@ -90,8 +106,16 @@ const createCaller = createCallerFactory(auroraRouter({ storage: { ceph: { conta
 describe("buckets.list", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockSend.mockResolvedValue({
+    process.env.CEPH_REGION = "ceph-objectstore-st1-test-region"
+    // First call returns list of buckets
+    mockSend.mockResolvedValueOnce({
       Buckets: [{ Name: TEST_BUCKET_NAME, CreationDate: TEST_CREATION_DATE }],
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Second call returns bucket metadata (ListObjectsV2)
+    mockSend.mockResolvedValueOnce({
+      Contents: [],
+      KeyCount: 0,
       $metadata: { httpStatusCode: 200 },
     })
   })
@@ -102,10 +126,19 @@ describe("buckets.list", () => {
 
     const result = await caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })
 
-    expect(result).toEqual([{ name: TEST_BUCKET_NAME, creationDate: TEST_CREATION_DATE.toISOString() }])
+    expect(result).toEqual([
+      {
+        name: TEST_BUCKET_NAME,
+        creationDate: TEST_CREATION_DATE.toISOString(),
+        count: 0,
+        bytes: 0,
+        last_modified: undefined,
+      },
+    ])
   })
 
   it("returns empty array when no buckets exist", async () => {
+    mockSend.mockReset()
     mockSend.mockResolvedValue({ Buckets: [], $metadata: { httpStatusCode: 200 } })
     const ctx = createMockContext()
     const caller = createCaller(ctx)
@@ -116,6 +149,7 @@ describe("buckets.list", () => {
   })
 
   it("returns empty array when Buckets is undefined", async () => {
+    mockSend.mockReset()
     mockSend.mockResolvedValue({ $metadata: { httpStatusCode: 200 } })
     const ctx = createMockContext()
     const caller = createCaller(ctx)
@@ -144,54 +178,12 @@ describe("buckets.list", () => {
   })
 
   it("maps S3 errors to TRPCError", async () => {
+    mockSend.mockReset()
     const s3Error = Object.assign(new Error("Access denied"), { Code: "AccessDenied" })
     mockSend.mockRejectedValue(s3Error)
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
     await expect(caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(TRPCError)
-  })
-})
-
-// ============================================================================
-// buckets.getDetails
-// ============================================================================
-
-describe("buckets.getDetails", () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    mockSend.mockResolvedValue({ $metadata: { httpStatusCode: 200 } })
-  })
-
-  it("returns bucket details", async () => {
-    const ctx = createMockContext()
-    const caller = createCaller(ctx)
-
-    const result = await caller.storage.ceph.containers.getDetails({
-      project_id: TEST_PROJECT_ID,
-      containerName: TEST_BUCKET_NAME,
-    })
-
-    expect(result).toEqual({ name: TEST_BUCKET_NAME })
-  })
-
-  it("throws NOT_FOUND when bucket does not exist", async () => {
-    const s3Error = Object.assign(new Error("NoSuchBucket"), { Code: "NoSuchBucket" })
-    mockSend.mockRejectedValue(s3Error)
-    const ctx = createMockContext()
-    const caller = createCaller(ctx)
-
-    await expect(
-      caller.storage.ceph.containers.getDetails({ project_id: TEST_PROJECT_ID, containerName: "nonexistent" })
-    ).rejects.toMatchObject({ code: "NOT_FOUND" })
-  })
-
-  it("throws UNAUTHORIZED when session is invalid", async () => {
-    const ctx = createMockContext(true)
-    const caller = createCaller(ctx)
-
-    await expect(
-      caller.storage.ceph.containers.getDetails({ project_id: TEST_PROJECT_ID, containerName: TEST_BUCKET_NAME })
-    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
   })
 })

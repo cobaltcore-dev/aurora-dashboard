@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { Readable } from "node:stream"
-import { AuroraPortalContext } from "../../context"
+import { AuroraPortalContext } from "../../../context"
 import { swiftRouter } from "./swiftRouter"
-import * as swiftHelpers from "../helpers/swiftHelpers"
+import * as swiftHelpers from "../../helpers/swiftHelpers"
 import {
   ContainerSummary,
   ObjectSummary,
@@ -11,11 +11,11 @@ import {
   ContainerInfo,
   ObjectMetadata,
   ServiceInfo,
-} from "../types/swift"
-import { createCallerFactory, auroraRouter } from "../../trpc"
+} from "../../types/swift"
+import { createCallerFactory, auroraRouter } from "../../../trpc"
 
 // Mock the helpers
-vi.mock("../helpers/swiftHelpers", async (importOriginal) => {
+vi.mock("../../helpers/swiftHelpers", async (importOriginal) => {
   const actual: object = await importOriginal()
 
   return {
@@ -1864,7 +1864,7 @@ describe("swiftRouter", () => {
 
     /** Default validated result returned by the validateSwiftUploadInput mock. */
     const makeValidatedUploadInput = (
-      overrides?: Partial<ReturnType<typeof import("../helpers/swiftHelpers").validateSwiftUploadInput>>
+      overrides?: Partial<ReturnType<typeof import("../../helpers/swiftHelpers").validateSwiftUploadInput>>
     ) => ({
       validatedContainer: "test-container",
       validatedObject: "folder/sample.txt",
