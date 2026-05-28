@@ -23,6 +23,7 @@ export function RouteComponent() {
   const { t } = useLingui()
   const navigate = useNavigate()
   const { setPageTitle } = Route.useRouteContext()
+  const { projectId, pcaId, certificateId } = Route.useParams()
 
   const {
     isLoading,
@@ -30,9 +31,9 @@ export function RouteComponent() {
     error,
     data: certificate,
   } = trpcReact.services.pca.getByIdCertificate.useQuery({
-    project_id: Route.useParams().projectId,
-    certificate_authority_id: Route.useParams().pcaId,
-    certificate_id: Route.useParams().certificateId,
+    project_id: projectId,
+    certificate_authority_id: pcaId,
+    certificate_id: certificateId,
   })
 
   // Loading state
@@ -49,7 +50,7 @@ export function RouteComponent() {
   const handleBack = () =>
     navigate({
       to: "/projects/$projectId/services/pca/$pcaId",
-      params: { projectId: Route.useParams().projectId, pcaId: Route.useParams().pcaId },
+      params: { projectId, pcaId },
     })
 
   // Error state
