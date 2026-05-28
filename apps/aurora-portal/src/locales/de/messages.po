@@ -313,6 +313,9 @@ msgstr "Zurück"
 msgid "Back to Certificate Authorities"
 msgstr ""
 
+msgid "Back to Certificate Authorities Details page"
+msgstr ""
+
 msgid "Back to Floating IPs"
 msgstr "Zurück zu Floating IPs"
 
@@ -425,6 +428,9 @@ msgid "Ceph"
 msgstr ""
 
 msgid "Certificate Authority not found"
+msgstr ""
+
+msgid "Certificate not found"
 msgstr ""
 
 msgid "Checking bucket contents..."
@@ -1045,6 +1051,9 @@ msgstr "Fehler – Image-Details"
 msgid "Error Loading Buckets: {errorMessage}"
 msgstr ""
 
+msgid "Error loading Certificate"
+msgstr ""
+
 msgid "Error loading Certificate Authority"
 msgstr ""
 
@@ -1627,6 +1636,9 @@ msgstr ""
 msgid "Loading Certificate Authority Details..."
 msgstr ""
 
+msgid "Loading Certificate Details..."
+msgstr ""
+
 msgid "Loading Certificates issued by Certificate Authority..."
 msgstr ""
 
@@ -1710,6 +1722,9 @@ msgstr "Zugriff verwalten - {flavorName}"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Zugriff für Image verwalten - {imageName}"
+
+msgid "Manage your Certificate"
+msgstr ""
 
 msgid "Manage your Private Certificate Authority infrastructure"
 msgstr ""
