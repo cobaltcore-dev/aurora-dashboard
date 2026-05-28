@@ -7,19 +7,6 @@
 
 import { describe, it, expect } from "vitest"
 
-// Skip these tests in CI/test environment due to Lingui macro compilation
-describe.skip("useObjectBrowser", () => {
-  // Tests would go here but are skipped due to Lingui macro requirements
-  // The hook logic is tested indirectly through component tests
-
-  it.todo("should initialize with empty prefix")
-  it.todo("should navigate to prefix")
-  it.todo("should navigate up")
-  it.todo("should create folder")
-  it.todo("should validate folder names")
-  it.todo("should reset state")
-})
-
 // Alternative: Test the validation logic directly (already covered in objectValidation.test.ts)
 // Alternative: Test through component integration tests
 describe("useObjectBrowser - indirect coverage", () => {

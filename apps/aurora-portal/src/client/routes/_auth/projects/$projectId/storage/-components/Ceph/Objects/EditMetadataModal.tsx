@@ -236,7 +236,9 @@ export const EditMetadataModal = ({
   }
 
   const handleCancelEdit = (index: number) => {
-    const orig = originalMetadataRef.current[index]
+    const currentEntry = metadata[index]
+    // Find original by uid, not by index (which shifts when rows are added/removed)
+    const orig = originalMetadataRef.current.find((e) => e.uid === currentEntry.uid)
     if (orig) {
       setMetadata((prev) => prev.map((e, i) => (i === index ? { ...orig, isEditing: false } : e)))
     } else {

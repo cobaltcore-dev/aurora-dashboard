@@ -8,7 +8,7 @@ import {
   PopupMenuItem,
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
@@ -48,6 +48,7 @@ export function ObjectsTableView({
   onEditMetadataSuccess,
   onEditMetadataError,
 }: ObjectsTableViewProps) {
+  const { t } = useLingui()
   const [deleteTarget, setDeleteTarget] = useState<{
     key: string
     size?: number
@@ -145,7 +146,7 @@ export function ObjectsTableView({
                   <PopupMenu>
                     <PopupMenuOptions>
                       <PopupMenuItem
-                        label="Delete"
+                        label={t`Delete`}
                         onClick={() =>
                           setDeleteTarget({
                             key: folder.prefix,
@@ -184,7 +185,7 @@ export function ObjectsTableView({
                   <PopupMenu>
                     <PopupMenuOptions>
                       <PopupMenuItem
-                        label="Copy"
+                        label={t`Copy`}
                         onClick={() =>
                           setCopyTarget({
                             key: obj.key,
@@ -193,7 +194,7 @@ export function ObjectsTableView({
                         }
                       />
                       <PopupMenuItem
-                        label="Move"
+                        label={t`Move`}
                         onClick={() =>
                           setMoveTarget({
                             key: obj.key,
@@ -201,9 +202,9 @@ export function ObjectsTableView({
                           })
                         }
                       />
-                      <PopupMenuItem label="Edit Metadata" onClick={() => setEditMetadataTarget(obj.key)} />
+                      <PopupMenuItem label={t`Edit Metadata`} onClick={() => setEditMetadataTarget(obj.key)} />
                       <PopupMenuItem
-                        label="Delete"
+                        label={t`Delete`}
                         onClick={() =>
                           setDeleteTarget({
                             key: obj.key,

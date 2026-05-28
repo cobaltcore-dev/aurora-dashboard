@@ -33,11 +33,14 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
   )
 
   const createFolderMutation = trpcReact.storage.ceph.objects.createFolder.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       // Invalidate all object list queries to refresh the view
       utils.storage.ceph.objects.list.invalidate()
-      const fullPath = currentPrefix + folderName.trim() + "/"
-      onSuccess(fullPath)
+      // Use the exact path that was submitted (with trailing slash for display)
+      const submittedFullPath = variables.folderPath.endsWith("/")
+        ? variables.folderPath
+        : `${variables.folderPath}/`
+      onSuccess(submittedFullPath)
       handleClose()
     },
   })

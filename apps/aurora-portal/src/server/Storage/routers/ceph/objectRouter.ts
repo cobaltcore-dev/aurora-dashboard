@@ -303,10 +303,11 @@ export const objectRouter = {
    * Move an object within or across buckets.
    *
    * Implemented as Copy + Delete. If the delete fails after a successful copy,
-   * logs a warning but still returns success (the object was copied successfully).
+   * throws an error to indicate the incomplete move (object exists in both locations).
    *
    * @throws TRPCError NOT_FOUND - source object or bucket does not exist
    * @throws TRPCError FORBIDDEN - no credentials or access denied
+   * @throws TRPCError INTERNAL_SERVER_ERROR - copy succeeded but delete failed
    */
   move: cephProtectedProcedure.input(moveObjectInputSchema).mutation(async ({ ctx, input }): Promise<boolean> => {
     const s3 = ctx.getCephClient!()
@@ -332,11 +333,17 @@ export const objectRouter = {
           })
         )
       } catch (deleteError) {
-        // Log but don't fail - the copy succeeded, which is the primary goal
+        // Log and throw - the move is incomplete (object exists in both locations)
         console.error("Move operation: copy succeeded but delete failed", {
           sourceBucket,
           sourceKey,
+          destinationBucket,
+          destinationKey,
           error: deleteError,
+        })
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Object was copied to ${destinationBucket}/${destinationKey} but failed to delete from source: ${deleteError instanceof Error ? deleteError.message : String(deleteError)}`,
         })
       }
 
@@ -377,7 +384,15 @@ export const objectRouter = {
       }
 
       try {
-        // Copy object to itself with new metadata
+        // Fetch current object details to preserve system headers
+        const headResponse = await s3.send(
+          new HeadObjectCommand({
+            Bucket: containerName,
+            Key: objectKey,
+          })
+        )
+
+        // Copy object to itself with new metadata, preserving system headers
         await s3.send(
           new CopyObjectCommand({
             CopySource: `/${containerName}/${encodeURIComponent(objectKey)}`,
@@ -385,6 +400,14 @@ export const objectRouter = {
             Key: objectKey,
             MetadataDirective: "REPLACE",
             Metadata: cleanedMetadata,
+            // Preserve system headers that would otherwise be lost with REPLACE
+            ContentType: headResponse.ContentType,
+            ContentEncoding: headResponse.ContentEncoding,
+            ContentDisposition: headResponse.ContentDisposition,
+            ContentLanguage: headResponse.ContentLanguage,
+            CacheControl: headResponse.CacheControl,
+            Expires: headResponse.Expires,
+            WebsiteRedirectLocation: headResponse.WebsiteRedirectLocation,
           })
         )
 

@@ -56,6 +56,8 @@ export const MoveObjectModal = ({
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
   const submittedKeyRef = useRef("")
+  const submittedTargetKeyRef = useRef("")
+  const submittedTargetBucketRef = useRef("")
 
   const [newObjectName, setNewObjectName] = useState("")
   const [newObjectNameError, setNewObjectNameError] = useState<string | null>(null)
@@ -157,8 +159,8 @@ export const MoveObjectModal = ({
   const deleteMutation = trpcReact.storage.ceph.objects.delete.useMutation({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
-      const targetKey = `${modalState.currentPrefix}${newObjectName.trim()}`
-      onSuccess?.(submittedKeyRef.current, modalState.targetBucket, targetKey)
+      // Use captured target values instead of recomputing from mutable state
+      onSuccess?.(submittedKeyRef.current, submittedTargetBucketRef.current, submittedTargetKeyRef.current)
     },
     onError: (error: { message: string }) => {
       onError?.(submittedKeyRef.current, error.message)
@@ -212,8 +214,12 @@ export const MoveObjectModal = ({
     }
 
     const trimmedName = newObjectName.trim()
-    submittedKeyRef.current = objectKey
     const targetKey = `${modalState.currentPrefix}${trimmedName}`
+
+    // Capture immutable values at submit time
+    submittedKeyRef.current = objectKey
+    submittedTargetKeyRef.current = targetKey
+    submittedTargetBucketRef.current = modalState.targetBucket
 
     copyMutation.mutate({
       project_id: projectId,
