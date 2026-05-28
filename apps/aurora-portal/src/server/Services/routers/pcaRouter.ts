@@ -8,6 +8,7 @@ import {
   CertificateAuthoritySchema,
   CertificateAuthorityIdInputSchema,
   CertificatesListSchema,
+  CertificateSchema,
   Certificate,
   CertificateAuthority,
   CertificateAuthorityResponseSchema,
@@ -140,7 +141,7 @@ export const pcaRouter = {
         const response = await pca.get(url)
         const data = await response.json()
 
-        return parseOrThrow(CertificateResponseSchema, data, "pcaRouter.getByIdCertificate").certificate
+        return parseOrThrow(CertificateSchema, data, "pcaRouter.getByIdCertificate")
       }, "get certificate details")
     }),
 }
