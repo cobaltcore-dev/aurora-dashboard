@@ -921,7 +921,7 @@ describe("objects.move", () => {
     expect(mockSend).toHaveBeenCalledTimes(2) // copy + delete
   })
 
-  it("succeeds even if delete fails after successful copy", async () => {
+  it("throws error if delete fails after successful copy", async () => {
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
     // Mock copy success
@@ -937,20 +937,26 @@ describe("objects.move", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.ceph.objects.move({
-      project_id: TEST_PROJECT_ID,
-      sourceBucket: TEST_BUCKET_NAME,
-      sourceKey: "source.txt",
-      destinationBucket: "other-bucket",
-      destinationKey: "dest.txt",
+    await expect(
+      caller.storage.ceph.objects.move({
+        project_id: TEST_PROJECT_ID,
+        sourceBucket: TEST_BUCKET_NAME,
+        sourceKey: "source.txt",
+        destinationBucket: "other-bucket",
+        destinationKey: "dest.txt",
+      })
+    ).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: expect.stringContaining("Object was copied to other-bucket/dest.txt but failed to delete from source"),
     })
 
-    expect(result).toBe(true)
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Move operation: copy succeeded but delete failed",
       expect.objectContaining({
         sourceBucket: TEST_BUCKET_NAME,
         sourceKey: "source.txt",
+        destinationBucket: "other-bucket",
+        destinationKey: "dest.txt",
       })
     )
 
@@ -1009,6 +1015,13 @@ describe("objects.updateMetadata", () => {
   })
 
   it("updates object metadata successfully", async () => {
+    // Mock HEAD to get current object state (to preserve system headers)
+    mockSend.mockResolvedValueOnce({
+      ContentType: "text/plain",
+      ContentEncoding: "gzip",
+      $metadata: { httpStatusCode: 200 },
+    })
+
     // Mock copy to self
     mockSend.mockResolvedValueOnce({
       $metadata: { httpStatusCode: 200 },
@@ -1065,18 +1078,21 @@ describe("objects.updateMetadata", () => {
             author: "Jane Doe",
             version: "2.0",
           },
+          ContentType: "text/plain",
+          ContentEncoding: "gzip",
         }),
       })
     )
   })
 
   it("strips x-amz-meta- prefix from user-provided keys", async () => {
-    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } })
+    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } }) // HEAD
+    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } }) // COPY
     mockSend.mockResolvedValueOnce({
       ContentLength: 512,
       Metadata: { customkey: "value" },
       $metadata: { httpStatusCode: 200 },
-    })
+    }) // HEAD
 
     const ctx = createMockContext()
     const caller = createCaller(ctx)
@@ -1102,12 +1118,13 @@ describe("objects.updateMetadata", () => {
   })
 
   it("handles empty metadata (clears all metadata)", async () => {
-    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } })
+    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } }) // HEAD
+    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } }) // COPY
     mockSend.mockResolvedValueOnce({
       ContentLength: 256,
       Metadata: {},
       $metadata: { httpStatusCode: 200 },
-    })
+    }) // HEAD
 
     const ctx = createMockContext()
     const caller = createCaller(ctx)

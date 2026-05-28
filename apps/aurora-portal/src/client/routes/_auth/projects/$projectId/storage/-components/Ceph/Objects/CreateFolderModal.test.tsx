@@ -28,6 +28,12 @@ vi.mock("@/client/trpcClient", () => ({
     storage: {
       ceph: {
         objects: {
+          list: {
+            useQuery: vi.fn(() => ({
+              data: { folders: [], objects: [] },
+              isLoading: false,
+            })),
+          },
           createFolder: {
             useMutation: vi.fn(() => ({
               mutate: mockMutate,
@@ -114,7 +120,7 @@ describe("CreateFolderModal", () => {
     await user.clear(input)
 
     await waitFor(() => {
-      expect(screen.getByText("Folder name cannot be empty")).toBeInTheDocument()
+      expect(screen.getByText("Folder name is required")).toBeInTheDocument()
     })
   })
 
@@ -131,15 +137,15 @@ describe("CreateFolderModal", () => {
     })
   })
 
-  it("validates invalid characters", async () => {
+  it("validates slashes in folder name", async () => {
     const user = userEvent.setup()
     render(<CreateFolderModal {...defaultProps} />)
 
     const input = screen.getByLabelText("Folder Name")
-    await user.type(input, "folder<>name")
+    await user.type(input, "folder/name")
 
     await waitFor(() => {
-      expect(screen.getByText("Folder name contains invalid characters")).toBeInTheDocument()
+      expect(screen.getByText("Folder name cannot contain slashes")).toBeInTheDocument()
     })
   })
 
@@ -151,7 +157,7 @@ describe("CreateFolderModal", () => {
     await user.type(input, "/folder/")
 
     await waitFor(() => {
-      expect(screen.getByText("Folder name cannot start or end with /")).toBeInTheDocument()
+      expect(screen.getByText("Folder name cannot contain slashes")).toBeInTheDocument()
     })
   })
 
