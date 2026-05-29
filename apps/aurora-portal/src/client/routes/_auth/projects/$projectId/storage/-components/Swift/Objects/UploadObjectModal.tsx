@@ -1,6 +1,6 @@
 import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Stack, Message, Spinner } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { MdCloudUpload } from "react-icons/md"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { cn } from "@/client/utils/cn"
@@ -200,6 +200,22 @@ export const UploadObjectModal = ({
       disableCloseButton={isPending}
     >
       <Stack direction="vertical" gap="4">
+        {/* Upload error */}
+        {uploadError && (
+          <p className="text-theme-error">
+            <Trans>Upload failed: {uploadError}</Trans>
+          </p>
+        )}
+
+        {/* Object path preview */}
+        {selectedFile && !isPending && (
+          <p className="text-theme-default">
+            <Trans>
+              Object will be uploaded as: <span className="font-mono font-semibold">{selectedObjectName}</span>
+            </Trans>
+          </p>
+        )}
+
         {/* File drop zone — mirrors CreateImageModal pattern */}
         <div>
           <label
@@ -287,22 +303,6 @@ export const UploadObjectModal = ({
               </div>
             )}
           </div>
-        )}
-
-        {/* Object path preview */}
-        {selectedFile && !isPending && (
-          <Message variant="info">
-            <Trans>
-              Object will be uploaded as: <span className="font-mono font-semibold">{selectedObjectName}</span>
-            </Trans>
-          </Message>
-        )}
-
-        {/* Upload error */}
-        {uploadError && (
-          <Message variant="danger">
-            <Trans>Upload failed: {uploadError}</Trans>
-          </Message>
         )}
       </Stack>
     </Modal>

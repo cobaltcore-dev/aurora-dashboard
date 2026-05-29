@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Message, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, Checkbox } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
 
@@ -111,11 +111,17 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
+      confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={isLoading || isPending}
+      disableConfirmButton={isLoading || isPending || !!metadataError}
     >
+      {metadataError && (
+        <p className="text-theme-error mb-4">
+          <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
+        </p>
+      )}
       {isPending ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
           <Spinner size="small" />
@@ -126,50 +132,40 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
           <Spinner size="small" />
           <Trans>Loading object info...</Trans>
         </Stack>
-      ) : metadataError ? (
-        <Message variant="danger">
-          <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
-        </Message>
-      ) : (
+      ) : !metadataError ? (
         <Stack direction="vertical" gap="4">
-          <Message variant="warning">
+          <p className="text-theme-default">
             <Trans>
-              <strong>Are you sure?</strong> Object <span className="font-mono font-semibold">"{displayName}"</span>{" "}
-              will be permanently deleted. This cannot be undone.
+              Object <span className="font-mono font-semibold">"{displayName}"</span> will be permanently deleted. This
+              cannot be undone.
             </Trans>
-          </Message>
+          </p>
           {isSLO && (
             <>
-              <Message variant="info">
+              <p className="text-theme-default">
                 <Trans>
                   This is a <strong>static large object</strong>. By default, all associated segment objects will also
                   be permanently deleted.
                 </Trans>
-              </Message>
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={keepSegments}
-                  onChange={(e) => setKeepSegments(e.target.checked)}
-                  className="h-4 w-4"
-                />
-                <span className="text-sm">
-                  <Trans>Keep segments (delete manifest only)</Trans>
-                </span>
-              </label>
+              </p>
+              <Checkbox
+                label={t`Keep segments (delete manifest only)`}
+                checked={keepSegments}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setKeepSegments(e.target.checked)}
+              />
             </>
           )}
           {isDLO && (
-            <Message variant="info">
+            <p className="text-theme-default">
               <Trans>
                 This is a <strong>dynamic large object</strong>. Only the manifest will be deleted — its segment objects
                 (stored under the manifest prefix) are <strong>not</strong> automatically removed and must be deleted
                 separately.
               </Trans>
-            </Message>
+            </p>
           )}
         </Stack>
-      )}
+      ) : null}
     </Modal>
   )
 }

@@ -2,16 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import {
-  Modal,
-  Stack,
-  Spinner,
-  ComboBox,
-  ComboBoxOption,
-  TextInput,
-  Message,
-  Button,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, ComboBox, ComboBoxOption, TextInput, Button } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
 import { useVirtualizer } from "@tanstack/react-virtual"
@@ -372,19 +363,38 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
+          {(copyMutation.isError || deleteMutation.isError) &&
+            (() => {
+              const copyErrorMessage = copyMutation.error?.message ?? ""
+              const deleteErrorMessage = deleteMutation.error?.message ?? ""
+              return (
+                <p className="text-theme-error">
+                  {copyMutation.isError ? (
+                    <Trans>Failed to move object: {copyErrorMessage}</Trans>
+                  ) : (
+                    <Trans>Object was copied but could not be deleted from the source: {deleteErrorMessage}</Trans>
+                  )}
+                </p>
+              )
+            })()}
+
           {/* New object name */}
-          <TextInput
-            label={t`New object name`}
-            value={newObjectName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setNewObjectName(e.target.value)
-              if (newObjectNameError) setNewObjectNameError(null)
-            }}
-            invalid={!!newObjectNameError}
-            errortext={newObjectNameError ?? undefined}
-            helptext={t`You can rename the object by changing the name here.`}
-            required
-          />
+          <div>
+            <p className="text-theme-light mb-1">
+              <Trans>You can rename the object by changing the name here.</Trans>
+            </p>
+            <TextInput
+              label={t`New object name`}
+              value={newObjectName}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setNewObjectName(e.target.value)
+                if (newObjectNameError) setNewObjectNameError(null)
+              }}
+              invalid={!!newObjectNameError}
+              errortext={newObjectNameError ?? undefined}
+              required
+            />
+          </div>
 
           {/* Target container */}
           <ComboBox
@@ -551,28 +561,12 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
           </div>
 
           {/* Read-only target path preview */}
-          <TextInput
-            label={t`Target path`}
-            value={targetPathDisplay}
-            readOnly
-            className="font-mono"
-            helptext={t`The object will be moved to this path. Navigate folders above to change the destination.`}
-          />
-
-          {(copyMutation.isError || deleteMutation.isError) &&
-            (() => {
-              const copyErrorMessage = copyMutation.error?.message ?? ""
-              const deleteErrorMessage = deleteMutation.error?.message ?? ""
-              return (
-                <Message variant="danger">
-                  {copyMutation.isError ? (
-                    <Trans>Failed to move object: {copyErrorMessage}</Trans>
-                  ) : (
-                    <Trans>Object was copied but could not be deleted from the source: {deleteErrorMessage}</Trans>
-                  )}
-                </Message>
-              )
-            })()}
+          <div>
+            <p className="text-theme-light mb-1">
+              <Trans>The object will be moved to this path. Navigate folders above to change the destination.</Trans>
+            </p>
+            <TextInput label={t`Target path`} value={targetPathDisplay} readOnly className="font-mono" />
+          </div>
         </Stack>
       )}
     </Modal>

@@ -2,16 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import {
-  Modal,
-  Stack,
-  Spinner,
-  ComboBox,
-  ComboBoxOption,
-  TextInput,
-  Message,
-  Button,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, ComboBox, ComboBoxOption, TextInput, Button } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
 import { useVirtualizer } from "@tanstack/react-virtual"
@@ -319,6 +310,16 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
+          {copyMutation.isError &&
+            (() => {
+              const errorMessage = copyMutation.error.message
+              return (
+                <p className="text-theme-error text-sm">
+                  <Trans>Failed to copy object: {errorMessage}</Trans>
+                </p>
+              )
+            })()}
+
           {/* Target container — ComboBox with debounced search to handle large lists */}
           <ComboBox
             label={t`Target container`}
@@ -485,13 +486,12 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
           </div>
 
           {/* Read-only target path */}
-          <TextInput
-            label={t`Target path`}
-            value={targetPathDisplay}
-            readOnly
-            className="font-mono"
-            helptext={t`The object will be copied to this path. Navigate folders above to change the destination.`}
-          />
+          <div>
+            <p className="text-theme-light mb-1">
+              <Trans>The object will be copied to this path. Navigate folders above to change the destination.</Trans>
+            </p>
+            <TextInput label={t`Target path`} value={targetPathDisplay} readOnly className="font-mono" />
+          </div>
 
           {/* Copy metadata checkbox */}
           <label className="flex cursor-pointer items-center gap-2">
@@ -505,16 +505,6 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
               <Trans>Copy metadata</Trans>
             </span>
           </label>
-
-          {copyMutation.isError &&
-            (() => {
-              const errorMessage = copyMutation.error.message
-              return (
-                <Message variant="danger">
-                  <Trans>Failed to copy object: {errorMessage}</Trans>
-                </Message>
-              )
-            })()}
         </Stack>
       )}
     </Modal>

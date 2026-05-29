@@ -180,19 +180,19 @@ describe("EditObjectMetadataModal", () => {
   describe("Visibility", () => {
     test("renders nothing when isOpen is false", () => {
       renderModal({ isOpen: false })
-      expect(screen.queryByText(/Properties of/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Edit metadata:/i)).not.toBeInTheDocument()
     })
 
     test("renders nothing when object is null", () => {
       renderModal({ object: null })
-      expect(screen.queryByText(/Properties of/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Edit metadata:/i)).not.toBeInTheDocument()
     })
 
     test("renders modal title with object display name", async () => {
       mockObjectMetadata = makeObjectMetadata()
       renderModal()
       await flushEffects()
-      expect(screen.getByText("Properties of")).toBeInTheDocument()
+      expect(screen.getByText("Edit metadata:")).toBeInTheDocument()
       expect(screen.getByText("sample.txt")).toBeInTheDocument()
     })
   })
@@ -324,27 +324,23 @@ describe("EditObjectMetadataModal", () => {
       await user.type(screen.getByLabelText(/Expires at/i), "not-a-date")
       act(() => vi.advanceTimersByTime(700))
       await waitFor(() => {
-        expect(screen.getByText(/Expected format: YYYY-MM-DD HH:MM:SS/i)).toBeInTheDocument()
+        expect(screen.getByText(/Expected format: YYYY-MM-DD HH:mm:ss/i)).toBeInTheDocument()
       })
       vi.useRealTimers()
     }, 10000)
 
-    test("shows helptext when user has typed something", async () => {
+    test("always shows helper text above expires at input", async () => {
       mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
       renderModal()
       await flushEffects()
-      await user.type(screen.getByLabelText(/Expires at/i), "2026")
-      await waitFor(() => {
-        expect(screen.getByText(/Enter a timestamp like/i)).toBeInTheDocument()
-      })
+      expect(screen.getByText(/Enter a timestamp like/i)).toBeInTheDocument()
     })
 
-    test("does not show helptext when field is empty", async () => {
+    test("shows helper text even when field is empty", async () => {
       mockObjectMetadata = makeObjectMetadata({ deleteAt: undefined })
       renderModal()
       await flushEffects()
-      expect(screen.queryByText(/Enter a timestamp like/i)).not.toBeInTheDocument()
+      expect(screen.getByText(/Enter a timestamp like/i)).toBeInTheDocument()
     })
 
     test("blocks submission when expires at format is invalid", async () => {

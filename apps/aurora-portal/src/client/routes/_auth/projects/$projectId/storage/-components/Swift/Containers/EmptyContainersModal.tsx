@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Message, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -81,6 +81,7 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}
+      confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
       onConfirm={handleConfirm}
       disableConfirmButton={isPending}
@@ -101,17 +102,14 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
         </Stack>
       ) : (
         <div className="my-6">
-          <Message variant="warning" className="mb-6">
-            <Trans>
-              <strong>Are you sure?</strong> All objects in the selected containers will be permanently deleted. This
-              cannot be undone.
-            </Trans>
+          <p className="text-theme-default mb-6">
+            <Trans>All objects in the selected containers will be permanently deleted. This cannot be undone.</Trans>
             <br />
             <Trans>
               Please note: for <strong>dynamic</strong> and <strong>static large objects</strong> only the manifests are
               deleted. The related segments are not deleted.
             </Trans>
-          </Message>
+          </p>
 
           <div className="mb-6">
             <h3 className="jn:text-theme-high mb-3 font-semibold">

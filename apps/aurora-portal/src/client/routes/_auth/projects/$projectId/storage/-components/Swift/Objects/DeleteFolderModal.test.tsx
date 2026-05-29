@@ -156,16 +156,13 @@ describe("DeleteFolderModal", () => {
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
     })
 
-    test("renders warning message with folder name", () => {
+    test("renders plain text warning with folder name", () => {
       renderModal()
-      expect(screen.getByText(/Are you sure\?/i)).toBeInTheDocument()
-      // The folder name appears in the warning body as "documents" inside a <span>
       expect(screen.getByText(/permanently deleted/i)).toBeInTheDocument()
       expect(screen.getByText(/"documents"/)).toBeInTheDocument()
-      expect(screen.getByText(/permanently deleted/i)).toBeInTheDocument()
     })
 
-    test("renders SLO/DLO segments info message", () => {
+    test("renders SLO/DLO segments plain text note", () => {
       renderModal()
       expect(screen.getByText(/static and dynamic large objects/i)).toBeInTheDocument()
       expect(screen.getByText(/only the manifests are deleted/i)).toBeInTheDocument()
