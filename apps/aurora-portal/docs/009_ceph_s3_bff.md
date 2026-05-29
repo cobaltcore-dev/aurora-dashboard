@@ -146,10 +146,18 @@ storage.ceph
   ├── containers
   │   ├── status()      → { hasCredentials: boolean }
   │   ├── list()        → Container[]
-  │   └── getDetails()  → ContainerDetails
+  │   ├── getDetails()  → ContainerDetails
+  │   ├── create()      → { success: boolean }
+  │   ├── delete()      → { success: boolean }
+  │   └── empty()       → { success: boolean, deletedCount: number }
   └── objects
-      ├── list()        → { objects, folders, isTruncated, nextContinuationToken }
-      └── getDetails()  → S3ObjectDetails
+      ├── list()            → { objects, folders, isTruncated, nextContinuationToken }
+      ├── getDetails()      → S3ObjectDetails
+      ├── delete()          → { success: boolean }
+      ├── createFolder()    → { success: boolean }
+      ├── copy()            → { success: boolean, etag?: string }
+      ├── move()            → { success: boolean, etag?: string }
+      └── updateMetadata()  → { success: boolean }
 ```
 
 ## Available Procedures
@@ -370,6 +378,122 @@ const details = await trpc.storage.ceph.containers.getDetails.query({
 
 ---
 
+#### `create`
+
+Creates a new S3 bucket (container) with the specified name.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  containerName: string
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+}
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.containers.create.mutate({
+  project_id: "abc123",
+  containerName: "my-new-bucket",
+})
+```
+
+**Validation:**
+
+- Bucket names must be between 3-63 characters
+- Can contain lowercase letters, numbers, hyphens, and periods
+- Must start and end with a letter or number
+- Cannot contain consecutive periods or hyphens
+- Cannot be formatted as an IP address
+
+---
+
+#### `delete`
+
+Deletes an empty S3 bucket. Throws `PRECONDITION_FAILED` error if the bucket contains objects.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  containerName: string
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+}
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.containers.delete.mutate({
+  project_id: "abc123",
+  containerName: "old-bucket",
+})
+```
+
+**Note:** The bucket must be empty before deletion. Use `containers.empty` to delete all objects first if needed.
+
+---
+
+#### `empty`
+
+Deletes all objects in a bucket (bulk delete operation). Useful before deleting the bucket itself.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  containerName: string
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+  deletedCount: number // Number of objects deleted
+}
+```
+
+**Example:**
+
+```typescript
+const result = await trpc.storage.ceph.containers.empty.mutate({
+  project_id: "abc123",
+  containerName: "my-bucket",
+})
+
+console.log(`Deleted ${result.deletedCount} objects`)
+```
+
+**Behavior:**
+
+- Iterates through all objects in the bucket using pagination
+- Deletes objects in batches using S3 `DeleteObjects` command (up to 1000 per batch)
+- Returns total count of deleted objects
+- If deletion fails for some objects, throws error with details
+
+---
+
 ### Objects (`storage.ceph.objects`)
 
 #### `list`
@@ -501,6 +625,217 @@ console.log(details)
 //   lastModified: "2024-03-15T14:22:00.000Z"
 // }
 ```
+
+---
+
+#### `delete`
+
+Deletes a specific object from a container (S3 `DeleteObject` operation).
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  containerName: string,
+  objectKey: string
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+}
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.objects.delete.mutate({
+  project_id: "abc123",
+  containerName: "my-bucket",
+  objectKey: "documents/old-report.pdf",
+})
+```
+
+---
+
+#### `createFolder`
+
+Creates a pseudo-folder by uploading a zero-byte object with a trailing `/` (S3 `PutObject` operation).
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  containerName: string,
+  folderKey: string  // Must end with "/"
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+}
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.objects.createFolder.mutate({
+  project_id: "abc123",
+  containerName: "my-bucket",
+  folderKey: "new-folder/",
+})
+```
+
+**Note:** S3 folders are pseudo-directories implemented as zero-byte objects with keys ending in `/`.
+
+---
+
+#### `copy`
+
+Copies an object to a new location within the same bucket or to a different bucket (S3 `CopyObject` operation).
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  sourceBucket: string,
+  sourceKey: string,
+  destinationBucket: string,
+  destinationKey: string,
+  overwrite?: boolean  // Default: false
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+  etag?: string
+}
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.objects.copy.mutate({
+  project_id: "abc123",
+  sourceBucket: "my-bucket",
+  sourceKey: "documents/report.pdf",
+  destinationBucket: "my-bucket",
+  destinationKey: "archive/report-2024.pdf",
+  overwrite: false,
+})
+```
+
+**Behavior:**
+
+- If `overwrite: false` and destination exists, throws `CONFLICT` error
+- If `overwrite: true`, replaces existing object at destination
+- Source object remains unchanged (copy, not move)
+
+---
+
+#### `move`
+
+Moves an object by copying it to a new location and deleting the source (composite operation: `CopyObject` + `DeleteObject`).
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  sourceBucket: string,
+  sourceKey: string,
+  destinationBucket: string,
+  destinationKey: string,
+  overwrite?: boolean  // Default: false
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+  etag?: string
+}
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.objects.move.mutate({
+  project_id: "abc123",
+  sourceBucket: "my-bucket",
+  sourceKey: "temp/draft.pdf",
+  destinationBucket: "my-bucket",
+  destinationKey: "final/published.pdf",
+  overwrite: false,
+})
+```
+
+**Behavior:**
+
+- Copies the object to destination first
+- Only deletes source if copy succeeds
+- If copy fails, source remains unchanged (atomic operation)
+- If `overwrite: false` and destination exists, throws `CONFLICT` error before copying
+
+---
+
+#### `updateMetadata`
+
+Updates custom metadata on an object by copying it to itself with new metadata (S3 `CopyObject` with `REPLACE` metadata directive).
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  containerName: string,
+  objectKey: string,
+  metadata: Record<string, string>  // Custom metadata (x-amz-meta-* headers)
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+}
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.objects.updateMetadata.mutate({
+  project_id: "abc123",
+  containerName: "my-bucket",
+  objectKey: "documents/report.pdf",
+  metadata: {
+    author: "John Doe",
+    department: "Engineering",
+    version: "2.0",
+  },
+})
+```
+
+**Note:**
+
+- Metadata keys are automatically prefixed with `x-amz-meta-` by S3
+- This operation does not re-upload the object content
+- Only metadata is changed; ETag remains the same
 
 ---
 
@@ -823,6 +1158,7 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
 1. **Bucket Management**
    - ~~Create bucket (`CreateBucketCommand`)~~ ✅ Implemented
    - ~~Delete bucket (`DeleteBucketCommand`)~~ ✅ Implemented
+   - ~~Empty bucket (bulk delete all objects)~~ ✅ Implemented
    - Configure bucket policies, CORS, lifecycle rules
 
 2. **Object Upload/Download**
@@ -832,9 +1168,11 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
    - Multipart uploads for large files
 
 3. **Object Manipulation**
-   - Delete object (`DeleteObjectCommand`)
-   - Copy object (`CopyObjectCommand`)
-   - Update object metadata
+   - ~~Delete object (`DeleteObjectCommand`)~~ ✅ Implemented
+   - ~~Copy object (`CopyObjectCommand`)~~ ✅ Implemented
+   - ~~Move object (Copy + Delete)~~ ✅ Implemented
+   - ~~Update object metadata~~ ✅ Implemented
+   - ~~Create folder (zero-byte object with trailing `/`)~~ ✅ Implemented
    - Bulk delete operations
 
 4. **Presigned URLs**
@@ -854,6 +1192,7 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
 - **No S3 client pooling:** A new client is instantiated per request
 - **No multipart upload support:** Large file uploads may timeout
 - **No presigned URL generation:** All operations must go through the BFF
+- **No bulk delete support:** Objects must be deleted one at a time (can be slow for large folders)
 
 ---
 
@@ -1052,11 +1391,12 @@ openstack endpoint list --service ceph
 
 1. **Implement object upload/download** — streaming via `octetInputParser` / async iterables (similar to Swift BFF)
 2. **Add presigned URL generation** — allow direct client → Ceph transfers for large files
-3. **Implement bucket management** — create, delete, configure buckets
+3. ~~**Implement bucket management**~~ ✅ Completed — create, delete, empty buckets
 4. **Add credential caching** — reduce Keystone API calls
 5. **Implement multipart uploads** — for large files (>100 MB)
-6. **Add object manipulation** — delete, copy, update metadata
+6. ~~**Add object manipulation**~~ ✅ Completed — delete, copy, move, update metadata, create folders
 7. **Add bucket policies** — manage access control at bucket level
 8. **Implement server-side encryption** — SSE-S3, SSE-C
 9. **Add object tagging** — for metadata and lifecycle management
 10. **Add access logging** — track S3 API usage
+11. **Implement bulk delete operations** — for efficient multi-object deletion

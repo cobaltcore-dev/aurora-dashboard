@@ -552,3 +552,624 @@ describe("objects.deleteAll", () => {
     ).rejects.toMatchObject({ code: "NOT_FOUND" })
   })
 })
+
+// ============================================================================
+// objects.delete
+// ============================================================================
+
+describe("objects.delete", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("successfully deletes an object", async () => {
+    mockSend.mockResolvedValue({
+      $metadata: { httpStatusCode: 204 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.delete({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: TEST_OBJECT_KEY,
+    })
+
+    expect(result).toBe(true)
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          Bucket: TEST_BUCKET_NAME,
+          Key: TEST_OBJECT_KEY,
+        }),
+      })
+    )
+  })
+
+  it("succeeds when deleting non-existent object (idempotent)", async () => {
+    mockSend.mockResolvedValue({
+      $metadata: { httpStatusCode: 204 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.delete({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "nonexistent.txt",
+    })
+
+    expect(result).toBe(true)
+  })
+
+  it("throws NOT_FOUND when bucket does not exist", async () => {
+    const s3Error = Object.assign(new Error("NoSuchBucket"), { Code: "NoSuchBucket" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.delete({
+        project_id: TEST_PROJECT_ID,
+        containerName: "nonexistent",
+        objectKey: TEST_OBJECT_KEY,
+      })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+
+  it("throws FORBIDDEN when access is denied", async () => {
+    const s3Error = Object.assign(new Error("Access denied"), { Code: "AccessDenied" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.delete({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKey: TEST_OBJECT_KEY,
+      })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" })
+  })
+})
+
+// ============================================================================
+// objects.createFolder
+// ============================================================================
+
+describe("objects.createFolder", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("creates a folder with trailing slash", async () => {
+    mockSend.mockResolvedValue({
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.createFolder({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      folderPath: "documents/reports/",
+    })
+
+    expect(result).toBe(true)
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          Bucket: TEST_BUCKET_NAME,
+          Key: "documents/reports/",
+          Body: expect.any(Buffer),
+          ContentLength: 0,
+        }),
+      })
+    )
+  })
+
+  it("normalizes folder path without trailing slash", async () => {
+    mockSend.mockResolvedValue({
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.createFolder({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      folderPath: "documents/reports",
+    })
+
+    expect(result).toBe(true)
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          Key: "documents/reports/",
+        }),
+      })
+    )
+  })
+
+  it("succeeds when folder already exists (idempotent)", async () => {
+    mockSend.mockResolvedValue({
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.createFolder({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      folderPath: "existing-folder/",
+    })
+
+    expect(result).toBe(true)
+  })
+
+  it("throws NOT_FOUND when bucket does not exist", async () => {
+    const s3Error = Object.assign(new Error("NoSuchBucket"), { Code: "NoSuchBucket" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.createFolder({
+        project_id: TEST_PROJECT_ID,
+        containerName: "nonexistent",
+        folderPath: "test/",
+      })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+})
+
+// ============================================================================
+// objects.copy
+// ============================================================================
+
+describe("objects.copy", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("copies object with metadata", async () => {
+    mockSend.mockResolvedValue({
+      CopyObjectResult: {
+        ETag: '"new-etag-123"',
+        LastModified: TEST_LAST_MODIFIED,
+      },
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.copy({
+      project_id: TEST_PROJECT_ID,
+      sourceBucket: TEST_BUCKET_NAME,
+      sourceKey: "source.txt",
+      destinationBucket: TEST_BUCKET_NAME,
+      destinationKey: "destination.txt",
+      copyMetadata: true,
+    })
+
+    expect(result).toEqual({
+      key: "destination.txt",
+      etag: '"new-etag-123"',
+      lastModified: TEST_LAST_MODIFIED.toISOString(),
+    })
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          CopySource: `/${TEST_BUCKET_NAME}/source.txt`,
+          Bucket: TEST_BUCKET_NAME,
+          Key: "destination.txt",
+          MetadataDirective: "COPY",
+        }),
+      })
+    )
+  })
+
+  it("copies object without metadata", async () => {
+    mockSend.mockResolvedValue({
+      CopyObjectResult: {
+        ETag: '"new-etag-456"',
+        LastModified: TEST_LAST_MODIFIED,
+      },
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.storage.ceph.objects.copy({
+      project_id: TEST_PROJECT_ID,
+      sourceBucket: TEST_BUCKET_NAME,
+      sourceKey: "source.txt",
+      destinationBucket: "other-bucket",
+      destinationKey: "destination.txt",
+      copyMetadata: false,
+    })
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          MetadataDirective: "REPLACE",
+        }),
+      })
+    )
+  })
+
+  it("handles cross-bucket copy", async () => {
+    mockSend.mockResolvedValue({
+      CopyObjectResult: {
+        ETag: '"cross-bucket-etag"',
+        LastModified: TEST_LAST_MODIFIED,
+      },
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.copy({
+      project_id: TEST_PROJECT_ID,
+      sourceBucket: "bucket-a",
+      sourceKey: "file.txt",
+      destinationBucket: "bucket-b",
+      destinationKey: "file-copy.txt",
+    })
+
+    expect(result.key).toBe("file-copy.txt")
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          CopySource: "/bucket-a/file.txt",
+          Bucket: "bucket-b",
+        }),
+      })
+    )
+  })
+
+  it("throws NOT_FOUND when source object does not exist", async () => {
+    const s3Error = Object.assign(new Error("NoSuchKey"), { Code: "NoSuchKey" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.copy({
+        project_id: TEST_PROJECT_ID,
+        sourceBucket: TEST_BUCKET_NAME,
+        sourceKey: "nonexistent.txt",
+        destinationBucket: TEST_BUCKET_NAME,
+        destinationKey: "dest.txt",
+      })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+
+  it("encodes source key with special characters", async () => {
+    mockSend.mockResolvedValue({
+      CopyObjectResult: { ETag: '"encoded-etag"', LastModified: TEST_LAST_MODIFIED },
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.storage.ceph.objects.copy({
+      project_id: TEST_PROJECT_ID,
+      sourceBucket: TEST_BUCKET_NAME,
+      sourceKey: "file with spaces.txt",
+      destinationBucket: TEST_BUCKET_NAME,
+      destinationKey: "dest.txt",
+    })
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          CopySource: expect.stringContaining("file%20with%20spaces.txt"),
+        }),
+      })
+    )
+  })
+})
+
+// ============================================================================
+// objects.move
+// ============================================================================
+
+describe("objects.move", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("moves object successfully (copy + delete)", async () => {
+    // Mock copy
+    mockSend.mockResolvedValueOnce({
+      CopyObjectResult: { ETag: '"moved-etag"', LastModified: TEST_LAST_MODIFIED },
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    // Mock delete
+    mockSend.mockResolvedValueOnce({
+      $metadata: { httpStatusCode: 204 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.move({
+      project_id: TEST_PROJECT_ID,
+      sourceBucket: TEST_BUCKET_NAME,
+      sourceKey: "old-location.txt",
+      destinationBucket: TEST_BUCKET_NAME,
+      destinationKey: "new-location.txt",
+    })
+
+    expect(result).toBe(true)
+    expect(mockSend).toHaveBeenCalledTimes(2) // copy + delete
+  })
+
+  it("throws error if delete fails after successful copy", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+
+    // Mock copy success
+    mockSend.mockResolvedValueOnce({
+      CopyObjectResult: { ETag: '"moved-etag"', LastModified: TEST_LAST_MODIFIED },
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    // Mock delete failure
+    const deleteError = Object.assign(new Error("AccessDenied"), { Code: "AccessDenied" })
+    mockSend.mockRejectedValueOnce(deleteError)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.move({
+        project_id: TEST_PROJECT_ID,
+        sourceBucket: TEST_BUCKET_NAME,
+        sourceKey: "source.txt",
+        destinationBucket: "other-bucket",
+        destinationKey: "dest.txt",
+      })
+    ).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: expect.stringContaining("Object was copied to other-bucket/dest.txt but failed to delete from source"),
+    })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Move operation: copy succeeded but delete failed",
+      expect.objectContaining({
+        sourceBucket: TEST_BUCKET_NAME,
+        sourceKey: "source.txt",
+        destinationBucket: "other-bucket",
+        destinationKey: "dest.txt",
+      })
+    )
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it("throws NOT_FOUND when source does not exist", async () => {
+    const s3Error = Object.assign(new Error("NoSuchKey"), { Code: "NoSuchKey" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.move({
+        project_id: TEST_PROJECT_ID,
+        sourceBucket: TEST_BUCKET_NAME,
+        sourceKey: "nonexistent.txt",
+        destinationBucket: TEST_BUCKET_NAME,
+        destinationKey: "dest.txt",
+      })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+
+  it("handles cross-bucket move", async () => {
+    mockSend.mockResolvedValueOnce({
+      CopyObjectResult: { ETag: '"cross-etag"', LastModified: TEST_LAST_MODIFIED },
+      $metadata: { httpStatusCode: 200 },
+    })
+    mockSend.mockResolvedValueOnce({
+      $metadata: { httpStatusCode: 204 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.move({
+      project_id: TEST_PROJECT_ID,
+      sourceBucket: "bucket-a",
+      sourceKey: "file.txt",
+      destinationBucket: "bucket-b",
+      destinationKey: "file.txt",
+    })
+
+    expect(result).toBe(true)
+  })
+})
+
+// ============================================================================
+// objects.updateMetadata
+// ============================================================================
+
+describe("objects.updateMetadata", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("updates object metadata successfully", async () => {
+    // Mock HEAD to get current object state (to preserve system headers)
+    mockSend.mockResolvedValueOnce({
+      ContentType: "text/plain",
+      ContentEncoding: "gzip",
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    // Mock copy to self
+    mockSend.mockResolvedValueOnce({
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    // Mock HEAD to get updated metadata
+    mockSend.mockResolvedValueOnce({
+      ContentLength: 1024,
+      LastModified: TEST_LAST_MODIFIED,
+      ETag: '"updated-etag"',
+      ContentType: "text/plain",
+      StorageClass: "STANDARD",
+      Metadata: {
+        author: "Jane Doe",
+        version: "2.0",
+      },
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.updateMetadata({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "document.txt",
+      metadata: {
+        author: "Jane Doe",
+        version: "2.0",
+      },
+    })
+
+    expect(result).toEqual({
+      key: "document.txt",
+      size: 1024,
+      lastModified: TEST_LAST_MODIFIED.toISOString(),
+      etag: '"updated-etag"',
+      contentType: "text/plain",
+      storageClass: "STANDARD",
+      metadata: {
+        author: "Jane Doe",
+        version: "2.0",
+      },
+    })
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          CopySource: `/${TEST_BUCKET_NAME}/document.txt`,
+          Bucket: TEST_BUCKET_NAME,
+          Key: "document.txt",
+          MetadataDirective: "REPLACE",
+          Metadata: {
+            author: "Jane Doe",
+            version: "2.0",
+          },
+          ContentType: "text/plain",
+          ContentEncoding: "gzip",
+        }),
+      })
+    )
+  })
+
+  it("strips x-amz-meta- prefix from user-provided keys", async () => {
+    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } }) // HEAD
+    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } }) // COPY
+    mockSend.mockResolvedValueOnce({
+      ContentLength: 512,
+      Metadata: { customkey: "value" },
+      $metadata: { httpStatusCode: 200 },
+    }) // HEAD
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.storage.ceph.objects.updateMetadata({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "file.txt",
+      metadata: {
+        "x-amz-meta-customkey": "value",
+      },
+    })
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          Metadata: {
+            customkey: "value", // prefix stripped
+          },
+        }),
+      })
+    )
+  })
+
+  it("handles empty metadata (clears all metadata)", async () => {
+    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } }) // HEAD
+    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } }) // COPY
+    mockSend.mockResolvedValueOnce({
+      ContentLength: 256,
+      Metadata: {},
+      $metadata: { httpStatusCode: 200 },
+    }) // HEAD
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.updateMetadata({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "file.txt",
+      metadata: {},
+    })
+
+    expect(result.metadata).toEqual({})
+  })
+
+  it("throws NOT_FOUND when object does not exist", async () => {
+    const s3Error = Object.assign(new Error("NoSuchKey"), { Code: "NoSuchKey" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.updateMetadata({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKey: "nonexistent.txt",
+        metadata: { key: "value" },
+      })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+
+  it("throws NOT_FOUND when bucket does not exist", async () => {
+    const s3Error = Object.assign(new Error("NoSuchBucket"), { Code: "NoSuchBucket" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.updateMetadata({
+        project_id: TEST_PROJECT_ID,
+        containerName: "nonexistent",
+        objectKey: "file.txt",
+        metadata: { key: "value" },
+      })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+})

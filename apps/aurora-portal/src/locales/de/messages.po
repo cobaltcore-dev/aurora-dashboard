@@ -22,6 +22,15 @@ msgstr "—"
 msgid "... and {hiddenCount} more"
 msgstr "... und {hiddenCount} weitere"
 
+msgid "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
+msgstr ""
+
+msgid "\"{displayName}\" was successfully copied to {destination}."
+msgstr ""
+
+msgid "\"{displayName}\" was successfully moved to {destination}."
+msgstr ""
+
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" wurde erfolgreich nach {destination} kopiert."
 
@@ -93,6 +102,9 @@ msgstr "<0>Optimierte Skalierbarkeit:</0> Aurora ist für Unternehmen jeder Grö
 
 msgid "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
 msgstr "<0>Bitte beachten Sie:</0> Für <1>dynamische</1> und <2>statische große Objekte</2> werden nur die Manifeste gelöscht. Die zugehörigen Segmente werden nicht gelöscht."
+
+msgid "<0>Properties of</0> <1>{displayName}</1>"
+msgstr ""
 
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Sicher & Zuverlässig:</0> Ihre Daten und Operationen sind mit Sicherheitsstandards auf Unternehmensebene und robuster Zuverlässigkeit geschützt."
@@ -259,6 +271,9 @@ msgstr "Bereits deaktiviert (wird übersprungen)"
 msgid "Already deactivated (will be skipped):"
 msgstr "Bereits deaktiviert (wird übersprungen):"
 
+msgid "An object with this name already exists at the destination and will be overwritten."
+msgstr ""
+
 msgid "An unexpected error occurred"
 msgstr "Ein unerwarteter Fehler ist aufgetreten"
 
@@ -276,6 +291,12 @@ msgstr "Jeder Benutzer kann eine HEAD- oder GET-Operation auf dem Container ausf
 
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anfrage erforderlich."
+
+msgid "Are you sure you want to delete this folder?"
+msgstr ""
+
+msgid "Are you sure you want to delete this object?"
+msgstr ""
 
 msgid "Associate"
 msgstr "Zuordnen"
@@ -412,6 +433,9 @@ msgstr "Abbrechen"
 msgid "Cancel upload"
 msgstr "Upload abbrechen"
 
+msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
+msgstr ""
+
 msgid "Capabilities"
 msgstr "Capabilities"
 
@@ -425,6 +449,9 @@ msgid "Certificate not found"
 msgstr ""
 
 msgid "Checking bucket contents..."
+msgstr ""
+
+msgid "Checking if object exists..."
 msgstr ""
 
 msgid "Checksum"
@@ -574,6 +601,9 @@ msgstr "Objekt wird kopiert..."
 msgid "Copying..."
 msgstr "Wird kopiert..."
 
+msgid "Could not copy \"{displayName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not copy \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht kopiert werden: {errorMessage}"
 
@@ -585,6 +615,12 @@ msgstr "Container \"{containerName}\" konnte nicht erstellt werden: {errorMessag
 
 msgid "Could not create folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht erstellt werden: {errorMessage}"
+
+msgid "Could not create folder \"{folderPath}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not delete \"{displayName}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not delete \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht gelöscht werden: {errorMessage}"
@@ -607,8 +643,14 @@ msgstr ""
 msgid "Could not empty container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht geleert werden: {errorMessage}"
 
+msgid "Could not move \"{displayName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
+
+msgid "Could not update \"{displayName}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not update \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht aktualisiert werden: {errorMessage}"
@@ -658,6 +700,9 @@ msgstr "Image erstellen"
 msgid "Create New Flavor"
 msgstr "Neuen Flavor erstellen"
 
+msgid "Create New Folder"
+msgstr ""
+
 msgid "Create new folder here"
 msgstr "Neuen Ordner hier erstellen"
 
@@ -689,6 +734,9 @@ msgid "Creating..."
 msgstr ""
 
 msgid "Creation Date"
+msgstr ""
+
+msgid "Current location:"
 msgstr ""
 
 msgid "Custom"
@@ -754,11 +802,17 @@ msgstr "Container löschen:"
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
 
+msgid "Delete Folder"
+msgstr ""
+
 msgid "Delete folder:"
 msgstr "Ordner löschen:"
 
 msgid "Delete Images"
 msgstr "Images löschen"
+
+msgid "Delete Object"
+msgstr ""
 
 msgid "Delete object:"
 msgstr "Objekt löschen:"
@@ -973,6 +1027,9 @@ msgstr "Floating IP eingeben"
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Floating IP eingeben oder leer lassen für automatische Zuweisung"
 
+msgid "Enter a name for the new folder."
+msgstr ""
+
 msgid "Enter a single port, or define a range by also filling \"Port (to)\". \"Port (to)\" is optional."
 msgstr "Geben Sie einen einzelnen Port ein oder definieren Sie einen Bereich, indem Sie auch \"Port (bis)\" ausfüllen. \"Port (bis)\" ist optional."
 
@@ -1068,6 +1125,12 @@ msgstr "Fehler beim Laden der Objekte: {errorMessage}"
 
 msgid "Error loading security group"
 msgstr "Fehler beim Laden der Security Group"
+
+msgid "Error:"
+msgstr ""
+
+msgid "ETag"
+msgstr ""
 
 msgid "Ethertype"
 msgstr "Ethertype"
@@ -1363,6 +1426,9 @@ msgstr "Ordner \"{folderName}\" wurde dauerhaft gelöscht."
 msgid "Folder \"{folderName}\" was successfully created."
 msgstr "Ordner \"{folderName}\" wurde erfolgreich erstellt."
 
+msgid "Folder \"{folderPath}\" was successfully created."
+msgstr ""
+
 msgid "Folder <0>\"{folderDisplayName}\"</0> and all objects within it will be permanently deleted. This cannot be undone."
 msgstr "Ordner <0>\"{folderDisplayName}\"</0> und alle darin enthaltenen Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
@@ -1375,6 +1441,9 @@ msgstr "Ordner gelöscht"
 msgid "Folder name"
 msgstr "Ordnername"
 
+msgid "Folder Name"
+msgstr ""
+
 msgid "Folder name cannot contain slashes"
 msgstr "Ordnername darf keine Schrägstriche enthalten"
 
@@ -1383,6 +1452,9 @@ msgstr "Ordnername darf keine führenden oder nachfolgenden Leerzeichen haben"
 
 msgid "Folder name is required"
 msgstr "Ordnername ist erforderlich"
+
+msgid "Folder name is too long (max 255 characters)"
+msgstr ""
 
 msgid "folder-name"
 msgstr "folder-name"
@@ -1395,6 +1467,12 @@ msgstr "Weitere Details finden Sie in der <0>Dokumentation</0>."
 
 msgid "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
 msgstr "Vollständiges Lifecycle-Management von Floating IPs, einschließlich Zuweisung, Port-Zuordnung/-Aufhebung, DNS-Einstellungen und Löschung"
+
+msgid "Full path:"
+msgstr ""
+
+msgid "Full Path:"
+msgstr ""
 
 msgid "General Image Data"
 msgstr "Allgemeine Image-Daten"
@@ -1585,6 +1663,9 @@ msgstr "Schlüssel existiert bereits"
 msgid "Key contains invalid characters"
 msgstr "Schlüssel enthält ungültige Zeichen"
 
+msgid "Key contains invalid characters (use only letters, digits, hyphens, underscores)"
+msgstr ""
+
 msgid "Key Features"
 msgstr "Hauptmerkmale"
 
@@ -1597,11 +1678,17 @@ msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
 msgid "Key Name"
 msgstr "Keyname"
 
+msgid "Last modified"
+msgstr ""
+
 msgid "Last Modified"
 msgstr "Zuletzt geändert"
 
 msgid "Last modified (UTC)"
 msgstr "Zuletzt geändert (UTC)"
+
+msgid "Last Modified:"
+msgstr ""
 
 msgid "Last updated: {formattedDate}"
 msgstr "Zuletzt aktualisiert: {formattedDate}"
@@ -1623,6 +1710,9 @@ msgstr "Mehr laden"
 
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
+
+msgid "Loading buckets..."
+msgstr ""
 
 msgid "Loading Buckets..."
 msgstr ""
@@ -1783,6 +1873,9 @@ msgstr "Metadaten \"{keyToDelete}\" wurden erfolgreich gelöscht."
 msgid "Metadata \"{trimmedKey}\" has been added successfully."
 msgstr "Metadaten \"{trimmedKey}\" wurden erfolgreich hinzugefügt."
 
+msgid "Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving."
+msgstr ""
+
 msgid "Min Disk (GB)"
 msgstr "Min. Disk (GB)"
 
@@ -1854,6 +1947,9 @@ msgstr "Name"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
+
+msgid "Name:"
+msgstr ""
 
 msgid "Network"
 msgstr "Netzwerk"
@@ -1972,6 +2068,9 @@ msgstr "Hinweis: Das Attribut 'stateful' kann nicht geändert werden, wenn diese
 msgid "Nothing to do. Bucket is already empty."
 msgstr ""
 
+msgid "Object \"{displayName}\" was permanently deleted."
+msgstr ""
+
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Objekt \"{objectName}\" wurde dauerhaft gelöscht."
 
@@ -1992,6 +2091,9 @@ msgstr "Objekt-Anzahl-Quota"
 
 msgid "Object Deleted"
 msgstr "Objekt gelöscht"
+
+msgid "Object metadata will be automatically copied during the move operation."
+msgstr ""
 
 msgid "Object Moved"
 msgstr "Objekt verschoben"
@@ -2179,6 +2281,9 @@ msgstr "Projekte"
 msgid "Projects"
 msgstr "Projekte"
 
+msgid "Properties of \"{displayName}\" were successfully updated."
+msgstr ""
+
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Eigenschaften von \"{objectName}\" wurden erfolgreich aktualisiert."
 
@@ -2187,6 +2292,9 @@ msgstr "Eigenschaftsschlüssel"
 
 msgid "property_key"
 msgstr "property_key"
+
+msgid "property-key"
+msgstr ""
 
 msgid "Protect this image from being deleted"
 msgstr "Dieses Image vor dem Löschen schützen"
@@ -2512,6 +2620,9 @@ msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Erste {actualObjectCount} von {total} Objekten werden angezeigt"
 
+msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets} — refine your search to narrow results"
+msgstr ""
+
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 msgstr "Erste {maxOptions} von {totalCount} werden angezeigt — verfeinern Sie Ihre Suche, um die Ergebnisse einzugrenzen"
 
@@ -2521,14 +2632,23 @@ msgstr "Einloggen"
 msgid "Size"
 msgstr "Größe"
 
+msgid "Size:"
+msgstr ""
+
 msgid "Something went wrong:"
 msgstr "Etwas ist schiefgelaufen."
 
 msgid "Sort by"
 msgstr "Sortieren nach"
 
+msgid "Source:"
+msgstr ""
+
 msgid "Specific referrer: {host}"
 msgstr "Spezifischer Referrer: {host}"
+
+msgid "Start typing to search for a bucket"
+msgstr ""
 
 msgid "Start typing to search for a container"
 msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
@@ -2562,6 +2682,9 @@ msgstr "Alte Objekt-Versionen speichern"
 
 msgid "Store old object versions in container:"
 msgstr "Alte Objekt-Versionen in Container speichern:"
+
+msgid "Stored as x-amz-meta-* headers. Keys are case-insensitive."
+msgstr ""
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
@@ -2607,6 +2730,9 @@ msgstr "Symlinks"
 
 msgid "Tags"
 msgstr "Tags"
+
+msgid "Target bucket"
+msgstr ""
 
 msgid "Target container"
 msgstr "Ziel-Container"
@@ -2761,6 +2887,9 @@ msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
 
+msgid "This action cannot be undone."
+msgstr ""
+
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "Diese Aktion kann nicht rückgängig gemacht werden. Der Flavor wird dauerhaft gelöscht."
 
@@ -2845,6 +2974,9 @@ msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."
 msgid "This tenant does not have access to the flavor."
 msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
 
+msgid "This will delete the original object after copying it to the destination."
+msgstr ""
+
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr ""
 
@@ -2917,10 +3049,16 @@ msgstr "Geben Sie <0>entfernen</0> zur Bestätigung ein:"
 msgid "Type container name to confirm"
 msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
 
+msgid "Type DELETE to confirm"
+msgstr ""
+
 msgid "Type name"
 msgstr "Name eingeben"
 
 msgid "Type the bucket name to confirm"
+msgstr ""
+
+msgid "Type to search buckets..."
 msgstr ""
 
 msgid "Type to search containers..."
@@ -3057,6 +3195,9 @@ msgstr "Details ansehen"
 
 msgid "Visibility"
 msgstr "Sichtbarkeit"
+
+msgid "Warning:"
+msgstr ""
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."

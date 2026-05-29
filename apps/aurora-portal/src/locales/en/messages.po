@@ -22,6 +22,15 @@ msgstr "—"
 msgid "... and {hiddenCount} more"
 msgstr "... and {hiddenCount} more"
 
+msgid "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
+msgstr "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
+
+msgid "\"{displayName}\" was successfully copied to {destination}."
+msgstr "\"{displayName}\" was successfully copied to {destination}."
+
+msgid "\"{displayName}\" was successfully moved to {destination}."
+msgstr "\"{displayName}\" was successfully moved to {destination}."
+
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" was successfully copied to {destination}."
 
@@ -93,6 +102,9 @@ msgstr "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora 
 
 msgid "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
 msgstr "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
+
+msgid "<0>Properties of</0> <1>{displayName}</1>"
+msgstr "<0>Properties of</0> <1>{displayName}</1>"
 
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
@@ -259,6 +271,9 @@ msgstr "Already deactivated (will be skipped)"
 msgid "Already deactivated (will be skipped):"
 msgstr "Already deactivated (will be skipped):"
 
+msgid "An object with this name already exists at the destination and will be overwritten."
+msgstr "An object with this name already exists at the destination and will be overwritten."
+
 msgid "An unexpected error occurred"
 msgstr "An unexpected error occurred"
 
@@ -276,6 +291,12 @@ msgstr "Any user can perform a HEAD or GET operation on the container provided t
 
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Any user has read access to objects. No token is required in the request."
+
+msgid "Are you sure you want to delete this folder?"
+msgstr "Are you sure you want to delete this folder?"
+
+msgid "Are you sure you want to delete this object?"
+msgstr "Are you sure you want to delete this object?"
 
 msgid "Associate"
 msgstr "Associate"
@@ -412,6 +433,9 @@ msgstr "Cancel"
 msgid "Cancel upload"
 msgstr "Cancel upload"
 
+msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
+msgstr "Cannot move to the same location. Please select a different bucket, folder, or change the name."
+
 msgid "Capabilities"
 msgstr "Capabilities"
 
@@ -426,6 +450,9 @@ msgstr "Certificate not found"
 
 msgid "Checking bucket contents..."
 msgstr "Checking bucket contents..."
+
+msgid "Checking if object exists..."
+msgstr "Checking if object exists..."
 
 msgid "Checksum"
 msgstr "Checksum"
@@ -574,6 +601,9 @@ msgstr "Copying object..."
 msgid "Copying..."
 msgstr "Copying..."
 
+msgid "Could not copy \"{displayName}\": {errorMessage}"
+msgstr "Could not copy \"{displayName}\": {errorMessage}"
+
 msgid "Could not copy \"{objectName}\": {errorMessage}"
 msgstr "Could not copy \"{objectName}\": {errorMessage}"
 
@@ -585,6 +615,12 @@ msgstr "Could not create container \"{containerName}\": {errorMessage}"
 
 msgid "Could not create folder \"{folderName}\": {errorMessage}"
 msgstr "Could not create folder \"{folderName}\": {errorMessage}"
+
+msgid "Could not create folder \"{folderPath}\": {errorMessage}"
+msgstr "Could not create folder \"{folderPath}\": {errorMessage}"
+
+msgid "Could not delete \"{displayName}\": {errorMessage}"
+msgstr "Could not delete \"{displayName}\": {errorMessage}"
 
 msgid "Could not delete \"{objectName}\": {errorMessage}"
 msgstr "Could not delete \"{objectName}\": {errorMessage}"
@@ -607,8 +643,14 @@ msgstr "Could not empty bucket \"{bucketName}\": {errorMessage}"
 msgid "Could not empty container \"{containerName}\": {errorMessage}"
 msgstr "Could not empty container \"{containerName}\": {errorMessage}"
 
+msgid "Could not move \"{displayName}\": {errorMessage}"
+msgstr "Could not move \"{displayName}\": {errorMessage}"
+
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "Could not move \"{objectName}\": {errorMessage}"
+
+msgid "Could not update \"{displayName}\": {errorMessage}"
+msgstr "Could not update \"{displayName}\": {errorMessage}"
 
 msgid "Could not update \"{objectName}\": {errorMessage}"
 msgstr "Could not update \"{objectName}\": {errorMessage}"
@@ -658,6 +700,9 @@ msgstr "Create Image"
 msgid "Create New Flavor"
 msgstr "Create New Flavor"
 
+msgid "Create New Folder"
+msgstr "Create New Folder"
+
 msgid "Create new folder here"
 msgstr "Create new folder here"
 
@@ -690,6 +735,9 @@ msgstr "Creating..."
 
 msgid "Creation Date"
 msgstr "Creation Date"
+
+msgid "Current location:"
+msgstr "Current location:"
 
 msgid "Custom"
 msgstr "Custom"
@@ -754,11 +802,17 @@ msgstr "Delete container:"
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
 
+msgid "Delete Folder"
+msgstr "Delete Folder"
+
 msgid "Delete folder:"
 msgstr "Delete folder:"
 
 msgid "Delete Images"
 msgstr "Delete Images"
+
+msgid "Delete Object"
+msgstr "Delete Object"
 
 msgid "Delete object:"
 msgstr "Delete object:"
@@ -973,6 +1027,9 @@ msgstr "Enter a floating IP"
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Enter a floating IP or leave blank to auto-assign one"
 
+msgid "Enter a name for the new folder."
+msgstr "Enter a name for the new folder."
+
 msgid "Enter a single port, or define a range by also filling \"Port (to)\". \"Port (to)\" is optional."
 msgstr "Enter a single port, or define a range by also filling \"Port (to)\". \"Port (to)\" is optional."
 
@@ -1068,6 +1125,12 @@ msgstr "Error Loading Objects: {errorMessage}"
 
 msgid "Error loading security group"
 msgstr "Error loading security group"
+
+msgid "Error:"
+msgstr "Error:"
+
+msgid "ETag"
+msgstr "ETag"
 
 msgid "Ethertype"
 msgstr "Ethertype"
@@ -1363,6 +1426,9 @@ msgstr "Folder \"{folderName}\" was permanently deleted."
 msgid "Folder \"{folderName}\" was successfully created."
 msgstr "Folder \"{folderName}\" was successfully created."
 
+msgid "Folder \"{folderPath}\" was successfully created."
+msgstr "Folder \"{folderPath}\" was successfully created."
+
 msgid "Folder <0>\"{folderDisplayName}\"</0> and all objects within it will be permanently deleted. This cannot be undone."
 msgstr "Folder <0>\"{folderDisplayName}\"</0> and all objects within it will be permanently deleted. This cannot be undone."
 
@@ -1375,6 +1441,9 @@ msgstr "Folder Deleted"
 msgid "Folder name"
 msgstr "Folder name"
 
+msgid "Folder Name"
+msgstr "Folder Name"
+
 msgid "Folder name cannot contain slashes"
 msgstr "Folder name cannot contain slashes"
 
@@ -1383,6 +1452,9 @@ msgstr "Folder name cannot have leading or trailing whitespace"
 
 msgid "Folder name is required"
 msgstr "Folder name is required"
+
+msgid "Folder name is too long (max 255 characters)"
+msgstr "Folder name is too long (max 255 characters)"
 
 msgid "folder-name"
 msgstr "folder-name"
@@ -1395,6 +1467,12 @@ msgstr "For more details, have a look at the <0>documentation</0>."
 
 msgid "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
 msgstr "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
+
+msgid "Full path:"
+msgstr "Full path:"
+
+msgid "Full Path:"
+msgstr "Full Path:"
 
 msgid "General Image Data"
 msgstr "General Image Data"
@@ -1585,6 +1663,9 @@ msgstr "Key already exists"
 msgid "Key contains invalid characters"
 msgstr "Key contains invalid characters"
 
+msgid "Key contains invalid characters (use only letters, digits, hyphens, underscores)"
+msgstr "Key contains invalid characters (use only letters, digits, hyphens, underscores)"
+
 msgid "Key Features"
 msgstr "Key Features"
 
@@ -1597,11 +1678,17 @@ msgstr "Key must contain at least one alphanumeric character"
 msgid "Key Name"
 msgstr "Key Name"
 
+msgid "Last modified"
+msgstr "Last modified"
+
 msgid "Last Modified"
 msgstr "Last Modified"
 
 msgid "Last modified (UTC)"
 msgstr "Last modified (UTC)"
+
+msgid "Last Modified:"
+msgstr "Last Modified:"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
@@ -1623,6 +1710,9 @@ msgstr "Load More"
 
 msgid "Loading ACLs..."
 msgstr "Loading ACLs..."
+
+msgid "Loading buckets..."
+msgstr "Loading buckets..."
 
 msgid "Loading Buckets..."
 msgstr "Loading Buckets..."
@@ -1783,6 +1873,9 @@ msgstr "Metadata \"{keyToDelete}\" has been deleted successfully."
 msgid "Metadata \"{trimmedKey}\" has been added successfully."
 msgstr "Metadata \"{trimmedKey}\" has been added successfully."
 
+msgid "Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving."
+msgstr "Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving."
+
 msgid "Min Disk (GB)"
 msgstr "Min Disk (GB)"
 
@@ -1854,6 +1947,9 @@ msgstr "Name"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Name must be 2-50 characters long."
+
+msgid "Name:"
+msgstr "Name:"
 
 msgid "Network"
 msgstr "Network"
@@ -1972,6 +2068,9 @@ msgstr "Note: The 'stateful' attribute cannot be changed if this security group 
 msgid "Nothing to do. Bucket is already empty."
 msgstr "Nothing to do. Bucket is already empty."
 
+msgid "Object \"{displayName}\" was permanently deleted."
+msgstr "Object \"{displayName}\" was permanently deleted."
+
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Object \"{objectName}\" was permanently deleted."
 
@@ -1992,6 +2091,9 @@ msgstr "Object count quota"
 
 msgid "Object Deleted"
 msgstr "Object Deleted"
+
+msgid "Object metadata will be automatically copied during the move operation."
+msgstr "Object metadata will be automatically copied during the move operation."
 
 msgid "Object Moved"
 msgstr "Object Moved"
@@ -2179,6 +2281,9 @@ msgstr "projects"
 msgid "Projects"
 msgstr "Projects"
 
+msgid "Properties of \"{displayName}\" were successfully updated."
+msgstr "Properties of \"{displayName}\" were successfully updated."
+
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Properties of \"{objectName}\" were successfully updated."
 
@@ -2187,6 +2292,9 @@ msgstr "Property Key"
 
 msgid "property_key"
 msgstr "property_key"
+
+msgid "property-key"
+msgstr "property-key"
 
 msgid "Protect this image from being deleted"
 msgstr "Protect this image from being deleted"
@@ -2512,6 +2620,9 @@ msgstr "Showing {filteredCount} of {totalCount} {itemName}"
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Showing first {actualObjectCount} of {total} objects"
 
+msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets} — refine your search to narrow results"
+msgstr "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets} — refine your search to narrow results"
+
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 msgstr "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 
@@ -2521,14 +2632,23 @@ msgstr "Sign In"
 msgid "Size"
 msgstr "Size"
 
+msgid "Size:"
+msgstr "Size:"
+
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
 
 msgid "Sort by"
 msgstr "Sort by"
 
+msgid "Source:"
+msgstr "Source:"
+
 msgid "Specific referrer: {host}"
 msgstr "Specific referrer: {host}"
+
+msgid "Start typing to search for a bucket"
+msgstr "Start typing to search for a bucket"
 
 msgid "Start typing to search for a container"
 msgstr "Start typing to search for a container"
@@ -2562,6 +2682,9 @@ msgstr "Store old object versions"
 
 msgid "Store old object versions in container:"
 msgstr "Store old object versions in container:"
+
+msgid "Stored as x-amz-meta-* headers. Keys are case-insensitive."
+msgstr "Stored as x-amz-meta-* headers. Keys are case-insensitive."
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
@@ -2607,6 +2730,9 @@ msgstr "Symlinks"
 
 msgid "Tags"
 msgstr "Tags"
+
+msgid "Target bucket"
+msgstr "Target bucket"
 
 msgid "Target container"
 msgstr "Target container"
@@ -2761,6 +2887,9 @@ msgstr "There are no RBAC policies for this security group"
 msgid "There are no rules for this security group"
 msgstr "There are no rules for this security group"
 
+msgid "This action cannot be undone."
+msgstr "This action cannot be undone."
+
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "This action cannot be undone. The flavor will be permanently deleted."
 
@@ -2845,6 +2974,9 @@ msgstr "This tenant already has access to the flavor."
 msgid "This tenant does not have access to the flavor."
 msgstr "This tenant does not have access to the flavor."
 
+msgid "This will delete the original object after copying it to the destination."
+msgstr "This will delete the original object after copying it to the destination."
+
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 
@@ -2917,11 +3049,17 @@ msgstr "Type <0>remove</0> to confirm:"
 msgid "Type container name to confirm"
 msgstr "Type container name to confirm"
 
+msgid "Type DELETE to confirm"
+msgstr "Type DELETE to confirm"
+
 msgid "Type name"
 msgstr "Type name"
 
 msgid "Type the bucket name to confirm"
 msgstr "Type the bucket name to confirm"
+
+msgid "Type to search buckets..."
+msgstr "Type to search buckets..."
 
 msgid "Type to search containers..."
 msgstr "Type to search containers..."
@@ -3057,6 +3195,9 @@ msgstr "View Details"
 
 msgid "Visibility"
 msgstr "Visibility"
+
+msgid "Warning:"
+msgstr "Warning:"
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
