@@ -1,5 +1,6 @@
-/** @type {import("eslint").Linter.Config} */
+import js from "@eslint/js"
 
-import config from "@cobaltcore-dev/aurora-config/eslint/index.mjs"
-
-export default [...config]
+export default [
+  js.configs.recommended,
+  { ignores: ["dist/**", "node_modules/**", "playwright-report/**", "e2e/playwright-results/**"] },
+]

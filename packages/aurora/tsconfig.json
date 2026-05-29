@@ -1,15 +1,24 @@
 {
-  "extends": "@cobaltcore-dev/aurora-config/typescript/base.json",
-  "include": ["src/client", "src/types"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.setup.ts"],
   "exclude": ["node_modules", "dist"],
   "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "incremental": false,
+    "noEmit": true,
     "lib": ["dom", "dom.iterable", "esnext"],
-    "types": ["vite/client"],
     "paths": {
-      "@cobaltcore-dev/aurora-portal/client": ["./src/types/aurora-portal.client.d.ts"],
-      "@cobaltcore-dev/aurora-portal/server": ["./src/types/aurora-portal.server.d.ts"],
-      "@/*": ["../../apps/aurora-portal/src/*"]
-    }
+      "@/*": ["./src/*"]
+    },
+    "types": ["vite/client", "vitest/globals", "vite-plugin-svgr/client", "@testing-library/jest-dom"]
   }
 }

@@ -1,14 +1,26 @@
 {
-  "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.lib.json",
-  "include": ["src/server", "src/types"],
-  "exclude": ["src/client", "node_modules", "dist"],
   "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strict": true,
+    "skipLibCheck": true,
     "rootDir": "src",
-    "outDir": "dist/server",
+    "outDir": "dist",
     "declaration": true,
-    "declarationMap": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "incremental": false,
+    "ignoreDeprecations": "6.0",
     "paths": {
-      "@cobaltcore-dev/aurora-portal/server": ["./src/types/aurora-portal.server.d.ts"]
+      "@/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["src/server", "src/types"],
+  "exclude": ["src/client", "node_modules", "dist"]
 }
