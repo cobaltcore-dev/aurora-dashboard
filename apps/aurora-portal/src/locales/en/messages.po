@@ -73,17 +73,8 @@ msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} co
 msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 msgstr "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 
-msgid "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
-msgstr "<0>Are you sure?</0> All objects in the selected containers will be permanently deleted. This cannot be undone."
-
-msgid "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
-msgstr "<0>Are you sure?</0> Folder <1>\"{folderDisplayName}\"</1> and all objects within it will be permanently deleted. This cannot be undone."
-
-msgid "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
-msgstr "<0>Are you sure?</0> Object <1>\"{displayName}\"</1> will be permanently deleted. This cannot be undone."
-
-msgid "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
-msgstr "<0>Are you sure?</0> The selected objects will be permanently deleted. This cannot be undone."
+msgid "<0>Edit metadata: </0> <1>{displayName}</1>"
+msgstr "<0>Edit metadata: </0> <1>{displayName}</1>"
 
 msgid "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
 msgstr "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
@@ -102,9 +93,6 @@ msgstr "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora 
 
 msgid "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
 msgstr "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
-
-msgid "<0>Properties of</0> <1>{displayName}</1>"
-msgstr "<0>Properties of</0> <1>{displayName}</1>"
 
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
@@ -243,6 +231,9 @@ msgstr "All containers"
 
 msgid "All Images"
 msgstr "All Images"
+
+msgid "All objects in the selected containers will be permanently deleted. This cannot be undone."
+msgstr "All objects in the selected containers will be permanently deleted. This cannot be undone."
 
 msgid "All users from project {projectId}"
 msgstr "All users from project {projectId}"
@@ -988,8 +979,8 @@ msgstr "Enter a single port, or define a range by also filling \"Port (to)\". \"
 msgid "Enter a tag and press Enter or click Add"
 msgstr "Enter a tag and press Enter or click Add"
 
-msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion"
-msgstr "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion"
+msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion."
+msgstr "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion."
 
 msgid "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
 msgstr "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
@@ -1081,8 +1072,8 @@ msgstr "Error loading security group"
 msgid "Ethertype"
 msgstr "Ethertype"
 
-msgid "Expected format: YYYY-MM-DD HH:MM:SS"
-msgstr "Expected format: YYYY-MM-DD HH:MM:SS"
+msgid "Expected format: YYYY-MM-DD HH:mm:ss"
+msgstr "Expected format: YYYY-MM-DD HH:mm:ss"
 
 msgid "Expires at (UTC)"
 msgstr "Expires at (UTC)"
@@ -1371,6 +1362,9 @@ msgstr "Folder \"{folderName}\" was permanently deleted."
 
 msgid "Folder \"{folderName}\" was successfully created."
 msgstr "Folder \"{folderName}\" was successfully created."
+
+msgid "Folder <0>\"{folderDisplayName}\"</0> and all objects within it will be permanently deleted. This cannot be undone."
+msgstr "Folder <0>\"{folderDisplayName}\"</0> and all objects within it will be permanently deleted. This cannot be undone."
 
 msgid "Folder Created"
 msgstr "Folder Created"
@@ -1980,6 +1974,9 @@ msgstr "Nothing to do. Bucket is already empty."
 
 msgid "Object \"{objectName}\" was permanently deleted."
 msgstr "Object \"{objectName}\" was permanently deleted."
+
+msgid "Object <0>\"{displayName}\"</0> will be permanently deleted. This cannot be undone."
+msgstr "Object <0>\"{displayName}\"</0> will be permanently deleted. This cannot be undone."
 
 msgid "Object Copied"
 msgstr "Object Copied"
@@ -2710,6 +2707,9 @@ msgstr "The page you are looking for does not exist."
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 
+msgid "The selected objects will be permanently deleted. This cannot be undone."
+msgstr "The selected objects will be permanently deleted. This cannot be undone."
+
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
 
@@ -3165,3 +3165,6 @@ msgstr "Your session has expired."
 
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
+
+msgid "YYYY-MM-DD HH:mm:ss"
+msgstr "YYYY-MM-DD HH:mm:ss"

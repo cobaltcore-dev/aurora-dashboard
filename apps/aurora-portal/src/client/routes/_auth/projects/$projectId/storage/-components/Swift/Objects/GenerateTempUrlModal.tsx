@@ -2,16 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import {
-  Modal,
-  Message,
-  Stack,
-  Spinner,
-  TextInput,
-  Icon,
-  Select,
-  SelectOption,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, TextInput, Icon, Select, SelectOption } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
 
@@ -279,12 +270,37 @@ export const GenerateTempUrlModal = ({
       disableConfirmButton={isPending || (isCustom && (!customMinutes.trim() || !!customMinutesError))}
     >
       <Stack direction="vertical" gap="4">
-        <Message variant="info">
+        <p className="text-theme-default">
           <Trans>
             A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with
             the link can download it until it expires.
           </Trans>
-        </Message>
+        </p>
+
+        {/* No key configured error */}
+        {noKeyError && (
+          <p className="text-theme-default">
+            <Trans>
+              <strong>No Temp URL key configured.</strong> A temporary URL key must be set at the account or container
+              level before temporary URLs can be generated. Contact your administrator to configure{" "}
+              <code>X-Account-Meta-Temp-URL-Key</code> or <code>X-Container-Meta-Temp-URL-Key</code>.
+            </Trans>
+          </p>
+        )}
+
+        {/* General error */}
+        {generalError && (
+          <p className="text-theme-error" role="alert" aria-live="assertive">
+            <Trans>Failed to generate temporary URL: {generalError}</Trans>
+          </p>
+        )}
+
+        {/* Clipboard copy error */}
+        {copyError && (
+          <p className="text-theme-error" role="alert" aria-live="assertive">
+            {copyError}
+          </p>
+        )}
 
         {/* Expiry selector */}
         <Select label={t`Expires in`} value={selectedPreset} onChange={handlePresetChange} disabled={isPending}>
@@ -315,27 +331,6 @@ export const GenerateTempUrlModal = ({
             <Trans>Generating temporary URL...</Trans>
           </Stack>
         )}
-
-        {/* No key configured error */}
-        {noKeyError && (
-          <Message variant="warning">
-            <Trans>
-              <strong>No Temp URL key configured.</strong> A temporary URL key must be set at the account or container
-              level before temporary URLs can be generated. Contact your administrator to configure{" "}
-              <code>X-Account-Meta-Temp-URL-Key</code> or <code>X-Container-Meta-Temp-URL-Key</code>.
-            </Trans>
-          </Message>
-        )}
-
-        {/* General error */}
-        {generalError && (
-          <Message variant="danger">
-            <Trans>Failed to generate temporary URL: {generalError}</Trans>
-          </Message>
-        )}
-
-        {/* Clipboard copy error */}
-        {copyError && <Message variant="danger">{copyError}</Message>}
 
         {/* Generated URL */}
         {tempUrl && (

@@ -2,7 +2,7 @@ import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 
 interface CreateFolderModalProps {
@@ -110,12 +110,12 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
       disableConfirmButton={createFolderMutation.isPending || !folderName.trim()}
     >
       <Stack direction="vertical" gap="6">
-        <Message variant="info">
+        <p className="text-theme-default">
           <Trans>
             Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing
             slash. The folder will appear once created.
           </Trans>
-        </Message>
+        </p>
         <TextInput
           label={t`Folder name`}
           required

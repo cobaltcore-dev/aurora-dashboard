@@ -151,7 +151,6 @@ describe("DeleteObjectsModal", () => {
   describe("Content", () => {
     test("renders danger warning message", () => {
       renderModal()
-      expect(screen.getByText(/Are you sure/i)).toBeInTheDocument()
       expect(screen.getByText(/cannot be undone/i)).toBeInTheDocument()
     })
 

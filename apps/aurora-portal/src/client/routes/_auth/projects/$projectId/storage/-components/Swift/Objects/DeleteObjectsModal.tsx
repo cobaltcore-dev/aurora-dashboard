@@ -1,6 +1,6 @@
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Message, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 // Max number of object names shown in the list before truncating
@@ -94,6 +94,7 @@ export const DeleteObjectsModal = ({
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
+      confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
       onConfirm={handleConfirm}
       disableConfirmButton={isPending}
@@ -107,11 +108,9 @@ export const DeleteObjectsModal = ({
         </Stack>
       ) : (
         <div className="my-6">
-          <Message variant="danger" className="mb-6">
-            <Trans>
-              <strong>Are you sure?</strong> The selected objects will be permanently deleted. This cannot be undone.
-            </Trans>
-          </Message>
+          <p className="text-theme-default mb-6">
+            <Trans>The selected objects will be permanently deleted. This cannot be undone.</Trans>
+          </p>
 
           <div className="mb-6">
             <h3 className="jn:text-theme-high mb-3 font-semibold">
