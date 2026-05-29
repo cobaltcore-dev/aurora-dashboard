@@ -1,5 +1,5 @@
 import "./types"
-import Fastify, { FastifyError } from "fastify"
+import Fastify, { FastifyError, FastifyInstance } from "fastify"
 import FastifyStatic from "@fastify/static"
 import FastifyVite from "@fastify/vite"
 import FastifyCookie from "@fastify/cookie"
@@ -9,32 +9,32 @@ import FastifyMultipart, { MultipartFields, MultipartValue } from "@fastify/mult
 import { CreateFastifyContextOptions, FastifyTRPCPluginOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify"
 import { appRouter, AuroraRouter } from "./routers" // tRPC router
 import { createContext } from "./context"
-import * as dotenv from "dotenv"
 import path from "path"
 import { Readable } from "node:stream"
 import { ZodError } from "zod"
 import { AuroraFastifyCsrfProtection } from "./aurora-fastify-plugins"
 
-// Load environment variables from .env file
-dotenv.config()
+export interface AuroraServerConfig {
+  bffEndpoint?: string
+  viteRoot?: string
+}
 
-// Determine environment and configuration
-const isProduction = process.env.NODE_ENV === "production"
-const PORT = process.env.PORT || "4005"
-const BFF_ENDPOINT = process.env.BFF_ENDPOINT || "/polaris-bff"
+export async function createServer(config?: AuroraServerConfig): Promise<FastifyInstance> {
+  const isProduction = process.env.NODE_ENV === "production"
+  const rawBffEndpoint = config?.bffEndpoint ?? process.env.BFF_ENDPOINT ?? "/polaris-bff"
+  const bffEndpoint = "/" + rawBffEndpoint.split("/").filter(Boolean).join("/")
+  const viteRoot = config?.viteRoot ?? path.resolve(__dirname, "../../")
 
-// Initialize Fastify server
-const server = Fastify({
-  logger: true,
-  bodyLimit: 1 * 1024 * 1024, // 1MB default; upload route overrides per-route
-  requestTimeout: 30000, // 30 seconds default
-  keepAliveTimeout: 600000, // 10 minutes keep-alive
-  routerOptions: {
-    maxParamLength: 5000,
-  },
-})
+  const server = Fastify({
+    logger: true,
+    bodyLimit: 1 * 1024 * 1024, // 1MB default; upload route overrides per-route
+    requestTimeout: 30000, // 30 seconds default
+    keepAliveTimeout: 600000, // 10 minutes keep-alive
+    routerOptions: {
+      maxParamLength: 5000,
+    },
+  })
 
-async function startServer() {
   // Register cookie middleware - required for session management and CSRF
   // TODO: Set COOKIE_SECRET env var in production (random 32+ char string, stored in secret manager)
   server.register(FastifyCookie, {
@@ -67,7 +67,7 @@ async function startServer() {
   // OPTIONAL: Direct HTTP endpoint for image file uploads (without tRPC)
   // Use this if you need a fallback or alternative upload method
   server.post(
-    `${BFF_ENDPOINT}/upload-image-direct`,
+    `${bffEndpoint}/upload-image-direct`,
     { config: { rawBody: false, rateLimit: { max: 10, timeWindow: "1 minute" } }, bodyLimit: 5 * 1024 * 1024 * 1024 },
     async (request, reply) => {
       // Override the 30s global timeout — uploads can take minutes for large files
@@ -154,7 +154,7 @@ async function startServer() {
   })
 
   await server.register(fastifyTRPCPlugin, {
-    prefix: BFF_ENDPOINT, // All tRPC routes will be under this prefix
+    prefix: bffEndpoint, // All tRPC routes will be under this prefix
     trpcOptions: {
       router: appRouter,
       createContext,
@@ -178,7 +178,7 @@ async function startServer() {
 
     // Serve static files from the build directory
     await server.register(FastifyStatic, {
-      root: path.join(__dirname, "../../dist/client"),
+      root: path.join(viteRoot, "dist/client"),
       wildcard: false, // Prevent wildcard conflicts with API routes
       serve: true,
     })
@@ -194,7 +194,7 @@ async function startServer() {
 
     // Register Vite plugin for development with HMR support
     await server.register(FastifyVite, {
-      root: path.resolve(__dirname, "../../"), // Location of vite.config.js
+      root: viteRoot, // Location of vite.config.js
       dev: true, // Enable dev mode
       spa: true, // SPA mode (no SSR),
     })
@@ -211,7 +211,7 @@ async function startServer() {
   }
 
   // Global error handler
-  await server.setErrorHandler((error, request, reply) => {
+  server.setErrorHandler((error, request, reply) => {
     // Type guard: check if error is an Error instance
     if (error instanceof Error) {
       const fastifyError = error as FastifyError
@@ -232,10 +232,5 @@ async function startServer() {
     }
   })
 
-  // Start the server
-  await server.listen({ host: "0.0.0.0", port: Number(PORT) }).then((address) => {
-    console.log(`Server listening on ${address}`)
-  })
+  return server
 }
-
-startServer()

@@ -1,0 +1,50 @@
+{
+  "name": "@cobaltcore-dev/aurora",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Aurora OpenStack dashboard — server and client library",
+  "exports": {
+    "./server": {
+      "types": "./src/server/index.ts",
+      "default": "./src/server/index.ts"
+    },
+    "./client": {
+      "types": "./src/client/index.ts",
+      "default": "./src/client/index.ts"
+    },
+    "./types": {
+      "types": "./src/types/index.ts",
+      "default": "./src/types/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "pnpm build:server && pnpm build:client",
+    "build:server": "tsc -p tsconfig.server.json",
+    "build:client": "vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint",
+    "test": "vitest run --passWithNoTests",
+    "clean": "rm -rf dist && rm -rf .turbo",
+    "clean:cache": "rm -rf .turbo"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@cobaltcore-dev/aurora-portal": "workspace:*",
+    "fastify": "^5.8.1",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@cobaltcore-dev/aurora-config": "workspace:*",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
+    "@vitejs/plugin-react-swc": "^4.2.2",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.0",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.2"
+  }
+}
