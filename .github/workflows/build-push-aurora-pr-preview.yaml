@@ -33,7 +33,6 @@
 # Label-based Deployment:
 #   - 'pr-build': Triggers Docker image build
 #   - 'pr-preview': Signals ArgoCD that image is ready for deployment
-#   - Removing 'pr-preview' on new commits forces ArgoCD to pick up new image
 
 name: Build Aurora PR Preview 🔬
 
