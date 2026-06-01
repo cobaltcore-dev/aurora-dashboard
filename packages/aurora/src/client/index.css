@@ -1,0 +1,19 @@
+/* Do not remove these tailwind directives. Without them styles won't work as expected */
+@import "tailwindcss";
+@import "@cloudoperators/juno-ui-components/theme.css";
+@import "./theme.css";
+/* Tell Tailwind to scan this directory for class names. Needed because routes are code-split (lazy loaded) and won't be in Vite's module graph when CSS is first generated. */
+@source ".";
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#app {
+  flex-grow: 1;
+  /* This pushes the footer down */
+}

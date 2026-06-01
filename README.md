@@ -6,47 +6,55 @@ A single, powerful, and easy-to-use web dashboard for managing OpenStack-based c
 
 ## Architecture
 
-Aurora is a **pnpm monorepo** orchestrated with [Turborepo](https://turbo.build/). It contains one application and several shared packages:
+Aurora is a **pnpm monorepo** orchestrated with [Turborepo](https://turbo.build/). It contains one reference application and several packages:
 
 ```
 aurora-dashboard/
 ├── apps/
-│   └── aurora-portal/        # The main web application
+│   └── dashboard/            # Reference consumer app (uses @cobaltcore-dev/aurora)
 └── packages/
+    ├── aurora/               # Published npm library — server + client
     ├── signal-openstack/     # OpenStack API client
     ├── policy-engine/        # OpenStack policy (oslo.policy) evaluator
     └── config/               # Shared TypeScript and ESLint configuration
 ```
 
-### `apps/aurora-portal`
+### `packages/aurora`
 
-The portal is a full-stack application with:
+The core publishable library (`@cobaltcore-dev/aurora`) with two entry points:
 
-- **Frontend**: React + Vite, served as a SPA
-- **Backend**: [Fastify](https://fastify.dev/) server with [tRPC](https://trpc.io/) for type-safe API routes
-- **Auth**: OpenStack Keystone session-based authentication
+- **`@cobaltcore-dev/aurora/server`** — `createServer(config)` starts a Fastify BFF that proxies OpenStack API calls and exposes them via tRPC
+- **`@cobaltcore-dev/aurora/client`** — `<AuroraApp />` is a self-contained React component that renders the full dashboard UI
 
-The server acts as a Backend-for-Frontend (BFF), proxying and aggregating OpenStack API calls on behalf of the authenticated user.
+See [`packages/aurora/README.md`](packages/aurora/README.md) for the full consumer guide.
+
+### `apps/dashboard`
+
+A minimal reference implementation showing how to consume `@cobaltcore-dev/aurora`. It owns nothing except:
+
+- Reading environment variables and passing them to `createServer()`
+- Persisting theme preference via `localStorage`
+- A Vite config wired up for production builds
 
 ### `packages/signal-openstack`
 
-A typed OpenStack HTTP client built on [undici](https://github.com/nodejs/undici). Handles authentication tokens, service catalog resolution, session management, and error normalization across OpenStack services (Compute, Network, Storage, Identity, etc.).
+A typed OpenStack HTTP client built on [undici](https://github.com/nodejs/undici). Handles authentication tokens, service catalog resolution, session management, and error normalization across OpenStack services.
 
 ### `packages/policy-engine`
 
-An in-browser and server-side evaluator for OpenStack's `oslo.policy` rule format. Parses policy files and evaluates rules against a request context — enabling fine-grained, OpenStack-native authorization in the UI without additional API roundtrips.
+An in-browser and server-side evaluator for OpenStack's `oslo.policy` rule format. Enables fine-grained, OpenStack-native authorization in the UI without additional API roundtrips.
 
 ### `packages/config`
 
-Shared TypeScript compiler and ESLint configurations used across all apps and packages.
+Shared TypeScript compiler and ESLint configurations used across all packages.
 
 ## Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 24
-- [pnpm](https://pnpm.io/) >= 9
-- Access to an OpenStack environment (Keystone endpoint required — no mock mode available)
+- [Node.js](https://nodejs.org/) >= 18
+- [pnpm](https://pnpm.io/) >= 10
+- Access to an OpenStack environment (Keystone endpoint required)
 
 ### Install dependencies
 
@@ -57,16 +65,15 @@ pnpm install
 ### Configure environment
 
 ```bash
-cp apps/aurora-portal/.env.example apps/aurora-portal/.env
+cp apps/dashboard/.env.example apps/dashboard/.env
 ```
 
 Edit `.env` and set at minimum:
 
 ```env
 IDENTITY_ENDPOINT="https://<your-keystone-host>/identity/v3/"
+VITE_BFF_ENDPOINT="/polaris-bff"
 ```
-
-For a local OpenStack setup, [DevStack](https://docs.openstack.org/devstack/latest/) works. For team access, ask in the project's GitHub Discussions or issues.
 
 ### Run in development
 
@@ -74,7 +81,7 @@ For a local OpenStack setup, [DevStack](https://docs.openstack.org/devstack/late
 pnpm dev
 ```
 
-The portal starts at `http://localhost:4005` by default.
+The dashboard starts at `http://localhost:4005` by default.
 
 ### Build
 
@@ -82,10 +89,24 @@ The portal starts at `http://localhost:4005` by default.
 pnpm build
 ```
 
+### Preview production build
+
+```bash
+pnpm preview
+```
+
 ### Run tests
 
 ```bash
 pnpm test
+```
+
+## Using aurora in your own app
+
+Install the package and follow the guide in [`packages/aurora/README.md`](packages/aurora/README.md).
+
+```bash
+npm install @cobaltcore-dev/aurora
 ```
 
 ## Release Management

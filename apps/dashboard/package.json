@@ -3,16 +3,18 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "build": "pnpm build:client && pnpm build:server",
-    "build:client": "vite build --mode=production",
-    "build:server": "tsc -p tsconfig.server.json",
+    "build": "vite build --mode=production",
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
     "clean:cache": "rm -rf .turbo",
-    "dev": "tsx watch src/server/server.ts --tsconfig tsconfig.server.json",
+    "dev": "tsx watch --env-file=.env src/server/server.ts",
+    "preview": "NODE_ENV=production tsx --env-file=.env src/server/server.ts",
     "lint": "eslint",
-    "preview": "vite preview",
-    "prod": "NODE_ENV=production node dist/server/server.js",
-    "typecheck": "tsc --project tsconfig.json --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report --port 3010 --host 0.0.0.0"
   },
   "dependencies": {
     "@cobaltcore-dev/aurora": "workspace:*",
@@ -21,20 +23,20 @@
     "tsx": "^4.21.0"
   },
   "devDependencies": {
-    "@cobaltcore-dev/aurora-config": "workspace:*",
+    "@eslint/js": "^10.0.1",
     "@fastify/vite": "^8.4.1",
     "@lingui/swc-plugin": "^5.11.0",
-    "@tailwindcss/vite": "^4.1.18",
-    "@tanstack/router-plugin": "^1.167.5",
+    "@playwright/test": "1.59.1",
+    "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^24.0.0",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react-swc": "^4.2.2",
+    "dotenv": "^17.4.2",
     "eslint": "^10.0.2",
-    "tailwindcss": "^4.1.7",
+    "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
     "vite": "^8.0.0",
-    "vite-plugin-svgr": "^5.0.0",
-    "vite-tsconfig-paths": "^6.1.1"
+    "vite-plugin-svgr": "^5.2.0"
   }
 }

@@ -2,10 +2,16 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "dependsOn": ["@cobaltcore-dev/aurora-portal#build"]
+      "dependsOn": [
+        "@cobaltcore-dev/signal-openstack#build",
+        "@cobaltcore-dev/policy-engine#build"
+      ]
     },
-    "dev": {
-      "dependsOn": ["@cobaltcore-dev/aurora-portal#build"]
+    "test": {
+      "dependsOn": [
+        "@cobaltcore-dev/signal-openstack#build",
+        "@cobaltcore-dev/policy-engine#build"
+      ]
     }
   }
 }
