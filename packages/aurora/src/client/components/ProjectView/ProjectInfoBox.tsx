@@ -1,0 +1,220 @@
+import { Breadcrumb, BreadcrumbItem, KnownIcons } from "@cloudoperators/juno-ui-components"
+import { useRouteContext, useMatches, useNavigate, useParams } from "@tanstack/react-router"
+import { useState, useEffect } from "react"
+import { isRouteInfo } from "@/client/routes/routeInfo"
+
+interface ProjectInfoBoxProps {
+  projectInfo: {
+    id: string
+    name: string
+    description?: string
+    domain?: {
+      name?: string
+    }
+  }
+}
+
+const SECTION_LABELS: Record<string, string> = {
+  compute: "Compute",
+  network: "Network",
+  storage: "Storage",
+  services: "Services",
+}
+
+const SERVICE_LABELS: Record<string, string> = {
+  images: "Images",
+  flavors: "Flavors",
+  securitygroups: "Security Groups",
+  floatingips: "Floating IPs",
+  containers: "Object Storage (Swift)",
+  pca: "PCA (Clavis)",
+}
+
+export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
+  const { pageTitleRef } = useRouteContext({ from: "__root__" })
+  const [pageTitle, setPageTitle] = useState(pageTitleRef.current)
+  const navigate = useNavigate()
+  const matches = useMatches()
+
+  const { projectId, provider } = useParams({ strict: false }) as { projectId: string; provider: string }
+
+  useEffect(() => {
+    const handleTitleChange = (e: CustomEvent<{ title: string }>) => {
+      setPageTitle(e.detail.title)
+    }
+    window.addEventListener("pageTitleChange", handleTitleChange as EventListener)
+    setPageTitle(pageTitleRef.current)
+    return () => {
+      window.removeEventListener("pageTitleChange", handleTitleChange as EventListener)
+    }
+  }, [pageTitleRef])
+
+  const buildBreadcrumbs = () => {
+    const projectIdRouteId = "/_auth/projects/$projectId"
+
+    const childMatches = matches.filter((m) => m.routeId !== projectIdRouteId && m.routeId.startsWith(projectIdRouteId))
+    const deepestMatch = childMatches[childMatches.length - 1]
+
+    const rawData = deepestMatch?.staticData
+    const routeInfo = isRouteInfo(rawData) ? rawData : undefined
+    const section = routeInfo?.section
+    const service = routeInfo?.service
+    const isDetail = routeInfo?.isDetail ?? false
+
+    const sectionLabel = section ? SECTION_LABELS[section] : undefined
+    // Dynamic service label for containers - depends on provider
+    let serviceLabel = service ? SERVICE_LABELS[service] : undefined
+    if (service === "containers" && provider) {
+      serviceLabel = `Object Storage (${provider === "swift" ? "Swift" : "Ceph"})`
+    }
+
+    const isOverviewPage = !isDetail && service === "overview"
+    const isServicePage = !isDetail && !!service && service !== "overview"
+    const isSectionPage = !isDetail && !service && !!section
+
+    const items: Array<{ label?: string; icon?: KnownIcons; onClick?: () => void; active?: boolean }> = []
+
+    items.push({
+      icon: "home",
+      label: "Home",
+      onClick: () => navigate({ to: "/projects" }),
+    })
+
+    if (projectInfo.domain?.name) {
+      items.push({ label: projectInfo.domain.name })
+    }
+
+    items.push({
+      label: projectInfo.name,
+      onClick: () => navigate({ to: "/projects/$projectId", params: { projectId } }),
+    })
+
+    if (sectionLabel && section) {
+      if (isSectionPage || isOverviewPage) {
+        items.push({ label: sectionLabel, active: true })
+      } else if (section === "compute") {
+        items.push({
+          label: sectionLabel,
+          onClick: () =>
+            navigate({
+              to: "/projects/$projectId/compute/overview",
+              params: { projectId },
+            }),
+        })
+      } else if (section === "network") {
+        items.push({
+          label: sectionLabel,
+          onClick: () =>
+            navigate({
+              to: "/projects/$projectId/network/overview",
+              params: { projectId },
+            }),
+        })
+      } else if (section === "storage") {
+        items.push({
+          label: sectionLabel,
+          onClick: () =>
+            navigate({
+              to: "/projects/$projectId/storage/$provider/containers",
+              params: { projectId, provider },
+            }),
+        })
+      } else if (section === "services") {
+        items.push({
+          label: sectionLabel,
+          onClick: () =>
+            navigate({
+              to: "/projects/$projectId/services/overview",
+              params: { projectId },
+            }),
+        })
+      }
+    }
+
+    if (serviceLabel && section && service) {
+      if (isServicePage) {
+        items.push({ label: serviceLabel, active: true })
+      } else if (isDetail) {
+        if (section === "compute" && service === "images") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/projects/$projectId/compute/images",
+                params: { projectId },
+              }),
+          })
+        } else if (section === "compute" && service === "flavors") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/projects/$projectId/compute/flavors",
+                params: { projectId },
+              }),
+          })
+        } else if (section === "network" && service === "securitygroups") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/projects/$projectId/network/securitygroups",
+                params: { projectId },
+              }),
+          })
+        } else if (section === "network" && service === "floatingips") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/projects/$projectId/network/floatingips",
+                params: { projectId },
+              }),
+          })
+        } else if (section === "storage" && service === "containers") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/projects/$projectId/storage/$provider/containers",
+                params: { projectId, provider },
+              }),
+          })
+        } else if (section === "services" && service === "pca") {
+          items.push({
+            label: serviceLabel,
+            onClick: () =>
+              navigate({
+                to: "/projects/$projectId/services/pca",
+                params: { projectId },
+              }),
+          })
+        } else {
+          items.push({
+            label: serviceLabel,
+            onClick: () => {
+              const path = `/projects/${projectId}/${section}/${service}` as Parameters<typeof navigate>[0]["to"]
+              navigate({ to: path })
+            },
+          })
+        }
+      }
+    }
+
+    if (isDetail) {
+      items.push({ label: pageTitle, active: true })
+    }
+
+    return items
+  }
+
+  const breadcrumbs = buildBreadcrumbs()
+
+  return (
+    <Breadcrumb className="mt-8 mb-4">
+      {breadcrumbs.map((item, index) => (
+        <BreadcrumbItem key={index} label={item.label} icon={item.icon} onClick={item.onClick} active={item.active} />
+      ))}
+    </Breadcrumb>
+  )
+}

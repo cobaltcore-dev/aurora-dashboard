@@ -1,0 +1,17 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "@cobaltcore-dev/signal-openstack#build",
+        "@cobaltcore-dev/policy-engine#build"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "@cobaltcore-dev/signal-openstack#build",
+        "@cobaltcore-dev/policy-engine#build"
+      ]
+    }
+  }
+}

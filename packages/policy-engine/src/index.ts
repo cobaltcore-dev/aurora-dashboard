@@ -1,3 +1,4 @@
+export { PolicyEngine } from "./policyEngine"
 import { PolicyEngine } from "./policyEngine"
 import { loadPolicyConfigFromFile } from "./policyFileLoader"
 import { PolicyConfigSchema } from "./policyEngine"
