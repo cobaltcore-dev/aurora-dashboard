@@ -5,13 +5,12 @@ import { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/overview")({
   staticData: { section: "services", service: "overview" } satisfies RouteInfo,
+  head: () => ({ meta: [{ title: "Services Overview" }] }),
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const { t } = useLingui()
-  const { setPageTitle } = Route.useRouteContext()
-  setPageTitle(t`Services Overview`)
   return (
     <>
       <ContentHeading>{t`Services Overview`}</ContentHeading>

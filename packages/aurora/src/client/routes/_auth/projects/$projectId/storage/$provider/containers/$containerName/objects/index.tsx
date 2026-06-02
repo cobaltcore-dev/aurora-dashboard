@@ -1,5 +1,4 @@
 import { createFileRoute, redirect, useParams } from "@tanstack/react-router"
-import { useEffect } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
@@ -101,6 +100,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
   {
     staticData: { section: "storage", service: "containers", isDetail: true } satisfies RouteInfo,
     validateSearch: objectsSearchSchema,
+    head: ({ match }) => ({
+      meta: [{ title: match.params.containerName }],
+    }),
     component: () => {
       return <ObjectsDashboard />
     },
@@ -138,16 +140,7 @@ function ObjectsDashboard() {
     }),
   })
 
-  // Extract prefix and sort params so the ErrorBoundary can reset when the user
-  // navigates to a different folder — without this, a thrown error stays visible until reload.
   const { prefix, sortBy, sortDirection, search } = Route.useSearch()
-
-  const { setPageTitle } = Route.useRouteContext()
-  const pageTitle = containerName
-
-  useEffect(() => {
-    setPageTitle(pageTitle)
-  }, [pageTitle, setPageTitle])
 
   return (
     <div>

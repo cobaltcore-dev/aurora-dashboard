@@ -1,6 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, KnownIcons } from "@cloudoperators/juno-ui-components"
-import { useRouteContext, useMatches, useNavigate, useParams } from "@tanstack/react-router"
-import { useState, useEffect } from "react"
+import { useMatches, useNavigate, useParams } from "@tanstack/react-router"
+import { useMemo } from "react"
 import { isRouteInfo } from "@/client/routes/routeInfo"
 
 interface ProjectInfoBoxProps {
@@ -31,23 +31,18 @@ const SERVICE_LABELS: Record<string, string> = {
 }
 
 export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
-  const { pageTitleRef } = useRouteContext({ from: "__root__" })
-  const [pageTitle, setPageTitle] = useState(pageTitleRef.current)
   const navigate = useNavigate()
   const matches = useMatches()
 
   const { projectId, provider } = useParams({ strict: false }) as { projectId: string; provider: string }
 
-  useEffect(() => {
-    const handleTitleChange = (e: CustomEvent<{ title: string }>) => {
-      setPageTitle(e.detail.title)
+  const pageTitle = useMemo(() => {
+    for (let i = matches.length - 1; i >= 0; i--) {
+      const title = matches[i].meta?.find((m) => m != null && "title" in m)?.title
+      if (title) return title as string
     }
-    window.addEventListener("pageTitleChange", handleTitleChange as EventListener)
-    setPageTitle(pageTitleRef.current)
-    return () => {
-      window.removeEventListener("pageTitleChange", handleTitleChange as EventListener)
-    }
-  }, [pageTitleRef])
+    return ""
+  }, [matches])
 
   const buildBreadcrumbs = () => {
     const projectIdRouteId = "/_auth/projects/$projectId"

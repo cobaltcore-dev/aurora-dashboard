@@ -7,16 +7,12 @@ import { i18n } from "@lingui/core"
 import { ReactNode } from "react"
 
 const mockNavigate = vi.fn()
-let mockMatches: { routeId: string; staticData?: Record<string, unknown> }[] = []
+let mockMatches: { routeId: string; staticData?: Record<string, unknown>; meta?: Array<Record<string, unknown>> }[] = []
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
   useMatches: () => mockMatches,
   useParams: () => ({ projectId: "test-project", provider: "swift" }),
-  useRouteContext: vi.fn(() => ({
-    pageTitle: "Test Page Title",
-    pageTitleRef: { current: "Test Page Title" },
-  })),
 }))
 
 const PROJECT_ROUTE_ID = "/_auth/projects/$projectId"
@@ -204,6 +200,7 @@ describe("ProjectInfoBox", () => {
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/$imageId`,
           staticData: { section: "compute", service: "images", isDetail: true },
+          meta: [{ title: "Test Page Title" }],
         },
       ]
 
@@ -223,6 +220,7 @@ describe("ProjectInfoBox", () => {
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/flavors/$flavorId`,
           staticData: { section: "compute", service: "flavors", isDetail: true },
+          meta: [{ title: "Test Page Title" }],
         },
       ]
 
@@ -240,6 +238,7 @@ describe("ProjectInfoBox", () => {
         {
           routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/$id`,
           staticData: { section: "network", service: "securitygroups", isDetail: true },
+          meta: [{ title: "Test Page Title" }],
         },
       ]
 
@@ -257,6 +256,7 @@ describe("ProjectInfoBox", () => {
         {
           routeId: `${PROJECT_ROUTE_ID}/network/floatingips/$id`,
           staticData: { section: "network", service: "floatingips", isDetail: true },
+          meta: [{ title: "Test Page Title" }],
         },
       ]
 

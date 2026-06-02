@@ -6,13 +6,12 @@ import { ContentHeading } from "@cloudoperators/juno-ui-components"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/securitygroups/")({
   staticData: { section: "network", service: "securitygroups" } satisfies RouteInfo,
+  head: () => ({ meta: [{ title: "Security Groups" }] }),
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const { t } = useLingui()
-  const { setPageTitle } = Route.useRouteContext()
-  setPageTitle(t`Security Groups`)
   return (
     <>
       <ContentHeading>{t`Security Groups`}</ContentHeading>

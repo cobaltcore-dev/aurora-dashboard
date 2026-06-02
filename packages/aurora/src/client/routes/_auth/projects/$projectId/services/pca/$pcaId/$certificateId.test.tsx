@@ -7,14 +7,13 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { RouteComponent } from "./$certificateId"
 
-const mockSetPageTitle = vi.fn()
 const mockNavigate = vi.fn()
 
 vi.mock("@tanstack/react-router", () => ({
   createFileRoute: () => () => ({
     staticData: {},
     useParams: () => ({ projectId: "project-1", pcaId: "ca-1", certificateId: "cert-1" }),
-    useRouteContext: () => ({ setPageTitle: mockSetPageTitle }),
+    useRouteContext: () => ({}),
   }),
   useNavigate: () => mockNavigate,
 }))

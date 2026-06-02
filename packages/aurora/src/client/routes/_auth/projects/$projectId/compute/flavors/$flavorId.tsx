@@ -24,6 +24,16 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors/$flavorId")({
   staticData: { section: "compute", service: "flavors", isDetail: true } satisfies RouteInfo,
+  loader: async ({ context, params }) => {
+    const flavor = await context.trpcClient?.compute.getFlavorById.query({
+      project_id: params.projectId,
+      flavorId: params.flavorId,
+    })
+    return { flavorName: flavor?.name ?? null }
+  },
+  head: ({ loaderData }) => ({
+    meta: [{ title: loaderData?.flavorName ?? "Flavor Details" }],
+  }),
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -46,7 +56,7 @@ function RouteComponent() {
   const { projectId, flavorId } = useParams({
     from: "/_auth/projects/$projectId/compute/flavors/$flavorId",
   })
-  const { setPageTitle, trpcClient } = Route.useRouteContext()
+  const { trpcClient } = Route.useRouteContext()
   const navigate = useNavigate()
   const { t } = useLingui()
   const { translateError, isRetryableError } = useErrorTranslation()
@@ -73,16 +83,6 @@ function RouteComponent() {
   const [specModalOpen, toggleSpecModal] = useModal()
   const [accessModalOpen, toggleAccessModal] = useModal()
   const [deleteModalOpen, toggleDeleteModal] = useModal()
-
-  if (flavor?.name) {
-    setPageTitle(flavor.name)
-  } else if (status === "error") {
-    setPageTitle(t`Error - Flavor Details`)
-  } else if (status === "pending") {
-    setPageTitle(t`Loading Flavor...`)
-  } else {
-    setPageTitle(t`Flavor Details`)
-  }
 
   const handleBack = () => {
     navigate({

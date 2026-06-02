@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from "./store/AuthProvider"
 import { QueryClient, QueryClientProvider, hashKey } from "@tanstack/react-query"
 import { trpcReact, trpcReactClient, trpcClient, setBffEndpoint } from "./trpcClient"
 import { createAuroraRouter } from "./router"
-import { useState, useRef, useCallback, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
@@ -106,27 +106,12 @@ function AppInner({
 }) {
   const auth = useAuth()
 
-  const pageTitleRef = useRef("Aurora")
-
-  const setPageTitle = useCallback((title: string) => {
-    pageTitleRef.current = title
-    document.title = title
-
-    window.dispatchEvent(
-      new CustomEvent("pageTitleChange", {
-        detail: { title },
-      })
-    )
-  }, [])
-
   const routerContext = {
     trpcReact,
     trpcClient,
     auth,
     navItems,
     handleThemeToggle,
-    setPageTitle,
-    pageTitleRef,
   }
 
   return <RouterProvider router={router} context={routerContext} />

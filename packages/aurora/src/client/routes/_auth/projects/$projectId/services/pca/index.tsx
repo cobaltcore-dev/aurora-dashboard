@@ -6,15 +6,13 @@ import { PcaListContainer } from "./-components/PcaListContainer"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/")({
   staticData: { section: "services", service: "pca" } satisfies RouteInfo,
+  head: () => ({ meta: [{ title: "PCA" }] }),
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const { t } = useLingui()
   const { projectId } = Route.useParams()
-  const { setPageTitle } = Route.useRouteContext()
-
-  setPageTitle(t`PCA`)
 
   return (
     <>

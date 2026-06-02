@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Trans } from "@lingui/react/macro"
 import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { RouteInfo } from "@/client/routes/routeInfo"
@@ -9,6 +9,16 @@ import { PcaDetailsView } from "./-components/PcaDetailsView"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/")({
   staticData: { section: "services", service: "pca", isDetail: true } satisfies RouteInfo,
+  loader: async ({ context, params }) => {
+    const pca = await context.trpcClient?.services.pca.getById.query({
+      project_id: params.projectId,
+      certificate_authority_id: params.pcaId,
+    })
+    return { pcaTitle: pca?.configuration?.subject?.common_name || pca?.id || null }
+  },
+  head: ({ loaderData }) => ({
+    meta: [{ title: loaderData?.pcaTitle ?? "Certificate Authority" }],
+  }),
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -28,11 +38,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$p
 })
 
 function RouteComponent() {
-  const { t } = useLingui()
   const navigate = useNavigate()
   const projectId = useProjectId()
   const { pcaId } = Route.useParams()
-  const { setPageTitle } = Route.useRouteContext()
 
   const {
     isLoading,
@@ -46,7 +54,6 @@ function RouteComponent() {
 
   // Loading state
   if (isLoading) {
-    setPageTitle(t`Loading...`)
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -90,8 +97,6 @@ function RouteComponent() {
       </Stack>
     )
   }
-
-  setPageTitle(pca.configuration?.subject?.common_name || pca.id)
 
   return <PcaDetailsView pca={pca} />
 }

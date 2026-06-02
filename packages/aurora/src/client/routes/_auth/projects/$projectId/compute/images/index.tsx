@@ -6,14 +6,14 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/")({
   staticData: { section: "compute", service: "images" } satisfies RouteInfo,
+  head: () => ({ meta: [{ title: "Images" }] }),
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const { t } = useLingui()
   const { projectId } = Route.useParams()
-  const { trpcClient, setPageTitle } = Route.useRouteContext()
-  setPageTitle(t`Images`)
+  const { trpcClient } = Route.useRouteContext()
   return (
     <>
       <ContentHeader title={t`Images`} projectId={projectId} />

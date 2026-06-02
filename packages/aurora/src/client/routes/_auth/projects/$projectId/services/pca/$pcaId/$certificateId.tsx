@@ -16,13 +16,23 @@ import { Fragment } from "react/jsx-runtime"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/$certificateId")({
   staticData: { section: "services", service: "pca" } satisfies RouteInfo,
+  loader: async ({ context, params }) => {
+    const cert = await context.trpcClient?.services.pca.getByIdCertificate.query({
+      project_id: params.projectId,
+      certificate_authority_id: params.pcaId,
+      certificate_id: params.certificateId,
+    })
+    return { certTitle: cert ? `Certificate ${cert.id}` : null }
+  },
+  head: ({ loaderData }) => ({
+    meta: [{ title: loaderData?.certTitle ?? "Certificate" }],
+  }),
   component: RouteComponent,
 })
 
 export function RouteComponent() {
   const { t } = useLingui()
   const navigate = useNavigate()
-  const { setPageTitle } = Route.useRouteContext()
   const { projectId, pcaId, certificateId } = Route.useParams()
 
   const {
@@ -38,7 +48,6 @@ export function RouteComponent() {
 
   // Loading state
   if (isLoading) {
-    setPageTitle(t`Loading...`)
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -82,8 +91,6 @@ export function RouteComponent() {
       </Stack>
     )
   }
-
-  setPageTitle(`Certificate ${certificate.id}`)
 
   const basicInfo = [
     { label: t`CA ID`, value: certificate.certificate_authority_id },

@@ -10,8 +10,6 @@ export function createAuroraRouter(trpcReact: TrpcReact, trpcClient: TrpcClient)
       trpcClient,
       auth: undefined!,
       navItems: [],
-      pageTitleRef: undefined!,
-      setPageTitle: undefined!,
       handleThemeToggle: undefined!,
     },
   })
