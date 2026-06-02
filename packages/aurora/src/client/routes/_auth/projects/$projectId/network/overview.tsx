@@ -1,17 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { t } from "@lingui/core/macro"
 import { useLingui, Trans } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeading } from "@cloudoperators/juno-ui-components"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/overview")({
-  staticData: { section: "network", service: "overview" } satisfies RouteInfo,
+  staticData: { section: "network", service: "overview", crumb: { labelKey: "Network" } } satisfies RouteInfo,
+  head: () => ({ meta: [{ title: t`Network Overview` }] }),
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const { t } = useLingui()
-  const { setPageTitle } = Route.useRouteContext()
-  setPageTitle(t`Network Overview`)
   return (
     <>
       <ContentHeading>{t`Network Overview`}</ContentHeading>

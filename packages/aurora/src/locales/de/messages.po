@@ -439,9 +439,6 @@ msgstr ""
 msgid "Capabilities"
 msgstr "Capabilities"
 
-msgid "Ceph"
-msgstr ""
-
 msgid "Certificate Authority not found"
 msgstr ""
 
@@ -1090,12 +1087,6 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 
-msgid "Error - Flavor Details"
-msgstr "Fehler – Flavor-Details"
-
-msgid "Error - Image Details"
-msgstr "Fehler – Image-Details"
-
 msgid "Error Loading Buckets: {errorMessage}"
 msgstr ""
 
@@ -1378,9 +1369,6 @@ msgstr "Flavor \"{flavorName}\" wurde erfolgreich erstellt."
 msgid "Flavor \"{flavorName}\" has been successfully deleted."
 msgstr "Flavor \"{flavorName}\" wurde erfolgreich gelöscht."
 
-msgid "Flavor Details"
-msgstr "Flavor-Details"
-
 msgid "Flavor ID"
 msgstr "Flavor ID"
 
@@ -1539,9 +1527,6 @@ msgstr "Wenn keine Index-Datei vorhanden ist, zeigt die URL eine Liste der Objek
 
 msgid "Image \"{imageName}\" visibility updated to {visibility}"
 msgstr "Sichtbarkeit des Images \"{imageName}\" auf {visibility} aktualisiert"
-
-msgid "Image Details"
-msgstr "Image-Details"
 
 msgid "Image File"
 msgstr "Image-Datei"
@@ -1738,9 +1723,6 @@ msgstr "Container werden geladen..."
 msgid "Loading Flavor Details..."
 msgstr "Flavor-Details werden geladen..."
 
-msgid "Loading Flavor..."
-msgstr "Flavor wird geladen..."
-
 msgid "Loading Flavors..."
 msgstr "Lädt Flavors..."
 
@@ -1749,9 +1731,6 @@ msgstr "Floating IP-Details werden geladen..."
 
 msgid "Loading Image Details..."
 msgstr "Image-Details werden geladen..."
-
-msgid "Loading Image..."
-msgstr "Image wird geladen..."
 
 msgid "Loading images..."
 msgstr "Images werden geladen..."
@@ -2113,8 +2092,8 @@ msgstr " Objektname ist erforderlich"
 msgid "Object properties"
 msgstr "Objekt-Eigenschaften"
 
-msgid "Object Storage"
-msgstr "Object Storage"
+msgid "Object Storage (Ceph)"
+msgstr "Object Storage (Ceph)"
 
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"

@@ -1,4 +1,4 @@
-import { createRootRouteWithContext, Outlet, useRouter } from "@tanstack/react-router"
+import { createRootRouteWithContext, Outlet, useRouter, HeadContent } from "@tanstack/react-router"
 import { AppShell, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { MainNavigation } from "../components/navigation/MainNavigation"
 import { TrpcClient, TrpcReact } from "../trpcClient"
@@ -16,8 +16,6 @@ export interface RouterContext {
   auth: AuthContext
   navItems: NavigationItem[]
   handleThemeToggle?: (theme: string) => void
-  pageTitleRef: React.MutableRefObject<string>
-  setPageTitle: (title: string) => void
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -32,6 +30,7 @@ function AuroraLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <HeadContent />
       <style>{styles.toString()}</style>
 
       <AppShell pageHeader={<MainNavigation items={navItems} handleThemeToggle={handleThemeToggle} />} fullWidthContent>
