@@ -226,8 +226,8 @@ importers:
         version: 4.3.6
     devDependencies:
       '@cloudoperators/juno-ui-components':
-        specifier: 6.3.1
-        version: 6.3.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: 6.5.0
+        version: 6.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../config
@@ -749,9 +749,9 @@ packages:
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
 
-  '@cloudoperators/juno-ui-components@6.3.1':
-    resolution: {integrity: sha512-E6vEjhV3gfZ9JgM4XKDOcIarg9jEmaHijfy5JkhbbnLFtFa5ZY8W8DkjzkwoTRY8hVRZF3YMxkfT2hIBXmaDpQ==}
-    engines: {node: '>=20.12.0', pnpm: '>=8.0.0'}
+  '@cloudoperators/juno-ui-components@6.5.0':
+    resolution: {integrity: sha512-gWpQPioXMD/EWhpsLsH6thTeWDJqmss4jxqj7mmxc0Y6eKVVBdBddBdQy7dTH1MFVPgqEr9LyMnXkMtoKkv6NQ==}
+    engines: {node: '>=20.19.0', pnpm: '>=8.0.0'}
     peerDependencies:
       react: ^19.1.0
       react-dom: ^19.1.0
@@ -6574,7 +6574,7 @@ snapshots:
       human-id: 4.1.3
       prettier: 2.8.8
 
-  '@cloudoperators/juno-ui-components@6.3.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@cloudoperators/juno-ui-components@6.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
