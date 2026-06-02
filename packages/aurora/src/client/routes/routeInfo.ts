@@ -1,28 +1,22 @@
-export interface Crumb {
-  label?: string
-  to?: string
-  useParamAsLabel?: string
-}
+import { z } from "zod"
 
-export interface RouteInfo {
-  section: string
-  service?: string
-  isDetail?: boolean
-  crumb?: Crumb
-  sectionCrumb?: Crumb
-}
+const CrumbSchema = z.object({
+  label: z.string().optional(),
+  to: z.string().optional(),
+  useParamAsLabel: z.string().optional(),
+})
 
-function isCrumb(value: unknown): value is Crumb {
-  return typeof value === "object" && value !== null
-}
+const RouteInfoSchema = z.object({
+  section: z.string(),
+  service: z.string().optional(),
+  isDetail: z.boolean().optional(),
+  crumb: CrumbSchema.optional(),
+  sectionCrumb: CrumbSchema.optional(),
+})
+
+export type Crumb = z.infer<typeof CrumbSchema>
+export type RouteInfo = z.infer<typeof RouteInfoSchema>
 
 export function isRouteInfo(data: unknown): data is RouteInfo {
-  if (typeof data !== "object" || data === null) return false
-  const d = data as Record<string, unknown>
-  if (typeof d.section !== "string") return false
-  if (d.service !== undefined && typeof d.service !== "string") return false
-  if (d.isDetail !== undefined && typeof d.isDetail !== "boolean") return false
-  if (d.crumb !== undefined && !isCrumb(d.crumb)) return false
-  if (d.sectionCrumb !== undefined && !isCrumb(d.sectionCrumb)) return false
-  return true
+  return RouteInfoSchema.safeParse(data).success
 }
