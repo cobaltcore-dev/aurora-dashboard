@@ -2,7 +2,7 @@
   "name": "@cobaltcore-dev/policy-engine",
   "version": "2.0.0",
   "author": "UI-Team",
-  "private": false,
+  "private": true,
   "contributors": [
     "Andreas Pfau"
   ],
