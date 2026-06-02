@@ -46,7 +46,7 @@ const imagesSearchFields = {
 const imagesSearchSchema = z.object(imagesSearchFields).passthrough()
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images")({
-  staticData: { section: "compute", service: "images" } satisfies RouteInfo,
+  staticData: { section: "compute", service: "images", sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Images" } } satisfies RouteInfo,
   validateSearch: (search) => {
     const result = imagesSearchSchema.safeParse(search)
     if (result.success) return result.data

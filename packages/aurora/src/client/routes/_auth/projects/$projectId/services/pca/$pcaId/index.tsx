@@ -8,7 +8,7 @@ import { useProjectId } from "@/client/hooks/useProjectId"
 import { PcaDetailsView } from "./-components/PcaDetailsView"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/")({
-  staticData: { section: "services", service: "pca", isDetail: true } satisfies RouteInfo,
+  staticData: { section: "services", service: "pca", isDetail: true, sectionCrumb: { label: "Services", to: "/projects/$projectId/services/overview" }, crumb: { label: "PCA (Clavis)", to: "/projects/$projectId/services/pca" } } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const pca = await context.trpcClient?.services.pca.getById.query({
       project_id: params.projectId,

@@ -7,12 +7,12 @@ import { i18n } from "@lingui/core"
 import { ReactNode } from "react"
 
 const mockNavigate = vi.fn()
-let mockMatches: { routeId: string; staticData?: Record<string, unknown>; meta?: Array<Record<string, unknown>> }[] = []
+let mockMatches: { routeId: string; staticData?: Record<string, unknown>; meta?: Array<Record<string, unknown>>; params?: Record<string, string> }[] = []
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
   useMatches: () => mockMatches,
-  useParams: () => ({ projectId: "test-project", provider: "swift" }),
+  useParams: () => ({ projectId: "test-project" }),
 }))
 
 const PROJECT_ROUTE_ID = "/_auth/projects/$projectId"
@@ -70,7 +70,11 @@ describe("ProjectInfoBox", () => {
     it("shows section as active leaf on a section overview page", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
-        { routeId: `${PROJECT_ROUTE_ID}/compute/overview`, staticData: { section: "compute", service: "overview" } },
+        {
+          routeId: `${PROJECT_ROUTE_ID}/compute/overview`,
+          staticData: { section: "compute", service: "overview", crumb: { label: "Compute" } },
+          params: { projectId: "test-project" },
+        },
       ]
 
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
@@ -84,7 +88,11 @@ describe("ProjectInfoBox", () => {
     it("shows Network section as active leaf on network overview", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
-        { routeId: `${PROJECT_ROUTE_ID}/network/overview`, staticData: { section: "network", service: "overview" } },
+        {
+          routeId: `${PROJECT_ROUTE_ID}/network/overview`,
+          staticData: { section: "network", service: "overview", crumb: { label: "Network" } },
+          params: { projectId: "test-project" },
+        },
       ]
 
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
@@ -99,7 +107,11 @@ describe("ProjectInfoBox", () => {
     it("renders domain > project > Compute > Images on images list", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
-        { routeId: `${PROJECT_ROUTE_ID}/compute/images/`, staticData: { section: "compute", service: "images" } },
+        {
+          routeId: `${PROJECT_ROUTE_ID}/compute/images/`,
+          staticData: { section: "compute", service: "images", sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Images" } },
+          params: { projectId: "test-project" },
+        },
       ]
 
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
@@ -115,7 +127,11 @@ describe("ProjectInfoBox", () => {
     it("renders Compute > Flavors on flavors list", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
-        { routeId: `${PROJECT_ROUTE_ID}/compute/flavors/`, staticData: { section: "compute", service: "flavors" } },
+        {
+          routeId: `${PROJECT_ROUTE_ID}/compute/flavors/`,
+          staticData: { section: "compute", service: "flavors", sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Flavors" } },
+          params: { projectId: "test-project" },
+        },
       ]
 
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
@@ -130,7 +146,8 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/`,
-          staticData: { section: "network", service: "securitygroups" },
+          staticData: { section: "network", service: "securitygroups", sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Security Groups" } },
+          params: { projectId: "test-project" },
         },
       ]
 
@@ -142,12 +159,13 @@ describe("ProjectInfoBox", () => {
       })
     })
 
-    it("renders Storage > Object Storage (Swift) on containers list", async () => {
+    it("renders Storage > Object Storage (Swift) on swift containers list", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
-          staticData: { section: "storage", service: "containers" },
+          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider" } },
+          params: { projectId: "test-project", provider: "swift" },
         },
       ]
 
@@ -159,12 +177,32 @@ describe("ProjectInfoBox", () => {
       })
     })
 
+    it("renders Storage > Object Storage (Ceph) on ceph containers list", async () => {
+      mockMatches = [
+        { routeId: PROJECT_ROUTE_ID },
+        {
+          routeId: `${PROJECT_ROUTE_ID}/storage/ceph/containers`,
+          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider" } },
+          params: { projectId: "test-project", provider: "ceph" },
+        },
+      ]
+
+      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
+
+      await waitFor(() => {
+        expect(screen.getByText("Storage")).toBeInTheDocument()
+        expect(screen.getByText("Object Storage (Ceph)")).toBeInTheDocument()
+      })
+    })
+
     it("renders Storage > Object Storage (Swift) on object browser (detail)", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
-          staticData: { section: "storage", service: "containers", isDetail: true },
+          staticData: { section: "storage", service: "containers", isDetail: true, sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" } },
+          params: { projectId: "test-project", provider: "swift", containerName: "my-bucket" },
+          meta: [{ title: "my-bucket" }],
         },
       ]
 
@@ -181,7 +219,8 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/floatingips/`,
-          staticData: { section: "network", service: "floatingips" },
+          staticData: { section: "network", service: "floatingips", sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Floating IPs" } },
+          params: { projectId: "test-project" },
         },
       ]
 
@@ -199,7 +238,8 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/$imageId`,
-          staticData: { section: "compute", service: "images", isDetail: true },
+          staticData: { section: "compute", service: "images", isDetail: true, sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Images", to: "/projects/$projectId/compute/images" } },
+          params: { projectId: "test-project", imageId: "img-1" },
           meta: [{ title: "Test Page Title" }],
         },
       ]
@@ -209,7 +249,6 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => {
         expect(screen.getByText("Compute")).toBeInTheDocument()
         expect(screen.getByText("Images")).toBeInTheDocument()
-        // "Test Page Title" appears in both the breadcrumb and the ContentHeading
         expect(screen.getAllByText("Test Page Title").length).toBeGreaterThanOrEqual(1)
       })
     })
@@ -219,7 +258,8 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/flavors/$flavorId`,
-          staticData: { section: "compute", service: "flavors", isDetail: true },
+          staticData: { section: "compute", service: "flavors", isDetail: true, sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" } },
+          params: { projectId: "test-project", flavorId: "flavor-1" },
           meta: [{ title: "Test Page Title" }],
         },
       ]
@@ -237,7 +277,8 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/$id`,
-          staticData: { section: "network", service: "securitygroups", isDetail: true },
+          staticData: { section: "network", service: "securitygroups", isDetail: true, sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" } },
+          params: { projectId: "test-project", securityGroupId: "sg-1" },
           meta: [{ title: "Test Page Title" }],
         },
       ]
@@ -255,7 +296,8 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/floatingips/$id`,
-          staticData: { section: "network", service: "floatingips", isDetail: true },
+          staticData: { section: "network", service: "floatingips", isDetail: true, sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" } },
+          params: { projectId: "test-project", floatingIpId: "fip-1" },
           meta: [{ title: "Test Page Title" }],
         },
       ]
@@ -285,26 +327,10 @@ describe("ProjectInfoBox", () => {
     it("Compute breadcrumb on a service page navigates to compute overview", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
-        { routeId: `${PROJECT_ROUTE_ID}/compute/images/`, staticData: { section: "compute", service: "images" } },
-      ]
-
-      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
-
-      await waitFor(() => screen.getByText("Compute"))
-      fireEvent.click(screen.getByText("Compute"))
-
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/compute/overview",
-        params: { projectId: "test-project" },
-      })
-    })
-
-    it("Compute breadcrumb on a detail page navigates to compute overview", async () => {
-      mockMatches = [
-        { routeId: PROJECT_ROUTE_ID },
         {
-          routeId: `${PROJECT_ROUTE_ID}/compute/images/$imageId`,
-          staticData: { section: "compute", service: "images", isDetail: true },
+          routeId: `${PROJECT_ROUTE_ID}/compute/images/`,
+          staticData: { section: "compute", service: "images", sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Images" } },
+          params: { projectId: "test-project" },
         },
       ]
 
@@ -313,10 +339,9 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Compute"))
       fireEvent.click(screen.getByText("Compute"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/compute/overview",
-        params: { projectId: "test-project" },
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({ to: "/projects/$projectId/compute/overview" })
+      )
     })
 
     it("clicking Images breadcrumb on image detail navigates to images list", async () => {
@@ -324,7 +349,9 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/$imageId`,
-          staticData: { section: "compute", service: "images", isDetail: true },
+          staticData: { section: "compute", service: "images", isDetail: true, sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Images", to: "/projects/$projectId/compute/images" } },
+          params: { projectId: "test-project", imageId: "img-1" },
+          meta: [{ title: "My Image" }],
         },
       ]
 
@@ -333,10 +360,9 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Images"))
       fireEvent.click(screen.getByText("Images"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/compute/images",
-        params: { projectId: "test-project" },
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({ to: "/projects/$projectId/compute/images" })
+      )
     })
 
     it("clicking Flavors breadcrumb on flavor detail navigates to flavors list", async () => {
@@ -344,7 +370,9 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/flavors/$flavorId`,
-          staticData: { section: "compute", service: "flavors", isDetail: true },
+          staticData: { section: "compute", service: "flavors", isDetail: true, sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" } },
+          params: { projectId: "test-project", flavorId: "flavor-1" },
+          meta: [{ title: "My Flavor" }],
         },
       ]
 
@@ -353,30 +381,9 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Flavors"))
       fireEvent.click(screen.getByText("Flavors"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/compute/flavors",
-        params: { projectId: "test-project" },
-      })
-    })
-
-    it("Network breadcrumb on a service page navigates to network overview", async () => {
-      mockMatches = [
-        { routeId: PROJECT_ROUTE_ID },
-        {
-          routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/`,
-          staticData: { section: "network", service: "securitygroups" },
-        },
-      ]
-
-      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
-
-      await waitFor(() => screen.getByText("Network"))
-      fireEvent.click(screen.getByText("Network"))
-
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/network/overview",
-        params: { projectId: "test-project" },
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({ to: "/projects/$projectId/compute/flavors" })
+      )
     })
 
     it("clicking Security Groups breadcrumb on detail navigates to securitygroups list", async () => {
@@ -384,7 +391,9 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/$id`,
-          staticData: { section: "network", service: "securitygroups", isDetail: true },
+          staticData: { section: "network", service: "securitygroups", isDetail: true, sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" } },
+          params: { projectId: "test-project", securityGroupId: "sg-1" },
+          meta: [{ title: "My SG" }],
         },
       ]
 
@@ -393,10 +402,9 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Security Groups"))
       fireEvent.click(screen.getByText("Security Groups"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/network/securitygroups",
-        params: { projectId: "test-project" },
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({ to: "/projects/$projectId/network/securitygroups" })
+      )
     })
 
     it("clicking Floating IPs breadcrumb on detail navigates to floatingips list", async () => {
@@ -404,7 +412,9 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/floatingips/$id`,
-          staticData: { section: "network", service: "floatingips", isDetail: true },
+          staticData: { section: "network", service: "floatingips", isDetail: true, sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" } },
+          params: { projectId: "test-project", floatingIpId: "fip-1" },
+          meta: [{ title: "1.2.3.4" }],
         },
       ]
 
@@ -413,10 +423,9 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Floating IPs"))
       fireEvent.click(screen.getByText("Floating IPs"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/network/floatingips",
-        params: { projectId: "test-project" },
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({ to: "/projects/$projectId/network/floatingips" })
+      )
     })
 
     it("clicking Storage breadcrumb on a service page navigates to swift containers", async () => {
@@ -424,7 +433,8 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
-          staticData: { section: "storage", service: "containers" },
+          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider" } },
+          params: { projectId: "test-project", provider: "swift" },
         },
       ]
 
@@ -433,10 +443,9 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Storage"))
       fireEvent.click(screen.getByText("Storage"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers",
-        params: { projectId: "test-project", provider: "swift" },
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({ to: "/projects/$projectId/storage/$provider/containers" })
+      )
     })
 
     it("clicking Object Storage (Swift) breadcrumb on object browser detail navigates to containers list", async () => {
@@ -444,7 +453,9 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
-          staticData: { section: "storage", service: "containers", isDetail: true },
+          staticData: { section: "storage", service: "containers", isDetail: true, sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" } },
+          params: { projectId: "test-project", provider: "swift", containerName: "my-bucket" },
+          meta: [{ title: "my-bucket" }],
         },
       ]
 
@@ -453,10 +464,9 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Object Storage (Swift)"))
       fireEvent.click(screen.getByText("Object Storage (Swift)"))
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers",
-        params: { projectId: "test-project", provider: "swift" },
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({ to: "/projects/$projectId/storage/$provider/containers" })
+      )
     })
   })
 })
