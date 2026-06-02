@@ -12,6 +12,7 @@ export const types = [
   "ci", // continuous integration
   "build", // build system or external dependencies
   "revert", // revert previous commit
+  "publish", // publish packages to npm
 ]
 export const scopes = [
   "build",
