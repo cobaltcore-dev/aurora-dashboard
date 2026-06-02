@@ -5,7 +5,7 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors/")({
-  staticData: { section: "compute", service: "flavors", sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Flavors" } } satisfies RouteInfo,
+  staticData: { section: "compute", service: "flavors", sectionCrumb: { label: "Compute" }, crumb: { label: "Flavors" } } satisfies RouteInfo,
   head: () => ({ meta: [{ title: "Flavors" }] }),
   component: RouteComponent,
 })

@@ -5,7 +5,7 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeading } from "@cloudoperators/juno-ui-components"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/floatingips/")({
-  staticData: { section: "network", service: "floatingips", sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Floating IPs" } } satisfies RouteInfo,
+  staticData: { section: "network", service: "floatingips", sectionCrumb: { label: "Network" }, crumb: { label: "Floating IPs" } } satisfies RouteInfo,
   head: () => ({ meta: [{ title: "Floating IPs" }] }),
   component: RouteComponent,
 })

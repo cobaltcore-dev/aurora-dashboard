@@ -109,7 +109,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/`,
-          staticData: { section: "compute", service: "images", sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Images" } },
+          staticData: { section: "compute", service: "images", sectionCrumb: { label: "Compute" }, crumb: { label: "Images" } },
           params: { projectId: "test-project" },
         },
       ]
@@ -129,7 +129,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/flavors/`,
-          staticData: { section: "compute", service: "flavors", sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Flavors" } },
+          staticData: { section: "compute", service: "flavors", sectionCrumb: { label: "Compute" }, crumb: { label: "Flavors" } },
           params: { projectId: "test-project" },
         },
       ]
@@ -146,7 +146,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/`,
-          staticData: { section: "network", service: "securitygroups", sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Security Groups" } },
+          staticData: { section: "network", service: "securitygroups", sectionCrumb: { label: "Network" }, crumb: { label: "Security Groups" } },
           params: { projectId: "test-project" },
         },
       ]
@@ -164,7 +164,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
-          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider" } },
+          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider" } },
           params: { projectId: "test-project", provider: "swift" },
         },
       ]
@@ -182,7 +182,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/ceph/containers`,
-          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider" } },
+          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider" } },
           params: { projectId: "test-project", provider: "ceph" },
         },
       ]
@@ -219,7 +219,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/floatingips/`,
-          staticData: { section: "network", service: "floatingips", sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Floating IPs" } },
+          staticData: { section: "network", service: "floatingips", sectionCrumb: { label: "Network" }, crumb: { label: "Floating IPs" } },
           params: { projectId: "test-project" },
         },
       ]
@@ -329,7 +329,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/`,
-          staticData: { section: "compute", service: "images", sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Images" } },
+          staticData: { section: "compute", service: "images", sectionCrumb: { label: "Compute" }, crumb: { label: "Images" } },
           params: { projectId: "test-project" },
         },
       ]
@@ -433,7 +433,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
-          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider" } },
+          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider" } },
           params: { projectId: "test-project", provider: "swift" },
         },
       ]
