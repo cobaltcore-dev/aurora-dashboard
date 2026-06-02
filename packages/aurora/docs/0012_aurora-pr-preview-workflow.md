@@ -120,7 +120,7 @@ Runs when PR is NOT closed and has the `pr-build` label:
 2. **Remove `pr-preview` label on new commits** - If a new commit is pushed (synchronize event) and the `pr-preview` label exists, it is removed to force ArgoCD to redeploy
 3. **Checkout PR code** - Checks out the exact commit SHA from the PR
 4. **Generate version tag** - Creates a tag in the format `pr-{PR_NUMBER}-{SHORT_SHA}` (e.g., `pr-123-a1b2c3d`)
-5. **Build and push Docker image** - Builds the Docker image using `docker/Dockerfile` and pushes it to `ghcr.io/{org}/aurora-pr-preview:{version}`
+5. **Build and push Docker image** - Builds the Docker image using `docker/Dockerfile.public` and pushes it to `ghcr.io/{org}/aurora-pr-preview:{version}`
 6. **Add `pr-preview` label** - Adds the label to trigger ArgoCD deployment
 
 ### 3. Cleanup Old Images
