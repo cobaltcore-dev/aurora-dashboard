@@ -442,9 +442,6 @@ msgstr "Cannot move to the same location. Please select a different bucket, fold
 msgid "Capabilities"
 msgstr "Capabilities"
 
-msgid "Ceph"
-msgstr "Ceph"
-
 msgid "Certificate Authority not found"
 msgstr "Certificate Authority not found"
 
@@ -1093,12 +1090,6 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
-msgid "Error - Flavor Details"
-msgstr "Error - Flavor Details"
-
-msgid "Error - Image Details"
-msgstr "Error - Image Details"
-
 msgid "Error Loading Buckets: {errorMessage}"
 msgstr "Error Loading Buckets: {errorMessage}"
 
@@ -1381,9 +1372,6 @@ msgstr "Flavor \"{flavorName}\" has been successfully created."
 msgid "Flavor \"{flavorName}\" has been successfully deleted."
 msgstr "Flavor \"{flavorName}\" has been successfully deleted."
 
-msgid "Flavor Details"
-msgstr "Flavor Details"
-
 msgid "Flavor ID"
 msgstr "Flavor ID"
 
@@ -1542,9 +1530,6 @@ msgstr "If there is no index file, the URL displays a list of objects in the con
 
 msgid "Image \"{imageName}\" visibility updated to {visibility}"
 msgstr "Image \"{imageName}\" visibility updated to {visibility}"
-
-msgid "Image Details"
-msgstr "Image Details"
 
 msgid "Image File"
 msgstr "Image File"
@@ -1759,9 +1744,6 @@ msgstr "Loading Containers..."
 msgid "Loading Flavor Details..."
 msgstr "Loading Flavor Details..."
 
-msgid "Loading Flavor..."
-msgstr "Loading Flavor..."
-
 msgid "Loading Flavors..."
 msgstr "Loading Flavors..."
 
@@ -1770,9 +1752,6 @@ msgstr "Loading Floating IP Details..."
 
 msgid "Loading Image Details..."
 msgstr "Loading Image Details..."
-
-msgid "Loading Image..."
-msgstr "Loading Image..."
 
 msgid "Loading images..."
 msgstr "Loading images..."
@@ -2134,8 +2113,8 @@ msgstr "Object name is required"
 msgid "Object properties"
 msgstr "Object properties"
 
-msgid "Object Storage"
-msgstr "Object Storage"
+msgid "Object Storage (Ceph)"
+msgstr "Object Storage (Ceph)"
 
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"

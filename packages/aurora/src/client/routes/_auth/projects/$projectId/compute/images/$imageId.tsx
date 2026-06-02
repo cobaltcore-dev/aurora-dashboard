@@ -34,9 +34,29 @@ import { useState } from "react"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/$imageId")({
-  staticData: { section: "compute", service: "images", isDetail: true } satisfies RouteInfo,
+  staticData: {
+    section: "compute",
+    service: "images",
+    isDetail: true,
+    sectionCrumb: { labelKey: "Compute" },
+    crumb: { labelKey: "Images", to: "/projects/$projectId/compute/images" },
+  } satisfies RouteInfo,
   validateSearch: z.object({
     tab: z.enum(["details", "sharing"]).optional(),
+  }),
+  loader: async ({ context, params }) => {
+    try {
+      const image = await context.trpcClient?.compute.getImageById.query({
+        project_id: params.projectId,
+        imageId: params.imageId,
+      })
+      return { imageTitle: (image?.name as string | undefined) ?? image?.id ?? null }
+    } catch {
+      return { imageTitle: null }
+    }
+  },
+  head: ({ loaderData }) => ({
+    meta: [{ title: loaderData?.imageTitle ?? "Image Details" }],
   }),
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
@@ -73,7 +93,6 @@ function RouteComponent() {
     from: "/_auth/projects/$projectId/compute/images/$imageId",
   })
 
-  const { setPageTitle } = Route.useRouteContext()
   const navigate = useNavigate()
   const { t } = useLingui()
 
@@ -167,19 +186,6 @@ function RouteComponent() {
       const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message
       setToastData(getImageAccessStatusErrorToast(errorMessage, { onDismiss: () => setToastData(null) }))
     }
-  }
-
-  // Type-safe: name kann string | undefined | null sein
-  if (image?.name && typeof image.name === "string") {
-    setPageTitle(image.name)
-  } else if (image?.id) {
-    setPageTitle(image.id)
-  } else if (status === "error") {
-    setPageTitle(t`Error - Image Details`)
-  } else if (status === "pending") {
-    setPageTitle(t`Loading Image...`)
-  } else {
-    setPageTitle(t`Image Details`)
   }
 
   const handleBack = () => {
