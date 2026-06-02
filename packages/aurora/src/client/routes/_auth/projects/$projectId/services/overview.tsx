@@ -4,7 +4,7 @@ import { ContentHeading } from "@cloudoperators/juno-ui-components"
 import { RouteInfo } from "@/client/routes/routeInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/overview")({
-  staticData: { section: "services", service: "overview", crumb: { label: "Services" } } satisfies RouteInfo,
+  staticData: { section: "services", service: "overview", crumb: { labelKey: "Services" } } satisfies RouteInfo,
   head: () => ({ meta: [{ title: "Services Overview" }] }),
   component: RouteComponent,
 })

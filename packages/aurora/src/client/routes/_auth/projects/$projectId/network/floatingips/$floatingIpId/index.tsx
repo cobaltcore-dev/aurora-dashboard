@@ -12,8 +12,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/floatin
     section: "network",
     service: "floatingips",
     isDetail: true,
-    sectionCrumb: { label: "Network" },
-    crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" },
+    sectionCrumb: { labelKey: "Network" },
+    crumb: { labelKey: "Floating IPs", to: "/projects/$projectId/network/floatingips" },
   } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const floatingIp = await context.trpcClient?.network.floatingIp.getById.query({

@@ -49,8 +49,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images"
   staticData: {
     section: "compute",
     service: "images",
-    sectionCrumb: { label: "Compute" },
-    crumb: { label: "Images" },
+    sectionCrumb: { labelKey: "Compute" },
+    crumb: { labelKey: "Images" },
   } satisfies RouteInfo,
   validateSearch: (search) => {
     const result = imagesSearchSchema.safeParse(search)

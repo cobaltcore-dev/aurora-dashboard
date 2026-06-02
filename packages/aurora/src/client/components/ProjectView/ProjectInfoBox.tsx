@@ -1,7 +1,8 @@
 import { Breadcrumb, BreadcrumbItem, KnownIcons } from "@cloudoperators/juno-ui-components"
 import { useMatches, useNavigate, useParams } from "@tanstack/react-router"
 import { useMemo } from "react"
-import { isRouteInfo } from "@/client/routes/routeInfo"
+import { useLingui } from "@lingui/react/macro"
+import { isRouteInfo, CrumbLabelKey } from "@/client/routes/routeInfo"
 
 interface ProjectInfoBoxProps {
   projectInfo: {
@@ -14,21 +15,34 @@ interface ProjectInfoBoxProps {
   }
 }
 
-function resolveProviderLabel(provider: string | undefined) {
-  if (provider === "swift") return "Object Storage (Swift)"
-  if (provider === "ceph") return "Object Storage (Ceph)"
-  return "Storage"
-}
-
 export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
+  const { t } = useLingui()
   const navigate = useNavigate()
   const matches = useMatches()
   const { projectId } = useParams({ strict: false }) as { projectId: string }
 
+  const CRUMB_LABELS: Record<CrumbLabelKey, string> = {
+    Compute: t`Compute`,
+    Network: t`Network`,
+    Storage: t`Storage`,
+    Services: t`Services`,
+    Images: t`Images`,
+    Flavors: t`Flavors`,
+    "Security Groups": t`Security Groups`,
+    "Floating IPs": t`Floating IPs`,
+    "PCA (Clavis)": t`PCA (Clavis)`,
+  }
+
+  function resolveProviderLabel(provider: string | undefined) {
+    if (provider === "swift") return t`Object Storage (Swift)`
+    if (provider === "ceph") return t`Object Storage (Ceph)`
+    return t`Storage`
+  }
+
   const breadcrumbs = useMemo(() => {
     const items: Array<{ label?: string; icon?: KnownIcons; onClick?: () => void; active?: boolean }> = []
 
-    items.push({ icon: "home", label: "Home", onClick: () => navigate({ to: "/projects" }) })
+    items.push({ icon: "home", label: t`Home`, onClick: () => navigate({ to: "/projects" }) })
 
     if (projectInfo.domain?.name) {
       items.push({ label: projectInfo.domain.name })
@@ -51,7 +65,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     const params = deepest.params as Record<string, string>
 
     if (info.sectionCrumb) {
-      const { label, to } = info.sectionCrumb
+      const { labelKey, to } = info.sectionCrumb
+      const label = labelKey ? CRUMB_LABELS[labelKey] : undefined
       const isLeaf = !info.crumb
       items.push(
         to
@@ -61,8 +76,12 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     }
 
     if (info.crumb) {
-      const { label, to, useParamAsLabel } = info.crumb
-      const resolvedLabel = useParamAsLabel ? resolveProviderLabel(params[useParamAsLabel]) : label
+      const { labelKey, to, useParamAsLabel } = info.crumb
+      const resolvedLabel = useParamAsLabel
+        ? resolveProviderLabel(params[useParamAsLabel])
+        : labelKey
+          ? CRUMB_LABELS[labelKey]
+          : undefined
 
       if (info.isDetail) {
         items.push({ label: resolvedLabel, onClick: () => navigate({ to: to as never, params: params as never }) })
@@ -78,7 +97,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     }
 
     return items
-  }, [matches, projectInfo, projectId, navigate])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matches, projectInfo, projectId, navigate, t])
 
   return (
     <Breadcrumb className="mt-8 mb-4">

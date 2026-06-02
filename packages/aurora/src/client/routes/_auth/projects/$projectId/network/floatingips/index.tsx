@@ -8,8 +8,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/floatin
   staticData: {
     section: "network",
     service: "floatingips",
-    sectionCrumb: { label: "Network" },
-    crumb: { label: "Floating IPs" },
+    sectionCrumb: { labelKey: "Network" },
+    crumb: { labelKey: "Floating IPs" },
   } satisfies RouteInfo,
   head: () => ({ meta: [{ title: "Floating IPs" }] }),
   component: RouteComponent,

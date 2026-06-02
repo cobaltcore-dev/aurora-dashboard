@@ -38,8 +38,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/
     section: "compute",
     service: "images",
     isDetail: true,
-    sectionCrumb: { label: "Compute" },
-    crumb: { label: "Images", to: "/projects/$projectId/compute/images" },
+    sectionCrumb: { labelKey: "Compute" },
+    crumb: { labelKey: "Images", to: "/projects/$projectId/compute/images" },
   } satisfies RouteInfo,
   validateSearch: z.object({
     tab: z.enum(["details", "sharing"]).optional(),

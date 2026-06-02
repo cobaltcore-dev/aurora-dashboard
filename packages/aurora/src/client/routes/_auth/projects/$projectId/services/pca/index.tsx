@@ -8,8 +8,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/")
   staticData: {
     section: "services",
     service: "pca",
-    sectionCrumb: { label: "Services" },
-    crumb: { label: "PCA (Clavis)" },
+    sectionCrumb: { labelKey: "Services" },
+    crumb: { labelKey: "PCA (Clavis)" },
   } satisfies RouteInfo,
   head: () => ({ meta: [{ title: "PCA" }] }),
   component: RouteComponent,

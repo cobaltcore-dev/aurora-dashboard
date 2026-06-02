@@ -102,7 +102,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
       section: "storage",
       service: "containers",
       isDetail: true,
-      sectionCrumb: { label: "Storage" },
+      sectionCrumb: { labelKey: "Storage" },
       crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" },
     } satisfies RouteInfo,
     validateSearch: objectsSearchSchema,

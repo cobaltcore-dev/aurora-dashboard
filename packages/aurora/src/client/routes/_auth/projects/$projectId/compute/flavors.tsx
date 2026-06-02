@@ -18,8 +18,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
   staticData: {
     section: "compute",
     service: "flavors",
-    sectionCrumb: { label: "Compute" },
-    crumb: { label: "Flavors" },
+    sectionCrumb: { labelKey: "Compute" },
+    crumb: { labelKey: "Flavors" },
   } satisfies RouteInfo,
   validateSearch: (search) => {
     const result = flavorsSearchSchema.safeParse(search)

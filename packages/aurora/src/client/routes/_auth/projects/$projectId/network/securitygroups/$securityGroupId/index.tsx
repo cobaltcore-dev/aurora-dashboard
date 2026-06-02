@@ -23,8 +23,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/securit
     section: "network",
     service: "securitygroups",
     isDetail: true,
-    sectionCrumb: { label: "Network" },
-    crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" },
+    sectionCrumb: { labelKey: "Network" },
+    crumb: { labelKey: "Security Groups", to: "/projects/$projectId/network/securitygroups" },
   } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const sg = await context.trpcClient?.network.securityGroup.getById.query({

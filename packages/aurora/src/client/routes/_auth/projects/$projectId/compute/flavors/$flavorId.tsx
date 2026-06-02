@@ -27,8 +27,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
     section: "compute",
     service: "flavors",
     isDetail: true,
-    sectionCrumb: { label: "Compute" },
-    crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" },
+    sectionCrumb: { labelKey: "Compute" },
+    crumb: { labelKey: "Flavors", to: "/projects/$projectId/compute/flavors" },
   } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const flavor = await context.trpcClient?.compute.getFlavorById.query({

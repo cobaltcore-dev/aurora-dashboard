@@ -1,7 +1,21 @@
 import { z } from "zod"
 
+export const CRUMB_LABEL_KEYS = [
+  "Compute",
+  "Network",
+  "Storage",
+  "Services",
+  "Images",
+  "Flavors",
+  "Security Groups",
+  "Floating IPs",
+  "PCA (Clavis)",
+] as const
+
+export type CrumbLabelKey = (typeof CRUMB_LABEL_KEYS)[number]
+
 const CrumbSchema = z.object({
-  label: z.string().optional(),
+  labelKey: z.enum(CRUMB_LABEL_KEYS).optional(),
   to: z.string().optional(),
   useParamAsLabel: z.string().optional(),
 })

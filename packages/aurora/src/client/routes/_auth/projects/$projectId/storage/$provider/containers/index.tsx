@@ -98,7 +98,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
   staticData: {
     section: "storage",
     service: "containers",
-    sectionCrumb: { label: "Storage" },
+    sectionCrumb: { labelKey: "Storage" },
     crumb: { useParamAsLabel: "provider" },
   } satisfies RouteInfo,
   validateSearch: containersSearchSchema,
