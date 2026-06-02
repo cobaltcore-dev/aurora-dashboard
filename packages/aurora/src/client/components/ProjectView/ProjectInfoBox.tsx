@@ -21,25 +21,25 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   const matches = useMatches()
   const { projectId } = useParams({ strict: false }) as { projectId: string }
 
-  const CRUMB_LABELS: Record<CrumbLabelKey, string> = {
-    Compute: t`Compute`,
-    Network: t`Network`,
-    Storage: t`Storage`,
-    Services: t`Services`,
-    Images: t`Images`,
-    Flavors: t`Flavors`,
-    "Security Groups": t`Security Groups`,
-    "Floating IPs": t`Floating IPs`,
-    "PCA (Clavis)": t`PCA (Clavis)`,
-  }
-
-  function resolveProviderLabel(provider: string | undefined) {
-    if (provider === "swift") return t`Object Storage (Swift)`
-    if (provider === "ceph") return t`Object Storage (Ceph)`
-    return t`Storage`
-  }
-
   const breadcrumbs = useMemo(() => {
+    const crumbLabels: Record<CrumbLabelKey, string> = {
+      Compute: t`Compute`,
+      Network: t`Network`,
+      Storage: t`Storage`,
+      Services: t`Services`,
+      Images: t`Images`,
+      Flavors: t`Flavors`,
+      "Security Groups": t`Security Groups`,
+      "Floating IPs": t`Floating IPs`,
+      "PCA (Clavis)": t`PCA (Clavis)`,
+    }
+
+    const resolveProviderLabel = (provider: string | undefined) => {
+      if (provider === "swift") return t`Object Storage (Swift)`
+      if (provider === "ceph") return t`Object Storage (Ceph)`
+      return t`Storage`
+    }
+
     const items: Array<{ label?: string; icon?: KnownIcons; onClick?: () => void; active?: boolean }> = []
 
     items.push({ icon: "home", label: t`Home`, onClick: () => navigate({ to: "/projects" }) })
@@ -66,7 +66,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     if (info.sectionCrumb) {
       const { labelKey, to } = info.sectionCrumb
-      const label = labelKey ? CRUMB_LABELS[labelKey] : undefined
+      const label = labelKey ? crumbLabels[labelKey] : undefined
       const isLeaf = !info.crumb
       items.push(
         to
@@ -80,7 +80,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
       const resolvedLabel = useParamAsLabel
         ? resolveProviderLabel(params[useParamAsLabel])
         : labelKey
-          ? CRUMB_LABELS[labelKey]
+          ? crumbLabels[labelKey]
           : undefined
 
       if (info.isDetail) {
@@ -97,7 +97,6 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     }
 
     return items
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matches, projectInfo, projectId, navigate, t])
 
   return (
