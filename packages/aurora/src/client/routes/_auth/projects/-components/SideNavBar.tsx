@@ -85,7 +85,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
       : []),
     {
       service: "ceph-containers",
-      label: t`Ceph`,
+      label: t`Object Storage (Ceph)`,
       to: "/projects/$projectId/storage/$provider/containers" as const,
       params: { projectId, provider: "ceph" },
     },

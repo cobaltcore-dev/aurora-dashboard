@@ -98,7 +98,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
   staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider" } } satisfies RouteInfo,
   validateSearch: containersSearchSchema,
   head: ({ match }) => ({
-    meta: [{ title: match.params.provider === "swift" || match.params.provider === "ceph" ? "Object Storage" : "Storage Overview" }],
+    meta: [{ title: match.params.provider === "swift" ? "Object Storage (Swift)" : match.params.provider === "ceph" ? "Object Storage (Ceph)" : "Storage Overview" }],
   }),
   component: () => {
     return <StorageDashboard />
@@ -135,8 +135,10 @@ function StorageDashboard() {
   let pageTitle: string
   switch (provider) {
     case "swift":
+      pageTitle = t`Object Storage (Swift)`
+      break
     case "ceph":
-      pageTitle = t`Object Storage`
+      pageTitle = t`Object Storage (Ceph)`
       break
     default:
       pageTitle = t`Storage Overview`
