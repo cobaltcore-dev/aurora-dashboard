@@ -52,8 +52,11 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     if (info.sectionCrumb) {
       const { label, to } = info.sectionCrumb
+      const isLeaf = !info.crumb
       items.push(
-        to ? { label, onClick: () => navigate({ to: to as never, params: params as never }) } : { label, active: true }
+        to
+          ? { label, onClick: () => navigate({ to: to as never, params: params as never }) }
+          : { label, active: isLeaf }
       )
     }
 
