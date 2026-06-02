@@ -45,11 +45,15 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/
     tab: z.enum(["details", "sharing"]).optional(),
   }),
   loader: async ({ context, params }) => {
-    const image = await context.trpcClient?.compute.getImageById.query({
-      project_id: params.projectId,
-      imageId: params.imageId,
-    })
-    return { imageTitle: (image?.name as string | undefined) ?? image?.id ?? null }
+    try {
+      const image = await context.trpcClient?.compute.getImageById.query({
+        project_id: params.projectId,
+        imageId: params.imageId,
+      })
+      return { imageTitle: (image?.name as string | undefined) ?? image?.id ?? null }
+    } catch {
+      return { imageTitle: null }
+    }
   },
   head: ({ loaderData }) => ({
     meta: [{ title: loaderData?.imageTitle ?? "Image Details" }],

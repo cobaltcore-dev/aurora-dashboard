@@ -2093,7 +2093,7 @@ msgid "Object properties"
 msgstr "Objekt-Eigenschaften"
 
 msgid "Object Storage (Ceph)"
-msgstr "Objekt-Speicher (Ceph)"
+msgstr "Object Storage (Ceph)"
 
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"
