@@ -185,6 +185,38 @@ describe("PcaCertificatesListContainer", () => {
     expect(screen.queryByRole("button", { name: "Issue End Entity Certificate" })).not.toBeInTheDocument()
   })
 
+  it("shows issue certificate action in empty state when READY and opens modal", async () => {
+    const user = userEvent.setup()
+
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    renderComponent()
+
+    const button = screen.getByRole("button", { name: "Issue End Entity Certificate" })
+    expect(button).toBeInTheDocument()
+
+    await user.click(button)
+    expect(screen.getByText("Issue End Entity Modal")).toBeInTheDocument()
+  })
+
+  it("does not show issue certificate action in empty state when state is not READY", () => {
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    renderComponent("AWAITING_CERTIFICATE")
+
+    expect(screen.queryByRole("button", { name: "Issue End Entity Certificate" })).not.toBeInTheDocument()
+  })
+
   it("renders correct column headers", () => {
     vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
       data: [validCertificate],

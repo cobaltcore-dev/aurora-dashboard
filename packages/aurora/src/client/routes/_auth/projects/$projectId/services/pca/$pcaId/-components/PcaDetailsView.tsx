@@ -78,12 +78,20 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         {pca.state === "AWAITING_CERTIFICATE" && (
           <Stack direction="vertical" gap="1" className="bg-dt-background mb-1 rounded-sm p-2">
             <Stack direction="vertical" gap="1">
-              <div className="text-base font-bold">Lifecycle action</div>
-              <div>Add a Signed Certificate to your CA to activate it</div>
+              <div className="text-base font-bold">
+                <Trans>Lifecycle action</Trans>
+              </div>
+              <div>
+                <Trans>Add a Signed Certificate to your CA to activate it</Trans>
+              </div>
             </Stack>
             <Stack direction="horizontal" gap="2" distribution="end">
-              <Button onClick={toggleIssueSelfSignedModal}>Issue Self-Signed Certificate</Button>
-              {/* <Button onClick={toggleImportExternallySignedModal}>Import Signed Certificate</Button> */}
+              <Button onClick={toggleIssueSelfSignedModal}>
+                <Trans>Issue Self-Signed Certificate</Trans>
+              </Button>
+              {/* <Button onClick={toggleImportExternallySignedModal}>
+                <Trans>Import Signed Certificate</Trans>
+              </Button> */}
             </Stack>
           </Stack>
         )}

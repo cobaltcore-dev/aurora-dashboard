@@ -60,23 +60,6 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
     )
   }
 
-  if (pcaCertificates.length === 0) {
-    return (
-      <DataGrid columns={columns().length} className="pca-certificates" data-testid="no-pcas-certificates">
-        <DataGridRow>
-          <DataGridCell colSpan={columns().length}>
-            <ContentHeading>
-              <Trans>No Certificates issued by this Certificate Authority found</Trans>
-            </ContentHeading>
-            <p>
-              <Trans>There are no Certificates available for this Certificate Authority.</Trans>
-            </p>
-          </DataGridCell>
-        </DataGridRow>
-      </DataGrid>
-    )
-  }
-
   return (
     <div className="relative">
       {pcaState === "READY" && (
@@ -92,16 +75,31 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
         </>
       )}
 
-      <DataGrid columns={columns().length}>
-        <DataGridRow>
-          {columns().map((label) => (
-            <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
+      {pcaCertificates.length === 0 ? (
+        <DataGrid columns={columns().length} className="pca-certificates" data-testid="no-pcas-certificates">
+          <DataGridRow>
+            <DataGridCell colSpan={columns().length}>
+              <ContentHeading>
+                <Trans>No Certificates issued by this Certificate Authority found</Trans>
+              </ContentHeading>
+              <p>
+                <Trans>There are no Certificates available for this Certificate Authority.</Trans>
+              </p>
+            </DataGridCell>
+          </DataGridRow>
+        </DataGrid>
+      ) : (
+        <DataGrid columns={columns().length}>
+          <DataGridRow>
+            {columns().map((label) => (
+              <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
+            ))}
+          </DataGridRow>
+          {pcaCertificates.map((certificate) => (
+            <PcaCertificatesTableRow key={certificate.id} certificate={certificate} />
           ))}
-        </DataGridRow>
-        {pcaCertificates.map((certificate) => (
-          <PcaCertificatesTableRow key={certificate.id} certificate={certificate} />
-        ))}
-      </DataGrid>
+        </DataGrid>
+      )}
     </div>
   )
 }

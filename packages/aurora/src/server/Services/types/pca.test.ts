@@ -864,6 +864,93 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
         }).success
       ).toBe(true)
     })
+
+    it("should reject with empty certificate_authority_id", () => {
+      expect(
+        CreateCertificateInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "",
+          configuration: {
+            validity: {
+              not_after: 1736851200,
+              not_before: 1705315200,
+            },
+          },
+          csr: "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject without certificate_authority_id", () => {
+      expect(
+        CreateCertificateInputSchema.safeParse({
+          project_id: "project-1",
+          configuration: {
+            validity: {
+              not_after: 1736851200,
+              not_before: 1705315200,
+            },
+          },
+          csr: "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject with empty csr", () => {
+      expect(
+        CreateCertificateInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          configuration: {
+            validity: {
+              not_after: 1736851200,
+              not_before: 1705315200,
+            },
+          },
+          csr: "",
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject without csr", () => {
+      expect(
+        CreateCertificateInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          configuration: {
+            validity: {
+              not_after: 1736851200,
+              not_before: 1705315200,
+            },
+          },
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject without project_id", () => {
+      expect(
+        CreateCertificateInputSchema.safeParse({
+          certificate_authority_id: "ca-123",
+          configuration: {
+            validity: {
+              not_after: 1736851200,
+              not_before: 1705315200,
+            },
+          },
+          csr: "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject without configuration", () => {
+      expect(
+        CreateCertificateInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          csr: "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+        }).success
+      ).toBe(false)
+    })
   })
 
   describe("CertificateIdInputSchema", () => {

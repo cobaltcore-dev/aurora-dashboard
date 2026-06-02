@@ -119,8 +119,8 @@ export const CertificateConfigurationSchema = z.object({
 // Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates - Create new Certificate
 export const CreateCertificateInputSchema = z.object({
   project_id: z.string(),
-  certificate_authority_id: z.string(),
-  csr: z.string(),
+  certificate_authority_id: z.string().min(1),
+  csr: z.string().min(1),
   configuration: CertificateConfigurationSchema,
 })
 

@@ -75,10 +75,8 @@ describe("IssueSelfSignedCertificateModal", () => {
   })
 
   it("does not submit when pca csr is missing", async () => {
-    const user = userEvent.setup()
-
     renderModal(createPca())
-    await user.click(screen.getByRole("button", { name: "Issue Certificate" }))
+    expect(screen.getByRole("button", { name: "Issue Certificate" })).toBeDisabled()
 
     await waitFor(() => {
       expect(mockMutateAsync).not.toHaveBeenCalled()

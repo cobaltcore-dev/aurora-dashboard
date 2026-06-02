@@ -52,7 +52,7 @@ export const IssueSelfSignedCertificateModal = ({ open, onClose, pca }: IssueSel
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Issue Certificate`}
       onConfirm={handleConfirm}
-      disableConfirmButton={isPending}
+      disableConfirmButton={isPending || !pca.csr}
     >
       {createCertificateMutation.error && (
         <Message dismissible={false} variant="error" className="mb-4">

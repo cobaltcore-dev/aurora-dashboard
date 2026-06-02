@@ -21,7 +21,7 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
   })
 
   const formSchema = z.object({
-    csr: z.string().trim(),
+    csr: z.string().trim().min(1),
   })
 
   const form = useForm({
@@ -31,14 +31,14 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async () => {
+    onSubmit: async ({ value }) => {
       if (isPending) return
 
       await createCertificateMutation.mutateAsync({
         project_id: projectId,
         certificate_authority_id: pcaId,
         // Normalize to one format so users can paste raw multi-line CSRs with \n along with already formatted ones
-        csr: form.state.values.csr.replace(/\\n/g, "\n"),
+        csr: value.csr.replace(/\\n/g, "\n"),
         configuration: { validity: { not_after: Math.floor(Date.now() / 1000) + 8 * 60 * 60 } },
       })
       handleClose()
@@ -64,7 +64,7 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isPending || !currentCsr}
+      disableConfirmButton={isPending || !(currentCsr.trim().length > 0)}
     >
       {createCertificateMutation.error && (
         <Message dismissible={false} variant="error" className="mb-4">
