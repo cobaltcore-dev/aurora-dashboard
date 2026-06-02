@@ -1,7 +1,7 @@
 {
   "name": "@cobaltcore-dev/signal-openstack",
   "version": "1.0.0",
-  "private": false,
+  "private": true,
   "description": "Openstack client",
   "author": "UI-Team",
   "source": "src/index.js",
