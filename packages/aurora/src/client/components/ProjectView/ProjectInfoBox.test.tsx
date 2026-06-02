@@ -200,7 +200,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
-          staticData: { section: "storage", service: "containers", isDetail: true, sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" } },
+          staticData: { section: "storage", service: "containers", isDetail: true, sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" } },
           params: { projectId: "test-project", provider: "swift", containerName: "my-bucket" },
           meta: [{ title: "my-bucket" }],
         },
@@ -238,7 +238,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/$imageId`,
-          staticData: { section: "compute", service: "images", isDetail: true, sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Images", to: "/projects/$projectId/compute/images" } },
+          staticData: { section: "compute", service: "images", isDetail: true, sectionCrumb: { label: "Compute" }, crumb: { label: "Images", to: "/projects/$projectId/compute/images" } },
           params: { projectId: "test-project", imageId: "img-1" },
           meta: [{ title: "Test Page Title" }],
         },
@@ -258,7 +258,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/flavors/$flavorId`,
-          staticData: { section: "compute", service: "flavors", isDetail: true, sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" } },
+          staticData: { section: "compute", service: "flavors", isDetail: true, sectionCrumb: { label: "Compute" }, crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" } },
           params: { projectId: "test-project", flavorId: "flavor-1" },
           meta: [{ title: "Test Page Title" }],
         },
@@ -277,7 +277,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/$id`,
-          staticData: { section: "network", service: "securitygroups", isDetail: true, sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" } },
+          staticData: { section: "network", service: "securitygroups", isDetail: true, sectionCrumb: { label: "Network" }, crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" } },
           params: { projectId: "test-project", securityGroupId: "sg-1" },
           meta: [{ title: "Test Page Title" }],
         },
@@ -296,7 +296,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/floatingips/$id`,
-          staticData: { section: "network", service: "floatingips", isDetail: true, sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" } },
+          staticData: { section: "network", service: "floatingips", isDetail: true, sectionCrumb: { label: "Network" }, crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" } },
           params: { projectId: "test-project", floatingIpId: "fip-1" },
           meta: [{ title: "Test Page Title" }],
         },
@@ -349,7 +349,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/$imageId`,
-          staticData: { section: "compute", service: "images", isDetail: true, sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Images", to: "/projects/$projectId/compute/images" } },
+          staticData: { section: "compute", service: "images", isDetail: true, sectionCrumb: { label: "Compute" }, crumb: { label: "Images", to: "/projects/$projectId/compute/images" } },
           params: { projectId: "test-project", imageId: "img-1" },
           meta: [{ title: "My Image" }],
         },
@@ -370,7 +370,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/flavors/$flavorId`,
-          staticData: { section: "compute", service: "flavors", isDetail: true, sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" } },
+          staticData: { section: "compute", service: "flavors", isDetail: true, sectionCrumb: { label: "Compute" }, crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" } },
           params: { projectId: "test-project", flavorId: "flavor-1" },
           meta: [{ title: "My Flavor" }],
         },
@@ -391,7 +391,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/$id`,
-          staticData: { section: "network", service: "securitygroups", isDetail: true, sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" } },
+          staticData: { section: "network", service: "securitygroups", isDetail: true, sectionCrumb: { label: "Network" }, crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" } },
           params: { projectId: "test-project", securityGroupId: "sg-1" },
           meta: [{ title: "My SG" }],
         },
@@ -412,7 +412,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/floatingips/$id`,
-          staticData: { section: "network", service: "floatingips", isDetail: true, sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" } },
+          staticData: { section: "network", service: "floatingips", isDetail: true, sectionCrumb: { label: "Network" }, crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" } },
           params: { projectId: "test-project", floatingIpId: "fip-1" },
           meta: [{ title: "1.2.3.4" }],
         },
@@ -453,7 +453,7 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
-          staticData: { section: "storage", service: "containers", isDetail: true, sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" } },
+          staticData: { section: "storage", service: "containers", isDetail: true, sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" } },
           params: { projectId: "test-project", provider: "swift", containerName: "my-bucket" },
           meta: [{ title: "my-bucket" }],
         },

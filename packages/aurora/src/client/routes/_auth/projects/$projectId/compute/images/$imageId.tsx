@@ -34,7 +34,7 @@ import { useState } from "react"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/$imageId")({
-  staticData: { section: "compute", service: "images", isDetail: true, sectionCrumb: { label: "Compute", to: "/projects/$projectId/compute/overview" }, crumb: { label: "Images", to: "/projects/$projectId/compute/images" } } satisfies RouteInfo,
+  staticData: { section: "compute", service: "images", isDetail: true, sectionCrumb: { label: "Compute" }, crumb: { label: "Images", to: "/projects/$projectId/compute/images" } } satisfies RouteInfo,
   validateSearch: z.object({
     tab: z.enum(["details", "sharing"]).optional(),
   }),

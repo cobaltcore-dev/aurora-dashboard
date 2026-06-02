@@ -98,7 +98,7 @@ const objectsSearchSchema = z.object({
 
 export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/")(
   {
-    staticData: { section: "storage", service: "containers", isDetail: true, sectionCrumb: { label: "Storage", to: "/projects/$projectId/storage/$provider/containers" }, crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" } } satisfies RouteInfo,
+    staticData: { section: "storage", service: "containers", isDetail: true, sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" } } satisfies RouteInfo,
     validateSearch: objectsSearchSchema,
     head: ({ match }) => ({
       meta: [{ title: match.params.containerName }],

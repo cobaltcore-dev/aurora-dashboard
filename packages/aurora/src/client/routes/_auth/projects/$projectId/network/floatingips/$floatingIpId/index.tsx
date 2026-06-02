@@ -8,7 +8,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { FloatingIpDetailsView } from "./-components/-details/FloatingIpDetailsView"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/floatingips/$floatingIpId/")({
-  staticData: { section: "network", service: "floatingips", isDetail: true, sectionCrumb: { label: "Network", to: "/projects/$projectId/network/overview" }, crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" } } satisfies RouteInfo,
+  staticData: { section: "network", service: "floatingips", isDetail: true, sectionCrumb: { label: "Network" }, crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" } } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const floatingIp = await context.trpcClient?.network.floatingIp.getById.query({
       project_id: params.projectId,
