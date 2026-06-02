@@ -13,9 +13,5 @@ export interface RouteInfo {
 }
 
 export function isRouteInfo(data: unknown): data is RouteInfo {
-  return (
-    typeof data === "object" &&
-    data !== null &&
-    typeof (data as RouteInfo).section === "string"
-  )
+  return typeof data === "object" && data !== null && typeof (data as RouteInfo).section === "string"
 }

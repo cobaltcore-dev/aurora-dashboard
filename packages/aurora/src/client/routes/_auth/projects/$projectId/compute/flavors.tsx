@@ -15,7 +15,12 @@ const flavorsSearchSchema = z.object(flavorsSearchFields).passthrough()
 export type FlavorsSearchParams = z.infer<typeof flavorsSearchSchema>
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors")({
-  staticData: { section: "compute", service: "flavors", sectionCrumb: { label: "Compute" }, crumb: { label: "Flavors" } } satisfies RouteInfo,
+  staticData: {
+    section: "compute",
+    service: "flavors",
+    sectionCrumb: { label: "Compute" },
+    crumb: { label: "Flavors" },
+  } satisfies RouteInfo,
   validateSearch: (search) => {
     const result = flavorsSearchSchema.safeParse(search)
     if (result.success) return result.data

@@ -15,7 +15,13 @@ import { MdContentCopy, MdDownload } from "react-icons/md"
 import { Fragment } from "react/jsx-runtime"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/$certificateId")({
-  staticData: { section: "services", service: "pca", isDetail: true, sectionCrumb: { label: "Services" }, crumb: { label: "PCA (Clavis)", to: "/projects/$projectId/services/pca" } } satisfies RouteInfo,
+  staticData: {
+    section: "services",
+    service: "pca",
+    isDetail: true,
+    sectionCrumb: { label: "Services" },
+    crumb: { label: "PCA (Clavis)", to: "/projects/$projectId/services/pca" },
+  } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const cert = await context.trpcClient?.services.pca.getByIdCertificate.query({
       project_id: params.projectId,

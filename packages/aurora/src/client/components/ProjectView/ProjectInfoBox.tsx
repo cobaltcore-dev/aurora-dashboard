@@ -53,9 +53,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     if (info.sectionCrumb) {
       const { label, to } = info.sectionCrumb
       items.push(
-        to
-          ? { label, onClick: () => navigate({ to: to as never, params: params as never }) }
-          : { label, active: true }
+        to ? { label, onClick: () => navigate({ to: to as never, params: params as never }) } : { label, active: true }
       )
     }
 
@@ -68,7 +66,11 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
         const title = deepest.meta?.find((m) => m != null && "title" in m)?.title as string | undefined
         if (title) items.push({ label: title, active: true })
       } else {
-        items.push(to ? { label: resolvedLabel, onClick: () => navigate({ to: to as never, params: params as never }) } : { label: resolvedLabel, active: true })
+        items.push(
+          to
+            ? { label: resolvedLabel, onClick: () => navigate({ to: to as never, params: params as never }) }
+            : { label: resolvedLabel, active: true }
+        )
       }
     }
 

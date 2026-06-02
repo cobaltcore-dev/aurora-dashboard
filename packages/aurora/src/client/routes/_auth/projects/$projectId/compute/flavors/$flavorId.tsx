@@ -23,7 +23,13 @@ import { useModal } from "@/client/utils/useModal"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors/$flavorId")({
-  staticData: { section: "compute", service: "flavors", isDetail: true, sectionCrumb: { label: "Compute" }, crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" } } satisfies RouteInfo,
+  staticData: {
+    section: "compute",
+    service: "flavors",
+    isDetail: true,
+    sectionCrumb: { label: "Compute" },
+    crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" },
+  } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const flavor = await context.trpcClient?.compute.getFlavorById.query({
       project_id: params.projectId,

@@ -19,7 +19,13 @@ import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { trpcReact } from "@/client/trpcClient"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/securitygroups/$securityGroupId/")({
-  staticData: { section: "network", service: "securitygroups", isDetail: true, sectionCrumb: { label: "Network" }, crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" } } satisfies RouteInfo,
+  staticData: {
+    section: "network",
+    service: "securitygroups",
+    isDetail: true,
+    sectionCrumb: { label: "Network" },
+    crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" },
+  } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const sg = await context.trpcClient?.network.securityGroup.getById.query({
       project_id: params.projectId,

@@ -7,7 +7,12 @@ import { i18n } from "@lingui/core"
 import { ReactNode } from "react"
 
 const mockNavigate = vi.fn()
-let mockMatches: { routeId: string; staticData?: Record<string, unknown>; meta?: Array<Record<string, unknown>>; params?: Record<string, string> }[] = []
+let mockMatches: {
+  routeId: string
+  staticData?: Record<string, unknown>
+  meta?: Array<Record<string, unknown>>
+  params?: Record<string, string>
+}[] = []
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
@@ -109,7 +114,12 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/`,
-          staticData: { section: "compute", service: "images", sectionCrumb: { label: "Compute" }, crumb: { label: "Images" } },
+          staticData: {
+            section: "compute",
+            service: "images",
+            sectionCrumb: { label: "Compute" },
+            crumb: { label: "Images" },
+          },
           params: { projectId: "test-project" },
         },
       ]
@@ -129,7 +139,12 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/flavors/`,
-          staticData: { section: "compute", service: "flavors", sectionCrumb: { label: "Compute" }, crumb: { label: "Flavors" } },
+          staticData: {
+            section: "compute",
+            service: "flavors",
+            sectionCrumb: { label: "Compute" },
+            crumb: { label: "Flavors" },
+          },
           params: { projectId: "test-project" },
         },
       ]
@@ -146,7 +161,12 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/`,
-          staticData: { section: "network", service: "securitygroups", sectionCrumb: { label: "Network" }, crumb: { label: "Security Groups" } },
+          staticData: {
+            section: "network",
+            service: "securitygroups",
+            sectionCrumb: { label: "Network" },
+            crumb: { label: "Security Groups" },
+          },
           params: { projectId: "test-project" },
         },
       ]
@@ -164,7 +184,12 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
-          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider" } },
+          staticData: {
+            section: "storage",
+            service: "containers",
+            sectionCrumb: { label: "Storage" },
+            crumb: { useParamAsLabel: "provider" },
+          },
           params: { projectId: "test-project", provider: "swift" },
         },
       ]
@@ -182,7 +207,12 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/ceph/containers`,
-          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider" } },
+          staticData: {
+            section: "storage",
+            service: "containers",
+            sectionCrumb: { label: "Storage" },
+            crumb: { useParamAsLabel: "provider" },
+          },
           params: { projectId: "test-project", provider: "ceph" },
         },
       ]
@@ -200,7 +230,13 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
-          staticData: { section: "storage", service: "containers", isDetail: true, sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" } },
+          staticData: {
+            section: "storage",
+            service: "containers",
+            isDetail: true,
+            sectionCrumb: { label: "Storage" },
+            crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" },
+          },
           params: { projectId: "test-project", provider: "swift", containerName: "my-bucket" },
           meta: [{ title: "my-bucket" }],
         },
@@ -219,7 +255,12 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/floatingips/`,
-          staticData: { section: "network", service: "floatingips", sectionCrumb: { label: "Network" }, crumb: { label: "Floating IPs" } },
+          staticData: {
+            section: "network",
+            service: "floatingips",
+            sectionCrumb: { label: "Network" },
+            crumb: { label: "Floating IPs" },
+          },
           params: { projectId: "test-project" },
         },
       ]
@@ -238,7 +279,13 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/$imageId`,
-          staticData: { section: "compute", service: "images", isDetail: true, sectionCrumb: { label: "Compute" }, crumb: { label: "Images", to: "/projects/$projectId/compute/images" } },
+          staticData: {
+            section: "compute",
+            service: "images",
+            isDetail: true,
+            sectionCrumb: { label: "Compute" },
+            crumb: { label: "Images", to: "/projects/$projectId/compute/images" },
+          },
           params: { projectId: "test-project", imageId: "img-1" },
           meta: [{ title: "Test Page Title" }],
         },
@@ -258,7 +305,13 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/flavors/$flavorId`,
-          staticData: { section: "compute", service: "flavors", isDetail: true, sectionCrumb: { label: "Compute" }, crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" } },
+          staticData: {
+            section: "compute",
+            service: "flavors",
+            isDetail: true,
+            sectionCrumb: { label: "Compute" },
+            crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" },
+          },
           params: { projectId: "test-project", flavorId: "flavor-1" },
           meta: [{ title: "Test Page Title" }],
         },
@@ -277,7 +330,13 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/$id`,
-          staticData: { section: "network", service: "securitygroups", isDetail: true, sectionCrumb: { label: "Network" }, crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" } },
+          staticData: {
+            section: "network",
+            service: "securitygroups",
+            isDetail: true,
+            sectionCrumb: { label: "Network" },
+            crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" },
+          },
           params: { projectId: "test-project", securityGroupId: "sg-1" },
           meta: [{ title: "Test Page Title" }],
         },
@@ -296,7 +355,13 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/floatingips/$id`,
-          staticData: { section: "network", service: "floatingips", isDetail: true, sectionCrumb: { label: "Network" }, crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" } },
+          staticData: {
+            section: "network",
+            service: "floatingips",
+            isDetail: true,
+            sectionCrumb: { label: "Network" },
+            crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" },
+          },
           params: { projectId: "test-project", floatingIpId: "fip-1" },
           meta: [{ title: "Test Page Title" }],
         },
@@ -324,12 +389,17 @@ describe("ProjectInfoBox", () => {
       })
     })
 
-    it("Compute breadcrumb on a service page navigates to compute overview", async () => {
+    it("Compute breadcrumb on a service page is not clickable", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/`,
-          staticData: { section: "compute", service: "images", sectionCrumb: { label: "Compute" }, crumb: { label: "Images" } },
+          staticData: {
+            section: "compute",
+            service: "images",
+            sectionCrumb: { label: "Compute" },
+            crumb: { label: "Images" },
+          },
           params: { projectId: "test-project" },
         },
       ]
@@ -339,9 +409,7 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Compute"))
       fireEvent.click(screen.getByText("Compute"))
 
-      expect(mockNavigate).toHaveBeenCalledWith(
-        expect.objectContaining({ to: "/projects/$projectId/compute/overview" })
-      )
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     it("clicking Images breadcrumb on image detail navigates to images list", async () => {
@@ -349,7 +417,13 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/images/$imageId`,
-          staticData: { section: "compute", service: "images", isDetail: true, sectionCrumb: { label: "Compute" }, crumb: { label: "Images", to: "/projects/$projectId/compute/images" } },
+          staticData: {
+            section: "compute",
+            service: "images",
+            isDetail: true,
+            sectionCrumb: { label: "Compute" },
+            crumb: { label: "Images", to: "/projects/$projectId/compute/images" },
+          },
           params: { projectId: "test-project", imageId: "img-1" },
           meta: [{ title: "My Image" }],
         },
@@ -360,9 +434,7 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Images"))
       fireEvent.click(screen.getByText("Images"))
 
-      expect(mockNavigate).toHaveBeenCalledWith(
-        expect.objectContaining({ to: "/projects/$projectId/compute/images" })
-      )
+      expect(mockNavigate).toHaveBeenCalledWith(expect.objectContaining({ to: "/projects/$projectId/compute/images" }))
     })
 
     it("clicking Flavors breadcrumb on flavor detail navigates to flavors list", async () => {
@@ -370,7 +442,13 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/compute/flavors/$flavorId`,
-          staticData: { section: "compute", service: "flavors", isDetail: true, sectionCrumb: { label: "Compute" }, crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" } },
+          staticData: {
+            section: "compute",
+            service: "flavors",
+            isDetail: true,
+            sectionCrumb: { label: "Compute" },
+            crumb: { label: "Flavors", to: "/projects/$projectId/compute/flavors" },
+          },
           params: { projectId: "test-project", flavorId: "flavor-1" },
           meta: [{ title: "My Flavor" }],
         },
@@ -381,9 +459,7 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Flavors"))
       fireEvent.click(screen.getByText("Flavors"))
 
-      expect(mockNavigate).toHaveBeenCalledWith(
-        expect.objectContaining({ to: "/projects/$projectId/compute/flavors" })
-      )
+      expect(mockNavigate).toHaveBeenCalledWith(expect.objectContaining({ to: "/projects/$projectId/compute/flavors" }))
     })
 
     it("clicking Security Groups breadcrumb on detail navigates to securitygroups list", async () => {
@@ -391,7 +467,13 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/securitygroups/$id`,
-          staticData: { section: "network", service: "securitygroups", isDetail: true, sectionCrumb: { label: "Network" }, crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" } },
+          staticData: {
+            section: "network",
+            service: "securitygroups",
+            isDetail: true,
+            sectionCrumb: { label: "Network" },
+            crumb: { label: "Security Groups", to: "/projects/$projectId/network/securitygroups" },
+          },
           params: { projectId: "test-project", securityGroupId: "sg-1" },
           meta: [{ title: "My SG" }],
         },
@@ -412,7 +494,13 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/network/floatingips/$id`,
-          staticData: { section: "network", service: "floatingips", isDetail: true, sectionCrumb: { label: "Network" }, crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" } },
+          staticData: {
+            section: "network",
+            service: "floatingips",
+            isDetail: true,
+            sectionCrumb: { label: "Network" },
+            crumb: { label: "Floating IPs", to: "/projects/$projectId/network/floatingips" },
+          },
           params: { projectId: "test-project", floatingIpId: "fip-1" },
           meta: [{ title: "1.2.3.4" }],
         },
@@ -428,12 +516,17 @@ describe("ProjectInfoBox", () => {
       )
     })
 
-    it("clicking Storage breadcrumb on a service page navigates to swift containers", async () => {
+    it("Storage breadcrumb on a service page is not clickable", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
-          staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider" } },
+          staticData: {
+            section: "storage",
+            service: "containers",
+            sectionCrumb: { label: "Storage" },
+            crumb: { useParamAsLabel: "provider" },
+          },
           params: { projectId: "test-project", provider: "swift" },
         },
       ]
@@ -443,9 +536,7 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => screen.getByText("Storage"))
       fireEvent.click(screen.getByText("Storage"))
 
-      expect(mockNavigate).toHaveBeenCalledWith(
-        expect.objectContaining({ to: "/projects/$projectId/storage/$provider/containers" })
-      )
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     it("clicking Object Storage (Swift) breadcrumb on object browser detail navigates to containers list", async () => {
@@ -453,7 +544,13 @@ describe("ProjectInfoBox", () => {
         { routeId: PROJECT_ROUTE_ID },
         {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
-          staticData: { section: "storage", service: "containers", isDetail: true, sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" } },
+          staticData: {
+            section: "storage",
+            service: "containers",
+            isDetail: true,
+            sectionCrumb: { label: "Storage" },
+            crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" },
+          },
           params: { projectId: "test-project", provider: "swift", containerName: "my-bucket" },
           meta: [{ title: "my-bucket" }],
         },

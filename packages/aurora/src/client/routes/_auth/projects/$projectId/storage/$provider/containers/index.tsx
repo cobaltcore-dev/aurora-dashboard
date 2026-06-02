@@ -95,10 +95,24 @@ const containersSearchSchema = z.object({
 })
 
 export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provider/containers/")({
-  staticData: { section: "storage", service: "containers", sectionCrumb: { label: "Storage" }, crumb: { useParamAsLabel: "provider" } } satisfies RouteInfo,
+  staticData: {
+    section: "storage",
+    service: "containers",
+    sectionCrumb: { label: "Storage" },
+    crumb: { useParamAsLabel: "provider" },
+  } satisfies RouteInfo,
   validateSearch: containersSearchSchema,
   head: ({ match }) => ({
-    meta: [{ title: match.params.provider === "swift" ? "Object Storage (Swift)" : match.params.provider === "ceph" ? "Object Storage (Ceph)" : "Storage Overview" }],
+    meta: [
+      {
+        title:
+          match.params.provider === "swift"
+            ? "Object Storage (Swift)"
+            : match.params.provider === "ceph"
+              ? "Object Storage (Ceph)"
+              : "Storage Overview",
+      },
+    ],
   }),
   component: () => {
     return <StorageDashboard />

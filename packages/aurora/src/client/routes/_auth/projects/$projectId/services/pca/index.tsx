@@ -5,7 +5,12 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { PcaListContainer } from "./-components/PcaListContainer"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/")({
-  staticData: { section: "services", service: "pca", sectionCrumb: { label: "Services" }, crumb: { label: "PCA (Clavis)" } } satisfies RouteInfo,
+  staticData: {
+    section: "services",
+    service: "pca",
+    sectionCrumb: { label: "Services" },
+    crumb: { label: "PCA (Clavis)" },
+  } satisfies RouteInfo,
   head: () => ({ meta: [{ title: "PCA" }] }),
   component: RouteComponent,
 })
