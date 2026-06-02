@@ -16,6 +16,8 @@ import { useModal } from "@/client/utils/useModal"
 import { DeletePcaModal } from "../../-components/-modals/DeletePcaModal"
 import { STATE_CONFIG } from "../../-components/-table/constants"
 import { PcaCertificatesListContainer } from "./PcaCertificatesListContainer"
+import { IssueSelfSignedCertificateModal } from "./-modals/IssueSelfSignedCertificateModal"
+// import { ImportExternallySignedCertificateModal } from "./ImportExternallySignedCertificateModal"
 
 interface PcaDetailsViewProps {
   pca: CertificateAuthority
@@ -25,6 +27,9 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const projectId = useProjectId()
+  const [issueSelfSignedModalOpen, toggleIssueSelfSignedModal] = useModal(false)
+  // I will enable this modal on import-certificate task of the EPIC
+  // const [importExternallySignedModalOpen, toggleImportExternallySignedModal] = useModal(false)
   const [deletePcaModalOpen, toggleDeletePcaModal] = useModal(false)
 
   const navigateToPcaList = () =>
@@ -70,6 +75,19 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
           <Trans>Manage your Private Certificate Authority infrastructure</Trans>
         </p>
 
+        {pca.state === "AWAITING_CERTIFICATE" && (
+          <Stack direction="vertical" gap="1" className="bg-dt-background mb-1 rounded-sm p-2">
+            <Stack direction="vertical" gap="1">
+              <div className="text-base font-bold">Lifecycle action</div>
+              <div>Add a Signed Certificate to your CA to activate it</div>
+            </Stack>
+            <Stack direction="horizontal" gap="2" distribution="end">
+              <Button onClick={toggleIssueSelfSignedModal}>Issue Self-Signed Certificate</Button>
+              {/* <Button onClick={toggleImportExternallySignedModal}>Import Signed Certificate</Button> */}
+            </Stack>
+          </Stack>
+        )}
+
         <Stack gap="4" className="grid grid-cols-2 items-start">
           <DescriptionList alignTerms="right" className="w-full">
             {basicInfo.map(({ label, value }) => (
@@ -102,6 +120,22 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         </Stack>
       </Stack>
 
+      {/* {importExternallySignedModalOpen && (
+        <ImportExternallySignedCertificateModal
+          pcaId={pca.id}
+          open={importExternallySignedModalOpen}
+          onClose={toggleImportExternallySignedModal}
+        />
+      )} */}
+
+      {issueSelfSignedModalOpen && (
+        <IssueSelfSignedCertificateModal
+          pca={pca}
+          open={issueSelfSignedModalOpen}
+          onClose={toggleIssueSelfSignedModal}
+        />
+      )}
+
       {deletePcaModalOpen && (
         <DeletePcaModal
           pca={pca}
@@ -111,7 +145,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         />
       )}
 
-      <PcaCertificatesListContainer pcaId={pca.id} />
+      <PcaCertificatesListContainer pcaId={pca.id} pcaState={pca.state} />
     </>
   )
 }

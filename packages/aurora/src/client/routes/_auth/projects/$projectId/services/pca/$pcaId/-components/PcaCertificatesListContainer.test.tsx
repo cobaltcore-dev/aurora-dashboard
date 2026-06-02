@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import type { Certificate } from "@/server/Services/types/pca"
@@ -39,6 +40,10 @@ vi.mock("./-table/PcaCertificatesTableRow", () => ({
   ),
 }))
 
+vi.mock("./-modals/IssueEndEntityCertificateModal", () => ({
+  IssueEndEntityCertificateModal: ({ open }: { open: boolean }) => (open ? <div>Issue End Entity Modal</div> : null),
+}))
+
 describe("PcaCertificatesListContainer", () => {
   const validCertificate: Certificate = {
     id: "cert-1",
@@ -56,10 +61,10 @@ describe("PcaCertificatesListContainer", () => {
     vi.clearAllMocks()
   })
 
-  const renderComponent = () =>
+  const renderComponent = (pcaState: "READY" | "AWAITING_CERTIFICATE" = "READY") =>
     render(
       <I18nProvider i18n={i18n}>
-        <PcaCertificatesListContainer pcaId="ca-1" />
+        <PcaCertificatesListContainer pcaId="ca-1" pcaState={pcaState} />
       </I18nProvider>
     )
 
@@ -148,7 +153,9 @@ describe("PcaCertificatesListContainer", () => {
     expect(screen.getByTestId("certificate-row-cert-2")).toBeInTheDocument()
   })
 
-  it("renders disabled issue certificate button", () => {
+  it("shows issue certificate action for READY state and opens modal", async () => {
+    const user = userEvent.setup()
+
     vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
       data: [validCertificate],
       isLoading: false,
@@ -160,7 +167,22 @@ describe("PcaCertificatesListContainer", () => {
 
     const button = screen.getByRole("button", { name: "Issue End Entity Certificate" })
     expect(button).toBeInTheDocument()
-    expect(button).toBeDisabled()
+
+    await user.click(button)
+    expect(screen.getByText("Issue End Entity Modal")).toBeInTheDocument()
+  })
+
+  it("does not show issue certificate action when state is not READY", () => {
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
+      data: [validCertificate],
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    renderComponent("AWAITING_CERTIFICATE")
+
+    expect(screen.queryByRole("button", { name: "Issue End Entity Certificate" })).not.toBeInTheDocument()
   })
 
   it("renders correct column headers", () => {
@@ -221,7 +243,7 @@ describe("PcaCertificatesListContainer", () => {
 
     const { rerender } = render(
       <I18nProvider i18n={i18n}>
-        <PcaCertificatesListContainer pcaId="ca-1" />
+        <PcaCertificatesListContainer pcaId="ca-1" pcaState="READY" />
       </I18nProvider>
     )
 
@@ -232,7 +254,7 @@ describe("PcaCertificatesListContainer", () => {
 
     rerender(
       <I18nProvider i18n={i18n}>
-        <PcaCertificatesListContainer pcaId="ca-2" />
+        <PcaCertificatesListContainer pcaId="ca-2" pcaState="READY" />
       </I18nProvider>
     )
 

@@ -9,17 +9,22 @@ import {
   DataGridHeadCell,
   Button,
 } from "@cloudoperators/juno-ui-components"
+import { CertificateAuthority } from "@/server/Services/types/pca"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import { useModal } from "@/client/utils/useModal"
 import { PcaCertificatesTableRow } from "./-table/PcaCertificatesTableRow"
+import { IssueEndEntityCertificateModal } from "./-modals/IssueEndEntityCertificateModal"
 
 interface PcaCertificatesListContainerProps {
   pcaId: string
+  pcaState: CertificateAuthority["state"]
 }
 
-export const PcaCertificatesListContainer = ({ pcaId }: PcaCertificatesListContainerProps) => {
+export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificatesListContainerProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
+  const [createIssueEndEntityOpen, toggleIssueEndEntity] = useModal(false)
 
   const columns = () =>
     [
@@ -74,8 +79,19 @@ export const PcaCertificatesListContainer = ({ pcaId }: PcaCertificatesListConta
 
   return (
     <div className="relative">
-      {/* I will enable this button on issue-certificate task of the EPIC */}
-      <Button variant="primary" label={t`Issue End Entity Certificate`} disabled />
+      {pcaState === "READY" && (
+        <>
+          <Button variant="primary" label={t`Issue End Entity Certificate`} onClick={toggleIssueEndEntity} />
+          {createIssueEndEntityOpen && (
+            <IssueEndEntityCertificateModal
+              open={createIssueEndEntityOpen}
+              onClose={toggleIssueEndEntity}
+              pcaId={pcaId}
+            />
+          )}
+        </>
+      )}
+
       <DataGrid columns={columns().length}>
         <DataGridRow>
           {columns().map((label) => (
