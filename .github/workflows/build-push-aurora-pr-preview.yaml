@@ -3,7 +3,7 @@
 # Automatically builds Docker images for pull requests and manages their deployment
 # via ArgoCD label-based triggers.
 #
-# For detailed documentation, see: apps/aurora-portal/docs/0011_aurora-pr-preview-workflow.md
+# For detailed documentation, see: apps/aurora/docs/0012_aurora-pr-preview-workflow.md
 #
 # Workflow Flow:
 #
