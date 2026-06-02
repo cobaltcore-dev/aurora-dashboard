@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { t } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
 import { SecurityGroups } from "./-components/SecurityGroupsList"
 import type { RouteInfo } from "@/client/routes/routeInfo"
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/securit
     sectionCrumb: { labelKey: "Network" },
     crumb: { labelKey: "Security Groups" },
   } satisfies RouteInfo,
-  head: () => ({ meta: [{ title: "Security Groups" }] }),
+  head: () => ({ meta: [{ title: t`Security Groups` }] }),
   component: RouteComponent,
 })
 

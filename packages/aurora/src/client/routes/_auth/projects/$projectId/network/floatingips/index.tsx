@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { t } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
 import { FloatingIpsList } from "./-components/FloatingIpsList"
 import type { RouteInfo } from "@/client/routes/routeInfo"
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/floatin
     sectionCrumb: { labelKey: "Network" },
     crumb: { labelKey: "Floating IPs" },
   } satisfies RouteInfo,
-  head: () => ({ meta: [{ title: "Floating IPs" }] }),
+  head: () => ({ meta: [{ title: t`Floating IPs` }] }),
   component: RouteComponent,
 })
 

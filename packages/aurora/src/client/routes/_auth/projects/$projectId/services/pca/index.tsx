@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { t } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/")
     sectionCrumb: { labelKey: "Services" },
     crumb: { labelKey: "PCA (Clavis)" },
   } satisfies RouteInfo,
-  head: () => ({ meta: [{ title: "PCA" }] }),
+  head: () => ({ meta: [{ title: t`PCA` }] }),
   component: RouteComponent,
 })
 

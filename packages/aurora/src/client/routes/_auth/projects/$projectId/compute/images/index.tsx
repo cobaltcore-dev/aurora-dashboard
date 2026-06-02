@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { t } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
 import { Images } from "../-components/Images/List"
 import type { RouteInfo } from "@/client/routes/routeInfo"
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Images" },
   } satisfies RouteInfo,
-  head: () => ({ meta: [{ title: "Images" }] }),
+  head: () => ({ meta: [{ title: t`Images` }] }),
   component: RouteComponent,
 })
 
