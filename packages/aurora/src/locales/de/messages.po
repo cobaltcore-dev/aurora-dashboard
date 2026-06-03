@@ -1477,9 +1477,6 @@ msgstr "Wird generiert..."
 msgid "Get Involved"
 msgstr "Mitmachen"
 
-msgid "Got it!"
-msgstr ""
-
 msgid "Grant access to a user from a different project."
 msgstr "Zugriff für einen Benutzer aus einem anderen Projekt gewähren."
 
