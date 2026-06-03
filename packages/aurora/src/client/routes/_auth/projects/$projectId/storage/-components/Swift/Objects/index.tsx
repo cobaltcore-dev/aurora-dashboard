@@ -6,7 +6,7 @@ import { useProjectId } from "@/client/hooks/useProjectId"
 import { ObjectSummary } from "@/server/Storage/types/swift"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
-import { useNavigate, useParams } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
 import { Route } from "../../../$provider/containers/$containerName/objects"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
@@ -133,14 +133,10 @@ const resolveSortBy = (sortBy: SortSettings["sortBy"]): SortKey | undefined => {
 
 // ── SwiftObjects ──────────────────────────────────────────────────────────────
 
-export const SwiftObjects = () => {
+export const SwiftObjects = ({ provider, containerName }: { provider: string; containerName: string }) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
-
-  const { provider, containerName } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
-  })
 
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)

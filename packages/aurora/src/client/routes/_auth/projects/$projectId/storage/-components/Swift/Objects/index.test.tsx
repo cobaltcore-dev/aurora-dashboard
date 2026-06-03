@@ -49,8 +49,6 @@ vi.mock("@tanstack/react-router", async () => {
     useParams: vi.fn(() => ({
       accountId: "test-account",
       projectId: "test-project",
-      provider: "swift",
-      containerName: "test-container",
     })),
     useNavigate: vi.fn(() => mockNavigate),
   }
@@ -65,8 +63,6 @@ vi.mock("../../../$provider/containers/$containerName/objects", () => ({
     useParams: vi.fn(() => ({
       accountId: "test-account",
       projectId: "test-project",
-      provider: "swift",
-      containerName: "test-container",
     })),
   },
 }))
@@ -285,7 +281,7 @@ const renderObjects = () =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <SwiftObjects />
+        <SwiftObjects provider="swift" containerName="test-container" />
       </PortalProvider>
     </I18nProvider>
   )
