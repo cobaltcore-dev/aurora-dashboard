@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Message, Spinner, Button } from "@cloudoperators/juno-ui-components"
+import { Modal, ModalFooter, ButtonRow, TextInput, Stack, Spinner, Button } from "@cloudoperators/juno-ui-components"
 import type { Container } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -107,15 +107,31 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
       title={t`Delete Bucket`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={t`Delete Bucket`}
-      onConfirm={handleSubmit}
-      cancelButtonLabel={t`Cancel`}
-      size="small"
-      disableConfirmButton={
-        deleteBucketMutation.isPending || isLoadingObjects || isNonEmpty || confirmName.trim() !== bucket.name
+      confirmButtonLabel={isNonEmpty ? undefined : t`Delete Bucket`}
+      confirmButtonVariant={isNonEmpty ? undefined : "primary-danger"}
+      onConfirm={isNonEmpty ? undefined : handleSubmit}
+      cancelButtonLabel={isNonEmpty ? undefined : t`Cancel`}
+      modalFooter={
+        isNonEmpty ? (
+          <ModalFooter className="flex justify-end">
+            <ButtonRow>
+              <Button variant="primary" onClick={handleClose} data-testid="delete-has-objects-close-button">
+                <Trans>Close</Trans>
+              </Button>
+            </ButtonRow>
+          </ModalFooter>
+        ) : undefined
       }
+      size="small"
+      disableConfirmButton={deleteBucketMutation.isPending || isLoadingObjects || confirmName.trim() !== bucket.name}
     >
       <Stack direction="vertical" gap="6">
+        {objectsError && (
+          <p className="text-theme-error" role="alert" aria-live="assertive">
+            <Trans>Failed to check bucket contents: {errorMessage}</Trans>
+          </p>
+        )}
+
         {isLoadingObjects ? (
           <Stack direction="horizontal" gap="2" alignment="center">
             <Spinner />
@@ -124,20 +140,20 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
             </span>
           </Stack>
         ) : isNonEmpty ? (
-          <Message variant="error">
+          <p className="text-theme-default">
             <Trans>
               This bucket contains {actualObjectCount} <Plural value={actualObjectCount} one="object" other="objects" />{" "}
               and cannot be deleted. Delete all objects first.
             </Trans>
-          </Message>
+          </p>
         ) : (
           <>
-            <Message variant="warning">
+            <p className="text-theme-default">
               <Trans>
                 This action is irreversible. Deleting a bucket permanently removes it and cannot be undone. The bucket
                 must be empty before deletion.
               </Trans>
-            </Message>
+            </p>
 
             <Stack direction="vertical" gap="2">
               <div className="flex items-center justify-between">
@@ -167,12 +183,6 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
               placeholder={bucket.name}
             />
           </>
-        )}
-
-        {objectsError && (
-          <Message variant="error">
-            <Trans>Failed to check bucket contents: {errorMessage}</Trans>
-          </Message>
         )}
       </Stack>
     </Modal>
