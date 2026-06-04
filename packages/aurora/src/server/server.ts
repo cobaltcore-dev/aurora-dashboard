@@ -30,6 +30,8 @@ export async function createServer(config?: AuroraServerConfig): Promise<Fastify
     cookieName: config?.cookieName,
     crossDomainCookie: config?.crossDomainCookie,
     insecureCookies: config?.insecureCookies,
+    limesMailServerEndpoint: config?.limesMailServerEndpoint,
+    technicalUser: config?.technicalUser,
   }
 
   const server = Fastify({

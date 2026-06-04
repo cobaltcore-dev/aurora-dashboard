@@ -19,6 +19,17 @@ createServer({
   cephRegion: process.env.CEPH_REGION,
   imageMetadataExcludedProperties: process.env.IMAGE_METADATA_EXCLUDED_PROPERTIES,
   insecureCookies: process.env.INSECURE_COOKIES === "true",
+  limesMailServerEndpoint: process.env.LIMES_MAIL_SERVER_ENDPOINT,
+  technicalUser:
+    process.env.TECHNICAL_USER_NAME && process.env.TECHNICAL_USER_PASSWORD
+      ? {
+          name: process.env.TECHNICAL_USER_NAME,
+          password: process.env.TECHNICAL_USER_PASSWORD,
+          domain: process.env.TECHNICAL_USER_DOMAIN || "default",
+          projectName: process.env.TECHNICAL_USER_PROJECT,
+          projectDomain: process.env.TECHNICAL_USER_PROJECT_DOMAIN,
+        }
+      : undefined,
 })
   .then((server) => server.listen({ host: "0.0.0.0", port: PORT }))
   .then((address) => console.log(`Server listening on ${address}`))

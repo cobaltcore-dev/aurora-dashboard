@@ -3,6 +3,7 @@ import type { FastifyRequest } from "fastify"
 import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 import { SessionCookie } from "./sessionCookie"
 import { AuthConfig } from "./Authentication/types/models"
+import { MailService } from "./Notification/mailService"
 
 export interface AuroraContext {
   validateSession: () => boolean
@@ -22,6 +23,9 @@ export interface AuroraContext {
       }
     | undefined
   >
+  // Mail service instance for sending emails via Limes
+  // Available when LIMES_MAIL_SERVER_ENDPOINT and technical user credentials are configured
+  mailService?: MailService
 }
 
 export interface ContextConfig {
@@ -33,6 +37,15 @@ export interface ContextConfig {
   cookieName?: string
   crossDomainCookie?: boolean
   insecureCookies?: boolean
+  // Mail service configuration
+  limesMailServerEndpoint?: string
+  technicalUser?: {
+    name: string
+    password: string
+    domain: string
+    projectName?: string
+    projectDomain?: string
+  }
 }
 
 // Global registry of pending rescope operations per session
@@ -415,6 +428,21 @@ export async function createContext(
     }
   }
 
+  // Initialize mail service if configured
+  let mailService: MailService | undefined
+  if (config.limesMailServerEndpoint && config.technicalUser) {
+    mailService = new MailService({
+      identityEndpoint: normalizedEndpoint,
+      limesMailServerEndpoint: config.limesMailServerEndpoint,
+      technicalUser: config.technicalUser,
+      defaultEndpointInterface: config.defaultEndpointInterface,
+      proxyUrl: config.proxyUrl,
+    })
+    console.log("ℹ️ [context] Mail service initialized with technical user")
+  } else if (config.limesMailServerEndpoint || config.technicalUser) {
+    console.warn("⚠️ [context] Mail service partially configured - both limesMailServerEndpoint and technicalUser required")
+  }
+
   return {
     req: opts.req,
     signal: abortController.signal,
@@ -430,5 +458,6 @@ export async function createContext(
     validateSession,
     openstack: openstackSession,
     getUserInfo,
+    mailService,
   }
 }
