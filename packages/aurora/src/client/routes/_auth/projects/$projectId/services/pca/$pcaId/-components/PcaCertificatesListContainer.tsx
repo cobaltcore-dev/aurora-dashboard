@@ -9,17 +9,22 @@ import {
   DataGridHeadCell,
   Button,
 } from "@cloudoperators/juno-ui-components"
+import { CertificateAuthority } from "@/server/Services/types/pca"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import { useModal } from "@/client/utils/useModal"
 import { PcaCertificatesTableRow } from "./-table/PcaCertificatesTableRow"
+import { IssueEndEntityCertificateModal } from "./-modals/IssueEndEntityCertificateModal"
 
 interface PcaCertificatesListContainerProps {
   pcaId: string
+  pcaState: CertificateAuthority["state"]
 }
 
-export const PcaCertificatesListContainer = ({ pcaId }: PcaCertificatesListContainerProps) => {
+export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificatesListContainerProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
+  const [createIssueEndEntityOpen, toggleIssueEndEntity] = useModal(false)
 
   const columns = () =>
     [
@@ -55,37 +60,46 @@ export const PcaCertificatesListContainer = ({ pcaId }: PcaCertificatesListConta
     )
   }
 
-  if (pcaCertificates.length === 0) {
-    return (
-      <DataGrid columns={columns().length} className="pca-certificates" data-testid="no-pcas-certificates">
-        <DataGridRow>
-          <DataGridCell colSpan={columns().length}>
-            <ContentHeading>
-              <Trans>No Certificates issued by this Certificate Authority found</Trans>
-            </ContentHeading>
-            <p>
-              <Trans>There are no Certificates available for this Certificate Authority.</Trans>
-            </p>
-          </DataGridCell>
-        </DataGridRow>
-      </DataGrid>
-    )
-  }
-
   return (
     <div className="relative">
-      {/* I will enable this button on issue-certificate task of the EPIC */}
-      <Button variant="primary" label={t`Issue End Entity Certificate`} disabled />
-      <DataGrid columns={columns().length}>
-        <DataGridRow>
-          {columns().map((label) => (
-            <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
+      {pcaState === "READY" && (
+        <>
+          <Button variant="primary" label={t`Issue End Entity Certificate`} onClick={toggleIssueEndEntity} />
+          {createIssueEndEntityOpen && (
+            <IssueEndEntityCertificateModal
+              open={createIssueEndEntityOpen}
+              onClose={toggleIssueEndEntity}
+              pcaId={pcaId}
+            />
+          )}
+        </>
+      )}
+
+      {pcaCertificates.length === 0 ? (
+        <DataGrid columns={columns().length} className="pca-certificates" data-testid="no-pcas-certificates">
+          <DataGridRow>
+            <DataGridCell colSpan={columns().length}>
+              <ContentHeading>
+                <Trans>No Certificates issued by this Certificate Authority found</Trans>
+              </ContentHeading>
+              <p>
+                <Trans>There are no Certificates available for this Certificate Authority.</Trans>
+              </p>
+            </DataGridCell>
+          </DataGridRow>
+        </DataGrid>
+      ) : (
+        <DataGrid columns={columns().length}>
+          <DataGridRow>
+            {columns().map((label) => (
+              <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
+            ))}
+          </DataGridRow>
+          {pcaCertificates.map((certificate) => (
+            <PcaCertificatesTableRow key={certificate.id} certificate={certificate} />
           ))}
-        </DataGridRow>
-        {pcaCertificates.map((certificate) => (
-          <PcaCertificatesTableRow key={certificate.id} certificate={certificate} />
-        ))}
-      </DataGrid>
+        </DataGrid>
+      )}
     </div>
   )
 }

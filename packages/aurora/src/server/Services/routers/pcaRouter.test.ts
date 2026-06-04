@@ -77,25 +77,23 @@ const validImportCAResponse = {
 }
 
 const validCreateCertificateResponse = {
+  id: "cert-new",
+  certificate_authority_id: "ca-1",
+  project_id: TEST_PROJECT_ID,
   certificate: {
-    id: "cert-new",
-    certificate_authority_id: "ca-1",
-    project_id: TEST_PROJECT_ID,
-    certificate: {
-      pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
-      validity: {
-        not_before: 1705315200,
-        not_after: 1736851200,
-      },
+    pem: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+    validity: {
+      not_before: 1705315200,
+      not_after: 1736851200,
     },
-    configuration: {
-      validity: {
-        not_before: 1705315200,
-        not_after: 1736851200,
-      },
-    },
-    csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
   },
+  configuration: {
+    validity: {
+      not_before: 1705315200,
+      not_after: 1736851200,
+    },
+  },
+  csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
 }
 
 const createMockContext = (opts?: {
@@ -476,7 +474,41 @@ describe("pcaRouter", () => {
       const result = await caller.services.pca.createCertificate({
         project_id: TEST_PROJECT_ID,
         certificate_authority_id: "ca-1",
-        certificate: {
+        configuration: {
+          validity: {
+            not_before: 1705315200,
+            not_after: 1736851200,
+          },
+        },
+        csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
+      })
+
+      expect(result).toEqual(validCreateCertificateResponse)
+      expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
+      const lastPostCall = ctx.__postMock.mock.lastCall
+      expect(lastPostCall).toBeDefined()
+      expect(lastPostCall?.[0]).toBe("certificate-authorities/ca-1/certificates")
+      expect(lastPostCall?.[1]).toEqual({
+        configuration: {
+          validity: {
+            not_before: 1705315200,
+            not_after: 1736851200,
+          },
+        },
+        csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
+      })
+      expect(lastPostCall?.[1]).not.toHaveProperty("project_id")
+      expect(lastPostCall?.[1]).not.toHaveProperty("certificate_authority_id")
+    })
+
+    it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
+      const ctx = createMockContext({ noClavis: true })
+      const caller = createCaller(ctx as never)
+
+      await expect(
+        caller.services.pca.createCertificate({
+          project_id: TEST_PROJECT_ID,
+          certificate_authority_id: "ca-1",
           configuration: {
             validity: {
               not_before: 1705315200,
@@ -484,11 +516,13 @@ describe("pcaRouter", () => {
             },
           },
           csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
-        },
-      })
-
-      expect(result).toEqual(validCreateCertificateResponse.certificate)
-      expect(ctx.__postMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates", expect.any(Object))
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Pca service is not available",
+        })
+      )
     })
 
     it("throws PARSE_ERROR on invalid create certificate response payload", async () => {
@@ -499,15 +533,13 @@ describe("pcaRouter", () => {
         caller.services.pca.createCertificate({
           project_id: TEST_PROJECT_ID,
           certificate_authority_id: "ca-1",
-          certificate: {
-            configuration: {
-              validity: {
-                not_before: 1705315200,
-                not_after: 1736851200,
-              },
+          configuration: {
+            validity: {
+              not_before: 1705315200,
+              not_after: 1736851200,
             },
-            csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
           },
+          csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
         })
       ).rejects.toThrow(
         new TRPCError({

@@ -211,6 +211,9 @@ msgstr "Activating this image will allow it to be used to launch new instances a
 msgid "Add"
 msgstr "Add"
 
+msgid "Add a Signed Certificate to your CA to activate it"
+msgstr "Add a Signed Certificate to your CA to activate it"
+
 msgid "Add Member"
 msgstr "Add Member"
 
@@ -1627,8 +1630,23 @@ msgstr "IPv4"
 msgid "IPv6"
 msgstr "IPv6"
 
+msgid "Issue Certificate"
+msgstr "Issue Certificate"
+
 msgid "Issue End Entity Certificate"
 msgstr "Issue End Entity Certificate"
+
+msgid "Issue Self Signed Certificate"
+msgstr "Issue Self Signed Certificate"
+
+msgid "Issue Self-Signed Certificate"
+msgstr "Issue Self-Signed Certificate"
+
+msgid "Issuing End Entity Certificate..."
+msgstr "Issuing End Entity Certificate..."
+
+msgid "Issuing Self-Signed Certificate..."
+msgstr "Issuing Self-Signed Certificate..."
 
 msgid "It will appear in your image list."
 msgstr "It will appear in your image list."
@@ -1683,6 +1701,9 @@ msgstr "Leave empty for all codes"
 
 msgid "Leave empty for all types"
 msgstr "Leave empty for all types"
+
+msgid "Lifecycle action"
+msgstr "Lifecycle action"
 
 msgid "Limits"
 msgstr "Limits"
@@ -2172,6 +2193,9 @@ msgstr "Partial Delete Success"
 
 msgid "Password"
 msgstr "Password"
+
+msgid "Paste CSR code"
+msgstr "Paste CSR code"
 
 msgid "PCA"
 msgstr "PCA"
@@ -2892,6 +2916,9 @@ msgstr "This action is permanent. All objects in the container will be deleted a
 
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
+
+msgid "This action will create a self-signed CA certificate."
+msgstr "This action will create a self-signed CA certificate."
 
 msgid "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
 msgstr "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
