@@ -61,7 +61,9 @@ export class MailService {
       if (process.env.NODE_ENV !== "production") {
         console.log(`[MailService] Sending email to Limes:`)
         console.log(`  URL: ${url.toString()}`)
-        console.log(`  Recipients: ${JSON.stringify(Array.isArray(params.recipients) ? params.recipients : [params.recipients])}`)
+        console.log(
+          `  Recipients: ${JSON.stringify(Array.isArray(params.recipients) ? params.recipients : [params.recipients])}`
+        )
         console.log(`  Subject: ${params.subject}`)
       }
 
@@ -177,19 +179,15 @@ export class MailService {
       },
     }
 
-    const session = await SignalOpenstackSession(
-      normalizedEndpoint,
-      authPayload as any,
-      {
-        interfaceName: this.config.defaultEndpointInterface || "public",
-        debug: process.env.NODE_ENV !== "production",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        proxy: proxyConfig,
-      }
-    )
+    const session = await SignalOpenstackSession(normalizedEndpoint, authPayload as any, {
+      interfaceName: this.config.defaultEndpointInterface || "public",
+      debug: process.env.NODE_ENV !== "production",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      proxy: proxyConfig,
+    })
 
     console.info("[MailService] Technical user session created successfully")
     return session

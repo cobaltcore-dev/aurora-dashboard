@@ -64,6 +64,7 @@ Sends an email via Limes mail server.
 **Authentication**: Requires valid session cookie (`dashboard-session-auth`)
 
 **Request Body**:
+
 ```typescript
 {
   recipients: string | string[]  // Email address(es)
@@ -73,6 +74,7 @@ Sends an email via Limes mail server.
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -81,6 +83,7 @@ Sends an email via Limes mail server.
 ```
 
 **Error Responses**:
+
 - `401 Unauthorized` - Missing or invalid session
 - `400 Bad Request` - Invalid request body
 - `408 Request Timeout` - Limes API timeout
@@ -130,36 +133,41 @@ apps/dashboard/src/server/
 
 ## Comparison with Elektra
 
-| Feature | Elektra (Ruby) | Aurora Dashboard (TypeScript) |
-|---------|----------------|-------------------------------|
-| Implementation | Rails mailer | Custom Fastify endpoint |
-| HTTP Client | Net::HTTP | fetch (Node.js) |
-| Token Source | ApiClientManager.cloud_admin_api_client | SignalOpenstackSession |
-| Error Handling | Rails exceptions | HTTP status codes |
-| Session Management | Per-request | Singleton with caching |
-| Configuration | Rails.configuration + ENV | Environment variables only |
-| Integration | Core Rails app | Dashboard-specific extension |
+| Feature            | Elektra (Ruby)                          | Aurora Dashboard (TypeScript) |
+| ------------------ | --------------------------------------- | ----------------------------- |
+| Implementation     | Rails mailer                            | Custom Fastify endpoint       |
+| HTTP Client        | Net::HTTP                               | fetch (Node.js)               |
+| Token Source       | ApiClientManager.cloud_admin_api_client | SignalOpenstackSession        |
+| Error Handling     | Rails exceptions                        | HTTP status codes             |
+| Session Management | Per-request                             | Singleton with caching        |
+| Configuration      | Rails.configuration + ENV               | Environment variables only    |
+| Integration        | Core Rails app                          | Dashboard-specific extension  |
 
 ## Troubleshooting
 
 ### "Mail service is not configured"
+
 All required environment variables must be set:
+
 - `LIMES_MAIL_SERVER_ENDPOINT`
 - `TECHNICAL_USER_NAME`
 - `TECHNICAL_USER_PASSWORD`
 - `TECHNICAL_USER_DOMAIN`
 
 ### "401 Unauthorized" from Keystone
+
 - Check technical user credentials
 - Verify user exists in the specified domain
 - Ensure user has access to the `cloud_admin` project in the `ccadmin` domain
 
 ### "403 Forbidden" from Limes
+
 - Verify `from` parameter is set to `elektra`
 - Check technical user has Limes permissions
 - Ensure token is project-scoped
 
 ### Email not delivered
+
 - Check Limes server logs
 - Verify recipient email format
 - Check spam folder

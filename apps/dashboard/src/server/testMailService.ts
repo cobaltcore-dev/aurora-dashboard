@@ -33,7 +33,9 @@ async function testMailService() {
   console.log(`   IDENTITY_ENDPOINT: ${process.env.IDENTITY_ENDPOINT}`)
   console.log(`   LIMES_MAIL_SERVER_ENDPOINT: ${process.env.LIMES_MAIL_SERVER_ENDPOINT}`)
   console.log(`   TECHNICAL_USER_NAME: ${process.env.TECHNICAL_USER_NAME}`)
-  console.log(`   TECHNICAL_USER_PASSWORD: ${process.env.TECHNICAL_USER_PASSWORD ? "[SET - length: " + process.env.TECHNICAL_USER_PASSWORD.length + "]" : "[NOT SET]"}`)
+  console.log(
+    `   TECHNICAL_USER_PASSWORD: ${process.env.TECHNICAL_USER_PASSWORD ? "[SET - length: " + process.env.TECHNICAL_USER_PASSWORD.length + "]" : "[NOT SET]"}`
+  )
   console.log(`   TECHNICAL_USER_DOMAIN: ${process.env.TECHNICAL_USER_DOMAIN}`)
   console.log(`   Project scope: cloud_admin/ccadmin (hardcoded)\n`)
 
