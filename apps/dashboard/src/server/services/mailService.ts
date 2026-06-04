@@ -7,8 +7,6 @@ export interface MailServiceConfig {
     name: string
     password: string
     domain: string
-    projectName?: string
-    projectDomain?: string
   }
   defaultEndpointInterface?: string
   proxyUrl?: string
@@ -156,30 +154,12 @@ export class MailService {
     const proxyConfig =
       process.env.NODE_ENV !== "production" && this.config.proxyUrl ? { uri: this.config.proxyUrl } : undefined
 
-    // Build authentication payload
-    const authPayload: {
+    // Build authentication payload with cloud_admin project scope
+    // The technical user is always scoped to cloud_admin/ccadmin for mail service
+    const authPayload = {
       auth: {
         identity: {
-          methods: string[]
-          password: {
-            user: {
-              name: string
-              password: string
-              domain: { name: string }
-            }
-          }
-        }
-        scope?: {
-          project?: {
-            name: string
-            domain: { name: string }
-          }
-        }
-      }
-    } = {
-      auth: {
-        identity: {
-          methods: ["password"],
+          methods: ["password"] as const,
           password: {
             user: {
               name: this.config.technicalUser.name,
@@ -188,22 +168,18 @@ export class MailService {
             },
           },
         },
-      },
-    }
-
-    // Add project scope if configured
-    if (this.config.technicalUser.projectName) {
-      authPayload.auth.scope = {
-        project: {
-          name: this.config.technicalUser.projectName,
-          domain: { name: this.config.technicalUser.projectDomain || this.config.technicalUser.domain },
+        scope: {
+          project: {
+            name: "cloud_admin",
+            domain: { name: "ccadmin" },
+          },
         },
-      }
+      },
     }
 
     const session = await SignalOpenstackSession(
       normalizedEndpoint,
-      authPayload,
+      authPayload as any,
       {
         interfaceName: this.config.defaultEndpointInterface || "public",
         debug: process.env.NODE_ENV !== "production",

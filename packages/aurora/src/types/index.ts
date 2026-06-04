@@ -20,14 +20,4 @@ export interface AuroraServerConfig {
    * Never set this in production.
    */
   insecureCookies?: boolean
-  /** Limes mail server endpoint for sending emails */
-  limesMailServerEndpoint?: string
-  /** Technical user credentials for mail service authentication */
-  technicalUser?: {
-    name: string
-    password: string
-    domain: string
-    projectName?: string
-    projectDomain?: string
-  }
 }

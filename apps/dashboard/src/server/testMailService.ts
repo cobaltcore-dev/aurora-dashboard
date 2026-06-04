@@ -1,16 +1,16 @@
 #!/usr/bin/env tsx
 /**
- * Standalone test script for the mail service
+ * Standalone test script for the mail service (dashboard-only implementation)
  *
  * Usage:
  *   1. Set up your .env file with mail service configuration
- *   2. Run: pnpm tsx packages/aurora/src/server/Notification/testMailService.ts
+ *   2. Run: pnpm test:mail <recipient-email>
  */
 
-import { MailService } from "./mailService"
+import { MailService } from "./services/mailService"
 
 async function testMailService() {
-  console.log("🧪 Testing Mail Service\n")
+  console.log("🧪 Testing Mail Service (Dashboard Implementation)\n")
 
   // Check environment variables
   const requiredVars = [
@@ -35,10 +35,7 @@ async function testMailService() {
   console.log(`   TECHNICAL_USER_NAME: ${process.env.TECHNICAL_USER_NAME}`)
   console.log(`   TECHNICAL_USER_PASSWORD: ${process.env.TECHNICAL_USER_PASSWORD ? "[SET - length: " + process.env.TECHNICAL_USER_PASSWORD.length + "]" : "[NOT SET]"}`)
   console.log(`   TECHNICAL_USER_DOMAIN: ${process.env.TECHNICAL_USER_DOMAIN}`)
-  console.log(`   TECHNICAL_USER_PROJECT: ${process.env.TECHNICAL_USER_PROJECT || "(not set)"}`)
-  console.log(
-    `   TECHNICAL_USER_PROJECT_DOMAIN: ${process.env.TECHNICAL_USER_PROJECT_DOMAIN || "(not set)"}\n`
-  )
+  console.log(`   Project scope: cloud_admin/ccadmin (hardcoded)\n`)
 
   // Create mail service instance
   const mailService = new MailService({
@@ -48,8 +45,6 @@ async function testMailService() {
       name: process.env.TECHNICAL_USER_NAME!,
       password: process.env.TECHNICAL_USER_PASSWORD!,
       domain: process.env.TECHNICAL_USER_DOMAIN!,
-      projectName: process.env.TECHNICAL_USER_PROJECT,
-      projectDomain: process.env.TECHNICAL_USER_PROJECT_DOMAIN,
     },
     proxyUrl: process.env.GLOBAL_AGENT_HTTP_PROXY,
   })
@@ -62,16 +57,17 @@ async function testMailService() {
 
     await mailService.sendEmail({
       recipients: recipient,
-      subject: "Test Email from Aurora Mail Service",
+      subject: "Test Email from Aurora Dashboard (Dashboard-Only Implementation)",
       bodyHtml: `
         <html>
           <body>
             <h1>Test Email</h1>
-            <p>This is a test email sent from the Aurora mail service.</p>
+            <p>This is a test email sent from the Aurora dashboard's custom mail service.</p>
             <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
             <hr>
             <p style="color: gray; font-size: 12px;">
-              Sent via technical user: ${process.env.TECHNICAL_USER_NAME}@${process.env.TECHNICAL_USER_DOMAIN}
+              Sent via technical user: ${process.env.TECHNICAL_USER_NAME}@${process.env.TECHNICAL_USER_DOMAIN}<br>
+              Implementation: Dashboard-only (not part of Aurora core)
             </p>
           </body>
         </html>

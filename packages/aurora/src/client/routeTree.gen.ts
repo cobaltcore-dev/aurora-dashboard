@@ -74,61 +74,72 @@ const AuthProjectsProjectIdRoute = AuthProjectsProjectIdRouteImport.update({
   path: "/projects/$projectId",
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthProjectsProjectIdIndexRoute = AuthProjectsProjectIdIndexRouteImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => AuthProjectsProjectIdRoute,
-} as any)
-const AuthProjectsProjectIdNetworkRoute = AuthProjectsProjectIdNetworkRouteImport.update({
-  id: "/network",
-  path: "/network",
-  getParentRoute: () => AuthProjectsProjectIdRoute,
-} as any)
-const AuthProjectsProjectIdServicesIndexRoute = AuthProjectsProjectIdServicesIndexRouteImport.update({
-  id: "/services/",
-  path: "/services/",
-  getParentRoute: () => AuthProjectsProjectIdRoute,
-} as any)
-const AuthProjectsProjectIdNetworkIndexRoute = AuthProjectsProjectIdNetworkIndexRouteImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => AuthProjectsProjectIdNetworkRoute,
-} as any)
-const AuthProjectsProjectIdComputeIndexRoute = AuthProjectsProjectIdComputeIndexRouteImport.update({
-  id: "/compute/",
-  path: "/compute/",
-  getParentRoute: () => AuthProjectsProjectIdRoute,
-} as any)
-const AuthProjectsProjectIdServicesOverviewRoute = AuthProjectsProjectIdServicesOverviewRouteImport.update({
-  id: "/services/overview",
-  path: "/services/overview",
-  getParentRoute: () => AuthProjectsProjectIdRoute,
-} as any)
-const AuthProjectsProjectIdNetworkOverviewRoute = AuthProjectsProjectIdNetworkOverviewRouteImport.update({
-  id: "/overview",
-  path: "/overview",
-  getParentRoute: () => AuthProjectsProjectIdNetworkRoute,
-} as any)
-const AuthProjectsProjectIdComputeOverviewRoute = AuthProjectsProjectIdComputeOverviewRouteImport.update({
-  id: "/compute/overview",
-  path: "/compute/overview",
-  getParentRoute: () => AuthProjectsProjectIdRoute,
-} as any)
-const AuthProjectsProjectIdComputeImagesRoute = AuthProjectsProjectIdComputeImagesRouteImport.update({
-  id: "/compute/images",
-  path: "/compute/images",
-  getParentRoute: () => AuthProjectsProjectIdRoute,
-} as any)
-const AuthProjectsProjectIdComputeFlavorsRoute = AuthProjectsProjectIdComputeFlavorsRouteImport.update({
-  id: "/compute/flavors",
-  path: "/compute/flavors",
-  getParentRoute: () => AuthProjectsProjectIdRoute,
-} as any)
-const AuthProjectsProjectIdServicesPcaIndexRoute = AuthProjectsProjectIdServicesPcaIndexRouteImport.update({
-  id: "/services/pca/",
-  path: "/services/pca/",
-  getParentRoute: () => AuthProjectsProjectIdRoute,
-} as any)
+const AuthProjectsProjectIdIndexRoute =
+  AuthProjectsProjectIdIndexRouteImport.update({
+    id: "/",
+    path: "/",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
+const AuthProjectsProjectIdNetworkRoute =
+  AuthProjectsProjectIdNetworkRouteImport.update({
+    id: "/network",
+    path: "/network",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
+const AuthProjectsProjectIdServicesIndexRoute =
+  AuthProjectsProjectIdServicesIndexRouteImport.update({
+    id: "/services/",
+    path: "/services/",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
+const AuthProjectsProjectIdNetworkIndexRoute =
+  AuthProjectsProjectIdNetworkIndexRouteImport.update({
+    id: "/",
+    path: "/",
+    getParentRoute: () => AuthProjectsProjectIdNetworkRoute,
+  } as any)
+const AuthProjectsProjectIdComputeIndexRoute =
+  AuthProjectsProjectIdComputeIndexRouteImport.update({
+    id: "/compute/",
+    path: "/compute/",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
+const AuthProjectsProjectIdServicesOverviewRoute =
+  AuthProjectsProjectIdServicesOverviewRouteImport.update({
+    id: "/services/overview",
+    path: "/services/overview",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
+const AuthProjectsProjectIdNetworkOverviewRoute =
+  AuthProjectsProjectIdNetworkOverviewRouteImport.update({
+    id: "/overview",
+    path: "/overview",
+    getParentRoute: () => AuthProjectsProjectIdNetworkRoute,
+  } as any)
+const AuthProjectsProjectIdComputeOverviewRoute =
+  AuthProjectsProjectIdComputeOverviewRouteImport.update({
+    id: "/compute/overview",
+    path: "/compute/overview",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
+const AuthProjectsProjectIdComputeImagesRoute =
+  AuthProjectsProjectIdComputeImagesRouteImport.update({
+    id: "/compute/images",
+    path: "/compute/images",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
+const AuthProjectsProjectIdComputeFlavorsRoute =
+  AuthProjectsProjectIdComputeFlavorsRouteImport.update({
+    id: "/compute/flavors",
+    path: "/compute/flavors",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
+const AuthProjectsProjectIdServicesPcaIndexRoute =
+  AuthProjectsProjectIdServicesPcaIndexRouteImport.update({
+    id: "/services/pca/",
+    path: "/services/pca/",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
+  } as any)
 const AuthProjectsProjectIdNetworkSecuritygroupsIndexRoute =
   AuthProjectsProjectIdNetworkSecuritygroupsIndexRouteImport.update({
     id: "/securitygroups/",
@@ -141,43 +152,50 @@ const AuthProjectsProjectIdNetworkFloatingipsIndexRoute =
     path: "/floatingips/",
     getParentRoute: () => AuthProjectsProjectIdNetworkRoute,
   } as any)
-const AuthProjectsProjectIdComputeImagesIndexRoute = AuthProjectsProjectIdComputeImagesIndexRouteImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => AuthProjectsProjectIdComputeImagesRoute,
-} as any)
-const AuthProjectsProjectIdComputeFlavorsIndexRoute = AuthProjectsProjectIdComputeFlavorsIndexRouteImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => AuthProjectsProjectIdComputeFlavorsRoute,
-} as any)
-const AuthProjectsProjectIdComputeImagesImageIdRoute = AuthProjectsProjectIdComputeImagesImageIdRouteImport.update({
-  id: "/$imageId",
-  path: "/$imageId",
-  getParentRoute: () => AuthProjectsProjectIdComputeImagesRoute,
-} as any)
-const AuthProjectsProjectIdComputeFlavorsFlavorIdRoute = AuthProjectsProjectIdComputeFlavorsFlavorIdRouteImport.update({
-  id: "/$flavorId",
-  path: "/$flavorId",
-  getParentRoute: () => AuthProjectsProjectIdComputeFlavorsRoute,
-} as any)
+const AuthProjectsProjectIdComputeImagesIndexRoute =
+  AuthProjectsProjectIdComputeImagesIndexRouteImport.update({
+    id: "/",
+    path: "/",
+    getParentRoute: () => AuthProjectsProjectIdComputeImagesRoute,
+  } as any)
+const AuthProjectsProjectIdComputeFlavorsIndexRoute =
+  AuthProjectsProjectIdComputeFlavorsIndexRouteImport.update({
+    id: "/",
+    path: "/",
+    getParentRoute: () => AuthProjectsProjectIdComputeFlavorsRoute,
+  } as any)
+const AuthProjectsProjectIdComputeImagesImageIdRoute =
+  AuthProjectsProjectIdComputeImagesImageIdRouteImport.update({
+    id: "/$imageId",
+    path: "/$imageId",
+    getParentRoute: () => AuthProjectsProjectIdComputeImagesRoute,
+  } as any)
+const AuthProjectsProjectIdComputeFlavorsFlavorIdRoute =
+  AuthProjectsProjectIdComputeFlavorsFlavorIdRouteImport.update({
+    id: "/$flavorId",
+    path: "/$flavorId",
+    getParentRoute: () => AuthProjectsProjectIdComputeFlavorsRoute,
+  } as any)
 const AuthProjectsProjectIdStorageProviderContainersIndexRoute =
   AuthProjectsProjectIdStorageProviderContainersIndexRouteImport.update({
     id: "/storage/$provider/containers/",
     path: "/storage/$provider/containers/",
     getParentRoute: () => AuthProjectsProjectIdRoute,
   } as any)
-const AuthProjectsProjectIdServicesPcaPcaIdIndexRoute = AuthProjectsProjectIdServicesPcaPcaIdIndexRouteImport.update({
-  id: "/services/pca/$pcaId/",
-  path: "/services/pca/$pcaId/",
-  getParentRoute: () => AuthProjectsProjectIdRoute,
-} as any)
-const AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute =
-  AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRouteImport.update({
-    id: "/securitygroups/$securityGroupId/",
-    path: "/securitygroups/$securityGroupId/",
-    getParentRoute: () => AuthProjectsProjectIdNetworkRoute,
+const AuthProjectsProjectIdServicesPcaPcaIdIndexRoute =
+  AuthProjectsProjectIdServicesPcaPcaIdIndexRouteImport.update({
+    id: "/services/pca/$pcaId/",
+    path: "/services/pca/$pcaId/",
+    getParentRoute: () => AuthProjectsProjectIdRoute,
   } as any)
+const AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute =
+  AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRouteImport.update(
+    {
+      id: "/securitygroups/$securityGroupId/",
+      path: "/securitygroups/$securityGroupId/",
+      getParentRoute: () => AuthProjectsProjectIdNetworkRoute,
+    } as any,
+  )
 const AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRoute =
   AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRouteImport.update({
     id: "/floatingips/$floatingIpId/",
@@ -191,11 +209,13 @@ const AuthProjectsProjectIdServicesPcaPcaIdCertificateIdRoute =
     getParentRoute: () => AuthProjectsProjectIdRoute,
   } as any)
 const AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute =
-  AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRouteImport.update({
-    id: "/storage/$provider/containers/$containerName/objects/",
-    path: "/storage/$provider/containers/$containerName/objects/",
-    getParentRoute: () => AuthProjectsProjectIdRoute,
-  } as any)
+  AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRouteImport.update(
+    {
+      id: "/storage/$provider/containers/$containerName/objects/",
+      path: "/storage/$provider/containers/$containerName/objects/",
+      getParentRoute: () => AuthProjectsProjectIdRoute,
+    } as any,
+  )
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
@@ -611,48 +631,62 @@ interface AuthProjectsProjectIdNetworkRouteChildren {
   AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute: typeof AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute
 }
 
-const AuthProjectsProjectIdNetworkRouteChildren: AuthProjectsProjectIdNetworkRouteChildren = {
-  AuthProjectsProjectIdNetworkOverviewRoute: AuthProjectsProjectIdNetworkOverviewRoute,
-  AuthProjectsProjectIdNetworkIndexRoute: AuthProjectsProjectIdNetworkIndexRoute,
-  AuthProjectsProjectIdNetworkFloatingipsIndexRoute: AuthProjectsProjectIdNetworkFloatingipsIndexRoute,
-  AuthProjectsProjectIdNetworkSecuritygroupsIndexRoute: AuthProjectsProjectIdNetworkSecuritygroupsIndexRoute,
-  AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRoute:
-    AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRoute,
-  AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute:
-    AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute,
-}
+const AuthProjectsProjectIdNetworkRouteChildren: AuthProjectsProjectIdNetworkRouteChildren =
+  {
+    AuthProjectsProjectIdNetworkOverviewRoute:
+      AuthProjectsProjectIdNetworkOverviewRoute,
+    AuthProjectsProjectIdNetworkIndexRoute:
+      AuthProjectsProjectIdNetworkIndexRoute,
+    AuthProjectsProjectIdNetworkFloatingipsIndexRoute:
+      AuthProjectsProjectIdNetworkFloatingipsIndexRoute,
+    AuthProjectsProjectIdNetworkSecuritygroupsIndexRoute:
+      AuthProjectsProjectIdNetworkSecuritygroupsIndexRoute,
+    AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRoute:
+      AuthProjectsProjectIdNetworkFloatingipsFloatingIpIdIndexRoute,
+    AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute:
+      AuthProjectsProjectIdNetworkSecuritygroupsSecurityGroupIdIndexRoute,
+  }
 
-const AuthProjectsProjectIdNetworkRouteWithChildren = AuthProjectsProjectIdNetworkRoute._addFileChildren(
-  AuthProjectsProjectIdNetworkRouteChildren
-)
+const AuthProjectsProjectIdNetworkRouteWithChildren =
+  AuthProjectsProjectIdNetworkRoute._addFileChildren(
+    AuthProjectsProjectIdNetworkRouteChildren,
+  )
 
 interface AuthProjectsProjectIdComputeFlavorsRouteChildren {
   AuthProjectsProjectIdComputeFlavorsFlavorIdRoute: typeof AuthProjectsProjectIdComputeFlavorsFlavorIdRoute
   AuthProjectsProjectIdComputeFlavorsIndexRoute: typeof AuthProjectsProjectIdComputeFlavorsIndexRoute
 }
 
-const AuthProjectsProjectIdComputeFlavorsRouteChildren: AuthProjectsProjectIdComputeFlavorsRouteChildren = {
-  AuthProjectsProjectIdComputeFlavorsFlavorIdRoute: AuthProjectsProjectIdComputeFlavorsFlavorIdRoute,
-  AuthProjectsProjectIdComputeFlavorsIndexRoute: AuthProjectsProjectIdComputeFlavorsIndexRoute,
-}
+const AuthProjectsProjectIdComputeFlavorsRouteChildren: AuthProjectsProjectIdComputeFlavorsRouteChildren =
+  {
+    AuthProjectsProjectIdComputeFlavorsFlavorIdRoute:
+      AuthProjectsProjectIdComputeFlavorsFlavorIdRoute,
+    AuthProjectsProjectIdComputeFlavorsIndexRoute:
+      AuthProjectsProjectIdComputeFlavorsIndexRoute,
+  }
 
-const AuthProjectsProjectIdComputeFlavorsRouteWithChildren = AuthProjectsProjectIdComputeFlavorsRoute._addFileChildren(
-  AuthProjectsProjectIdComputeFlavorsRouteChildren
-)
+const AuthProjectsProjectIdComputeFlavorsRouteWithChildren =
+  AuthProjectsProjectIdComputeFlavorsRoute._addFileChildren(
+    AuthProjectsProjectIdComputeFlavorsRouteChildren,
+  )
 
 interface AuthProjectsProjectIdComputeImagesRouteChildren {
   AuthProjectsProjectIdComputeImagesImageIdRoute: typeof AuthProjectsProjectIdComputeImagesImageIdRoute
   AuthProjectsProjectIdComputeImagesIndexRoute: typeof AuthProjectsProjectIdComputeImagesIndexRoute
 }
 
-const AuthProjectsProjectIdComputeImagesRouteChildren: AuthProjectsProjectIdComputeImagesRouteChildren = {
-  AuthProjectsProjectIdComputeImagesImageIdRoute: AuthProjectsProjectIdComputeImagesImageIdRoute,
-  AuthProjectsProjectIdComputeImagesIndexRoute: AuthProjectsProjectIdComputeImagesIndexRoute,
-}
+const AuthProjectsProjectIdComputeImagesRouteChildren: AuthProjectsProjectIdComputeImagesRouteChildren =
+  {
+    AuthProjectsProjectIdComputeImagesImageIdRoute:
+      AuthProjectsProjectIdComputeImagesImageIdRoute,
+    AuthProjectsProjectIdComputeImagesIndexRoute:
+      AuthProjectsProjectIdComputeImagesIndexRoute,
+  }
 
-const AuthProjectsProjectIdComputeImagesRouteWithChildren = AuthProjectsProjectIdComputeImagesRoute._addFileChildren(
-  AuthProjectsProjectIdComputeImagesRouteChildren
-)
+const AuthProjectsProjectIdComputeImagesRouteWithChildren =
+  AuthProjectsProjectIdComputeImagesRoute._addFileChildren(
+    AuthProjectsProjectIdComputeImagesRouteChildren,
+  )
 
 interface AuthProjectsProjectIdRouteChildren {
   AuthProjectsProjectIdNetworkRoute: typeof AuthProjectsProjectIdNetworkRouteWithChildren
@@ -671,25 +705,37 @@ interface AuthProjectsProjectIdRouteChildren {
 }
 
 const AuthProjectsProjectIdRouteChildren: AuthProjectsProjectIdRouteChildren = {
-  AuthProjectsProjectIdNetworkRoute: AuthProjectsProjectIdNetworkRouteWithChildren,
+  AuthProjectsProjectIdNetworkRoute:
+    AuthProjectsProjectIdNetworkRouteWithChildren,
   AuthProjectsProjectIdIndexRoute: AuthProjectsProjectIdIndexRoute,
-  AuthProjectsProjectIdComputeFlavorsRoute: AuthProjectsProjectIdComputeFlavorsRouteWithChildren,
-  AuthProjectsProjectIdComputeImagesRoute: AuthProjectsProjectIdComputeImagesRouteWithChildren,
-  AuthProjectsProjectIdComputeOverviewRoute: AuthProjectsProjectIdComputeOverviewRoute,
-  AuthProjectsProjectIdServicesOverviewRoute: AuthProjectsProjectIdServicesOverviewRoute,
-  AuthProjectsProjectIdComputeIndexRoute: AuthProjectsProjectIdComputeIndexRoute,
-  AuthProjectsProjectIdServicesIndexRoute: AuthProjectsProjectIdServicesIndexRoute,
-  AuthProjectsProjectIdServicesPcaIndexRoute: AuthProjectsProjectIdServicesPcaIndexRoute,
-  AuthProjectsProjectIdServicesPcaPcaIdCertificateIdRoute: AuthProjectsProjectIdServicesPcaPcaIdCertificateIdRoute,
-  AuthProjectsProjectIdServicesPcaPcaIdIndexRoute: AuthProjectsProjectIdServicesPcaPcaIdIndexRoute,
-  AuthProjectsProjectIdStorageProviderContainersIndexRoute: AuthProjectsProjectIdStorageProviderContainersIndexRoute,
+  AuthProjectsProjectIdComputeFlavorsRoute:
+    AuthProjectsProjectIdComputeFlavorsRouteWithChildren,
+  AuthProjectsProjectIdComputeImagesRoute:
+    AuthProjectsProjectIdComputeImagesRouteWithChildren,
+  AuthProjectsProjectIdComputeOverviewRoute:
+    AuthProjectsProjectIdComputeOverviewRoute,
+  AuthProjectsProjectIdServicesOverviewRoute:
+    AuthProjectsProjectIdServicesOverviewRoute,
+  AuthProjectsProjectIdComputeIndexRoute:
+    AuthProjectsProjectIdComputeIndexRoute,
+  AuthProjectsProjectIdServicesIndexRoute:
+    AuthProjectsProjectIdServicesIndexRoute,
+  AuthProjectsProjectIdServicesPcaIndexRoute:
+    AuthProjectsProjectIdServicesPcaIndexRoute,
+  AuthProjectsProjectIdServicesPcaPcaIdCertificateIdRoute:
+    AuthProjectsProjectIdServicesPcaPcaIdCertificateIdRoute,
+  AuthProjectsProjectIdServicesPcaPcaIdIndexRoute:
+    AuthProjectsProjectIdServicesPcaPcaIdIndexRoute,
+  AuthProjectsProjectIdStorageProviderContainersIndexRoute:
+    AuthProjectsProjectIdStorageProviderContainersIndexRoute,
   AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute:
     AuthProjectsProjectIdStorageProviderContainersContainerNameObjectsIndexRoute,
 }
 
-const AuthProjectsProjectIdRouteWithChildren = AuthProjectsProjectIdRoute._addFileChildren(
-  AuthProjectsProjectIdRouteChildren
-)
+const AuthProjectsProjectIdRouteWithChildren =
+  AuthProjectsProjectIdRoute._addFileChildren(
+    AuthProjectsProjectIdRouteChildren,
+  )
 
 interface AuthRouteChildren {
   AuthAuroraRoute: typeof AuthAuroraRoute
@@ -712,4 +758,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   AboutRoute: AboutRoute,
 }
-export const routeTree = rootRouteImport._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
