@@ -1,28 +1,24 @@
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import { ProjectCardView } from "./ProjectCardView"
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 
+const mockNavigate = vi.fn()
+
 vi.mock("@tanstack/react-router", () => ({
-  Link: ({
-    to,
-    params,
-    children,
-    className,
-  }: {
-    to: string
-    params: Record<string, string>
-    children: React.ReactNode
-    className?: string
-  }) => {
-    const href = to.replace("$projectId", params.projectId)
-    return (
-      <a href={href} className={className}>
-        {children}
-      </a>
-    )
-  },
+  useNavigate: () => mockNavigate,
+}))
+
+vi.mock("@cloudoperators/juno-ui-components", () => ({
+  Card: ({ children, onClick, className }: { children: React.ReactNode; onClick?: () => void; className?: string }) => (
+    <div role="button" className={className} onClick={onClick}>
+      {children}
+    </div>
+  ),
+  ContentHeading: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <h1 className={className}>{children}</h1>
+  ),
 }))
 
 const projects = [
@@ -58,7 +54,7 @@ describe("ProjectCardView", () => {
     expect(screen.getByText("Manages security compliance and access control.")).toBeDefined()
   })
 
-  test("card links to the correct project route", async () => {
+  test("card navigates to the correct project route on click", async () => {
     render(
       <I18nProvider i18n={i18n}>
         <ProjectCardView projects={projects} />
@@ -69,8 +65,12 @@ describe("ProjectCardView", () => {
       expect(screen.getByText("Security Group")).toBeInTheDocument()
     })
 
-    const link = screen.getByText("Security Group").closest("a")
-    expect(link).toHaveAttribute("href", "/projects/89ac3f")
+    fireEvent.click(screen.getByRole("button"))
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: "/projects/$projectId",
+      params: { projectId: "89ac3f" },
+    })
   })
 
   test("renders empty state when no projects", async () => {

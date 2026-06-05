@@ -9,7 +9,7 @@ type ProjectsOverviewNavBarProps = {
 
 export function ProjectsOverviewNavBar({ onSearch, searchTerm = "" }: ProjectsOverviewNavBarProps) {
   const { t } = useLingui()
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inputFocusedRef = useRef(false)
   const [inputValue, setInputValue] = useState(searchTerm)
 
