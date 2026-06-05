@@ -1,9 +1,10 @@
-import { useNavigate, useMatches, useParams } from "@tanstack/react-router"
+import { useNavigate, useMatches, useParams, useRouteContext } from "@tanstack/react-router"
 import { type MouseEvent, useState, useEffect } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
 import { isRouteInfo } from "@/client/routes/routeInfo"
+import { Slot } from "@/client/components/Slot"
 
 interface SideNavBarProps {
   projectId: string
@@ -19,6 +20,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
   const navigate = useNavigate()
   const matches = useMatches()
   const { provider } = useParams({ strict: false }) as { provider?: string }
+  const { slots } = useRouteContext({ strict: false })
 
   // Read active section/service from the deepest match that has valid RouteInfo staticData
   const activeMatch = [...matches].reverse().find((m) => isRouteInfo(m.staticData))
@@ -130,7 +132,8 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
 
   return (
     <SideNavigation ariaLabel="Project Side Navigation">
-      <SideNavigationList>
+      <>
+        <SideNavigationList>
         <>
           <SideNavigationItem
             icon="home"
@@ -204,6 +207,8 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
           )}
         </>
       </SideNavigationList>
+      {slots?.sideNavBanner && <Slot component={slots.sideNavBanner} />}
+      </>
     </SideNavigation>
   )
 }

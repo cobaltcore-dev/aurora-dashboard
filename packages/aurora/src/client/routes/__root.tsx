@@ -4,6 +4,7 @@ import { MainNavigation } from "../components/navigation/MainNavigation"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
 import { NavigationItem } from "../components/navigation/types"
+import { Slots } from "../AuroraApp"
 import styles from "../index.css?inline"
 import { InactivityModal } from "../components/Auth/InactivityModal"
 import { RouteError } from "../components/Error/RouteError"
@@ -16,6 +17,7 @@ export interface RouterContext {
   auth: AuthContext
   navItems: NavigationItem[]
   handleThemeToggle?: (theme: string) => void
+  slots?: Slots
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
