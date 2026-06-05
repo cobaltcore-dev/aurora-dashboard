@@ -173,31 +173,31 @@
     --color-aurora-teal-900: #134e4a;
     --color-aurora-teal-950: #042f2e;
 
-    /* Cyan colors */
+    /* Cyan colors - Unicorn Aqua Sparkle */
     --color-aurora-cyan-50: #ecfeff;
-    --color-aurora-cyan-100: #cffafe;
-    --color-aurora-cyan-200: #a5f3fc;
-    --color-aurora-cyan-300: #67e8f9;
-    --color-aurora-cyan-400: #22d3ee;
-    --color-aurora-cyan-500: #06b6d4;
-    --color-aurora-cyan-600: #0891b2;
-    --color-aurora-cyan-700: #0e7490;
-    --color-aurora-cyan-800: #155e75;
-    --color-aurora-cyan-900: #164e63;
-    --color-aurora-cyan-950: #083344;
+    --color-aurora-cyan-100: #cffbff;
+    --color-aurora-cyan-200: #a5f5ff;
+    --color-aurora-cyan-300: #67ebff;
+    --color-aurora-cyan-400: #22ddff;
+    --color-aurora-cyan-500: #06c9f0;
+    --color-aurora-cyan-600: #00a3d4;
+    --color-aurora-cyan-700: #007fa6;
+    --color-aurora-cyan-800: #006787;
+    --color-aurora-cyan-900: #005470;
+    --color-aurora-cyan-950: #00394d;
 
-    /* Sky colors */
+    /* Sky colors - Unicorn Sky Blue */
     --color-aurora-sky-50: #f0f9ff;
-    --color-aurora-sky-100: #e0f2fe;
-    --color-aurora-sky-200: #bae6fd;
-    --color-aurora-sky-300: #7dd3fc;
-    --color-aurora-sky-400: #38bdf8;
-    --color-aurora-sky-500: #0ea5e9;
-    --color-aurora-sky-600: #0284c7;
-    --color-aurora-sky-700: #0369a1;
-    --color-aurora-sky-800: #075985;
-    --color-aurora-sky-900: #0c4a6e;
-    --color-aurora-sky-950: #082f49;
+    --color-aurora-sky-100: #e0f4ff;
+    --color-aurora-sky-200: #b8e6ff;
+    --color-aurora-sky-300: #7dd8ff;
+    --color-aurora-sky-400: #3dc3ff;
+    --color-aurora-sky-500: #0eb3ff;
+    --color-aurora-sky-600: #0099f0;
+    --color-aurora-sky-700: #007ac7;
+    --color-aurora-sky-800: #005f9e;
+    --color-aurora-sky-900: #004d7f;
+    --color-aurora-sky-950: #003357;
 
     /* Blue colors */
     --color-aurora-blue-50: #eff6ff;
@@ -212,83 +212,83 @@
     --color-aurora-blue-900: #1e3a8a;
     --color-aurora-blue-950: #172554;
 
-    /* Indigo colors */
-    --color-aurora-indigo-50: #eef2ff;
-    --color-aurora-indigo-100: #e0e7ff;
-    --color-aurora-indigo-200: #c7d2fe;
-    --color-aurora-indigo-300: #a5b4fc;
-    --color-aurora-indigo-400: #818cf8;
-    --color-aurora-indigo-500: #6366f1;
-    --color-aurora-indigo-600: #4f46e5;
-    --color-aurora-indigo-700: #4338ca;
-    --color-aurora-indigo-800: #3730a3;
-    --color-aurora-indigo-900: #312e81;
-    --color-aurora-indigo-950: #1e1b4b;
+    /* Indigo colors - Unicorn Midnight */
+    --color-aurora-indigo-50: #f0f0ff;
+    --color-aurora-indigo-100: #e5e5ff;
+    --color-aurora-indigo-200: #d1d1ff;
+    --color-aurora-indigo-300: #b3b3ff;
+    --color-aurora-indigo-400: #8f8fff;
+    --color-aurora-indigo-500: #6b6bff;
+    --color-aurora-indigo-600: #5252f7;
+    --color-aurora-indigo-700: #3d3dd6;
+    --color-aurora-indigo-800: #2e2eaf;
+    --color-aurora-indigo-900: #252589;
+    --color-aurora-indigo-950: #18185c;
 
-    /* Violet colors */
-    --color-aurora-violet-50: #f5f3ff;
-    --color-aurora-violet-100: #ede9fe;
-    --color-aurora-violet-200: #ddd6fe;
-    --color-aurora-violet-300: #c4b5fd;
-    --color-aurora-violet-400: #a78bfa;
-    --color-aurora-violet-500: #8b5cf6;
-    --color-aurora-violet-600: #7c3aed;
-    --color-aurora-violet-700: #6d28d9;
-    --color-aurora-violet-800: #5b21b6;
-    --color-aurora-violet-900: #4c1d95;
-    --color-aurora-violet-950: #2e1065;
+    /* Violet colors - Unicorn Lavender Dream */
+    --color-aurora-violet-50: #faf5ff;
+    --color-aurora-violet-100: #f3e8ff;
+    --color-aurora-violet-200: #e9d5ff;
+    --color-aurora-violet-300: #d8b4fe;
+    --color-aurora-violet-400: #c084fc;
+    --color-aurora-violet-500: #b366ff;
+    --color-aurora-violet-600: #a03aed;
+    --color-aurora-violet-700: #8b1ed9;
+    --color-aurora-violet-800: #7318b6;
+    --color-aurora-violet-900: #5d1495;
+    --color-aurora-violet-950: #3d0a65;
 
-    /* Purple colors */
-    --color-aurora-purple-50: #faf5ff;
-    --color-aurora-purple-100: #f3e8ff;
-    --color-aurora-purple-200: #e9d5ff;
-    --color-aurora-purple-300: #d8b4fe;
-    --color-aurora-purple-400: #c084fc;
-    --color-aurora-purple-500: #a855f7;
-    --color-aurora-purple-600: #9333ea;
-    --color-aurora-purple-700: #7e22ce;
-    --color-aurora-purple-800: #6b21a8;
-    --color-aurora-purple-900: #581c87;
-    --color-aurora-purple-950: #3b0764;
+    /* Purple colors - Unicorn Mystical Purple */
+    --color-aurora-purple-50: #fef5ff;
+    --color-aurora-purple-100: #fce7ff;
+    --color-aurora-purple-200: #f9d5ff;
+    --color-aurora-purple-300: #f5b8ff;
+    --color-aurora-purple-400: #ee8fff;
+    --color-aurora-purple-500: #e25cff;
+    --color-aurora-purple-600: #d433ff;
+    --color-aurora-purple-700: #b81ae6;
+    --color-aurora-purple-800: #9916ba;
+    --color-aurora-purple-900: #7d1597;
+    --color-aurora-purple-950: #550075;
 
-    /* Fuchsia colors */
-    --color-aurora-fuchsia-50: #fdf4ff;
-    --color-aurora-fuchsia-100: #fae8ff;
-    --color-aurora-fuchsia-200: #f5d0fe;
-    --color-aurora-fuchsia-300: #f0abfc;
-    --color-aurora-fuchsia-400: #e879f9;
-    --color-aurora-fuchsia-500: #d946ef;
-    --color-aurora-fuchsia-600: #c026d3;
-    --color-aurora-fuchsia-700: #a21caf;
-    --color-aurora-fuchsia-800: #86198f;
-    --color-aurora-fuchsia-900: #701a75;
-    --color-aurora-fuchsia-950: #4a044e;
+    /* Fuchsia colors - Unicorn Magenta Magic */
+    --color-aurora-fuchsia-50: #fef5ff;
+    --color-aurora-fuchsia-100: #fde8ff;
+    --color-aurora-fuchsia-200: #fbd5ff;
+    --color-aurora-fuchsia-300: #f9b3ff;
+    --color-aurora-fuchsia-400: #f485ff;
+    --color-aurora-fuchsia-500: #ec52ff;
+    --color-aurora-fuchsia-600: #d91fff;
+    --color-aurora-fuchsia-700: #b810d6;
+    --color-aurora-fuchsia-800: #950eaf;
+    --color-aurora-fuchsia-900: #790d8c;
+    --color-aurora-fuchsia-950: #52065e;
 
-    /* Pink colors */
-    --color-aurora-pink-50: #fdf2f8;
-    --color-aurora-pink-100: #fce7f3;
-    --color-aurora-pink-200: #fbcfe8;
-    --color-aurora-pink-300: #f9a8d4;
-    --color-aurora-pink-400: #f472b6;
-    --color-aurora-pink-500: #ec4899;
-    --color-aurora-pink-600: #db2777;
-    --color-aurora-pink-700: #be185d;
-    --color-aurora-pink-800: #9d174d;
-    --color-aurora-pink-900: #831843;
-    --color-aurora-pink-950: #500724;
+    /* Pink colors - Unicorn Candy Pink */
+    --color-aurora-pink-50: #fff5fb;
+    --color-aurora-pink-100: #ffe8f7;
+    --color-aurora-pink-200: #ffd4f0;
+    --color-aurora-pink-300: #ffb3e6;
+    --color-aurora-pink-400: #ff85d8;
+    --color-aurora-pink-500: #ff57c7;
+    --color-aurora-pink-600: #ff2eb6;
+    --color-aurora-pink-700: #e6148f;
+    --color-aurora-pink-800: #ba1174;
+    --color-aurora-pink-900: #8f0d59;
+    --color-aurora-pink-950: #5c063a;
 
-    /* Rose colors */
-    --color-aurora-rose-50: #fff1f2;
-    --color-aurora-rose-100: #ffe4e6;
-    --color-aurora-rose-200: #fecdd3;
-    --color-aurora-rose-300: #fda4af;
-    --color-aurora-rose-400: #fb7185;
-    --color-aurora-rose-500: #f43f5e;
-    --color-aurora-rose-600: #e11d48;
-    --color-aurora-rose-700: #be123c;
-    --color-aurora-rose-800: #9f1239;
-    --color-aurora-rose-900: #881337;
-    --color-aurora-rose-950: #4c0519;
+    /* Rose colors - Unicorn Rose Petal */
+    --color-aurora-rose-50: #fff5f7;
+    --color-aurora-rose-100: #ffe8ef;
+    --color-aurora-rose-200: #ffd4e3;
+    --color-aurora-rose-300: #ffb3cd;
+    --color-aurora-rose-400: #ff85ab;
+    --color-aurora-rose-500: #ff5789;
+    --color-aurora-rose-600: #f72e6b;
+    --color-aurora-rose-700: #d91556;
+    --color-aurora-rose-800: #b31248;
+    --color-aurora-rose-900: #8f0f3c;
+    --color-aurora-rose-950: #5c0626;
 
     /* Single color values */
     --color-aurora-inherit: inherit;
