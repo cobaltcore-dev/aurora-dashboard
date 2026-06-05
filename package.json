@@ -27,7 +27,7 @@
     "clean:cache": "turbo run clean:cache && rm -rf .turbo && rm -rf node_modules/.cache/turbo",
     "generate:package": "turbo gen workspace --type package --copy @cobalcore-dev/aurora-package-template --name",
     "prepare": "husky",
-    "release": "pnpm build && changeset publish",
+    "release": "changeset publish",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "audit": "pnpm audit --prod"

@@ -19,7 +19,23 @@ import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { trpcReact } from "@/client/trpcClient"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/securitygroups/$securityGroupId/")({
-  staticData: { section: "network", service: "securitygroups", isDetail: true } satisfies RouteInfo,
+  staticData: {
+    section: "network",
+    service: "securitygroups",
+    isDetail: true,
+    sectionCrumb: { labelKey: "Network" },
+    crumb: { labelKey: "Security Groups", to: "/projects/$projectId/network/securitygroups" },
+  } satisfies RouteInfo,
+  loader: async ({ context, params }) => {
+    const sg = await context.trpcClient?.network.securityGroup.getById.query({
+      project_id: params.projectId,
+      securityGroupId: params.securityGroupId,
+    })
+    return { sgTitle: sg?.name || sg?.id || null }
+  },
+  head: ({ loaderData }) => ({
+    meta: [{ title: loaderData?.sgTitle ?? "Security Group" }],
+  }),
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -51,7 +67,6 @@ function RouteComponent() {
   const projectId = useProjectId()
   const navigate = useNavigate()
   const { t } = useLingui()
-  const { setPageTitle } = Route.useRouteContext()
 
   // Rules filtering using the same pattern as List page
   const {
@@ -147,7 +162,6 @@ function RouteComponent() {
 
   // Handle loading state
   if (isLoading) {
-    setPageTitle(t`Loading...`)
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -188,7 +202,6 @@ function RouteComponent() {
   }
 
   // Render success state
-  setPageTitle(securityGroup.name || securityGroup.id)
   return (
     <Stack direction="vertical">
       <ContentHeading>{securityGroup.name || securityGroup.id}</ContentHeading>

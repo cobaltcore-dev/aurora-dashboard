@@ -168,8 +168,8 @@ describe("SideNavBar", () => {
         )
 
         expect(screen.queryByText("Storage")).toBeInTheDocument()
-        expect(screen.queryByText("Ceph")).toBeInTheDocument()
-        expect(screen.queryByText("Swift")).not.toBeInTheDocument()
+        expect(screen.queryByText("Object Storage (Ceph)")).toBeInTheDocument()
+        expect(screen.queryByText("Object Storage (Swift)")).not.toBeInTheDocument()
       })
     })
 
@@ -274,7 +274,7 @@ describe("SideNavBar", () => {
 
         expect(screen.queryByText("Compute")).toBeInTheDocument()
         expect(screen.queryByText("Storage")).toBeInTheDocument()
-        expect(screen.queryByText("Ceph")).toBeInTheDocument()
+        expect(screen.queryByText("Object Storage (Ceph)")).toBeInTheDocument()
       })
 
       it("handles malformed service data gracefully", () => {

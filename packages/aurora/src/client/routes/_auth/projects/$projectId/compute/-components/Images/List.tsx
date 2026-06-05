@@ -207,7 +207,7 @@ function ImagesContent({
               )}
 
               <PopupMenu>
-                <PopupMenuToggle>
+                <PopupMenuToggle as="div">
                   <Button icon="moreVert">
                     <Trans>More Actions</Trans>
                   </Button>

@@ -1,6 +1,6 @@
 {
   "name": "@cobaltcore-dev/aurora",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "private": false,
   "description": "Aurora OpenStack dashboard — server and client library",
   "license": "Apache-2.0",
@@ -12,7 +12,10 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "permission_policies"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -55,8 +58,6 @@
     "@aws-sdk/client-s3": "^3.1042.0",
     "@aws-sdk/lib-storage": "^3.1042.0",
     "@aws-sdk/s3-request-presigner": "^3.1042.0",
-    "@cobaltcore-dev/policy-engine": "workspace:*",
-    "@cobaltcore-dev/signal-openstack": "workspace:*",
     "@fastify/cookie": "^11.0.2",
     "@fastify/csrf-protection": "^7.1.0",
     "@fastify/helmet": "^13.0.2",
@@ -85,8 +86,10 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@cloudoperators/juno-ui-components": "6.3.1",
+    "@cloudoperators/juno-ui-components": "6.5.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
+    "@cobaltcore-dev/policy-engine": "workspace:*",
+    "@cobaltcore-dev/signal-openstack": "workspace:*",
     "@fastify/vite": "^8.4.1",
     "@lingui/cli": "^5.9.5",
     "@lingui/format-po": "^5.9.5",

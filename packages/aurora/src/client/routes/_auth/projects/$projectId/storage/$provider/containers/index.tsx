@@ -95,8 +95,25 @@ const containersSearchSchema = z.object({
 })
 
 export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provider/containers/")({
-  staticData: { section: "storage", service: "containers" } satisfies RouteInfo,
+  staticData: {
+    section: "storage",
+    service: "containers",
+    sectionCrumb: { labelKey: "Storage" },
+    crumb: { useParamAsLabel: "provider" },
+  } satisfies RouteInfo,
   validateSearch: containersSearchSchema,
+  head: ({ match }) => ({
+    meta: [
+      {
+        title:
+          match.params.provider === "swift"
+            ? "Object Storage (Swift)"
+            : match.params.provider === "ceph"
+              ? "Object Storage (Ceph)"
+              : "Storage Overview",
+      },
+    ],
+  }),
   component: () => {
     return <StorageDashboard />
   },
@@ -127,19 +144,19 @@ function StorageDashboard() {
     },
   })
 
-  const { setPageTitle } = Route.useRouteContext()
   const { t } = useLingui()
 
   let pageTitle: string
   switch (provider) {
     case "swift":
+      pageTitle = t`Object Storage (Swift)`
+      break
     case "ceph":
-      pageTitle = t`Object Storage`
+      pageTitle = t`Object Storage (Ceph)`
       break
     default:
       pageTitle = t`Storage Overview`
   }
-  setPageTitle(pageTitle)
 
   return (
     <div>

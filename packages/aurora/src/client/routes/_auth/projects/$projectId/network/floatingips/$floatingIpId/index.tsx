@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
 import { Button, ContentHeading, Stack, Spinner } from "@cloudoperators/juno-ui-components"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Trans } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { useProjectId } from "@/client/hooks"
@@ -8,7 +8,23 @@ import { trpcReact } from "@/client/trpcClient"
 import { FloatingIpDetailsView } from "./-components/-details/FloatingIpDetailsView"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/floatingips/$floatingIpId/")({
-  staticData: { section: "network", service: "floatingips", isDetail: true } satisfies RouteInfo,
+  staticData: {
+    section: "network",
+    service: "floatingips",
+    isDetail: true,
+    sectionCrumb: { labelKey: "Network" },
+    crumb: { labelKey: "Floating IPs", to: "/projects/$projectId/network/floatingips" },
+  } satisfies RouteInfo,
+  loader: async ({ context, params }) => {
+    const floatingIp = await context.trpcClient?.network.floatingIp.getById.query({
+      project_id: params.projectId,
+      floatingip_id: params.floatingIpId,
+    })
+    return { floatingIpAddress: floatingIp?.floating_ip_address ?? null }
+  },
+  head: ({ loaderData }) => ({
+    meta: [{ title: loaderData?.floatingIpAddress ?? "Floating IP" }],
+  }),
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
@@ -37,8 +53,6 @@ function RouteComponent() {
   const { floatingIpId } = Route.useParams()
   const projectId = useProjectId()
   const navigate = useNavigate()
-  const { t } = useLingui()
-  const { setPageTitle } = Route.useRouteContext()
 
   // Fetch floating IP details
   const {
@@ -60,7 +74,6 @@ function RouteComponent() {
 
   // Loading state
   if (isLoading) {
-    setPageTitle(t`Loading...`)
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
@@ -100,7 +113,6 @@ function RouteComponent() {
   }
 
   // Success state
-  setPageTitle(floatingIp.floating_ip_address)
   return (
     <>
       <ContentHeading>{floatingIp.floating_ip_address}</ContentHeading>
