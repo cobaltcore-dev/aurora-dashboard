@@ -44,14 +44,13 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
 
   const isOverviewActive = activeSection === null
 
-  const handleSectionClick =
-    (section: keyof typeof openSections) => (e: React.MouseEvent<HTMLDivElement>) => {
-      // Only toggle if the click is on the header row (has expand-icon sibling), not on child items
-      const clickedItem = (e.target as HTMLElement).closest(".juno-sidenavigation-item")
-      if (clickedItem && clickedItem.parentElement?.querySelector(".expand-icon")) {
-        toggle(section)
-      }
+  const handleSectionClick = (section: keyof typeof openSections) => (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only toggle if the click is on the header row (has expand-icon sibling), not on child items
+    const clickedItem = (e.target as HTMLElement).closest(".juno-sidenavigation-item")
+    if (clickedItem && clickedItem.parentElement?.querySelector(".expand-icon")) {
+      toggle(section)
     }
+  }
 
   const computeServices = [
     ...(serviceIndex["image"]?.["glance"]
