@@ -1,5 +1,11 @@
 # @cobaltcore-dev/aurora
 
+## 0.2.2
+
+### Patch Changes
+
+- 98db18f: added clavis CA create certificates functionality
+
 ## 0.2.1
 
 ### Patch Changes
