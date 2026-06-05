@@ -1,5 +1,5 @@
 import { useNavigate, useMatches, useParams } from "@tanstack/react-router"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
@@ -29,8 +29,14 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
   const serviceIndex = getServiceIndex(availableServices)
 
   const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true, services: true })
-  const isOpen = (section: string) => openSections[section as keyof typeof openSections] || activeSection === section
-  const toggle = (section: keyof typeof openSections) => setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
+  const toggle = (section: keyof typeof openSections) =>
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
+
+  useEffect(() => {
+    if (activeSection && activeSection in openSections) {
+      setOpenSections((prev) => ({ ...prev, [activeSection]: true }))
+    }
+  }, [activeSection])
 
   const isOverviewActive = activeSection === null
 
@@ -120,7 +126,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
             onClick={() => navigate({ to: "/projects/$projectId", params: { projectId } })}
             selected={isOverviewActive}
           />
-          <SideNavigationItem label={t`Compute`} open={isOpen("compute")} onClick={() => toggle("compute")}>
+          <SideNavigationItem label={t`Compute`} open={openSections.compute} onClick={() => toggle("compute")}>
             {computeServices.map(({ service, label, to, params }) => (
               <SideNavigationItem
                 key={label}
@@ -132,7 +138,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
           </SideNavigationItem>
 
           {networkServices.length > 0 && (
-            <SideNavigationItem label={t`Network`} open={isOpen("network")} onClick={() => toggle("network")}>
+            <SideNavigationItem label={t`Network`} open={openSections.network} onClick={() => toggle("network")}>
               {networkServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
                   key={label}
@@ -145,7 +151,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
           )}
 
           {storageServices.length > 0 && (
-            <SideNavigationItem label={t`Storage`} open={isOpen("storage")} onClick={() => toggle("storage")}>
+            <SideNavigationItem label={t`Storage`} open={openSections.storage} onClick={() => toggle("storage")}>
               {storageServices.map(({ service, label, to, params }) => {
                 // For storage services with provider param, match against current provider
                 const isStorageContainers = activeSection === "storage" && activeService === "containers"
@@ -164,7 +170,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
           )}
 
           {clavisServices.length > 0 && (
-            <SideNavigationItem label={t`Services`} open={isOpen("services")} onClick={() => toggle("services")}>
+            <SideNavigationItem label={t`Services`} open={openSections.services} onClick={() => toggle("services")}>
               {clavisServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
                   key={label}
