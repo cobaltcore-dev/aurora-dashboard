@@ -51,7 +51,7 @@ export const objectVersionSchema = z.object({
   key: z.string(),
   versionId: z.string(),
   isLatest: z.boolean(),
-  lastModified: z.date(),
+  lastModified: z.string(), // ISO 8601 date string
   size: z.number(),
   storageClass: z.string().optional(),
   owner: z

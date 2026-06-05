@@ -148,7 +148,7 @@ export const versioningRouter = {
           key: v.Key!,
           versionId: v.VersionId!,
           isLatest: v.IsLatest ?? false,
-          lastModified: v.LastModified!,
+          lastModified: v.LastModified!.toISOString(),
           size: v.Size ?? 0,
           storageClass: v.StorageClass,
           owner: v.Owner
@@ -166,7 +166,7 @@ export const versioningRouter = {
           key: dm.Key!,
           versionId: dm.VersionId!,
           isLatest: dm.IsLatest ?? false,
-          lastModified: dm.LastModified!,
+          lastModified: dm.LastModified!.toISOString(),
           size: 0,
           owner: dm.Owner
             ? {
@@ -221,7 +221,7 @@ export const versioningRouter = {
           key: v.Key!,
           versionId: v.VersionId!,
           isLatest: v.IsLatest ?? false,
-          lastModified: v.LastModified!,
+          lastModified: v.LastModified!.toISOString(),
           size: v.Size ?? 0,
           storageClass: v.StorageClass,
           owner: v.Owner
@@ -239,7 +239,7 @@ export const versioningRouter = {
           key: dm.Key!,
           versionId: dm.VersionId!,
           isLatest: dm.IsLatest ?? false,
-          lastModified: dm.LastModified!,
+          lastModified: dm.LastModified!.toISOString(),
           size: 0,
           owner: dm.Owner
             ? {
@@ -254,7 +254,7 @@ export const versioningRouter = {
         const allVersions = [...versions, ...deleteMarkers].filter((v) => v.key === input.key)
 
         // Sort by date descending (newest first)
-        return allVersions.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime())
+        return allVersions.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime())
       } catch (error) {
         throw mapS3ErrorToTRPCError(error, {
           operation: "list object versions",
@@ -320,12 +320,12 @@ export const versioningRouter = {
 
       try {
         // Copy the old version to the same key - creates new latest version
-        // URL-encode the key to handle special characters (spaces, ?, &, etc.)
+        // URL-encode both the key and versionId to handle special characters (spaces, +, /, =, etc.)
         const response = await s3.send(
           new CopyObjectCommand({
             Bucket: input.bucket,
             Key: input.key,
-            CopySource: `${input.bucket}/${encodeURIComponent(input.key)}?versionId=${input.versionId}`,
+            CopySource: `${input.bucket}/${encodeURIComponent(input.key)}?versionId=${encodeURIComponent(input.versionId)}`,
           })
         )
 
