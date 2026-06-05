@@ -1,11 +1,12 @@
-import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
+import type { FastifyRequest, FastifyReply } from "fastify"
+import "@fastify/cookie"
 
 export interface SessionProps {
   cookieName?: string
   crossDomainCookie?: boolean
   insecureCookies?: boolean
-  req: CreateFastifyContextOptions["req"]
-  res: CreateFastifyContextOptions["res"]
+  req: FastifyRequest
+  res: FastifyReply
 }
 
 const DEFAULT_COOKIE_NAME = "dashboard-session-auth"
