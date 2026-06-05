@@ -110,7 +110,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
   const isOpen = (section: string) => openSections[section as keyof typeof openSections] || activeSection === section
 
   return (
-    <SideNavigation ariaLabel="Project Side Navigation" onActiveItemChange={() => {}}>
+    <SideNavigation ariaLabel="Project Side Navigation">
       <SideNavigationList>
         <>
           <SideNavigationItem
