@@ -1,3 +1,10 @@
+import {
+  GetBucketVersioningCommand,
+  PutBucketVersioningCommand,
+  ListObjectVersionsCommand,
+  DeleteObjectCommand,
+  CopyObjectCommand,
+} from "@aws-sdk/client-s3"
 import { cephProtectedProcedure } from "../../cephProcedure"
 import {
   getVersioningStatusInputSchema,
@@ -10,8 +17,20 @@ import {
   type ObjectVersion,
   type RestoreVersionOutput,
 } from "../../types/versioning"
-import { VersioningService, type ListVersionsOutput } from "../../services/versioningService"
 import { mapS3ErrorToTRPCError } from "../../helpers/s3ErrorMapper"
+
+/**
+ * Output from listing versions
+ */
+export interface ListVersionsOutput {
+  versions: ObjectVersion[]
+  deleteMarkers: ObjectVersion[]
+  isTruncated: boolean
+  nextKeyMarker?: string
+  nextVersionIdMarker?: string
+  prefix?: string
+  maxKeys?: number
+}
 
 /**
  * tRPC router for S3 bucket versioning operations.
@@ -38,10 +57,21 @@ export const versioningRouter = {
     .input(getVersioningStatusInputSchema)
     .query(async ({ ctx, input }): Promise<VersioningStatus> => {
       const s3 = ctx.getCephClient()
-      const service = new VersioningService(s3)
 
       try {
-        return await service.getVersioningStatus(input.bucket)
+        const response = await s3.send(
+          new GetBucketVersioningCommand({
+            Bucket: input.bucket,
+          })
+        )
+
+        // S3 returns undefined Status when versioning never configured
+        const status = response.Status || "Unversioned"
+
+        return {
+          status: status as "Enabled" | "Suspended" | "Unversioned",
+          mfaDelete: response.MFADelete,
+        }
       } catch (error) {
         throw mapS3ErrorToTRPCError(error, {
           operation: "get versioning status",
@@ -64,10 +94,17 @@ export const versioningRouter = {
     .input(setVersioningInputSchema)
     .mutation(async ({ ctx, input }): Promise<{ success: boolean }> => {
       const s3 = ctx.getCephClient()
-      const service = new VersioningService(s3)
 
       try {
-        await service.setVersioningStatus(input.bucket, input.status)
+        await s3.send(
+          new PutBucketVersioningCommand({
+            Bucket: input.bucket,
+            VersioningConfiguration: {
+              Status: input.status,
+            },
+          })
+        )
+
         return { success: true }
       } catch (error) {
         throw mapS3ErrorToTRPCError(error, {
@@ -94,17 +131,61 @@ export const versioningRouter = {
     .input(listVersionsInputSchema)
     .query(async ({ ctx, input }): Promise<ListVersionsOutput> => {
       const s3 = ctx.getCephClient()
-      const service = new VersioningService(s3)
 
       try {
-        // Transform input to service layer (remove project_id)
-        return await service.listVersions({
-          bucket: input.bucket,
-          prefix: input.prefix,
-          keyMarker: input.keyMarker,
-          versionIdMarker: input.versionIdMarker,
-          maxKeys: input.maxKeys,
-        })
+        const response = await s3.send(
+          new ListObjectVersionsCommand({
+            Bucket: input.bucket,
+            Prefix: input.prefix,
+            KeyMarker: input.keyMarker,
+            VersionIdMarker: input.versionIdMarker,
+            MaxKeys: input.maxKeys ?? 100,
+          })
+        )
+
+        // Map regular versions
+        const versions: ObjectVersion[] = (response.Versions ?? []).map((v) => ({
+          key: v.Key!,
+          versionId: v.VersionId!,
+          isLatest: v.IsLatest ?? false,
+          lastModified: v.LastModified!,
+          size: v.Size ?? 0,
+          storageClass: v.StorageClass,
+          owner: v.Owner
+            ? {
+                displayName: v.Owner.DisplayName,
+                id: v.Owner.ID,
+              }
+            : undefined,
+          etag: v.ETag,
+          isDeleteMarker: false,
+        }))
+
+        // Map delete markers (special versions created when objects are deleted)
+        const deleteMarkers: ObjectVersion[] = (response.DeleteMarkers ?? []).map((dm) => ({
+          key: dm.Key!,
+          versionId: dm.VersionId!,
+          isLatest: dm.IsLatest ?? false,
+          lastModified: dm.LastModified!,
+          size: 0,
+          owner: dm.Owner
+            ? {
+                displayName: dm.Owner.DisplayName,
+                id: dm.Owner.ID,
+              }
+            : undefined,
+          isDeleteMarker: true,
+        }))
+
+        return {
+          versions,
+          deleteMarkers,
+          isTruncated: response.IsTruncated ?? false,
+          nextKeyMarker: response.NextKeyMarker,
+          nextVersionIdMarker: response.NextVersionIdMarker,
+          prefix: response.Prefix,
+          maxKeys: response.MaxKeys,
+        }
       } catch (error) {
         throw mapS3ErrorToTRPCError(error, {
           operation: "list versions",
@@ -126,10 +207,54 @@ export const versioningRouter = {
     .input(listObjectVersionsInputSchema)
     .query(async ({ ctx, input }): Promise<ObjectVersion[]> => {
       const s3 = ctx.getCephClient()
-      const service = new VersioningService(s3)
 
       try {
-        return await service.listObjectVersions(input.bucket, input.key)
+        const response = await s3.send(
+          new ListObjectVersionsCommand({
+            Bucket: input.bucket,
+            Prefix: input.key,
+          })
+        )
+
+        // Map regular versions
+        const versions: ObjectVersion[] = (response.Versions ?? []).map((v) => ({
+          key: v.Key!,
+          versionId: v.VersionId!,
+          isLatest: v.IsLatest ?? false,
+          lastModified: v.LastModified!,
+          size: v.Size ?? 0,
+          storageClass: v.StorageClass,
+          owner: v.Owner
+            ? {
+                displayName: v.Owner.DisplayName,
+                id: v.Owner.ID,
+              }
+            : undefined,
+          etag: v.ETag,
+          isDeleteMarker: false,
+        }))
+
+        // Map delete markers
+        const deleteMarkers: ObjectVersion[] = (response.DeleteMarkers ?? []).map((dm) => ({
+          key: dm.Key!,
+          versionId: dm.VersionId!,
+          isLatest: dm.IsLatest ?? false,
+          lastModified: dm.LastModified!,
+          size: 0,
+          owner: dm.Owner
+            ? {
+                displayName: dm.Owner.DisplayName,
+                id: dm.Owner.ID,
+              }
+            : undefined,
+          isDeleteMarker: true,
+        }))
+
+        // Filter to exact key match (prefix can return more) and combine
+        const allVersions = [...versions, ...deleteMarkers].filter((v) => v.key === input.key)
+
+        // Sort by date descending (newest first)
+        return allVersions.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime())
       } catch (error) {
         throw mapS3ErrorToTRPCError(error, {
           operation: "list object versions",
@@ -156,10 +281,16 @@ export const versioningRouter = {
     .input(deleteVersionInputSchema)
     .mutation(async ({ ctx, input }): Promise<{ success: boolean }> => {
       const s3 = ctx.getCephClient()
-      const service = new VersioningService(s3)
 
       try {
-        await service.deleteVersion(input.bucket, input.key, input.versionId)
+        await s3.send(
+          new DeleteObjectCommand({
+            Bucket: input.bucket,
+            Key: input.key,
+            VersionId: input.versionId,
+          })
+        )
+
         return { success: true }
       } catch (error) {
         throw mapS3ErrorToTRPCError(error, {
@@ -186,11 +317,22 @@ export const versioningRouter = {
     .input(restoreVersionInputSchema)
     .mutation(async ({ ctx, input }): Promise<RestoreVersionOutput> => {
       const s3 = ctx.getCephClient()
-      const service = new VersioningService(s3)
 
       try {
-        const newVersionId = await service.restoreVersion(input.bucket, input.key, input.versionId)
-        return { success: true, versionId: newVersionId }
+        // Copy the old version to the same key - creates new latest version
+        // URL-encode the key to handle special characters (spaces, ?, &, etc.)
+        const response = await s3.send(
+          new CopyObjectCommand({
+            Bucket: input.bucket,
+            Key: input.key,
+            CopySource: `${input.bucket}/${encodeURIComponent(input.key)}?versionId=${input.versionId}`,
+          })
+        )
+
+        return {
+          success: true,
+          versionId: response.VersionId ?? "null",
+        }
       } catch (error) {
         throw mapS3ErrorToTRPCError(error, {
           operation: "restore version",
