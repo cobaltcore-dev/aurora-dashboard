@@ -1,6 +1,6 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/cobaltcore-dev/aurora-dashboard)](https://api.reuse.software/info/github.com/cobaltcore-dev/aurora-dashboard)
 
-# Aurora Dashboard
+# Aurora Dashboard test
 
 A single, powerful, and easy-to-use web dashboard for managing OpenStack-based cloud infrastructure — giving operators and developers one UI for compute, storage, networking, identity, and more across projects and regions.
 
