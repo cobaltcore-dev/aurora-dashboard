@@ -118,10 +118,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
             onClick={() => navigate({ to: "/projects/$projectId", params: { projectId } })}
             selected={isOverviewActive}
           />
-          <SideNavigationItem
-            label={t`Compute`}
-            open={isOpen("compute")}
-          >
+          <SideNavigationItem label={t`Compute`} open={isOpen("compute")}>
             {computeServices.map(({ service, label, to, params }) => (
               <SideNavigationItem
                 key={label}
@@ -133,10 +130,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
           </SideNavigationItem>
 
           {networkServices.length > 0 && (
-            <SideNavigationItem
-              label={t`Network`}
-              open={isOpen("network")}
-            >
+            <SideNavigationItem label={t`Network`} open={isOpen("network")}>
               {networkServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
                   key={label}
@@ -149,10 +143,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
           )}
 
           {storageServices.length > 0 && (
-            <SideNavigationItem
-              label={t`Storage`}
-              open={isOpen("storage")}
-            >
+            <SideNavigationItem label={t`Storage`} open={isOpen("storage")}>
               {storageServices.map(({ service, label, to, params }) => {
                 // For storage services with provider param, match against current provider
                 const isStorageContainers = activeSection === "storage" && activeService === "containers"
@@ -171,10 +162,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
           )}
 
           {clavisServices.length > 0 && (
-            <SideNavigationItem
-              label={t`Services`}
-              open={isOpen("services")}
-            >
+            <SideNavigationItem label={t`Services`} open={isOpen("services")}>
               {clavisServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
                   key={label}
