@@ -297,3 +297,161 @@
     --color-aurora-black: #000000;
     --color-aurora-white: #ffffff;
 }
+
+/* Unicorn Theme Overrides */
+:root {
+    /* Primary accent colors - vibrant purple and pink */
+    --jn-color-accent-default: #d433ff;
+    --jn-color-accent-hover: #b81ae6;
+
+    /* Background gradients for magical effect */
+    --unicorn-gradient-1: linear-gradient(135deg, #fef5ff 0%, #f0f9ff 100%);
+    --unicorn-gradient-2: linear-gradient(135deg, #fce7ff 0%, #e0f4ff 100%);
+    --unicorn-gradient-3: linear-gradient(135deg, #f9d5ff 0%, #b8e6ff 100%);
+
+    /* Link and interactive colors */
+    --jn-color-link-default: #b366ff;
+    --jn-color-link-hover: #d433ff;
+
+    /* Success/Info/Warning with unicorn colors */
+    --jn-color-success: #22ddff;
+    --jn-color-info: #6b6bff;
+    --jn-color-warning: #ffb3e6;
+
+    /* Border colors */
+    --jn-color-border-default: #f9d5ff;
+    --jn-color-border-strong: #d433ff;
+}
+
+/* Apply unicorn theme to body and main containers */
+body,
+html,
+#app,
+.juno-app-body,
+[class*="jn-app"],
+[data-app-shell] {
+    background: linear-gradient(135deg, #fef5ff 0%, #f0f9ff 50%, #ffe8f7 100%) !important;
+    min-height: 100vh;
+}
+
+/* Main content area */
+main,
+[role="main"],
+.juno-content-container,
+[class*="jn-content"] {
+    background: linear-gradient(180deg, rgba(254, 245, 255, 0.6) 0%, rgba(255, 232, 247, 0.6) 100%) !important;
+}
+
+/* Navigation and header with unicorn rainbow gradient */
+[class*="jn-pageheader"],
+[class*="jn-topnavigation"],
+header,
+nav[class*="jn"] {
+    background: linear-gradient(90deg, #d433ff 0%, #b366ff 25%, #6b6bff 50%, #0eb3ff 75%, #22ddff 100%) !important;
+    border-bottom: 3px solid #ff57c7 !important;
+}
+
+/* Buttons with unicorn style */
+button[class*="jn-button-primary"],
+.jn-button-primary,
+button[class*="primary"] {
+    background: linear-gradient(135deg, #d433ff 0%, #ff2eb6 100%) !important;
+    border-color: #b81ae6 !important;
+    color: white !important;
+}
+
+button[class*="jn-button-primary"]:hover,
+.jn-button-primary:hover,
+button[class*="primary"]:hover {
+    background: linear-gradient(135deg, #b81ae6 0%, #e6148f 100%) !important;
+    box-shadow: 0 4px 15px rgba(212, 51, 255, 0.4) !important;
+}
+
+/* Secondary buttons */
+button[class*="jn-button-secondary"],
+.jn-button-secondary {
+    border-color: #d433ff !important;
+    color: #b366ff !important;
+}
+
+button[class*="jn-button-secondary"]:hover,
+.jn-button-secondary:hover {
+    background: rgba(212, 51, 255, 0.1) !important;
+}
+
+/* Cards and panels with pastel gradients */
+[class*="jn-panel"],
+[class*="jn-card"],
+[class*="jn-box"],
+.bg-theme-background-lvl-1,
+div[class*="bg-theme"] {
+    border: 2px solid #f9d5ff !important;
+    background: linear-gradient(135deg, rgba(254, 245, 255, 0.9) 0%, rgba(240, 249, 255, 0.9) 100%) !important;
+    box-shadow: 0 4px 12px rgba(212, 51, 255, 0.15) !important;
+}
+
+/* Tables */
+table[class*="jn"],
+[class*="jn-table"] {
+    border-color: #f9d5ff !important;
+}
+
+table[class*="jn"] thead,
+[class*="jn-table"] thead {
+    background: linear-gradient(135deg, #fce7ff 0%, #e0f4ff 100%) !important;
+}
+
+table[class*="jn"] tr:hover,
+[class*="jn-table"] tr:hover {
+    background: rgba(212, 51, 255, 0.08) !important;
+}
+
+/* Links - unicorn purple */
+a {
+    color: #b366ff !important;
+}
+
+a:hover {
+    color: #d433ff !important;
+    text-decoration: underline;
+}
+
+/* Input fields */
+input[class*="jn"],
+textarea[class*="jn"],
+select[class*="jn"] {
+    border-color: #f9d5ff !important;
+    background: rgba(254, 245, 255, 0.5) !important;
+}
+
+input[class*="jn"]:focus,
+textarea[class*="jn"]:focus,
+select[class*="jn"]:focus {
+    border-color: #d433ff !important;
+    box-shadow: 0 0 0 3px rgba(212, 51, 255, 0.2) !important;
+}
+
+/* Badges and tags */
+[class*="jn-badge"],
+[class*="jn-tag"] {
+    background: linear-gradient(135deg, #ee8fff 0%, #22ddff 100%) !important;
+    color: white !important;
+}
+
+/* Scrollbars - unicorn themed */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, #fef5ff 0%, #f0f9ff 100%);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #d433ff 0%, #ff2eb6 100%);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #b81ae6 0%, #e6148f 100%);
+}
