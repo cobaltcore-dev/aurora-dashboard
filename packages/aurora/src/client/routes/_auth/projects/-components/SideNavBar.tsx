@@ -1,5 +1,5 @@
 import { useNavigate, useMatches, useParams } from "@tanstack/react-router"
-import { useState, useEffect } from "react"
+import { type MouseEvent, useState, useEffect } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
@@ -44,7 +44,7 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
 
   const isOverviewActive = activeSection === null
 
-  const handleSectionClick = (section: keyof typeof openSections) => (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleSectionClick = (section: keyof typeof openSections) => (e: MouseEvent<HTMLDivElement>) => {
     // Only toggle if the click is on the header row (has expand-icon sibling), not on child items
     const clickedItem = (e.target as HTMLElement).closest(".juno-sidenavigation-item")
     if (clickedItem && clickedItem.parentElement?.querySelector(".expand-icon")) {
