@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import { Project } from "@/server/Project/types/models"
-import { Card } from "@cloudoperators/juno-ui-components"
+import { Card, ContentHeading } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 
 type ProjectCardProps = {
@@ -19,7 +19,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       className="min-h-50"
     >
       <div className="w-full">
-        <p className="text-theme-accent font-semibold">{project.name}</p>
+        <ContentHeading className="text-theme-accent">{project.name}</ContentHeading>
         <p className="mt-4 line-clamp-3 pr-4 leading-relaxed">{project.description}</p>
       </div>
     </Card>
@@ -29,7 +29,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 export function ProjectCardView({ projects }: ProjectCardViewProps) {
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {projects?.length ? (
           projects.map((project) => <ProjectCard key={project.id} project={project} />)
         ) : (
