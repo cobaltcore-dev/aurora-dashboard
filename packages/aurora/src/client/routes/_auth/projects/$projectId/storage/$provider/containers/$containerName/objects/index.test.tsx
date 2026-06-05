@@ -79,7 +79,7 @@ describe("Objects Route - checkServiceAvailability", () => {
       }
 
       expect(redirect).toHaveBeenCalledWith({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId: "proj-1" },
       })
     })
