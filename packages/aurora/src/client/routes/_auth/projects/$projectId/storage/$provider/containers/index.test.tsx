@@ -65,7 +65,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, defaultParams)
-      }).toThrow("Redirect to: /projects/proj-1/compute/overview")
+      }).toThrow("Redirect to: /projects/proj-1")
     })
 
     it("calls redirect with correct params when no storage services available", () => {

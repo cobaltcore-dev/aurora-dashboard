@@ -117,7 +117,6 @@ describe("SideNavBar", () => {
         </TestingProvider>
       )
 
-      // Section starts open by default
       expect(screen.getByText("Images")).toBeInTheDocument()
 
       fireEvent.click(screen.getByText("Compute"))
