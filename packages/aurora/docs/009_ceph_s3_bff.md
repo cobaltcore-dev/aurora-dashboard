@@ -61,8 +61,11 @@ packages/aurora/src/server/Storage/
 │   │   ├── containerRouter.ts        # Bucket operations
 │   │   ├── objectRouter.ts           # Object operations
 │   │   └── versioningRouter.ts       # Versioning operations
-├── services/
-│   └── versioningService.ts      # Versioning business logic
+├── helpers/
+│   └── s3ErrorMapper.ts          # S3 → tRPC error mapping
+└── types/
+    ├── ceph.ts                   # Zod schemas & TypeScript types
+    └── versioning.ts             # Versioning schemas & types
 ├── helpers/
 │   └── s3ErrorMapper.ts          # S3 → tRPC error mapping
 └── types/
@@ -979,9 +982,13 @@ interface ObjectVersion {
   key: string
   versionId: string
   isLatest: boolean
-  lastModified: Date
+  lastModified?: string // ISO date string
   size: number
   storageClass?: string
+  owner?: { displayName?: string; id?: string }
+  etag?: string
+  isDeleteMarker: boolean
+}
   owner?: { displayName?: string; id?: string }
   etag?: string
   isDeleteMarker: boolean
