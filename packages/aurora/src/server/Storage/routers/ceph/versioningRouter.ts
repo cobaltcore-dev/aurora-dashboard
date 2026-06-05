@@ -325,7 +325,7 @@ export const versioningRouter = {
           new CopyObjectCommand({
             Bucket: input.bucket,
             Key: input.key,
-            CopySource: `${input.bucket}/${encodeURIComponent(input.key)}?versionId=${input.versionId}`,
+            CopySource: `${input.bucket}/${encodeURIComponent(input.key)}?versionId=${encodeURIComponent(input.versionId)}`,
           })
         )
 
