@@ -982,9 +982,13 @@ interface ObjectVersion {
   key: string
   versionId: string
   isLatest: boolean
-  lastModified: Date
+  lastModified?: string // ISO date string
   size: number
   storageClass?: string
+  owner?: { displayName?: string; id?: string }
+  etag?: string
+  isDeleteMarker: boolean
+}
   owner?: { displayName?: string; id?: string }
   etag?: string
   isDeleteMarker: boolean
