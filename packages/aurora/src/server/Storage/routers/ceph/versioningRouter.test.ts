@@ -378,5 +378,50 @@ describe("versioningRouter", () => {
         })
       ).rejects.toThrow(TRPCError)
     })
+
+    it("should properly URL-encode keys with special characters", async () => {
+      mockSend.mockResolvedValueOnce({
+        VersionId: "new-version-789",
+      })
+
+      const keyWithSpaces = "my folder/my file.txt"
+      const result = await caller.restoreVersion({
+        project_id: TEST_PROJECT_ID,
+        bucket: TEST_BUCKET_NAME,
+        key: keyWithSpaces,
+        versionId: TEST_VERSION_ID,
+      })
+
+      expect(result.success).toBe(true)
+      expect(mockSend).toHaveBeenCalledOnce()
+
+      // Verify CopySource has encoded key
+      const copyCommand = mockSend.mock.calls[0][0]
+      expect(copyCommand.input.CopySource).toContain(encodeURIComponent(keyWithSpaces))
+      expect(copyCommand.input.CopySource).toBe(
+        `${TEST_BUCKET_NAME}/${encodeURIComponent(keyWithSpaces)}?versionId=${TEST_VERSION_ID}`
+      )
+    })
+
+    it("should handle keys with question marks and ampersands", async () => {
+      mockSend.mockResolvedValueOnce({
+        VersionId: "new-version-abc",
+      })
+
+      const keyWithQueryChars = "file?param=value&other=data.txt"
+      const result = await caller.restoreVersion({
+        project_id: TEST_PROJECT_ID,
+        bucket: TEST_BUCKET_NAME,
+        key: keyWithQueryChars,
+        versionId: TEST_VERSION_ID,
+      })
+
+      expect(result.success).toBe(true)
+
+      // Verify CopySource properly encodes special chars
+      const copyCommand = mockSend.mock.calls[0][0]
+      expect(copyCommand.input.CopySource).toContain(encodeURIComponent(keyWithQueryChars))
+      expect(copyCommand.input.CopySource).not.toContain("?param=value")
+    })
   })
 })

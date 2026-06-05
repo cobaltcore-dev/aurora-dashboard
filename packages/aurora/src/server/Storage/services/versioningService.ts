@@ -55,6 +55,9 @@ export class VersioningService {
    * - Enabled: All new objects get version IDs
    * - Suspended: Stops creating new versions, existing versions preserved
    *
+   * Note: This method executes a single GetBucketVersioningCommand to ensure
+   * consistent snapshot of both Status and MFADelete at the same point in time.
+   *
    * @param bucket - The bucket name to check
    * @returns Current versioning status and MFA delete status (if configured)
    */
@@ -198,16 +201,17 @@ export class VersioningService {
    * approach recommended by AWS for version restoration.
    *
    * @param bucket - The bucket containing the object
-   * @param key - The object key
+   * @param key - The object key (properly URL-encoded for CopySource)
    * @param versionId - The version ID to restore
    * @returns The new version ID created by the restore operation
    */
   async restoreVersion(bucket: string, key: string, versionId: string): Promise<string> {
     // Copy the old version to the same key - creates new latest version
+    // URL-encode the key to handle special characters (spaces, ?, &, etc.)
     const command = new CopyObjectCommand({
       Bucket: bucket,
       Key: key,
-      CopySource: `${bucket}/${key}?versionId=${versionId}`,
+      CopySource: `${bucket}/${encodeURIComponent(key)}?versionId=${versionId}`,
     })
 
     const response = await this.s3Client.send(command)
