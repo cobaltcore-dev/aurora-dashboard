@@ -1,5 +1,26 @@
 # @cobaltcore-dev/aurora
 
+## 0.3.0
+
+### Minor Changes
+
+- ddd8b37: Add extensible slot system for consumer widgets
+
+  Introduces `Slot`, `slots`, and `SlotProps` — a shadow DOM-based mechanism that lets consumers inject custom UI widgets into defined extension points in the Aurora layout.
+  - `slots` — object of named slot components passed via `AuroraAppProps`
+  - `SlotProps` — typed props supplied to each widget, including `auroraContext.client` for BFF access
+  - `Slot` — internal component that renders a widget inside an isolated shadow root
+  - `sideNavBanner` — first slot, rendered at the bottom of the project sidebar
+
+### Patch Changes
+
+- 4f41ac0: Deleted project list view, keeping only the card view
+  Improved card view: responsive grid, ContentHeading for card titles
+  Replaced manual padding divs with Juno Container
+  Side nav collapsing text fixed via Juno update
+  SideNavigationItem manages its own open/close state internally, so Juno's chevron no longer desyncs from the open prop
+  Added routeTree.gen.ts to eslintignore
+
 ## 0.2.2
 
 ### Patch Changes
