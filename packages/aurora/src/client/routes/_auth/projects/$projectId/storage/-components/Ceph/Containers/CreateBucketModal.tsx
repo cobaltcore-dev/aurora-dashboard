@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Message, Checkbox } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface CreateBucketModalProps {
@@ -22,6 +22,7 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
   const projectId = useProjectId()
   const [bucketName, setBucketName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
+  const [enableVersioning, setEnableVersioning] = useState(false)
 
   const utils = trpcReact.useUtils()
 
@@ -42,6 +43,7 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
   const handleClose = () => {
     setBucketName("")
     setNameError(null)
+    setEnableVersioning(false)
     createBucketMutation.reset()
     onClose()
   }
@@ -118,6 +120,7 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
     createBucketMutation.mutate({
       project_id: projectId,
       bucketName: bucketName.trim(),
+      enableVersioning,
     })
   }
 
@@ -158,6 +161,13 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
           disabled={createBucketMutation.isPending}
           autoFocus
           placeholder={t`my-bucket-name`}
+        />
+        <Checkbox
+          label={t`Enable versioning`}
+          helptext={t`Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended.`}
+          checked={enableVersioning}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEnableVersioning(e.target.checked)}
+          disabled={createBucketMutation.isPending}
         />
       </Stack>
     </Modal>

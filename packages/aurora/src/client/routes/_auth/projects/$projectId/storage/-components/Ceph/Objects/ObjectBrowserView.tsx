@@ -1,6 +1,6 @@
 import { useState, useEffect, startTransition } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Spinner, Stack, Button, Toast, ToastProps } from "@cloudoperators/juno-ui-components"
+import { Spinner, Stack, Button, Toast, ToastProps, Badge } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { ListToolbar } from "@/client/components/ListToolbar"
@@ -8,6 +8,8 @@ import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { CreateFolderModal } from "./CreateFolderModal"
+import { EnableVersioningModal } from "../Containers/EnableVersioningModal"
+import { SuspendVersioningModal } from "../Containers/SuspendVersioningModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects"
 import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
@@ -59,9 +61,23 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [allFolders, setAllFolders] = useState<S3FolderPrefix[]>([])
   const [hasMore, setHasMore] = useState(false)
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false)
+  const [isEnableVersioningModalOpen, setIsEnableVersioningModalOpen] = useState(false)
+  const [isSuspendVersioningModalOpen, setIsSuspendVersioningModalOpen] = useState(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
+
+  // Query versioning status for current bucket
+  const { data: versioningStatus } = trpcReact.storage.ceph.versioning.getStatus.useQuery(
+    {
+      project_id: projectId ?? "",
+      bucket: bucketName,
+    },
+    {
+      enabled: !!projectId,
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    }
+  )
 
   const { data, isLoading, error } = trpcReact.storage.ceph.objects.list.useQuery(
     {
@@ -227,6 +243,23 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   return (
     <div className="relative">
+      {/* Bucket header with versioning status badge */}
+      <div className="mb-4 flex items-center justify-between">
+        <Stack direction="horizontal" gap="3" alignment="center">
+          <h2 className="text-xl font-semibold">{bucketName}</h2>
+          {versioningStatus && versioningStatus.status === "Enabled" && (
+            <Badge variant="success">
+              <Trans>Versioning Enabled</Trans>
+            </Badge>
+          )}
+          {versioningStatus && versioningStatus.status === "Suspended" && (
+            <Badge variant="warning">
+              <Trans>Versioning Suspended</Trans>
+            </Badge>
+          )}
+        </Stack>
+      </div>
+
       <ObjectsFileNavigation bucketName={bucketName} prefix={currentPrefix} onPrefixClick={navigateToPrefix} />
 
       <ListToolbar
@@ -239,6 +272,16 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
             <Button variant="primary" onClick={() => setIsCreateFolderModalOpen(true)}>
               <Trans>Create Folder</Trans>
             </Button>
+            {versioningStatus && versioningStatus.status === "Enabled" && (
+              <Button variant="subdued" onClick={() => setIsSuspendVersioningModalOpen(true)}>
+                <Trans>Suspend Versioning</Trans>
+              </Button>
+            )}
+            {versioningStatus && (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
+              <Button onClick={() => setIsEnableVersioningModalOpen(true)}>
+                <Trans>Enable Versioning</Trans>
+              </Button>
+            )}
           </Stack>
         }
       />
@@ -248,6 +291,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         objects={sortedObjects}
         folders={sortedFolders}
         currentPrefix={currentPrefix}
+        versioningEnabled={versioningStatus?.status === "Enabled"}
         onFolderClick={navigateToPrefix}
         onDeleteObjectSuccess={(objectKey) => {
           setToastData(getObjectDeletedToast(objectKey, { onDismiss: handleToastDismiss }))
@@ -275,6 +319,12 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         onEditMetadataError={(objectKey, errorMessage) => {
           setToastData(getObjectMetadataUpdateErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
         }}
+        onRestoreVersion={() => {
+          // Version restored successfully - no toast
+        }}
+        onDeleteVersion={() => {
+          // Version deleted successfully - no toast
+        }}
       />
 
       {hasMore && (
@@ -294,6 +344,30 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           setIsCreateFolderModalOpen(false)
           setToastData(getFolderCreatedToast(folderPath, { onDismiss: handleToastDismiss }))
           navigateToPrefix(folderPath)
+        }}
+      />
+
+      <EnableVersioningModal
+        isOpen={isEnableVersioningModalOpen}
+        bucketName={bucketName}
+        onClose={() => setIsEnableVersioningModalOpen(false)}
+        onSuccess={() => {
+          setIsEnableVersioningModalOpen(false)
+        }}
+        onError={() => {
+          setIsEnableVersioningModalOpen(false)
+        }}
+      />
+
+      <SuspendVersioningModal
+        isOpen={isSuspendVersioningModalOpen}
+        bucketName={bucketName}
+        onClose={() => setIsSuspendVersioningModalOpen(false)}
+        onSuccess={() => {
+          setIsSuspendVersioningModalOpen(false)
+        }}
+        onError={() => {
+          setIsSuspendVersioningModalOpen(false)
         }}
       />
 

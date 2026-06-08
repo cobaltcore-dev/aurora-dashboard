@@ -17,6 +17,7 @@ import {
   getBucketsEmptyCompleteToast,
 } from "./ContainerToastNotifications"
 import { EmptyBucketsModal } from "./EmptyBucketsModal"
+import { CredentialPrompt } from "./CredentialPrompt"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/containers"
 
@@ -200,9 +201,43 @@ export const CephContainers = () => {
   if (error) {
     const errorMessage = error.message
 
+    // Check if this is a NO_CEPH_CREDENTIALS error
+    if (errorMessage === "NO_CEPH_CREDENTIALS") {
+      return <CredentialPrompt onSuccess={() => window.location.reload()} />
+    }
+
+    // Render error with appropriate styling based on error type
+    const isAccessDenied = errorMessage.includes("Access denied") || errorMessage.includes("AccessDenied")
+    const isAuthError = errorMessage.includes("Invalid access key") || errorMessage.includes("InvalidAccessKeyId")
+
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Trans>Error Loading Buckets: {errorMessage}</Trans>
+      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="4">
+        <div className="text-center max-w-2xl px-4">
+          <h3 className="text-lg font-semibold mb-2 text-juno-red">
+            {isAccessDenied ? (
+              <Trans>Access Denied</Trans>
+            ) : isAuthError ? (
+              <Trans>Authentication Failed</Trans>
+            ) : (
+              <Trans>Error Loading Buckets</Trans>
+            )}
+          </h3>
+          <p className="text-juno-grey-light-1 text-sm">
+            {isAccessDenied ? (
+              <Trans>
+                Your credentials are valid but you don't have permission to perform this operation. Please contact your
+                administrator to grant you the necessary permissions.
+              </Trans>
+            ) : isAuthError ? (
+              <Trans>
+                Your S3 credentials are invalid or expired. Please try creating new credentials or contact your
+                administrator.
+              </Trans>
+            ) : (
+              <Trans>Failed to load containers: {errorMessage}</Trans>
+            )}
+          </p>
+        </div>
       </Stack>
     )
   }

@@ -146,6 +146,22 @@ describe("CreateBucketModal", () => {
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
     })
 
+    test("renders Enable versioning checkbox", () => {
+      renderModal()
+      expect(screen.getByRole("checkbox", { name: /Enable versioning/i })).toBeInTheDocument()
+    })
+
+    test("versioning checkbox has helptext", () => {
+      renderModal()
+      expect(screen.getByText(/Keep multiple versions of objects/i)).toBeInTheDocument()
+      expect(screen.getByText(/Cannot be fully disabled once enabled/i)).toBeInTheDocument()
+    })
+
+    test("versioning checkbox is unchecked by default", () => {
+      renderModal()
+      expect(screen.getByRole("checkbox", { name: /Enable versioning/i })).not.toBeChecked()
+    })
+
     test("Create button is disabled when input is empty", () => {
       renderModal()
       expect(screen.getByRole("button", { name: /^Create$/i })).toBeDisabled()
@@ -517,8 +533,49 @@ describe("CreateBucketModal", () => {
         expect(mockMutate).toHaveBeenCalledWith({
           project_id: mockProjectId,
           bucketName: "my-test-bucket",
+          enableVersioning: false,
         })
       })
+    })
+
+    test("calls mutation with enableVersioning=true when checkbox is checked", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      const input = screen.getByLabelText(/Bucket name/i)
+      await user.type(input, "my-test-bucket")
+
+      const checkbox = screen.getByRole("checkbox", { name: /Enable versioning/i })
+      await user.click(checkbox)
+
+      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      await user.click(createButton)
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalledWith({
+          project_id: mockProjectId,
+          bucketName: "my-test-bucket",
+          enableVersioning: true,
+        })
+      })
+    })
+
+    test("checkbox can be toggled on and off", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      const checkbox = screen.getByRole("checkbox", { name: /Enable versioning/i })
+
+      // Initial state unchecked
+      expect(checkbox).not.toBeChecked()
+
+      // Check
+      await user.click(checkbox)
+      expect(checkbox).toBeChecked()
+
+      // Uncheck
+      await user.click(checkbox)
+      expect(checkbox).not.toBeChecked()
     })
 
     test("trims whitespace from bucket name", async () => {
@@ -535,6 +592,7 @@ describe("CreateBucketModal", () => {
         expect(mockMutate).toHaveBeenCalledWith({
           project_id: mockProjectId,
           bucketName: "my-bucket",
+          enableVersioning: false,
         })
       })
     })
@@ -550,6 +608,7 @@ describe("CreateBucketModal", () => {
         expect(mockMutate).toHaveBeenCalledWith({
           project_id: mockProjectId,
           bucketName: "my-bucket",
+          enableVersioning: false,
         })
       })
     })
@@ -560,6 +619,7 @@ describe("CreateBucketModal", () => {
 
       expect(screen.getByLabelText(/Bucket name/i)).toBeDisabled()
       expect(screen.getByRole("button", { name: /^Create$/i })).toBeDisabled()
+      expect(screen.getByRole("checkbox", { name: /Enable versioning/i })).toBeDisabled()
     })
   })
 
@@ -675,13 +735,18 @@ describe("CreateBucketModal", () => {
       expect(mockOnClose).toHaveBeenCalledTimes(1)
     })
 
-    test("clears input when modal closes", async () => {
+    test("clears input and checkbox when modal closes", async () => {
       const user = userEvent.setup()
       const mockOnClose = vi.fn()
       renderModal({ onClose: mockOnClose })
 
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket")
+
+      const checkbox = screen.getByRole("checkbox", { name: /Enable versioning/i })
+      await user.click(checkbox)
+
+      expect(checkbox).toBeChecked()
 
       const cancelButton = screen.getByRole("button", { name: /Cancel/i })
       await user.click(cancelButton)

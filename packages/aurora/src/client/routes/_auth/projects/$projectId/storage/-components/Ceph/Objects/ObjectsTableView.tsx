@@ -16,12 +16,14 @@ import { DeleteObjectModal } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveObjectModal } from "./MoveObjectModal"
 import { EditMetadataModal } from "./EditMetadataModal"
+import { ObjectVersionHistoryModal } from "./ObjectVersionHistoryModal"
 
 interface ObjectsTableViewProps {
   bucketName: string
   objects: S3Object[]
   folders: S3FolderPrefix[]
   currentPrefix: string
+  versioningEnabled?: boolean
   onFolderClick: (prefix: string) => void
   onDeleteObjectSuccess: (objectKey: string) => void
   onDeleteObjectError: (objectKey: string, errorMessage: string) => void
@@ -31,6 +33,8 @@ interface ObjectsTableViewProps {
   onMoveObjectError: (objectKey: string, errorMessage: string) => void
   onEditMetadataSuccess: (objectKey: string) => void
   onEditMetadataError: (objectKey: string, errorMessage: string) => void
+  onRestoreVersion?: (objectKey: string, versionId: string) => void
+  onDeleteVersion?: (objectKey: string, versionId: string) => void
 }
 
 export function ObjectsTableView({
@@ -38,6 +42,7 @@ export function ObjectsTableView({
   objects,
   folders,
   currentPrefix,
+  versioningEnabled = false,
   onFolderClick,
   onDeleteObjectSuccess,
   onDeleteObjectError,
@@ -47,6 +52,8 @@ export function ObjectsTableView({
   onMoveObjectError,
   onEditMetadataSuccess,
   onEditMetadataError,
+  onRestoreVersion,
+  onDeleteVersion,
 }: ObjectsTableViewProps) {
   const { t } = useLingui()
   const [deleteTarget, setDeleteTarget] = useState<{
@@ -63,6 +70,7 @@ export function ObjectsTableView({
     size?: number
   } | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<string | null>(null)
+  const [versionHistoryTarget, setVersionHistoryTarget] = useState<string | null>(null)
 
   // Strip current prefix from display names
   const stripPrefix = (fullKey: string) => (currentPrefix ? fullKey.replace(currentPrefix, "") : fullKey)
@@ -184,6 +192,9 @@ export function ObjectsTableView({
                 <div className="flex justify-end">
                   <PopupMenu>
                     <PopupMenuOptions>
+                      {versioningEnabled && (
+                        <PopupMenuItem label={t`View Versions`} onClick={() => setVersionHistoryTarget(obj.key)} />
+                      )}
                       <PopupMenuItem
                         label={t`Copy`}
                         onClick={() =>
@@ -260,6 +271,15 @@ export function ObjectsTableView({
         onClose={() => setEditMetadataTarget(null)}
         onSuccess={onEditMetadataSuccess}
         onError={onEditMetadataError}
+      />
+
+      <ObjectVersionHistoryModal
+        isOpen={versionHistoryTarget !== null}
+        bucketName={bucketName}
+        objectKey={versionHistoryTarget ?? ""}
+        onClose={() => setVersionHistoryTarget(null)}
+        onRestoreVersion={onRestoreVersion}
+        onDeleteVersion={onDeleteVersion}
       />
     </>
   )

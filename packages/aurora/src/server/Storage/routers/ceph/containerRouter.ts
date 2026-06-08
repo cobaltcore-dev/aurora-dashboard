@@ -1,4 +1,4 @@
-import { ListBucketsCommand, CreateBucketCommand, DeleteBucketCommand, ListObjectsV2Command } from "@aws-sdk/client-s3"
+import { ListBucketsCommand, CreateBucketCommand, DeleteBucketCommand, ListObjectsV2Command, PutBucketVersioningCommand } from "@aws-sdk/client-s3"
 import { cephProtectedProcedure, cephProcedure } from "../../cephProcedure"
 import { mapS3ErrorToTRPCError } from "../../helpers/s3ErrorMapper"
 import { projectScopedInputSchema } from "../../../trpc"
@@ -129,6 +129,9 @@ export const containerRouter = {
    * Uses AWS SDK CreateBucketCommand. The AWS SDK automatically adds LocationConstraint
    * based on the region configured in the S3 client (resolved from OpenStack service catalog).
    *
+   * If enableVersioning is true, enables versioning immediately after bucket creation using
+   * PutBucketVersioningCommand.
+   *
    * Bucket naming rules (validated client-side and by S3 API):
    *   - 3-63 characters
    *   - Lowercase letters, numbers, hyphens, periods only
@@ -142,14 +145,28 @@ export const containerRouter = {
    */
   create: cephProtectedProcedure.input(createBucketInputSchema).mutation(async ({ ctx, input }): Promise<boolean> => {
     const s3 = ctx.getCephClient()
-    const { bucketName } = input
+    const { bucketName, enableVersioning } = input
 
     try {
+      // Create the bucket
       await s3.send(
         new CreateBucketCommand({
           Bucket: bucketName,
         })
       )
+
+      // Enable versioning if requested
+      if (enableVersioning) {
+        await s3.send(
+          new PutBucketVersioningCommand({
+            Bucket: bucketName,
+            VersioningConfiguration: {
+              Status: "Enabled",
+            },
+          })
+        )
+      }
+
       return true
     } catch (error) {
       throw mapS3ErrorToTRPCError(error, { operation: "create bucket", bucket: bucketName })

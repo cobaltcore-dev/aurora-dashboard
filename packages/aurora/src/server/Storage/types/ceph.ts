@@ -57,6 +57,7 @@ export const listContainersInputSchema = projectScopedInputSchema.extend({
 
 export const createBucketInputSchema = projectScopedInputSchema.extend({
   bucketName: z.string().min(3).max(63),
+  enableVersioning: z.boolean().optional().default(false),
 })
 
 export const deleteBucketInputSchema = projectScopedInputSchema.extend({
