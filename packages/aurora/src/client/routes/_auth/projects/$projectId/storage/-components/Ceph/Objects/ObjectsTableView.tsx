@@ -173,12 +173,10 @@ export function ObjectsTableView({
                 </div>
               </DataGridCell>
               <DataGridCell>
-                <span className="text-juno-grey-light-1 text-sm">{formatBytesBinary(obj.size)}</span>
+                <span className="text-sm">{formatBytesBinary(obj.size)}</span>
               </DataGridCell>
               <DataGridCell>
-                <span className="text-juno-grey-light-1 text-sm">
-                  {obj.lastModified ? new Date(obj.lastModified).toLocaleString() : "—"}
-                </span>
+                <span className="text-sm">{obj.lastModified ? new Date(obj.lastModified).toLocaleString() : "—"}</span>
               </DataGridCell>
               <DataGridCell onClick={(e) => e.stopPropagation()}>
                 <div className="flex justify-end">
