@@ -40,14 +40,25 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
+#. placeholder {0}: allRows.length
+#. placeholder {1}: allRows.length
+#. placeholder {2}: allRows.length
+msgid "{0, plural, one {{1} item} other {{2} items}}"
+msgstr "{0, plural, one {{1} item} other {{2} items}}"
+
+#. placeholder {0}: filteredRows.length
+#. placeholder {1}: filteredRows.length
+#. placeholder {2}: allRows.length
+#. placeholder {3}: filteredRows.length
+#. placeholder {4}: allRows.length
+msgid "{0, plural, one {{1} of {2} item} other {{3} of {4} items}}"
+msgstr "{0, plural, one {{1} of {2} item} other {{3} of {4} items}}"
+
 msgid "{allContainersCount} bucket"
 msgstr "{allContainersCount} bucket"
 
 msgid "{allContainersCount} buckets"
 msgstr "{allContainersCount} buckets"
-
-msgid "{allCount} items"
-msgstr "{allCount} items"
 
 msgid "{bucketCount, plural, one {object} other {objects}}"
 msgstr "{bucketCount, plural, one {object} other {objects}}"

@@ -1,5 +1,5 @@
 import { useState, useEffect, startTransition } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { Spinner, Button, Toast, ToastProps, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -342,6 +342,20 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
           </Stack>
         }
       />
+      <div
+        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
+        data-testid="objects-info-block"
+      >
+        {searchParam.trim() ? (
+          <Plural
+            value={filteredRows.length}
+            one={`${filteredRows.length} of ${allRows.length} item`}
+            other={`${filteredRows.length} of ${allRows.length} items`}
+          />
+        ) : (
+          <Plural value={allRows.length} one={`${allRows.length} item`} other={`${allRows.length} items`} />
+        )}
+      </div>
       <ObjectsTableView
         rows={sortedRows}
         searchTerm={searchParam}
