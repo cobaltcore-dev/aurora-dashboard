@@ -10,7 +10,7 @@ import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
-import { Slots } from "./AuroraApp"
+import type { Slots } from "./AuroraApp"
 import { messages as enMessages } from "../locales/en/messages"
 
 // Initialise i18n here so AuroraApp is self-contained and consumers don't need

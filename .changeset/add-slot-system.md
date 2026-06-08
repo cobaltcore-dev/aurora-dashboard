@@ -8,5 +8,5 @@ Introduces `Slot`, `slots`, and `SlotProps` — a shadow DOM-based mechanism tha
 
 - `slots` — object of named slot components passed via `AuroraAppProps`
 - `SlotProps` — typed props supplied to each widget, including `auroraContext.client` for BFF access
-- `Slot` — internal component that renders a widget inside an isolated shadow root with Juno UI and portal styles injected
+- `Slot` — internal component that renders a widget inside an isolated shadow root
 - `sideNavBanner` — first slot, rendered at the bottom of the project sidebar

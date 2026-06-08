@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, type ReactNode, type FC } from "react"
-import ReactDOM from "react-dom"
+import { createPortal } from "react-dom"
 import { useRouteContext } from "@tanstack/react-router"
 import type { SlotProps } from "../AuroraApp"
 
@@ -14,7 +14,7 @@ function SlotShadowRoot({ children }: { children: ReactNode }) {
 
   return (
     <div ref={ref} style={{ display: "contents" }}>
-      {root && ReactDOM.createPortal(children, root)}
+      {root && createPortal(children, root)}
     </div>
   )
 }
@@ -22,9 +22,11 @@ function SlotShadowRoot({ children }: { children: ReactNode }) {
 export function Slot({ component: Component }: { component: FC<SlotProps> }) {
   const { trpcClient } = useRouteContext({ strict: false })
 
+  if (!trpcClient) return null
+
   return (
     <SlotShadowRoot>
-      <Component auroraContext={{ client: trpcClient! }} />
+      <Component auroraContext={{ client: trpcClient }} />
     </SlotShadowRoot>
   )
 }
