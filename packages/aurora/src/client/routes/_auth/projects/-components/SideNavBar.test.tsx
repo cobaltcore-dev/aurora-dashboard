@@ -13,6 +13,7 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
   useMatches: () => mockMatches,
   useParams: () => ({}),
+  useRouteContext: () => ({ slots: undefined }),
 }))
 
 const TestingProvider = ({ children }: { children: ReactNode }) => (
