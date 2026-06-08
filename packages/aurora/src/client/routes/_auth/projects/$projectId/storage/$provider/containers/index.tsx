@@ -163,6 +163,7 @@ function StorageDashboard() {
       <ContentHeader title={pageTitle} projectId={project} />
       {project ? (
         <ErrorBoundary
+          resetKeys={[project, provider]}
           fallback={
             <div className="p-4 text-center">
               <Trans>Error loading component</Trans>

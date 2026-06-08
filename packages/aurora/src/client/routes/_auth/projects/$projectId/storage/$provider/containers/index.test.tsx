@@ -183,4 +183,51 @@ describe("Storage Route - checkServiceAvailability", () => {
       }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers")
     })
   })
+
+  // Tests that verify the fix for issue #875:
+  // An error in Object Storage (Swift/Ceph) was disabling all navigation on the page.
+  // Root cause: the ErrorBoundary wrapping SwiftContainers/CephContainers had no resetKeys,
+  // so once the boundary caught an error it stayed in the error state even after navigating
+  // to a different project or provider, effectively freezing all page navigation.
+  // Fix: add resetKeys={[project, provider]} matching the pattern in the objects page.
+  describe("Provider switching (bug #875 — error disables navigation)", () => {
+    it("does not throw when provider is swift and swift is available", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+
+      expect(() => {
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "swift" })
+      }).not.toThrow()
+    })
+
+    it("does not throw when provider is ceph and cephFallbackEnabled is true (even without ceph in catalog)", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+
+      // cephFallbackEnabled is true, so navigating to /ceph should work even without Ceph in catalog
+      expect(() => {
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "ceph" })
+      }).not.toThrow()
+    })
+
+    it("redirects to project overview when no storage service is available", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({})
+
+      expect(() => {
+        checkServiceAvailability([], { projectId: "proj-2", provider: "swift" })
+      }).toThrow("Redirect to: /projects/proj-2")
+    })
+
+    it("redirects swift provider to ceph when only ceph is available", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { ceph: true },
+      })
+
+      expect(() => {
+        checkServiceAvailability(defaultServices, { projectId: "proj-3", provider: "swift" })
+      }).toThrow("Redirect to: /projects/proj-3/storage/ceph/containers")
+    })
+  })
 })
