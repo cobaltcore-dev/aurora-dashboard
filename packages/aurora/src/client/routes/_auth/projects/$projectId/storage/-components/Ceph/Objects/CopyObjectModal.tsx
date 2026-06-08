@@ -2,16 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import {
-  Modal,
-  Stack,
-  Spinner,
-  ComboBox,
-  ComboBoxOption,
-  TextInput,
-  Message,
-  Button,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, ComboBox, ComboBoxOption, TextInput, Button } from "@cloudoperators/juno-ui-components"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useCopyMoveModalState } from "./hooks/useCopyMoveModalState"
@@ -449,16 +440,16 @@ export const CopyObjectModal = ({
 
           {/* Warning if target exists */}
           {checkingTarget ? (
-            <Message variant="info">
-              <Stack direction="horizontal" alignment="center" gap="2">
-                <Spinner size="small" />
+            <Stack direction="horizontal" alignment="center" gap="2">
+              <Spinner size="small" />
+              <span className="text-theme-light text-sm">
                 <Trans>Checking if object exists...</Trans>
-              </Stack>
-            </Message>
+              </span>
+            </Stack>
           ) : targetExists ? (
-            <Message variant="warning">
+            <p className="text-theme-default">
               <Trans>An object with this name already exists at the destination and will be overwritten.</Trans>
-            </Message>
+            </p>
           ) : null}
 
           {/* Copy metadata checkbox */}
@@ -478,9 +469,9 @@ export const CopyObjectModal = ({
             (() => {
               const errorMessage = copyMutation.error.message
               return (
-                <Message variant="danger">
+                <p className="text-theme-error">
                   <Trans>Failed to copy object: {errorMessage}</Trans>
-                </Message>
+                </p>
               )
             })()}
         </Stack>
