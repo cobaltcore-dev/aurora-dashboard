@@ -51,7 +51,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
 
     if (!serviceIndex["flavor"] && !serviceIndex["compute"]) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }
@@ -99,7 +99,7 @@ function RouteComponent() {
 
   const handleHome = () => {
     navigate({
-      to: "/projects/$projectId/compute/overview",
+      to: "/projects/$projectId",
       params: { projectId },
     })
   }

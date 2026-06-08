@@ -91,7 +91,7 @@ const getLinks = () => [
 ]
 
 // React Query client (for hooks like useQuery/useMutation/useSubscription)
-export const trpcReact = createTRPCReact<AuroraRouter>()
+export const trpcReact: ReturnType<typeof createTRPCReact<AuroraRouter>> = createTRPCReact<AuroraRouter>()
 
 let _trpcReactClient: ReturnType<typeof trpcReact.createClient> | null = null
 let _trpcClient: ReturnType<typeof createTRPCClient<AuroraRouter>> | null = null

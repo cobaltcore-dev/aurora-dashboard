@@ -1,5 +1,22 @@
 # @cobaltcore-dev/aurora
 
+## 0.2.2
+
+### Patch Changes
+
+- 98db18f: added clavis CA create certificates functionality
+
+## 0.2.1
+
+### Patch Changes
+
+- f14ab83: bump @cloudoperators/juno-ui-components to 6.5.0; add to minimumReleaseAgeExclude in pnpm-workspace.yaml; remove aurora-portal i18n step from pre-commit hook
+- a194c98: Fix package publishing issues found during initial consumer testing:
+  - Removed `@cobaltcore-dev/policy-engine` and `@cobaltcore-dev/signal-openstack` from published `dependencies` — both are private packages bundled into the server build via tsup and must not be listed as npm dependencies
+  - Added `permission_policies/` to the `files` array so OpenStack YAML files are included in the published package
+
+- 717d53f: fixed race condition of setTitle and refactored breadcrumb
+
 ## 0.2.0
 
 ### Minor Changes
@@ -27,7 +44,6 @@
 
   ```tsx
   import { AuroraApp } from "@cobaltcore-dev/aurora/client"
-
   ;<AuroraApp bffEndpoint="/polaris-bff" theme="theme-light" />
   ```
 

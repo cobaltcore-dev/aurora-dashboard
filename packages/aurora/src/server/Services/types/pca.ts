@@ -5,7 +5,7 @@ import { z } from "zod"
 /** Dates as Unix timestamp. */
 const CertificateValiditySchema = z.object({
   not_after: z.number().int(),
-  not_before: z.number().int(),
+  not_before: z.number().int().optional(),
 })
 
 const CertificateAuthorityCertificateSchema = z.object({
@@ -120,10 +120,8 @@ export const CertificateConfigurationSchema = z.object({
 export const CreateCertificateInputSchema = z.object({
   project_id: z.string(),
   certificate_authority_id: z.string().min(1),
-  certificate: z.object({
-    configuration: CertificateConfigurationSchema,
-    csr: z.string(),
-  }),
+  csr: z.string().min(1),
+  configuration: CertificateConfigurationSchema,
 })
 
 export const CertificateSchema = z.object({
@@ -134,10 +132,6 @@ export const CertificateSchema = z.object({
   csr: z.string().optional(),
   id: z.string(),
   project_id: z.string(),
-})
-
-export const CertificateResponseSchema = z.object({
-  certificate: CertificateSchema,
 })
 
 export const CertificatesListSchema = z.object({

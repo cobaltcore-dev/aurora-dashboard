@@ -211,6 +211,9 @@ msgstr "Durch die Aktivierung dieses Images kann es wieder zum Starten neuer Ins
 msgid "Add"
 msgstr "Hinzufügen"
 
+msgid "Add a Signed Certificate to your CA to activate it"
+msgstr ""
+
 msgid "Add Member"
 msgstr "Mitglied hinzufügen"
 
@@ -1624,7 +1627,22 @@ msgstr "IPv4"
 msgid "IPv6"
 msgstr "IPv6"
 
+msgid "Issue Certificate"
+msgstr ""
+
 msgid "Issue End Entity Certificate"
+msgstr ""
+
+msgid "Issue Self Signed Certificate"
+msgstr ""
+
+msgid "Issue Self-Signed Certificate"
+msgstr ""
+
+msgid "Issuing End Entity Certificate..."
+msgstr ""
+
+msgid "Issuing Self-Signed Certificate..."
 msgstr ""
 
 msgid "It will appear in your image list."
@@ -1680,6 +1698,9 @@ msgstr "Leer lassen für alle Codes"
 
 msgid "Leave empty for all types"
 msgstr "Leer lassen für alle Typen"
+
+msgid "Lifecycle action"
+msgstr ""
 
 msgid "Limits"
 msgstr "Limits"
@@ -2014,9 +2035,6 @@ msgstr "Kein Projekt ausgewählt"
 msgid "No projects available."
 msgstr "Keine Projekte verfügbar."
 
-msgid "No projects found"
-msgstr "Keine Projekte gefunden"
-
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
@@ -2169,6 +2187,9 @@ msgstr "Teilweise erfolgreich gelöscht"
 
 msgid "Password"
 msgstr "Passwort"
+
+msgid "Paste CSR code"
+msgstr ""
 
 msgid "PCA"
 msgstr "PCA"
@@ -2889,6 +2910,9 @@ msgstr "Diese Aktion ist dauerhaft. Alle Objekte im Container werden gelöscht u
 
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
+
+msgid "This action will create a self-signed CA certificate."
+msgstr ""
 
 msgid "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
 msgstr ""

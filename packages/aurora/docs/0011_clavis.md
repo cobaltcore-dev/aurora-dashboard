@@ -28,9 +28,10 @@ Implemented screens and interactions:
 - CA details page at `/projects/$projectId/services/pca/$pcaId/` via `PcaDetailsView`
 - details page shows CA metadata, certificate validity, CSR content, and delete action
 - details-page delete flow reuses the shared delete modal and redirects back to the PCA list after success
+- details page supports lifecycle action in `AWAITING_CERTIFICATE` state to issue a self-signed CA certificate from the CA CSR
 - certificate list view via `PcaCertificatesListContainer` displays certificates issued by a CA
 - certificates list shows CA ID and certificate ID columns with loading, error, and empty states
-- disabled "Issue End Entity Certificate" button (placeholder for future issue-certificate task)
+- in `READY` state, certificate list provides "Issue End Entity Certificate" action and modal to issue end-entity certificates
 - individual certificate rows rendered via `PcaCertificatesTableRow` component, clicking a row navigates to the certificate detail page
 - certificate detail page at `/projects/$projectId/services/pca/$pcaId/$certificateId` shows CA ID, certificate ID, duration/validity, and CSR content with loading, error, and not-found states
 
@@ -54,6 +55,8 @@ The PCA router is project-scoped and talks to the OpenStack PCA / Clavis service
 
 All endpoints expect `project_id` in the request context or input and use the OpenStack service client exposed by the Aurora BFF.
 
+`createCertificate` issues a new X.509 certificate from the specified Certificate Authority using a provided Certificate Signing Request (CSR).
+
 ## Data Model Notes
 
 Relevant PCA states are:
@@ -65,6 +68,11 @@ Relevant PCA states are:
 - `UNEXPECTED`
 
 A newly created CA starts in `CREATING`. Once its CSR is generated, it moves to `AWAITING_CERTIFICATE`. Importing the certificate chain transitions it to `READY`, at which point it can issue end-entity certificates.
+
+Certificate issuing behavior by state:
+
+- `AWAITING_CERTIFICATE`: the CA can issue only a self-signed certificate for its own CSR.
+- `READY`: terminal operational state in which the CA can issue end-entity certificates.
 
 The CA schema also includes:
 
