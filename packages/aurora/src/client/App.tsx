@@ -10,6 +10,7 @@ import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
+import type { Slots } from "./AuroraApp"
 import { messages as enMessages } from "../locales/en/messages"
 
 // Initialise i18n here so AuroraApp is self-contained and consumers don't need
@@ -21,6 +22,7 @@ type AppProps = {
   theme?: "theme-dark" | "theme-light"
   bffEndpoint?: string
   onThemeChange?: (theme: "theme-dark" | "theme-light") => void
+  slots?: Slots
 }
 
 // Additional navigation items can be added here and will be passed to the layout via context
@@ -85,7 +87,12 @@ const App = (props: AppProps) => {
           <trpcReact.Provider client={reactClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
               <AuthProvider>
-                <AppInner router={router} navItems={navItems} handleThemeToggle={handleThemeToggle} />
+                <AppInner
+                  router={router}
+                  navItems={navItems}
+                  handleThemeToggle={handleThemeToggle}
+                  slots={props.slots}
+                />
               </AuthProvider>
             </QueryClientProvider>
           </trpcReact.Provider>
@@ -99,10 +106,12 @@ function AppInner({
   router,
   navItems,
   handleThemeToggle,
+  slots,
 }: {
   router: ReturnType<typeof createAuroraRouter>
   navItems: NavigationItem[]
   handleThemeToggle: (theme: string) => void
+  slots?: Slots
 }) {
   const auth = useAuth()
 
@@ -112,6 +121,7 @@ function AppInner({
     auth,
     navItems,
     handleThemeToggle,
+    slots,
   }
 
   return <RouterProvider router={router} context={routerContext} />
