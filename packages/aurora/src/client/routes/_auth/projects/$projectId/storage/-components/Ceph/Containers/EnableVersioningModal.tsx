@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Message, Checkbox } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Checkbox } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface EnableVersioningModalProps {
@@ -67,25 +67,26 @@ export const EnableVersioningModal = ({
       disableConfirmButton={!confirmed || enableMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
-        <Message variant="info" title={t`What is versioning?`}>
-          <Trans>
-            Versioning allows you to keep multiple variants of an object in the same bucket. This protects against
-            accidental overwrites and deletions.
-          </Trans>
-        </Message>
-
-        <Message variant="warning" title={t`Important`}>
-          <Trans>
-            Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain
-            even after suspension.
-          </Trans>
-        </Message>
+        <div>
+          <p className="mb-3 text-sm">
+            <Trans>
+              Versioning allows you to keep multiple variants of an object in the same bucket. This protects against
+              accidental overwrites and deletions.
+            </Trans>
+          </p>
+          <p className="mb-3 text-sm text-theme-light">
+            <Trans>
+              Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain
+              even after suspension.
+            </Trans>
+          </p>
+        </div>
 
         <div>
-          <h4 className="mb-2 font-semibold">
+          <p className="mb-2 text-sm font-semibold">
             <Trans>Benefits:</Trans>
-          </h4>
-          <ul className="list-disc space-y-1 pl-5">
+          </p>
+          <ul className="list-disc space-y-1 pl-5 text-sm">
             <li>
               <Trans>Recover from accidental deletions</Trans>
             </li>

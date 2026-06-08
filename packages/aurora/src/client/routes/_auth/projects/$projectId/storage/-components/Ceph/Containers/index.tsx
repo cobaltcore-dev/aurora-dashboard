@@ -212,8 +212,8 @@ export const CephContainers = () => {
 
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="4">
-        <div className="text-center max-w-2xl px-4">
-          <h3 className="text-lg font-semibold mb-2 text-juno-red">
+        <div className="max-w-2xl px-4 text-center">
+          <h3 className="text-juno-red mb-2 text-lg font-semibold">
             {isAccessDenied ? (
               <Trans>Access Denied</Trans>
             ) : isAuthError ? (

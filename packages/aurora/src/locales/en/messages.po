@@ -1177,9 +1177,6 @@ msgstr "Ethertype"
 msgid "Existing versions remain accessible"
 msgstr "Existing versions remain accessible"
 
-msgid "Existing versions will continue to use storage space. To free space, you must manually delete old versions."
-msgstr "Existing versions will continue to use storage space. To free space, you must manually delete old versions."
-
 msgid "Expected format: YYYY-MM-DD HH:mm:ss"
 msgstr "Expected format: YYYY-MM-DD HH:mm:ss"
 
@@ -1659,9 +1656,6 @@ msgstr "Images to deactivate:"
 
 msgid "Images to delete:"
 msgstr "Images to delete:"
-
-msgid "Important"
-msgstr "Important"
 
 msgid "Inactivity Timeout"
 msgstr "Inactivity Timeout"
@@ -2782,9 +2776,6 @@ msgstr "Storage"
 msgid "Storage container not found"
 msgstr "Storage container not found"
 
-msgid "Storage Implications"
-msgstr "Storage Implications"
-
 msgid "Storage Overview"
 msgstr "Storage Overview"
 
@@ -2829,12 +2820,6 @@ msgstr "Suggested Images"
 
 msgid "Suspend Versioning"
 msgstr "Suspend Versioning"
-
-msgid "Suspending Versioning"
-msgstr "Suspending Versioning"
-
-msgid "Suspending versioning will stop creating new versions for future uploads. All existing versions will be preserved."
-msgstr "Suspending versioning will stop creating new versions for future uploads. All existing versions will be preserved."
 
 msgid "Swap"
 msgstr "Swap"
@@ -3366,9 +3351,6 @@ msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud managemen
 
 msgid "What happens when suspended:"
 msgstr "What happens when suspended:"
-
-msgid "What is versioning?"
-msgstr "What is versioning?"
 
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"

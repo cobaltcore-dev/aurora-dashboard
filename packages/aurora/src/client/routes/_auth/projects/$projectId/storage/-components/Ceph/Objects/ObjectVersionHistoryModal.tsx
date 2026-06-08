@@ -88,7 +88,7 @@ export const ObjectVersionHistoryModal = ({
         {isLoading && (
           <Stack direction="horizontal" gap="2" alignment="center" className="py-8">
             <Spinner />
-            <span className="text-sm text-theme-light">
+            <span className="text-theme-light text-sm">
               <Trans>Loading versions...</Trans>
             </span>
           </Stack>
@@ -160,25 +160,25 @@ export const ObjectVersionHistoryModal = ({
                     </DataGridCell>
 
                     <DataGridCell>
-                      <code className="text-xs font-mono break-all" title={version.versionId}>
+                      <code className="font-mono text-xs break-all" title={version.versionId}>
                         {version.versionId}
                       </code>
                     </DataGridCell>
 
                     <DataGridCell>
-                      <span className="text-sm text-theme-light">
+                      <span className="text-theme-light text-sm">
                         {version.lastModified ? new Date(version.lastModified).toLocaleString() : "—"}
                       </span>
                     </DataGridCell>
 
                     <DataGridCell>
-                      <span className="text-sm text-theme-light">
+                      <span className="text-theme-light text-sm">
                         {isDeleteMarker ? "—" : formatBytesBinary(version.size ?? 0)}
                       </span>
                     </DataGridCell>
 
                     <DataGridCell>
-                      <span className="text-xs text-theme-light break-all">
+                      <span className="text-theme-light text-xs break-all">
                         {isDeleteMarker ? "—" : version.etag || "—"}
                       </span>
                     </DataGridCell>

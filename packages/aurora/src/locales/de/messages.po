@@ -1177,9 +1177,6 @@ msgstr "Ethertype"
 msgid "Existing versions remain accessible"
 msgstr ""
 
-msgid "Existing versions will continue to use storage space. To free space, you must manually delete old versions."
-msgstr ""
-
 msgid "Expected format: YYYY-MM-DD HH:mm:ss"
 msgstr "Erwartetes Format: JJJJ-MM-TT HH:mm:ss"
 
@@ -1659,9 +1656,6 @@ msgstr "Zu deaktivierende Images:"
 
 msgid "Images to delete:"
 msgstr "Zu löschende Images:"
-
-msgid "Important"
-msgstr ""
 
 msgid "Inactivity Timeout"
 msgstr "Inaktivitäts-Timeout"
@@ -2782,9 +2776,6 @@ msgstr "Storage"
 msgid "Storage container not found"
 msgstr "Storage-Container nicht gefunden"
 
-msgid "Storage Implications"
-msgstr ""
-
 msgid "Storage Overview"
 msgstr "Speicherübersicht"
 
@@ -2828,12 +2819,6 @@ msgid "Suggested Images"
 msgstr "Empfohlene Images"
 
 msgid "Suspend Versioning"
-msgstr ""
-
-msgid "Suspending Versioning"
-msgstr ""
-
-msgid "Suspending versioning will stop creating new versions for future uploads. All existing versions will be preserved."
 msgstr ""
 
 msgid "Swap"
@@ -3365,9 +3350,6 @@ msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management
 msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung der nächsten Generation. Wir sind bestrebt, die Art und Weise, wie Sie mit Ihrer Cloud-Infrastruktur interagieren und diese verwalten, zu vereinfachen. Mit Effizienz, Skalierbarkeit und Benutzerfreundlichkeit im Kern konzipiert, ermöglicht Aurora Ihnen, Prozesse zu optimieren und das volle Potenzial Ihrer Cloud-Ressourcen auszuschöpfen."
 
 msgid "What happens when suspended:"
-msgstr ""
-
-msgid "What is versioning?"
 msgstr ""
 
 msgid "Why Choose Aurora?"

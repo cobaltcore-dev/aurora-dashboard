@@ -1,6 +1,6 @@
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface SuspendVersioningModalProps {
@@ -58,24 +58,11 @@ export const SuspendVersioningModal = ({
       disableConfirmButton={suspendMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
-        <Message variant="info" title={t`Suspending Versioning`}>
-          <Trans>
-            Suspending versioning will stop creating new versions for future uploads. All existing versions will be
-            preserved.
-          </Trans>
-        </Message>
-
-        <Message variant="warning" title={t`Storage Implications`}>
-          <Trans>
-            Existing versions will continue to use storage space. To free space, you must manually delete old versions.
-          </Trans>
-        </Message>
-
         <div>
-          <h4 className="mb-2 font-semibold">
+          <p className="mb-2 text-sm font-semibold">
             <Trans>What happens when suspended:</Trans>
-          </h4>
-          <ul className="list-disc space-y-1 pl-5">
+          </p>
+          <ul className="list-disc space-y-1 pl-5 text-sm">
             <li>
               <Trans>New uploads will overwrite the current version</Trans>
             </li>

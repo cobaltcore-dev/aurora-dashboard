@@ -277,11 +277,12 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
                 <Trans>Suspend Versioning</Trans>
               </Button>
             )}
-            {versioningStatus && (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
-              <Button onClick={() => setIsEnableVersioningModalOpen(true)}>
-                <Trans>Enable Versioning</Trans>
-              </Button>
-            )}
+            {versioningStatus &&
+              (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
+                <Button onClick={() => setIsEnableVersioningModalOpen(true)}>
+                  <Trans>Enable Versioning</Trans>
+                </Button>
+              )}
           </Stack>
         }
       />

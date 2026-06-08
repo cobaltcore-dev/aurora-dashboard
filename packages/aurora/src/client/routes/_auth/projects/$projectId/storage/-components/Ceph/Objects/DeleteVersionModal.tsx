@@ -102,7 +102,7 @@ export const DeleteVersionModal = ({
             <label className="text-sm font-semibold">
               <Trans>Object:</Trans>
             </label>
-            <p className="mt-1 text-sm font-mono">{objectKey}</p>
+            <p className="mt-1 font-mono text-sm">{objectKey}</p>
           </div>
 
           <div>

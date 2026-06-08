@@ -38,8 +38,8 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
       </h2>
       <p className="text-juno-grey-light-1">
         <Trans>
-          To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate
-          your requests to the Ceph storage backend.
+          To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials
+          authenticate your requests to the Ceph storage backend.
         </Trans>
       </p>
       <p className="text-juno-grey-light-1 text-sm">

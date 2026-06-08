@@ -74,8 +74,8 @@ export function ContainerListView() {
     const isAuthError = errorMessage.includes("Invalid access key") || errorMessage.includes("InvalidAccessKeyId")
 
     return (
-      <div className="mt-4 p-4 rounded bg-juno-red bg-opacity-10 border border-juno-red">
-        <h4 className="text-sm font-semibold mb-1 text-juno-red">
+      <div className="bg-juno-red bg-opacity-10 border-juno-red mt-4 rounded border p-4">
+        <h4 className="text-juno-red mb-1 text-sm font-semibold">
           {isAccessDenied ? (
             <Trans>Access Denied</Trans>
           ) : isAuthError ? (
