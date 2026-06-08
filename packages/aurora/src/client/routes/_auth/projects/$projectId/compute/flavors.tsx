@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
 
     if (!serviceIndex["compute"]?.["nova"]) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }

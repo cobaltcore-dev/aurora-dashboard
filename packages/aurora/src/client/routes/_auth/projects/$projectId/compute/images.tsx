@@ -85,7 +85,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images"
 
     if (!serviceIndex["image"]?.["glance"]) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }
