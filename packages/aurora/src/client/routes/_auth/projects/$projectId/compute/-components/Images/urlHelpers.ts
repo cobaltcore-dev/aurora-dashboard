@@ -113,9 +113,7 @@ export const applyFilterSelection = (
   if (alreadySelected) return current
 
   const supportsMulti = filterDefinitions.find((f) => f.filterName === selected.name)?.supportsMultiValue
-  return supportsMulti
-    ? [...current, selected]
-    : [...current.filter((f) => f.name !== selected.name), selected]
+  return supportsMulti ? [...current, selected] : [...current.filter((f) => f.name !== selected.name), selected]
 }
 
 /**

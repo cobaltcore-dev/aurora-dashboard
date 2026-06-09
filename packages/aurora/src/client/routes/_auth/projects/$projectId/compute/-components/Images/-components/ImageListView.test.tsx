@@ -322,9 +322,7 @@ describe("ImageListView — bulk selection", () => {
       fireEvent.click(selectAll)
     })
 
-    expect(setSelectedImages).toHaveBeenCalledWith(
-      expect.arrayContaining(["image-1", "image-2", "image-3"])
-    )
+    expect(setSelectedImages).toHaveBeenCalledWith(expect.arrayContaining(["image-1", "image-2", "image-3"]))
     expect(setSelectedImages.mock.calls[0][0]).toHaveLength(3)
   })
 

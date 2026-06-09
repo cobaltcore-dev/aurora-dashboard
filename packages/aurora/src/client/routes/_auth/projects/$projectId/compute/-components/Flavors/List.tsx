@@ -85,6 +85,7 @@ function FlavorsContent({
   const { t } = useLingui()
   const { flavors, privateFlavorError, listError } = use(flavorsPromise)
   const permissions = use(permissionsPromise)
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
 
   if (listError) {
     return <p>{listError}</p>
@@ -140,10 +141,13 @@ function FlavorsContent({
           <SearchInput
             placeholder={t`Search flavors...`}
             data-testid="searchbar"
-            value={searchTerm}
-            onInput={(e: React.FormEvent<HTMLInputElement>) => setSearchTerm(e.currentTarget.value)}
+            value={localSearchTerm}
+            onInput={(e: React.FormEvent<HTMLInputElement>) => setLocalSearchTerm(e.currentTarget.value)}
             onSearch={(v) => setSearchTerm(typeof v === "string" ? v : "")}
-            onClear={() => setSearchTerm("")}
+            onClear={() => {
+              setLocalSearchTerm("")
+              setSearchTerm("")
+            }}
           />
         </Stack>
       </DataGridToolbar>

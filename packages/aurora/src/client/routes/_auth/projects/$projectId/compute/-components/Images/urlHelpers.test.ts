@@ -329,8 +329,18 @@ describe("buildUrlSearchParams", () => {
   })
 })
 
-const multiFilter: Filter = { filterName: "status", displayName: "Status", values: ["active", "deactivated"], supportsMultiValue: true }
-const singleFilter: Filter = { filterName: "visibility", displayName: "Visibility", values: ["public", "private"], supportsMultiValue: false }
+const multiFilter: Filter = {
+  filterName: "status",
+  displayName: "Status",
+  values: ["active", "deactivated"],
+  supportsMultiValue: true,
+}
+const singleFilter: Filter = {
+  filterName: "visibility",
+  displayName: "Visibility",
+  values: ["public", "private"],
+  supportsMultiValue: false,
+}
 const filterDefs: Filter[] = [multiFilter, singleFilter]
 
 describe("applyFilterSelection", () => {

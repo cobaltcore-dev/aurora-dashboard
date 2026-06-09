@@ -131,6 +131,7 @@ function ImagesContent({
   const { t } = useLingui()
   const imagesData = use(imagesPromise)
   const permissions = use(permissionsPromise)
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
 
   if (imagesData.listError) {
     return <p>{imagesData.listError}</p>
@@ -258,10 +259,13 @@ function ImagesContent({
             <SearchInput
               placeholder={t`Search images...`}
               data-testid="searchbar"
-              value={searchTerm}
-              onInput={(e: React.FormEvent<HTMLInputElement>) => setSearchTerm(e.currentTarget.value)}
+              value={localSearchTerm}
+              onInput={(e: React.FormEvent<HTMLInputElement>) => setLocalSearchTerm(e.currentTarget.value)}
               onSearch={(v) => setSearchTerm(typeof v === "string" ? v : "")}
-              onClear={() => setSearchTerm("")}
+              onClear={() => {
+                setLocalSearchTerm("")
+                setSearchTerm("")
+              }}
             />
           </Stack>
           {activeFilterSettings.selectedFilters && activeFilterSettings.selectedFilters.length > 0 && (
