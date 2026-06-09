@@ -212,18 +212,14 @@ function ImagesContent({
 
   return (
     <>
-      {/* Tab navigation for member status */}
-      <div className="w-full">
+      {/* Zone 1 — tabs + sort + create / more actions, no background */}
+      <Stack distribution="between" alignment="center" gap="2" className="pb-2">
         <TabNavigation activeItem={memberStatusView} onActiveItemChange={memberStatusTabs.onActiveItemChange}>
           {memberStatusTabs.items.map((item) => (
             <TabNavigationItem key={item.value} label={item.label} value={item.value} />
           ))}
         </TabNavigation>
-      </div>
-
-      {/* Zone 1 — sort + create / more actions, no background */}
-      <Stack distribution="end" alignment="center" gap="2" className="pb-2">
-        <Stack gap="0.5">
+        <Stack gap="0.5" alignment="center">
           <SortInput
             options={sortSettings.options}
             sortBy={sortSettings.sortBy}
@@ -233,8 +229,6 @@ function ImagesContent({
             }
             onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
           />
-        </Stack>
-        <Stack gap="0.5">
           {permissions.canCreate && (
             <Button onClick={() => setCreateModalOpen(true)} variant="primary">
               <Trans>Create Image</Trans>
