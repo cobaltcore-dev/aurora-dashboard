@@ -6,5 +6,5 @@ import config from "@cobaltcore-dev/aurora-config/eslint/index.mjs"
 export default [
   ...config,
   pluginLingui.configs["flat/recommended"],
-  { ignores: ["scripts/*", "extensions/*", "*.js", "*.d.ts", "playwright-report/**"] },
+  { ignores: ["scripts/*", "extensions/*", "*.js", "*.d.ts", "playwright-report/**", "**/routeTree.gen.ts"] },
 ]

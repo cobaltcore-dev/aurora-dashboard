@@ -2110,9 +2110,6 @@ msgstr "No project selected"
 msgid "No projects available."
 msgstr "No projects available."
 
-msgid "No projects found"
-msgstr "No projects found"
-
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 

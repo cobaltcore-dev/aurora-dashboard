@@ -25,7 +25,7 @@ export const checkServiceAvailability = (
   // Redirect to the "Projects Overview" page if no storage services available
   if (!serviceIndex["object-store"]) {
     throw redirect({
-      to: "/projects/$projectId/compute/overview",
+      to: "/projects/$projectId",
       params: { projectId },
     })
   }
@@ -45,7 +45,7 @@ export const checkServiceAvailability = (
   if (provider !== "swift" && provider !== "ceph") {
     if (!fallbackProvider) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }
@@ -58,7 +58,7 @@ export const checkServiceAvailability = (
   if (provider === "swift" && !hasSwift) {
     if (!hasEffectiveCeph) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }
@@ -72,7 +72,7 @@ export const checkServiceAvailability = (
   if (provider === "ceph" && !hasEffectiveCeph) {
     if (!hasSwift) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }

@@ -13,6 +13,7 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
   useMatches: () => mockMatches,
   useParams: () => ({}),
+  useRouteContext: () => ({ slots: undefined }),
 }))
 
 const TestingProvider = ({ children }: { children: ReactNode }) => (
@@ -68,7 +69,6 @@ describe("SideNavBar", () => {
           <SideNavBar {...defaultProps} />
         </TestingProvider>
       )
-
       expect(screen.getByText("Images")).toBeInTheDocument()
     })
 
@@ -93,7 +93,6 @@ describe("SideNavBar", () => {
           <SideNavBar {...defaultProps} />
         </TestingProvider>
       )
-
       expect(screen.getByText("Flavors")).toBeInTheDocument()
     })
 
@@ -122,12 +121,10 @@ describe("SideNavBar", () => {
       expect(screen.getByText("Images")).toBeInTheDocument()
 
       fireEvent.click(screen.getByText("Compute"))
-
       expect(mockNavigate).not.toHaveBeenCalled()
       expect(screen.queryByText("Images")).not.toBeInTheDocument()
 
       fireEvent.click(screen.getByText("Compute"))
-
       expect(screen.getByText("Images")).toBeInTheDocument()
     })
 
@@ -142,13 +139,12 @@ describe("SideNavBar", () => {
         expect(screen.getByText("Storage")).toBeInTheDocument()
       })
 
-      it("renders Swift link when swift service is available (open by default)", () => {
+      it("renders Swift link when swift service is available", () => {
         render(
           <TestingProvider>
             <SideNavBar {...defaultProps} />
           </TestingProvider>
         )
-
         expect(screen.getByText("Object Storage (Swift)")).toBeInTheDocument()
       })
 
@@ -166,7 +162,6 @@ describe("SideNavBar", () => {
             <SideNavBar {...propsWithoutSwift} />
           </TestingProvider>
         )
-
         expect(screen.queryByText("Storage")).toBeInTheDocument()
         expect(screen.queryByText("Object Storage (Ceph)")).toBeInTheDocument()
         expect(screen.queryByText("Object Storage (Swift)")).not.toBeInTheDocument()
@@ -180,7 +175,6 @@ describe("SideNavBar", () => {
             <SideNavBar {...defaultProps} />
           </TestingProvider>
         )
-
         fireEvent.click(screen.getByText("Flavors"))
 
         expect(mockNavigate).toHaveBeenCalledWith({
@@ -195,7 +189,6 @@ describe("SideNavBar", () => {
             <SideNavBar {...defaultProps} />
           </TestingProvider>
         )
-
         fireEvent.click(screen.getByText("Images"))
 
         expect(mockNavigate).toHaveBeenCalledWith({
@@ -229,7 +222,7 @@ describe("SideNavBar", () => {
 
         const imagesLink = screen.getByText("Images").closest("button")
         expect(imagesLink).toBeInTheDocument()
-        expect(imagesLink).toHaveClass("selected")
+        expect(imagesLink).toHaveClass("juno-sidenavigation-item-selected")
       })
 
       it("marks Images as selected on image detail page", () => {
@@ -242,7 +235,7 @@ describe("SideNavBar", () => {
         )
 
         const imagesLink = screen.getByText("Images").closest("button")
-        expect(imagesLink).toHaveClass("selected")
+        expect(imagesLink).toHaveClass("juno-sidenavigation-item-selected")
       })
 
       it("marks Flavors as selected when on flavors route", () => {
@@ -255,7 +248,7 @@ describe("SideNavBar", () => {
         )
 
         const flavorsLink = screen.getByText("Flavors").closest("button")
-        expect(flavorsLink).toHaveClass("selected")
+        expect(flavorsLink).toHaveClass("juno-sidenavigation-item-selected")
       })
     })
 
