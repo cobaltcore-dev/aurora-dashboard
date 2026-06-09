@@ -1,5 +1,5 @@
 import { useLingui } from "@lingui/react/macro"
-import { Pill, Stack } from "@cloudoperators/juno-ui-components"
+import { Button, Pill, Stack } from "@cloudoperators/juno-ui-components"
 import { SelectedFilter } from "./types"
 
 export type SelectedFiltersProps = {
@@ -42,7 +42,7 @@ export const SelectedFilters = ({ selectedFilters, onDelete, onClear }: Selected
           onClose={() => onDelete(filter)}
         />
       ))}
-      {selectedFilters.length > 1 && <Pill pillValue={t`Clear all`} className="ml-2" onClick={onClear} />}
+      {selectedFilters.length > 1 && <Button size="xs" label={t`Clear all`} onClick={onClear} />}
     </Stack>
   )
 }

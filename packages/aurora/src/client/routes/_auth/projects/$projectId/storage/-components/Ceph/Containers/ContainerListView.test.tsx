@@ -191,7 +191,8 @@ describe("ContainerListView", () => {
     test("shows error message for other errors", () => {
       mockState.error = { message: "Network error" }
       renderListView()
-      expect(screen.getByText(/Failed to load containers: Network error/)).toBeInTheDocument()
+      expect(screen.getByText(/Error Loading Containers/)).toBeInTheDocument()
+      expect(screen.getByText(/Network error/)).toBeInTheDocument()
     })
 
     test("does not show CredentialPrompt for non-credential errors", () => {

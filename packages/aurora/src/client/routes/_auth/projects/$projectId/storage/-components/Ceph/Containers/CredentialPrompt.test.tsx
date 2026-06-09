@@ -93,20 +93,18 @@ describe("CredentialPrompt", () => {
 
     test("renders explanatory text about EC2 credentials", () => {
       renderCredentialPrompt()
-      expect(
-        screen.getByText(/S3 Object Storage requires EC2 credentials \(access key \+ secret key\)/)
-      ).toBeInTheDocument()
-      expect(screen.getByText(/You need to create credentials before accessing S3 resources/)).toBeInTheDocument()
+      expect(screen.getByText(/To access S3 Object Storage, you need EC2 credentials/)).toBeInTheDocument()
+      expect(screen.getByText(/Click the button below to automatically generate credentials/)).toBeInTheDocument()
     })
 
     test("renders Create Credential button", () => {
       renderCredentialPrompt()
-      expect(screen.getByRole("button", { name: /Create Credential/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Create S3 Credentials" })).toBeInTheDocument()
     })
 
     test("button is not disabled by default", () => {
       renderCredentialPrompt()
-      expect(screen.getByRole("button", { name: /Create Credential/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: "Create S3 Credentials" })).not.toBeDisabled()
     })
   })
 
@@ -115,7 +113,7 @@ describe("CredentialPrompt", () => {
       const user = userEvent.setup()
       renderCredentialPrompt()
 
-      const button = screen.getByRole("button", { name: /Create Credential/i })
+      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
       await user.click(button)
 
       expect(mockMutate).toHaveBeenCalledTimes(1)
@@ -126,15 +124,15 @@ describe("CredentialPrompt", () => {
       mockState.isPending = true
       renderCredentialPrompt()
 
-      expect(screen.getByRole("button", { name: /Creating.../i })).toBeInTheDocument()
-      expect(screen.queryByRole("button", { name: /Create Credential/i })).not.toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Creating Credentials..." })).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: "Create S3 Credentials" })).not.toBeInTheDocument()
     })
 
     test("disables button when mutation is pending", () => {
       mockState.isPending = true
       renderCredentialPrompt()
 
-      expect(screen.getByRole("button", { name: /Creating.../i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: "Creating Credentials..." })).toBeDisabled()
     })
   })
 
@@ -144,7 +142,7 @@ describe("CredentialPrompt", () => {
       const mockOnSuccess = vi.fn()
       renderCredentialPrompt({ onSuccess: mockOnSuccess })
 
-      const button = screen.getByRole("button", { name: /Create Credential/i })
+      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
       await user.click(button)
 
       await waitFor(() => {
@@ -156,7 +154,7 @@ describe("CredentialPrompt", () => {
       const user = userEvent.setup()
       renderCredentialPrompt()
 
-      const button = screen.getByRole("button", { name: /Create Credential/i })
+      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
       await user.click(button)
 
       await waitFor(() => {
@@ -171,7 +169,7 @@ describe("CredentialPrompt", () => {
       mockState.mutationError = "Failed to create EC2 credential"
       renderCredentialPrompt()
 
-      const button = screen.getByRole("button", { name: /Create Credential/i })
+      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
       await user.click(button)
 
       await waitFor(() => {
@@ -185,7 +183,7 @@ describe("CredentialPrompt", () => {
       mockState.mutationError = "Permission denied"
       renderCredentialPrompt()
 
-      const button = screen.getByRole("button", { name: /Create Credential/i })
+      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
       await user.click(button)
 
       await waitFor(() => {
@@ -201,7 +199,7 @@ describe("CredentialPrompt", () => {
       mockState.mutationError = "Creation failed"
       renderCredentialPrompt({ onSuccess: mockOnSuccess })
 
-      const button = screen.getByRole("button", { name: /Create Credential/i })
+      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
       await user.click(button)
 
       await waitFor(() => {
@@ -216,7 +214,7 @@ describe("CredentialPrompt", () => {
       mockState.mutationError = "Quota exceeded"
       renderCredentialPrompt()
 
-      const button = screen.getByRole("button", { name: /Create Credential/i })
+      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
       await user.click(button)
 
       await waitFor(() => {
@@ -229,7 +227,7 @@ describe("CredentialPrompt", () => {
       mockState.mutationError = "Test error"
       renderCredentialPrompt()
 
-      const button = screen.getByRole("button", { name: /Create Credential/i })
+      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
       await user.click(button)
 
       await waitFor(() => {

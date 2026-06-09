@@ -98,6 +98,11 @@ vi.mock("@/client/trpcClient", () => {
                 invalidate: vi.fn(),
               },
             },
+            versioning: {
+              getStatus: {
+                invalidate: vi.fn(),
+              },
+            },
           },
         },
       })),
@@ -141,6 +146,19 @@ vi.mock("@/client/trpcClient", () => {
               useMutation: mockUseMutation,
             },
           },
+          versioning: {
+            getStatus: {
+              useQuery: vi.fn(() => ({
+                data: { status: "Disabled" },
+                isLoading: false,
+                error: null,
+                trpc: {},
+              })),
+            },
+            setStatus: {
+              useMutation: mockUseMutation,
+            },
+          },
         },
       },
     },
@@ -155,7 +173,7 @@ describe("ObjectBrowserView", () => {
   it("renders bucket navigation", () => {
     render(<ObjectBrowserView bucketName="test-bucket" />)
 
-    expect(screen.getByText("test-bucket")).toBeInTheDocument()
+    expect(screen.getByTestId("file-navigation")).toHaveTextContent("test-bucket")
   })
 
   it("displays folders and objects", () => {
