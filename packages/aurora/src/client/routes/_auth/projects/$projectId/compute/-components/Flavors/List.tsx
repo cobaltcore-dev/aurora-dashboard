@@ -1,4 +1,4 @@
-import { use, Suspense, useState, startTransition, useEffect, useCallback } from "react"
+import { use, Suspense, useState, useRef, startTransition, useEffect, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { TrpcClient } from "@/client/trpcClient"
@@ -86,6 +86,9 @@ function FlavorsContent({
   const { flavors, privateFlavorError, listError } = use(flavorsPromise)
   const permissions = use(permissionsPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
+  const debounceTimer = useRef<number | undefined>(undefined)
+
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   if (listError) {
     return <p>{listError}</p>
@@ -142,9 +145,18 @@ function FlavorsContent({
             placeholder={t`Search flavors...`}
             data-testid="searchbar"
             value={localSearchTerm}
-            onInput={(e: React.FormEvent<HTMLInputElement>) => setLocalSearchTerm(e.currentTarget.value)}
-            onSearch={(v) => setSearchTerm(typeof v === "string" ? v : "")}
+            onInput={(e: React.FormEvent<HTMLInputElement>) => {
+              const v = e.currentTarget.value
+              setLocalSearchTerm(v)
+              clearTimeout(debounceTimer.current)
+              debounceTimer.current = window.setTimeout(() => setSearchTerm(v), 500)
+            }}
+            onSearch={(v) => {
+              clearTimeout(debounceTimer.current)
+              setSearchTerm(typeof v === "string" ? v : "")
+            }}
             onClear={() => {
+              clearTimeout(debounceTimer.current)
               setLocalSearchTerm("")
               setSearchTerm("")
             }}

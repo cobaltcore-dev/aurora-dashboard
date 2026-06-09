@@ -1,4 +1,4 @@
-import { use, Suspense, useState, startTransition, useEffect, ReactNode, useCallback } from "react"
+import { use, Suspense, useState, startTransition, useEffect, useRef, ReactNode, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import { GlanceImage } from "@/server/Compute/types/image"
@@ -132,6 +132,9 @@ function ImagesContent({
   const imagesData = use(imagesPromise)
   const permissions = use(permissionsPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
+  const debounceTimer = useRef<number | undefined>(undefined)
+
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   if (imagesData.listError) {
     return <p>{imagesData.listError}</p>
@@ -260,9 +263,18 @@ function ImagesContent({
               placeholder={t`Search images...`}
               data-testid="searchbar"
               value={localSearchTerm}
-              onInput={(e: React.FormEvent<HTMLInputElement>) => setLocalSearchTerm(e.currentTarget.value)}
-              onSearch={(v) => setSearchTerm(typeof v === "string" ? v : "")}
+              onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                const v = e.currentTarget.value
+                setLocalSearchTerm(v)
+                clearTimeout(debounceTimer.current)
+                debounceTimer.current = window.setTimeout(() => setSearchTerm(v), 500)
+              }}
+              onSearch={(v) => {
+                clearTimeout(debounceTimer.current)
+                setSearchTerm(typeof v === "string" ? v : "")
+              }}
               onClear={() => {
+                clearTimeout(debounceTimer.current)
                 setLocalSearchTerm("")
                 setSearchTerm("")
               }}
