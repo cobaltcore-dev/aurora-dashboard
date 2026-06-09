@@ -2476,6 +2476,12 @@ msgstr "Metadata speichern"
 msgid "Saving..."
 msgstr "Wird gespeichert..."
 
+msgid "Search flavors..."
+msgstr "Flavors suchen..."
+
+msgid "Search images..."
+msgstr "Images suchen..."
+
 msgid "Search..."
 msgstr "Suchen..."
 

@@ -2476,6 +2476,12 @@ msgstr "Save Metadata"
 msgid "Saving..."
 msgstr "Saving..."
 
+msgid "Search flavors..."
+msgstr "Search flavors..."
+
+msgid "Search images..."
+msgstr "Search images..."
+
 msgid "Search..."
 msgstr "Search..."
 
