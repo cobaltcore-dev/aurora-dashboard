@@ -559,6 +559,41 @@ describe("SwiftObjects (index)", () => {
     })
   })
 
+  describe("Info block", () => {
+    test("renders objects-info-block", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-info-block")).toBeInTheDocument()
+    })
+
+    test("shows total item count when no search is active", () => {
+      renderObjects()
+      // mockObjects builds 3 rows: 2 files + 1 folder
+      expect(screen.getByText(/3 items/i)).toBeInTheDocument()
+    })
+
+    test("shows filtered count when search is active", () => {
+      mockUseSearch.mockReturnValue({
+        prefix: undefined,
+        sortBy: undefined,
+        sortDirection: undefined,
+        search: "file-a",
+      })
+      renderObjects()
+      expect(screen.getByText(/1 of 3 item/i)).toBeInTheDocument()
+    })
+
+    test("shows total count when search is cleared", () => {
+      mockUseSearch.mockReturnValue({
+        prefix: undefined,
+        sortBy: undefined,
+        sortDirection: undefined,
+        search: "",
+      })
+      renderObjects()
+      expect(screen.getByText(/3 items/i)).toBeInTheDocument()
+    })
+  })
+
   describe("Create folder modal", () => {
     test("opens modal when Create folder button is clicked", async () => {
       const user = userEvent.setup()
