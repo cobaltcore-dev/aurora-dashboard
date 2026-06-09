@@ -23,7 +23,7 @@ import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { ImageListView } from "./-components/ImageListView"
 import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
-import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams } from "./urlHelpers"
+import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "./urlHelpers"
 import { createImagesPromise, createPermissionsPromise } from "./apiHelpers"
 
 const PAGE_SIZE = 50
@@ -246,12 +246,12 @@ function ImagesContent({
             <FiltersInput
               filters={activeFilterSettings.filters}
               onChange={(selected) => {
-                const supportsMulti = activeFilterSettings.filters.find(
-                  (f) => f.filterName === selected.name
-                )?.supportsMultiValue
-                const newSelected = supportsMulti
-                  ? [...(activeFilterSettings.selectedFilters || []), selected]
-                  : [...(activeFilterSettings.selectedFilters || []).filter((f) => f.name !== selected.name), selected]
+                const newSelected = applyFilterSelection(
+                  activeFilterSettings.selectedFilters || [],
+                  selected,
+                  activeFilterSettings.filters
+                )
+                if (newSelected === (activeFilterSettings.selectedFilters || [])) return
                 handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
               }}
             />
