@@ -115,6 +115,7 @@ const createMockContext = (options: MockContextOptions = {}) => {
     req: { headers: {} },
     validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
     identityEndpoint: "http://identity.example.com/",
+    cephRegion: "ceph-objectstore-st1-test-region",
     imageMetadataExcludedProperties: [],
     createSession: vi.fn(),
     terminateSession: vi.fn(),
@@ -199,52 +200,9 @@ describe("cephProcedure", () => {
       })
     })
 
-    describe("region construction", () => {
-      beforeEach(() => {
-        vi.clearAllMocks()
-        mockResolveEC2Credential.mockResolvedValue({
-          credentialId: "cred-id",
-          access: TEST_ACCESS,
-          secret: TEST_SECRET,
-        })
-        mockCreateS3Client.mockReturnValue({ send: vi.fn() } as MockS3Client as S3Client)
-      })
-
-      it("constructs standard region for non-qa-de-1 regions", async () => {
-        process.env.CEPH_REGION = "ceph-objectstore-st1-eu-de-2"
-        const ctx = createMockContext({ endpoint: TEST_CEPH_ENDPOINT_NO_SWIFT, region: "eu-de-2" })
-        const caller = createCaller(ctx)
-
-        await caller.test.getClient({ project_id: TEST_PROJECT_ID })
-
-        expect(mockCreateS3Client).toHaveBeenCalledWith(
-          expect.any(String),
-          expect.any(String),
-          expect.any(String),
-          "ceph-objectstore-st1-eu-de-2"
-        )
-      })
-
-      it("constructs QA region for qa-de-1 with ec prefix", async () => {
-        process.env.CEPH_REGION = "ceph-objectstore-ec-st1-qa-de-1"
-        const ctx = createMockContext({ endpoint: TEST_CEPH_ENDPOINT, region: "qa-de-1" })
-        const caller = createCaller(ctx)
-
-        await caller.test.getClient({ project_id: TEST_PROJECT_ID })
-
-        expect(mockCreateS3Client).toHaveBeenCalledWith(
-          expect.any(String),
-          expect.any(String),
-          expect.any(String),
-          "ceph-objectstore-ec-st1-qa-de-1"
-        )
-      })
-    })
-
     describe("error handling", () => {
       beforeEach(() => {
         vi.clearAllMocks()
-        process.env.CEPH_REGION = "ceph-objectstore-ec-st1-qa-de-1"
         mockResolveEC2Credential.mockResolvedValue({
           credentialId: "cred-id",
           access: TEST_ACCESS,
@@ -287,23 +245,12 @@ describe("cephProcedure", () => {
           "Ceph service not found in catalog"
         )
       })
-
-      it("throws when CEPH_REGION environment variable is not set", async () => {
-        delete process.env.CEPH_REGION
-        const ctx = createMockContext()
-        const caller = createCaller(ctx)
-
-        await expect(caller.test.checkStatus({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-          "Ceph service not found in catalog"
-        )
-      })
     })
   })
 
   describe("cephCredentialMiddleware", () => {
     beforeEach(() => {
       vi.clearAllMocks()
-      process.env.CEPH_REGION = "ceph-objectstore-ec-st1-qa-de-1"
       mockCreateS3Client.mockReturnValue({ send: vi.fn() } as MockS3Client as S3Client)
     })
 
@@ -319,14 +266,13 @@ describe("cephProcedure", () => {
     })
 
     it("adds cephRegion to context", async () => {
-      process.env.CEPH_REGION = "ceph-objectstore-st1-eu-de-2"
       mockResolveEC2Credential.mockResolvedValue({ credentialId: "cred-id", access: TEST_ACCESS, secret: TEST_SECRET })
       const ctx = createMockContext({ region: "eu-de-2" })
       const caller = createCaller(ctx)
 
       const result = await caller.test.checkStatus({ project_id: TEST_PROJECT_ID })
 
-      expect(result.region).toBe("ceph-objectstore-st1-eu-de-2")
+      expect(result.region).toBe("ceph-objectstore-st1-test-region")
     })
 
     it("adds getCephClient factory to context", async () => {
