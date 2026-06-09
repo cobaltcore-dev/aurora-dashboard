@@ -430,13 +430,12 @@ export const CopyObjectModal = ({
           </div>
 
           {/* Read-only target path */}
-          <TextInput
-            label={t`Target path`}
-            value={targetPathDisplay}
-            readOnly
-            className="font-mono"
-            helptext={t`The object will be copied to this path. Navigate folders above to change the destination.`}
-          />
+          <div>
+            <p className="text-theme-light mb-1">
+              <Trans>The object will be copied to this path. Navigate folders above to change the destination.</Trans>
+            </p>
+            <TextInput label={t`Target path`} value={targetPathDisplay} readOnly className="font-mono" />
+          </div>
 
           {/* Warning if target exists */}
           {checkingTarget ? (

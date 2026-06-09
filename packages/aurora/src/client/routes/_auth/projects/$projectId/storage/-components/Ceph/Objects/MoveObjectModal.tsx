@@ -478,18 +478,24 @@ export const MoveObjectModal = ({
           </div>
 
           {/* Target path preview */}
-          <TextInput
-            label={t`Target path`}
-            value={targetPathDisplay}
-            readOnly
-            className="font-mono"
-            helptext={
-              isUnchanged
-                ? t`Cannot move to the same location. Please select a different bucket, folder, or change the name.`
-                : t`The object will be moved to this path. Navigate folders above to change the destination.`
-            }
-            invalid={isUnchanged}
-          />
+          <div>
+            <p className="text-theme-light mb-1">
+              {isUnchanged ? (
+                <Trans>
+                  Cannot move to the same location. Please select a different bucket, folder, or change the name.
+                </Trans>
+              ) : (
+                <Trans>The object will be moved to this path. Navigate folders above to change the destination.</Trans>
+              )}
+            </p>
+            <TextInput
+              label={t`Target path`}
+              value={targetPathDisplay}
+              readOnly
+              className="font-mono"
+              invalid={isUnchanged}
+            />
+          </div>
 
           {/* Info: metadata is always copied */}
           <p className="text-theme-default">
