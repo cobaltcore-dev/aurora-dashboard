@@ -44,6 +44,7 @@ interface ImageTableRowProps {
   uploadId?: string | null
   uploadProgressPercent?: number
   onMemberStatusChanged?: () => void
+  showSelectColumn?: boolean
 }
 
 export function ImageTableRow({
@@ -63,6 +64,7 @@ export function ImageTableRow({
   uploadId,
   uploadProgressPercent,
   onMemberStatusChanged,
+  showSelectColumn = false,
 }: ImageTableRowProps) {
   const { t } = useLingui()
   const { id, name, status, visibility, size, disk_format, created_at, owner } = image
@@ -115,9 +117,11 @@ export function ImageTableRow({
         })
       }
     >
-      <DataGridCell onClick={(e) => e.stopPropagation()}>
-        <Checkbox checked={isSelected} onChange={() => onSelect(image)} />
-      </DataGridCell>
+      {showSelectColumn && (
+        <DataGridCell onClick={(e) => e.stopPropagation()}>
+          <Checkbox checked={isSelected} onChange={() => onSelect(image)} />
+        </DataGridCell>
+      )}
 
       <DataGridCell>{status}</DataGridCell>
       <DataGridCell>{imageName}</DataGridCell>

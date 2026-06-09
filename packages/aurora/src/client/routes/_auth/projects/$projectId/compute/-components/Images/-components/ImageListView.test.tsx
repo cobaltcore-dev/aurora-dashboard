@@ -93,6 +93,7 @@ const defaultProps = {
   onImageUpdated: vi.fn(),
   onImageDeleted: vi.fn(),
   onMemberStatusChanged: vi.fn(),
+  hasAnyBulkAction: true,
 }
 
 describe("ImageListView — pagination", () => {

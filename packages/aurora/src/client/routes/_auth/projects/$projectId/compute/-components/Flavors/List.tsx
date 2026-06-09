@@ -3,8 +3,9 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
-import { Message, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
-import { ListToolbar } from "@/client/components/ListToolbar"
+import { TRPCClientError } from "@trpc/client"
+import { Message, Button, Stack, Spinner, DataGridToolbar, SearchInput } from "@cloudoperators/juno-ui-components"
+import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { FlavorListContainer } from "./-components/FlavorListContainer"
 import { CreateFlavorModal } from "./-components/CreateFlavorModal"
@@ -30,12 +31,15 @@ const createFlavorsPromise = (
   sortDirection: string,
   searchTerm: string
 ) => {
-  return client.compute.getFlavorsByProjectId.query({
-    project_id: project,
-    sortBy,
-    sortDirection,
-    searchTerm,
-  })
+  return client.compute.getFlavorsByProjectId
+    .query({ project_id: project, sortBy, sortDirection, searchTerm })
+    .then((res) => ({ ...res, listError: undefined as string | undefined }))
+    .catch((err: unknown) => {
+      if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
+        return { flavors: [] as Flavor[], privateFlavorError: undefined, listError: err.message }
+      }
+      throw err
+    })
 }
 
 const createPermissionsPromise = (client: TrpcClient, project: string) => {
@@ -63,7 +67,7 @@ function FlavorsContent({
   currentPage,
   onPageChange,
 }: {
-  flavorsPromise: Promise<{ flavors: Flavor[]; privateFlavorError?: string }>
+  flavorsPromise: Promise<{ flavors: Flavor[]; privateFlavorError?: string; listError?: string }>
   permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean; canManageAccess: boolean }>
   client: TrpcClient
   project: string
@@ -79,8 +83,12 @@ function FlavorsContent({
   onPageChange: (page: number) => void
 }) {
   const { t } = useLingui()
-  const { flavors, privateFlavorError } = use(flavorsPromise)
+  const { flavors, privateFlavorError, listError } = use(flavorsPromise)
   const permissions = use(permissionsPromise)
+
+  if (listError) {
+    return <p>{listError}</p>
+  }
 
   const totalPages = Math.max(1, Math.ceil(flavors.length / PAGE_SIZE))
   const safePage = Math.min(currentPage, totalPages)
@@ -108,17 +116,37 @@ function FlavorsContent({
         />
       )}
 
-      <ListToolbar
-        sortSettings={sortSettings}
-        searchTerm={searchTerm}
-        onSort={handleSortChange}
-        onSearch={setSearchTerm}
-        actions={
-          permissions.canCreate ? (
-            <Button variant="primary" label={t`Create Flavor`} onClick={() => setCreateModalOpen(true)} />
-          ) : null
-        }
-      />
+      {/* Zone 1 — sort + create action, no background */}
+      <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+        <Stack gap="0.5">
+          <SortInput
+            options={sortSettings.options}
+            sortBy={sortSettings.sortBy}
+            sortDirection={sortSettings.sortDirection ?? "asc"}
+            onSortByChange={(v) =>
+              handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
+            }
+            onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
+          />
+        </Stack>
+        {permissions.canCreate && (
+          <Button variant="primary" label={t`Create Flavor`} onClick={() => setCreateModalOpen(true)} />
+        )}
+      </Stack>
+
+      {/* Zone 2 — search bar */}
+      <DataGridToolbar>
+        <Stack distribution="end" alignment="center">
+          <SearchInput
+            placeholder={t`Search flavors…`}
+            data-testid="searchbar"
+            value={searchTerm}
+            onInput={(e: React.FormEvent<HTMLInputElement>) => setSearchTerm(e.currentTarget.value)}
+            onSearch={(v) => setSearchTerm(typeof v === "string" ? v : "")}
+            onClear={() => setSearchTerm("")}
+          />
+        </Stack>
+      </DataGridToolbar>
 
       <FlavorListContainer
         flavors={paginatedFlavors}
