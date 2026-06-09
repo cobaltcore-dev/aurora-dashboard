@@ -221,6 +221,34 @@ describe("ObjectBrowserView", () => {
     const sortControls = screen.getAllByRole("button", { name: /sort/i })
     expect(sortControls.length).toBeGreaterThan(0)
   })
+
+  describe("Info block", () => {
+    it("renders objects-info-block", () => {
+      render(<ObjectBrowserView bucketName="test-bucket" />)
+
+      expect(screen.getByTestId("objects-info-block")).toBeInTheDocument()
+    })
+
+    it("shows total item count — mockObjectsData has 2 objects + 2 folders", () => {
+      render(<ObjectBrowserView bucketName="test-bucket" />)
+
+      // 2 objects + 2 folders = 4 items
+      expect(screen.getByText(/4 items/i)).toBeInTheDocument()
+    })
+
+    it("shows zero items when bucket is empty", () => {
+      vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+        data: { objects: [], folders: [], isTruncated: false, nextContinuationToken: undefined },
+        isLoading: false,
+        error: null,
+        trpc: {},
+      } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+      render(<ObjectBrowserView bucketName="test-bucket" />)
+
+      expect(screen.getByText(/0 items/i)).toBeInTheDocument()
+    })
+  })
 })
 
 describe("ObjectBrowserView - Loading state", () => {

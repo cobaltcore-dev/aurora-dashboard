@@ -1,5 +1,5 @@
 import { useState, useEffect, startTransition } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { Spinner, Stack, Button, Toast, ToastProps } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -242,6 +242,25 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           </Stack>
         }
       />
+
+      <div
+        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
+        data-testid="objects-info-block"
+      >
+        {searchParam.trim() ? (
+          <Plural
+            value={filteredObjects.length + filteredFolders.length}
+            one={`${filteredObjects.length + filteredFolders.length} of ${allObjects.length + allFolders.length} item`}
+            other={`${filteredObjects.length + filteredFolders.length} of ${allObjects.length + allFolders.length} items`}
+          />
+        ) : (
+          <Plural
+            value={allObjects.length + allFolders.length}
+            one={`${allObjects.length + allFolders.length} item`}
+            other={`${allObjects.length + allFolders.length} items`}
+          />
+        )}
+      </div>
 
       <ObjectsTableView
         bucketName={bucketName}
