@@ -56,8 +56,8 @@ async function auroraLogin(page: Page, domain: string, username: string, passwor
   // Set up error tracking BEFORE navigation
   const errors = setupErrorTracking(page)
 
-  // Navigate to login page
-  await page.goto("/auth/login")
+  // Navigate to login page (root is now the login page)
+  await page.goto("/")
 
   // Fill in credentials
   await page.fill("input#domain", domain)
@@ -70,9 +70,9 @@ async function auroraLogin(page: Page, domain: string, username: string, passwor
   // Wait for redirect to projects page after successful login
   await page.waitForURL("/projects", { timeout: 10000 })
 
-  // Verify we're logged in by checking we're not on login page
+  // Verify we're logged in by checking we're not on login page (root route)
   const currentUrl = page.url()
-  if (currentUrl.includes("/auth/login")) {
+  if (currentUrl === page.context().baseURL || currentUrl.endsWith("/")) {
     throw new Error("Login failed: Still on login page")
   }
 
