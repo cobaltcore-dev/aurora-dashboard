@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { AuroraPortalContext } from "../../../context"
 import { containerRouter } from "./containerRouter"
 import { createCallerFactory, auroraRouter } from "../../../trpc"
+import { createMockContext, TEST_PROJECT_ID } from "./mockContext"
 
 // ============================================================================
 // MOCK AWS SDK S3 CLIENT
@@ -18,86 +18,8 @@ vi.mock("../../clients/s3Client", () => ({
 // MOCK DATA
 // ============================================================================
 
-const TEST_PROJECT_ID = "test-project-id"
-const TEST_USER_ID = "test-user-id"
-const TEST_ACCESS = "AKIAIOSFODNN7EXAMPLE"
-const TEST_SECRET = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 const TEST_BUCKET_NAME = "my-test-bucket"
 const TEST_CREATION_DATE = new Date("2024-01-15T10:00:00Z")
-
-// ============================================================================
-// MOCK CONTEXT
-// ============================================================================
-
-const createMockContext = (shouldFailAuth = false, hasCredentials = true) => {
-  const credBlob = JSON.stringify({ access: TEST_ACCESS, secret: TEST_SECRET })
-  const mockIdentity = {
-    get: vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        credentials: hasCredentials
-          ? [{ id: "cred-id", type: "ec2", project_id: TEST_PROJECT_ID, user_id: TEST_USER_ID, blob: credBlob }]
-          : [],
-      }),
-    }),
-    availableEndpoints: vi.fn().mockReturnValue([]),
-  }
-
-  const mockCephService = {
-    getEndpoint: () => "https://test-ceph.example.com",
-    availableEndpoints: () => [
-      {
-        region: "test-region",
-        url: "https://test-ceph.example.com",
-        interface: "public",
-        id: "test-id",
-        region_id: "test-region",
-      },
-    ],
-  }
-
-  const mockToken = {
-    tokenData: {
-      project: { id: TEST_PROJECT_ID },
-      user: {
-        id: TEST_USER_ID,
-        domain: { id: "default", name: "Default" },
-        name: "test-user",
-        password_expires_at: "",
-      },
-      catalog: [
-        {
-          type: "ceph",
-          name: "ceph",
-          endpoints: [{ region: "test-region", url: "https://test-ceph.example.com" }],
-        },
-      ],
-      expires_at: "",
-      issued_at: "",
-      methods: [],
-      roles: [],
-    },
-  }
-
-  const mockOpenstack = {
-    service: (serviceName: string) => {
-      if (serviceName === "ceph") return mockCephService
-      return mockIdentity
-    },
-    getToken: vi.fn().mockReturnValue(mockToken),
-  }
-
-  return {
-    req: { headers: {} },
-    validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
-    identityEndpoint: "http://identity.example.com/",
-    imageMetadataExcludedProperties: [],
-    createSession: vi.fn(),
-    terminateSession: vi.fn(),
-    openstack: mockOpenstack,
-    rescopeSession: vi.fn().mockResolvedValue(mockOpenstack),
-  } as unknown as AuroraPortalContext
-}
 
 const createCaller = createCallerFactory(auroraRouter({ storage: { ceph: { containers: containerRouter } } }))
 
@@ -108,7 +30,6 @@ const createCaller = createCallerFactory(auroraRouter({ storage: { ceph: { conta
 describe("buckets.list", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env.CEPH_REGION = "ceph-objectstore-st1-test-region"
     // First call returns list of buckets
     mockSend.mockResolvedValueOnce({
       Buckets: [{ Name: TEST_BUCKET_NAME, CreationDate: TEST_CREATION_DATE }],
@@ -162,7 +83,7 @@ describe("buckets.list", () => {
   })
 
   it("throws UNAUTHORIZED when session is invalid", async () => {
-    const ctx = createMockContext(true)
+    const ctx = createMockContext({ shouldFailAuth: true })
     const caller = createCaller(ctx)
 
     await expect(caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
@@ -171,7 +92,7 @@ describe("buckets.list", () => {
   })
 
   it("throws FORBIDDEN with NO_CEPH_CREDENTIALS when no EC2 credentials exist", async () => {
-    const ctx = createMockContext(false, false)
+    const ctx = createMockContext({ hasCredentials: false })
     const caller = createCaller(ctx)
 
     await expect(caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
