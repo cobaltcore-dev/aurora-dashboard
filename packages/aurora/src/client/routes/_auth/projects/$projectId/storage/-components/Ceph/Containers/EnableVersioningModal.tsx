@@ -74,7 +74,7 @@ export const EnableVersioningModal = ({
               accidental overwrites and deletions.
             </Trans>
           </p>
-          <p className="mb-3 text-sm text-theme-light">
+          <p className="text-theme-light mb-3 text-sm">
             <Trans>
               Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain
               even after suspension.

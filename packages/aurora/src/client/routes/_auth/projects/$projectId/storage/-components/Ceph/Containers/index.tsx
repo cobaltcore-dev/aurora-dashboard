@@ -190,7 +190,7 @@ export const CephContainers = () => {
   // Handle loading state
   if (isLoading) {
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+      <Stack className="p-8" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
         <Trans>Loading Buckets...</Trans>
       </Stack>
@@ -206,39 +206,28 @@ export const CephContainers = () => {
       return <CredentialPrompt onSuccess={() => window.location.reload()} />
     }
 
-    // Render error with appropriate styling based on error type
+    // Render error message based on error type
     const isAccessDenied = errorMessage.includes("Access denied") || errorMessage.includes("AccessDenied")
     const isAuthError = errorMessage.includes("Invalid access key") || errorMessage.includes("InvalidAccessKeyId")
 
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="4">
-        <div className="max-w-2xl px-4 text-center">
-          <h3 className="text-juno-red mb-2 text-lg font-semibold">
-            {isAccessDenied ? (
-              <Trans>Access Denied</Trans>
-            ) : isAuthError ? (
-              <Trans>Authentication Failed</Trans>
-            ) : (
-              <Trans>Error Loading Buckets</Trans>
-            )}
-          </h3>
-          <p className="text-juno-grey-light-1 text-sm">
-            {isAccessDenied ? (
-              <Trans>
-                Your credentials are valid but you don't have permission to perform this operation. Please contact your
-                administrator to grant you the necessary permissions.
-              </Trans>
-            ) : isAuthError ? (
-              <Trans>
-                Your S3 credentials are invalid or expired. Please try creating new credentials or contact your
-                administrator.
-              </Trans>
-            ) : (
-              <Trans>Failed to load containers: {errorMessage}</Trans>
-            )}
-          </p>
-        </div>
-      </Stack>
+      <div className="p-8">
+        <p className="text-theme-default text-sm">
+          {isAccessDenied ? (
+            <Trans>
+              Your credentials are valid but you don't have permission to perform this operation. Please contact your
+              administrator to grant you the necessary permissions.
+            </Trans>
+          ) : isAuthError ? (
+            <Trans>
+              Your S3 credentials are invalid or expired. Please try creating new credentials or contact your
+              administrator.
+            </Trans>
+          ) : (
+            <Trans>Failed to load containers: {errorMessage}</Trans>
+          )}
+        </p>
+      </div>
     )
   }
 

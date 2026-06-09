@@ -35,7 +35,6 @@ export const containerRouter = {
   list: cephProtectedProcedure.input(listContainersInputSchema).query(async ({ input, ctx }): Promise<Container[]> => {
     const s3 = ctx.getCephClient()
     const { includeMetadata } = input
-
     try {
       const response = await s3.send(new ListBucketsCommand({}))
       const buckets = response.Buckets ?? []

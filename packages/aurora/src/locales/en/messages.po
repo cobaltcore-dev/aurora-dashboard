@@ -1132,9 +1132,6 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
-msgid "Error Loading Buckets"
-msgstr "Error Loading Buckets"
-
 msgid "Error loading Certificate"
 msgstr "Error loading Certificate"
 
