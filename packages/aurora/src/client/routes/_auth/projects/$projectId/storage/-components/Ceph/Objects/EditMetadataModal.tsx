@@ -293,7 +293,7 @@ export const EditMetadataModal = ({
       title={
         <span className="flex max-w-[400px] items-center gap-1">
           <Trans>
-            <span className="shrink-0">Properties of</span>{" "}
+            <span className="shrink-0">Edit metadata:</span>{" "}
             <span className="truncate font-mono" title={displayName}>
               {displayName}
             </span>
