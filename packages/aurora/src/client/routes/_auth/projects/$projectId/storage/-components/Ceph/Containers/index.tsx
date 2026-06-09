@@ -1,5 +1,5 @@
 import { useState, startTransition } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate } from "@tanstack/react-router"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
@@ -232,6 +232,25 @@ export const CephContainers = () => {
           </Stack>
         }
       />
+
+      <div
+        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
+        data-testid="containers-info-block"
+      >
+        {searchParam.trim() ? (
+          <Plural
+            value={filteredContainers.length}
+            one={`${filteredContainers.length} of ${(buckets || []).length} bucket`}
+            other={`${filteredContainers.length} of ${(buckets || []).length} buckets`}
+          />
+        ) : (
+          <Plural
+            value={(buckets || []).length}
+            one={`${(buckets || []).length} bucket`}
+            other={`${(buckets || []).length} buckets`}
+          />
+        )}
+      </div>
 
       <ContainerTableView
         containers={sortedContainers}
