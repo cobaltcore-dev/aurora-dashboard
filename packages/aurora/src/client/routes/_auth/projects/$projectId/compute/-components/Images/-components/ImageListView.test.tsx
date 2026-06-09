@@ -93,6 +93,7 @@ const defaultProps = {
   onImageUpdated: vi.fn(),
   onImageDeleted: vi.fn(),
   onMemberStatusChanged: vi.fn(),
+  hasAnyBulkAction: true,
 }
 
 describe("ImageListView — pagination", () => {
@@ -233,5 +234,162 @@ describe("ImageListView — pagination", () => {
     // When currentPage > totalPages the next button should be disabled (last page)
     const nextButton = screen.getByRole("button", { name: /next/i })
     expect(nextButton).toBeDisabled()
+  })
+})
+
+describe("ImageListView — bulk selection", () => {
+  beforeAll(async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+  })
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("renders select-all checkbox in table header when hasAnyBulkAction is true", async () => {
+    const images = makeImages(3)
+
+    await act(async () => {
+      render(<ImageListView {...defaultProps} images={images} hasAnyBulkAction={true} />, {
+        wrapper: TestingProvider,
+      })
+    })
+
+    const checkboxes = screen.getAllByRole("checkbox")
+    // header checkbox + one per row = 4 total
+    expect(checkboxes).toHaveLength(4)
+  })
+
+  it("does not render select-all checkbox or per-row checkboxes when hasAnyBulkAction is false", async () => {
+    const images = makeImages(3)
+
+    await act(async () => {
+      render(<ImageListView {...defaultProps} images={images} hasAnyBulkAction={false} />, {
+        wrapper: TestingProvider,
+      })
+    })
+
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
+  })
+
+  it("clicking a per-row checkbox calls setSelectedImages with that image id", async () => {
+    const setSelectedImages = vi.fn()
+    const images = makeImages(3)
+
+    await act(async () => {
+      render(
+        <ImageListView
+          {...defaultProps}
+          images={images}
+          hasAnyBulkAction={true}
+          selectedImages={[]}
+          setSelectedImages={setSelectedImages}
+        />,
+        { wrapper: TestingProvider }
+      )
+    })
+
+    const checkboxes = screen.getAllByRole("checkbox")
+    // index 0 = select-all, index 1 = first row
+    await act(async () => {
+      fireEvent.click(checkboxes[1])
+    })
+
+    expect(setSelectedImages).toHaveBeenCalledWith(["image-1"])
+  })
+
+  it("clicking select-all selects all images on the page", async () => {
+    const setSelectedImages = vi.fn()
+    const images = makeImages(3)
+
+    await act(async () => {
+      render(
+        <ImageListView
+          {...defaultProps}
+          images={images}
+          hasAnyBulkAction={true}
+          selectedImages={[]}
+          setSelectedImages={setSelectedImages}
+        />,
+        { wrapper: TestingProvider }
+      )
+    })
+
+    const [selectAll] = screen.getAllByRole("checkbox")
+    await act(async () => {
+      fireEvent.click(selectAll)
+    })
+
+    expect(setSelectedImages).toHaveBeenCalledWith(expect.arrayContaining(["image-1", "image-2", "image-3"]))
+    expect(setSelectedImages.mock.calls[0][0]).toHaveLength(3)
+  })
+
+  it("clicking select-all when all are selected deselects all images", async () => {
+    const setSelectedImages = vi.fn()
+    const images = makeImages(3)
+
+    await act(async () => {
+      render(
+        <ImageListView
+          {...defaultProps}
+          images={images}
+          hasAnyBulkAction={true}
+          selectedImages={["image-1", "image-2", "image-3"]}
+          setSelectedImages={setSelectedImages}
+        />,
+        { wrapper: TestingProvider }
+      )
+    })
+
+    const [selectAll] = screen.getAllByRole("checkbox")
+    await act(async () => {
+      fireEvent.click(selectAll)
+    })
+
+    expect(setSelectedImages).toHaveBeenCalledWith([])
+  })
+})
+
+describe("ImageListView — permission-gated actions", () => {
+  beforeAll(async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+  })
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("renders the actions popup when hasAnyBulkAction is true", async () => {
+    await act(async () => {
+      render(<ImageListView {...defaultProps} images={makeImages(1)} hasAnyBulkAction={true} />, {
+        wrapper: TestingProvider,
+      })
+    })
+    // The per-row checkbox is the clearest indicator the column is present
+    expect(screen.getAllByRole("checkbox")).toHaveLength(2) // header + 1 row
+  })
+
+  it("does not render the actions column or checkboxes when hasAnyBulkAction is false", async () => {
+    await act(async () => {
+      render(<ImageListView {...defaultProps} images={makeImages(3)} hasAnyBulkAction={false} />, {
+        wrapper: TestingProvider,
+      })
+    })
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
+  })
+
+  it("still renders the table rows when hasAnyBulkAction is false", async () => {
+    const images = makeImages(3)
+    await act(async () => {
+      render(<ImageListView {...defaultProps} images={images} hasAnyBulkAction={false} />, {
+        wrapper: TestingProvider,
+      })
+    })
+    expect(screen.getByText("Image 1")).toBeInTheDocument()
+    expect(screen.getByText("Image 3")).toBeInTheDocument()
   })
 })
