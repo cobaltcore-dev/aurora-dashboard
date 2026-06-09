@@ -1,18 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { AuroraPortalContext } from "../../../context"
 import { ec2CredentialRouter } from "./ec2CredentialRouter"
 import { createCallerFactory, auroraRouter } from "../../../trpc"
+import {
+  createMockContext as createBaseMockContext,
+  TEST_PROJECT_ID,
+  TEST_USER_ID,
+  TEST_ACCESS,
+  TEST_SECRET,
+} from "./mockContext"
 
 // ============================================================================
 // MOCK DATA
 // ============================================================================
 
-const TEST_PROJECT_ID = "test-project-id"
-const TEST_USER_ID = "test-user-id"
 const TEST_CREDENTIAL_ID = "cred-abc-123"
-const TEST_ACCESS = "AKIAIOSFODNN7EXAMPLE"
-const TEST_SECRET = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 
 const mockBlob = JSON.stringify({ access: TEST_ACCESS, secret: TEST_SECRET })
 
@@ -29,54 +31,20 @@ const rawCredential = {
 // ============================================================================
 
 const createMockContext = (shouldFailAuth = false) => {
-  const mockIdentity = {
-    get: vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({ credentials: [rawCredential] }),
-    }),
-    post: vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({ credential: rawCredential }),
-    }),
-    del: vi.fn().mockResolvedValue({ ok: true, status: 204 }),
-    availableEndpoints: vi.fn().mockReturnValue([]),
-  }
+  const ctx = createBaseMockContext({ shouldFailAuth })
 
-  const mockToken = {
-    tokenData: {
-      project: { id: TEST_PROJECT_ID },
-      user: {
-        id: TEST_USER_ID,
-        domain: { id: "default", name: "Default" },
-        name: "test-user",
-        password_expires_at: "",
-      },
-      expires_at: "",
-      issued_at: "",
-      methods: [],
-      roles: [],
-    },
-  }
+  // Override mockIdentity with ec2Credential-specific methods
+  ctx.mockIdentity.get = vi.fn().mockResolvedValue({
+    ok: true,
+    json: vi.fn().mockResolvedValue({ credentials: [rawCredential] }),
+  })
+  ctx.mockIdentity.post = vi.fn().mockResolvedValue({
+    ok: true,
+    json: vi.fn().mockResolvedValue({ credential: rawCredential }),
+  })
+  ctx.mockIdentity.del = vi.fn().mockResolvedValue({ ok: true, status: 204 })
 
-  const mockOpenstack = {
-    service: vi.fn().mockReturnValue(mockIdentity),
-    getToken: vi.fn().mockReturnValue(mockToken),
-  }
-
-  return {
-    req: { headers: {} },
-    validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
-    identityEndpoint: "http://identity.example.com/",
-    imageMetadataExcludedProperties: [],
-    createSession: vi.fn(),
-    terminateSession: vi.fn(),
-    openstack: mockOpenstack,
-    rescopeSession: vi.fn().mockResolvedValue({
-      service: vi.fn().mockReturnValue(mockIdentity),
-      getToken: vi.fn().mockReturnValue(mockToken),
-    }),
-    mockIdentity,
-  } as unknown as AuroraPortalContext & { mockIdentity: typeof mockIdentity }
+  return ctx
 }
 
 const createCaller = createCallerFactory(auroraRouter({ storage: { s3: { ec2Credentials: ec2CredentialRouter } } }))
