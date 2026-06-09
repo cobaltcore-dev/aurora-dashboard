@@ -56,7 +56,7 @@ async function auroraLogin(page: Page, domain: string, username: string, passwor
   // Set up error tracking BEFORE navigation
   const errors = setupErrorTracking(page)
 
-  // Navigate to login page (root is now the login page)
+  // Navigate to login page
   await page.goto("/")
 
   // Fill in credentials

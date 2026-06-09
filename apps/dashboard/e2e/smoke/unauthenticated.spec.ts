@@ -19,7 +19,7 @@ test.describe("Unauthenticated Routes", () => {
     // Set up error tracking BEFORE navigation
     const errors = setupErrorTracking(page)
 
-    // Navigate to login page (root is now the login page)
+    // Navigate to login page
     await page.goto("/")
 
     // Wait for page to load
@@ -56,7 +56,7 @@ test.describe("Unauthenticated Routes", () => {
     // Try to access accounts page (protected route)
     await page.goto("/accounts")
 
-    // Should redirect to login (root route with redirect param)
+    // Should redirect to login
     await page.waitForURL("**/?redirect=**", { timeout: 10000 })
 
     // Verify we're on login page by checking form elements
