@@ -131,5 +131,3 @@ export const buildPermissionRouter = (policyDir?: string) => {
       }),
   }
 }
-
-export const permissionRouter = buildPermissionRouter()
