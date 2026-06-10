@@ -1,3 +1,4 @@
+import { useRef } from "react"
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -55,6 +56,8 @@ export const ImportExternallySignedCertificateModal = ({
     onClose()
   }
 
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const currentChain = useStore(form.store, (state) => state.values.imported_certificate_chain)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +67,12 @@ export const ImportExternallySignedCertificateModal = ({
     const reader = new FileReader()
     reader.onload = (event) => {
       const text = event.target?.result as string
-      form.setFieldValue("imported_certificate_chain", text)
+      if (file.name.endsWith(".json")) {
+        const parsed = JSON.parse(text)
+        form.setFieldValue("imported_certificate_chain", parsed.imported_certificate_chain ?? text)
+      } else {
+        form.setFieldValue("imported_certificate_chain", text)
+      }
     }
     reader.readAsText(file)
   }
@@ -106,13 +114,11 @@ export const ImportExternallySignedCertificateModal = ({
         >
           <FormSection>
             <div className="mb-2">
-              <label htmlFor="cert-file-upload">
-                <Button as="span">{t`Choose Certificate to Import`}</Button>
-              </label>
+              <Button onClick={() => fileInputRef.current?.click()}>{t`Choose Certificate to Import`}</Button>
               <input
-                id="cert-file-upload"
+                ref={fileInputRef}
                 type="file"
-                accept=".pem,.crt,.cer"
+                accept=".pem,.crt,.cer,.json"
                 className="sr-only"
                 onChange={handleFileChange}
               />

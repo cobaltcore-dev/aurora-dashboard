@@ -1606,6 +1606,9 @@ msgstr "Zu löschende Images:"
 msgid "Import Externally Signed Certificate"
 msgstr ""
 
+msgid "Import Signed Certificate"
+msgstr ""
+
 msgid "Importing Certificate..."
 msgstr ""
 
