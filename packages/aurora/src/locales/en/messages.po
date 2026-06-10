@@ -40,28 +40,6 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
-#. placeholder {0}: allObjects.length + allFolders.length
-#. placeholder {0}: allRows.length
-#. placeholder {1}: allObjects.length + allFolders.length
-#. placeholder {1}: allRows.length
-#. placeholder {2}: allObjects.length + allFolders.length
-#. placeholder {2}: allRows.length
-msgid "{0, plural, one {{1} item} other {{2} items}}"
-msgstr "{0, plural, one {{1} item} other {{2} items}}"
-
-#. placeholder {0}: filteredObjects.length + filteredFolders.length
-#. placeholder {0}: filteredRows.length
-#. placeholder {1}: filteredObjects.length + filteredFolders.length
-#. placeholder {1}: filteredRows.length
-#. placeholder {2}: allObjects.length + allFolders.length
-#. placeholder {2}: allRows.length
-#. placeholder {3}: filteredObjects.length + filteredFolders.length
-#. placeholder {3}: filteredRows.length
-#. placeholder {4}: allObjects.length + allFolders.length
-#. placeholder {4}: allRows.length
-msgid "{0, plural, one {{1} of {2} item} other {{3} of {4} items}}"
-msgstr "{0, plural, one {{1} of {2} item} other {{3} of {4} items}}"
-
 msgid "{bucketCount, plural, one {object} other {objects}}"
 msgstr "{bucketCount, plural, one {object} other {objects}}"
 
@@ -97,6 +75,12 @@ msgstr "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} bucke
 
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
+
+msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
+msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
+
+msgid "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
+msgstr "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 
 msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 msgstr "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."

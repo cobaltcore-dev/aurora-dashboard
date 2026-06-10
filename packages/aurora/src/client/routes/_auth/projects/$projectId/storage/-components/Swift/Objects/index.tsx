@@ -244,6 +244,8 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
 
   const allRows = buildRows((objects ?? []) as ObjectSummary[], currentPrefix)
   const filteredRows = allRows.filter((row) => row.displayName.toLowerCase().includes(searchParam.toLowerCase().trim()))
+  const totalItemCount = allRows.length
+  const filteredItemCount = filteredRows.length
   const sortedRows = !sortBy
     ? filteredRows
     : [...filteredRows].sort((a, b) => {
@@ -348,12 +350,12 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
       >
         {searchParam.trim() ? (
           <Plural
-            value={filteredRows.length}
-            one={`${filteredRows.length} of ${allRows.length} item`}
-            other={`${filteredRows.length} of ${allRows.length} items`}
+            value={totalItemCount}
+            one={`${filteredItemCount} of ${totalItemCount} item`}
+            other={`${filteredItemCount} of ${totalItemCount} items`}
           />
         ) : (
-          <Plural value={allRows.length} one={`${allRows.length} item`} other={`${allRows.length} items`} />
+          <Plural value={totalItemCount} one={`${totalItemCount} item`} other={`${totalItemCount} items`} />
         )}
       </div>
       <ObjectsTableView

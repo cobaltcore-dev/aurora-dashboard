@@ -133,6 +133,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     stripPrefix(folder.prefix).toLowerCase().includes(searchParam.toLowerCase().trim())
   )
 
+  const totalItemCount = allObjects.length + allFolders.length
+  const filteredItemCount = filteredObjects.length + filteredFolders.length
+
   // Sort
   const sortedObjects = !sortBy
     ? filteredObjects
@@ -249,16 +252,12 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       >
         {searchParam.trim() ? (
           <Plural
-            value={filteredObjects.length + filteredFolders.length}
-            one={`${filteredObjects.length + filteredFolders.length} of ${allObjects.length + allFolders.length} item`}
-            other={`${filteredObjects.length + filteredFolders.length} of ${allObjects.length + allFolders.length} items`}
+            value={totalItemCount}
+            one={`${filteredItemCount} of ${totalItemCount} item`}
+            other={`${filteredItemCount} of ${totalItemCount} items`}
           />
         ) : (
-          <Plural
-            value={allObjects.length + allFolders.length}
-            one={`${allObjects.length + allFolders.length} item`}
-            other={`${allObjects.length + allFolders.length} items`}
-          />
+          <Plural value={totalItemCount} one={`${totalItemCount} item`} other={`${totalItemCount} items`} />
         )}
       </div>
 
