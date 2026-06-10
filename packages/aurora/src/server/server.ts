@@ -7,7 +7,7 @@ import FastifyHelmet from "@fastify/helmet"
 import FastifyRateLimit from "@fastify/rate-limit"
 import FastifyMultipart, { MultipartFields, MultipartValue } from "@fastify/multipart"
 import { CreateFastifyContextOptions, FastifyTRPCPluginOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify"
-import { appRouter, AuroraRouter } from "./routers" // tRPC router
+import { buildAppRouter, AuroraRouter } from "./routers" // tRPC router
 import { createContext } from "./context"
 import path from "path"
 import { Readable } from "node:stream"
@@ -31,6 +31,8 @@ export async function createServer(config?: AuroraServerConfig): Promise<Fastify
     crossDomainCookie: config?.crossDomainCookie,
     insecureCookies: config?.insecureCookies,
   }
+
+  const appRouter = buildAppRouter(config?.policyDir)
 
   const server = Fastify({
     logger: true,

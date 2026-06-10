@@ -39,7 +39,50 @@ describe("loadPolicyEngine", () => {
     mockCreatePolicyEngineFromFile.mockReturnValue(mockPolicyEngine as any)
   })
 
-  describe("when custom policy file exists", () => {
+  describe("when consumer dir is supplied and file exists there", () => {
+    it("should load from consumer dir first", () => {
+      mockFs.existsSync.mockImplementation((p) => String(p).includes("/consumer/"))
+      const fileName = "compute.yaml"
+      const result = loadPolicyEngine(fileName, "/consumer/policies")
+
+      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
+        expect.stringContaining("/consumer/policies/compute.yaml")
+      )
+      expect(result).toBe(mockPolicyEngine)
+    })
+
+    it("should not fall through to built-in paths when consumer file exists", () => {
+      mockFs.existsSync.mockImplementation((p) => String(p).includes("/consumer/"))
+      loadPolicyEngine("compute.yaml", "/consumer/policies")
+
+      const calledWith = mockCreatePolicyEngineFromFile.mock.calls[0][0]
+      expect(calledWith).toContain("/consumer/policies/compute.yaml")
+      expect(calledWith).not.toContain("permission_policies")
+    })
+  })
+
+  describe("when consumer dir is supplied but file is absent", () => {
+    it("should fall through to custom_policies and then built-in", () => {
+      // Only the permission_custom_policies path exists
+      mockFs.existsSync.mockImplementation((p) => String(p).includes("permission_custom_policies"))
+      loadPolicyEngine("compute.yaml", "/consumer/policies")
+
+      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
+        expect.stringContaining("permission_custom_policies/compute.yaml")
+      )
+    })
+
+    it("should fall through to built-in when neither consumer nor custom_policies have the file", () => {
+      mockFs.existsSync.mockReturnValue(false)
+      loadPolicyEngine("compute.yaml", "/consumer/policies")
+
+      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
+        expect.stringContaining("permission_policies/compute.yaml")
+      )
+    })
+  })
+
+  describe("when custom policy file exists (no consumer dir)", () => {
     beforeEach(() => {
       mockFs.existsSync.mockReturnValue(true)
     })

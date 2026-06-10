@@ -3,16 +3,27 @@ import fs from "fs"
 import { createPolicyEngineFromFile } from "@cobaltcore-dev/policy-engine"
 
 /**
- * Load a policy engine, preferring a same-named file from permission_custom_policies
- * and falling back to permission_policies when no override exists.
+ * Load a policy engine for the given file name.
  *
- * @param fileName Policy file name to resolve and load.
+ * Resolution order (first match wins):
+ *   1. `consumerDir/<fileName>` – caller-supplied override directory
+ *   2. `permission_custom_policies/<fileName>` – legacy in-tree override directory
+ *   3. `permission_policies/<fileName>` – built-in bundled policies
+ *
+ * @param fileName    Policy file name to resolve and load (e.g. "compute.yaml").
+ * @param consumerDir Optional absolute path to a consumer-supplied policy directory.
  * @returns Policy engine instance created from the resolved policy file.
  */
-export const loadPolicyEngine = (fileName: string) => {
-  const customPath = path.join(__dirname, `../../permission_custom_policies/${fileName}`)
-  const defaultPath = path.join(__dirname, `../../permission_policies/${fileName}`)
+export const loadPolicyEngine = (fileName: string, consumerDir?: string) => {
+  const candidates: string[] = []
 
-  const file = fs.existsSync(customPath) ? customPath : defaultPath
+  if (consumerDir) {
+    candidates.push(path.join(consumerDir, fileName))
+  }
+
+  candidates.push(path.join(__dirname, `../../permission_custom_policies/${fileName}`))
+  candidates.push(path.join(__dirname, `../../permission_policies/${fileName}`))
+
+  const file = candidates.find((p) => fs.existsSync(p)) ?? candidates[candidates.length - 1]
   return createPolicyEngineFromFile(file)
 }
