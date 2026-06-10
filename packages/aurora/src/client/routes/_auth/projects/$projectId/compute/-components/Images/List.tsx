@@ -316,7 +316,7 @@ function ImagesContent({
               />
               <PopupMenu>
                 <PopupMenuToggle as="div">
-                  <Button size="xs" icon="moreVert" label={t`Actions`} />
+                  <Button size="small" icon="moreVert" label={t`Actions`} />
                 </PopupMenuToggle>
                 <PopupMenuOptions>
                   {permissions.canDelete && (
