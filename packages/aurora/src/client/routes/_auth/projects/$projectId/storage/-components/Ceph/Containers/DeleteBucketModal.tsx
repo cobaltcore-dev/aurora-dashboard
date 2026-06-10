@@ -123,7 +123,9 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
         ) : undefined
       }
       size="small"
-      disableConfirmButton={deleteBucketMutation.isPending || isLoadingObjects || confirmName.trim() !== bucket.name}
+      disableConfirmButton={
+        deleteBucketMutation.isPending || isLoadingObjects || !!objectsError || confirmName.trim() !== bucket.name
+      }
     >
       <Stack direction="vertical" gap="6">
         {objectsError && (
