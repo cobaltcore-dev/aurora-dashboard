@@ -1,20 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import fs from "fs"
 import path from "path"
-import { loadPolicyEngine } from "./policyEngineLoader" // adjust path as needed
+import { loadPolicyEngine } from "./policyEngineLoader"
 import { createPolicyEngineFromFile } from "@cobaltcore-dev/policy-engine"
 
-// Mock the dependencies
 vi.mock("fs", () => ({
-  default: {
-    existsSync: vi.fn(),
-  },
+  default: { existsSync: vi.fn() },
   existsSync: vi.fn(),
 }))
 vi.mock("path", () => ({
-  default: {
-    join: vi.fn(),
-  },
+  default: { join: vi.fn() },
   join: vi.fn(),
 }))
 vi.mock("@cobaltcore-dev/policy-engine")
@@ -28,13 +23,7 @@ describe("loadPolicyEngine", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-
-    // Setup more realistic path.join behavior that matches Node.js behavior
-    mockPath.join.mockImplementation((...args) => {
-      return args.join("/").replace(/\/+/g, "/") // normalize multiple slashes
-    })
-
-    // Setup default createPolicyEngineFromFile behavior
+    mockPath.join.mockImplementation((...args) => args.join("/").replace(/\/+/g, "/"))
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockCreatePolicyEngineFromFile.mockReturnValue(mockPolicyEngine as any)
   })
@@ -42,8 +31,7 @@ describe("loadPolicyEngine", () => {
   describe("when consumer dir is supplied and file exists there", () => {
     it("should load from consumer dir first", () => {
       mockFs.existsSync.mockImplementation((p) => String(p).includes("/consumer/"))
-      const fileName = "compute.yaml"
-      const result = loadPolicyEngine(fileName, "/consumer/policies")
+      const result = loadPolicyEngine("compute.yaml", "/consumer/policies")
 
       expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
         expect.stringContaining("/consumer/policies/compute.yaml")
@@ -51,19 +39,18 @@ describe("loadPolicyEngine", () => {
       expect(result).toBe(mockPolicyEngine)
     })
 
-    it("should not fall through to built-in paths when consumer file exists", () => {
+    it("should not fall through to custom_policies when consumer file exists", () => {
       mockFs.existsSync.mockImplementation((p) => String(p).includes("/consumer/"))
       loadPolicyEngine("compute.yaml", "/consumer/policies")
 
       const calledWith = mockCreatePolicyEngineFromFile.mock.calls[0][0]
       expect(calledWith).toContain("/consumer/policies/compute.yaml")
-      expect(calledWith).not.toContain("permission_policies")
+      expect(calledWith).not.toContain("permission_custom_policies")
     })
   })
 
   describe("when consumer dir is supplied but file is absent", () => {
-    it("should fall through to custom_policies and then built-in", () => {
-      // Only the permission_custom_policies path exists
+    it("should fall through to permission_custom_policies when it exists", () => {
       mockFs.existsSync.mockImplementation((p) => String(p).includes("permission_custom_policies"))
       loadPolicyEngine("compute.yaml", "/consumer/policies")
 
@@ -72,275 +59,86 @@ describe("loadPolicyEngine", () => {
       )
     })
 
-    it("should fall through to built-in when neither consumer nor custom_policies have the file", () => {
+    it("should throw when no candidate exists", () => {
       mockFs.existsSync.mockReturnValue(false)
-      loadPolicyEngine("compute.yaml", "/consumer/policies")
 
-      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining("permission_policies/compute.yaml")
+      expect(() => loadPolicyEngine("compute.yaml", "/consumer/policies")).toThrow(
+        'Policy file "compute.yaml" not found'
       )
     })
   })
 
-  describe("when custom policy file exists (no consumer dir)", () => {
-    beforeEach(() => {
+  describe("when no consumer dir is supplied", () => {
+    it("should load from permission_custom_policies when it exists", () => {
       mockFs.existsSync.mockReturnValue(true)
-    })
-
-    it("should load from custom policies folder", () => {
-      const fileName = "test-policy.yaml"
-      const result = loadPolicyEngine(fileName)
+      const result = loadPolicyEngine("test-policy.yaml")
 
       expect(mockFs.existsSync).toHaveBeenCalledWith(
-        expect.stringContaining("../../permission_custom_policies/test-policy.yaml")
+        expect.stringContaining("permission_custom_policies/test-policy.yaml")
       )
       expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining("../../permission_custom_policies/test-policy.yaml")
+        expect.stringContaining("permission_custom_policies/test-policy.yaml")
       )
       expect(result).toBe(mockPolicyEngine)
     })
 
-    it("should use correct path for custom policy", () => {
-      const fileName = "custom-rules.json"
-      loadPolicyEngine(fileName)
-
-      expect(mockPath.join).toHaveBeenCalledWith(
-        expect.any(String), // __dirname
-        `../../permission_custom_policies/${fileName}`
-      )
-    })
-
-    it("should handle different file extensions", () => {
-      const testCases = ["policy.yaml", "rules.json", "config.yml", "permissions.txt"]
-
-      testCases.forEach((fileName) => {
-        mockCreatePolicyEngineFromFile.mockClear() // Clear between iterations
-        loadPolicyEngine(fileName)
-        expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-          expect.stringContaining(`../../permission_custom_policies/${fileName}`)
-        )
-      })
-    })
-  })
-
-  describe("when custom policy file does not exist", () => {
-    beforeEach(() => {
+    it("should throw when permission_custom_policies file does not exist", () => {
       mockFs.existsSync.mockReturnValue(false)
+
+      expect(() => loadPolicyEngine("test-policy.yaml")).toThrow('Policy file "test-policy.yaml" not found')
     })
 
-    it("should load from default policies folder", () => {
-      const fileName = "default-policy.yaml"
-      const result = loadPolicyEngine(fileName)
+    it("should include searched paths in the error message", () => {
+      mockFs.existsSync.mockReturnValue(false)
 
-      expect(mockFs.existsSync).toHaveBeenCalledWith(
-        expect.stringContaining("../../permission_custom_policies/default-policy.yaml")
-      )
-      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining("../../permission_policies/default-policy.yaml")
-      )
-      expect(result).toBe(mockPolicyEngine)
-    })
-
-    it("should use correct path for default policy", () => {
-      const fileName = "standard-rules.json"
-      loadPolicyEngine(fileName)
-
-      // Should check custom first
-      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), `../../permission_custom_policies/${fileName}`)
-
-      // Then use default
-      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), `../../permission_policies/${fileName}`)
-    })
-
-    it("should handle different file extensions for default policies", () => {
-      const testCases = ["policy.yaml", "rules.json", "config.yml", "permissions.txt"]
-
-      testCases.forEach((fileName) => {
-        mockCreatePolicyEngineFromFile.mockClear() // Clear between iterations
-        loadPolicyEngine(fileName)
-        expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-          expect.stringContaining(`permission_policies/${fileName}`)
-        )
-      })
+      expect(() => loadPolicyEngine("compute.yaml", "/my/dir")).toThrow("policyDir option")
     })
   })
 
   describe("path construction", () => {
-    it("should construct paths relative to __dirname", () => {
-      mockFs.existsSync.mockReturnValue(false)
-      const fileName = "test.yaml"
-
-      loadPolicyEngine(fileName)
-
-      expect(mockPath.join).toHaveBeenCalledWith(
-        expect.any(String), // __dirname
-        "../../permission_custom_policies/test.yaml"
-      )
-      expect(mockPath.join).toHaveBeenCalledWith(
-        expect.any(String), // __dirname
-        "../../permission_policies/test.yaml"
-      )
-    })
-
-    it("should handle filenames with special characters", () => {
-      mockFs.existsSync.mockReturnValue(false)
-      const fileName = "policy-with-dashes_and_underscores.yaml"
-
-      loadPolicyEngine(fileName)
-
-      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining(`permission_policies/${fileName}`)
-      )
-    })
-
-    it("should handle filenames with no extension", () => {
+    it("should check consumerDir before permission_custom_policies", () => {
       mockFs.existsSync.mockReturnValue(true)
-      const fileName = "policy"
+      loadPolicyEngine("test.yaml", "/consumer/dir")
 
-      loadPolicyEngine(fileName)
-
-      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining(`permission_custom_policies/${fileName}`)
-      )
-    })
-  })
-
-  describe("error handling", () => {
-    it("should propagate errors from createPolicyEngineFromFile", () => {
-      mockFs.existsSync.mockReturnValue(false)
-      const error = new Error("Failed to create policy engine")
-      mockCreatePolicyEngineFromFile.mockImplementation(() => {
-        throw error
-      })
-
-      expect(() => loadPolicyEngine("test.yaml")).toThrow("Failed to create policy engine")
-    })
-
-    it("should propagate errors from fs.existsSync", () => {
-      const error = new Error("Permission denied")
-      mockFs.existsSync.mockImplementation(() => {
-        throw error
-      })
-
-      expect(() => loadPolicyEngine("test.yaml")).toThrow("Permission denied")
-    })
-  })
-
-  describe("call order and behavior", () => {
-    it("should always check custom policies first", () => {
-      mockFs.existsSync.mockReturnValue(false)
-
-      loadPolicyEngine("test.yaml")
-
-      // Verify existsSync was called before createPolicyEngineFromFile
-      expect(mockFs.existsSync).toHaveBeenCalledBefore(mockCreatePolicyEngineFromFile)
+      const calls = mockPath.join.mock.calls.map((c) => c.join("/"))
+      const consumerIdx = calls.findIndex((c) => c.includes("/consumer/dir"))
+      const customIdx = calls.findIndex((c) => c.includes("permission_custom_policies"))
+      expect(consumerIdx).toBeLessThan(customIdx)
     })
 
     it("should only call createPolicyEngineFromFile once", () => {
       mockFs.existsSync.mockReturnValue(true)
-
       loadPolicyEngine("test.yaml")
 
       expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledTimes(1)
     })
 
     it("should return the result from createPolicyEngineFromFile", () => {
-      mockFs.existsSync.mockReturnValue(false)
+      mockFs.existsSync.mockReturnValue(true)
       const mockEngine = { custom: "engine", rules: [] }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockCreatePolicyEngineFromFile.mockReturnValue(mockEngine as any)
 
-      const result = loadPolicyEngine("test.yaml")
-
-      expect(result).toBe(mockEngine)
+      expect(loadPolicyEngine("test.yaml")).toBe(mockEngine)
     })
   })
 
-  describe("integration scenarios", () => {
-    it("should handle the complete flow for custom policy", () => {
+  describe("error handling", () => {
+    it("should propagate errors from createPolicyEngineFromFile", () => {
       mockFs.existsSync.mockReturnValue(true)
-      const fileName = "admin-policy.yaml"
+      mockCreatePolicyEngineFromFile.mockImplementation(() => {
+        throw new Error("Failed to create policy engine")
+      })
 
-      const result = loadPolicyEngine(fileName)
-
-      // Check that existsSync was called with the custom path
-      expect(mockFs.existsSync).toHaveBeenCalledWith(expect.stringContaining(`permission_custom_policies/${fileName}`))
-
-      // Check that createPolicyEngineFromFile was called with the custom path
-      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining(`permission_custom_policies/${fileName}`)
-      )
-
-      expect(result).toBe(mockPolicyEngine)
+      expect(() => loadPolicyEngine("test.yaml")).toThrow("Failed to create policy engine")
     })
 
-    it("should handle the complete flow for default policy", () => {
-      mockFs.existsSync.mockReturnValue(false)
-      const fileName = "admin-policy.yaml"
+    it("should propagate errors from fs.existsSync", () => {
+      mockFs.existsSync.mockImplementation(() => {
+        throw new Error("Permission denied")
+      })
 
-      const result = loadPolicyEngine(fileName)
-
-      // Check that existsSync was called with the custom path first
-      expect(mockFs.existsSync).toHaveBeenCalledWith(expect.stringContaining(`permission_custom_policies/${fileName}`))
-
-      // Check that createPolicyEngineFromFile was called with the default path
-      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining(`permission_policies/${fileName}`)
-      )
-
-      expect(result).toBe(mockPolicyEngine)
-    })
-
-    it("should use exact paths when mocked specifically", () => {
-      const fileName = "test-policy.yaml"
-      const customPath = "/mocked/custom/path"
-      const defaultPath = "/mocked/default/path"
-
-      // Mock specific return values for path.join
-      mockPath.join
-        .mockReturnValueOnce(customPath) // for custom path check
-        .mockReturnValueOnce(defaultPath) // for default path
-
-      mockFs.existsSync.mockReturnValue(false) // custom doesn't exist
-
-      loadPolicyEngine(fileName)
-
-      expect(mockFs.existsSync).toHaveBeenCalledWith(customPath)
-      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(defaultPath)
-    })
-  })
-
-  describe("edge cases", () => {
-    it("should handle empty filename", () => {
-      mockFs.existsSync.mockReturnValue(false)
-      const fileName = ""
-
-      loadPolicyEngine(fileName)
-
-      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), "../../permission_custom_policies/")
-      expect(mockPath.join).toHaveBeenCalledWith(expect.any(String), "../../permission_policies/")
-    })
-
-    it("should handle filename with only extension", () => {
-      mockFs.existsSync.mockReturnValue(true)
-      const fileName = ".yaml"
-
-      loadPolicyEngine(fileName)
-
-      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining("permission_custom_policies/.yaml")
-      )
-    })
-
-    it("should handle filename with path separators", () => {
-      mockFs.existsSync.mockReturnValue(false)
-      const fileName = "subfolder/policy.yaml"
-
-      loadPolicyEngine(fileName)
-
-      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining(`permission_policies/${fileName}`)
-      )
+      expect(() => loadPolicyEngine("test.yaml")).toThrow("Permission denied")
     })
   })
 })

@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { createCallerFactory, router } from "../../trpc"
 import { AuroraPortalContext } from "../../context"
+
+vi.mock("@/server/policyEngineLoader", () => ({
+  loadPolicyEngine: vi.fn(() => ({
+    policy: vi.fn(() => ({ check: vi.fn(() => true) })),
+  })),
+}))
+
 import { permissionRouter } from "./permissionRouter"
 
 const createCaller = createCallerFactory(router(permissionRouter))
