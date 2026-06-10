@@ -102,7 +102,7 @@ export const projectRouter = {
 
     const [response, domainsResponse] = await Promise.all([
       callIdentityAPI(ctx.identityEndpoint, token.authToken, "auth/projects"),
-      callIdentityAPI(ctx.identityEndpoint, token.authToken, "auth/domains"),
+      callIdentityAPI(ctx.identityEndpoint, token.authToken, "auth/domains").catch(() => null),
     ])
 
     const data = await response.json()
@@ -113,7 +113,7 @@ export const projectRouter = {
       return undefined
     }
 
-    const domainsData = await domainsResponse.json()
+    const domainsData = domainsResponse ? await domainsResponse.json().catch(() => null) : null
     const domainMap = new Map<string, string>(
       (domainsData?.domains ?? []).map((d: { id: string; name: string }) => [d.id, d.name])
     )

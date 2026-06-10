@@ -37,8 +37,8 @@ const projectsPayload = {
 
 const domainsPayload = {
   domains: [
-    { id: "d1", name: "monsoon3" },
-    { id: "d2", name: "prod" },
+    { id: "d1", name: "domain-alpha" },
+    { id: "d2", name: "domain-beta" },
   ],
 }
 
@@ -55,8 +55,8 @@ describe("projectRouter.getAuthProjects", () => {
     const caller = createCaller(makeCtx())
     const result = await caller.getAuthProjects()
 
-    expect(result?.find((p) => p.id === "p1")?.domain_name).toBe("monsoon3")
-    expect(result?.find((p) => p.id === "p2")?.domain_name).toBe("prod")
+    expect(result?.find((p) => p.id === "p1")?.domain_name).toBe("domain-alpha")
+    expect(result?.find((p) => p.id === "p2")?.domain_name).toBe("domain-beta")
   })
 
   it("leaves domain_name undefined when domain_id has no match", async () => {
@@ -73,5 +73,17 @@ describe("projectRouter.getAuthProjects", () => {
   it("throws UNAUTHORIZED when no openstack session", async () => {
     const caller = createCaller(makeCtx({ openstack: undefined }))
     await expect(caller.getAuthProjects()).rejects.toBeInstanceOf(TRPCError)
+  })
+
+  it("still returns projects with empty domain map when domains fetch fails", async () => {
+    mockFetch
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(projectsPayload) } as Response)
+      .mockRejectedValueOnce(new Error("network error"))
+
+    const caller = createCaller(makeCtx())
+    const result = await caller.getAuthProjects()
+
+    expect(result).toHaveLength(3)
+    expect(result?.every((p) => p.domain_name === undefined)).toBe(true)
   })
 })
