@@ -82,8 +82,13 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images"
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
     const { projectId } = params
-    const availableServices = await trpcClient?.auth.getAvailableServices.query()
-    const serviceIndex = getServiceIndex(availableServices!)
+
+    if (!trpcClient) {
+      throw new Error("trpcClient is not available in route context")
+    }
+
+    const availableServices = await trpcClient.auth.getAvailableServices.query()
+    const serviceIndex = getServiceIndex(availableServices)
 
     if (!serviceIndex["image"]?.["glance"]) {
       throw redirect({
