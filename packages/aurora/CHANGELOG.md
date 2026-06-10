@@ -1,5 +1,11 @@
 # @cobaltcore-dev/aurora
 
+## 0.3.1
+
+### Patch Changes
+
+- a046b17: Image tabs are now in the action bar.
+
 ## 0.3.0
 
 ### Minor Changes
