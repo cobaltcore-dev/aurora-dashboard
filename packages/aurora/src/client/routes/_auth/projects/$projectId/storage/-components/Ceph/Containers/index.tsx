@@ -213,6 +213,8 @@ export const CephContainers = () => {
   const selectedContainerSummaries = (buckets || []).filter((c) => selectedContainers.includes(c.name))
   const hasSelection = selectedContainerSummaries.length > 0
   const selectedCount = selectedContainerSummaries.length
+  const totalCount = (buckets || []).length
+  const filteredCount = filteredContainers.length
 
   return (
     <div className="relative">
@@ -239,16 +241,12 @@ export const CephContainers = () => {
       >
         {searchParam.trim() ? (
           <Plural
-            value={filteredContainers.length}
-            one={`${filteredContainers.length} of ${(buckets || []).length} bucket`}
-            other={`${filteredContainers.length} of ${(buckets || []).length} buckets`}
+            value={totalCount}
+            one={`${filteredCount} of ${totalCount} bucket`}
+            other={`${filteredCount} of ${totalCount} buckets`}
           />
         ) : (
-          <Plural
-            value={(buckets || []).length}
-            one={`${(buckets || []).length} bucket`}
-            other={`${(buckets || []).length} buckets`}
-          />
+          <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
         )}
       </div>
 

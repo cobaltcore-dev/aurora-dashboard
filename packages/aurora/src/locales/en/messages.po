@@ -40,12 +40,6 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
-#. placeholder {0}: (buckets || []).length
-#. placeholder {1}: (buckets || []).length
-#. placeholder {2}: (buckets || []).length
-msgid "{0, plural, one {{1} bucket} other {{2} buckets}}"
-msgstr "{0, plural, one {{1} bucket} other {{2} buckets}}"
-
 #. placeholder {0}: allObjects.length + allFolders.length
 #. placeholder {0}: allRows.length
 #. placeholder {1}: allObjects.length + allFolders.length
@@ -54,14 +48,6 @@ msgstr "{0, plural, one {{1} bucket} other {{2} buckets}}"
 #. placeholder {2}: allRows.length
 msgid "{0, plural, one {{1} item} other {{2} items}}"
 msgstr "{0, plural, one {{1} item} other {{2} items}}"
-
-#. placeholder {0}: filteredContainers.length
-#. placeholder {1}: filteredContainers.length
-#. placeholder {2}: (buckets || []).length
-#. placeholder {3}: filteredContainers.length
-#. placeholder {4}: (buckets || []).length
-msgid "{0, plural, one {{1} of {2} bucket} other {{3} of {4} buckets}}"
-msgstr "{0, plural, one {{1} of {2} bucket} other {{3} of {4} buckets}}"
 
 #. placeholder {0}: filteredObjects.length + filteredFolders.length
 #. placeholder {0}: filteredRows.length
@@ -102,6 +88,12 @@ msgstr "{numberDeleted} objects were permanently deleted."
 
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
+
+msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
+msgstr "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
+
+msgid "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} buckets}}"
+msgstr "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} buckets}}"
 
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
