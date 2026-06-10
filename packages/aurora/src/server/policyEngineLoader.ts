@@ -17,6 +17,9 @@ export const loadPolicyEngine = (fileName: string, consumerDir?: string) => {
   const candidates: string[] = []
 
   if (consumerDir) {
+    if (!path.isAbsolute(consumerDir)) {
+      throw new Error(`policyDir must be an absolute path, got: "${consumerDir}"`)
+    }
     candidates.push(path.join(consumerDir, fileName))
   }
 

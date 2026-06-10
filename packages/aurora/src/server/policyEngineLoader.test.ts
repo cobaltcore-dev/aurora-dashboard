@@ -9,8 +9,9 @@ vi.mock("fs", () => ({
   existsSync: vi.fn(),
 }))
 vi.mock("path", () => ({
-  default: { join: vi.fn() },
+  default: { join: vi.fn(), isAbsolute: vi.fn() },
   join: vi.fn(),
+  isAbsolute: vi.fn(),
 }))
 vi.mock("@cobaltcore-dev/policy-engine")
 
@@ -24,6 +25,7 @@ describe("loadPolicyEngine", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockPath.join.mockImplementation((...args) => args.join("/").replace(/\/+/g, "/"))
+    mockPath.isAbsolute.mockReturnValue(true)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockCreatePolicyEngineFromFile.mockReturnValue(mockPolicyEngine as any)
   })
@@ -124,6 +126,11 @@ describe("loadPolicyEngine", () => {
   })
 
   describe("error handling", () => {
+    it("should throw when consumerDir is a relative path", () => {
+      mockPath.isAbsolute.mockReturnValue(false)
+      expect(() => loadPolicyEngine("compute.yaml", "./relative/path")).toThrow("policyDir must be an absolute path")
+    })
+
     it("should propagate errors from createPolicyEngineFromFile", () => {
       mockFs.existsSync.mockReturnValue(true)
       mockCreatePolicyEngineFromFile.mockImplementation(() => {
