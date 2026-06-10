@@ -48,7 +48,7 @@ Ceph RGW exposes an S3-compatible API that uses AWS Signature v4 for authenticat
 ## Files Structure
 
 ```
-apps/aurora-portal/src/server/Storage/
+packages/aurora/src/server/Storage/
 ├── cephProcedure.ts              # Base procedures & middleware
 ├── middleware/
 │   └── resolveEC2Credential.ts   # Credential resolution logic
@@ -56,13 +56,21 @@ apps/aurora-portal/src/server/Storage/
 │   └── s3Client.ts               # S3Client factory
 ├── routers/
 │   ├── index.ts                  # Router exports
-│   ├── ec2CredentialRouter.ts    # Credential CRUD operations
-│   ├── containerRouter.ts        # Bucket operations
-│   └── objectRouter.ts           # Object operations
+│   ├── ceph/
+│   │   ├── ec2CredentialRouter.ts    # Credential CRUD operations
+│   │   ├── containerRouter.ts        # Bucket operations
+│   │   ├── objectRouter.ts           # Object operations
+│   │   └── versioningRouter.ts       # Versioning operations
 ├── helpers/
 │   └── s3ErrorMapper.ts          # S3 → tRPC error mapping
 └── types/
-    └── ceph.ts                   # Zod schemas & TypeScript types
+    ├── ceph.ts                   # Zod schemas & TypeScript types
+    └── versioning.ts             # Versioning schemas & types
+├── helpers/
+│   └── s3ErrorMapper.ts          # S3 → tRPC error mapping
+└── types/
+    ├── ceph.ts                   # Zod schemas & TypeScript types
+    └── versioning.ts             # Versioning schemas & types
 ```
 
 ## Authentication Flow
@@ -150,14 +158,21 @@ storage.ceph
   │   ├── create()      → { success: boolean }
   │   ├── delete()      → { success: boolean }
   │   └── empty()       → { success: boolean, deletedCount: number }
-  └── objects
-      ├── list()            → { objects, folders, isTruncated, nextContinuationToken }
-      ├── getDetails()      → S3ObjectDetails
-      ├── delete()          → { success: boolean }
-      ├── createFolder()    → { success: boolean }
-      ├── copy()            → { success: boolean, etag?: string }
-      ├── move()            → { success: boolean, etag?: string }
-      └── updateMetadata()  → { success: boolean }
+  ├── objects
+  │   ├── list()            → { objects, folders, isTruncated, nextContinuationToken }
+  │   ├── getDetails()      → S3ObjectDetails
+  │   ├── delete()          → { success: boolean }
+  │   ├── createFolder()    → { success: boolean }
+  │   ├── copy()            → { success: boolean, etag?: string }
+  │   ├── move()            → { success: boolean, etag?: string }
+  │   └── updateMetadata()  → { success: boolean }
+  └── versioning
+      ├── getStatus()         → { status: 'Enabled' | 'Suspended' | 'Unversioned' }
+      ├── setStatus()         → { success: boolean }
+      ├── listVersions()      → { versions, deleteMarkers, isTruncated, nextKeyMarker?, nextVersionIdMarker? }
+      ├── listObjectVersions() → ObjectVersion[]
+      ├── deleteVersion()     → { success: boolean }
+      └── restoreVersion()    → { success: boolean, versionId: string }
 ```
 
 ## Available Procedures
@@ -839,6 +854,389 @@ await trpc.storage.ceph.objects.updateMetadata.mutate({
 
 ---
 
+### Versioning (`storage.ceph.versioning`)
+
+Bucket versioning allows keeping multiple variants of objects in the same bucket, enabling recovery from accidental deletions and overwrites.
+
+#### `getStatus`
+
+Gets the current versioning status for a bucket.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucket: string
+}
+```
+
+**Output:**
+
+```typescript
+VersioningStatus
+
+interface VersioningStatus {
+  status: "Enabled" | "Suspended" | "Unversioned"
+  mfaDelete?: "Enabled" | "Disabled"
+}
+```
+
+**Example:**
+
+```typescript
+const status = await trpc.storage.ceph.versioning.getStatus.query({
+  project_id: "abc123",
+  bucket: "my-bucket",
+})
+
+console.log(status)
+// { status: "Enabled" }
+```
+
+**States:**
+
+- `Unversioned` — Versioning has never been enabled (default state)
+- `Enabled` — All new objects receive unique version IDs
+- `Suspended` — Stops creating new versions, existing versions preserved
+
+---
+
+#### `setStatus`
+
+Enables or suspends versioning on a bucket.
+
+**Important:** Once enabled, versioning cannot be fully disabled (only suspended).
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucket: string,
+  status: 'Enabled' | 'Suspended'
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+}
+```
+
+**Example:**
+
+```typescript
+// Enable versioning
+await trpc.storage.ceph.versioning.setStatus.mutate({
+  project_id: "abc123",
+  bucket: "my-bucket",
+  status: "Enabled",
+})
+
+// Suspend versioning (keeps existing versions)
+await trpc.storage.ceph.versioning.setStatus.mutate({
+  project_id: "abc123",
+  bucket: "my-bucket",
+  status: "Suspended",
+})
+```
+
+---
+
+#### `listVersions`
+
+Lists all versions of objects in a bucket. Returns both regular versions and delete markers. Supports pagination.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucket: string,
+  prefix?: string,              // Filter by prefix
+  keyMarker?: string,           // For pagination
+  versionIdMarker?: string,     // For pagination
+  maxKeys?: number              // Max results (default: 100, max: 1000)
+}
+```
+
+**Output:**
+
+```typescript
+ListVersionsOutput
+
+interface ListVersionsOutput {
+  versions: ObjectVersion[]
+  deleteMarkers: ObjectVersion[]
+  isTruncated: boolean
+  nextKeyMarker?: string
+  nextVersionIdMarker?: string
+  prefix?: string
+  maxKeys?: number
+}
+
+interface ObjectVersion {
+  key: string
+  versionId: string
+  isLatest: boolean
+  lastModified?: string // ISO date string
+  size: number
+  storageClass?: string
+  owner?: { displayName?: string; id?: string }
+  etag?: string
+  isDeleteMarker: boolean
+}
+  owner?: { displayName?: string; id?: string }
+  etag?: string
+  isDeleteMarker: boolean
+}
+```
+
+**Example:**
+
+```typescript
+// First page
+const result = await trpc.storage.ceph.versioning.listVersions.query({
+  project_id: "abc123",
+  bucket: "my-bucket",
+  maxKeys: 100,
+})
+
+console.log(`Found ${result.versions.length} versions`)
+console.log(`Found ${result.deleteMarkers.length} delete markers`)
+
+// Next page (if truncated)
+if (result.isTruncated) {
+  const nextPage = await trpc.storage.ceph.versioning.listVersions.query({
+    project_id: "abc123",
+    bucket: "my-bucket",
+    keyMarker: result.nextKeyMarker,
+    versionIdMarker: result.nextVersionIdMarker,
+  })
+}
+```
+
+---
+
+#### `listObjectVersions`
+
+Lists all versions for a specific object key. Returns versions sorted by date descending (newest first).
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucket: string,
+  key: string
+}
+```
+
+**Output:**
+
+```typescript
+ObjectVersion[] // Sorted newest first
+```
+
+**Example:**
+
+```typescript
+const versions = await trpc.storage.ceph.versioning.listObjectVersions.query({
+  project_id: "abc123",
+  bucket: "my-bucket",
+  key: "documents/report.pdf",
+})
+
+versions.forEach((v) => {
+  console.log(`Version ${v.versionId}:`)
+  console.log(`  Latest: ${v.isLatest}`)
+  console.log(`  Size: ${v.size} bytes`)
+  console.log(`  Modified: ${v.lastModified}`)
+  console.log(`  Delete marker: ${v.isDeleteMarker}`)
+})
+```
+
+---
+
+#### `deleteVersion`
+
+Permanently deletes a specific version of an object.
+
+**WARNING:** This operation is irreversible. The version will be permanently removed.
+
+**Use cases:**
+
+- Removing a delete marker to "undelete" an object
+- Permanently removing old versions to save space
+- Compliance requirements (data retention policies)
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucket: string,
+  key: string,
+  versionId: string
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+}
+```
+
+**Example:**
+
+```typescript
+// Delete a specific version
+await trpc.storage.ceph.versioning.deleteVersion.mutate({
+  project_id: "abc123",
+  bucket: "my-bucket",
+  key: "documents/report.pdf",
+  versionId: "version-123",
+})
+
+// Remove a delete marker to "undelete"
+await trpc.storage.ceph.versioning.deleteVersion.mutate({
+  project_id: "abc123",
+  bucket: "my-bucket",
+  key: "documents/deleted.pdf",
+  versionId: "delete-marker-456",
+})
+```
+
+---
+
+#### `restoreVersion`
+
+Restores a previous version by copying it to become the new latest version.
+
+**How it works:**
+
+1. Copies the old version to the same key
+2. Creates a new latest version with the old version's content
+3. All versions are preserved (including the old and new versions)
+
+**Note:** S3 doesn't have a native "promote version" operation. This is the standard approach for version restoration.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucket: string,
+  key: string,
+  versionId: string  // The version to restore
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+  versionId: string // The new version ID created by the restore
+}
+```
+
+**Example:**
+
+```typescript
+// Restore an old version
+const result = await trpc.storage.ceph.versioning.restoreVersion.mutate({
+  project_id: "abc123",
+  bucket: "my-bucket",
+  key: "documents/report.pdf",
+  versionId: "old-version-123",
+})
+
+console.log(`Restored! New version ID: ${result.versionId}`)
+```
+
+---
+
+### Versioning Concepts
+
+#### Delete Markers
+
+When an object is deleted in a versioned bucket, S3 creates a **delete marker** (a special version) instead of permanently removing the object. This is a "soft delete."
+
+- Delete markers have `isDeleteMarker: true` and `size: 0`
+- The object appears deleted when listing objects
+- All previous versions remain accessible
+- To "undelete," delete the delete marker using `deleteVersion`
+
+**Example: Soft Delete and Restore**
+
+```typescript
+// 1. Enable versioning
+await trpc.storage.ceph.versioning.setStatus.mutate({
+  project_id: "abc123",
+  bucket: "my-bucket",
+  status: "Enabled",
+})
+
+// 2. Upload an object (creates version v1)
+// ...upload logic...
+
+// 3. Delete the object (creates delete marker)
+await trpc.storage.ceph.objects.delete.mutate({
+  project_id: "abc123",
+  containerName: "my-bucket",
+  objectKey: "important-file.txt",
+})
+
+// 4. Object appears deleted in listings
+const { objects } = await trpc.storage.ceph.objects.list.query({
+  project_id: "abc123",
+  containerName: "my-bucket",
+})
+// important-file.txt not in list
+
+// 5. List versions shows delete marker
+const versions = await trpc.storage.ceph.versioning.listObjectVersions.query({
+  project_id: "abc123",
+  bucket: "my-bucket",
+  key: "important-file.txt",
+})
+// [{ versionId: "dm-123", isDeleteMarker: true, isLatest: true }, { versionId: "v1", isDeleteMarker: false, isLatest: false }]
+
+// 6. Restore by deleting the delete marker
+await trpc.storage.ceph.versioning.deleteVersion.mutate({
+  project_id: "abc123",
+  bucket: "my-bucket",
+  key: "important-file.txt",
+  versionId: "dm-123", // Delete marker version ID
+})
+
+// 7. Object reappears in listings
+// important-file.txt is back!
+```
+
+#### Version Lifecycle
+
+```
+Unversioned Bucket:
+  Upload object.txt     → object.txt (overwrites if exists)
+  Delete object.txt     → object.txt gone forever
+
+Versioned Bucket:
+  Upload object.txt     → object.txt (version v1)
+  Upload object.txt     → object.txt (version v2, v1 preserved)
+  Upload object.txt     → object.txt (version v3, v1+v2 preserved)
+  Delete object.txt     → Delete marker (v1+v2+v3 preserved)
+  Delete delete marker  → object.txt back (version v3 is latest)
+```
+
+---
+
 ## Error Handling
 
 ### S3 Error Mapper
@@ -847,24 +1245,27 @@ The `mapS3ErrorToTRPCError` helper maps AWS SDK S3 error codes to tRPC error cod
 
 #### Mapped Error Codes
 
-| S3 Error Code             | tRPC Code             | Description                    |
-| ------------------------- | --------------------- | ------------------------------ |
-| `NoSuchBucket`            | `NOT_FOUND`           | Bucket does not exist          |
-| `NoSuchKey`               | `NOT_FOUND`           | Object does not exist          |
-| `NoSuchUpload`            | `NOT_FOUND`           | Multipart upload ID not found  |
-| `BucketAlreadyExists`     | `CONFLICT`            | Bucket name already taken      |
-| `BucketAlreadyOwnedByYou` | `CONFLICT`            | Bucket already owned by you    |
-| `BucketNotEmpty`          | `PRECONDITION_FAILED` | Cannot delete non-empty bucket |
-| `AccessDenied`            | `FORBIDDEN`           | Insufficient permissions       |
-| `AllAccessDisabled`       | `FORBIDDEN`           | All access disabled            |
-| `InvalidAccessKeyId`      | `UNAUTHORIZED`        | Invalid access key             |
-| `SignatureDoesNotMatch`   | `UNAUTHORIZED`        | Invalid secret key             |
-| `TokenRefreshRequired`    | `UNAUTHORIZED`        | Token expired                  |
-| `RequestTimeTooSkewed`    | `UNAUTHORIZED`        | Clock skew too large           |
-| `InvalidBucketName`       | `BAD_REQUEST`         | Invalid bucket name format     |
-| `KeyTooLongError`         | `BAD_REQUEST`         | Object key too long            |
-| `EntityTooLarge`          | `PAYLOAD_TOO_LARGE`   | Object exceeds max size        |
-| `EntityTooSmall`          | `BAD_REQUEST`         | Object below minimum size      |
+| S3 Error Code             | tRPC Code             | Description                        |
+| ------------------------- | --------------------- | ---------------------------------- |
+| `NoSuchBucket`            | `NOT_FOUND`           | Bucket does not exist              |
+| `NoSuchKey`               | `NOT_FOUND`           | Object does not exist              |
+| `NoSuchUpload`            | `NOT_FOUND`           | Multipart upload ID not found      |
+| `NoSuchVersion`           | `NOT_FOUND`           | Object version does not exist      |
+| `BucketAlreadyExists`     | `CONFLICT`            | Bucket name already taken          |
+| `BucketAlreadyOwnedByYou` | `CONFLICT`            | Bucket already owned by you        |
+| `BucketNotEmpty`          | `PRECONDITION_FAILED` | Cannot delete non-empty bucket     |
+| `InvalidBucketState`      | `BAD_REQUEST`         | Invalid bucket state for operation |
+| `VersioningNotEnabled`    | `PRECONDITION_FAILED` | Versioning not enabled on bucket   |
+| `AccessDenied`            | `FORBIDDEN`           | Insufficient permissions           |
+| `AllAccessDisabled`       | `FORBIDDEN`           | All access disabled                |
+| `InvalidAccessKeyId`      | `UNAUTHORIZED`        | Invalid access key                 |
+| `SignatureDoesNotMatch`   | `UNAUTHORIZED`        | Invalid secret key                 |
+| `TokenRefreshRequired`    | `UNAUTHORIZED`        | Token expired                      |
+| `RequestTimeTooSkewed`    | `UNAUTHORIZED`        | Clock skew too large               |
+| `InvalidBucketName`       | `BAD_REQUEST`         | Invalid bucket name format         |
+| `KeyTooLongError`         | `BAD_REQUEST`         | Object key too long                |
+| `EntityTooLarge`          | `PAYLOAD_TOO_LARGE`   | Object exceeds max size            |
+| `EntityTooSmall`          | `BAD_REQUEST`         | Object below minimum size          |
 
 Unmapped error codes are logged and returned as `INTERNAL_SERVER_ERROR`.
 
@@ -1180,7 +1581,7 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
    - Use `@aws-sdk/s3-request-presigner`
 
 5. **Advanced Features**
-   - Bucket versioning
+   - ~~Bucket versioning~~ ✅ Implemented
    - Object locking
    - Server-side encryption (SSE-S3, SSE-C)
    - Object tagging

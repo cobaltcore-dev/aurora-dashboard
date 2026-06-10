@@ -2047,9 +2047,6 @@ msgstr "Kein Projekt ausgewählt"
 msgid "No projects available."
 msgstr "Keine Projekte verfügbar."
 
-msgid "No projects found"
-msgstr "Keine Projekte gefunden"
-
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
@@ -2490,6 +2487,12 @@ msgstr "Metadata speichern"
 
 msgid "Saving..."
 msgstr "Wird gespeichert..."
+
+msgid "Search flavors..."
+msgstr "Flavors suchen..."
+
+msgid "Search images..."
+msgstr "Images suchen..."
 
 msgid "Search..."
 msgstr "Suchen..."

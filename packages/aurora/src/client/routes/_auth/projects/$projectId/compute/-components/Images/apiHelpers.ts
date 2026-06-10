@@ -1,4 +1,5 @@
 import { TrpcClient } from "@/client/trpcClient"
+import { TRPCClientError } from "@trpc/client"
 
 type ImageFilters = {
   status?: string
@@ -7,6 +8,14 @@ type ImageFilters = {
   container_format?: string
   protected?: string
   member_status?: "pending" | "accepted" | "rejected" | "all"
+}
+
+const emptyResult = {
+  images: [],
+  first: undefined,
+  next: undefined,
+  schema: "/v2/schemas/images",
+  listError: undefined as string | undefined,
 }
 
 export const createImagesPromise = (
@@ -29,21 +38,30 @@ export const createImagesPromise = (
         protected: filters.protected,
         sort: `${sortBy}:${sortDirection}`,
       })
-      .then((images) => ({
-        images,
-        first: undefined,
-        next: undefined,
-        schema: "/v2/schemas/images",
-      }))
+      .then((images) => ({ ...emptyResult, images }))
+      .catch((err: unknown) => {
+        if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
+          return { ...emptyResult, listError: err.message }
+        }
+        throw err
+      })
   }
 
-  return client.compute.listImagesWithPagination.query({
-    project_id: project,
-    sort: `${sortBy}:${sortDirection}`,
-    name: searchTerm || undefined,
-    ...filters,
-    member_status: undefined,
-  })
+  return client.compute.listImagesWithSearch
+    .query({
+      project_id: project,
+      sort: `${sortBy}:${sortDirection}`,
+      name: searchTerm || undefined,
+      ...filters,
+      member_status: undefined,
+    })
+    .then((res) => ({ ...res, listError: undefined }))
+    .catch((err: unknown) => {
+      if (err instanceof TRPCClientError && err.data?.code === "FORBIDDEN") {
+        return { ...emptyResult, listError: err.message }
+      }
+      throw err
+    })
 }
 
 export const createPermissionsPromise = (client: TrpcClient, project: string) => {

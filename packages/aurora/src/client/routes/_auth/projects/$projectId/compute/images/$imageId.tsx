@@ -70,7 +70,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/
     // Redirect to the "Projects Overview" page if none of compute services available
     if (!serviceIndex["image"] && !serviceIndex["compute"]) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }
@@ -78,7 +78,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/
     if (!serviceIndex["image"]["glance"]) {
       // Redirect to the "Compute Services Overview" page if the "Glance" service is not available
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId: params.projectId },
       })
     }

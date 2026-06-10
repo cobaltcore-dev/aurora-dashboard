@@ -91,6 +91,7 @@ interface ImagePageProps {
   onImageUpdated: (image: GlanceImage) => void
   onImageDeleted: (imageIds: string | string[]) => void
   onMemberStatusChanged: () => void
+  hasAnyBulkAction: boolean
 }
 
 export function ImageListView({
@@ -120,6 +121,7 @@ export function ImageListView({
   onImageUpdated,
   onImageDeleted,
   onMemberStatusChanged,
+  hasAnyBulkAction,
 }: ImagePageProps) {
   const projectId = useProjectId()
   const [toastData, setToastData] = useState<ToastProps | null>(null)
@@ -586,25 +588,32 @@ export function ImageListView({
         {/* Images Table */}
         {images.length > 0 ? (
           <>
-            <DataGrid columns={9} minContentColumns={[0, 8]} className="images" data-testid="images-table">
+            <DataGrid
+              columns={hasAnyBulkAction ? 9 : 8}
+              minContentColumns={hasAnyBulkAction ? [0, 8] : [7]}
+              className="images"
+              data-testid="images-table"
+            >
               {/* Table Header */}
               <DataGridRow>
-                <DataGridHeadCell>
-                  <Checkbox
-                    checked={(() => {
-                      const currentPageIds = images.map((image) => image.id)
-                      return currentPageIds.length > 0 && currentPageIds.every((id) => selectedImages.includes(id))
-                    })()}
-                    onChange={() => {
-                      const currentPageIds = images.map((image) => image.id)
-                      const allSelected = currentPageIds.every((id) => selectedImages.includes(id))
-                      if (allSelected) {
-                        return setSelectedImages(selectedImages.filter((id) => !currentPageIds.includes(id)))
-                      }
-                      return setSelectedImages([...new Set([...selectedImages, ...currentPageIds])])
-                    }}
-                  />
-                </DataGridHeadCell>
+                {hasAnyBulkAction && (
+                  <DataGridHeadCell>
+                    <Checkbox
+                      checked={(() => {
+                        const currentPageIds = images.map((image) => image.id)
+                        return currentPageIds.length > 0 && currentPageIds.every((id) => selectedImages.includes(id))
+                      })()}
+                      onChange={() => {
+                        const currentPageIds = images.map((image) => image.id)
+                        const allSelected = currentPageIds.every((id) => selectedImages.includes(id))
+                        if (allSelected) {
+                          return setSelectedImages(selectedImages.filter((id) => !currentPageIds.includes(id)))
+                        }
+                        return setSelectedImages([...new Set([...selectedImages, ...currentPageIds])])
+                      }}
+                    />
+                  </DataGridHeadCell>
+                )}
                 <DataGridHeadCell>
                   <Trans>Status</Trans>
                 </DataGridHeadCell>
@@ -642,6 +651,7 @@ export function ImageListView({
                   onEditMetadata={openEditMetadataModal}
                   onDelete={openDeleteModal}
                   onManageAccess={openManageAccessModal}
+                  showSelectColumn={hasAnyBulkAction}
                   onSelect={(image: GlanceImage) => {
                     const isImageSelected = selectedImages.includes(image.id)
 

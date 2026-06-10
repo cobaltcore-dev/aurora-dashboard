@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams } from "./urlHelpers"
+import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "./urlHelpers"
 import type { SelectedFilter, Filter } from "@/client/components/ListToolbar/types"
 
 describe("parseFiltersFromUrl", () => {
@@ -326,5 +326,65 @@ describe("buildUrlSearchParams", () => {
         sortDirection: undefined,
       })
     })
+  })
+})
+
+const multiFilter: Filter = {
+  filterName: "status",
+  displayName: "Status",
+  values: ["active", "deactivated"],
+  supportsMultiValue: true,
+}
+const singleFilter: Filter = {
+  filterName: "visibility",
+  displayName: "Visibility",
+  values: ["public", "private"],
+  supportsMultiValue: false,
+}
+const filterDefs: Filter[] = [multiFilter, singleFilter]
+
+describe("applyFilterSelection", () => {
+  it("appends a new multi-value filter entry", () => {
+    const current: SelectedFilter[] = [{ name: "status", value: "active" }]
+    const result = applyFilterSelection(current, { name: "status", value: "deactivated" }, filterDefs)
+    expect(result).toEqual([
+      { name: "status", value: "active" },
+      { name: "status", value: "deactivated" },
+    ])
+  })
+
+  it("ignores a duplicate multi-value entry (same name + value)", () => {
+    const current: SelectedFilter[] = [{ name: "status", value: "active" }]
+    const result = applyFilterSelection(current, { name: "status", value: "active" }, filterDefs)
+    expect(result).toBe(current) // same reference — nothing changed
+  })
+
+  it("replaces an existing single-value filter with a new value", () => {
+    const current: SelectedFilter[] = [{ name: "visibility", value: "public" }]
+    const result = applyFilterSelection(current, { name: "visibility", value: "private" }, filterDefs)
+    expect(result).toEqual([{ name: "visibility", value: "private" }])
+  })
+
+  it("does not duplicate a single-value filter when the same value is re-selected", () => {
+    const current: SelectedFilter[] = [{ name: "visibility", value: "public" }]
+    const result = applyFilterSelection(current, { name: "visibility", value: "public" }, filterDefs)
+    expect(result).toBe(current)
+  })
+
+  it("adds a single-value filter when none is currently selected", () => {
+    const result = applyFilterSelection([], { name: "visibility", value: "public" }, filterDefs)
+    expect(result).toEqual([{ name: "visibility", value: "public" }])
+  })
+
+  it("replaces a single-value filter without touching unrelated filters", () => {
+    const current: SelectedFilter[] = [
+      { name: "status", value: "active" },
+      { name: "visibility", value: "public" },
+    ]
+    const result = applyFilterSelection(current, { name: "visibility", value: "private" }, filterDefs)
+    expect(result).toEqual([
+      { name: "status", value: "active" },
+      { name: "visibility", value: "private" },
+    ])
   })
 })

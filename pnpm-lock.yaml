@@ -131,12 +131,6 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.1042.0
         version: 3.1042.0
-      '@cobaltcore-dev/policy-engine':
-        specifier: workspace:*
-        version: link:../policy-engine
-      '@cobaltcore-dev/signal-openstack':
-        specifier: workspace:*
-        version: link:../signal-openstack
       '@fastify/cookie':
         specifier: ^11.0.2
         version: 11.0.2
@@ -226,11 +220,17 @@ importers:
         version: 4.3.6
     devDependencies:
       '@cloudoperators/juno-ui-components':
-        specifier: 6.5.0
-        version: 6.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: 7.0.0
+        version: 7.0.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../config
+      '@cobaltcore-dev/policy-engine':
+        specifier: workspace:*
+        version: link:../policy-engine
+      '@cobaltcore-dev/signal-openstack':
+        specifier: workspace:*
+        version: link:../signal-openstack
       '@fastify/vite':
         specifier: ^8.4.1
         version: 8.4.1(fastify@5.8.5)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
@@ -749,8 +749,8 @@ packages:
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
 
-  '@cloudoperators/juno-ui-components@6.5.0':
-    resolution: {integrity: sha512-gWpQPioXMD/EWhpsLsH6thTeWDJqmss4jxqj7mmxc0Y6eKVVBdBddBdQy7dTH1MFVPgqEr9LyMnXkMtoKkv6NQ==}
+  '@cloudoperators/juno-ui-components@7.0.0':
+    resolution: {integrity: sha512-yJ1v9t0HdBQI78xkFJtzP4akdaWl3tgAaW00LhGxT8w79QQfVPHWdzDwG9mLVWsrVfx/0/wDzqHknp+0EX+igw==}
     engines: {node: '>=20.19.0', pnpm: '>=8.0.0'}
     peerDependencies:
       react: ^19.1.0
@@ -6574,7 +6574,7 @@ snapshots:
       human-id: 4.1.3
       prettier: 2.8.8
 
-  '@cloudoperators/juno-ui-components@6.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@cloudoperators/juno-ui-components@7.0.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
