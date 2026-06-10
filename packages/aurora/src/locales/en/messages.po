@@ -457,6 +457,9 @@ msgstr "Checking if object exists..."
 msgid "Checksum"
 msgstr "Checksum"
 
+msgid "Choose Certificate to Import"
+msgstr "Choose Certificate to Import"
+
 msgid "CIDR"
 msgstr "CIDR"
 
@@ -1600,6 +1603,12 @@ msgstr "Images to deactivate:"
 msgid "Images to delete:"
 msgstr "Images to delete:"
 
+msgid "Import Externally Signed Certificate"
+msgstr "Import Externally Signed Certificate"
+
+msgid "Importing Certificate..."
+msgstr "Importing Certificate..."
+
 msgid "Inactivity Timeout"
 msgstr "Inactivity Timeout"
 
@@ -2196,6 +2205,9 @@ msgstr "Password"
 
 msgid "Paste CSR code"
 msgstr "Paste CSR code"
+
+msgid "Paste the code"
+msgstr "Paste the code"
 
 msgid "PCA"
 msgstr "PCA"

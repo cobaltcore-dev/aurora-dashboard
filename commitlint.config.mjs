@@ -18,6 +18,7 @@ export const scopes = [
   "build",
   "config",
   "ci",
+  "clavis",
   "core",
   "dashboard",
   "gardener",

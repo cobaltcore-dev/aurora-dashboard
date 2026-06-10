@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { useForm } from "@tanstack/react-form"
+import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, Spinner, TextInput, Message } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
@@ -58,6 +58,9 @@ export const CreatePcaModal = ({ open, onClose }: CreateCaModalProps) => {
     onClose()
   }
 
+  // creates a reactive subscription so the component re-renders, which allows the confirm button to enable once the user types "common name".
+  const canCreate = useStore(form.store, (state) => state.isSubmitting || state.values.common_name.trim().length === 0)
+
   return (
     <Modal
       open={open}
@@ -67,7 +70,7 @@ export const CreatePcaModal = ({ open, onClose }: CreateCaModalProps) => {
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isPending}
+      disableConfirmButton={isPending || canCreate}
     >
       {createPcaMutation.error?.message && (
         <Message dismissible={false} variant="error" className="mb-4">
