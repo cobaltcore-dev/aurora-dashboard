@@ -210,11 +210,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   if (isLoading && !continuationToken) {
     return (
-      <Stack direction="horizontal" gap="2" alignment="center" className="mt-8">
-        <Spinner />
-        <span className="text-juno-grey-light-1 text-sm">
-          <Trans>Loading objects...</Trans>
-        </span>
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
+        <Spinner variant="primary" size="large" className="mb-2" />
+        <Trans>Loading objects...</Trans>
       </Stack>
     )
   }
@@ -222,9 +220,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   if (error) {
     const errorMessage = error.message
     return (
-      <p className="text-juno-red mt-4 text-sm">
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
         <Trans>Failed to load objects: {errorMessage}</Trans>
-      </p>
+      </Stack>
     )
   }
 

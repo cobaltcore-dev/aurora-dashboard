@@ -294,7 +294,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
 
   if (isLoading) {
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
         <Trans>Loading Objects...</Trans>
       </Stack>
@@ -304,7 +304,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   if (error) {
     const errorMessage = error.message
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
         <Trans>Error Loading Objects: {errorMessage}</Trans>
       </Stack>
     )
