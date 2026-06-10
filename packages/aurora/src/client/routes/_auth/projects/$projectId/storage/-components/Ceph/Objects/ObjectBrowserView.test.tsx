@@ -150,6 +150,14 @@ vi.mock("@/client/trpcClient", () => {
 describe("ObjectBrowserView", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Restore default return value so any test that calls mockReturnValue doesn't
+    // leak into subsequent tests (clearAllMocks resets calls but not implementations)
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: mockObjectsData,
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
   })
 
   it("renders bucket navigation", () => {
@@ -254,6 +262,12 @@ describe("ObjectBrowserView", () => {
 describe("ObjectBrowserView - Loading state", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: mockObjectsData,
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
   })
 
   it("shows loading spinner when data is loading", () => {
@@ -273,6 +287,12 @@ describe("ObjectBrowserView - Loading state", () => {
 describe("ObjectBrowserView - Error state", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: mockObjectsData,
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
   })
 
   it("shows error message when fetch fails", () => {
@@ -294,6 +314,12 @@ describe("ObjectBrowserView - Error state", () => {
 describe("ObjectBrowserView - Empty state", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: mockObjectsData,
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
   })
 
   it("shows empty state when no objects or folders", () => {
