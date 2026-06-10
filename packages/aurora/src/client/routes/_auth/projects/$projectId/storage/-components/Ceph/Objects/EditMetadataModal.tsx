@@ -314,14 +314,14 @@ export const EditMetadataModal = ({
           <Trans>Loading object properties...</Trans>
         </Stack>
       ) : isMetaError ? (
-        <p className="text-theme-error">
+        <p className="text-theme-error" role="alert">
           <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
         </p>
       ) : (
         <Stack direction="vertical" gap="6">
           {/* Mutation error */}
           {updateMutation.isError && (
-            <p className="text-theme-error">
+            <p className="text-theme-error" role="alert">
               <Trans>Failed to update object: {mutationErrorMessage}</Trans>
             </p>
           )}
@@ -373,7 +373,7 @@ export const EditMetadataModal = ({
             </Stack>
 
             {isSizeExceeded && (
-              <p className="text-theme-default mb-3">
+              <p className="text-theme-default mb-3" role="alert">
                 <Trans>Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving.</Trans>
               </p>
             )}
