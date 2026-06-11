@@ -85,14 +85,24 @@ describe("CreatePcaModal", () => {
     expect(mockInvalidate).toHaveBeenCalledTimes(1)
   })
 
-  it("does not submit when common name is empty", async () => {
+  it("disables save button when common name is empty", async () => {
+    renderModal()
+
+    const saveButton = screen.getByRole("button", { name: "Save" })
+    expect(saveButton).toBeDisabled()
+  })
+
+  it("enables save button when common name is filled", async () => {
     const user = userEvent.setup()
 
     renderModal()
-    await user.click(screen.getByRole("button", { name: "Save" }))
 
+    const commonNameInput = screen.getByLabelText("Common name")
+    await user.type(commonNameInput, "demo-ca.test.sci")
+
+    const saveButton = screen.getByRole("button", { name: "Save" })
     await waitFor(() => {
-      expect(mockMutateAsync).not.toHaveBeenCalled()
+      expect(saveButton).not.toBeDisabled()
     })
   })
 })

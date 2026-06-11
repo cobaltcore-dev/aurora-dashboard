@@ -17,7 +17,7 @@ import { DeletePcaModal } from "../../-components/-modals/DeletePcaModal"
 import { STATE_CONFIG } from "../../-components/-table/constants"
 import { PcaCertificatesListContainer } from "./PcaCertificatesListContainer"
 import { IssueSelfSignedCertificateModal } from "./-modals/IssueSelfSignedCertificateModal"
-// import { ImportExternallySignedCertificateModal } from "./ImportExternallySignedCertificateModal"
+import { ImportExternallySignedCertificateModal } from "./-modals/ImportExternallySignedCertificateModal"
 
 interface PcaDetailsViewProps {
   pca: CertificateAuthority
@@ -28,8 +28,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   const navigate = useNavigate()
   const projectId = useProjectId()
   const [issueSelfSignedModalOpen, toggleIssueSelfSignedModal] = useModal(false)
-  // I will enable this modal on import-certificate task of the EPIC
-  // const [importExternallySignedModalOpen, toggleImportExternallySignedModal] = useModal(false)
+  const [importExternallySignedModalOpen, toggleImportExternallySignedModal] = useModal(false)
   const [deletePcaModalOpen, toggleDeletePcaModal] = useModal(false)
 
   const navigateToPcaList = () =>
@@ -89,9 +88,9 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
               <Button onClick={toggleIssueSelfSignedModal}>
                 <Trans>Issue Self-Signed Certificate</Trans>
               </Button>
-              {/* <Button onClick={toggleImportExternallySignedModal}>
+              <Button onClick={toggleImportExternallySignedModal}>
                 <Trans>Import Signed Certificate</Trans>
-              </Button> */}
+              </Button>
             </Stack>
           </Stack>
         )}
@@ -128,13 +127,13 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         </Stack>
       </Stack>
 
-      {/* {importExternallySignedModalOpen && (
+      {importExternallySignedModalOpen && (
         <ImportExternallySignedCertificateModal
           pcaId={pca.id}
           open={importExternallySignedModalOpen}
           onClose={toggleImportExternallySignedModal}
         />
-      )} */}
+      )}
 
       {issueSelfSignedModalOpen && (
         <IssueSelfSignedCertificateModal

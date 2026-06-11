@@ -38,6 +38,11 @@ vi.mock("./-modals/IssueSelfSignedCertificateModal", () => ({
   IssueSelfSignedCertificateModal: ({ open }: { open: boolean }) => (open ? <div>Issue Self Signed Modal</div> : null),
 }))
 
+vi.mock("./-modals/ImportExternallySignedCertificateModal", () => ({
+  ImportExternallySignedCertificateModal: ({ open }: { open: boolean }) =>
+    open ? <div>Import Externally Signed Modal</div> : null,
+}))
+
 describe("PcaDetailsView", () => {
   const basePca: CertificateAuthority = {
     id: "ca-1",
@@ -97,6 +102,17 @@ describe("PcaDetailsView", () => {
     await user.click(screen.getByRole("button", { name: "Issue Self-Signed Certificate" }))
     expect(screen.getByText("Issue Self Signed Modal")).toBeInTheDocument()
     expect(screen.getByText("Certificates list for ca-1 (AWAITING_CERTIFICATE)")).toBeInTheDocument()
+  })
+
+  it("opens import externally signed certificate modal for AWAITING_CERTIFICATE state", async () => {
+    const user = userEvent.setup()
+    renderView({
+      ...basePca,
+      state: "AWAITING_CERTIFICATE",
+    })
+
+    await user.click(screen.getByRole("button", { name: "Import Signed Certificate" }))
+    expect(screen.getByText("Import Externally Signed Modal")).toBeInTheDocument()
   })
 
   it("opens delete modal from details page", async () => {
