@@ -18,6 +18,7 @@ export const baseProjectSchema = z.object({
 })
 
 export const projectSchema = baseProjectSchema.extend({
+  domain_name: z.string().optional(),
   parents: z
     .array(
       z.object({
