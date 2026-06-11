@@ -1,5 +1,5 @@
 import { useState, startTransition } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate } from "@tanstack/react-router"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
@@ -237,6 +237,8 @@ export const CephContainers = () => {
   const selectedContainerSummaries = (buckets || []).filter((c) => selectedContainers.includes(c.name))
   const hasSelection = selectedContainerSummaries.length > 0
   const selectedCount = selectedContainerSummaries.length
+  const totalCount = (buckets || []).length
+  const filteredCount = filteredContainers.length
 
   return (
     <div className="relative">
@@ -256,6 +258,21 @@ export const CephContainers = () => {
           </Stack>
         }
       />
+
+      <div
+        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
+        data-testid="containers-info-block"
+      >
+        {searchParam.trim() ? (
+          <Plural
+            value={totalCount}
+            one={`${filteredCount} of ${totalCount} bucket`}
+            other={`${filteredCount} of ${totalCount} buckets`}
+          />
+        ) : (
+          <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
+        )}
+      </div>
 
       <ContainerTableView
         containers={sortedContainers}

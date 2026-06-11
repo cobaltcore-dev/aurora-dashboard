@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Message, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { Container } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -80,6 +80,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}
+      confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
       onConfirm={handleConfirm}
       disableConfirmButton={isPending}
@@ -100,12 +101,12 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          <Message variant="warning">
+          <p className="text-theme-default">
             <Trans>
               This will permanently delete all objects from {totalCount} selected{" "}
               <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
             </Trans>
-          </Message>
+          </p>
 
           <div>
             <p className="text-theme-light mb-2 text-sm">

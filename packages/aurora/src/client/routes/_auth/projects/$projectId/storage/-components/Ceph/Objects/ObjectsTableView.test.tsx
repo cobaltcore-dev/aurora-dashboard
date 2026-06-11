@@ -13,6 +13,21 @@ const render = (ui: React.ReactElement) => {
   })
 }
 
+vi.mock("@tanstack/react-virtual", () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, i) => ({
+        index: i,
+        start: i * 48,
+        size: 48,
+        key: i,
+        measureElement: vi.fn(),
+      })),
+    getTotalSize: () => count * 48,
+    measureElement: vi.fn(),
+  }),
+}))
+
 vi.mock("./DeleteObjectModal", () => ({
   DeleteObjectModal: () => <div data-testid="delete-modal">Delete Modal</div>,
 }))
@@ -77,13 +92,16 @@ describe("ObjectsTableView", () => {
     it("should render folders before objects", () => {
       render(<ObjectsTableView {...defaultProps} />)
 
-      const rows = screen.getAllByRole("row")
-      // Header + 2 folders + 2 objects = 5 rows
-      expect(rows).toHaveLength(5)
-
-      // Folders should come first (rows 1 and 2 after header)
-      expect(rows[1]).toHaveTextContent("documents")
-      expect(rows[2]).toHaveTextContent("images")
+      // Folders rendered with their testids
+      expect(screen.getByTestId("folder-row-documents/")).toBeInTheDocument()
+      expect(screen.getByTestId("folder-row-images/")).toBeInTheDocument()
+      // Objects rendered after
+      expect(screen.getByTestId("object-row-file1.txt")).toBeInTheDocument()
+      expect(screen.getByTestId("object-row-file2.pdf")).toBeInTheDocument()
+      // Folders precede objects in the DOM
+      const folderRow = screen.getByTestId("folder-row-documents/")
+      const objectRow = screen.getByTestId("object-row-file1.txt")
+      expect(folderRow.compareDocumentPosition(objectRow)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     })
 
     it("should render folders with folder icon", () => {
@@ -183,18 +201,17 @@ describe("ObjectsTableView", () => {
     it("should render action menu for objects", () => {
       render(<ObjectsTableView {...defaultProps} />)
 
-      // PopupMenu should be present for each object
-      const rows = screen.getAllByRole("row")
-      // Should have menu buttons for objects (not folders in this simplified check)
-      expect(rows.length).toBeGreaterThan(2) // Header + items
+      // Each object row is rendered
+      expect(screen.getByTestId("object-row-file1.txt")).toBeInTheDocument()
+      expect(screen.getByTestId("object-row-file2.pdf")).toBeInTheDocument()
     })
 
     it("should render action menu for folders (delete only)", () => {
       render(<ObjectsTableView {...defaultProps} />)
 
-      // Folders should also have action menu (simplified check)
-      const rows = screen.getAllByRole("row")
-      expect(rows.length).toBe(5) // Header + 2 folders + 2 objects
+      // Each folder row is rendered
+      expect(screen.getByTestId("folder-row-documents/")).toBeInTheDocument()
+      expect(screen.getByTestId("folder-row-images/")).toBeInTheDocument()
     })
   })
 

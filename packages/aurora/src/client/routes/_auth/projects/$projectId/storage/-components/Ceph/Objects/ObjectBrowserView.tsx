@@ -1,5 +1,5 @@
 import { useState, useEffect, startTransition } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { Spinner, Stack, Button, Toast, ToastProps, Badge } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -149,6 +149,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     stripPrefix(folder.prefix).toLowerCase().includes(searchParam.toLowerCase().trim())
   )
 
+  const totalItemCount = allObjects.length + allFolders.length
+  const filteredItemCount = filteredObjects.length + filteredFolders.length
+
   // Sort
   const sortedObjects = !sortBy
     ? filteredObjects
@@ -223,11 +226,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   if (isLoading && !continuationToken) {
     return (
-      <Stack direction="horizontal" gap="2" alignment="center" className="mt-8">
-        <Spinner />
-        <span className="text-juno-grey-light-1 text-sm">
-          <Trans>Loading objects...</Trans>
-        </span>
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
+        <Spinner variant="primary" size="large" className="mb-2" />
+        <Trans>Loading objects...</Trans>
       </Stack>
     )
   }
@@ -235,9 +236,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   if (error) {
     const errorMessage = error.message
     return (
-      <p className="text-juno-red mt-4 text-sm">
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
         <Trans>Failed to load objects: {errorMessage}</Trans>
-      </p>
+      </Stack>
     )
   }
 
@@ -286,6 +287,21 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           </Stack>
         }
       />
+
+      <div
+        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
+        data-testid="objects-info-block"
+      >
+        {searchParam.trim() ? (
+          <Plural
+            value={totalItemCount}
+            one={`${filteredItemCount} of ${totalItemCount} item`}
+            other={`${filteredItemCount} of ${totalItemCount} items`}
+          />
+        ) : (
+          <Plural value={totalItemCount} one={`${totalItemCount} item`} other={`${totalItemCount} items`} />
+        )}
+      </div>
 
       <ObjectsTableView
         bucketName={bucketName}

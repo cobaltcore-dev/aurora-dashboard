@@ -40,15 +40,6 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
-msgid "{allContainersCount} bucket"
-msgstr "{allContainersCount} bucket"
-
-msgid "{allContainersCount} buckets"
-msgstr "{allContainersCount} buckets"
-
-msgid "{allCount} items"
-msgstr "{allCount} items"
-
 msgid "{bucketCount, plural, one {object} other {objects}}"
 msgstr "{bucketCount, plural, one {object} other {objects}}"
 
@@ -76,14 +67,26 @@ msgstr "{numberDeleted} objects were permanently deleted."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
+msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
+msgstr "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
+
+msgid "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} buckets}}"
+msgstr "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} buckets}}"
+
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
+
+msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
+msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
+
+msgid "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
+msgstr "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 
 msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 msgstr "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 
-msgid "<0>Edit metadata: </0> <1>{displayName}</1>"
-msgstr "<0>Edit metadata: </0> <1>{displayName}</1>"
+msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
+msgstr "<0>Edit metadata:</0> <1>{displayName}</1>"
 
 msgid "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
 msgstr "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
@@ -102,9 +105,6 @@ msgstr "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora 
 
 msgid "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
 msgstr "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
-
-msgid "<0>Properties of</0> <1>{displayName}</1>"
-msgstr "<0>Properties of</0> <1>{displayName}</1>"
 
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
@@ -1527,9 +1527,6 @@ msgstr "Generating..."
 
 msgid "Get Involved"
 msgstr "Get Involved"
-
-msgid "Got it!"
-msgstr "Got it!"
 
 msgid "Grant access to a user from a different project."
 msgstr "Grant access to a user from a different project."
