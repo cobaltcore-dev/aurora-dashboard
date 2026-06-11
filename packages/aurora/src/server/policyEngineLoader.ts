@@ -13,17 +13,15 @@ import { createPolicyEngineFromFile } from "@cobaltcore-dev/policy-engine"
  * @param consumerDir Absolute path to the consumer-supplied policy directory.
  * @returns Policy engine instance created from the resolved policy file.
  */
-export const loadPolicyEngine = (fileName: string, consumerDir?: string) => {
-  const candidates: string[] = []
-
-  if (consumerDir) {
-    if (!path.isAbsolute(consumerDir)) {
-      throw new Error(`policyDir must be an absolute path, got: "${consumerDir}"`)
-    }
-    candidates.push(path.join(consumerDir, fileName))
+export const loadPolicyEngine = (fileName: string, consumerDir: string) => {
+  if (!path.isAbsolute(consumerDir)) {
+    throw new Error(`policyDir must be an absolute path, got: "${consumerDir}"`)
   }
 
-  candidates.push(path.join(__dirname, `../../permission_custom_policies/${fileName}`))
+  const candidates = [
+    path.join(consumerDir, fileName),
+    path.join(__dirname, `../../permission_custom_policies/${fileName}`),
+  ]
 
   const file = candidates.find((p) => fs.existsSync(p))
 

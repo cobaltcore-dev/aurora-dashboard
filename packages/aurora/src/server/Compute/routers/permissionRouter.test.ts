@@ -10,7 +10,7 @@ vi.mock("@/server/policyEngineLoader", () => ({
 
 import { buildPermissionRouter } from "./permissionRouter"
 
-const createCaller = createCallerFactory(router(buildPermissionRouter()))
+const createCaller = createCallerFactory(router(buildPermissionRouter("/mock/policies")))
 type CanUserInput = Parameters<ReturnType<typeof createCaller>["canUser"]>[0]
 type PermissionKey = Extract<CanUserInput["permission"], string>
 type PermissionList = Extract<CanUserInput["permission"], PermissionKey[]>

@@ -6,7 +6,7 @@ import { networkRouters } from "./Network/routers"
 import { serviceRouters } from "./Services/routers"
 import { auroraRouter, mergeRouters } from "./trpc"
 
-export const buildAppRouter = (policyDir?: string) =>
+export const buildAppRouter = (policyDir: string) =>
   mergeRouters(
     auroraRouter(authRouters),
     auroraRouter(buildComputeRouters(policyDir)),

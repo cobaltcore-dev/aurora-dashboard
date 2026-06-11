@@ -6,7 +6,7 @@ import { flavorRouter } from "./flavorRouter"
 import { buildPermissionRouter } from "./permissionRouter"
 import { auroraRouter } from "../../trpc"
 
-export const buildComputeRouters = (policyDir?: string) => ({
+export const buildComputeRouters = (policyDir: string) => ({
   compute: auroraRouter({
     ...serverRouter,
     ...flavorRouter,

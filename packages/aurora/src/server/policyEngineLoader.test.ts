@@ -30,7 +30,7 @@ describe("loadPolicyEngine", () => {
     mockCreatePolicyEngineFromFile.mockReturnValue(mockPolicyEngine as any)
   })
 
-  describe("when consumer dir is supplied and file exists there", () => {
+  describe("when consumer dir file exists", () => {
     it("should load from consumer dir first", () => {
       mockFs.existsSync.mockImplementation((p) => String(p).includes("/consumer/"))
       const result = loadPolicyEngine("compute.yaml", "/consumer/policies")
@@ -51,7 +51,7 @@ describe("loadPolicyEngine", () => {
     })
   })
 
-  describe("when consumer dir is supplied but file is absent", () => {
+  describe("when consumer dir file is absent", () => {
     it("should fall through to permission_custom_policies when it exists", () => {
       mockFs.existsSync.mockImplementation((p) => String(p).includes("permission_custom_policies"))
       loadPolicyEngine("compute.yaml", "/consumer/policies")
@@ -67,27 +67,6 @@ describe("loadPolicyEngine", () => {
       expect(() => loadPolicyEngine("compute.yaml", "/consumer/policies")).toThrow(
         'Policy file "compute.yaml" not found'
       )
-    })
-  })
-
-  describe("when no consumer dir is supplied", () => {
-    it("should load from permission_custom_policies when it exists", () => {
-      mockFs.existsSync.mockReturnValue(true)
-      const result = loadPolicyEngine("test-policy.yaml")
-
-      expect(mockFs.existsSync).toHaveBeenCalledWith(
-        expect.stringContaining("permission_custom_policies/test-policy.yaml")
-      )
-      expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledWith(
-        expect.stringContaining("permission_custom_policies/test-policy.yaml")
-      )
-      expect(result).toBe(mockPolicyEngine)
-    })
-
-    it("should throw when permission_custom_policies file does not exist", () => {
-      mockFs.existsSync.mockReturnValue(false)
-
-      expect(() => loadPolicyEngine("test-policy.yaml")).toThrow('Policy file "test-policy.yaml" not found')
     })
 
     it("should include searched paths in the error message", () => {
@@ -110,7 +89,7 @@ describe("loadPolicyEngine", () => {
 
     it("should only call createPolicyEngineFromFile once", () => {
       mockFs.existsSync.mockReturnValue(true)
-      loadPolicyEngine("test.yaml")
+      loadPolicyEngine("test.yaml", "/consumer/dir")
 
       expect(mockCreatePolicyEngineFromFile).toHaveBeenCalledTimes(1)
     })
@@ -121,13 +100,14 @@ describe("loadPolicyEngine", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockCreatePolicyEngineFromFile.mockReturnValue(mockEngine as any)
 
-      expect(loadPolicyEngine("test.yaml")).toBe(mockEngine)
+      expect(loadPolicyEngine("test.yaml", "/consumer/dir")).toBe(mockEngine)
     })
   })
 
   describe("error handling", () => {
     it("should throw when consumerDir is a relative path", () => {
       mockPath.isAbsolute.mockReturnValue(false)
+
       expect(() => loadPolicyEngine("compute.yaml", "./relative/path")).toThrow("policyDir must be an absolute path")
     })
 
@@ -137,7 +117,7 @@ describe("loadPolicyEngine", () => {
         throw new Error("Failed to create policy engine")
       })
 
-      expect(() => loadPolicyEngine("test.yaml")).toThrow("Failed to create policy engine")
+      expect(() => loadPolicyEngine("test.yaml", "/consumer/dir")).toThrow("Failed to create policy engine")
     })
 
     it("should propagate errors from fs.existsSync", () => {
@@ -145,7 +125,7 @@ describe("loadPolicyEngine", () => {
         throw new Error("Permission denied")
       })
 
-      expect(() => loadPolicyEngine("test.yaml")).toThrow("Permission denied")
+      expect(() => loadPolicyEngine("test.yaml", "/consumer/dir")).toThrow("Permission denied")
     })
   })
 })

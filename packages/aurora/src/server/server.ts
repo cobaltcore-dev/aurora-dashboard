@@ -15,24 +15,24 @@ import { ZodError } from "zod"
 import { AuroraFastifyCsrfProtection } from "./aurora-fastify-plugins"
 import type { AuroraServerConfig } from "../types"
 
-export async function createServer(config?: AuroraServerConfig): Promise<FastifyInstance> {
+export async function createServer(config: AuroraServerConfig): Promise<FastifyInstance> {
   const isProduction = process.env.NODE_ENV === "production"
-  const rawBffEndpoint = config?.bffEndpoint ?? "/polaris-bff"
+  const rawBffEndpoint = config.bffEndpoint ?? "/polaris-bff"
   const bffEndpoint = "/" + rawBffEndpoint.split("/").filter(Boolean).join("/")
-  const viteRoot = config?.viteRoot ?? path.resolve(__dirname, "../../")
+  const viteRoot = config.viteRoot ?? path.resolve(__dirname, "../../")
 
   const contextConfig = {
-    identityEndpoint: config?.identityEndpoint ?? "",
-    defaultEndpointInterface: config?.defaultEndpointInterface,
-    proxyUrl: config?.proxyUrl,
-    cephRegion: config?.cephRegion,
-    imageMetadataExcludedProperties: config?.imageMetadataExcludedProperties,
-    cookieName: config?.cookieName,
-    crossDomainCookie: config?.crossDomainCookie,
-    insecureCookies: config?.insecureCookies,
+    identityEndpoint: config.identityEndpoint ?? "",
+    defaultEndpointInterface: config.defaultEndpointInterface,
+    proxyUrl: config.proxyUrl,
+    cephRegion: config.cephRegion,
+    imageMetadataExcludedProperties: config.imageMetadataExcludedProperties,
+    cookieName: config.cookieName,
+    crossDomainCookie: config.crossDomainCookie,
+    insecureCookies: config.insecureCookies,
   }
 
-  const appRouter = buildAppRouter(config?.policyDir)
+  const appRouter = buildAppRouter(config.policyDir)
 
   const server = Fastify({
     logger: true,

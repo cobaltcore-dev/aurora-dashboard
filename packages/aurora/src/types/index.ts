@@ -23,7 +23,7 @@ export interface AuroraServerConfig {
   /**
    * Absolute path to a directory containing consumer-supplied OpenStack policy
    * files (e.g. compute.yaml, image.yaml).  Files found here take precedence
-   * over the built-in policies bundled with aurora.
+   * over the legacy in-tree permission_custom_policies/ directory.
    */
-  policyDir?: string
+  policyDir: string
 }

@@ -104,10 +104,9 @@ const PERMISSION_KEY = z
  * Empty array input returns an empty array (`[]`).
  * Always returns `boolean[]` for consistent destructuring on the client.
  *
- * @param policyDir Optional absolute path to a consumer-supplied policy directory.
- *                  Files found there take precedence over the built-in bundled policies.
+ * @param policyDir Absolute path to the consumer-supplied policy directory.
  */
-export const buildPermissionRouter = (policyDir?: string) => {
+export const buildPermissionRouter = (policyDir: string) => {
   const engines: PolicyEngines = {
     compute: loadPolicyEngine("compute.yaml", policyDir),
     image: loadPolicyEngine("image.yaml", policyDir),
