@@ -10,6 +10,11 @@ if (PORT < 1 || PORT > 65535) {
   throw new Error(`Invalid PORT: ${rawPort}`)
 }
 
+const isProduction = process.env.NODE_ENV === "production"
+// In production the build copies src/policies → dist/policies.
+// In development tsx runs from source so src/policies is used directly.
+const policyDir = isProduction ? path.resolve(__dirname, "../../dist/policies") : path.resolve(__dirname, "../policies")
+
 createServer({
   viteRoot: path.resolve(__dirname, "../.."),
   identityEndpoint: process.env.IDENTITY_ENDPOINT,
@@ -19,6 +24,7 @@ createServer({
   cephRegion: process.env.CEPH_REGION,
   imageMetadataExcludedProperties: process.env.IMAGE_METADATA_EXCLUDED_PROPERTIES,
   insecureCookies: process.env.INSECURE_COOKIES === "true",
+  policyDir,
 })
   .then((server) => server.listen({ host: "0.0.0.0", port: PORT }))
   .then((address) => console.log(`Server listening on ${address}`))
