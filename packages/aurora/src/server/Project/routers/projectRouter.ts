@@ -114,8 +114,10 @@ export const projectRouter = {
     }
 
     const domainsData = domainsResponse ? await domainsResponse.json().catch(() => null) : null
+    const domainsResponseSchema = z.object({ domains: z.array(z.object({ id: z.string(), name: z.string() })) })
+    const parsedDomains = domainsResponseSchema.safeParse(domainsData)
     const domainMap = new Map<string, string>(
-      (domainsData?.domains ?? []).map((d: { id: string; name: string }) => [d.id, d.name])
+      (parsedDomains.success ? parsedDomains.data.domains : []).map((d) => [d.id, d.name])
     )
 
     return parsedData.data.projects.map((project) => ({
