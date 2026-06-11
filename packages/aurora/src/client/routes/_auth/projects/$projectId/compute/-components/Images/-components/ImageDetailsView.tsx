@@ -50,7 +50,7 @@ const SharedImageBox: React.FC<{
   const ownerProject = image.owner ?? ""
 
   return (
-    <Box className="mt-2">
+    <Box className="mt-3">
       {isPending && (
         <p className="text-theme-highest font-semibold">
           <Trans>Your action is required</Trans>
