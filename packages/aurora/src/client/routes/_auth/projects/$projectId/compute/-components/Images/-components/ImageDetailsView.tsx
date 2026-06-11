@@ -44,14 +44,13 @@ const SharedImageBox: React.FC<{
   const { t } = useLingui()
   const isPending = myMemberData.status === MEMBER_STATUSES.PENDING
   const isRejected = myMemberData.status === MEMBER_STATUSES.REJECTED
-  const isAccepted = myMemberData.status === MEMBER_STATUSES.ACCEPTED
 
   const sharedAt = myMemberData.created_at ? new Date(myMemberData.created_at).toLocaleString() : t`N/A`
   const updatedAt = myMemberData.updated_at ? new Date(myMemberData.updated_at).toLocaleString() : t`N/A`
   const ownerProject = image.owner ?? ""
 
   return (
-    <Box>
+    <Box className="mt-4">
       {isPending && (
         <p className="text-theme-highest font-semibold">
           <Trans>Your action is required</Trans>
@@ -83,27 +82,14 @@ const SharedImageBox: React.FC<{
         </li>
       </ul>
 
-      {canUpdateMember && (
+      {canUpdateMember && (isPending || isRejected) && (
         <ButtonRow>
-          {isPending && (
-            <Button onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)} disabled={isLoading} variant="subdued">
-              <Trans>Reject</Trans>
-            </Button>
-          )}
-          {(isPending || isRejected) && (
-            <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading} variant="primary">
-              <Trans>Accept</Trans>
-            </Button>
-          )}
-          {isAccepted && (
-            <Button
-              onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)}
-              disabled={isLoading}
-              variant="primary-danger"
-            >
-              <Trans>Reject</Trans>
-            </Button>
-          )}
+          <Button onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)} disabled={isLoading}>
+            <Trans>Reject</Trans>
+          </Button>
+          <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading}>
+            <Trans>Accept</Trans>
+          </Button>
         </ButtonRow>
       )}
     </Box>
