@@ -66,12 +66,25 @@ export const ImportExternallySignedCertificateModal = ({
 
     const reader = new FileReader()
     reader.onload = (event) => {
-      const text = event.target?.result as string
-      if (file.name.endsWith(".json")) {
-        const parsed = JSON.parse(text)
-        form.setFieldValue("imported_certificate_chain", parsed.imported_certificate_chain ?? text)
-      } else {
-        form.setFieldValue("imported_certificate_chain", text)
+      try {
+        const text = event.target?.result as string
+        let chainValue = text
+
+        if (file.name.endsWith(".json")) {
+          try {
+            const parsed = JSON.parse(text)
+            // Validate that imported_certificate_chain is a string, fallback to raw text
+            chainValue =
+              typeof parsed.imported_certificate_chain === "string" ? parsed.imported_certificate_chain : text
+          } catch {
+            // If JSON parsing fails, use raw text
+            chainValue = text
+          }
+        }
+
+        form.setFieldValue("imported_certificate_chain", chainValue)
+      } catch (error) {
+        console.error("Failed to read certificate file:", error)
       }
     }
     reader.readAsText(file)
