@@ -386,18 +386,6 @@ describe("ObjectsTableView", () => {
     })
   })
 
-  describe("Footer", () => {
-    test("shows item count in footer", () => {
-      renderView()
-      expect(screen.getByText(/4 items/i)).toBeInTheDocument()
-    })
-
-    test("footer total matches rows length", () => {
-      renderView({ rows: [makeObject("a.txt"), makeObject("b.txt")] })
-      expect(screen.getByText(/2 items/i)).toBeInTheDocument()
-    })
-  })
-
   describe("File preview", () => {
     test("clicking a previewable file name opens a new tab", async () => {
       const user = userEvent.setup()

@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import { Project } from "@/server/Project/types/models"
-import { Card, ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Card } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 
 type ProjectCardProps = {
@@ -16,12 +16,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
     <Card
       padding
       onClick={() => navigate({ to: "/projects/$projectId", params: { projectId: project.id } })}
-      className="min-h-50"
+      className="flex flex-col gap-4"
     >
-      <div className="w-full">
-        <ContentHeading className="text-theme-accent">{project.name}</ContentHeading>
-        <p className="mt-4 line-clamp-3 pr-4 leading-relaxed">{project.description}</p>
+      <div className="flex min-w-0 flex-col">
+        <span className="text-theme-light text-xs leading-6">
+          {project.domain_name ?? project.domain_id ?? <Trans>Unknown domain</Trans>}
+        </span>
+        <h5>{project.name}</h5>
       </div>
+      {project.description && <p className="text-theme-default line-clamp-2">{project.description}</p>}
     </Card>
   )
 }

@@ -6,6 +6,8 @@ import type { S3Client } from "@aws-sdk/client-s3"
 import { createS3Client } from "./clients/s3Client"
 
 export const NO_CEPH_CREDENTIALS = "NO_CEPH_CREDENTIALS" as const
+export const CEPH_ACCESS_DENIED = "CEPH_ACCESS_DENIED" as const
+export const CEPH_SERVICE_NOT_AVAILABLE = "CEPH_SERVICE_NOT_AVAILABLE" as const
 
 /**
  * Resolves S3 endpoint and region configuration from OpenStack service catalog.

@@ -40,15 +40,6 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
-msgid "{allContainersCount} bucket"
-msgstr "{allContainersCount} bucket"
-
-msgid "{allContainersCount} buckets"
-msgstr "{allContainersCount} buckets"
-
-msgid "{allCount} items"
-msgstr "{allCount} items"
-
 msgid "{bucketCount, plural, one {object} other {objects}}"
 msgstr "{bucketCount, plural, one {object} other {objects}}"
 
@@ -76,14 +67,26 @@ msgstr "{numberDeleted} objects were permanently deleted."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
+msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
+msgstr "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
+
+msgid "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} buckets}}"
+msgstr "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} buckets}}"
+
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
+
+msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
+msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
+
+msgid "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
+msgstr "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 
 msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 msgstr "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 
-msgid "<0>Edit metadata: </0> <1>{displayName}</1>"
-msgstr "<0>Edit metadata: </0> <1>{displayName}</1>"
+msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
+msgstr "<0>Edit metadata:</0> <1>{displayName}</1>"
 
 msgid "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
 msgstr "<0>Effortless Resource Provisioning:</0> Quickly provision, configure, and deploy resources like servers, networks, and volumes with just a few clicks."
@@ -103,14 +106,14 @@ msgstr "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora 
 msgid "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
 msgstr "<0>Please note:</0> for <1>dynamic</1> and <2>static large objects</2> only the manifests will be deleted. The related segments will not be deleted."
 
-msgid "<0>Properties of</0> <1>{displayName}</1>"
-msgstr "<0>Properties of</0> <1>{displayName}</1>"
-
 msgid "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 msgstr "<0>Secure & Reliable:</0> Your data and operations are safeguarded with enterprise-grade security and robust reliability."
 
 msgid "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
 msgstr "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
+
+msgid "⚠️ Warning: Irreversible Action"
+msgstr "⚠️ Warning: Irreversible Action"
 
 msgid "1 hour"
 msgstr "1 hour"
@@ -159,6 +162,9 @@ msgstr "Access Control for container:"
 
 msgid "Access Control Updated"
 msgstr "Access Control Updated"
+
+msgid "Access Denied"
+msgstr "Access Denied"
 
 msgid "Access Status"
 msgstr "Access Status"
@@ -237,6 +243,9 @@ msgstr "Add Security Group Rule"
 
 msgid "Add Tenant Access"
 msgstr "Add Tenant Access"
+
+msgid "After restoring, this version's content will become the new latest version."
+msgstr "After restoring, this version's content will become the new latest version."
 
 msgid "All Buckets Emptied"
 msgstr "All Buckets Emptied"
@@ -322,6 +331,9 @@ msgstr "Attach"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
+msgid "Authentication Failed"
+msgstr "Authentication Failed"
+
 msgid "Back"
 msgstr "Back"
 
@@ -348,6 +360,9 @@ msgstr "Basic Information"
 
 msgid "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
 msgstr "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
+
+msgid "Benefits:"
+msgstr "Benefits:"
 
 msgid "Boot RAM"
 msgstr "Boot RAM"
@@ -457,11 +472,17 @@ msgstr "Checking if object exists..."
 msgid "Checksum"
 msgstr "Checksum"
 
+msgid "Choose Certificate to Import"
+msgstr "Choose Certificate to Import"
+
 msgid "CIDR"
 msgstr "CIDR"
 
 msgid "Clear all"
 msgstr "Clear all"
+
+msgid "Click the button below to automatically generate credentials for this project. You only need to do this once."
+msgstr "Click the button below to automatically generate credentials for this project. You only need to do this once."
 
 msgid "Click to upload"
 msgstr "Click to upload"
@@ -682,9 +703,6 @@ msgstr "Create Certificate Authority"
 msgid "Create Container"
 msgstr "Create Container"
 
-msgid "Create Credential"
-msgstr "Create Credential"
-
 msgid "Create Flavor"
 msgstr "Create Flavor"
 
@@ -709,6 +727,9 @@ msgstr "Create new folder here"
 msgid "Create New Image"
 msgstr "Create New Image"
 
+msgid "Create S3 Credentials"
+msgstr "Create S3 Credentials"
+
 msgid "Create Security Group"
 msgstr "Create Security Group"
 
@@ -720,6 +741,9 @@ msgstr "Created At"
 
 msgid "Creating Certificate Authority..."
 msgstr "Creating Certificate Authority..."
+
+msgid "Creating Credentials..."
+msgstr "Creating Credentials..."
 
 msgid "Creating image..."
 msgstr "Creating image..."
@@ -747,6 +771,9 @@ msgstr "Custom duration (minutes)"
 
 msgid "Custom Properties / Metadata"
 msgstr "Custom Properties / Metadata"
+
+msgid "Date:"
+msgstr "Date:"
 
 msgid "Deactivate"
 msgstr "Deactivate"
@@ -811,6 +838,9 @@ msgstr "Delete folder:"
 msgid "Delete Images"
 msgstr "Delete Images"
 
+msgid "Delete Marker"
+msgstr "Delete Marker"
+
 msgid "Delete Object"
 msgstr "Delete Object"
 
@@ -819,6 +849,9 @@ msgstr "Delete object:"
 
 msgid "Delete Objects"
 msgstr "Delete Objects"
+
+msgid "Delete Permanently"
+msgstr "Delete Permanently"
 
 msgid "Delete Recursively"
 msgstr "Delete Recursively"
@@ -834,6 +867,12 @@ msgstr "Delete Security Group Rule"
 
 msgid "Delete Selected"
 msgstr "Delete Selected"
+
+msgid "Delete Version"
+msgstr "Delete Version"
+
+msgid "Delete Version Permanently"
+msgstr "Delete Version Permanently"
 
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
@@ -1018,6 +1057,12 @@ msgstr "Emptying..."
 msgid "Enable file listing"
 msgstr "Enable file listing"
 
+msgid "Enable versioning"
+msgstr "Enable versioning"
+
+msgid "Enable Versioning"
+msgstr "Enable Versioning"
+
 msgid "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 msgstr "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 
@@ -1090,9 +1135,6 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
-msgid "Error Loading Buckets: {errorMessage}"
-msgstr "Error Loading Buckets: {errorMessage}"
-
 msgid "Error loading Certificate"
 msgstr "Error loading Certificate"
 
@@ -1101,6 +1143,9 @@ msgstr "Error loading Certificate Authority"
 
 msgid "Error loading component"
 msgstr "Error loading component"
+
+msgid "Error Loading Containers"
+msgstr "Error Loading Containers"
 
 msgid "Error Loading Containers: {errorMessage}"
 msgstr "Error Loading Containers: {errorMessage}"
@@ -1128,6 +1173,9 @@ msgstr "ETag"
 
 msgid "Ethertype"
 msgstr "Ethertype"
+
+msgid "Existing versions remain accessible"
+msgstr "Existing versions remain accessible"
 
 msgid "Expected format: YYYY-MM-DD HH:mm:ss"
 msgstr "Expected format: YYYY-MM-DD HH:mm:ss"
@@ -1299,6 +1347,9 @@ msgstr "Failed to load PCAs"
 
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
+
+msgid "Failed to load versions"
+msgstr "Failed to load versions"
 
 msgid "Failed to Move Object"
 msgstr "Failed to Move Object"
@@ -1480,9 +1531,6 @@ msgstr "Generating..."
 msgid "Get Involved"
 msgstr "Get Involved"
 
-msgid "Got it!"
-msgstr "Got it!"
-
 msgid "Grant access to a user from a different project."
 msgstr "Grant access to a user from a different project."
 
@@ -1504,8 +1552,14 @@ msgstr "Hide ACLs Preview"
 msgid "Home"
 msgstr "Home"
 
+msgid "How Restore Works"
+msgstr "How Restore Works"
+
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "I confirm that all existing versions will also be deleted"
+
+msgid "I understand that enabling versioning is permanent"
+msgstr "I understand that enabling versioning is permanent"
 
 msgid "ICMP Code"
 msgstr "ICMP Code"
@@ -1600,6 +1654,15 @@ msgstr "Images to deactivate:"
 msgid "Images to delete:"
 msgstr "Images to delete:"
 
+msgid "Import Externally Signed Certificate"
+msgstr "Import Externally Signed Certificate"
+
+msgid "Import Signed Certificate"
+msgstr "Import Signed Certificate"
+
+msgid "Importing Certificate..."
+msgstr "Importing Certificate..."
+
 msgid "Inactivity Timeout"
 msgstr "Inactivity Timeout"
 
@@ -1654,6 +1717,9 @@ msgstr "It will appear in your image list."
 msgid "It will be removed from your image list."
 msgstr "It will be removed from your image list."
 
+msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
+msgstr "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
+
 msgid "Keep segments (delete manifest only)"
 msgstr "Keep segments (delete manifest only)"
 
@@ -1695,6 +1761,9 @@ msgstr "Last Modified:"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
+
+msgid "Latest"
+msgstr "Latest"
 
 msgid "Leave empty for all codes"
 msgstr "Leave empty for all codes"
@@ -1786,6 +1855,9 @@ msgstr "Loading Security Group Details..."
 msgid "Loading Server Groups..."
 msgstr "Loading Server Groups..."
 
+msgid "Loading versions..."
+msgstr "Loading versions..."
+
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -1797,6 +1869,9 @@ msgstr "Login to Your Account"
 
 msgid "MAC Address"
 msgstr "MAC Address"
+
+msgid "Maintain object history"
+msgstr "Maintain object history"
 
 msgid "Manage Access"
 msgstr "Manage Access"
@@ -1969,6 +2044,9 @@ msgstr "New Folder"
 msgid "New object name"
 msgstr "New object name"
 
+msgid "New uploads will overwrite the current version"
+msgstr "New uploads will overwrite the current version"
+
 msgid "new-folder-name"
 msgstr "new-folder-name"
 
@@ -2017,6 +2095,9 @@ msgstr "No key pairs available."
 msgid "No limit"
 msgstr "No limit"
 
+msgid "No new versions will be created"
+msgstr "No new versions will be created"
+
 msgid "No objects found"
 msgstr "No objects found"
 
@@ -2052,6 +2133,9 @@ msgstr "No services available for this project."
 
 msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
 msgstr "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
+
+msgid "No versions found for this object."
+msgstr "No versions found for this object."
 
 msgid "None"
 msgstr "None"
@@ -2134,6 +2218,9 @@ msgstr "Object was copied but could not be deleted from the source: {deleteError
 msgid "Object will be uploaded as: <0>{selectedObjectName}</0>"
 msgstr "Object will be uploaded as: <0>{selectedObjectName}</0>"
 
+msgid "Object:"
+msgstr "Object:"
+
 msgid "Objects"
 msgstr "Objects"
 
@@ -2148,6 +2235,12 @@ msgstr "Objects to be deleted ({totalCount})"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "Older"
+msgstr "Older"
+
+msgid "Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain even after suspension."
+msgstr "Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain even after suspension."
 
 msgid "One or more containers could not be emptied: {errorMessage}"
 msgstr "One or more containers could not be emptied: {errorMessage}"
@@ -2193,6 +2286,9 @@ msgstr "Password"
 
 msgid "Paste CSR code"
 msgstr "Paste CSR code"
+
+msgid "Paste the code"
+msgstr "Paste the code"
 
 msgid "PCA"
 msgstr "PCA"
@@ -2353,6 +2449,9 @@ msgstr "RBAC Policy Details:"
 msgid "Read ACLs"
 msgstr "Read ACLs"
 
+msgid "Recover from accidental deletions"
+msgstr "Recover from accidental deletions"
+
 msgid "Reject"
 msgstr "Reject"
 
@@ -2422,6 +2521,15 @@ msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgid "Restart"
 msgstr "Restart"
 
+msgid "Restore"
+msgstr "Restore"
+
+msgid "Restore Version"
+msgstr "Restore Version"
+
+msgid "Retrieve older versions of objects"
+msgstr "Retrieve older versions of objects"
+
 msgid "Root"
 msgstr "Root"
 
@@ -2460,9 +2568,6 @@ msgstr "S3 bucket names must be 3-63 characters long and contain only lowercase 
 
 msgid "S3 Object Storage — Setup Required"
 msgstr "S3 Object Storage — Setup Required"
-
-msgid "S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your requests. You need to create credentials before accessing S3 resources."
-msgstr "S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your requests. You need to create credentials before accessing S3 resources."
 
 msgid "Save"
 msgstr "Save"
@@ -2623,6 +2728,9 @@ msgstr "Show Details"
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"
 
+msgid "Showing all versions of this object. The latest version is highlighted. Delete markers indicate when the object was deleted."
+msgstr "Showing all versions of this object. The latest version is highlighted. Delete markers indicate when the object was deleted."
+
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Showing first {actualObjectCount} of {total} objects"
 
@@ -2721,6 +2829,9 @@ msgstr "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plu
 
 msgid "Suggested Images"
 msgstr "Suggested Images"
+
+msgid "Suspend Versioning"
+msgstr "Suspend Versioning"
 
 msgid "Swap"
 msgstr "Swap"
@@ -2935,6 +3046,9 @@ msgstr "This container is already empty."
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 
+msgid "This creates a new latest version with the content from the selected version. All existing versions (including the current latest) are preserved."
+msgstr "This creates a new latest version with the content from the selected version. All existing versions (including the current latest) are preserved."
+
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "This extra spec keys already exist. Please use different keys."
 
@@ -2958,6 +3072,9 @@ msgstr "This is a <0>static large object (SLO)</0> manifest. Metadata changes ap
 
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
+
+msgid "This is a delete marker. Deleting it will \"undelete\" the object and restore the previous version as the current version."
+msgstr "This is a delete marker. Deleting it will \"undelete\" the object and restore the previous version as the current version."
 
 msgid "This is a public flavor. All tenants have access to it."
 msgstr "This is a public flavor. All tenants have access to it."
@@ -2988,6 +3105,12 @@ msgstr "This will delete the original object after copying it to the destination
 
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
+
+msgid "This will permanently delete this version. This operation cannot be undone. The version will be lost forever."
+msgstr "This will permanently delete this version. This operation cannot be undone. The version will be lost forever."
+
+msgid "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
+msgstr "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
 
 msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
 msgstr "To confirm this action, type the word <0>“detach”</0> in the field below."
@@ -3052,6 +3175,9 @@ msgstr "Type <0>{deleteWord}</0> to confirm:"
 msgid "Type <0>delete</0> to confirm:"
 msgstr "Type <0>delete</0> to confirm:"
 
+msgid "Type <0>DELETE</0> to confirm:"
+msgstr "Type <0>DELETE</0> to confirm:"
+
 msgid "Type <0>remove</0> to confirm:"
 msgstr "Type <0>remove</0> to confirm:"
 
@@ -3108,6 +3234,9 @@ msgstr "Unable to Upload Image File"
 
 msgid "Unknown"
 msgstr "Unknown"
+
+msgid "Unknown domain"
+msgstr "Unknown domain"
 
 msgid "Unnamed"
 msgstr "Unnamed"
@@ -3193,14 +3322,35 @@ msgstr "VCPUs"
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs must be an integer ≥ 1."
 
+msgid "Version History: {objectKey}"
+msgstr "Version History: {objectKey}"
+
+msgid "Version ID"
+msgstr "Version ID"
+
+msgid "Version ID:"
+msgstr "Version ID:"
+
 msgid "Versioned writes"
 msgstr "Versioned writes"
+
+msgid "Versioning allows you to keep multiple variants of an object in the same bucket. This protects against accidental overwrites and deletions."
+msgstr "Versioning allows you to keep multiple variants of an object in the same bucket. This protects against accidental overwrites and deletions."
+
+msgid "Versioning Enabled"
+msgstr "Versioning Enabled"
 
 msgid "Versioning is enabled"
 msgstr "Versioning is enabled"
 
+msgid "Versioning Suspended"
+msgstr "Versioning Suspended"
+
 msgid "View Details"
 msgstr "View Details"
+
+msgid "View Versions"
+msgstr "View Versions"
 
 msgid "Visibility"
 msgstr "Visibility"
@@ -3213,6 +3363,9 @@ msgstr "We are building Aurora Dashboard to serve you better. Your feedback is i
 
 msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
 msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
+
+msgid "What happens when suspended:"
+msgstr "What happens when suspended:"
 
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"
@@ -3262,6 +3415,9 @@ msgstr "You are not authorized to view extra specs. Please log in again."
 msgid "You are not authorized to view flavor details. Please log in again."
 msgstr "You are not authorized to view flavor details. Please log in again."
 
+msgid "You can re-enable versioning at any time"
+msgstr "You can re-enable versioning at any time"
+
 msgid "You can rename the object by changing the name here."
 msgstr "You can rename the object by changing the name here."
 
@@ -3306,6 +3462,12 @@ msgstr "You need to login to access this page."
 
 msgid "Your action is required"
 msgstr "Your action is required"
+
+msgid "Your credentials are valid but you don't have permission to perform this operation. Please contact your administrator to grant you the necessary permissions."
+msgstr "Your credentials are valid but you don't have permission to perform this operation. Please contact your administrator to grant you the necessary permissions."
+
+msgid "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
+msgstr "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
 
 msgid "Your session expired. Please login again."
 msgstr "Your session expired. Please login again."

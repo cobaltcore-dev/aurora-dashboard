@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useRef, useEffect, useState } from "react"
+import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   DataGrid,
   DataGridRow,
@@ -16,12 +17,27 @@ import { DeleteObjectModal } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveObjectModal } from "./MoveObjectModal"
 import { EditMetadataModal } from "./EditMetadataModal"
+import { ObjectVersionHistoryModal } from "./ObjectVersionHistoryModal"
+
+type FolderRow = { kind: "folder"; prefix: string; displayName: string }
+type ObjectRow = {
+  kind: "object"
+  key: string
+  size: number
+  lastModified: string | undefined
+  displayName: string
+}
+type CephRow = FolderRow | ObjectRow
+
+// Define column template — 4 columns: name | size | last modified | actions
+const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(100px, 1fr) minmax(180px, 2fr) 60px"
 
 interface ObjectsTableViewProps {
   bucketName: string
   objects: S3Object[]
   folders: S3FolderPrefix[]
   currentPrefix: string
+  versioningEnabled?: boolean
   onFolderClick: (prefix: string) => void
   onDeleteObjectSuccess: (objectKey: string) => void
   onDeleteObjectError: (objectKey: string, errorMessage: string) => void
@@ -31,6 +47,8 @@ interface ObjectsTableViewProps {
   onMoveObjectError: (objectKey: string, errorMessage: string) => void
   onEditMetadataSuccess: (objectKey: string) => void
   onEditMetadataError: (objectKey: string, errorMessage: string) => void
+  onRestoreVersion?: (objectKey: string, versionId: string) => void
+  onDeleteVersion?: (objectKey: string, versionId: string) => void
 }
 
 export function ObjectsTableView({
@@ -38,6 +56,7 @@ export function ObjectsTableView({
   objects,
   folders,
   currentPrefix,
+  versioningEnabled = false,
   onFolderClick,
   onDeleteObjectSuccess,
   onDeleteObjectError,
@@ -47,8 +66,12 @@ export function ObjectsTableView({
   onMoveObjectError,
   onEditMetadataSuccess,
   onEditMetadataError,
+  onRestoreVersion,
+  onDeleteVersion,
 }: ObjectsTableViewProps) {
   const { t } = useLingui()
+  const parentRef = useRef<HTMLDivElement>(null)
+  const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteTarget, setDeleteTarget] = useState<{
     key: string
     size?: number
@@ -63,11 +86,47 @@ export function ObjectsTableView({
     size?: number
   } | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<string | null>(null)
+  const [versionHistoryTarget, setVersionHistoryTarget] = useState<string | null>(null)
 
   // Strip current prefix from display names
   const stripPrefix = (fullKey: string) => (currentPrefix ? fullKey.replace(currentPrefix, "") : fullKey)
 
-  if (folders.length === 0 && objects.length === 0) {
+  // Build combined rows — folders first, then objects
+  const rows: CephRow[] = [
+    ...folders.map(
+      (f): FolderRow => ({
+        kind: "folder",
+        prefix: f.prefix,
+        displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
+      })
+    ),
+    ...objects.map(
+      (o): ObjectRow => ({
+        kind: "object",
+        key: o.key,
+        size: o.size,
+        lastModified: o.lastModified,
+        displayName: stripPrefix(o.key),
+      })
+    ),
+  ]
+
+  // Calculate scrollbar width to keep the fixed header aligned with the scrollable body
+  useEffect(() => {
+    if (parentRef.current) {
+      const width = parentRef.current.offsetWidth - parentRef.current.clientWidth
+      setScrollbarWidth(width)
+    }
+  }, [rows.length])
+
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 48,
+    overscan: 10,
+  })
+
+  if (rows.length === 0) {
     return (
       <>
         <DataGrid columns={4}>
@@ -109,118 +168,139 @@ export function ObjectsTableView({
 
   return (
     <>
-      <DataGrid columns={4}>
-        <DataGridRow>
-          <DataGridHeadCell>
-            <Trans>Name</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Size</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Last Modified</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell />
-        </DataGridRow>
+      <div className="relative">
+        {/* Table Header with scrollbar padding */}
+        <div style={{ paddingRight: `${scrollbarWidth}px` }}>
+          <DataGrid columns={4} gridColumnTemplate={GRID_COLUMN_TEMPLATE} data-testid="objects-table-header">
+            <DataGridRow>
+              <DataGridHeadCell>
+                <Trans>Name</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
+                <Trans>Size</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell>
+                <Trans>Last Modified</Trans>
+              </DataGridHeadCell>
+              <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }} />
+            </DataGridRow>
+          </DataGrid>
+        </div>
 
-        {/* Folders first */}
-        {folders.map((folder) => {
-          const displayName = stripPrefix(folder.prefix).replace(/\/$/, "")
-          return (
-            <DataGridRow key={folder.prefix}>
-              <DataGridCell>
-                <button
-                  type="button"
-                  className="flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2"
-                  onClick={() => onFolderClick(folder.prefix)}
-                  title={folder.prefix}
+        {/* Virtualized Table Body with dynamic height */}
+        <div
+          ref={parentRef}
+          className="overflow-auto"
+          style={{ height: "calc(100vh - 490px)" }}
+          data-testid="objects-table-body"
+        >
+          <div
+            style={{
+              height: `${rowVirtualizer.getTotalSize()}px`,
+              width: "100%",
+              position: "relative",
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const row = rows[virtualRow.index]
+              const isFolder = row.kind === "folder"
+
+              return (
+                <div
+                  key={isFolder ? row.prefix : row.key}
+                  data-index={virtualRow.index}
+                  ref={rowVirtualizer.measureElement}
+                  className="juno-datagrid"
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    transform: `translateY(${virtualRow.start}px)`,
+                    display: "grid",
+                    gridTemplateColumns: GRID_COLUMN_TEMPLATE,
+                    alignItems: "stretch",
+                  }}
+                  data-testid={isFolder ? `folder-row-${row.prefix}` : `object-row-${row.key}`}
                 >
-                  <MdFolder size={18} className="text-theme-light shrink-0" />
-                  <span className="truncate font-mono text-sm">{displayName}</span>
-                </button>
-              </DataGridCell>
-              <DataGridCell>—</DataGridCell>
-              <DataGridCell>—</DataGridCell>
-              <DataGridCell onClick={(e) => e.stopPropagation()}>
-                <div className="flex justify-end">
-                  <PopupMenu>
-                    <PopupMenuOptions>
-                      <PopupMenuItem
-                        label={t`Delete`}
-                        onClick={() =>
-                          setDeleteTarget({
-                            key: folder.prefix,
-                          })
-                        }
-                      />
-                    </PopupMenuOptions>
-                  </PopupMenu>
-                </div>
-              </DataGridCell>
-            </DataGridRow>
-          )
-        })}
+                  {/* Name */}
+                  <DataGridCell>
+                    {isFolder ? (
+                      <button
+                        type="button"
+                        className="flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2"
+                        onClick={() => onFolderClick(row.prefix)}
+                        title={row.prefix}
+                      >
+                        <MdFolder size={18} className="text-theme-light shrink-0" />
+                        <span className="truncate font-mono text-sm">{row.displayName}</span>
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <MdDescription size={18} className="text-theme-light shrink-0" />
+                        <span className="truncate font-mono text-sm">{row.displayName}</span>
+                      </div>
+                    )}
+                  </DataGridCell>
 
-        {/* Objects */}
-        {objects.map((obj) => {
-          const displayName = stripPrefix(obj.key)
-          return (
-            <DataGridRow key={obj.key}>
-              <DataGridCell>
-                <div className="flex items-center gap-2">
-                  <MdDescription size={18} className="text-theme-light shrink-0" />
-                  <span className="truncate font-mono text-sm">{displayName}</span>
+                  {/* Size */}
+                  <DataGridCell>
+                    <span className="text-sm">{isFolder ? "—" : formatBytesBinary(row.size)}</span>
+                  </DataGridCell>
+
+                  {/* Last Modified */}
+                  <DataGridCell>
+                    <span className="text-sm">
+                      {!isFolder && row.lastModified ? new Date(row.lastModified).toLocaleString() : "—"}
+                    </span>
+                  </DataGridCell>
+
+                  {/* Actions */}
+                  <DataGridCell onClick={(e) => e.stopPropagation()}>
+                    <div className="flex justify-end">
+                      <PopupMenu>
+                        <PopupMenuOptions>
+                          {isFolder ? (
+                            <PopupMenuItem label={t`Delete`} onClick={() => setDeleteTarget({ key: row.prefix })} />
+                          ) : (
+                            <>
+                              {versioningEnabled && (
+                                <PopupMenuItem
+                                  label={t`View Versions`}
+                                  onClick={() => setVersionHistoryTarget(row.key)}
+                                />
+                              )}
+                              <PopupMenuItem
+                                label={t`Copy`}
+                                onClick={() => setCopyTarget({ key: row.key, size: row.size })}
+                              />
+                              <PopupMenuItem
+                                label={t`Move`}
+                                onClick={() => setMoveTarget({ key: row.key, size: row.size })}
+                              />
+                              <PopupMenuItem label={t`Edit Metadata`} onClick={() => setEditMetadataTarget(row.key)} />
+                              <PopupMenuItem
+                                label={t`Delete`}
+                                onClick={() =>
+                                  setDeleteTarget({
+                                    key: row.key,
+                                    size: row.size,
+                                    lastModified: row.lastModified,
+                                  })
+                                }
+                              />
+                            </>
+                          )}
+                        </PopupMenuOptions>
+                      </PopupMenu>
+                    </div>
+                  </DataGridCell>
                 </div>
-              </DataGridCell>
-              <DataGridCell>
-                <span className="text-juno-grey-light-1 text-sm">{formatBytesBinary(obj.size)}</span>
-              </DataGridCell>
-              <DataGridCell>
-                <span className="text-juno-grey-light-1 text-sm">
-                  {obj.lastModified ? new Date(obj.lastModified).toLocaleString() : "—"}
-                </span>
-              </DataGridCell>
-              <DataGridCell onClick={(e) => e.stopPropagation()}>
-                <div className="flex justify-end">
-                  <PopupMenu>
-                    <PopupMenuOptions>
-                      <PopupMenuItem
-                        label={t`Copy`}
-                        onClick={() =>
-                          setCopyTarget({
-                            key: obj.key,
-                            size: obj.size,
-                          })
-                        }
-                      />
-                      <PopupMenuItem
-                        label={t`Move`}
-                        onClick={() =>
-                          setMoveTarget({
-                            key: obj.key,
-                            size: obj.size,
-                          })
-                        }
-                      />
-                      <PopupMenuItem label={t`Edit Metadata`} onClick={() => setEditMetadataTarget(obj.key)} />
-                      <PopupMenuItem
-                        label={t`Delete`}
-                        onClick={() =>
-                          setDeleteTarget({
-                            key: obj.key,
-                            size: obj.size,
-                            lastModified: obj.lastModified,
-                          })
-                        }
-                      />
-                    </PopupMenuOptions>
-                  </PopupMenu>
-                </div>
-              </DataGridCell>
-            </DataGridRow>
-          )
-        })}
-      </DataGrid>
+              )
+            })}
+          </div>
+        </div>
+      </div>
 
       <DeleteObjectModal
         bucketName={bucketName}
@@ -260,6 +340,15 @@ export function ObjectsTableView({
         onClose={() => setEditMetadataTarget(null)}
         onSuccess={onEditMetadataSuccess}
         onError={onEditMetadataError}
+      />
+
+      <ObjectVersionHistoryModal
+        isOpen={versionHistoryTarget !== null}
+        bucketName={bucketName}
+        objectKey={versionHistoryTarget ?? ""}
+        onClose={() => setVersionHistoryTarget(null)}
+        onRestoreVersion={onRestoreVersion}
+        onDeleteVersion={onDeleteVersion}
       />
     </>
   )

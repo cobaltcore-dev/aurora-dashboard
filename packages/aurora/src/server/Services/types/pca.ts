@@ -73,10 +73,6 @@ export const CertificateAuthoritySchema = z.object({
   state: CertificateAuthorityStateSchema,
 })
 
-export const CertificateAuthorityResponseSchema = z.object({
-  certificate_authority: CertificateAuthoritySchema,
-})
-
 export const CertificateAuthoritiesListSchema = z.object({
   certificate_authorities: z.array(CertificateAuthoritySchema),
 })
