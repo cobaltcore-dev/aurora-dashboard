@@ -1,6 +1,6 @@
 # Clavis / PCA
 
-This document tracks the Clavis integration in Aurora Portal. The initial backend and UI pieces are implemented, and this note is meant to evolve as the feature grows.
+This document tracks the Clavis integration in Aurora Portal. The backend and UI flows in current scope are implemented, and this note is meant to evolve as the feature grows.
 
 ## Current Scope
 
@@ -29,6 +29,7 @@ Implemented screens and interactions:
 - details page shows CA metadata, certificate validity, CSR content, and delete action
 - details-page delete flow reuses the shared delete modal and redirects back to the PCA list after success
 - details page supports lifecycle action in `AWAITING_CERTIFICATE` state to issue a self-signed CA certificate from the CA CSR
+- details page supports lifecycle action in `AWAITING_CERTIFICATE` state to import an externally signed certificate chain
 - certificate list view via `PcaCertificatesListContainer` displays certificates issued by a CA
 - certificates list shows CA ID and certificate ID columns with loading, error, and empty states
 - in `READY` state, certificate list provides "Issue End Entity Certificate" action and modal to issue end-entity certificates
@@ -88,12 +89,3 @@ The CA schema also includes:
 The create flow currently validates the common name as an FQDN-style value. The delete flow requires a typed confirmation to reduce accidental removal of a CA and its associated certificates.
 
 Error states are surfaced directly in the modal or list view when the BFF call fails.
-
-## Next Areas To Document
-
-The backend already exposes import operations, but the UI does not yet have dedicated screens for:
-
-- certificate import flow
-- list filtering, sorting, and search controls
-
-Those can be documented once the corresponding UI work lands.

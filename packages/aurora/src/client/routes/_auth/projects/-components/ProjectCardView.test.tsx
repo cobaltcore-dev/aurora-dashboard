@@ -16,14 +16,12 @@ vi.mock("@cloudoperators/juno-ui-components", () => ({
       {children}
     </div>
   ),
-  ContentHeading: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <h1 className={className}>{children}</h1>
-  ),
 }))
 
 const projects = [
   {
     domain_id: "1789d1",
+    domain_name: "test-domain",
     enabled: true,
     id: "89ac3f",
     links: {
@@ -52,6 +50,46 @@ describe("ProjectCardView", () => {
     })
 
     expect(screen.getByText("Manages security compliance and access control.")).toBeDefined()
+  })
+
+  test("renders domain_name when available", async () => {
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectCardView projects={projects} />
+      </I18nProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText("test-domain")).toBeDefined()
+    })
+  })
+
+  test("falls back to domain_id when domain_name is missing", async () => {
+    const projectWithoutDomainName = [{ ...projects[0], domain_name: undefined }]
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectCardView projects={projectWithoutDomainName} />
+      </I18nProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText("1789d1")).toBeDefined()
+    })
+  })
+
+  test("does not render description when absent", async () => {
+    const projectWithoutDescription = [{ ...projects[0], description: undefined }]
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectCardView projects={projectWithoutDescription} />
+      </I18nProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText("Security Group")).toBeDefined()
+    })
+
+    expect(screen.queryByText("Manages security compliance and access control.")).toBeNull()
   })
 
   test("card navigates to the correct project route on click", async () => {

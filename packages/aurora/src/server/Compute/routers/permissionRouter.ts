@@ -3,17 +3,17 @@ import { TRPCError } from "@trpc/server"
 import { AuroraPortalContext } from "@/server/context"
 import { loadPolicyEngine } from "@/server/policyEngineLoader"
 import { projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
+import type { PolicyEngine } from "@cobaltcore-dev/policy-engine"
 
-const computePolicyEngine = loadPolicyEngine("compute.yaml")
-const imagePolicyEngine = loadPolicyEngine("image.yaml")
+type PolicyEngines = { compute: PolicyEngine; image: PolicyEngine }
 
-const getPolicy = (ctx: AuroraPortalContext, policyEngineName: "compute" | "image") => {
+const getPolicy = (ctx: AuroraPortalContext, policyEngineName: "compute" | "image", engines: PolicyEngines) => {
   const openstackSession = ctx.openstack
   const token = openstackSession?.getToken()
   if (!token) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "No valid OpenStack token found" })
   }
-  const policyEngine = policyEngineName === "compute" ? computePolicyEngine : imagePolicyEngine
+  const policyEngine = policyEngineName === "compute" ? engines.compute : engines.image
 
   return policyEngine.policy(token.tokenData, {
     debug: true,
@@ -54,9 +54,9 @@ const POLICY_MAPPINGS = {
 
 type PolicyKey = keyof typeof POLICY_MAPPINGS
 
-const checkSinglePermission = (ctx: AuroraPortalContext, permission: PolicyKey) => {
+const checkSinglePermission = (ctx: AuroraPortalContext, permission: PolicyKey, engines: PolicyEngines) => {
   const policyMapping = POLICY_MAPPINGS[permission]
-  const policy = getPolicy(ctx, policyMapping.engine)
+  const policy = getPolicy(ctx, policyMapping.engine, engines)
   return policy.check(policyMapping.rule)
 }
 
@@ -103,21 +103,30 @@ const PERMISSION_KEY = z
  * Invalid keys or non‑string values are rejected with a `BAD_REQUEST` error before the handler runs.
  * Empty array input returns an empty array (`[]`).
  * Always returns `boolean[]` for consistent destructuring on the client.
+ *
+ * @param policyDir Absolute path to the consumer-supplied policy directory.
  */
-export const permissionRouter = {
-  canUser: projectScopedProcedure
-    .input(
-      projectScopedInputSchema.extend({
-        permission: z.union([PERMISSION_KEY, z.array(PERMISSION_KEY)]),
-      })
-    )
-    .query(async ({ ctx, input }): Promise<boolean[]> => {
-      const permissions = typeof input.permission === "string" ? [input.permission] : input.permission
+export const buildPermissionRouter = (policyDir: string) => {
+  const engines: PolicyEngines = {
+    compute: loadPolicyEngine("compute.yaml", policyDir),
+    image: loadPolicyEngine("image.yaml", policyDir),
+  }
 
-      if (permissions.length === 0) {
-        return []
-      }
+  return {
+    canUser: projectScopedProcedure
+      .input(
+        projectScopedInputSchema.extend({
+          permission: z.union([PERMISSION_KEY, z.array(PERMISSION_KEY)]),
+        })
+      )
+      .query(async ({ ctx, input }): Promise<boolean[]> => {
+        const permissions = typeof input.permission === "string" ? [input.permission] : input.permission
 
-      return permissions.map((permission) => checkSinglePermission(ctx, permission))
-    }),
+        if (permissions.length === 0) {
+          return []
+        }
+
+        return permissions.map((permission) => checkSinglePermission(ctx, permission, engines))
+      }),
+  }
 }

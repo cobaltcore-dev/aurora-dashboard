@@ -3,16 +3,33 @@ import fs from "fs"
 import { createPolicyEngineFromFile } from "@cobaltcore-dev/policy-engine"
 
 /**
- * Load a policy engine, preferring a same-named file from permission_custom_policies
- * and falling back to permission_policies when no override exists.
+ * Load a policy engine for the given file name.
  *
- * @param fileName Policy file name to resolve and load.
+ * Resolution order (first match wins):
+ *   1. `consumerDir/<fileName>` – caller-supplied policy directory (required)
+ *   2. `permission_custom_policies/<fileName>` – legacy in-tree override directory
+ *
+ * @param fileName    Policy file name to resolve and load (e.g. "compute.yaml").
+ * @param consumerDir Absolute path to the consumer-supplied policy directory.
  * @returns Policy engine instance created from the resolved policy file.
  */
-export const loadPolicyEngine = (fileName: string) => {
-  const customPath = path.join(__dirname, `../../permission_custom_policies/${fileName}`)
-  const defaultPath = path.join(__dirname, `../../permission_policies/${fileName}`)
+export const loadPolicyEngine = (fileName: string, consumerDir: string) => {
+  if (!path.isAbsolute(consumerDir)) {
+    throw new Error(`policyDir must be an absolute path, got: "${consumerDir}"`)
+  }
 
-  const file = fs.existsSync(customPath) ? customPath : defaultPath
+  const candidates = [
+    path.join(consumerDir, fileName),
+    path.join(__dirname, `../../permission_custom_policies/${fileName}`),
+  ]
+
+  const file = candidates.find((p) => fs.existsSync(p))
+
+  if (!file) {
+    throw new Error(
+      `Policy file "${fileName}" not found. Searched:\n${candidates.map((p) => `  ${p}`).join("\n")}\nPass an absolute path via the policyDir option in createServer.`
+    )
+  }
+
   return createPolicyEngineFromFile(file)
 }

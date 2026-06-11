@@ -100,7 +100,11 @@ export const projectRouter = {
       })
     }
 
-    const response = await callIdentityAPI(ctx.identityEndpoint, token.authToken, "auth/projects")
+    const [response, domainsResponse] = await Promise.all([
+      callIdentityAPI(ctx.identityEndpoint, token.authToken, "auth/projects"),
+      callIdentityAPI(ctx.identityEndpoint, token.authToken, "auth/domains").catch(() => null),
+    ])
+
     const data = await response.json()
     const parsedData = projectsResponseSchema.safeParse(data)
 
@@ -108,7 +112,18 @@ export const projectRouter = {
       console.error("Zod Parsing Error:", parsedData.error.message)
       return undefined
     }
-    return parsedData.data.projects
+
+    const domainsData = domainsResponse ? await domainsResponse.json().catch(() => null) : null
+    const domainsResponseSchema = z.object({ domains: z.array(z.object({ id: z.string(), name: z.string() })) })
+    const parsedDomains = domainsResponseSchema.safeParse(domainsData)
+    const domainMap = new Map<string, string>(
+      (parsedDomains.success ? parsedDomains.data.domains : []).map((d) => [d.id, d.name])
+    )
+
+    return parsedData.data.projects.map((project) => ({
+      ...project,
+      domain_name: project.domain_id ? (domainMap.get(project.domain_id) ?? undefined) : undefined,
+    }))
   }),
 
   /**
