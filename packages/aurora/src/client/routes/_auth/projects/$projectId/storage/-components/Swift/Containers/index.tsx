@@ -201,7 +201,7 @@ export const SwiftContainers = () => {
   // Handle loading state
   if (isLoading) {
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
         <Trans>Loading Containers...</Trans>
       </Stack>
@@ -213,7 +213,7 @@ export const SwiftContainers = () => {
     const errorMessage = error.message
 
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
         <Trans>Error Loading Containers: {errorMessage}</Trans>
       </Stack>
     )

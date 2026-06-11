@@ -100,7 +100,7 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
   }, [matches, projectInfo, projectId, navigate, t])
 
   return (
-    <Breadcrumb className="mt-8 mb-4">
+    <Breadcrumb className="relative z-1 mt-8 mb-4">
       {breadcrumbs.map((item, index) => (
         <BreadcrumbItem key={index} label={item.label} icon={item.icon} onClick={item.onClick} active={item.active} />
       ))}

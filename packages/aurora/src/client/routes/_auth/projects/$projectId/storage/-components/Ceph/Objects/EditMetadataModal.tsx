@@ -6,7 +6,6 @@ import {
   Modal,
   TextInput,
   Stack,
-  Message,
   Spinner,
   DataGrid,
   DataGridRow,
@@ -294,7 +293,7 @@ export const EditMetadataModal = ({
       title={
         <span className="flex max-w-[400px] items-center gap-1">
           <Trans>
-            <span className="shrink-0">Properties of</span>{" "}
+            <span className="shrink-0">Edit metadata:</span>{" "}
             <span className="truncate font-mono" title={displayName}>
               {displayName}
             </span>
@@ -315,11 +314,18 @@ export const EditMetadataModal = ({
           <Trans>Loading object properties...</Trans>
         </Stack>
       ) : isMetaError ? (
-        <Message variant="danger">
+        <p className="text-theme-error" role="alert">
           <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
-        </Message>
+        </p>
       ) : (
         <Stack direction="vertical" gap="6">
+          {/* Mutation error */}
+          {updateMutation.isError && (
+            <p className="text-theme-error" role="alert">
+              <Trans>Failed to update object: {mutationErrorMessage}</Trans>
+            </p>
+          )}
+
           {/* ── Read-only properties ──────────────────────────────────────── */}
           <div>
             <p className="text-theme-default mb-3 text-sm font-semibold">
@@ -367,17 +373,18 @@ export const EditMetadataModal = ({
             </Stack>
 
             {isSizeExceeded && (
-              <Message variant="warning" className="mb-3">
+              <p className="text-theme-default mb-3" role="alert">
                 <Trans>Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving.</Trans>
-              </Message>
+              </p>
             )}
 
-            <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-3 justify-end p-2">
+            <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 justify-end p-2">
               <Button
                 label={t`Add Property`}
                 onClick={() => setIsAddingNew(true)}
                 variant="primary"
                 icon="addCircle"
+                size="small"
                 disabled={isAddingNew || hasEditing || isBusy}
               />
             </Stack>
@@ -518,13 +525,6 @@ export const EditMetadataModal = ({
               )}
             </DataGrid>
           </div>
-
-          {/* Mutation error */}
-          {updateMutation.isError && (
-            <Message variant="danger">
-              <Trans>Failed to update object: {mutationErrorMessage}</Trans>
-            </Message>
-          )}
         </Stack>
       )}
     </Modal>
