@@ -163,9 +163,10 @@ describe("EmptyBucketModal", () => {
       expect(screen.getByText(/Nothing to do. Bucket is already empty./)).toBeInTheDocument()
     })
 
-    test("shows Got it! button for empty bucket", () => {
+    test("renders Close button for empty bucket", () => {
       renderModal({ bucket: mockEmptyBucket })
-      expect(screen.getByRole("button", { name: /Got it!/i })).toBeInTheDocument()
+      expect(screen.getByTestId("empty-info-close-button")).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: /^Empty$/i })).not.toBeInTheDocument()
     })
 
     test("does not show confirmation input for empty bucket", () => {
@@ -173,13 +174,12 @@ describe("EmptyBucketModal", () => {
       expect(screen.queryByLabelText(/Type the bucket name to confirm/i)).not.toBeInTheDocument()
     })
 
-    test("closes modal when Got it! button is clicked", async () => {
+    test("closes modal when Close button is clicked", async () => {
       const user = userEvent.setup({ delay: null })
       const mockOnClose = vi.fn()
       renderModal({ bucket: mockEmptyBucket, onClose: mockOnClose })
 
-      const button = screen.getByRole("button", { name: /Got it!/i })
-      await user.click(button)
+      await user.click(screen.getByTestId("empty-info-close-button"))
 
       expect(mockOnClose).toHaveBeenCalledTimes(1)
     })

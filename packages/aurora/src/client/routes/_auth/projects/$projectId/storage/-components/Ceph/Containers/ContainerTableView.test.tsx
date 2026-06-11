@@ -200,18 +200,6 @@ describe("ContainerTableView", () => {
     })
   })
 
-  describe("Footer", () => {
-    test("shows singular form for one bucket", () => {
-      renderTableView({ containers: [mockContainers[0]] })
-      expect(screen.getByText("1 bucket")).toBeInTheDocument()
-    })
-
-    test("shows plural form for multiple buckets", () => {
-      renderTableView()
-      expect(screen.getByText("3 buckets")).toBeInTheDocument()
-    })
-  })
-
   describe("Selection", () => {
     test("renders select all checkbox", () => {
       renderTableView()

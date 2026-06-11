@@ -122,8 +122,6 @@ export const ContainerTableView = ({
   // Define column template — 6 columns: checkbox, name, count, last modified, size, actions menu
   const gridColumnTemplate = "40px minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
-  const allContainersCount = containers.length
-
   return (
     <>
       <div className="relative">
@@ -161,7 +159,7 @@ export const ContainerTableView = ({
           ref={parentRef}
           className="overflow-auto"
           style={{
-            height: "calc(100vh - 545px)", // Dynamic height based on viewport
+            height: "calc(100vh - 510px)", // Dynamic height based on viewport
           }}
           data-testid="containers-table-body"
         >
@@ -255,15 +253,6 @@ export const ContainerTableView = ({
               )
             })}
           </div>
-        </div>
-
-        {/* Footer with count */}
-        <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
-          {allContainersCount === 1 ? (
-            <Trans>{allContainersCount} bucket</Trans>
-          ) : (
-            <Trans>{allContainersCount} buckets</Trans>
-          )}
         </div>
       </div>
 
