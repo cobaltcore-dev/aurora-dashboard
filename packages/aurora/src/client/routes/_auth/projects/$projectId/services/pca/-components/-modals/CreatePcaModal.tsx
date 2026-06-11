@@ -58,8 +58,11 @@ export const CreatePcaModal = ({ open, onClose }: CreateCaModalProps) => {
     onClose()
   }
 
-  // creates a reactive subscription so the component re-renders, which allows the confirm button to enable once the user types "common name".
-  const canCreate = useStore(form.store, (state) => state.isSubmitting || state.values.common_name.trim().length === 0)
+  // Reactive subscription used to control create action disabled state.
+  const isCreateDisabled = useStore(
+    form.store,
+    (state) => state.isSubmitting || state.values.common_name.trim().length === 0
+  )
 
   return (
     <Modal
@@ -70,7 +73,7 @@ export const CreatePcaModal = ({ open, onClose }: CreateCaModalProps) => {
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isPending || canCreate}
+      disableConfirmButton={isPending || isCreateDisabled}
     >
       {createPcaMutation.error?.message && (
         <Message dismissible={false} variant="error" className="mb-4">
