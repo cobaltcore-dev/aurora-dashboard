@@ -8,6 +8,23 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
+/**
+ * Validates that the requested storage provider is available for the given project,
+ * and redirects to an appropriate fallback route when it is not.
+ *
+ * Redirect rules (in priority order):
+ * 1. No `object-store` service at all → redirect to the project overview.
+ * 2. Unknown provider (neither "swift" nor "ceph") → redirect to the first
+ *    available provider, or to the project overview if none exist.
+ * 3. Requested provider unavailable → redirect to the other provider,
+ *    or to the project overview if no alternative exists.
+ *
+ * Ceph has a temporary fallback flag (`cephFallbackEnabled`) that treats it as
+ * available even when absent from the OpenStack service catalog.
+ *
+ * @throws {redirect} - Always throws a TanStack Router redirect; never returns normally
+ *   when the requested provider/project combination is unavailable.
+ */
 export const checkServiceAvailability = (
   availableServices: {
     type: string
@@ -163,6 +180,7 @@ function StorageDashboard() {
       <ContentHeader title={pageTitle} projectId={project} />
       {project ? (
         <ErrorBoundary
+          resetKeys={[project, provider]}
           fallback={
             <div className="p-4 text-center">
               <Trans>Error loading component</Trans>
