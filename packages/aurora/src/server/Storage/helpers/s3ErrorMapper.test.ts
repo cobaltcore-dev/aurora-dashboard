@@ -273,9 +273,7 @@ describe("mapS3ErrorToTRPCError", () => {
         mapS3ErrorToTRPCError(error, { operation: "delete object", bucket: TEST_BUCKET, key: TEST_KEY })
       ).toThrow(
         expect.objectContaining({
-          message: expect.stringMatching(
-            new RegExp(`Failed to delete object — bucket: ${TEST_BUCKET} — key: ${TEST_KEY} —.*Access denied`)
-          ),
+          message: `Failed to delete object — bucket: ${TEST_BUCKET} — key: ${TEST_KEY} — Access denied — your credentials are valid but lack permissions for this operation`,
         })
       )
     })

@@ -60,6 +60,11 @@ export const createBucketInputSchema = projectScopedInputSchema.extend({
   enableVersioning: z.boolean().optional().default(false),
 })
 
+export const createBucketOutputSchema = z.object({
+  success: z.boolean(),
+  versioningError: z.string().optional(),
+})
+
 export const deleteBucketInputSchema = projectScopedInputSchema.extend({
   bucketName: z.string().min(1),
 })
@@ -69,6 +74,7 @@ export const deleteBucketInputSchema = projectScopedInputSchema.extend({
 // ============================================================================
 
 export type Container = z.infer<typeof containerSchema>
+export type CreateBucketOutput = z.infer<typeof createBucketOutputSchema>
 
 // ============================================================================
 // S3 STATUS SCHEMAS

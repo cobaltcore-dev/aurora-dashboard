@@ -137,20 +137,20 @@ export const ObjectVersionHistoryModal = ({
                 </DataGridHeadCell>
               </DataGridRow>
 
-              {versions.map((version: ObjectVersion, index: number) => {
-                const isLatest = index === 0
+              {versions.map((version: ObjectVersion) => {
+                const isLatest = version.isLatest
                 const isDeleteMarker = version.isDeleteMarker ?? false
 
                 return (
                   <DataGridRow key={version.versionId}>
                     <DataGridCell>
-                      {isLatest ? (
-                        <Badge variant="success">
-                          <Trans>Latest</Trans>
-                        </Badge>
-                      ) : isDeleteMarker ? (
+                      {isDeleteMarker ? (
                         <Badge variant="error">
                           <Trans>Delete Marker</Trans>
+                        </Badge>
+                      ) : isLatest ? (
+                        <Badge variant="success">
+                          <Trans>Latest</Trans>
                         </Badge>
                       ) : (
                         <Badge variant="info">

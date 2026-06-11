@@ -60,7 +60,12 @@ export function mapS3ErrorToTRPCError(
   // Add specific error details for access-related errors
   if (errorCode === "AccessDenied") {
     parts.push("Access denied — your credentials are valid but lack permissions for this operation")
-  } else if (errorCode === "InvalidAccessKeyId") {
+  } else if (
+    errorCode === "InvalidAccessKeyId" ||
+    errorCode === "SignatureDoesNotMatch" ||
+    errorCode === "TokenRefreshRequired" ||
+    errorCode === "RequestTimeTooSkewed"
+  ) {
     parts.push("Invalid access key — your credentials may be expired or incorrect")
   } else if (s3Error.message) {
     parts.push(s3Error.message)

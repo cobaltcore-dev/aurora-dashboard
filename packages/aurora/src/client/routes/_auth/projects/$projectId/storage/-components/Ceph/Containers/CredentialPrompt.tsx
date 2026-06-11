@@ -36,13 +36,13 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
       <h2 className="text-lg font-semibold">
         <Trans>S3 Object Storage — Setup Required</Trans>
       </h2>
-      <p className="text-juno-grey-light-1">
+      <p className="text-theme-default">
         <Trans>
           To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials
           authenticate your requests to the Ceph storage backend.
         </Trans>
       </p>
-      <p className="text-juno-grey-light-1 text-sm">
+      <p className="text-theme-default text-sm">
         <Trans>
           Click the button below to automatically generate credentials for this project. You only need to do this once.
         </Trans>
