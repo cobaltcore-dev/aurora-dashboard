@@ -3121,6 +3121,9 @@ msgstr "Image-Datei kann nicht hochgeladen werden"
 msgid "Unknown"
 msgstr ""
 
+msgid "Unknown domain"
+msgstr ""
+
 msgid "Unnamed"
 msgstr "Unbenannt"
 
