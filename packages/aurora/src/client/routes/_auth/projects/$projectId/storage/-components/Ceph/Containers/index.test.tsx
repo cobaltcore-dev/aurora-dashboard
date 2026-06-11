@@ -209,7 +209,7 @@ describe("CephContainers (index)", () => {
       trpcState.error = { message: "Network error" }
       trpcState.buckets = undefined
       renderContainers()
-      expect(screen.getByText(/Error Loading Buckets/i)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to load containers/i)).toBeInTheDocument()
       expect(screen.getByText(/Network error/i)).toBeInTheDocument()
     })
 
