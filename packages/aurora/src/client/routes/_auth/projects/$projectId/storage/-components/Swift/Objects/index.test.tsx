@@ -49,8 +49,6 @@ vi.mock("@tanstack/react-router", async () => {
     useParams: vi.fn(() => ({
       accountId: "test-account",
       projectId: "test-project",
-      provider: "swift",
-      containerName: "test-container",
     })),
     useNavigate: vi.fn(() => mockNavigate),
   }
@@ -65,8 +63,6 @@ vi.mock("../../../$provider/containers/$containerName/objects", () => ({
     useParams: vi.fn(() => ({
       accountId: "test-account",
       projectId: "test-project",
-      provider: "swift",
-      containerName: "test-container",
     })),
   },
 }))
@@ -285,7 +281,7 @@ const renderObjects = () =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <SwiftObjects />
+        <SwiftObjects provider="swift" containerName="test-container" />
       </PortalProvider>
     </I18nProvider>
   )
@@ -560,6 +556,41 @@ describe("SwiftObjects (index)", () => {
       })
       // nestedCount = 4 - 1 = 3 should be passed to the toast factory
       expect(getFolderDeletedToast).toHaveBeenCalledWith("my-folder", 3, expect.any(Object))
+    })
+  })
+
+  describe("Info block", () => {
+    test("renders objects-info-block", () => {
+      renderObjects()
+      expect(screen.getByTestId("objects-info-block")).toBeInTheDocument()
+    })
+
+    test("shows total item count when no search is active", () => {
+      renderObjects()
+      // mockObjects builds 3 rows: 2 files + 1 folder
+      expect(screen.getByText(/3 items/i)).toBeInTheDocument()
+    })
+
+    test("shows filtered count when search is active", () => {
+      mockUseSearch.mockReturnValue({
+        prefix: undefined,
+        sortBy: undefined,
+        sortDirection: undefined,
+        search: "file-a",
+      })
+      renderObjects()
+      expect(screen.getByText(/1 of 3 item/i)).toBeInTheDocument()
+    })
+
+    test("shows total count when search is cleared", () => {
+      mockUseSearch.mockReturnValue({
+        prefix: undefined,
+        sortBy: undefined,
+        sortDirection: undefined,
+        search: "",
+      })
+      renderObjects()
+      expect(screen.getByText(/3 items/i)).toBeInTheDocument()
     })
   })
 
