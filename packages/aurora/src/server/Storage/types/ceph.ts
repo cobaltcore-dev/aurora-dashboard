@@ -264,3 +264,78 @@ export const getServiceInfoInputSchema = z.object({
 // ============================================================================
 
 export type S3ServiceInfo = z.infer<typeof s3ServiceInfoSchema>
+
+// ============================================================================
+// BUCKET POLICY SCHEMAS
+// ============================================================================
+
+/**
+ * Bucket Policy - JSON-based access control for S3 buckets
+ *
+ * A policy is a JSON document that defines:
+ *   - Who can access the bucket (Principal)
+ *   - What actions they can perform (Action: s3:GetObject, s3:PutObject, etc.)
+ *   - Which resources they can access (Resource: arn:aws:s3:::bucket/*)
+ *   - Under what conditions (Condition: IP restrictions, etc.)
+ *
+ * Common use cases:
+ *   - Public read access for static website hosting
+ *   - Cross-account access delegation
+ *   - IP-based access restrictions
+ *   - Temporary access grants
+ *
+ * @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html
+ */
+export const bucketPolicyStatementSchema = z.object({
+  Sid: z.string().optional(), // Statement ID (optional identifier)
+  Effect: z.enum(["Allow", "Deny"]), // Allow or Deny access
+  Principal: z.union([
+    z.string(), // "*" for public
+    z.object({
+      AWS: z.union([z.string(), z.array(z.string())]).optional(), // AWS account/user ARNs
+      Service: z.union([z.string(), z.array(z.string())]).optional(),
+      Federated: z.union([z.string(), z.array(z.string())]).optional(),
+    }),
+  ]),
+  Action: z.union([
+    z.string(), // Single action: "s3:GetObject"
+    z.array(z.string()), // Multiple actions: ["s3:GetObject", "s3:PutObject"]
+  ]),
+  Resource: z.union([
+    z.string(), // Single resource: "arn:aws:s3:::bucket/*"
+    z.array(z.string()), // Multiple resources
+  ]),
+  Condition: z.record(z.string(), z.any()).optional(), // Conditions (IP, date, etc.)
+})
+
+export const bucketPolicyDocumentSchema = z.object({
+  Version: z.string().default("2012-10-17"), // Policy language version
+  Id: z.string().optional(), // Policy ID
+  Statement: z.array(bucketPolicyStatementSchema),
+})
+
+export const getBucketPolicyInputSchema = projectScopedInputSchema.extend({
+  bucketName: z.string().min(1),
+})
+
+export const getBucketPolicyOutputSchema = z.object({
+  policy: bucketPolicyDocumentSchema.nullable(), // null if no policy set
+  policyText: z.string().nullable(), // Raw JSON string for editor
+})
+
+export const setBucketPolicyInputSchema = projectScopedInputSchema.extend({
+  bucketName: z.string().min(1),
+  policy: z.string(), // JSON string (allows UI to use JSON editor)
+})
+
+export const deleteBucketPolicyInputSchema = projectScopedInputSchema.extend({
+  bucketName: z.string().min(1),
+})
+
+// ============================================================================
+// BUCKET POLICY TYPES
+// ============================================================================
+
+export type BucketPolicyStatement = z.infer<typeof bucketPolicyStatementSchema>
+export type BucketPolicyDocument = z.infer<typeof bucketPolicyDocumentSchema>
+export type GetBucketPolicyOutput = z.infer<typeof getBucketPolicyOutputSchema>

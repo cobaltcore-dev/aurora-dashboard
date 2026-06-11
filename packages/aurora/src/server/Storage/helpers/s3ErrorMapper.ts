@@ -11,6 +11,7 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
   NoSuchKey: "NOT_FOUND",
   NoSuchUpload: "NOT_FOUND",
   NoSuchVersion: "NOT_FOUND",
+  NoSuchBucketPolicy: "NOT_FOUND",
   BucketAlreadyExists: "CONFLICT",
   BucketAlreadyOwnedByYou: "CONFLICT",
   BucketNotEmpty: "PRECONDITION_FAILED",
@@ -24,6 +25,7 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
   RequestTimeTooSkewed: "UNAUTHORIZED",
   InvalidBucketName: "BAD_REQUEST",
   KeyTooLongError: "BAD_REQUEST",
+  MalformedPolicy: "BAD_REQUEST",
   EntityTooLarge: "PAYLOAD_TOO_LARGE",
   EntityTooSmall: "BAD_REQUEST",
 }
