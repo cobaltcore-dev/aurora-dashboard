@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react-swc"
 import tailwindcss from "@tailwindcss/vite"
 import svgr from "vite-plugin-svgr"
 import viteFastify from "@fastify/vite/plugin"
+import { viteStaticCopy } from "vite-plugin-static-copy"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -36,6 +37,9 @@ export default defineConfig(({ mode }) => ({
     mode !== "production" && svgr(),
     react({
       plugins: mode !== "production" ? [["@lingui/swc-plugin", {}]] : [],
+    }),
+    viteStaticCopy({
+      targets: [{ src: path.resolve(__dirname, "src/policies"), dest: "../" }],
     }),
   ],
 }))
