@@ -308,7 +308,6 @@ export const ObjectsTableView = ({
     )
   }
 
-  const allCount = rows.length
   const isAnyDownloading = downloadingRow !== null || previewingRow !== null
 
   return (
@@ -344,7 +343,7 @@ export const ObjectsTableView = ({
         <div
           ref={parentRef}
           className="overflow-auto"
-          style={{ height: "calc(100vh - 550px)" }}
+          style={{ height: "calc(100vh - 490px)" }}
           data-testid="objects-table-body"
         >
           <div
@@ -514,11 +513,6 @@ export const ObjectsTableView = ({
               )
             })}
           </div>
-        </div>
-
-        {/* Footer with count */}
-        <div className="text-theme-light border-theme-background-lvl-2 border-t px-4 py-2 text-sm">
-          <Trans>{allCount} items</Trans>
         </div>
       </div>
 

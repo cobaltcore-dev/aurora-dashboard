@@ -670,6 +670,7 @@ export const EditContainerMetadataModal = ({
                   onClick={() => setIsAddingNew(true)}
                   variant="primary"
                   icon="addCircle"
+                  size="small"
                   disabled={isAddingNew || hasEditing || isBusy}
                 />
               </Stack>

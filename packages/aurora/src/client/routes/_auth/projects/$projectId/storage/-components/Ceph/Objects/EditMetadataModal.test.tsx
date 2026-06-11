@@ -97,7 +97,7 @@ describe("EditMetadataModal", () => {
   it("renders modal with title", () => {
     renderModal(defaultProps)
 
-    expect(screen.getByText("Properties of")).toBeInTheDocument()
+    expect(screen.queryByText(/Edit metadata:/i)).toBeInTheDocument()
     expect(screen.getByText("test-file.txt")).toBeInTheDocument()
   })
 
@@ -237,7 +237,7 @@ describe("EditMetadataModal", () => {
   it("does not render when isOpen is false", () => {
     renderModal({ ...defaultProps, isOpen: false })
 
-    expect(screen.queryByText("Properties of")).not.toBeInTheDocument()
+    expect(screen.queryByText(/Edit metadata:/i)).not.toBeInTheDocument()
   })
 
   it("shows info about x-amz-meta headers", () => {
