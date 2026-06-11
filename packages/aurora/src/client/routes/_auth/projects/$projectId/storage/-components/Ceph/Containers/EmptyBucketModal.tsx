@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Message, Button } from "@cloudoperators/juno-ui-components"
+import { Modal, ModalFooter, ButtonRow, TextInput, Stack, Button } from "@cloudoperators/juno-ui-components"
 import { Container } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -93,25 +93,37 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       title={t`Empty Bucket`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={isEmpty ? t`Got it!` : t`Empty`}
-      onConfirm={isEmpty ? handleClose : handleSubmit}
+      confirmButtonLabel={isEmpty ? undefined : t`Empty`}
+      confirmButtonVariant="primary-danger"
+      onConfirm={isEmpty ? undefined : handleSubmit}
       cancelButtonLabel={isEmpty ? undefined : t`Cancel`}
+      modalFooter={
+        isEmpty ? (
+          <ModalFooter className="flex justify-end">
+            <ButtonRow>
+              <Button variant="primary" onClick={handleClose} data-testid="empty-info-close-button">
+                <Trans>Close</Trans>
+              </Button>
+            </ButtonRow>
+          </ModalFooter>
+        ) : undefined
+      }
       size="small"
       disableConfirmButton={emptyBucketMutation.isPending || (!isEmpty && confirmName.trim() !== bucket.name)}
     >
       {isEmpty ? (
-        <Message variant="info">
+        <p className="text-theme-default py-2">
           <Trans>Nothing to do. Bucket is already empty.</Trans>
-        </Message>
+        </p>
       ) : (
         <Stack direction="vertical" gap="6">
-          <Message variant="warning">
+          <p className="text-theme-default">
             <Trans>
               <strong>Are you sure?</strong> All {bucketCount}{" "}
               <Plural value={bucketCount} one="object" other="objects" /> in bucket "{bucketName}" will be permanently
               deleted. This action cannot be undone.
             </Trans>
-          </Message>
+          </p>
 
           <Stack direction="vertical" gap="2">
             <div className="flex items-center justify-between">

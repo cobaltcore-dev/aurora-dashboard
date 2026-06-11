@@ -72,9 +72,7 @@ const validCreateCAResponse = {
   },
 }
 
-const validImportCAResponse = {
-  certificate_authority: validCreateCAResponse,
-}
+const validImportCAResponse = validCreateCAResponse
 
 const validCreateCertificateResponse = {
   id: "cert-new",
@@ -562,13 +560,34 @@ describe("pcaRouter", () => {
           "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
       })
 
-      expect(result).toEqual(validImportCAResponse.certificate_authority)
-      expect(ctx.__postMock).toHaveBeenCalledWith("certificate-authorities/ca-1:importCertificate", expect.any(Object))
-      const [, request] = ctx.__postMock.mock.calls[ctx.__postMock.mock.calls.length - 1]
-      expect(JSON.parse(request.body)).toEqual({
+      expect(result).toEqual(validImportCAResponse)
+      expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
+      const lastPostCall = ctx.__postMock.mock.lastCall
+      expect(lastPostCall).toBeDefined()
+      expect(lastPostCall?.[0]).toBe("certificate-authorities/ca-1:importCertificate")
+      expect(lastPostCall?.[1]).toEqual({
         imported_certificate_chain:
           "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
       })
+    })
+
+    it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
+      const ctx = createMockContext({ noClavis: true })
+      const caller = createCaller(ctx as never)
+
+      await expect(
+        caller.services.pca.import({
+          project_id: TEST_PROJECT_ID,
+          certificate_authority_id: "ca-1",
+          imported_certificate_chain:
+            "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Pca service is not available",
+        })
+      )
     })
 
     it("throws PARSE_ERROR on invalid import response payload", async () => {

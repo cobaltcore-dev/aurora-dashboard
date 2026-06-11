@@ -272,11 +272,23 @@ describe("DeleteBucketModal", () => {
       expect(screen.queryByLabelText(/Type the bucket name to confirm/i)).not.toBeInTheDocument()
     })
 
-    test("disables Delete button for non-empty bucket", () => {
+    test("renders Close button instead of Delete Bucket button", () => {
       mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
       renderModal({ bucket: mockNonEmptyBucket })
 
-      expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
+      expect(screen.getByTestId("delete-has-objects-close-button")).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: /^Delete Bucket$/i })).not.toBeInTheDocument()
+    })
+
+    test("calls onClose when Close is clicked", async () => {
+      mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
+      const onClose = vi.fn()
+      const user = userEvent.setup({ delay: null })
+      renderModal({ bucket: mockNonEmptyBucket, onClose })
+
+      await user.click(screen.getByTestId("delete-has-objects-close-button"))
+
+      expect(onClose).toHaveBeenCalled()
     })
   })
 

@@ -2,16 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import {
-  Modal,
-  Stack,
-  Spinner,
-  ComboBox,
-  ComboBoxOption,
-  TextInput,
-  Message,
-  Button,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, ComboBox, ComboBoxOption, TextInput, Button } from "@cloudoperators/juno-ui-components"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack, MdWarning } from "react-icons/md"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useCopyMoveModalState } from "./hooks/useCopyMoveModalState"
@@ -299,17 +290,30 @@ export const MoveObjectModal = ({
           />
 
           {/* Warning banner */}
-          <Message variant="warning">
-            <div className="flex items-start gap-2">
-              <MdWarning size={20} className="shrink-0" />
-              <div>
-                <strong>
-                  <Trans>Warning:</Trans>
-                </strong>{" "}
-                <Trans>This will delete the original object after copying it to the destination.</Trans>
-              </div>
+          <div className="text-theme-default flex items-start gap-2">
+            <MdWarning size={20} className="shrink-0" />
+            <div>
+              <strong>
+                <Trans>Warning:</Trans>
+              </strong>{" "}
+              <Trans>This will delete the original object after copying it to the destination.</Trans>
             </div>
-          </Message>
+          </div>
+
+          {(copyMutation.isError || deleteMutation.isError) &&
+            (() => {
+              const copyErrorMessage = copyMutation.error?.message ?? ""
+              const deleteErrorMessage = deleteMutation.error?.message ?? ""
+              return (
+                <p className="text-theme-error">
+                  {copyMutation.isError ? (
+                    <Trans>Failed to move object: {copyErrorMessage}</Trans>
+                  ) : (
+                    <Trans>Object was copied but could not be deleted from the source: {deleteErrorMessage}</Trans>
+                  )}
+                </p>
+              )
+            })()}
 
           {/* Source object info */}
           <div className="bg-theme-background-lvl-2 rounded p-3">
@@ -474,38 +478,29 @@ export const MoveObjectModal = ({
           </div>
 
           {/* Target path preview */}
-          <TextInput
-            label={t`Target path`}
-            value={targetPathDisplay}
-            readOnly
-            className="font-mono"
-            helptext={
-              isUnchanged
-                ? t`Cannot move to the same location. Please select a different bucket, folder, or change the name.`
-                : t`The object will be moved to this path. Navigate folders above to change the destination.`
-            }
-            invalid={isUnchanged}
-          />
+          <div>
+            <p className="text-theme-light mb-1">
+              {isUnchanged ? (
+                <Trans>
+                  Cannot move to the same location. Please select a different bucket, folder, or change the name.
+                </Trans>
+              ) : (
+                <Trans>The object will be moved to this path. Navigate folders above to change the destination.</Trans>
+              )}
+            </p>
+            <TextInput
+              label={t`Target path`}
+              value={targetPathDisplay}
+              readOnly
+              className="font-mono"
+              invalid={isUnchanged}
+            />
+          </div>
 
           {/* Info: metadata is always copied */}
-          <Message variant="info">
+          <p className="text-theme-default">
             <Trans>Object metadata will be automatically copied during the move operation.</Trans>
-          </Message>
-
-          {(copyMutation.isError || deleteMutation.isError) &&
-            (() => {
-              const copyErrorMessage = copyMutation.error?.message ?? ""
-              const deleteErrorMessage = deleteMutation.error?.message ?? ""
-              return (
-                <Message variant="danger">
-                  {copyMutation.isError ? (
-                    <Trans>Failed to move object: {copyErrorMessage}</Trans>
-                  ) : (
-                    <Trans>Object was copied but could not be deleted from the source: {deleteErrorMessage}</Trans>
-                  )}
-                </Message>
-              )
-            })()}
+          </p>
         </Stack>
       )}
     </Modal>

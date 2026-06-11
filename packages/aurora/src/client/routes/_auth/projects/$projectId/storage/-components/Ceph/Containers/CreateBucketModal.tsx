@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface CreateBucketModalProps {
@@ -141,12 +141,12 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
       disableConfirmButton={createBucketMutation.isPending || !bucketName.trim()}
     >
       <Stack direction="vertical" gap="6">
-        <Message variant="info">
+        <p className="text-theme-default">
           <Trans>
             S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and
             hyphens. They must start and end with a letter or number, and be globally unique within the cluster.
           </Trans>
-        </Message>
+        </p>
         <TextInput
           label={t`Bucket name`}
           required
