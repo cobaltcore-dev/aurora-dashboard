@@ -1,21 +1,29 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest"
 import { FastifyInstance } from "fastify"
 import { createServer } from "../server"
+import { mkdtempSync, rmSync } from "fs"
+import { tmpdir } from "os"
 import path from "path"
 
 describe("HTTP Metrics Collector", () => {
   let server: FastifyInstance
+  let tempPolicyDir: string
 
   beforeAll(async () => {
+    // Create a temporary directory for policy files
+    tempPolicyDir = mkdtempSync(path.join(tmpdir(), "aurora-test-policies-"))
+
     server = await createServer({
       identityEndpoint: "http://localhost:5000",
-      policyDir: path.resolve(__dirname, "../../permission_policies"),
+      policyDir: tempPolicyDir,
     })
     await server.ready()
   })
 
   afterAll(async () => {
     await server.close()
+    // Clean up temporary directory
+    rmSync(tempPolicyDir, { recursive: true, force: true })
   })
 
   it("should expose /metrics endpoint", async () => {
