@@ -170,7 +170,7 @@ msgid "Access Status:"
 msgstr "Zugriffsstatus:"
 
 msgid "Access Type"
-msgstr ""
+msgstr "Zugriffstyp"
 
 msgid "Account"
 msgstr "Account"

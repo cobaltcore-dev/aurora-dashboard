@@ -320,12 +320,19 @@ function RouteComponent() {
   const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
   const isMemberPending = myMemberData?.status === "pending"
   const isMemberAccepted = myMemberData?.status === "accepted"
+  const isActionableMember = isMemberPending || isMemberAccepted
+  const isImageOwner = image.owner === projectId
   const hasMoreActions =
-    (isSharedWithMe && permissions.canUpdateMember) ||
-    (!isSharedWithMe && (permissions.canUpdate || (permissions.canDelete && !image.protected)))
+    (isSharedWithMe && isActionableMember && permissions.canUpdateMember) ||
+    (!isSharedWithMe && permissions.canUpdate) ||
+    (!isSharedWithMe && permissions.canDelete && !image.protected) ||
+    (!isSharedWithMe &&
+      isImageOwner &&
+      image.visibility === IMAGE_VISIBILITY.SHARED &&
+      (permissions.canCreateMember || permissions.canDeleteMember))
 
   const headerActions =
-    hasMoreActions || permissions.canUpdate ? (
+    hasMoreActions || (!isSharedWithMe && permissions.canUpdate) ? (
       <ButtonRow>
         {hasMoreActions && (
           <PopupMenu>
@@ -353,7 +360,7 @@ function RouteComponent() {
                 <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
               )}
               {!isSharedWithMe &&
-                image.owner === projectId &&
+                isImageOwner &&
                 image.visibility === IMAGE_VISIBILITY.SHARED &&
                 (permissions.canCreateMember || permissions.canDeleteMember) && (
                   <PopupMenuItem

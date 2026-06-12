@@ -256,10 +256,11 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   const [extraSpecsPromise, setExtraSpecsPromise] = useState<Promise<Record<string, string>> | null>(null)
   const [resolvedCanEdit, setResolvedCanEdit] = useState<boolean | undefined>(canEdit)
 
-  const permissionsPromise = React.useMemo(
-    () => (isOpen ? createPermissionsPromise(client, project) : null),
-    [client, project, isOpen]
-  )
+  const permissionsPromise = React.useMemo(() => {
+    if (!isOpen) return null
+    if (canEdit !== undefined) return Promise.resolve({ canCreate: canEdit, canDelete: canEdit })
+    return createPermissionsPromise(client, project)
+  }, [client, project, isOpen, canEdit])
 
   React.useEffect(() => {
     if (canEdit !== undefined) {
