@@ -104,19 +104,6 @@ function extractLabels(request: FastifyRequest, reply: FastifyReply): MetricsLab
   let route = urlPath
   let projectId = ""
 
-  // Extract project_id from URL if present
-  // Pattern: /projects/{project_id}/... or query param
-  const projectMatch = urlPath.match(/\/projects\/([^/?]+)/)
-  if (projectMatch) {
-    projectId = projectMatch[1]
-  }
-
-  // Also check query parameters for project_id
-  if (!projectId) {
-    const url = new URL(request.url, "http://localhost")
-    projectId = url.searchParams.get("project_id") || ""
-  }
-
   // tRPC API endpoints - the primary focus for infrastructure monitoring
   if (urlPath.includes("/polaris-bff/")) {
     endpointType = "trpc"
@@ -136,6 +123,18 @@ function extractLabels(request: FastifyRequest, reply: FastifyReply): MetricsLab
         route = cleanPath
       }
     }
+
+    // Extract project_id from tRPC query parameters
+    const url = new URL(request.url, "http://localhost")
+    const inputParam = url.searchParams.get("input")
+    if (inputParam) {
+      try {
+        const input = JSON.parse(inputParam)
+        projectId = input.project_id || ""
+      } catch {
+        // Ignore parse errors
+      }
+    }
   }
   // Regular API endpoints
   else if (urlPath.startsWith("/api/")) {
@@ -146,6 +145,7 @@ function extractLabels(request: FastifyRequest, reply: FastifyReply): MetricsLab
   else if (urlPath.startsWith("/@")) {
     endpointType = "vite-dev"
     route = "vite-dev"
+    // Don't extract project_id from Vite paths
   }
   // JavaScript/CSS/JSON modules and sourcemaps
   else if (urlPath.match(/\.(js|jsx|ts|tsx|mjs|css|json|map)$/)) {
@@ -168,6 +168,13 @@ function extractLabels(request: FastifyRequest, reply: FastifyReply): MetricsLab
   else {
     endpointType = "spa"
     route = normalizeSpaRoute(urlPath)
+
+    // Extract project_id from SPA route URL
+    // Pattern: /projects/{project_id}/...
+    const projectMatch = urlPath.match(/^\/projects\/([^/?]+)/)
+    if (projectMatch) {
+      projectId = projectMatch[1]
+    }
   }
 
   return {
