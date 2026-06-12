@@ -85,9 +85,14 @@ const SharedImageBox: React.FC<{
 
       {canUpdateMember && (isPending || isRejected) && (
         <ButtonRow>
-          <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading} variant="primary">
+          <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading}>
             <Trans>Accept</Trans>
           </Button>
+          {isPending && (
+            <Button onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)} disabled={isLoading}>
+              <Trans>Reject</Trans>
+            </Button>
+          )}
         </ButtonRow>
       )}
     </Box>

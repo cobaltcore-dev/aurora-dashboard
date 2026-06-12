@@ -318,12 +318,10 @@ function RouteComponent() {
 
   const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
   const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
-  const isMemberPending = myMemberData?.status === "pending"
   const isMemberAccepted = myMemberData?.status === "accepted"
-  const isActionableMember = isMemberPending || isMemberAccepted
   const isImageOwner = image.owner === projectId
   const hasMoreActions =
-    (isSharedWithMe && isActionableMember && permissions.canUpdateMember) ||
+    (isSharedWithMe && isMemberAccepted && permissions.canUpdateMember) ||
     (!isSharedWithMe && permissions.canUpdate) ||
     (!isSharedWithMe && permissions.canDelete && !image.protected) ||
     (!isSharedWithMe &&
@@ -342,13 +340,8 @@ function RouteComponent() {
               </Button>
             </PopupMenuToggle>
             <PopupMenuOptions>
-              {isSharedWithMe && permissions.canUpdateMember && (
-                <>
-                  {isMemberPending && <PopupMenuItem label={t`Accept`} onClick={() => setAcceptModalOpen(true)} />}
-                  {(isMemberPending || isMemberAccepted) && (
-                    <PopupMenuItem label={t`Reject`} onClick={() => setRejectModalOpen(true)} />
-                  )}
-                </>
+              {isSharedWithMe && isMemberAccepted && permissions.canUpdateMember && (
+                <PopupMenuItem label={t`Reject`} onClick={() => setRejectModalOpen(true)} />
               )}
               {!isSharedWithMe && permissions.canUpdate && (
                 <PopupMenuItem
@@ -397,25 +390,27 @@ function RouteComponent() {
   return (
     <>
       <ContentHeader title={String(image.name ?? image.id)} projectId={projectId} actions={headerActions} />
-      <ImageDetailsView
-        key={image.id}
-        image={image}
-        currentProjectId={projectId}
-        activeTab={tab ?? "details"}
-        onTabChange={(newTab) =>
-          navigate({
-            search: { tab: newTab === "details" ? undefined : newTab } as unknown as true,
-          })
-        }
-        permissions={{
-          canCreateMember: permissions.canCreateMember,
-          canDeleteMember: permissions.canDeleteMember,
-          canUpdateMember: permissions.canUpdateMember,
-        }}
-        myMemberData={myMemberData}
-        onMemberStatusChange={handleMemberStatusChange}
-        isMemberStatusChanging={updateMemberMutation.isPending}
-      />
+      <div className="mt-3">
+        <ImageDetailsView
+          key={image.id}
+          image={image}
+          currentProjectId={projectId}
+          activeTab={tab ?? "details"}
+          onTabChange={(newTab) =>
+            navigate({
+              search: { tab: newTab === "details" ? undefined : newTab } as unknown as true,
+            })
+          }
+          permissions={{
+            canCreateMember: permissions.canCreateMember,
+            canDeleteMember: permissions.canDeleteMember,
+            canUpdateMember: permissions.canUpdateMember,
+          }}
+          myMemberData={myMemberData}
+          onMemberStatusChange={handleMemberStatusChange}
+          isMemberStatusChanging={updateMemberMutation.isPending}
+        />
+      </div>
 
       {toastData && <Toast {...toastData} />}
 
