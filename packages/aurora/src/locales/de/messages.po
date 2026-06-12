@@ -1042,6 +1042,12 @@ msgstr ""
 msgid "Empty Containers"
 msgstr "Container leeren"
 
+msgid "Empty Selected"
+msgstr ""
+
+msgid "Empty Selected ({selectedCount})"
+msgstr ""
+
 msgid "Empty:"
 msgstr "Leeren:"
 
@@ -2580,6 +2586,9 @@ msgstr "Metadata speichern"
 
 msgid "Saving..."
 msgstr "Wird gespeichert..."
+
+msgid "Search containers..."
+msgstr ""
 
 msgid "Search flavors..."
 msgstr "Flavors suchen..."
