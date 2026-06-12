@@ -1042,6 +1042,12 @@ msgstr "Empty Buckets"
 msgid "Empty Containers"
 msgstr "Empty Containers"
 
+msgid "Empty Selected"
+msgstr "Empty Selected"
+
+msgid "Empty Selected ({selectedCount})"
+msgstr "Empty Selected ({selectedCount})"
+
 msgid "Empty:"
 msgstr "Empty:"
 
@@ -2580,6 +2586,9 @@ msgstr "Save Metadata"
 
 msgid "Saving..."
 msgstr "Saving..."
+
+msgid "Search containers..."
+msgstr "Search containers..."
 
 msgid "Search flavors..."
 msgstr "Search flavors..."
