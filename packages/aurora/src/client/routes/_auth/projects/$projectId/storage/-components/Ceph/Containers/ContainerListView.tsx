@@ -68,10 +68,38 @@ export function ContainerListView() {
     if (errorMessage === "NO_CEPH_CREDENTIALS") {
       return <CredentialPrompt onSuccess={() => refetch()} />
     }
+
+    // Render error with appropriate styling based on error type
+    const isAccessDenied = errorMessage.includes("Access denied") || errorMessage.includes("AccessDenied")
+    const isAuthError = errorMessage.includes("Invalid access key") || errorMessage.includes("InvalidAccessKeyId")
+
     return (
-      <p className="text-juno-red mt-4 text-sm">
-        <Trans>Failed to load containers: {errorMessage}</Trans>
-      </p>
+      <div className="bg-juno-red bg-opacity-10 border-juno-red mt-4 rounded border p-4">
+        <h4 className="text-juno-red mb-1 text-sm font-semibold">
+          {isAccessDenied ? (
+            <Trans>Access Denied</Trans>
+          ) : isAuthError ? (
+            <Trans>Authentication Failed</Trans>
+          ) : (
+            <Trans>Error Loading Containers</Trans>
+          )}
+        </h4>
+        <p className="text-juno-grey-light-1 text-sm">
+          {isAccessDenied ? (
+            <Trans>
+              Your credentials are valid but you don't have permission to perform this operation. Please contact your
+              administrator to grant you the necessary permissions.
+            </Trans>
+          ) : isAuthError ? (
+            <Trans>
+              Your S3 credentials are invalid or expired. Please try creating new credentials or contact your
+              administrator.
+            </Trans>
+          ) : (
+            errorMessage
+          )}
+        </p>
+      </div>
     )
   }
 

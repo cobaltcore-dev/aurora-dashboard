@@ -1,9 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { createCallerFactory, router } from "../../trpc"
 import { AuroraPortalContext } from "../../context"
-import { permissionRouter } from "./permissionRouter"
 
-const createCaller = createCallerFactory(router(permissionRouter))
+vi.mock("@/server/policyEngineLoader", () => ({
+  loadPolicyEngine: vi.fn(() => ({
+    policy: vi.fn(() => ({ check: vi.fn(() => true) })),
+  })),
+}))
+
+import { buildPermissionRouter } from "./permissionRouter"
+
+const createCaller = createCallerFactory(router(buildPermissionRouter("/mock/policies")))
 type CanUserInput = Parameters<ReturnType<typeof createCaller>["canUser"]>[0]
 type PermissionKey = Extract<CanUserInput["permission"], string>
 type PermissionList = Extract<CanUserInput["permission"], PermissionKey[]>
