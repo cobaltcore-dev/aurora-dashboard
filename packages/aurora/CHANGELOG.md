@@ -1,5 +1,25 @@
 # @cobaltcore-dev/aurora
 
+## 0.4.0
+
+### Minor Changes
+
+- fc1bc08: show domain name on project cards by fetching auth/domains and using new juno heading system
+- 641c699: ceph - apply ui/ux improvements from swift design reviews
+- 5ab571f: Remove bundled OpenStack policy files from the aurora package. Consumers must now supply their own policy files via the `policyDir` option in `createServer`. The built-in `permission_policies/` directory is no longer shipped with the package.
+- e5d39a9: Add bucket versioning UI with enable/disable/suspend functionality
+
+### Patch Changes
+
+- 711736c: fix(portal): add error component to images route to preserve layout on errors and fix ButtonSize type errors
+- fc861d5: Add Clavis CA import certificates functionality
+
+## 0.3.1
+
+### Patch Changes
+
+- a046b17: Image tabs are now in the action bar.
+
 ## 0.3.0
 
 ### Minor Changes

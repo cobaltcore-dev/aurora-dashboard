@@ -1,4 +1,10 @@
-import { ListBucketsCommand, CreateBucketCommand, DeleteBucketCommand, ListObjectsV2Command } from "@aws-sdk/client-s3"
+import {
+  ListBucketsCommand,
+  CreateBucketCommand,
+  DeleteBucketCommand,
+  ListObjectsV2Command,
+  PutBucketVersioningCommand,
+} from "@aws-sdk/client-s3"
 import { cephProtectedProcedure, cephProcedure } from "../../cephProcedure"
 import { mapS3ErrorToTRPCError } from "../../helpers/s3ErrorMapper"
 import { projectScopedInputSchema } from "../../../trpc"
@@ -9,6 +15,7 @@ import {
   deleteBucketInputSchema,
   type Container,
   type S3Status,
+  type CreateBucketOutput,
 } from "../../types/ceph"
 import { S3_MAX_KEYS_PER_REQUEST } from "../../constants"
 
@@ -29,7 +36,6 @@ export const containerRouter = {
   list: cephProtectedProcedure.input(listContainersInputSchema).query(async ({ input, ctx }): Promise<Container[]> => {
     const s3 = ctx.getCephClient()
     const { includeMetadata } = input
-
     try {
       const response = await s3.send(new ListBucketsCommand({}))
       const buckets = response.Buckets ?? []
@@ -129,6 +135,10 @@ export const containerRouter = {
    * Uses AWS SDK CreateBucketCommand. The AWS SDK automatically adds LocationConstraint
    * based on the region configured in the S3 client (resolved from OpenStack service catalog).
    *
+   * If enableVersioning is true, enables versioning immediately after bucket creation using
+   * PutBucketVersioningCommand. If versioning fails, the bucket is still created successfully
+   * but the response includes a versioningError field with the error message.
+   *
    * Bucket naming rules (validated client-side and by S3 API):
    *   - 3-63 characters
    *   - Lowercase letters, numbers, hyphens, periods only
@@ -140,21 +150,50 @@ export const containerRouter = {
    * @throws TRPCError BAD_REQUEST - invalid bucket name
    * @throws TRPCError FORBIDDEN - no credentials or access denied
    */
-  create: cephProtectedProcedure.input(createBucketInputSchema).mutation(async ({ ctx, input }): Promise<boolean> => {
-    const s3 = ctx.getCephClient()
-    const { bucketName } = input
+  create: cephProtectedProcedure
+    .input(createBucketInputSchema)
+    .mutation(async ({ ctx, input }): Promise<CreateBucketOutput> => {
+      const s3 = ctx.getCephClient()
+      const { bucketName, enableVersioning } = input
 
-    try {
-      await s3.send(
-        new CreateBucketCommand({
-          Bucket: bucketName,
-        })
-      )
-      return true
-    } catch (error) {
-      throw mapS3ErrorToTRPCError(error, { operation: "create bucket", bucket: bucketName })
-    }
-  }),
+      try {
+        // Create the bucket
+        await s3.send(
+          new CreateBucketCommand({
+            Bucket: bucketName,
+          })
+        )
+      } catch (error) {
+        throw mapS3ErrorToTRPCError(error, { operation: "create bucket", bucket: bucketName })
+      }
+
+      // Enable versioning if requested (treat as best-effort)
+      if (enableVersioning) {
+        try {
+          await s3.send(
+            new PutBucketVersioningCommand({
+              Bucket: bucketName,
+              VersioningConfiguration: {
+                Status: "Enabled",
+              },
+            })
+          )
+        } catch (error) {
+          // Log warning but don't fail the bucket creation
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          console.warn(
+            `[s3] Bucket '${bucketName}' created successfully, but failed to enable versioning:`,
+            errorMessage
+          )
+          return {
+            success: true,
+            versioningError: `Failed to enable versioning: ${errorMessage}`,
+          }
+        }
+      }
+
+      return { success: true }
+    }),
 
   /**
    * Delete an empty S3 bucket.

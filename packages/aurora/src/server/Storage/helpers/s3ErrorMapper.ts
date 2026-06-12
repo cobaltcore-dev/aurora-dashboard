@@ -32,6 +32,10 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
 
 /**
  * Maps AWS SDK S3 errors to TRPCError instances with contextual messages.
+ *
+ * Special handling for AccessDenied vs InvalidAccessKeyId:
+ * - AccessDenied: Valid credentials but insufficient permissions (403)
+ * - InvalidAccessKeyId: Invalid/expired credentials (401)
  */
 export function mapS3ErrorToTRPCError(
   error: unknown,
@@ -50,10 +54,22 @@ export function mapS3ErrorToTRPCError(
     console.warn(`[s3] Unmapped S3 error code: ${errorCode}`)
   }
 
+  // Build contextual error message
   const parts = [`Failed to ${context.operation}`]
   if (context.bucket) parts.push(`bucket: ${context.bucket}`)
   if (context.key) parts.push(`key: ${context.key}`)
-  if (s3Error.message) {
+
+  // Add specific error details for access-related errors
+  if (errorCode === "AccessDenied") {
+    parts.push("Access denied — your credentials are valid but lack permissions for this operation")
+  } else if (
+    errorCode === "InvalidAccessKeyId" ||
+    errorCode === "SignatureDoesNotMatch" ||
+    errorCode === "TokenRefreshRequired" ||
+    errorCode === "RequestTimeTooSkewed"
+  ) {
+    parts.push("Invalid access key — your credentials may be expired or incorrect")
+  } else if (s3Error.message) {
     parts.push(s3Error.message)
   }
 

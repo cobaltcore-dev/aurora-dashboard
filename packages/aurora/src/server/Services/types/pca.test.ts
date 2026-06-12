@@ -3,7 +3,6 @@ import {
   CertificateAuthoritiesListSchema,
   CertificateAuthorityCreateSchema,
   CertificateAuthorityImportInputSchema,
-  CertificateAuthorityResponseSchema,
   CertificateAuthoritySchema,
   CertificateConfigurationSchema,
   CertificateAuthorityIdInputSchema,
@@ -703,28 +702,6 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       }
 
       expect(CertificateAuthoritiesListSchema.safeParse(realWorldResponse).success).toBe(true)
-    })
-  })
-
-  describe("CertificateAuthorityResponseSchema", () => {
-    it("should validate response with a valid CA", () => {
-      expect(
-        CertificateAuthorityResponseSchema.safeParse({
-          certificate_authority: minimalValidCA,
-        }).success
-      ).toBe(true)
-    })
-
-    it("should reject response without certificate_authority key", () => {
-      expect(CertificateAuthorityResponseSchema.safeParse({}).success).toBe(false)
-    })
-
-    it("should reject response with invalid CA", () => {
-      expect(
-        CertificateAuthorityResponseSchema.safeParse({
-          certificate_authority: { id: "ca-123" },
-        }).success
-      ).toBe(false)
     })
   })
 

@@ -36,10 +36,15 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
       <h2 className="text-lg font-semibold">
         <Trans>S3 Object Storage — Setup Required</Trans>
       </h2>
-      <p className="text-juno-grey-light-1">
+      <p className="text-theme-default">
         <Trans>
-          S3 Object Storage requires EC2 credentials (access key + secret key) to authenticate your requests. You need
-          to create credentials before accessing S3 resources.
+          To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials
+          authenticate your requests to the Ceph storage backend.
+        </Trans>
+      </p>
+      <p className="text-theme-default text-sm">
+        <Trans>
+          Click the button below to automatically generate credentials for this project. You only need to do this once.
         </Trans>
       </p>
       <div>
@@ -47,7 +52,7 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
           onClick={() => projectId && createMutation.mutate({ project_id: projectId })}
           disabled={createMutation.isPending || !projectId}
         >
-          {createMutation.isPending ? <Trans>Creating...</Trans> : <Trans>Create Credential</Trans>}
+          {createMutation.isPending ? <Trans>Creating Credentials...</Trans> : <Trans>Create S3 Credentials</Trans>}
         </Button>
       </div>
     </Stack>
