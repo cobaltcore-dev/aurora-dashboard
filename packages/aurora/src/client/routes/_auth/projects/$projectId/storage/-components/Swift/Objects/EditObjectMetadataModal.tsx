@@ -356,7 +356,7 @@ export const EditObjectMetadataModal = ({
       title={
         <span className="flex max-w-[400px] items-center gap-1">
           <Trans>
-            <span className="shrink-0">Edit metadata: </span>{" "}
+            <span className="shrink-0">Edit metadata:</span>{" "}
             <span className="truncate font-mono" title={displayName}>
               {displayName}
             </span>
@@ -479,7 +479,7 @@ export const EditObjectMetadataModal = ({
               </p>
             </Stack>
 
-            <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-3 justify-end p-2">
+            <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 justify-end p-2">
               <Button
                 label={t`Add Property`}
                 onClick={() => setIsAddingNew(true)}

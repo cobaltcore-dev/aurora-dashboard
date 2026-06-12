@@ -1,12 +1,12 @@
 import { useState, useEffect, startTransition } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { Spinner, Button, Toast, ToastProps, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { ObjectSummary } from "@/server/Storage/types/swift"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
-import { useNavigate, useParams } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
 import { Route } from "../../../$provider/containers/$containerName/objects"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
@@ -133,14 +133,10 @@ const resolveSortBy = (sortBy: SortSettings["sortBy"]): SortKey | undefined => {
 
 // ── SwiftObjects ──────────────────────────────────────────────────────────────
 
-export const SwiftObjects = () => {
+export const SwiftObjects = ({ provider, containerName }: { provider: string; containerName: string }) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
-
-  const { provider, containerName } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
-  })
 
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
@@ -248,6 +244,8 @@ export const SwiftObjects = () => {
 
   const allRows = buildRows((objects ?? []) as ObjectSummary[], currentPrefix)
   const filteredRows = allRows.filter((row) => row.displayName.toLowerCase().includes(searchParam.toLowerCase().trim()))
+  const totalItemCount = allRows.length
+  const filteredItemCount = filteredRows.length
   const sortedRows = !sortBy
     ? filteredRows
     : [...filteredRows].sort((a, b) => {
@@ -296,7 +294,7 @@ export const SwiftObjects = () => {
 
   if (isLoading) {
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
         <Trans>Loading Objects...</Trans>
       </Stack>
@@ -306,7 +304,7 @@ export const SwiftObjects = () => {
   if (error) {
     const errorMessage = error.message
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
         <Trans>Error Loading Objects: {errorMessage}</Trans>
       </Stack>
     )
@@ -346,6 +344,20 @@ export const SwiftObjects = () => {
           </Stack>
         }
       />
+      <div
+        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
+        data-testid="objects-info-block"
+      >
+        {searchParam.trim() ? (
+          <Plural
+            value={totalItemCount}
+            one={`${filteredItemCount} of ${totalItemCount} item`}
+            other={`${filteredItemCount} of ${totalItemCount} items`}
+          />
+        ) : (
+          <Plural value={totalItemCount} one={`${totalItemCount} item`} other={`${totalItemCount} items`} />
+        )}
+      </div>
       <ObjectsTableView
         rows={sortedRows}
         searchTerm={searchParam}

@@ -3,16 +3,16 @@ import { imageRouter } from "./imageRouter"
 import { keypairRouter } from "./keypairRouter"
 import { serverGroupRouter } from "./serverGroupRouter"
 import { flavorRouter } from "./flavorRouter"
-import { permissionRouter } from "./permissionRouter"
+import { buildPermissionRouter } from "./permissionRouter"
 import { auroraRouter } from "../../trpc"
 
-export const computeRouters = {
+export const buildComputeRouters = (policyDir: string) => ({
   compute: auroraRouter({
     ...serverRouter,
     ...flavorRouter,
     ...imageRouter,
     ...keypairRouter,
     ...serverGroupRouter,
-    ...permissionRouter,
+    ...buildPermissionRouter(policyDir),
   }),
-}
+})

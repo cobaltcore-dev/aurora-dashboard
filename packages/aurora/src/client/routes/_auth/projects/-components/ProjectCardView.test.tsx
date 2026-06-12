@@ -1,33 +1,27 @@
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import { ProjectCardView } from "./ProjectCardView"
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 
+const mockNavigate = vi.fn()
+
 vi.mock("@tanstack/react-router", () => ({
-  Link: ({
-    to,
-    params,
-    children,
-    className,
-  }: {
-    to: string
-    params: Record<string, string>
-    children: React.ReactNode
-    className?: string
-  }) => {
-    const href = to.replace("$projectId", params.projectId)
-    return (
-      <a href={href} className={className}>
-        {children}
-      </a>
-    )
-  },
+  useNavigate: () => mockNavigate,
+}))
+
+vi.mock("@cloudoperators/juno-ui-components", () => ({
+  Card: ({ children, onClick, className }: { children: React.ReactNode; onClick?: () => void; className?: string }) => (
+    <div role="button" className={className} onClick={onClick}>
+      {children}
+    </div>
+  ),
 }))
 
 const projects = [
   {
     domain_id: "1789d1",
+    domain_name: "test-domain",
     enabled: true,
     id: "89ac3f",
     links: {
@@ -58,7 +52,47 @@ describe("ProjectCardView", () => {
     expect(screen.getByText("Manages security compliance and access control.")).toBeDefined()
   })
 
-  test("card links to the correct project route", async () => {
+  test("renders domain_name when available", async () => {
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectCardView projects={projects} />
+      </I18nProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText("test-domain")).toBeDefined()
+    })
+  })
+
+  test("falls back to domain_id when domain_name is missing", async () => {
+    const projectWithoutDomainName = [{ ...projects[0], domain_name: undefined }]
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectCardView projects={projectWithoutDomainName} />
+      </I18nProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText("1789d1")).toBeDefined()
+    })
+  })
+
+  test("does not render description when absent", async () => {
+    const projectWithoutDescription = [{ ...projects[0], description: undefined }]
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectCardView projects={projectWithoutDescription} />
+      </I18nProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText("Security Group")).toBeDefined()
+    })
+
+    expect(screen.queryByText("Manages security compliance and access control.")).toBeNull()
+  })
+
+  test("card navigates to the correct project route on click", async () => {
     render(
       <I18nProvider i18n={i18n}>
         <ProjectCardView projects={projects} />
@@ -69,8 +103,12 @@ describe("ProjectCardView", () => {
       expect(screen.getByText("Security Group")).toBeInTheDocument()
     })
 
-    const link = screen.getByText("Security Group").closest("a")
-    expect(link).toHaveAttribute("href", "/projects/89ac3f")
+    fireEvent.click(screen.getByRole("button"))
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: "/projects/$projectId",
+      params: { projectId: "89ac3f" },
+    })
   })
 
   test("renders empty state when no projects", async () => {

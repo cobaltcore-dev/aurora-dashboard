@@ -7,7 +7,7 @@ import FastifyHelmet from "@fastify/helmet"
 import FastifyRateLimit from "@fastify/rate-limit"
 import FastifyMultipart, { MultipartFields, MultipartValue } from "@fastify/multipart"
 import { CreateFastifyContextOptions, FastifyTRPCPluginOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify"
-import { appRouter, AuroraRouter } from "./routers" // tRPC router
+import { buildAppRouter, AuroraRouter } from "./routers" // tRPC router
 import { createContext } from "./context"
 import path from "path"
 import { Readable } from "node:stream"
@@ -16,22 +16,24 @@ import { AuroraFastifyCsrfProtection, AuroraHttpMetricsCollector } from "./auror
 import { Registry } from "prom-client"
 import type { AuroraServerConfig } from "../types"
 
-export async function createServer(config?: AuroraServerConfig): Promise<FastifyInstance> {
+export async function createServer(config: AuroraServerConfig): Promise<FastifyInstance> {
   const isProduction = process.env.NODE_ENV === "production"
-  const rawBffEndpoint = config?.bffEndpoint ?? "/polaris-bff"
+  const rawBffEndpoint = config.bffEndpoint ?? "/polaris-bff"
   const bffEndpoint = "/" + rawBffEndpoint.split("/").filter(Boolean).join("/")
-  const viteRoot = config?.viteRoot ?? path.resolve(__dirname, "../../")
+  const viteRoot = config.viteRoot ?? path.resolve(__dirname, "../../")
 
   const contextConfig = {
-    identityEndpoint: config?.identityEndpoint ?? "",
-    defaultEndpointInterface: config?.defaultEndpointInterface,
-    proxyUrl: config?.proxyUrl,
-    cephRegion: config?.cephRegion,
-    imageMetadataExcludedProperties: config?.imageMetadataExcludedProperties,
-    cookieName: config?.cookieName,
-    crossDomainCookie: config?.crossDomainCookie,
-    insecureCookies: config?.insecureCookies,
+    identityEndpoint: config.identityEndpoint ?? "",
+    defaultEndpointInterface: config.defaultEndpointInterface,
+    proxyUrl: config.proxyUrl,
+    cephRegion: config.cephRegion,
+    imageMetadataExcludedProperties: config.imageMetadataExcludedProperties,
+    cookieName: config.cookieName,
+    crossDomainCookie: config.crossDomainCookie,
+    insecureCookies: config.insecureCookies,
   }
+
+  const appRouter = buildAppRouter(config.policyDir)
 
   const server = Fastify({
     logger: true,

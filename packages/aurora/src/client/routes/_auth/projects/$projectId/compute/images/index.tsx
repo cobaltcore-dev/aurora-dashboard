@@ -20,10 +20,15 @@ function RouteComponent() {
   const { t } = useLingui()
   const { projectId } = Route.useParams()
   const { trpcClient } = Route.useRouteContext()
+
+  if (!trpcClient) {
+    throw new Error("trpcClient is not available in route context")
+  }
+
   return (
     <>
       <ContentHeader title={t`Images`} projectId={projectId} />
-      <Images client={trpcClient!} project={projectId} />
+      <Images client={trpcClient} project={projectId} />
     </>
   )
 }

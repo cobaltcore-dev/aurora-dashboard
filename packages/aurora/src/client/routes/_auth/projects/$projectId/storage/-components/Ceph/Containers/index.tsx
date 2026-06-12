@@ -1,5 +1,5 @@
 import { useState, startTransition } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate } from "@tanstack/react-router"
 import { ListToolbar } from "@/client/components/ListToolbar"
 import { SortSettings } from "@/client/components/ListToolbar/types"
@@ -17,6 +17,7 @@ import {
   getBucketsEmptyCompleteToast,
 } from "./ContainerToastNotifications"
 import { EmptyBucketsModal } from "./EmptyBucketsModal"
+import { CredentialPrompt } from "./CredentialPrompt"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/containers"
 
@@ -189,7 +190,7 @@ export const CephContainers = () => {
   // Handle loading state
   if (isLoading) {
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+      <Stack className="p-8" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
         <Trans>Loading Buckets...</Trans>
       </Stack>
@@ -200,10 +201,33 @@ export const CephContainers = () => {
   if (error) {
     const errorMessage = error.message
 
+    // Check if this is a NO_CEPH_CREDENTIALS error
+    if (errorMessage === "NO_CEPH_CREDENTIALS") {
+      return <CredentialPrompt onSuccess={() => window.location.reload()} />
+    }
+
+    // Render error message based on error type
+    const isAccessDenied = errorMessage.includes("Access denied") || errorMessage.includes("AccessDenied")
+    const isAuthError = errorMessage.includes("Invalid access key") || errorMessage.includes("InvalidAccessKeyId")
+
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Trans>Error Loading Buckets: {errorMessage}</Trans>
-      </Stack>
+      <div className="p-8">
+        <p className="text-theme-default text-sm">
+          {isAccessDenied ? (
+            <Trans>
+              Your credentials are valid but you don't have permission to perform this operation. Please contact your
+              administrator to grant you the necessary permissions.
+            </Trans>
+          ) : isAuthError ? (
+            <Trans>
+              Your S3 credentials are invalid or expired. Please try creating new credentials or contact your
+              administrator.
+            </Trans>
+          ) : (
+            <Trans>Failed to load containers: {errorMessage}</Trans>
+          )}
+        </p>
+      </div>
     )
   }
 
@@ -213,6 +237,8 @@ export const CephContainers = () => {
   const selectedContainerSummaries = (buckets || []).filter((c) => selectedContainers.includes(c.name))
   const hasSelection = selectedContainerSummaries.length > 0
   const selectedCount = selectedContainerSummaries.length
+  const totalCount = (buckets || []).length
+  const filteredCount = filteredContainers.length
 
   return (
     <div className="relative">
@@ -232,6 +258,21 @@ export const CephContainers = () => {
           </Stack>
         }
       />
+
+      <div
+        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
+        data-testid="containers-info-block"
+      >
+        {searchParam.trim() ? (
+          <Plural
+            value={totalCount}
+            one={`${filteredCount} of ${totalCount} bucket`}
+            other={`${filteredCount} of ${totalCount} buckets`}
+          />
+        ) : (
+          <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
+        )}
+      </div>
 
       <ContainerTableView
         containers={sortedContainers}

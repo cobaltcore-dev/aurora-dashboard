@@ -1,4 +1,4 @@
-import { use, Suspense, useState, startTransition, useEffect, ReactNode, useCallback } from "react"
+import { use, Suspense, useState, startTransition, useEffect, useRef, ReactNode, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import { GlanceImage } from "@/server/Compute/types/image"
@@ -11,12 +11,19 @@ import {
   PopupMenuItem,
   PopupMenuToggle,
   PopupMenuOptions,
+  DataGridToolbar,
+  SearchInput,
+  Checkbox,
+  TabNavigation,
+  TabNavigationItem,
 } from "@cloudoperators/juno-ui-components"
-import { ListToolbar } from "@/client/components/ListToolbar"
+import { SortInput } from "@/client/components/ListToolbar/SortInput"
+import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
+import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { ImageListView } from "./-components/ImageListView"
 import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
-import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams } from "./urlHelpers"
+import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "./urlHelpers"
 import { createImagesPromise, createPermissionsPromise } from "./apiHelpers"
 
 const PAGE_SIZE = 50
@@ -45,8 +52,16 @@ type RequiredSortSettings = {
   sortDirection: "asc" | "desc"
 }
 
+type ImagesResult = {
+  images: GlanceImage[]
+  first?: string
+  next?: string
+  schema: string
+  listError?: string
+}
+
 type ImagesContentProps = {
-  imagesPromise: ReturnType<typeof createImagesPromise>
+  imagesPromise: Promise<ImagesResult>
   imageOverrides: Map<string, GlanceImage>
   deletedImageIds: Set<string>
   permissionsPromise: Promise<{
@@ -116,6 +131,14 @@ function ImagesContent({
   const { t } = useLingui()
   const imagesData = use(imagesPromise)
   const permissions = use(permissionsPromise)
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
+  const debounceTimer = useRef<number | undefined>(undefined)
+
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
+
+  if (imagesData.listError) {
+    return <p>{imagesData.listError}</p>
+  }
 
   const images = imagesData.images
     .filter((img) => !deletedImageIds.has(img.id))
@@ -189,51 +212,140 @@ function ImagesContent({
 
   return (
     <>
-      <ListToolbar
-        sortSettings={sortSettings}
-        filterSettings={activeFilterSettings}
-        searchTerm={searchTerm}
-        onSort={handleSortChange}
-        onFilter={handleFilterChange}
-        onSearch={setSearchTerm}
-        tabs={memberStatusTabs}
-        actions={
-          <>
-            <Stack gap="2">
-              {permissions.canCreate && (
-                <Button onClick={() => setCreateModalOpen(true)} variant="primary">
-                  Create Image
-                </Button>
-              )}
+      {/* Zone 1 — tabs + sort + create / more actions, no background */}
+      <Stack distribution="between" alignment="center" gap="2">
+        <TabNavigation activeItem={memberStatusView} onActiveItemChange={memberStatusTabs.onActiveItemChange}>
+          {memberStatusTabs.items.map((item) => (
+            <TabNavigationItem key={item.value} label={item.label} value={item.value} />
+          ))}
+        </TabNavigation>
+        <Stack gap="0.5" alignment="center">
+          <SortInput
+            options={sortSettings.options}
+            sortBy={sortSettings.sortBy}
+            sortDirection={sortSettings.sortDirection ?? "desc"}
+            onSortByChange={(v) =>
+              handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
+            }
+            onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
+          />
+          {permissions.canCreate && (
+            <Button onClick={() => setCreateModalOpen(true)} variant="primary">
+              <Trans>Create Image</Trans>
+            </Button>
+          )}
+        </Stack>
+      </Stack>
 
+      {/* Zone 2 — filter + search + active filter pills */}
+      <DataGridToolbar>
+        <Stack direction="vertical" gap="2">
+          <Stack distribution="between" alignment="center">
+            <FiltersInput
+              filters={activeFilterSettings.filters}
+              onChange={(selected) => {
+                const newSelected = applyFilterSelection(
+                  activeFilterSettings.selectedFilters || [],
+                  selected,
+                  activeFilterSettings.filters
+                )
+                if (newSelected === (activeFilterSettings.selectedFilters || [])) return
+                handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
+              }}
+            />
+            <SearchInput
+              placeholder={t`Search images...`}
+              data-testid="searchbar"
+              value={localSearchTerm}
+              onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                const v = e.currentTarget.value
+                setLocalSearchTerm(v)
+                clearTimeout(debounceTimer.current)
+                debounceTimer.current = window.setTimeout(() => setSearchTerm(v), 500)
+              }}
+              onSearch={(v) => {
+                clearTimeout(debounceTimer.current)
+                setSearchTerm(typeof v === "string" ? v : "")
+              }}
+              onClear={() => {
+                clearTimeout(debounceTimer.current)
+                setLocalSearchTerm("")
+                setSearchTerm("")
+              }}
+            />
+          </Stack>
+          {activeFilterSettings.selectedFilters && activeFilterSettings.selectedFilters.length > 0 && (
+            <SelectedFilters
+              selectedFilters={activeFilterSettings.selectedFilters}
+              onDelete={(filterToRemove) =>
+                handleFilterChange({
+                  ...filterSettings,
+                  selectedFilters: (filterSettings.selectedFilters || []).filter(
+                    (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
+                  ),
+                })
+              }
+              onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
+            />
+          )}
+        </Stack>
+      </DataGridToolbar>
+
+      {/* Zone 3 — select all + bulk actions (only when at least one bulk action is available) */}
+      {(permissions.canDelete || permissions.canUpdate) && (
+        <DataGridToolbar>
+          <Stack distribution="between" alignment="center">
+            <Stack gap="2" alignment="center">
+              <Checkbox
+                checked={
+                  validSelectedImages.length > 0 && paginatedImages.every((img) => validSelectedImages.includes(img.id))
+                }
+                indeterminate={
+                  validSelectedImages.length > 0 &&
+                  !paginatedImages.every((img) => validSelectedImages.includes(img.id))
+                }
+                onChange={() => {
+                  const pageIds = paginatedImages.map((img) => img.id)
+                  const allSelected = pageIds.every((id) => validSelectedImages.includes(id))
+                  if (allSelected) {
+                    setSelectedImages(validSelectedImages.filter((id) => !pageIds.includes(id)))
+                  } else {
+                    setSelectedImages([...new Set([...validSelectedImages, ...pageIds])])
+                  }
+                }}
+              />
               <PopupMenu>
                 <PopupMenuToggle as="div">
-                  <Button icon="moreVert">
-                    <Trans>More Actions</Trans>
-                  </Button>
+                  <Button size="small" icon="moreVert" label={t`Actions`} />
                 </PopupMenuToggle>
                 <PopupMenuOptions>
-                  <PopupMenuItem
-                    disabled={isDeleteAllDisabled}
-                    label={t`Delete Selected`}
-                    onClick={() => setDeleteAllModalOpen(true)}
-                  />
-                  <PopupMenuItem
-                    disabled={isDeactivateAllDisabled}
-                    label={t`Deactivate Selected`}
-                    onClick={() => setDeactivateAllModalOpen(true)}
-                  />
-                  <PopupMenuItem
-                    disabled={isActivateAllDisabled}
-                    label={t`Activate Selected`}
-                    onClick={() => setActivateAllModalOpen(true)}
-                  />
+                  {permissions.canDelete && (
+                    <PopupMenuItem
+                      disabled={isDeleteAllDisabled}
+                      label={t`Delete Selected`}
+                      onClick={() => setDeleteAllModalOpen(true)}
+                    />
+                  )}
+                  {permissions.canUpdate && (
+                    <PopupMenuItem
+                      disabled={isDeactivateAllDisabled}
+                      label={t`Deactivate Selected`}
+                      onClick={() => setDeactivateAllModalOpen(true)}
+                    />
+                  )}
+                  {permissions.canUpdate && (
+                    <PopupMenuItem
+                      disabled={isActivateAllDisabled}
+                      label={t`Activate Selected`}
+                      onClick={() => setActivateAllModalOpen(true)}
+                    />
+                  )}
                 </PopupMenuOptions>
               </PopupMenu>
             </Stack>
-          </>
-        }
-      />
+          </Stack>
+        </DataGridToolbar>
+      )}
       <ImageListView
         images={paginatedImages}
         suggestedImages={memberStatusView === "pending" ? paginatedImages : []}
@@ -260,6 +372,7 @@ function ImagesContent({
         onImageUpdated={onImageUpdated}
         onImageDeleted={onImageDeleted}
         onMemberStatusChanged={onMemberStatusChanged}
+        hasAnyBulkAction={permissions.canDelete || permissions.canUpdate}
       />
     </>
   )
@@ -330,11 +443,11 @@ export const Images = ({ client, project }: ImagesProps) => {
   const [isFetching, setIsFetching] = useState(true)
   const [imageOverrides, setImageOverrides] = useState<Map<string, GlanceImage>>(new Map())
   const [deletedImageIds, setDeletedImageIds] = useState<Set<string>>(new Set())
-  const [imagesPromise, setImagesPromise] = useState<ReturnType<typeof createImagesPromise>>(
+  const [imagesPromise, setImagesPromise] = useState<Promise<ImagesResult>>(
     () =>
       new Promise(() => {
         // Placeholder: replaced immediately by useEffect on mount
-      }) as ReturnType<typeof createImagesPromise>
+      }) as Promise<ImagesResult>
   )
   const [permissionsPromise] = useState(() => createPermissionsPromise(client, project))
 
@@ -373,7 +486,7 @@ export const Images = ({ client, project }: ImagesProps) => {
         }
       )
       newPromise.catch(() => {}).finally(() => setIsFetching(false))
-      setImagesPromise(newPromise)
+      setImagesPromise(newPromise as Promise<ImagesResult>)
     })
   }, [client, sortSettings, searchTerm, filterSettings, searchParams.memberStatus])
 
@@ -402,7 +515,7 @@ export const Images = ({ client, project }: ImagesProps) => {
         member_status: urlMemberStatusFilter,
       })
       newPromise.catch(() => {}).finally(() => setIsFetching(false))
-      setImagesPromise(newPromise)
+      setImagesPromise(newPromise as Promise<ImagesResult>)
     })
   }, [
     searchParams.status,

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
-import { AuroraPortalContext } from "../../../context"
 import { versioningRouter } from "./versioningRouter"
 import { createCallerFactory, auroraRouter } from "../../../trpc"
+import { createMockContext, TEST_PROJECT_ID } from "./mockContext"
 
 // ============================================================================
 // MOCK AWS SDK S3 CLIENT
@@ -18,84 +18,10 @@ vi.mock("../../clients/s3Client", () => ({
 // MOCK DATA
 // ============================================================================
 
-const TEST_PROJECT_ID = "test-project-id"
-const TEST_USER_ID = "test-user-id"
-const TEST_ACCESS = "AKIAIOSFODNN7EXAMPLE"
-const TEST_SECRET = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 const TEST_BUCKET_NAME = "my-test-bucket"
 const TEST_OBJECT_KEY = "my-object.txt"
 const TEST_VERSION_ID = "version-123"
 const TEST_DATE = new Date("2024-01-15T10:00:00Z")
-
-// ============================================================================
-// MOCK CONTEXT
-// ============================================================================
-
-const createMockContext = (hasCredentials = true) => {
-  const credBlob = JSON.stringify({ access: TEST_ACCESS, secret: TEST_SECRET })
-  const mockIdentity = {
-    get: vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        credentials: hasCredentials
-          ? [{ id: "cred-id", type: "ec2", project_id: TEST_PROJECT_ID, user_id: TEST_USER_ID, blob: credBlob }]
-          : [],
-      }),
-    }),
-    availableEndpoints: vi.fn().mockReturnValue([]),
-  }
-
-  const mockCephService = {
-    getEndpoint: () => "https://test-ceph.example.com",
-    availableEndpoints: () => [
-      {
-        region: "test-region",
-        url: "https://test-ceph.example.com",
-        interface: "public",
-        id: "test-id",
-        region_id: "test-region",
-      },
-    ],
-  }
-
-  const mockToken = {
-    tokenData: {
-      project: { id: TEST_PROJECT_ID },
-      user: {
-        id: TEST_USER_ID,
-        domain: { id: "default", name: "Default" },
-        name: "test-user",
-        password_expires_at: "",
-      },
-      catalog: [
-        {
-          type: "ceph",
-          name: "ceph",
-          endpoints: [{ region: "test-region", url: "https://test-ceph.example.com" }],
-        },
-      ],
-      expires_at: "",
-      issued_at: "",
-      methods: [],
-      roles: [],
-    },
-  }
-
-  const mockOpenstack = {
-    service: vi.fn().mockReturnValue(mockCephService),
-    getService: vi.fn().mockReturnValue(mockCephService),
-    identity: mockIdentity,
-  }
-
-  return {
-    openstack: mockOpenstack,
-    token: mockToken,
-    cephRegion: "test-region",
-    user: mockToken.tokenData.user,
-    project: mockToken.tokenData.project,
-    policies: [],
-  } as unknown as AuroraPortalContext
-}
 
 // ============================================================================
 // TESTS
@@ -139,7 +65,7 @@ describe("versioningRouter", () => {
     })
 
     it("should throw FORBIDDEN when no credentials", async () => {
-      const ctx = createMockContext(false)
+      const ctx = createMockContext({ hasCredentials: false })
       const callerNoAuth = createCaller(ctx)
 
       await expect(
@@ -179,7 +105,7 @@ describe("versioningRouter", () => {
     })
 
     it("should throw FORBIDDEN when no credentials", async () => {
-      const ctx = createMockContext(false)
+      const ctx = createMockContext({ hasCredentials: false })
       const callerNoAuth = createCaller(ctx)
 
       await expect(
@@ -319,7 +245,7 @@ describe("versioningRouter", () => {
     })
 
     it("should throw FORBIDDEN when no credentials", async () => {
-      const ctx = createMockContext(false)
+      const ctx = createMockContext({ hasCredentials: false })
       const callerNoAuth = createCaller(ctx)
 
       await expect(
@@ -366,7 +292,7 @@ describe("versioningRouter", () => {
     })
 
     it("should throw FORBIDDEN when no credentials", async () => {
-      const ctx = createMockContext(false)
+      const ctx = createMockContext({ hasCredentials: false })
       const callerNoAuth = createCaller(ctx)
 
       await expect(

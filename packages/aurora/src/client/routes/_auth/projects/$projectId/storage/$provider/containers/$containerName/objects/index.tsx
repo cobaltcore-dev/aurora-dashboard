@@ -3,7 +3,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { SwiftObjects } from "../../../../-components/Swift/Objects"
-import { ObjectBrowserView } from "../../../../-components/Ceph/Objects"
+import { CephObjects } from "../../../../-components/Ceph/Objects"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
@@ -25,7 +25,7 @@ export const checkServiceAvailability = (
   // Redirect to the "Projects Overview" page if no storage services available
   if (!serviceIndex["object-store"]) {
     throw redirect({
-      to: "/projects/$projectId/compute/overview",
+      to: "/projects/$projectId",
       params: { projectId },
     })
   }
@@ -45,7 +45,7 @@ export const checkServiceAvailability = (
   if (provider !== "swift" && provider !== "ceph") {
     if (!fallbackProvider) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }
@@ -58,7 +58,7 @@ export const checkServiceAvailability = (
   if (provider === "swift" && !hasSwift) {
     if (!hasEffectiveCeph) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }
@@ -72,7 +72,7 @@ export const checkServiceAvailability = (
   if (provider === "ceph" && !hasEffectiveCeph) {
     if (!hasSwift) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }
@@ -162,9 +162,9 @@ function ObjectsDashboard() {
           {(() => {
             switch (provider) {
               case "swift":
-                return <SwiftObjects />
+                return <SwiftObjects provider={provider} containerName={containerName} />
               case "ceph":
-                return <ObjectBrowserView bucketName={containerName} />
+                return <CephObjects bucketName={containerName} />
               default:
                 return (
                   <div className="p-4">

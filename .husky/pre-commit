@@ -3,4 +3,4 @@
 pnpm lint
 pnpm typecheck
 cd packages/aurora && pnpm run extract && pnpm run compile && git add src/locales && cd ../..
-pnpm format
+pnpm format && git add -u

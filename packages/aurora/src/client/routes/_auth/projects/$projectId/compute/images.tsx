@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
+import { RouteError } from "@/client/components/Error/RouteError"
 
 const multiValueEnum = (allowedValues: string[]) => {
   return z.string().refine((val) => {
@@ -52,6 +53,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images"
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Images" },
   } satisfies RouteInfo,
+  errorComponent: ({ error }) => <RouteError error={error} />,
   validateSearch: (search) => {
     const result = imagesSearchSchema.safeParse(search)
     if (result.success) return result.data
@@ -80,12 +82,17 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images"
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
     const { projectId } = params
-    const availableServices = await trpcClient?.auth.getAvailableServices.query()
-    const serviceIndex = getServiceIndex(availableServices!)
+
+    if (!trpcClient) {
+      throw new Error("trpcClient is not available in route context")
+    }
+
+    const availableServices = await trpcClient.auth.getAvailableServices.query()
+    const serviceIndex = getServiceIndex(availableServices)
 
     if (!serviceIndex["image"]?.["glance"]) {
       throw redirect({
-        to: "/projects/$projectId/compute/overview",
+        to: "/projects/$projectId",
         params: { projectId },
       })
     }

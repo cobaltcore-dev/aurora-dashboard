@@ -116,6 +116,9 @@ importers:
       vite:
         specifier: ^8.0.0
         version: 8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)
+      vite-plugin-static-copy:
+        specifier: 4.1.0
+        version: 4.1.0(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
       vite-plugin-svgr:
         specifier: ^5.2.0
         version: 5.2.0(rollup@4.60.0)(typescript@6.0.3)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
@@ -223,8 +226,8 @@ importers:
         version: 4.3.6
     devDependencies:
       '@cloudoperators/juno-ui-components':
-        specifier: 6.5.0
-        version: 6.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: 7.0.0
+        version: 7.0.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../config
@@ -752,8 +755,8 @@ packages:
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
 
-  '@cloudoperators/juno-ui-components@6.5.0':
-    resolution: {integrity: sha512-gWpQPioXMD/EWhpsLsH6thTeWDJqmss4jxqj7mmxc0Y6eKVVBdBddBdQy7dTH1MFVPgqEr9LyMnXkMtoKkv6NQ==}
+  '@cloudoperators/juno-ui-components@7.0.0':
+    resolution: {integrity: sha512-yJ1v9t0HdBQI78xkFJtzP4akdaWl3tgAaW00LhGxT8w79QQfVPHWdzDwG9mLVWsrVfx/0/wDzqHknp+0EX+igw==}
     engines: {node: '>=20.19.0', pnpm: '>=8.0.0'}
     peerDependencies:
       react: ^19.1.0
@@ -4670,6 +4673,10 @@ packages:
     resolution: {integrity: sha512-y3b8Kpd8OAN444hxfBbFfj1FY/RjtTd8tzYwhUqNYXx0fXx2iX4maP4Qr6qhIKbQXI02wTLAda4fYUbDagTUFw==}
     engines: {node: '>=6'}
 
+  p-map@7.0.4:
+    resolution: {integrity: sha512-tkAQEw8ysMzmkhgw8k+1U/iPhWNhykKnSk4Rd5zLoPJCuJaGRPo6YposrZgaxHKzDHdDWWZvE/Sk7hsL2X/CpQ==}
+    engines: {node: '>=18'}
+
   p-try@2.2.0:
     resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
     engines: {node: '>=6'}
@@ -5618,6 +5625,12 @@ packages:
         optional: true
       vite:
         optional: true
+
+  vite-plugin-static-copy@4.1.0:
+    resolution: {integrity: sha512-9XOarNV7LgP0KBB7AApxdgFikLXx3daZdqjC3AevYsL6MrUH62zphonLUs2a6LZc1HN1GY+vQdheZ8VVJb6dQQ==}
+    engines: {node: ^22.0.0 || >=24.0.0}
+    peerDependencies:
+      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
 
   vite-plugin-svgr@5.2.0:
     resolution: {integrity: sha512-qj2eAKF8C6PZWemVTvQA0xgQIcP1hHU6Buh7fl6BhvayWwnuxE+z417miKxeDvRWbDrupQ1oK99hfxElopJ3sQ==}
@@ -6591,7 +6604,7 @@ snapshots:
       human-id: 4.1.3
       prettier: 2.8.8
 
-  '@cloudoperators/juno-ui-components@6.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@cloudoperators/juno-ui-components@7.0.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
@@ -10722,6 +10735,8 @@ snapshots:
 
   p-map@2.1.0: {}
 
+  p-map@7.0.4: {}
+
   p-try@2.2.0: {}
 
   package-directory@8.2.0:
@@ -11653,6 +11668,14 @@ snapshots:
       - supports-color
       - typescript
       - webpack
+
+  vite-plugin-static-copy@4.1.0(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)):
+    dependencies:
+      chokidar: 3.6.0
+      p-map: 7.0.4
+      picocolors: 1.1.1
+      tinyglobby: 0.2.16
+      vite: 8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)
 
   vite-plugin-svgr@5.2.0(rollup@4.60.0)(typescript@6.0.3)(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)):
     dependencies:

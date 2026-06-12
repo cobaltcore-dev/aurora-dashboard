@@ -11,7 +11,6 @@ import {
   CertificateSchema,
   Certificate,
   CertificateAuthority,
-  CertificateAuthorityResponseSchema,
   CertificateIdInputSchema,
   CertificateAuthorityCreateSchema,
   CreateCertificateInputSchema,
@@ -89,16 +88,16 @@ export const pcaRouter = {
     .input(CertificateAuthorityImportInputSchema)
     .mutation(async ({ input, ctx }): Promise<CertificateAuthority> => {
       return withErrorHandling(async () => {
-        const pca = ctx.openstack?.service("clavis")
-        validateOpenstackService(pca, "clavis")
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
         const url = `${PCA_BASE_URL}/${input.certificate_authority_id}:importCertificate`
         const response = await pca.post(url, {
-          body: JSON.stringify({ imported_certificate_chain: input.imported_certificate_chain }),
+          imported_certificate_chain: input.imported_certificate_chain,
         })
         const data = await response.json()
 
-        return parseOrThrow(CertificateAuthorityResponseSchema, data, "pcaRouter.import").certificate_authority
+        return parseOrThrow(CertificateAuthoritySchema, data, "pcaRouter.import")
       }, "import certificate of certificate authority")
     }),
   listCertificates: projectScopedProcedure
