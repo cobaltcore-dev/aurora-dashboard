@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest"
 import { FastifyInstance } from "fastify"
 import { createServer } from "../server"
+import path from "path"
 
 describe("HTTP Metrics Collector", () => {
   let server: FastifyInstance
@@ -8,7 +9,7 @@ describe("HTTP Metrics Collector", () => {
   beforeAll(async () => {
     server = await createServer({
       identityEndpoint: "http://localhost:5000",
-      policyDir: "",
+      policyDir: path.resolve(__dirname, "../../permission_policies"),
     })
     await server.ready()
   })
