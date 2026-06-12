@@ -79,12 +79,19 @@ function RouteComponent() {
 
   const { data: permissionsData } = trpcReact.compute.canUser.useQuery({
     project_id: projectId,
-    permission: ["flavors:delete", "flavors:list_projects", "flavor_specs:create", "flavor_specs:delete"],
+    permission: [
+      "flavors:delete",
+      "flavors:list_projects",
+      "flavor_specs:create",
+      "flavor_specs:delete",
+      "flavor_specs:list",
+    ],
   })
 
   const canDeleteFlavor = permissionsData?.[0] ?? false
   const canManageAccess = permissionsData?.[1] ?? false
   const canManageSpecs = (permissionsData?.[2] ?? false) || (permissionsData?.[3] ?? false)
+  const canListSpecs = permissionsData?.[4] ?? false
 
   const [specModalOpen, toggleSpecModal] = useModal()
   const [accessModalOpen, toggleAccessModal] = useModal()
@@ -154,10 +161,11 @@ function RouteComponent() {
     )
   }
 
+  const isPublicFlavor = flavor["os-flavor-access:is_public"] !== false
   const hasMoreActions = canManageAccess || canDeleteFlavor
 
   const headerActions =
-    hasMoreActions || canManageSpecs ? (
+    hasMoreActions || canManageSpecs || canListSpecs ? (
       <ButtonRow>
         {hasMoreActions && (
           <PopupMenu>
@@ -167,14 +175,16 @@ function RouteComponent() {
               </Button>
             </PopupMenuToggle>
             <PopupMenuOptions>
-              {canManageAccess && <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} />}
+              {canManageAccess && (
+                <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} disabled={isPublicFlavor} />
+              )}
               {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
             </PopupMenuOptions>
           </PopupMenu>
         )}
-        {canManageSpecs && (
+        {(canManageSpecs || canListSpecs) && (
           <Button onClick={toggleSpecModal} variant="primary">
-            <Trans>Metadata</Trans>
+            {canManageSpecs ? <Trans>Edit Metadata</Trans> : <Trans>Metadata</Trans>}
           </Button>
         )}
       </ButtonRow>
@@ -196,6 +206,7 @@ function RouteComponent() {
               onClose={toggleSpecModal}
               project={projectId}
               flavor={flavor}
+              canEdit={canManageSpecs}
             />
           )}
 

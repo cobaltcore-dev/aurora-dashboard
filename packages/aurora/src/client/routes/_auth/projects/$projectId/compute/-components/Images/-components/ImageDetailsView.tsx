@@ -17,6 +17,7 @@ import { SizeDisplay } from "./SizeDisplay"
 import { trpcReact } from "@/client/trpcClient"
 import { MEMBER_STATUSES } from "../../../-constants/filters"
 import { ImageMembersTable } from "./ImageMembersTable"
+import ClipboardText from "@/client/components/ClipboardText"
 
 interface ImageDetailsViewProps {
   image: GlanceImage
@@ -104,7 +105,9 @@ export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) =>
       <ContentHeading>{t`General Image Data`}</ContentHeading>
       <DescriptionList alignTerms="right">
         <DescriptionTerm>{t`ID`}</DescriptionTerm>
-        <DescriptionDefinition>{image.id}</DescriptionDefinition>
+        <DescriptionDefinition>
+          <ClipboardText text={image.id} />
+        </DescriptionDefinition>
 
         <DescriptionTerm>{t`Name`}</DescriptionTerm>
         <DescriptionDefinition>{image.name}</DescriptionDefinition>
@@ -160,7 +163,7 @@ export const SecuritySection: React.FC<{ image: GlanceImage; currentProjectId?: 
       <ContentHeading>{t`Security`}</ContentHeading>
       <DescriptionList alignTerms="right">
         <DescriptionTerm>{isSharedWithMe ? t`Shared by Project` : t`Owner Project ID`}</DescriptionTerm>
-        <DescriptionDefinition>{image.owner}</DescriptionDefinition>
+        <DescriptionDefinition>{image.owner ? <ClipboardText text={image.owner} /> : ""}</DescriptionDefinition>
 
         <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
         <DescriptionDefinition>{image.visibility}</DescriptionDefinition>

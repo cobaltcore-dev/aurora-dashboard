@@ -49,7 +49,7 @@ const createFlavorAccessPromise = (client: TrpcClient, project: string, flavorId
 function AccessLoading() {
   return (
     <DataGridRow>
-      <DataGridCell colSpan={3}>
+      <DataGridCell colSpan={2}>
         <Stack distribution="center" alignment="center">
           <Spinner variant="primary" />
         </Stack>
@@ -186,14 +186,13 @@ function AccessContent({
 
   if (isPublicFlavor) {
     return (
-      <DataGrid columns={3}>
+      <DataGrid columns={2}>
         <DataGridRow>
-          <DataGridHeadCell>{t`Flavor ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Tenant ID`}</DataGridHeadCell>
           <DataGridHeadCell> </DataGridHeadCell>
         </DataGridRow>
         <DataGridRow>
-          <DataGridCell colSpan={3} className="text-theme-default py-4 text-center">
+          <DataGridCell colSpan={2} className="text-theme-default py-4 text-center">
             {t`This is a public flavor. All tenants have access to it.`}
           </DataGridCell>
         </DataGridRow>
@@ -215,9 +214,8 @@ function AccessContent({
         </Stack>
       )}
 
-      <DataGrid columns={3}>
+      <DataGrid columns={2}>
         <DataGridRow>
-          <DataGridHeadCell>{t`Flavor ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Tenant ID`}</DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
@@ -225,7 +223,6 @@ function AccessContent({
         {isAddingAccess && (
           <TenantAccessFormRow
             tenantId={tenantId}
-            flavorId={flavor.id}
             errors={errors}
             isLoading={isLoading}
             onTenantIdChange={handleTenantIdChange}
@@ -250,7 +247,7 @@ function AccessContent({
 
         {shouldShowEmptyState && (
           <DataGridRow>
-            <DataGridCell colSpan={3} className="text-theme-default py-4 text-center">
+            <DataGridCell colSpan={2} className="text-theme-default py-4 text-center">
               {t`No specific tenant access configured for this private flavor. Click "Add Tenant Access" to grant access.`}
             </DataGridCell>
           </DataGridRow>

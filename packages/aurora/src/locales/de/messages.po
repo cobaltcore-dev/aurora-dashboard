@@ -169,6 +169,9 @@ msgstr " Zugriffsstatus auf \"{newStatus}\" aktualisiert."
 msgid "Access Status:"
 msgstr "Zugriffsstatus:"
 
+msgid "Access Type"
+msgstr ""
+
 msgid "Account"
 msgstr "Account"
 
