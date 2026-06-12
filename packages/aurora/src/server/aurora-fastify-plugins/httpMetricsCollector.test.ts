@@ -8,6 +8,7 @@ describe("HTTP Metrics Collector", () => {
   beforeAll(async () => {
     server = await createServer({
       identityEndpoint: "http://localhost:5000",
+      policyDir: "",
     })
     await server.ready()
   })
