@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server"
+import { logger } from "@cobaltcore-dev/signal-openstack"
 
 interface S3ErrorShape {
   name?: string
@@ -51,7 +52,7 @@ export function mapS3ErrorToTRPCError(
 
   // Log unmapped errors for future improvements
   if (!S3_ERROR_MAP[errorCode] && errorCode) {
-    console.warn(`[s3] Unmapped S3 error code: ${errorCode}`)
+    logger.warn("Unmapped S3 error code", { errorCode, operation: context.operation })
   }
 
   // Build contextual error message

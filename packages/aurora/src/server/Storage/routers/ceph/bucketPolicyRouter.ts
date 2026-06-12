@@ -9,7 +9,82 @@ import {
   deleteBucketPolicyInputSchema,
   bucketPolicyDocumentSchema,
   type GetBucketPolicyOutput,
+  type BucketPolicyDocument,
 } from "../../types/ceph"
+
+// Rate limiting for policy operations: 10 sets per 5 minutes per bucket
+const policySetRateLimits = new Map<string, { count: number; resetAt: number }>()
+
+function checkPolicySetRateLimit(bucketName: string, projectId: string): void {
+  const key = `${projectId}:${bucketName}`
+  const now = Date.now()
+  const windowMs = 5 * 60 * 1000 // 5 minutes
+
+  const limit = policySetRateLimits.get(key)
+
+  if (!limit || now > limit.resetAt) {
+    policySetRateLimits.set(key, { count: 1, resetAt: now + windowMs })
+    return
+  }
+
+  if (limit.count >= 10) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: "Policy modification rate limit exceeded. Maximum 10 policy changes per 5 minutes per bucket.",
+    })
+  }
+
+  limit.count++
+}
+
+/**
+ * Validates that all Resource ARNs in a policy match the target bucket.
+ * Prevents policy confusion attacks where a policy on bucket-A references bucket-B.
+ */
+function validateResourceARNsMatchBucket(policy: BucketPolicyDocument, bucketName: string): void {
+  for (const statement of policy.Statement) {
+    const resources = Array.isArray(statement.Resource) ? statement.Resource : [statement.Resource]
+
+    for (const resource of resources) {
+      // ARN format: arn:aws:s3:::bucket-name or arn:aws:s3:::bucket-name/*
+      const arnRegex = /^arn:aws:s3:::([^/]+)/
+      const match = resource.match(arnRegex)
+
+      if (match && match[1] !== bucketName) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Policy Resource ARN '${resource}' does not match bucket '${bucketName}'`,
+        })
+      }
+    }
+  }
+}
+
+/**
+ * Validates policy semantics to prevent dangerous configurations.
+ */
+function validatePolicySemantics(policy: BucketPolicyDocument): void {
+  // Check statement count (AWS limit is 100)
+  if (policy.Statement.length > 100) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Policy exceeds maximum of 100 statements",
+    })
+  }
+
+  // Warn about Deny * statements that could lock out the owner
+  const denyAllStatement = policy.Statement.find(
+    (s) => s.Effect === "Deny" && (s.Action === "*" || (Array.isArray(s.Action) && s.Action.includes("*")))
+  )
+
+  if (denyAllStatement) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message:
+        "Policy contains 'Deny *' which may lock out all access including the bucket owner. Please use more specific deny rules.",
+    })
+  }
+}
 
 /**
  * tRPC router for S3 bucket policy operations.
@@ -84,10 +159,36 @@ export const bucketPolicyRouter = {
     const s3 = ctx.getCephClient()
     const { bucketName, policy } = input
 
+    // Rate limit policy modifications
+    checkPolicySetRateLimit(bucketName, input.project_id)
+
+    // Enforce policy size limit (AWS max is 20KB)
+    if (policy.length > 20480) {
+      throw new TRPCError({
+        code: "PAYLOAD_TOO_LARGE",
+        message: "Policy document exceeds maximum size of 20KB",
+      })
+    }
+
+    // Check JSON nesting depth to prevent CPU exhaustion
+    const openBrackets = (policy.match(/[{[]/g) || []).length
+    if (openBrackets > 50) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Policy JSON is too deeply nested (maximum 50 levels)",
+      })
+    }
+
     try {
       // Validate JSON structure before sending to S3
       const policyObj = JSON.parse(policy)
       const validatedPolicy = bucketPolicyDocumentSchema.parse(policyObj)
+
+      // Validate Resource ARNs match the target bucket
+      validateResourceARNsMatchBucket(validatedPolicy, bucketName)
+
+      // Validate policy semantics (statement count, dangerous patterns)
+      validatePolicySemantics(validatedPolicy)
 
       // S3 expects policy as JSON string
       const policyText = JSON.stringify(validatedPolicy)
@@ -103,10 +204,12 @@ export const bucketPolicyRouter = {
     } catch (error) {
       // JSON parse error or zod validation error
       if (error instanceof SyntaxError || error instanceof z.ZodError) {
+        const errorDetails = error instanceof z.ZodError ? error.message : "Invalid JSON format"
+
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Invalid policy JSON structure",
-          cause: error,
+          message: `Invalid policy JSON structure: ${errorDetails}`,
+          // Do NOT include cause - prevents information disclosure
         })
       }
 
