@@ -23,6 +23,7 @@ interface EditSpecModalProps {
   onClose: () => void
   project: string
   flavor: Flavor | null
+  canEdit?: boolean
 }
 
 const createPermissionsPromise = (client: TrpcClient, project: string) => {
@@ -247,17 +248,29 @@ function EditSpecContent({
   )
 }
 
-export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, onClose, project, flavor }) => {
+export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, onClose, project, flavor, canEdit }) => {
   const { t } = useLingui()
 
   const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
   const [isAddingSpec, setIsAddingSpec] = useState(false)
   const [extraSpecsPromise, setExtraSpecsPromise] = useState<Promise<Record<string, string>> | null>(null)
+  const [resolvedCanEdit, setResolvedCanEdit] = useState<boolean | undefined>(canEdit)
 
-  const permissionsPromise = React.useMemo(
-    () => (isOpen ? createPermissionsPromise(client, project) : null),
-    [client, project, isOpen]
-  )
+  const permissionsPromise = React.useMemo(() => {
+    if (!isOpen) return null
+    if (canEdit !== undefined) return Promise.resolve({ canCreate: canEdit, canDelete: canEdit })
+    return createPermissionsPromise(client, project)
+  }, [client, project, isOpen, canEdit])
+
+  React.useEffect(() => {
+    if (canEdit !== undefined) {
+      setResolvedCanEdit(canEdit)
+      return
+    }
+    permissionsPromise?.then(({ canCreate, canDelete }) => setResolvedCanEdit(canCreate || canDelete))
+  }, [permissionsPromise, canEdit])
+
+  const title = resolvedCanEdit ? t`Edit Metadata` : t`Metadata`
 
   React.useEffect(() => {
     if (isOpen && flavor?.id) {
@@ -285,7 +298,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   }
 
   return (
-    <Modal onCancel={handleClose} title={t`Edit Metadata`} open={isOpen} size="large">
+    <Modal onCancel={handleClose} title={title} open={isOpen} size="xl">
       <div>
         {message && (
           <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />

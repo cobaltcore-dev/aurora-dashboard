@@ -8,6 +8,7 @@ import {
 } from "@cloudoperators/juno-ui-components/index"
 import { Trans } from "@lingui/react/macro"
 import type { Flavor } from "@/server/Compute/types/flavor"
+import ClipboardText from "@/client/components/ClipboardText"
 
 interface FlavorDetailsViewProps {
   flavor: Flavor
@@ -29,7 +30,9 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
           <DescriptionTerm>
             <Trans>ID</Trans>
           </DescriptionTerm>
-          <DescriptionDefinition>{flavor.id}</DescriptionDefinition>
+          <DescriptionDefinition>
+            <ClipboardText text={flavor.id} />
+          </DescriptionDefinition>
 
           <DescriptionTerm>
             <Trans>Name</Trans>

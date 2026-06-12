@@ -46,9 +46,22 @@ const createPermissionsPromise = (client: TrpcClient, project: string) => {
   return client.compute.canUser
     .query({
       project_id: project,
-      permission: ["flavors:create", "flavors:delete", "flavors:list_projects"],
+      permission: [
+        "flavors:create",
+        "flavors:delete",
+        "flavors:list_projects",
+        "flavor_specs:create",
+        "flavor_specs:delete",
+        "flavor_specs:list",
+      ],
     })
-    .then(([canCreate, canDelete, canManageAccess]) => ({ canCreate, canDelete, canManageAccess }))
+    .then(([canCreate, canDelete, canManageAccess, canCreateSpecs, canDeleteSpecs, canListSpecs]) => ({
+      canCreate,
+      canDelete,
+      canManageAccess,
+      canManageSpecs: canCreateSpecs || canDeleteSpecs,
+      canListSpecs,
+    }))
 }
 
 function FlavorsContent({
@@ -68,7 +81,13 @@ function FlavorsContent({
   onPageChange,
 }: {
   flavorsPromise: Promise<{ flavors: Flavor[]; privateFlavorError?: string; listError?: string }>
-  permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean; canManageAccess: boolean }>
+  permissionsPromise: Promise<{
+    canCreate: boolean
+    canDelete: boolean
+    canManageAccess: boolean
+    canManageSpecs: boolean
+    canListSpecs: boolean
+  }>
   client: TrpcClient
   project: string
   onFlavorDeleted: (name: string) => void
@@ -172,6 +191,8 @@ function FlavorsContent({
         onFlavorDeleted={onFlavorDeleted}
         canDeleteFlavor={permissions.canDelete}
         canMangageAccess={permissions.canManageAccess}
+        canManageSpecs={permissions.canManageSpecs}
+        canListSpecs={permissions.canListSpecs}
         currentPage={safePage}
         totalPages={totalPages}
         onPageChange={onPageChange}
