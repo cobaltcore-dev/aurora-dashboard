@@ -129,6 +129,7 @@ function RouteComponent() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [activateModalOpen, setActivateModalOpen] = useState(false)
   const [deactivateModalOpen, setDeactivateModalOpen] = useState(false)
+  const [acceptModalOpen, setAcceptModalOpen] = useState(false)
   const [rejectModalOpen, setRejectModalOpen] = useState(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
@@ -317,74 +318,73 @@ function RouteComponent() {
 
   const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
   const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
+  const isMemberPending = myMemberData?.status === "pending"
   const isMemberAccepted = myMemberData?.status === "accepted"
-  const isImageOwner = image.owner === projectId
-  const imageName = String(image.name ?? image.id)
+  const hasMoreActions =
+    (isSharedWithMe && permissions.canUpdateMember) ||
+    (!isSharedWithMe && (permissions.canUpdate || (permissions.canDelete && !image.protected)))
 
-  const hasKebabActions =
-    (isSharedWithMe && isMemberAccepted && permissions.canUpdateMember) ||
-    (!isSharedWithMe && permissions.canUpdate) ||
-    (!isSharedWithMe && permissions.canDelete && !image.protected) ||
-    (!isSharedWithMe &&
-      isImageOwner &&
-      image.visibility === IMAGE_VISIBILITY.SHARED &&
-      (permissions.canCreateMember || permissions.canDeleteMember))
-
-  const headerActions = (
-    <ButtonRow>
-      {hasKebabActions && (
-        <PopupMenu>
-          <PopupMenuToggle as="div">
-            <Button icon="moreVert" disabled={isLoading}>
-              <Trans>More Actions</Trans>
-            </Button>
-          </PopupMenuToggle>
-          <PopupMenuOptions>
-            {isSharedWithMe && isMemberAccepted && permissions.canUpdateMember && (
-              <PopupMenuItem label={t`Reject`} onClick={() => setRejectModalOpen(true)} />
-            )}
-            {!isSharedWithMe && permissions.canUpdate && (
-              <PopupMenuItem
-                label={isDeactivated ? t`Activate` : t`Deactivate`}
-                onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
-              />
-            )}
-            {!isSharedWithMe && permissions.canUpdate && isPrivate && (
-              <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
-            )}
-            {!isSharedWithMe &&
-              isImageOwner &&
-              image.visibility === IMAGE_VISIBILITY.SHARED &&
-              (permissions.canCreateMember || permissions.canDeleteMember) && (
+  const headerActions =
+    hasMoreActions || permissions.canUpdate ? (
+      <ButtonRow>
+        {hasMoreActions && (
+          <PopupMenu>
+            <PopupMenuToggle as="div">
+              <Button icon="moreVert" disabled={isLoading}>
+                <Trans>More Actions</Trans>
+              </Button>
+            </PopupMenuToggle>
+            <PopupMenuOptions>
+              {isSharedWithMe && permissions.canUpdateMember && (
+                <>
+                  {isMemberPending && <PopupMenuItem label={t`Accept`} onClick={() => setAcceptModalOpen(true)} />}
+                  {(isMemberPending || isMemberAccepted) && (
+                    <PopupMenuItem label={t`Reject`} onClick={() => setRejectModalOpen(true)} />
+                  )}
+                </>
+              )}
+              {!isSharedWithMe && permissions.canUpdate && (
                 <PopupMenuItem
-                  label={t`Manage Access`}
-                  onClick={() =>
-                    navigate({
-                      to: "/projects/$projectId/compute/images/$imageId",
-                      params: { projectId, imageId: image.id },
-                      search: { tab: "sharing" },
-                    })
-                  }
+                  label={isDeactivated ? t`Activate` : t`Deactivate`}
+                  onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
                 />
               )}
-            {!isSharedWithMe && permissions.canDelete && !image.protected && (
-              <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
-            )}
-          </PopupMenuOptions>
-        </PopupMenu>
-      )}
-      {!isSharedWithMe && permissions.canUpdate && (
-        <Button onClick={() => setEditMetadataModalOpen(true)} disabled={isLoading}>
-          <Trans>Edit Metadata</Trans>
-        </Button>
-      )}
-      {!isSharedWithMe && permissions.canUpdate && (
-        <Button onClick={() => setEditDetailsModalOpen(true)} variant="primary" disabled={isLoading}>
-          <Trans>Edit Details</Trans>
-        </Button>
-      )}
-    </ButtonRow>
-  )
+              {!isSharedWithMe && permissions.canUpdate && isPrivate && (
+                <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
+              )}
+              {!isSharedWithMe &&
+                image.owner === projectId &&
+                image.visibility === IMAGE_VISIBILITY.SHARED &&
+                (permissions.canCreateMember || permissions.canDeleteMember) && (
+                  <PopupMenuItem
+                    label={t`Manage Access`}
+                    onClick={() =>
+                      navigate({
+                        to: "/projects/$projectId/compute/images/$imageId",
+                        params: { projectId, imageId: image.id },
+                        search: { tab: "sharing" },
+                      })
+                    }
+                  />
+                )}
+              {!isSharedWithMe && permissions.canDelete && !image.protected && (
+                <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
+              )}
+            </PopupMenuOptions>
+          </PopupMenu>
+        )}
+        {!isSharedWithMe && permissions.canUpdate && (
+          <Button onClick={() => setEditMetadataModalOpen(true)} disabled={isLoading}>
+            <Trans>Edit Metadata</Trans>
+          </Button>
+        )}
+        {!isSharedWithMe && permissions.canUpdate && (
+          <Button onClick={() => setEditDetailsModalOpen(true)} variant="primary" disabled={isLoading}>
+            <Trans>Edit Details</Trans>
+          </Button>
+        )}
+      </ButtonRow>
+    ) : undefined
 
   // Render success state
   return (
@@ -412,6 +412,24 @@ function RouteComponent() {
 
       {toastData && <Toast {...toastData} />}
 
+      {acceptModalOpen && (
+        <Modal
+          title={t`Accept Shared Image`}
+          open={acceptModalOpen}
+          onCancel={() => setAcceptModalOpen(false)}
+          confirmButtonLabel={t`Accept`}
+          onConfirm={() => {
+            setAcceptModalOpen(false)
+            handleMemberStatusChange("accepted")
+          }}
+        >
+          <p>
+            {t`Accept access to image`} <strong>{String(image.name ?? image.id)}</strong>?{" "}
+            {t`It will appear in your image list.`}
+          </p>
+        </Modal>
+      )}
+
       {rejectModalOpen && (
         <Modal
           title={t`Reject Shared Image`}
@@ -424,7 +442,8 @@ function RouteComponent() {
           }}
         >
           <p>
-            {t`Reject access to image`} <strong>{imageName}</strong>? {t`It will be removed from your image list.`}
+            {t`Reject access to image`} <strong>{String(image.name ?? image.id)}</strong>?{" "}
+            {t`It will be removed from your image list.`}
           </p>
         </Modal>
       )}

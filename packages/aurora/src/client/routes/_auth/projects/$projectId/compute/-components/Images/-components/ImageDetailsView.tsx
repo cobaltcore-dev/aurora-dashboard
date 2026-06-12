@@ -16,8 +16,8 @@ import { GlanceImage, ImageMember, MemberStatus } from "@/server/Compute/types/i
 import { SizeDisplay } from "./SizeDisplay"
 import { trpcReact } from "@/client/trpcClient"
 import { MEMBER_STATUSES } from "../../../-constants/filters"
-import { ImageMembersTable } from "./ImageMembersTable"
 import ClipboardText from "@/client/components/ClipboardText"
+import { ImageMembersTable } from "./ImageMembersTable"
 
 interface ImageDetailsViewProps {
   image: GlanceImage
@@ -51,7 +51,7 @@ const SharedImageBox: React.FC<{
   const ownerProject = image.owner ?? ""
 
   return (
-    <Box className="mt-3">
+    <Box>
       {isPending && (
         <p className="text-theme-highest font-semibold">
           <Trans>Your action is required</Trans>
@@ -85,10 +85,7 @@ const SharedImageBox: React.FC<{
 
       {canUpdateMember && (isPending || isRejected) && (
         <ButtonRow>
-          <Button onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)} disabled={isLoading}>
-            <Trans>Reject</Trans>
-          </Button>
-          <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading}>
+          <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading} variant="primary">
             <Trans>Accept</Trans>
           </Button>
         </ButtonRow>
