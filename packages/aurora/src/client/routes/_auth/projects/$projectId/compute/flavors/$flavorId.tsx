@@ -162,33 +162,28 @@ function RouteComponent() {
   }
 
   const isPublicFlavor = flavor["os-flavor-access:is_public"] !== false
-  const hasMoreActions = canManageAccess || canDeleteFlavor
+  const hasMoreActions = canManageAccess || canDeleteFlavor || canManageSpecs || canListSpecs
 
-  const headerActions =
-    hasMoreActions || canManageSpecs || canListSpecs ? (
-      <ButtonRow>
-        {hasMoreActions && (
-          <PopupMenu>
-            <PopupMenuToggle as="div">
-              <Button icon="moreVert">
-                <Trans>More Actions</Trans>
-              </Button>
-            </PopupMenuToggle>
-            <PopupMenuOptions>
-              {canManageAccess && (
-                <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} disabled={isPublicFlavor} />
-              )}
-              {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
-            </PopupMenuOptions>
-          </PopupMenu>
-        )}
-        {(canManageSpecs || canListSpecs) && (
-          <Button onClick={toggleSpecModal} variant="primary">
-            {canManageSpecs ? <Trans>Edit Metadata</Trans> : <Trans>Metadata</Trans>}
+  const headerActions = hasMoreActions ? (
+    <ButtonRow>
+      <PopupMenu>
+        <PopupMenuToggle as="div">
+          <Button icon="moreVert">
+            <Trans>More Actions</Trans>
           </Button>
-        )}
-      </ButtonRow>
-    ) : undefined
+        </PopupMenuToggle>
+        <PopupMenuOptions>
+          {(canManageSpecs || canListSpecs) && (
+            <PopupMenuItem label={canManageSpecs ? t`Edit Metadata` : t`Metadata`} onClick={toggleSpecModal} />
+          )}
+          {canManageAccess && (
+            <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} disabled={isPublicFlavor} />
+          )}
+          {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
+        </PopupMenuOptions>
+      </PopupMenu>
+    </ButtonRow>
+  ) : undefined
 
   return (
     <>
