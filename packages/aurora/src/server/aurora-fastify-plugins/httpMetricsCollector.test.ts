@@ -108,17 +108,21 @@ describe("HTTP Metrics Collector", () => {
   })
 
   it("should exclude /metrics path from metrics collection", async () => {
-    // Make initial /metrics request
-    await server.inject({
+    // Get initial metrics to establish baseline
+    const initialResponse = await server.inject({
       method: "GET",
       url: "/metrics",
     })
 
-    // Make another /metrics request
-    await server.inject({
-      method: "GET",
-      url: "/metrics",
-    })
+    // Parse the initial request count for /metrics route (should not exist)
+    const initialMetrics = initialResponse.body
+    const metricsRoutePattern = /aurora_requests_total\{[^}]*route="\/metrics"[^}]*\}\s+(\d+)/
+    const initialMatch = initialMetrics.match(metricsRoutePattern)
+
+    // Make several /metrics requests
+    await server.inject({ method: "GET", url: "/metrics" })
+    await server.inject({ method: "GET", url: "/metrics" })
+    await server.inject({ method: "GET", url: "/metrics" })
 
     // Get final metrics
     const finalResponse = await server.inject({
@@ -126,8 +130,12 @@ describe("HTTP Metrics Collector", () => {
       url: "/metrics",
     })
 
-    // The /metrics requests themselves should not be counted
-    // We can verify this by checking that the metrics for /metrics path are not present
+    const finalMetrics = finalResponse.body
+    const finalMatch = finalMetrics.match(metricsRoutePattern)
+
+    // The /metrics route should never appear in the metrics
+    expect(initialMatch).toBeNull()
+    expect(finalMatch).toBeNull()
     expect(finalResponse.statusCode).toBe(200)
   })
 
