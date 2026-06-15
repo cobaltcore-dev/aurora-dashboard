@@ -55,8 +55,27 @@ export const listContainersInputSchema = projectScopedInputSchema.extend({
   includeMetadata: z.boolean().optional().default(false),
 })
 
+/**
+ * S3-compliant bucket name validation:
+ * - 3-63 characters
+ * - Lowercase letters, numbers, hyphens, periods
+ * - Must start/end with letter or number
+ * - No consecutive periods
+ * - Not an IP address format
+ */
+export const bucketNameSchema = z
+  .string()
+  .min(3, "Bucket name must be at least 3 characters")
+  .max(63, "Bucket name must be at most 63 characters")
+  .regex(
+    /^[a-z0-9][a-z0-9.-]*[a-z0-9]$/,
+    "Bucket name must contain only lowercase letters, numbers, hyphens, and periods"
+  )
+  .refine((name) => !name.includes(".."), "Bucket name cannot contain consecutive periods")
+  .refine((name) => !/^\d+\.\d+\.\d+\.\d+$/.test(name), "Bucket name cannot be formatted as an IP address")
+
 export const createBucketInputSchema = projectScopedInputSchema.extend({
-  bucketName: z.string().min(3).max(63),
+  bucketName: bucketNameSchema,
   enableVersioning: z.boolean().optional().default(false),
 })
 
@@ -271,3 +290,109 @@ export const getServiceInfoInputSchema = z.object({
 // ============================================================================
 
 export type S3ServiceInfo = z.infer<typeof s3ServiceInfoSchema>
+
+// ============================================================================
+// BUCKET POLICY SCHEMAS
+// ============================================================================
+
+/**
+ * Bucket Policy - JSON-based access control for S3 buckets
+ *
+ * A policy is a JSON document that defines:
+ *   - Who can access the bucket (Principal)
+ *   - What actions they can perform (Action: s3:GetObject, s3:PutObject, etc.)
+ *   - Which resources they can access (Resource: arn:aws:s3:::bucket/*)
+ *   - Under what conditions (Condition: IP restrictions, etc.)
+ *
+ * Common use cases:
+ *   - Public read access for static website hosting
+ *   - Cross-account access delegation
+ *   - IP-based access restrictions
+ *   - Temporary access grants
+ *
+ * @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html
+ */
+export const bucketPolicyStatementSchema = z.object({
+  Sid: z.string().optional(), // Statement ID (optional identifier)
+  Effect: z.enum(["Allow", "Deny"]), // Allow or Deny access
+  Principal: z
+    .union([
+      z.string(), // "*" for public
+      z.object({
+        AWS: z.union([z.string(), z.array(z.string())]).optional(), // AWS account/user ARNs
+        Service: z.union([z.string(), z.array(z.string())]).optional(),
+        Federated: z.union([z.string(), z.array(z.string())]).optional(),
+      }),
+    ])
+    .superRefine((val, ctx) => {
+      // When Principal is an object, require at least one of AWS, Service, or Federated
+      if (typeof val === "object" && !val.AWS && !val.Service && !val.Federated) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Principal object must contain at least one of: AWS, Service, or Federated",
+        })
+      }
+
+      // Validate AWS principal ARN format
+      if (typeof val === "object" && val.AWS) {
+        const arns = Array.isArray(val.AWS) ? val.AWS : [val.AWS]
+        for (const arn of arns) {
+          if (arn !== "*" && !/^arn:aws:iam::\d{12}:(?:root|user\/.+|role\/.+)$/.test(arn)) {
+            ctx.addIssue({
+              code: "custom",
+              message: `Invalid AWS principal ARN format: ${arn}. Expected arn:aws:iam::ACCOUNT-ID:root or arn:aws:iam::ACCOUNT-ID:(user|role)/NAME`,
+            })
+          }
+        }
+      }
+    }),
+  Action: z.union([
+    z.string(), // Single action: "s3:GetObject"
+    z.array(z.string()), // Multiple actions: ["s3:GetObject", "s3:PutObject"]
+  ]),
+  Resource: z.union([
+    z.string(), // Single resource: "arn:aws:s3:::bucket/*"
+    z.array(z.string()), // Multiple resources
+  ]),
+  Condition: z
+    .record(
+      z.string(), // Condition operator: "StringEquals", "IpAddress", etc.
+      z.record(
+        z.string(), // Condition key: "aws:SourceIp", "s3:prefix", etc.
+        z.union([z.string(), z.array(z.string()), z.number(), z.boolean()])
+      )
+    )
+    .optional(), // Conditions (IP, date, etc.)
+})
+
+export const bucketPolicyDocumentSchema = z.object({
+  Version: z.string().default("2012-10-17"), // Policy language version
+  Id: z.string().optional(), // Policy ID
+  Statement: z.array(bucketPolicyStatementSchema).min(1, "Policy must contain at least one statement"),
+})
+
+export const getBucketPolicyInputSchema = projectScopedInputSchema.extend({
+  bucketName: bucketNameSchema,
+})
+
+export const getBucketPolicyOutputSchema = z.object({
+  policy: bucketPolicyDocumentSchema.nullable(), // null if no policy set
+  policyText: z.string().nullable(), // Raw JSON string for editor
+})
+
+export const setBucketPolicyInputSchema = projectScopedInputSchema.extend({
+  bucketName: bucketNameSchema,
+  policy: z.string().min(1).max(20480, "Policy document exceeds maximum size of 20KB"), // AWS S3 limit is 20KB
+})
+
+export const deleteBucketPolicyInputSchema = projectScopedInputSchema.extend({
+  bucketName: bucketNameSchema,
+})
+
+// ============================================================================
+// BUCKET POLICY TYPES
+// ============================================================================
+
+export type BucketPolicyStatement = z.infer<typeof bucketPolicyStatementSchema>
+export type BucketPolicyDocument = z.infer<typeof bucketPolicyDocumentSchema>
+export type GetBucketPolicyOutput = z.infer<typeof getBucketPolicyOutputSchema>
