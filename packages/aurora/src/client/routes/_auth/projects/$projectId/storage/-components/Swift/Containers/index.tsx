@@ -68,6 +68,15 @@ export const SwiftContainers = () => {
   const debounceTimer = useRef<number | undefined>(undefined)
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
+  // Keep the input in sync when the committed search term changes from outside
+  // the input — browser back/forward, deep links, or programmatic navigation —
+  // so the field never drifts from the URL-backed filter state. When the change
+  // originated from our own debounced commit, searchParam already equals
+  // localSearchTerm, so this is a no-op and won't disturb the caret.
+  useEffect(() => {
+    setLocalSearchTerm(searchParam)
+  }, [searchParam])
+
   const handleToastDismiss = () => setToastData(null)
 
   const handleCreateSuccess = (containerName: string) => {
