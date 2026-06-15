@@ -802,12 +802,6 @@ msgstr "Löschen"
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
-msgid "Delete All"
-msgstr "Alle löschen"
-
-msgid "Delete All ({selectedCount})"
-msgstr "Alle löschen ({selectedCount})"
-
 msgid "Delete bucket"
 msgstr ""
 
@@ -2592,6 +2586,9 @@ msgstr "Flavors suchen..."
 
 msgid "Search images..."
 msgstr "Images suchen..."
+
+msgid "Search objects..."
+msgstr ""
 
 msgid "Search..."
 msgstr "Suchen..."
