@@ -1034,7 +1034,7 @@ msgid "Empty Buckets"
 msgstr ""
 
 msgid "Empty Container"
-msgstr ""
+msgstr "Container leeren"
 
 msgid "Empty Containers"
 msgstr "Container leeren"
@@ -2579,7 +2579,7 @@ msgid "Saving..."
 msgstr "Wird gespeichert..."
 
 msgid "Search containers..."
-msgstr ""
+msgstr "Container suchen..."
 
 msgid "Search flavors..."
 msgstr "Flavors suchen..."
@@ -2588,7 +2588,7 @@ msgid "Search images..."
 msgstr "Images suchen..."
 
 msgid "Search objects..."
-msgstr ""
+msgstr "Objekte suchen..."
 
 msgid "Search..."
 msgstr "Suchen..."
