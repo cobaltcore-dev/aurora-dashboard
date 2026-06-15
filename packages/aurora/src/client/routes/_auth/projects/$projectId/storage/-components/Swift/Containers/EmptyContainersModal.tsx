@@ -77,7 +77,7 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
 
   return (
     <Modal
-      title={t`Empty Containers`}
+      title={totalCount === 1 ? t`Empty Container` : t`Empty Containers`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}

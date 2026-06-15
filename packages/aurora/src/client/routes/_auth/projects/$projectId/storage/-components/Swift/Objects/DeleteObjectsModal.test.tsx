@@ -143,8 +143,17 @@ describe("DeleteObjectsModal", () => {
 
     test("renders with a single object", () => {
       renderModal({ objectNames: ["single.txt"], objectKeys: ["single.txt"] })
-      expect(screen.getByText("Delete Objects")).toBeInTheDocument()
+      expect(screen.getByText("Delete Object")).toBeInTheDocument()
       expect(screen.getByText("single.txt")).toBeInTheDocument()
+    })
+
+    test("title is singular for exactly one object, plural for two or more", () => {
+      const { unmount } = renderModal({ objectNames: ["only.txt"], objectKeys: ["only.txt"] })
+      expect(screen.getByText("Delete Object")).toBeInTheDocument()
+      expect(screen.queryByText("Delete Objects")).not.toBeInTheDocument()
+      unmount()
+      renderModal({ objectNames: ["a.txt", "b.txt"], objectKeys: ["a.txt", "b.txt"] })
+      expect(screen.getByText("Delete Objects")).toBeInTheDocument()
     })
   })
 

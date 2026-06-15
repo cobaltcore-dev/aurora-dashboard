@@ -90,7 +90,7 @@ export const DeleteObjectsModal = ({
 
   return (
     <Modal
-      title={t`Delete Objects`}
+      title={totalCount === 1 ? t`Delete Object` : t`Delete Objects`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
