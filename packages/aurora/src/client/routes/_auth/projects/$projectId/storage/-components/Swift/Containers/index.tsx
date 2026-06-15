@@ -344,15 +344,17 @@ export const SwiftContainers = () => {
                 />
                 <PopupMenu className="flex items-center">
                   <PopupMenuToggle as="div">
-                    <Button size="small" icon="moreVert" label={t`Actions`} />
+                    <Button disabled={!hasSelection} size="small" icon="moreVert" label={t`Actions`} />
                   </PopupMenuToggle>
-                  <PopupMenuOptions>
-                    <PopupMenuItem
-                      disabled={!hasSelection}
-                      label={hasSelection ? t`Empty Selected (${selectedCount})` : t`Empty Selected`}
-                      onClick={() => setEmptyAllModalOpen(true)}
-                    />
-                  </PopupMenuOptions>
+                  {hasSelection && (
+                    <PopupMenuOptions>
+                      <PopupMenuItem
+                        disabled={!hasSelection}
+                        label={selectedCount > 1 ? t`Empty Containers` : t`Empty Container`}
+                        onClick={() => setEmptyAllModalOpen(true)}
+                      />
+                    </PopupMenuOptions>
+                  )}
                 </PopupMenu>
               </Stack>
             ) : (

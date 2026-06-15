@@ -1039,14 +1039,11 @@ msgstr "Empty Bucket"
 msgid "Empty Buckets"
 msgstr "Empty Buckets"
 
+msgid "Empty Container"
+msgstr "Empty Container"
+
 msgid "Empty Containers"
 msgstr "Empty Containers"
-
-msgid "Empty Selected"
-msgstr "Empty Selected"
-
-msgid "Empty Selected ({selectedCount})"
-msgstr "Empty Selected ({selectedCount})"
 
 msgid "Empty:"
 msgstr "Empty:"
