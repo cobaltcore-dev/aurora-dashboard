@@ -157,7 +157,7 @@ function extractLabels(request: FastifyRequest, reply: FastifyReply, bffEndpoint
     endpointType = "api"
     route = normalizeApiPath(urlPath)
   }
-  // Vite dev server paths - exclude from metrics (dev-only noise)
+  // Vite dev server paths - group to prevent cardinality explosion (dev-only noise)
   else if (urlPath.startsWith("/@")) {
     endpointType = "vite-dev"
     route = "vite-dev"
