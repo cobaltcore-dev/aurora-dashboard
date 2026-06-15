@@ -72,9 +72,11 @@ async function httpMetricsCollectorPlugin(
       return
     }
 
+    // Skip if start time wasn't set (shouldn't happen, but safety check)
+    if (!request.metricsStartTime) return
+
     const endTime = process.hrtime.bigint()
-    const startTime = request.metricsStartTime || 0n
-    const duration = Number(endTime - startTime) / 1e9 // Convert nanoseconds to seconds
+    const duration = Number(endTime - request.metricsStartTime) / 1e9 // Convert nanoseconds to seconds
 
     const labels = extractLabels(request, reply, bffEndpoint)
 
@@ -82,7 +84,7 @@ async function httpMetricsCollectorPlugin(
       requestsTotal.inc(labels)
       requestDurationSeconds.observe(labels, duration)
     } catch (error) {
-      fastify.log.error(`Failed to record HTTP metrics: ${error}`)
+      fastify.log.error({ err: error }, "Failed to record HTTP metrics")
     }
   })
 
@@ -91,7 +93,7 @@ async function httpMetricsCollectorPlugin(
     try {
       exceptionsTotal.inc({ exception: error.constructor.name })
     } catch (err) {
-      fastify.log.error(`Failed to record exception metric: ${err}`)
+      fastify.log.error({ err }, "Failed to record exception metric")
     }
   })
 
