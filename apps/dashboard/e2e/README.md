@@ -168,8 +168,9 @@ test.describe("My Feature", () => {
     await page.waitForTimeout(500)
 
     const detailErrors = setupErrorTracking(page)
-    const projectHeading = page.locator("h1.juno-content-heading", { hasText: testProject })
-    await projectHeading.click()
+    // Find and click the project by name
+    const projectCard = page.locator("text=" + testProject)
+    await projectCard.click()
 
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(detailErrors, page)
@@ -186,9 +187,11 @@ Most tests follow this pattern:
 
 1. **Login** → lands on `/projects`
 2. **Search** for test project
-3. **Click** project heading → enters project detail view
+3. **Click** project card → enters project detail view
 4. **Navigate** to specific section (Images, Flavors, etc.)
 5. **Assert** expected behavior
+
+**Note:** Avoid hardcoding specific CSS selectors in documentation examples, as UI structure can change. Use semantic locators like `text=`, `role=`, or data-testid attributes when possible.
 
 ## Test Patterns
 
