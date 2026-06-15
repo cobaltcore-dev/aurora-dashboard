@@ -264,4 +264,4 @@ A test file has been created at:
 
 - `packages/aurora/src/server/aurora-fastify-plugins/httpMetricsCollector.test.ts`
 
-Note: Server tests are currently excluded from the main test suite in `vitest.config.ts`.
+Note: If you experience issues running server-level tests locally/CI, ensure the test environment doesn't try to start the Vite dev server (prefer unit-testing the plugin with a minimal Fastify instance).
