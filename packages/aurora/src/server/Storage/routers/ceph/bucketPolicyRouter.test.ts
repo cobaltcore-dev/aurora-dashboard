@@ -252,7 +252,7 @@ describe("bucketPolicyRouter", () => {
             Effect: "Maybe", // Invalid - must be "Allow" or "Deny"
             Principal: "*",
             Action: "s3:GetObject",
-            Resource: "arn:aws:s3:::bucket/*",
+            Resource: "arn:aws:s3:::my-test-bucket/*",
           },
         ],
       })
@@ -336,7 +336,7 @@ describe("bucketPolicyRouter", () => {
             Effect: "Allow",
             Principal: "*",
             Action: "s3:GetObject",
-            Resource: "arn:aws:s3:::bucket/*",
+            Resource: "arn:aws:s3:::my-test-bucket/*",
             Condition: {
               IpAddress: {
                 "aws:SourceIp": "10.0.0.0/8",

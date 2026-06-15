@@ -325,14 +325,22 @@ export const bucketPolicyStatementSchema = z.object({
       }),
     ])
     .superRefine((val, ctx) => {
+      // When Principal is an object, require at least one of AWS, Service, or Federated
+      if (typeof val === "object" && !val.AWS && !val.Service && !val.Federated) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Principal object must contain at least one of: AWS, Service, or Federated",
+        })
+      }
+
       // Validate AWS principal ARN format
       if (typeof val === "object" && val.AWS) {
         const arns = Array.isArray(val.AWS) ? val.AWS : [val.AWS]
         for (const arn of arns) {
-          if (arn !== "*" && !/^arn:aws:iam::\d{12}:(root|user|role)\//.test(arn)) {
+          if (arn !== "*" && !/^arn:aws:iam::\d{12}:(?:root|user\/.+|role\/.+)$/.test(arn)) {
             ctx.addIssue({
               code: "custom",
-              message: `Invalid AWS principal ARN format: ${arn}. Expected format: arn:aws:iam::ACCOUNT-ID:root|user|role/NAME`,
+              message: `Invalid AWS principal ARN format: ${arn}. Expected arn:aws:iam::ACCOUNT-ID:root or arn:aws:iam::ACCOUNT-ID:(user|role)/NAME`,
             })
           }
         }
@@ -360,7 +368,7 @@ export const bucketPolicyStatementSchema = z.object({
 export const bucketPolicyDocumentSchema = z.object({
   Version: z.string().default("2012-10-17"), // Policy language version
   Id: z.string().optional(), // Policy ID
-  Statement: z.array(bucketPolicyStatementSchema),
+  Statement: z.array(bucketPolicyStatementSchema).min(1, "Policy must contain at least one statement"),
 })
 
 export const getBucketPolicyInputSchema = projectScopedInputSchema.extend({

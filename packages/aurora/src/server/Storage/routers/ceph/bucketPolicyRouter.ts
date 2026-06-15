@@ -50,7 +50,16 @@ function validateResourceARNsMatchBucket(policy: BucketPolicyDocument, bucketNam
       const arnRegex = /^arn:aws:s3:::([^/]+)/
       const match = resource.match(arnRegex)
 
-      if (match && match[1] !== bucketName) {
+      // Reject resources that don't match S3 bucket ARN pattern (includes "*" and non-S3 ARNs)
+      if (!match) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Policy Resource '${resource}' is not a valid S3 bucket ARN for bucket '${bucketName}'. Expected: arn:aws:s3:::${bucketName} or arn:aws:s3:::${bucketName}/*`,
+        })
+      }
+
+      // Reject resources that reference a different bucket
+      if (match[1] !== bucketName) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: `Policy Resource ARN '${resource}' does not match bucket '${bucketName}'`,
@@ -72,16 +81,18 @@ function validatePolicySemantics(policy: BucketPolicyDocument): void {
     })
   }
 
-  // Warn about Deny * statements that could lock out the owner
-  const denyAllStatement = policy.Statement.find(
-    (s) => s.Effect === "Deny" && (s.Action === "*" || (Array.isArray(s.Action) && s.Action.includes("*")))
-  )
+  // Warn about deny-all statements that could lock out the owner
+  const denyAllStatement = policy.Statement.find((s) => {
+    if (s.Effect !== "Deny") return false
+    const actions = Array.isArray(s.Action) ? s.Action : [s.Action]
+    return actions.some((a) => a === "*" || a === "s3:*")
+  })
 
   if (denyAllStatement) {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message:
-        "Policy contains 'Deny *' which may lock out all access including the bucket owner. Please use more specific deny rules.",
+        "Policy contains 'Deny *' or 'Deny s3:*' which may lock out all access including the bucket owner. Please use more specific deny rules.",
     })
   }
 }
