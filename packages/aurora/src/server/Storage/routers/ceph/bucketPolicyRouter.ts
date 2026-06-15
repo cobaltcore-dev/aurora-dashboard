@@ -20,6 +20,13 @@ function checkPolicySetRateLimit(bucketName: string, projectId: string): void {
   const now = Date.now()
   const windowMs = 5 * 60 * 1000 // 5 minutes
 
+  // Clean up expired entries to prevent unbounded memory growth
+  for (const [k, v] of policySetRateLimits.entries()) {
+    if (now > v.resetAt) {
+      policySetRateLimits.delete(k)
+    }
+  }
+
   const limit = policySetRateLimits.get(key)
 
   if (!limit || now > limit.resetAt) {
