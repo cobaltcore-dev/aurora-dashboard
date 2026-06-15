@@ -286,7 +286,7 @@ export const SwiftContainers = () => {
   return (
     <div className="relative">
       <Stack direction="vertical">
-        {/* Zone 1 — sort controls left, create button right (no background) */}
+        {/* Zone 1 — sort controls and the create action (plain Stack, no background) */}
         <Stack distribution="end" alignment="center" gap="2" className="pb-2">
           <Stack gap="0.5" alignment="center">
             <SortInput
@@ -307,7 +307,7 @@ export const SwiftContainers = () => {
         {/* Zone 2 — search (+ filter pills). DataGridToolbar provides the background.
             Swift containers expose no filterable dimensions yet, so there is no
             FiltersInput / SelectedFilters here. When filter dimensions are added,
-            place FiltersInput on the left (switch the inner Stack to
+            add FiltersInput alongside the search (switch the inner Stack to
             distribution="between") and render SelectedFilters below, using
             applyFilterSelection from urlHelpers for merge logic. */}
         <DataGridToolbar>
@@ -337,11 +337,11 @@ export const SwiftContainers = () => {
           </Stack>
         </DataGridToolbar>
 
-        {/* Zone 3 — bulk actions (gated) on the left, container/quota info on the right.
+        {/* Zone 3 — bulk actions (gated) plus the container/quota info.
             Unlike the Images reference (where Zone 3 carries only bulk actions and is
             omitted entirely without permissions), this bar also hosts the Swift-specific
             count + remaining-quota + limits info, which must always be visible. So the
-            bar always renders; only the left-hand bulk controls are gated. */}
+            bar always renders; only the bulk controls are gated. */}
         <DataGridToolbar>
           <Stack distribution="start" gap="2" alignment="center" className="text-sm">
             {hasAnyBulkAction ? (
