@@ -1,4 +1,5 @@
 import { use, Suspense, useState, useRef, startTransition, useEffect, useCallback } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { TrpcClient } from "@/client/trpcClient"
@@ -318,31 +319,37 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         />
       )}
 
-      <Suspense
-        fallback={
-          <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-            <Spinner variant="primary" size="large" className="mb-2" />
-            <Trans>Loading Flavors...</Trans>
-          </Stack>
-        }
+      <ErrorBoundary
+        fallbackRender={({ error }) => (
+          <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
+        )}
       >
-        <FlavorsContent
-          flavorsPromise={flavorsPromise}
-          permissionsPromise={permissionsPromise}
-          client={client}
-          project={project}
-          onFlavorDeleted={handleFlavorDeleted}
-          onFlavorCreated={handleFlavorCreated}
-          searchTerm={searchTerm}
-          setSearchTerm={handleSearchChange}
-          sortSettings={sortSettings}
-          handleSortChange={handleSortChange}
-          createModalOpen={createModalOpen}
-          setCreateModalOpen={setCreateModalOpen}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
-      </Suspense>
+        <Suspense
+          fallback={
+            <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+              <Spinner variant="primary" size="large" className="mb-2" />
+              <Trans>Loading Flavors...</Trans>
+            </Stack>
+          }
+        >
+          <FlavorsContent
+            flavorsPromise={flavorsPromise}
+            permissionsPromise={permissionsPromise}
+            client={client}
+            project={project}
+            onFlavorDeleted={handleFlavorDeleted}
+            onFlavorCreated={handleFlavorCreated}
+            searchTerm={searchTerm}
+            setSearchTerm={handleSearchChange}
+            sortSettings={sortSettings}
+            handleSortChange={handleSortChange}
+            createModalOpen={createModalOpen}
+            setCreateModalOpen={setCreateModalOpen}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+          />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }

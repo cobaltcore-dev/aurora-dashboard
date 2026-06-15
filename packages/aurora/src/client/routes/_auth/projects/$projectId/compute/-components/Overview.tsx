@@ -1,5 +1,6 @@
 import { ActivitySummary } from "./ActivitySummary"
 import { Suspense, use } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { Server } from "@/server/Compute/types/server"
 import { ImagesPaginatedResponse } from "@/server/Compute/types/image"
 import { TrpcClient } from "@/client/trpcClient"
@@ -109,14 +110,22 @@ export function Overview({ client, project }: OverviewProps) {
   ])
 
   return (
-    <Suspense
-      fallback={
+    <ErrorBoundary
+      fallbackRender={({ error }) => (
         <div className="p-4 text-center">
-          <Trans>Loading...</Trans>
+          {error instanceof Error ? error.message : "An unexpected error occurred."}
         </div>
-      }
+      )}
     >
-      <OverviewContainer getDataPromise={getDataPromise} />
-    </Suspense>
+      <Suspense
+        fallback={
+          <div className="p-4 text-center">
+            <Trans>Loading...</Trans>
+          </div>
+        }
+      >
+        <OverviewContainer getDataPromise={getDataPromise} />
+      </Suspense>
+    </ErrorBoundary>
   )
 }
