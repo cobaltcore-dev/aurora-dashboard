@@ -1,4 +1,5 @@
 import React, { use, Suspense, useState, startTransition } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { TrpcClient } from "@/client/trpcClient"
 import { useLingui } from "@lingui/react/macro"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
@@ -52,6 +53,13 @@ function SpecsLoading() {
       </DataGridCell>
     </DataGridRow>
   )
+}
+
+function SpecsError({ error }: { error: unknown }) {
+  const { t } = useLingui()
+  const { translateError } = useErrorTranslation()
+  const message = error instanceof Error ? translateError(error.message) : t`An unexpected error occurred.`
+  return <Message variant="error" text={message} />
 }
 
 function EditSpecContent({
@@ -304,20 +312,22 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
           <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />
         )}
 
-        <Suspense fallback={<SpecsLoading />}>
-          <EditSpecContent
-            permissionsPromise={permissionsPromise}
-            extraSpecsPromise={extraSpecsPromise}
-            client={client}
-            project={project}
-            flavor={flavor}
-            onSpecsUpdate={handleSpecsUpdate}
-            isAddingSpec={isAddingSpec}
-            setIsAddingSpec={setIsAddingSpec}
-            message={message}
-            setMessage={setMessage}
-          />
-        </Suspense>
+        <ErrorBoundary fallbackRender={({ error }) => <SpecsError error={error} />}>
+          <Suspense fallback={<SpecsLoading />}>
+            <EditSpecContent
+              permissionsPromise={permissionsPromise}
+              extraSpecsPromise={extraSpecsPromise}
+              client={client}
+              project={project}
+              flavor={flavor}
+              onSpecsUpdate={handleSpecsUpdate}
+              isAddingSpec={isAddingSpec}
+              setIsAddingSpec={setIsAddingSpec}
+              message={message}
+              setMessage={setMessage}
+            />
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </Modal>
   )

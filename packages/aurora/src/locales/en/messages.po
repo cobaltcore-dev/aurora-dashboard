@@ -292,6 +292,9 @@ msgstr "An object with this name already exists at the destination and will be o
 msgid "An unexpected error occurred"
 msgstr "An unexpected error occurred"
 
+msgid "An unexpected error occurred."
+msgstr "An unexpected error occurred."
+
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
 
