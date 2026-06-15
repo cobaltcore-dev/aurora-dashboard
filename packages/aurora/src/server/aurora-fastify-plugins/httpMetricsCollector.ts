@@ -6,6 +6,7 @@ export interface HttpMetricsCollectorOptions {
   prefix?: string
   excludePaths?: string[]
   registry?: Registry
+  bffEndpoint?: string
 }
 
 interface MetricsLabels {
@@ -33,6 +34,7 @@ async function httpMetricsCollectorPlugin(
   const prefix = options.prefix || "aurora"
   const excludePaths = options.excludePaths || EXCLUDE_PATHS
   const registry = options.registry || new Registry()
+  const bffEndpoint = options.bffEndpoint || "/polaris-bff"
 
   // Create metrics
   const requestsTotal = new Counter<string>({
@@ -74,7 +76,7 @@ async function httpMetricsCollectorPlugin(
     const startTime = request.metricsStartTime || 0n
     const duration = Number(endTime - startTime) / 1e9 // Convert nanoseconds to seconds
 
-    const labels = extractLabels(request, reply)
+    const labels = extractLabels(request, reply, bffEndpoint)
 
     try {
       requestsTotal.inc(labels)
@@ -97,7 +99,7 @@ async function httpMetricsCollectorPlugin(
   fastify.decorate("metricsRegistry", registry)
 }
 
-function extractLabels(request: FastifyRequest, reply: FastifyReply): MetricsLabels {
+function extractLabels(request: FastifyRequest, reply: FastifyReply, bffEndpoint: string): MetricsLabels {
   const urlPath = request.url.split("?")[0]
 
   let endpointType: string
@@ -105,9 +107,9 @@ function extractLabels(request: FastifyRequest, reply: FastifyReply): MetricsLab
   let projectId = ""
 
   // tRPC API endpoints - the primary focus for infrastructure monitoring
-  if (urlPath.includes("/polaris-bff/")) {
+  if (urlPath.includes(bffEndpoint)) {
     endpointType = "trpc"
-    const procedurePath = urlPath.split("/polaris-bff/")[1]
+    const procedurePath = urlPath.split(bffEndpoint + "/")[1]
     if (procedurePath) {
       // Extract service and action from tRPC procedure
       // Example: compute.listImages -> compute/listImages
@@ -125,12 +127,24 @@ function extractLabels(request: FastifyRequest, reply: FastifyReply): MetricsLab
     }
 
     // Extract project_id from tRPC query parameters
+    // tRPC sends input as URL-encoded JSON, potentially batched
     const url = new URL(request.url, "http://localhost")
     const inputParam = url.searchParams.get("input")
     if (inputParam) {
       try {
         const input = JSON.parse(inputParam)
-        projectId = input.project_id || ""
+        // Handle both single and batched requests
+        // Batched: { "0": {...}, "1": {...} }
+        // Single: { project_id: "..." }
+        if (input.project_id) {
+          projectId = input.project_id
+        } else if (typeof input === "object") {
+          // Try to find project_id in first batch item
+          const firstKey = Object.keys(input)[0]
+          if (firstKey && input[firstKey]?.project_id) {
+            projectId = input[firstKey].project_id
+          }
+        }
       } catch {
         // Ignore parse errors
       }

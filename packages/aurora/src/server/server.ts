@@ -57,6 +57,7 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
     prefix: "aurora",
     excludePaths: ["/metrics"],
     registry: metricsRegistry,
+    bffEndpoint: bffEndpoint,
   })
 
   // Add /metrics endpoint to expose Prometheus metrics
