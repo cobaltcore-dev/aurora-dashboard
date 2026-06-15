@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server"
+import { logger } from "@cobaltcore-dev/signal-openstack"
 
 interface S3ErrorShape {
   name?: string
@@ -11,6 +12,7 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
   NoSuchKey: "NOT_FOUND",
   NoSuchUpload: "NOT_FOUND",
   NoSuchVersion: "NOT_FOUND",
+  NoSuchBucketPolicy: "NOT_FOUND",
   BucketAlreadyExists: "CONFLICT",
   BucketAlreadyOwnedByYou: "CONFLICT",
   BucketNotEmpty: "PRECONDITION_FAILED",
@@ -24,6 +26,7 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
   RequestTimeTooSkewed: "UNAUTHORIZED",
   InvalidBucketName: "BAD_REQUEST",
   KeyTooLongError: "BAD_REQUEST",
+  MalformedPolicy: "BAD_REQUEST",
   EntityTooLarge: "PAYLOAD_TOO_LARGE",
   EntityTooSmall: "BAD_REQUEST",
 }
@@ -49,7 +52,7 @@ export function mapS3ErrorToTRPCError(
 
   // Log unmapped errors for future improvements
   if (!S3_ERROR_MAP[errorCode] && errorCode) {
-    console.warn(`[s3] Unmapped S3 error code: ${errorCode}`)
+    logger.warn("Unmapped S3 error code", { errorCode, operation: context.operation })
   }
 
   // Build contextual error message
