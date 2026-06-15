@@ -1,5 +1,5 @@
 import { swiftRouter } from "./swift"
-import { ec2CredentialRouter, containerRouter, objectRouter, versioningRouter } from "./ceph"
+import { ec2CredentialRouter, containerRouter, objectRouter, versioningRouter, bucketPolicyRouter } from "./ceph"
 import { auroraRouter } from "../../trpc"
 
 export const objectStorageRouters = {
@@ -19,6 +19,9 @@ export const objectStorageRouters = {
       }),
       versioning: auroraRouter({
         ...versioningRouter,
+      }),
+      bucketPolicy: auroraRouter({
+        ...bucketPolicyRouter,
       }),
     }),
   },

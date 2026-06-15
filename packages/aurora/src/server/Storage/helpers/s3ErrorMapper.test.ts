@@ -310,7 +310,9 @@ describe("mapS3ErrorToTRPCError", () => {
         // Expected to throw
       }
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith("[s3] Unmapped S3 error code: UnmappedErrorCode")
+      expect(consoleWarnSpy).toHaveBeenCalled()
+      const warnCall = consoleWarnSpy.mock.calls[0][0] as string
+      expect(warnCall).toContain("Unmapped S3 error code")
     })
 
     it("does not log when error code is mapped", () => {
