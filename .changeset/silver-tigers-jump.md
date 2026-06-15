@@ -18,3 +18,6 @@ feat(portal): compute image and flavor UI improvements
 - List view: new **Access Type** column shows Public or Private status for each flavor — closes #908
 - List view: popup menu uses default icon toggle (consistent with Images); Manage Access disabled for public flavors
 - Manage Access modal: Flavor ID column removed for a simpler two-column layout — closes #909
+
+**Error handling**
+- Overview, Images list, and Flavors list wrapped with ErrorBoundary to catch policy file mismatch errors that reject `canUser`/data promises via `React.use()`
