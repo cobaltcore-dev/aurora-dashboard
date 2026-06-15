@@ -1,29 +1,46 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest"
 import { FastifyInstance } from "fastify"
-import { createServer } from "../server"
-import { mkdtempSync, rmSync } from "fs"
-import { tmpdir } from "os"
-import path from "path"
+import Fastify from "fastify"
+import { Registry } from "prom-client"
+import { AuroraHttpMetricsCollector } from "./httpMetricsCollector"
 
 describe("HTTP Metrics Collector", () => {
   let server: FastifyInstance
-  let tempPolicyDir: string
+  let metricsRegistry: Registry
 
   beforeAll(async () => {
-    // Create a temporary directory for policy files
-    tempPolicyDir = mkdtempSync(path.join(tmpdir(), "aurora-test-policies-"))
+    // Create a plain Fastify instance to avoid booting full server with Vite
+    server = Fastify()
 
-    server = await createServer({
-      identityEndpoint: "http://localhost:5000",
-      policyDir: tempPolicyDir,
+    // Register the HTTP metrics collector plugin
+    metricsRegistry = new Registry()
+    await server.register(AuroraHttpMetricsCollector, {
+      prefix: "aurora",
+      excludePaths: ["/metrics"],
+      registry: metricsRegistry,
+      bffEndpoint: "/polaris-bff",
     })
+
+    // Add /metrics endpoint
+    server.get("/metrics", async (_request, reply) => {
+      reply.header("Content-Type", metricsRegistry.contentType)
+      return reply.send(await metricsRegistry.metrics())
+    })
+
+    // Add a simple test route
+    server.get("/", async () => {
+      return { status: "ok" }
+    })
+
+    server.get("/test", async () => {
+      return { status: "test" }
+    })
+
     await server.ready()
   })
 
   afterAll(async () => {
     await server.close()
-    // Clean up temporary directory
-    rmSync(tempPolicyDir, { recursive: true, force: true })
   })
 
   it("should expose /metrics endpoint", async () => {
