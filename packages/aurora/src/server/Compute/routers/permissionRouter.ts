@@ -1,27 +1,12 @@
-import { z } from "zod"
-import { TRPCError } from "@trpc/server"
-import { AuroraPortalContext } from "@/server/context"
-import { loadPolicyEngine } from "@/server/policyEngineLoader"
-import { projectScopedProcedure, projectScopedInputSchema } from "../../trpc"
-import type { PolicyEngine } from "@cobaltcore-dev/policy-engine"
+import { createPermissionRouter } from "../../policies/createPermissionRouter"
 
-type PolicyEngines = { compute: PolicyEngine; image: PolicyEngine }
-
-const getPolicy = (ctx: AuroraPortalContext, policyEngineName: "compute" | "image", engines: PolicyEngines) => {
-  const openstackSession = ctx.openstack
-  const token = openstackSession?.getToken()
-  if (!token) {
-    throw new TRPCError({ code: "UNAUTHORIZED", message: "No valid OpenStack token found" })
-  }
-  const policyEngine = policyEngineName === "compute" ? engines.compute : engines.image
-
-  return policyEngine.policy(token.tokenData, {
-    debug: true,
-    defaultParams: { project_id: token.tokenData.project?.id },
-  })
-}
-
-const POLICY_MAPPINGS = {
+/**
+ * Policy mappings for Compute and Image services.
+ *
+ * Maps frontend permission keys to OpenStack policy rules.
+ * Format: "service:action" → { engine: "service", rule: "openstack_policy_rule" }
+ */
+const COMPUTE_IMAGE_MAPPINGS = {
   // Servers
   "servers:list": { engine: "compute", rule: "os_compute_api:servers:index" },
   "servers:create": { engine: "compute", rule: "os_compute_api:servers:create" },
@@ -52,81 +37,36 @@ const POLICY_MAPPINGS = {
   "images:update_member": { engine: "image", rule: "modify_member" },
 } as const
 
-type PolicyKey = keyof typeof POLICY_MAPPINGS
-
-const checkSinglePermission = (ctx: AuroraPortalContext, permission: PolicyKey, engines: PolicyEngines) => {
-  const policyMapping = POLICY_MAPPINGS[permission]
-  const policy = getPolicy(ctx, policyMapping.engine, engines)
-  return policy.check(policyMapping.rule)
-}
-
 /**
- * Zod schema for a valid permission key.
+ * Creates a permission router for Compute and Image services.
  *
- * This schema ensures that:
- * - The value is a string.
- * - The string is a known key in `POLICY_MAPPINGS` (e.g., "servers:list", "flavors:create").
+ * This router provides a `canUser` procedure for checking user permissions
+ * against OpenStack Compute (Nova) and Image (Glance) policy rules.
  *
- * Any other string or non-string input, or any string that is not a key in `POLICY_MAPPINGS`,
- * is rejected with a Zod `custom` issue whose message is of the form "Unknown permission: <key>".
+ * @param policyDir - Absolute path to the directory containing policy YAML files
+ * @returns A tRPC router with permission checking capabilities
  *
- * This results in a `BAD_REQUEST` error from tRPC before the handler runs.
- * which is useful for debugging and client-side error handling.
- * This approach is explicit and tightly coupled to the defined policy mappings.
+ * @example
+ * ```typescript
+ * // Check single permission
+ * const [canList] = await trpc.compute.canUser.query({
+ *   project_id: "abc123",
+ *   permission: "servers:list"
+ * })
  *
- * @type {import("zod").ZodType<PolicyKey>}
+ * // Check multiple permissions
+ * const [canList, canCreate, canDelete] = await trpc.compute.canUser.query({
+ *   project_id: "abc123",
+ *   permission: ["servers:list", "servers:create", "servers:delete"]
+ * })
+ * ```
  */
-const PERMISSION_KEY = z
-  .string()
-  .superRefine((value, ctx) => {
-    if (!Object.hasOwn(POLICY_MAPPINGS, value)) {
-      ctx.addIssue({
-        code: "custom",
-        message: `Unknown permission: ${value}`,
-      })
-    }
+export const buildPermissionRouter = (policyDir: string) =>
+  createPermissionRouter({
+    policyDir,
+    engines: {
+      compute: { fileName: "compute.yaml" },
+      image: { fileName: "image.yaml" },
+    },
+    mappings: COMPUTE_IMAGE_MAPPINGS,
   })
-  .transform((value) => value as PolicyKey)
-
-/**
- * Permission checking endpoint that determines whether a user has one or more specific permissions.
- *
- * Usage:
- * - `canUser({ project_id: "abc", permission: "servers:list" })` → returns `[boolean]` (single permission check, always wrapped in array).
- * - `canUser({ project_id: "abc", permission: ["servers:list", "flavors:create"] })` → returns `boolean[]` (bulk check, one result per permission in order).
- *
- * Input must be:
- * - A project_id (required, validated by projectScopedInputSchema), and
- * - A single valid permission key (string in `POLICY_MAPPINGS`), or
- * - An array of valid permission keys.
- *
- * Invalid keys or non‑string values are rejected with a `BAD_REQUEST` error before the handler runs.
- * Empty array input returns an empty array (`[]`).
- * Always returns `boolean[]` for consistent destructuring on the client.
- *
- * @param policyDir Absolute path to the consumer-supplied policy directory.
- */
-export const buildPermissionRouter = (policyDir: string) => {
-  const engines: PolicyEngines = {
-    compute: loadPolicyEngine("compute.yaml", policyDir),
-    image: loadPolicyEngine("image.yaml", policyDir),
-  }
-
-  return {
-    canUser: projectScopedProcedure
-      .input(
-        projectScopedInputSchema.extend({
-          permission: z.union([PERMISSION_KEY, z.array(PERMISSION_KEY)]),
-        })
-      )
-      .query(async ({ ctx, input }): Promise<boolean[]> => {
-        const permissions = typeof input.permission === "string" ? [input.permission] : input.permission
-
-        if (permissions.length === 0) {
-          return []
-        }
-
-        return permissions.map((permission) => checkSinglePermission(ctx, permission, engines))
-      }),
-  }
-}
