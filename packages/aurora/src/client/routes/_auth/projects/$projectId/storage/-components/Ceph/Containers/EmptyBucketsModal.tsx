@@ -117,7 +117,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
                 const bucketName = bucket.name
                 const bucketCount = bucket.count
                 return (
-                  <li key={bucketName} className="font-mono">
+                  <li key={bucketName}>
                     {bucketName}
                     {bucketCount > 0 && (
                       <span className="text-theme-light ml-2">

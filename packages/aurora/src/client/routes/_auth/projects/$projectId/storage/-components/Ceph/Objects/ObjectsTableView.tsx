@@ -233,12 +233,12 @@ export function ObjectsTableView({
                         title={row.prefix}
                       >
                         <MdFolder size={18} className="text-theme-light shrink-0" />
-                        <span className="truncate font-mono text-sm">{row.displayName}</span>
+                        <span className="truncate text-sm">{row.displayName}</span>
                       </button>
                     ) : (
                       <div className="flex items-center gap-2">
                         <MdDescription size={18} className="text-theme-light shrink-0" />
-                        <span className="truncate font-mono text-sm">{row.displayName}</span>
+                        <span className="truncate text-sm">{row.displayName}</span>
                       </div>
                     )}
                   </DataGridCell>

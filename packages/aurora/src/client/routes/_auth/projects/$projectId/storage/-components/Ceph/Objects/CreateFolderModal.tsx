@@ -91,7 +91,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
             <span className="text-juno-grey-light-1 text-sm">
               <Trans>Current location:</Trans>
             </span>
-            <div className="mt-1 font-mono text-sm">{currentPrefix}</div>
+            <div className="mt-1 text-sm">{currentPrefix}</div>
           </div>
         )}
 
@@ -114,7 +114,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
           <span className="text-juno-grey-light-1 text-sm">
             <Trans>Full path:</Trans>
           </span>
-          <div className="mt-1 font-mono text-sm break-all">{currentPrefix + folderName.trim() + "/"}</div>
+          <div className="mt-1 text-sm break-all">{currentPrefix + folderName.trim() + "/"}</div>
         </div>
 
         {createFolderMutation.error && (

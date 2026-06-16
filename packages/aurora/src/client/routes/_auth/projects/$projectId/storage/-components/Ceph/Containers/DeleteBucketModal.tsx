@@ -170,7 +170,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
                   label={copied ? t`Copied` : t`Copy`}
                 />
               </div>
-              <div className="bg-juno-grey-blue-10 rounded p-2 font-mono text-sm">{bucket.name}</div>
+              <div className="bg-juno-grey-blue-10 rounded p-2 text-sm">{bucket.name}</div>
             </Stack>
 
             <TextInput

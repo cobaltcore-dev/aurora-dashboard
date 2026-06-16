@@ -247,7 +247,7 @@ export const CopyObjectModal = ({
           <span className="shrink-0">
             <Trans>Copy object:</Trans>
           </span>
-          <span className="truncate font-mono" title={displayName}>
+          <span className="truncate" title={displayName}>
             {displayName}
           </span>
         </span>
@@ -272,7 +272,7 @@ export const CopyObjectModal = ({
             <div className="text-theme-light text-sm">
               <Trans>Source:</Trans>
             </div>
-            <div className="mt-1 font-mono text-sm">{`${bucketName}/${objectKey}`}</div>
+            <div className="mt-1 text-sm">{`${bucketName}/${objectKey}`}</div>
             {objectSize !== undefined && (
               <div className="text-theme-light mt-1 text-xs">{(objectSize / 1024).toFixed(2)} KB</div>
             )}
@@ -339,7 +339,7 @@ export const CopyObjectModal = ({
                 </span>
               )}
               {modalState.currentPrefix && (
-                <span className="text-theme-light truncate font-mono text-xs">/ {modalState.currentPrefix}</span>
+                <span className="text-theme-light truncate text-xs">/ {modalState.currentPrefix}</span>
               )}
             </div>
 
@@ -434,7 +434,7 @@ export const CopyObjectModal = ({
             <p className="text-theme-light mb-1">
               <Trans>The object will be copied to this path. Navigate folders above to change the destination.</Trans>
             </p>
-            <TextInput label={t`Target path`} value={targetPathDisplay} readOnly className="font-mono" />
+            <TextInput label={t`Target path`} value={targetPathDisplay} readOnly />
           </div>
 
           {/* Warning if target exists */}

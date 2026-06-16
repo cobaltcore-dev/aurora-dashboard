@@ -84,7 +84,7 @@ export function DeleteObjectModal({
               <span className="text-juno-grey-light-1 text-sm">
                 <Trans>Name:</Trans>
               </span>
-              <div className="mt-1 font-mono text-sm">{displayName}</div>
+              <div className="mt-1 text-sm">{displayName}</div>
             </div>
 
             {!isFolder && objectSize !== undefined && (
@@ -92,7 +92,7 @@ export function DeleteObjectModal({
                 <span className="text-juno-grey-light-1 text-sm">
                   <Trans>Size:</Trans>
                 </span>
-                <div className="mt-1 font-mono text-sm">{formatBytesBinary(objectSize)}</div>
+                <div className="mt-1 text-sm">{formatBytesBinary(objectSize)}</div>
               </div>
             )}
 
@@ -101,7 +101,7 @@ export function DeleteObjectModal({
                 <span className="text-juno-grey-light-1 text-sm">
                   <Trans>Last Modified:</Trans>
                 </span>
-                <div className="mt-1 font-mono text-sm">{new Date(lastModified).toLocaleString()}</div>
+                <div className="mt-1 text-sm">{new Date(lastModified).toLocaleString()}</div>
               </div>
             )}
 
@@ -109,7 +109,7 @@ export function DeleteObjectModal({
               <span className="text-juno-grey-light-1 text-sm">
                 <Trans>Full Path:</Trans>
               </span>
-              <div className="mt-1 font-mono text-sm break-all">{objectKey}</div>
+              <div className="mt-1 text-sm break-all">{objectKey}</div>
             </div>
           </Stack>
         </div>

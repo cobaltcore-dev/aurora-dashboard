@@ -189,7 +189,7 @@ export function ContainerListView() {
                     containerName: bucket.name,
                   }}
                 >
-                  <span className="hover:text-juno-blue cursor-pointer font-mono text-sm underline">{bucket.name}</span>
+                  <span className="hover:text-juno-blue cursor-pointer text-sm underline">{bucket.name}</span>
                 </Link>
               </DataGridCell>
               <DataGridCell>
