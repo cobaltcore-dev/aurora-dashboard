@@ -27,7 +27,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </p>
       </div>
       {project.description && (
-        <p className="text-text-default line-clamp-2 text-base leading-6 font-normal">{project.description}</p>
+        <p className="text-theme-default line-clamp-2 text-base leading-6 font-normal">{project.description}</p>
       )}
     </Card>
   )
