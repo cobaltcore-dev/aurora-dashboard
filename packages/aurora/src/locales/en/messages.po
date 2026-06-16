@@ -2575,6 +2575,9 @@ msgstr "Search flavors..."
 msgid "Search images..."
 msgstr "Search images..."
 
+msgid "Search objects..."
+msgstr "Search objects..."
+
 msgid "Search..."
 msgstr "Search..."
 
