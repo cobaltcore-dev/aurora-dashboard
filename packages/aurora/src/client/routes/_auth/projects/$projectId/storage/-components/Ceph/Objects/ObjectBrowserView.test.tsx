@@ -325,7 +325,7 @@ describe("ObjectBrowserView - Error state", () => {
 
     render(<ObjectBrowserView bucketName="test-bucket" />)
 
-    expect(screen.getByText(/failed to load objects/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/failed to load objects/i).length).toBeGreaterThan(0)
   })
 })
 

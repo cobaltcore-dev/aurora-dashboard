@@ -294,7 +294,7 @@ export const EditMetadataModal = ({
         <span className="flex max-w-[400px] items-center gap-1">
           <Trans>
             <span className="shrink-0">Edit metadata:</span>{" "}
-            <span className="truncate font-mono" title={displayName}>
+            <span className="truncate" title={displayName}>
               {displayName}
             </span>
           </Trans>
@@ -452,7 +452,7 @@ export const EditMetadataModal = ({
                         invalid={!!metaErrors[`edit-${index}`]}
                       />
                     ) : (
-                      <span className="block max-w-xs truncate font-mono text-sm" title={entry.key}>
+                      <span className="block max-w-xs truncate text-sm" title={entry.key}>
                         {entry.key}
                       </span>
                     )}

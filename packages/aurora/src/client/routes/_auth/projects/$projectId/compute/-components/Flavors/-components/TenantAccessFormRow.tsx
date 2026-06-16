@@ -4,7 +4,6 @@ import { DataGridRow, DataGridCell, TextInput, ButtonRow, Button } from "@cloudo
 
 interface TenantAccessFormRowProps {
   tenantId: string
-  flavorId: string
   errors: { tenantId?: string }
   isLoading: boolean
   onTenantIdChange: (tenantId: string) => void
@@ -14,7 +13,6 @@ interface TenantAccessFormRowProps {
 
 export const TenantAccessFormRow: React.FC<TenantAccessFormRowProps> = ({
   tenantId,
-  flavorId,
   errors,
   isLoading,
   onTenantIdChange,
@@ -25,7 +23,6 @@ export const TenantAccessFormRow: React.FC<TenantAccessFormRowProps> = ({
 
   return (
     <DataGridRow>
-      <DataGridCell>{flavorId}</DataGridCell>
       <DataGridCell className="pl-0">
         <TextInput
           value={tenantId}
