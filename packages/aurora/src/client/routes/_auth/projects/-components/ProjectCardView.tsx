@@ -22,7 +22,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <p className="text-theme-light text-xs leading-5 font-normal">
           {project.domain_name ?? project.domain_id ?? <Trans>Unknown domain</Trans>}
         </p>
-        <p data-testid="project-name" className="text-text-high text-lg leading-7 font-bold">
+        <p data-testid="project-name" className="text-theme-high text-lg leading-7 font-bold">
           {project.name}
         </p>
       </div>
