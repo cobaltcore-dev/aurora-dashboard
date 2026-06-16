@@ -67,6 +67,9 @@ msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
+msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
+msgstr ""
+
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} von {totalCount} Bucket} other {{filteredCount} von {totalCount} Buckets}}"
 
@@ -75,6 +78,9 @@ msgstr "{totalCount, plural, one {{totalCount} Bucket} other {{totalCount} Bucke
 
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Container}}"
+
+msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
+msgstr ""
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"
@@ -1034,9 +1040,6 @@ msgid "Empty All Completed with Errors"
 msgstr ""
 
 msgid "Empty Bucket"
-msgstr ""
-
-msgid "Empty Buckets"
 msgstr ""
 
 msgid "Empty Containers"
@@ -2580,6 +2583,9 @@ msgstr "Metadata speichern"
 
 msgid "Saving..."
 msgstr "Wird gespeichert..."
+
+msgid "Search buckets..."
+msgstr ""
 
 msgid "Search flavors..."
 msgstr "Flavors suchen..."

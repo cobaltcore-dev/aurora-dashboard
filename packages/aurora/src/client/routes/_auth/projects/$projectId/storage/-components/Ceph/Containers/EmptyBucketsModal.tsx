@@ -76,7 +76,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
 
   return (
     <Modal
-      title={t`Empty Buckets`}
+      title={<Plural value={totalCount} one="Empty Bucket" other="Empty Buckets" />}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}
