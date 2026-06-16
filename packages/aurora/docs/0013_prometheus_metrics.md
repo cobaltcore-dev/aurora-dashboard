@@ -29,6 +29,7 @@ This Fastify plugin collects HTTP request metrics with the following features:
 3. **`aurora_exceptions_total`** (Counter)
    - Total number of exceptions raised
    - Labels: exception
+   - Note: Only tracks unhandled exceptions that reach Fastify's error handler. Errors caught and handled in route handlers (e.g., tRPC errors) are tracked via `status_code="5xx"` in the request metrics.
 
 #### Configuration:
 
