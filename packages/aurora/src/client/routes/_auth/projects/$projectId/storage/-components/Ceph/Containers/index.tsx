@@ -90,6 +90,40 @@ export const CephContainers = () => {
     setToastData(getBucketsEmptyCompleteToast(emptiedCount, totalDeleted, errors, { onDismiss: handleToastDismiss }))
   }
 
+  // Fetch EC2 credentials to get the credential ID for deletion
+  const { data: credentials } = trpcReact.storage.ceph.ec2Credentials.list.useQuery(
+    { project_id: projectId },
+    { enabled: !!projectId }
+  )
+
+  const deleteMutation = trpcReact.storage.ceph.ec2Credentials.delete.useMutation({
+    onSuccess: () => {
+      setToastData({
+        variant: "success",
+        children: <Trans>EC2 credential deleted successfully</Trans>,
+        autoDismiss: true,
+        autoDismissTimeout: 5000,
+        onDismiss: handleToastDismiss,
+      })
+    },
+    onError: (err) => {
+      setToastData({
+        variant: "error",
+        children: <Trans>Failed to delete credential: {err.message}</Trans>,
+        autoDismiss: true,
+        autoDismissTimeout: 5000,
+        onDismiss: handleToastDismiss,
+      })
+    },
+  })
+
+  const handleDeleteCredential = () => {
+    if (credentials && credentials.length > 0 && projectId) {
+      const credentialId = credentials[0].id
+      deleteMutation.mutate({ project_id: projectId, credentialId })
+    }
+  }
+
   const sortSettings: SortSettings = {
     options: [
       { label: t`Name`, value: "name" },
@@ -242,6 +276,25 @@ export const CephContainers = () => {
 
   return (
     <div className="relative">
+      {/* Test Delete EC2 Credential Button */}
+      <div className="bg-theme-background-lvl-1 border-theme-light mb-4 border-b p-4">
+        <Stack direction="horizontal" gap="4" alignment="center">
+          <span className="text-theme-default text-sm">
+            <Trans>Test: EC2 Credentials Management</Trans>
+          </span>
+          <Button
+            variant="primary-danger"
+            onClick={handleDeleteCredential}
+            disabled={deleteMutation.isPending || !credentials || credentials.length === 0}
+          >
+            {deleteMutation.isPending ? <Trans>Deleting...</Trans> : <Trans>Delete EC2 Credential</Trans>}
+          </Button>
+          {credentials && credentials.length > 0 && (
+            <span className="text-theme-light text-xs">ID: {credentials[0].id}</span>
+          )}
+        </Stack>
+      </div>
+
       <ListToolbar
         sortSettings={sortSettings}
         searchTerm={searchParam}

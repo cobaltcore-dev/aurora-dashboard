@@ -826,6 +826,9 @@ msgstr "Delete Certificate Authority"
 msgid "Delete container:"
 msgstr "Delete container:"
 
+msgid "Delete EC2 Credential"
+msgstr "Delete EC2 Credential"
+
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
 
@@ -991,6 +994,9 @@ msgstr "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgid "e.g., production, linux, ubuntu"
 msgstr "e.g., production, linux, ubuntu"
 
+msgid "EC2 credential deleted successfully"
+msgstr "EC2 credential deleted successfully"
+
 msgid "Edit"
 msgstr "Edit"
 
@@ -1135,6 +1141,9 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
+msgid "Error Loading Buckets"
+msgstr "Error Loading Buckets"
+
 msgid "Error loading Certificate"
 msgstr "Error loading Certificate"
 
@@ -1143,9 +1152,6 @@ msgstr "Error loading Certificate Authority"
 
 msgid "Error loading component"
 msgstr "Error loading component"
-
-msgid "Error Loading Containers"
-msgstr "Error Loading Containers"
 
 msgid "Error Loading Containers: {errorMessage}"
 msgstr "Error Loading Containers: {errorMessage}"
@@ -1264,6 +1270,10 @@ msgstr "Failed to Delete Bucket"
 msgid "Failed to Delete Container"
 msgstr "Failed to Delete Container"
 
+#. placeholder {0}: err.message
+msgid "Failed to delete credential: {0}"
+msgstr "Failed to delete credential: {0}"
+
 msgid "Failed to delete flavor. Please try again."
 msgstr "Failed to delete flavor. Please try again."
 
@@ -1339,8 +1349,8 @@ msgstr "Failed to load metadata configuration."
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Failed to load object metadata: {metadataErrorMessage}"
 
-msgid "Failed to load objects: {errorMessage}"
-msgstr "Failed to load objects: {errorMessage}"
+msgid "Failed to load objects"
+msgstr "Failed to load objects"
 
 msgid "Failed to load PCAs"
 msgstr "Failed to load PCAs"
@@ -2883,6 +2893,9 @@ msgstr "Tenant access for \"{trimmedTenantId}\" has been added successfully."
 
 msgid "Tenant ID"
 msgstr "Tenant ID"
+
+msgid "Test: EC2 Credentials Management"
+msgstr "Test: EC2 Credentials Management"
 
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
