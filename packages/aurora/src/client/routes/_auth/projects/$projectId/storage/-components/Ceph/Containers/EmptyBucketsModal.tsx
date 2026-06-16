@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack, Message, TextInput } from "@cloudoperators/juno-ui-components"
 import { Container } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -24,6 +24,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
   const { t } = useLingui()
   const projectId = useProjectId()
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
+  const [confirmText, setConfirmText] = useState("")
 
   const utils = trpcReact.useUtils()
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation()
@@ -31,6 +32,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
   const handleClose = () => {
     emptyBucketMutation.reset()
     setProgress(null)
+    setConfirmText("")
     onClose()
   }
 
@@ -73,6 +75,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
   const isPending = emptyBucketMutation.isPending || progress !== null
   const progressCurrent = progress?.current
   const progressTotal = progress?.total
+  const isConfirmValid = confirmText === "empty"
 
   return (
     <Modal
@@ -83,7 +86,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
       onConfirm={handleConfirm}
-      disableConfirmButton={isPending}
+      disableConfirmButton={isPending || !isConfirmValid}
       disableCancelButton={isPending}
       disableCloseButton={isPending}
       size="small"
@@ -101,12 +104,12 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          <p className="text-theme-default">
+          <Message variant="danger">
             <Trans>
               This will permanently delete all objects from {totalCount} selected{" "}
               <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
             </Trans>
-          </p>
+          </Message>
 
           <div>
             <p className="text-theme-light mb-2 text-sm">
@@ -134,6 +137,14 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
               )}
             </ul>
           </div>
+
+          <TextInput
+            label={t`Type "empty" to confirm`}
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="empty"
+            autoFocus
+          />
         </Stack>
       )}
     </Modal>

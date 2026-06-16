@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Button, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { validateFolderName } from "./utils/objectValidation"
@@ -80,7 +80,17 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
   const isValid = !validationError && folderName.trim().length > 0
 
   return (
-    <Modal open={isOpen} onCancel={handleClose} title={<Trans>Create New Folder</Trans>} size="large">
+    <Modal
+      open={isOpen}
+      onCancel={handleClose}
+      title={<Trans>Create New Folder</Trans>}
+      size="large"
+      confirmButtonLabel={createFolderMutation.isPending ? t`Creating...` : t`Create Folder`}
+      onConfirm={handleCreate}
+      confirmButtonVariant="primary"
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={!isValid || createFolderMutation.isPending}
+    >
       <Stack direction="vertical" gap="4">
         <p>
           <Trans>Enter a name for the new folder.</Trans>
@@ -88,7 +98,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
 
         {currentPrefix && (
           <div className="bg-theme-background-lvl-2 rounded p-3">
-            <span className="text-juno-grey-light-1 text-sm">
+            <span className="text-theme-light text-sm">
               <Trans>Current location:</Trans>
             </span>
             <div className="mt-1 text-sm">{currentPrefix}</div>
@@ -111,7 +121,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
         />
 
         <div className="bg-theme-background-lvl-1 rounded p-3">
-          <span className="text-juno-grey-light-1 text-sm">
+          <span className="text-theme-light text-sm">
             <Trans>Full path:</Trans>
           </span>
           <div className="mt-1 text-sm break-all">{currentPrefix + folderName.trim() + "/"}</div>
@@ -123,15 +133,6 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
           </p>
         )}
       </Stack>
-
-      <div className="mt-6 flex justify-end gap-2">
-        <Button variant="subdued" onClick={handleClose} disabled={createFolderMutation.isPending}>
-          <Trans>Cancel</Trans>
-        </Button>
-        <Button variant="primary" onClick={handleCreate} disabled={!isValid || createFolderMutation.isPending}>
-          {createFolderMutation.isPending ? <Trans>Creating...</Trans> : <Trans>Create Folder</Trans>}
-        </Button>
-      </div>
     </Modal>
   )
 }

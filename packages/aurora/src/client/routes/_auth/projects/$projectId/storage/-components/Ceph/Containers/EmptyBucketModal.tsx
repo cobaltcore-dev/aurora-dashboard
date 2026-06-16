@@ -127,7 +127,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
 
           <Stack direction="vertical" gap="2">
             <div className="flex items-center justify-between">
-              <span className="text-juno-grey-light-1 text-sm">
+              <span className="text-theme-light text-sm">
                 <Trans>Bucket to empty:</Trans>
               </span>
               <Button
@@ -138,7 +138,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
                 label={copied ? t`Copied` : t`Copy`}
               />
             </div>
-            <div className="bg-juno-grey-blue-10 rounded p-2 text-sm">{bucket.name}</div>
+            <div className="bg-theme-background-lvl-1 rounded p-2 text-sm">{bucket.name}</div>
           </Stack>
 
           <TextInput

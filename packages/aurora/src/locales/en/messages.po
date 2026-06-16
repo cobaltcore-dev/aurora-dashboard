@@ -304,12 +304,6 @@ msgstr "Any user can perform a HEAD or GET operation on the container provided t
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Any user has read access to objects. No token is required in the request."
 
-msgid "Are you sure you want to delete this folder?"
-msgstr "Are you sure you want to delete this folder?"
-
-msgid "Are you sure you want to delete this object?"
-msgstr "Are you sure you want to delete this object?"
-
 msgid "Associate"
 msgstr "Associate"
 
@@ -507,6 +501,12 @@ msgstr "Compute Overview"
 
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Configure the ingress and egress rules that control which traffic is allowed for this security group."
+
+msgid "Confirm deletion of {displayName}. This action cannot be undone and folder will be permanently deleted."
+msgstr "Confirm deletion of {displayName}. This action cannot be undone and folder will be permanently deleted."
+
+msgid "Confirm deletion of {displayName}. This action cannot be undone and object will be permanently deleted."
+msgstr "Confirm deletion of {displayName}. This action cannot be undone and object will be permanently deleted."
 
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Container \"{containerName}\" properties were successfully updated."
@@ -3159,6 +3159,9 @@ msgstr "Type \"detach\" to confirm"
 
 msgid "Type “detach” to confirm"
 msgstr "Type “detach” to confirm"
+
+msgid "Type \"empty\" to confirm"
+msgstr "Type \"empty\" to confirm"
 
 msgid "Type \"release\" to confirm"
 msgstr "Type \"release\" to confirm"

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Button, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
@@ -68,20 +68,29 @@ export function DeleteObjectModal({
       onCancel={handleClose}
       title={isFolder ? <Trans>Delete Folder</Trans> : <Trans>Delete Object</Trans>}
       size="large"
+      confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}
+      confirmButtonVariant="primary-danger"
+      onConfirm={handleConfirm}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={!isConfirmValid || deleteMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
-        <p>
+        <Message variant="danger">
           {isFolder ? (
-            <Trans>Are you sure you want to delete this folder?</Trans>
+            <Trans>
+              Confirm deletion of {displayName}. This action cannot be undone and folder will be permanently deleted.
+            </Trans>
           ) : (
-            <Trans>Are you sure you want to delete this object?</Trans>
+            <Trans>
+              Confirm deletion of {displayName}. This action cannot be undone and object will be permanently deleted.
+            </Trans>
           )}
-        </p>
+        </Message>
 
         <div className="bg-theme-background-lvl-2 rounded p-4">
           <Stack direction="vertical" gap="2">
             <div>
-              <span className="text-juno-grey-light-1 text-sm">
+              <span className="text-theme-light text-sm">
                 <Trans>Name:</Trans>
               </span>
               <div className="mt-1 text-sm">{displayName}</div>
@@ -89,7 +98,7 @@ export function DeleteObjectModal({
 
             {!isFolder && objectSize !== undefined && (
               <div>
-                <span className="text-juno-grey-light-1 text-sm">
+                <span className="text-theme-light text-sm">
                   <Trans>Size:</Trans>
                 </span>
                 <div className="mt-1 text-sm">{formatBytesBinary(objectSize)}</div>
@@ -98,7 +107,7 @@ export function DeleteObjectModal({
 
             {!isFolder && lastModified && (
               <div>
-                <span className="text-juno-grey-light-1 text-sm">
+                <span className="text-theme-light text-sm">
                   <Trans>Last Modified:</Trans>
                 </span>
                 <div className="mt-1 text-sm">{new Date(lastModified).toLocaleString()}</div>
@@ -106,7 +115,7 @@ export function DeleteObjectModal({
             )}
 
             <div>
-              <span className="text-juno-grey-light-1 text-sm">
+              <span className="text-theme-light text-sm">
                 <Trans>Full Path:</Trans>
               </span>
               <div className="mt-1 text-sm break-all">{objectKey}</div>
@@ -115,15 +124,13 @@ export function DeleteObjectModal({
         </div>
 
         <div>
-          <p className="text-juno-red mb-2 text-sm">
-            <Trans>This action cannot be undone.</Trans>
-          </p>
           <TextInput
             label={t`Type DELETE to confirm`}
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder="DELETE"
             autoFocus
+            helptext={t`This action cannot be undone.`}
           />
         </div>
 
@@ -133,15 +140,6 @@ export function DeleteObjectModal({
           </p>
         )}
       </Stack>
-
-      <div className="mt-6 flex justify-end gap-2">
-        <Button variant="subdued" onClick={handleClose} disabled={deleteMutation.isPending}>
-          <Trans>Cancel</Trans>
-        </Button>
-        <Button variant="primary-danger" onClick={handleConfirm} disabled={!isConfirmValid || deleteMutation.isPending}>
-          {deleteMutation.isPending ? <Trans>Deleting...</Trans> : <Trans>Delete</Trans>}
-        </Button>
-      </div>
     </Modal>
   )
 }
