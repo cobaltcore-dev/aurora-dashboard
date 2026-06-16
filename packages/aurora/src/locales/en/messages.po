@@ -151,12 +151,6 @@ msgstr "About Aurora Dashboard"
 msgid "Accept"
 msgstr "Accept"
 
-msgid "Accept access to image"
-msgstr "Accept access to image"
-
-msgid "Accept Shared Image"
-msgstr "Accept Shared Image"
-
 msgid "Accepted"
 msgstr "Accepted"
 
@@ -180,6 +174,9 @@ msgstr "Access status updated to \"{newStatus}\"."
 
 msgid "Access Status:"
 msgstr "Access Status:"
+
+msgid "Access Type"
+msgstr "Access Type"
 
 msgid "Account"
 msgstr "Account"
@@ -295,6 +292,9 @@ msgstr "An object with this name already exists at the destination and will be o
 msgid "An unexpected error occurred"
 msgstr "An unexpected error occurred"
 
+msgid "An unexpected error occurred."
+msgstr "An unexpected error occurred."
+
 msgid "An unexpected error occurred. Please try again."
 msgstr "An unexpected error occurred. Please try again."
 
@@ -309,12 +309,6 @@ msgstr "Any user can perform a HEAD or GET operation on the container provided t
 
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Any user has read access to objects. No token is required in the request."
-
-msgid "Are you sure you want to delete this folder?"
-msgstr "Are you sure you want to delete this folder?"
-
-msgid "Are you sure you want to delete this object?"
-msgstr "Are you sure you want to delete this object?"
 
 msgid "Associate"
 msgstr "Associate"
@@ -508,11 +502,14 @@ msgstr "Community"
 msgid "Compute"
 msgstr "Compute"
 
-msgid "Compute Overview"
-msgstr "Compute Overview"
-
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Configure the ingress and egress rules that control which traffic is allowed for this security group."
+
+msgid "Confirm deletion of {displayName}. This action cannot be undone and folder will be permanently deleted."
+msgstr "Confirm deletion of {displayName}. This action cannot be undone and folder will be permanently deleted."
+
+msgid "Confirm deletion of {displayName}. This action cannot be undone and object will be permanently deleted."
+msgstr "Confirm deletion of {displayName}. This action cannot be undone and object will be permanently deleted."
 
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Container \"{containerName}\" properties were successfully updated."
@@ -1138,6 +1135,9 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
+msgid "Error Loading Buckets"
+msgstr "Error Loading Buckets"
+
 msgid "Error loading Certificate"
 msgstr "Error loading Certificate"
 
@@ -1146,9 +1146,6 @@ msgstr "Error loading Certificate Authority"
 
 msgid "Error loading component"
 msgstr "Error loading component"
-
-msgid "Error Loading Containers"
-msgstr "Error Loading Containers"
 
 msgid "Error Loading Containers: {errorMessage}"
 msgstr "Error Loading Containers: {errorMessage}"
@@ -1342,8 +1339,8 @@ msgstr "Failed to load metadata configuration."
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Failed to load object metadata: {metadataErrorMessage}"
 
-msgid "Failed to load objects: {errorMessage}"
-msgstr "Failed to load objects: {errorMessage}"
+msgid "Failed to load objects"
+msgstr "Failed to load objects"
 
 msgid "Failed to load PCAs"
 msgstr "Failed to load PCAs"
@@ -1714,12 +1711,6 @@ msgstr "Issuing End Entity Certificate..."
 msgid "Issuing Self-Signed Certificate..."
 msgstr "Issuing Self-Signed Certificate..."
 
-msgid "It will appear in your image list."
-msgstr "It will appear in your image list."
-
-msgid "It will be removed from your image list."
-msgstr "It will be removed from your image list."
-
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 msgstr "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 
@@ -2037,9 +2028,6 @@ msgstr "Network & Routing"
 
 msgid "Network ID"
 msgstr "Network ID"
-
-msgid "Network Overview"
-msgstr "Network Overview"
 
 msgid "New Folder"
 msgstr "New Folder"
@@ -2458,12 +2446,6 @@ msgstr "Recover from accidental deletions"
 msgid "Reject"
 msgstr "Reject"
 
-msgid "Reject access to image"
-msgstr "Reject access to image"
-
-msgid "Reject Shared Image"
-msgstr "Reject Shared Image"
-
 msgid "Rejected"
 msgstr "Rejected"
 
@@ -2685,9 +2667,6 @@ msgstr "Server Role:"
 
 msgid "Services"
 msgstr "Services"
-
-msgid "Services Overview"
-msgstr "Services Overview"
 
 msgid "Session Expired"
 msgstr "Session Expired"
@@ -3165,6 +3144,9 @@ msgstr "Type \"detach\" to confirm"
 
 msgid "Type “detach” to confirm"
 msgstr "Type “detach” to confirm"
+
+msgid "Type \"empty\" to confirm"
+msgstr "Type \"empty\" to confirm"
 
 msgid "Type \"release\" to confirm"
 msgstr "Type \"release\" to confirm"

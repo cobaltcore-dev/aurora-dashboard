@@ -1,4 +1,5 @@
 import { use, Suspense, useState, useRef, startTransition, useEffect, useCallback } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { TrpcClient } from "@/client/trpcClient"
@@ -46,9 +47,22 @@ const createPermissionsPromise = (client: TrpcClient, project: string) => {
   return client.compute.canUser
     .query({
       project_id: project,
-      permission: ["flavors:create", "flavors:delete", "flavors:list_projects"],
+      permission: [
+        "flavors:create",
+        "flavors:delete",
+        "flavors:list_projects",
+        "flavor_specs:create",
+        "flavor_specs:delete",
+        "flavor_specs:list",
+      ],
     })
-    .then(([canCreate, canDelete, canManageAccess]) => ({ canCreate, canDelete, canManageAccess }))
+    .then(([canCreate, canDelete, canManageAccess, canCreateSpecs, canDeleteSpecs, canListSpecs]) => ({
+      canCreate,
+      canDelete,
+      canManageAccess,
+      canManageSpecs: canCreateSpecs || canDeleteSpecs,
+      canListSpecs,
+    }))
 }
 
 function FlavorsContent({
@@ -68,7 +82,13 @@ function FlavorsContent({
   onPageChange,
 }: {
   flavorsPromise: Promise<{ flavors: Flavor[]; privateFlavorError?: string; listError?: string }>
-  permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean; canManageAccess: boolean }>
+  permissionsPromise: Promise<{
+    canCreate: boolean
+    canDelete: boolean
+    canManageAccess: boolean
+    canManageSpecs: boolean
+    canListSpecs: boolean
+  }>
   client: TrpcClient
   project: string
   onFlavorDeleted: (name: string) => void
@@ -172,6 +192,8 @@ function FlavorsContent({
         onFlavorDeleted={onFlavorDeleted}
         canDeleteFlavor={permissions.canDelete}
         canMangageAccess={permissions.canManageAccess}
+        canManageSpecs={permissions.canManageSpecs}
+        canListSpecs={permissions.canListSpecs}
         currentPage={safePage}
         totalPages={totalPages}
         onPageChange={onPageChange}
@@ -297,31 +319,37 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         />
       )}
 
-      <Suspense
-        fallback={
-          <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-            <Spinner variant="primary" size="large" className="mb-2" />
-            <Trans>Loading Flavors...</Trans>
-          </Stack>
-        }
+      <ErrorBoundary
+        fallbackRender={({ error }) => (
+          <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
+        )}
       >
-        <FlavorsContent
-          flavorsPromise={flavorsPromise}
-          permissionsPromise={permissionsPromise}
-          client={client}
-          project={project}
-          onFlavorDeleted={handleFlavorDeleted}
-          onFlavorCreated={handleFlavorCreated}
-          searchTerm={searchTerm}
-          setSearchTerm={handleSearchChange}
-          sortSettings={sortSettings}
-          handleSortChange={handleSortChange}
-          createModalOpen={createModalOpen}
-          setCreateModalOpen={setCreateModalOpen}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
-      </Suspense>
+        <Suspense
+          fallback={
+            <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+              <Spinner variant="primary" size="large" className="mb-2" />
+              <Trans>Loading Flavors...</Trans>
+            </Stack>
+          }
+        >
+          <FlavorsContent
+            flavorsPromise={flavorsPromise}
+            permissionsPromise={permissionsPromise}
+            client={client}
+            project={project}
+            onFlavorDeleted={handleFlavorDeleted}
+            onFlavorCreated={handleFlavorCreated}
+            searchTerm={searchTerm}
+            setSearchTerm={handleSearchChange}
+            sortSettings={sortSettings}
+            handleSortChange={handleSortChange}
+            createModalOpen={createModalOpen}
+            setCreateModalOpen={setCreateModalOpen}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+          />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }

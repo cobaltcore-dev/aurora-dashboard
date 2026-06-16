@@ -19,7 +19,7 @@ import { useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { EditSpecModal } from "./EditSpecModal"
 import { ManageAccessModal } from "./ManageAccessModal"
-import { Link, useParams, useNavigate } from "@tanstack/react-router"
+import { useParams, useNavigate } from "@tanstack/react-router"
 
 interface FlavorListContainerProps {
   flavors?: Flavor[]
@@ -29,6 +29,8 @@ interface FlavorListContainerProps {
   onFlavorDeleted?: (flavorName: string) => void
   canDeleteFlavor?: boolean
   canMangageAccess?: boolean
+  canManageSpecs?: boolean
+  canListSpecs?: boolean
   currentPage?: number
   totalPages?: number
   onPageChange?: (page: number) => void
@@ -42,6 +44,8 @@ export const FlavorListContainer = ({
   onFlavorDeleted,
   canDeleteFlavor,
   canMangageAccess,
+  canManageSpecs,
+  canListSpecs,
   currentPage = 1,
   totalPages = 1,
   onPageChange,
@@ -123,7 +127,7 @@ export const FlavorListContainer = ({
 
   return (
     <>
-      <DataGrid columns={6} minContentColumns={[5]} className="flavors" data-testid="flavors-table">
+      <DataGrid columns={7} minContentColumns={[6]} className="flavors" data-testid="flavors-table">
         <DataGridRow>
           <DataGridHeadCell>
             <Trans>Name</Trans>
@@ -139,6 +143,9 @@ export const FlavorListContainer = ({
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>Swap (MiB)</Trans>
+          </DataGridHeadCell>
+          <DataGridHeadCell>
+            <Trans>Access Type</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
@@ -159,22 +166,31 @@ export const FlavorListContainer = ({
             <DataGridCell>{flavor.ram || "–"}</DataGridCell>
             <DataGridCell>{flavor.disk || "–"}</DataGridCell>
             <DataGridCell>{flavor.swap || "–"}</DataGridCell>
+            <DataGridCell>{flavor["os-flavor-access:is_public"] === false ? t`Private` : t`Public`}</DataGridCell>
             <DataGridCell onClick={(e) => e.stopPropagation()}>
               <PopupMenu>
                 <PopupMenuOptions>
-                  <PopupMenuItem>
-                    <Link
-                      to="/projects/$projectId/compute/flavors/$flavorId"
-                      params={{ projectId: projectId, flavorId: flavor.id }}
-                      className="text-theme-default"
-                    >
-                      {t`Details`}
-                    </Link>
-                  </PopupMenuItem>
-                  <PopupMenuItem label={t`Metadata`} onClick={() => openSpecModal(flavor)} />
-
+                  <PopupMenuItem
+                    label={t`Details`}
+                    onClick={() =>
+                      navigate({
+                        to: "/projects/$projectId/compute/flavors/$flavorId",
+                        params: { projectId, flavorId: flavor.id },
+                      })
+                    }
+                  />
+                  {(canManageSpecs || canListSpecs) && (
+                    <PopupMenuItem
+                      label={canManageSpecs ? t`Edit Metadata` : t`Metadata`}
+                      onClick={() => openSpecModal(flavor)}
+                    />
+                  )}
                   {canMangageAccess && (
-                    <PopupMenuItem label={t`Manage Access`} onClick={() => openAccessModal(flavor)} />
+                    <PopupMenuItem
+                      label={t`Manage Access`}
+                      onClick={() => openAccessModal(flavor)}
+                      disabled={flavor["os-flavor-access:is_public"] !== false}
+                    />
                   )}
                   {canDeleteFlavor && (
                     <PopupMenuItem label={t`Delete Flavor`} onClick={() => openDeleteModal(flavor)} />
@@ -211,6 +227,7 @@ export const FlavorListContainer = ({
         onClose={() => setSpecModalOpen(false)}
         project={project}
         flavor={selectedFlavor}
+        canEdit={canManageSpecs}
       />
 
       <ManageAccessModal

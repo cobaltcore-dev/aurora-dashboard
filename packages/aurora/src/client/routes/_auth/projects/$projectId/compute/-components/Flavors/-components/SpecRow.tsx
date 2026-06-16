@@ -62,7 +62,7 @@ export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, on
   return (
     <DataGridRow>
       <DataGridCell>{specKey}</DataGridCell>
-      <DataGridCell>{value}</DataGridCell>
+      <DataGridCell className="break-all">{value}</DataGridCell>
       <DataGridCell>
         {isDeleting ? (
           <Stack distribution="center" alignment="center">

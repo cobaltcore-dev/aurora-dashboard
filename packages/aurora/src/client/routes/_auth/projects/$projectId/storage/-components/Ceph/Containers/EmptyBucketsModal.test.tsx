@@ -207,6 +207,10 @@ describe("EmptyBucketsModal", () => {
       const user = userEvent.setup({ delay: null })
       renderModal({ buckets: mockBuckets })
 
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
+
       const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
       await user.click(emptyButton)
 
@@ -237,6 +241,10 @@ describe("EmptyBucketsModal", () => {
       const mockOnComplete = vi.fn()
       renderModal({ buckets: mockBuckets, onComplete: mockOnComplete })
 
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
+
       const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
       await user.click(emptyButton)
 
@@ -256,6 +264,10 @@ describe("EmptyBucketsModal", () => {
       const user = userEvent.setup({ delay: null })
       renderModal({ buckets: mockBuckets })
 
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
+
       const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
       await user.click(emptyButton)
 
@@ -271,6 +283,10 @@ describe("EmptyBucketsModal", () => {
       const user = userEvent.setup({ delay: null })
       const mockOnClose = vi.fn()
       renderModal({ buckets: mockBuckets, onClose: mockOnClose })
+
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
 
       const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
       await user.click(emptyButton)
@@ -290,6 +306,10 @@ describe("EmptyBucketsModal", () => {
       const mockOnComplete = vi.fn()
       mockState.failOnBucket = "bucket-2"
       renderModal({ buckets: mockBuckets, onComplete: mockOnComplete })
+
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
 
       const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
       await user.click(emptyButton)
@@ -311,6 +331,10 @@ describe("EmptyBucketsModal", () => {
       const mockOnComplete = vi.fn()
       mockState.shouldFail = true
       renderModal({ buckets: mockBuckets, onComplete: mockOnComplete })
+
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
 
       const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
       await user.click(emptyButton)
@@ -336,6 +360,10 @@ describe("EmptyBucketsModal", () => {
       mockState.shouldFail = true
       renderModal({ buckets: mockBuckets })
 
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
+
       const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
       await user.click(emptyButton)
 
@@ -351,6 +379,10 @@ describe("EmptyBucketsModal", () => {
       const user = userEvent.setup({ delay: null })
       mockState.failOnBucket = "bucket-2"
       renderModal({ buckets: mockBuckets })
+
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
 
       const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
       await user.click(emptyButton)

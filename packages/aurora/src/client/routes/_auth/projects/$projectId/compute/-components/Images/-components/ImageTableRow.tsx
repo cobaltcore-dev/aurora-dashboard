@@ -1,10 +1,8 @@
-import { useModal } from "@/client/utils/useModal"
 import { useParams, useNavigate } from "@tanstack/react-router"
 import {
   Checkbox,
   DataGridCell,
   DataGridRow,
-  Modal,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
@@ -103,9 +101,6 @@ export function ImageTableRow({
   const isExternalImage = isPending || isAccepted
   const isMutating = updateMemberMutation.isPending
 
-  const [acceptModalOpen, toggleAcceptModal] = useModal()
-  const [rejectModalOpen, toggleRejectModal] = useModal()
-
   return (
     <DataGridRow
       key={id}
@@ -151,8 +146,13 @@ export function ImageTableRow({
 
               {isExternalImage && permissions.canUpdateMember && (
                 <>
-                  {isPending && <PopupMenuItem label={t`Accept`} onClick={toggleAcceptModal} />}
-                  <PopupMenuItem label={t`Reject`} onClick={toggleRejectModal} />
+                  {isPending && (
+                    <PopupMenuItem
+                      label={t`Accept`}
+                      onClick={() => handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)}
+                    />
+                  )}
+                  <PopupMenuItem label={t`Reject`} onClick={() => handleMemberStatusChange(MEMBER_STATUSES.REJECTED)} />
                 </>
               )}
 
@@ -183,40 +183,6 @@ export function ImageTableRow({
               )}
             </PopupMenuOptions>
           </PopupMenu>
-        )}
-
-        {acceptModalOpen && (
-          <Modal
-            title={t`Accept Shared Image`}
-            open={acceptModalOpen}
-            onCancel={toggleAcceptModal}
-            confirmButtonLabel={t`Accept`}
-            onConfirm={() => {
-              toggleAcceptModal()
-              handleMemberStatusChange(MEMBER_STATUSES.ACCEPTED)
-            }}
-          >
-            <p>
-              {t`Accept access to image`} <strong>{imageName}</strong>? {t`It will appear in your image list.`}
-            </p>
-          </Modal>
-        )}
-
-        {rejectModalOpen && (
-          <Modal
-            title={t`Reject Shared Image`}
-            open={rejectModalOpen}
-            onCancel={toggleRejectModal}
-            confirmButtonLabel={t`Reject`}
-            onConfirm={() => {
-              toggleRejectModal()
-              handleMemberStatusChange(MEMBER_STATUSES.REJECTED)
-            }}
-          >
-            <p>
-              {t`Reject access to image`} <strong>{imageName}</strong>? {t`It will be removed from your image list.`}
-            </p>
-          </Modal>
         )}
       </DataGridCell>
     </DataGridRow>

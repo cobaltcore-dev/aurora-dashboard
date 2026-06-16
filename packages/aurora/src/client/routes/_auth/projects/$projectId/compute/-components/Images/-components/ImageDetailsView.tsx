@@ -16,6 +16,7 @@ import { GlanceImage, ImageMember, MemberStatus } from "@/server/Compute/types/i
 import { SizeDisplay } from "./SizeDisplay"
 import { trpcReact } from "@/client/trpcClient"
 import { MEMBER_STATUSES } from "../../../-constants/filters"
+import ClipboardText from "@/client/components/ClipboardText"
 import { ImageMembersTable } from "./ImageMembersTable"
 
 interface ImageDetailsViewProps {
@@ -44,7 +45,6 @@ const SharedImageBox: React.FC<{
   const { t } = useLingui()
   const isPending = myMemberData.status === MEMBER_STATUSES.PENDING
   const isRejected = myMemberData.status === MEMBER_STATUSES.REJECTED
-  const isAccepted = myMemberData.status === MEMBER_STATUSES.ACCEPTED
 
   const sharedAt = myMemberData.created_at ? new Date(myMemberData.created_at).toLocaleString() : t`N/A`
   const updatedAt = myMemberData.updated_at ? new Date(myMemberData.updated_at).toLocaleString() : t`N/A`
@@ -83,24 +83,13 @@ const SharedImageBox: React.FC<{
         </li>
       </ul>
 
-      {canUpdateMember && (
+      {canUpdateMember && (isPending || isRejected) && (
         <ButtonRow>
+          <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading}>
+            <Trans>Accept</Trans>
+          </Button>
           {isPending && (
-            <Button onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)} disabled={isLoading} variant="subdued">
-              <Trans>Reject</Trans>
-            </Button>
-          )}
-          {(isPending || isRejected) && (
-            <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading} variant="primary">
-              <Trans>Accept</Trans>
-            </Button>
-          )}
-          {isAccepted && (
-            <Button
-              onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)}
-              disabled={isLoading}
-              variant="primary-danger"
-            >
+            <Button onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)} disabled={isLoading}>
               <Trans>Reject</Trans>
             </Button>
           )}
@@ -118,7 +107,9 @@ export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) =>
       <ContentHeading>{t`General Image Data`}</ContentHeading>
       <DescriptionList alignTerms="right">
         <DescriptionTerm>{t`ID`}</DescriptionTerm>
-        <DescriptionDefinition>{image.id}</DescriptionDefinition>
+        <DescriptionDefinition>
+          <ClipboardText text={image.id} />
+        </DescriptionDefinition>
 
         <DescriptionTerm>{t`Name`}</DescriptionTerm>
         <DescriptionDefinition>{image.name}</DescriptionDefinition>
@@ -174,7 +165,7 @@ export const SecuritySection: React.FC<{ image: GlanceImage; currentProjectId?: 
       <ContentHeading>{t`Security`}</ContentHeading>
       <DescriptionList alignTerms="right">
         <DescriptionTerm>{isSharedWithMe ? t`Shared by Project` : t`Owner Project ID`}</DescriptionTerm>
-        <DescriptionDefinition>{image.owner}</DescriptionDefinition>
+        <DescriptionDefinition>{image.owner ? <ClipboardText text={image.owner} /> : ""}</DescriptionDefinition>
 
         <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
         <DescriptionDefinition>{image.visibility}</DescriptionDefinition>

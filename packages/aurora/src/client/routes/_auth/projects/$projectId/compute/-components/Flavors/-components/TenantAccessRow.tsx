@@ -68,7 +68,6 @@ export const TenantAccessRow: React.FC<TenantAccessRowProps> = ({ access, isDele
 
   return (
     <DataGridRow>
-      <DataGridCell>{access.flavor_id}</DataGridCell>
       <DataGridCell className="break-all">{access.tenant_id}</DataGridCell>
       <DataGridCell>
         {isDeleting ? (

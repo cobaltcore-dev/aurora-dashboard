@@ -251,10 +251,11 @@ describe("EmptyBucketModal", () => {
       expect(screen.getByRole("button", { name: /Copy/i })).toBeInTheDocument()
     })
 
-    test("displays bucket name in a code block", () => {
+    test("displays bucket name in styled block", () => {
       renderModal()
-      const codeBlock = screen.getByText(mockNonEmptyBucket.name).closest("div.font-mono")
-      expect(codeBlock).toBeInTheDocument()
+      const styledBlock = screen.getByText(mockNonEmptyBucket.name).closest("div")
+      expect(styledBlock).toBeInTheDocument()
+      expect(styledBlock).toHaveClass("bg-theme-background-lvl-1")
     })
   })
 

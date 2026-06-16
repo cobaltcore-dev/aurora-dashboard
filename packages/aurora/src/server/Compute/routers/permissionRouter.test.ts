@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { createCallerFactory, router } from "../../trpc"
 import { AuroraPortalContext } from "../../context"
 
-vi.mock("@/server/policyEngineLoader", () => ({
+vi.mock("@/server/policies/policyEngineLoader", () => ({
   loadPolicyEngine: vi.fn(() => ({
     policy: vi.fn(() => ({ check: vi.fn(() => true) })),
   })),

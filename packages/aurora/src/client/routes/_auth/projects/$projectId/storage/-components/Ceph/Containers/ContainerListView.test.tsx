@@ -191,7 +191,7 @@ describe("ContainerListView", () => {
     test("shows error message for other errors", () => {
       mockState.error = { message: "Network error" }
       renderListView()
-      expect(screen.getByText(/Error Loading Containers/)).toBeInTheDocument()
+      expect(screen.getByText(/Error Loading Buckets/)).toBeInTheDocument()
       expect(screen.getByText(/Network error/)).toBeInTheDocument()
     })
 
