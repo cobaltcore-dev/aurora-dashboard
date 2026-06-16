@@ -826,9 +826,6 @@ msgstr "Delete Certificate Authority"
 msgid "Delete container:"
 msgstr "Container löschen:"
 
-msgid "Delete EC2 Credential"
-msgstr ""
-
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
 
@@ -993,9 +990,6 @@ msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
 
 msgid "e.g., production, linux, ubuntu"
 msgstr "z. B. production, linux, ubuntu"
-
-msgid "EC2 credential deleted successfully"
-msgstr ""
 
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -1269,10 +1263,6 @@ msgstr ""
 
 msgid "Failed to Delete Container"
 msgstr "Fehler beim Löschen des Containers"
-
-#. placeholder {0}: err.message
-msgid "Failed to delete credential: {0}"
-msgstr ""
 
 msgid "Failed to delete flavor. Please try again."
 msgstr "Fehler beim Löschen des Flavors. Bitte versuchen Sie es erneut."
@@ -2893,9 +2883,6 @@ msgstr "Der Projektzugriff für \"{trimmedTenantId}\" wurde erfolgreich hinzugef
 
 msgid "Tenant ID"
 msgstr "Projekt ID"
-
-msgid "Test: EC2 Credentials Management"
-msgstr ""
 
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
