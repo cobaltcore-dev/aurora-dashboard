@@ -19,12 +19,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
       className="flex flex-col gap-4"
     >
       <div className="flex min-w-0 flex-col">
-        <span className="text-theme-light text-xs leading-6">
+        <p className="text-text-light text-xs leading-5 font-normal">
           {project.domain_name ?? project.domain_id ?? <Trans>Unknown domain</Trans>}
-        </span>
-        <h5>{project.name}</h5>
+        </p>
+        <p className="text-text-high text-lg leading-7 font-bold">{project.name}</p>
       </div>
-      {project.description && <p className="text-theme-default line-clamp-2">{project.description}</p>}
+      {project.description && (
+        <p className="text-text-default line-clamp-2 text-base leading-6 font-normal">{project.description}</p>
+      )}
     </Card>
   )
 }

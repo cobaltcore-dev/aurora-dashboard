@@ -34,7 +34,7 @@ test.describe("Projects Overview Page", () => {
     await page.waitForTimeout(500)
 
     // Verify the test project is visible in results
-    const projectHeading = page.locator("h5", { hasText: testProject })
+    const projectHeading = page.locator("p", { hasText: testProject })
     await expect(projectHeading).toBeVisible()
   })
 
@@ -45,7 +45,7 @@ test.describe("Projects Overview Page", () => {
     await expectNoJavaScriptErrors(errors, page)
 
     // Without searching, verify test project is in the list
-    const projectHeading = page.locator("h5", { hasText: testProject })
+    const projectHeading = page.locator("p", { hasText: testProject })
 
     // Should be visible (might need to scroll)
     await expect(projectHeading).toBeVisible({ timeout: 5000 })
