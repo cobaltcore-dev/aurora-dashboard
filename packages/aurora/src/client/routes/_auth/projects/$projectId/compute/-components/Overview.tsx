@@ -1,9 +1,10 @@
 import { ActivitySummary } from "./ActivitySummary"
 import { Suspense, use } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { Server } from "@/server/Compute/types/server"
 import { ImagesPaginatedResponse } from "@/server/Compute/types/image"
 import { TrpcClient } from "@/client/trpcClient"
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 
 interface OverviewContainerProps {
   getDataPromise: Promise<[Server[] | undefined, ImagesPaginatedResponse]>
@@ -103,20 +104,29 @@ interface OverviewProps {
 }
 
 export function Overview({ client, project }: OverviewProps) {
+  const { t } = useLingui()
   const getDataPromise = Promise.all([
     client.compute.getServersByProjectId.query({ project_id: project }),
     client.compute.listImagesWithSearch.query({ project_id: project }),
   ])
 
   return (
-    <Suspense
-      fallback={
+    <ErrorBoundary
+      fallbackRender={({ error }) => (
         <div className="p-4 text-center">
-          <Trans>Loading...</Trans>
+          {error instanceof Error ? error.message : t`An unexpected error occurred.`}
         </div>
-      }
+      )}
     >
-      <OverviewContainer getDataPromise={getDataPromise} />
-    </Suspense>
+      <Suspense
+        fallback={
+          <div className="p-4 text-center">
+            <Trans>Loading...</Trans>
+          </div>
+        }
+      >
+        <OverviewContainer getDataPromise={getDataPromise} />
+      </Suspense>
+    </ErrorBoundary>
   )
 }
