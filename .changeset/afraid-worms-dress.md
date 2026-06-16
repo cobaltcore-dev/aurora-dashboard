@@ -2,4 +2,4 @@
 "@cobaltcore-dev/aurora": patch
 ---
 
-Service overview for now redirect general overview
+Compute, network, and service overview routes now redirect to the project overview
