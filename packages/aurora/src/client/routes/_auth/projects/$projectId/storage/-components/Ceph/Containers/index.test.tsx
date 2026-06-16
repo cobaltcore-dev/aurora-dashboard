@@ -188,6 +188,27 @@ describe("CephContainers (index)", () => {
     })
   })
 
+  // The bulk-empty flow now lives in the Zone 3 "Actions" popup: select rows,
+  // open the (otherwise disabled) Actions menu, then click the singular/plural
+  // "Empty Bucket(s)" item to open the modal.
+  const actionsButton = () => screen.getByRole("button", { name: /Actions/i })
+
+  const selectOne = async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByTestId("simulate-select-bucket"))
+    await waitFor(() => expect(actionsButton()).toBeEnabled())
+  }
+
+  const selectTwo = async (user: ReturnType<typeof userEvent.setup>) => {
+    await user.click(screen.getByTestId("simulate-select-two"))
+    await waitFor(() => expect(actionsButton()).toBeEnabled())
+  }
+
+  const openEmptyModal = async (user: ReturnType<typeof userEvent.setup>, label: "Empty Bucket" | "Empty Buckets") => {
+    await user.click(actionsButton())
+    await user.click(await screen.findByText(label))
+    await waitFor(() => expect(screen.getByTestId("empty-buckets-modal")).toBeInTheDocument())
+  }
+
   describe("Loading state", () => {
     test("shows loading spinner while fetching", () => {
       trpcState.isLoading = true
@@ -236,14 +257,14 @@ describe("CephContainers (index)", () => {
       expect(screen.getByRole("button", { name: /Create Bucket/i })).toBeInTheDocument()
     })
 
-    test("renders Empty All button", () => {
+    test("renders the Actions button", () => {
       renderContainers()
-      expect(screen.getByRole("button", { name: /^Empty All$/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /Actions/i })).toBeInTheDocument()
     })
 
-    test("Empty All button is disabled when no containers are selected", () => {
+    test("Actions button is disabled when no containers are selected", () => {
       renderContainers()
-      expect(screen.getByRole("button", { name: /^Empty All$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
     })
 
     test("passes selectedContainers and setSelectedContainers to ContainerTableView", () => {
@@ -304,79 +325,71 @@ describe("CephContainers (index)", () => {
     })
   })
 
-  describe("Empty All button", () => {
-    test("shows no count when nothing is selected", () => {
+  describe("Bulk actions menu", () => {
+    test("Actions button is disabled when nothing is selected", () => {
       renderContainers()
-      expect(screen.getByRole("button", { name: "Empty All" })).toBeInTheDocument()
+      expect(actionsButton()).toBeDisabled()
     })
 
-    test("is enabled and shows count after selecting containers", async () => {
+    test("Actions button becomes enabled after selecting a bucket", async () => {
       const user = userEvent.setup()
       renderContainers()
       await user.click(screen.getByTestId("simulate-select-bucket"))
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Empty All \(1\)/i })).toBeEnabled()
-      })
+      await waitFor(() => expect(actionsButton()).toBeEnabled())
     })
 
-    test("count updates as more containers are selected", async () => {
+    test("shows the singular Empty Bucket item when one bucket is selected", async () => {
       const user = userEvent.setup()
       renderContainers()
-      await user.click(screen.getByTestId("simulate-select-two"))
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Empty All \(2\)/i })).toBeEnabled()
-      })
+      await selectOne(user)
+      await user.click(actionsButton())
+      expect(await screen.findByText("Empty Bucket")).toBeInTheDocument()
     })
 
-    test("returns to disabled with no count after deselecting all", async () => {
+    test("shows the plural Empty Buckets item when multiple buckets are selected", async () => {
       const user = userEvent.setup()
       renderContainers()
-      await user.click(screen.getByTestId("simulate-select-bucket"))
-      await waitFor(() => expect(screen.getByRole("button", { name: /Empty All \(1\)/i })).toBeEnabled())
+      await selectTwo(user)
+      await user.click(actionsButton())
+      expect(await screen.findByText("Empty Buckets")).toBeInTheDocument()
+    })
+
+    test("Actions button returns to disabled after deselecting all", async () => {
+      const user = userEvent.setup()
+      renderContainers()
+      await selectOne(user)
       await user.click(screen.getByTestId("simulate-deselect-all"))
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: "Empty All" })).toBeDisabled()
-      })
+      await waitFor(() => expect(actionsButton()).toBeDisabled())
     })
   })
 
-  describe("Empty All modal", () => {
-    const selectOne = async (user: ReturnType<typeof userEvent.setup>) => {
-      await user.click(screen.getByTestId("simulate-select-bucket"))
-      await waitFor(() => expect(screen.getByRole("button", { name: /Empty All \(1\)/i })).toBeEnabled())
-    }
-
+  describe("Bulk empty modal", () => {
     test("modal is not visible by default", () => {
       renderContainers()
       expect(screen.queryByTestId("empty-buckets-modal")).not.toBeInTheDocument()
     })
 
-    test("clicking Empty All opens the modal", async () => {
+    test("choosing Empty Bucket from the Actions menu opens the modal", async () => {
       const user = userEvent.setup()
       renderContainers()
       await selectOne(user)
-      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
-      await waitFor(() => {
-        expect(screen.getByTestId("empty-buckets-modal")).toBeInTheDocument()
-      })
+      await openEmptyModal(user, "Empty Bucket")
+      expect(screen.getByTestId("empty-buckets-modal")).toBeInTheDocument()
     })
 
     test("modal receives the selected bucket count", async () => {
       const user = userEvent.setup()
       renderContainers()
       await selectOne(user)
-      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
-      await waitFor(() => {
-        expect(screen.getByTestId("empty-buckets-modal")).toHaveAttribute("data-bucket-count", "1")
-      })
+      await openEmptyModal(user, "Empty Bucket")
+      expect(screen.getByTestId("empty-buckets-modal")).toHaveAttribute("data-bucket-count", "1")
     })
 
     test("closing the modal hides it", async () => {
       const user = userEvent.setup()
       renderContainers()
       await selectOne(user)
-      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
-      await waitFor(() => expect(screen.getByTestId("empty-buckets-modal")).toBeInTheDocument())
+      await openEmptyModal(user, "Empty Bucket")
       await user.click(screen.getByRole("button", { name: "CloseEmptyAll" }))
       await waitFor(() => {
         expect(screen.queryByTestId("empty-buckets-modal")).not.toBeInTheDocument()
@@ -388,8 +401,7 @@ describe("CephContainers (index)", () => {
       const user = userEvent.setup()
       renderContainers()
       await selectOne(user)
-      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
-      await waitFor(() => expect(screen.getByTestId("empty-buckets-modal")).toBeInTheDocument())
+      await openEmptyModal(user, "Empty Bucket")
       await user.click(screen.getByTestId("simulate-empty-success"))
       await waitFor(() => {
         expect(getBucketsEmptyCompleteToast).toHaveBeenCalledWith(
@@ -398,17 +410,15 @@ describe("CephContainers (index)", () => {
           [],
           expect.objectContaining({ onDismiss: expect.any(Function) })
         )
-        expect(screen.getByRole("button", { name: "Empty All" })).toBeDisabled()
+        expect(actionsButton()).toBeDisabled()
       })
     })
 
     test("keeps failed buckets selected after partial error", async () => {
       const user = userEvent.setup()
       renderContainers()
-      await user.click(screen.getByTestId("simulate-select-two"))
-      await waitFor(() => expect(screen.getByRole("button", { name: /Empty All \(2\)/i })).toBeEnabled())
-      await user.click(screen.getByRole("button", { name: /Empty All \(2\)/i }))
-      await waitFor(() => expect(screen.getByTestId("empty-buckets-modal")).toBeInTheDocument())
+      await selectTwo(user)
+      await openEmptyModal(user, "Empty Buckets")
       await user.click(screen.getByTestId("simulate-empty-error"))
       await waitFor(() => {
         // Only bucket-1 failed — it stays selected; bucket-2 succeeded — cleared
