@@ -19,7 +19,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       className="flex flex-col gap-4"
     >
       <div className="flex min-w-0 flex-col">
-        <p className="text-text-light text-xs leading-5 font-normal">
+        <p className="text-theme-light text-xs leading-5 font-normal">
           {project.domain_name ?? project.domain_id ?? <Trans>Unknown domain</Trans>}
         </p>
         <p data-testid="project-name" className="text-text-high text-lg leading-7 font-bold">
