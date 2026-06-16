@@ -68,10 +68,10 @@ msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
 msgid "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
-msgstr ""
+msgstr "{selectedCount, plural, one {Objekt löschen} other {Objekte löschen}}"
 
 msgid "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
-msgstr ""
+msgstr "{selectedCount, plural, one {Container leeren} other {Container leeren}}"
 
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} von {totalCount} Bucket} other {{filteredCount} von {totalCount} Buckets}}"
@@ -83,10 +83,10 @@ msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} con
 msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Container}}"
 
 msgid "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
-msgstr ""
+msgstr "{totalCount, plural, one {Objekt löschen} other {Objekte löschen}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
-msgstr ""
+msgstr "{totalCount, plural, one {Container leeren} other {Container leeren}}"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"
