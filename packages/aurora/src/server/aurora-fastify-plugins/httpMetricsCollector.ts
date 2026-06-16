@@ -73,7 +73,10 @@ async function httpMetricsCollectorPlugin(
     }
 
     // Skip if start time wasn't set (shouldn't happen, but safety check)
-    if (!request.metricsStartTime) return
+    if (!request.metricsStartTime) {
+      fastify.log.debug({ url: request.url }, "Metrics start time missing, skipping metric collection")
+      return
+    }
 
     const endTime = process.hrtime.bigint()
     const duration = Number(endTime - request.metricsStartTime) / 1e9 // Convert nanoseconds to seconds
