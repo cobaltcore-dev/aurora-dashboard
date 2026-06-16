@@ -9,7 +9,7 @@ import { createPolicyEngineFromFile } from "@cobaltcore-dev/policy-engine"
  *   1. `consumerDir/<fileName>` – caller-supplied policy directory (required)
  *   2. `permission_custom_policies/<fileName>` – legacy in-tree override directory
  *
- * @param fileName    Policy file name to resolve and load (e.g. "compute.yaml").
+ * @param fileName    Policy file name to resolve and load (e.g. "compute.json" or "compute.yaml").
  * @param consumerDir Absolute path to the consumer-supplied policy directory.
  * @returns Policy engine instance created from the resolved policy file.
  */
