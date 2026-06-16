@@ -68,7 +68,7 @@ msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
-msgstr ""
+msgstr "{selectedCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} von {totalCount} Bucket} other {{filteredCount} von {totalCount} Buckets}}"
@@ -80,7 +80,7 @@ msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} con
 msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Container}}"
 
 msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
-msgstr ""
+msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"
@@ -2567,7 +2567,7 @@ msgid "Saving..."
 msgstr "Wird gespeichert..."
 
 msgid "Search buckets..."
-msgstr ""
+msgstr "Buckets suchen..."
 
 msgid "Search flavors..."
 msgstr "Flavors suchen..."
@@ -2576,7 +2576,7 @@ msgid "Search images..."
 msgstr "Images suchen..."
 
 msgid "Search objects..."
-msgstr ""
+msgstr "Objekte suchen..."
 
 msgid "Search..."
 msgstr "Suchen..."
