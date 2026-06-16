@@ -514,9 +514,6 @@ msgstr "Community"
 msgid "Compute"
 msgstr "Compute"
 
-msgid "Compute Overview"
-msgstr "Compute Overview"
-
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 
@@ -2035,9 +2032,6 @@ msgstr "Network & Routing"
 msgid "Network ID"
 msgstr "Network ID"
 
-msgid "Network Overview"
-msgstr "Network Overview"
-
 msgid "New Folder"
 msgstr "New Folder"
 
@@ -2685,9 +2679,6 @@ msgstr "Server Role:"
 
 msgid "Services"
 msgstr "Services"
-
-msgid "Services Overview"
-msgstr "Services Overview"
 
 msgid "Session Expired"
 msgstr "Session Expired"
