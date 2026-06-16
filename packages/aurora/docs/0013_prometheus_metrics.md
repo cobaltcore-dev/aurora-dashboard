@@ -102,6 +102,7 @@ The `route` label is designed to provide meaningful insights while controlling c
 - Enables per-project monitoring: which projects generate most traffic, errors, or latency
 - Empty string when not applicable (root routes, assets, non-project-scoped requests)
 - Works for both tRPC API calls and SPA routes
+- Note: Each unique project_id creates a new time series. Monitor Prometheus memory usage in production if you have thousands of projects.
 
 **Infrastructure focus**:
 
