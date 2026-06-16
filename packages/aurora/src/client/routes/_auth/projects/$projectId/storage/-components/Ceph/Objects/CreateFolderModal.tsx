@@ -90,6 +90,8 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
       confirmButtonVariant="primary"
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={!isValid || createFolderMutation.isPending}
+      disableCancelButton={createFolderMutation.isPending}
+      disableCloseButton={createFolderMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
         <p>

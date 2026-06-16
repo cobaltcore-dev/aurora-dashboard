@@ -73,6 +73,8 @@ export function DeleteObjectModal({
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={!isConfirmValid || deleteMutation.isPending}
+      disableCancelButton={deleteMutation.isPending}
+      disableCloseButton={deleteMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
         <Message variant="danger">
