@@ -502,9 +502,6 @@ msgstr "Community"
 msgid "Compute"
 msgstr "Compute"
 
-msgid "Compute Overview"
-msgstr "Compute-Übersicht"
-
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher Datenverkehr für diese Sicherheitsgruppe erlaubt ist."
 
@@ -2029,9 +2026,6 @@ msgstr "Netzwerk & Routing"
 msgid "Network ID"
 msgstr "Netzwerk-ID"
 
-msgid "Network Overview"
-msgstr "Netzwerk-Übersicht"
-
 msgid "New Folder"
 msgstr "Neuer Ordner"
 
@@ -2667,9 +2661,6 @@ msgstr "Serverrolle:"
 
 msgid "Services"
 msgstr "Services"
-
-msgid "Services Overview"
-msgstr "Services Overview"
 
 msgid "Session Expired"
 msgstr "Sitzung abgelaufen"
