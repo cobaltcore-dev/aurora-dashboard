@@ -145,12 +145,6 @@ msgstr "Über das Aurora-Dashboard"
 msgid "Accept"
 msgstr "Akzeptieren"
 
-msgid "Accept access to image"
-msgstr "Zugriff auf Image akzeptieren"
-
-msgid "Accept Shared Image"
-msgstr "Geteiltes Image akzeptieren"
-
 msgid "Accepted"
 msgstr "Akzeptiert"
 
@@ -174,6 +168,9 @@ msgstr " Zugriffsstatus auf \"{newStatus}\" aktualisiert."
 
 msgid "Access Status:"
 msgstr "Zugriffsstatus:"
+
+msgid "Access Type"
+msgstr "Zugriffstyp"
 
 msgid "Account"
 msgstr "Account"
@@ -288,6 +285,9 @@ msgstr ""
 
 msgid "An unexpected error occurred"
 msgstr "Ein unerwarteter Fehler ist aufgetreten"
+
+msgid "An unexpected error occurred."
+msgstr ""
 
 msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
@@ -1708,12 +1708,6 @@ msgstr "Issuing End Entity Certificate..."
 msgid "Issuing Self-Signed Certificate..."
 msgstr "Issuing Self-Signed Certificate..."
 
-msgid "It will appear in your image list."
-msgstr "Es wird in Ihrer Image-Liste angezeigt."
-
-msgid "It will be removed from your image list."
-msgstr "Es wird aus Ihrer Image-Liste entfernt."
-
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 msgstr ""
 
@@ -2448,12 +2442,6 @@ msgstr ""
 
 msgid "Reject"
 msgstr "Ablehnen"
-
-msgid "Reject access to image"
-msgstr "Zugriff auf Image ablehnen"
-
-msgid "Reject Shared Image"
-msgstr "Geteiltes Image ablehnen"
 
 msgid "Rejected"
 msgstr "Abgelehnt"
