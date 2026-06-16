@@ -67,6 +67,12 @@ msgstr "{numberDeleted} objects were permanently deleted."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
+msgid "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
+msgstr "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
+
+msgid "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
+msgstr "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
+
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 
@@ -847,9 +853,6 @@ msgstr "Delete Object"
 msgid "Delete object:"
 msgstr "Delete object:"
 
-msgid "Delete Objects"
-msgstr "Delete Objects"
-
 msgid "Delete Permanently"
 msgstr "Delete Permanently"
 
@@ -1038,12 +1041,6 @@ msgstr "Empty Bucket"
 
 msgid "Empty Buckets"
 msgstr "Empty Buckets"
-
-msgid "Empty Container"
-msgstr "Empty Container"
-
-msgid "Empty Containers"
-msgstr "Empty Containers"
 
 msgid "Empty:"
 msgstr "Empty:"

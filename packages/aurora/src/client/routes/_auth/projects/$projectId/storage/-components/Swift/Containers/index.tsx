@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, startTransition } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
+import { plural } from "@lingui/core/macro"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ContainerSummary } from "@/server/Storage/types/swift"
@@ -40,7 +41,7 @@ import { Route } from "../../../$provider/containers/"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 export const SwiftContainers = () => {
-  const { t } = useLingui()
+  const { t, i18n } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
 
@@ -359,7 +360,12 @@ export const SwiftContainers = () => {
                     <PopupMenuOptions>
                       <PopupMenuItem
                         disabled={!hasSelection}
-                        label={selectedCount > 1 ? t`Empty Containers` : t`Empty Container`}
+                        label={i18n._(
+                          plural(selectedCount, {
+                            one: "Empty Container",
+                            other: "Empty Containers",
+                          })
+                        )}
                         onClick={() => setEmptyAllModalOpen(true)}
                       />
                     </PopupMenuOptions>

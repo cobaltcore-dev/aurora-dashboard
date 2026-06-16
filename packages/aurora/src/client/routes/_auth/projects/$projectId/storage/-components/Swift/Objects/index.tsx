@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, startTransition } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
+import { plural } from "@lingui/core/macro"
 import {
   Button,
   Checkbox,
@@ -147,7 +148,7 @@ const resolveSortBy = (sortBy: SortSettings["sortBy"]): SortKey | undefined => {
 // ── SwiftObjects ──────────────────────────────────────────────────────────────
 
 export const SwiftObjects = ({ provider, containerName }: { provider: string; containerName: string }) => {
-  const { t } = useLingui()
+  const { t, i18n } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
 
@@ -444,7 +445,12 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
                     <PopupMenuOptions>
                       <PopupMenuItem
                         disabled={!hasSelection}
-                        label={selectedCount > 1 ? t`Delete Objects` : t`Delete Object`}
+                        label={i18n._(
+                          plural(selectedCount, {
+                            one: "Delete Object",
+                            other: "Delete Objects",
+                          })
+                        )}
                         onClick={() => setDeleteAllModalOpen(true)}
                       />
                     </PopupMenuOptions>
