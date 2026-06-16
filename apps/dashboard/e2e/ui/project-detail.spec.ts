@@ -30,7 +30,7 @@ test.describe("Project Detail View", () => {
     const detailErrors = setupErrorTracking(page)
 
     // Click on test project
-    const projectHeading = page.locator("h5", { hasText: testProject })
+    const projectHeading = page.locator("p", { hasText: testProject }).first()
     await projectHeading.click()
 
     // Wait for project detail page to load
@@ -73,7 +73,7 @@ test.describe("Project Detail View", () => {
     const detailErrors = setupErrorTracking(page)
 
     // Click on test project
-    const projectHeading = page.locator("h5", { hasText: testProject })
+    const projectHeading = page.locator("p", { hasText: testProject }).first()
     await projectHeading.click()
 
     // Wait for project detail page to load
