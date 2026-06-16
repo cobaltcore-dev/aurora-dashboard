@@ -69,8 +69,8 @@ const getPolicy = (ctx: AuroraPortalContext, engine: PolicyEngine) => {
  *   createPermissionRouter({
  *     policyDir,
  *     engines: {
- *       swift: { fileName: "swift.yaml" },
- *       ceph: { fileName: "ceph.yaml" },
+ *       swift: { fileName: "swift.json" },
+ *       ceph: { fileName: "ceph.json" },
  *     },
  *     mappings: STORAGE_MAPPINGS,
  *   })
@@ -83,6 +83,16 @@ export function createPermissionRouter<TMappings extends Record<string, PolicyMa
   const loadedEngines: Record<string, PolicyEngine> = Object.fromEntries(
     Object.entries(config.engines).map(([name, { fileName }]) => [name, loadPolicyEngine(fileName, config.policyDir)])
   )
+
+  // Validate that all engines referenced in mappings are configured
+  for (const [permissionKey, mapping] of Object.entries(config.mappings)) {
+    if (!Object.hasOwn(loadedEngines, mapping.engine)) {
+      throw new Error(
+        `Configuration error: Permission '${permissionKey}' references engine '${mapping.engine}', ` +
+          `but no such engine is configured. Available engines: ${Object.keys(loadedEngines).join(", ")}`
+      )
+    }
+  }
 
   // Create Zod schema for validating permission keys
   const PERMISSION_KEY = z
@@ -108,6 +118,7 @@ export function createPermissionRouter<TMappings extends Record<string, PolicyMa
     const mapping = config.mappings[permission]
     const engine = engines[mapping.engine]
 
+    // Engine existence is validated at router creation time, so this should never happen
     if (!engine) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",

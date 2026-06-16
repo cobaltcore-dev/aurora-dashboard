@@ -135,7 +135,7 @@ export const buildNetworkPermissionRouter = (policyDir: string) =>
   createPermissionRouter({
     policyDir,
     engines: {
-      network: { fileName: "networking.yaml" },
+      network: { fileName: "networking.json" },
     },
     mappings: NETWORK_MAPPINGS,
   })

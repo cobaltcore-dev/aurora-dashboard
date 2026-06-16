@@ -197,4 +197,24 @@ describe("createPermissionRouter", () => {
     expect(loadPolicyEngine).toHaveBeenCalledWith("compute.yaml", "/test/policies")
     expect(loadPolicyEngine).toHaveBeenCalledWith("swift.yaml", "/test/policies")
   })
+
+  it("should throw error when mapping references unconfigured engine", () => {
+    const TEST_MAPPINGS = {
+      "servers:list": { engine: "compute", rule: "os_compute_api:servers:index" },
+      "images:list": { engine: "image", rule: "get_images" },
+    } as const
+
+    // Only configure compute engine, but mappings reference both compute and image
+    expect(() =>
+      createPermissionRouter({
+        policyDir: "/test/policies",
+        engines: {
+          compute: { fileName: "compute.yaml" },
+        },
+        mappings: TEST_MAPPINGS,
+      })
+    ).toThrowError(
+      "Configuration error: Permission 'images:list' references engine 'image', but no such engine is configured. Available engines: compute"
+    )
+  })
 })

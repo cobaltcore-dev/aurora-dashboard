@@ -65,8 +65,8 @@ export const buildPermissionRouter = (policyDir: string) =>
   createPermissionRouter({
     policyDir,
     engines: {
-      compute: { fileName: "compute.yaml" },
-      image: { fileName: "image.yaml" },
+      compute: { fileName: "compute.json" },
+      image: { fileName: "image.json" },
     },
     mappings: COMPUTE_IMAGE_MAPPINGS,
   })
