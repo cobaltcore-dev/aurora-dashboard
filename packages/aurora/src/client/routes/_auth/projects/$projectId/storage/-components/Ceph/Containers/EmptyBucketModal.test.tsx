@@ -255,7 +255,7 @@ describe("EmptyBucketModal", () => {
       renderModal()
       const styledBlock = screen.getByText(mockNonEmptyBucket.name).closest("div")
       expect(styledBlock).toBeInTheDocument()
-      expect(styledBlock).toHaveClass("bg-juno-grey-blue-10")
+      expect(styledBlock).toHaveClass("bg-theme-background-lvl-1")
     })
   })
 
