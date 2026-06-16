@@ -145,12 +145,6 @@ msgstr "About Aurora Dashboard"
 msgid "Accept"
 msgstr "Accept"
 
-msgid "Accept access to image"
-msgstr "Accept access to image"
-
-msgid "Accept Shared Image"
-msgstr "Accept Shared Image"
-
 msgid "Accepted"
 msgstr "Accepted"
 
@@ -1717,12 +1711,6 @@ msgstr "Issuing End Entity Certificate..."
 msgid "Issuing Self-Signed Certificate..."
 msgstr "Issuing Self-Signed Certificate..."
 
-msgid "It will appear in your image list."
-msgstr "It will appear in your image list."
-
-msgid "It will be removed from your image list."
-msgstr "It will be removed from your image list."
-
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 msgstr "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 
@@ -2460,12 +2448,6 @@ msgstr "Recover from accidental deletions"
 
 msgid "Reject"
 msgstr "Reject"
-
-msgid "Reject access to image"
-msgstr "Reject access to image"
-
-msgid "Reject Shared Image"
-msgstr "Reject Shared Image"
 
 msgid "Rejected"
 msgstr "Rejected"
