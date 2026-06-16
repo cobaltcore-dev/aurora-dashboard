@@ -304,12 +304,6 @@ msgstr "Jeder Benutzer kann eine HEAD- oder GET-Operation auf dem Container ausf
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anfrage erforderlich."
 
-msgid "Are you sure you want to delete this folder?"
-msgstr ""
-
-msgid "Are you sure you want to delete this object?"
-msgstr ""
-
 msgid "Associate"
 msgstr "Zuordnen"
 
@@ -504,6 +498,12 @@ msgstr "Compute"
 
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher Datenverkehr für diese Sicherheitsgruppe erlaubt ist."
+
+msgid "Confirm deletion of {displayName}. This action cannot be undone and folder will be permanently deleted."
+msgstr ""
+
+msgid "Confirm deletion of {displayName}. This action cannot be undone and object will be permanently deleted."
+msgstr ""
 
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Eigenschaften des Containers \"{containerName}\" wurden erfolgreich aktualisiert."
@@ -1132,6 +1132,9 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 
+msgid "Error Loading Buckets"
+msgstr ""
+
 msgid "Error loading Certificate"
 msgstr "Error loading Certificate"
 
@@ -1140,9 +1143,6 @@ msgstr "Error loading Certificate Authority"
 
 msgid "Error loading component"
 msgstr "Fehler beim Laden der Komponente"
-
-msgid "Error Loading Containers"
-msgstr ""
 
 msgid "Error Loading Containers: {errorMessage}"
 msgstr "Fehler beim Laden der Container: {errorMessage}"
@@ -1336,7 +1336,7 @@ msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 
-msgid "Failed to load objects: {errorMessage}"
+msgid "Failed to load objects"
 msgstr ""
 
 msgid "Failed to load PCAs"
@@ -3138,6 +3138,9 @@ msgstr "\"detach\" zur Bestätigung eingeben"
 
 msgid "Type “detach” to confirm"
 msgstr "“detach” zur Bestätigung eingeben"
+
+msgid "Type \"empty\" to confirm"
+msgstr ""
 
 msgid "Type \"release\" to confirm"
 msgstr "\"release\" zur Bestätigung eingeben"

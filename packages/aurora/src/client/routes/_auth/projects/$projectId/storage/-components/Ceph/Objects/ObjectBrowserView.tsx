@@ -1,6 +1,6 @@
 import { useState, useEffect, startTransition } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
-import { Spinner, Stack, Button, Toast, ToastProps, Badge } from "@cloudoperators/juno-ui-components"
+import { Spinner, Stack, Button, Toast, ToastProps, Badge, Message } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { ListToolbar } from "@/client/components/ListToolbar"
@@ -236,9 +236,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   if (error) {
     const errorMessage = error.message
     return (
-      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
-        <Trans>Failed to load objects: {errorMessage}</Trans>
-      </Stack>
+      <Message variant="error" title={t`Failed to load objects`}>
+        {errorMessage}
+      </Message>
     )
   }
 
