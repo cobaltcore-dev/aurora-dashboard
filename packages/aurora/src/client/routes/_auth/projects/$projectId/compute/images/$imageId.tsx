@@ -7,7 +7,6 @@ import {
   PopupMenuToggle,
   PopupMenuOptions,
   PopupMenuItem,
-  Modal,
   Toast,
   ToastProps,
 } from "@cloudoperators/juno-ui-components/index"
@@ -129,8 +128,6 @@ function RouteComponent() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [activateModalOpen, setActivateModalOpen] = useState(false)
   const [deactivateModalOpen, setDeactivateModalOpen] = useState(false)
-  const [acceptModalOpen, setAcceptModalOpen] = useState(false)
-  const [rejectModalOpen, setRejectModalOpen] = useState(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
@@ -320,14 +317,17 @@ function RouteComponent() {
   const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
   const isMemberAccepted = myMemberData?.status === "accepted"
   const isImageOwner = image.owner === projectId
-  const hasMoreActions =
-    (isSharedWithMe && isMemberAccepted && permissions.canUpdateMember) ||
-    (!isSharedWithMe && permissions.canUpdate) ||
-    (!isSharedWithMe && permissions.canDelete && !image.protected) ||
-    (!isSharedWithMe &&
-      isImageOwner &&
-      image.visibility === IMAGE_VISIBILITY.SHARED &&
-      (permissions.canCreateMember || permissions.canDeleteMember))
+
+  const canRejectSharedImage = isSharedWithMe && isMemberAccepted && permissions.canUpdateMember
+  const canUpdateOwnImage = !isSharedWithMe && permissions.canUpdate
+  const canDeleteOwnImage = !isSharedWithMe && permissions.canDelete && !image.protected
+  const canManageSharing =
+    !isSharedWithMe &&
+    isImageOwner &&
+    image.visibility === IMAGE_VISIBILITY.SHARED &&
+    (permissions.canCreateMember || permissions.canDeleteMember)
+
+  const hasMoreActions = canRejectSharedImage || canUpdateOwnImage || canDeleteOwnImage || canManageSharing
 
   const headerActions =
     hasMoreActions || (!isSharedWithMe && permissions.canUpdate) ? (
@@ -340,8 +340,8 @@ function RouteComponent() {
               </Button>
             </PopupMenuToggle>
             <PopupMenuOptions>
-              {isSharedWithMe && isMemberAccepted && permissions.canUpdateMember && (
-                <PopupMenuItem label={t`Reject`} onClick={() => setRejectModalOpen(true)} />
+              {canRejectSharedImage && (
+                <PopupMenuItem label={t`Reject`} onClick={() => handleMemberStatusChange("rejected")} />
               )}
               {!isSharedWithMe && permissions.canUpdate && (
                 <PopupMenuItem
@@ -413,42 +413,6 @@ function RouteComponent() {
       </div>
 
       {toastData && <Toast {...toastData} />}
-
-      {acceptModalOpen && (
-        <Modal
-          title={t`Accept Shared Image`}
-          open={acceptModalOpen}
-          onCancel={() => setAcceptModalOpen(false)}
-          confirmButtonLabel={t`Accept`}
-          onConfirm={() => {
-            setAcceptModalOpen(false)
-            handleMemberStatusChange("accepted")
-          }}
-        >
-          <p>
-            {t`Accept access to image`} <strong>{String(image.name ?? image.id)}</strong>?{" "}
-            {t`It will appear in your image list.`}
-          </p>
-        </Modal>
-      )}
-
-      {rejectModalOpen && (
-        <Modal
-          title={t`Reject Shared Image`}
-          open={rejectModalOpen}
-          onCancel={() => setRejectModalOpen(false)}
-          confirmButtonLabel={t`Reject`}
-          onConfirm={() => {
-            setRejectModalOpen(false)
-            handleMemberStatusChange("rejected")
-          }}
-        >
-          <p>
-            {t`Reject access to image`} <strong>{String(image.name ?? image.id)}</strong>?{" "}
-            {t`It will be removed from your image list.`}
-          </p>
-        </Modal>
-      )}
 
       {editDetailsModalOpen && (
         <EditImageDetailsModal
