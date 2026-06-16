@@ -1,4 +1,4 @@
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -90,7 +90,7 @@ export const DeleteObjectsModal = ({
 
   return (
     <Modal
-      title={totalCount === 1 ? t`Delete Object` : t`Delete Objects`}
+      title={<Plural value={totalCount} one="Delete Object" other="Delete Objects" />}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
