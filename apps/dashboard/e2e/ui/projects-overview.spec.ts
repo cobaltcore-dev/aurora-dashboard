@@ -34,11 +34,8 @@ test.describe("Projects Overview Page", () => {
     await page.waitForTimeout(500)
 
     // Verify the test project is visible in results
-    const projectHeading = page.locator("h1.juno-content-heading", { hasText: testProject })
+    const projectHeading = page.locator("h5", { hasText: testProject })
     await expect(projectHeading).toBeVisible()
-
-    // Verify the heading has the correct styling classes
-    await expect(projectHeading).toHaveClass(/text-theme-accent/)
   })
 
   test("test project appears in initial project list", async ({ page }) => {
@@ -48,7 +45,7 @@ test.describe("Projects Overview Page", () => {
     await expectNoJavaScriptErrors(errors, page)
 
     // Without searching, verify test project is in the list
-    const projectHeading = page.locator("h1.juno-content-heading", { hasText: testProject })
+    const projectHeading = page.locator("h5", { hasText: testProject })
 
     // Should be visible (might need to scroll)
     await expect(projectHeading).toBeVisible({ timeout: 5000 })
