@@ -35,7 +35,6 @@ import { CredentialPrompt } from "./CredentialPrompt"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType"
 
-export { ContainerListView } from "./ContainerListView"
 export { CredentialPrompt } from "./CredentialPrompt"
 export { CreateBucketModal } from "./CreateBucketModal"
 export { DeleteBucketModal } from "./DeleteBucketModal"
