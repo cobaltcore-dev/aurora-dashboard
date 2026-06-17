@@ -127,14 +127,19 @@ describe("EmptyBucketsModal", () => {
 
     test("renders when isOpen is true and buckets are provided", () => {
       renderModal()
-      expect(screen.getByRole("heading", { name: "Empty Buckets" })).toBeInTheDocument()
+      expect(screen.getByRole("dialog", { name: "Empty Buckets" })).toBeInTheDocument()
     })
   })
 
   describe("UI elements", () => {
-    test("renders modal title", () => {
-      renderModal()
-      expect(screen.getByRole("heading", { name: "Empty Buckets" })).toBeInTheDocument()
+    test("renders the plural title when multiple buckets are selected", () => {
+      renderModal({ buckets: mockBuckets })
+      expect(screen.getByRole("dialog", { name: "Empty Buckets" })).toBeInTheDocument()
+    })
+
+    test("renders the singular title when a single bucket is selected", () => {
+      renderModal({ buckets: mockSingleBucket })
+      expect(screen.getByRole("dialog", { name: "Empty Bucket" })).toBeInTheDocument()
     })
 
     test("shows warning message with bucket count (plural)", () => {

@@ -191,7 +191,7 @@ export function ObjectsTableView({
         <div
           ref={parentRef}
           className="overflow-auto"
-          style={{ height: "calc(100vh - 490px)" }}
+          style={{ height: "calc(100vh - 530px)" }}
           data-testid="objects-table-body"
         >
           <div
