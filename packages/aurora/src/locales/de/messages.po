@@ -70,6 +70,9 @@ msgstr "{progressPct}%"
 msgid "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
 msgstr "{selectedCount, plural, one {Objekt löschen} other {Objekte löschen}}"
 
+msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
+msgstr "{selectedCount, plural, one {Bucket leeren} other {Buckets leeren}}"
+
 msgid "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
 msgstr "{selectedCount, plural, one {Container leeren} other {Container leeren}}"
 
@@ -84,6 +87,9 @@ msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Co
 
 msgid "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
 msgstr "{totalCount, plural, one {Objekt löschen} other {Objekte löschen}}"
+
+msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
+msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
 msgstr "{totalCount, plural, one {Container leeren} other {Container leeren}}"
@@ -1021,19 +1027,10 @@ msgstr "Egress"
 msgid "Empty"
 msgstr "Leeren"
 
-msgid "Empty All"
-msgstr "Alle leeren"
-
-msgid "Empty All ({selectedCount})"
-msgstr "Alle leeren ({selectedCount})"
-
 msgid "Empty All Completed with Errors"
 msgstr ""
 
 msgid "Empty Bucket"
-msgstr ""
-
-msgid "Empty Buckets"
 msgstr ""
 
 msgid "Empty:"
@@ -2556,6 +2553,9 @@ msgstr "Metadata speichern"
 
 msgid "Saving..."
 msgstr "Wird gespeichert..."
+
+msgid "Search buckets..."
+msgstr "Buckets suchen..."
 
 msgid "Search containers..."
 msgstr "Container suchen..."

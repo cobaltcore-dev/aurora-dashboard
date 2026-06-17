@@ -1,5 +1,36 @@
 # @cobaltcore-dev/dashboard
 
+## 1.1.0
+
+### Minor Changes
+
+- 3536c95: Migrate policy files from YAML to JSON and unify storage policies
+  - Convert all policy files from YAML to JSON format (compute, image, networking, storage)
+  - Unify Swift and Ceph policies into single storage.json with consistent Swift terminology
+  - Add startup validation for engine configuration in createPermissionRouter
+  - Update router definitions to use .json filenames instead of .yaml
+
+  Benefits:
+  - Better tooling support (schema validation, editor autocomplete)
+  - Consistent naming: storage:containers:_, storage:objects:_, storage:folders:\*
+  - Backend-agnostic API (UI doesn't distinguish Swift vs Ceph)
+  - Fewer files to maintain (4 instead of 6 policy files)
+  - Errors caught at startup instead of runtime
+
+### Patch Changes
+
+- Updated dependencies [3536c95]
+- Updated dependencies [2db15e8]
+- Updated dependencies [33ac5e9]
+- Updated dependencies [fe78936]
+- Updated dependencies [9b00ac4]
+- Updated dependencies [3a5a69b]
+- Updated dependencies [42471fb]
+- Updated dependencies [c954a3e]
+- Updated dependencies [f73a00f]
+- Updated dependencies [42471fb]
+  - @cobaltcore-dev/aurora@0.5.0
+
 ## 1.0.6
 
 ### Patch Changes

@@ -24,7 +24,7 @@ export const scopes = [
   "gardener",
   "network",
   "template",
-  "aurora-portal",
+  "aurora",
   "portal",
   "aurora-sdk",
   "signal-openstack",
