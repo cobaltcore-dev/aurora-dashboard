@@ -20,6 +20,11 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$p
     isDetail: true,
     sectionCrumb: { labelKey: "Services" },
     crumb: { labelKey: "PCA (Clavis)", to: "/projects/$projectId/services/pca" },
+    intermediateCrumb: {
+      useParentTitleAsLabel: true,
+      useParamAsLabel: "pcaId",
+      to: "/projects/$projectId/services/pca/$pcaId/",
+    },
   } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const cert = await context.trpcClient?.services.pca.getByIdCertificate.query({
