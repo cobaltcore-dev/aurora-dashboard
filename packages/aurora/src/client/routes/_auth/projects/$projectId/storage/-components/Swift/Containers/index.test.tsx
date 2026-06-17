@@ -452,69 +452,80 @@ describe("SwiftContainers (List)", () => {
     })
   })
 
-  describe("Empty All button", () => {
-    test("renders the Empty All button", () => {
+  describe("Bulk actions menu", () => {
+    // The bulk Empty control is no longer a standalone "Empty All (N)" button.
+    // Selecting a row enables the Zone 3 "Actions" toggle; the Empty item lives
+    // inside that popup menu and is labeled singular/plural (no numeric count).
+    const selectViaCheckbox = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
+      await user.click(screen.getByTestId(`select-container-${name}`).querySelector("input") as HTMLElement)
+    }
+    const openActionsMenu = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByRole("button", { name: /Actions/i }))
+    }
+
+    test("renders the Actions button", () => {
       renderList()
-      expect(screen.getByRole("button", { name: /Empty All/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /Actions/i })).toBeInTheDocument()
     })
 
-    test("Empty All button is disabled when no containers are selected", () => {
+    test("Actions button is disabled when no containers are selected", () => {
       renderList()
-      expect(screen.getByRole("button", { name: /Empty All/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
     })
 
-    test("Empty All button shows no count when no containers are selected", () => {
+    test("no Empty item is reachable when no containers are selected", () => {
       renderList()
-      expect(screen.getByRole("button", { name: "Empty All" })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
+      expect(screen.queryByText(/^Empty Container/)).not.toBeInTheDocument()
     })
 
-    test("Empty All button is enabled and shows count after selecting containers", async () => {
+    test("Actions button is enabled and exposes the Empty item after selecting a container", async () => {
       const user = userEvent.setup()
       renderList()
-      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
-      await waitFor(() => {
-        const btn = screen.getByRole("button", { name: /Empty All/i })
-        expect(btn).toBeEnabled()
-        expect(btn).toHaveTextContent("Empty All (1)")
-      })
+      await selectViaCheckbox(user, "alpha")
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await openActionsMenu(user)
+      expect(await screen.findByText("Empty Container")).toBeInTheDocument()
     })
 
-    test("Empty All button count increments as more containers are selected", async () => {
+    test("Empty item label becomes plural as more containers are selected", async () => {
       const user = userEvent.setup()
       renderList()
-      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
-      await user.click(screen.getByTestId("select-container-beta").querySelector("input") as HTMLElement)
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Empty All \(2\)/i })).toBeEnabled()
-      })
+      await selectViaCheckbox(user, "alpha")
+      await selectViaCheckbox(user, "beta")
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await openActionsMenu(user)
+      expect(await screen.findByText("Empty Containers")).toBeInTheDocument()
     })
 
-    test("Empty All button returns to disabled with no count after deselecting all", async () => {
+    test("Actions button returns to disabled after deselecting all", async () => {
       const user = userEvent.setup()
       renderList()
       const alphaCheckbox = screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement
       await user.click(alphaCheckbox)
-      await waitFor(() => expect(screen.getByRole("button", { name: /Empty All \(1\)/i })).toBeEnabled())
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await user.click(alphaCheckbox)
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: "Empty All" })).toBeDisabled()
-      })
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled())
     })
 
-    test("selecting all via header checkbox enables Empty All with full count", async () => {
+    test("selecting all via header checkbox enables Actions and shows the plural Empty item", async () => {
       const user = userEvent.setup()
       renderList()
       await user.click(screen.getByTestId("select-all-containers").querySelector("input") as HTMLElement)
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Empty All \(3\)/i })).toBeEnabled()
-      })
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await openActionsMenu(user)
+      expect(await screen.findByText("Empty Containers")).toBeInTheDocument()
     })
   })
 
-  describe("Empty All modal", () => {
-    const selectAlpha = async (user: ReturnType<typeof userEvent.setup>) => {
+  describe("Bulk empty modal", () => {
+    // Select alpha, open the Zone 3 Actions menu, then click the Empty item to
+    // open the bulk-empty modal.
+    const selectAlphaAndOpenModal = async (user: ReturnType<typeof userEvent.setup>) => {
       await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
-      await waitFor(() => expect(screen.getByRole("button", { name: /Empty All \(1\)/i })).toBeEnabled())
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await user.click(screen.getByRole("button", { name: /Actions/i }))
+      await user.click(await screen.findByText("Empty Container"))
     }
 
     test("modal is not visible by default", () => {
@@ -522,11 +533,10 @@ describe("SwiftContainers (List)", () => {
       expect(screen.queryByTestId("empty-containers-modal")).not.toBeInTheDocument()
     })
 
-    test("clicking Empty All opens the modal", async () => {
+    test("clicking the Empty item opens the modal", async () => {
       const user = userEvent.setup()
       renderList()
-      await selectAlpha(user)
-      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
+      await selectAlphaAndOpenModal(user)
       await waitFor(() => {
         expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument()
       })
@@ -535,8 +545,7 @@ describe("SwiftContainers (List)", () => {
     test("modal receives the selected containers", async () => {
       const user = userEvent.setup()
       renderList()
-      await selectAlpha(user)
-      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
+      await selectAlphaAndOpenModal(user)
       await waitFor(() => {
         expect(screen.getByTestId("empty-containers-modal")).toHaveAttribute("data-container-count", "1")
       })
@@ -545,8 +554,7 @@ describe("SwiftContainers (List)", () => {
     test("closing the modal hides it", async () => {
       const user = userEvent.setup()
       renderList()
-      await selectAlpha(user)
-      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
+      await selectAlphaAndOpenModal(user)
       await waitFor(() => expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "CloseEmptyAll" }))
       await waitFor(() => {
@@ -558,8 +566,7 @@ describe("SwiftContainers (List)", () => {
       const { getContainersEmptyCompleteToast } = await import("./ContainerToastNotifications")
       const user = userEvent.setup()
       renderList()
-      await selectAlpha(user)
-      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
+      await selectAlphaAndOpenModal(user)
       await waitFor(() => expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateEmptyAllSuccess" }))
       await waitFor(() => {
@@ -569,7 +576,8 @@ describe("SwiftContainers (List)", () => {
           [],
           expect.objectContaining({ onDismiss: expect.any(Function) })
         )
-        expect(screen.getByRole("button", { name: "Empty All" })).toBeDisabled()
+        // Selection cleared → the Actions toggle is disabled again.
+        expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
       })
     })
 
@@ -577,8 +585,7 @@ describe("SwiftContainers (List)", () => {
       const { getContainersEmptyCompleteToast } = await import("./ContainerToastNotifications")
       const user = userEvent.setup()
       renderList()
-      await selectAlpha(user)
-      await user.click(screen.getByRole("button", { name: /Empty All \(1\)/i }))
+      await selectAlphaAndOpenModal(user)
       await waitFor(() => expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateEmptyAllError" }))
       await waitFor(() => {
