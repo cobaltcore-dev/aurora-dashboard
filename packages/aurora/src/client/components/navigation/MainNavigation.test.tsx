@@ -1,10 +1,11 @@
-import { describe, test, expect, beforeAll } from "vitest"
+import { describe, test, expect, beforeAll, vi } from "vitest"
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { ReactNode } from "react"
+import { FC, ReactNode } from "react"
 import { MainNavigation } from "./MainNavigation"
 import { AuthProvider } from "../../store/AuthProvider"
+import type { SlotProps } from "../../AuroraApp"
 
 import {
   createRootRoute,
@@ -244,5 +245,40 @@ describe("MainNavigation", () => {
 
     // Check that default items are not rendered
     expect(screen.queryByText("About")).toBeNull()
+  })
+
+  test("renders custom appName instead of default Aurora", async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+
+    const router = createTestRouter(<MainNavigation items={mainNavItems} appName="My Cloud" />)
+
+    await waitFor(() => render(<RouterProvider router={router} />))
+
+    await waitFor(() => {
+      expect(screen.getByText("My Cloud")).toBeDefined()
+      expect(screen.queryByText("Aurora")).toBeNull()
+    })
+  })
+
+  test("renders custom logo slot instead of default logo", async () => {
+    await act(async () => {
+      i18n.activate("en")
+    })
+
+    const CustomLogo = (() => <img data-testid="custom-logo" src="/custom-logo.svg" alt="Custom" />) as FC<SlotProps>
+
+    vi.spyOn(await import("@tanstack/react-router"), "useRouteContext").mockReturnValue({ trpcClient: {} })
+
+    const router = createTestRouter(<MainNavigation items={mainNavItems} slots={{ logo: CustomLogo }} />)
+
+    await waitFor(() => render(<RouterProvider router={router} />))
+
+    await waitFor(() => {
+      expect(screen.getByTestId("custom-logo")).toBeDefined()
+    })
+
+    vi.restoreAllMocks()
   })
 })
