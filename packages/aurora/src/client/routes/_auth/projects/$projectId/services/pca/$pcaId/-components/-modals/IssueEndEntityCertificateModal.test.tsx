@@ -7,9 +7,14 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { IssueEndEntityCertificateModal } from "./IssueEndEntityCertificateModal"
 
 const mockProjectId = "project-123"
-const mockMutateAsync = vi.fn().mockResolvedValue({})
+const mockNavigate = vi.fn()
+const mockMutateAsync = vi.fn().mockResolvedValue({ id: "cert-987" })
 const mockReset = vi.fn()
 const mockInvalidate = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
+}))
 
 vi.mock("@/client/hooks", () => ({
   useProjectId: () => mockProjectId,
@@ -103,5 +108,9 @@ describe("IssueEndEntityCertificateModal", () => {
     expect(mockInvalidate).toHaveBeenCalledTimes(1)
     expect(mockReset).toHaveBeenCalledTimes(1)
     expect(onClose).toHaveBeenCalledTimes(1)
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: "/projects/$projectId/services/pca/$pcaId/$certificateId",
+      params: { projectId: "project-123", pcaId: "ca-1", certificateId: "cert-987" },
+    })
   })
 })

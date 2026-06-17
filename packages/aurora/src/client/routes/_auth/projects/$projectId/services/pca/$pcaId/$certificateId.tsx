@@ -1,18 +1,17 @@
+import { Fragment } from "react"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import type { RouteInfo } from "@/client/routes/routeInfo"
-import { trpcReact } from "@/client/trpcClient"
+import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Button,
+  CodeBlock,
   DescriptionDefinition,
   DescriptionList,
   DescriptionTerm,
-  Divider,
   Spinner,
   Stack,
 } from "@cloudoperators/juno-ui-components/index"
-import { Trans, useLingui } from "@lingui/react/macro"
-import { MdContentCopy, MdDownload } from "react-icons/md"
-import { Fragment } from "react/jsx-runtime"
+import type { RouteInfo } from "@/client/routes/routeInfo"
+import { trpcReact } from "@/client/trpcClient"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/$certificateId")({
   staticData: {
@@ -132,23 +131,12 @@ export function RouteComponent() {
           ))}
         </DescriptionList>
 
-        <div className="bg-dt-background w-full rounded-sm">
-          <div className="text-theme-default p-4 text-xl font-bold">Certificate {`${certificate.id}`}</div>
-          <Divider />
-
-          <div className="p-4 text-sm break-all whitespace-pre-wrap">{certificate?.csr}</div>
-
-          {/* I will implement downloading-copying functionality at issue/import part of the epic as I need to clarify some stuff with design-clavis team */}
-          <Divider />
-          <Stack gap="2" distribution="end" className="p-4">
-            <Button>
-              <MdDownload />
-            </Button>
-            <Button>
-              <MdContentCopy />
-            </Button>
-          </Stack>
-        </div>
+        <CodeBlock
+          heading={`Certificate ${certificate?.id ?? ""}`}
+          content={certificate?.csr ?? ""}
+          className="w-full [&_pre_code]:block [&_pre_code]:w-full"
+          wrap
+        />
       </Stack>
     </Stack>
   )

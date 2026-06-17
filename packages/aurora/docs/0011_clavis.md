@@ -32,7 +32,7 @@ Implemented screens and interactions:
 - details page supports lifecycle action in `AWAITING_CERTIFICATE` state to import an externally signed certificate chain
 - certificate list view via `PcaCertificatesListContainer` displays certificates issued by a CA
 - certificates list shows CA ID and certificate ID columns with loading, error, and empty states
-- in `READY` state, certificate list provides "Issue End Entity Certificate" action and modal to issue end-entity certificates
+- in `READY` state, certificate list provides "Issue End-Entity Certificate" action and modal to issue end-entity certificates
 - individual certificate rows rendered via `PcaCertificatesTableRow` component, clicking a row navigates to the certificate detail page
 - certificate detail page at `/projects/$projectId/services/pca/$pcaId/$certificateId` shows CA ID, certificate ID, duration/validity, and CSR content with loading, error, and not-found states
 
