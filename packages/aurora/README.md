@@ -18,39 +18,31 @@ npm install react react-dom fastify
 
 Aurora has two entry points: `server` and `client`.
 
-### Server (`src/server/server.ts`)
+### Server
 
 ```ts
 import path from "path"
 import { createServer } from "@cobaltcore-dev/aurora/server"
 
-createServer({
-  viteRoot: path.resolve(__dirname, "../.."), // root of your app (where dist/client lives)
-  identityEndpoint: process.env.IDENTITY_ENDPOINT, // OpenStack Keystone URL
-  bffEndpoint: process.env.BFF_ENDPOINT, // tRPC prefix, default "/polaris-bff"
-  defaultEndpointInterface: process.env.DEFAULT_ENDPOINT_INTERFACE, // "public" | "internal"
-  proxyUrl: process.env.GLOBAL_AGENT_HTTP_PROXY, // optional HTTP proxy (dev only)
-  cephRegion: process.env.CEPH_REGION, // Ceph/S3 region for object storage
-  imageMetadataExcludedProperties: process.env.IMAGE_METADATA_EXCLUDED_PROPERTIES, // comma-separated
-  insecureCookies: process.env.INSECURE_COOKIES === "true", // disable Secure flag locally
-}).then((server) => server.listen({ host: "0.0.0.0", port: 4000 }))
+const server = await createServer({
+  identityEndpoint: "https://keystone.example.com/v3/",
+  policyDir: path.resolve(__dirname, "../policies"),
+})
+
+server.listen({ host: "0.0.0.0", port: 4000 })
 ```
 
-### Client (`src/client/App.tsx`)
+### Client
 
 ```tsx
 import { AuroraApp } from "@cobaltcore-dev/aurora/client"
-import "@cobaltcore-dev/aurora/client/style.css" // include once at your app root
 
 export function App() {
   return (
     <AuroraApp
-      bffEndpoint="/polaris-bff" // must match the server's bffEndpoint
-      theme="theme-light" // "theme-light" | "theme-dark"
-      onThemeChange={(theme) => {
-        // called when user toggles — persist however you like
-        localStorage.setItem("theme", theme)
-      }}
+      bffEndpoint="/polaris-bff"
+      theme="theme-light"
+      onThemeChange={(theme) => localStorage.setItem("theme", theme)}
     />
   )
 }
@@ -60,80 +52,84 @@ export function App() {
 
 ### `createServer(config)`
 
-| Option                            | Type      | Default                    | Description                                                      |
-| --------------------------------- | --------- | -------------------------- | ---------------------------------------------------------------- |
-| `identityEndpoint`                | `string`  | —                          | OpenStack Keystone v3 URL (required)                             |
-| `bffEndpoint`                     | `string`  | `"/polaris-bff"`           | URL prefix for all tRPC routes                                   |
-| `viteRoot`                        | `string`  | `__dirname/../../`         | Directory that contains `dist/client/` in production             |
-| `defaultEndpointInterface`        | `string`  | `"public"`                 | OpenStack service catalog interface                              |
-| `proxyUrl`                        | `string`  | —                          | HTTP proxy for OpenStack calls (dev only, ignored in production) |
-| `cephRegion`                      | `string`  | —                          | Ceph RGW region for S3 operations                                |
-| `imageMetadataExcludedProperties` | `string`  | —                          | Comma-separated image metadata keys to hide in the UI            |
-| `cookieName`                      | `string`  | `"dashboard-session-auth"` | Override the session cookie name                                 |
-| `crossDomainCookie`               | `boolean` | `true`                     | Share cookie across subdomains                                   |
-| `insecureCookies`                 | `boolean` | `false`                    | Disable `Secure` flag — only for HTTP-only local dev             |
+| Option                            | Type      | Required | Default                    | Description                                                      |
+| --------------------------------- | --------- | -------- | -------------------------- | ---------------------------------------------------------------- |
+| `identityEndpoint`                | `string`  | yes      | —                          | OpenStack Keystone v3 URL                                        |
+| `policyDir`                       | `string`  | yes      | —                          | Absolute path to a directory of OpenStack policy YAML files      |
+| `bffEndpoint`                     | `string`  | no       | `"/polaris-bff"`           | URL prefix for all tRPC routes                                   |
+| `viteRoot`                        | `string`  | no       | —                          | Directory that contains `dist/client/` in production             |
+| `defaultEndpointInterface`        | `string`  | no       | `"public"`                 | OpenStack service catalog interface                              |
+| `proxyUrl`                        | `string`  | no       | —                          | HTTP proxy for OpenStack calls (dev only, ignored in production) |
+| `cephRegion`                      | `string`  | no       | —                          | Ceph RGW region for S3 operations                                |
+| `imageMetadataExcludedProperties` | `string`  | no       | —                          | Comma-separated image metadata keys to hide in the UI            |
+| `cookieName`                      | `string`  | no       | `"dashboard-session-auth"` | Override the session cookie name                                 |
+| `crossDomainCookie`               | `boolean` | no       | `true`                     | Share cookie across subdomains                                   |
+| `insecureCookies`                 | `boolean` | no       | `false`                    | Disable `Secure` flag — only for HTTP-only local dev             |
 
 ### `<AuroraApp />`
 
-| Prop            | Type                            | Default          | Description                            |
-| --------------- | ------------------------------- | ---------------- | -------------------------------------- |
-| `bffEndpoint`   | `string`                        | `"/polaris-bff"` | Must match the server's `bffEndpoint`  |
-| `theme`         | `"theme-light" \| "theme-dark"` | `"theme-light"`  | Initial theme                          |
-| `onThemeChange` | `(theme) => void`               | —                | Called when the user toggles the theme |
+| Prop            | Type                            | Default          | Description                                        |
+| --------------- | ------------------------------- | ---------------- | -------------------------------------------------- |
+| `bffEndpoint`   | `string`                        | `"/polaris-bff"` | Must match the server's `bffEndpoint`              |
+| `theme`         | `"theme-light" \| "theme-dark"` | `"theme-light"`  | Initial theme                                      |
+| `onThemeChange` | `(theme) => void`               | —                | Called when the user toggles the theme             |
+| `appName`       | `string`                        | `"Aurora"`       | App name shown in the header breadcrumb and logo   |
+| `slots`         | `Slots`                         | —                | Optional UI extension points — see [Slots](#slots) |
 
-## Environment variables
+## Slots
 
-Your app reads these from `.env` and passes them to `createServer()`. Aurora itself never reads environment variables.
-
-```env
-IDENTITY_ENDPOINT="https://keystone.example.com/v3/"
-DEFAULT_ENDPOINT_INTERFACE="public"
-BFF_ENDPOINT="/polaris-bff"
-PORT="4000"
-
-# Object storage (optional)
-CEPH_REGION="ceph-objectstore-st1-region-1"
-
-# Local dev only
-INSECURE_COOKIES=true
-# GLOBAL_AGENT_HTTP_PROXY=http://localhost:8888
-```
-
-The `VITE_BFF_ENDPOINT` variable (prefixed with `VITE_`) is read by Vite and passed to the client:
-
-```env
-VITE_BFF_ENDPOINT="/polaris-bff"
-```
+Slots let you inject your own React components into specific locations inside `AuroraApp` without forking the package. Each slot receives an `auroraContext` object with a `client` (tRPC client) for making API calls.
 
 ```tsx
-<AuroraApp bffEndpoint={import.meta.env.VITE_BFF_ENDPOINT} />
+import type { SlotProps } from "@cobaltcore-dev/aurora/client"
+
+function MyLogo(_props: SlotProps) {
+  return <img src="/my-logo.svg" alt="My App" style={{ height: "1.5rem" }} />
+}
+
+function MyBanner({ auroraContext }: SlotProps) {
+  // auroraContext.client gives you access to the tRPC API
+  return <div>Custom sidebar content</div>
+}
+
+function MyFooter(_props: SlotProps) {
+  return (
+    <footer>
+      <a href="/imprint">Imprint</a> · <a href="/privacy">Privacy</a>
+    </footer>
+  )
+}
+
+;<AuroraApp
+  slots={{
+    logo: MyLogo,
+    sideNavBanner: MyBanner,
+    pageFooter: MyFooter,
+  }}
+/>
 ```
 
-## Vite config
+### Available slots
 
-In development, point Vite at your own server plugin. In production no extra plugins are needed — aurora ships pre-built CSS and assets.
+| Slot            | Location                                        | Renders in shadow DOM |
+| --------------- | ----------------------------------------------- | --------------------- |
+| `logo`          | Page header, replacing the default Aurora logo  | No                    |
+| `sideNavBanner` | Bottom of the project side navigation           | Yes                   |
+| `pageFooter`    | Page footer, replacing the default empty footer | No                    |
 
-```js
-// vite.config.mjs
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react-swc"
-import viteFastify from "@fastify/vite/plugin"
+**Shadow DOM isolation:** Slots rendered in a shadow DOM cannot inherit styles from the host page. If your slot component uses a CSS framework, inject the styles inline:
 
-export default defineConfig(({ mode }) => ({
-  root: "./src/client",
-  build: { outDir: "../../dist/client" },
-  plugins: [mode !== "production" && viteFastify(), react()],
-}))
-```
+```tsx
+import styles from "my-lib/styles.css?inline"
 
-## Running the app
-
-```bash
-# Development (hot-reload)
-tsx watch --env-file=.env src/server/server.ts
-
-# Production
-NODE_ENV=production tsx --env-file=.env src/server/server.ts
+function MyBanner(_props: SlotProps) {
+  return (
+    <>
+      <style>{styles}</style>
+      <div>...</div>
+    </>
+  )
+}
 ```
 
 ## License
