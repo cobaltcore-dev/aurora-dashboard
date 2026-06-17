@@ -1,6 +1,5 @@
 ---
-"@cobaltcore-dev/aurora": minor
-"@cobaltcore-dev/dashboard": minor
+"@cobaltcore-dev/aurora": patch
 ---
 
 New styling for project overview and new playwright tests
