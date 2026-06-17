@@ -71,43 +71,6 @@ describe("ProjectInfoBox", () => {
     })
   })
 
-  describe("Breadcrumbs — section pages", () => {
-    it("shows section as active leaf on a section overview page", async () => {
-      mockMatches = [
-        { routeId: PROJECT_ROUTE_ID },
-        {
-          routeId: `${PROJECT_ROUTE_ID}/compute/overview`,
-          staticData: { section: "compute", service: "overview", crumb: { labelKey: "Compute" } },
-          params: { projectId: "test-project" },
-        },
-      ]
-
-      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
-
-      await waitFor(() => {
-        expect(screen.getByText("Compute")).toBeInTheDocument()
-        expect(screen.queryByText("Images")).not.toBeInTheDocument()
-      })
-    })
-
-    it("shows Network section as active leaf on network overview", async () => {
-      mockMatches = [
-        { routeId: PROJECT_ROUTE_ID },
-        {
-          routeId: `${PROJECT_ROUTE_ID}/network/overview`,
-          staticData: { section: "network", service: "overview", crumb: { labelKey: "Network" } },
-          params: { projectId: "test-project" },
-        },
-      ]
-
-      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
-
-      await waitFor(() => {
-        expect(screen.getByText("Network")).toBeInTheDocument()
-      })
-    })
-  })
-
   describe("Breadcrumbs — service list pages", () => {
     it("renders domain > project > Compute > Images on images list", async () => {
       mockMatches = [

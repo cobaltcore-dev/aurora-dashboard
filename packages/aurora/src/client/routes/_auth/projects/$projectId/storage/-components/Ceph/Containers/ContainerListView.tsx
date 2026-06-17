@@ -13,6 +13,7 @@ import {
   Button,
   Toast,
   ToastProps,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import type { Container } from "@/server/Storage/types/ceph"
 import { CredentialPrompt } from "./CredentialPrompt"
@@ -73,33 +74,28 @@ export function ContainerListView() {
     const isAccessDenied = errorMessage.includes("Access denied") || errorMessage.includes("AccessDenied")
     const isAuthError = errorMessage.includes("Invalid access key") || errorMessage.includes("InvalidAccessKeyId")
 
+    const errorTitle = isAccessDenied
+      ? t`Access Denied`
+      : isAuthError
+        ? t`Authentication Failed`
+        : t`Error Loading Buckets`
+
     return (
-      <div className="bg-juno-red bg-opacity-10 border-juno-red mt-4 rounded border p-4">
-        <h4 className="text-juno-red mb-1 text-sm font-semibold">
-          {isAccessDenied ? (
-            <Trans>Access Denied</Trans>
-          ) : isAuthError ? (
-            <Trans>Authentication Failed</Trans>
-          ) : (
-            <Trans>Error Loading Containers</Trans>
-          )}
-        </h4>
-        <p className="text-juno-grey-light-1 text-sm">
-          {isAccessDenied ? (
-            <Trans>
-              Your credentials are valid but you don't have permission to perform this operation. Please contact your
-              administrator to grant you the necessary permissions.
-            </Trans>
-          ) : isAuthError ? (
-            <Trans>
-              Your S3 credentials are invalid or expired. Please try creating new credentials or contact your
-              administrator.
-            </Trans>
-          ) : (
-            errorMessage
-          )}
-        </p>
-      </div>
+      <Message variant="error" title={errorTitle}>
+        {isAccessDenied ? (
+          <Trans>
+            Your credentials are valid but you don't have permission to perform this operation. Please contact your
+            administrator to grant you the necessary permissions.
+          </Trans>
+        ) : isAuthError ? (
+          <Trans>
+            Your S3 credentials are invalid or expired. Please try creating new credentials or contact your
+            administrator.
+          </Trans>
+        ) : (
+          errorMessage
+        )}
+      </Message>
     )
   }
 
@@ -189,7 +185,7 @@ export function ContainerListView() {
                     containerName: bucket.name,
                   }}
                 >
-                  <span className="hover:text-juno-blue cursor-pointer font-mono text-sm underline">{bucket.name}</span>
+                  <span className="hover:text-juno-blue cursor-pointer text-sm underline">{bucket.name}</span>
                 </Link>
               </DataGridCell>
               <DataGridCell>

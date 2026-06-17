@@ -1,10 +1,12 @@
 import { use, Suspense, useState, startTransition, useEffect, useRef, ReactNode, useCallback } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import { GlanceImage } from "@/server/Compute/types/image"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import {
   Button,
+  Message,
   Stack,
   Spinner,
   PopupMenu,
@@ -599,45 +601,51 @@ export const Images = ({ client, project }: ImagesProps) => {
 
   return (
     <div className="relative">
-      <Suspense
-        fallback={
-          <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-            <Spinner variant="primary" size="large" className="mb-2" />
-            <Trans>Loading Images...</Trans>
-          </Stack>
-        }
+      <ErrorBoundary
+        fallbackRender={({ error }) => (
+          <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
+        )}
       >
-        <ImagesContent
-          imagesPromise={imagesPromise}
-          imageOverrides={imageOverrides}
-          deletedImageIds={deletedImageIds}
-          permissionsPromise={permissionsPromise}
-          searchTerm={searchTerm}
-          setSearchTerm={handleSearchChange}
-          sortSettings={sortSettings}
-          handleSortChange={handleSortChange}
-          filterSettings={filterSettings}
-          handleFilterChange={handleFilterChange}
-          selectedImages={selectedImages}
-          setSelectedImages={setSelectedImages}
-          createModalOpen={createModalOpen}
-          setCreateModalOpen={setCreateModalOpen}
-          deleteAllModalOpen={deleteAllModalOpen}
-          setDeleteAllModalOpen={setDeleteAllModalOpen}
-          deactivateAllModalOpen={deactivateAllModalOpen}
-          setDeactivateAllModalOpen={setDeactivateAllModalOpen}
-          activateAllModalOpen={activateAllModalOpen}
-          setActivateAllModalOpen={setActivateAllModalOpen}
-          memberStatusView={memberStatusView}
-          setMemberStatusView={handleMemberStatusChange}
-          isFetching={isFetching}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          onImageUpdated={handleImageUpdated}
-          onImageDeleted={handleImageDeleted}
-          onMemberStatusChanged={handleMemberStatusChanged}
-        />
-      </Suspense>
+        <Suspense
+          fallback={
+            <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+              <Spinner variant="primary" size="large" className="mb-2" />
+              <Trans>Loading Images...</Trans>
+            </Stack>
+          }
+        >
+          <ImagesContent
+            imagesPromise={imagesPromise}
+            imageOverrides={imageOverrides}
+            deletedImageIds={deletedImageIds}
+            permissionsPromise={permissionsPromise}
+            searchTerm={searchTerm}
+            setSearchTerm={handleSearchChange}
+            sortSettings={sortSettings}
+            handleSortChange={handleSortChange}
+            filterSettings={filterSettings}
+            handleFilterChange={handleFilterChange}
+            selectedImages={selectedImages}
+            setSelectedImages={setSelectedImages}
+            createModalOpen={createModalOpen}
+            setCreateModalOpen={setCreateModalOpen}
+            deleteAllModalOpen={deleteAllModalOpen}
+            setDeleteAllModalOpen={setDeleteAllModalOpen}
+            deactivateAllModalOpen={deactivateAllModalOpen}
+            setDeactivateAllModalOpen={setDeactivateAllModalOpen}
+            activateAllModalOpen={activateAllModalOpen}
+            setActivateAllModalOpen={setActivateAllModalOpen}
+            memberStatusView={memberStatusView}
+            setMemberStatusView={handleMemberStatusChange}
+            isFetching={isFetching}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            onImageUpdated={handleImageUpdated}
+            onImageDeleted={handleImageDeleted}
+            onMemberStatusChanged={handleMemberStatusChanged}
+          />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }

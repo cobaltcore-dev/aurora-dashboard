@@ -255,7 +255,7 @@ export const MoveObjectModal = ({
           <span className="shrink-0">
             <Trans>Move/Rename object:</Trans>
           </span>
-          <span className="truncate font-mono" title={displayName}>
+          <span className="truncate" title={displayName}>
             {displayName}
           </span>
         </span>
@@ -320,7 +320,7 @@ export const MoveObjectModal = ({
             <div className="text-theme-light text-sm">
               <Trans>Source:</Trans>
             </div>
-            <div className="mt-1 font-mono text-sm">{`${bucketName}/${objectKey}`}</div>
+            <div className="mt-1 text-sm">{`${bucketName}/${objectKey}`}</div>
             {objectSize !== undefined && (
               <div className="text-theme-light mt-1 text-xs">{(objectSize / 1024).toFixed(2)} KB</div>
             )}
@@ -387,7 +387,7 @@ export const MoveObjectModal = ({
                 </span>
               )}
               {modalState.currentPrefix && (
-                <span className="text-theme-light truncate font-mono text-xs">/ {modalState.currentPrefix}</span>
+                <span className="text-theme-light truncate text-xs">/ {modalState.currentPrefix}</span>
               )}
             </div>
 
@@ -488,13 +488,7 @@ export const MoveObjectModal = ({
                 <Trans>The object will be moved to this path. Navigate folders above to change the destination.</Trans>
               )}
             </p>
-            <TextInput
-              label={t`Target path`}
-              value={targetPathDisplay}
-              readOnly
-              className="font-mono"
-              invalid={isUnchanged}
-            />
+            <TextInput label={t`Target path`} value={targetPathDisplay} readOnly invalid={isUnchanged} />
           </div>
 
           {/* Info: metadata is always copied */}

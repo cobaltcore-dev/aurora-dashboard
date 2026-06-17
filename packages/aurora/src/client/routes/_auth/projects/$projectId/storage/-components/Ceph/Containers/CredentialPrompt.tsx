@@ -31,7 +31,7 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
   })
 
   return (
-    <Stack direction="vertical" gap="4" className="mx-auto mt-16 max-w-lg">
+    <Stack direction="vertical" gap="4" className="mt-8 max-w-lg">
       {toast && <Toast {...toast} />}
       <h2 className="text-lg font-semibold">
         <Trans>S3 Object Storage — Setup Required</Trans>

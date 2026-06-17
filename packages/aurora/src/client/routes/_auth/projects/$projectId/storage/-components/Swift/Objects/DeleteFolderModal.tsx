@@ -73,7 +73,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
           <span className="shrink-0">
             <Trans>Delete folder:</Trans>
           </span>
-          <span className="truncate font-mono" title={folderDisplayName}>
+          <span className="truncate" title={folderDisplayName}>
             {folderDisplayName}
           </span>
         </span>
@@ -96,8 +96,8 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">
             <Trans>
-              Folder <span className="font-mono font-semibold">"{folderDisplayName}"</span> and all objects within it
-              will be permanently deleted. This cannot be undone.
+              Folder <span className="font-semibold">"{folderDisplayName}"</span> and all objects within it will be
+              permanently deleted. This cannot be undone.
             </Trans>
           </p>
           <p className="text-theme-default">

@@ -22,7 +22,7 @@ export function ContentHeader({ title, projectId, actions }: ContentHeaderProps)
         </div>
       </div>
       <Divider className="mt-4" />
-      {actions && <div className="mt-2 flex justify-end">{actions}</div>}
+      {actions && <div className="mt-3 flex justify-end">{actions}</div>}
     </header>
   )
 }
