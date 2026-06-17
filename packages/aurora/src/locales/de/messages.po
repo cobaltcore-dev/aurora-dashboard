@@ -262,6 +262,9 @@ msgstr "Projektzugriff hinzufügen"
 msgid "After restoring, this version's content will become the new latest version."
 msgstr ""
 
+msgid "All buckets"
+msgstr ""
+
 msgid "All Buckets Emptied"
 msgstr ""
 

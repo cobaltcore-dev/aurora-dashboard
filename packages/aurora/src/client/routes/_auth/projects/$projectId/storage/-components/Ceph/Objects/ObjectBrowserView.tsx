@@ -63,6 +63,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
+  const { provider } = Route.useParams()
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
 
@@ -154,6 +155,19 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         ...prev,
         prefix: prefix ? encodePrefix(prefix) : undefined,
       }),
+    })
+  }
+
+  const navigateToBuckets = () => {
+    // Reset pagination/accumulated state before leaving the bucket
+    setContinuationToken(undefined)
+    setAllObjects([])
+    setAllFolders([])
+    setHasMore(false)
+
+    navigate({
+      to: "/projects/$projectId/storage/$provider/containers",
+      params: { projectId, provider },
     })
   }
 
@@ -286,7 +300,12 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         </Stack>
       </div>
 
-      <ObjectsFileNavigation bucketName={bucketName} prefix={currentPrefix} onPrefixClick={navigateToPrefix} />
+      <ObjectsFileNavigation
+        bucketName={bucketName}
+        prefix={currentPrefix}
+        onBucketsClick={navigateToBuckets}
+        onPrefixClick={navigateToPrefix}
+      />
 
       <Stack direction="vertical">
         {/* Zone 1 — sort controls and the primary actions (plain Stack, no background) */}
