@@ -43,6 +43,9 @@ msgstr "\"{objectName}\" was successfully uploaded."
 msgid "{bucketCount, plural, one {object} other {objects}}"
 msgstr "{bucketCount, plural, one {object} other {objects}}"
 
+msgid "{certificateIdValue} Certificate Details"
+msgstr "{certificateIdValue} Certificate Details"
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
 
@@ -468,6 +471,12 @@ msgstr "Cannot move to the same location. Please select a different bucket, fold
 
 msgid "Capabilities"
 msgstr "Capabilities"
+
+msgid "Certificate {certificateIdValue}"
+msgstr "Certificate {certificateIdValue}"
+
+msgid "Certificate {subjectCommonName}"
+msgstr "Certificate {subjectCommonName}"
 
 msgid "Certificate Authority not found"
 msgstr "Certificate Authority not found"

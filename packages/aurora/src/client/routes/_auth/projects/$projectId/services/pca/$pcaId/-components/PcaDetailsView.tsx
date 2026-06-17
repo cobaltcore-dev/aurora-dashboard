@@ -26,6 +26,8 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const projectId = useProjectId()
+  const subjectCommonName = pca.configuration?.subject?.common_name ?? ""
+  const certificateHeading = t`Certificate ${subjectCommonName}`
   const [issueSelfSignedModalOpen, toggleIssueSelfSignedModal] = useModal(false)
   const [importExternallySignedModalOpen, toggleImportExternallySignedModal] = useModal(false)
   const [deletePcaModalOpen, toggleDeletePcaModal] = useModal(false)
@@ -102,7 +104,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
           </DescriptionList>
 
           <CodeBlock
-            heading={`Certificate ${pca.configuration?.subject?.common_name ?? ""}`}
+            heading={certificateHeading}
             content={pca?.csr ?? ""}
             className="w-full [&_pre_code]:block [&_pre_code]:w-full"
             wrap

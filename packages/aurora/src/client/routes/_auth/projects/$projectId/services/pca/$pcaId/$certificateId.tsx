@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$p
     intermediateCrumb: {
       useParentTitleAsLabel: true,
       useParamAsLabel: "pcaId",
-      to: "/projects/$projectId/services/pca/$pcaId/",
+      to: "/projects/$projectId/services/pca/$pcaId",
     },
   } satisfies RouteInfo,
   loader: async ({ context, params }) => {
@@ -102,9 +102,13 @@ export function RouteComponent() {
     )
   }
 
+  const certificateIdValue = certificate.id
+  const certificateHeading = t`Certificate ${certificateIdValue}`
+  const certificateDetails = t`${certificateIdValue} Certificate Details`
+
   const basicInfo = [
     { label: t`CA ID`, value: certificate.certificate_authority_id },
-    { label: t`ID`, value: certificate.id },
+    { label: t`ID`, value: certificateIdValue },
     {
       label: t`Duration/validity`,
       value:
@@ -120,7 +124,7 @@ export function RouteComponent() {
 
   return (
     <Stack direction="vertical" gap="3">
-      <div className="text-theme-default text-2xl font-semibold">{`${certificate.id} Certificate Details`}</div>
+      <div className="text-theme-default text-2xl font-semibold">{certificateDetails}</div>
 
       <p className="text-theme-highest text-sm">
         <Trans>Manage your Certificate</Trans>
@@ -137,7 +141,7 @@ export function RouteComponent() {
         </DescriptionList>
 
         <CodeBlock
-          heading={`Certificate ${certificate?.id ?? ""}`}
+          heading={certificateHeading}
           content={certificate?.csr ?? ""}
           className="w-full [&_pre_code]:block [&_pre_code]:w-full"
           wrap
