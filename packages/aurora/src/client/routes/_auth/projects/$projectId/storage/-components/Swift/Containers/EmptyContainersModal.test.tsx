@@ -113,8 +113,17 @@ describe("EmptyContainersModal", () => {
 
     test("renders with a single container", () => {
       renderModal({ containers: [makeContainer("single")] })
-      expect(screen.getByText("Empty Containers")).toBeInTheDocument()
+      expect(screen.getByText("Empty Container")).toBeInTheDocument()
       expect(screen.getByText("single")).toBeInTheDocument()
+    })
+
+    test("title is singular for exactly one container, plural for two or more", () => {
+      const { unmount } = renderModal({ containers: [makeContainer("only")] })
+      expect(screen.getByText("Empty Container")).toBeInTheDocument()
+      expect(screen.queryByText("Empty Containers")).not.toBeInTheDocument()
+      unmount()
+      renderModal({ containers: [makeContainer("a"), makeContainer("b")] })
+      expect(screen.getByText("Empty Containers")).toBeInTheDocument()
     })
   })
 

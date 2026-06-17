@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
@@ -77,7 +77,7 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
 
   return (
     <Modal
-      title={t`Empty Containers`}
+      title={<Plural value={totalCount} one="Empty Container" other="Empty Containers" />}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}

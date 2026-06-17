@@ -1,10 +1,24 @@
-import { useState, startTransition } from "react"
+import { useState, useEffect, useRef, startTransition } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
-import { ListToolbar } from "@/client/components/ListToolbar"
+import { plural } from "@lingui/core/macro"
+import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { trpcReact } from "@/client/trpcClient"
-import { Button, Spinner, Stack, Toast, ToastProps } from "@cloudoperators/juno-ui-components"
+import {
+  Button,
+  Checkbox,
+  DataGridToolbar,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuToggle,
+  SearchInput,
+  Spinner,
+  Stack,
+  Toast,
+  ToastProps,
+} from "@cloudoperators/juno-ui-components"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { ContainerTableView } from "./ContainerTableView"
 import {
@@ -27,20 +41,42 @@ import { Route } from "../../../$provider/containers/"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 export const SwiftContainers = () => {
-  const { t } = useLingui()
+  const { t, i18n } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
 
-  // Sort state is persisted in the URL so that sort order survives navigation,
-  // browser back/forward, and deep links.
   // Sort and search state are persisted in the URL so they survive navigation,
   // browser back/forward, and deep links.
   const { sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
+
+  // Whether the list exposes any bulk action — drives the selection column in
+  // ContainerTableView and the Zone 3 bulk-action controls. Hardcoded to true
+  // for now; the only bulk action today is the destructive Empty.
+  //
+  // TODO(perms): wire this to the real Swift container permission source
+  // (e.g. a usePermissions hook or a tRPC permissions query) instead of
+  // hardcoding it.
+  const hasAnyBulkAction = true
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [emptyAllModalOpen, setEmptyAllModalOpen] = useState(false)
   const [selectedContainers, setSelectedContainers] = useState<string[]>([])
   const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  // Local mirror of the committed search term so typing stays responsive while
+  // the URL commit is debounced (see Zone 2 SearchInput below).
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchParam)
+  const debounceTimer = useRef<number | undefined>(undefined)
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
+
+  // Keep the input in sync when the committed search term changes from outside
+  // the input — browser back/forward, deep links, or programmatic navigation —
+  // so the field never drifts from the URL-backed filter state. When the change
+  // originated from our own debounced commit, searchParam already equals
+  // localSearchTerm, so this is a no-op and won't disturb the caret.
+  useEffect(() => {
+    setLocalSearchTerm(searchParam)
+  }, [searchParam])
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -235,50 +271,135 @@ export const SwiftContainers = () => {
   const filteredCount = filteredContainers.length
   const isFiltered = filteredCount !== totalCount
 
+  // Select-all operates on the currently displayed (filtered + sorted) rows.
+  const displayedNames = sortedContainers.map((c) => c.name)
+  const allSelected = displayedNames.length > 0 && displayedNames.every((n) => selectedContainers.includes(n))
+  const someSelected = displayedNames.some((n) => selectedContainers.includes(n))
+
+  const handleToggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedContainers((prev) => prev.filter((n) => !displayedNames.includes(n)))
+    } else {
+      setSelectedContainers((prev) => [...new Set([...prev, ...displayedNames])])
+    }
+  }
+
   return (
     <div className="relative">
-      <ListToolbar
-        sortSettings={sortSettings}
-        searchTerm={searchParam}
-        onSort={handleSortChange}
-        onSearch={handleSearchChange}
-        actions={
-          <Stack direction="horizontal" gap="4" alignment="center">
-            <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
-              <Trans>Create Container</Trans>
-            </Button>
-            <Button variant="primary-danger" onClick={() => setEmptyAllModalOpen(true)} disabled={!hasSelection}>
-              {hasSelection ? <Trans>Empty All ({selectedCount})</Trans> : <Trans>Empty All</Trans>}
-            </Button>
+      <Stack direction="vertical">
+        {/* Zone 1 — sort controls and the create action (plain Stack, no background) */}
+        <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+          <Stack gap="0.5" alignment="center">
+            <SortInput
+              options={sortSettings.options}
+              sortBy={sortSettings.sortBy}
+              sortDirection={sortSettings.sortDirection ?? "asc"}
+              onSortByChange={(v) =>
+                handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
+              }
+              onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
+            />
           </Stack>
-        }
-      />
+          <Button variant="primary" className="whitespace-nowrap" onClick={() => setCreateModalOpen(true)}>
+            <Trans>Create Container</Trans>
+          </Button>
+        </Stack>
 
-      {/* Info block — global DataGrid pattern: container count + remaining quota + limits tooltip */}
-      <div
-        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
-        data-testid="containers-info-block"
-      >
-        {isFiltered ? (
-          <Plural
-            value={filteredCount}
-            one={`${filteredCount} of ${totalCount} container`}
-            other={`${filteredCount} of ${totalCount} containers`}
-          />
-        ) : (
-          <Plural value={totalCount} one={`${totalCount} container`} other={`${totalCount} containers`} />
-        )}
-        {quotaBytes > 0 && (
-          <>
-            <span>,</span>
-            <span>
-              <Trans>Remaining Quota:</Trans>{" "}
-              <span className="text-theme-default font-semibold">{formatBytesBinary(remainingBytes)}</span>
-            </span>
-          </>
-        )}
-        <ContainerLimitsTooltip serviceInfo={serviceInfo} accountInfo={accountInfo} />
-      </div>
+        {/* Zone 2 — search (+ filter pills). DataGridToolbar provides the background.
+            Swift containers expose no filterable dimensions yet, so there is no
+            FiltersInput / SelectedFilters here. When filter dimensions are added,
+            add FiltersInput alongside the search (switch the inner Stack to
+            distribution="between") and render SelectedFilters below, using
+            applyFilterSelection from urlHelpers for merge logic. */}
+        <DataGridToolbar>
+          <Stack direction="vertical" gap="2">
+            <Stack distribution="end" alignment="center">
+              <SearchInput
+                placeholder={t`Search containers...`}
+                data-testid="searchbar"
+                value={localSearchTerm}
+                onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                  const v = e.currentTarget.value
+                  setLocalSearchTerm(v)
+                  clearTimeout(debounceTimer.current)
+                  debounceTimer.current = window.setTimeout(() => handleSearchChange(v), 500)
+                }}
+                onSearch={(v) => {
+                  clearTimeout(debounceTimer.current)
+                  handleSearchChange(typeof v === "string" ? v : "")
+                }}
+                onClear={() => {
+                  clearTimeout(debounceTimer.current)
+                  setLocalSearchTerm("")
+                  handleSearchChange("")
+                }}
+              />
+            </Stack>
+          </Stack>
+        </DataGridToolbar>
+
+        {/* Zone 3 — bulk actions (gated) plus the container/quota info.
+            Unlike the Images reference (where Zone 3 carries only bulk actions and is
+            omitted entirely without permissions), this bar also hosts the Swift-specific
+            count + remaining-quota + limits info, which must always be visible. So the
+            bar always renders; only the bulk controls are gated. */}
+        <DataGridToolbar>
+          <Stack distribution="start" gap="2" alignment="center" className="text-sm">
+            {hasAnyBulkAction ? (
+              <Stack gap="2" alignment="center">
+                <Checkbox
+                  checked={allSelected}
+                  indeterminate={someSelected && !allSelected}
+                  onChange={handleToggleSelectAll}
+                />
+                <PopupMenu className="flex items-center">
+                  <PopupMenuToggle as="div">
+                    <Button disabled={!hasSelection} size="small" icon="moreVert" label={t`Actions`} />
+                  </PopupMenuToggle>
+                  {hasSelection && (
+                    <PopupMenuOptions>
+                      <PopupMenuItem
+                        disabled={!hasSelection}
+                        label={i18n._(
+                          plural(selectedCount, {
+                            one: "Empty Container",
+                            other: "Empty Containers",
+                          })
+                        )}
+                        onClick={() => setEmptyAllModalOpen(true)}
+                      />
+                    </PopupMenuOptions>
+                  )}
+                </PopupMenu>
+              </Stack>
+            ) : (
+              <span />
+            )}
+
+            <div className="text-theme-light flex items-center gap-1" data-testid="containers-info-block">
+              {isFiltered ? (
+                <Plural
+                  value={filteredCount}
+                  one={`${filteredCount} of ${totalCount} container`}
+                  other={`${filteredCount} of ${totalCount} containers`}
+                />
+              ) : (
+                <Plural value={totalCount} one={`${totalCount} container`} other={`${totalCount} containers`} />
+              )}
+              {quotaBytes > 0 && (
+                <>
+                  <span>,</span>
+                  <span>
+                    <Trans>Remaining Quota:</Trans>{" "}
+                    <span className="text-theme-default font-semibold">{formatBytesBinary(remainingBytes)}</span>
+                  </span>
+                </>
+              )}
+              <ContainerLimitsTooltip serviceInfo={serviceInfo} accountInfo={accountInfo} />
+            </div>
+          </Stack>
+        </DataGridToolbar>
+      </Stack>
 
       <ContainerTableView
         containers={sortedContainers}
@@ -297,6 +418,7 @@ export const SwiftContainers = () => {
         onAclError={handleAclError}
         selectedContainers={selectedContainers}
         setSelectedContainers={setSelectedContainers}
+        hasAnyBulkAction={hasAnyBulkAction}
       />
 
       <EmptyContainersModal
