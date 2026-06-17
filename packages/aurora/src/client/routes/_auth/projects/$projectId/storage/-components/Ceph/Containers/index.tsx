@@ -27,6 +27,7 @@ export { CreateBucketModal } from "./CreateBucketModal"
 export { DeleteBucketModal } from "./DeleteBucketModal"
 export { EmptyBucketModal } from "./EmptyBucketModal"
 export { EmptyBucketsModal } from "./EmptyBucketsModal"
+export { BucketPolicyModal } from "./BucketPolicyModal"
 export * from "./ContainerToastNotifications"
 
 export const CephContainers = () => {

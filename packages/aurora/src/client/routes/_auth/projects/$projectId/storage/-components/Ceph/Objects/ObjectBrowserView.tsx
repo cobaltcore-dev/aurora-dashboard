@@ -10,6 +10,7 @@ import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { CreateFolderModal } from "./CreateFolderModal"
 import { EnableVersioningModal } from "../Containers/EnableVersioningModal"
 import { SuspendVersioningModal } from "../Containers/SuspendVersioningModal"
+import { BucketPolicyModal } from "../Containers/BucketPolicyModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects"
 import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
@@ -63,6 +64,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false)
   const [isEnableVersioningModalOpen, setIsEnableVersioningModalOpen] = useState(false)
   const [isSuspendVersioningModalOpen, setIsSuspendVersioningModalOpen] = useState(false)
+  const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const handleToastDismiss = () => setToastData(null)
@@ -76,6 +78,19 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     {
       enabled: !!projectId,
       staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    }
+  )
+
+  // Query bucket policy status
+  const { data: policyData } = trpcReact.storage.ceph.bucketPolicy.get.useQuery(
+    {
+      project_id: projectId ?? "",
+      bucketName,
+    },
+    {
+      enabled: !!projectId,
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      retry: false,
     }
   )
 
@@ -258,6 +273,11 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               <Trans>Versioning Suspended</Trans>
             </Badge>
           )}
+          {policyData?.policy && (
+            <Badge variant="info">
+              <Trans>Policy</Trans>
+            </Badge>
+          )}
         </Stack>
       </div>
 
@@ -272,6 +292,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           <Stack direction="horizontal" gap="2">
             <Button variant="primary" onClick={() => setIsCreateFolderModalOpen(true)}>
               <Trans>Create Folder</Trans>
+            </Button>
+            <Button onClick={() => setIsPolicyModalOpen(true)}>
+              <Trans>Bucket Policy</Trans>
             </Button>
             {versioningStatus && versioningStatus.status === "Enabled" && (
               <Button variant="subdued" onClick={() => setIsSuspendVersioningModalOpen(true)}>
@@ -386,6 +409,12 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         onError={() => {
           setIsSuspendVersioningModalOpen(false)
         }}
+      />
+
+      <BucketPolicyModal
+        isOpen={isPolicyModalOpen}
+        bucketName={bucketName}
+        onClose={() => setIsPolicyModalOpen(false)}
       />
 
       {toastData && <Toast {...toastData} />}

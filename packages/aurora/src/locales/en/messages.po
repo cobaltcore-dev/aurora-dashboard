@@ -424,6 +424,12 @@ msgstr "Bucket name must not start with reserved prefix \"{prefix}\""
 msgid "Bucket name must start and end with a letter or number"
 msgstr "Bucket name must start and end with a letter or number"
 
+msgid "Bucket Policy"
+msgstr "Bucket Policy"
+
+msgid "Bucket Policy - {bucketName}"
+msgstr "Bucket Policy - {bucketName}"
+
 msgid "Bucket to delete:"
 msgstr "Bucket to delete:"
 
@@ -790,6 +796,9 @@ msgstr "Deactivated {successCount} image(s), but {failedCount} image(s) could no
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 msgstr "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 
+msgid "Define access permissions for this bucket using JSON policy document. The policy controls who can access the bucket and what actions they can perform."
+msgstr "Define access permissions for this bucket using JSON policy document. The policy controls who can access the bucket and what actions they can perform."
+
 msgid "delete"
 msgstr "delete"
 
@@ -850,6 +859,9 @@ msgstr "Delete Objects"
 msgid "Delete Permanently"
 msgstr "Delete Permanently"
 
+msgid "Delete Policy"
+msgstr "Delete Policy"
+
 msgid "Delete Recursively"
 msgstr "Delete Recursively"
 
@@ -879,6 +891,9 @@ msgstr "Deleting certificate authority..."
 
 msgid "Deleting folder and all its contents..."
 msgstr "Deleting folder and all its contents..."
+
+msgid "Deleting the policy will remove all access restrictions defined by it."
+msgstr "Deleting the policy will remove all access restrictions defined by it."
 
 msgid "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
 msgstr "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
@@ -1086,6 +1101,9 @@ msgstr "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
 
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
+
+msgid "Enter bucket policy JSON..."
+msgstr "Enter bucket policy JSON..."
 
 msgid "Enter Common name (e.g., demo-ca.test.sci)"
 msgstr "Enter Common name (e.g., demo-ca.test.sci)"
@@ -1341,6 +1359,9 @@ msgstr "Failed to load objects"
 
 msgid "Failed to load PCAs"
 msgstr "Failed to load PCAs"
+
+msgid "Failed to load policy"
+msgstr "Failed to load policy"
 
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
@@ -1674,6 +1695,9 @@ msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
 
 msgid "Invalid format combination for selected disk format"
 msgstr "Invalid format combination for selected disk format"
+
+msgid "Invalid JSON format"
+msgstr "Invalid JSON format"
 
 msgid "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)"
 msgstr "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)"
@@ -2308,6 +2332,18 @@ msgstr "Please select a file to upload"
 msgid "Policy"
 msgstr "Policy"
 
+msgid "Policy cannot be empty"
+msgstr "Policy cannot be empty"
+
+msgid "Policy document exceeds maximum size of 20KB"
+msgstr "Policy document exceeds maximum size of 20KB"
+
+msgid "Policy JSON"
+msgstr "Policy JSON"
+
+msgid "Policy Templates"
+msgstr "Policy Templates"
+
 msgid "Port (from)"
 msgstr "Port (from)"
 
@@ -2500,6 +2536,9 @@ msgstr "Removing..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 
+msgid "Reset"
+msgstr "Reset"
+
 msgid "Restart"
 msgstr "Restart"
 
@@ -2560,6 +2599,9 @@ msgstr "Save Changes"
 msgid "Save Metadata"
 msgstr "Save Metadata"
 
+msgid "Save Policy"
+msgstr "Save Policy"
+
 msgid "Saving..."
 msgstr "Saving..."
 
@@ -2598,6 +2640,9 @@ msgstr "Select a rule type..."
 
 msgid "Select a security group..."
 msgstr "Select a security group..."
+
+msgid "Select a template..."
+msgstr "Select a template..."
 
 msgid "Select an external network"
 msgstr "Select an external network"
@@ -2727,6 +2772,9 @@ msgstr "Size"
 
 msgid "Size:"
 msgstr "Size:"
+
+msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
+msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
@@ -3222,6 +3270,9 @@ msgstr "Unknown domain"
 
 msgid "Unnamed"
 msgstr "Unnamed"
+
+msgid "Unsaved changes"
+msgstr "Unsaved changes"
 
 msgid "Update object"
 msgstr "Update object"
