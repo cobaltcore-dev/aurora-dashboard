@@ -1,10 +1,24 @@
-import { useState, useEffect, startTransition } from "react"
+import { useState, useEffect, useRef, startTransition } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
-import { Spinner, Button, Toast, ToastProps, Stack } from "@cloudoperators/juno-ui-components"
+import { plural } from "@lingui/core/macro"
+import {
+  Button,
+  Checkbox,
+  DataGridToolbar,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuToggle,
+  SearchInput,
+  Spinner,
+  Stack,
+  Toast,
+  ToastProps,
+} from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { ObjectSummary } from "@/server/Storage/types/swift"
-import { ListToolbar } from "@/client/components/ListToolbar"
+import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "../../../$provider/containers/$containerName/objects"
@@ -134,12 +148,21 @@ const resolveSortBy = (sortBy: SortSettings["sortBy"]): SortKey | undefined => {
 // ── SwiftObjects ──────────────────────────────────────────────────────────────
 
 export const SwiftObjects = ({ provider, containerName }: { provider: string; containerName: string }) => {
-  const { t } = useLingui()
+  const { t, i18n } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
 
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
+
+  // Whether the list exposes any bulk action — drives the selection column in
+  // ObjectsTableView and the Zone 3 bulk-action controls. Hardcoded to true for
+  // now; the only bulk action today is the destructive Delete.
+  //
+  // TODO(perms): wire this to the real Swift object permission source
+  // (e.g. a usePermissions hook or a tRPC permissions query) instead of
+  // hardcoding it.
+  const hasAnyBulkAction = true
 
   const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
@@ -152,6 +175,21 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
     setSelectedObjects([])
   }, [currentPrefix])
   const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  // Local mirror of the committed search term so typing stays responsive while
+  // the URL commit is debounced (see Zone 2 SearchInput below).
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchParam)
+  const debounceTimer = useRef<number | undefined>(undefined)
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
+
+  // Keep the input in sync when the committed search term changes from outside
+  // the input — browser back/forward, deep links, or programmatic navigation —
+  // so the field never drifts from the URL-backed filter state. When the change
+  // originated from our own debounced commit, searchParam already equals
+  // localSearchTerm, so this is a no-op and won't disturb the caret.
+  useEffect(() => {
+    setLocalSearchTerm(searchParam)
+  }, [searchParam])
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -317,6 +355,20 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   // keys (e.g. "folder/sub/file.txt") but the modal should show "file.txt".
   const selectedDisplayNames = selectedObjects.map((key) => sortedRows.find((r) => r.name === key)?.displayName ?? key)
 
+  // Zone 3 select-all operates on the selectable (object, non-folder) rows in
+  // the currently displayed (filtered + sorted) set.
+  const selectableNames = sortedRows.filter((r): r is ObjectRow => r.kind === "object").map((r) => r.name)
+  const allSelectableSelected = selectableNames.length > 0 && selectableNames.every((n) => selectedObjects.includes(n))
+  const someSelectableSelected = selectableNames.some((n) => selectedObjects.includes(n))
+
+  const handleToggleSelectAll = () => {
+    if (allSelectableSelected) {
+      setSelectedObjects((prev) => prev.filter((n) => !selectableNames.includes(n)))
+    } else {
+      setSelectedObjects((prev) => [...new Set([...prev, ...selectableNames])])
+    }
+  }
+
   return (
     <div className="relative">
       <ObjectsFileNavigation
@@ -325,39 +377,104 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         onContainersClick={navigateToContainers}
         onPrefixClick={navigateToPrefix}
       />
-      <ListToolbar
-        sortSettings={sortSettings}
-        searchTerm={searchParam}
-        onSort={handleSortChange}
-        onSearch={handleSearchChange}
-        actions={
-          <Stack direction="horizontal" gap="2">
-            <Button variant="primary" onClick={() => setCreateFolderModalOpen(true)}>
-              <Trans>Create Folder</Trans>
-            </Button>
-            <Button onClick={() => setUploadModalOpen(true)}>
-              <Trans>Upload Object</Trans>
-            </Button>
-            <Button variant="primary-danger" onClick={() => setDeleteAllModalOpen(true)} disabled={!hasSelection}>
-              {hasSelection ? <Trans>Delete All ({selectedCount})</Trans> : <Trans>Delete All</Trans>}
-            </Button>
+      <Stack direction="vertical">
+        {/* Zone 1 — sort controls + primary actions (plain Stack, no background) */}
+        <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+          <Stack gap="0.5" alignment="center">
+            <SortInput
+              options={sortSettings.options}
+              sortBy={sortSettings.sortBy}
+              sortDirection={sortSettings.sortDirection ?? "asc"}
+              onSortByChange={(v) =>
+                handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
+              }
+              onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
+            />
           </Stack>
-        }
-      />
-      <div
-        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
-        data-testid="objects-info-block"
-      >
-        {searchParam.trim() ? (
-          <Plural
-            value={totalItemCount}
-            one={`${filteredItemCount} of ${totalItemCount} item`}
-            other={`${filteredItemCount} of ${totalItemCount} items`}
-          />
-        ) : (
-          <Plural value={totalItemCount} one={`${totalItemCount} item`} other={`${totalItemCount} items`} />
-        )}
-      </div>
+          <Button variant="primary" className="whitespace-nowrap" onClick={() => setCreateFolderModalOpen(true)}>
+            <Trans>Create Folder</Trans>
+          </Button>
+          <Button className="whitespace-nowrap" onClick={() => setUploadModalOpen(true)}>
+            <Trans>Upload Object</Trans>
+          </Button>
+        </Stack>
+
+        {/* Zone 2 — debounced search. DataGridToolbar provides the background. */}
+        <DataGridToolbar>
+          <Stack direction="vertical" gap="2">
+            <Stack distribution="end" alignment="center">
+              <SearchInput
+                placeholder={t`Search objects...`}
+                data-testid="searchbar"
+                value={localSearchTerm}
+                onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                  const v = e.currentTarget.value
+                  setLocalSearchTerm(v)
+                  clearTimeout(debounceTimer.current)
+                  debounceTimer.current = window.setTimeout(() => handleSearchChange(v), 500)
+                }}
+                onSearch={(v) => {
+                  clearTimeout(debounceTimer.current)
+                  handleSearchChange(typeof v === "string" ? v : "")
+                }}
+                onClear={() => {
+                  clearTimeout(debounceTimer.current)
+                  setLocalSearchTerm("")
+                  handleSearchChange("")
+                }}
+              />
+            </Stack>
+          </Stack>
+        </DataGridToolbar>
+
+        {/* Zone 3 — bulk actions (gated) plus the item count. */}
+        <DataGridToolbar>
+          <Stack distribution="start" gap="2" alignment="center" className="text-sm">
+            {hasAnyBulkAction ? (
+              <Stack gap="2" alignment="center">
+                <Checkbox
+                  checked={allSelectableSelected}
+                  indeterminate={someSelectableSelected && !allSelectableSelected}
+                  onChange={handleToggleSelectAll}
+                />
+                <PopupMenu className="flex items-center">
+                  <PopupMenuToggle as="div">
+                    <Button disabled={!hasSelection} size="small" icon="moreVert" label={t`Actions`} />
+                  </PopupMenuToggle>
+                  {hasSelection && (
+                    <PopupMenuOptions>
+                      <PopupMenuItem
+                        disabled={!hasSelection}
+                        label={i18n._(
+                          plural(selectedCount, {
+                            one: "Delete Object",
+                            other: "Delete Objects",
+                          })
+                        )}
+                        onClick={() => setDeleteAllModalOpen(true)}
+                      />
+                    </PopupMenuOptions>
+                  )}
+                </PopupMenu>
+              </Stack>
+            ) : (
+              <span />
+            )}
+
+            <div className="text-theme-light flex items-center gap-1" data-testid="objects-info-block">
+              {searchParam.trim() ? (
+                <Plural
+                  value={totalItemCount}
+                  one={`${filteredItemCount} of ${totalItemCount} item`}
+                  other={`${filteredItemCount} of ${totalItemCount} items`}
+                />
+              ) : (
+                <Plural value={totalItemCount} one={`${totalItemCount} item`} other={`${totalItemCount} items`} />
+              )}
+            </div>
+          </Stack>
+        </DataGridToolbar>
+      </Stack>
       <ObjectsTableView
         rows={sortedRows}
         searchTerm={searchParam}
@@ -377,6 +494,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         onEditMetadataError={handleEditMetadataError}
         selectedObjects={selectedObjects}
         setSelectedObjects={setSelectedObjects}
+        hasAnyBulkAction={hasAnyBulkAction}
       />
 
       <DeleteObjectsModal

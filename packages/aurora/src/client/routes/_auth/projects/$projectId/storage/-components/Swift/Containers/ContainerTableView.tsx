@@ -37,6 +37,10 @@ interface ContainerTableViewProps {
   onAclError: (containerName: string, errorMessage: string) => void
   selectedContainers: string[]
   setSelectedContainers: (containers: string[]) => void
+  // When false, the row-selection column (header checkbox + per-row checkboxes)
+  // is dropped entirely and the grid renders one fewer column. Defaults to true
+  // so existing callers that don't pass it keep the selectable layout.
+  hasAnyBulkAction?: boolean
 }
 
 export const ContainerTableView = ({
@@ -56,6 +60,7 @@ export const ContainerTableView = ({
   onAclError,
   selectedContainers,
   setSelectedContainers,
+  hasAnyBulkAction = true,
 }: ContainerTableViewProps) => {
   const { projectId, provider } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/containers/",
@@ -146,8 +151,13 @@ export const ContainerTableView = ({
     )
   }
 
-  // Define column template — 6 columns: checkbox, name, count, last modified, size, actions menu
-  const gridColumnTemplate = "40px minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
+  // Column count and template depend on whether the selection column is shown.
+  // With selection: checkbox, name, count, last modified, size, actions menu (6).
+  // Without selection: the leading 40px checkbox column is dropped (5).
+  const columnCount = hasAnyBulkAction ? 6 : 5
+  const gridColumnTemplate = hasAnyBulkAction
+    ? "40px minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
+    : "minmax(200px, 2fr) minmax(100px, 1fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
   return (
     <>
@@ -155,15 +165,17 @@ export const ContainerTableView = ({
         {/* Table Header with scrollbar padding */}
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
           <DataGrid
-            columns={6}
+            columns={columnCount}
             gridColumnTemplate={gridColumnTemplate}
             className="containers"
             data-testid="containers-table-header"
           >
             <DataGridRow>
-              <DataGridHeadCell>
-                <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-containers" />
-              </DataGridHeadCell>
+              {hasAnyBulkAction && (
+                <DataGridHeadCell>
+                  <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-containers" />
+                </DataGridHeadCell>
+              )}
               <DataGridHeadCell>
                 <Trans>Container Name</Trans>
               </DataGridHeadCell>
@@ -236,20 +248,22 @@ export const ContainerTableView = ({
                     }
                   }}
                 >
-                  <DataGridCell
-                    onClick={(e) => e.stopPropagation()}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.stopPropagation()
-                      }
-                    }}
-                  >
-                    <Checkbox
-                      checked={isSelected}
-                      onChange={() => handleSelectContainer(container.name)}
-                      data-testid={`select-container-${container.name}`}
-                    />
-                  </DataGridCell>
+                  {hasAnyBulkAction && (
+                    <DataGridCell
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.stopPropagation()
+                        }
+                      }}
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={() => handleSelectContainer(container.name)}
+                        data-testid={`select-container-${container.name}`}
+                      />
+                    </DataGridCell>
+                  )}
                   <DataGridCell className="min-w-0 overflow-hidden">
                     <span className="block truncate" title={container.name}>
                       {container.name}

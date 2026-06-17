@@ -67,8 +67,14 @@ msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
+msgid "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
+msgstr "{selectedCount, plural, one {Objekt löschen} other {Objekte löschen}}"
+
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{selectedCount, plural, one {Bucket leeren} other {Buckets leeren}}"
+
+msgid "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
+msgstr "{selectedCount, plural, one {Container leeren} other {Container leeren}}"
 
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} von {totalCount} Bucket} other {{filteredCount} von {totalCount} Buckets}}"
@@ -79,8 +85,14 @@ msgstr "{totalCount, plural, one {{totalCount} Bucket} other {{totalCount} Bucke
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Container}}"
 
+msgid "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
+msgstr "{totalCount, plural, one {Objekt löschen} other {Objekte löschen}}"
+
 msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
+
+msgid "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
+msgstr "{totalCount, plural, one {Container leeren} other {Container leeren}}"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"
@@ -805,12 +817,6 @@ msgstr "Löschen"
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
-msgid "Delete All"
-msgstr "Alle löschen"
-
-msgid "Delete All ({selectedCount})"
-msgstr "Alle löschen ({selectedCount})"
-
 msgid "Delete bucket"
 msgstr ""
 
@@ -849,9 +855,6 @@ msgstr ""
 
 msgid "Delete object:"
 msgstr "Objekt löschen:"
-
-msgid "Delete Objects"
-msgstr "Objekte löschen"
 
 msgid "Delete Permanently"
 msgstr ""
@@ -1027,20 +1030,11 @@ msgstr "Egress"
 msgid "Empty"
 msgstr "Leeren"
 
-msgid "Empty All"
-msgstr "Alle leeren"
-
-msgid "Empty All ({selectedCount})"
-msgstr "Alle leeren ({selectedCount})"
-
 msgid "Empty All Completed with Errors"
 msgstr ""
 
 msgid "Empty Bucket"
 msgstr ""
-
-msgid "Empty Containers"
-msgstr "Container leeren"
 
 msgid "Empty:"
 msgstr "Leeren:"
@@ -2568,6 +2562,9 @@ msgstr "Wird gespeichert..."
 
 msgid "Search buckets..."
 msgstr "Buckets suchen..."
+
+msgid "Search containers..."
+msgstr "Container suchen..."
 
 msgid "Search flavors..."
 msgstr "Flavors suchen..."

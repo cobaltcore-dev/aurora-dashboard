@@ -360,16 +360,16 @@ describe("SwiftObjects (index)", () => {
       expect(screen.getByRole("button", { name: /Upload Object/i })).toBeInTheDocument()
     })
 
-    test("Delete All button returns to disabled after selection is cleared externally", async () => {
+    test("Actions button returns to disabled after selection is cleared externally", async () => {
       const user = userEvent.setup()
       renderObjects()
       // Select some objects first
       await user.click(screen.getByTestId("simulate-select-object"))
-      await waitFor(() => expect(screen.getByRole("button", { name: /Delete All \(1\)/i })).toBeEnabled())
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       // Simulate selection being cleared (e.g. via navigateToPrefix calling setSelectedObjects([]))
       await user.click(screen.getByTestId("simulate-deselect-all"))
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: "Delete All" })).toBeDisabled()
+        expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
       })
     })
 
@@ -664,20 +664,28 @@ describe("SwiftObjects (index)", () => {
     })
   })
 
-  describe("Delete All button", () => {
-    test("renders the Delete All button", () => {
+  describe("Bulk actions menu", () => {
+    // The bulk Delete control is no longer a standalone "Delete All (N)" button.
+    // Selecting objects enables the Zone 3 "Actions" toggle; the Delete item lives
+    // inside that popup and is labeled singular/plural (no numeric count).
+    const openActionsMenu = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByRole("button", { name: /Actions/i }))
+    }
+
+    test("renders the Actions button", () => {
       renderObjects()
-      expect(screen.getByRole("button", { name: /Delete All/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /Actions/i })).toBeInTheDocument()
     })
 
-    test("Delete All button is disabled when no objects are selected", () => {
+    test("Actions button is disabled when no objects are selected", () => {
       renderObjects()
-      expect(screen.getByRole("button", { name: /Delete All/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
     })
 
-    test("Delete All button shows no count when nothing is selected", () => {
+    test("no Delete item is reachable when no objects are selected", () => {
       renderObjects()
-      expect(screen.getByRole("button", { name: "Delete All" })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
+      expect(screen.queryByText(/^Delete Object/)).not.toBeInTheDocument()
     })
 
     test("passes selectedObjects and setSelectedObjects to ObjectsTableView", () => {
@@ -685,42 +693,42 @@ describe("SwiftObjects (index)", () => {
       expect(screen.getByTestId("objects-table-view")).toHaveAttribute("data-has-set-selected", "true")
     })
 
-    test("Delete All button is enabled and shows count after selecting objects", async () => {
+    test("Actions button is enabled and exposes the Delete item after selecting an object", async () => {
       const user = userEvent.setup()
       renderObjects()
       await user.click(screen.getByTestId("simulate-select-object"))
-      await waitFor(() => {
-        const btn = screen.getByRole("button", { name: /Delete All/i })
-        expect(btn).toBeEnabled()
-        expect(btn).toHaveTextContent("Delete All (1)")
-      })
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await openActionsMenu(user)
+      expect(await screen.findByText("Delete Object")).toBeInTheDocument()
     })
 
-    test("Delete All button count updates as more objects are selected", async () => {
+    test("Delete item label becomes plural as more objects are selected", async () => {
       const user = userEvent.setup()
       renderObjects()
       await user.click(screen.getByTestId("simulate-select-two"))
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Delete All \(2\)/i })).toBeEnabled()
-      })
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await openActionsMenu(user)
+      expect(await screen.findByText("Delete Objects")).toBeInTheDocument()
     })
 
-    test("Delete All button returns to disabled with no count after deselecting all", async () => {
+    test("Actions button returns to disabled after deselecting all", async () => {
       const user = userEvent.setup()
       renderObjects()
       await user.click(screen.getByTestId("simulate-select-object"))
-      await waitFor(() => expect(screen.getByRole("button", { name: /Delete All \(1\)/i })).toBeEnabled())
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await user.click(screen.getByTestId("simulate-deselect-all"))
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: "Delete All" })).toBeDisabled()
-      })
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled())
     })
   })
 
-  describe("Delete All modal", () => {
-    const selectOne = async (user: ReturnType<typeof userEvent.setup>) => {
+  describe("Bulk delete modal", () => {
+    // Select an object, open the Zone 3 Actions menu, then click the Delete item
+    // to open the bulk-delete modal.
+    const selectOneAndOpenModal = async (user: ReturnType<typeof userEvent.setup>) => {
       await user.click(screen.getByTestId("simulate-select-object"))
-      await waitFor(() => expect(screen.getByRole("button", { name: /Delete All \(1\)/i })).toBeEnabled())
+      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await user.click(screen.getByRole("button", { name: /Actions/i }))
+      await user.click(await screen.findByText("Delete Object"))
     }
 
     test("modal is not visible by default", () => {
@@ -728,11 +736,10 @@ describe("SwiftObjects (index)", () => {
       expect(screen.queryByTestId("delete-objects-modal")).not.toBeInTheDocument()
     })
 
-    test("clicking Delete All opens the modal", async () => {
+    test("clicking the Delete item opens the modal", async () => {
       const user = userEvent.setup()
       renderObjects()
-      await selectOne(user)
-      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await selectOneAndOpenModal(user)
       await waitFor(() => {
         expect(screen.getByTestId("delete-objects-modal")).toBeInTheDocument()
       })
@@ -741,8 +748,7 @@ describe("SwiftObjects (index)", () => {
     test("modal receives the selected object count", async () => {
       const user = userEvent.setup()
       renderObjects()
-      await selectOne(user)
-      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await selectOneAndOpenModal(user)
       await waitFor(() => {
         expect(screen.getByTestId("delete-objects-modal")).toHaveAttribute("data-object-count", "1")
       })
@@ -751,8 +757,7 @@ describe("SwiftObjects (index)", () => {
     test("modal receives objectNames matching the selected objects", async () => {
       const user = userEvent.setup()
       renderObjects()
-      await selectOne(user)
-      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await selectOneAndOpenModal(user)
       await waitFor(() => {
         expect(screen.getByTestId("delete-objects-modal")).toHaveAttribute("data-object-names-count", "1")
       })
@@ -761,8 +766,7 @@ describe("SwiftObjects (index)", () => {
     test("closing the modal hides it", async () => {
       const user = userEvent.setup()
       renderObjects()
-      await selectOne(user)
-      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await selectOneAndOpenModal(user)
       await waitFor(() => expect(screen.getByTestId("delete-objects-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "CloseDeleteAll" }))
       await waitFor(() => {
@@ -774,8 +778,7 @@ describe("SwiftObjects (index)", () => {
       const { getObjectsBulkDeletedToast } = await import("./ObjectToastNotifications")
       const user = userEvent.setup()
       renderObjects()
-      await selectOne(user)
-      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await selectOneAndOpenModal(user)
       await waitFor(() => expect(screen.getByTestId("delete-objects-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateBulkDeleteSuccess" }))
       await waitFor(() => {
@@ -783,7 +786,8 @@ describe("SwiftObjects (index)", () => {
           1,
           expect.objectContaining({ onDismiss: expect.any(Function) })
         )
-        expect(screen.getByRole("button", { name: "Delete All" })).toBeDisabled()
+        // Selection cleared → the Actions toggle is disabled again.
+        expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
       })
     })
 
@@ -791,8 +795,7 @@ describe("SwiftObjects (index)", () => {
       const { getObjectsBulkDeleteErrorToast } = await import("./ObjectToastNotifications")
       const user = userEvent.setup()
       renderObjects()
-      await selectOne(user)
-      await user.click(screen.getByRole("button", { name: /Delete All \(1\)/i }))
+      await selectOneAndOpenModal(user)
       await waitFor(() => expect(screen.getByTestId("delete-objects-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateBulkDeleteError" }))
       await waitFor(() => {

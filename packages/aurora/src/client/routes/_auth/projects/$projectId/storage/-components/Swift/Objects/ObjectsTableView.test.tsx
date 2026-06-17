@@ -179,6 +179,7 @@ const renderView = ({
   onEditMetadataError = vi.fn(),
   selectedObjects = [] as string[],
   setSelectedObjects = vi.fn(),
+  hasAnyBulkAction = true,
 }: {
   rows?: BrowserRow[]
   searchTerm?: string
@@ -199,6 +200,7 @@ const renderView = ({
   onEditMetadataError?: (objectName: string, errorMessage: string) => void
   selectedObjects?: string[]
   setSelectedObjects?: (objects: string[]) => void
+  hasAnyBulkAction?: boolean
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -223,6 +225,7 @@ const renderView = ({
           onEditMetadataError={onEditMetadataError}
           selectedObjects={selectedObjects}
           setSelectedObjects={setSelectedObjects}
+          hasAnyBulkAction={hasAnyBulkAction}
         />
       </PortalProvider>
     </I18nProvider>
@@ -962,6 +965,41 @@ describe("ObjectsTableView", () => {
       renderView({ selectedObjects: objectRows.map((r) => r.name), setSelectedObjects })
       await user.click(screen.getByTestId("select-all-objects").querySelector("input") as HTMLElement)
       expect(setSelectedObjects).toHaveBeenCalledWith([])
+    })
+  })
+
+  describe("Selection column gating (hasAnyBulkAction)", () => {
+    const objectRows = mockRows.filter((r) => r.kind === "object")
+
+    test("hides the select-all checkbox when hasAnyBulkAction is false", () => {
+      renderView({ hasAnyBulkAction: false })
+      expect(screen.queryByTestId("select-all-objects")).not.toBeInTheDocument()
+    })
+
+    test("renders no per-row checkboxes when hasAnyBulkAction is false", () => {
+      renderView({ hasAnyBulkAction: false })
+      objectRows.forEach((r) => {
+        expect(screen.queryByTestId(`select-object-${r.name}`)).not.toBeInTheDocument()
+      })
+    })
+
+    test("still renders every row when hasAnyBulkAction is false", () => {
+      renderView({ hasAnyBulkAction: false })
+      mockRows.forEach((r) => {
+        expect(screen.getByTestId(`object-row-${r.name}`)).toBeInTheDocument()
+      })
+    })
+
+    test("row action menus remain available when hasAnyBulkAction is false", async () => {
+      const user = userEvent.setup()
+      renderView({ rows: [makeObject("readme.txt")], hasAnyBulkAction: false })
+      await user.click(screen.getByRole("button", { name: /More/i }))
+      expect(screen.getByTestId("download-action-readme.txt")).toBeInTheDocument()
+    })
+
+    test("renders the selection column by default (hasAnyBulkAction defaults to true)", () => {
+      renderView()
+      expect(screen.getByTestId("select-all-objects")).toBeInTheDocument()
     })
   })
 
