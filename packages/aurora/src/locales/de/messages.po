@@ -260,7 +260,7 @@ msgid "After restoring, this version's content will become the new latest versio
 msgstr ""
 
 msgid "All buckets"
-msgstr ""
+msgstr "Alle Buckets"
 
 msgid "All Buckets Emptied"
 msgstr ""
@@ -1292,7 +1292,7 @@ msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
 msgid "Failed to load buckets: {errorMessage}"
-msgstr ""
+msgstr "Fehler beim Laden der Buckets: {errorMessage}"
 
 msgid "Failed to load Certificates issued by Certificate Authority."
 msgstr "Failed to load Certificates issued by Certificate Authority."
