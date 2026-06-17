@@ -48,7 +48,7 @@ export const ContainerTableView = ({
   setSelectedContainers,
   hasAnyBulkAction = true,
 }: ContainerTableViewProps) => {
-  const { projectId, provider } = useParams({ strict: false })
+  const { projectId, provider, storageType } = useParams({ strict: false })
   const { t } = useLingui()
   const navigate = useNavigate()
 
@@ -185,10 +185,11 @@ export const ContainerTableView = ({
 
               const handleRowNavigate = () =>
                 navigate({
-                  to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
+                  to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
                   params: {
                     projectId: projectId ?? "",
                     provider: (provider as string) ?? "ceph",
+                    storageType: (storageType as string) ?? "buckets",
                     containerName: container.name,
                   },
                 })

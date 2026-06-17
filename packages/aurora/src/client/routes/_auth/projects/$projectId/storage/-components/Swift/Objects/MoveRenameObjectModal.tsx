@@ -23,7 +23,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName: sourceContainer } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()

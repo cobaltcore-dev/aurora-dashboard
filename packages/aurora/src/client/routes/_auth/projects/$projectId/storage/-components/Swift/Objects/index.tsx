@@ -21,7 +21,7 @@ import { ObjectSummary } from "@/server/Storage/types/swift"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { useNavigate } from "@tanstack/react-router"
-import { Route } from "../../../$provider/containers/$containerName/objects"
+import { Route } from "../../../$provider/$storageType/$containerName/objects"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { CreateFolderModal } from "./CreateFolderModal"
@@ -269,7 +269,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
 
   const navigateToContainers = () => {
     navigate({
-      to: "/projects/$projectId/storage/$provider/containers",
+      to: "/projects/$projectId/storage/$provider/$storageType",
       params: { projectId, provider },
     })
   }

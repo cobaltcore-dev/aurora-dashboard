@@ -108,7 +108,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets")
     })
 
     it("does not throw when ceph is not in catalog but cephFallbackEnabled is true", () => {
@@ -153,8 +153,8 @@ describe("Storage Route - checkServiceAvailability", () => {
       // The implementation spreads `params` and overrides `provider`,
       // so the call receives exactly { projectId, provider: "ceph" }.
       expect(redirect).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers",
-        params: { projectId: "test-proj", provider: "ceph" },
+        to: "/projects/$projectId/storage/$provider/$storageType",
+        params: { projectId: "test-proj", provider: "ceph", storageType: "buckets" },
       })
     })
   })
@@ -182,7 +182,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets")
     })
   })
 
@@ -342,7 +342,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { projectId: "proj-3", provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-3/storage/ceph/containers")
+      }).toThrow("Redirect to: /projects/proj-3/storage/ceph/buckets")
     })
   })
 })

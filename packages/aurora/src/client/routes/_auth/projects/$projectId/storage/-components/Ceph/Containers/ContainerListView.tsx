@@ -29,7 +29,7 @@ import {
 export function ContainerListView() {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const { provider } = useParams({ strict: false }) // Get provider from URL
+  const { provider, storageType } = useParams({ strict: false }) // Get provider from URL
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [deleteModalBucket, setDeleteModalBucket] = useState<Container | null>(null)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
@@ -178,10 +178,11 @@ export function ContainerListView() {
             <DataGridRow key={bucket.name}>
               <DataGridCell>
                 <Link
-                  to="/projects/$projectId/storage/$provider/containers/$containerName/objects"
+                  to="/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
                   params={{
                     projectId: projectId ?? "",
                     provider: (provider as string) ?? "ceph",
+                    storageType: (storageType as string) ?? "buckets",
                     containerName: bucket.name,
                   }}
                 >

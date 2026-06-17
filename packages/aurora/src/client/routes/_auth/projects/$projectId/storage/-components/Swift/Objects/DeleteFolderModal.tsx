@@ -18,7 +18,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()

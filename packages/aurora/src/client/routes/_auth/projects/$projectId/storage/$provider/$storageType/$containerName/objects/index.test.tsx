@@ -107,7 +107,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets/my-container/objects")
     })
 
     it("does not throw when ceph is not in catalog but cephFallbackEnabled is true", () => {
@@ -153,8 +153,8 @@ describe("Objects Route - checkServiceAvailability", () => {
       // The implementation passes explicit params (not a spread), so the call
       // receives exactly { projectId, provider: "ceph", containerName }.
       expect(redirect).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-        params: { projectId: "test-proj", provider: "ceph", containerName: "test-container" },
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId: "test-proj", provider: "ceph", storageType: "buckets", containerName: "test-container" },
       })
     })
   })
@@ -182,7 +182,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets/my-container/objects")
     })
 
     it("does not redirect when ceph is not in catalog but cephFallbackEnabled is true", () => {
@@ -206,7 +206,7 @@ describe("Objects Route - checkServiceAvailability", () => {
       // cephFallbackEnabled makes Ceph always available as fallback
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets/my-container/objects")
     })
   })
 })

@@ -33,7 +33,7 @@ import {
 import { EmptyBucketsModal } from "./EmptyBucketsModal"
 import { CredentialPrompt } from "./CredentialPrompt"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/containers"
+import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType"
 
 export { ContainerListView } from "./ContainerListView"
 export { CredentialPrompt } from "./CredentialPrompt"

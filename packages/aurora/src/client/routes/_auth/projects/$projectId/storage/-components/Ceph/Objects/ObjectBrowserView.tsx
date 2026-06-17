@@ -21,7 +21,7 @@ import { CreateFolderModal } from "./CreateFolderModal"
 import { EnableVersioningModal } from "../Containers/EnableVersioningModal"
 import { SuspendVersioningModal } from "../Containers/SuspendVersioningModal"
 import { useNavigate } from "@tanstack/react-router"
-import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects"
+import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
 import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
 import {
   getFolderCreatedToast,
@@ -166,7 +166,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setHasMore(false)
 
     navigate({
-      to: "/projects/$projectId/storage/$provider/containers",
+      to: "/projects/$projectId/storage/$provider/$storageType",
       params: { projectId, provider },
     })
   }
