@@ -89,10 +89,10 @@ export const deleteBucketInputSchema = projectScopedInputSchema.extend({
 })
 
 // ============================================================================
-// CONTAINER TYPES
+// BUCKET TYPES
 // ============================================================================
 
-export type Container = z.infer<typeof containerSchema>
+export type Bucket = z.infer<typeof containerSchema>
 export type CreateBucketOutput = z.infer<typeof createBucketOutputSchema>
 
 // ============================================================================

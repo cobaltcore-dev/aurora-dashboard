@@ -5,7 +5,7 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { DeleteBucketModal } from "./DeleteBucketModal"
-import type { Container } from "@/server/Storage/types/ceph"
+import type { Bucket } from "@/server/Storage/types/ceph"
 
 // ─── Mock useProjectId ────────────────────────────────────────────────────────
 
@@ -100,14 +100,14 @@ vi.mock("@/client/trpcClient", () => ({
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const mockEmptyBucket: Container = {
+const mockEmptyBucket: Bucket = {
   name: "my-test-bucket",
   creationDate: "2024-01-15T10:00:00Z",
   count: 0,
   bytes: 0,
 }
 
-const mockNonEmptyBucket: Container = {
+const mockNonEmptyBucket: Bucket = {
   name: "bucket-with-files",
   creationDate: "2024-01-15T10:00:00Z",
   count: 5,
@@ -124,7 +124,7 @@ const renderModal = ({
   onError = vi.fn(),
 }: {
   isOpen?: boolean
-  bucket?: Container | null
+  bucket?: Bucket | null
   onClose?: () => void
   onSuccess?: (bucketName: string) => void
   onError?: (bucketName: string, errorMessage: string) => void

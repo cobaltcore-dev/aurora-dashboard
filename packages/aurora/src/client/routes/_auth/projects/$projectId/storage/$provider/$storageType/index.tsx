@@ -3,7 +3,7 @@ import { z } from "zod"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SwiftContainers } from "../../-components/Swift/Containers"
-import { CephContainers } from "../../-components/Ceph/Containers"
+import { CephBuckets } from "../../-components/Ceph/Containers"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
@@ -193,7 +193,7 @@ function StorageDashboard() {
               case "swift":
                 return <SwiftContainers />
               case "ceph":
-                return <CephContainers />
+                return <CephBuckets />
               default:
                 return <div>Storage Overview Page</div> // replace when available
             }

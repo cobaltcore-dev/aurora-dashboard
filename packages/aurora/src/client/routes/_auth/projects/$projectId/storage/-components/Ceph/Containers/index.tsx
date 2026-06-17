@@ -4,7 +4,7 @@ import { plural } from "@lingui/core/macro"
 import { useNavigate } from "@tanstack/react-router"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
-import { Container } from "@/server/Storage/types/ceph"
+import { Bucket } from "@/server/Storage/types/ceph"
 import { trpcReact } from "@/client/trpcClient"
 import {
   Button,
@@ -20,7 +20,7 @@ import {
   Toast,
   ToastProps,
 } from "@cloudoperators/juno-ui-components"
-import { ContainerTableView } from "./ContainerTableView"
+import { BucketTableView } from "./BucketTableView"
 import {
   getBucketCreatedToast,
   getBucketCreateErrorToast,
@@ -29,7 +29,7 @@ import {
   getBucketDeletedToast,
   getBucketDeleteErrorToast,
   getBucketsEmptyCompleteToast,
-} from "./ContainerToastNotifications"
+} from "./BucketToastNotifications"
 import { EmptyBucketsModal } from "./EmptyBucketsModal"
 import { CredentialPrompt } from "./CredentialPrompt"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -40,9 +40,9 @@ export { CreateBucketModal } from "./CreateBucketModal"
 export { DeleteBucketModal } from "./DeleteBucketModal"
 export { EmptyBucketModal } from "./EmptyBucketModal"
 export { EmptyBucketsModal } from "./EmptyBucketsModal"
-export * from "./ContainerToastNotifications"
+export * from "./BucketToastNotifications"
 
-export const CephContainers = () => {
+export const CephBuckets = () => {
   const { t, i18n } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
@@ -51,14 +51,14 @@ export const CephContainers = () => {
   // browser back/forward, and deep links.
   const { sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
 
-  // TODO(perms): wire to a real permission source once CephContainers exposes one.
+  // TODO(perms): wire to a real permission source once Ceph Buckets exposes one.
   // Hardcoded true preserves the current always-on bulk behavior while putting the
   // selection-column gating structure in place.
   const hasAnyBulkAction = true
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [emptyAllModalOpen, setEmptyAllModalOpen] = useState(false)
-  const [selectedContainers, setSelectedContainers] = useState<string[]>([])
+  const [selectedBuckets, setSelectedBuckets] = useState<string[]>([])
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   // Local mirror of the committed search term so typing stays responsive while
@@ -112,13 +112,13 @@ export const CephContainers = () => {
     errors: string[]
   }) => {
     if (errors.length === 0) {
-      setSelectedContainers([])
+      setSelectedBuckets([])
     } else {
       // Extract the bucket name from each error string formatted as "<bucketName>: <message>".
       // Using exact name extraction avoids the false-positive substring match that
       // errorMessage.includes(bucketName) would produce (e.g. "foo" matched inside "foobar" error).
       const failedBucketNames = new Set(errors.map((e) => e.split(": ")[0]))
-      setSelectedContainers((prev) => prev.filter((name) => failedBucketNames.has(name)))
+      setSelectedBuckets((prev) => prev.filter((name) => failedBucketNames.has(name)))
     }
     setToastData(getBucketsEmptyCompleteToast(emptiedCount, totalDeleted, errors, { onDismiss: handleToastDismiss }))
   }
@@ -151,8 +151,8 @@ export const CephContainers = () => {
   )
 
   // Sort buckets based on sort settings
-  const sortContainers = (containers: Container[]): Container[] => {
-    return [...containers].sort((a, b) => {
+  const sortBuckets = (buckets: Bucket[]): Bucket[] => {
+    return [...buckets].sort((a, b) => {
       let comparison: number
 
       switch (sortBy ?? "name") {
@@ -186,12 +186,12 @@ export const CephContainers = () => {
   }
 
   // Filter buckets based on search term
-  const filteredContainers = (buckets || []).filter((container) =>
-    container.name.toLowerCase().includes(searchParam.toLowerCase())
+  const filteredBuckets = (buckets || []).filter((bucket) =>
+    bucket.name.toLowerCase().includes(searchParam.toLowerCase())
   )
 
   // Apply sorting to filtered buckets
-  const sortedContainers = sortContainers(filteredContainers)
+  const sortedBuckets = sortBuckets(filteredBuckets)
 
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const value = typeof term === "string" ? term : ""
@@ -257,31 +257,31 @@ export const CephContainers = () => {
               administrator.
             </Trans>
           ) : (
-            <Trans>Failed to load containers: {errorMessage}</Trans>
+            <Trans>Failed to load buckets: {errorMessage}</Trans>
           )}
         </p>
       </div>
     )
   }
 
-  // Resolve selected Container objects from the full unfiltered list so
+  // Resolve selected Bucket objects from the full unfiltered list so
   // the modal always operates on what was actually selected — not the filtered
   // subset currently visible in the table.
-  const selectedContainerSummaries = (buckets || []).filter((c) => selectedContainers.includes(c.name))
-  const hasSelection = selectedContainerSummaries.length > 0
-  const selectedCount = selectedContainerSummaries.length
+  const selectedBucketSummaries = (buckets || []).filter((c) => selectedBuckets.includes(c.name))
+  const hasSelection = selectedBucketSummaries.length > 0
+  const selectedCount = selectedBucketSummaries.length
   const totalCount = (buckets || []).length
-  const filteredCount = filteredContainers.length
+  const filteredCount = filteredBuckets.length
 
   // Select-all operates on the currently displayed (filtered + sorted) rows.
-  const displayedNames = sortedContainers.map((c) => c.name)
-  const allSelected = displayedNames.length > 0 && displayedNames.every((n) => selectedContainers.includes(n))
-  const someSelected = displayedNames.some((n) => selectedContainers.includes(n))
+  const displayedNames = sortedBuckets.map((c) => c.name)
+  const allSelected = displayedNames.length > 0 && displayedNames.every((n) => selectedBuckets.includes(n))
+  const someSelected = displayedNames.some((n) => selectedBuckets.includes(n))
   const handleToggleSelectAll = () => {
     if (allSelected) {
-      setSelectedContainers((prev) => prev.filter((n) => !displayedNames.includes(n)))
+      setSelectedBuckets((prev) => prev.filter((n) => !displayedNames.includes(n)))
     } else {
-      setSelectedContainers((prev) => [...new Set([...prev, ...displayedNames])])
+      setSelectedBuckets((prev) => [...new Set([...prev, ...displayedNames])])
     }
   }
 
@@ -374,7 +374,7 @@ export const CephContainers = () => {
               <span />
             )}
 
-            <div className="text-theme-light flex items-center gap-1" data-testid="containers-info-block">
+            <div className="text-theme-light flex items-center gap-1" data-testid="buckets-info-block">
               {searchParam.trim() ? (
                 <Plural
                   value={totalCount}
@@ -389,8 +389,8 @@ export const CephContainers = () => {
         </DataGridToolbar>
       </Stack>
 
-      <ContainerTableView
-        containers={sortedContainers}
+      <BucketTableView
+        buckets={sortedBuckets}
         createModalOpen={createModalOpen}
         setCreateModalOpen={setCreateModalOpen}
         onCreateSuccess={handleCreateSuccess}
@@ -399,14 +399,14 @@ export const CephContainers = () => {
         onEmptyError={handleEmptyError}
         onDeleteSuccess={handleDeleteSuccess}
         onDeleteError={handleDeleteError}
-        selectedContainers={selectedContainers}
-        setSelectedContainers={setSelectedContainers}
+        selectedBuckets={selectedBuckets}
+        setSelectedBuckets={setSelectedBuckets}
         hasAnyBulkAction={hasAnyBulkAction}
       />
 
       <EmptyBucketsModal
         isOpen={emptyAllModalOpen}
-        buckets={selectedContainerSummaries}
+        buckets={selectedBucketSummaries}
         onClose={() => setEmptyAllModalOpen(false)}
         onComplete={handleEmptyAllComplete}
       />

@@ -1291,6 +1291,9 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
+msgid "Failed to load buckets: {errorMessage}"
+msgstr ""
+
 msgid "Failed to load Certificates issued by Certificate Authority."
 msgstr "Failed to load Certificates issued by Certificate Authority."
 
@@ -1302,9 +1305,6 @@ msgstr "Fehler beim Laden der Container-Objekte: {errorMessage}"
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Eigenschaften: {errorMessage}"
-
-msgid "Failed to load containers: {errorMessage}"
-msgstr ""
 
 msgid "Failed to load extra specs. Please try again."
 msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."

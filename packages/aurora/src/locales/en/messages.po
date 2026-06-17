@@ -1291,6 +1291,9 @@ msgstr "Failed to fetch flavors from server."
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Failed to generate temporary URL: {generalError}"
 
+msgid "Failed to load buckets: {errorMessage}"
+msgstr "Failed to load buckets: {errorMessage}"
+
 msgid "Failed to load Certificates issued by Certificate Authority."
 msgstr "Failed to load Certificates issued by Certificate Authority."
 
@@ -1302,9 +1305,6 @@ msgstr "Failed to load container objects: {errorMessage}"
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Failed to load container properties: {errorMessage}"
-
-msgid "Failed to load containers: {errorMessage}"
-msgstr "Failed to load containers: {errorMessage}"
 
 msgid "Failed to load extra specs. Please try again."
 msgstr "Failed to load extra specs. Please try again."

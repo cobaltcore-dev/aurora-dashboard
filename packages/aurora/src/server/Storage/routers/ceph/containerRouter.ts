@@ -13,7 +13,7 @@ import {
   listContainersInputSchema,
   createBucketInputSchema,
   deleteBucketInputSchema,
-  type Container,
+  type Bucket,
   type S3Status,
   type CreateBucketOutput,
 } from "../../types/ceph"
@@ -33,7 +33,7 @@ export const containerRouter = {
    * Note: Metadata fetching makes one ListObjectsV2 request per bucket, which can be
    * expensive for many buckets. Use includeMetadata=true only when necessary.
    */
-  list: cephProtectedProcedure.input(listContainersInputSchema).query(async ({ input, ctx }): Promise<Container[]> => {
+  list: cephProtectedProcedure.input(listContainersInputSchema).query(async ({ input, ctx }): Promise<Bucket[]> => {
     const s3 = ctx.getCephClient()
     const { includeMetadata } = input
     try {
@@ -56,7 +56,7 @@ export const containerRouter = {
       // Fetch metadata for each bucket with controlled concurrency (slow path)
       // Limit concurrent requests to avoid overwhelming S3 API and hitting rate limits
       const CONCURRENCY_LIMIT = 5
-      const containersWithMetadata: Container[] = []
+      const containersWithMetadata: Bucket[] = []
 
       for (let i = 0; i < buckets.length; i += CONCURRENCY_LIMIT) {
         const batch = buckets.slice(i, i + CONCURRENCY_LIMIT)
