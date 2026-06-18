@@ -15,10 +15,11 @@ export const checkServiceAvailability = (
   params: {
     projectId: string
     provider: string
+    storageType: string
     containerName: string
   }
 ) => {
-  const { provider, projectId, containerName } = params
+  const { provider, projectId, storageType, containerName } = params
 
   const serviceIndex = getServiceIndex(availableServices)
 
@@ -82,6 +83,21 @@ export const checkServiceAvailability = (
       to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
       params: { projectId, provider: "swift", storageType: "containers", containerName },
     })
+  }
+
+  // Canonicalize the URL terminology for the resolved provider. Availability is
+  // already settled above, so by this point provider is a valid, available
+  // swift|ceph. The storageType segment is user-controllable and the router never
+  // validates it, so a mismatched noun (e.g. ceph + "containers", swift + "buckets")
+  // must redirect to the canonical path to keep URLs normalized.
+  if (provider === "swift" || provider === "ceph") {
+    const expectedStorageType = provider === "swift" ? "containers" : "buckets"
+    if (storageType !== expectedStorageType) {
+      throw redirect({
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId, provider, storageType: expectedStorageType, containerName },
+      })
+    }
   }
 }
 
