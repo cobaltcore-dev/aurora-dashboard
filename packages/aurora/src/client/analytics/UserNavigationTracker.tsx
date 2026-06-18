@@ -63,7 +63,7 @@ export function useUserNavigationTracking(onUserNavigation?: OnUserNavigationCal
           try {
             onUserNavigation(metrics)
           } catch (error) {
-            // Silently catch errors to prevent consumer's tracking logic from breaking the app
+            // Catch errors to prevent consumer's tracking logic from breaking the app (errors are logged)
             console.error("[Aurora Analytics] Error in onUserNavigation callback:", error)
           }
           timeoutRef.current = null
