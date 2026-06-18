@@ -1,9 +1,19 @@
-import { useState, useEffect, startTransition } from "react"
+import { useState, useEffect, useRef, startTransition } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
-import { Spinner, Stack, Button, Toast, ToastProps, Badge, Message } from "@cloudoperators/juno-ui-components"
+import {
+  Spinner,
+  Stack,
+  Button,
+  Toast,
+  ToastProps,
+  Badge,
+  Message,
+  DataGridToolbar,
+  SearchInput,
+} from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { ListToolbar } from "@/client/components/ListToolbar"
+import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
@@ -66,6 +76,21 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [isSuspendVersioningModalOpen, setIsSuspendVersioningModalOpen] = useState(false)
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  // Local mirror of the committed search term so typing stays responsive while
+  // the URL commit is debounced (see Zone 2 SearchInput below).
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchParam)
+  const debounceTimer = useRef<number | undefined>(undefined)
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
+
+  // Keep the input in sync when the committed search term changes from outside
+  // the input — browser back/forward, deep links, or programmatic navigation —
+  // so the field never drifts from the URL-backed filter state. When the change
+  // originated from our own debounced commit, searchParam already equals
+  // localSearchTerm, so this is a no-op and won't disturb the caret.
+  useEffect(() => {
+    setLocalSearchTerm(searchParam)
+  }, [searchParam])
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -283,48 +308,86 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
       <ObjectsFileNavigation bucketName={bucketName} prefix={currentPrefix} onPrefixClick={navigateToPrefix} />
 
-      <ListToolbar
-        sortSettings={sortSettings}
-        searchTerm={searchParam}
-        onSort={handleSortChange}
-        onSearch={handleSearchChange}
-        actions={
-          <Stack direction="horizontal" gap="2">
-            <Button variant="primary" onClick={() => setIsCreateFolderModalOpen(true)}>
-              <Trans>Create Folder</Trans>
+      <Stack direction="vertical">
+        {/* Zone 1 — sort controls and the primary actions (plain Stack, no background) */}
+        <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+          <Stack gap="0.5" alignment="center">
+            <SortInput
+              options={sortSettings.options}
+              sortBy={sortSettings.sortBy}
+              sortDirection={sortSettings.sortDirection ?? "asc"}
+              onSortByChange={(value) =>
+                handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
+              }
+              onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
+            />
+          </Stack>
+          <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
+            <Trans>Create Folder</Trans>
+          </Button>
+          {versioningStatus && versioningStatus.status === "Enabled" && (
+            <Button
+              variant="subdued"
+              className="whitespace-nowrap"
+              onClick={() => setIsSuspendVersioningModalOpen(true)}
+            >
+              <Trans>Suspend Versioning</Trans>
             </Button>
-            <Button onClick={() => setIsPolicyModalOpen(true)}>
-              <Trans>Bucket Policy</Trans>
-            </Button>
-            {versioningStatus && versioningStatus.status === "Enabled" && (
-              <Button variant="subdued" onClick={() => setIsSuspendVersioningModalOpen(true)}>
-                <Trans>Suspend Versioning</Trans>
+          )}
+          {versioningStatus &&
+            (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
+              <Button className="whitespace-nowrap" onClick={() => setIsEnableVersioningModalOpen(true)}>
+                <Trans>Enable Versioning</Trans>
               </Button>
             )}
-            {versioningStatus &&
-              (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
-                <Button onClick={() => setIsEnableVersioningModalOpen(true)}>
-                  <Trans>Enable Versioning</Trans>
-                </Button>
-              )}
-          </Stack>
-        }
-      />
+        </Stack>
 
-      <div
-        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
-        data-testid="objects-info-block"
-      >
-        {searchParam.trim() ? (
-          <Plural
-            value={totalItemCount}
-            one={`${filteredItemCount} of ${totalItemCount} item`}
-            other={`${filteredItemCount} of ${totalItemCount} items`}
-          />
-        ) : (
-          <Plural value={totalItemCount} one={`${totalItemCount} item`} other={`${totalItemCount} items`} />
-        )}
-      </div>
+        {/* Zone 2 — debounced search. DataGridToolbar provides the background. */}
+        <DataGridToolbar>
+          <Stack direction="vertical" gap="2">
+            <Stack distribution="end" alignment="center">
+              <SearchInput
+                placeholder={t`Search objects...`}
+                data-testid="searchbar"
+                value={localSearchTerm}
+                onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                  const v = e.currentTarget.value
+                  setLocalSearchTerm(v)
+                  clearTimeout(debounceTimer.current)
+                  debounceTimer.current = window.setTimeout(() => handleSearchChange(v), 500)
+                }}
+                onSearch={(v) => {
+                  clearTimeout(debounceTimer.current)
+                  handleSearchChange(typeof v === "string" ? v : "")
+                }}
+                onClear={() => {
+                  clearTimeout(debounceTimer.current)
+                  setLocalSearchTerm("")
+                  handleSearchChange("")
+                }}
+              />
+            </Stack>
+          </Stack>
+        </DataGridToolbar>
+
+        {/* Zone 3 — item count. Ceph objects has no bulk selection/delete, so this
+            zone carries only the count (no select-all or Actions menu). */}
+        <DataGridToolbar>
+          <Stack distribution="start" gap="2" alignment="center" className="text-sm">
+            <div className="text-theme-light flex items-center gap-1" data-testid="objects-info-block">
+              {searchParam.trim() ? (
+                <Plural
+                  value={totalItemCount}
+                  one={`${filteredItemCount} of ${totalItemCount} item`}
+                  other={`${filteredItemCount} of ${totalItemCount} items`}
+                />
+              ) : (
+                <Plural value={totalItemCount} one={`${totalItemCount} item`} other={`${totalItemCount} items`} />
+              )}
+            </div>
+          </Stack>
+        </DataGridToolbar>
+      </Stack>
 
       <ObjectsTableView
         bucketName={bucketName}

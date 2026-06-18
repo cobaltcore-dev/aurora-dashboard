@@ -68,8 +68,10 @@ const isBrowserPreviewable = (contentType: string | undefined): boolean => {
   return false
 }
 
-// Define column template — 5 columns: checkbox | name | last modified | size | actions
-const GRID_COLUMN_TEMPLATE = "40px minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
+// Column templates — 5 columns with the selection checkbox, 4 without it:
+// [checkbox |] name | last modified | size | actions
+const GRID_COLUMN_TEMPLATE_WITH_SELECT = "40px minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
+const GRID_COLUMN_TEMPLATE_NO_SELECT = "minmax(200px, 3fr) minmax(180px, 2fr) minmax(100px, 1fr) 60px"
 
 interface ObjectsTableViewProps {
   rows: BrowserRow[]
@@ -91,6 +93,10 @@ interface ObjectsTableViewProps {
   onEditMetadataError: (objectName: string, errorMessage: string) => void
   selectedObjects: string[]
   setSelectedObjects: (objects: string[]) => void
+  // When false, the selection column (header select-all + per-row checkboxes) is
+  // dropped and the grid renders one fewer column. Defaults to true so existing
+  // callers keep the selectable layout.
+  hasAnyBulkAction?: boolean
 }
 
 export const ObjectsTableView = ({
@@ -113,6 +119,7 @@ export const ObjectsTableView = ({
   onEditMetadataError,
   selectedObjects,
   setSelectedObjects,
+  hasAnyBulkAction = true,
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -310,21 +317,28 @@ export const ObjectsTableView = ({
 
   const isAnyDownloading = downloadingRow !== null || previewingRow !== null
 
+  // Selection column is gated by hasAnyBulkAction — drop the leading checkbox
+  // track (and one column) when no bulk action is available.
+  const gridColumnTemplate = hasAnyBulkAction ? GRID_COLUMN_TEMPLATE_WITH_SELECT : GRID_COLUMN_TEMPLATE_NO_SELECT
+  const columnCount = hasAnyBulkAction ? 5 : 4
+
   return (
     <>
       <div className="relative">
         {/* Table Header with scrollbar padding */}
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
           <DataGrid
-            columns={5}
-            gridColumnTemplate={GRID_COLUMN_TEMPLATE}
+            columns={columnCount}
+            gridColumnTemplate={gridColumnTemplate}
             className="objects"
             data-testid="objects-table-header"
           >
             <DataGridRow>
-              <DataGridHeadCell>
-                <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-objects" />
-              </DataGridHeadCell>
+              {hasAnyBulkAction && (
+                <DataGridHeadCell>
+                  <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-objects" />
+                </DataGridHeadCell>
+              )}
               <DataGridHeadCell>
                 <Trans>Object Name</Trans>
               </DataGridHeadCell>
@@ -343,7 +357,7 @@ export const ObjectsTableView = ({
         <div
           ref={parentRef}
           className="overflow-auto"
-          style={{ height: "calc(100vh - 490px)" }}
+          style={{ height: "calc(100vh - 470px)" }}
           data-testid="objects-table-body"
         >
           <div
@@ -373,21 +387,24 @@ export const ObjectsTableView = ({
                     width: "100%",
                     transform: `translateY(${virtualRow.start}px)`,
                     display: "grid",
-                    gridTemplateColumns: GRID_COLUMN_TEMPLATE,
+                    gridTemplateColumns: gridColumnTemplate,
                     alignItems: "stretch",
                   }}
                   data-testid={`object-row-${row.name}`}
                 >
-                  {/* Checkbox — only for object rows; folders get an empty cell */}
-                  <DataGridCell onClick={(e) => e.stopPropagation()}>
-                    {!isFolder && (
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={() => handleSelectObject(row.name)}
-                        data-testid={`select-object-${row.name}`}
-                      />
-                    )}
-                  </DataGridCell>
+                  {/* Checkbox — only for object rows; folders get an empty cell.
+                      The whole column is omitted when no bulk action is available. */}
+                  {hasAnyBulkAction && (
+                    <DataGridCell onClick={(e) => e.stopPropagation()}>
+                      {!isFolder && (
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() => handleSelectObject(row.name)}
+                          data-testid={`select-object-${row.name}`}
+                        />
+                      )}
+                    </DataGridCell>
+                  )}
 
                   {/* Name */}
                   <DataGridCell className="min-w-0 overflow-hidden">

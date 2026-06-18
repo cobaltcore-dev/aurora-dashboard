@@ -19,14 +19,22 @@ function SlotShadowRoot({ children }: { children: ReactNode }) {
   )
 }
 
-export function Slot({ component: Component }: { component: FC<SlotProps> }) {
+export function Slot({
+  component: Component,
+  useShadowDOM = true,
+}: {
+  component: FC<SlotProps>
+  useShadowDOM?: boolean
+}) {
   const { trpcClient } = useRouteContext({ strict: false })
 
   if (!trpcClient) return null
 
-  return (
-    <SlotShadowRoot>
-      <Component auroraContext={{ client: trpcClient }} />
-    </SlotShadowRoot>
-  )
+  const content = <Component auroraContext={{ client: trpcClient }} />
+
+  if (!useShadowDOM) {
+    return content
+  }
+
+  return <SlotShadowRoot>{content}</SlotShadowRoot>
 }

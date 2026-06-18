@@ -1,11 +1,25 @@
-import { useState, startTransition } from "react"
+import { useState, useEffect, useRef, startTransition } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
+import { plural } from "@lingui/core/macro"
 import { useNavigate } from "@tanstack/react-router"
-import { ListToolbar } from "@/client/components/ListToolbar"
+import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { Container } from "@/server/Storage/types/ceph"
 import { trpcReact } from "@/client/trpcClient"
-import { Button, Spinner, Stack, Toast, ToastProps } from "@cloudoperators/juno-ui-components"
+import {
+  Button,
+  Checkbox,
+  DataGridToolbar,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuToggle,
+  SearchInput,
+  Spinner,
+  Stack,
+  Toast,
+  ToastProps,
+} from "@cloudoperators/juno-ui-components"
 import { ContainerTableView } from "./ContainerTableView"
 import {
   getBucketCreatedToast,
@@ -31,7 +45,7 @@ export { BucketPolicyModal } from "./BucketPolicyModal"
 export * from "./ContainerToastNotifications"
 
 export const CephContainers = () => {
-  const { t } = useLingui()
+  const { t, i18n } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
 
@@ -39,10 +53,30 @@ export const CephContainers = () => {
   // browser back/forward, and deep links.
   const { sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
 
+  // TODO(perms): wire to a real permission source once CephContainers exposes one.
+  // Hardcoded true preserves the current always-on bulk behavior while putting the
+  // selection-column gating structure in place.
+  const hasAnyBulkAction = true
+
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [emptyAllModalOpen, setEmptyAllModalOpen] = useState(false)
   const [selectedContainers, setSelectedContainers] = useState<string[]>([])
   const [toastData, setToastData] = useState<ToastProps | null>(null)
+
+  // Local mirror of the committed search term so typing stays responsive while
+  // the URL commit is debounced (see Zone 2 SearchInput below).
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchParam)
+  const debounceTimer = useRef<number | undefined>(undefined)
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
+
+  // Keep the input in sync when the committed search term changes from outside
+  // the input — browser back/forward, deep links, or programmatic navigation —
+  // so the field never drifts from the URL-backed filter state. When the change
+  // originated from our own debounced commit, searchParam already equals
+  // localSearchTerm, so this is a no-op and won't disturb the caret.
+  useEffect(() => {
+    setLocalSearchTerm(searchParam)
+  }, [searchParam])
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -191,7 +225,7 @@ export const CephContainers = () => {
   // Handle loading state
   if (isLoading) {
     return (
-      <Stack className="p-8" distribution="center" alignment="center" direction="vertical">
+      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
         <Spinner variant="primary" size="large" className="mb-2" />
         <Trans>Loading Buckets...</Trans>
       </Stack>
@@ -241,39 +275,121 @@ export const CephContainers = () => {
   const totalCount = (buckets || []).length
   const filteredCount = filteredContainers.length
 
+  // Select-all operates on the currently displayed (filtered + sorted) rows.
+  const displayedNames = sortedContainers.map((c) => c.name)
+  const allSelected = displayedNames.length > 0 && displayedNames.every((n) => selectedContainers.includes(n))
+  const someSelected = displayedNames.some((n) => selectedContainers.includes(n))
+  const handleToggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedContainers((prev) => prev.filter((n) => !displayedNames.includes(n)))
+    } else {
+      setSelectedContainers((prev) => [...new Set([...prev, ...displayedNames])])
+    }
+  }
+
   return (
     <div className="relative">
-      <ListToolbar
-        sortSettings={sortSettings}
-        searchTerm={searchParam}
-        onSort={handleSortChange}
-        onSearch={handleSearchChange}
-        actions={
-          <Stack direction="horizontal" gap="4" alignment="center">
-            <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
-              <Trans>Create Bucket</Trans>
-            </Button>
-            <Button variant="primary-danger" onClick={() => setEmptyAllModalOpen(true)} disabled={!hasSelection}>
-              {hasSelection ? <Trans>Empty All ({selectedCount})</Trans> : <Trans>Empty All</Trans>}
-            </Button>
+      <Stack direction="vertical">
+        {/* Zone 1 — sort controls and the create action (plain Stack, no background) */}
+        <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+          <Stack gap="0.5" alignment="center">
+            <SortInput
+              options={sortSettings.options}
+              sortBy={sortSettings.sortBy}
+              sortDirection={sortSettings.sortDirection ?? "asc"}
+              onSortByChange={(value) =>
+                handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
+              }
+              onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
+            />
           </Stack>
-        }
-      />
+          <Button variant="primary" className="whitespace-nowrap" onClick={() => setCreateModalOpen(true)}>
+            <Trans>Create Bucket</Trans>
+          </Button>
+        </Stack>
 
-      <div
-        className="text-theme-light bg-theme-background-lvl-1 flex items-center gap-1 px-4 py-2 text-sm"
-        data-testid="containers-info-block"
-      >
-        {searchParam.trim() ? (
-          <Plural
-            value={totalCount}
-            one={`${filteredCount} of ${totalCount} bucket`}
-            other={`${filteredCount} of ${totalCount} buckets`}
-          />
-        ) : (
-          <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
-        )}
-      </div>
+        {/* Zone 2 — debounced search. DataGridToolbar provides the background.
+            Ceph buckets expose no filterable dimensions yet, so there is no
+            FiltersInput / SelectedFilters here. When filter dimensions are added,
+            add FiltersInput alongside the search (switch the inner Stack to
+            distribution="between") and render SelectedFilters below. */}
+        <DataGridToolbar>
+          <Stack direction="vertical" gap="2">
+            <Stack distribution="end" alignment="center">
+              <SearchInput
+                placeholder={t`Search buckets...`}
+                data-testid="searchbar"
+                value={localSearchTerm}
+                onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                  const v = e.currentTarget.value
+                  setLocalSearchTerm(v)
+                  clearTimeout(debounceTimer.current)
+                  debounceTimer.current = window.setTimeout(() => handleSearchChange(v), 500)
+                }}
+                onSearch={(v) => {
+                  clearTimeout(debounceTimer.current)
+                  handleSearchChange(typeof v === "string" ? v : "")
+                }}
+                onClear={() => {
+                  clearTimeout(debounceTimer.current)
+                  setLocalSearchTerm("")
+                  handleSearchChange("")
+                }}
+              />
+            </Stack>
+          </Stack>
+        </DataGridToolbar>
+
+        {/* Zone 3 — bulk actions (gated) plus the bucket count. The bar also hosts the
+            count info, which must always be visible, so it always renders; only the
+            bulk controls are gated. */}
+        <DataGridToolbar>
+          <Stack distribution="start" gap="2" alignment="center" className="text-sm">
+            {hasAnyBulkAction ? (
+              <Stack gap="2" alignment="center">
+                <Checkbox
+                  checked={allSelected}
+                  indeterminate={someSelected && !allSelected}
+                  onChange={handleToggleSelectAll}
+                />
+                <PopupMenu className="flex items-center">
+                  <PopupMenuToggle as="div">
+                    <Button disabled={!hasSelection} size="small" icon="moreVert" label={t`Actions`} />
+                  </PopupMenuToggle>
+                  {hasSelection && (
+                    <PopupMenuOptions>
+                      <PopupMenuItem
+                        disabled={!hasSelection}
+                        label={i18n._(
+                          plural(selectedCount, {
+                            one: "Empty Bucket",
+                            other: "Empty Buckets",
+                          })
+                        )}
+                        onClick={() => setEmptyAllModalOpen(true)}
+                      />
+                    </PopupMenuOptions>
+                  )}
+                </PopupMenu>
+              </Stack>
+            ) : (
+              <span />
+            )}
+
+            <div className="text-theme-light flex items-center gap-1" data-testid="containers-info-block">
+              {searchParam.trim() ? (
+                <Plural
+                  value={totalCount}
+                  one={`${filteredCount} of ${totalCount} bucket`}
+                  other={`${filteredCount} of ${totalCount} buckets`}
+                />
+              ) : (
+                <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
+              )}
+            </div>
+          </Stack>
+        </DataGridToolbar>
+      </Stack>
 
       <ContainerTableView
         containers={sortedContainers}
@@ -287,6 +403,7 @@ export const CephContainers = () => {
         onDeleteError={handleDeleteError}
         selectedContainers={selectedContainers}
         setSelectedContainers={setSelectedContainers}
+        hasAnyBulkAction={hasAnyBulkAction}
       />
 
       <EmptyBucketsModal

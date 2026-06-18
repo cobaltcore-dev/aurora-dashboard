@@ -10,6 +10,7 @@ import { InactivityModal } from "../components/Auth/InactivityModal"
 import { RouteError } from "../components/Error/RouteError"
 import { useLingui } from "@lingui/react/macro"
 import { StatusError } from "../components/Error/StatusError"
+import { Slot } from "../components/Slot"
 
 export interface RouterContext {
   trpcReact: TrpcReact
@@ -18,6 +19,7 @@ export interface RouterContext {
   navItems: NavigationItem[]
   handleThemeToggle?: (theme: string) => void
   slots?: Slots
+  appName?: string
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -28,14 +30,20 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function AuroraLayout({ children }: { children: React.ReactNode }) {
-  const { navItems, handleThemeToggle } = Route.useRouteContext()
+  const { navItems, handleThemeToggle, appName, slots } = Route.useRouteContext()
 
   return (
     <>
       <HeadContent />
       <style>{styles.toString()}</style>
 
-      <AppShell pageHeader={<MainNavigation items={navItems} handleThemeToggle={handleThemeToggle} />} fullWidthContent>
+      <AppShell
+        pageHeader={
+          <MainNavigation items={navItems} handleThemeToggle={handleThemeToggle} appName={appName} slots={slots} />
+        }
+        pageFooter={slots?.pageFooter ? <Slot component={slots.pageFooter} useShadowDOM={false} /> : undefined}
+        fullWidthContent
+      >
         <InactivityModal />
         {children}
       </AppShell>

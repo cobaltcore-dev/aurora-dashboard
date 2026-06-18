@@ -67,6 +67,15 @@ msgstr "{numberDeleted} objects were permanently deleted."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
+msgid "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
+msgstr "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
+
+msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
+msgstr "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
+
+msgid "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
+msgstr "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
+
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 
@@ -75,6 +84,15 @@ msgstr "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} bucke
 
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
+
+msgid "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
+msgstr "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
+
+msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
+msgstr "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
+
+msgid "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
+msgstr "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
@@ -423,9 +441,6 @@ msgstr "Bucket name must not start with reserved prefix \"{prefix}\""
 
 msgid "Bucket name must start and end with a letter or number"
 msgstr "Bucket name must start and end with a letter or number"
-
-msgid "Bucket Policy"
-msgstr "Bucket Policy"
 
 msgid "Bucket Policy - {bucketName}"
 msgstr "Bucket Policy - {bucketName}"
@@ -808,12 +823,6 @@ msgstr "Delete"
 msgid "Delete {specKey}"
 msgstr "Delete {specKey}"
 
-msgid "Delete All"
-msgstr "Delete All"
-
-msgid "Delete All ({selectedCount})"
-msgstr "Delete All ({selectedCount})"
-
 msgid "Delete bucket"
 msgstr "Delete bucket"
 
@@ -852,9 +861,6 @@ msgstr "Delete Object"
 
 msgid "Delete object:"
 msgstr "Delete object:"
-
-msgid "Delete Objects"
-msgstr "Delete Objects"
 
 msgid "Delete Permanently"
 msgstr "Delete Permanently"
@@ -1036,23 +1042,11 @@ msgstr "Egress"
 msgid "Empty"
 msgstr "Empty"
 
-msgid "Empty All"
-msgstr "Empty All"
-
-msgid "Empty All ({selectedCount})"
-msgstr "Empty All ({selectedCount})"
-
 msgid "Empty All Completed with Errors"
 msgstr "Empty All Completed with Errors"
 
 msgid "Empty Bucket"
 msgstr "Empty Bucket"
-
-msgid "Empty Buckets"
-msgstr "Empty Buckets"
-
-msgid "Empty Containers"
-msgstr "Empty Containers"
 
 msgid "Empty:"
 msgstr "Empty:"
@@ -2605,11 +2599,20 @@ msgstr "Save Policy"
 msgid "Saving..."
 msgstr "Saving..."
 
+msgid "Search buckets..."
+msgstr "Search buckets..."
+
+msgid "Search containers..."
+msgstr "Search containers..."
+
 msgid "Search flavors..."
 msgstr "Search flavors..."
 
 msgid "Search images..."
 msgstr "Search images..."
+
+msgid "Search objects..."
+msgstr "Search objects..."
 
 msgid "Search..."
 msgstr "Search..."

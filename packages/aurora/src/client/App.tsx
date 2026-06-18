@@ -23,6 +23,7 @@ type AppProps = {
   bffEndpoint?: string
   onThemeChange?: (theme: "theme-dark" | "theme-light") => void
   slots?: Slots
+  appName?: string
 }
 
 // Additional navigation items can be added here and will be passed to the layout via context
@@ -92,6 +93,7 @@ const App = (props: AppProps) => {
                   navItems={navItems}
                   handleThemeToggle={handleThemeToggle}
                   slots={props.slots}
+                  appName={props.appName}
                 />
               </AuthProvider>
             </QueryClientProvider>
@@ -107,11 +109,13 @@ function AppInner({
   navItems,
   handleThemeToggle,
   slots,
+  appName,
 }: {
   router: ReturnType<typeof createAuroraRouter>
   navItems: NavigationItem[]
   handleThemeToggle: (theme: string) => void
   slots?: Slots
+  appName?: string
 }) {
   const auth = useAuth()
 
@@ -122,6 +126,7 @@ function AppInner({
     navItems,
     handleThemeToggle,
     slots,
+    appName,
   }
 
   return <RouterProvider router={router} context={routerContext} />
