@@ -56,7 +56,7 @@ export const containerRouter = {
       // Fetch metadata for each bucket with controlled concurrency (slow path)
       // Limit concurrent requests to avoid overwhelming S3 API and hitting rate limits
       const CONCURRENCY_LIMIT = 5
-      const containersWithMetadata: Bucket[] = []
+      const bucketsWithMetadata: Bucket[] = []
 
       for (let i = 0; i < buckets.length; i += CONCURRENCY_LIMIT) {
         const batch = buckets.slice(i, i + CONCURRENCY_LIMIT)
@@ -120,10 +120,10 @@ export const containerRouter = {
             }
           })
         )
-        containersWithMetadata.push(...batchResults)
+        bucketsWithMetadata.push(...batchResults)
       }
 
-      return containersWithMetadata
+      return bucketsWithMetadata
     } catch (error) {
       throw mapS3ErrorToTRPCError(error, { operation: "list containers" })
     }

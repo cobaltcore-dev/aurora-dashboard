@@ -63,7 +63,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
-  const { provider } = Route.useParams()
+  const { provider, storageType } = Route.useParams()
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
 
@@ -167,7 +167,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
     navigate({
       to: "/projects/$projectId/storage/$provider/$storageType",
-      params: { projectId, provider },
+      params: { projectId, provider, storageType },
     })
   }
 
