@@ -35,8 +35,7 @@ export const PcaCertificatesTableRow = ({ certificate }: PcaCertificatesTableRow
       <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuOptions>
-            {/* I will enable this button on create-certificate task of the EPIC */}
-            <PopupMenuItem label={t`Create Certificate`} disabled />
+            <PopupMenuItem label={t`Show Details`} onClick={navigateToCertificateDetailsPage} />
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>

@@ -35,7 +35,7 @@ vi.mock("./PcaCertificatesListContainer", () => ({
 }))
 
 vi.mock("./-modals/IssueSelfSignedCertificateModal", () => ({
-  IssueSelfSignedCertificateModal: ({ open }: { open: boolean }) => (open ? <div>Issue Self Signed Modal</div> : null),
+  IssueSelfSignedCertificateModal: ({ open }: { open: boolean }) => (open ? <div>Issue Self-Signed Modal</div> : null),
 }))
 
 vi.mock("./-modals/ImportExternallySignedCertificateModal", () => ({
@@ -100,7 +100,7 @@ describe("PcaDetailsView", () => {
     expect(screen.getByText("Add a Signed Certificate to your CA to activate it")).toBeInTheDocument()
 
     await user.click(screen.getByRole("button", { name: "Issue Self-Signed Certificate" }))
-    expect(screen.getByText("Issue Self Signed Modal")).toBeInTheDocument()
+    expect(screen.getByText("Issue Self-Signed Modal")).toBeInTheDocument()
     expect(screen.getByText("Certificates list for ca-1 (AWAITING_CERTIFICATE)")).toBeInTheDocument()
   })
 

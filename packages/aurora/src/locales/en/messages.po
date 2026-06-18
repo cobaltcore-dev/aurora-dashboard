@@ -43,6 +43,9 @@ msgstr "\"{objectName}\" was successfully uploaded."
 msgid "{bucketCount, plural, one {object} other {objects}}"
 msgstr "{bucketCount, plural, one {object} other {objects}}"
 
+msgid "{certificateIdValue} Certificate Details"
+msgstr "{certificateIdValue} Certificate Details"
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
 
@@ -475,6 +478,12 @@ msgstr "Cannot move to the same location. Please select a different bucket, fold
 msgid "Capabilities"
 msgstr "Capabilities"
 
+msgid "Certificate {certificateIdValue}"
+msgstr "Certificate {certificateIdValue}"
+
+msgid "Certificate {subjectCommonName}"
+msgstr "Certificate {subjectCommonName}"
+
 msgid "Certificate Authority not found"
 msgstr "Certificate Authority not found"
 
@@ -714,9 +723,6 @@ msgstr "Create"
 
 msgid "Create Bucket"
 msgstr "Create Bucket"
-
-msgid "Create Certificate"
-msgstr "Create Certificate"
 
 msgid "Create Certificate Authority"
 msgstr "Create Certificate Authority"
@@ -1717,17 +1723,14 @@ msgstr "IPv6"
 msgid "Issue Certificate"
 msgstr "Issue Certificate"
 
-msgid "Issue End Entity Certificate"
-msgstr "Issue End Entity Certificate"
-
-msgid "Issue Self Signed Certificate"
-msgstr "Issue Self Signed Certificate"
+msgid "Issue End-Entity Certificate"
+msgstr "Issue End-Entity Certificate"
 
 msgid "Issue Self-Signed Certificate"
 msgstr "Issue Self-Signed Certificate"
 
-msgid "Issuing End Entity Certificate..."
-msgstr "Issuing End Entity Certificate..."
+msgid "Issuing End-Entity Certificate..."
+msgstr "Issuing End-Entity Certificate..."
 
 msgid "Issuing Self-Signed Certificate..."
 msgstr "Issuing Self-Signed Certificate..."

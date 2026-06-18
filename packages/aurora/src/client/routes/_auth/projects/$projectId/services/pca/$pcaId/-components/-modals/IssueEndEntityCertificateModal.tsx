@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
+import { useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, Spinner, Message, Textarea } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
@@ -13,6 +14,7 @@ export interface IssueEndEntityCertificateModalProps {
 
 export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEndEntityCertificateModalProps) => {
   const { t } = useLingui()
+  const navigate = useNavigate()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
@@ -34,7 +36,7 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
     onSubmit: async ({ value }) => {
       if (isPending) return
 
-      await createCertificateMutation.mutateAsync({
+      const createdCertificate = await createCertificateMutation.mutateAsync({
         project_id: projectId,
         certificate_authority_id: pcaId,
         // Normalize to one format so users can paste raw multi-line CSRs with \n along with already formatted ones
@@ -42,6 +44,11 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
         configuration: { validity: { not_after: Math.floor(Date.now() / 1000) + 8 * 60 * 60 } },
       })
       handleClose()
+
+      await navigate({
+        to: "/projects/$projectId/services/pca/$pcaId/$certificateId",
+        params: { projectId, pcaId, certificateId: createdCertificate.id },
+      })
     },
   })
 
@@ -59,7 +66,7 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
     <Modal
       open={open}
       size="large"
-      title={t`Issue End Entity Certificate`}
+      title={t`Issue End-Entity Certificate`}
       onCancel={handleClose}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}
@@ -76,7 +83,7 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
           <span className="text-theme-high text-sm">
-            <Trans>Issuing End Entity Certificate...</Trans>
+            <Trans>Issuing End-Entity Certificate...</Trans>
           </span>
         </div>
       )}

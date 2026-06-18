@@ -47,7 +47,7 @@ export const IssueSelfSignedCertificateModal = ({ open, onClose, pca }: IssueSel
   return (
     <Modal
       open={open}
-      title={t`Issue Self Signed Certificate`}
+      title={t`Issue Self-Signed Certificate`}
       onCancel={handleClose}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Issue Certificate`}
