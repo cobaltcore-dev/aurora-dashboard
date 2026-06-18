@@ -43,6 +43,7 @@ export const PcaTableRow = ({ pca }: PcaTableRowProps) => {
         <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
           <PopupMenu>
             <PopupMenuOptions>
+              <PopupMenuItem label={t`Show Details`} onClick={navigateToDetailsPage} />
               <PopupMenuItem label={t`Delete CA`} onClick={toggleDeletePcaModal} />
             </PopupMenuOptions>
           </PopupMenu>

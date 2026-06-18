@@ -1,13 +1,12 @@
 import { Fragment } from "react"
-import { MdDownload, MdContentCopy } from "react-icons/md"
 import { useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Button,
+  CodeBlock,
   DescriptionDefinition,
   DescriptionList,
   DescriptionTerm,
-  Divider,
   Stack,
 } from "@cloudoperators/juno-ui-components/index"
 import { CertificateAuthority } from "@/server/Services/types/pca"
@@ -27,6 +26,8 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const projectId = useProjectId()
+  const subjectCommonName = pca.configuration?.subject?.common_name ?? ""
+  const certificateHeading = t`Certificate ${subjectCommonName}`
   const [issueSelfSignedModalOpen, toggleIssueSelfSignedModal] = useModal(false)
   const [importExternallySignedModalOpen, toggleImportExternallySignedModal] = useModal(false)
   const [deletePcaModalOpen, toggleDeletePcaModal] = useModal(false)
@@ -60,10 +61,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
             <div className="text-theme-default text-2xl font-semibold">
               {`${pca.configuration?.subject?.common_name} Certificate Authority Details`}
             </div>
-            {/* temporary bg, I will resolve this as soon as I will have sync with designers */}
-            <div className="bg-aurora-blue-200 flex items-center gap-1 rounded-sm px-1 py-0.5">
-              {STATE_CONFIG[pca.state].icon} {STATE_CONFIG[pca.state].text}
-            </div>
+            {STATE_CONFIG[pca.state].badge}
           </Stack>
           <Button onClick={toggleDeletePcaModal}>
             <Trans>Delete Certificate Authority</Trans>
@@ -105,25 +103,12 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
             ))}
           </DescriptionList>
 
-          <div className="bg-dt-background w-full rounded-sm">
-            <div className="text-theme-default p-4 text-xl font-bold">
-              Certificate {`${pca.configuration?.subject?.common_name}`}
-            </div>
-            <Divider />
-
-            <div className="p-4 text-sm break-all whitespace-pre-wrap">{pca?.csr}</div>
-
-            {/* I will implement downloading-copying functionality at issue/import part of the epic as I need to clarify some stuff with design-clavis team */}
-            <Divider />
-            <Stack gap="2" distribution="end" className="p-4">
-              <Button>
-                <MdDownload />
-              </Button>
-              <Button>
-                <MdContentCopy />
-              </Button>
-            </Stack>
-          </div>
+          <CodeBlock
+            heading={certificateHeading}
+            content={pca?.csr ?? ""}
+            className="w-full [&_pre_code]:block [&_pre_code]:w-full"
+            wrap
+          />
         </Stack>
       </Stack>
 

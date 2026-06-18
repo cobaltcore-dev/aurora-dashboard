@@ -80,6 +80,23 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
       if (info.isDetail) {
         items.push({ label: resolvedLabel, onClick: () => navigate({ to: to as never, params: params as never }) })
+
+        if (info.intermediateCrumb) {
+          const { to: iTo, useParamAsLabel: iParam, useParentTitleAsLabel } = info.intermediateCrumb
+          const parentMatch = projectMatches[projectMatches.length - 2]
+          const parentTitle = parentMatch?.meta?.find((m) => m != null && "title" in m)?.title as string | undefined
+          const iLabel = useParentTitleAsLabel
+            ? (parentTitle ?? (iParam ? params[iParam] : undefined))
+            : iParam
+              ? params[iParam]
+              : undefined
+          items.push(
+            iTo
+              ? { label: iLabel, onClick: () => navigate({ to: iTo as never, params: params as never }) }
+              : { label: iLabel }
+          )
+        }
+
         const title = deepest.meta?.find((m) => m != null && "title" in m)?.title as string | undefined
         if (title) items.push({ label: title, active: true })
       } else {

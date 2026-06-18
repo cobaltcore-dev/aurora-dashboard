@@ -46,7 +46,7 @@ describe("PcaTableRow", () => {
     renderRow(basePca)
 
     expect(screen.getByTestId("pca-row-pca-123")).toBeInTheDocument()
-    expect(screen.getByText("CREATING")).toBeInTheDocument()
+    expect(screen.getByText("Creating")).toBeInTheDocument()
     expect(screen.getByText("pca-123")).toBeInTheDocument()
     expect(screen.getByText("example.internal")).toBeInTheDocument()
   })
