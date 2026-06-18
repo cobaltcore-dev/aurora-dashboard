@@ -43,6 +43,10 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
+#. placeholder {0}: rules.length
+msgid "{0} rules"
+msgstr ""
+
 msgid "{certificateIdValue} Certificate Details"
 msgstr ""
 
@@ -105,6 +109,9 @@ msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{totalCount, plural, one {Container leeren} other {# Container leeren}}"
+
+msgid "{totalCount} projects"
+msgstr ""
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"
@@ -1981,6 +1988,9 @@ msgstr "Vorschau wird geladen..."
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
 
+msgid "Loading Security Groups..."
+msgstr ""
+
 msgid "Loading Server Groups..."
 msgstr "Lädt Servergruppen"
 
@@ -2509,9 +2519,6 @@ msgstr "Projekt-ID"
 msgid "Project Not Found"
 msgstr ""
 
-msgid "projects"
-msgstr "Projekte"
-
 msgid "Projects"
 msgstr "Projekte"
 
@@ -2686,9 +2693,6 @@ msgstr "Regeldetails:"
 msgid "Rule Type"
 msgstr "Regeltyp"
 
-msgid "rules"
-msgstr "Regeln"
-
 msgid "Rules"
 msgstr "Regeln"
 
@@ -2730,6 +2734,15 @@ msgstr "Images suchen..."
 
 msgid "Search objects..."
 msgstr "Objekte suchen..."
+
+msgid "Search policies..."
+msgstr ""
+
+msgid "Search rules..."
+msgstr ""
+
+msgid "Search security groups..."
+msgstr ""
 
 msgid "Search..."
 msgstr "Suchen..."
@@ -2872,8 +2885,15 @@ msgstr "ACLs-Vorschau anzeigen"
 msgid "Show Details"
 msgstr "Details anzeigen"
 
+#. placeholder {0}: rules.length
+msgid "Showing {0} of {totalRulesCount} rules"
+msgstr ""
+
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
+
+msgid "Showing {filteredCount} of {totalCount} projects"
+msgstr ""
 
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Erste {actualObjectCount} von {total} Objekten werden angezeigt"
@@ -3621,6 +3641,9 @@ msgstr ""
 
 msgid "You can rename the object by changing the name here."
 msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
+
+msgid "You do not have permission to view security groups"
+msgstr ""
 
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "Sie haben keine Berechtigung, auf die Zugriffsinformationen für diesen Flavor zuzugreifen."

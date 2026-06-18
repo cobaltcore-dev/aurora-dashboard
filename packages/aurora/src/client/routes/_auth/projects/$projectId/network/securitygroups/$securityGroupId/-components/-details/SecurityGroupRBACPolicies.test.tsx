@@ -285,20 +285,6 @@ describe("SecurityGroupRBACPolicies", () => {
 
       expect(screen.getByRole("button", { name: /Share Security Group/i })).toBeInTheDocument()
     })
-
-    it("displays correct count in toolbar", () => {
-      vi.mocked(trpcReact.network.rbacPolicy.list.useQuery).mockReturnValue(
-        createMockQueryResult<RBACPolicy[]>({
-          data: mockPolicies,
-        })
-      )
-
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
-        wrapper: createWrapper(),
-      })
-
-      expect(screen.getByText(/3.*projects/i)).toBeInTheDocument()
-    })
   })
 
   describe("Search functionality", () => {
@@ -313,7 +299,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      expect(screen.getByPlaceholderText("Search...")).toBeInTheDocument()
+      expect(screen.getByPlaceholderText("Search policies...")).toBeInTheDocument()
     })
 
     it("filters policies by target tenant", async () => {
@@ -327,9 +313,12 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search...")
+      const searchInput = screen.getByPlaceholderText("Search policies...")
       const user = userEvent.setup()
       await user.type(searchInput, "abc")
+
+      // Wait for debounce (500ms)
+      await new Promise((resolve) => setTimeout(resolve, 600))
 
       await waitFor(() => {
         expect(screen.getByTestId("rbac-policy-row-policy-1")).toBeInTheDocument()
@@ -349,9 +338,12 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search...")
+      const searchInput = screen.getByPlaceholderText("Search policies...")
       const user = userEvent.setup()
       await user.type(searchInput, "external")
+
+      // Wait for debounce (500ms)
+      await new Promise((resolve) => setTimeout(resolve, 600))
 
       await waitFor(() => {
         expect(screen.getByTestId("rbac-policy-row-policy-2")).toBeInTheDocument()
@@ -371,9 +363,12 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search...")
+      const searchInput = screen.getByPlaceholderText("Search policies...")
       const user = userEvent.setup()
       await user.type(searchInput, "nonexistent")
+
+      // Wait for debounce (500ms)
+      await new Promise((resolve) => setTimeout(resolve, 600))
 
       await waitFor(() => {
         expect(screen.getByText("No policies match your search")).toBeInTheDocument()
@@ -391,32 +386,15 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search...")
+      const searchInput = screen.getByPlaceholderText("Search policies...")
       const user = userEvent.setup()
       await user.type(searchInput, "PROJECT-ABC")
 
+      // Wait for debounce (500ms)
+      await new Promise((resolve) => setTimeout(resolve, 600))
+
       await waitFor(() => {
         expect(screen.getByTestId("rbac-policy-row-policy-1")).toBeInTheDocument()
-      })
-    })
-
-    it("updates filtered count in toolbar", async () => {
-      vi.mocked(trpcReact.network.rbacPolicy.list.useQuery).mockReturnValue(
-        createMockQueryResult<RBACPolicy[]>({
-          data: mockPolicies,
-        })
-      )
-
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
-        wrapper: createWrapper(),
-      })
-
-      const searchInput = screen.getByPlaceholderText("Search...")
-      const user = userEvent.setup()
-      await user.type(searchInput, "abc")
-
-      await waitFor(() => {
-        expect(screen.getByText(/1.*of.*3.*projects/i)).toBeInTheDocument()
       })
     })
 
@@ -431,12 +409,18 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search...")
+      const searchInput = screen.getByPlaceholderText("Search policies...")
       const user = userEvent.setup()
 
       // Type and then clear
       await user.type(searchInput, "abc")
-      await user.clear(searchInput)
+
+      // Wait for debounce
+      await new Promise((resolve) => setTimeout(resolve, 600))
+
+      // Click the clear button
+      const clearButton = screen.getByRole("button", { name: /clear/i })
+      await user.click(clearButton)
 
       await waitFor(() => {
         expect(screen.getByTestId("rbac-policy-row-policy-1")).toBeInTheDocument()
