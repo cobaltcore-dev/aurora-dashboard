@@ -43,6 +43,9 @@ msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 msgid "{bucketCount, plural, one {object} other {objects}}"
 msgstr ""
 
+msgid "{certificateIdValue} Certificate Details"
+msgstr ""
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
 
@@ -466,6 +469,12 @@ msgstr "Cannot move to the same location. Please select a different bucket, fold
 msgid "Capabilities"
 msgstr "Capabilities"
 
+msgid "Certificate {certificateIdValue}"
+msgstr ""
+
+msgid "Certificate {subjectCommonName}"
+msgstr ""
+
 msgid "Certificate Authority not found"
 msgstr "Certificate Authority not found"
 
@@ -705,9 +714,6 @@ msgstr "Erstellen"
 
 msgid "Create Bucket"
 msgstr ""
-
-msgid "Create Certificate"
-msgstr "Create Certificate"
 
 msgid "Create Certificate Authority"
 msgstr "Create Certificate Authority"
@@ -1678,17 +1684,14 @@ msgstr "IPv6"
 msgid "Issue Certificate"
 msgstr "Issue Certificate"
 
-msgid "Issue End Entity Certificate"
-msgstr "Issue End Entity Certificate"
-
-msgid "Issue Self Signed Certificate"
-msgstr "Issue Self Signed Certificate"
+msgid "Issue End-Entity Certificate"
+msgstr "Issue End-Entity Certificate"
 
 msgid "Issue Self-Signed Certificate"
 msgstr "Issue Self-Signed Certificate"
 
-msgid "Issuing End Entity Certificate..."
-msgstr "Issuing End Entity Certificate..."
+msgid "Issuing End-Entity Certificate..."
+msgstr "Issuing End-Entity Certificate..."
 
 msgid "Issuing Self-Signed Certificate..."
 msgstr "Issuing Self-Signed Certificate..."

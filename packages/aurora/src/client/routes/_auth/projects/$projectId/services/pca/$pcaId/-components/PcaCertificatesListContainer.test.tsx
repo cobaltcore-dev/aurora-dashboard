@@ -41,7 +41,7 @@ vi.mock("./-table/PcaCertificatesTableRow", () => ({
 }))
 
 vi.mock("./-modals/IssueEndEntityCertificateModal", () => ({
-  IssueEndEntityCertificateModal: ({ open }: { open: boolean }) => (open ? <div>Issue End Entity Modal</div> : null),
+  IssueEndEntityCertificateModal: ({ open }: { open: boolean }) => (open ? <div>Issue End-Entity Modal</div> : null),
 }))
 
 describe("PcaCertificatesListContainer", () => {
@@ -165,11 +165,11 @@ describe("PcaCertificatesListContainer", () => {
 
     renderComponent()
 
-    const button = screen.getByRole("button", { name: "Issue End Entity Certificate" })
+    const button = screen.getByRole("button", { name: "Issue End-Entity Certificate" })
     expect(button).toBeInTheDocument()
 
     await user.click(button)
-    expect(screen.getByText("Issue End Entity Modal")).toBeInTheDocument()
+    expect(screen.getByText("Issue End-Entity Modal")).toBeInTheDocument()
   })
 
   it("does not show issue certificate action when state is not READY", () => {
@@ -182,7 +182,7 @@ describe("PcaCertificatesListContainer", () => {
 
     renderComponent("AWAITING_CERTIFICATE")
 
-    expect(screen.queryByRole("button", { name: "Issue End Entity Certificate" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Issue End-Entity Certificate" })).not.toBeInTheDocument()
   })
 
   it("shows issue certificate action in empty state when READY and opens modal", async () => {
@@ -197,11 +197,11 @@ describe("PcaCertificatesListContainer", () => {
 
     renderComponent()
 
-    const button = screen.getByRole("button", { name: "Issue End Entity Certificate" })
+    const button = screen.getByRole("button", { name: "Issue End-Entity Certificate" })
     expect(button).toBeInTheDocument()
 
     await user.click(button)
-    expect(screen.getByText("Issue End Entity Modal")).toBeInTheDocument()
+    expect(screen.getByText("Issue End-Entity Modal")).toBeInTheDocument()
   })
 
   it("does not show issue certificate action in empty state when state is not READY", () => {
@@ -214,7 +214,7 @@ describe("PcaCertificatesListContainer", () => {
 
     renderComponent("AWAITING_CERTIFICATE")
 
-    expect(screen.queryByRole("button", { name: "Issue End Entity Certificate" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Issue End-Entity Certificate" })).not.toBeInTheDocument()
   })
 
   it("renders correct column headers", () => {

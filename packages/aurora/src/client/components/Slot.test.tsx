@@ -48,4 +48,13 @@ describe("Slot", () => {
     })
     expect(HTMLElement.prototype.attachShadow).toHaveBeenCalledWith({ mode: "open" })
   })
+
+  it("renders the component without a shadow root when useShadowDOM is false", async () => {
+    let container!: HTMLElement
+    await act(async () => {
+      ;({ container } = render(<Slot component={TestWidget} useShadowDOM={false} />))
+    })
+    expect(container.querySelector("[data-testid='test-widget']")).toBeTruthy()
+    expect(HTMLElement.prototype.attachShadow).not.toHaveBeenCalled()
+  })
 })

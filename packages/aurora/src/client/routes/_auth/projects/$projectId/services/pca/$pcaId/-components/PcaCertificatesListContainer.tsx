@@ -32,6 +32,7 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
       t`ID`,
       "", // empty column for item-action with context menu containing "Delete CA" button
     ] as const
+  const columnsLength = columns().length
 
   const {
     data: pcaCertificates = [],
@@ -64,7 +65,9 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
     <div className="relative">
       {pcaState === "READY" && (
         <>
-          <Button variant="primary" label={t`Issue End Entity Certificate`} onClick={toggleIssueEndEntity} />
+          <Stack className="pt-3 pb-2" distribution="end">
+            <Button variant="primary" label={t`Issue End-Entity Certificate`} onClick={toggleIssueEndEntity} />
+          </Stack>
           {createIssueEndEntityOpen && (
             <IssueEndEntityCertificateModal
               open={createIssueEndEntityOpen}
@@ -76,9 +79,9 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
       )}
 
       {pcaCertificates.length === 0 ? (
-        <DataGrid columns={columns().length} className="pca-certificates" data-testid="no-pcas-certificates">
+        <DataGrid columns={columnsLength} className="pca-certificates" data-testid="no-pcas-certificates">
           <DataGridRow>
-            <DataGridCell colSpan={columns().length}>
+            <DataGridCell colSpan={columnsLength}>
               <ContentHeading>
                 <Trans>No Certificates issued by this Certificate Authority found</Trans>
               </ContentHeading>
@@ -89,7 +92,7 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
           </DataGridRow>
         </DataGrid>
       ) : (
-        <DataGrid columns={columns().length}>
+        <DataGrid columns={columnsLength}>
           <DataGridRow>
             {columns().map((label) => (
               <DataGridHeadCell key={label}>{label}</DataGridHeadCell>

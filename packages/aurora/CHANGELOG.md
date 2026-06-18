@@ -1,5 +1,75 @@
 # @cobaltcore-dev/aurora
 
+## 0.5.0
+
+### Minor Changes
+
+- 3536c95: Migrate policy files from YAML to JSON and unify storage policies
+  - Convert all policy files from YAML to JSON format (compute, image, networking, storage)
+  - Unify Swift and Ceph policies into single storage.json with consistent Swift terminology
+  - Add startup validation for engine configuration in createPermissionRouter
+  - Update router definitions to use .json filenames instead of .yaml
+
+  Benefits:
+  - Better tooling support (schema validation, editor autocomplete)
+  - Consistent naming: storage:containers:_, storage:objects:_, storage:folders:\*
+  - Backend-agnostic API (UI doesn't distinguish Swift vs Ceph)
+  - Fewer files to maintain (4 instead of 6 policy files)
+  - Errors caught at startup instead of runtime
+
+- 33ac5e9: Add branding slots, appName prop, and pageFooter slot to AuroraApp.
+  - `slots.logo`: consumers can now supply a custom logo component rendered in the page header, replacing the default Aurora SVG
+  - `slots.pageFooter`: consumers can now supply a custom footer component rendered at the bottom of the page, replacing the default empty footer
+  - `appName`: string prop that replaces the hardcoded "Aurora" text in the header breadcrumb and logo title
+
+- fe78936: feat(metrics): add Prometheus metrics for infrastructure monitoring
+
+  Added comprehensive Prometheus metrics collection for HTTP requests, including:
+  - `aurora_requests_total`: Counter tracking total HTTP requests with labels for status_code, method, route, endpoint_type, and project_id
+  - `aurora_request_duration_seconds`: Histogram measuring request latency with the same label dimensions
+  - `aurora_exceptions_total`: Counter tracking unhandled exceptions by exception type
+
+  Key features:
+  - Intelligent route normalization to control cardinality (tRPC procedures, static assets, SPA routes, Vite dev paths)
+  - Per-project visibility via project_id label extracted from URLs and query parameters
+  - tRPC batch request support (comma-separated procedures in route label)
+  - Excludes /metrics endpoint from collection to prevent recursion
+  - Debug logging for skipped metrics to aid troubleshooting
+
+  New endpoint: `GET /metrics` exposes metrics in Prometheus text format for scraping.
+
+  Note: project_id label creates one time series per unique project. Monitor Prometheus memory usage in production deployments with thousands of projects.
+
+- 9b00ac4: implement three-zone DataGrid header for Object Storage (Swift)
+- c954a3e: Ceph fixes multiple ui/ux issues
+- f73a00f: implement three-zone DataGrid header for Object Storage (Ceph)
+
+### Patch Changes
+
+- 2db15e8: Compute, network, and service overview routes now redirect to the project overview
+- 3a5a69b: New styling for project overview and new playwright tests
+- 42471fb: feat(portal): compute image and flavor UI improvements
+
+  **Images**
+  - Detail page: More Actions button now appears for accepted shared images (pending/suggested images keep inline Accept/Reject via SharedImageBox and do not show the menu) — closes #902
+  - Detail page: Accept action added for pending shared images in More Actions; SharedImageBox retains inline Accept button for the detail body
+  - Detail page: Image ID and Owner Project ID rendered with ClipboardText for one-click copy
+  - Detail page: spacing fixes for SharedImageBox and actions row
+
+  **Flavors**
+  - Detail page: users with view-only spec access (`flavor_specs:list`) see a **Metadata** button; users with create/delete access see **Edit Metadata** — closes #907
+  - Detail page: Metadata and Manage Access moved into the More Actions menu (action parity with list row)
+  - List view: `flavor_specs` permissions fetched and propagated to list row and EditSpecModal
+  - List view: Metadata item gated on spec permissions; view-only users see **Metadata**, editors see **Edit Metadata**
+  - List view: new **Access Type** column shows Public or Private status for each flavor — closes #908
+  - List view: popup menu uses default icon toggle (consistent with Images); Manage Access disabled for public flavors
+  - Manage Access modal: Flavor ID column removed for a simpler two-column layout — closes #909
+
+  **Error handling**
+  - Overview, Images list, and Flavors list wrapped with ErrorBoundary to catch policy file mismatch errors that reject `canUser`/data promises via `React.use()`
+
+- 42471fb: refactor(portal): remove accept/reject confirmation modals from image table row
+
 ## 0.4.0
 
 ### Minor Changes
