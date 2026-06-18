@@ -49,6 +49,7 @@ vi.mock("@tanstack/react-router", async () => {
     useParams: vi.fn(() => ({
       accountId: "test-account",
       projectId: "test-project",
+      storageType: "containers",
     })),
     useNavigate: vi.fn(() => mockNavigate),
   }
@@ -63,6 +64,7 @@ vi.mock("../../../$provider/$storageType/$containerName/objects", () => ({
     useParams: vi.fn(() => ({
       accountId: "test-account",
       projectId: "test-project",
+      storageType: "containers",
     })),
   },
 }))
