@@ -44,15 +44,6 @@ export function useUserNavigationTracking(onUserNavigation?: OnUserNavigationCal
           routeId: activeMatch.routeId,
         }
 
-        console.log("[Aurora Analytics] User navigation:", {
-          feature: `${section}_${service}`,
-          section,
-          service,
-          pathname,
-          routeId: activeMatch.routeId,
-          timestamp: new Date().toISOString(),
-        })
-
         // Clear any pending callback to avoid duplicate tracking on rapid navigation
         if (timeoutRef.current !== null) {
           clearTimeout(timeoutRef.current)
