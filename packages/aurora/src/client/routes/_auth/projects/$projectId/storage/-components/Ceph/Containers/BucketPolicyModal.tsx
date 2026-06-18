@@ -219,10 +219,23 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   }
 
   // Subscribe to form state for reactivity
-  const isDirty = useStore(form.store, (state) => state.isDirty)
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting)
   const policyTextValue = useStore(form.store, (state) => state.values.policyText)
   const selectedTemplateValue = useStore(form.store, (state) => state.values.selectedTemplate)
+
+  // Compute isDirty relative to the loaded policy, not form's defaultValues (which are empty strings).
+  // This prevents false "Unsaved changes" indicator when the modal opens with existing policy.
+  const originalPolicyText = useMemo(() => {
+    if (!policyData?.policyText) return ""
+    try {
+      const parsed = JSON.parse(policyData.policyText)
+      return JSON.stringify(parsed, null, 2)
+    } catch {
+      return policyData.policyText
+    }
+  }, [policyData?.policyText])
+
+  const isDirty = policyTextValue !== originalPolicyText
 
   const policySize = useMemo(() => {
     return new Blob([policyTextValue]).size
@@ -241,7 +254,8 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
 
   const hasPolicy = !!policyData?.policy
   const isSaving = setMutation.isPending || deleteMutation.isPending || isSubmitting
-  const canSubmit = !isSaving && !jsonValidationError && policyTextValue.trim().length > 0
+  const canSubmit =
+    !isSaving && !jsonValidationError && policyTextValue.trim().length > 0 && policySize <= MAX_POLICY_SIZE
 
   const handleSave = () => {
     form.handleSubmit()
@@ -299,7 +313,11 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
               >
                 <SelectOption value="" label={t`Select a template...`} />
                 {POLICY_TEMPLATES.map((template) => (
-                  <SelectOption key={template.value} value={template.value} label={template.label} />
+                  <SelectOption
+                    key={template.value}
+                    value={template.value}
+                    label={template.value === "publicRead" ? t`Public Read` : t`IP Restricted`}
+                  />
                 ))}
               </Select>
 

@@ -442,6 +442,9 @@ msgstr "Bucket name must not start with reserved prefix \"{prefix}\""
 msgid "Bucket name must start and end with a letter or number"
 msgstr "Bucket name must start and end with a letter or number"
 
+msgid "Bucket Policy"
+msgstr "Bucket Policy"
+
 msgid "Bucket Policy - {bucketName}"
 msgstr "Bucket Policy - {bucketName}"
 
@@ -1699,6 +1702,9 @@ msgstr "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f
 msgid "Invalid value for public flavor setting."
 msgstr "Invalid value for public flavor setting."
 
+msgid "IP Restricted"
+msgstr "IP Restricted"
+
 msgid "IP Version"
 msgstr "IP Version"
 
@@ -2430,6 +2436,9 @@ msgstr "Public"
 
 msgid "Public Flavor"
 msgstr "Public Flavor"
+
+msgid "Public Read"
+msgstr "Public Read"
 
 msgid "Public Read Access"
 msgstr "Public Read Access"

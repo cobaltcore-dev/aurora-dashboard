@@ -442,6 +442,9 @@ msgstr ""
 msgid "Bucket name must start and end with a letter or number"
 msgstr ""
 
+msgid "Bucket Policy"
+msgstr ""
+
 msgid "Bucket Policy - {bucketName}"
 msgstr ""
 
@@ -1699,6 +1702,9 @@ msgstr "Ungültiges Projekt-ID-Format. Muss 32 hexadezimale Zeichen sein (z. B. 
 msgid "Invalid value for public flavor setting."
 msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
 
+msgid "IP Restricted"
+msgstr ""
+
 msgid "IP Version"
 msgstr "IP-Version"
 
@@ -2430,6 +2436,9 @@ msgstr "Öffentlich"
 
 msgid "Public Flavor"
 msgstr "Öffentlicher Flavor"
+
+msgid "Public Read"
+msgstr ""
 
 msgid "Public Read Access"
 msgstr "Öffentlicher Lesezugriff"

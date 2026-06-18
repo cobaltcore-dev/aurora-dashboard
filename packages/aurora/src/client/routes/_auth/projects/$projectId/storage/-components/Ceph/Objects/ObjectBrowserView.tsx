@@ -340,6 +340,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
                 <Trans>Enable Versioning</Trans>
               </Button>
             )}
+          <Button variant="subdued" className="whitespace-nowrap" onClick={() => setIsPolicyModalOpen(true)}>
+            <Trans>Bucket Policy</Trans>
+          </Button>
         </Stack>
 
         {/* Zone 2 — debounced search. DataGridToolbar provides the background. */}
