@@ -18,6 +18,7 @@ const CrumbSchema = z.object({
   labelKey: z.enum(CRUMB_LABEL_KEYS).optional(),
   to: z.string().optional(),
   useParamAsLabel: z.string().optional(),
+  useParentTitleAsLabel: z.boolean().optional(),
 })
 
 const RouteInfoSchema = z.object({
@@ -26,6 +27,7 @@ const RouteInfoSchema = z.object({
   isDetail: z.boolean().optional(),
   crumb: CrumbSchema.optional(),
   sectionCrumb: CrumbSchema.optional(),
+  intermediateCrumb: CrumbSchema.optional(),
 })
 
 export type Crumb = z.infer<typeof CrumbSchema>

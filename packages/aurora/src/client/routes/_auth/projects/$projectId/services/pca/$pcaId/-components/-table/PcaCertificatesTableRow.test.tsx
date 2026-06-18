@@ -64,14 +64,17 @@ describe("PcaCertificatesTableRow", () => {
     })
   })
 
-  it("renders disabled Create Certificate menu item", async () => {
+  it("navigates to certificate details page from the Show Details menu item", async () => {
     const user = userEvent.setup()
     renderRow(baseCertificate)
 
     await user.click(screen.getByRole("button", { name: "More" }))
+    await user.click(screen.getByRole("menuitem", { name: "Show Details" }))
 
-    const menuItem = screen.getByRole("menuitem", { name: "Create Certificate" })
-    expect(menuItem).toBeInTheDocument()
-    expect(menuItem).toHaveAttribute("aria-disabled", "true")
+    expect(mockNavigate).toHaveBeenCalledWith({
+      from: "/projects/$projectId/services/pca/$pcaId/",
+      to: "$certificateId",
+      params: expect.any(Function),
+    })
   })
 })

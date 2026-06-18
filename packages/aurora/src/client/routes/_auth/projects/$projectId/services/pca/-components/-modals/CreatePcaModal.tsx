@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
+import { useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, Spinner, TextInput, Message } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
@@ -15,6 +16,7 @@ const isValidCommonName = (value: string) => csrRegex.test(value)
 
 export const CreatePcaModal = ({ open, onClose }: CreateCaModalProps) => {
   const { t } = useLingui()
+  const navigate = useNavigate()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
@@ -40,13 +42,18 @@ export const CreatePcaModal = ({ open, onClose }: CreateCaModalProps) => {
     onSubmit: async ({ value }) => {
       if (isPending) return
 
-      await createPcaMutation.mutateAsync({
+      const createdPca = await createPcaMutation.mutateAsync({
         project_id: projectId,
         configuration: {
           subject: { common_name: value.common_name },
         },
       })
       handleClose()
+
+      await navigate({
+        to: "/projects/$projectId/services/pca/$pcaId",
+        params: { projectId, pcaId: createdPca.id },
+      })
     },
   })
 

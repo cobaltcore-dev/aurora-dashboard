@@ -7,8 +7,8 @@ describe("PCA table constants", () => {
   })
 
   it("maps specific states to expected labels", () => {
-    expect(STATE_CONFIG.CREATING.text).toBe("CREATING")
-    expect(STATE_CONFIG.AWAITING_CERTIFICATE.text).toBe("AWAITING_CERTIFICATE")
+    expect(STATE_CONFIG.CREATING.text).toBe("Creating")
+    expect(STATE_CONFIG.AWAITING_CERTIFICATE.text).toBe("Awaiting Certificate")
   })
 
   it("provides icons for configured states", () => {

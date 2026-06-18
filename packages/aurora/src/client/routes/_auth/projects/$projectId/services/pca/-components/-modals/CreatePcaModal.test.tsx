@@ -7,9 +7,14 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { CreatePcaModal } from "./CreatePcaModal"
 
 const mockProjectId = "project-123"
-const mockMutateAsync = vi.fn().mockResolvedValue({})
+const mockNavigate = vi.fn()
+const mockMutateAsync = vi.fn().mockResolvedValue({ id: "pca-456" })
 const mockReset = vi.fn()
 const mockInvalidate = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
+}))
 
 vi.mock("@/client/hooks", () => ({
   useProjectId: () => mockProjectId,
@@ -83,6 +88,10 @@ describe("CreatePcaModal", () => {
 
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(mockInvalidate).toHaveBeenCalledTimes(1)
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: "/projects/$projectId/services/pca/$pcaId",
+      params: { projectId: "project-123", pcaId: "pca-456" },
+    })
   })
 
   it("disables save button when common name is empty", async () => {
