@@ -26,6 +26,7 @@ interface SecurityGroupListContainerProps {
   isUpdatingSecurityGroup?: boolean
   updateError?: string | null
   currentProjectId?: string
+  hasAnyBulkAction?: boolean
 }
 
 export const SecurityGroupListContainer = ({
@@ -41,6 +42,7 @@ export const SecurityGroupListContainer = ({
   isUpdatingSecurityGroup = false,
   updateError = null,
   currentProjectId,
+  hasAnyBulkAction = false,
 }: SecurityGroupListContainerProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -132,8 +134,9 @@ export const SecurityGroupListContainer = ({
 
   return (
     <>
-      <DataGrid columns={5}>
+      <DataGrid columns={hasAnyBulkAction ? 6 : 5}>
         <DataGridRow>
+          {hasAnyBulkAction && <DataGridHeadCell />}
           {[t`Name`, t`Description`, t`Shared`, t`Stateful`, ""].map((label) => (
             <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
           ))}
@@ -151,6 +154,9 @@ export const SecurityGroupListContainer = ({
               onDelete={handleDelete}
               onViewDetails={handleViewDetails}
               isReadOnly={isReadOnly}
+              showSelectColumn={hasAnyBulkAction}
+              isSelected={false}
+              onSelect={() => {}}
             />
           )
         })}

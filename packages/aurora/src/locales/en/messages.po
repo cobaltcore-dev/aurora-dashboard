@@ -40,6 +40,10 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
+#. placeholder {0}: rules.length
+msgid "{0} rules"
+msgstr "{0} rules"
+
 msgid "{bucketCount, plural, one {object} other {objects}}"
 msgstr "{bucketCount, plural, one {object} other {objects}}"
 
@@ -96,6 +100,9 @@ msgstr "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
 msgstr "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
+
+msgid "{totalCount} projects"
+msgstr "{totalCount} projects"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
@@ -1843,6 +1850,9 @@ msgstr "Loading Objects..."
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
+msgid "Loading Security Groups..."
+msgstr "Loading Security Groups..."
+
 msgid "Loading Server Groups..."
 msgstr "Loading Server Groups..."
 
@@ -2359,9 +2369,6 @@ msgstr "Project id"
 msgid "Project ID"
 msgstr "Project ID"
 
-msgid "projects"
-msgstr "projects"
-
 msgid "Projects"
 msgstr "Projects"
 
@@ -2533,9 +2540,6 @@ msgstr "Rule Details:"
 msgid "Rule Type"
 msgstr "Rule Type"
 
-msgid "rules"
-msgstr "rules"
-
 msgid "Rules"
 msgstr "Rules"
 
@@ -2577,6 +2581,15 @@ msgstr "Search images..."
 
 msgid "Search objects..."
 msgstr "Search objects..."
+
+msgid "Search policies..."
+msgstr "Search policies..."
+
+msgid "Search rules..."
+msgstr "Search rules..."
+
+msgid "Search security groups..."
+msgstr "Search security groups..."
 
 msgid "Search..."
 msgstr "Search..."
@@ -2713,8 +2726,15 @@ msgstr "Show ACLs Preview"
 msgid "Show Details"
 msgstr "Show Details"
 
+#. placeholder {0}: rules.length
+msgid "Showing {0} of {totalRulesCount} rules"
+msgstr "Showing {0} of {totalRulesCount} rules"
+
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"
+
+msgid "Showing {filteredCount} of {totalCount} projects"
+msgstr "Showing {filteredCount} of {totalCount} projects"
 
 msgid "Showing all versions of this object. The latest version is highlighted. Delete markers indicate when the object was deleted."
 msgstr "Showing all versions of this object. The latest version is highlighted. Delete markers indicate when the object was deleted."
@@ -3411,6 +3431,9 @@ msgstr "You can re-enable versioning at any time"
 
 msgid "You can rename the object by changing the name here."
 msgstr "You can rename the object by changing the name here."
+
+msgid "You do not have permission to view security groups"
+msgstr "You do not have permission to view security groups"
 
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "You don't have permission to access flavor access information for this flavor."
