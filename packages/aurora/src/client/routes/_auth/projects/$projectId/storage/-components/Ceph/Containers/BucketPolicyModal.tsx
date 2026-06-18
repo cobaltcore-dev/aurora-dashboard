@@ -303,6 +303,11 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
                     access the bucket and what actions they can perform.
                   </Trans>
                 </p>
+                <p className="text-sm">
+                  <Trans>
+                    URL format: <code className="text-xs">https://ceph-endpoint/project_id:bucket_name/file_path</code>
+                  </Trans>
+                </p>
               </div>
 
               <Select

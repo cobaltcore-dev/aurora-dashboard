@@ -3334,6 +3334,9 @@ msgstr "URL Copied"
 msgid "URL for public access"
 msgstr "URL for public access"
 
+msgid "URL format: <0>https://ceph-endpoint/project_id:bucket_name/file_path</0>"
+msgstr "URL format: <0>https://ceph-endpoint/project_id:bucket_name/file_path</0>"
+
 msgid "Used"
 msgstr "Used"
 
