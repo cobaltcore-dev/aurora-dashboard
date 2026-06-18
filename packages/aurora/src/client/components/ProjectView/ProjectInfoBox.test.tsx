@@ -72,7 +72,7 @@ describe("ProjectInfoBox", () => {
   })
 
   describe("Breadcrumbs — service list pages", () => {
-    it("renders domain > project > Compute > Images on images list", async () => {
+    it("renders domain > project > Images on images list", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -92,7 +92,7 @@ describe("ProjectInfoBox", () => {
       await waitFor(() => {
         expect(screen.getByText("my-domain.com")).toBeInTheDocument()
         expect(screen.getByText("My Project")).toBeInTheDocument()
-        expect(screen.getByText("Compute")).toBeInTheDocument()
+        expect(screen.queryByText("Compute")).not.toBeInTheDocument()
         expect(screen.getByText("Images")).toBeInTheDocument()
       })
     })
@@ -137,12 +137,12 @@ describe("ProjectInfoBox", () => {
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
 
       await waitFor(() => {
-        expect(screen.getByText("Network")).toBeInTheDocument()
+        expect(screen.queryByText("Network")).not.toBeInTheDocument()
         expect(screen.getByText("Security Groups")).toBeInTheDocument()
       })
     })
 
-    it("renders Storage > Object Storage (Swift) on swift containers list", async () => {
+    it("renders Object Storage (Swift) on swift containers list", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -160,12 +160,12 @@ describe("ProjectInfoBox", () => {
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
 
       await waitFor(() => {
-        expect(screen.getByText("Storage")).toBeInTheDocument()
+        expect(screen.queryByText("Storage")).not.toBeInTheDocument()
         expect(screen.getByText("Object Storage (Swift)")).toBeInTheDocument()
       })
     })
 
-    it("renders Storage > Object Storage (Ceph) on ceph containers list", async () => {
+    it("renders Object Storage (Ceph) on ceph containers list", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -183,12 +183,12 @@ describe("ProjectInfoBox", () => {
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
 
       await waitFor(() => {
-        expect(screen.getByText("Storage")).toBeInTheDocument()
+        expect(screen.queryByText("Storage")).not.toBeInTheDocument()
         expect(screen.getByText("Object Storage (Ceph)")).toBeInTheDocument()
       })
     })
 
-    it("renders Storage > Object Storage (Swift) on object browser (detail)", async () => {
+    it("renders Object Storage (Swift) on object browser (detail)", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -208,7 +208,7 @@ describe("ProjectInfoBox", () => {
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
 
       await waitFor(() => {
-        expect(screen.getByText("Storage")).toBeInTheDocument()
+        expect(screen.queryByText("Storage")).not.toBeInTheDocument()
         expect(screen.getByText("Object Storage (Swift)")).toBeInTheDocument()
       })
     })
@@ -237,7 +237,7 @@ describe("ProjectInfoBox", () => {
   })
 
   describe("Breadcrumbs — detail pages", () => {
-    it("renders Compute > Images > page title on image detail", async () => {
+    it("renders Images > page title on image detail", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -257,13 +257,13 @@ describe("ProjectInfoBox", () => {
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
 
       await waitFor(() => {
-        expect(screen.getByText("Compute")).toBeInTheDocument()
+        expect(screen.queryByText("Compute")).not.toBeInTheDocument()
         expect(screen.getByText("Images")).toBeInTheDocument()
         expect(screen.getAllByText("Test Page Title").length).toBeGreaterThanOrEqual(1)
       })
     })
 
-    it("renders Compute > Flavors > page title on flavor detail", async () => {
+    it("renders Flavors > page title on flavor detail", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -288,7 +288,7 @@ describe("ProjectInfoBox", () => {
       })
     })
 
-    it("renders Network > Security Groups > page title on security group detail", async () => {
+    it("renders Security Groups > page title on security group detail", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -313,7 +313,7 @@ describe("ProjectInfoBox", () => {
       })
     })
 
-    it("renders Network > Floating IPs > page title on floating IP detail", async () => {
+    it("renders Floating IPs > page title on floating IP detail", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -350,29 +350,6 @@ describe("ProjectInfoBox", () => {
         to: "/projects/$projectId",
         params: { projectId: "test-project" },
       })
-    })
-
-    it("Compute breadcrumb on a service page is not clickable", async () => {
-      mockMatches = [
-        { routeId: PROJECT_ROUTE_ID },
-        {
-          routeId: `${PROJECT_ROUTE_ID}/compute/images/`,
-          staticData: {
-            section: "compute",
-            service: "images",
-            sectionCrumb: { labelKey: "Compute" },
-            crumb: { labelKey: "Images" },
-          },
-          params: { projectId: "test-project" },
-        },
-      ]
-
-      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
-
-      await waitFor(() => screen.getByText("Compute"))
-      fireEvent.click(screen.getByText("Compute"))
-
-      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     it("clicking Images breadcrumb on image detail navigates to images list", async () => {
@@ -477,29 +454,6 @@ describe("ProjectInfoBox", () => {
       expect(mockNavigate).toHaveBeenCalledWith(
         expect.objectContaining({ to: "/projects/$projectId/network/floatingips" })
       )
-    })
-
-    it("Storage breadcrumb on a service page is not clickable", async () => {
-      mockMatches = [
-        { routeId: PROJECT_ROUTE_ID },
-        {
-          routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
-          staticData: {
-            section: "storage",
-            service: "containers",
-            sectionCrumb: { labelKey: "Storage" },
-            crumb: { useParamAsLabel: "provider" },
-          },
-          params: { projectId: "test-project", provider: "swift" },
-        },
-      ]
-
-      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
-
-      await waitFor(() => screen.getByText("Storage"))
-      fireEvent.click(screen.getByText("Storage"))
-
-      expect(mockNavigate).not.toHaveBeenCalled()
     })
 
     it("clicking Object Storage (Swift) breadcrumb on object browser detail navigates to containers list", async () => {
