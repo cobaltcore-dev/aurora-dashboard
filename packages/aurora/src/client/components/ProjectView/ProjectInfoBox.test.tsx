@@ -352,6 +352,29 @@ describe("ProjectInfoBox", () => {
       })
     })
 
+    it("renders and navigates sectionCrumb when it has a to target", async () => {
+      mockMatches = [
+        { routeId: PROJECT_ROUTE_ID },
+        {
+          routeId: `${PROJECT_ROUTE_ID}/compute/images/`,
+          staticData: {
+            section: "compute",
+            service: "images",
+            sectionCrumb: { labelKey: "Compute", to: "/projects/$projectId/compute" },
+            crumb: { labelKey: "Images" },
+          },
+          params: { projectId: "test-project" },
+        },
+      ]
+
+      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
+
+      await waitFor(() => screen.getByText("Compute"))
+      fireEvent.click(screen.getByText("Compute"))
+
+      expect(mockNavigate).toHaveBeenCalledWith(expect.objectContaining({ to: "/projects/$projectId/compute" }))
+    })
+
     it("clicking Images breadcrumb on image detail navigates to images list", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
