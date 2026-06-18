@@ -52,7 +52,9 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
   })
 
   // Register HTTP metrics collector
-  const metricsRegistry = new Registry()
+  // Use provided registry (allows consumers to add their own metrics to same /metrics endpoint)
+  // or create a new one if not provided
+  const metricsRegistry = config.metricsRegistry ?? new Registry()
   await server.register(AuroraHttpMetricsCollector, {
     prefix: "aurora",
     excludePaths: ["/metrics"],
@@ -165,7 +167,7 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
     tokenRoute: "/csrf-token", // Route to get CSRF token
     cookieKey: "aurora-csrf-protection", // Cookie name for CSRF
     tokenHeader: "x-csrf-token", // Header name for CSRF token
-    excludePaths: ["/extensions"], // Paths to exclude from CSRF protection
+    excludePaths: ["/extensions", `${bffEndpoint}/analytics`], // Paths to exclude from CSRF protection
     protectionMethods: ["POST", "PUT", "DELETE"], // HTTP methods that require CSRF protection
   })
 
