@@ -167,7 +167,7 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
     tokenRoute: "/csrf-token", // Route to get CSRF token
     cookieKey: "aurora-csrf-protection", // Cookie name for CSRF
     tokenHeader: "x-csrf-token", // Header name for CSRF token
-    excludePaths: ["/extensions", `${bffEndpoint}/analytics`], // Paths to exclude from CSRF protection
+    excludePaths: ["/extensions"], // Paths to exclude from CSRF protection
     protectionMethods: ["POST", "PUT", "DELETE"], // HTTP methods that require CSRF protection
   })
 
