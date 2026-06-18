@@ -4,13 +4,24 @@ import { isRouteInfo } from "../routes/routeInfo"
 import type { OnUserNavigationCallback, UserNavigationMetrics } from "../AuroraApp"
 
 /**
- * Internal component that tracks user navigation for behavioral analytics.
+ * Hook that tracks user navigation for behavioral analytics.
  * Monitors route changes and extracts metrics about which features users access.
  *
  * The callback is executed asynchronously to prevent blocking the UI,
  * even if the consumer's tracking logic is slow or performs network requests.
+ *
+ * @param onUserNavigation - Optional callback to invoke with navigation metrics
+ *
+ * @example
+ * ```tsx
+ * function RootComponent() {
+ *   const { onUserNavigation } = useRouteContext()
+ *   useUserNavigationTracking(onUserNavigation)
+ *   return <Outlet />
+ * }
+ * ```
  */
-export function UserNavigationTracker({ onUserNavigation }: { onUserNavigation?: OnUserNavigationCallback }) {
+export function useUserNavigationTracking(onUserNavigation?: OnUserNavigationCallback) {
   const matches = useMatches()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const timeoutRef = useRef<number | null>(null)
@@ -68,6 +79,4 @@ export function UserNavigationTracker({ onUserNavigation }: { onUserNavigation?:
       }
     }
   }, [matches, pathname, onUserNavigation])
-
-  return null
 }

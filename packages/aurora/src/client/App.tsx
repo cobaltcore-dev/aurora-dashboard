@@ -12,7 +12,6 @@ import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
 import type { Slots, OnUserNavigationCallback } from "./AuroraApp"
 import { messages as enMessages } from "../locales/en/messages"
-import { UserNavigationTracker } from "./analytics/UserNavigationTracker"
 
 // Initialise i18n here so AuroraApp is self-contained and consumers don't need
 // to set up Lingui before mounting the component.
@@ -132,14 +131,10 @@ function AppInner({
     handleThemeToggle,
     slots,
     appName,
+    onUserNavigation,
   }
 
-  return (
-    <>
-      <RouterProvider router={router} context={routerContext} />
-      <UserNavigationTracker onUserNavigation={onUserNavigation} />
-    </>
-  )
+  return <RouterProvider router={router} context={routerContext} />
 }
 
 export default App

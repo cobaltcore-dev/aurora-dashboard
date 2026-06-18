@@ -4,13 +4,14 @@ import { MainNavigation } from "../components/navigation/MainNavigation"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
 import { NavigationItem } from "../components/navigation/types"
-import type { Slots } from "../AuroraApp"
+import type { Slots, OnUserNavigationCallback } from "../AuroraApp"
 import styles from "../index.css?inline"
 import { InactivityModal } from "../components/Auth/InactivityModal"
 import { RouteError } from "../components/Error/RouteError"
 import { useLingui } from "@lingui/react/macro"
 import { StatusError } from "../components/Error/StatusError"
 import { Slot } from "../components/Slot"
+import { useUserNavigationTracking } from "../analytics/UserNavigationTracker"
 
 export interface RouterContext {
   trpcReact: TrpcReact
@@ -20,6 +21,7 @@ export interface RouterContext {
   handleThemeToggle?: (theme: string) => void
   slots?: Slots
   appName?: string
+  onUserNavigation?: OnUserNavigationCallback
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -52,6 +54,11 @@ function AuroraLayout({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const { onUserNavigation } = Route.useRouteContext()
+
+  // Track user navigation for analytics
+  useUserNavigationTracking(onUserNavigation)
+
   return (
     <AuroraLayout>
       <Outlet />
