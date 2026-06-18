@@ -1,3 +1,4 @@
+import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Stack,
   Spinner,
@@ -8,21 +9,20 @@ import {
   DataGridHeadCell,
   Button,
 } from "@cloudoperators/juno-ui-components"
-import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import { useModal } from "@/client/utils/useModal"
 import { TABLE_COLUMNS } from "./-table/constants"
 import { PcaTableRow } from "./-table/PcaTableRow"
-import { useModal } from "@/client/utils/useModal"
 import { CreatePcaModal } from "./-modals/CreatePcaModal"
 
 export const PcaListContainer = () => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const columns = TABLE_COLUMNS()
+  const columnsLength = columns.length
   const [createCaOpen, toggleCreateCa] = useModal(false)
 
-  // Check filtering, sorting and search API compatibility with OpenStack -> implement with <ListToolbar />
   const { data: pcas = [], isLoading, isError, error } = trpcReact.services.pca.list.useQuery({ project_id: projectId })
 
   if (isLoading) {
@@ -44,9 +44,9 @@ export const PcaListContainer = () => {
 
   if (pcas.length === 0) {
     return (
-      <DataGrid columns={columns.length} className="pca" data-testid="no-pcas">
+      <DataGrid columns={columnsLength} className="pca" data-testid="no-pcas">
         <DataGridRow>
-          <DataGridCell colSpan={columns.length}>
+          <DataGridCell colSpan={columnsLength}>
             <ContentHeading>
               <Trans>No PCAs found</Trans>
             </ContentHeading>
@@ -61,8 +61,10 @@ export const PcaListContainer = () => {
 
   return (
     <div className="relative">
-      <Button variant="primary" label={t`Create Certificate Authority`} onClick={toggleCreateCa} />
-      <DataGrid columns={columns.length}>
+      <Stack className="pt-3 pb-2" distribution="end">
+        <Button variant="primary" label={t`Create Certificate Authority`} onClick={toggleCreateCa} />
+      </Stack>
+      <DataGrid columns={columnsLength}>
         <DataGridRow>
           {columns.map((label) => (
             <DataGridHeadCell key={label}>{label}</DataGridHeadCell>

@@ -1,18 +1,17 @@
+import { Fragment } from "react"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import type { RouteInfo } from "@/client/routes/routeInfo"
-import { trpcReact } from "@/client/trpcClient"
+import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Button,
+  CodeBlock,
   DescriptionDefinition,
   DescriptionList,
   DescriptionTerm,
-  Divider,
   Spinner,
   Stack,
 } from "@cloudoperators/juno-ui-components/index"
-import { Trans, useLingui } from "@lingui/react/macro"
-import { MdContentCopy, MdDownload } from "react-icons/md"
-import { Fragment } from "react/jsx-runtime"
+import type { RouteInfo } from "@/client/routes/routeInfo"
+import { trpcReact } from "@/client/trpcClient"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/$certificateId")({
   staticData: {
@@ -21,6 +20,11 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$p
     isDetail: true,
     sectionCrumb: { labelKey: "Services" },
     crumb: { labelKey: "PCA (Clavis)", to: "/projects/$projectId/services/pca" },
+    intermediateCrumb: {
+      useParentTitleAsLabel: true,
+      useParamAsLabel: "pcaId",
+      to: "/projects/$projectId/services/pca/$pcaId",
+    },
   } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const cert = await context.trpcClient?.services.pca.getByIdCertificate.query({
@@ -98,9 +102,13 @@ export function RouteComponent() {
     )
   }
 
+  const certificateIdValue = certificate.id
+  const certificateHeading = t`Certificate ${certificateIdValue}`
+  const certificateDetails = t`${certificateIdValue} Certificate Details`
+
   const basicInfo = [
     { label: t`CA ID`, value: certificate.certificate_authority_id },
-    { label: t`ID`, value: certificate.id },
+    { label: t`ID`, value: certificateIdValue },
     {
       label: t`Duration/validity`,
       value:
@@ -116,7 +124,7 @@ export function RouteComponent() {
 
   return (
     <Stack direction="vertical" gap="3">
-      <div className="text-theme-default text-2xl font-semibold">{`${certificate.id} Certificate Details`}</div>
+      <div className="text-theme-default text-2xl font-semibold">{certificateDetails}</div>
 
       <p className="text-theme-highest text-sm">
         <Trans>Manage your Certificate</Trans>
@@ -132,23 +140,12 @@ export function RouteComponent() {
           ))}
         </DescriptionList>
 
-        <div className="bg-dt-background w-full rounded-sm">
-          <div className="text-theme-default p-4 text-xl font-bold">Certificate {`${certificate.id}`}</div>
-          <Divider />
-
-          <div className="p-4 text-sm break-all whitespace-pre-wrap">{certificate?.csr}</div>
-
-          {/* I will implement downloading-copying functionality at issue/import part of the epic as I need to clarify some stuff with design-clavis team */}
-          <Divider />
-          <Stack gap="2" distribution="end" className="p-4">
-            <Button>
-              <MdDownload />
-            </Button>
-            <Button>
-              <MdContentCopy />
-            </Button>
-          </Stack>
-        </div>
+        <CodeBlock
+          heading={certificateHeading}
+          content={certificate?.csr ?? ""}
+          className="w-full [&_pre_code]:block [&_pre_code]:w-full"
+          wrap
+        />
       </Stack>
     </Stack>
   )
