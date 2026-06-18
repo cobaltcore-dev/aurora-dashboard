@@ -62,7 +62,7 @@ const POLICY_TEMPLATES: PolicyTemplate[] = [
           Effect: "Allow",
           Principal: "*",
           Action: ["s3:GetObject", "s3:PutObject"],
-          Resource: [`arn:aws:s3:::${bucketName}`, `arn:aws:s3:::${bucketName}/*`],
+          Resource: `arn:aws:s3:::${bucketName}/*`,
           Condition: {
             IpAddress: {
               "aws:SourceIp": "192.168.0.0/16",
@@ -322,25 +322,25 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
               </Select>
 
               <div>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <label className="juno-label">
-                    <Trans>Policy JSON</Trans>
-                  </label>
-                  {isDirty && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-theme-warning text-xs">
-                        <Trans>Unsaved changes</Trans>
-                      </span>
-                      <Button variant="subdued" size="small" onClick={handleReset} disabled={isSaving}>
-                        <Trans>Reset</Trans>
-                      </Button>
-                    </div>
-                  )}
-                </div>
                 <form.Field
                   name="policyText"
                   children={(field) => (
                     <>
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <label htmlFor={field.name} className="juno-label">
+                          <Trans>Policy JSON</Trans>
+                        </label>
+                        {isDirty && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-theme-warning text-xs">
+                              <Trans>Unsaved changes</Trans>
+                            </span>
+                            <Button variant="subdued" size="small" onClick={handleReset} disabled={isSaving}>
+                              <Trans>Reset</Trans>
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                       <Textarea
                         id={field.name}
                         name={field.name}
