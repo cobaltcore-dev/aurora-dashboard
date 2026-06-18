@@ -48,6 +48,7 @@ vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/$storageTyp
     useParams: () => ({
       projectId: "test-project-id",
       provider: "ceph",
+      storageType: "buckets",
       containerName: "test-bucket",
     }),
     useSearch: () => ({
