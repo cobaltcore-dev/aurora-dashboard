@@ -10,8 +10,9 @@ import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
-import type { Slots } from "./AuroraApp"
+import type { Slots, OnUserNavigationCallback } from "./AuroraApp"
 import { messages as enMessages } from "../locales/en/messages"
+import { UserNavigationTracker } from "./analytics/UserNavigationTracker"
 
 // Initialise i18n here so AuroraApp is self-contained and consumers don't need
 // to set up Lingui before mounting the component.
@@ -24,6 +25,7 @@ type AppProps = {
   onThemeChange?: (theme: "theme-dark" | "theme-light") => void
   slots?: Slots
   appName?: string
+  onUserNavigation?: OnUserNavigationCallback
 }
 
 // Additional navigation items can be added here and will be passed to the layout via context
@@ -94,6 +96,7 @@ const App = (props: AppProps) => {
                   handleThemeToggle={handleThemeToggle}
                   slots={props.slots}
                   appName={props.appName}
+                  onUserNavigation={props.onUserNavigation}
                 />
               </AuthProvider>
             </QueryClientProvider>
@@ -110,12 +113,14 @@ function AppInner({
   handleThemeToggle,
   slots,
   appName,
+  onUserNavigation,
 }: {
   router: ReturnType<typeof createAuroraRouter>
   navItems: NavigationItem[]
   handleThemeToggle: (theme: string) => void
   slots?: Slots
   appName?: string
+  onUserNavigation?: OnUserNavigationCallback
 }) {
   const auth = useAuth()
 
@@ -129,7 +134,12 @@ function AppInner({
     appName,
   }
 
-  return <RouterProvider router={router} context={routerContext} />
+  return (
+    <>
+      <RouterProvider router={router} context={routerContext} />
+      <UserNavigationTracker onUserNavigation={onUserNavigation} />
+    </>
+  )
 }
 
 export default App
