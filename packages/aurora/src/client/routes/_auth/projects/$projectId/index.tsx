@@ -59,13 +59,19 @@ function RouteComponent() {
     })
   }
 
-  // Storage section - always show Ceph, optionally add Swift
+  // Storage section
   const storageLinks: { label: string; to: string }[] = []
   if (serviceIndex["object-store"]?.["swift"]) {
     storageLinks.push({ label: "Swift", to: `${base}/storage/swift/containers` })
   }
-  storageLinks.push({ label: "Ceph", to: `${base}/storage/ceph/containers` })
-  cards.push({ title: "Storage", links: storageLinks })
+
+  if (serviceIndex["object-store-ceph"]?.["ceph"]) {
+    storageLinks.push({ label: "Ceph", to: `${base}/storage/ceph/buckets` })
+  }
+
+  if (storageLinks.length > 0) {
+    cards.push({ title: "Storage", links: storageLinks })
+  }
 
   // temporary as clavis is not fully GA, after GA replace with ["pca"]?.["clavis"]
   if (serviceIndex["pca"]?.["clavis-dev"] || serviceIndex["pca"]?.["clavis-beta"]) {
