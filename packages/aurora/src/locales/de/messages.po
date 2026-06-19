@@ -178,9 +178,6 @@ msgstr "Zugriffskontrolle für Container:"
 msgid "Access Control Updated"
 msgstr "Zugriffskontrolle aktualisiert"
 
-msgid "Access Denied"
-msgstr ""
-
 msgid "Access Status"
 msgstr "Zugriffsstatus"
 
@@ -265,6 +262,9 @@ msgstr "Projektzugriff hinzufügen"
 msgid "After restoring, this version's content will become the new latest version."
 msgstr ""
 
+msgid "All buckets"
+msgstr "Alle Buckets"
+
 msgid "All Buckets Emptied"
 msgstr ""
 
@@ -345,9 +345,6 @@ msgstr "Anhängen"
 
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
-
-msgid "Authentication Failed"
-msgstr ""
 
 msgid "Back"
 msgstr "Zurück"
@@ -784,9 +781,6 @@ msgstr "Sicherheitsgruppe wird erstellt..."
 msgid "Creating..."
 msgstr ""
 
-msgid "Creation Date"
-msgstr ""
-
 msgid "Current location:"
 msgstr ""
 
@@ -831,9 +825,6 @@ msgstr "Löschen"
 
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
-
-msgid "Delete bucket"
-msgstr ""
 
 msgid "Delete Bucket"
 msgstr ""
@@ -1153,9 +1144,6 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 
-msgid "Error Loading Buckets"
-msgstr ""
-
 msgid "Error loading Certificate"
 msgstr "Error loading Certificate"
 
@@ -1327,6 +1315,9 @@ msgstr "Fehler beim Abrufen der Flavors vom Server."
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
+msgid "Failed to load buckets: {errorMessage}"
+msgstr "Fehler beim Laden der Buckets: {errorMessage}"
+
 msgid "Failed to load Certificates issued by Certificate Authority."
 msgstr "Failed to load Certificates issued by Certificate Authority."
 
@@ -1338,9 +1329,6 @@ msgstr "Fehler beim Laden der Container-Objekte: {errorMessage}"
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Eigenschaften: {errorMessage}"
-
-msgid "Failed to load containers: {errorMessage}"
-msgstr ""
 
 msgid "Failed to load extra specs. Please try again."
 msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
@@ -2076,9 +2064,6 @@ msgstr "No Certificates issued by this Certificate Authority found"
 
 msgid "No containers found"
 msgstr "Keine Container gefunden"
-
-msgid "No containers found."
-msgstr ""
 
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "Keine benutzerdefinierten Metadaten-Eigenschaften gefunden. Klicken Sie auf \"Eigenschaft hinzufügen\", um eine zu erstellen."
@@ -3276,9 +3261,6 @@ msgstr "Image-Sichtbarkeit kann nicht aktualisiert werden"
 
 msgid "Unable to Upload Image File"
 msgstr "Image-Datei kann nicht hochgeladen werden"
-
-msgid "Unknown"
-msgstr ""
 
 msgid "Unknown domain"
 msgstr ""

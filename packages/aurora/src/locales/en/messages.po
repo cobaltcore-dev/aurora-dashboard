@@ -178,9 +178,6 @@ msgstr "Access Control for container:"
 msgid "Access Control Updated"
 msgstr "Access Control Updated"
 
-msgid "Access Denied"
-msgstr "Access Denied"
-
 msgid "Access Status"
 msgstr "Access Status"
 
@@ -265,6 +262,9 @@ msgstr "Add Tenant Access"
 msgid "After restoring, this version's content will become the new latest version."
 msgstr "After restoring, this version's content will become the new latest version."
 
+msgid "All buckets"
+msgstr "All buckets"
+
 msgid "All Buckets Emptied"
 msgstr "All Buckets Emptied"
 
@@ -345,9 +345,6 @@ msgstr "Attach"
 
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
-
-msgid "Authentication Failed"
-msgstr "Authentication Failed"
 
 msgid "Back"
 msgstr "Back"
@@ -784,9 +781,6 @@ msgstr "Creating security group..."
 msgid "Creating..."
 msgstr "Creating..."
 
-msgid "Creation Date"
-msgstr "Creation Date"
-
 msgid "Current location:"
 msgstr "Current location:"
 
@@ -831,9 +825,6 @@ msgstr "Delete"
 
 msgid "Delete {specKey}"
 msgstr "Delete {specKey}"
-
-msgid "Delete bucket"
-msgstr "Delete bucket"
 
 msgid "Delete Bucket"
 msgstr "Delete Bucket"
@@ -1153,9 +1144,6 @@ msgstr "Ephemeral Disk (GiB)"
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
 
-msgid "Error Loading Buckets"
-msgstr "Error Loading Buckets"
-
 msgid "Error loading Certificate"
 msgstr "Error loading Certificate"
 
@@ -1327,6 +1315,9 @@ msgstr "Failed to fetch flavors from server."
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Failed to generate temporary URL: {generalError}"
 
+msgid "Failed to load buckets: {errorMessage}"
+msgstr "Failed to load buckets: {errorMessage}"
+
 msgid "Failed to load Certificates issued by Certificate Authority."
 msgstr "Failed to load Certificates issued by Certificate Authority."
 
@@ -1338,9 +1329,6 @@ msgstr "Failed to load container objects: {errorMessage}"
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Failed to load container properties: {errorMessage}"
-
-msgid "Failed to load containers: {errorMessage}"
-msgstr "Failed to load containers: {errorMessage}"
 
 msgid "Failed to load extra specs. Please try again."
 msgstr "Failed to load extra specs. Please try again."
@@ -2076,9 +2064,6 @@ msgstr "No Certificates issued by this Certificate Authority found"
 
 msgid "No containers found"
 msgstr "No containers found"
-
-msgid "No containers found."
-msgstr "No containers found."
 
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "No custom metadata properties found. Click \"Add Property\" to create one."
@@ -3276,9 +3261,6 @@ msgstr "Unable to Update Image Visibility"
 
 msgid "Unable to Upload Image File"
 msgstr "Unable to Upload Image File"
-
-msgid "Unknown"
-msgstr "Unknown"
 
 msgid "Unknown domain"
 msgstr "Unknown domain"

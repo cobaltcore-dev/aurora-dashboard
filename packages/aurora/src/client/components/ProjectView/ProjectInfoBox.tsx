@@ -64,15 +64,10 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     const params = deepest.params as Record<string, string>
 
-    if (info.sectionCrumb) {
+    if (info.sectionCrumb?.to) {
       const { labelKey, to } = info.sectionCrumb
       const label = labelKey ? crumbLabels[labelKey] : undefined
-      const isLeaf = !info.crumb
-      items.push(
-        to
-          ? { label, onClick: () => navigate({ to: to as never, params: params as never }) }
-          : { label, active: isLeaf }
-      )
+      items.push({ label, onClick: () => navigate({ to: to as never, params: params as never }) })
     }
 
     if (info.crumb) {

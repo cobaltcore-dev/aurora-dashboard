@@ -5,7 +5,7 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { EmptyBucketsModal } from "./EmptyBucketsModal"
-import type { Container } from "@/server/Storage/types/ceph"
+import type { Bucket } from "@/server/Storage/types/ceph"
 
 // ─── Mock useProjectId ────────────────────────────────────────────────────────
 
@@ -63,17 +63,17 @@ vi.mock("@/client/trpcClient", () => ({
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const mockBuckets: Container[] = [
+const mockBuckets: Bucket[] = [
   { name: "bucket-1", creationDate: "2024-01-15T10:00:00Z", count: 5, bytes: 1024 },
   { name: "bucket-2", creationDate: "2024-01-15T10:00:00Z", count: 3, bytes: 512 },
   { name: "bucket-3", creationDate: "2024-01-15T10:00:00Z", count: 0, bytes: 0 },
 ]
 
-const mockSingleBucket: Container[] = [
+const mockSingleBucket: Bucket[] = [
   { name: "single-bucket", creationDate: "2024-01-15T10:00:00Z", count: 10, bytes: 2048 },
 ]
 
-const mockManyBuckets: Container[] = Array.from({ length: 25 }, (_, i) => ({
+const mockManyBuckets: Bucket[] = Array.from({ length: 25 }, (_, i) => ({
   name: `bucket-${i + 1}`,
   creationDate: "2024-01-15T10:00:00Z",
   count: i + 1,
@@ -89,7 +89,7 @@ const renderModal = ({
   onComplete = vi.fn(),
 }: {
   isOpen?: boolean
-  buckets?: Container[]
+  buckets?: Bucket[]
   onClose?: () => void
   onComplete?: (result: { emptiedCount: number; totalDeleted: number; errors: string[] }) => void
 } = {}) =>
@@ -168,7 +168,7 @@ describe("EmptyBucketsModal", () => {
     })
 
     test("shows singular form for single object", () => {
-      const singleObjectBucket: Container[] = [
+      const singleObjectBucket: Bucket[] = [
         { name: "bucket-1", creationDate: "2024-01-15T10:00:00Z", count: 1, bytes: 100 },
       ]
       renderModal({ buckets: singleObjectBucket })
@@ -176,9 +176,7 @@ describe("EmptyBucketsModal", () => {
     })
 
     test("does not show object count for empty buckets", () => {
-      const emptyBucket: Container[] = [
-        { name: "empty-bucket", creationDate: "2024-01-15T10:00:00Z", count: 0, bytes: 0 },
-      ]
+      const emptyBucket: Bucket[] = [{ name: "empty-bucket", creationDate: "2024-01-15T10:00:00Z", count: 0, bytes: 0 }]
       renderModal({ buckets: emptyBucket })
       expect(screen.queryByText(/\(0 objects\)/)).not.toBeInTheDocument()
     })
@@ -260,7 +258,7 @@ describe("EmptyBucketsModal", () => {
       )
     })
 
-    test("invalidates containers query after success", async () => {
+    test("invalidates buckets query after success", async () => {
       const user = userEvent.setup({ delay: null })
       renderModal({ buckets: mockBuckets })
 

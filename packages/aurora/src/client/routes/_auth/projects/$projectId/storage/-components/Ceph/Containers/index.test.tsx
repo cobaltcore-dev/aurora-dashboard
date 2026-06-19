@@ -5,8 +5,8 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { CephContainers } from "./"
-import type { Container } from "@/server/Storage/types/ceph"
+import { CephBuckets } from "./"
+import type { Bucket } from "@/server/Storage/types/ceph"
 
 // ─── Hoisted mocks ────────────────────────────────────────────────────────────
 // vi.mock factories are hoisted to the top of the file by Vitest, so any
@@ -50,9 +50,9 @@ vi.mock("@tanstack/react-router", async () => {
 
 // ─── Mock Route (search params + fullPath) ────────────────────────────────────
 
-vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/containers", () => ({
+vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType", () => ({
   Route: {
-    fullPath: "/_auth/projects/$projectId/storage/$provider/containers/",
+    fullPath: "/_auth/projects/$projectId/storage/$provider/$storageType/",
     useSearch: mockUseSearch,
   },
 }))
@@ -60,25 +60,25 @@ vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/containers"
 // ─── Mock child components ────────────────────────────────────────────────────
 // We test index.tsx in isolation — child components are tested separately.
 
-let capturedSetSelectedContainers: ((containers: string[]) => void) | undefined
+let capturedSetSelectedBuckets: ((buckets: string[]) => void) | undefined
 
-vi.mock("./ContainerTableView", () => ({
-  ContainerTableView: vi.fn(({ containers, createModalOpen, selectedContainers, setSelectedContainers }) => {
-    capturedSetSelectedContainers = setSelectedContainers
+vi.mock("./BucketTableView", () => ({
+  BucketTableView: vi.fn(({ buckets, createModalOpen, selectedBuckets, setSelectedBuckets }) => {
+    capturedSetSelectedBuckets = setSelectedBuckets
     return (
       <div
-        data-testid="container-table-view"
-        data-bucket-count={containers.length}
+        data-testid="bucket-table-view"
+        data-bucket-count={buckets.length}
         data-create-modal-open={String(createModalOpen)}
-        data-selected-count={selectedContainers?.length ?? 0}
+        data-selected-count={selectedBuckets?.length ?? 0}
       >
-        <button data-testid="simulate-select-bucket" onClick={() => setSelectedContainers?.(["bucket-1"])}>
+        <button data-testid="simulate-select-bucket" onClick={() => setSelectedBuckets?.(["bucket-1"])}>
           SimulateSelectOne
         </button>
-        <button data-testid="simulate-select-two" onClick={() => setSelectedContainers?.(["bucket-1", "bucket-2"])}>
+        <button data-testid="simulate-select-two" onClick={() => setSelectedBuckets?.(["bucket-1", "bucket-2"])}>
           SimulateSelectTwo
         </button>
-        <button data-testid="simulate-deselect-all" onClick={() => setSelectedContainers?.([])}>
+        <button data-testid="simulate-deselect-all" onClick={() => setSelectedBuckets?.([])}>
           SimulateDeselectAll
         </button>
       </div>
@@ -116,7 +116,7 @@ vi.mock("./EmptyBucketsModal", () => ({
 
 // ─── Mock toast notifications ─────────────────────────────────────────────────
 
-vi.mock("./ContainerToastNotifications", () => ({
+vi.mock("./BucketToastNotifications", () => ({
   getBucketCreatedToast: vi.fn(() => ({ variant: "success", children: null })),
   getBucketCreateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
   getBucketEmptiedToast: vi.fn(() => ({ variant: "success", children: null })),
@@ -128,14 +128,14 @@ vi.mock("./ContainerToastNotifications", () => ({
 
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
 
-const mockBuckets: Container[] = [
+const mockBuckets: Bucket[] = [
   { name: "bucket-1", creationDate: "2024-01-15T10:00:00Z", count: 5, bytes: 1024 },
   { name: "bucket-2", creationDate: "2024-01-16T10:00:00Z", count: 3, bytes: 512 },
   { name: "bucket-3", creationDate: "2024-01-17T10:00:00Z", count: 0, bytes: 0 },
 ]
 
 let trpcState = {
-  buckets: mockBuckets as Container[] | undefined,
+  buckets: mockBuckets as Bucket[] | undefined,
   isLoading: false,
   error: null as { message: string } | null,
 }
@@ -166,23 +166,23 @@ vi.mock("@/client/hooks/useProjectId", () => ({
 
 // ─── Render helper ────────────────────────────────────────────────────────────
 
-const renderContainers = () =>
+const renderBuckets = () =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <CephContainers />
+        <CephBuckets />
       </PortalProvider>
     </I18nProvider>
   )
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe("CephContainers (index)", () => {
+describe("CephBuckets (index)", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     resetSearch()
     trpcState = { buckets: mockBuckets, isLoading: false, error: null }
-    capturedSetSelectedContainers = undefined
+    capturedSetSelectedBuckets = undefined
     await act(async () => {
       i18n.activate("en")
     })
@@ -213,15 +213,15 @@ describe("CephContainers (index)", () => {
     test("shows loading spinner while fetching", () => {
       trpcState.isLoading = true
       trpcState.buckets = undefined
-      renderContainers()
+      renderBuckets()
       expect(screen.getByText(/Loading Buckets/i)).toBeInTheDocument()
     })
 
     test("does not render table view while loading", () => {
       trpcState.isLoading = true
       trpcState.buckets = undefined
-      renderContainers()
-      expect(screen.queryByTestId("container-table-view")).not.toBeInTheDocument()
+      renderBuckets()
+      expect(screen.queryByTestId("bucket-table-view")).not.toBeInTheDocument()
     })
   })
 
@@ -229,72 +229,72 @@ describe("CephContainers (index)", () => {
     test("shows error message when query fails", () => {
       trpcState.error = { message: "Network error" }
       trpcState.buckets = undefined
-      renderContainers()
-      expect(screen.getByText(/Failed to load containers/i)).toBeInTheDocument()
+      renderBuckets()
+      expect(screen.getByText(/Failed to load buckets/i)).toBeInTheDocument()
       expect(screen.getByText(/Network error/i)).toBeInTheDocument()
     })
 
     test("does not render table view on error", () => {
       trpcState.error = { message: "Network error" }
-      renderContainers()
-      expect(screen.queryByTestId("container-table-view")).not.toBeInTheDocument()
+      renderBuckets()
+      expect(screen.queryByTestId("bucket-table-view")).not.toBeInTheDocument()
     })
   })
 
   describe("Rendering", () => {
-    test("renders ContainerTableView", () => {
-      renderContainers()
-      expect(screen.getByTestId("container-table-view")).toBeInTheDocument()
+    test("renders BucketTableView", () => {
+      renderBuckets()
+      expect(screen.getByTestId("bucket-table-view")).toBeInTheDocument()
     })
 
-    test("passes correct bucket count to ContainerTableView", () => {
-      renderContainers()
-      expect(screen.getByTestId("container-table-view")).toHaveAttribute("data-bucket-count", "3")
+    test("passes correct bucket count to BucketTableView", () => {
+      renderBuckets()
+      expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-bucket-count", "3")
     })
 
     test("renders Create Bucket button", () => {
-      renderContainers()
+      renderBuckets()
       expect(screen.getByRole("button", { name: /Create Bucket/i })).toBeInTheDocument()
     })
 
     test("renders the Actions button", () => {
-      renderContainers()
+      renderBuckets()
       expect(screen.getByRole("button", { name: /Actions/i })).toBeInTheDocument()
     })
 
-    test("Actions button is disabled when no containers are selected", () => {
-      renderContainers()
+    test("Actions button is disabled when no buckets are selected", () => {
+      renderBuckets()
       expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
     })
 
-    test("passes selectedContainers and setSelectedContainers to ContainerTableView", () => {
-      renderContainers()
-      expect(screen.getByTestId("container-table-view")).toHaveAttribute("data-selected-count", "0")
-      expect(typeof capturedSetSelectedContainers).toBe("function")
+    test("passes selectedBuckets and setSelectedBuckets to BucketTableView", () => {
+      renderBuckets()
+      expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-selected-count", "0")
+      expect(typeof capturedSetSelectedBuckets).toBe("function")
     })
   })
 
   describe("Info block", () => {
-    test("renders containers-info-block", () => {
-      renderContainers()
-      expect(screen.getByTestId("containers-info-block")).toBeInTheDocument()
+    test("renders buckets-info-block", () => {
+      renderBuckets()
+      expect(screen.getByTestId("buckets-info-block")).toBeInTheDocument()
     })
 
     test("shows total bucket count when no search is active", () => {
-      renderContainers()
+      renderBuckets()
       expect(screen.getByText(/3 buckets/i)).toBeInTheDocument()
     })
 
     test("shows filtered count when search is active", () => {
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "bucket-1" })
-      renderContainers()
+      renderBuckets()
       // Plural 'one' form: "1 of 3 bucket" (singular)
       expect(screen.getByText(/1 of 3 bucket/i)).toBeInTheDocument()
     })
 
     test("shows total count when search is cleared", () => {
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "" })
-      renderContainers()
+      renderBuckets()
       expect(screen.getByText(/3 buckets/i)).toBeInTheDocument()
     })
   })
@@ -302,45 +302,45 @@ describe("CephContainers (index)", () => {
   describe("Search filtering", () => {
     test("filters buckets by search term from URL param", () => {
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "bucket-1" })
-      renderContainers()
-      expect(screen.getByTestId("container-table-view")).toHaveAttribute("data-bucket-count", "1")
+      renderBuckets()
+      expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-bucket-count", "1")
     })
 
     test("search filtering is case-insensitive", () => {
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "BUCKET-1" })
-      renderContainers()
-      expect(screen.getByTestId("container-table-view")).toHaveAttribute("data-bucket-count", "1")
+      renderBuckets()
+      expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-bucket-count", "1")
     })
 
     test("shows all buckets when search param is empty", () => {
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "" })
-      renderContainers()
-      expect(screen.getByTestId("container-table-view")).toHaveAttribute("data-bucket-count", "3")
+      renderBuckets()
+      expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-bucket-count", "3")
     })
 
     test("shows all buckets when search param is undefined", () => {
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: undefined })
-      renderContainers()
-      expect(screen.getByTestId("container-table-view")).toHaveAttribute("data-bucket-count", "3")
+      renderBuckets()
+      expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-bucket-count", "3")
     })
   })
 
   describe("Bulk actions menu", () => {
     test("Actions button is disabled when nothing is selected", () => {
-      renderContainers()
+      renderBuckets()
       expect(actionsButton()).toBeDisabled()
     })
 
     test("Actions button becomes enabled after selecting a bucket", async () => {
       const user = userEvent.setup()
-      renderContainers()
+      renderBuckets()
       await user.click(screen.getByTestId("simulate-select-bucket"))
       await waitFor(() => expect(actionsButton()).toBeEnabled())
     })
 
     test("shows the singular Empty Bucket item when one bucket is selected", async () => {
       const user = userEvent.setup()
-      renderContainers()
+      renderBuckets()
       await selectOne(user)
       await user.click(actionsButton())
       expect(await screen.findByText("Empty Bucket")).toBeInTheDocument()
@@ -348,7 +348,7 @@ describe("CephContainers (index)", () => {
 
     test("shows the plural Empty Buckets item when multiple buckets are selected", async () => {
       const user = userEvent.setup()
-      renderContainers()
+      renderBuckets()
       await selectTwo(user)
       await user.click(actionsButton())
       expect(await screen.findByText("Empty Buckets")).toBeInTheDocument()
@@ -356,7 +356,7 @@ describe("CephContainers (index)", () => {
 
     test("Actions button returns to disabled after deselecting all", async () => {
       const user = userEvent.setup()
-      renderContainers()
+      renderBuckets()
       await selectOne(user)
       await user.click(screen.getByTestId("simulate-deselect-all"))
       await waitFor(() => expect(actionsButton()).toBeDisabled())
@@ -365,13 +365,13 @@ describe("CephContainers (index)", () => {
 
   describe("Bulk empty modal", () => {
     test("modal is not visible by default", () => {
-      renderContainers()
+      renderBuckets()
       expect(screen.queryByTestId("empty-buckets-modal")).not.toBeInTheDocument()
     })
 
     test("choosing Empty Bucket from the Actions menu opens the modal", async () => {
       const user = userEvent.setup()
-      renderContainers()
+      renderBuckets()
       await selectOne(user)
       await openEmptyModal(user, "Empty Bucket")
       expect(screen.getByTestId("empty-buckets-modal")).toBeInTheDocument()
@@ -379,7 +379,7 @@ describe("CephContainers (index)", () => {
 
     test("modal receives the selected bucket count", async () => {
       const user = userEvent.setup()
-      renderContainers()
+      renderBuckets()
       await selectOne(user)
       await openEmptyModal(user, "Empty Bucket")
       expect(screen.getByTestId("empty-buckets-modal")).toHaveAttribute("data-bucket-count", "1")
@@ -387,7 +387,7 @@ describe("CephContainers (index)", () => {
 
     test("closing the modal hides it", async () => {
       const user = userEvent.setup()
-      renderContainers()
+      renderBuckets()
       await selectOne(user)
       await openEmptyModal(user, "Empty Bucket")
       await user.click(screen.getByRole("button", { name: "CloseEmptyAll" }))
@@ -397,9 +397,9 @@ describe("CephContainers (index)", () => {
     })
 
     test("clears selection and shows toast after successful empty", async () => {
-      const { getBucketsEmptyCompleteToast } = await import("./ContainerToastNotifications")
+      const { getBucketsEmptyCompleteToast } = await import("./BucketToastNotifications")
       const user = userEvent.setup()
-      renderContainers()
+      renderBuckets()
       await selectOne(user)
       await openEmptyModal(user, "Empty Bucket")
       await user.click(screen.getByTestId("simulate-empty-success"))
@@ -416,13 +416,13 @@ describe("CephContainers (index)", () => {
 
     test("keeps failed buckets selected after partial error", async () => {
       const user = userEvent.setup()
-      renderContainers()
+      renderBuckets()
       await selectTwo(user)
       await openEmptyModal(user, "Empty Buckets")
       await user.click(screen.getByTestId("simulate-empty-error"))
       await waitFor(() => {
         // Only bucket-1 failed — it stays selected; bucket-2 succeeded — cleared
-        expect(screen.getByTestId("container-table-view")).toHaveAttribute("data-selected-count", "1")
+        expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-selected-count", "1")
       })
     })
   })
