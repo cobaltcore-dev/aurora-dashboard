@@ -21,7 +21,7 @@ import { CreateFolderModal } from "./CreateFolderModal"
 import { EnableVersioningModal } from "../Containers/EnableVersioningModal"
 import { SuspendVersioningModal } from "../Containers/SuspendVersioningModal"
 import { useNavigate } from "@tanstack/react-router"
-import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects"
+import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
 import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
 import {
   getFolderCreatedToast,
@@ -63,6 +63,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
+  const { provider, storageType } = Route.useParams()
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
 
@@ -154,6 +155,19 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         ...prev,
         prefix: prefix ? encodePrefix(prefix) : undefined,
       }),
+    })
+  }
+
+  const navigateToBuckets = () => {
+    // Reset pagination/accumulated state before leaving the bucket
+    setContinuationToken(undefined)
+    setAllObjects([])
+    setAllFolders([])
+    setHasMore(false)
+
+    navigate({
+      to: "/projects/$projectId/storage/$provider/$storageType",
+      params: { projectId, provider, storageType },
     })
   }
 
@@ -286,7 +300,12 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         </Stack>
       </div>
 
-      <ObjectsFileNavigation bucketName={bucketName} prefix={currentPrefix} onPrefixClick={navigateToPrefix} />
+      <ObjectsFileNavigation
+        bucketName={bucketName}
+        prefix={currentPrefix}
+        onBucketsClick={navigateToBuckets}
+        onPrefixClick={navigateToPrefix}
+      />
 
       <Stack direction="vertical">
         {/* Zone 1 — sort controls and the primary actions (plain Stack, no background) */}

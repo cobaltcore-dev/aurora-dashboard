@@ -32,6 +32,7 @@ describe("Objects Route - checkServiceAvailability", () => {
   const defaultParams = {
     projectId: "proj-1",
     provider: "swift",
+    storageType: "containers",
     containerName: "my-container",
   }
 
@@ -107,7 +108,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets/my-container/objects")
     })
 
     it("does not throw when ceph is not in catalog but cephFallbackEnabled is true", () => {
@@ -119,7 +120,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       // cephFallbackEnabled is hardcoded to true, so Ceph is always available
       expect(() => {
-        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
+        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph", storageType: "buckets" })
       }).not.toThrow()
     })
   })
@@ -141,6 +142,7 @@ describe("Objects Route - checkServiceAvailability", () => {
       const params = {
         projectId: "test-proj",
         provider: "swift",
+        storageType: "containers",
         containerName: "test-container",
       }
 
@@ -153,8 +155,8 @@ describe("Objects Route - checkServiceAvailability", () => {
       // The implementation passes explicit params (not a spread), so the call
       // receives exactly { projectId, provider: "ceph", containerName }.
       expect(redirect).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-        params: { projectId: "test-proj", provider: "ceph", containerName: "test-container" },
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId: "test-proj", provider: "ceph", storageType: "buckets", containerName: "test-container" },
       })
     })
   })
@@ -182,7 +184,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets/my-container/objects")
     })
 
     it("does not redirect when ceph is not in catalog but cephFallbackEnabled is true", () => {
@@ -194,7 +196,7 @@ describe("Objects Route - checkServiceAvailability", () => {
 
       // cephFallbackEnabled is hardcoded to true, so Ceph is always available
       expect(() => {
-        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
+        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph", storageType: "buckets" })
       }).not.toThrow()
     })
 
@@ -206,7 +208,72 @@ describe("Objects Route - checkServiceAvailability", () => {
       // cephFallbackEnabled makes Ceph always available as fallback
       expect(() => {
         checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/containers/my-container/objects")
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets/my-container/objects")
+    })
+  })
+
+  describe("Canonical storageType enforcement", () => {
+    beforeEach(() => {
+      // object-store present with swift; ceph is available via fallback. This lets
+      // both providers pass availability so the canonical check is what's exercised.
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+    })
+
+    it("redirects swift + buckets to the canonical swift + containers path", () => {
+      expect(() => {
+        checkServiceAvailability(defaultServices, {
+          ...defaultParams,
+          provider: "swift",
+          storageType: "buckets",
+        })
+      }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers/my-container/objects")
+    })
+
+    it("redirects ceph + containers to the canonical ceph + buckets path", () => {
+      expect(() => {
+        checkServiceAvailability(defaultServices, {
+          ...defaultParams,
+          provider: "ceph",
+          storageType: "containers",
+        })
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets/my-container/objects")
+    })
+
+    it("passes canonical params to redirect when normalizing the storageType segment", () => {
+      try {
+        checkServiceAvailability(defaultServices, {
+          ...defaultParams,
+          provider: "ceph",
+          storageType: "containers",
+        })
+      } catch {
+        // expected to throw
+      }
+
+      expect(redirect).toHaveBeenCalledWith({
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId: "proj-1", provider: "ceph", storageType: "buckets", containerName: "my-container" },
+      })
+    })
+
+    it("does not redirect when storageType already matches the provider", () => {
+      expect(() => {
+        checkServiceAvailability(defaultServices, {
+          ...defaultParams,
+          provider: "ceph",
+          storageType: "buckets",
+        })
+      }).not.toThrow()
+
+      expect(() => {
+        checkServiceAvailability(defaultServices, {
+          ...defaultParams,
+          provider: "swift",
+          storageType: "containers",
+        })
+      }).not.toThrow()
     })
   })
 })

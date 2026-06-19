@@ -1,23 +1,69 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render as rtlRender, screen } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
-import type { ReactNode } from "react"
+import type { ReactNode, ReactElement } from "react"
 import userEvent from "@testing-library/user-event"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 
-const render = (ui: React.ReactElement) => {
+const render = (ui: ReactElement) => {
   return rtlRender(ui, {
-    wrapper: ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>,
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <I18nProvider i18n={i18n}>
+        <PortalProvider>{children}</PortalProvider>
+      </I18nProvider>
+    ),
   })
 }
 
 describe("ObjectsFileNavigation", () => {
+  beforeEach(() => {
+    i18n.activate("en")
+  })
+
   const defaultProps = {
     bucketName: "test-bucket",
     prefix: "",
+    onBucketsClick: vi.fn(),
     onPrefixClick: vi.fn(),
   }
+
+  // ── All buckets root crumb ──────────────────────────────────────────────────
+
+  it("renders the All buckets root crumb at root", () => {
+    render(<ObjectsFileNavigation {...defaultProps} />)
+
+    expect(screen.getByText("All buckets")).toBeInTheDocument()
+  })
+
+  it("renders the All buckets root crumb when nested", () => {
+    render(<ObjectsFileNavigation {...defaultProps} prefix="documents/reports/" />)
+
+    expect(screen.getByText("All buckets")).toBeInTheDocument()
+  })
+
+  it("calls onBucketsClick when All buckets is clicked at root", async () => {
+    const onBucketsClick = vi.fn()
+    const user = userEvent.setup()
+    render(<ObjectsFileNavigation {...defaultProps} onBucketsClick={onBucketsClick} />)
+
+    await user.click(screen.getByText("All buckets"))
+
+    expect(onBucketsClick).toHaveBeenCalledOnce()
+  })
+
+  it("calls onBucketsClick when All buckets is clicked from a nested prefix", async () => {
+    const onBucketsClick = vi.fn()
+    const user = userEvent.setup()
+    render(<ObjectsFileNavigation {...defaultProps} prefix="documents/reports/2024/" onBucketsClick={onBucketsClick} />)
+
+    await user.click(screen.getByText("All buckets"))
+
+    expect(onBucketsClick).toHaveBeenCalledOnce()
+  })
+
+  // ── Bucket crumb ────────────────────────────────────────────────────────────
 
   it("renders bucket name at root level", () => {
     render(<ObjectsFileNavigation {...defaultProps} />)

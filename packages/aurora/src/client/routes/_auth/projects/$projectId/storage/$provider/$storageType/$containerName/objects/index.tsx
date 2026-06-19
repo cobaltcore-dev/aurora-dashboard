@@ -15,10 +15,11 @@ export const checkServiceAvailability = (
   params: {
     projectId: string
     provider: string
+    storageType: string
     containerName: string
   }
 ) => {
-  const { provider, projectId, containerName } = params
+  const { provider, projectId, storageType, containerName } = params
 
   const serviceIndex = getServiceIndex(availableServices)
 
@@ -41,17 +42,18 @@ export const checkServiceAvailability = (
   // Effective availability includes fallback flag for Ceph
   const hasEffectiveCeph = hasCeph || cephFallbackEnabled
   const fallbackProvider = hasSwift ? "swift" : hasEffectiveCeph ? "ceph" : null
+  const fallbackStorageType = hasSwift ? "containers" : hasEffectiveCeph ? "buckets" : null
 
   if (provider !== "swift" && provider !== "ceph") {
-    if (!fallbackProvider) {
+    if (!fallbackProvider || !fallbackStorageType) {
       throw redirect({
         to: "/projects/$projectId",
         params: { projectId },
       })
     }
     throw redirect({
-      to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-      params: { projectId, provider: fallbackProvider, containerName },
+      to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+      params: { projectId, provider: fallbackProvider, storageType: fallbackStorageType, containerName },
     })
   }
 
@@ -64,8 +66,8 @@ export const checkServiceAvailability = (
     }
 
     throw redirect({
-      to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-      params: { projectId, provider: "ceph", containerName },
+      to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+      params: { projectId, provider: "ceph", storageType: "buckets", containerName },
     })
   }
 
@@ -78,9 +80,24 @@ export const checkServiceAvailability = (
     }
 
     throw redirect({
-      to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-      params: { projectId, provider: "swift", containerName },
+      to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+      params: { projectId, provider: "swift", storageType: "containers", containerName },
     })
+  }
+
+  // Canonicalize the URL terminology for the resolved provider. Availability is
+  // already settled above, so by this point provider is a valid, available
+  // swift|ceph. The storageType segment is user-controllable and the router never
+  // validates it, so a mismatched noun (e.g. ceph + "containers", swift + "buckets")
+  // must redirect to the canonical path to keep URLs normalized.
+  if (provider === "swift" || provider === "ceph") {
+    const expectedStorageType = provider === "swift" ? "containers" : "buckets"
+    if (storageType !== expectedStorageType) {
+      throw redirect({
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId, provider, storageType: expectedStorageType, containerName },
+      })
+    }
   }
 }
 
@@ -96,53 +113,54 @@ const objectsSearchSchema = z.object({
   search: z.string().optional(),
 })
 
-export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/")(
-  {
-    staticData: {
-      section: "storage",
-      service: "containers",
-      isDetail: true,
-      sectionCrumb: { labelKey: "Storage" },
-      crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" },
-    } satisfies RouteInfo,
-    validateSearch: objectsSearchSchema,
-    head: ({ match }) => ({
-      meta: [{ title: match.params.containerName }],
-    }),
-    component: () => {
-      return <ObjectsDashboard />
-    },
-    notFoundComponent: () => {
-      return (
-        <p>
-          <Trans>Storage container not found</Trans>
-        </p>
-      )
-    },
-    loader: async ({ context }) => {
-      const { trpcClient } = context
-      const availableServices = await trpcClient?.auth.getAvailableServices.query()
+export const Route = createFileRoute(
+  "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/"
+)({
+  staticData: {
+    section: "storage",
+    service: "containers",
+    isDetail: true,
+    sectionCrumb: { labelKey: "Storage" },
+    crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/$storageType" },
+  } satisfies RouteInfo,
+  validateSearch: objectsSearchSchema,
+  head: ({ match }) => ({
+    meta: [{ title: match.params.containerName }],
+  }),
+  component: () => {
+    return <ObjectsDashboard />
+  },
+  notFoundComponent: () => {
+    return (
+      <p>
+        <Trans>Storage container not found</Trans>
+      </p>
+    )
+  },
+  loader: async ({ context }) => {
+    const { trpcClient } = context
+    const availableServices = await trpcClient?.auth.getAvailableServices.query()
 
-      return {
-        client: trpcClient,
-        availableServices,
-      }
-    },
-    beforeLoad: async ({ context, params }) => {
-      const { trpcClient } = context
-      const availableServices = await trpcClient?.auth.getAvailableServices.query()
-      checkServiceAvailability(availableServices!, params)
-    },
-  }
-)
+    return {
+      client: trpcClient,
+      availableServices,
+    }
+  },
+  beforeLoad: async ({ context, params }) => {
+    const { trpcClient } = context
+    const availableServices = await trpcClient?.auth.getAvailableServices.query()
+    checkServiceAvailability(availableServices!, params)
+  },
+})
 
 function ObjectsDashboard() {
   const { project, provider, containerName } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
     select: (params) => ({
       project: params.projectId,
       provider: params.provider,
       containerName: params.containerName,
+      storageType: params.storageType,
     }),
   })
 

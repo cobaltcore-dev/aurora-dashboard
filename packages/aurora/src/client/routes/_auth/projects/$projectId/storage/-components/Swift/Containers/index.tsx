@@ -37,7 +37,7 @@ import {
 import { ContainerLimitsTooltip } from "./ContainerLimitsTooltip"
 import { EmptyContainersModal } from "./EmptyContainersModal"
 import { useNavigate } from "@tanstack/react-router"
-import { Route } from "../../../$provider/containers/"
+import { Route } from "../../../$provider/$storageType/"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 export const SwiftContainers = () => {

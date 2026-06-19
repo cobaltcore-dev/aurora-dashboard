@@ -11,9 +11,9 @@ import {
   getBucketDeletedToast,
   getBucketDeleteErrorToast,
   getBucketsEmptyCompleteToast,
-} from "./ContainerToastNotifications"
+} from "./BucketToastNotifications"
 
-describe("ContainerToastNotifications", () => {
+describe("BucketToastNotifications", () => {
   const mockOnDismiss = vi.fn()
   const defaultConfig = { onDismiss: mockOnDismiss }
 
