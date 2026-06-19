@@ -69,7 +69,9 @@ function RouteComponent() {
     storageLinks.push({ label: "Ceph", to: `${base}/storage/ceph/buckets` })
   }
 
-  cards.push({ title: "Storage", links: storageLinks })
+  if (storageLinks.length > 0) {
+    cards.push({ title: "Storage", links: storageLinks })
+  }
 
   // temporary as clavis is not fully GA, after GA replace with ["pca"]?.["clavis"]
   if (serviceIndex["pca"]?.["clavis-dev"] || serviceIndex["pca"]?.["clavis-beta"]) {
