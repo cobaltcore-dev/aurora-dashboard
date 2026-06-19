@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { CephBuckets } from "./"
+import { CephBuckets } from "."
 import type { Bucket } from "@/server/Storage/types/ceph"
 
 // ─── Hoisted mocks ────────────────────────────────────────────────────────────
