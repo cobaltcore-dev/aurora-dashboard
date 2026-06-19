@@ -226,8 +226,8 @@ importers:
         version: 4.3.6
     devDependencies:
       '@cloudoperators/juno-ui-components':
-        specifier: 7.0.0
-        version: 7.0.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: 8.1.0
+        version: 8.1.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sonner@2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5))
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../config
@@ -767,12 +767,13 @@ packages:
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
 
-  '@cloudoperators/juno-ui-components@7.0.0':
-    resolution: {integrity: sha512-yJ1v9t0HdBQI78xkFJtzP4akdaWl3tgAaW00LhGxT8w79QQfVPHWdzDwG9mLVWsrVfx/0/wDzqHknp+0EX+igw==}
+  '@cloudoperators/juno-ui-components@8.1.0':
+    resolution: {integrity: sha512-gJ4sDBHCI+dtgzu8VEM93vr+9xLOV2AjAnfGss4iYH0PtYaOnhNw6W37QsNrCMVkzXg0mdu748y8RbOVkRMfpQ==}
     engines: {node: '>=20.19.0', pnpm: '>=8.0.0'}
     peerDependencies:
       react: ^19.1.0
       react-dom: ^19.1.0
+      sonner: ^2.0.7
 
   '@commitlint/cli@20.5.0':
     resolution: {integrity: sha512-yNkyN/tuKTJS3wdVfsZ2tXDM4G4Gi7z+jW54Cki8N8tZqwKBltbIvUUrSbT4hz1bhW/h0CdR+5sCSpXD+wMKaQ==}
@@ -5256,6 +5257,12 @@ packages:
   sonic-boom@4.2.1:
     resolution: {integrity: sha512-w6AxtubXa2wTXAUsZMMWERrsIRAdrK0Sc+FUytWvYAhBJLyuI4llrMIC1DtlNSdI99EI86KZum2MMq3EAZlF9Q==}
 
+  sonner@2.0.7:
+    resolution: {integrity: sha512-W6ZN4p58k8aDKA4XPcx2hpIQXBRAgyiWVkYhT7CvK6D3iAu7xjvVyhQHg2/iaKJZ1XVJ4r7XuwGL+WGEK37i9w==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -6666,10 +6673,11 @@ snapshots:
       human-id: 4.1.3
       prettier: 2.8.8
 
-  '@cloudoperators/juno-ui-components@7.0.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@cloudoperators/juno-ui-components@8.1.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sonner@2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5))':
     dependencies:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
+      sonner: 2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
 
   '@commitlint/cli@20.5.0(@types/node@24.12.2)(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.3.0)(typescript@6.0.3)':
     dependencies:
@@ -11327,6 +11335,11 @@ snapshots:
   sonic-boom@4.2.1:
     dependencies:
       atomic-sleep: 1.0.0
+
+  sonner@2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
+    dependencies:
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
 
   source-map-js@1.2.1: {}
 
