@@ -22,11 +22,12 @@ interface SecurityGroupListContainerProps {
   onUpdateSecurityGroup?: (
     securityGroupId: string,
     data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">
-  ) => void
+  ) => Promise<void>
   isUpdatingSecurityGroup?: boolean
   updateError?: string | null
   currentProjectId?: string
   hasAnyBulkAction?: boolean
+  onClearUpdateError?: () => void
 }
 
 export const SecurityGroupListContainer = ({
@@ -43,6 +44,7 @@ export const SecurityGroupListContainer = ({
   updateError = null,
   currentProjectId,
   hasAnyBulkAction = false,
+  onClearUpdateError,
 }: SecurityGroupListContainerProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -54,6 +56,10 @@ export const SecurityGroupListContainer = ({
   const prevIsUpdatingRef = useRef<boolean>(false)
 
   const handleEdit = (sg: SecurityGroup) => {
+    // Clear error when selecting a different security group
+    if (selectedSecurityGroup && selectedSecurityGroup.id !== sg.id && onClearUpdateError) {
+      onClearUpdateError()
+    }
     setSelectedSecurityGroup(sg)
     setEditModalOpen(true)
   }
@@ -168,10 +174,11 @@ export const SecurityGroupListContainer = ({
             securityGroup={selectedSecurityGroup}
             open={editModalOpen}
             onClose={closeEditModal}
-            onUpdate={async (id, data) => {
+            onUpdate={(id, data) => {
               if (onUpdateSecurityGroup) {
-                await onUpdateSecurityGroup(id, data)
+                return onUpdateSecurityGroup(id, data)
               }
+              return Promise.resolve()
             }}
             isLoading={isUpdatingSecurityGroup}
             error={updateError}

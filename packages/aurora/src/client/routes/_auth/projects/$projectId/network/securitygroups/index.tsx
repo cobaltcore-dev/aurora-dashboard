@@ -18,10 +18,17 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/securit
 
 function RouteComponent() {
   const { t } = useLingui()
+  const { projectId } = Route.useParams()
+  const { trpcClient } = Route.useRouteContext()
+
+  if (!trpcClient) {
+    throw new Error("trpcClient is not available in route context")
+  }
+
   return (
     <>
       <ContentHeading>{t`Security Groups`}</ContentHeading>
-      <SecurityGroups />
+      <SecurityGroups client={trpcClient} project={projectId} />
     </>
   )
 }
