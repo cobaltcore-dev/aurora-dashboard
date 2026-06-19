@@ -1,7 +1,6 @@
 import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
 import { AppShell, Container, Stack } from "@cloudoperators/juno-ui-components"
 import { SideNavBar } from "@/client/routes/_auth/projects/-components/SideNavBar"
-import { ProjectInfoBox } from "@/client/components/ProjectView/ProjectInfoBox"
 import { RouteError } from "@/client/components/Error/RouteError"
 
 export const Route = createFileRoute("/_auth/projects/$projectId")({
@@ -52,13 +51,6 @@ function RouteComponent() {
         <Stack direction="vertical" distribution="start" alignment="stretch" className="xl:flex-row" gap="6">
           {/* Main content area */}
           <div className="min-w-0 flex-1">
-            <ProjectInfoBox
-              projectInfo={{
-                id: projectId,
-                name: crumbProject?.name || projectId,
-                domain: crumbProject?.domain,
-              }}
-            />
             <Outlet />
           </div>
         </Stack>
