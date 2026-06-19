@@ -42,9 +42,15 @@ vi.mock("@tanstack/react-router", async () => {
   }
 })
 
-vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects", () => ({
+vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects", () => ({
   Route: {
     fullPath: "/test/path",
+    useParams: () => ({
+      projectId: "test-project-id",
+      provider: "ceph",
+      storageType: "buckets",
+      containerName: "test-bucket",
+    }),
     useSearch: () => ({
       prefix: undefined,
       sortBy: undefined,

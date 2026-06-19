@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Spinner, Stack, Message, TextInput } from "@cloudoperators/juno-ui-components"
-import { Container } from "@/server/Storage/types/ceph"
+import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 const MAX_VISIBLE = 20
@@ -15,7 +15,7 @@ interface EmptyBucketsResult {
 
 interface EmptyBucketsModalProps {
   isOpen: boolean
-  buckets: Container[]
+  buckets: Bucket[]
   onClose: () => void
   onComplete?: (result: EmptyBucketsResult) => void
 }

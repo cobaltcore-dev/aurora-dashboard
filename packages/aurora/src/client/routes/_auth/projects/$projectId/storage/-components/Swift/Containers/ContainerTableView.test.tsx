@@ -21,6 +21,7 @@ vi.mock("@tanstack/react-router", async () => {
     useParams: vi.fn(() => ({
       projectId: "test-project",
       provider: "swift",
+      storageType: "containers",
     })),
     useNavigate: vi.fn(() => mockNavigateFn),
   }
@@ -369,8 +370,8 @@ describe("ContainerTableView", () => {
       renderView()
       await user.click(screen.getByTestId("container-row-alpha"))
       expect(mockNavigateFn).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-        params: { projectId: "test-project", provider: "swift", containerName: "alpha" },
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId: "test-project", provider: "swift", storageType: "containers", containerName: "alpha" },
       })
     })
 
@@ -381,8 +382,8 @@ describe("ContainerTableView", () => {
       row.focus()
       await user.keyboard("{Enter}")
       expect(mockNavigateFn).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-        params: { projectId: "test-project", provider: "swift", containerName: "alpha" },
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId: "test-project", provider: "swift", storageType: "containers", containerName: "alpha" },
       })
     })
 
@@ -393,8 +394,8 @@ describe("ContainerTableView", () => {
       row.focus()
       await user.keyboard(" ")
       expect(mockNavigateFn).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-        params: { projectId: "test-project", provider: "swift", containerName: "alpha" },
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId: "test-project", provider: "swift", storageType: "containers", containerName: "alpha" },
       })
     })
 

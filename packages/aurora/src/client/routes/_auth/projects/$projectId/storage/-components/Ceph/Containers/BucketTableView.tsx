@@ -12,14 +12,14 @@ import {
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Container } from "@/server/Storage/types/ceph"
+import { Bucket } from "@/server/Storage/types/ceph"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { CreateBucketModal } from "./CreateBucketModal"
 import { EmptyBucketModal } from "./EmptyBucketModal"
 import { DeleteBucketModal } from "./DeleteBucketModal"
 
-interface ContainerTableViewProps {
-  containers: Container[]
+interface BucketTableViewProps {
+  buckets: Bucket[]
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
   onCreateSuccess: (bucketName: string) => void
@@ -28,14 +28,14 @@ interface ContainerTableViewProps {
   onEmptyError: (bucketName: string, errorMessage: string) => void
   onDeleteSuccess: (bucketName: string) => void
   onDeleteError: (bucketName: string, errorMessage: string) => void
-  selectedContainers: string[]
-  setSelectedContainers: (containers: string[]) => void
+  selectedBuckets: string[]
+  setSelectedBuckets: (buckets: string[]) => void
   // When false, the selection column (header select-all + per-row checkboxes) is dropped.
   hasAnyBulkAction?: boolean
 }
 
-export const ContainerTableView = ({
-  containers,
+export const BucketTableView = ({
+  buckets,
   createModalOpen,
   setCreateModalOpen,
   onCreateSuccess,
@@ -44,18 +44,18 @@ export const ContainerTableView = ({
   onEmptyError,
   onDeleteSuccess,
   onDeleteError,
-  selectedContainers,
-  setSelectedContainers,
+  selectedBuckets,
+  setSelectedBuckets,
   hasAnyBulkAction = true,
-}: ContainerTableViewProps) => {
-  const { projectId, provider } = useParams({ strict: false })
+}: BucketTableViewProps) => {
+  const { projectId, provider, storageType } = useParams({ strict: false })
   const { t } = useLingui()
   const navigate = useNavigate()
 
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
-  const [emptyModalBucket, setEmptyModalBucket] = useState<Container | null>(null)
-  const [deleteModalBucket, setDeleteModalBucket] = useState<Container | null>(null)
+  const [emptyModalBucket, setEmptyModalBucket] = useState<Bucket | null>(null)
+  const [deleteModalBucket, setDeleteModalBucket] = useState<Bucket | null>(null)
 
   // Calculate scrollbar width
   useEffect(() => {
@@ -63,7 +63,7 @@ export const ContainerTableView = ({
       const width = parentRef.current.offsetWidth - parentRef.current.clientWidth
       setScrollbarWidth(width)
     }
-  }, [containers.length])
+  }, [buckets.length])
 
   // Format date to localized string
   const formatDate = (dateString: string): string => {
@@ -76,34 +76,40 @@ export const ContainerTableView = ({
   }
 
   const rowVirtualizer = useVirtualizer({
-    count: containers.length,
+    count: buckets.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 48, // Estimated row height
     overscan: 10,
   })
 
-  const selectedSet = new Set(selectedContainers)
-  const allSelected = containers.length > 0 && containers.every((c) => selectedSet.has(c.name))
+  const selectedSet = new Set(selectedBuckets)
+  const allSelected = buckets.length > 0 && buckets.every((b) => selectedSet.has(b.name))
 
   const handleSelectAll = () => {
+    // `buckets` is the filtered/visible list. Scope select-all to the visible rows so
+    // selections hidden by the current search filter are preserved — otherwise bulk
+    // actions drift out of sync with the parent toolbar's full selectedBuckets list.
+    const visibleNames = buckets.map((b) => b.name)
     if (allSelected) {
-      setSelectedContainers([])
+      // Deselect only what's visible; keep hidden selections intact.
+      setSelectedBuckets(selectedBuckets.filter((name) => !visibleNames.includes(name)))
     } else {
-      setSelectedContainers(containers.map((c) => c.name))
+      // Add visible rows to the existing selection without dropping hidden ones.
+      setSelectedBuckets([...new Set([...selectedBuckets, ...visibleNames])])
     }
   }
 
-  const handleSelectContainer = (containerName: string) => {
-    if (selectedContainers.includes(containerName)) {
-      setSelectedContainers(selectedContainers.filter((name) => name !== containerName))
+  const handleSelectBucket = (bucketName: string) => {
+    if (selectedBuckets.includes(bucketName)) {
+      setSelectedBuckets(selectedBuckets.filter((name) => name !== bucketName))
     } else {
-      setSelectedContainers([...selectedContainers, containerName])
+      setSelectedBuckets([...selectedBuckets, bucketName])
     }
   }
 
-  if (!containers || containers.length === 0) {
+  if (!buckets || buckets.length === 0) {
     return (
-      <DataGrid columns={4} className="containers" data-testid="no-containers">
+      <DataGrid columns={4} className="buckets" data-testid="no-buckets">
         <DataGridRow>
           <DataGridCell colSpan={4}>
             <div className="py-8 text-center">
@@ -137,13 +143,13 @@ export const ContainerTableView = ({
           <DataGrid
             columns={columnCount}
             gridColumnTemplate={gridColumnTemplate}
-            className="containers"
-            data-testid="containers-table-header"
+            className="buckets"
+            data-testid="buckets-table-header"
           >
             <DataGridRow>
               {hasAnyBulkAction && (
                 <DataGridHeadCell>
-                  <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-containers" />
+                  <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-buckets" />
                 </DataGridHeadCell>
               )}
               <DataGridHeadCell>
@@ -170,7 +176,7 @@ export const ContainerTableView = ({
           style={{
             height: "calc(100vh - 490px)", // Dynamic height based on viewport
           }}
-          data-testid="containers-table-body"
+          data-testid="buckets-table-body"
         >
           <div
             style={{
@@ -180,22 +186,23 @@ export const ContainerTableView = ({
             }}
           >
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-              const container = containers[virtualRow.index]
-              const isSelected = selectedContainers.includes(container.name)
+              const bucket = buckets[virtualRow.index]
+              const isSelected = selectedBuckets.includes(bucket.name)
 
               const handleRowNavigate = () =>
                 navigate({
-                  to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
+                  to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
                   params: {
                     projectId: projectId ?? "",
                     provider: (provider as string) ?? "ceph",
-                    containerName: container.name,
+                    storageType: (storageType as string) ?? "buckets",
+                    containerName: bucket.name,
                   },
                 })
 
               return (
                 <div
-                  key={container.name}
+                  key={bucket.name}
                   data-index={virtualRow.index}
                   ref={rowVirtualizer.measureElement}
                   className="juno-datagrid group hover:bg-theme-background-lvl-1 cursor-pointer"
@@ -209,7 +216,7 @@ export const ContainerTableView = ({
                     gridTemplateColumns: gridColumnTemplate,
                     alignItems: "stretch",
                   }}
-                  data-testid={`container-row-${container.name}`}
+                  data-testid={`bucket-row-${bucket.name}`}
                   role="link"
                   tabIndex={0}
                   onClick={handleRowNavigate}
@@ -231,31 +238,31 @@ export const ContainerTableView = ({
                     >
                       <Checkbox
                         checked={isSelected}
-                        onChange={() => handleSelectContainer(container.name)}
-                        data-testid={`select-container-${container.name}`}
+                        onChange={() => handleSelectBucket(bucket.name)}
+                        data-testid={`select-bucket-${bucket.name}`}
                       />
                     </DataGridCell>
                   )}
                   <DataGridCell className="min-w-0 overflow-hidden">
-                    <span className="block truncate" title={container.name}>
-                      {container.name}
+                    <span className="block truncate" title={bucket.name}>
+                      {bucket.name}
                     </span>
                   </DataGridCell>
-                  <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
-                  <DataGridCell>{formatDate(container.last_modified || container.creationDate || "")}</DataGridCell>
-                  <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
+                  <DataGridCell>{bucket.count.toLocaleString()}</DataGridCell>
+                  <DataGridCell>{formatDate(bucket.last_modified || bucket.creationDate || "")}</DataGridCell>
+                  <DataGridCell>{formatBytesBinary(bucket.bytes)}</DataGridCell>
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>
                       <PopupMenuOptions>
                         <PopupMenuItem
                           label={t`Empty`}
-                          onClick={() => setEmptyModalBucket(container)}
-                          data-testid={`empty-action-${container.name}`}
+                          onClick={() => setEmptyModalBucket(bucket)}
+                          data-testid={`empty-action-${bucket.name}`}
                         />
                         <PopupMenuItem
                           label={t`Delete`}
-                          onClick={() => setDeleteModalBucket(container)}
-                          data-testid={`delete-action-${container.name}`}
+                          onClick={() => setDeleteModalBucket(bucket)}
+                          data-testid={`delete-action-${bucket.name}`}
                         />
                       </PopupMenuOptions>
                     </PopupMenu>

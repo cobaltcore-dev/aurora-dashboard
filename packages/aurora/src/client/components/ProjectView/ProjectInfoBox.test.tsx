@@ -198,9 +198,14 @@ describe("ProjectInfoBox", () => {
             service: "containers",
             isDetail: true,
             sectionCrumb: { labelKey: "Storage" },
-            crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" },
+            crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/$storageType" },
           },
-          params: { projectId: "test-project", provider: "swift", containerName: "my-bucket" },
+          params: {
+            projectId: "test-project",
+            provider: "swift",
+            storageType: "containers",
+            containerName: "my-bucket",
+          },
           meta: [{ title: "my-bucket" }],
         },
       ]
@@ -489,9 +494,14 @@ describe("ProjectInfoBox", () => {
             service: "containers",
             isDetail: true,
             sectionCrumb: { labelKey: "Storage" },
-            crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/containers" },
+            crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/$storageType" },
           },
-          params: { projectId: "test-project", provider: "swift", containerName: "my-bucket" },
+          params: {
+            projectId: "test-project",
+            provider: "swift",
+            storageType: "containers",
+            containerName: "my-bucket",
+          },
           meta: [{ title: "my-bucket" }],
         },
       ]
@@ -502,7 +512,7 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Object Storage (Swift)"))
 
       expect(mockNavigate).toHaveBeenCalledWith(
-        expect.objectContaining({ to: "/projects/$projectId/storage/$provider/containers" })
+        expect.objectContaining({ to: "/projects/$projectId/storage/$provider/$storageType" })
       )
     })
   })

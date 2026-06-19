@@ -1,5 +1,6 @@
 import { Breadcrumb, BreadcrumbItem } from "@cloudoperators/juno-ui-components"
-import { MdInventory2, MdOutlineInventory2, MdFolder, MdFolderOpen } from "react-icons/md"
+import { useLingui } from "@lingui/react/macro"
+import { MdStorage, MdInventory2, MdOutlineInventory2, MdFolder, MdFolderOpen } from "react-icons/md"
 
 // ── Breadcrumb helpers ────────────────────────────────────────────────────────
 
@@ -25,10 +26,18 @@ const activeCrumbClass = "bg-theme-background-lvl-4 rounded px-2 py-0.5"
 interface ObjectsFileNavigationProps {
   bucketName: string
   prefix: string
+  onBucketsClick: () => void
   onPrefixClick: (prefix: string) => void
 }
 
-export function ObjectsFileNavigation({ bucketName, prefix, onPrefixClick }: ObjectsFileNavigationProps) {
+export function ObjectsFileNavigation({
+  bucketName,
+  prefix,
+  onBucketsClick,
+  onPrefixClick,
+}: ObjectsFileNavigationProps) {
+  const { t } = useLingui()
+
   const prefixSegments = prefixToSegments(prefix)
 
   // The last segment (deepest folder) is the active crumb — non-clickable.
@@ -38,8 +47,26 @@ export function ObjectsFileNavigation({ bucketName, prefix, onPrefixClick }: Obj
   return (
     <div className="mb-2 px-2 pt-2">
       <Breadcrumb>
+        {/* "All buckets" root — always navigates back to the bucket list.
+            Always clickable (you're inside a bucket whenever this view is shown).
+            Mirrors the Swift "All containers" crumb so users can jump back to the
+            top from the secondary breadcrumb instead of hunting in the global one. */}
+        {/* TODO: BreadcrumbItem.label is typed as string but renders ReactNode — remove cast once Juno fixes the type */}
+        <BreadcrumbItem
+          onClick={onBucketsClick}
+          label={
+            (
+              <span className="flex items-center gap-1">
+                <MdStorage size={15} className="shrink-0" />
+                {t`All buckets`}
+              </span>
+            ) as unknown as string
+          }
+        />
+
         {/* Bucket name — inventory/box icon distinguishes it from folders;
             outlined when active (current root level), filled when navigable */}
+        {/* TODO: BreadcrumbItem.label is typed as string but renders ReactNode — remove cast once Juno fixes the type */}
         <BreadcrumbItem
           onClick={isAtRoot ? undefined : () => onPrefixClick("")}
           active={isAtRoot}
