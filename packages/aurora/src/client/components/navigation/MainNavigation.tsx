@@ -1,6 +1,6 @@
 import Logo from "../../assets/logo.svg?react"
 import { NavigationItem } from "./types"
-import { isMatch, Link, MakeRouteMatchUnion, useRouterState } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import { UserMenu } from "./UserMenu"
 import { PageHeader, ThemeToggle } from "@cloudoperators/juno-ui-components/index"
 import { cn } from "@/client/utils/cn"
@@ -16,36 +16,8 @@ interface NavigationProps {
 
 const textColorClass = "text-theme-pageheader-appname-default"
 const textHoverClass = "hover:text-theme-pageheader-appname-hover"
-const textMutedClass = "text-theme-pageheader-appname-default/40"
-
-function getDomain(matches: MakeRouteMatchUnion[]) {
-  const domainMatch = matches.filter((match) => isMatch(match, "loaderData.crumbDomain"))[0]
-  if (!domainMatch) {
-    return null
-  }
-  return {
-    name: domainMatch?.loaderData?.crumbDomain?.name,
-    path: domainMatch?.loaderData?.crumbDomain?.path,
-  }
-}
-
-function getProject(matches: MakeRouteMatchUnion[]) {
-  const projectMatch = matches.filter((match) => isMatch(match, "loaderData.crumbProject"))[0]
-  if (!projectMatch) {
-    return null
-  }
-  const domain = getDomain(matches)
-  const projectId = projectMatch.loaderData?.crumbProject?.id
-  return {
-    name: projectMatch.loaderData?.crumbProject?.name || undefined,
-    path: domain?.path && projectId ? `${domain.path}/${projectId}` : undefined,
-  }
-}
 
 export function MainNavigation({ items, handleThemeToggle, appName, slots }: NavigationProps) {
-  const matches = useRouterState({ select: (s) => s.matches })
-  const domain = getDomain(matches)
-  const project = getProject(matches)
   const displayName = appName ?? "Aurora"
 
   return (
@@ -58,31 +30,9 @@ export function MainNavigation({ items, handleThemeToggle, appName, slots }: Nav
         )
       }
       applicationName={
-        <div className="flex flex-nowrap items-center space-x-2">
-          <Link to="/projects" className={cn("shrink-0", textColorClass, textHoverClass)}>
-            {displayName}
-          </Link>
-          {domain && (
-            <>
-              <span className={cn("shrink-0", textMutedClass)}>|</span>
-              <span data-testid="domain-name" className={cn("shrink-0", textColorClass)}>
-                {domain.name}
-              </span>
-            </>
-          )}
-          {project && (
-            <>
-              <span className={cn("shrink-0", textMutedClass)}>|</span>
-              <Link
-                to={project.path ?? "/projects"}
-                data-testid="project-link"
-                className={cn("shrink-0", textColorClass, textHoverClass)}
-              >
-                {project.name}
-              </Link>
-            </>
-          )}
-        </div>
+        <Link to="/projects" className={cn("shrink-0", textColorClass, textHoverClass)}>
+          {displayName}
+        </Link>
       }
     >
       {items.map(({ route, label }, index) => (
