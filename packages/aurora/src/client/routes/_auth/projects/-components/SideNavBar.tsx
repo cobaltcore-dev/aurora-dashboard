@@ -6,6 +6,7 @@ import {
   SideNavigationList,
   SideNavigationGroup,
   SideNavigationItem,
+  Divider,
 } from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
 import { isRouteInfo } from "@/client/routes/routeInfo"
@@ -14,13 +15,14 @@ import { Slot } from "@/client/components/Slot"
 interface SideNavBarProps {
   projectId: string
   projectName: string
+  domainName?: string
   availableServices: {
     type: string
     name: string
   }[]
 }
 
-export const SideNavBar = ({ projectId, projectName, availableServices }: SideNavBarProps) => {
+export const SideNavBar = ({ projectId, projectName, domainName, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const matches = useMatches()
@@ -42,8 +44,6 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
       setOpenSections((prev) => ({ ...prev, [activeSection]: true }))
     }
   }, [activeSection])
-
-  const isOverviewActive = activeSection === null
 
   const computeServices = [
     ...(serviceIndex["image"]?.["glance"]
@@ -126,12 +126,14 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
       <>
         <SideNavigationList>
           <>
-            <SideNavigationItem
-              icon="home"
-              label={projectName}
+            <button
               onClick={() => navigate({ to: "/projects/$projectId", params: { projectId } })}
-              selected={isOverviewActive}
-            />
+              className="pl-[0.75rem] text-left"
+            >
+              {domainName && <p className="text-theme-light text-xs leading-5 font-normal">{domainName} /</p>}
+              <p>{projectName}</p>
+            </button>
+            <Divider spacing="1" />
             <SideNavigationGroup label={t`Compute`} open={openSections.compute}>
               {computeServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
