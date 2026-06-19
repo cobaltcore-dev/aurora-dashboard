@@ -3,12 +3,11 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { ErrorBoundary } from "react-error-boundary"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Button, Stack, DataGridToolbar, SearchInput, Message, Spinner } from "@cloudoperators/juno-ui-components"
-import { trpcReact } from "@/client/trpcClient"
+import { trpcReact, TrpcClient } from "@/client/trpcClient"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
-import { useProjectId } from "@/client/hooks"
 import { SecurityGroupListContainer } from "./SecurityGroupListContainer"
 import { CreateSecurityGroupModal } from "./-modals/CreateSecurityGroupModal"
 import { CreateSecurityGroupInput, UpdateSecurityGroupInput, SecurityGroup } from "@/server/Network/types/securityGroup"
@@ -55,11 +54,15 @@ type SecurityGroupsContentProps = {
   updateError: string | null
   onCreateSecurityGroup: (data: Omit<CreateSecurityGroupInput, "project_id">) => Promise<void>
   onDeleteSecurityGroup: (id: string) => void
-  onUpdateSecurityGroup: (id: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">) => void
+  onUpdateSecurityGroup: (
+    id: string,
+    data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">
+  ) => Promise<void>
   isDeletingSecurityGroup: boolean
   isUpdatingSecurityGroup: boolean
   currentProjectId: string
   isFetching: boolean
+  onClearUpdateError: () => void
 }
 
 function SecurityGroupsContent({
@@ -83,6 +86,7 @@ function SecurityGroupsContent({
   isUpdatingSecurityGroup,
   currentProjectId,
   isFetching,
+  onClearUpdateError,
 }: SecurityGroupsContentProps) {
   const { t } = useLingui()
   const data = use(securityGroupsPromise)
@@ -189,6 +193,7 @@ function SecurityGroupsContent({
         updateError={updateError}
         currentProjectId={currentProjectId}
         hasAnyBulkAction={false}
+        onClearUpdateError={onClearUpdateError}
       />
 
       <CreateSecurityGroupModal
@@ -202,10 +207,14 @@ function SecurityGroupsContent({
   )
 }
 
-export const SecurityGroups = () => {
+interface SecurityGroupsProps {
+  client: TrpcClient
+  project: string
+}
+
+export const SecurityGroups = ({ client, project: projectId }: SecurityGroupsProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
-  const projectId = useProjectId()
   const searchParams = useSearch({ strict: false }) as SecurityGroupsSearchParams
 
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
@@ -246,12 +255,42 @@ export const SecurityGroups = () => {
       }) as Promise<SecurityGroupsResult>
   )
 
-  const permissionsPromise = Promise.resolve({
-    canCreate: true,
-    canUpdate: true,
-    canDelete: true,
-    canManageAccess: true,
-  })
+  // Permissions promise is created once and never changes
+  const [permissionsPromise] = useState(() =>
+    client.network.canUser
+      .query({
+        project_id: projectId || "",
+        permission: [
+          "network:security_groups:create",
+          "network:security_groups:update",
+          "network:security_groups:delete",
+          "network:rbac_policies:create",
+        ],
+      })
+      .then(([canCreate, canUpdate, canDelete, canManageAccess]: boolean[]) => {
+        console.log("🔐 Security Groups Permissions:", {
+          canCreate,
+          canUpdate,
+          canDelete,
+          canManageAccess,
+        })
+        return {
+          canCreate,
+          canUpdate,
+          canDelete,
+          canManageAccess,
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("❌ Failed to fetch permissions:", error)
+        return {
+          canCreate: false,
+          canUpdate: false,
+          canDelete: false,
+          canManageAccess: false,
+        }
+      })
+  )
 
   const createSecurityGroupMutation = trpcReact.network.securityGroup.create.useMutation({
     onSuccess: (createdSecurityGroup) => {
@@ -308,6 +347,10 @@ export const SecurityGroups = () => {
     await updateSecurityGroupMutation.mutateAsync({ project_id: projectId, securityGroupId, ...data })
   }
 
+  const handleClearUpdateError = () => {
+    setUpdateError(null)
+  }
+
   // Fetch security groups when URL params change
   useEffect(() => {
     const urlFilters = parseFiltersFromUrl(searchParams)
@@ -321,7 +364,8 @@ export const SecurityGroups = () => {
 
     setIsFetching(true)
     startTransition(() => {
-      const newPromise = (async (): Promise<SecurityGroupsResult> => {
+      // Fetch security groups
+      const newSecurityGroupsPromise = (async (): Promise<SecurityGroupsResult> => {
         try {
           const result = await utils.network.securityGroup.list.fetch({
             project_id: projectId || "",
@@ -341,8 +385,8 @@ export const SecurityGroups = () => {
           throw error
         }
       })()
-      newPromise.catch(() => {}).finally(() => setIsFetching(false))
-      setSecurityGroupsPromise(newPromise)
+      newSecurityGroupsPromise.catch(() => {}).finally(() => setIsFetching(false))
+      setSecurityGroupsPromise(newSecurityGroupsPromise)
     })
   }, [searchParams.shared, searchParams.sortBy, searchParams.sortDirection, searchParams.search, projectId, t, utils])
 
@@ -424,6 +468,7 @@ export const SecurityGroups = () => {
             isUpdatingSecurityGroup={updateSecurityGroupMutation.isPending}
             currentProjectId={projectId}
             isFetching={isFetching}
+            onClearUpdateError={handleClearUpdateError}
           />
         </Suspense>
       </ErrorBoundary>
