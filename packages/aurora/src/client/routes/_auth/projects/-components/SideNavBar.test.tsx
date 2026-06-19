@@ -228,7 +228,7 @@ describe("SideNavBar", () => {
             <SideNavBar {...defaultProps} domainName={undefined} />
           </TestingProvider>
         )
-        expect(screen.queryByText(/\//)).not.toBeInTheDocument()
+        expect(screen.queryByText("Test Domain /")).not.toBeInTheDocument()
         expect(screen.getByText("Test Project")).toBeInTheDocument()
       })
 

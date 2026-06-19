@@ -127,11 +127,14 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
         <SideNavigationList>
           <>
             <button
+              type="button"
               onClick={() => navigate({ to: "/projects/$projectId", params: { projectId } })}
-              className="pl-[0.75rem] text-left"
+              className="w-full pl-[0.75rem] text-left"
             >
-              {domainName && <p className="text-theme-light text-xs leading-5 font-normal">{domainName} /</p>}
-              <p>{projectName}</p>
+              {domainName && (
+                <p className="text-theme-light text-xs leading-5 font-normal break-words">{domainName} /</p>
+              )}
+              <p className="break-words">{projectName}</p>
             </button>
             <Divider spacing="1" />
             <SideNavigationGroup label={t`Compute`} open={openSections.compute}>
