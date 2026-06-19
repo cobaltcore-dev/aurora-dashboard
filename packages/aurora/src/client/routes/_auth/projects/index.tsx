@@ -50,8 +50,8 @@ function ProjectsOverview() {
   }
 
   return (
-    <Container>
-      <ContentHeading>
+    <Container py>
+      <ContentHeading className="pb-4">
         <Trans>Projects</Trans>
       </ContentHeading>
       <ProjectsOverviewNavBar searchTerm={search} onSearch={handleSearch} />
