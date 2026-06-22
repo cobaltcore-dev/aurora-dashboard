@@ -32,8 +32,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerCreatedToast("my-container", defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -45,11 +43,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText("Container Created")).toBeInTheDocument()
       expect(screen.getByText(/my-container/)).toBeInTheDocument()
       expect(screen.getByText(/was successfully created/)).toBeInTheDocument()
-    })
-
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainerCreatedToast("my-container", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("should handle container names with special characters", () => {
@@ -64,8 +57,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerCreateErrorToast("my-container", "Conflict", defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -86,14 +77,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText(/Container already exists/)).toBeInTheDocument()
     })
 
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainerCreateErrorToast("my-container", "error", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
-    })
-
     it("should handle long error messages", () => {
       const longMessage = "Container name already exists in this account and cannot be created again"
       const toast = getContainerCreateErrorToast("my-container", longMessage, defaultConfig)
@@ -107,8 +90,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerEmptiedToast("my-container", 5, defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -136,14 +117,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText("Container Emptied")).toBeInTheDocument()
       expect(screen.getByText(/was already empty/)).toBeInTheDocument()
     })
-
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainerEmptiedToast("my-container", 3, {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 3000,
-      })
-      expect(toast.autoDismissTimeout).toBe(3000)
-    })
   })
 
   describe("getContainerEmptyErrorToast", () => {
@@ -151,8 +124,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerEmptyErrorToast("my-container", "Internal Server Error", defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -176,14 +147,6 @@ describe("ContainerToastNotifications", () => {
       render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
       expect(screen.getByText(/Bulk delete operation failed/)).toBeInTheDocument()
     })
-
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainerEmptyErrorToast("my-container", "error", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
-    })
   })
 
   describe("getContainerDeletedToast", () => {
@@ -191,8 +154,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerDeletedToast("my-container", defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -204,11 +165,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText("Container Deleted")).toBeInTheDocument()
       expect(screen.getByText(/my-container/)).toBeInTheDocument()
       expect(screen.getByText(/was successfully deleted/)).toBeInTheDocument()
-    })
-
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainerDeletedToast("my-container", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("should handle container names with special characters", () => {
@@ -223,8 +179,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerDeleteErrorToast("my-container", "Not Found", defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -249,14 +203,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText(/Container not found or already deleted/)).toBeInTheDocument()
     })
 
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainerDeleteErrorToast("my-container", "error", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
-    })
-
     it("should handle long error messages", () => {
       const longMessage = "Container deletion failed: The container still has active objects that could not be removed"
       const toast = getContainerDeleteErrorToast("my-container", longMessage, defaultConfig)
@@ -270,8 +216,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerUpdatedToast("my-container", defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -283,11 +227,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText("Container Updated")).toBeInTheDocument()
       expect(screen.getByText(/my-container/)).toBeInTheDocument()
       expect(screen.getByText(/properties were successfully updated/)).toBeInTheDocument()
-    })
-
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainerUpdatedToast("my-container", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("should handle container names with special characters", () => {
@@ -302,8 +241,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerUpdateErrorToast("my-container", "Bad Request", defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -324,14 +261,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText(/Quota exceeded/)).toBeInTheDocument()
     })
 
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainerUpdateErrorToast("my-container", "error", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
-    })
-
     it("should handle long error messages", () => {
       const longMessage = "Container update failed: the quota-bytes value is below the current bytes used"
       const toast = getContainerUpdateErrorToast("my-container", longMessage, defaultConfig)
@@ -345,8 +274,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerAclUpdatedToast("my-container", defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -361,11 +288,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText(/were successfully updated/)).toBeInTheDocument()
     })
 
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainerAclUpdatedToast("my-container", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
-    })
-
     it("should handle container names with special characters", () => {
       const toast = getContainerAclUpdatedToast("my-container/with.special_chars", defaultConfig)
       render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
@@ -378,8 +300,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerAclUpdateErrorToast("my-container", "Forbidden", defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -400,14 +320,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText(/Invalid ACL format/)).toBeInTheDocument()
     })
 
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainerAclUpdateErrorToast("my-container", "error", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
-    })
-
     it("should handle long error messages", () => {
       const longMessage = "ACL update failed: the provided project ID does not exist in the identity service"
       const toast = getContainerAclUpdateErrorToast("my-container", longMessage, defaultConfig)
@@ -421,8 +333,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainersEmptiedToast(3, 15, defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -443,11 +353,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText("Containers Emptied")).toBeInTheDocument()
       expect(screen.getByText(/already empty/)).toBeInTheDocument()
     })
-
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainersEmptiedToast(1, 5, { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
-    })
   })
 
   describe("getContainersEmptyErrorToast", () => {
@@ -455,8 +360,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainersEmptyErrorToast("bucket-1: 500 Internal Server Error", defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -469,19 +372,12 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText(/One or more containers could not be emptied/)).toBeInTheDocument()
       expect(screen.getByText(/bucket-1/)).toBeInTheDocument()
     })
-
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getContainersEmptyErrorToast("error", { onDismiss: mockOnDismiss, autoDismissTimeout: 10000 })
-      expect(toast.autoDismissTimeout).toBe(10000)
-    })
   })
 
   describe("getContainersEmptyCompleteToast", () => {
     it("returns success toast when all containers emptied successfully", () => {
       const toast = getContainersEmptyCompleteToast(3, 12, [], defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
     })
 
@@ -517,11 +413,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText("Failed to Empty Containers")).toBeInTheDocument()
       expect(screen.getByText(/a: err/)).toBeInTheDocument()
     })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getContainersEmptyCompleteToast(1, 3, [], { onDismiss: mockOnDismiss, autoDismissTimeout: 8000 })
-      expect(toast.autoDismissTimeout).toBe(8000)
-    })
   })
 
   describe("Toast Configuration", () => {
@@ -537,7 +428,6 @@ describe("ContainerToastNotifications", () => {
       ]
       successToasts.forEach((toast) => {
         expect(toast.variant).toBe("success")
-        expect(toast.autoDismiss).toBe(true)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
     })
@@ -554,7 +444,6 @@ describe("ContainerToastNotifications", () => {
       ]
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
-        expect(toast.autoDismiss).toBe(true)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
     })
@@ -564,28 +453,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getContainerCreatedToast("c", { onDismiss: customOnDismiss })
       toast.onDismiss?.()
       expect(customOnDismiss).toHaveBeenCalledTimes(1)
-    })
-
-    it("should accept custom autoDismissTimeout for all toast types", () => {
-      const customTimeout = 7500
-      const toasts = [
-        getContainerCreatedToast("c", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainerCreateErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainerEmptiedToast("c", 3, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainerEmptyErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainerDeletedToast("c", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainerDeleteErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainerUpdatedToast("c", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainerUpdateErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainerAclUpdatedToast("c", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainerAclUpdateErrorToast("c", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainersEmptiedToast(2, 5, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainersEmptyErrorToast("err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getContainersEmptyCompleteToast(2, 5, [], { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-      ]
-      toasts.forEach((toast) => {
-        expect(toast.autoDismissTimeout).toBe(customTimeout)
-      })
     })
 
     it("all toasts should return ReactNode as children", () => {

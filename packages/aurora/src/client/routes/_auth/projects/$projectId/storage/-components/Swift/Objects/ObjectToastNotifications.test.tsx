@@ -40,8 +40,6 @@ describe("ObjectToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getFolderCreatedToast("my-folder", defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -52,11 +50,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText("Folder Created")).toBeInTheDocument()
       expect(screen.getByText(/my-folder/)).toBeInTheDocument()
       expect(screen.getByText(/was successfully created/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getFolderCreatedToast("my-folder", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("handles folder names with special characters", () => {
@@ -78,8 +71,6 @@ describe("ObjectToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getFolderCreateErrorToast("my-folder", "Conflict", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -91,14 +82,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText(/my-folder/)).toBeInTheDocument()
       expect(screen.getByText(/Could not create folder/)).toBeInTheDocument()
       expect(screen.getByText(/Conflict/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getFolderCreateErrorToast("my-folder", "err", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
     })
 
     it("handles different error messages", () => {
@@ -127,8 +110,6 @@ describe("ObjectToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getFolderDeletedToast("my-folder", 5, defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -154,11 +135,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText(/was permanently deleted/)).toBeInTheDocument()
     })
 
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getFolderDeletedToast("my-folder", 3, { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
-    })
-
     it("handles empty folder name", () => {
       const toast = getFolderDeletedToast("", 2, defaultConfig)
       render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
@@ -172,8 +148,6 @@ describe("ObjectToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getFolderDeleteErrorToast("my-folder", "Internal Server Error", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -185,14 +159,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText(/my-folder/)).toBeInTheDocument()
       expect(screen.getByText(/Could not delete folder/)).toBeInTheDocument()
       expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getFolderDeleteErrorToast("my-folder", "err", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
     })
 
     it("handles different error messages", () => {
@@ -214,8 +180,6 @@ describe("ObjectToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getObjectDownloadErrorToast("file.txt", "Connection refused", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -227,14 +191,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText(/file\.txt/)).toBeInTheDocument()
       expect(screen.getByText(/Could not download/)).toBeInTheDocument()
       expect(screen.getByText(/Connection refused/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectDownloadErrorToast("file.txt", "err", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 8000,
-      })
-      expect(toast.autoDismissTimeout).toBe(8000)
     })
 
     it("handles different error messages", () => {
@@ -262,8 +218,6 @@ describe("ObjectToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getObjectDeletedToast("report.pdf", defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -274,11 +228,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText("Object Deleted")).toBeInTheDocument()
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/was permanently deleted/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectDeletedToast("file.txt", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("handles object names with special characters", () => {
@@ -294,8 +243,6 @@ describe("ObjectToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getObjectDeleteErrorToast("report.pdf", "Forbidden", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -307,14 +254,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/Could not delete/)).toBeInTheDocument()
       expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectDeleteErrorToast("file.txt", "err", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
     })
 
     it("handles different error messages", () => {
@@ -336,8 +275,6 @@ describe("ObjectToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getObjectCopiedToast("report.pdf", "backup", "", defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -348,11 +285,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText("Object Copied")).toBeInTheDocument()
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/backup-container/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectCopiedToast("f", "c", "", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("handles empty target path (root copy)", () => {
@@ -375,8 +307,6 @@ describe("ObjectToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getObjectCopyErrorToast("report.pdf", "Forbidden", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -388,11 +318,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/Could not copy/)).toBeInTheDocument()
       expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectCopyErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: 8000 })
-      expect(toast.autoDismissTimeout).toBe(8000)
     })
 
     it("handles different error messages", () => {
@@ -414,8 +339,6 @@ describe("ObjectToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getObjectMovedToast("report.pdf", "backup", "", defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -426,11 +349,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText("Object Moved")).toBeInTheDocument()
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/backup-container/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectMovedToast("f", "c", "", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("handles empty target path (root move)", () => {
@@ -453,8 +371,6 @@ describe("ObjectToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getObjectMoveErrorToast("report.pdf", "Forbidden", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -466,11 +382,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/Could not move/)).toBeInTheDocument()
       expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectMoveErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: 8000 })
-      expect(toast.autoDismissTimeout).toBe(8000)
     })
 
     it("handles different error messages", () => {
@@ -489,7 +400,7 @@ describe("ObjectToastNotifications", () => {
   // ── Toast configuration ──────────────────────────────────────────────────────
 
   describe("Toast configuration", () => {
-    it("all success toasts have success variant and autoDismiss", () => {
+    it("all success toasts have success variant", () => {
       const successToasts = [
         getFolderCreatedToast("f", defaultConfig),
         getFolderDeletedToast("f", 3, defaultConfig),
@@ -502,12 +413,11 @@ describe("ObjectToastNotifications", () => {
       ]
       successToasts.forEach((toast) => {
         expect(toast.variant).toBe("success")
-        expect(toast.autoDismiss).toBe(true)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
     })
 
-    it("all error toasts have error variant and autoDismiss", () => {
+    it("all error toasts have error variant", () => {
       const errorToasts = [
         getFolderCreateErrorToast("f", "err", defaultConfig),
         getFolderDeleteErrorToast("f", "err", defaultConfig),
@@ -521,7 +431,6 @@ describe("ObjectToastNotifications", () => {
       ]
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
-        expect(toast.autoDismiss).toBe(true)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
     })
@@ -531,33 +440,6 @@ describe("ObjectToastNotifications", () => {
       const toast = getFolderCreatedToast("f", { onDismiss: customOnDismiss })
       toast.onDismiss?.()
       expect(customOnDismiss).toHaveBeenCalledTimes(1)
-    })
-
-    it("accepts custom autoDismissTimeout for all toast types", () => {
-      const customTimeout = 7500
-      const toasts = [
-        getFolderCreatedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getFolderCreateErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getFolderDeletedToast("f", 2, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getFolderDeleteErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectDownloadErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectDeletedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectDeleteErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectCopiedToast("f", "c", "", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectCopyErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectMovedToast("f", "c", "", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectMoveErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getTempUrlCopiedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectMetadataUpdatedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectMetadataUpdateErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectUploadedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectUploadErrorToast("f", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectsBulkDeletedToast(3, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getObjectsBulkDeleteErrorToast("err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-      ]
-      toasts.forEach((toast) => {
-        expect(toast.autoDismissTimeout).toBe(customTimeout)
-      })
     })
 
     it("all toasts return a ReactNode as children", () => {
@@ -593,8 +475,6 @@ describe("ObjectToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getObjectsBulkDeletedToast(5, defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -611,11 +491,6 @@ describe("ObjectToastNotifications", () => {
       render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
       expect(screen.getByText(/1 object was permanently deleted/)).toBeInTheDocument()
     })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectsBulkDeletedToast(3, { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
-    })
   })
 
   // ── getObjectsBulkDeleteErrorToast ───────────────────────────────────────────
@@ -624,8 +499,6 @@ describe("ObjectToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getObjectsBulkDeleteErrorToast("403 Forbidden", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -636,11 +509,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText("Failed to Delete Objects")).toBeInTheDocument()
       expect(screen.getByText(/One or more objects could not be deleted/)).toBeInTheDocument()
       expect(screen.getByText(/403 Forbidden/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectsBulkDeleteErrorToast("err", { onDismiss: mockOnDismiss, autoDismissTimeout: 10000 })
-      expect(toast.autoDismissTimeout).toBe(10000)
     })
 
     it("handles multi-line error message (per-path errors)", () => {
@@ -661,8 +529,6 @@ describe("ObjectToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getObjectUploadedToast("report.pdf", defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -673,11 +539,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText("Object Uploaded")).toBeInTheDocument()
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/successfully uploaded/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectUploadedToast("report.pdf", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("handles empty object name", () => {
@@ -693,8 +554,6 @@ describe("ObjectToastNotifications", () => {
     it("returns warning toast with correct structure", () => {
       const toast = getObjectUploadCancelledToast("report.pdf", defaultConfig)
       expect(toast.variant).toBe("warning")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(4000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -705,11 +564,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText("Upload Cancelled")).toBeInTheDocument()
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/was cancelled/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectUploadCancelledToast("report.pdf", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("handles empty object name", () => {
@@ -731,8 +585,6 @@ describe("ObjectToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getObjectUploadErrorToast("report.pdf", "Quota exceeded", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -744,14 +596,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/Could not upload/)).toBeInTheDocument()
       expect(screen.getByText(/Quota exceeded/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectUploadErrorToast("report.pdf", "err", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 8000,
-      })
-      expect(toast.autoDismissTimeout).toBe(8000)
     })
 
     it("handles different error messages", () => {
@@ -773,16 +617,6 @@ describe("ObjectToastNotifications", () => {
       expect(toast.variant).toBe("success")
     })
 
-    it("uses 4000ms default autoDismissTimeout", () => {
-      const toast = getTempUrlCopiedToast("report.pdf", defaultConfig)
-      expect(toast.autoDismissTimeout).toBe(4000)
-    })
-
-    it("respects custom autoDismissTimeout", () => {
-      const toast = getTempUrlCopiedToast("report.pdf", { onDismiss: mockOnDismiss, autoDismissTimeout: 8000 })
-      expect(toast.autoDismissTimeout).toBe(8000)
-    })
-
     it("calls onDismiss when dismissed", () => {
       const toast = getTempUrlCopiedToast("report.pdf", defaultConfig)
       toast.onDismiss?.()
@@ -802,8 +636,6 @@ describe("ObjectToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getObjectMetadataUpdatedToast("sample.txt", defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -814,11 +646,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText("Object Updated")).toBeInTheDocument()
       expect(screen.getByText(/sample\.txt/)).toBeInTheDocument()
       expect(screen.getByText(/successfully updated/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectMetadataUpdatedToast("f", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("handles empty object name", () => {
@@ -834,8 +661,6 @@ describe("ObjectToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getObjectMetadataUpdateErrorToast("sample.txt", "Forbidden", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -847,14 +672,6 @@ describe("ObjectToastNotifications", () => {
       expect(screen.getByText(/sample\.txt/)).toBeInTheDocument()
       expect(screen.getByText(/Could not update/)).toBeInTheDocument()
       expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getObjectMetadataUpdateErrorToast("f", "err", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 8000,
-      })
-      expect(toast.autoDismissTimeout).toBe(8000)
     })
 
     it("handles different error messages", () => {

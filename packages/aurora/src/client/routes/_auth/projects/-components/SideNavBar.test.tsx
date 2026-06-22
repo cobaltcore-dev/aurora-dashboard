@@ -26,6 +26,7 @@ describe("SideNavBar", () => {
   const defaultProps = {
     projectId: "proj-1",
     projectName: "Test Project",
+    domainName: "Test Domain",
     availableServices: [
       { type: "compute", name: "nova" },
       { type: "image", name: "glance" },
@@ -207,6 +208,41 @@ describe("SideNavBar", () => {
         fireEvent.click(screen.getByText("Compute"))
 
         expect(mockNavigate).not.toHaveBeenCalled()
+      })
+    })
+
+    describe("Context Block", () => {
+      it("renders domain with trailing slash and project name on separate line", () => {
+        render(
+          <TestingProvider>
+            <SideNavBar {...defaultProps} />
+          </TestingProvider>
+        )
+        expect(screen.getByText("Test Domain /")).toBeInTheDocument()
+        expect(screen.getByText("Test Project")).toBeInTheDocument()
+      })
+
+      it("omits domain line when domainName is not provided", () => {
+        render(
+          <TestingProvider>
+            <SideNavBar {...defaultProps} domainName={undefined} />
+          </TestingProvider>
+        )
+        expect(screen.queryByText("Test Domain /")).not.toBeInTheDocument()
+        expect(screen.getByText("Test Project")).toBeInTheDocument()
+      })
+
+      it("navigates to project overview when context block is clicked", () => {
+        render(
+          <TestingProvider>
+            <SideNavBar {...defaultProps} />
+          </TestingProvider>
+        )
+        fireEvent.click(screen.getByText("Test Project"))
+        expect(mockNavigate).toHaveBeenCalledWith({
+          to: "/projects/$projectId",
+          params: { projectId: "proj-1" },
+        })
       })
     })
 

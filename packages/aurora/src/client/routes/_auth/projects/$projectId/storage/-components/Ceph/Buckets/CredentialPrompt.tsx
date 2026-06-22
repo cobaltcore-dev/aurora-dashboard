@@ -23,8 +23,6 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
       setToast({
         variant: "error",
         children: <Trans>Failed to create credential: {errorMessage}</Trans>,
-        autoDismiss: true,
-        autoDismissTimeout: 5000,
         onDismiss: () => setToast(null),
       })
     },
