@@ -10,10 +10,14 @@ import { useLingui, Trans } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 
 export interface SecurityGroupPermissions {
+  canView: boolean
   canCreate: boolean
   canUpdate: boolean
   canDelete: boolean
+  canCreateRule: boolean
+  canDeleteRule: boolean
   canManageAccess: boolean
+  canViewRBAC: boolean
 }
 
 interface SecurityGroupTableRowProps {

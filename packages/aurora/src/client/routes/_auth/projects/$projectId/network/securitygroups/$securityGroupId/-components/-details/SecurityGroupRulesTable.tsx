@@ -42,7 +42,8 @@ interface SecurityGroupRulesTableProps {
   isCreatingRule?: boolean
   createRuleError?: string | null
   availableSecurityGroups?: Array<{ id: string; name: string | null }>
-  readOnly?: boolean // Hide actions column and add rule button for shared security groups
+  canCreateRule: boolean
+  canDeleteRule: boolean
 }
 
 export function SecurityGroupRulesTable({
@@ -62,7 +63,8 @@ export function SecurityGroupRulesTable({
   isCreatingRule = false,
   createRuleError = null,
   availableSecurityGroups = [],
-  readOnly = false,
+  canCreateRule,
+  canDeleteRule,
 }: SecurityGroupRulesTableProps) {
   const { t } = useLingui()
   const [ruleToDelete, setRuleToDelete] = useState<SecurityGroupRule | null>(null)
@@ -143,7 +145,7 @@ export function SecurityGroupRulesTable({
                 onSortDirectionChange={(dir) => onSortChange({ ...sortSettings, sortDirection: dir })}
               />
             )}
-            {!readOnly && onCreateRule && (
+            {canCreateRule && onCreateRule && (
               <Button variant="primary" icon="addCircle" onClick={toggleAddRuleModal} className="whitespace-nowrap">
                 <Trans>Add rule</Trans>
               </Button>
@@ -220,14 +222,14 @@ export function SecurityGroupRulesTable({
         {rules.length === 0 ? (
           <Trans>There are no rules for this security group</Trans>
         ) : (
-          <DataGrid columns={readOnly ? 5 : 6} className="security-group-rules-table">
+          <DataGrid columns={canDeleteRule ? 6 : 5} className="security-group-rules-table">
             <DataGridRow>
               <DataGridHeadCell>{t`Direction`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Ethertype`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Protocol`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Range`}</DataGridHeadCell>
-              {!readOnly && <DataGridHeadCell>{t`Actions`}</DataGridHeadCell>}
+              {canDeleteRule && <DataGridHeadCell>{t`Actions`}</DataGridHeadCell>}
             </DataGridRow>
             {rules.map((rule) => (
               <DataGridRow key={rule.id} data-testid={`rule-row-${rule.id}`}>
@@ -236,7 +238,7 @@ export function SecurityGroupRulesTable({
                 <DataGridCell>{rule.ethertype}</DataGridCell>
                 <DataGridCell>{rule.protocol || t`-`}</DataGridCell>
                 <DataGridCell>{formatPortRange(rule)}</DataGridCell>
-                {!readOnly && (
+                {canDeleteRule && (
                   <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end justify-end pr-0">
                     <PopupMenu>
                       <PopupMenuOptions>
@@ -252,7 +254,7 @@ export function SecurityGroupRulesTable({
       </Stack>
 
       {/* Delete Confirmation Dialog */}
-      {!readOnly && (
+      {canDeleteRule && (
         <DeleteRuleDialog
           rule={ruleToDelete}
           open={!!ruleToDelete}
@@ -264,7 +266,7 @@ export function SecurityGroupRulesTable({
       )}
 
       {/* Add Rule Modal */}
-      {!readOnly && securityGroupId && onCreateRule && isAddRuleModalOpen && (
+      {canCreateRule && securityGroupId && onCreateRule && isAddRuleModalOpen && (
         <AddRuleModal
           securityGroupId={securityGroupId}
           open={isAddRuleModalOpen}

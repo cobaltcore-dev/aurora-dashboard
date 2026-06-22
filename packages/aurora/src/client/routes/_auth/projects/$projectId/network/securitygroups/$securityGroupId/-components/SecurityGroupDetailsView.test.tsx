@@ -96,6 +96,17 @@ describe("SecurityGroupDetailsView", () => {
     onFilterChange: vi.fn(),
   }
 
+  const defaultPermissions = {
+    canView: true,
+    canCreate: true,
+    canUpdate: true,
+    canDelete: true,
+    canCreateRule: true,
+    canDeleteRule: true,
+    canManageAccess: true,
+    canViewRBAC: true,
+  }
+
   it("renders all security group fields", () => {
     render(
       <SecurityGroupDetailsView
@@ -105,6 +116,7 @@ describe("SecurityGroupDetailsView", () => {
         filterControls={defaultFilterControls}
         availableSecurityGroups={[]}
         currentProjectId={mockCurrentProjectId}
+        permissions={defaultPermissions}
       />,
       {
         wrapper: createWrapper(),
@@ -127,6 +139,7 @@ describe("SecurityGroupDetailsView", () => {
         filterControls={defaultFilterControls}
         availableSecurityGroups={[]}
         currentProjectId={mockCurrentProjectId}
+        permissions={defaultPermissions}
       />,
       {
         wrapper: createWrapper(),
@@ -146,6 +159,7 @@ describe("SecurityGroupDetailsView", () => {
         filterControls={defaultFilterControls}
         availableSecurityGroups={[]}
         currentProjectId={mockCurrentProjectId}
+        permissions={defaultPermissions}
       />,
       {
         wrapper: createWrapper(),
@@ -164,6 +178,7 @@ describe("SecurityGroupDetailsView", () => {
         filterControls={defaultFilterControls}
         availableSecurityGroups={[]}
         currentProjectId={mockCurrentProjectId}
+        permissions={defaultPermissions}
       />,
       {
         wrapper: createWrapper(),
@@ -185,6 +200,7 @@ describe("SecurityGroupDetailsView", () => {
         filterControls={defaultFilterControls}
         availableSecurityGroups={[]}
         currentProjectId={mockCurrentProjectId}
+        permissions={defaultPermissions}
       />,
       {
         wrapper: createWrapper(),
@@ -220,6 +236,7 @@ describe("SecurityGroupDetailsView", () => {
           filterControls={filterControls}
           availableSecurityGroups={[]}
           currentProjectId={mockCurrentProjectId}
+          permissions={defaultPermissions}
         />,
         {
           wrapper: createWrapper(),
@@ -253,6 +270,7 @@ describe("SecurityGroupDetailsView", () => {
           filterControls={filterControls}
           availableSecurityGroups={[]}
           currentProjectId={mockCurrentProjectId}
+          permissions={defaultPermissions}
         />,
         {
           wrapper: createWrapper(),
@@ -283,6 +301,7 @@ describe("SecurityGroupDetailsView", () => {
           filterControls={filterControls}
           availableSecurityGroups={[]}
           currentProjectId={mockCurrentProjectId}
+          permissions={defaultPermissions}
         />,
         {
           wrapper: createWrapper(),
@@ -312,6 +331,7 @@ describe("SecurityGroupDetailsView", () => {
           filterControls={filterControls}
           availableSecurityGroups={[]}
           currentProjectId={mockCurrentProjectId}
+          permissions={defaultPermissions}
         />,
         {
           wrapper: createWrapper(),
@@ -341,6 +361,7 @@ describe("SecurityGroupDetailsView", () => {
           filterControls={filterControls}
           availableSecurityGroups={[]}
           currentProjectId={mockCurrentProjectId}
+          permissions={defaultPermissions}
         />,
         {
           wrapper: createWrapper(),
@@ -376,6 +397,7 @@ describe("SecurityGroupDetailsView", () => {
           filterControls={filterControls}
           availableSecurityGroups={[]}
           currentProjectId={mockCurrentProjectId}
+          permissions={defaultPermissions}
         />,
         {
           wrapper: createWrapper(),
@@ -397,6 +419,7 @@ describe("SecurityGroupDetailsView", () => {
           filterControls={defaultFilterControls}
           availableSecurityGroups={[]}
           currentProjectId={mockCurrentProjectId}
+          permissions={defaultPermissions}
         />,
         {
           wrapper: createWrapper(),
@@ -426,6 +449,7 @@ describe("SecurityGroupDetailsView", () => {
           filterControls={filterControls}
           availableSecurityGroups={[]}
           currentProjectId={mockCurrentProjectId}
+          permissions={defaultPermissions}
         />,
         {
           wrapper: createWrapper(),

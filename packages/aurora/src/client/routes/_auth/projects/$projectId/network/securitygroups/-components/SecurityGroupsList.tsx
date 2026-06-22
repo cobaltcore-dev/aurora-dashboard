@@ -1,17 +1,17 @@
-import { useState, useEffect, useRef, Suspense, use, startTransition } from "react"
+import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { ErrorBoundary } from "react-error-boundary"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { Button, Stack, DataGridToolbar, SearchInput, Message, Spinner } from "@cloudoperators/juno-ui-components"
-import { trpcReact, TrpcClient } from "@/client/trpcClient"
+import { Button, Stack, DataGridToolbar, SearchInput } from "@cloudoperators/juno-ui-components"
+import { trpcReact } from "@/client/trpcClient"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { SecurityGroupListContainer } from "./SecurityGroupListContainer"
 import { CreateSecurityGroupModal } from "./-modals/CreateSecurityGroupModal"
-import { CreateSecurityGroupInput, UpdateSecurityGroupInput, SecurityGroup } from "@/server/Network/types/securityGroup"
+import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
+import { useSecurityGroupPermissions } from "../-hooks/useSecurityGroupPermissions"
 
 type SecurityGroupSortKey = "name" | "project_id"
 
@@ -28,191 +28,11 @@ type RequiredSortSettings = {
   sortDirection: "asc" | "desc"
 }
 
-type SecurityGroupsResult = {
-  securityGroups: SecurityGroup[]
-  listError?: string
-}
-
-type SecurityGroupsContentProps = {
-  securityGroupsPromise: Promise<SecurityGroupsResult>
-  permissionsPromise: Promise<{
-    canCreate: boolean
-    canUpdate: boolean
-    canDelete: boolean
-    canManageAccess: boolean
-  }>
-  searchTerm: string
-  setSearchTerm: (term: string) => void
-  sortSettings: SortSettings
-  handleSortChange: (settings: SortSettings) => void
-  filterSettings: FilterSettings
-  handleFilterChange: (settings: FilterSettings) => void
-  createModalOpen: boolean
-  setCreateModalOpen: (open: boolean) => void
-  deleteError: string | null
-  createError: string | null
-  updateError: string | null
-  onCreateSecurityGroup: (data: Omit<CreateSecurityGroupInput, "project_id">) => Promise<void>
-  onDeleteSecurityGroup: (id: string) => void
-  onUpdateSecurityGroup: (
-    id: string,
-    data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">
-  ) => Promise<void>
-  isDeletingSecurityGroup: boolean
-  isUpdatingSecurityGroup: boolean
-  currentProjectId: string
-  isFetching: boolean
-  onClearUpdateError: () => void
-}
-
-function SecurityGroupsContent({
-  securityGroupsPromise,
-  permissionsPromise,
-  searchTerm,
-  setSearchTerm,
-  sortSettings,
-  handleSortChange,
-  filterSettings,
-  handleFilterChange,
-  createModalOpen,
-  setCreateModalOpen,
-  deleteError,
-  createError,
-  updateError,
-  onCreateSecurityGroup,
-  onDeleteSecurityGroup,
-  onUpdateSecurityGroup,
-  isDeletingSecurityGroup,
-  isUpdatingSecurityGroup,
-  currentProjectId,
-  isFetching,
-  onClearUpdateError,
-}: SecurityGroupsContentProps) {
-  const { t } = useLingui()
-  const data = use(securityGroupsPromise)
-  const permissions = use(permissionsPromise)
-  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
-  const debounceTimer = useRef<number | undefined>(undefined)
-
-  useEffect(() => () => clearTimeout(debounceTimer.current), [])
-
-  if (data.listError) {
-    return <p>{data.listError}</p>
-  }
-
-  const securityGroups = data.securityGroups
-
-  return (
-    <>
-      {/* Zone 1 — sort + create button, no background */}
-      <Stack distribution="end" alignment="center" gap="2" className="pb-2">
-        <Stack gap="2">
-          <SortInput
-            options={sortSettings.options}
-            sortBy={sortSettings.sortBy}
-            sortDirection={sortSettings.sortDirection ?? "asc"}
-            onSortByChange={(v) =>
-              handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
-            }
-            onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
-          />
-          {permissions.canCreate && (
-            <Button onClick={() => setCreateModalOpen(true)} variant="primary" className="whitespace-nowrap">
-              <Trans>Create Security Group</Trans>
-            </Button>
-          )}
-        </Stack>
-      </Stack>
-
-      {/* Zone 2 — filter + search + active filter pills */}
-      <DataGridToolbar>
-        <Stack direction="vertical" gap="2">
-          <Stack distribution="between" alignment="center">
-            <FiltersInput
-              filters={filterSettings.filters}
-              onChange={(selected) => {
-                const newSelected = applyFilterSelection(
-                  filterSettings.selectedFilters || [],
-                  selected,
-                  filterSettings.filters
-                )
-                if (newSelected === (filterSettings.selectedFilters || [])) return
-                handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
-              }}
-            />
-            <SearchInput
-              placeholder={t`Search security groups...`}
-              data-testid="searchbar"
-              value={localSearchTerm}
-              onInput={(e: React.FormEvent<HTMLInputElement>) => {
-                const v = e.currentTarget.value
-                setLocalSearchTerm(v)
-                clearTimeout(debounceTimer.current)
-                debounceTimer.current = window.setTimeout(() => setSearchTerm(v), 500)
-              }}
-              onSearch={(v) => {
-                clearTimeout(debounceTimer.current)
-                setSearchTerm(typeof v === "string" ? v : "")
-              }}
-              onClear={() => {
-                clearTimeout(debounceTimer.current)
-                setLocalSearchTerm("")
-                setSearchTerm("")
-              }}
-            />
-          </Stack>
-          {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
-            <SelectedFilters
-              selectedFilters={filterSettings.selectedFilters}
-              onDelete={(filterToRemove) =>
-                handleFilterChange({
-                  ...filterSettings,
-                  selectedFilters: (filterSettings.selectedFilters || []).filter(
-                    (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
-                  ),
-                })
-              }
-              onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
-            />
-          )}
-        </Stack>
-      </DataGridToolbar>
-
-      <SecurityGroupListContainer
-        securityGroups={securityGroups}
-        isLoading={isFetching}
-        isError={false}
-        error={null}
-        permissions={permissions}
-        onCreateClick={() => setCreateModalOpen(true)}
-        onDeleteSecurityGroup={onDeleteSecurityGroup}
-        isDeletingSecurityGroup={isDeletingSecurityGroup}
-        deleteError={deleteError}
-        onUpdateSecurityGroup={onUpdateSecurityGroup}
-        isUpdatingSecurityGroup={isUpdatingSecurityGroup}
-        updateError={updateError}
-        currentProjectId={currentProjectId}
-        hasAnyBulkAction={false}
-        onClearUpdateError={onClearUpdateError}
-      />
-
-      <CreateSecurityGroupModal
-        isOpen={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onCreate={onCreateSecurityGroup}
-        isLoading={false}
-        error={createError}
-      />
-    </>
-  )
-}
-
 interface SecurityGroupsProps {
-  client: TrpcClient
   project: string
 }
 
-export const SecurityGroups = ({ client, project: projectId }: SecurityGroupsProps) => {
+export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false }) as SecurityGroupsSearchParams
@@ -243,58 +63,42 @@ export const SecurityGroups = ({ client, project: projectId }: SecurityGroupsPro
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [createError, setCreateError] = useState<string | null>(null)
   const [updateError, setUpdateError] = useState<string | null>(null)
-  const [isFetching, setIsFetching] = useState(true)
 
   const utils = trpcReact.useUtils()
 
-  // Create promises for Suspense
-  const [securityGroupsPromise, setSecurityGroupsPromise] = useState<Promise<SecurityGroupsResult>>(
-    () =>
-      new Promise(() => {
-        // Placeholder: replaced immediately by useEffect on mount
-      }) as Promise<SecurityGroupsResult>
+  const urlFilters = parseFiltersFromUrl(searchParams)
+  const urlSortBy = (searchParams.sortBy || "name") as SecurityGroupSortKey
+  const urlSortDirection = searchParams.sortDirection || "asc"
+  const urlSearchTerm = searchParams.search || ""
+
+  const {
+    data: securityGroupsData,
+    isLoading,
+    isError,
+    error,
+  } = trpcReact.network.securityGroup.list.useQuery(
+    {
+      project_id: projectId || "",
+      sort_key: urlSortBy,
+      sort_dir: urlSortDirection,
+      ...buildFilterParams(urlFilters, filterSettings.filters),
+      ...(urlSearchTerm ? { searchTerm: urlSearchTerm } : {}),
+    },
+    {
+      refetchOnWindowFocus: false,
+    }
   )
 
-  // Permissions promise is created once and never changes
-  const [permissionsPromise] = useState(() =>
-    client.network.canUser
-      .query({
-        project_id: projectId || "",
-        permission: [
-          "network:security_groups:create",
-          "network:security_groups:update",
-          "network:security_groups:delete",
-          "network:rbac_policies:create",
-        ],
-      })
-      .then(([canCreate, canUpdate, canDelete, canManageAccess]: boolean[]) => {
-        console.log("🔐 Security Groups Permissions:", {
-          canCreate,
-          canUpdate,
-          canDelete,
-          canManageAccess,
-        })
-        return {
-          canCreate,
-          canUpdate,
-          canDelete,
-          canManageAccess,
-        }
-      })
-      .catch((error: unknown) => {
-        console.error("❌ Failed to fetch permissions:", error)
-        return {
-          canCreate: false,
-          canUpdate: false,
-          canDelete: false,
-          canManageAccess: false,
-        }
-      })
-  )
+  const securityGroups = securityGroupsData || []
+  const listError =
+    isError && error?.data?.code === "FORBIDDEN" ? t`You do not have permission to view security groups` : null
+
+  const { permissions } = useSecurityGroupPermissions(projectId)
 
   const createSecurityGroupMutation = trpcReact.network.securityGroup.create.useMutation({
     onSuccess: (createdSecurityGroup) => {
       utils.network.securityGroup.list.invalidate()
+      utils.network.securityGroup.getById.invalidate()
       setCreateError(null)
       navigate({
         to: "/projects/$projectId/network/securitygroups/$securityGroupId",
@@ -312,6 +116,7 @@ export const SecurityGroups = ({ client, project: projectId }: SecurityGroupsPro
   const deleteSecurityGroupMutation = trpcReact.network.securityGroup.deleteById.useMutation({
     onSuccess: () => {
       utils.network.securityGroup.list.invalidate()
+      utils.network.securityGroup.getById.invalidate()
       setDeleteError(null)
     },
     onError: (error) => {
@@ -322,6 +127,7 @@ export const SecurityGroups = ({ client, project: projectId }: SecurityGroupsPro
   const updateSecurityGroupMutation = trpcReact.network.securityGroup.update.useMutation({
     onSuccess: () => {
       utils.network.securityGroup.list.invalidate()
+      utils.network.securityGroup.getById.invalidate()
       setUpdateError(null)
     },
     onError: (error) => {
@@ -350,45 +156,6 @@ export const SecurityGroups = ({ client, project: projectId }: SecurityGroupsPro
   const handleClearUpdateError = () => {
     setUpdateError(null)
   }
-
-  // Fetch security groups when URL params change
-  useEffect(() => {
-    const urlFilters = parseFiltersFromUrl(searchParams)
-    const urlSortBy = searchParams.sortBy || "name"
-    const urlSortDirection = searchParams.sortDirection || "asc"
-    const urlSearchTerm = searchParams.search || ""
-
-    setFilterSettings((prev) => ({ ...prev, selectedFilters: urlFilters }))
-    setSortSettings((prev) => ({ ...prev, sortBy: urlSortBy, sortDirection: urlSortDirection }))
-    setSearchTerm(urlSearchTerm)
-
-    setIsFetching(true)
-    startTransition(() => {
-      // Fetch security groups
-      const newSecurityGroupsPromise = (async (): Promise<SecurityGroupsResult> => {
-        try {
-          const result = await utils.network.securityGroup.list.fetch({
-            project_id: projectId || "",
-            sort_key: urlSortBy as SecurityGroupSortKey,
-            sort_dir: urlSortDirection,
-            ...buildFilterParams(urlFilters, filterSettings.filters),
-            ...(urlSearchTerm ? { searchTerm: urlSearchTerm } : {}),
-          })
-          return { securityGroups: result }
-        } catch (error: unknown) {
-          if (error && typeof error === "object" && "data" in error) {
-            const trpcError = error as { data?: { code?: string } }
-            if (trpcError.data?.code === "FORBIDDEN") {
-              return { securityGroups: [], listError: t`You do not have permission to view security groups` }
-            }
-          }
-          throw error
-        }
-      })()
-      newSecurityGroupsPromise.catch(() => {}).finally(() => setIsFetching(false))
-      setSecurityGroupsPromise(newSecurityGroupsPromise)
-    })
-  }, [searchParams.shared, searchParams.sortBy, searchParams.sortDirection, searchParams.search, projectId, t, utils])
 
   const handleSortChange = (newSortSettings: SortSettings) => {
     const settings: RequiredSortSettings = {
@@ -432,46 +199,117 @@ export const SecurityGroups = ({ client, project: projectId }: SecurityGroupsPro
     })
   }
 
+  if (isLoading) {
+    return (
+      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
+        <Trans>Loading...</Trans>
+      </Stack>
+    )
+  }
+
+  if (isError && !securityGroups.length) {
+    return (
+      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
+        {listError || t`Failed to load security groups`}
+      </Stack>
+    )
+  }
+
   return (
-    <div className="relative">
-      <ErrorBoundary
-        fallbackRender={({ error }) => (
-          <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
-        )}
-      >
-        <Suspense
-          fallback={
-            <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-              <Spinner variant="primary" size="large" className="mb-2" />
-              <Trans>Loading Security Groups...</Trans>
-            </Stack>
-          }
-        >
-          <SecurityGroupsContent
-            securityGroupsPromise={securityGroupsPromise}
-            permissionsPromise={permissionsPromise}
-            searchTerm={searchTerm}
-            setSearchTerm={handleSearchChange}
-            sortSettings={sortSettings}
-            handleSortChange={handleSortChange}
-            filterSettings={filterSettings}
-            handleFilterChange={handleFilterChange}
-            createModalOpen={createModalOpen}
-            setCreateModalOpen={setCreateModalOpen}
-            deleteError={deleteError}
-            createError={createError}
-            updateError={updateError}
-            onCreateSecurityGroup={handleCreateSecurityGroup}
-            onDeleteSecurityGroup={handleDeleteSecurityGroup}
-            onUpdateSecurityGroup={handleUpdateSecurityGroup}
-            isDeletingSecurityGroup={deleteSecurityGroupMutation.isPending}
-            isUpdatingSecurityGroup={updateSecurityGroupMutation.isPending}
-            currentProjectId={projectId}
-            isFetching={isFetching}
-            onClearUpdateError={handleClearUpdateError}
+    <>
+      <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+        <Stack gap="2">
+          <SortInput
+            options={sortSettings.options}
+            sortBy={sortSettings.sortBy}
+            sortDirection={sortSettings.sortDirection ?? "asc"}
+            onSortByChange={(v) =>
+              handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
+            }
+            onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
           />
-        </Suspense>
-      </ErrorBoundary>
-    </div>
+          {permissions.canCreate && (
+            <Button onClick={() => setCreateModalOpen(true)} variant="primary" className="whitespace-nowrap">
+              <Trans>Create Security Group</Trans>
+            </Button>
+          )}
+        </Stack>
+      </Stack>
+
+      <DataGridToolbar>
+        <Stack direction="vertical" gap="2">
+          <Stack distribution="between" alignment="center">
+            <FiltersInput
+              filters={filterSettings.filters}
+              onChange={(selected) => {
+                const newSelected = applyFilterSelection(
+                  filterSettings.selectedFilters || [],
+                  selected,
+                  filterSettings.filters
+                )
+                if (newSelected === (filterSettings.selectedFilters || [])) return
+                handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
+              }}
+            />
+            <SearchInput
+              placeholder={t`Search security groups...`}
+              data-testid="searchbar"
+              value={searchTerm}
+              onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                const v = e.currentTarget.value
+                setSearchTerm(v)
+              }}
+              onSearch={(v) => {
+                handleSearchChange(typeof v === "string" ? v : "")
+              }}
+              onClear={() => {
+                setSearchTerm("")
+                handleSearchChange("")
+              }}
+            />
+          </Stack>
+          {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
+            <SelectedFilters
+              selectedFilters={filterSettings.selectedFilters}
+              onDelete={(filterToRemove) =>
+                handleFilterChange({
+                  ...filterSettings,
+                  selectedFilters: (filterSettings.selectedFilters || []).filter(
+                    (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
+                  ),
+                })
+              }
+              onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
+            />
+          )}
+        </Stack>
+      </DataGridToolbar>
+
+      <SecurityGroupListContainer
+        securityGroups={securityGroups}
+        isLoading={false}
+        isError={false}
+        error={null}
+        permissions={permissions}
+        onCreateClick={() => setCreateModalOpen(true)}
+        onDeleteSecurityGroup={handleDeleteSecurityGroup}
+        isDeletingSecurityGroup={deleteSecurityGroupMutation.isPending}
+        deleteError={deleteError}
+        onUpdateSecurityGroup={handleUpdateSecurityGroup}
+        isUpdatingSecurityGroup={updateSecurityGroupMutation.isPending}
+        updateError={updateError}
+        currentProjectId={projectId}
+        hasAnyBulkAction={false}
+        onClearUpdateError={handleClearUpdateError}
+      />
+
+      <CreateSecurityGroupModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onCreate={handleCreateSecurityGroup}
+        isLoading={false}
+        error={createError}
+      />
+    </>
   )
 }
