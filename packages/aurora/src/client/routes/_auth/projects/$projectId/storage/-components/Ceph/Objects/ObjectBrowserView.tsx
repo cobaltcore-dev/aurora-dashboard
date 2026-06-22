@@ -10,6 +10,10 @@ import {
   Message,
   DataGridToolbar,
   SearchInput,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuToggle,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -328,7 +332,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       />
 
       <Stack direction="vertical">
-        {/* Zone 1 — sort controls and the primary actions (plain Stack, no background) */}
+        {/* Zone 1 — sort controls and the primary action (plain Stack, no background) */}
         <Stack distribution="end" alignment="center" gap="2" className="pb-2">
           <Stack gap="0.5" alignment="center">
             <SortInput
@@ -341,26 +345,23 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
             />
           </Stack>
+          <PopupMenu>
+            <PopupMenuToggle as="div">
+              <Button icon="moreVert" />
+            </PopupMenuToggle>
+            <PopupMenuOptions>
+              {versioningStatus &&
+                (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
+                  <PopupMenuItem label={t`Enable Versioning`} onClick={() => setIsEnableVersioningModalOpen(true)} />
+                )}
+              {versioningStatus && versioningStatus.status === "Enabled" && (
+                <PopupMenuItem label={t`Suspend Versioning`} onClick={() => setIsSuspendVersioningModalOpen(true)} />
+              )}
+              <PopupMenuItem label={t`Bucket Policy`} onClick={() => setIsPolicyModalOpen(true)} />
+            </PopupMenuOptions>
+          </PopupMenu>
           <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
             <Trans>Create Folder</Trans>
-          </Button>
-          {versioningStatus && versioningStatus.status === "Enabled" && (
-            <Button
-              variant="subdued"
-              className="whitespace-nowrap"
-              onClick={() => setIsSuspendVersioningModalOpen(true)}
-            >
-              <Trans>Suspend Versioning</Trans>
-            </Button>
-          )}
-          {versioningStatus &&
-            (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
-              <Button className="whitespace-nowrap" onClick={() => setIsEnableVersioningModalOpen(true)}>
-                <Trans>Enable Versioning</Trans>
-              </Button>
-            )}
-          <Button variant="subdued" className="whitespace-nowrap" onClick={() => setIsPolicyModalOpen(true)}>
-            <Trans>Bucket Policy</Trans>
           </Button>
         </Stack>
 
