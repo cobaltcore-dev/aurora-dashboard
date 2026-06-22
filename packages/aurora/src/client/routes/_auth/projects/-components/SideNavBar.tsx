@@ -138,7 +138,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
               label={
                 <>
                   {domainName && <p className="text-theme-light text-xs leading-4 font-bold">{domainName} /</p>}
-                  <p className="font-normal">{projectName}</p>
+                  <p className="font-normal leading-5">{projectName}</p>
                 </>
               }
             />
