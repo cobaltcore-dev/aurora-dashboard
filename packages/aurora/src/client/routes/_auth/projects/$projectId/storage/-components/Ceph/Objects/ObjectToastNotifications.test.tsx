@@ -15,7 +15,6 @@ import {
 describe("ObjectToastNotifications", () => {
   const mockConfig = {
     onDismiss: vi.fn(),
-    autoDismissTimeout: 3000,
   }
 
   describe("Folder operations", () => {
@@ -23,8 +22,6 @@ describe("ObjectToastNotifications", () => {
       const toast = getFolderCreatedToast("documents/reports/", mockConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(3000)
       expect(toast.onDismiss).toBe(mockConfig.onDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -33,7 +30,6 @@ describe("ObjectToastNotifications", () => {
       const toast = getFolderCreateErrorToast("documents/reports/", "Access denied", mockConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
       expect(toast.children).toBeDefined()
     })
   })
@@ -43,7 +39,6 @@ describe("ObjectToastNotifications", () => {
       const toast = getObjectDeletedToast("folder/file.txt", mockConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
       expect(toast.children).toBeDefined()
     })
 
@@ -51,7 +46,6 @@ describe("ObjectToastNotifications", () => {
       const toast = getObjectDeleteErrorToast("folder/file.txt", "Permission denied", mockConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
       expect(toast.children).toBeDefined()
     })
 
@@ -75,7 +69,6 @@ describe("ObjectToastNotifications", () => {
       const toast = getObjectCopiedToast("file.txt", "target-bucket", "folder/file.txt", mockConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
       expect(toast.children).toBeDefined()
     })
 
@@ -90,7 +83,6 @@ describe("ObjectToastNotifications", () => {
       const toast = getObjectCopyErrorToast("file.txt", "Bucket not found", mockConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
       expect(toast.children).toBeDefined()
     })
   })
@@ -100,7 +92,6 @@ describe("ObjectToastNotifications", () => {
       const toast = getObjectMovedToast("old/file.txt", "new-bucket", "new/path/file.txt", mockConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
       expect(toast.children).toBeDefined()
     })
 
@@ -108,7 +99,6 @@ describe("ObjectToastNotifications", () => {
       const toast = getObjectMoveErrorToast("old/file.txt", "Insufficient permissions", mockConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
       expect(toast.children).toBeDefined()
     })
   })
@@ -118,7 +108,6 @@ describe("ObjectToastNotifications", () => {
       const toast = getObjectMetadataUpdatedToast("documents/file.txt", mockConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
       expect(toast.children).toBeDefined()
     })
 
@@ -126,26 +115,11 @@ describe("ObjectToastNotifications", () => {
       const toast = getObjectMetadataUpdateErrorToast("documents/file.txt", "Metadata too large", mockConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
       expect(toast.children).toBeDefined()
     })
   })
 
   describe("Toast configuration", () => {
-    it("uses default timeout when not provided", () => {
-      const configWithoutTimeout = { onDismiss: vi.fn() }
-      const toast = getFolderCreatedToast("folder/", configWithoutTimeout)
-
-      expect(toast.autoDismissTimeout).toBe(5000)
-    })
-
-    it("respects custom timeout", () => {
-      const customConfig = { onDismiss: vi.fn(), autoDismissTimeout: 10000 }
-      const toast = getFolderCreatedToast("folder/", customConfig)
-
-      expect(toast.autoDismissTimeout).toBe(10000)
-    })
-
     it("includes onDismiss callback", () => {
       const toast = getFolderCreatedToast("folder/", mockConfig)
 

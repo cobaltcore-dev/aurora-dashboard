@@ -19,7 +19,6 @@ export function NotificationText({ title, description }: NotificationTextProps) 
 
 interface ToastConfig {
   onDismiss: () => void
-  autoDismissTimeout?: number
 }
 
 export const getBucketCreatedToast = (bucketName: string, config: ToastConfig): ToastProps => ({
@@ -30,8 +29,6 @@ export const getBucketCreatedToast = (bucketName: string, config: ToastConfig): 
       description={<Trans>Bucket "{bucketName}" was successfully created.</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -51,8 +48,6 @@ export const getBucketCreateErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -76,8 +71,6 @@ export const getBucketEmptiedToast = (bucketName: string, deletedCount: number, 
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -97,8 +90,6 @@ export const getBucketEmptyErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -110,8 +101,6 @@ export const getBucketDeletedToast = (bucketName: string, config: ToastConfig): 
       description={<Trans>Bucket "{bucketName}" was successfully deleted.</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -131,8 +120,6 @@ export const getBucketDeleteErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -168,8 +155,6 @@ export const getBucketsEmptyCompleteToast = (
         }
       />
     ),
-    autoDismiss: !hasErrors, // Don't auto-dismiss if there are errors
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
   }
 }

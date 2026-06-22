@@ -19,13 +19,10 @@ function NotificationText({ title, description }: NotificationTextProps) {
 
 interface ToastConfig {
   onDismiss: () => void
-  autoDismissTimeout?: number
 }
 
 export const getFolderCreatedToast = (folderName: string, config: ToastConfig): ToastProps => ({
   variant: "success",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -41,8 +38,6 @@ export const getFolderCreateErrorToast = (
   config: ToastConfig
 ): ToastProps => ({
   variant: "error",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -58,8 +53,6 @@ export const getFolderCreateErrorToast = (
 
 export const getFolderDeletedToast = (folderName: string, deletedCount: number, config: ToastConfig): ToastProps => ({
   variant: "success",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -87,8 +80,6 @@ export const getFolderDeleteErrorToast = (
   config: ToastConfig
 ): ToastProps => ({
   variant: "error",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -108,8 +99,6 @@ export const getObjectDownloadErrorToast = (
   config: ToastConfig
 ): ToastProps => ({
   variant: "error",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -125,8 +114,6 @@ export const getObjectDownloadErrorToast = (
 
 export const getObjectDeletedToast = (objectName: string, config: ToastConfig): ToastProps => ({
   variant: "success",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -142,8 +129,6 @@ export const getObjectDeleteErrorToast = (
   config: ToastConfig
 ): ToastProps => ({
   variant: "error",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -166,8 +151,6 @@ export const getObjectCopiedToast = (
   const destination = targetPath ? `${targetContainer}/${targetPath}` : targetContainer
   return {
     variant: "success",
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
     children: (
       <NotificationText
@@ -184,8 +167,6 @@ export const getObjectCopiedToast = (
 
 export const getObjectCopyErrorToast = (objectName: string, errorMessage: string, config: ToastConfig): ToastProps => ({
   variant: "error",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -208,8 +189,6 @@ export const getObjectMovedToast = (
   const destination = targetPath ? `${targetContainer}/${targetPath}` : targetContainer
   return {
     variant: "success",
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
     children: (
       <NotificationText
@@ -226,8 +205,6 @@ export const getObjectMovedToast = (
 
 export const getObjectMoveErrorToast = (objectName: string, errorMessage: string, config: ToastConfig): ToastProps => ({
   variant: "error",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -243,8 +220,6 @@ export const getObjectMoveErrorToast = (objectName: string, errorMessage: string
 
 export const getTempUrlCopiedToast = (objectName: string, config: ToastConfig): ToastProps => ({
   variant: "success",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 4000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -256,8 +231,6 @@ export const getTempUrlCopiedToast = (objectName: string, config: ToastConfig): 
 
 export const getObjectMetadataUpdatedToast = (objectName: string, config: ToastConfig): ToastProps => ({
   variant: "success",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -273,8 +246,6 @@ export const getObjectMetadataUpdateErrorToast = (
   config: ToastConfig
 ): ToastProps => ({
   variant: "error",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -290,8 +261,6 @@ export const getObjectMetadataUpdateErrorToast = (
 
 export const getObjectUploadedToast = (objectName: string, config: ToastConfig): ToastProps => ({
   variant: "success",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -303,8 +272,6 @@ export const getObjectUploadedToast = (objectName: string, config: ToastConfig):
 
 export const getObjectUploadCancelledToast = (objectName: string, config: ToastConfig): ToastProps => ({
   variant: "warning",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 4000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -320,8 +287,6 @@ export const getObjectUploadErrorToast = (
   config: ToastConfig
 ): ToastProps => ({
   variant: "error",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -337,8 +302,6 @@ export const getObjectUploadErrorToast = (
 
 export const getObjectsBulkDeletedToast = (numberDeleted: number, config: ToastConfig): ToastProps => ({
   variant: "success",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -356,8 +319,6 @@ export const getObjectsBulkDeletedToast = (numberDeleted: number, config: ToastC
 
 export const getObjectsBulkDeleteErrorToast = (errorMessage: string, config: ToastConfig): ToastProps => ({
   variant: "error",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText

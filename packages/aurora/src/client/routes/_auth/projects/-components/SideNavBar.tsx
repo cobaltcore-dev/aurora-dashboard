@@ -1,7 +1,13 @@
 import { useNavigate, useMatches, useParams, useRouteContext } from "@tanstack/react-router"
-import { type MouseEvent, useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { SideNavigation, SideNavigationList, SideNavigationItem } from "@cloudoperators/juno-ui-components/index"
+import {
+  SideNavigation,
+  SideNavigationList,
+  SideNavigationGroup,
+  SideNavigationItem,
+  Divider,
+} from "@cloudoperators/juno-ui-components/index"
 import { useLingui } from "@lingui/react/macro"
 import { isRouteInfo } from "@/client/routes/routeInfo"
 import { Slot } from "@/client/components/Slot"
@@ -9,13 +15,14 @@ import { Slot } from "@/client/components/Slot"
 interface SideNavBarProps {
   projectId: string
   projectName: string
+  domainName?: string
   availableServices: {
     type: string
     name: string
   }[]
 }
 
-export const SideNavBar = ({ projectId, projectName, availableServices }: SideNavBarProps) => {
+export const SideNavBar = ({ projectId, projectName, domainName, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const matches = useMatches()
@@ -31,28 +38,25 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
   const serviceIndex = getServiceIndex(availableServices)
 
   const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true, services: true })
-  const toggle = (section: keyof typeof openSections) =>
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
-
-  // When navigating into a section, force Juno to re-open it by resetting the key
-  const [sectionKeys, setSectionKeys] = useState({ compute: 0, network: 0, storage: 0, services: 0 })
+  const prevSectionRef = useRef<string | null>(null)
+  const mountedRef = useRef(false)
 
   useEffect(() => {
-    if (activeSection && activeSection in sectionKeys) {
-      setSectionKeys((prev) => ({ ...prev, [activeSection]: prev[activeSection as keyof typeof sectionKeys] + 1 }))
-      setOpenSections((prev) => ({ ...prev, [activeSection]: true }))
+    const prev = prevSectionRef.current
+    prevSectionRef.current = activeSection
+    const wasMounted = mountedRef.current
+    mountedRef.current = true
+    // Skip on initial mount: all sections start open, Juno initializes correctly from the open prop.
+    // Only re-open when navigating to a section that Juno may have internally collapsed.
+    if (!wasMounted) return
+    if (activeSection && activeSection !== prev && activeSection in openSections) {
+      // Set false first, then true in the next tick so Juno's useEffect([open]) sees the change
+      // even if the section was already true in our state (Juno may have internally collapsed it).
+      setOpenSections((s) => ({ ...s, [activeSection]: false }))
+      const section = activeSection
+      setTimeout(() => setOpenSections((s) => ({ ...s, [section]: true })), 0)
     }
   }, [activeSection])
-
-  const isOverviewActive = activeSection === null
-
-  const handleSectionClick = (section: keyof typeof openSections) => (e: MouseEvent<HTMLDivElement>) => {
-    // Only toggle if the click is on the header row (has expand-icon sibling), not on child items
-    const clickedItem = (e.target as HTMLElement).closest(".juno-sidenavigation-item")
-    if (clickedItem && clickedItem.parentElement?.querySelector(".expand-icon")) {
-      toggle(section)
-    }
-  }
 
   const computeServices = [
     ...(serviceIndex["image"]?.["glance"]
@@ -136,74 +140,69 @@ export const SideNavBar = ({ projectId, projectName, availableServices }: SideNa
         <SideNavigationList>
           <>
             <SideNavigationItem
-              icon="home"
-              label={projectName}
               onClick={() => navigate({ to: "/projects/$projectId", params: { projectId } })}
-              selected={isOverviewActive}
+              label={
+                <>
+                  {domainName && <p className="text-theme-light text-xs leading-4 font-bold">{domainName} /</p>}
+                  <p className="leading-5 font-normal">{projectName}</p>
+                </>
+              }
             />
-            {/* onClickCapture fires before Juno's chevron stopPropagation, keeping our state in sync */}
-            <div onClickCapture={handleSectionClick("compute")}>
-              <SideNavigationItem key={sectionKeys.compute} label={t`Compute`} open={openSections.compute}>
-                {computeServices.map(({ service, label, to, params }) => (
+            <Divider spacing="1" />
+            <SideNavigationGroup label={t`Compute`} open={openSections.compute}>
+              {computeServices.map(({ service, label, to, params }) => (
+                <SideNavigationItem
+                  key={label}
+                  onClick={() => navigate({ to, params })}
+                  label={label}
+                  selected={activeSection === "compute" && activeService === service}
+                />
+              ))}
+            </SideNavigationGroup>
+
+            {networkServices.length > 0 && (
+              <SideNavigationGroup label={t`Network`} open={openSections.network}>
+                {networkServices.map(({ service, label, to, params }) => (
                   <SideNavigationItem
                     key={label}
                     onClick={() => navigate({ to, params })}
                     label={label}
-                    selected={activeSection === "compute" && activeService === service}
+                    selected={activeSection === "network" && activeService === service}
                   />
                 ))}
-              </SideNavigationItem>
-            </div>
-
-            {networkServices.length > 0 && (
-              <div onClickCapture={handleSectionClick("network")}>
-                <SideNavigationItem key={sectionKeys.network} label={t`Network`} open={openSections.network}>
-                  {networkServices.map(({ service, label, to, params }) => (
-                    <SideNavigationItem
-                      key={label}
-                      onClick={() => navigate({ to, params })}
-                      label={label}
-                      selected={activeSection === "network" && activeService === service}
-                    />
-                  ))}
-                </SideNavigationItem>
-              </div>
+              </SideNavigationGroup>
             )}
 
             {storageServices.length > 0 && (
-              <div onClickCapture={handleSectionClick("storage")}>
-                <SideNavigationItem key={sectionKeys.storage} label={t`Storage`} open={openSections.storage}>
-                  {storageServices.map(({ service, label, to, params }) => {
-                    // For storage services with provider param, match against current provider
-                    const isStorageContainers = activeSection === "storage" && activeService === "containers"
-                    const isSelected = isStorageContainers ? params.provider === provider : activeService === service
+              <SideNavigationGroup label={t`Storage`} open={openSections.storage}>
+                {storageServices.map(({ service, label, to, params }) => {
+                  // For storage services with provider param, match against current provider
+                  const isStorageContainers = activeSection === "storage" && activeService === "containers"
+                  const isSelected = isStorageContainers ? params.provider === provider : activeService === service
 
-                    return (
-                      <SideNavigationItem
-                        key={label}
-                        onClick={() => navigate({ to, params })}
-                        label={label}
-                        selected={isSelected}
-                      />
-                    )
-                  })}
-                </SideNavigationItem>
-              </div>
-            )}
-
-            {clavisServices.length > 0 && (
-              <div onClickCapture={handleSectionClick("services")}>
-                <SideNavigationItem key={sectionKeys.services} label={t`Services`} open={openSections.services}>
-                  {clavisServices.map(({ service, label, to, params }) => (
+                  return (
                     <SideNavigationItem
                       key={label}
                       onClick={() => navigate({ to, params })}
                       label={label}
-                      selected={activeSection === "services" && activeService === service}
+                      selected={isSelected}
                     />
-                  ))}
-                </SideNavigationItem>
-              </div>
+                  )
+                })}
+              </SideNavigationGroup>
+            )}
+
+            {clavisServices.length > 0 && (
+              <SideNavigationGroup label={t`Services`} open={openSections.services}>
+                {clavisServices.map(({ service, label, to, params }) => (
+                  <SideNavigationItem
+                    key={label}
+                    onClick={() => navigate({ to, params })}
+                    label={label}
+                    selected={activeSection === "services" && activeService === service}
+                  />
+                ))}
+              </SideNavigationGroup>
             )}
           </>
         </SideNavigationList>
