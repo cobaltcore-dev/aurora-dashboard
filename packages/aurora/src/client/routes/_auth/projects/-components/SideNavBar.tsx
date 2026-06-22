@@ -137,7 +137,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
               onClick={() => navigate({ to: "/projects/$projectId", params: { projectId } })}
               label={
                 <>
-                  {domainName && <p className="text-theme-light text-xs leading-5 font-normal">{domainName} /</p>}
+                  {domainName && <p className="text-theme-light text-xs leading-4 font-bold">{domainName} /</p>}
                   <p className="font-normal">{projectName}</p>
                 </>
               }
