@@ -1,5 +1,5 @@
 import { useNavigate, useMatches, useParams, useRouteContext } from "@tanstack/react-router"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import {
   SideNavigation,
@@ -37,11 +37,14 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
 
   const serviceIndex = getServiceIndex(availableServices)
 
-  const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true, services: true })
+  const [sectionKeys, setSectionKeys] = useState({ compute: 0, network: 0, storage: 0, services: 0 })
+  const prevSectionRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (activeSection && activeSection in openSections) {
-      setOpenSections((prev) => ({ ...prev, [activeSection]: true }))
+    const prev = prevSectionRef.current
+    prevSectionRef.current = activeSection
+    if (activeSection && activeSection !== prev && activeSection in sectionKeys) {
+      setSectionKeys((s) => ({ ...s, [activeSection]: s[activeSection as keyof typeof sectionKeys] + 1 }))
     }
   }, [activeSection])
 
@@ -136,7 +139,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
               }
             />
             <Divider spacing="1" />
-            <SideNavigationGroup label={t`Compute`} open={openSections.compute}>
+            <SideNavigationGroup key={sectionKeys.compute} label={t`Compute`} open={true}>
               {computeServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
                   key={label}
@@ -148,7 +151,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
             </SideNavigationGroup>
 
             {networkServices.length > 0 && (
-              <SideNavigationGroup label={t`Network`} open={openSections.network}>
+              <SideNavigationGroup key={sectionKeys.network} label={t`Network`} open={true}>
                 {networkServices.map(({ service, label, to, params }) => (
                   <SideNavigationItem
                     key={label}
@@ -161,7 +164,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
             )}
 
             {storageServices.length > 0 && (
-              <SideNavigationGroup label={t`Storage`} open={openSections.storage}>
+              <SideNavigationGroup key={sectionKeys.storage} label={t`Storage`} open={true}>
                 {storageServices.map(({ service, label, to, params }) => {
                   // For storage services with provider param, match against current provider
                   const isStorageContainers = activeSection === "storage" && activeService === "containers"
@@ -180,7 +183,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
             )}
 
             {clavisServices.length > 0 && (
-              <SideNavigationGroup label={t`Services`} open={openSections.services}>
+              <SideNavigationGroup key={sectionKeys.services} label={t`Services`} open={true}>
                 {clavisServices.map(({ service, label, to, params }) => (
                   <SideNavigationItem
                     key={label}
