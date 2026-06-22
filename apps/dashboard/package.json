@@ -1,7 +1,7 @@
 {
   "name": "@cobaltcore-dev/dashboard",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "scripts": {
     "build": "vite build --mode=production",
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
