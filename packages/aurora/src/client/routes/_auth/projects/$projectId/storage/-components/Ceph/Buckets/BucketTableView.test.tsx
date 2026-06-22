@@ -218,7 +218,7 @@ describe("BucketTableView", () => {
       const mockSetSelected = vi.fn()
       renderTableView({ setSelectedBuckets: mockSetSelected })
 
-      const selectAllCheckbox = screen.getByTestId("select-all-buckets").querySelector("input")!
+      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
       await user.click(selectAllCheckbox)
 
       expect(mockSetSelected).toHaveBeenCalledWith(["bucket-1", "bucket-2", "bucket-3"])
@@ -232,7 +232,7 @@ describe("BucketTableView", () => {
         setSelectedBuckets: mockSetSelected,
       })
 
-      const selectAllCheckbox = screen.getByTestId("select-all-buckets").querySelector("input")!
+      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
       await user.click(selectAllCheckbox)
 
       expect(mockSetSelected).toHaveBeenCalledWith([])
@@ -247,7 +247,7 @@ describe("BucketTableView", () => {
         setSelectedBuckets: mockSetSelected,
       })
 
-      const selectAllCheckbox = screen.getByTestId("select-all-buckets").querySelector("input")!
+      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
       await user.click(selectAllCheckbox)
 
       expect(mockSetSelected).toHaveBeenCalledWith(["bucket-hidden", "bucket-1", "bucket-2", "bucket-3"])
@@ -262,7 +262,7 @@ describe("BucketTableView", () => {
         setSelectedBuckets: mockSetSelected,
       })
 
-      const selectAllCheckbox = screen.getByTestId("select-all-buckets").querySelector("input")!
+      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
       await user.click(selectAllCheckbox)
 
       // Only the visible buckets are removed; the hidden one stays selected
@@ -274,7 +274,7 @@ describe("BucketTableView", () => {
       const mockSetSelected = vi.fn()
       renderTableView({ setSelectedBuckets: mockSetSelected })
 
-      const checkbox = screen.getByTestId("select-bucket-bucket-1").querySelector("input")!
+      const checkbox = screen.getByTestId("select-bucket-bucket-1")
       await user.click(checkbox)
 
       expect(mockSetSelected).toHaveBeenCalledWith(["bucket-1"])
@@ -288,7 +288,7 @@ describe("BucketTableView", () => {
         setSelectedBuckets: mockSetSelected,
       })
 
-      const checkbox = screen.getByTestId("select-bucket-bucket-1").querySelector("input")!
+      const checkbox = screen.getByTestId("select-bucket-bucket-1")
       await user.click(checkbox)
 
       expect(mockSetSelected).toHaveBeenCalledWith(["bucket-2"])

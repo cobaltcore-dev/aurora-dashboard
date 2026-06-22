@@ -300,35 +300,35 @@ describe("ContainerTableView", () => {
 
     test("row checkbox is unchecked when container is not selected", () => {
       renderView({ selectedContainers: [] })
-      expect(screen.getByTestId("select-container-alpha").querySelector("input")).not.toBeChecked()
+      expect(screen.getByTestId("select-container-alpha")).not.toBeChecked()
     })
 
     test("row checkbox is checked when container is in selectedContainers", () => {
       renderView({ selectedContainers: ["alpha"] })
-      expect(screen.getByTestId("select-container-alpha").querySelector("input")).toBeChecked()
-      expect(screen.getByTestId("select-container-beta").querySelector("input")).not.toBeChecked()
+      expect(screen.getByTestId("select-container-alpha")).toBeChecked()
+      expect(screen.getByTestId("select-container-beta")).not.toBeChecked()
     })
 
     test("select-all checkbox is unchecked when nothing is selected", () => {
       renderView({ selectedContainers: [] })
-      expect(screen.getByTestId("select-all-containers").querySelector("input")).not.toBeChecked()
+      expect(screen.getByTestId("select-all-containers")).not.toBeChecked()
     })
 
     test("select-all checkbox is checked when all containers are selected", () => {
       renderView({ selectedContainers: mockContainers.map((c) => c.name) })
-      expect(screen.getByTestId("select-all-containers").querySelector("input")).toBeChecked()
+      expect(screen.getByTestId("select-all-containers")).toBeChecked()
     })
 
     test("select-all checkbox is unchecked when only some containers are selected", () => {
       renderView({ selectedContainers: ["alpha"] })
-      expect(screen.getByTestId("select-all-containers").querySelector("input")).not.toBeChecked()
+      expect(screen.getByTestId("select-all-containers")).not.toBeChecked()
     })
 
     test("clicking a row checkbox calls setSelectedContainers with the container added", async () => {
       const setSelectedContainers = vi.fn()
       const user = userEvent.setup()
       renderView({ selectedContainers: [], setSelectedContainers })
-      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-container-alpha"))
       expect(setSelectedContainers).toHaveBeenCalledWith(["alpha"])
     })
 
@@ -336,7 +336,7 @@ describe("ContainerTableView", () => {
       const setSelectedContainers = vi.fn()
       const user = userEvent.setup()
       renderView({ selectedContainers: ["alpha", "beta"], setSelectedContainers })
-      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-container-alpha"))
       expect(setSelectedContainers).toHaveBeenCalledWith(["beta"])
     })
 
@@ -344,7 +344,7 @@ describe("ContainerTableView", () => {
       const setSelectedContainers = vi.fn()
       const user = userEvent.setup()
       renderView({ selectedContainers: [], setSelectedContainers })
-      await user.click(screen.getByTestId("select-all-containers").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-all-containers"))
       expect(setSelectedContainers).toHaveBeenCalledWith(mockContainers.map((c) => c.name))
     })
 
@@ -352,14 +352,14 @@ describe("ContainerTableView", () => {
       const setSelectedContainers = vi.fn()
       const user = userEvent.setup()
       renderView({ selectedContainers: mockContainers.map((c) => c.name), setSelectedContainers })
-      await user.click(screen.getByTestId("select-all-containers").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-all-containers"))
       expect(setSelectedContainers).toHaveBeenCalledWith([])
     })
 
     test("clicking a row checkbox does not trigger row navigation", async () => {
       const user = userEvent.setup()
       renderView()
-      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-container-alpha"))
       expect(mockNavigateFn).not.toHaveBeenCalled()
     })
   })
