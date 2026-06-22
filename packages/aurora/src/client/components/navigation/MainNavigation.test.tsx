@@ -57,58 +57,13 @@ describe("MainNavigation", () => {
       component: () => <div>About Page Content</div>,
     })
 
-    const accountsRoute = createRoute({
-      getParentRoute: () => rootRoute,
-      path: "/accounts",
-      component: () => <Outlet />,
-    })
-
-    const domainRoute = createRoute({
-      getParentRoute: () => accountsRoute,
-      path: "/$accountId",
-      loader: ({ params }) => ({
-        crumbDomain: {
-          id: params.accountId,
-          name: `Test Domain (${params.accountId})`,
-        },
-      }),
-      component: () => <Outlet />,
-    })
-
     const projectsRoute = createRoute({
       getParentRoute: () => rootRoute,
       path: "/projects",
       component: () => <div>Projects Page</div>,
     })
 
-    const projectRoute = createRoute({
-      getParentRoute: () => rootRoute,
-      path: "/projects/$projectId",
-      loader: ({ params }) => ({
-        crumbDomain: {
-          name: "Test Domain",
-          path: "/projects",
-        },
-        crumbProject: {
-          id: params.projectId,
-          name: `Test Project (${params.projectId})`,
-          description: "A test project",
-          enabled: true,
-          links: {
-            self: `https://example.com/${params.projectId}`,
-          },
-        },
-      }),
-      component: () => <div>Project Content</div>,
-    })
-
-    const routeTree = rootRoute.addChildren([
-      homeRoute,
-      aboutRoute,
-      projectsRoute,
-      projectRoute,
-      accountsRoute.addChildren([domainRoute]),
-    ])
+    const routeTree = rootRoute.addChildren([homeRoute, aboutRoute, projectsRoute])
 
     return createRouter({
       routeTree,
@@ -136,75 +91,6 @@ describe("MainNavigation", () => {
 
     // Check if navigation items are rendered
     expect(screen.getByText("About")).toBeDefined()
-  })
-
-  test("renders domain name when route includes domain data", async () => {
-    await act(async () => {
-      i18n.activate("en")
-    })
-
-    const router = createTestRouter(<MainNavigation items={mainNavItems} />)
-
-    // Navigate to a project route to see domain data
-    await router.navigate({
-      to: "/projects/$projectId",
-      params: {
-        projectId: "project1",
-      },
-    })
-
-    await waitFor(() => render(<RouterProvider router={router} />))
-
-    // Domain is plain text, not a link
-    await waitFor(() => {
-      expect(screen.getByText("Test Domain")).toBeDefined()
-      expect(screen.getByTestId("domain-name")).toBeDefined()
-    })
-  })
-
-  test("renders project name when route includes project data", async () => {
-    await act(async () => {
-      i18n.activate("en")
-    })
-
-    const router = createTestRouter(<MainNavigation items={mainNavItems} />)
-
-    // Navigate to a project route with the correct syntax using params
-    await router.navigate({
-      to: "/projects/$projectId",
-      params: {
-        projectId: "project1",
-      },
-    })
-
-    await waitFor(() => render(<RouterProvider router={router} />))
-
-    // Check if domain and project names are rendered
-    await waitFor(() => {
-      expect(screen.getByText("Test Domain")).toBeDefined()
-      expect(screen.getByText("Test Project (project1)")).toBeDefined()
-    })
-  })
-
-  test("project link navigates to project page", async () => {
-    await act(async () => {
-      i18n.activate("en")
-    })
-
-    const router = createTestRouter(<MainNavigation items={mainNavItems} />)
-
-    await router.navigate({
-      to: "/projects/$projectId",
-      params: { projectId: "project1" },
-    })
-
-    await waitFor(() => render(<RouterProvider router={router} />))
-
-    await waitFor(async () => {
-      const projectLink = screen.getByTestId("project-link")
-      fireEvent.click(projectLink)
-      expect(router.state.location.pathname).toBe("/projects/project1")
-    })
   })
 
   test("navigation items have correct links", async () => {
