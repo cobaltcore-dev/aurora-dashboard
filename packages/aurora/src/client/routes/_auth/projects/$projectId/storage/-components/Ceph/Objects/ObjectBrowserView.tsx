@@ -20,6 +20,7 @@ import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { CreateFolderModal } from "./CreateFolderModal"
 import { EnableVersioningModal } from "../Buckets/EnableVersioningModal"
 import { SuspendVersioningModal } from "../Buckets/SuspendVersioningModal"
+import { BucketPolicyModal } from "../Buckets/BucketPolicyModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
 import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
@@ -74,6 +75,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false)
   const [isEnableVersioningModalOpen, setIsEnableVersioningModalOpen] = useState(false)
   const [isSuspendVersioningModalOpen, setIsSuspendVersioningModalOpen] = useState(false)
+  const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   // Local mirror of the committed search term so typing stays responsive while
@@ -102,6 +104,19 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     {
       enabled: !!projectId,
       staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    }
+  )
+
+  // Query bucket policy status
+  const { data: policyData } = trpcReact.storage.ceph.bucketPolicy.get.useQuery(
+    {
+      project_id: projectId ?? "",
+      bucketName,
+    },
+    {
+      enabled: !!projectId,
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      retry: false,
     }
   )
 
@@ -297,6 +312,11 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               <Trans>Versioning Suspended</Trans>
             </Badge>
           )}
+          {policyData?.policy && (
+            <Badge variant="info">
+              <Trans>Policy</Trans>
+            </Badge>
+          )}
         </Stack>
       </div>
 
@@ -339,6 +359,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
                 <Trans>Enable Versioning</Trans>
               </Button>
             )}
+          <Button variant="subdued" className="whitespace-nowrap" onClick={() => setIsPolicyModalOpen(true)}>
+            <Trans>Bucket Policy</Trans>
+          </Button>
         </Stack>
 
         {/* Zone 2 — debounced search. DataGridToolbar provides the background. */}
@@ -471,6 +494,12 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         onError={() => {
           setIsSuspendVersioningModalOpen(false)
         }}
+      />
+
+      <BucketPolicyModal
+        isOpen={isPolicyModalOpen}
+        bucketName={bucketName}
+        onClose={() => setIsPolicyModalOpen(false)}
       />
 
       {toastData && <Toast {...toastData} />}
