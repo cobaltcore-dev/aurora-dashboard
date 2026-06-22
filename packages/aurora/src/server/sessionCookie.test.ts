@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { SessionCookie } from "./sessionCookie"
+import { SessionCookie, DEFAULT_COOKIE_NAME } from "./sessionCookie"
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
 
-const DEFAULT_COOKIE_NAME = "dashboard-session-auth"
-
 describe("SessionCookie", () => {
+  const TEST_HOSTNAME = "aurora.region-1.example.com"
   let mockRes: CreateFastifyContextOptions["res"]
 
   beforeEach(() => {
@@ -20,17 +19,23 @@ describe("SessionCookie", () => {
     }) as CreateFastifyContextOptions["req"]
 
   describe("Cookie Name", () => {
-    it("should use default cookie name", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+    it("should use default cookie name when none is provided", () => {
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set("my-auth-token")
       expect(mockRes.setCookie).toHaveBeenCalledWith(DEFAULT_COOKIE_NAME, "my-auth-token", expect.any(Object))
+    })
+    it("should use provided cookie name", () => {
+      const mockReq = createMockReq(TEST_HOSTNAME)
+      const cookie = SessionCookie({ req: mockReq, res: mockRes, cookieName: "some_cookie" })
+      cookie.set("my-auth-token")
+      expect(mockRes.setCookie).toHaveBeenCalledWith("some_cookie", "my-auth-token", expect.any(Object))
     })
   })
 
   describe("Cookie Operations", () => {
     it("should set cookie with token", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set("my-auth-token")
 
@@ -47,7 +52,7 @@ describe("SessionCookie", () => {
     })
 
     it("should not set cookie if content is null", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set(null)
 
@@ -55,7 +60,7 @@ describe("SessionCookie", () => {
     })
 
     it("should not set cookie if content is undefined", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set(undefined)
 
@@ -63,7 +68,7 @@ describe("SessionCookie", () => {
     })
 
     it("should get cookie value", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       mockReq.cookies[DEFAULT_COOKIE_NAME] = "existing-token"
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
 
@@ -71,14 +76,14 @@ describe("SessionCookie", () => {
     })
 
     it("should return undefined when cookie does not exist", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
 
       expect(cookie.get()).toBeUndefined()
     })
 
     it("should delete cookie", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.del()
 
@@ -98,7 +103,7 @@ describe("SessionCookie", () => {
     })
 
     it("should support custom cookie name", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const customName = "my-custom-cookie"
       const cookie = SessionCookie({ req: mockReq, res: mockRes, cookieName: customName })
 
@@ -108,7 +113,7 @@ describe("SessionCookie", () => {
     })
 
     it("should support custom expires option", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const expiryDate = new Date("2026-12-31")
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
 
@@ -124,7 +129,7 @@ describe("SessionCookie", () => {
     })
 
     it("should use root path for cross-dashboard access", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set("test-token")
 
@@ -140,7 +145,7 @@ describe("SessionCookie", () => {
 
   describe("Cookie Security", () => {
     it("should set httpOnly to true", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set("test-token")
 
@@ -154,7 +159,7 @@ describe("SessionCookie", () => {
     })
 
     it("should set secure to true by default", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set("test-token")
 
@@ -168,8 +173,13 @@ describe("SessionCookie", () => {
     })
 
     it("should set secure to false when insecureCookies=true", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
-      const cookie = SessionCookie({ req: mockReq, res: mockRes, insecureCookies: true })
+      const mockReq = createMockReq(TEST_HOSTNAME)
+      const cookie = SessionCookie({
+        req: mockReq,
+        res: mockRes,
+        cookieName: DEFAULT_COOKIE_NAME,
+        insecureCookies: true,
+      })
       cookie.set("test-token")
 
       expect(mockRes.setCookie).toHaveBeenCalledWith(
@@ -182,7 +192,7 @@ describe("SessionCookie", () => {
     })
 
     it("should set sameSite to strict", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set("test-token")
 
@@ -198,7 +208,7 @@ describe("SessionCookie", () => {
 
   describe("Domain Extraction", () => {
     it("should set domain for Aurora dashboard hostname", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
+      const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
 
       cookie.set("test-token")
@@ -207,13 +217,13 @@ describe("SessionCookie", () => {
         DEFAULT_COOKIE_NAME,
         "test-token",
         expect.objectContaining({
-          domain: ".qa-de-1.cloud.sap",
+          domain: ".region-1.example.com",
         })
       )
     })
 
     it("should set domain for Elektra dashboard hostname", () => {
-      const mockReq = createMockReq("dashboard.qa-de-1.cloud.sap")
+      const mockReq = createMockReq("dashboard.region-1.example.com")
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
 
       cookie.set("test-token")
@@ -222,13 +232,13 @@ describe("SessionCookie", () => {
         DEFAULT_COOKIE_NAME,
         "test-token",
         expect.objectContaining({
-          domain: ".qa-de-1.cloud.sap",
+          domain: ".region-1.example.com",
         })
       )
     })
 
     it("should set domain for production hostnames", () => {
-      const mockReq = createMockReq("aurora.eu-de-1.cloud.sap")
+      const mockReq = createMockReq("aurora.region-2.example.com")
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
 
       cookie.set("test-token")
@@ -237,7 +247,7 @@ describe("SessionCookie", () => {
         DEFAULT_COOKIE_NAME,
         "test-token",
         expect.objectContaining({
-          domain: ".eu-de-1.cloud.sap",
+          domain: ".region-2.example.com",
         })
       )
     })
@@ -288,8 +298,13 @@ describe("SessionCookie", () => {
     })
 
     it("should not set domain when crossDomainCookie=false", () => {
-      const mockReq = createMockReq("aurora.qa-de-1.cloud.sap")
-      const cookie = SessionCookie({ req: mockReq, res: mockRes, crossDomainCookie: false })
+      const mockReq = createMockReq(TEST_HOSTNAME)
+      const cookie = SessionCookie({
+        req: mockReq,
+        res: mockRes,
+        cookieName: DEFAULT_COOKIE_NAME,
+        crossDomainCookie: false,
+      })
 
       cookie.set("test-token")
 

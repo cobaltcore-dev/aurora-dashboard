@@ -23,7 +23,11 @@ createServer({
   proxyUrl: process.env.GLOBAL_AGENT_HTTP_PROXY,
   cephRegion: process.env.CEPH_REGION,
   imageMetadataExcludedProperties: process.env.IMAGE_METADATA_EXCLUDED_PROPERTIES,
-  insecureCookies: process.env.INSECURE_COOKIES === "true",
+  cookieName: process.env.DASHBOARD_COOKIE_NAME || undefined,
+  crossDomainCookie: process.env.ENABLE_CROSS_DASHBOARD_COOKIE
+    ? process.env.ENABLE_CROSS_DASHBOARD_COOKIE.toLowerCase() === "true"
+    : undefined,
+  insecureCookies: process.env.INSECURE_COOKIES ? process.env.INSECURE_COOKIES.toLowerCase() === "true" : undefined,
   policyDir,
 })
   .then((server) => server.listen({ host: "0.0.0.0", port: PORT }))
