@@ -56,6 +56,7 @@ export const FlavorListContainer = ({
   const [specModalOpen, setSpecModalOpen] = useState(false)
   const [accessModalOpen, setAccessModalOpen] = useState(false)
   const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
+  const [inputPage, setInputPage] = useState<string>(currentPage.toString())
 
   const { projectId } = useParams({
     from: "/_auth/projects/$projectId/compute/flavors/",
@@ -88,19 +89,25 @@ export const FlavorListContainer = ({
     closeDeleteModal()
   }
 
+  // Update input to reflect current page
+  const updateCurrentPage = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      onPageChange?.(newPage)
+      setInputPage(newPage.toString())
+    }
+  }
+
   if (isLoading) {
     return (
       <div data-testid="loading">
-        <div data-testid="loading">
-          <DataGridRow>
-            <DataGridCell colSpan={3}>
-              <Stack distribution="center" alignment="center">
-                <Spinner variant="primary" />
-                <Trans>Loading...</Trans>
-              </Stack>
-            </DataGridCell>
-          </DataGridRow>
-        </div>
+        <DataGridRow>
+          <DataGridCell colSpan={3}>
+            <Stack distribution="center" alignment="center">
+              <Spinner variant="primary" />
+              <Trans>Loading...</Trans>
+            </Stack>
+          </DataGridCell>
+        </DataGridRow>
       </div>
     )
   }
@@ -167,7 +174,7 @@ export const FlavorListContainer = ({
             <DataGridCell>{flavor.disk || "–"}</DataGridCell>
             <DataGridCell>{flavor.swap || "–"}</DataGridCell>
             <DataGridCell>{flavor["os-flavor-access:is_public"] === false ? t`Private` : t`Public`}</DataGridCell>
-            <DataGridCell onClick={(e) => e.stopPropagation()}>
+            <DataGridCell onClick={(e: React.KeyboardEvent<HTMLInputElement>) => e.stopPropagation()}>
               <PopupMenu>
                 <PopupMenuOptions>
                   <PopupMenuItem
@@ -207,9 +214,20 @@ export const FlavorListContainer = ({
             variant="input"
             currentPage={currentPage}
             pages={totalPages}
-            onPressPrevious={() => onPageChange?.(Math.max(currentPage - 1, 1))}
-            onPressNext={() => onPageChange?.(Math.min(currentPage + 1, totalPages))}
-            onSelectChange={(page) => onPageChange?.(page)}
+            onPressPrevious={() => updateCurrentPage(Math.max(currentPage - 1, 1))}
+            onPressNext={() => updateCurrentPage(Math.min(currentPage + 1, totalPages))}
+            onInputChange={(newInputPage: string) => {
+              setInputPage(newInputPage)
+            }}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter") {
+                const trimmedInput = inputPage.trim()
+                const newPage = parseInt(trimmedInput, 10)
+                if (!isNaN(newPage)) {
+                  updateCurrentPage(newPage) // Only if conversion succeeds
+                }
+              }
+            }}
           />
         </div>
       )}
