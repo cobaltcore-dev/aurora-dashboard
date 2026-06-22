@@ -37,14 +37,18 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
 
   const serviceIndex = getServiceIndex(availableServices)
 
-  const [sectionKeys, setSectionKeys] = useState({ compute: 0, network: 0, storage: 0, services: 0 })
+  const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true, services: true })
   const prevSectionRef = useRef<string | null>(null)
 
   useEffect(() => {
     const prev = prevSectionRef.current
     prevSectionRef.current = activeSection
-    if (activeSection && activeSection !== prev && activeSection in sectionKeys) {
-      setSectionKeys((s) => ({ ...s, [activeSection]: s[activeSection as keyof typeof sectionKeys] + 1 }))
+    if (activeSection && activeSection !== prev && activeSection in openSections) {
+      // Set false first, then true in the next tick so Juno's useEffect([open]) sees the change
+      // even if the section was already true in our state (Juno may have internally collapsed it).
+      setOpenSections((s) => ({ ...s, [activeSection]: false }))
+      const section = activeSection
+      setTimeout(() => setOpenSections((s) => ({ ...s, [section]: true })), 0)
     }
   }, [activeSection])
 
@@ -139,7 +143,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
               }
             />
             <Divider spacing="1" />
-            <SideNavigationGroup key={sectionKeys.compute} label={t`Compute`} open={true}>
+            <SideNavigationGroup label={t`Compute`} open={openSections.compute}>
               {computeServices.map(({ service, label, to, params }) => (
                 <SideNavigationItem
                   key={label}
@@ -151,7 +155,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
             </SideNavigationGroup>
 
             {networkServices.length > 0 && (
-              <SideNavigationGroup key={sectionKeys.network} label={t`Network`} open={true}>
+              <SideNavigationGroup label={t`Network`} open={openSections.network}>
                 {networkServices.map(({ service, label, to, params }) => (
                   <SideNavigationItem
                     key={label}
@@ -164,7 +168,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
             )}
 
             {storageServices.length > 0 && (
-              <SideNavigationGroup key={sectionKeys.storage} label={t`Storage`} open={true}>
+              <SideNavigationGroup label={t`Storage`} open={openSections.storage}>
                 {storageServices.map(({ service, label, to, params }) => {
                   // For storage services with provider param, match against current provider
                   const isStorageContainers = activeSection === "storage" && activeService === "containers"
@@ -183,7 +187,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
             )}
 
             {clavisServices.length > 0 && (
-              <SideNavigationGroup key={sectionKeys.services} label={t`Services`} open={true}>
+              <SideNavigationGroup label={t`Services`} open={openSections.services}>
                 {clavisServices.map(({ service, label, to, params }) => (
                   <SideNavigationItem
                     key={label}
