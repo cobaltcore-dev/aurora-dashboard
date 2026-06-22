@@ -202,7 +202,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -217,7 +217,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -231,7 +231,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -245,7 +245,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -263,7 +263,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -279,7 +279,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -295,7 +295,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -309,7 +309,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -334,7 +334,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -359,7 +359,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -382,7 +382,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -405,7 +405,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -438,7 +438,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -458,7 +458,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-456" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-456" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -478,7 +478,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -507,7 +507,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -528,7 +528,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -561,7 +561,7 @@ describe("SecurityGroupRBACPolicies", () => {
         isPending: false,
       } as unknown as ReturnType<typeof trpcReact.network.rbacPolicy.delete.useMutation>)
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -585,7 +585,7 @@ describe("SecurityGroupRBACPolicies", () => {
       const mockUseQuery = vi.mocked(trpcReact.network.rbacPolicy.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<RBACPolicy[]>({ data: [] }))
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-456" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-456" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -601,7 +601,7 @@ describe("SecurityGroupRBACPolicies", () => {
       const mockUseQuery = vi.mocked(trpcReact.network.rbacPolicy.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<RBACPolicy[]>({ data: [] }))
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 
@@ -622,7 +622,7 @@ describe("SecurityGroupRBACPolicies", () => {
         })
       )
 
-      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" />, {
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
         wrapper: createWrapper(),
       })
 

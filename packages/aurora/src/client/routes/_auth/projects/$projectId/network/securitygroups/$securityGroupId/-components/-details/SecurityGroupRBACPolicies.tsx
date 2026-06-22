@@ -21,9 +21,10 @@ import { useModal } from "@/client/utils/useModal"
 
 interface SecurityGroupRBACPoliciesProps {
   securityGroupId: string
+  canManageAccess: boolean
 }
 
-export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBACPoliciesProps) {
+export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: SecurityGroupRBACPoliciesProps) {
   const utils = trpcReact.useUtils()
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -128,9 +129,11 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
             )}
           </span>
 
-          <Button variant="primary" icon="addCircle" onClick={toggleAddModal} className="whitespace-nowrap">
-            <Trans>Share Security Group</Trans>
-          </Button>
+          {canManageAccess && (
+            <Button variant="primary" icon="addCircle" onClick={toggleAddModal} className="whitespace-nowrap">
+              <Trans>Share Security Group</Trans>
+            </Button>
+          )}
         </Stack>
 
         {/* Zone 2 — search only (no filters needed) */}
@@ -181,7 +184,12 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
             </DataGridRow>
 
             {filteredPolicies.map((policy) => (
-              <RBACPolicyRow key={policy.id} policy={policy} onDelete={() => handleDeleteClick(policy)} />
+              <RBACPolicyRow
+                key={policy.id}
+                policy={policy}
+                onDelete={() => handleDeleteClick(policy)}
+                canDelete={canManageAccess}
+              />
             ))}
           </DataGrid>
         )}

@@ -28,7 +28,7 @@ function RouteComponent() {
   return (
     <>
       <ContentHeading>{t`Security Groups`}</ContentHeading>
-      <SecurityGroups client={trpcClient} project={projectId} />
+      <SecurityGroups project={projectId} />
     </>
   )
 }

@@ -180,6 +180,7 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
                 checked={properties.stateful}
                 onChange={handleInputChange}
                 disabled={isLoading}
+                helptext={t`Stateful security groups track connection state. This setting cannot be changed after creation.`}
               />
             </FormRow>
           </FormSection>

@@ -17,6 +17,7 @@ import { EditSecurityGroupModal } from "../-components/-modals/EditSecurityGroup
 import { useSecurityGroupDetails } from "./-hooks/useSecurityGroupDetails"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { trpcReact } from "@/client/trpcClient"
+import { useSecurityGroupPermissions } from "../-hooks/useSecurityGroupPermissions"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/securitygroups/$securityGroupId/")({
   staticData: {
@@ -64,9 +65,20 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/securit
 
 function RouteComponent() {
   const { securityGroupId } = Route.useParams()
+  const { trpcClient } = Route.useRouteContext()
   const projectId = useProjectId()
   const navigate = useNavigate()
   const { t } = useLingui()
+
+  if (!trpcClient) {
+    throw new Error("trpcClient is not available in route context")
+  }
+
+  const {
+    permissions,
+    isLoading: isLoadingPermissions,
+    isError: isPermissionsError,
+  } = useSecurityGroupPermissions(projectId)
 
   // Rules filtering using the same pattern as List page
   const {
@@ -160,6 +172,30 @@ function RouteComponent() {
     })
   }
 
+  // Handle loading permissions
+  if (isLoadingPermissions) {
+    return (
+      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
+        <Spinner variant="primary" size="large" className="mb-2" />
+        <Trans>Loading Permissions...</Trans>
+      </Stack>
+    )
+  }
+
+  // Handle permissions error - default to no permissions
+  const safePermissions = isPermissionsError
+    ? {
+        canView: false,
+        canCreate: false,
+        canUpdate: false,
+        canDelete: false,
+        canCreateRule: false,
+        canDeleteRule: false,
+        canManageAccess: false,
+        canViewRBAC: false,
+      }
+    : permissions!
+
   // Handle loading state
   if (isLoading) {
     return (
@@ -223,6 +259,7 @@ function RouteComponent() {
         createRuleError={createRuleError}
         availableSecurityGroups={availableSecurityGroups}
         currentProjectId={projectId}
+        permissions={safePermissions}
       />
 
       <EditSecurityGroupModal

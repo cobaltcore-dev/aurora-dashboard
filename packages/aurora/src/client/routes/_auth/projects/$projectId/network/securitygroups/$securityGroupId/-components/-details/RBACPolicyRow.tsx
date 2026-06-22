@@ -11,9 +11,10 @@ import type { RBACPolicy } from "@/server/Network/types/rbacPolicy"
 interface RBACPolicyRowProps {
   policy: RBACPolicy
   onDelete: () => void
+  canDelete: boolean
 }
 
-export function RBACPolicyRow({ policy, onDelete }: RBACPolicyRowProps) {
+export function RBACPolicyRow({ policy, onDelete, canDelete }: RBACPolicyRowProps) {
   const { t } = useLingui()
 
   return (
@@ -21,11 +22,13 @@ export function RBACPolicyRow({ policy, onDelete }: RBACPolicyRowProps) {
       <DataGridCell>{policy.target_tenant}</DataGridCell>
       <DataGridCell>{policy.action}</DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end justify-end pr-0">
-        <PopupMenu>
-          <PopupMenuOptions>
-            <PopupMenuItem label={t`Remove`} onClick={onDelete} />
-          </PopupMenuOptions>
-        </PopupMenu>
+        {canDelete && (
+          <PopupMenu>
+            <PopupMenuOptions>
+              <PopupMenuItem label={t`Remove`} onClick={onDelete} />
+            </PopupMenuOptions>
+          </PopupMenu>
+        )}
       </DataGridCell>
     </DataGridRow>
   )

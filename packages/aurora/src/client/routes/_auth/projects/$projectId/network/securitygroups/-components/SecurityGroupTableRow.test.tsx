@@ -63,10 +63,14 @@ describe("SecurityGroupTableRow", () => {
   }
 
   const defaultPermissions: SecurityGroupPermissions = {
+    canView: true,
     canCreate: true,
     canUpdate: true,
     canDelete: false,
+    canCreateRule: true,
+    canDeleteRule: false,
     canManageAccess: false,
+    canViewRBAC: false,
   }
 
   const mockOnEdit = vi.fn()
@@ -313,10 +317,14 @@ describe("SecurityGroupTableRow", () => {
     it("shows only Show Details when all permissions are false", async () => {
       const user = userEvent.setup()
       const permissions: SecurityGroupPermissions = {
+        canView: false,
         canCreate: false,
         canUpdate: false,
         canDelete: false,
+        canCreateRule: false,
+        canDeleteRule: false,
         canManageAccess: false,
+        canViewRBAC: false,
       }
       const router = createTestRouter(
         <SecurityGroupTableRow
