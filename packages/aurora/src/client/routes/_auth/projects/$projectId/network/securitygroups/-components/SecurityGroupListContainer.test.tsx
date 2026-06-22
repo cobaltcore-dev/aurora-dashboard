@@ -77,10 +77,14 @@ const mockSecurityGroups: SecurityGroup[] = [
 ]
 
 const defaultPermissions: SecurityGroupPermissions = {
+  canView: true,
   canCreate: true,
   canUpdate: true,
   canDelete: false,
+  canCreateRule: true,
+  canDeleteRule: false,
   canManageAccess: false,
+  canViewRBAC: false,
 }
 
 const createTestRouter = (Component: ReactElement) => {

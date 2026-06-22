@@ -7,6 +7,7 @@ import type {
 } from "@/server/Network/types/securityGroup"
 import type { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
+import type { SecurityGroupPermissions } from "../../-components/SecurityGroupTableRow"
 import { SecurityGroupHeader, SecurityGroupBasicInfo, SecurityGroupTabs, type TabType } from "./-details"
 import { SecurityGroupRulesTable } from "./-details"
 import { SecurityGroupRBACPolicies } from "./-details/SecurityGroupRBACPolicies"
@@ -34,6 +35,7 @@ interface SecurityGroupDetailsViewProps {
   createRuleError?: string | null
   availableSecurityGroups?: Array<{ id: string; name: string | null }>
   currentProjectId: string
+  permissions: SecurityGroupPermissions
 }
 
 export function SecurityGroupDetailsView({
@@ -49,13 +51,13 @@ export function SecurityGroupDetailsView({
   createRuleError = null,
   availableSecurityGroups = [],
   currentProjectId,
+  permissions,
 }: SecurityGroupDetailsViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("rules")
 
   // Determine if this is a shared security group (not owned by current project)
   const isOwner = securityGroup.project_id === currentProjectId
-  const isShared = !isOwner
-  const showRBACTab = isOwner
+  const showRBACTab = isOwner && permissions.canViewRBAC
 
   return (
     <Container px={false} py>
@@ -64,10 +66,10 @@ export function SecurityGroupDetailsView({
         <SecurityGroupHeader name={securityGroup.name} id={securityGroup.id} />
 
         {/* Basic Info Section */}
-        <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} isReadOnly={isShared} />
+        <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} canUpdate={permissions.canUpdate} />
 
-        {/* Tabs Navigation - Hide for shared security groups */}
-        {!isShared && <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />}
+        {/* Tabs Navigation - Show rules tab always, RBAC only if owner and has permission */}
+        <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />
 
         {/* Tab Content */}
         <div className="mt-6">
@@ -85,14 +87,20 @@ export function SecurityGroupDetailsView({
               filterSettings={filterControls.filterSettings}
               onFilterChange={filterControls.onFilterChange}
               securityGroupId={securityGroup.id}
-              onCreateRule={isShared ? undefined : onCreateRule}
+              onCreateRule={permissions.canCreateRule ? onCreateRule : undefined}
               isCreatingRule={isCreatingRule}
               createRuleError={createRuleError}
               availableSecurityGroups={availableSecurityGroups}
-              readOnly={isShared}
+              canCreateRule={permissions.canCreateRule}
+              canDeleteRule={permissions.canDeleteRule}
             />
           )}
-          {activeTab === "rbac" && <SecurityGroupRBACPolicies securityGroupId={securityGroup.id} />}
+          {activeTab === "rbac" && (
+            <SecurityGroupRBACPolicies
+              securityGroupId={securityGroup.id}
+              canManageAccess={permissions.canManageAccess}
+            />
+          )}
         </div>
       </Stack>
     </Container>

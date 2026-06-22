@@ -1847,11 +1847,11 @@ msgstr "Objekte werden geladen..."
 msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
+msgid "Loading Permissions..."
+msgstr ""
+
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
-
-msgid "Loading Security Groups..."
-msgstr ""
 
 msgid "Loading Server Groups..."
 msgstr "Lädt Servergruppen"
@@ -2140,9 +2140,6 @@ msgstr "Keine"
 
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur die Manifeste gelöscht — ihre Segmente außerhalb dieses Ordnerpräfixes sind nicht betroffen."
-
-msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
-msgstr "Hinweis: Das Attribut 'stateful' kann nicht geändert werden, wenn diese Security Group derzeit von einem oder mehreren Ports verwendet wird."
 
 msgid "Nothing to do. Bucket is already empty."
 msgstr ""
@@ -2780,6 +2777,9 @@ msgstr "State"
 
 msgid "Stateful"
 msgstr "Stateful"
+
+msgid "Stateful security groups track connection state. This setting cannot be changed after creation."
+msgstr ""
 
 msgid "Static large object support"
 msgstr "Unterstützung für statische große Objekte"
