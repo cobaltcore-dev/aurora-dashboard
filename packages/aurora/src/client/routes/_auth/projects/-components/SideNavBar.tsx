@@ -39,10 +39,16 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
 
   const [openSections, setOpenSections] = useState({ compute: true, network: true, storage: true, services: true })
   const prevSectionRef = useRef<string | null>(null)
+  const mountedRef = useRef(false)
 
   useEffect(() => {
     const prev = prevSectionRef.current
     prevSectionRef.current = activeSection
+    const wasMounted = mountedRef.current
+    mountedRef.current = true
+    // Skip on initial mount: all sections start open, Juno initializes correctly from the open prop.
+    // Only re-open when navigating to a section that Juno may have internally collapsed.
+    if (!wasMounted) return
     if (activeSection && activeSection !== prev && activeSection in openSections) {
       // Set false first, then true in the next tick so Juno's useEffect([open]) sees the change
       // even if the section was already true in our state (Juno may have internally collapsed it).
