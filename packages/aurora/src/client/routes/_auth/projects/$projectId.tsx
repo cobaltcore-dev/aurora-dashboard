@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId")({
 })
 
 function RouteComponent() {
-  const { availableServices, projectId, crumbProject } = useLoaderData({ from: Route.id })
+  const { availableServices, projectId, crumbProject, crumbDomain } = useLoaderData({ from: Route.id })
 
   return (
     <AppShell
@@ -43,6 +43,7 @@ function RouteComponent() {
           availableServices={availableServices!}
           projectId={projectId}
           projectName={crumbProject?.name || projectId}
+          domainName={crumbDomain?.name}
         />
       }
       className="h-min-screen"

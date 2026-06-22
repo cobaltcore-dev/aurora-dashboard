@@ -442,6 +442,12 @@ msgstr ""
 msgid "Bucket name must start and end with a letter or number"
 msgstr ""
 
+msgid "Bucket Policy"
+msgstr ""
+
+msgid "Bucket Policy - {bucketName}"
+msgstr ""
+
 msgid "Bucket to delete:"
 msgstr ""
 
@@ -808,6 +814,9 @@ msgstr "{successCount} Image(s) deaktiviert, aber {failedCount} Image(s) konnten
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 msgstr "Durch die Deaktivierung dieses Images kann es nicht mehr zum Starten neuer Instances verwendet werden. Bestehende Instances sind nicht betroffen."
 
+msgid "Define access permissions for this bucket using JSON policy document. The policy controls who can access the bucket and what actions they can perform."
+msgstr ""
+
 msgid "delete"
 msgstr "delete"
 
@@ -856,6 +865,9 @@ msgstr "Objekt löschen:"
 msgid "Delete Permanently"
 msgstr ""
 
+msgid "Delete Policy"
+msgstr ""
+
 msgid "Delete Recursively"
 msgstr "Rekursiv löschen"
 
@@ -885,6 +897,9 @@ msgstr "Deleting certificate authority..."
 
 msgid "Deleting folder and all its contents..."
 msgstr "Ordner und alle Inhalte werden gelöscht..."
+
+msgid "Deleting the policy will remove all access restrictions defined by it."
+msgstr ""
 
 msgid "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
 msgstr "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
@@ -1080,6 +1095,9 @@ msgstr "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
 
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
+
+msgid "Enter bucket policy JSON..."
+msgstr ""
 
 msgid "Enter Common name (e.g., demo-ca.test.sci)"
 msgstr "Enter Common name (e.g., demo-ca.test.sci)"
@@ -1332,6 +1350,9 @@ msgstr ""
 
 msgid "Failed to load PCAs"
 msgstr "Failed to load PCAs"
+
+msgid "Failed to load policy"
+msgstr ""
 
 msgid "Failed to load security groups"
 msgstr "Security Groups konnten nicht geladen werden"
@@ -1666,11 +1687,17 @@ msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
 msgid "Invalid format combination for selected disk format"
 msgstr "Ungültige Formatkombination für das ausgewählte Festplattenformat"
 
+msgid "Invalid JSON format"
+msgstr ""
+
 msgid "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)"
 msgstr "Ungültiges Projekt-ID-Format. Muss 32 hexadezimale Zeichen sein (z. B. b90f9c4bc76140e18540b2cec1299e2a) oder UUID-Format (z. B. 12345678-1234-1234-1234-123456789abc)"
 
 msgid "Invalid value for public flavor setting."
 msgstr "Ungültiger Wert für die Einstellung des öffentlichen Flavors."
+
+msgid "IP Restricted"
+msgstr ""
 
 msgid "IP Version"
 msgstr "IP-Version"
@@ -2293,6 +2320,18 @@ msgstr "Bitte wählen Sie eine Datei zum Hochladen aus"
 msgid "Policy"
 msgstr "Richtlinie"
 
+msgid "Policy cannot be empty"
+msgstr ""
+
+msgid "Policy document exceeds maximum size of 20KB"
+msgstr ""
+
+msgid "Policy JSON"
+msgstr ""
+
+msgid "Policy Templates"
+msgstr ""
+
 msgid "Port (from)"
 msgstr "Port (von)"
 
@@ -2385,6 +2424,9 @@ msgstr "Öffentlich"
 
 msgid "Public Flavor"
 msgstr "Öffentlicher Flavor"
+
+msgid "Public Read"
+msgstr ""
 
 msgid "Public Read Access"
 msgstr "Öffentlicher Lesezugriff"
@@ -2485,6 +2527,9 @@ msgstr "Wird entfernt..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reservierte Schlüssel: web-index, web-listings, quota-count, quota-bytes"
 
+msgid "Reset"
+msgstr ""
+
 msgid "Restart"
 msgstr "Neustart"
 
@@ -2545,6 +2590,9 @@ msgstr "Änderungen speichern"
 msgid "Save Metadata"
 msgstr "Metadata speichern"
 
+msgid "Save Policy"
+msgstr ""
+
 msgid "Saving..."
 msgstr "Wird gespeichert..."
 
@@ -2592,6 +2640,9 @@ msgstr "Regeltyp auswählen..."
 
 msgid "Select a security group..."
 msgstr "Security Group auswählen..."
+
+msgid "Select a template..."
+msgstr ""
 
 msgid "Select an external network"
 msgstr "Externes Netzwerk auswählen"
@@ -2720,6 +2771,9 @@ msgid "Size"
 msgstr "Größe"
 
 msgid "Size:"
+msgstr ""
+
+msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr ""
 
 msgid "Something went wrong:"
@@ -3214,6 +3268,9 @@ msgstr ""
 msgid "Unnamed"
 msgstr "Unbenannt"
 
+msgid "Unsaved changes"
+msgstr ""
+
 msgid "Update object"
 msgstr "Objekt aktualisieren"
 
@@ -3261,6 +3318,9 @@ msgstr "URL kopiert"
 
 msgid "URL for public access"
 msgstr "URL für öffentlichen Zugriff"
+
+msgid "URL format: <0>https://ceph-endpoint/project_id:bucket_name/file_path</0>"
+msgstr ""
 
 msgid "Used"
 msgstr "Belegt"

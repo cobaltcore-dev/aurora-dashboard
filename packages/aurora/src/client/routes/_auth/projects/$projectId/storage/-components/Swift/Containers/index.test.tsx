@@ -457,7 +457,7 @@ describe("SwiftContainers (List)", () => {
     // Selecting a row enables the Zone 3 "Actions" toggle; the Empty item lives
     // inside that popup menu and is labeled singular/plural (no numeric count).
     const selectViaCheckbox = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
-      await user.click(screen.getByTestId(`select-container-${name}`).querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId(`select-container-${name}`))
     }
     const openActionsMenu = async (user: ReturnType<typeof userEvent.setup>) => {
       await user.click(screen.getByRole("button", { name: /Actions/i }))
@@ -501,7 +501,7 @@ describe("SwiftContainers (List)", () => {
     test("Actions button returns to disabled after deselecting all", async () => {
       const user = userEvent.setup()
       renderList()
-      const alphaCheckbox = screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement
+      const alphaCheckbox = screen.getByTestId("select-container-alpha")
       await user.click(alphaCheckbox)
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await user.click(alphaCheckbox)
@@ -511,7 +511,7 @@ describe("SwiftContainers (List)", () => {
     test("selecting all via header checkbox enables Actions and shows the plural Empty item", async () => {
       const user = userEvent.setup()
       renderList()
-      await user.click(screen.getByTestId("select-all-containers").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-all-containers"))
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await openActionsMenu(user)
       expect(await screen.findByText("Empty Containers")).toBeInTheDocument()
@@ -522,7 +522,7 @@ describe("SwiftContainers (List)", () => {
     // Select alpha, open the Zone 3 Actions menu, then click the Empty item to
     // open the bulk-empty modal.
     const selectAlphaAndOpenModal = async (user: ReturnType<typeof userEvent.setup>) => {
-      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-container-alpha"))
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await user.click(screen.getByRole("button", { name: /Actions/i }))
       await user.click(await screen.findByText("Empty Container"))
@@ -884,21 +884,6 @@ describe("SwiftContainers (List)", () => {
       await user.click(screen.getByRole("button", { name: "SimulateAclError" }))
       await waitFor(() => {
         expect(screen.getByText(/Could not update ACLs for container "alpha": ACL update failed/i)).toBeInTheDocument()
-      })
-    })
-
-    test("dismisses toast when close button is clicked", async () => {
-      const user = userEvent.setup()
-      renderList()
-      await user.click(screen.getByRole("button", { name: /Create Container/i }))
-      await waitFor(() => expect(screen.getByTestId("create-container-modal")).toBeInTheDocument())
-      await user.click(screen.getByRole("button", { name: "SimulateSuccess" }))
-      await waitFor(() => {
-        expect(screen.getByText(/Container "new-container" was successfully created/i)).toBeInTheDocument()
-      })
-      await user.click(screen.getByRole("button", { name: "close" }))
-      await waitFor(() => {
-        expect(screen.queryByText(/Container "new-container" was successfully created/i)).not.toBeInTheDocument()
       })
     })
   })

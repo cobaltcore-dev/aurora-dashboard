@@ -9,7 +9,7 @@ export interface SessionProps {
   res: FastifyReply
 }
 
-const DEFAULT_COOKIE_NAME = "dashboard-session-auth"
+export const DEFAULT_COOKIE_NAME = "dashboard-session-auth"
 
 function extractCookieDomain(hostname: string, crossDomainCookie: boolean): string | undefined {
   if (!crossDomainCookie) return undefined

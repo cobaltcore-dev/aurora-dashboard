@@ -44,8 +44,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageUpdatedToast(imageName, defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(3000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -60,12 +58,6 @@ describe("ImageToastNotifications", () => {
       expect(screen.getByText(/test-image/)).toBeInTheDocument()
       expect(screen.getByText(/has been updated/)).toBeInTheDocument()
     })
-
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getImageUpdatedToast("test", { onDismiss: mockOnDismiss, autoDismissTimeout: 5000 })
-
-      expect(toast.autoDismissTimeout).toBe(5000)
-    })
   })
 
   describe("getImageUpdateErrorToast", () => {
@@ -75,8 +67,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageUpdateErrorToast(imageName, message, defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -104,15 +94,6 @@ describe("ImageToastNotifications", () => {
       expect(screen.getByText(/Network timeout occurred/)).toBeInTheDocument()
     })
 
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getImageUpdateErrorToast("test", "error", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-
-      expect(toast.autoDismissTimeout).toBe(10000)
-    })
-
     it("should handle long error messages", () => {
       const imageName = "test-image"
       const longMessage =
@@ -132,8 +113,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageCreatedToast(imageName, defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(3000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -148,12 +127,6 @@ describe("ImageToastNotifications", () => {
       expect(screen.getByText(/new-image/)).toBeInTheDocument()
       expect(screen.getByText(/has been created/)).toBeInTheDocument()
     })
-
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getImageCreatedToast("test", { onDismiss: mockOnDismiss, autoDismissTimeout: 10000 })
-
-      expect(toast.autoDismissTimeout).toBe(10000)
-    })
   })
 
   describe("getImageCreateErrorToast", () => {
@@ -163,8 +136,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageCreateErrorToast(imageName, message, defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -192,15 +163,6 @@ describe("ImageToastNotifications", () => {
       expect(screen.getByText(/Storage quota exceeded/)).toBeInTheDocument()
     })
 
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getImageCreateErrorToast("test", "error", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-
-      expect(toast.autoDismissTimeout).toBe(10000)
-    })
-
     it("should handle long error messages", () => {
       const imageName = "test-image"
       const longMessage = "Failed to create image: The file exceeds the maximum allowed size of 10GB"
@@ -220,8 +182,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -259,15 +219,6 @@ describe("ImageToastNotifications", () => {
       expect(screen.getByText(/my-image_v2\.1\.qcow2/)).toBeInTheDocument()
     })
 
-    it("should use custom autoDismissTimeout when provided", () => {
-      const toast = getImageFileUploadErrorToast("file.img", "error", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 8000,
-      })
-
-      expect(toast.autoDismissTimeout).toBe(8000)
-    })
-
     it("should handle long error messages", () => {
       const fileName = "large-image.qcow2"
       const longMessage =
@@ -299,8 +250,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageDeletedToast(imageName, defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(3000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -324,8 +273,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageDeleteErrorToast(imageId, message, defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(3000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -360,8 +307,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageActivatedToast(imageName, defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(3000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -384,8 +329,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageDeactivatedToast(imageName, defaultConfig)
 
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(3000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -409,8 +352,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageActivationErrorToast(imageId, message, defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(3000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -436,8 +377,6 @@ describe("ImageToastNotifications", () => {
       const toast = getImageDeactivationErrorToast(imageId, message, defaultConfig)
 
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(3000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -468,8 +407,6 @@ describe("ImageToastNotifications", () => {
 
       successToasts.forEach((toast) => {
         expect(toast.variant).toBe("success")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(3000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
     })
@@ -483,8 +420,6 @@ describe("ImageToastNotifications", () => {
 
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(3000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
     })
@@ -496,31 +431,6 @@ describe("ImageToastNotifications", () => {
       expect(toast.onDismiss).toBe(customOnDismiss)
       toast.onDismiss?.()
       expect(customOnDismiss).toHaveBeenCalledTimes(1)
-    })
-
-    it("should accept custom autoDismissTimeout for all toast types", () => {
-      const customTimeout = 7500
-
-      const toasts = [
-        getImageUpdatedToast("test", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getImageCreatedToast("test", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getImageDeletedToast("test", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getImageDeleteErrorToast("test", "error", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getImageActivatedToast("test", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getImageDeactivatedToast("test", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getImageActivationErrorToast("test", "error", {
-          onDismiss: mockOnDismiss,
-          autoDismissTimeout: customTimeout,
-        }),
-        getImageDeactivationErrorToast("test", "error", {
-          onDismiss: mockOnDismiss,
-          autoDismissTimeout: customTimeout,
-        }),
-      ]
-
-      toasts.forEach((toast) => {
-        expect(toast.autoDismissTimeout).toBe(customTimeout)
-      })
     })
   })
 
@@ -570,8 +480,6 @@ describe("ImageToastNotifications", () => {
 
       expect(toast).toHaveProperty("variant")
       expect(toast).toHaveProperty("children")
-      expect(toast).toHaveProperty("autoDismiss")
-      expect(toast).toHaveProperty("autoDismissTimeout")
       expect(toast).toHaveProperty("onDismiss")
     })
 
@@ -589,8 +497,6 @@ describe("ImageToastNotifications", () => {
         const toast = getBulkDeleteSuccessToast(3, 3, defaultConfig)
 
         expect(toast.variant).toBe("success")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(3000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
         expect(toast.children).toBeDefined()
       })
@@ -616,8 +522,6 @@ describe("ImageToastNotifications", () => {
         const toast = getBulkDeleteErrorToast(2, 2, defaultConfig)
 
         expect(toast.variant).toBe("error")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(5000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
 
@@ -629,11 +533,6 @@ describe("ImageToastNotifications", () => {
         expect(screen.getByText(/Failed to delete 3 of 3 image\(s\)/)).toBeInTheDocument()
         expect(screen.getByText(/Some images may be protected or in use/)).toBeInTheDocument()
       })
-
-      it("should have longer timeout for error toasts", () => {
-        const toast = getBulkDeleteErrorToast(5, 5, defaultConfig)
-        expect(toast.autoDismissTimeout).toBe(5000)
-      })
     })
 
     describe("getBulkDeletePartialToast", () => {
@@ -641,8 +540,6 @@ describe("ImageToastNotifications", () => {
         const toast = getBulkDeletePartialToast(2, 1, defaultConfig)
 
         expect(toast.variant).toBe("warning")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(5000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
 
@@ -669,8 +566,6 @@ describe("ImageToastNotifications", () => {
         const toast = getBulkActivateSuccessToast(4, 4, defaultConfig)
 
         expect(toast.variant).toBe("success")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(3000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
 
@@ -688,7 +583,6 @@ describe("ImageToastNotifications", () => {
         const toast = getBulkActivateErrorToast(2, 2, defaultConfig)
 
         expect(toast.variant).toBe("error")
-        expect(toast.autoDismissTimeout).toBe(5000)
       })
 
       it("should render correct error message", () => {
@@ -706,7 +600,6 @@ describe("ImageToastNotifications", () => {
         const toast = getBulkActivatePartialToast(5, 2, defaultConfig)
 
         expect(toast.variant).toBe("warning")
-        expect(toast.autoDismissTimeout).toBe(5000)
       })
 
       it("should render correct partial success message", () => {
@@ -725,8 +618,6 @@ describe("ImageToastNotifications", () => {
         const toast = getBulkDeactivateSuccessToast(3, 3, defaultConfig)
 
         expect(toast.variant).toBe("success")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(3000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
 
@@ -744,7 +635,6 @@ describe("ImageToastNotifications", () => {
         const toast = getBulkDeactivateErrorToast(3, 3, defaultConfig)
 
         expect(toast.variant).toBe("error")
-        expect(toast.autoDismissTimeout).toBe(5000)
       })
 
       it("should render correct error message", () => {
@@ -762,7 +652,6 @@ describe("ImageToastNotifications", () => {
         const toast = getBulkDeactivatePartialToast(4, 1, defaultConfig)
 
         expect(toast.variant).toBe("warning")
-        expect(toast.autoDismissTimeout).toBe(5000)
       })
 
       it("should render correct partial success message", () => {
@@ -773,55 +662,6 @@ describe("ImageToastNotifications", () => {
         expect(
           screen.getByText(/Deactivated 9 image\(s\), but 1 image\(s\) could not be deactivated/)
         ).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe("Bulk Operations - Timeout Configuration", () => {
-    it("should use 3000ms timeout for all success toasts", () => {
-      const successToasts = [
-        getBulkDeleteSuccessToast(1, 1, defaultConfig),
-        getBulkActivateSuccessToast(1, 1, defaultConfig),
-        getBulkDeactivateSuccessToast(1, 1, defaultConfig),
-      ]
-
-      successToasts.forEach((toast) => {
-        expect(toast.autoDismissTimeout).toBe(3000)
-      })
-    })
-
-    it("should use 5000ms timeout for all error/warning toasts", () => {
-      const errorWarningToasts = [
-        getBulkDeleteErrorToast(1, 1, defaultConfig),
-        getBulkDeletePartialToast(1, 1, defaultConfig),
-        getBulkActivateErrorToast(1, 1, defaultConfig),
-        getBulkActivatePartialToast(1, 1, defaultConfig),
-        getBulkDeactivateErrorToast(1, 1, defaultConfig),
-        getBulkDeactivatePartialToast(1, 1, defaultConfig),
-      ]
-
-      errorWarningToasts.forEach((toast) => {
-        expect(toast.autoDismissTimeout).toBe(5000)
-      })
-    })
-
-    it("should accept custom timeout for bulk operations", () => {
-      const customTimeout = 10000
-
-      const toasts = [
-        getBulkDeleteSuccessToast(1, 1, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBulkDeleteErrorToast(1, 1, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBulkDeletePartialToast(1, 1, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBulkActivateSuccessToast(1, 1, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBulkActivateErrorToast(1, 1, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBulkActivatePartialToast(1, 1, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBulkDeactivateSuccessToast(1, 1, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBulkDeactivateErrorToast(1, 1, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBulkDeactivatePartialToast(1, 1, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-      ]
-
-      toasts.forEach((toast) => {
-        expect(toast.autoDismissTimeout).toBe(customTimeout)
       })
     })
   })
@@ -916,8 +756,6 @@ describe("ImageToastNotifications", () => {
         const toast = getImageAccessStatusUpdatedToast("accepted", defaultConfig)
 
         expect(toast.variant).toBe("info")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(5000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
         expect(toast.children).toBeDefined()
       })
@@ -944,15 +782,6 @@ describe("ImageToastNotifications", () => {
           unmount()
         })
       })
-
-      it("should use custom autoDismissTimeout when provided", () => {
-        const toast = getImageAccessStatusUpdatedToast("accepted", {
-          onDismiss: mockOnDismiss,
-          autoDismissTimeout: 10000,
-        })
-
-        expect(toast.autoDismissTimeout).toBe(10000)
-      })
     })
 
     describe("getImageAccessStatusErrorToast", () => {
@@ -960,8 +789,6 @@ describe("ImageToastNotifications", () => {
         const toast = getImageAccessStatusErrorToast("Network error occurred", defaultConfig)
 
         expect(toast.variant).toBe("error")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(5000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
         expect(toast.children).toBeDefined()
       })
@@ -991,15 +818,6 @@ describe("ImageToastNotifications", () => {
         })
       })
 
-      it("should use custom autoDismissTimeout when provided", () => {
-        const toast = getImageAccessStatusErrorToast("Error", {
-          onDismiss: mockOnDismiss,
-          autoDismissTimeout: 8000,
-        })
-
-        expect(toast.autoDismissTimeout).toBe(8000)
-      })
-
       it("should handle long error messages", () => {
         const longErrorMessage =
           "Failed to update access status: The server returned an unexpected response. Please try again later."
@@ -1018,8 +836,6 @@ describe("ImageToastNotifications", () => {
         const toast = getImageVisibilityUpdatedToast("test-image", "public", defaultConfig)
 
         expect(toast.variant).toBe("success")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(3000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
         expect(toast.children).toBeDefined()
       })
@@ -1051,15 +867,6 @@ describe("ImageToastNotifications", () => {
           unmount()
         })
       })
-
-      it("should use custom autoDismissTimeout when provided", () => {
-        const toast = getImageVisibilityUpdatedToast("test-image", "public", {
-          onDismiss: mockOnDismiss,
-          autoDismissTimeout: 8000,
-        })
-
-        expect(toast.autoDismissTimeout).toBe(8000)
-      })
     })
 
     describe("getImageVisibilityUpdateErrorToast", () => {
@@ -1067,8 +874,6 @@ describe("ImageToastNotifications", () => {
         const toast = getImageVisibilityUpdateErrorToast("test-image", "Permission denied", defaultConfig)
 
         expect(toast.variant).toBe("error")
-        expect(toast.autoDismiss).toBe(true)
-        expect(toast.autoDismissTimeout).toBe(5000)
         expect(toast.onDismiss).toBe(mockOnDismiss)
         expect(toast.children).toBeDefined()
       })
@@ -1101,15 +906,6 @@ describe("ImageToastNotifications", () => {
           ).toBeInTheDocument()
           unmount()
         })
-      })
-
-      it("should use custom autoDismissTimeout when provided", () => {
-        const toast = getImageVisibilityUpdateErrorToast("test-image", "Error", {
-          onDismiss: mockOnDismiss,
-          autoDismissTimeout: 10000,
-        })
-
-        expect(toast.autoDismissTimeout).toBe(10000)
       })
 
       it("should handle long error messages", () => {

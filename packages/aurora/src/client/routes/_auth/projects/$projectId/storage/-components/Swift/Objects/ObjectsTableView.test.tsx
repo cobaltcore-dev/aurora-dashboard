@@ -911,35 +911,35 @@ describe("ObjectsTableView", () => {
 
     test("row checkbox is unchecked when object is not selected", () => {
       renderView({ selectedObjects: [] })
-      expect(screen.getByTestId("select-object-readme.txt").querySelector("input")).not.toBeChecked()
+      expect(screen.getByTestId("select-object-readme.txt")).not.toBeChecked()
     })
 
     test("row checkbox is checked when object is in selectedObjects", () => {
       renderView({ selectedObjects: ["readme.txt"] })
-      expect(screen.getByTestId("select-object-readme.txt").querySelector("input")).toBeChecked()
-      expect(screen.getByTestId("select-object-photo.png").querySelector("input")).not.toBeChecked()
+      expect(screen.getByTestId("select-object-readme.txt")).toBeChecked()
+      expect(screen.getByTestId("select-object-photo.png")).not.toBeChecked()
     })
 
     test("select-all checkbox is unchecked when nothing is selected", () => {
       renderView({ selectedObjects: [] })
-      expect(screen.getByTestId("select-all-objects").querySelector("input")).not.toBeChecked()
+      expect(screen.getByTestId("select-all-objects")).not.toBeChecked()
     })
 
     test("select-all checkbox is checked when all object rows are selected", () => {
       renderView({ selectedObjects: objectRows.map((r) => r.name) })
-      expect(screen.getByTestId("select-all-objects").querySelector("input")).toBeChecked()
+      expect(screen.getByTestId("select-all-objects")).toBeChecked()
     })
 
     test("select-all checkbox is unchecked when only some objects are selected", () => {
       renderView({ selectedObjects: ["readme.txt"] })
-      expect(screen.getByTestId("select-all-objects").querySelector("input")).not.toBeChecked()
+      expect(screen.getByTestId("select-all-objects")).not.toBeChecked()
     })
 
     test("clicking a row checkbox calls setSelectedObjects with the object added", async () => {
       const setSelectedObjects = vi.fn()
       const user = userEvent.setup()
       renderView({ selectedObjects: [], setSelectedObjects })
-      await user.click(screen.getByTestId("select-object-readme.txt").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-object-readme.txt"))
       expect(setSelectedObjects).toHaveBeenCalledWith(["readme.txt"])
     })
 
@@ -947,7 +947,7 @@ describe("ObjectsTableView", () => {
       const setSelectedObjects = vi.fn()
       const user = userEvent.setup()
       renderView({ selectedObjects: ["readme.txt", "photo.png"], setSelectedObjects })
-      await user.click(screen.getByTestId("select-object-readme.txt").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-object-readme.txt"))
       expect(setSelectedObjects).toHaveBeenCalledWith(["photo.png"])
     })
 
@@ -955,7 +955,7 @@ describe("ObjectsTableView", () => {
       const setSelectedObjects = vi.fn()
       const user = userEvent.setup()
       renderView({ selectedObjects: [], setSelectedObjects })
-      await user.click(screen.getByTestId("select-all-objects").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-all-objects"))
       expect(setSelectedObjects).toHaveBeenCalledWith(objectRows.map((r) => r.name))
     })
 
@@ -963,7 +963,7 @@ describe("ObjectsTableView", () => {
       const setSelectedObjects = vi.fn()
       const user = userEvent.setup()
       renderView({ selectedObjects: objectRows.map((r) => r.name), setSelectedObjects })
-      await user.click(screen.getByTestId("select-all-objects").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-all-objects"))
       expect(setSelectedObjects).toHaveBeenCalledWith([])
     })
   })

@@ -56,12 +56,16 @@ export const listContainersInputSchema = projectScopedInputSchema.extend({
 })
 
 /**
- * S3-compliant bucket name validation:
+ * S3-compliant bucket name validation for CREATING new buckets:
  * - 3-63 characters
  * - Lowercase letters, numbers, hyphens, periods
  * - Must start/end with letter or number
  * - No consecutive periods
  * - Not an IP address format
+ *
+ * Note: Use this only for bucket creation. For operations on existing buckets,
+ * use existingBucketNameSchema which is permissive (buckets may have been
+ * created via Swift API or with relaxed naming rules).
  */
 export const bucketNameSchema = z
   .string()
@@ -73,6 +77,22 @@ export const bucketNameSchema = z
   )
   .refine((name) => !name.includes(".."), "Bucket name cannot contain consecutive periods")
   .refine((name) => !/^\d+\.\d+\.\d+\.\d+$/.test(name), "Bucket name cannot be formatted as an IP address")
+
+/**
+ * Permissive bucket name validation for operations on EXISTING buckets.
+ *
+ * Buckets may have been created via:
+ * - Swift API (allows spaces and other characters)
+ * - Ceph RGW with rgw_relaxed_s3_bucket_names=true (up to 255 chars)
+ * - Legacy systems with different naming rules
+ *
+ * We only validate that the name is non-empty and within reasonable bounds.
+ * The actual bucket existence is validated by S3 operations themselves.
+ */
+export const existingBucketNameSchema = z
+  .string()
+  .min(1, "Bucket name is required")
+  .max(255, "Bucket name exceeds maximum length")
 
 export const createBucketInputSchema = projectScopedInputSchema.extend({
   bucketName: bucketNameSchema,
@@ -372,7 +392,7 @@ export const bucketPolicyDocumentSchema = z.object({
 })
 
 export const getBucketPolicyInputSchema = projectScopedInputSchema.extend({
-  bucketName: bucketNameSchema,
+  bucketName: existingBucketNameSchema,
 })
 
 export const getBucketPolicyOutputSchema = z.object({
@@ -381,12 +401,12 @@ export const getBucketPolicyOutputSchema = z.object({
 })
 
 export const setBucketPolicyInputSchema = projectScopedInputSchema.extend({
-  bucketName: bucketNameSchema,
+  bucketName: existingBucketNameSchema,
   policy: z.string().min(1).max(20480, "Policy document exceeds maximum size of 20KB"), // AWS S3 limit is 20KB
 })
 
 export const deleteBucketPolicyInputSchema = projectScopedInputSchema.extend({
-  bucketName: bucketNameSchema,
+  bucketName: existingBucketNameSchema,
 })
 
 // ============================================================================
