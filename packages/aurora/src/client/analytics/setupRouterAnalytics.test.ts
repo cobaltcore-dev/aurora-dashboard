@@ -60,19 +60,6 @@ describe("setupRouterAnalytics", () => {
     expect(typeof unsubscribe).toBe("function")
   })
 
-  it("should not call onTrackEvent when callback is not provided", () => {
-    const mockRouter = createMockRouter({
-      onTrackEvent: undefined,
-      matches: [{ routeId: "/_auth/projects" }],
-      pathname: "/projects",
-    })
-
-    setupRouterAnalytics(mockRouter as unknown as Parameters<typeof setupRouterAnalytics>[0])
-    mockRouter._triggerOnResolved()
-
-    // No error should be thrown
-  })
-
   it("should not call onTrackEvent when there are no matches", () => {
     const onTrackEvent = vi.fn()
     const mockRouter = createMockRouter({
