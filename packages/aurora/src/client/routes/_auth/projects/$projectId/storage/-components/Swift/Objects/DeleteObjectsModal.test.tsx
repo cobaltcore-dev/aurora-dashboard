@@ -111,6 +111,13 @@ const renderModal = ({
     </I18nProvider>
   )
 
+// Type the confirmation word, then click Delete. The Delete button is gated
+// behind the type-to-confirm input, so submission tests must type first.
+const confirmAndDelete = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.type(screen.getByPlaceholderText("delete"), "delete")
+  await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("DeleteObjectsModal", () => {
@@ -128,32 +135,31 @@ describe("DeleteObjectsModal", () => {
   describe("Visibility", () => {
     test("does not render when isOpen is false", () => {
       renderModal({ isOpen: false })
-      expect(screen.queryByText(/Delete Objects/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Delete \d+ Object/i)).not.toBeInTheDocument()
     })
 
     test("does not render when objectKeys array is empty", () => {
       renderModal({ objectNames: [], objectKeys: [] })
-      expect(screen.queryByText(/Delete Objects/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Delete \d+ Object/i)).not.toBeInTheDocument()
     })
 
     test("renders when isOpen is true and objects are provided", () => {
       renderModal()
-      expect(screen.getByText("Delete Objects")).toBeInTheDocument()
+      expect(screen.getByText("Delete 3 Objects")).toBeInTheDocument()
     })
 
     test("renders with a single object", () => {
       renderModal({ objectNames: ["single.txt"], objectKeys: ["single.txt"] })
-      expect(screen.getByText("Delete Object")).toBeInTheDocument()
+      expect(screen.getByText("Delete 1 Object")).toBeInTheDocument()
       expect(screen.getByText("single.txt")).toBeInTheDocument()
     })
 
-    test("title is singular for exactly one object, plural for two or more", () => {
+    test("title carries the count and is singular for one, plural for two or more", () => {
       const { unmount } = renderModal({ objectNames: ["only.txt"], objectKeys: ["only.txt"] })
-      expect(screen.getByText("Delete Object")).toBeInTheDocument()
-      expect(screen.queryByText("Delete Objects")).not.toBeInTheDocument()
+      expect(screen.getByText("Delete 1 Object")).toBeInTheDocument()
       unmount()
       renderModal({ objectNames: ["a.txt", "b.txt"], objectKeys: ["a.txt", "b.txt"] })
-      expect(screen.getByText("Delete Objects")).toBeInTheDocument()
+      expect(screen.getByText("Delete 2 Objects")).toBeInTheDocument()
     })
   })
 
@@ -175,6 +181,11 @@ describe("DeleteObjectsModal", () => {
       expect(screen.getByText("folder/report.pdf")).toBeInTheDocument()
     })
 
+    test("renders the type-to-confirm input", () => {
+      renderModal()
+      expect(screen.getByPlaceholderText("delete")).toBeInTheDocument()
+    })
+
     test("renders Delete and Cancel buttons", () => {
       renderModal()
       expect(screen.getByRole("button", { name: /^Delete$/i })).toBeInTheDocument()
@@ -186,6 +197,41 @@ describe("DeleteObjectsModal", () => {
       const list = screen.getByText("file-a.txt").closest(".overflow-y-auto")
       expect(list).toBeInTheDocument()
       expect(list).toHaveClass("max-h-48")
+    })
+  })
+
+  describe("Type-to-confirm gating", () => {
+    test("Delete button is disabled before the confirmation word is typed", () => {
+      renderModal()
+      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+    })
+
+    test("Delete button stays disabled when the wrong word is typed", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByPlaceholderText("delete"), "nope")
+      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+    })
+
+    test("Delete button is enabled after typing the confirmation word", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByPlaceholderText("delete"), "delete")
+      expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+    })
+
+    test("ignores surrounding whitespace when matching the confirmation word", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByPlaceholderText("delete"), "  delete  ")
+      expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+    })
+
+    test("does not call mutate when Delete is clicked without confirming", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      expect(mockMutate).not.toHaveBeenCalled()
     })
   })
 
@@ -240,7 +286,7 @@ describe("DeleteObjectsModal", () => {
     test("calls mutate with fully-qualified object paths on Delete click", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       expect(mockMutate).toHaveBeenCalledWith({
         objects: ["/test-container/file-a.txt", "/test-container/file-b.png", "/test-container/folder%2Freport.pdf"],
         project_id: mockProjectId,
@@ -250,21 +296,21 @@ describe("DeleteObjectsModal", () => {
     test("includes account in mutate input when provided", async () => {
       const user = userEvent.setup()
       renderModal({ account: "AUTH_other" })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       expect(mockMutate).toHaveBeenCalledWith(expect.objectContaining({ account: "AUTH_other" }))
     })
 
     test("does not include account when not provided", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       expect(mockMutate.mock.calls[0][0]).not.toHaveProperty("account")
     })
 
     test("calls listObjects.invalidate with container after successful mutation", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       await waitFor(() => {
         expect(mockInvalidate).toHaveBeenCalledWith({ container: "test-container" })
       })
@@ -274,7 +320,7 @@ describe("DeleteObjectsModal", () => {
       const onSuccess = vi.fn()
       const user = userEvent.setup()
       renderModal({ onSuccess })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       await waitFor(() => {
         expect(onSuccess).toHaveBeenCalledWith(3)
       })
@@ -284,7 +330,7 @@ describe("DeleteObjectsModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       await waitFor(() => {
         expect(onClose).toHaveBeenCalled()
       })
@@ -295,7 +341,7 @@ describe("DeleteObjectsModal", () => {
       const onSuccess = vi.fn()
       const user = userEvent.setup()
       renderModal({ onSuccess })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       await waitFor(() => {
         expect(onSuccess).toHaveBeenCalledWith(2)
       })
@@ -308,7 +354,7 @@ describe("DeleteObjectsModal", () => {
       const onError = vi.fn()
       const user = userEvent.setup()
       renderModal({ onError })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith("Bulk delete failed with status 500", [])
       })
@@ -320,7 +366,7 @@ describe("DeleteObjectsModal", () => {
       const onError = vi.fn()
       const user = userEvent.setup()
       renderModal({ onSuccess, onError })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith("Internal Server Error", [])
         expect(onSuccess).not.toHaveBeenCalled()
@@ -337,7 +383,7 @@ describe("DeleteObjectsModal", () => {
       const onError = vi.fn()
       const user = userEvent.setup()
       renderModal({ onSuccess, onError })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       await waitFor(() => {
         expect(onSuccess).not.toHaveBeenCalled()
         // deleted keys exclude the failed path
@@ -357,7 +403,7 @@ describe("DeleteObjectsModal", () => {
       const onError = vi.fn()
       const user = userEvent.setup()
       renderModal({ onError })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       await waitFor(() => {
         expect(onError).toHaveBeenCalledTimes(1)
         const msg = onError.mock.calls[0][0] as string
@@ -371,7 +417,7 @@ describe("DeleteObjectsModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await confirmAndDelete(user)
       await waitFor(() => {
         expect(onClose).toHaveBeenCalled()
       })

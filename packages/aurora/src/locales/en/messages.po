@@ -88,8 +88,8 @@ msgstr "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} bucke
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 
-msgid "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
-msgstr "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
+msgid "{totalCount, plural, one {Delete # Object} other {Delete # Objects}}"
+msgstr "{totalCount, plural, one {Delete # Object} other {Delete # Objects}}"
 
 msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
