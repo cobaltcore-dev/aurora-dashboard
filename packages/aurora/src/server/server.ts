@@ -52,9 +52,7 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
   })
 
   // Register HTTP metrics collector
-  // Use provided registry (allows consumers to add their own metrics to same /metrics endpoint)
-  // or create a new one if not provided
-  const metricsRegistry = config.metricsRegistry ?? new Registry()
+  const metricsRegistry = new Registry()
   await server.register(AuroraHttpMetricsCollector, {
     prefix: "aurora",
     excludePaths: ["/metrics"],
