@@ -163,11 +163,11 @@ function trackUserInteraction(metrics: UserNavigationMetrics) {
 
 The callback receives a `UserNavigationMetrics` object with the following fields:
 
-| Field      | Type                                          | Description                                                                                   |
-| ---------- | --------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `source`   | `string`                                      | Event source (e.g., "router", "external-link", "modal")                                       |
-| `action`   | `string`                                      | Action identifier (e.g., "compute_images", "download_certificate")                            |
-| `metadata` | `Record<string, string \| number \| boolean>` | Source-specific context (e.g., pathname, routeId for router; href, target for external links) |
+| Field      | Type                                                       | Description                                                                                   |
+| ---------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `source`   | `string`                                                   | Event source (e.g., "router", "external-link", "modal")                                       |
+| `action`   | `string`                                                   | Action identifier (e.g., "compute_images", "download_certificate")                            |
+| `metadata` | `Record<string, string \| number \| boolean \| undefined>` | Source-specific context (e.g., pathname, routeId for router; href, target for external links) |
 
 ### Built-in tracking sources
 
