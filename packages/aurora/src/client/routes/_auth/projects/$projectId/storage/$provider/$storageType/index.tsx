@@ -3,7 +3,7 @@ import { z } from "zod"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SwiftContainers } from "../../-components/Swift/Containers"
-import { CephContainers } from "../../-components/Ceph/Containers"
+import { CephBuckets } from "../../-components/Ceph/Buckets"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
@@ -58,17 +58,18 @@ export const checkServiceAvailability = (
   // Effective availability includes fallback flag for Ceph
   const hasEffectiveCeph = hasCeph || cephFallbackEnabled
   const fallbackProvider = hasSwift ? "swift" : hasEffectiveCeph ? "ceph" : null
+  const fallbackStorageType = hasSwift ? "containers" : hasEffectiveCeph ? "buckets" : null
 
   if (provider !== "swift" && provider !== "ceph") {
-    if (!fallbackProvider) {
+    if (!fallbackProvider || !fallbackStorageType) {
       throw redirect({
         to: "/projects/$projectId",
         params: { projectId },
       })
     }
     throw redirect({
-      to: "/projects/$projectId/storage/$provider/containers",
-      params: { ...params, provider: fallbackProvider },
+      to: "/projects/$projectId/storage/$provider/$storageType",
+      params: { ...params, provider: fallbackProvider, storageType: fallbackStorageType },
     })
   }
 
@@ -81,8 +82,8 @@ export const checkServiceAvailability = (
     }
 
     throw redirect({
-      to: "/projects/$projectId/storage/$provider/containers",
-      params: { ...params, provider: "ceph" },
+      to: "/projects/$projectId/storage/$provider/$storageType",
+      params: { ...params, provider: "ceph", storageType: "buckets" },
     })
   }
 
@@ -95,8 +96,8 @@ export const checkServiceAvailability = (
     }
 
     throw redirect({
-      to: "/projects/$projectId/storage/$provider/containers",
-      params: { ...params, provider: "swift" },
+      to: "/projects/$projectId/storage/$provider/$storageType",
+      params: { ...params, provider: "swift", storageType: "containers" },
     })
   }
 }
@@ -111,7 +112,7 @@ const containersSearchSchema = z.object({
   search: z.string().optional(),
 })
 
-export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provider/containers/")({
+export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provider/$storageType/")({
   staticData: {
     section: "storage",
     service: "containers",
@@ -155,9 +156,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
 
 function StorageDashboard() {
   const { project, provider } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/",
+    from: "/_auth/projects/$projectId/storage/$provider/$storageType/",
     select: (params) => {
-      return { project: params.projectId, provider: params.provider }
+      return { project: params.projectId, provider: params.provider, storageType: params.storageType }
     },
   })
 
@@ -192,7 +193,7 @@ function StorageDashboard() {
               case "swift":
                 return <SwiftContainers />
               case "ceph":
-                return <CephContainers />
+                return <CephBuckets />
               default:
                 return <div>Storage Overview Page</div> // replace when available
             }

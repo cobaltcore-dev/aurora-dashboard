@@ -19,15 +19,12 @@ function NotificationText({ title, description }: NotificationTextProps) {
 
 interface ToastConfig {
   onDismiss: () => void
-  autoDismissTimeout?: number
 }
 
 // ── Folder operations ──────────────────────────────────────────────────────────
 
 export const getFolderCreatedToast = (folderPath: string, config: ToastConfig): ToastProps => ({
   variant: "success",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -43,8 +40,6 @@ export const getFolderCreateErrorToast = (
   config: ToastConfig
 ): ToastProps => ({
   variant: "error",
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
   children: (
     <NotificationText
@@ -64,8 +59,6 @@ export const getObjectDeletedToast = (objectKey: string, config: ToastConfig): T
   const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
   return {
     variant: "success",
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
     children: (
       <NotificationText
@@ -80,8 +73,6 @@ export const getObjectDeleteErrorToast = (objectKey: string, errorMessage: strin
   const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
   return {
     variant: "error",
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
     children: (
       <NotificationText
@@ -109,8 +100,6 @@ export const getObjectCopiedToast = (
   const destination = `${targetBucket}/${targetKey}`
   return {
     variant: "success",
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
     children: (
       <NotificationText
@@ -135,8 +124,6 @@ export const getObjectCopyErrorToast = (objectKey: string, errorMessage: string,
   const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
   return {
     variant: "error",
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
     children: (
       <NotificationText
@@ -163,8 +150,6 @@ export const getObjectMovedToast = (
   const destination = `${targetBucket}/${targetKey}`
   return {
     variant: "success",
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
     children: (
       <NotificationText
@@ -183,8 +168,6 @@ export const getObjectMoveErrorToast = (objectKey: string, errorMessage: string,
   const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
   return {
     variant: "error",
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
     children: (
       <NotificationText
@@ -205,8 +188,6 @@ export const getObjectMetadataUpdatedToast = (objectKey: string, config: ToastCo
   const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
   return {
     variant: "success",
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
     children: (
       <NotificationText
@@ -225,8 +206,6 @@ export const getObjectMetadataUpdateErrorToast = (
   const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
   return {
     variant: "error",
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
     children: (
       <NotificationText

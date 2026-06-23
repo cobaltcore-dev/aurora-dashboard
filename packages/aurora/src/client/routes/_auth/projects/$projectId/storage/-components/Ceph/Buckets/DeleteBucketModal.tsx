@@ -2,12 +2,12 @@ import { useState, useEffect } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, ModalFooter, ButtonRow, TextInput, Stack, Spinner, Button } from "@cloudoperators/juno-ui-components"
-import type { Container } from "@/server/Storage/types/ceph"
+import type { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface DeleteBucketModalProps {
   isOpen: boolean
-  bucket: Container | null
+  bucket: Bucket | null
   onClose: () => void
   onSuccess?: (bucketName: string) => void
   onError?: (bucketName: string, errorMessage: string) => void

@@ -42,9 +42,15 @@ vi.mock("@tanstack/react-router", async () => {
   }
 })
 
-vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects", () => ({
+vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects", () => ({
   Route: {
     fullPath: "/test/path",
+    useParams: () => ({
+      projectId: "test-project-id",
+      provider: "ceph",
+      storageType: "buckets",
+      containerName: "test-bucket",
+    }),
     useSearch: () => ({
       prefix: undefined,
       sortBy: undefined,
@@ -103,6 +109,11 @@ vi.mock("@/client/trpcClient", () => {
                 invalidate: vi.fn(),
               },
             },
+            bucketPolicy: {
+              get: {
+                invalidate: vi.fn(),
+              },
+            },
           },
         },
       })),
@@ -156,6 +167,22 @@ vi.mock("@/client/trpcClient", () => {
               })),
             },
             setStatus: {
+              useMutation: mockUseMutation,
+            },
+          },
+          bucketPolicy: {
+            get: {
+              useQuery: vi.fn(() => ({
+                data: { policy: null, policyText: null },
+                isLoading: false,
+                error: null,
+                trpc: {},
+              })),
+            },
+            set: {
+              useMutation: mockUseMutation,
+            },
+            delete: {
               useMutation: mockUseMutation,
             },
           },

@@ -178,9 +178,6 @@ msgstr "Access Control for container:"
 msgid "Access Control Updated"
 msgstr "Access Control Updated"
 
-msgid "Access Denied"
-msgstr "Access Denied"
-
 msgid "Access Status"
 msgstr "Access Status"
 
@@ -265,6 +262,9 @@ msgstr "Add Tenant Access"
 msgid "After restoring, this version's content will become the new latest version."
 msgstr "After restoring, this version's content will become the new latest version."
 
+msgid "All buckets"
+msgstr "All buckets"
+
 msgid "All Buckets Emptied"
 msgstr "All Buckets Emptied"
 
@@ -345,9 +345,6 @@ msgstr "Attach"
 
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
-
-msgid "Authentication Failed"
-msgstr "Authentication Failed"
 
 msgid "Back"
 msgstr "Back"
@@ -444,6 +441,12 @@ msgstr "Bucket name must not start with reserved prefix \"{prefix}\""
 
 msgid "Bucket name must start and end with a letter or number"
 msgstr "Bucket name must start and end with a letter or number"
+
+msgid "Bucket Policy"
+msgstr "Bucket Policy"
+
+msgid "Bucket Policy - {bucketName}"
+msgstr "Bucket Policy - {bucketName}"
 
 msgid "Bucket to delete:"
 msgstr "Bucket to delete:"
@@ -778,9 +781,6 @@ msgstr "Creating security group..."
 msgid "Creating..."
 msgstr "Creating..."
 
-msgid "Creation Date"
-msgstr "Creation Date"
-
 msgid "Current location:"
 msgstr "Current location:"
 
@@ -814,6 +814,9 @@ msgstr "Deactivated {successCount} image(s), but {failedCount} image(s) could no
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 msgstr "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 
+msgid "Define access permissions for this bucket using JSON policy document. The policy controls who can access the bucket and what actions they can perform."
+msgstr "Define access permissions for this bucket using JSON policy document. The policy controls who can access the bucket and what actions they can perform."
+
 msgid "delete"
 msgstr "delete"
 
@@ -822,9 +825,6 @@ msgstr "Delete"
 
 msgid "Delete {specKey}"
 msgstr "Delete {specKey}"
-
-msgid "Delete bucket"
-msgstr "Delete bucket"
 
 msgid "Delete Bucket"
 msgstr "Delete Bucket"
@@ -865,6 +865,9 @@ msgstr "Delete object:"
 msgid "Delete Permanently"
 msgstr "Delete Permanently"
 
+msgid "Delete Policy"
+msgstr "Delete Policy"
+
 msgid "Delete Recursively"
 msgstr "Delete Recursively"
 
@@ -894,6 +897,9 @@ msgstr "Deleting certificate authority..."
 
 msgid "Deleting folder and all its contents..."
 msgstr "Deleting folder and all its contents..."
+
+msgid "Deleting the policy will remove all access restrictions defined by it."
+msgstr "Deleting the policy will remove all access restrictions defined by it."
 
 msgid "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
 msgstr "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
@@ -1090,6 +1096,9 @@ msgstr "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 
+msgid "Enter bucket policy JSON..."
+msgstr "Enter bucket policy JSON..."
+
 msgid "Enter Common name (e.g., demo-ca.test.sci)"
 msgstr "Enter Common name (e.g., demo-ca.test.sci)"
 
@@ -1134,9 +1143,6 @@ msgstr "Ephemeral Disk (GiB)"
 
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk must be an integer ≥ 0."
-
-msgid "Error Loading Buckets"
-msgstr "Error Loading Buckets"
 
 msgid "Error loading Certificate"
 msgstr "Error loading Certificate"
@@ -1309,6 +1315,9 @@ msgstr "Failed to fetch flavors from server."
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Failed to generate temporary URL: {generalError}"
 
+msgid "Failed to load buckets: {errorMessage}"
+msgstr "Failed to load buckets: {errorMessage}"
+
 msgid "Failed to load Certificates issued by Certificate Authority."
 msgstr "Failed to load Certificates issued by Certificate Authority."
 
@@ -1320,9 +1329,6 @@ msgstr "Failed to load container objects: {errorMessage}"
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Failed to load container properties: {errorMessage}"
-
-msgid "Failed to load containers: {errorMessage}"
-msgstr "Failed to load containers: {errorMessage}"
 
 msgid "Failed to load extra specs. Please try again."
 msgstr "Failed to load extra specs. Please try again."
@@ -1344,6 +1350,9 @@ msgstr "Failed to load objects"
 
 msgid "Failed to load PCAs"
 msgstr "Failed to load PCAs"
+
+msgid "Failed to load policy"
+msgstr "Failed to load policy"
 
 msgid "Failed to load security groups"
 msgstr "Failed to load security groups"
@@ -1678,11 +1687,17 @@ msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
 msgid "Invalid format combination for selected disk format"
 msgstr "Invalid format combination for selected disk format"
 
+msgid "Invalid JSON format"
+msgstr "Invalid JSON format"
+
 msgid "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)"
 msgstr "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)"
 
 msgid "Invalid value for public flavor setting."
 msgstr "Invalid value for public flavor setting."
+
+msgid "IP Restricted"
+msgstr "IP Restricted"
 
 msgid "IP Version"
 msgstr "IP Version"
@@ -2050,9 +2065,6 @@ msgstr "No Certificates issued by this Certificate Authority found"
 msgid "No containers found"
 msgstr "No containers found"
 
-msgid "No containers found."
-msgstr "No containers found."
-
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "No custom metadata properties found. Click \"Add Property\" to create one."
 
@@ -2308,6 +2320,18 @@ msgstr "Please select a file to upload"
 msgid "Policy"
 msgstr "Policy"
 
+msgid "Policy cannot be empty"
+msgstr "Policy cannot be empty"
+
+msgid "Policy document exceeds maximum size of 20KB"
+msgstr "Policy document exceeds maximum size of 20KB"
+
+msgid "Policy JSON"
+msgstr "Policy JSON"
+
+msgid "Policy Templates"
+msgstr "Policy Templates"
+
 msgid "Port (from)"
 msgstr "Port (from)"
 
@@ -2400,6 +2424,9 @@ msgstr "Public"
 
 msgid "Public Flavor"
 msgstr "Public Flavor"
+
+msgid "Public Read"
+msgstr "Public Read"
 
 msgid "Public Read Access"
 msgstr "Public Read Access"
@@ -2500,6 +2527,9 @@ msgstr "Removing..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 
+msgid "Reset"
+msgstr "Reset"
+
 msgid "Restart"
 msgstr "Restart"
 
@@ -2560,6 +2590,9 @@ msgstr "Save Changes"
 msgid "Save Metadata"
 msgstr "Save Metadata"
 
+msgid "Save Policy"
+msgstr "Save Policy"
+
 msgid "Saving..."
 msgstr "Saving..."
 
@@ -2607,6 +2640,9 @@ msgstr "Select a rule type..."
 
 msgid "Select a security group..."
 msgstr "Select a security group..."
+
+msgid "Select a template..."
+msgstr "Select a template..."
 
 msgid "Select an external network"
 msgstr "Select an external network"
@@ -2736,6 +2772,9 @@ msgstr "Size"
 
 msgid "Size:"
 msgstr "Size:"
+
+msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
+msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
@@ -3223,14 +3262,14 @@ msgstr "Unable to Update Image Visibility"
 msgid "Unable to Upload Image File"
 msgstr "Unable to Upload Image File"
 
-msgid "Unknown"
-msgstr "Unknown"
-
 msgid "Unknown domain"
 msgstr "Unknown domain"
 
 msgid "Unnamed"
 msgstr "Unnamed"
+
+msgid "Unsaved changes"
+msgstr "Unsaved changes"
 
 msgid "Update object"
 msgstr "Update object"
@@ -3279,6 +3318,9 @@ msgstr "URL Copied"
 
 msgid "URL for public access"
 msgstr "URL for public access"
+
+msgid "URL format: <0>https://ceph-endpoint/project_id:bucket_name/file_path</0>"
+msgstr "URL format: <0>https://ceph-endpoint/project_id:bucket_name/file_path</0>"
 
 msgid "Used"
 msgstr "Used"

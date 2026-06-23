@@ -9,6 +9,8 @@ import { viteStaticCopy } from "vite-plugin-static-copy"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+process.env.VITE_APP_TITLE ??= "Aurora"
+
 // Dev-only alias: points @cobaltcore-dev/aurora/client at aurora's source so
 // edits to the package are reflected instantly without rebuilding.
 // In production the published dist is used — no alias needed.

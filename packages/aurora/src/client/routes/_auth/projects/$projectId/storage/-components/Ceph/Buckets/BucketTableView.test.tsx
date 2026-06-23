@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { ContainerTableView } from "./ContainerTableView"
-import type { Container } from "@/server/Storage/types/ceph"
+import { BucketTableView } from "./BucketTableView"
+import type { Bucket } from "@/server/Storage/types/ceph"
 
 // ─── Mock virtualizer ─────────────────────────────────────────────────────────
 
@@ -30,7 +30,7 @@ const mockNavigate = vi.fn()
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
-  useParams: () => ({ projectId: "test-project", provider: "ceph" }),
+  useParams: () => ({ projectId: "test-project", provider: "ceph", storageType: "buckets" }),
 }))
 
 // ─── Mock modals ──────────────────────────────────────────────────────────────
@@ -67,7 +67,7 @@ vi.mock("./DeleteBucketModal", () => ({
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const mockContainers: Container[] = [
+const mockBuckets: Bucket[] = [
   {
     name: "bucket-1",
     creationDate: "2024-01-15T10:00:00Z",
@@ -93,7 +93,7 @@ const mockContainers: Container[] = [
 // ─── Render helper ────────────────────────────────────────────────────────────
 
 const renderTableView = ({
-  containers = mockContainers,
+  buckets = mockBuckets,
   createModalOpen = false,
   setCreateModalOpen = vi.fn(),
   onCreateSuccess = vi.fn(),
@@ -102,10 +102,10 @@ const renderTableView = ({
   onEmptyError = vi.fn(),
   onDeleteSuccess = vi.fn(),
   onDeleteError = vi.fn(),
-  selectedContainers = [],
-  setSelectedContainers = vi.fn(),
+  selectedBuckets = [],
+  setSelectedBuckets = vi.fn(),
 }: Partial<{
-  containers: Container[]
+  buckets: Bucket[]
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
   onCreateSuccess: (bucketName: string) => void
@@ -114,14 +114,14 @@ const renderTableView = ({
   onEmptyError: (bucketName: string, errorMessage: string) => void
   onDeleteSuccess: (bucketName: string) => void
   onDeleteError: (bucketName: string, errorMessage: string) => void
-  selectedContainers: string[]
-  setSelectedContainers: (containers: string[]) => void
+  selectedBuckets: string[]
+  setSelectedBuckets: (buckets: string[]) => void
 }> = {}) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <ContainerTableView
-          containers={containers}
+        <BucketTableView
+          buckets={buckets}
           createModalOpen={createModalOpen}
           setCreateModalOpen={setCreateModalOpen}
           onCreateSuccess={onCreateSuccess}
@@ -130,8 +130,8 @@ const renderTableView = ({
           onEmptyError={onEmptyError}
           onDeleteSuccess={onDeleteSuccess}
           onDeleteError={onDeleteError}
-          selectedContainers={selectedContainers}
-          setSelectedContainers={setSelectedContainers}
+          selectedBuckets={selectedBuckets}
+          setSelectedBuckets={setSelectedBuckets}
         />
       </PortalProvider>
     </I18nProvider>
@@ -139,7 +139,7 @@ const renderTableView = ({
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe("ContainerTableView", () => {
+describe("BucketTableView", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     await act(async () => {
@@ -148,14 +148,14 @@ describe("ContainerTableView", () => {
   })
 
   describe("Empty state", () => {
-    test("shows empty state when no containers", () => {
-      renderTableView({ containers: [] })
+    test("shows empty state when no buckets", () => {
+      renderTableView({ buckets: [] })
       expect(screen.getByText("No buckets found")).toBeInTheDocument()
-      expect(screen.getByTestId("no-containers")).toBeInTheDocument()
+      expect(screen.getByTestId("no-buckets")).toBeInTheDocument()
     })
 
     test("shows helpful message in empty state", () => {
-      renderTableView({ containers: [] })
+      renderTableView({ buckets: [] })
       expect(screen.getByText(/There are no buckets available with the current search criteria/)).toBeInTheDocument()
     })
   })
@@ -169,14 +169,14 @@ describe("ContainerTableView", () => {
       expect(screen.getByText("Total Size")).toBeInTheDocument()
     })
 
-    test("renders all container rows", () => {
+    test("renders all bucket rows", () => {
       renderTableView()
-      expect(screen.getByTestId("container-row-bucket-1")).toBeInTheDocument()
-      expect(screen.getByTestId("container-row-bucket-2")).toBeInTheDocument()
-      expect(screen.getByTestId("container-row-bucket-3")).toBeInTheDocument()
+      expect(screen.getByTestId("bucket-row-bucket-1")).toBeInTheDocument()
+      expect(screen.getByTestId("bucket-row-bucket-2")).toBeInTheDocument()
+      expect(screen.getByTestId("bucket-row-bucket-3")).toBeInTheDocument()
     })
 
-    test("displays container names", () => {
+    test("displays bucket names", () => {
       renderTableView()
       expect(screen.getByText("bucket-1")).toBeInTheDocument()
       expect(screen.getByText("bucket-2")).toBeInTheDocument()
@@ -191,73 +191,104 @@ describe("ContainerTableView", () => {
       expect(screen.getAllByText("0").length).toBeGreaterThan(0)
     })
 
-    test("displays container size information", () => {
+    test("displays bucket size information", () => {
       renderTableView()
       // Verify the component renders - sizes are displayed, specific format less critical
-      expect(screen.getByTestId("container-row-bucket-1")).toBeInTheDocument()
-      expect(screen.getByTestId("container-row-bucket-2")).toBeInTheDocument()
-      expect(screen.getByTestId("container-row-bucket-3")).toBeInTheDocument()
+      expect(screen.getByTestId("bucket-row-bucket-1")).toBeInTheDocument()
+      expect(screen.getByTestId("bucket-row-bucket-2")).toBeInTheDocument()
+      expect(screen.getByTestId("bucket-row-bucket-3")).toBeInTheDocument()
     })
   })
 
   describe("Selection", () => {
     test("renders select all checkbox", () => {
       renderTableView()
-      expect(screen.getByTestId("select-all-containers")).toBeInTheDocument()
+      expect(screen.getByTestId("select-all-buckets")).toBeInTheDocument()
     })
 
-    test("renders checkbox for each container", () => {
+    test("renders checkbox for each bucket", () => {
       renderTableView()
-      expect(screen.getByTestId("select-container-bucket-1")).toBeInTheDocument()
-      expect(screen.getByTestId("select-container-bucket-2")).toBeInTheDocument()
-      expect(screen.getByTestId("select-container-bucket-3")).toBeInTheDocument()
+      expect(screen.getByTestId("select-bucket-bucket-1")).toBeInTheDocument()
+      expect(screen.getByTestId("select-bucket-bucket-2")).toBeInTheDocument()
+      expect(screen.getByTestId("select-bucket-bucket-3")).toBeInTheDocument()
     })
 
-    test("calls setSelectedContainers when selecting all", async () => {
+    test("calls setSelectedBuckets when selecting all", async () => {
       const user = userEvent.setup({ delay: null })
       const mockSetSelected = vi.fn()
-      renderTableView({ setSelectedContainers: mockSetSelected })
+      renderTableView({ setSelectedBuckets: mockSetSelected })
 
-      const selectAllCheckbox = screen.getByTestId("select-all-containers").querySelector("input")!
+      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
       await user.click(selectAllCheckbox)
 
       expect(mockSetSelected).toHaveBeenCalledWith(["bucket-1", "bucket-2", "bucket-3"])
     })
 
-    test("calls setSelectedContainers when deselecting all", async () => {
+    test("calls setSelectedBuckets when deselecting all", async () => {
       const user = userEvent.setup({ delay: null })
       const mockSetSelected = vi.fn()
       renderTableView({
-        selectedContainers: ["bucket-1", "bucket-2", "bucket-3"],
-        setSelectedContainers: mockSetSelected,
+        selectedBuckets: ["bucket-1", "bucket-2", "bucket-3"],
+        setSelectedBuckets: mockSetSelected,
       })
 
-      const selectAllCheckbox = screen.getByTestId("select-all-containers").querySelector("input")!
+      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
       await user.click(selectAllCheckbox)
 
       expect(mockSetSelected).toHaveBeenCalledWith([])
     })
 
-    test("calls setSelectedContainers when selecting a container", async () => {
+    test("preserves filtered-out selections when selecting all visible", async () => {
       const user = userEvent.setup({ delay: null })
       const mockSetSelected = vi.fn()
-      renderTableView({ setSelectedContainers: mockSetSelected })
+      // "bucket-hidden" is selected but not part of the visible (filtered) list
+      renderTableView({
+        selectedBuckets: ["bucket-hidden"],
+        setSelectedBuckets: mockSetSelected,
+      })
 
-      const checkbox = screen.getByTestId("select-container-bucket-1").querySelector("input")!
+      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
+      await user.click(selectAllCheckbox)
+
+      expect(mockSetSelected).toHaveBeenCalledWith(["bucket-hidden", "bucket-1", "bucket-2", "bucket-3"])
+    })
+
+    test("preserves filtered-out selections when deselecting all visible", async () => {
+      const user = userEvent.setup({ delay: null })
+      const mockSetSelected = vi.fn()
+      // All visible rows are selected (so allSelected is true), plus one hidden selection
+      renderTableView({
+        selectedBuckets: ["bucket-hidden", "bucket-1", "bucket-2", "bucket-3"],
+        setSelectedBuckets: mockSetSelected,
+      })
+
+      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
+      await user.click(selectAllCheckbox)
+
+      // Only the visible buckets are removed; the hidden one stays selected
+      expect(mockSetSelected).toHaveBeenCalledWith(["bucket-hidden"])
+    })
+
+    test("calls setSelectedBuckets when selecting a bucket", async () => {
+      const user = userEvent.setup({ delay: null })
+      const mockSetSelected = vi.fn()
+      renderTableView({ setSelectedBuckets: mockSetSelected })
+
+      const checkbox = screen.getByTestId("select-bucket-bucket-1")
       await user.click(checkbox)
 
       expect(mockSetSelected).toHaveBeenCalledWith(["bucket-1"])
     })
 
-    test("calls setSelectedContainers when deselecting a container", async () => {
+    test("calls setSelectedBuckets when deselecting a bucket", async () => {
       const user = userEvent.setup({ delay: null })
       const mockSetSelected = vi.fn()
       renderTableView({
-        selectedContainers: ["bucket-1", "bucket-2"],
-        setSelectedContainers: mockSetSelected,
+        selectedBuckets: ["bucket-1", "bucket-2"],
+        setSelectedBuckets: mockSetSelected,
       })
 
-      const checkbox = screen.getByTestId("select-container-bucket-1").querySelector("input")!
+      const checkbox = screen.getByTestId("select-bucket-bucket-1")
       await user.click(checkbox)
 
       expect(mockSetSelected).toHaveBeenCalledWith(["bucket-2"])
@@ -269,14 +300,15 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderTableView()
 
-      const row = screen.getByTestId("container-row-bucket-1")
+      const row = screen.getByTestId("bucket-row-bucket-1")
       await user.click(row)
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
         params: {
           projectId: "test-project",
           provider: "ceph",
+          storageType: "buckets",
           containerName: "bucket-1",
         },
       })
@@ -286,7 +318,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderTableView()
 
-      const row = screen.getByTestId("container-row-bucket-1")
+      const row = screen.getByTestId("bucket-row-bucket-1")
       row.focus()
       await user.keyboard("{Enter}")
 
@@ -303,7 +335,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderTableView()
 
-      const checkbox = screen.getByTestId("select-container-bucket-1")
+      const checkbox = screen.getByTestId("select-bucket-bucket-1")
       await user.click(checkbox)
 
       expect(mockNavigate).not.toHaveBeenCalled()
@@ -311,12 +343,12 @@ describe("ContainerTableView", () => {
   })
 
   describe("Action menu", () => {
-    test("renders PopupMenu for each container", () => {
+    test("renders PopupMenu for each bucket", () => {
       renderTableView()
       // PopupMenu items are hidden until menu is opened, so just verify the rows exist
-      expect(screen.getByTestId("container-row-bucket-1")).toBeInTheDocument()
-      expect(screen.getByTestId("container-row-bucket-2")).toBeInTheDocument()
-      expect(screen.getByTestId("container-row-bucket-3")).toBeInTheDocument()
+      expect(screen.getByTestId("bucket-row-bucket-1")).toBeInTheDocument()
+      expect(screen.getByTestId("bucket-row-bucket-2")).toBeInTheDocument()
+      expect(screen.getByTestId("bucket-row-bucket-3")).toBeInTheDocument()
     })
   })
 
@@ -353,7 +385,7 @@ describe("ContainerTableView", () => {
 
     test("shows creationDate as fallback when last_modified is missing", () => {
       renderTableView()
-      // Should show creation date for containers without last_modified
+      // Should show creation date for buckets without last_modified
       const cells = screen.getAllByText(/2024/)
       expect(cells.length).toBeGreaterThan(0)
     })

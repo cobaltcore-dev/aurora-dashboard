@@ -11,9 +11,9 @@ import {
   getBucketDeletedToast,
   getBucketDeleteErrorToast,
   getBucketsEmptyCompleteToast,
-} from "./ContainerToastNotifications"
+} from "./BucketToastNotifications"
 
-describe("ContainerToastNotifications", () => {
+describe("BucketToastNotifications", () => {
   const mockOnDismiss = vi.fn()
   const defaultConfig = { onDismiss: mockOnDismiss }
 
@@ -28,8 +28,6 @@ describe("ContainerToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getBucketCreatedToast("my-bucket", defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -40,11 +38,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText("Bucket Created")).toBeInTheDocument()
       expect(screen.getByText(/my-bucket/)).toBeInTheDocument()
       expect(screen.getByText(/was successfully created/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getBucketCreatedToast("my-bucket", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("handles bucket names with special characters", () => {
@@ -66,8 +59,6 @@ describe("ContainerToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getBucketCreateErrorToast("my-bucket", "Conflict", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -79,14 +70,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText(/my-bucket/)).toBeInTheDocument()
       expect(screen.getByText(/Could not create bucket/)).toBeInTheDocument()
       expect(screen.getByText(/Conflict/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getBucketCreateErrorToast("my-bucket", "err", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
     })
 
     it("handles different error messages", () => {
@@ -115,8 +98,6 @@ describe("ContainerToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getBucketEmptiedToast("my-bucket", 5, defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -142,11 +123,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText(/was already empty/)).toBeInTheDocument()
     })
 
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getBucketEmptiedToast("my-bucket", 3, { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
-    })
-
     it("handles empty bucket name", () => {
       const toast = getBucketEmptiedToast("", 2, defaultConfig)
       render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
@@ -160,8 +136,6 @@ describe("ContainerToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getBucketEmptyErrorToast("my-bucket", "Internal Server Error", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -173,14 +147,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText(/my-bucket/)).toBeInTheDocument()
       expect(screen.getByText(/Could not empty bucket/)).toBeInTheDocument()
       expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getBucketEmptyErrorToast("my-bucket", "err", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
     })
 
     it("handles different error messages", () => {
@@ -202,8 +168,6 @@ describe("ContainerToastNotifications", () => {
     it("returns success toast with correct structure", () => {
       const toast = getBucketDeletedToast("my-bucket", defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -214,11 +178,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText("Bucket Deleted")).toBeInTheDocument()
       expect(screen.getByText(/my-bucket/)).toBeInTheDocument()
       expect(screen.getByText(/was successfully deleted/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getBucketDeletedToast("my-bucket", { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
     })
 
     it("handles bucket names with special characters", () => {
@@ -234,8 +193,6 @@ describe("ContainerToastNotifications", () => {
     it("returns error toast with correct structure", () => {
       const toast = getBucketDeleteErrorToast("my-bucket", "Forbidden", defaultConfig)
       expect(toast.variant).toBe("error")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -247,14 +204,6 @@ describe("ContainerToastNotifications", () => {
       expect(screen.getByText(/my-bucket/)).toBeInTheDocument()
       expect(screen.getByText(/Could not delete bucket/)).toBeInTheDocument()
       expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getBucketDeleteErrorToast("my-bucket", "err", {
-        onDismiss: mockOnDismiss,
-        autoDismissTimeout: 10000,
-      })
-      expect(toast.autoDismissTimeout).toBe(10000)
     })
 
     it("handles different error messages", () => {
@@ -276,8 +225,6 @@ describe("ContainerToastNotifications", () => {
     it("returns success toast when no errors", () => {
       const toast = getBucketsEmptyCompleteToast(5, 120, [], defaultConfig)
       expect(toast.variant).toBe("success")
-      expect(toast.autoDismiss).toBe(true)
-      expect(toast.autoDismissTimeout).toBe(5000)
       expect(toast.onDismiss).toBe(mockOnDismiss)
       expect(toast.children).toBeDefined()
     })
@@ -307,7 +254,6 @@ describe("ContainerToastNotifications", () => {
     it("returns warning toast when there are errors", () => {
       const toast = getBucketsEmptyCompleteToast(3, 100, ["bucket1", "bucket2"], defaultConfig)
       expect(toast.variant).toBe("warning")
-      expect(toast.autoDismiss).toBe(false)
       expect(toast.onDismiss).toBe(mockOnDismiss)
     })
 
@@ -324,16 +270,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getBucketsEmptyCompleteToast(2, 50, ["bucket1"], defaultConfig)
       render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
       expect(screen.getByText(/1 bucket failed/)).toBeInTheDocument()
-    })
-
-    it("uses custom autoDismissTimeout when provided", () => {
-      const toast = getBucketsEmptyCompleteToast(5, 120, [], { onDismiss: mockOnDismiss, autoDismissTimeout: 3000 })
-      expect(toast.autoDismissTimeout).toBe(3000)
-    })
-
-    it("does not auto-dismiss when there are errors", () => {
-      const toast = getBucketsEmptyCompleteToast(3, 100, ["bucket1"], defaultConfig)
-      expect(toast.autoDismiss).toBe(false)
     })
 
     it("handles zero emptied buckets with errors", () => {
@@ -356,7 +292,6 @@ describe("ContainerToastNotifications", () => {
       ]
       successToasts.forEach((toast) => {
         expect(toast.variant).toBe("success")
-        expect(toast.autoDismiss).toBe(true)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
     })
@@ -369,7 +304,6 @@ describe("ContainerToastNotifications", () => {
       ]
       errorToasts.forEach((toast) => {
         expect(toast.variant).toBe("error")
-        expect(toast.autoDismiss).toBe(true)
         expect(toast.onDismiss).toBe(mockOnDismiss)
       })
     })
@@ -379,22 +313,6 @@ describe("ContainerToastNotifications", () => {
       const toast = getBucketCreatedToast("b", { onDismiss: customOnDismiss })
       toast.onDismiss?.()
       expect(customOnDismiss).toHaveBeenCalledTimes(1)
-    })
-
-    it("accepts custom autoDismissTimeout for all toast types", () => {
-      const customTimeout = 7500
-      const toasts = [
-        getBucketCreatedToast("b", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBucketCreateErrorToast("b", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBucketEmptiedToast("b", 5, { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBucketEmptyErrorToast("b", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBucketDeletedToast("b", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBucketDeleteErrorToast("b", "err", { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-        getBucketsEmptyCompleteToast(3, 100, [], { onDismiss: mockOnDismiss, autoDismissTimeout: customTimeout }),
-      ]
-      toasts.forEach((toast) => {
-        expect(toast.autoDismissTimeout).toBe(customTimeout)
-      })
     })
 
     it("all toasts return a ReactNode as children", () => {

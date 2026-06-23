@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
-import { EmptyBucketModal } from "./EmptyBucketModal"
-import type { Container } from "@/server/Storage/types/ceph"
+import { DeleteBucketModal } from "./DeleteBucketModal"
+import type { Bucket } from "@/server/Storage/types/ceph"
 
 // ─── Mock useProjectId ────────────────────────────────────────────────────────
 
@@ -27,8 +27,8 @@ Object.assign(navigator, {
 
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
-type MutationOptions = {
-  onSuccess?: (deletedCount: number) => void
+type DeleteMutationOptions = {
+  onSuccess?: () => void
   onError?: (error: { message: string }) => void
   onSettled?: () => void
 }
@@ -37,15 +37,18 @@ const { mockInvalidate, mockMutate, mockReset, mockState } = vi.hoisted(() => {
   const mockState = {
     mutationError: null as string | null,
     isPending: false,
-    capturedOptions: {} as MutationOptions,
+    isLoading: false,
+    objectsData: { objects: [], folders: [], isTruncated: false },
+    objectsError: null as string | null,
+    capturedOptions: {} as DeleteMutationOptions,
   }
-  const mockMutate = vi.fn().mockImplementation((_variables: unknown, options?: MutationOptions) => {
+  const mockMutate = vi.fn().mockImplementation((_variables: unknown, options?: DeleteMutationOptions) => {
     // Merge options from both useMutation and mutate call
     const mergedOptions = { ...mockState.capturedOptions, ...options }
     if (mockState.mutationError) {
       mergedOptions.onError?.({ message: mockState.mutationError })
     } else {
-      mergedOptions.onSuccess?.(5)
+      mergedOptions.onSuccess?.()
     }
     mergedOptions.onSettled?.()
   })
@@ -69,8 +72,22 @@ vi.mock("@/client/trpcClient", () => ({
     storage: {
       ceph: {
         objects: {
-          deleteAll: {
-            useMutation: (options: MutationOptions) => {
+          list: {
+            useQuery: (_params: unknown, options: { enabled: boolean }) => {
+              if (!options.enabled) {
+                return { data: undefined, isLoading: false, error: null }
+              }
+              return {
+                data: mockState.objectsData,
+                isLoading: mockState.isLoading,
+                error: mockState.objectsError ? { message: mockState.objectsError } : null,
+              }
+            },
+          },
+        },
+        containers: {
+          delete: {
+            useMutation: (options: DeleteMutationOptions) => {
               mockState.capturedOptions = options ?? {}
               return { mutate: mockMutate, isPending: mockState.isPending, reset: mockReset }
             },
@@ -83,58 +100,54 @@ vi.mock("@/client/trpcClient", () => ({
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const mockEmptyBucket: Container = {
-  name: "empty-bucket",
+const mockEmptyBucket: Bucket = {
+  name: "my-test-bucket",
   creationDate: "2024-01-15T10:00:00Z",
   count: 0,
   bytes: 0,
 }
 
-const mockNonEmptyBucket: Container = {
+const mockNonEmptyBucket: Bucket = {
   name: "bucket-with-files",
   creationDate: "2024-01-15T10:00:00Z",
   count: 5,
   bytes: 1024,
 }
 
-const mockSingleObjectBucket: Container = {
-  name: "single-object-bucket",
-  creationDate: "2024-01-15T10:00:00Z",
-  count: 1,
-  bytes: 512,
-}
-
 // ─── Render helper ────────────────────────────────────────────────────────────
 
 const renderModal = ({
   isOpen = true,
-  bucket = mockNonEmptyBucket,
+  bucket = mockEmptyBucket,
   onClose = vi.fn(),
   onSuccess = vi.fn(),
   onError = vi.fn(),
 }: {
   isOpen?: boolean
-  bucket?: Container | null
+  bucket?: Bucket | null
   onClose?: () => void
-  onSuccess?: (bucketName: string, deletedCount: number) => void
+  onSuccess?: (bucketName: string) => void
   onError?: (bucketName: string, errorMessage: string) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <EmptyBucketModal isOpen={isOpen} bucket={bucket} onClose={onClose} onSuccess={onSuccess} onError={onError} />
+        <DeleteBucketModal isOpen={isOpen} bucket={bucket} onClose={onClose} onSuccess={onSuccess} onError={onError} />
       </PortalProvider>
     </I18nProvider>
   )
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe("EmptyBucketModal", () => {
+describe("DeleteBucketModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     mockState.mutationError = null
     mockState.capturedOptions = {}
     mockState.isPending = false
+    mockState.isLoading = false
+    mockState.objectsData = { objects: [], folders: [], isTruncated: false }
+    mockState.objectsError = null
     await act(async () => {
       i18n.activate("en")
     })
@@ -143,70 +156,36 @@ describe("EmptyBucketModal", () => {
   describe("Visibility", () => {
     test("does not render when isOpen is false", () => {
       renderModal({ isOpen: false })
-      expect(screen.queryByText(/Empty Bucket/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Delete Bucket/i)).not.toBeInTheDocument()
     })
 
     test("does not render when bucket is null", () => {
       renderModal({ bucket: null })
-      expect(screen.queryByText(/Empty Bucket/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Delete Bucket/i)).not.toBeInTheDocument()
     })
 
     test("renders when isOpen is true and bucket is provided", () => {
       renderModal()
-      expect(screen.getByRole("heading", { name: "Empty Bucket" })).toBeInTheDocument()
+      expect(screen.getByRole("heading", { name: "Delete Bucket" })).toBeInTheDocument()
     })
   })
 
-  describe("Empty bucket state", () => {
-    test("shows info message when bucket is already empty", () => {
-      renderModal({ bucket: mockEmptyBucket })
-      expect(screen.getByText(/Nothing to do. Bucket is already empty./)).toBeInTheDocument()
-    })
-
-    test("renders Close button for empty bucket", () => {
-      renderModal({ bucket: mockEmptyBucket })
-      expect(screen.getByTestId("empty-info-close-button")).toBeInTheDocument()
-      expect(screen.queryByRole("button", { name: /^Empty$/i })).not.toBeInTheDocument()
-    })
-
-    test("does not show confirmation input for empty bucket", () => {
-      renderModal({ bucket: mockEmptyBucket })
-      expect(screen.queryByLabelText(/Type the bucket name to confirm/i)).not.toBeInTheDocument()
-    })
-
-    test("closes modal when Close button is clicked", async () => {
-      const user = userEvent.setup({ delay: null })
-      const mockOnClose = vi.fn()
-      renderModal({ bucket: mockEmptyBucket, onClose: mockOnClose })
-
-      await user.click(screen.getByTestId("empty-info-close-button"))
-
-      expect(mockOnClose).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe("Non-empty bucket UI", () => {
+  describe("UI elements for empty bucket", () => {
     test("renders modal title", () => {
       renderModal()
-      expect(screen.getByRole("heading", { name: "Empty Bucket" })).toBeInTheDocument()
+      expect(screen.getByRole("heading", { name: "Delete Bucket" })).toBeInTheDocument()
     })
 
-    test("shows warning message with object count (plural)", () => {
-      renderModal({ bucket: mockNonEmptyBucket })
-      expect(screen.getByText(/Are you sure?/)).toBeInTheDocument()
-      expect(screen.getByText(/All 5 objects/)).toBeInTheDocument()
-      expect(screen.getByText(/will be permanently deleted/)).toBeInTheDocument()
-    })
-
-    test("shows warning message with object count (singular)", () => {
-      renderModal({ bucket: mockSingleObjectBucket })
-      expect(screen.getByText(/All 1 object/)).toBeInTheDocument()
-    })
-
-    test("displays bucket name", () => {
+    test("renders warning message", () => {
       renderModal()
-      expect(screen.getByText("Bucket to empty:")).toBeInTheDocument()
-      expect(screen.getByText(mockNonEmptyBucket.name)).toBeInTheDocument()
+      expect(screen.getByText(/This action is irreversible/)).toBeInTheDocument()
+      expect(screen.getByText(/Deleting a bucket permanently removes it/)).toBeInTheDocument()
+    })
+
+    test("displays bucket name to delete", () => {
+      renderModal()
+      expect(screen.getByText("Bucket to delete:")).toBeInTheDocument()
+      expect(screen.getByText(mockEmptyBucket.name)).toBeInTheDocument()
     })
 
     test("renders confirmation input", () => {
@@ -216,17 +195,12 @@ describe("EmptyBucketModal", () => {
 
     test("confirmation input has bucket name as placeholder", () => {
       renderModal()
-      expect(screen.getByPlaceholderText(mockNonEmptyBucket.name)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(mockEmptyBucket.name)).toBeInTheDocument()
     })
 
-    test("confirmation input has autofocus", () => {
+    test("renders Delete Bucket button", () => {
       renderModal()
-      expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toHaveFocus()
-    })
-
-    test("renders Empty button", () => {
-      renderModal()
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeInTheDocument()
     })
 
     test("renders Cancel button", () => {
@@ -239,9 +213,99 @@ describe("EmptyBucketModal", () => {
       expect(screen.getByRole("button", { name: /Copy/i })).toBeInTheDocument()
     })
 
-    test("Empty button is disabled when confirmation name is empty", () => {
+    test("Delete button is disabled when confirmation name is empty", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
+    })
+  })
+
+  describe("Loading state", () => {
+    test("shows loading spinner when checking bucket contents", () => {
+      mockState.isLoading = true
+      renderModal()
+
+      expect(screen.getByText(/Checking bucket contents.../)).toBeInTheDocument()
+      // Spinner is present in the DOM
+      const spinnerContainer = screen.getByText(/Checking bucket contents.../).closest(".juno-stack")
+      expect(spinnerContainer).toBeInTheDocument()
+    })
+
+    test("does not show warning message while loading", () => {
+      mockState.isLoading = true
+      renderModal()
+
+      expect(screen.queryByText(/This action is irreversible/)).not.toBeInTheDocument()
+    })
+
+    test("disables Delete button while loading", () => {
+      mockState.isLoading = true
+      renderModal()
+
+      expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
+    })
+  })
+
+  describe("Non-empty bucket", () => {
+    test("shows error message when bucket contains objects", () => {
+      mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
+      renderModal({ bucket: mockNonEmptyBucket })
+
+      expect(screen.getByText(/This bucket contains 1 object and cannot be deleted/)).toBeInTheDocument()
+      expect(screen.getByText(/Delete all objects first/)).toBeInTheDocument()
+    })
+
+    test("shows plural form for multiple objects", () => {
+      mockState.objectsData = {
+        objects: [{ key: "file1.txt" }, { key: "file2.txt" }, { key: "file3.txt" }] as never,
+        folders: [],
+        isTruncated: false,
+      }
+      renderModal({ bucket: mockNonEmptyBucket })
+
+      expect(screen.getByText(/This bucket contains 3 objects and cannot be deleted/)).toBeInTheDocument()
+    })
+
+    test("does not show confirmation input for non-empty bucket", () => {
+      mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
+      renderModal({ bucket: mockNonEmptyBucket })
+
+      expect(screen.queryByLabelText(/Type the bucket name to confirm/i)).not.toBeInTheDocument()
+    })
+
+    test("renders Close button instead of Delete Bucket button", () => {
+      mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
+      renderModal({ bucket: mockNonEmptyBucket })
+
+      expect(screen.getByTestId("delete-has-objects-close-button")).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: /^Delete Bucket$/i })).not.toBeInTheDocument()
+    })
+
+    test("calls onClose when Close is clicked", async () => {
+      mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
+      const onClose = vi.fn()
+      const user = userEvent.setup({ delay: null })
+      renderModal({ bucket: mockNonEmptyBucket, onClose })
+
+      await user.click(screen.getByTestId("delete-has-objects-close-button"))
+
+      expect(onClose).toHaveBeenCalled()
+    })
+  })
+
+  describe("Objects query error", () => {
+    test("shows error message when objects query fails", () => {
+      mockState.objectsError = "Failed to fetch objects"
+      renderModal()
+
+      expect(screen.getByText(/Failed to check bucket contents:/)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to fetch objects/)).toBeInTheDocument()
+    })
+
+    test("disables Delete button when objects query fails", () => {
+      mockState.objectsError = "Failed to fetch objects"
+      renderModal()
+
+      expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
     })
   })
 
@@ -253,14 +317,14 @@ describe("EmptyBucketModal", () => {
 
     test("displays bucket name in styled block", () => {
       renderModal()
-      const styledBlock = screen.getByText(mockNonEmptyBucket.name).closest("div")
+      const styledBlock = screen.getByText(mockEmptyBucket.name).closest("div")
       expect(styledBlock).toBeInTheDocument()
       expect(styledBlock).toHaveClass("bg-theme-background-lvl-1")
     })
   })
 
   describe("Name confirmation validation", () => {
-    test("Empty button disabled when name does not match", async () => {
+    test("Delete button disabled when name does not match", async () => {
       const user = userEvent.setup({ delay: null })
       renderModal()
 
@@ -268,60 +332,56 @@ describe("EmptyBucketModal", () => {
       await user.clear(input)
       await user.type(input, "wrong-name")
 
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
+      // Button should stay disabled
+      expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
     })
 
-    test("enables Empty button when name matches exactly", async () => {
+    test("enables Delete button when name matches exactly", async () => {
       const user = userEvent.setup({ delay: null })
       renderModal()
 
       const input = screen.getByLabelText(/Type the bucket name to confirm/i)
       await user.clear(input)
-      await user.type(input, mockNonEmptyBucket.name)
+      await user.type(input, mockEmptyBucket.name)
 
       await waitFor(
         () => {
-          expect(screen.getByRole("button", { name: /^Empty$/i })).not.toBeDisabled()
+          expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).not.toBeDisabled()
         },
         { timeout: 3000 }
       )
     })
 
-    test("trims whitespace from confirmation name", async () => {
+    test("Delete button disabled with wrong name", async () => {
       const user = userEvent.setup({ delay: null })
       renderModal()
 
       const input = screen.getByLabelText(/Type the bucket name to confirm/i)
       await user.clear(input)
-      await user.type(input, `  ${mockNonEmptyBucket.name}  `)
+      await user.type(input, "wrong")
 
-      await waitFor(
-        () => {
-          expect(screen.getByRole("button", { name: /^Empty$/i })).not.toBeDisabled()
-        },
-        { timeout: 3000 }
-      )
+      expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
     })
   })
 
-  describe("Bucket emptying", () => {
+  describe("Bucket deletion", () => {
     test("calls mutation with correct parameters", async () => {
       const user = userEvent.setup({ delay: null })
       renderModal()
 
       const input = screen.getByLabelText(/Type the bucket name to confirm/i)
       await user.clear(input)
-      await user.type(input, mockNonEmptyBucket.name)
+      await user.type(input, mockEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
-      await user.click(emptyButton)
+      const deleteButton = screen.getByRole("button", { name: /^Delete Bucket$/i })
+      await user.click(deleteButton)
 
       await waitFor(
         () => {
           expect(mockMutate).toHaveBeenCalledWith(
             {
               project_id: mockProjectId,
-              containerName: mockNonEmptyBucket.name,
+              bucketName: mockEmptyBucket.name,
             },
             expect.objectContaining({
               onSuccess: expect.any(Function),
@@ -333,31 +393,31 @@ describe("EmptyBucketModal", () => {
       )
     })
 
-    test("disables input and button while emptying", () => {
+    test("disables input and button while deleting", () => {
       mockState.isPending = true
       renderModal()
 
       expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeDisabled()
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
     })
   })
 
   describe("Success handling", () => {
-    test("calls onSuccess with bucket name and deleted count", async () => {
+    test("calls onSuccess with bucket name", async () => {
       const user = userEvent.setup({ delay: null })
       const mockOnSuccess = vi.fn()
       renderModal({ onSuccess: mockOnSuccess })
 
       const input = screen.getByLabelText(/Type the bucket name to confirm/i)
       await user.clear(input)
-      await user.type(input, mockNonEmptyBucket.name)
+      await user.type(input, mockEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
-      await user.click(emptyButton)
+      const deleteButton = screen.getByRole("button", { name: /^Delete Bucket$/i })
+      await user.click(deleteButton)
 
       await waitFor(
         () => {
-          expect(mockOnSuccess).toHaveBeenCalledWith(mockNonEmptyBucket.name, 5)
+          expect(mockOnSuccess).toHaveBeenCalledWith(mockEmptyBucket.name)
         },
         { timeout: 3000 }
       )
@@ -369,10 +429,10 @@ describe("EmptyBucketModal", () => {
 
       const input = screen.getByLabelText(/Type the bucket name to confirm/i)
       await user.clear(input)
-      await user.type(input, mockNonEmptyBucket.name)
+      await user.type(input, mockEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
-      await user.click(emptyButton)
+      const deleteButton = screen.getByRole("button", { name: /^Delete Bucket$/i })
+      await user.click(deleteButton)
 
       await waitFor(
         () => {
@@ -389,10 +449,10 @@ describe("EmptyBucketModal", () => {
 
       const input = screen.getByLabelText(/Type the bucket name to confirm/i)
       await user.clear(input)
-      await user.type(input, mockNonEmptyBucket.name)
+      await user.type(input, mockEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
-      await user.click(emptyButton)
+      const deleteButton = screen.getByRole("button", { name: /^Delete Bucket$/i })
+      await user.click(deleteButton)
 
       await waitFor(
         () => {
@@ -407,19 +467,19 @@ describe("EmptyBucketModal", () => {
     test("calls onError with bucket name and error message", async () => {
       const user = userEvent.setup({ delay: null })
       const mockOnError = vi.fn()
-      mockState.mutationError = "Failed to empty bucket"
+      mockState.mutationError = "Bucket not found"
       renderModal({ onError: mockOnError })
 
       const input = screen.getByLabelText(/Type the bucket name to confirm/i)
       await user.clear(input)
-      await user.type(input, mockNonEmptyBucket.name)
+      await user.type(input, mockEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
-      await user.click(emptyButton)
+      const deleteButton = screen.getByRole("button", { name: /^Delete Bucket$/i })
+      await user.click(deleteButton)
 
       await waitFor(
         () => {
-          expect(mockOnError).toHaveBeenCalledWith(mockNonEmptyBucket.name, "Failed to empty bucket")
+          expect(mockOnError).toHaveBeenCalledWith(mockEmptyBucket.name, "Bucket not found")
         },
         { timeout: 3000 }
       )
@@ -428,15 +488,15 @@ describe("EmptyBucketModal", () => {
     test("closes modal on error", async () => {
       const user = userEvent.setup({ delay: null })
       const mockOnClose = vi.fn()
-      mockState.mutationError = "Empty failed"
+      mockState.mutationError = "Deletion failed"
       renderModal({ onClose: mockOnClose })
 
       const input = screen.getByLabelText(/Type the bucket name to confirm/i)
       await user.clear(input)
-      await user.type(input, mockNonEmptyBucket.name)
+      await user.type(input, mockEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
-      await user.click(emptyButton)
+      const deleteButton = screen.getByRole("button", { name: /^Delete Bucket$/i })
+      await user.click(deleteButton)
 
       await waitFor(
         () => {
@@ -467,17 +527,6 @@ describe("EmptyBucketModal", () => {
       await user.click(cancelButton)
 
       expect(mockReset).toHaveBeenCalled()
-    })
-
-    test("clears copied state when modal closes", async () => {
-      const user = userEvent.setup({ delay: null })
-      const mockOnClose = vi.fn()
-      renderModal({ onClose: mockOnClose })
-
-      const cancelButton = screen.getByRole("button", { name: /Cancel/i })
-      await user.click(cancelButton)
-
-      expect(mockOnClose).toHaveBeenCalled()
     })
   })
 })
