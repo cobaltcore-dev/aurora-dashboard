@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
@@ -56,6 +56,13 @@ describe("PcaCertificatesListContainer", () => {
     certificate_authority_id: "ca-1",
     project_id: "project-1",
   }
+
+  const makeCertificates = (count: number): Certificate[] =>
+    Array.from({ length: count }, (_, index) => ({
+      id: `cert-${index + 1}`,
+      certificate_authority_id: "ca-1",
+      project_id: "project-1",
+    }))
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -250,6 +257,53 @@ describe("PcaCertificatesListContainer", () => {
     expect(screen.getByTestId("certificate-row-cert-1")).toBeInTheDocument()
     expect(screen.getByTestId("certificate-row-cert-2")).toBeInTheDocument()
     expect(screen.getByTestId("certificate-row-cert-3")).toBeInTheDocument()
+  })
+
+  it("does not render pagination when there is only one page", () => {
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
+      data: makeCertificates(10),
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    renderComponent()
+
+    expect(screen.queryByRole("button", { name: /previous/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /next/i })).not.toBeInTheDocument()
+  })
+
+  it("renders pagination and shows first 50 certificates on the first page", () => {
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
+      data: makeCertificates(51),
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    renderComponent()
+
+    expect(screen.getByRole("button", { name: /previous/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /next/i })).toBeInTheDocument()
+    expect(screen.getByTestId("certificate-row-cert-1")).toBeInTheDocument()
+    expect(screen.getByTestId("certificate-row-cert-50")).toBeInTheDocument()
+    expect(screen.queryByTestId("certificate-row-cert-51")).not.toBeInTheDocument()
+  })
+
+  it("moves to second page when next is clicked", () => {
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
+      data: makeCertificates(51),
+      isLoading: false,
+      isError: false,
+      error: null,
+    } as never)
+
+    renderComponent()
+
+    fireEvent.click(screen.getByRole("button", { name: /next/i }))
+
+    expect(screen.queryByTestId("certificate-row-cert-1")).not.toBeInTheDocument()
+    expect(screen.getByTestId("certificate-row-cert-51")).toBeInTheDocument()
   })
 
   it("uses default empty array when data is undefined", () => {

@@ -105,6 +105,12 @@ export const CertificateAuthorityIdInputSchema = z.object({
   certificate_authority_id: z.string().min(1),
 })
 
+// Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates - List Certificates
+export const CertificateAuthorityCertificatesListInputSchema = CertificateAuthorityIdInputSchema.extend({
+  limit: z.number().int().min(1).max(1000).optional(),
+  next_page_marker: z.string().min(1).optional(),
+})
+
 // Used by: /v1/certificate-authorities/{certificate_authority_id}:importCertificate - Import certificate of Certificate Authority
 export const CertificateAuthorityImportInputSchema = CertificateAuthorityIdInputSchema.extend({
   imported_certificate_chain: z.string().min(1),

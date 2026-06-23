@@ -8,6 +8,7 @@ import {
   CertificateAuthoritiesListInputSchema,
   CertificateAuthoritySchema,
   CertificateAuthorityIdInputSchema,
+  CertificateAuthorityCertificatesListInputSchema,
   CertificatesListSchema,
   CertificateSchema,
   Certificate,
@@ -109,13 +110,18 @@ export const pcaRouter = {
       }, "import certificate of certificate authority")
     }),
   listCertificates: projectScopedProcedure
-    .input(CertificateAuthorityIdInputSchema)
+    .input(CertificateAuthorityCertificatesListInputSchema)
     .query(async ({ input, ctx }): Promise<Certificate[]> => {
       return withErrorHandling(async () => {
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
 
-        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates`
+        const queryParams = new URLSearchParams()
+        if (input.limit !== undefined) queryParams.set("limit", String(input.limit))
+        if (input.next_page_marker !== undefined) queryParams.set("next_page_marker", input.next_page_marker)
+
+        const baseUrl = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates`
+        const url = queryParams.size > 0 ? `${baseUrl}?${queryParams.toString()}` : baseUrl
         const response = await pca.get(url)
         const data = await response.json()
 

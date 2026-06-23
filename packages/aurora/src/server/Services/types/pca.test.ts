@@ -3,6 +3,7 @@ import {
   CertificateAuthoritiesListSchema,
   CertificateAuthoritiesListInputSchema,
   CertificateAuthorityCreateSchema,
+  CertificateAuthorityCertificatesListInputSchema,
   CertificateAuthorityImportInputSchema,
   CertificateAuthoritySchema,
   CertificateConfigurationSchema,
@@ -799,6 +800,58 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
           certificate_authority_id: "ca-456",
         }).success
       ).toBe(true)
+    })
+  })
+
+  describe("CertificateAuthorityCertificatesListInputSchema", () => {
+    it("should validate with required CA identifiers only", () => {
+      expect(
+        CertificateAuthorityCertificatesListInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should validate with optional pagination fields", () => {
+      expect(
+        CertificateAuthorityCertificatesListInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          limit: 100,
+          next_page_marker: "opaque-marker",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject limit below minimum", () => {
+      expect(
+        CertificateAuthorityCertificatesListInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          limit: 0,
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject limit above maximum", () => {
+      expect(
+        CertificateAuthorityCertificatesListInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          limit: 1001,
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject empty next_page_marker", () => {
+      expect(
+        CertificateAuthorityCertificatesListInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          next_page_marker: "",
+        }).success
+      ).toBe(false)
     })
   })
 

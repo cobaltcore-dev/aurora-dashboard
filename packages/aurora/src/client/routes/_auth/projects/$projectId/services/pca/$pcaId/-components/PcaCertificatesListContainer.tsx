@@ -1,4 +1,5 @@
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useEffect, useMemo, useState } from "react"
 import {
   Stack,
   Spinner,
@@ -8,6 +9,7 @@ import {
   ContentHeading,
   DataGridHeadCell,
   Button,
+  Pagination,
 } from "@cloudoperators/juno-ui-components"
 import { CertificateAuthority } from "@/server/Services/types/pca"
 import { trpcReact } from "@/client/trpcClient"
@@ -21,10 +23,13 @@ interface PcaCertificatesListContainerProps {
   pcaState: CertificateAuthority["state"]
 }
 
+const ITEMS_PER_PAGE = 50
+
 export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificatesListContainerProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [createIssueEndEntityOpen, toggleIssueEndEntity] = useModal(false)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const columns = () =>
     [
@@ -43,6 +48,22 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
     project_id: projectId,
     certificate_authority_id: pcaId,
   })
+  const totalPages = Math.max(1, Math.ceil(pcaCertificates.length / ITEMS_PER_PAGE))
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [projectId, pcaId])
+
+  const paginatedCertificates = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    return pcaCertificates.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  }, [currentPage, pcaCertificates])
 
   if (isLoading) {
     return (
@@ -98,10 +119,23 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
               <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
             ))}
           </DataGridRow>
-          {pcaCertificates.map((certificate) => (
+          {paginatedCertificates.map((certificate) => (
             <PcaCertificatesTableRow key={certificate.id} certificate={certificate} />
           ))}
         </DataGrid>
+      )}
+
+      {pcaCertificates.length > 0 && totalPages > 1 && (
+        <div className="flex justify-center py-4">
+          <Pagination
+            variant="input"
+            currentPage={currentPage}
+            pages={totalPages}
+            onPressPrevious={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))}
+            onPressNext={() => setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))}
+            onSelectChange={(page) => setCurrentPage(page)}
+          />
+        </div>
       )}
     </div>
   )

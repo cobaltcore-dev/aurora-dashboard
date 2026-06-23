@@ -341,6 +341,23 @@ describe("pcaRouter", () => {
       expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates")
     })
 
+    it("forwards pagination query params for listCertificates requests", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx as never)
+
+      const result = await caller.services.pca.listCertificates({
+        project_id: TEST_PROJECT_ID,
+        certificate_authority_id: "ca-1",
+        limit: 10,
+        next_page_marker: "next-marker",
+      })
+
+      expect(result).toEqual(validCertificatesResponse.certificates)
+      expect(ctx.__getMock).toHaveBeenCalledWith(
+        "certificate-authorities/ca-1/certificates?limit=10&next_page_marker=next-marker"
+      )
+    })
+
     it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
       const ctx = createMockContext({ noClavis: true })
       const caller = createCaller(ctx as never)
