@@ -3175,6 +3175,9 @@ msgstr "Erneut versuchen"
 msgid "Type"
 msgstr "Typ"
 
+msgid "Type \"{CONFIRM_WORD}\" to confirm"
+msgstr ""
+
 msgid "Type \"delete\" to confirm"
 msgstr "Geben Sie \"delete\" zur Bestätigung ein"
 
