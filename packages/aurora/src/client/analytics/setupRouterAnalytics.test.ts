@@ -194,7 +194,6 @@ describe("setupRouterAnalytics", () => {
       action: "/_auth/projects/$projectId/network",
       metadata: {
         pathname: "/projects/abc-123/network",
-        search: undefined,
         section: "network",
       },
     })

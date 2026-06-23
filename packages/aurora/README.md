@@ -222,7 +222,7 @@ The callback receives a `TrackEventPayload` object with the following fields:
 Automatically tracked when users navigate between routes. Fires on every route change via TanStack Router's `onResolved` event.
 
 - **`action`**: Route ID (e.g., `"/_auth/projects/$projectId/compute/images"`)
-- **`metadata`**: Always includes `pathname` and `search` (query string); optionally includes `section` and `service` if the route defines them in `staticData`
+- **`metadata`**: Always includes `pathname`; includes `search` (query string) when present; optionally includes `section` and `service` if the route defines them in `staticData`
 
 **Example event:**
 
