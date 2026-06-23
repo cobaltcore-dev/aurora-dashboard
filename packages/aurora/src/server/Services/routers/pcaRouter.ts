@@ -34,7 +34,8 @@ export const pcaRouter = {
         const queryParams = new URLSearchParams()
         if (input.limit !== undefined) queryParams.set("limit", String(input.limit))
         if (input.next_page_marker !== undefined) queryParams.set("next_page_marker", input.next_page_marker)
-        const url = queryParams.size > 0 ? `${PCA_BASE_URL}?${queryParams.toString()}` : PCA_BASE_URL
+        const queryString = queryParams.toString()
+        const url = queryString ? `${PCA_BASE_URL}?${queryString}` : PCA_BASE_URL
 
         const response = await pca.get(url)
         const data = await response.json()
@@ -119,9 +120,9 @@ export const pcaRouter = {
         const queryParams = new URLSearchParams()
         if (input.limit !== undefined) queryParams.set("limit", String(input.limit))
         if (input.next_page_marker !== undefined) queryParams.set("next_page_marker", input.next_page_marker)
-
+        const queryString = queryParams.toString()
         const baseUrl = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates`
-        const url = queryParams.size > 0 ? `${baseUrl}?${queryParams.toString()}` : baseUrl
+        const url = queryString ? `${baseUrl}?${queryString}` : baseUrl
         const response = await pca.get(url)
         const data = await response.json()
 

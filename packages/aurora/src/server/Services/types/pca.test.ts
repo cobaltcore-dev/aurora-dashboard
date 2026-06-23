@@ -101,6 +101,39 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
     imported_certificate_chain: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
   }
 
+  const projectScopedSchemaCases = [
+    {
+      name: "CertificateAuthoritiesListInputSchema",
+      schema: CertificateAuthoritiesListInputSchema,
+      validInput: {
+        project_id: " project-1 ",
+      },
+    },
+    {
+      name: "CertificateAuthorityIdInputSchema",
+      schema: CertificateAuthorityIdInputSchema,
+      validInput: {
+        project_id: " project-1 ",
+        certificate_authority_id: "ca-123",
+      },
+    },
+    {
+      name: "CreateCertificateInputSchema",
+      schema: CreateCertificateInputSchema,
+      validInput: {
+        project_id: " project-1 ",
+        certificate_authority_id: "ca-123",
+        csr: "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+        configuration: {
+          validity: {
+            not_after: 1736851200,
+            not_before: 1705315200,
+          },
+        },
+      },
+    },
+  ] as const
+
   describe("CAStateSchema", () => {
     it("should validate CREATING state", () => {
       expect(CertificateAuthoritySchema.safeParse({ ...minimalValidCA, state: "CREATING" }).success).toBe(true)
@@ -755,6 +788,26 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
 
     it("should reject input without project_id", () => {
       expect(CertificateAuthoritiesListInputSchema.safeParse({ limit: 10 }).success).toBe(false)
+    })
+  })
+
+  describe("project_id validation consistency", () => {
+    it.each(projectScopedSchemaCases)("should trim project_id for %s", ({ schema, validInput }) => {
+      const result = schema.safeParse(validInput)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.project_id).toBe("project-1")
+      }
+    })
+
+    it.each(projectScopedSchemaCases)("should reject whitespace-only project_id for %s", ({ schema, validInput }) => {
+      expect(
+        schema.safeParse({
+          ...validInput,
+          project_id: "   ",
+        }).success
+      ).toBe(false)
     })
   })
 

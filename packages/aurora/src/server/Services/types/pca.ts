@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { projectScopedInputSchema } from "../../trpc"
 
 /** PCA (Private Certificate Authority) - Clavis service schemas for certificate authority management  */
 
@@ -78,10 +79,9 @@ export const CertificateAuthoritiesListSchema = z.object({
 })
 
 // Used by: /v1/certificate-authorities - List Certificate Authorities
-export const CertificateAuthoritiesListInputSchema = z.object({
-  project_id: z.string(),
+export const CertificateAuthoritiesListInputSchema = projectScopedInputSchema.extend({
   limit: z.number().int().min(1).max(1000).optional(),
-  next_page_marker: z.string().min(1).optional(),
+  next_page_marker: z.string().trim().min(1).optional(),
 })
 
 // Used by: /v1/certificate-authorities - Create new Certificate Authority
@@ -100,8 +100,7 @@ export const CertificateAuthorityCreateSchema = z.object({
  * - GET /v1/certificate-authorities/{certificate_authority_id}/certificates - List Certificates
  *
  */
-export const CertificateAuthorityIdInputSchema = z.object({
-  project_id: z.string(),
+export const CertificateAuthorityIdInputSchema = projectScopedInputSchema.extend({
   certificate_authority_id: z.string().min(1),
 })
 
@@ -126,8 +125,7 @@ export const CertificateConfigurationSchema = z.object({
 })
 
 // Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates - Create new Certificate
-export const CreateCertificateInputSchema = z.object({
-  project_id: z.string(),
+export const CreateCertificateInputSchema = projectScopedInputSchema.extend({
   certificate_authority_id: z.string().min(1),
   csr: z.string().min(1),
   configuration: CertificateConfigurationSchema,
