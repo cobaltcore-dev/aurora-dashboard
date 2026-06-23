@@ -1,5 +1,3 @@
-import type { Registry } from "prom-client"
-
 export interface AuroraServerConfig {
   bffEndpoint?: string
   viteRoot?: string
@@ -28,12 +26,4 @@ export interface AuroraServerConfig {
    * over the legacy in-tree permission_custom_policies/ directory.
    */
   policyDir: string
-  /**
-   * Optional Prometheus registry for metrics collection.
-   * If provided, Aurora will use this registry for all metrics (Phase 1).
-   * Consumers can add their own metrics (Phase 2) to the same registry
-   * and have them appear in the unified /metrics endpoint.
-   * If not provided, Aurora creates its own internal registry.
-   */
-  metricsRegistry?: Registry
 }
