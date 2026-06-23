@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
+import { useNavigate, useParams } from "@tanstack/react-router"
 import {
   DataGrid,
   DataGridRow,
@@ -17,7 +18,6 @@ import { DeleteObjectModal } from "./DeleteObjectModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveObjectModal } from "./MoveObjectModal"
 import { EditMetadataModal } from "./EditMetadataModal"
-import { ObjectVersionHistoryModal } from "./ObjectVersionHistoryModal"
 
 type FolderRow = { kind: "folder"; prefix: string; displayName: string }
 type ObjectRow = {
@@ -47,8 +47,6 @@ interface ObjectsTableViewProps {
   onMoveObjectError: (objectKey: string, errorMessage: string) => void
   onEditMetadataSuccess: (objectKey: string) => void
   onEditMetadataError: (objectKey: string, errorMessage: string) => void
-  onRestoreVersion?: (objectKey: string, versionId: string) => void
-  onDeleteVersion?: (objectKey: string, versionId: string) => void
 }
 
 export function ObjectsTableView({
@@ -66,10 +64,15 @@ export function ObjectsTableView({
   onMoveObjectError,
   onEditMetadataSuccess,
   onEditMetadataError,
-  onRestoreVersion,
-  onDeleteVersion,
 }: ObjectsTableViewProps) {
   const { t } = useLingui()
+  const navigate = useNavigate()
+  const params = useParams({ strict: false }) as {
+    projectId?: string
+    provider?: string
+    storageType?: string
+    containerName?: string
+  }
   const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteTarget, setDeleteTarget] = useState<{
@@ -86,7 +89,6 @@ export function ObjectsTableView({
     size?: number
   } | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<string | null>(null)
-  const [versionHistoryTarget, setVersionHistoryTarget] = useState<string | null>(null)
 
   // Strip current prefix from display names
   const stripPrefix = (fullKey: string) => (currentPrefix ? fullKey.replace(currentPrefix, "") : fullKey)
@@ -267,7 +269,16 @@ export function ObjectsTableView({
                               {versioningEnabled && (
                                 <PopupMenuItem
                                   label={t`View Versions`}
-                                  onClick={() => setVersionHistoryTarget(row.key)}
+                                  onClick={() => {
+                                    const { projectId, provider, storageType, containerName } = params
+                                    if (projectId && provider && storageType && containerName) {
+                                      navigate({
+                                        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/versions",
+                                        params: { projectId, provider, storageType, containerName },
+                                        search: { objectKey: encodeURIComponent(row.key) },
+                                      })
+                                    }
+                                  }}
                                 />
                               )}
                               <PopupMenuItem
@@ -340,15 +351,6 @@ export function ObjectsTableView({
         onClose={() => setEditMetadataTarget(null)}
         onSuccess={onEditMetadataSuccess}
         onError={onEditMetadataError}
-      />
-
-      <ObjectVersionHistoryModal
-        isOpen={versionHistoryTarget !== null}
-        bucketName={bucketName}
-        objectKey={versionHistoryTarget ?? ""}
-        onClose={() => setVersionHistoryTarget(null)}
-        onRestoreVersion={onRestoreVersion}
-        onDeleteVersion={onDeleteVersion}
       />
     </>
   )

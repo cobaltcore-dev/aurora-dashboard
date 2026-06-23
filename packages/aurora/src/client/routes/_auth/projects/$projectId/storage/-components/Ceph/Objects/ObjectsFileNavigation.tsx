@@ -1,6 +1,6 @@
 import { Breadcrumb, BreadcrumbItem } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { MdStorage, MdInventory2, MdOutlineInventory2, MdFolder, MdFolderOpen } from "react-icons/md"
+import { MdStorage, MdInventory2, MdOutlineInventory2, MdFolder, MdFolderOpen, MdDescription } from "react-icons/md"
 
 // ── Breadcrumb helpers ────────────────────────────────────────────────────────
 
@@ -28,6 +28,10 @@ interface ObjectsFileNavigationProps {
   prefix: string
   onBucketsClick: () => void
   onPrefixClick: (prefix: string) => void
+  /** Optional: full object key to show file name (e.g., "folder/file.txt") */
+  objectKey?: string
+  /** Optional: show "Versions" indicator after the file name */
+  showVersions?: boolean
 }
 
 export function ObjectsFileNavigation({
@@ -35,10 +39,15 @@ export function ObjectsFileNavigation({
   prefix,
   onBucketsClick,
   onPrefixClick,
+  objectKey,
+  showVersions = false,
 }: ObjectsFileNavigationProps) {
   const { t } = useLingui()
 
   const prefixSegments = prefixToSegments(prefix)
+
+  // Extract file name from objectKey if provided
+  const fileName = objectKey && objectKey !== prefix ? objectKey.substring(prefix.length) : undefined
 
   // The last segment (deepest folder) is the active crumb — non-clickable.
   // All segments before it are clickable navigation targets.
@@ -88,7 +97,7 @@ export function ObjectsFileNavigation({
             - intermediate segments → MdFolder (filled, clickable)
             - last segment → MdFolderOpen (outlined, active/non-clickable) */}
         {prefixSegments.map((seg, i) => {
-          const isLast = i === prefixSegments.length - 1
+          const isLast = i === prefixSegments.length - 1 && !fileName
           return (
             <BreadcrumbItem
               key={seg.prefix}
@@ -109,6 +118,33 @@ export function ObjectsFileNavigation({
             />
           )
         })}
+
+        {/* Optional: File name crumb (for versions page) */}
+        {fileName && (
+          <BreadcrumbItem
+            active={!showVersions}
+            label={
+              (
+                <span className={`flex items-center gap-1 ${!showVersions ? activeCrumbClass : ""}`}>
+                  <MdDescription size={15} className="shrink-0" />
+                  {fileName}
+                </span>
+              ) as unknown as string
+            }
+          />
+        )}
+
+        {/* Optional: "Versions" indicator (active, non-clickable) */}
+        {showVersions && (
+          <BreadcrumbItem
+            active
+            label={
+              (
+                <span className={`flex items-center gap-1 ${activeCrumbClass}`}>{t`Versions`}</span>
+              ) as unknown as string
+            }
+          />
+        )}
       </Breadcrumb>
     </div>
   )
