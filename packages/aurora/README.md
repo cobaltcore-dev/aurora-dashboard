@@ -75,13 +75,7 @@ export function App() {
 
 Routers passed via `routers` **must** be created with the `auroraRouter` function exported from `@cobaltcore-dev/aurora/server`. Using a different `initTRPC` instance produces an incompatible context type and will cause runtime failures when procedures access `ctx.openstack`, `ctx.validateSession`, etc.
 
-Use the exported procedure builders to handle auth:
-
-| Export                   | When to use                                            |
-| ------------------------ | ------------------------------------------------------ |
-| `protectedProcedure`     | Any procedure that requires a valid session            |
-| `projectScopedProcedure` | Procedure needs an OpenStack token scoped to a project |
-| `domainScopedProcedure`  | Procedure needs an OpenStack token scoped to a domain  |
+For the full list of exported procedure builders and router utilities, see [`src/server/index.ts`](./src/server/index.ts).
 
 ### Example
 
