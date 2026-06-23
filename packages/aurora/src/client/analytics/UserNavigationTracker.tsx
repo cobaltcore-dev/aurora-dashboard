@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 import { useMatches, useRouterState } from "@tanstack/react-router"
 import { isRouteInfo } from "../routes/routeInfo"
-import type { OnUserNavigationCallback, UserNavigationMetrics } from "../AuroraApp"
+import type { OnTrackEventCallback, UserNavigationMetrics } from "../AuroraApp"
 
 /**
  * Component that tracks user navigation for behavioral analytics.
@@ -13,29 +13,29 @@ import type { OnUserNavigationCallback, UserNavigationMetrics } from "../AuroraA
  * This component renders nothing and exists purely for its side effects.
  * Using a component instead of a hook prevents unnecessary re-renders of parent components.
  *
- * @param onUserNavigation - Optional callback to invoke with navigation metrics
+ * @param onTrackEvent - Optional callback to invoke with navigation metrics
  *
  * @example
  * ```tsx
  * function RootComponent() {
- *   const { onUserNavigation } = useRouteContext()
+ *   const { onTrackEvent } = useRouteContext()
  *   return (
  *     <Layout>
- *       <UserNavigationTracker onUserNavigation={onUserNavigation} />
+ *       <UserNavigationTracker onTrackEvent={onTrackEvent} />
  *       <Outlet />
  *     </Layout>
  *   )
  * }
  * ```
  */
-export function UserNavigationTracker({ onUserNavigation }: { onUserNavigation?: OnUserNavigationCallback }) {
+export function UserNavigationTracker({ onTrackEvent }: { onTrackEvent?: OnTrackEventCallback }) {
   const matches = useMatches()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const timeoutRef = useRef<number | null>(null)
   const lastRouteKeyRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (!onUserNavigation) return
+    if (!onTrackEvent) return
 
     // Find the deepest route match with valid section/service metadata
     const activeMatch = [...matches].reverse().find((m) => isRouteInfo(m.staticData))
@@ -75,10 +75,10 @@ export function UserNavigationTracker({ onUserNavigation }: { onUserNavigation?:
         timeoutRef.current = window.setTimeout(() => {
           // Wrap in Promise.resolve to handle both sync and async callbacks
           Promise.resolve()
-            .then(() => onUserNavigation(metrics))
+            .then(() => onTrackEvent(metrics))
             .catch((error) => {
               // Catch both sync and async errors to prevent consumer's tracking logic from breaking the app
-              console.error("[Aurora Analytics] Error in onUserNavigation callback:", error)
+              console.error("[Aurora Analytics] Error in onTrackEvent callback:", error)
             })
             .finally(() => {
               timeoutRef.current = null
@@ -94,7 +94,7 @@ export function UserNavigationTracker({ onUserNavigation }: { onUserNavigation?:
         timeoutRef.current = null
       }
     }
-  }, [matches, pathname, onUserNavigation])
+  }, [matches, pathname, onTrackEvent])
 
   return null
 }

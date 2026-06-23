@@ -4,6 +4,6 @@ export {
   type Slots,
   type SlotProps,
   type UserNavigationMetrics,
-  type OnUserNavigationCallback,
+  type OnTrackEventCallback,
 } from "./AuroraApp"
 export type { TrpcClient } from "./trpcClient"

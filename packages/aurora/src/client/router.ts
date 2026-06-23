@@ -12,7 +12,7 @@ export function createAuroraRouter(trpcReact: TrpcReact, trpcClient: TrpcClient)
       navItems: [],
       handleThemeToggle: undefined!,
       slots: undefined,
-      onUserNavigation: undefined,
+      onTrackEvent: undefined,
     },
   })
 }

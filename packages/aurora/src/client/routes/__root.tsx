@@ -4,7 +4,7 @@ import { MainNavigation } from "../components/navigation/MainNavigation"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
 import { NavigationItem } from "../components/navigation/types"
-import type { Slots, OnUserNavigationCallback } from "../AuroraApp"
+import type { Slots, OnTrackEventCallback } from "../AuroraApp"
 import styles from "../index.css?inline"
 import { InactivityModal } from "../components/Auth/InactivityModal"
 import { RouteError } from "../components/Error/RouteError"
@@ -21,7 +21,7 @@ export interface RouterContext {
   handleThemeToggle?: (theme: string) => void
   slots?: Slots
   appName?: string
-  onUserNavigation?: OnUserNavigationCallback
+  onTrackEvent?: OnTrackEventCallback
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -54,11 +54,11 @@ function AuroraLayout({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  const { onUserNavigation } = Route.useRouteContext()
+  const { onTrackEvent } = Route.useRouteContext()
 
   return (
     <AuroraLayout>
-      <UserNavigationTracker onUserNavigation={onUserNavigation} />
+      <UserNavigationTracker onTrackEvent={onTrackEvent} />
       <Outlet />
     </AuroraLayout>
   )

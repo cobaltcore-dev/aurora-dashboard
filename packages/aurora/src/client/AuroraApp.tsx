@@ -37,7 +37,7 @@ export type UserNavigationMetrics = {
  * Callback invoked when users interact with trackable features.
  * Use this to send analytics data about feature usage patterns.
  */
-export type OnUserNavigationCallback = (metrics: UserNavigationMetrics) => void
+export type OnTrackEventCallback = (metrics: UserNavigationMetrics) => void
 
 /** Props for the top-level `<AuroraApp />` component. */
 export type AuroraAppProps = {
@@ -57,7 +57,7 @@ export type AuroraAppProps = {
    *
    * @example
    * ```tsx
-   * function trackUserInteraction(metrics: UserNavigationMetrics) {
+   * function trackEvent(metrics: UserNavigationMetrics) {
    *   // Router navigation: metrics.action = "compute_images", metrics.source = "router"
    *   // External link: metrics.action = "documentation", metrics.source = "external-link"
    *   sendAnalytics('user-interaction', {
@@ -68,10 +68,10 @@ export type AuroraAppProps = {
    *   })
    * }
    *
-   * <AuroraApp onUserNavigation={trackUserInteraction} />
+   * <AuroraApp onTrackEvent={trackEvent} />
    * ```
    */
-  onUserNavigation?: OnUserNavigationCallback
+  onTrackEvent?: OnTrackEventCallback
 }
 
 export const AuroraApp: FC<AuroraAppProps> = App

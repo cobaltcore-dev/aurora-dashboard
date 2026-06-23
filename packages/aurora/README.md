@@ -68,14 +68,14 @@ export function App() {
 
 ### `<AuroraApp />`
 
-| Prop               | Type                            | Default          | Description                                                         |
-| ------------------ | ------------------------------- | ---------------- | ------------------------------------------------------------------- |
-| `bffEndpoint`      | `string`                        | `"/polaris-bff"` | Must match the server's `bffEndpoint`                               |
-| `theme`            | `"theme-light" \| "theme-dark"` | `"theme-light"`  | Initial theme                                                       |
-| `onThemeChange`    | `(theme) => void`               | —                | Called when the user toggles the theme                              |
-| `appName`          | `string`                        | `"Aurora"`       | App name shown in the header breadcrumb and logo                    |
-| `slots`            | `Slots`                         | —                | Optional UI extension points — see [Slots](#slots)                  |
-| `onUserNavigation` | `OnUserNavigationCallback`      | —                | Called on route changes for analytics — see [Analytics](#analytics) |
+| Prop            | Type                            | Default          | Description                                                             |
+| --------------- | ------------------------------- | ---------------- | ----------------------------------------------------------------------- |
+| `bffEndpoint`   | `string`                        | `"/polaris-bff"` | Must match the server's `bffEndpoint`                                   |
+| `theme`         | `"theme-light" \| "theme-dark"` | `"theme-light"`  | Initial theme                                                           |
+| `onThemeChange` | `(theme) => void`               | —                | Called when the user toggles the theme                                  |
+| `appName`       | `string`                        | `"Aurora"`       | App name shown in the header breadcrumb and logo                        |
+| `slots`         | `Slots`                         | —                | Optional UI extension points — see [Slots](#slots)                      |
+| `onTrackEvent`  | `OnTrackEventCallback`          | —                | Called on user interactions for analytics — see [Analytics](#analytics) |
 
 ## Slots
 
@@ -135,14 +135,14 @@ function MyBanner(_props: SlotProps) {
 
 ## Analytics
 
-Aurora provides an optional `onUserNavigation` callback to track user interactions and feature usage. The API is source-agnostic, supporting various event types like navigation, link clicks, and more.
+Aurora provides an optional `onTrackEvent` callback to track user interactions and feature usage. The API is source-agnostic, supporting various event types like navigation, link clicks, modals, and more.
 
 ### Basic usage
 
 ```tsx
 import { AuroraApp, type UserNavigationMetrics } from "@cobaltcore-dev/aurora/client"
 
-function trackUserInteraction(metrics: UserNavigationMetrics) {
+function trackEvent(metrics: UserNavigationMetrics) {
   // Example: Router navigation
   // metrics.source = "router"
   // metrics.action = "compute_images"
@@ -156,7 +156,7 @@ function trackUserInteraction(metrics: UserNavigationMetrics) {
   })
 }
 
-;<AuroraApp bffEndpoint="/polaris-bff" onUserNavigation={trackUserInteraction} />
+;<AuroraApp bffEndpoint="/polaris-bff" onTrackEvent={trackEvent} />
 ```
 
 ### UserNavigationMetrics

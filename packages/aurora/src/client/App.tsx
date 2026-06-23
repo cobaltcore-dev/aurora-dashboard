@@ -10,7 +10,7 @@ import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
-import type { Slots, OnUserNavigationCallback } from "./AuroraApp"
+import type { Slots, OnTrackEventCallback } from "./AuroraApp"
 import { messages as enMessages } from "../locales/en/messages"
 
 // Initialise i18n here so AuroraApp is self-contained and consumers don't need
@@ -24,7 +24,7 @@ type AppProps = {
   onThemeChange?: (theme: "theme-dark" | "theme-light") => void
   slots?: Slots
   appName?: string
-  onUserNavigation?: OnUserNavigationCallback
+  onTrackEvent?: OnTrackEventCallback
 }
 
 // Additional navigation items can be added here and will be passed to the layout via context
@@ -95,7 +95,7 @@ const App = (props: AppProps) => {
                   handleThemeToggle={handleThemeToggle}
                   slots={props.slots}
                   appName={props.appName}
-                  onUserNavigation={props.onUserNavigation}
+                  onTrackEvent={props.onTrackEvent}
                 />
               </AuthProvider>
             </QueryClientProvider>
@@ -112,14 +112,14 @@ function AppInner({
   handleThemeToggle,
   slots,
   appName,
-  onUserNavigation,
+  onTrackEvent,
 }: {
   router: ReturnType<typeof createAuroraRouter>
   navItems: NavigationItem[]
   handleThemeToggle: (theme: string) => void
   slots?: Slots
   appName?: string
-  onUserNavigation?: OnUserNavigationCallback
+  onTrackEvent?: OnTrackEventCallback
 }) {
   const auth = useAuth()
 
@@ -131,7 +131,7 @@ function AppInner({
     handleThemeToggle,
     slots,
     appName,
-    onUserNavigation,
+    onTrackEvent,
   }
 
   return <RouterProvider router={router} context={routerContext} />

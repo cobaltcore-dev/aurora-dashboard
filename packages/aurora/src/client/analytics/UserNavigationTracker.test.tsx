@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { render } from "@testing-library/react"
 import { createMemoryHistory, createRootRoute, createRoute, createRouter, RouterProvider } from "@tanstack/react-router"
 import { UserNavigationTracker } from "./UserNavigationTracker"
-import type { OnUserNavigationCallback, UserNavigationMetrics } from "../AuroraApp"
+import type { OnTrackEventCallback, UserNavigationMetrics } from "../AuroraApp"
 
 describe("UserNavigationTracker", () => {
   beforeEach(() => {
@@ -14,13 +14,13 @@ describe("UserNavigationTracker", () => {
     vi.useRealTimers()
   })
 
-  const createTestRouter = (onUserNavigation?: OnUserNavigationCallback) => {
+  const createTestRouter = (onTrackEvent?: OnTrackEventCallback) => {
     const memoryHistory = createMemoryHistory({
       initialEntries: ["/"],
     })
 
     const rootRoute = createRootRoute({
-      component: () => <UserNavigationTracker onUserNavigation={onUserNavigation} />,
+      component: () => <UserNavigationTracker onTrackEvent={onTrackEvent} />,
     })
 
     const indexRoute = createRoute({
@@ -63,7 +63,7 @@ describe("UserNavigationTracker", () => {
     return router
   }
 
-  it("should call onUserNavigation with correct metrics on route change", async () => {
+  it("should call onTrackEvent with correct metrics on route change", async () => {
     const mockCallback = vi.fn()
     const router = createTestRouter(mockCallback)
 
@@ -159,7 +159,7 @@ describe("UserNavigationTracker", () => {
 
     expect(mockCallback).toHaveBeenCalled()
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "[Aurora Analytics] Error in onUserNavigation callback:",
+      "[Aurora Analytics] Error in onTrackEvent callback:",
       expect.any(Error)
     )
   })
@@ -177,12 +177,12 @@ describe("UserNavigationTracker", () => {
 
     expect(mockCallback).toHaveBeenCalled()
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "[Aurora Analytics] Error in onUserNavigation callback:",
+      "[Aurora Analytics] Error in onTrackEvent callback:",
       expect.any(Error)
     )
   })
 
-  it("should not call callback when onUserNavigation is undefined", async () => {
+  it("should not call callback when onTrackEvent is undefined", async () => {
     const router = createTestRouter(undefined)
 
     // Should not throw
