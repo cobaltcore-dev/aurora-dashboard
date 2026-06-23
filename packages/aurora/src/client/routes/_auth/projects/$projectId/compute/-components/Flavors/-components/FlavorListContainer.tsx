@@ -15,7 +15,7 @@ import {
 import { Trans } from "@lingui/react/macro"
 import { useLingui } from "@lingui/react/macro"
 import { DeleteFlavorModal } from "./DeleteFlavorModal"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { EditSpecModal } from "./EditSpecModal"
 import { ManageAccessModal } from "./ManageAccessModal"
@@ -57,6 +57,10 @@ export const FlavorListContainer = ({
   const [accessModalOpen, setAccessModalOpen] = useState(false)
   const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
   const [inputPage, setInputPage] = useState<string>(currentPage.toString())
+
+  useEffect(() => {
+    setInputPage(currentPage.toString())
+  }, [currentPage])
 
   const { projectId } = useParams({
     from: "/_auth/projects/$projectId/compute/flavors/",
@@ -100,14 +104,16 @@ export const FlavorListContainer = ({
   if (isLoading) {
     return (
       <div data-testid="loading">
-        <DataGridRow>
-          <DataGridCell colSpan={3}>
-            <Stack distribution="center" alignment="center">
-              <Spinner variant="primary" />
-              <Trans>Loading...</Trans>
-            </Stack>
-          </DataGridCell>
-        </DataGridRow>
+        <div data-testid="loading">
+          <DataGridRow>
+            <DataGridCell colSpan={3}>
+              <Stack distribution="center" alignment="center">
+                <Spinner variant="primary" />
+                <Trans>Loading...</Trans>
+              </Stack>
+            </DataGridCell>
+          </DataGridRow>
+        </div>
       </div>
     )
   }
@@ -174,7 +180,7 @@ export const FlavorListContainer = ({
             <DataGridCell>{flavor.disk || "–"}</DataGridCell>
             <DataGridCell>{flavor.swap || "–"}</DataGridCell>
             <DataGridCell>{flavor["os-flavor-access:is_public"] === false ? t`Private` : t`Public`}</DataGridCell>
-            <DataGridCell onClick={(e: React.KeyboardEvent<HTMLInputElement>) => e.stopPropagation()}>
+            <DataGridCell onClick={(e) => e.stopPropagation()}>
               <PopupMenu>
                 <PopupMenuOptions>
                   <PopupMenuItem
@@ -220,12 +226,13 @@ export const FlavorListContainer = ({
               setInputPage(newInputPage)
             }}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === "Enter") {
-                const trimmedInput = inputPage.trim()
-                const newPage = parseInt(trimmedInput, 10)
-                if (!isNaN(newPage)) {
-                  updateCurrentPage(newPage) // Only if conversion succeeds
+              if (e.key === "Enter" && inputPage !== "") {
+                const newPage = parseInt(inputPage, 10)
+                // Only if conversion succeeds
+                if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
+                  updateCurrentPage(newPage)
                 }
+                // Empty or invalid input does not reset
               }
             }}
           />
