@@ -21,22 +21,20 @@ export type Slots = {
 }
 
 /**
- * User navigation metadata for analytics and behavioral tracking.
- * Contains route information to track which features users are accessing.
+ * User interaction metadata for analytics and behavioral tracking.
+ * Generic structure that supports multiple event sources (router, links, modals, etc.)
  */
 export type UserNavigationMetrics = {
-  /** High-level section (e.g., "compute", "network", "storage") */
-  section: string
-  /** Specific service within the section (e.g., "images", "flavors") */
-  service: string
-  /** Full URL pathname */
-  pathname: string
-  /** Internal route identifier */
-  routeId?: string
+  /** Source of the event (e.g., "router", "external-link", "modal", "button") */
+  source: string
+  /** Action identifier describing what happened (e.g., "compute_images", "download_certificate", "open_settings") */
+  action: string
+  /** Additional context specific to the source. For router: pathname, routeId. For links: href, target. */
+  metadata?: Record<string, string | number | boolean | undefined>
 }
 
 /**
- * Callback invoked when users navigate to track behavioral metrics.
+ * Callback invoked when users interact with trackable features.
  * Use this to send analytics data about feature usage patterns.
  */
 export type OnUserNavigationCallback = (metrics: UserNavigationMetrics) => void
@@ -54,17 +52,23 @@ export type AuroraAppProps = {
   /** App name shown in the header breadcrumb and as the default logo title. Defaults to `"Aurora"`. */
   appName?: string
   /**
-   * Analytics callback for tracking user navigation and feature usage.
-   * Called whenever a user navigates to a route with section/service metadata.
+   * Analytics callback for tracking user interactions and feature usage.
+   * Called for various user actions like navigation, external link clicks, etc.
    *
    * @example
    * ```tsx
-   * function trackUserNavigation(metrics: UserNavigationMetrics) {
-   *   const feature = `${metrics.section}_${metrics.service}`
-   *   sendAnalytics('feature-usage', { feature, timestamp: Date.now() })
+   * function trackUserInteraction(metrics: UserNavigationMetrics) {
+   *   // Router navigation: metrics.action = "compute_images", metrics.source = "router"
+   *   // External link: metrics.action = "documentation", metrics.source = "external-link"
+   *   sendAnalytics('user-interaction', {
+   *     action: metrics.action,
+   *     source: metrics.source,
+   *     ...metrics.metadata,
+   *     timestamp: Date.now()
+   *   })
    * }
    *
-   * <AuroraApp onUserNavigation={trackUserNavigation} />
+   * <AuroraApp onUserNavigation={trackUserInteraction} />
    * ```
    */
   onUserNavigation?: OnUserNavigationCallback

@@ -45,10 +45,14 @@ export function UserNavigationTracker({ onUserNavigation }: { onUserNavigation?:
       // Only track routes with complete feature identification
       if (section && service) {
         const metrics: UserNavigationMetrics = {
-          section,
-          service,
-          pathname,
-          routeId: activeMatch.routeId,
+          source: "router",
+          action: `${section}_${service}`,
+          metadata: {
+            pathname,
+            routeId: activeMatch.routeId,
+            section,
+            service,
+          },
         }
 
         // Clear any pending callback to avoid duplicate tracking on rapid navigation

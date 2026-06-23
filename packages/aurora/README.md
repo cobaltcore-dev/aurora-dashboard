@@ -135,44 +135,55 @@ function MyBanner(_props: SlotProps) {
 
 ## Analytics
 
-Aurora provides an optional `onUserNavigation` callback to track which features users are accessing. This enables behavioral analytics and usage metrics collection.
+Aurora provides an optional `onUserNavigation` callback to track user interactions and feature usage. The API is source-agnostic, supporting various event types like navigation, link clicks, and more.
 
 ### Basic usage
 
 ```tsx
 import { AuroraApp, type UserNavigationMetrics } from "@cobaltcore-dev/aurora/client"
 
-function trackUserNavigation(metrics: UserNavigationMetrics) {
-  const feature = `${metrics.section}_${metrics.service}`
+function trackUserInteraction(metrics: UserNavigationMetrics) {
+  // Example: Router navigation
+  // metrics.source = "router"
+  // metrics.action = "compute_images"
+  // metrics.metadata = { pathname: "/compute/images", section: "compute", service: "images" }
 
-  // Send to your analytics service
-  sendAnalytics("feature-usage", {
-    feature,
-    pathname: metrics.pathname,
+  sendAnalytics("user-interaction", {
+    source: metrics.source,
+    action: metrics.action,
+    ...metrics.metadata,
     timestamp: Date.now(),
   })
 }
 
-;<AuroraApp bffEndpoint="/polaris-bff" onUserNavigation={trackUserNavigation} />
+;<AuroraApp bffEndpoint="/polaris-bff" onUserNavigation={trackUserInteraction} />
 ```
 
 ### UserNavigationMetrics
 
 The callback receives a `UserNavigationMetrics` object with the following fields:
 
-| Field      | Type     | Description                                                 |
-| ---------- | -------- | ----------------------------------------------------------- |
-| `section`  | `string` | High-level feature section (e.g., "compute", "network")     |
-| `service`  | `string` | Specific service within section (e.g., "images", "flavors") |
-| `pathname` | `string` | Full URL pathname                                           |
-| `routeId`  | `string` | Internal route identifier (optional)                        |
+| Field      | Type                                          | Description                                                                                   |
+| ---------- | --------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `source`   | `string`                                      | Event source (e.g., "router", "external-link", "modal")                                       |
+| `action`   | `string`                                      | Action identifier (e.g., "compute_images", "download_certificate")                            |
+| `metadata` | `Record<string, string \| number \| boolean>` | Source-specific context (e.g., pathname, routeId for router; href, target for external links) |
+
+### Built-in tracking sources
+
+#### Router navigation (`source: "router"`)
+
+Automatically tracked when users navigate between routes with `section` and `service` metadata:
+
+- `action`: `"{section}_{service}"` (e.g., "compute_images", "network_security_groups")
+- `metadata`: Contains `pathname`, `routeId`, `section`, and `service`
 
 ### Implementation notes
 
 - The callback is executed **asynchronously** to prevent blocking the UI
 - Rapid navigation is **debounced** to avoid duplicate tracking
 - Errors in your callback are **caught and logged** to prevent breaking the app
-- The callback is only invoked for routes with complete `section` and `service` metadata
+- Router tracking only fires for routes with complete `section` and `service` metadata
 
 ## License
 
