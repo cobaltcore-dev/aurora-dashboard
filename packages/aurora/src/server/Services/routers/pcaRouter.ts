@@ -5,6 +5,7 @@ import { omit } from "@/server/helpers/object"
 import { parseOrThrow } from "@/server/Network/helpers"
 import {
   CertificateAuthoritiesListSchema,
+  CertificateAuthoritiesListInputSchema,
   CertificateAuthoritySchema,
   CertificateAuthorityIdInputSchema,
   CertificatesListSchema,
@@ -21,18 +22,25 @@ import {
 const PCA_BASE_URL = "certificate-authorities"
 
 export const pcaRouter = {
-  list: projectScopedProcedure.query(async ({ ctx }): Promise<CertificateAuthority[]> => {
-    return withErrorHandling(async () => {
-      // Use "pca" or "clavis" when the service will be GA as "clavis-beta" and "clavis-dev" are dev keys.
-      const pca = ctx.openstack?.service("pca")
-      validateOpenstackService(pca, "pca")
+  list: projectScopedProcedure
+    .input(CertificateAuthoritiesListInputSchema)
+    .query(async ({ input, ctx }): Promise<CertificateAuthority[]> => {
+      return withErrorHandling(async () => {
+        // Use "pca" or "clavis" when the service will be GA as "clavis-beta" and "clavis-dev" are dev keys.
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
-      const response = await pca.get(PCA_BASE_URL)
-      const data = await response.json()
+        const queryParams = new URLSearchParams()
+        if (input.limit !== undefined) queryParams.set("limit", String(input.limit))
+        if (input.next_page_marker !== undefined) queryParams.set("next_page_marker", input.next_page_marker)
+        const url = queryParams.size > 0 ? `${PCA_BASE_URL}?${queryParams.toString()}` : PCA_BASE_URL
 
-      return parseOrThrow(CertificateAuthoritiesListSchema, data, "pcaRouter.list").certificate_authorities
-    }, "list certificate authorities")
-  }),
+        const response = await pca.get(url)
+        const data = await response.json()
+
+        return parseOrThrow(CertificateAuthoritiesListSchema, data, "pcaRouter.list").certificate_authorities
+      }, "list certificate authorities")
+    }),
   /**
    * Creates a new Certificate Authority (CA).
    * The CA is created in CREATING state and transitions to AWAITING_CERTIFICATE state once its CSR has been generated.

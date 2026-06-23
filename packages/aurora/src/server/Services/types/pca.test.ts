@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   CertificateAuthoritiesListSchema,
+  CertificateAuthoritiesListInputSchema,
   CertificateAuthorityCreateSchema,
   CertificateAuthorityImportInputSchema,
   CertificateAuthoritySchema,
@@ -702,6 +703,57 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       }
 
       expect(CertificateAuthoritiesListSchema.safeParse(realWorldResponse).success).toBe(true)
+    })
+  })
+
+  describe("CertificateAuthoritiesListInputSchema", () => {
+    it("should validate with only required project_id", () => {
+      expect(
+        CertificateAuthoritiesListInputSchema.safeParse({
+          project_id: "project-1",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should validate with optional pagination fields", () => {
+      expect(
+        CertificateAuthoritiesListInputSchema.safeParse({
+          project_id: "project-1",
+          limit: 100,
+          next_page_marker: "opaque-marker",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject limit lower than minimum", () => {
+      expect(
+        CertificateAuthoritiesListInputSchema.safeParse({
+          project_id: "project-1",
+          limit: 0,
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject limit greater than maximum", () => {
+      expect(
+        CertificateAuthoritiesListInputSchema.safeParse({
+          project_id: "project-1",
+          limit: 1001,
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject empty next_page_marker", () => {
+      expect(
+        CertificateAuthoritiesListInputSchema.safeParse({
+          project_id: "project-1",
+          next_page_marker: "",
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject input without project_id", () => {
+      expect(CertificateAuthoritiesListInputSchema.safeParse({ limit: 10 }).success).toBe(false)
     })
   })
 

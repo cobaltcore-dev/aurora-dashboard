@@ -121,7 +121,7 @@ const createMockContext = (opts?: {
       responseBody = getByIdCertificateParseError ? { invalid: true } : validGetByIdCertificateResponse
     } else if (url.includes("/certificates")) {
       responseBody = certificateParseError ? { invalid: true } : validCertificatesResponse
-    } else if (url === "certificate-authorities") {
+    } else if (url === "certificate-authorities" || url.startsWith("certificate-authorities?")) {
       responseBody = parseError ? { invalid: true } : validListResponse
     } else {
       responseBody = getByIdParseError ? { invalid: true } : validGetByIdResponse
@@ -204,6 +204,20 @@ describe("pcaRouter", () => {
       expect(result).toEqual(validListResponse.certificate_authorities)
       expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
       expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities")
+    })
+
+    it("forwards pagination query params for list requests", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx as never)
+
+      const result = await caller.services.pca.list({
+        project_id: TEST_PROJECT_ID,
+        limit: 10,
+        next_page_marker: "next-marker",
+      })
+
+      expect(result).toEqual(validListResponse.certificate_authorities)
+      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities?limit=10&next_page_marker=next-marker")
     })
 
     it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {

@@ -1,4 +1,5 @@
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useEffect, useMemo, useState } from "react"
 import {
   Stack,
   Spinner,
@@ -8,6 +9,7 @@ import {
   ContentHeading,
   DataGridHeadCell,
   Button,
+  Pagination,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
@@ -16,14 +18,33 @@ import { TABLE_COLUMNS } from "./-table/constants"
 import { PcaTableRow } from "./-table/PcaTableRow"
 import { CreatePcaModal } from "./-modals/CreatePcaModal"
 
+const ITEMS_PER_PAGE = 50
+
 export const PcaListContainer = () => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const columns = TABLE_COLUMNS()
   const columnsLength = columns.length
   const [createCaOpen, toggleCreateCa] = useModal(false)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const { data: pcas = [], isLoading, isError, error } = trpcReact.services.pca.list.useQuery({ project_id: projectId })
+  const totalPages = Math.max(1, Math.ceil(pcas.length / ITEMS_PER_PAGE))
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [projectId])
+
+  const paginatedPcas = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    return pcas.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  }, [currentPage, pcas])
 
   if (isLoading) {
     return (
@@ -70,10 +91,23 @@ export const PcaListContainer = () => {
             <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
           ))}
         </DataGridRow>
-        {pcas.map((pca) => (
+        {paginatedPcas.map((pca) => (
           <PcaTableRow key={pca.id} pca={pca} />
         ))}
       </DataGrid>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center py-4">
+          <Pagination
+            variant="input"
+            currentPage={currentPage}
+            pages={totalPages}
+            onPressPrevious={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))}
+            onPressNext={() => setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))}
+            onSelectChange={(page) => setCurrentPage(page)}
+          />
+        </div>
+      )}
 
       {createCaOpen && <CreatePcaModal open={createCaOpen} onClose={toggleCreateCa} />}
     </div>

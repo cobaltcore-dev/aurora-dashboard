@@ -77,6 +77,13 @@ export const CertificateAuthoritiesListSchema = z.object({
   certificate_authorities: z.array(CertificateAuthoritySchema),
 })
 
+// Used by: /v1/certificate-authorities - List Certificate Authorities
+export const CertificateAuthoritiesListInputSchema = z.object({
+  project_id: z.string(),
+  limit: z.number().int().min(1).max(1000).optional(),
+  next_page_marker: z.string().min(1).optional(),
+})
+
 // Used by: /v1/certificate-authorities - Create new Certificate Authority
 export const CertificateAuthorityCreateSchema = z.object({
   configuration: z.object({
