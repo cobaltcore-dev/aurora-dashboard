@@ -11,7 +11,6 @@ import { RouteError } from "../components/Error/RouteError"
 import { useLingui } from "@lingui/react/macro"
 import { StatusError } from "../components/Error/StatusError"
 import { Slot } from "../components/Slot"
-import { UserNavigationTracker } from "../analytics/UserNavigationTracker"
 
 export interface RouterContext {
   trpcReact: TrpcReact
@@ -54,11 +53,8 @@ function AuroraLayout({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  const { onTrackEvent } = Route.useRouteContext()
-
   return (
     <AuroraLayout>
-      <UserNavigationTracker onTrackEvent={onTrackEvent} />
       <Outlet />
     </AuroraLayout>
   )

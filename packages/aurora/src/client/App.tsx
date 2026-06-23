@@ -12,6 +12,7 @@ import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
 import type { Slots, OnTrackEventCallback } from "./AuroraApp"
 import { messages as enMessages } from "../locales/en/messages"
+import { setupRouterAnalytics } from "./analytics/setupRouterAnalytics"
 
 // Initialise i18n here so AuroraApp is self-contained and consumers don't need
 // to set up Lingui before mounting the component.
@@ -37,6 +38,11 @@ const App = (props: AppProps) => {
   }, [props.bffEndpoint])
 
   const [router] = useState(() => createAuroraRouter(trpcReact, trpcClient))
+
+  // Set up analytics tracking for router navigation
+  useEffect(() => {
+    return setupRouterAnalytics(router)
+  }, [router])
 
   const [currentTheme, setCurrentTheme] = useState<"theme-dark" | "theme-light">(props.theme ?? "theme-light")
 

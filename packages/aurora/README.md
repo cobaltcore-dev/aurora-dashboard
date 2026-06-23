@@ -140,18 +140,18 @@ Aurora provides an optional `onTrackEvent` callback to track user interactions a
 ### Basic usage
 
 ```tsx
-import { AuroraApp, type UserNavigationMetrics } from "@cobaltcore-dev/aurora/client"
+import { AuroraApp, type TrackEventPayload } from "@cobaltcore-dev/aurora/client"
 
-function trackEvent(metrics: UserNavigationMetrics) {
-  // Example: Router navigation
-  // metrics.source = "router"
-  // metrics.action = "compute_images"
-  // metrics.metadata = { pathname: "/compute/images", section: "compute", service: "images" }
+function trackEvent(payload: TrackEventPayload) {
+  // Router navigation example:
+  // payload.source = "router"
+  // payload.action = "/_auth/projects/$projectId/compute/images"
+  // payload.metadata = { pathname: "/projects/abc/compute/images", section: "compute", service: "images" }
 
   sendAnalytics("user-interaction", {
-    source: metrics.source,
-    action: metrics.action,
-    ...metrics.metadata,
+    source: payload.source,
+    action: payload.action,
+    ...payload.metadata,
     timestamp: Date.now(),
   })
 }
@@ -159,31 +159,71 @@ function trackEvent(metrics: UserNavigationMetrics) {
 ;<AuroraApp bffEndpoint="/polaris-bff" onTrackEvent={trackEvent} />
 ```
 
-### UserNavigationMetrics
+### TrackEventPayload
 
-The callback receives a `UserNavigationMetrics` object with the following fields:
+The callback receives a `TrackEventPayload` object with the following fields:
 
-| Field      | Type                                                       | Description                                                                                   |
-| ---------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `source`   | `string`                                                   | Event source (e.g., "router", "external-link", "modal")                                       |
-| `action`   | `string`                                                   | Action identifier (e.g., "compute_images", "download_certificate")                            |
-| `metadata` | `Record<string, string \| number \| boolean \| undefined>` | Source-specific context (e.g., pathname, routeId for router; href, target for external links) |
+| Field      | Type                                                       | Description                                                              |
+| ---------- | ---------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `source`   | `string`                                                   | Event source (e.g., "router", "external-link", "modal")                  |
+| `action`   | `string`                                                   | Action identifier (e.g., route ID, button name, link URL)                |
+| `metadata` | `Record<string, string \| number \| boolean \| undefined>` | Source-specific context (pathname, section, service, href, target, etc.) |
 
 ### Built-in tracking sources
 
 #### Router navigation (`source: "router"`)
 
-Automatically tracked when users navigate between routes with `section` and `service` metadata:
+Automatically tracked when users navigate between routes. Fires on every route change via TanStack Router's `onResolved` event.
 
-- `action`: `"{section}_{service}"` (e.g., "compute_images", "network_security_groups")
-- `metadata`: Contains `pathname`, `routeId`, `section`, and `service`
+- **`action`**: Route ID (e.g., `"/_auth/projects/$projectId/compute/images"`)
+- **`metadata`**: Always includes `pathname`; optionally includes `section` and `service` if the route defines them in `staticData`
+
+**Example event:**
+
+```javascript
+{
+  source: "router",
+  action: "/_auth/projects/$projectId/compute/images",
+  metadata: {
+    pathname: "/projects/my-project/compute/images",
+    section: "compute",    // Optional: from route staticData
+    service: "images"      // Optional: from route staticData
+  }
+}
+```
+
+### Extending with custom tracking
+
+The `onTrackEvent` callback is available in the router context, allowing any component to track custom interactions:
+
+```tsx
+import { useRouteContext } from "@tanstack/react-router"
+
+function MyComponent() {
+  const { onTrackEvent } = useRouteContext()
+
+  const handleExternalLinkClick = (href: string) => {
+    onTrackEvent?.({
+      source: "external-link",
+      action: href,
+      metadata: { target: "_blank" },
+    })
+  }
+
+  return (
+    <a href="https://docs.example.com" onClick={() => handleExternalLinkClick("https://docs.example.com")}>
+      Docs
+    </a>
+  )
+}
+```
 
 ### Implementation notes
 
-- The callback is executed **asynchronously** to prevent blocking the UI
-- Rapid navigation is **debounced** to avoid duplicate tracking
-- Errors in your callback are **caught and logged** to prevent breaking the app
-- Router tracking only fires for routes with complete `section` and `service` metadata
+- Router events are tracked via subscription to TanStack Router's `onResolved` event
+- Automatic deduplication - fires once per navigation
+- Errors in your callback are caught and logged to prevent breaking the app
+- The callback executes **after** navigation completes
 
 ## License
 

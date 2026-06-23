@@ -3,7 +3,7 @@ export {
   type AuroraAppProps,
   type Slots,
   type SlotProps,
-  type UserNavigationMetrics,
+  type TrackEventPayload,
   type OnTrackEventCallback,
 } from "./AuroraApp"
 export type { TrpcClient } from "./trpcClient"

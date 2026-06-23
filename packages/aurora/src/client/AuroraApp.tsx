@@ -21,15 +21,15 @@ export type Slots = {
 }
 
 /**
- * User interaction metadata for analytics and behavioral tracking.
+ * Payload for analytics tracking events.
  * Generic structure that supports multiple event sources (router, links, modals, etc.)
  */
-export type UserNavigationMetrics = {
+export type TrackEventPayload = {
   /** Source of the event (e.g., "router", "external-link", "modal", "button") */
   source: string
-  /** Action identifier describing what happened (e.g., "compute_images", "download_certificate", "open_settings") */
+  /** Action identifier describing what happened (e.g., route ID, button name, link URL) */
   action: string
-  /** Additional context specific to the source. For router: pathname, routeId. For links: href, target. */
+  /** Additional context specific to the source. For router: pathname, section, service. For links: href, target. */
   metadata?: Record<string, string | number | boolean | undefined>
 }
 
@@ -37,7 +37,7 @@ export type UserNavigationMetrics = {
  * Callback invoked when users interact with trackable features.
  * Use this to send analytics data about feature usage patterns.
  */
-export type OnTrackEventCallback = (metrics: UserNavigationMetrics) => void
+export type OnTrackEventCallback = (payload: TrackEventPayload) => void
 
 /** Props for the top-level `<AuroraApp />` component. */
 export type AuroraAppProps = {
@@ -57,13 +57,13 @@ export type AuroraAppProps = {
    *
    * @example
    * ```tsx
-   * function trackEvent(metrics: UserNavigationMetrics) {
-   *   // Router navigation: metrics.action = "compute_images", metrics.source = "router"
-   *   // External link: metrics.action = "documentation", metrics.source = "external-link"
+   * function trackEvent(payload: TrackEventPayload) {
+   *   // Router navigation: payload.action = "/_auth/projects/$projectId/compute/images"
+   *   // External link: payload.action = "https://docs.example.com"
    *   sendAnalytics('user-interaction', {
-   *     action: metrics.action,
-   *     source: metrics.source,
-   *     ...metrics.metadata,
+   *     action: payload.action,
+   *     source: payload.source,
+   *     ...payload.metadata,
    *     timestamp: Date.now()
    *   })
    * }
