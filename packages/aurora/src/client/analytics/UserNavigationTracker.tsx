@@ -32,6 +32,7 @@ export function UserNavigationTracker({ onUserNavigation }: { onUserNavigation?:
   const matches = useMatches()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const timeoutRef = useRef<number | null>(null)
+  const lastRouteKeyRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!onUserNavigation) return
@@ -44,6 +45,16 @@ export function UserNavigationTracker({ onUserNavigation }: { onUserNavigation?:
 
       // Only track routes with complete feature identification
       if (section && service) {
+        // Create a unique key for this route to prevent duplicate emissions
+        const routeKey = `${activeMatch.routeId}:${pathname}`
+
+        // Skip if this is the same route (prevents duplicate emissions when callback reference changes)
+        if (lastRouteKeyRef.current === routeKey) {
+          return
+        }
+
+        lastRouteKeyRef.current = routeKey
+
         const metrics: UserNavigationMetrics = {
           source: "router",
           action: `${section}_${service}`,
@@ -62,13 +73,16 @@ export function UserNavigationTracker({ onUserNavigation }: { onUserNavigation?:
 
         // Execute callback asynchronously to prevent blocking the UI
         timeoutRef.current = window.setTimeout(() => {
-          try {
-            onUserNavigation(metrics)
-          } catch (error) {
-            // Catch errors to prevent consumer's tracking logic from breaking the app (errors are logged)
-            console.error("[Aurora Analytics] Error in onUserNavigation callback:", error)
-          }
-          timeoutRef.current = null
+          // Wrap in Promise.resolve to handle both sync and async callbacks
+          Promise.resolve()
+            .then(() => onUserNavigation(metrics))
+            .catch((error) => {
+              // Catch both sync and async errors to prevent consumer's tracking logic from breaking the app
+              console.error("[Aurora Analytics] Error in onUserNavigation callback:", error)
+            })
+            .finally(() => {
+              timeoutRef.current = null
+            })
         }, 0)
       }
     }
