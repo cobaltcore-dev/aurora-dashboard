@@ -109,6 +109,11 @@ vi.mock("@/client/trpcClient", () => {
                 invalidate: vi.fn(),
               },
             },
+            bucketPolicy: {
+              get: {
+                invalidate: vi.fn(),
+              },
+            },
           },
         },
       })),
@@ -162,6 +167,22 @@ vi.mock("@/client/trpcClient", () => {
               })),
             },
             setStatus: {
+              useMutation: mockUseMutation,
+            },
+          },
+          bucketPolicy: {
+            get: {
+              useQuery: vi.fn(() => ({
+                data: { policy: null, policyText: null },
+                isLoading: false,
+                error: null,
+                trpc: {},
+              })),
+            },
+            set: {
+              useMutation: mockUseMutation,
+            },
+            delete: {
               useMutation: mockUseMutation,
             },
           },

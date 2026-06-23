@@ -19,7 +19,6 @@ export function NotificationText({ title, description }: NotificationTextProps) 
 
 interface ToastConfig {
   onDismiss: () => void
-  autoDismissTimeout?: number
 }
 
 export const getContainerCreatedToast = (containerName: string, config: ToastConfig): ToastProps => ({
@@ -30,8 +29,6 @@ export const getContainerCreatedToast = (containerName: string, config: ToastCon
       description={<Trans>Container "{containerName}" was successfully created.</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -51,8 +48,6 @@ export const getContainerCreateErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -80,8 +75,6 @@ export const getContainerEmptiedToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -101,8 +94,6 @@ export const getContainerEmptyErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -114,8 +105,6 @@ export const getContainerDeletedToast = (containerName: string, config: ToastCon
       description={<Trans>Container "{containerName}" was successfully deleted.</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -135,8 +124,6 @@ export const getContainerDeleteErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -148,8 +135,6 @@ export const getContainerUpdatedToast = (containerName: string, config: ToastCon
       description={<Trans>Container "{containerName}" properties were successfully updated.</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -169,8 +154,6 @@ export const getContainerUpdateErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -182,8 +165,6 @@ export const getContainerAclUpdatedToast = (containerName: string, config: Toast
       description={<Trans>ACLs for container "{containerName}" were successfully updated.</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -203,8 +184,6 @@ export const getContainerAclUpdateErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -229,8 +208,6 @@ export const getContainersEmptiedToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -246,8 +223,6 @@ export const getContainersEmptyErrorToast = (errorMessage: string, config: Toast
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 export const getContainersEmptyCompleteToast = (
@@ -295,8 +270,6 @@ export const getContainersEmptyCompleteToast = (
         }
       />
     ),
-    autoDismiss: true,
-    autoDismissTimeout: config.autoDismissTimeout ?? 5000,
     onDismiss: config.onDismiss,
   }
 }

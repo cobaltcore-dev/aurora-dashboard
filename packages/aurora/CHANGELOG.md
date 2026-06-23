@@ -1,5 +1,24 @@
 # @cobaltcore-dev/aurora
 
+## 0.6.0
+
+### Minor Changes
+
+- 0f4de1b: Adds UI for managing Bucket Policy in Object Storage Ceph
+
+### Patch Changes
+
+- 8185a39: Use SideNavigationGroup for Compute/Network/Storage/Services section headers, bump juno-ui-components to 8.1.0, and remove domain/project breadcrumb from the page header.
+- 8185a39: Add domain/project context block to side navigation, replacing the home item.
+- 96fe087: Hide the Ceph (Object Storage) navigation item when the Ceph service is not available. The item is now gated on the service-discovery result and the route is guarded so direct navigation when the service is absent no longer leads to a broken view.
+- 9f9015a: Fix cookie name configuration not being respected from env var. `DASHBOARD_COOKIE_NAME`, `ENABLE_CROSS_DASHBOARD_COOKIE`, and `INSECURE_COOKIES` env vars are now correctly forwarded by the OSS consumer. The default cookie name is defined once in `SessionCookie` and exported as `DEFAULT_COOKIE_NAME` for use throughout the package.
+- aa91ba8: Ceph object storage UI fixes and storage-route improvements:
+  - Add an "All buckets" breadcrumb in the object browser so users can navigate directly back to the bucket list.
+  - Introduce a dynamic `storageType` route segment (`buckets` for Ceph, `containers` for Swift) and enforce the canonical segment per provider, redirecting non-canonical URLs.
+  - Always pass the required `storageType` parameter when navigating back to the bucket/container list, preventing a runtime navigation failure.
+  - Scope the bucket list "select all" to the currently visible rows so selections hidden by an active search filter are no longer dropped.
+  - Align Ceph terminology with S3 ("container" → "bucket") across types, UI, and locale strings.
+
 ## 0.5.0
 
 ### Minor Changes
