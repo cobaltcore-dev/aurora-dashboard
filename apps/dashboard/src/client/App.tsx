@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { AuroraApp, type TrackEventPayload } from "@cobaltcore-dev/aurora/client"
+import { AuroraApp } from "@cobaltcore-dev/aurora/client"
 
 const THEME_KEY = "dashboard-theme"
 
@@ -13,16 +13,5 @@ export function App() {
     localStorage.setItem(THEME_KEY, newTheme)
   }
 
-  const handleTrackEvent = (payload: TrackEventPayload) => {
-    console.log("📊 Analytics:", payload)
-  }
-
-  return (
-    <AuroraApp
-      bffEndpoint={import.meta.env.VITE_BFF_ENDPOINT}
-      theme={theme}
-      onThemeChange={handleThemeChange}
-      onTrackEvent={handleTrackEvent}
-    />
-  )
+  return <AuroraApp bffEndpoint={import.meta.env.VITE_BFF_ENDPOINT} theme={theme} onThemeChange={handleThemeChange} />
 }
