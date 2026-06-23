@@ -222,17 +222,17 @@ export const FlavorListContainer = ({
             pages={totalPages}
             onPressPrevious={() => updateCurrentPage(Math.max(currentPage - 1, 1))}
             onPressNext={() => updateCurrentPage(Math.min(currentPage + 1, totalPages))}
-            onInputChange={(newInputPage: string) => {
-              setInputPage(newInputPage)
+            onInputChange={(newInputPage: number | undefined) => {
+              if (newInputPage !== undefined) {
+                setInputPage(newInputPage.toString())
+              }
             }}
             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === "Enter" && inputPage !== "") {
                 const newPage = parseInt(inputPage, 10)
-                // Only if conversion succeeds
                 if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
                   updateCurrentPage(newPage)
                 }
-                // Empty or invalid input does not reset
               }
             }}
           />
