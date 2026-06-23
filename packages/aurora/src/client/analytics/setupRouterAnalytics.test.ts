@@ -6,6 +6,7 @@ describe("setupRouterAnalytics", () => {
     onTrackEvent?: ReturnType<typeof vi.fn>
     matches?: Array<{ routeId: string; staticData?: Record<string, unknown> }>
     pathname?: string
+    search?: string
   }) => {
     const subscribers: Array<() => void> = []
 
@@ -29,6 +30,7 @@ describe("setupRouterAnalytics", () => {
         matches: options.matches ?? [],
         location: {
           pathname: options.pathname ?? "/",
+          searchStr: options.search ?? "",
         },
       },
       // Helper to trigger the onResolved event
@@ -192,7 +194,40 @@ describe("setupRouterAnalytics", () => {
       action: "/_auth/projects/$projectId/network",
       metadata: {
         pathname: "/projects/abc-123/network",
+        search: undefined,
         section: "network",
+      },
+    })
+  })
+
+  it("should include search params in metadata when present", () => {
+    const onTrackEvent = vi.fn()
+    const mockRouter = createMockRouter({
+      onTrackEvent,
+      matches: [
+        {
+          routeId: "/_auth/projects/$projectId/compute/images",
+          staticData: {
+            section: "compute",
+            service: "images",
+          },
+        },
+      ],
+      pathname: "/projects/abc-123/compute/images",
+      search: "?memberStatus=accepted",
+    })
+
+    setupRouterAnalytics(mockRouter as unknown as Parameters<typeof setupRouterAnalytics>[0])
+    mockRouter._triggerOnResolved()
+
+    expect(onTrackEvent).toHaveBeenCalledWith({
+      source: "router",
+      action: "/_auth/projects/$projectId/compute/images",
+      metadata: {
+        pathname: "/projects/abc-123/compute/images",
+        search: "?memberStatus=accepted",
+        section: "compute",
+        service: "images",
       },
     })
   })
@@ -217,5 +252,28 @@ describe("setupRouterAnalytics", () => {
     // Trigger again after unsubscribe
     mockRouter._triggerOnResolved()
     expect(onTrackEvent).toHaveBeenCalledTimes(1) // Should still be 1
+  })
+
+  it("should catch and log errors thrown by onTrackEvent callback", () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    const error = new Error("Analytics service unavailable")
+    const onTrackEvent = vi.fn(() => {
+      throw error
+    })
+    const mockRouter = createMockRouter({
+      onTrackEvent,
+      matches: [{ routeId: "/_auth/projects" }],
+      pathname: "/projects",
+    })
+
+    setupRouterAnalytics(mockRouter as unknown as Parameters<typeof setupRouterAnalytics>[0])
+
+    // Should not throw
+    expect(() => mockRouter._triggerOnResolved()).not.toThrow()
+
+    expect(onTrackEvent).toHaveBeenCalled()
+    expect(consoleErrorSpy).toHaveBeenCalledWith("onTrackEvent callback threw:", error)
+
+    consoleErrorSpy.mockRestore()
   })
 })

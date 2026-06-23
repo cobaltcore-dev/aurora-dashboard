@@ -1,10 +1,11 @@
 import { isRouteInfo } from "../routes/routeInfo"
-import type { createAuroraRouter } from "../router"
+import { createAuroraRouter } from "../router"
 
 /**
  * Sets up analytics tracking for router navigation events.
  * Subscribes to the router's "onResolved" event and emits analytics events
- * when users navigate to routes with section/service metadata.
+ * when users navigate between routes. Metadata always includes `pathname` and `search`,
+ * and includes `section`/`service` when available via route `staticData`.
  *
  * @param router - The TanStack Router instance
  * @returns Cleanup function to unsubscribe from router events
@@ -28,9 +29,11 @@ export function setupRouterAnalytics(router: ReturnType<typeof createAuroraRoute
 
     if (!deepestMatch) return
 
-    // Build metadata: always include pathname, add section/service if available
+    // Build metadata: always include pathname and search, add section/service if available
+    const searchString = router.state.location.searchStr
     const metadata: Record<string, string | number | boolean | undefined> = {
       pathname: router.state.location.pathname,
+      search: searchString || undefined,
     }
 
     // Check if route has section/service metadata and add them if present
@@ -40,12 +43,16 @@ export function setupRouterAnalytics(router: ReturnType<typeof createAuroraRoute
       if (service) metadata.service = service
     }
 
-    const metrics = {
+    const payload = {
       source: "router",
       action: deepestMatch.routeId,
       metadata,
     }
 
-    onTrackEvent(metrics)
+    try {
+      onTrackEvent(payload)
+    } catch (error) {
+      console.error("onTrackEvent callback threw:", error)
+    }
   })
 }

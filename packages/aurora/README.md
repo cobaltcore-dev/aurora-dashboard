@@ -192,7 +192,7 @@ function trackEvent(payload: TrackEventPayload) {
   // Router navigation example:
   // payload.source = "router"
   // payload.action = "/_auth/projects/$projectId/compute/images"
-  // payload.metadata = { pathname: "/projects/abc/compute/images", section: "compute", service: "images" }
+  // payload.metadata = { pathname: "/projects/abc/compute/images", search: "?tab=details", section: "compute", service: "images" }
 
   sendAnalytics("user-interaction", {
     source: payload.source,
@@ -222,7 +222,7 @@ The callback receives a `TrackEventPayload` object with the following fields:
 Automatically tracked when users navigate between routes. Fires on every route change via TanStack Router's `onResolved` event.
 
 - **`action`**: Route ID (e.g., `"/_auth/projects/$projectId/compute/images"`)
-- **`metadata`**: Always includes `pathname`; optionally includes `section` and `service` if the route defines them in `staticData`
+- **`metadata`**: Always includes `pathname` and `search` (query string); optionally includes `section` and `service` if the route defines them in `staticData`
 
 **Example event:**
 
@@ -232,6 +232,7 @@ Automatically tracked when users navigate between routes. Fires on every route c
   action: "/_auth/projects/$projectId/compute/images",
   metadata: {
     pathname: "/projects/my-project/compute/images",
+    search: "?memberStatus=accepted",  // Query string, undefined if empty
     section: "compute",    // Optional: from route staticData
     service: "images"      // Optional: from route staticData
   }
