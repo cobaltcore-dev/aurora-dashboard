@@ -164,6 +164,24 @@ describe("UserNavigationTracker", () => {
     )
   })
 
+  it("should catch and log async errors in callback without breaking the app", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    const mockCallback = vi.fn(async () => {
+      throw new Error("Async analytics service unavailable")
+    })
+    const router = createTestRouter(mockCallback)
+
+    render(<RouterProvider router={router} />)
+
+    await vi.runAllTimersAsync()
+
+    expect(mockCallback).toHaveBeenCalled()
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "[Aurora Analytics] Error in onUserNavigation callback:",
+      expect.any(Error)
+    )
+  })
+
   it("should not call callback when onUserNavigation is undefined", async () => {
     const router = createTestRouter(undefined)
 
