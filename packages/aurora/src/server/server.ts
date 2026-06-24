@@ -12,8 +12,7 @@ import { createContext } from "./context"
 import path from "path"
 import { Readable } from "node:stream"
 import { ZodError } from "zod"
-import { AuroraFastifyCsrfProtection, AuroraHttpMetricsCollector } from "./aurora-fastify-plugins"
-import { Registry } from "prom-client"
+import { AuroraFastifyCsrfProtection } from "./aurora-fastify-plugins"
 import type { AuroraServerConfig } from "../types"
 
 export async function createServer(config: AuroraServerConfig): Promise<FastifyInstance> {
@@ -33,7 +32,7 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
     insecureCookies: config.insecureCookies,
   }
 
-  const appRouter = buildAppRouter(config.policyDir)
+  const appRouter = buildAppRouter(config.policyDir, config.routers ?? [])
 
   const server = Fastify({
     logger: true,
@@ -49,21 +48,6 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
   // TODO: Set COOKIE_SECRET env var in production (random 32+ char string, stored in secret manager)
   server.register(FastifyCookie, {
     secret: undefined,
-  })
-
-  // Register HTTP metrics collector
-  const metricsRegistry = new Registry()
-  await server.register(AuroraHttpMetricsCollector, {
-    prefix: "aurora",
-    excludePaths: ["/metrics"],
-    registry: metricsRegistry,
-    bffEndpoint: bffEndpoint,
-  })
-
-  // Add /metrics endpoint to expose Prometheus metrics
-  server.get("/metrics", async (_request, reply) => {
-    reply.header("Content-Type", metricsRegistry.contentType)
-    return reply.send(await metricsRegistry.metrics())
   })
 
   // Global rate limit: 200 req/min per IP. Upload route gets a tighter limit via config below.
