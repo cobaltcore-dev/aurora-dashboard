@@ -114,13 +114,14 @@ await server.listen({ host: "0.0.0.0", port: 4000 })
 
 ### `<AuroraApp />`
 
-| Prop            | Type                            | Default          | Description                                        |
-| --------------- | ------------------------------- | ---------------- | -------------------------------------------------- |
-| `bffEndpoint`   | `string`                        | `"/polaris-bff"` | Must match the server's `bffEndpoint`              |
-| `theme`         | `"theme-light" \| "theme-dark"` | `"theme-light"`  | Initial theme                                      |
-| `onThemeChange` | `(theme) => void`               | —                | Called when the user toggles the theme             |
-| `appName`       | `string`                        | `"Aurora"`       | App name shown in the header breadcrumb and logo   |
-| `slots`         | `Slots`                         | —                | Optional UI extension points — see [Slots](#slots) |
+| Prop            | Type                            | Default          | Description                                                             |
+| --------------- | ------------------------------- | ---------------- | ----------------------------------------------------------------------- |
+| `bffEndpoint`   | `string`                        | `"/polaris-bff"` | Must match the server's `bffEndpoint`                                   |
+| `theme`         | `"theme-light" \| "theme-dark"` | `"theme-light"`  | Initial theme                                                           |
+| `onThemeChange` | `(theme) => void`               | —                | Called when the user toggles the theme                                  |
+| `appName`       | `string`                        | `"Aurora"`       | App name shown in the header breadcrumb and logo                        |
+| `slots`         | `Slots`                         | —                | Optional UI extension points — see [Slots](#slots)                      |
+| `onTrackEvent`  | `OnTrackEventCallback`          | —                | Called on user interactions for analytics — see [Analytics](#analytics) |
 
 ## Slots
 
@@ -177,6 +178,99 @@ function MyBanner(_props: SlotProps) {
   )
 }
 ```
+
+## Analytics
+
+Aurora provides an optional `onTrackEvent` callback to track user interactions and feature usage. The API is source-agnostic, supporting various event types like navigation, link clicks, modals, and more.
+
+### Basic usage
+
+```tsx
+import { AuroraApp, type TrackEventPayload } from "@cobaltcore-dev/aurora/client"
+
+function trackEvent(payload: TrackEventPayload) {
+  // Router navigation example:
+  // payload.source = "router"
+  // payload.action = "/_auth/projects/$projectId/compute/images"
+  // payload.metadata = { pathname: "/projects/abc/compute/images", search: "?tab=details", section: "compute", service: "images" }
+
+  sendAnalytics("user-interaction", {
+    source: payload.source,
+    action: payload.action,
+    ...payload.metadata,
+    timestamp: Date.now(),
+  })
+}
+
+;<AuroraApp bffEndpoint="/polaris-bff" onTrackEvent={trackEvent} />
+```
+
+### TrackEventPayload
+
+The callback receives a `TrackEventPayload` object with the following fields:
+
+| Field      | Type                                                       | Description                                                              |
+| ---------- | ---------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `source`   | `string`                                                   | Event source (e.g., "router", "external-link", "modal")                  |
+| `action`   | `string`                                                   | Action identifier (e.g., route ID, button name, link URL)                |
+| `metadata` | `Record<string, string \| number \| boolean \| undefined>` | Source-specific context (pathname, section, service, href, target, etc.) |
+
+### Built-in tracking sources
+
+#### Router navigation (`source: "router"`)
+
+Automatically tracked when users navigate between routes. Fires on every route change via TanStack Router's `onResolved` event.
+
+- **`action`**: Route ID (e.g., `"/_auth/projects/$projectId/compute/images"`)
+- **`metadata`**: Always includes `pathname`; includes `search` (query string) when present; optionally includes `section` and `service` if the route defines them in `staticData`
+
+**Example event:**
+
+```javascript
+{
+  source: "router",
+  action: "/_auth/projects/$projectId/compute/images",
+  metadata: {
+    pathname: "/projects/my-project/compute/images",
+    search: "?memberStatus=accepted",  // Query string, undefined if empty
+    section: "compute",    // Optional: from route staticData
+    service: "images"      // Optional: from route staticData
+  }
+}
+```
+
+### Extending with custom tracking
+
+The `onTrackEvent` callback is available in the router context, allowing any component to track custom interactions:
+
+```tsx
+import { useRouteContext } from "@tanstack/react-router"
+
+function MyComponent() {
+  const { onTrackEvent } = useRouteContext()
+
+  const handleExternalLinkClick = (href: string) => {
+    onTrackEvent?.({
+      source: "external-link",
+      action: href,
+      metadata: { target: "_blank" },
+    })
+  }
+
+  return (
+    <a href="https://docs.example.com" onClick={() => handleExternalLinkClick("https://docs.example.com")}>
+      Docs
+    </a>
+  )
+}
+```
+
+### Implementation notes
+
+- Router events are tracked via subscription to TanStack Router's `onResolved` event
+- Automatic deduplication - fires once per navigation
+- Errors in your callback are caught and logged to prevent breaking the app
+- The callback executes **after** navigation completes
 
 ## License
 
