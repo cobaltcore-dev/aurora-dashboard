@@ -4,7 +4,7 @@ import { MainNavigation } from "../components/navigation/MainNavigation"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
 import { NavigationItem } from "../components/navigation/types"
-import type { Slots } from "../AuroraApp"
+import type { Slots, OnTrackEventCallback } from "../AuroraApp"
 import styles from "../index.css?inline"
 import { InactivityModal } from "../components/Auth/InactivityModal"
 import { RouteError } from "../components/Error/RouteError"
@@ -20,6 +20,7 @@ export interface RouterContext {
   handleThemeToggle?: (theme: string) => void
   slots?: Slots
   appName?: string
+  onTrackEvent?: OnTrackEventCallback
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({

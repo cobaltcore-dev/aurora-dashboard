@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { projectScopedInputSchema } from "../../trpc"
 
 /** PCA (Private Certificate Authority) - Clavis service schemas for certificate authority management  */
 
@@ -73,8 +74,21 @@ export const CertificateAuthoritySchema = z.object({
   state: CertificateAuthorityStateSchema,
 })
 
+const LinkSchema = z.object({
+  href: z.string(),
+  rel: z.string(),
+})
+
 export const CertificateAuthoritiesListSchema = z.object({
   certificate_authorities: z.array(CertificateAuthoritySchema),
+  links: z.array(LinkSchema),
+  next_page_marker: z.string().optional(),
+})
+
+// Used by: /v1/certificate-authorities - List Certificate Authorities
+export const CertificateAuthoritiesListInputSchema = projectScopedInputSchema.extend({
+  limit: z.number().int().min(1).max(1000).optional(),
+  next_page_marker: z.string().trim().min(1).optional(),
 })
 
 // Used by: /v1/certificate-authorities - Create new Certificate Authority
@@ -93,9 +107,14 @@ export const CertificateAuthorityCreateSchema = z.object({
  * - GET /v1/certificate-authorities/{certificate_authority_id}/certificates - List Certificates
  *
  */
-export const CertificateAuthorityIdInputSchema = z.object({
-  project_id: z.string(),
+export const CertificateAuthorityIdInputSchema = projectScopedInputSchema.extend({
   certificate_authority_id: z.string().min(1),
+})
+
+// Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates - List Certificates
+export const CertificateAuthorityCertificatesListInputSchema = CertificateAuthorityIdInputSchema.extend({
+  limit: z.number().int().min(1).max(1000).optional(),
+  next_page_marker: z.string().trim().min(1).optional(),
 })
 
 // Used by: /v1/certificate-authorities/{certificate_authority_id}:importCertificate - Import certificate of Certificate Authority
@@ -113,8 +132,7 @@ export const CertificateConfigurationSchema = z.object({
 })
 
 // Used by: /v1/certificate-authorities/{certificate_authority_id}/certificates - Create new Certificate
-export const CreateCertificateInputSchema = z.object({
-  project_id: z.string(),
+export const CreateCertificateInputSchema = projectScopedInputSchema.extend({
   certificate_authority_id: z.string().min(1),
   csr: z.string().min(1),
   configuration: CertificateConfigurationSchema,
@@ -132,8 +150,12 @@ export const CertificateSchema = z.object({
 
 export const CertificatesListSchema = z.object({
   certificates: z.array(CertificateSchema),
+  links: z.array(LinkSchema),
+  next_page_marker: z.string().optional(),
 })
 
 export type Certificate = z.infer<typeof CertificateSchema>
 export type CertificateAuthority = z.infer<typeof CertificateAuthoritySchema>
 export type CertificateAuthorityState = z.infer<typeof CertificateAuthorityStateSchema>
+export type CertificateAuthoritiesList = z.infer<typeof CertificateAuthoritiesListSchema>
+export type CertificatesList = z.infer<typeof CertificatesListSchema>
