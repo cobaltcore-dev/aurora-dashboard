@@ -363,7 +363,7 @@ export const SwiftContainers = () => {
                         label={i18n._(
                           plural(selectedCount, {
                             one: "Empty Container",
-                            other: "Empty Containers",
+                            other: "Empty # Containers",
                           })
                         )}
                         onClick={() => setEmptyAllModalOpen(true)}

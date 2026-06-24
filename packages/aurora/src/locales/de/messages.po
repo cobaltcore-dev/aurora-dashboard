@@ -79,8 +79,8 @@ msgstr ""
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{selectedCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
-msgid "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
-msgstr "{selectedCount, plural, one {Container leeren} other {Container leeren}}"
+msgid "{selectedCount, plural, one {Empty Container} other {Empty # Containers}}"
+msgstr ""
 
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} von {totalCount} Bucket} other {{filteredCount} von {totalCount} Buckets}}"
@@ -97,8 +97,8 @@ msgstr ""
 msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
-msgid "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
-msgstr "{totalCount, plural, one {Container leeren} other {Container leeren}}"
+msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
+msgstr ""
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"

@@ -79,8 +79,8 @@ msgstr "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 
-msgid "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
-msgstr "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
+msgid "{selectedCount, plural, one {Empty Container} other {Empty # Containers}}"
+msgstr "{selectedCount, plural, one {Empty Container} other {Empty # Containers}}"
 
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
@@ -97,8 +97,8 @@ msgstr "{totalCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 
-msgid "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
-msgstr "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
+msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
+msgstr "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"

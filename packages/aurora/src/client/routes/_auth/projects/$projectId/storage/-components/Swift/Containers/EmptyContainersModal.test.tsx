@@ -98,17 +98,17 @@ describe("EmptyContainersModal", () => {
   describe("Visibility", () => {
     test("does not render when isOpen is false", () => {
       renderModal({ isOpen: false })
-      expect(screen.queryByText(/Empty Containers/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Empty \d* ?Containers?/i)).not.toBeInTheDocument()
     })
 
     test("does not render when containers array is empty", () => {
       renderModal({ containers: [] })
-      expect(screen.queryByText(/Empty Containers/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Empty \d* ?Containers?/i)).not.toBeInTheDocument()
     })
 
     test("renders when isOpen is true and containers are provided", () => {
       renderModal()
-      expect(screen.getByText("Empty Containers")).toBeInTheDocument()
+      expect(screen.getByText("Empty 3 Containers")).toBeInTheDocument()
     })
 
     test("renders with a single container", () => {
@@ -117,13 +117,13 @@ describe("EmptyContainersModal", () => {
       expect(screen.getByText("single")).toBeInTheDocument()
     })
 
-    test("title is singular for exactly one container, plural for two or more", () => {
+    test("title is singular for exactly one container, plural with count for two or more", () => {
       const { unmount } = renderModal({ containers: [makeContainer("only")] })
       expect(screen.getByText("Empty Container")).toBeInTheDocument()
-      expect(screen.queryByText("Empty Containers")).not.toBeInTheDocument()
+      expect(screen.queryByText(/Empty \d+ Containers/i)).not.toBeInTheDocument()
       unmount()
       renderModal({ containers: [makeContainer("a"), makeContainer("b")] })
-      expect(screen.getByText("Empty Containers")).toBeInTheDocument()
+      expect(screen.getByText("Empty 2 Containers")).toBeInTheDocument()
     })
   })
 
