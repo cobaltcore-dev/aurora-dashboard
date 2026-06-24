@@ -2,7 +2,16 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Stack, Spinner, TextInput, Icon, Select, SelectOption } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Stack,
+  Spinner,
+  TextInput,
+  Icon,
+  Select,
+  SelectOption,
+  Message,
+} from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
 
@@ -254,7 +263,7 @@ export const GenerateTempUrlModal = ({
       title={
         <span className="flex max-w-[400px] items-center gap-1">
           <span className="shrink-0">
-            <Trans>Share object:</Trans>
+            <Trans>Share URL:</Trans>
           </span>
           <span className="truncate font-mono" title={displayName}>
             {displayName}
@@ -265,9 +274,9 @@ export const GenerateTempUrlModal = ({
       onCancel={onClose}
       confirmButtonLabel={isPending ? t`Generating...` : t`Generate URL`}
       onConfirm={handleGenerate}
-      cancelButtonLabel={t`Close`}
+      cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={isPending || (isCustom && (!customMinutes.trim() || !!customMinutesError))}
+      disableConfirmButton={isPending || noKeyError || (isCustom && (!customMinutes.trim() || !!customMinutesError))}
     >
       <Stack direction="vertical" gap="4">
         <p className="text-theme-default">
@@ -279,13 +288,13 @@ export const GenerateTempUrlModal = ({
 
         {/* No key configured error */}
         {noKeyError && (
-          <p className="text-theme-default">
+          <Message variant="warning">
             <Trans>
-              <strong>No Temp URL key configured.</strong> A temporary URL key must be set at the account or container
-              level before temporary URLs can be generated. Contact your administrator to configure{" "}
-              <code>X-Account-Meta-Temp-URL-Key</code> or <code>X-Container-Meta-Temp-URL-Key</code>.
+              No Temp URL key configured. A temporary URL key must be set at the account or container level before
+              temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or
+              X-Container-Meta-Temp-URL-Key.
             </Trans>
-          </p>
+          </Message>
         )}
 
         {/* General error */}

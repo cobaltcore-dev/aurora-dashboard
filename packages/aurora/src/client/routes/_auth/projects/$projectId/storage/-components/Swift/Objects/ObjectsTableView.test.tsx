@@ -838,7 +838,7 @@ describe("ObjectsTableView", () => {
     })
   })
 
-  describe("Share (Temporary URL) modal", () => {
+  describe("Share URL modal", () => {
     test("temp URL modal is closed by default", () => {
       renderView({ rows: [makeObject("readme.txt")] })
       expect(screen.queryByTestId("generate-temp-url-modal")).not.toBeInTheDocument()

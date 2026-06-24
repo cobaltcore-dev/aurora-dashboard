@@ -528,7 +528,7 @@ export const ObjectsTableView = ({
                               data-testid={`move-rename-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Share (Temporary URL)`}
+                              label={t`Share URL`}
                               onClick={() => setTempUrlTarget(row as ObjectRow)}
                               data-testid={`temp-url-action-${row.name}`}
                             />
