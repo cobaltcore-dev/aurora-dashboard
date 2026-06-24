@@ -41,8 +41,10 @@ const App = (props: AppProps) => {
 
   // Set up analytics tracking for router navigation
   useEffect(() => {
-    return setupRouterAnalytics(router)
-  }, [router])
+    if (props.onTrackEvent) {
+      return setupRouterAnalytics(router)
+    }
+  }, [router, props.onTrackEvent])
 
   const [currentTheme, setCurrentTheme] = useState<"theme-dark" | "theme-light">(props.theme ?? "theme-light")
 
