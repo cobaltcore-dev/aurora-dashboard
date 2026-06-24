@@ -172,8 +172,8 @@ msgstr "Accepted"
 msgid "Accepted Images"
 msgstr "Accepted Images"
 
-msgid "Access Control for container:"
-msgstr "Access Control for container:"
+msgid "Access Control for Container:"
+msgstr "Access Control for Container:"
 
 msgid "Access Control Updated"
 msgstr "Access Control Updated"
@@ -198,9 +198,6 @@ msgstr "Account listing limit"
 
 msgid "Account quotas"
 msgstr "Account quotas"
-
-msgid "ACL entries control who can read from or write to this container. Multiple entries are comma-separated. Changes take effect immediately after saving."
-msgstr "ACL entries control who can read from or write to this container. Multiple entries are comma-separated. Changes take effect immediately after saving."
 
 msgid "ACLs for container \"{containerName}\" were successfully updated."
 msgstr "ACLs for container \"{containerName}\" were successfully updated."
@@ -370,9 +367,6 @@ msgstr "Basic Info"
 msgid "Basic Information"
 msgstr "Basic Information"
 
-msgid "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
-msgstr "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
-
 msgid "Benefits:"
 msgstr "Benefits:"
 
@@ -489,6 +483,9 @@ msgstr "Certificate not found"
 
 msgid "Change the name, destination container, or folder to move this object."
 msgstr "Change the name, destination container, or folder to move this object."
+
+msgid "Changes take effect immediately after saving."
+msgstr "Changes take effect immediately after saving."
 
 msgid "Checking bucket contents..."
 msgstr "Checking bucket contents..."
@@ -1077,6 +1074,9 @@ msgstr "Enable Versioning"
 
 msgid "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 msgstr "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
+
+msgid "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
+msgstr "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
 
 msgid "Enter a floating IP"
 msgstr "Enter a floating IP"
@@ -2479,6 +2479,9 @@ msgstr "RBAC Policy Details:"
 msgid "Read ACLs"
 msgstr "Read ACLs"
 
+msgid "Read ACLs — Preview"
+msgstr "Read ACLs — Preview"
+
 msgid "Recover from accidental deletions"
 msgstr "Recover from accidental deletions"
 
@@ -3423,6 +3426,9 @@ msgstr "Why Choose Aurora?"
 
 msgid "Write ACLs"
 msgstr "Write ACLs"
+
+msgid "Write ACLs — Preview"
+msgstr "Write ACLs — Preview"
 
 msgid "Yes"
 msgstr "Yes"
