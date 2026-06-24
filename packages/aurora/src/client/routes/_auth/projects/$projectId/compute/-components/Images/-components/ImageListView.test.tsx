@@ -235,6 +235,58 @@ describe("ImageListView — pagination", () => {
     const nextButton = screen.getByRole("button", { name: /next/i })
     expect(nextButton).toBeDisabled()
   })
+
+  it("calls onPageChange with a valid page number when Enter is pressed", async () => {
+    const onPageChangeMock = vi.fn()
+    const images = makeImages(50)
+
+    await act(async () => {
+      render(
+        <ImageListView
+          {...defaultProps}
+          images={images}
+          currentPage={1}
+          totalPages={3}
+          onPageChange={onPageChangeMock}
+        />,
+        {
+          wrapper: TestingProvider,
+        }
+      )
+    })
+
+    const input = screen.getByRole("textbox")
+    fireEvent.change(input, { target: { value: "2" } })
+    fireEvent.keyDown(input, { key: "Enter", code: "Enter", charCode: 13 })
+
+    expect(onPageChangeMock).toHaveBeenCalledWith(2)
+  })
+
+  it("does not call onPageChange for empty input when Enter is pressed", async () => {
+    const onPageChangeMock = vi.fn()
+    const images = makeImages(50)
+
+    await act(async () => {
+      render(
+        <ImageListView
+          {...defaultProps}
+          images={images}
+          currentPage={1}
+          totalPages={3}
+          onPageChange={onPageChangeMock}
+        />,
+        {
+          wrapper: TestingProvider,
+        }
+      )
+    })
+
+    const input = screen.getByRole("textbox")
+    fireEvent.change(input, { target: { value: "" } })
+    fireEvent.keyDown(input, { key: "Enter", code: "Enter", charCode: 13 })
+
+    expect(onPageChangeMock).not.toHaveBeenCalled()
+  })
 })
 
 describe("ImageListView — bulk selection", () => {
