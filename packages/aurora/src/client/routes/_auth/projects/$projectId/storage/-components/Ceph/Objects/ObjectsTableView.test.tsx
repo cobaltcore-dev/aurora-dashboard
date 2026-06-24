@@ -223,6 +223,7 @@ describe("ObjectsTableView", () => {
       expect(screen.getByTestId("copy-modal")).toBeInTheDocument()
       expect(screen.getByTestId("move-modal")).toBeInTheDocument()
       expect(screen.getByTestId("edit-metadata-modal")).toBeInTheDocument()
+      expect(screen.getByTestId("version-history-modal")).toBeInTheDocument()
     })
   })
 

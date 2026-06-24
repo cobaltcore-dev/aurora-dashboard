@@ -445,6 +445,12 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         onEditMetadataError={(objectKey, errorMessage) => {
           setToastData(getObjectMetadataUpdateErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
         }}
+        onRestoreVersion={() => {
+          // Version restored successfully - no toast
+        }}
+        onDeleteVersion={() => {
+          // Version deleted successfully - no toast
+        }}
       />
 
       {hasMore && (

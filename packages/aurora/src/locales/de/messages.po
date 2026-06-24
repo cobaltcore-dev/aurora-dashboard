@@ -103,9 +103,6 @@ msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} E
 msgid "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{totalItemCount} Element} other {{totalItemCount} Elemente}}"
 
-msgid "{versionCount, plural, one {{versionCount} version} other {{versionCount} versions}}"
-msgstr ""
-
 msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 msgstr ""
 
@@ -2101,9 +2098,6 @@ msgstr "Kein Limit"
 msgid "No new versions will be created"
 msgstr ""
 
-msgid "No object specified"
-msgstr ""
-
 msgid "No objects found"
 msgstr "Keine Objekte gefunden"
 
@@ -2196,9 +2190,6 @@ msgstr "Objektname darf keine führenden oder nachfolgenden Leerzeichen haben"
 
 msgid "Object name is required"
 msgstr " Objektname ist erforderlich"
-
-msgid "Object not found"
-msgstr ""
 
 msgid "Object properties"
 msgstr "Objekt-Eigenschaften"
@@ -3364,9 +3355,6 @@ msgstr "VCPUs"
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs müssen eine ganze Zahl ≥ 1 sein."
 
-msgid "Version"
-msgstr ""
-
 msgid "Version History: {objectKey}"
 msgstr ""
 
@@ -3389,9 +3377,6 @@ msgid "Versioning is enabled"
 msgstr "Versionierung ist aktiviert"
 
 msgid "Versioning Suspended"
-msgstr ""
-
-msgid "Versions"
 msgstr ""
 
 msgid "View Details"

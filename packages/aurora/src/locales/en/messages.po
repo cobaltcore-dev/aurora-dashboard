@@ -103,9 +103,6 @@ msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} it
 msgid "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 
-msgid "{versionCount, plural, one {{versionCount} version} other {{versionCount} versions}}"
-msgstr "{versionCount, plural, one {{versionCount} version} other {{versionCount} versions}}"
-
 msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 msgstr "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 
@@ -2101,9 +2098,6 @@ msgstr "No limit"
 msgid "No new versions will be created"
 msgstr "No new versions will be created"
 
-msgid "No object specified"
-msgstr "No object specified"
-
 msgid "No objects found"
 msgstr "No objects found"
 
@@ -2196,9 +2190,6 @@ msgstr "Object name cannot have leading or trailing whitespace"
 
 msgid "Object name is required"
 msgstr "Object name is required"
-
-msgid "Object not found"
-msgstr "Object not found"
 
 msgid "Object properties"
 msgstr "Object properties"
@@ -3364,9 +3355,6 @@ msgstr "VCPUs"
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs must be an integer ≥ 1."
 
-msgid "Version"
-msgstr "Version"
-
 msgid "Version History: {objectKey}"
 msgstr "Version History: {objectKey}"
 
@@ -3390,9 +3378,6 @@ msgstr "Versioning is enabled"
 
 msgid "Versioning Suspended"
 msgstr "Versioning Suspended"
-
-msgid "Versions"
-msgstr "Versions"
 
 msgid "View Details"
 msgstr "View Details"
