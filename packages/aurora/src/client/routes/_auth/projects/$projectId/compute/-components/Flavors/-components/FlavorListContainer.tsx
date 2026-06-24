@@ -15,7 +15,7 @@ import {
 import { Trans } from "@lingui/react/macro"
 import { useLingui } from "@lingui/react/macro"
 import { DeleteFlavorModal } from "./DeleteFlavorModal"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
 import { EditSpecModal } from "./EditSpecModal"
 import { ManageAccessModal } from "./ManageAccessModal"
@@ -56,6 +56,11 @@ export const FlavorListContainer = ({
   const [specModalOpen, setSpecModalOpen] = useState(false)
   const [accessModalOpen, setAccessModalOpen] = useState(false)
   const [selectedFlavor, setSelectedFlavor] = useState<Flavor | null>(null)
+  const [inputPage, setInputPage] = useState<string>(currentPage.toString())
+
+  useEffect(() => {
+    setInputPage(currentPage.toString())
+  }, [currentPage])
 
   const { projectId } = useParams({
     from: "/_auth/projects/$projectId/compute/flavors/",
@@ -86,6 +91,13 @@ export const FlavorListContainer = ({
       onFlavorDeleted(selectedFlavor.name || "")
     }
     closeDeleteModal()
+  }
+
+  const updateCurrentPage = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      onPageChange?.(newPage)
+      setInputPage(newPage.toString())
+    }
   }
 
   if (isLoading) {
@@ -207,9 +219,22 @@ export const FlavorListContainer = ({
             variant="input"
             currentPage={currentPage}
             pages={totalPages}
-            onPressPrevious={() => onPageChange?.(Math.max(currentPage - 1, 1))}
-            onPressNext={() => onPageChange?.(Math.min(currentPage + 1, totalPages))}
-            onSelectChange={(page) => onPageChange?.(page)}
+            onPressPrevious={() => updateCurrentPage(Math.max(currentPage - 1, 1))}
+            onPressNext={() => updateCurrentPage(Math.min(currentPage + 1, totalPages))}
+            onSelectChange={(selectedPage: number) => {
+              updateCurrentPage(selectedPage)
+            }}
+            onInputChange={(newInputPage?: number) => {
+              setInputPage(newInputPage === undefined ? "" : String(newInputPage))
+            }}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter" && inputPage !== "") {
+                const newPage = parseInt(inputPage, 10)
+                if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
+                  updateCurrentPage(newPage)
+                }
+              }
+            }}
           />
         </div>
       )}
