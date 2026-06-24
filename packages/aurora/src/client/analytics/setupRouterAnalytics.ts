@@ -54,10 +54,13 @@ export function setupRouterAnalytics(router: ReturnType<typeof createAuroraRoute
       metadata,
     }
 
-    try {
-      onTrackEvent(payload)
-    } catch (error) {
-      console.error("onTrackEvent callback threw:", error)
-    }
+    // Push callback to next microtask to ensure it never blocks navigation
+    Promise.resolve().then(() => {
+      try {
+        onTrackEvent(payload)
+      } catch (error) {
+        console.error("onTrackEvent callback threw:", error)
+      }
+    })
   })
 }
