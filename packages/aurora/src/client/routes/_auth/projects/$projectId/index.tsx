@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router"
-import { Box, Stack } from "@cloudoperators/juno-ui-components"
+import { createFileRoute, useLoaderData, useNavigate } from "@tanstack/react-router"
+import { Card, Stack } from "@cloudoperators/juno-ui-components"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { Trans } from "@lingui/react/macro"
 import { useLingui } from "@lingui/react/macro"
@@ -10,24 +10,21 @@ export const Route = createFileRoute("/_auth/projects/$projectId/")({
 })
 
 interface ServiceCardProps {
-  title: string
-  links: { label: string; to: string }[]
+  group: string
+  label: string
+  to: string
 }
 
-function ServiceCard({ title, links }: ServiceCardProps) {
+function ServiceCard({ group, label, to }: ServiceCardProps) {
+  const navigate = useNavigate()
   return (
-    <Box className="p-5">
-      <h3 className="text-theme-high mb-3 text-base font-semibold">{title}</h3>
-      <ul className="space-y-1.5">
-        {links.map(({ label, to }) => (
-          <li key={label}>
-            <Link to={to} className="text-theme-accent hover:text-theme-accent/80 text-sm">
-              {label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </Box>
+    <Card onClick={() => navigate({ to: to as never })} className="flex min-h-40 flex-col gap-4 px-3 pt-2 pb-3">
+      <div className="flex min-w-0 flex-col">
+        <p className="text-theme-light text-xs leading-5 font-medium">{group}</p>
+        <p className="text-theme-high text-lg leading-7 font-bold">{label}</p>
+      </div>
+      <div className="flex-1" />
+    </Card>
   )
 }
 
@@ -42,52 +39,29 @@ function RouteComponent() {
 
   const cards: ServiceCardProps[] = []
 
-  if (serviceIndex["image"]?.["glance"] || serviceIndex["compute"]?.["nova"]) {
-    const links: { label: string; to: string }[] = []
-    if (serviceIndex["image"]?.["glance"]) links.push({ label: "Images", to: `${base}/compute/images` })
-    if (serviceIndex["compute"]?.["nova"]) links.push({ label: "Flavors", to: `${base}/compute/flavors` })
-    cards.push({ title: "Compute", links })
-  }
-
+  if (serviceIndex["image"]?.["glance"])
+    cards.push({ group: t`Compute`, label: t`Images`, to: `${base}/compute/images` })
+  if (serviceIndex["compute"]?.["nova"])
+    cards.push({ group: t`Compute`, label: t`Flavors`, to: `${base}/compute/flavors` })
   if (serviceIndex["network"]) {
-    cards.push({
-      title: "Network",
-      links: [
-        { label: "Security Groups", to: `${base}/network/securitygroups` },
-        { label: "Floating IPs", to: `${base}/network/floatingips` },
-      ],
-    })
+    cards.push({ group: t`Network`, label: t`Security Groups`, to: `${base}/network/securitygroups` })
+    cards.push({ group: t`Network`, label: t`Floating IPs`, to: `${base}/network/floatingips` })
   }
-
-  // Storage section
-  const storageLinks: { label: string; to: string }[] = []
-  if (serviceIndex["object-store"]?.["swift"]) {
-    storageLinks.push({ label: "Swift", to: `${base}/storage/swift/containers` })
-  }
-
-  if (serviceIndex["object-store-ceph"]?.["ceph"]) {
-    storageLinks.push({ label: "Ceph", to: `${base}/storage/ceph/buckets` })
-  }
-
-  if (storageLinks.length > 0) {
-    cards.push({ title: "Storage", links: storageLinks })
-  }
-
-  // temporary as clavis is not fully GA, after GA replace with ["pca"]?.["clavis"]
+  if (serviceIndex["object-store"]?.["swift"])
+    cards.push({ group: t`Storage`, label: t`Object Storage (Swift)`, to: `${base}/storage/swift/containers` })
+  if (serviceIndex["object-store-ceph"]?.["ceph"])
+    cards.push({ group: t`Storage`, label: t`Object Storage (Ceph)`, to: `${base}/storage/ceph/buckets` })
   if (serviceIndex["pca"]?.["clavis-dev"] || serviceIndex["pca"]?.["clavis-beta"]) {
-    cards.push({
-      title: "Services",
-      links: [{ label: "PCA (Clavis)", to: `${base}/services/pca` }],
-    })
+    cards.push({ group: t`Services`, label: t`PCA (Clavis)`, to: `${base}/services/pca` })
   }
 
   return (
     <Stack direction="vertical" gap="6" className="pb-4">
       <ContentHeader title={crumbProject?.name ?? t`Project`} projectId={projectId} />
       {cards.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {cards.map((card) => (
-            <ServiceCard key={card.title} {...card} />
+            <ServiceCard key={card.to} {...card} />
           ))}
         </div>
       ) : (
