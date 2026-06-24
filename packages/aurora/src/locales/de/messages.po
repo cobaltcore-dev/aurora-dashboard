@@ -47,7 +47,7 @@ msgid "{certificateIdValue} Certificate Details"
 msgstr ""
 
 msgid "{count} objects"
-msgstr ""
+msgstr "{count} Objekte"
 
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
@@ -74,13 +74,13 @@ msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
-msgstr ""
+msgstr "{selectedCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
 
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{selectedCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
 msgid "{selectedCount, plural, one {Empty Container} other {Empty # Containers}}"
-msgstr ""
+msgstr "{selectedCount, plural, one {Container leeren} other {# Container leeren}}"
 
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} von {totalCount} Bucket} other {{filteredCount} von {totalCount} Buckets}}"
@@ -92,13 +92,13 @@ msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} con
 msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Container}}"
 
 msgid "{totalCount, plural, one {Delete # Object} other {Delete # Objects}}"
-msgstr ""
+msgstr "{totalCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
 
 msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
-msgstr ""
+msgstr "{totalCount, plural, one {Container leeren} other {# Container leeren}}"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"
@@ -173,7 +173,7 @@ msgid "Accepted Images"
 msgstr "Akzeptierte Images"
 
 msgid "Access Control for Container:"
-msgstr ""
+msgstr "Zugriffskontrolle für Container:"
 
 msgid "Access Control Updated"
 msgstr "Zugriffskontrolle aktualisiert"
@@ -482,10 +482,10 @@ msgid "Certificate not found"
 msgstr "Certificate not found"
 
 msgid "Change the name, destination container, or folder to move this object."
-msgstr ""
+msgstr "Ändern Sie den Namen, den Ziel-Container oder den Ordner, um dieses Objekt zu verschieben."
 
 msgid "Changes take effect immediately after saving."
-msgstr ""
+msgstr "Änderungen werden sofort nach dem Speichern wirksam."
 
 msgid "Checking bucket contents..."
 msgstr "Checking bucket contents..."
@@ -641,7 +641,7 @@ msgid "Copy object:"
 msgstr "Objekt kopieren:"
 
 msgid "Copy Object:"
-msgstr ""
+msgstr "Objekt kopieren:"
 
 msgid "Copy URL"
 msgstr "URL kopieren"
@@ -1076,7 +1076,7 @@ msgid "Ensure ACL entries are valid — correct project IDs, user IDs, and forma
 msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt-IDs, Benutzer-IDs und Formate liegen in Ihrer Verantwortung. Ungültige Einträge können stillschweigend unbeabsichtigten Zugriff gewähren oder verweigern."
 
 msgid "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
-msgstr ""
+msgstr "Stellen Sie sicher, dass die eingegebene Projekt-ID und Benutzer-ID korrekt sind. Das System kann diese Werte nicht validieren — falsche IDs können Zugriff auf falsche Projekte und Benutzer gewähren."
 
 msgid "Enter a floating IP"
 msgstr "Floating IP eingeben"
@@ -1517,13 +1517,13 @@ msgid "folder-name"
 msgstr "folder-name"
 
 msgid "Folders cannot be bulk-deleted. Use the row menu to delete a folder."
-msgstr ""
+msgstr "Ordner können nicht im Stapel gelöscht werden. Verwenden Sie das Zeilenmenü, um einen Ordner zu löschen."
 
 msgid "Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing slash. The folder will appear once created."
 msgstr "Ordner im Object Storage sind virtuell — sie werden als Null-Byte-Platzhalterobjekte mit einem abschließenden Schrägstrich erstellt. Der Ordner wird nach der Erstellung angezeigt."
 
 msgid "For <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted — the related segments are not deleted."
-msgstr ""
+msgstr "Für <0>dynamische</0> und <1>statische große Objekte</1> werden nur die Manifeste gelöscht — die zugehörigen Segmente werden nicht gelöscht."
 
 msgid "For more details, have a look at the <0>documentation</0>."
 msgstr "Weitere Details finden Sie in der <0>Dokumentation</0>."
@@ -2012,7 +2012,7 @@ msgid "Move/Rename object:"
 msgstr "Objekt verschieben/umbenennen:"
 
 msgid "Move/Rename Object:"
-msgstr ""
+msgstr "Objekt verschieben/umbenennen:"
 
 msgid "Moving object..."
 msgstr "Objekt wird verschoben..."
@@ -2150,7 +2150,7 @@ msgid "No specific tenant access configured for this private flavor. Click \"Add
 msgstr "Kein spezifischer Projektzugriff für diesen privaten Flavor konfiguriert. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
-msgstr ""
+msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um X-Account-Meta-Temp-URL-Key oder X-Container-Meta-Temp-URL-Key zu konfigurieren."
 
 msgid "No versions found for this object."
 msgstr ""
@@ -2480,7 +2480,7 @@ msgid "Read ACLs"
 msgstr "Lese-ACLs"
 
 msgid "Read ACLs — Preview"
-msgstr ""
+msgstr "Lese-ACLs — Vorschau"
 
 msgid "Recover from accidental deletions"
 msgstr ""
@@ -2744,10 +2744,10 @@ msgid "Share this security group with another project. The target project will b
 msgstr "Teilen Sie diese Sicherheitsgruppe mit einem anderen Projekt. Das Zielprojekt kann diese Sicherheitsgruppe ansehen und verwenden, aber nicht ändern oder löschen."
 
 msgid "Share URL"
-msgstr ""
+msgstr "URL teilen"
 
 msgid "Share URL:"
-msgstr ""
+msgstr "URL teilen:"
 
 msgid "Shared"
 msgstr "Geteilt"
@@ -3194,7 +3194,7 @@ msgid "Type"
 msgstr "Typ"
 
 msgid "Type \"{CONFIRM_WORD}\" to confirm"
-msgstr ""
+msgstr "Geben Sie \"{CONFIRM_WORD}\" zur Bestätigung ein"
 
 msgid "Type \"delete\" to confirm"
 msgstr "Geben Sie \"delete\" zur Bestätigung ein"
@@ -3428,7 +3428,7 @@ msgid "Write ACLs"
 msgstr "Schreib-ACLs"
 
 msgid "Write ACLs — Preview"
-msgstr ""
+msgstr "Schreib-ACLs — Vorschau"
 
 msgid "Yes"
 msgstr "Ja"
