@@ -67,37 +67,12 @@ export const EnableVersioningModal = ({
       disableConfirmButton={!confirmed || enableMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
-        <div>
-          <p className="mb-3 text-sm">
-            <Trans>
-              Versioning allows you to keep multiple variants of an object in the same bucket. This protects against
-              accidental overwrites and deletions.
-            </Trans>
-          </p>
-          <p className="text-theme-light mb-3 text-sm">
-            <Trans>
-              Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain
-              even after suspension.
-            </Trans>
-          </p>
-        </div>
-
-        <div>
-          <p className="mb-2 text-sm font-semibold">
-            <Trans>Benefits:</Trans>
-          </p>
-          <ul className="list-disc space-y-1 pl-5 text-sm">
-            <li>
-              <Trans>Recover from accidental deletions</Trans>
-            </li>
-            <li>
-              <Trans>Retrieve older versions of objects</Trans>
-            </li>
-            <li>
-              <Trans>Maintain object history</Trans>
-            </li>
-          </ul>
-        </div>
+        <p>
+          <Trans>
+            Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain
+            even after suspension.
+          </Trans>
+        </p>
 
         <Checkbox
           checked={confirmed}

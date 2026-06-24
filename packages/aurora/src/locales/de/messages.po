@@ -133,9 +133,6 @@ msgstr "<0>Sicher & Zuverlässig:</0> Ihre Daten und Operationen sind mit Sicher
 msgid "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
 msgstr "<0>Vereinheitlichtes Cloud-Management:</0> Konsolidiert alle Ihre Cloud-Ressourcen in einer intuitiven Oberfläche."
 
-msgid "⚠️ Warning: Irreversible Action"
-msgstr ""
-
 msgid "1 hour"
 msgstr "1 Stunde"
 
@@ -378,9 +375,6 @@ msgstr "Grundlegende Informationen"
 
 msgid "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
 msgstr "Stellen Sie vor dem Fortfahren sicher, dass die eingegebene Projekt-ID und Benutzer-ID korrekt sind. Das System kann diese Werte nicht validieren, und falsche IDs können Zugriff auf falsche Projekte und Benutzer gewähren."
-
-msgid "Benefits:"
-msgstr ""
 
 msgid "Boot RAM"
 msgstr "Boot-RAM"
@@ -991,6 +985,9 @@ msgstr "Herunterladen"
 msgid "Download {rowDisplayName}"
 msgstr "{rowDisplayName} herunterladen"
 
+msgid "Download functionality is not yet implemented for versioned objects."
+msgstr ""
+
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."
 
@@ -1306,6 +1303,9 @@ msgstr "Fehler beim Löschen des Extra-Specs. Bitte versuchen Sie es erneut."
 msgid "Failed to delete the flavor. Please try again."
 msgstr "Das Löschen des Flavor ist fehlgeschlagen. Bitte versuchen Sie es erneut"
 
+msgid "Failed to delete version: {errorMessage}"
+msgstr ""
+
 msgid "Failed to Download"
 msgstr "Fehler beim Herunterladen"
 
@@ -1386,6 +1386,9 @@ msgstr "Fehler beim Entfernen des Mitglieds \"{memberIdToRemove}\""
 
 msgid "Failed to remove tenant access from flavor. Please try again."
 msgstr "Fehler beim Entfernen des Mandantenzugriffs vom Flavor. Bitte versuchen Sie es erneut."
+
+msgid "Failed to restore version: {errorMessage}"
+msgstr ""
 
 msgid "Failed to Update Access Control"
 msgstr "Fehler beim Aktualisieren der Zugriffskontrolle"
@@ -1572,9 +1575,6 @@ msgstr "ACLs-Vorschau ausblenden"
 
 msgid "Home"
 msgstr "Startseite"
-
-msgid "How Restore Works"
-msgstr ""
 
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "Ich bestätige, dass alle vorhandenen Versionen ebenfalls gelöscht werden"
@@ -1887,9 +1887,6 @@ msgstr "Bei Ihrem Konto anmelden"
 
 msgid "MAC Address"
 msgstr "MAC-Adresse"
-
-msgid "Maintain object history"
-msgstr ""
 
 msgid "Manage Access"
 msgstr "Zugriff verwalten"
@@ -2479,9 +2476,6 @@ msgstr "Details der RBAC-Richtlinie:"
 msgid "Read ACLs"
 msgstr "Lese-ACLs"
 
-msgid "Recover from accidental deletions"
-msgstr ""
-
 msgid "Reject"
 msgstr "Ablehnen"
 
@@ -2552,9 +2546,6 @@ msgid "Restore"
 msgstr ""
 
 msgid "Restore Version"
-msgstr ""
-
-msgid "Retrieve older versions of objects"
 msgstr ""
 
 msgid "Root"
@@ -2766,9 +2757,6 @@ msgstr "Details anzeigen"
 
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
-
-msgid "Showing all versions of this object. The latest version is highlighted. Delete markers indicate when the object was deleted."
-msgstr ""
 
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Erste {actualObjectCount} von {total} Objekten werden angezeigt"
@@ -3091,9 +3079,6 @@ msgstr "Dieser Container ist bereits leer."
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "Dies kann auf unzureichende Berechtigungen oder ein vorübergehendes Serviceproblem zurückzuführen sein. Bitte überprüfen Sie Ihre Zugriffsrechte oder aktualisieren Sie die Seite."
 
-msgid "This creates a new latest version with the content from the selected version. All existing versions (including the current latest) are preserved."
-msgstr ""
-
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "Dieser Metadata-Key existiert bereits. Bitte verwenden Sie einen anderen Key."
 
@@ -3117,9 +3102,6 @@ msgstr "Dies ist ein <0>statisches großes Objekt (SLO)</0>-Manifest. Metadaten-
 
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "Dies ist ein <0>statisches großes Objekt</0>. Standardmäßig werden auch alle zugehörigen Segment-Objekte dauerhaft gelöscht."
-
-msgid "This is a delete marker. Deleting it will \"undelete\" the object and restore the previous version as the current version."
-msgstr ""
 
 msgid "This is a public flavor. All tenants have access to it."
 msgstr "Dies ist ein öffentlicher Flavor. Alle Projekte haben Zugriff darauf."
@@ -3149,9 +3131,6 @@ msgid "This will delete the original object after copying it to the destination.
 msgstr ""
 
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
-msgstr ""
-
-msgid "This will permanently delete this version. This operation cannot be undone. The version will be lost forever."
 msgstr ""
 
 msgid "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
@@ -3373,6 +3352,14 @@ msgstr "VCPUs"
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs müssen eine ganze Zahl ≥ 1 sein."
 
+#. placeholder {0}: versionId.slice(0, 8)
+msgid "Version {0}... deleted successfully"
+msgstr ""
+
+#. placeholder {0}: versionId.slice(0, 8)
+msgid "Version {0}... restored successfully"
+msgstr ""
+
 msgid "Version History: {objectKey}"
 msgstr ""
 
@@ -3384,9 +3371,6 @@ msgstr ""
 
 msgid "Versioned writes"
 msgstr "Versionierte Schreibvorgänge"
-
-msgid "Versioning allows you to keep multiple variants of an object in the same bucket. This protects against accidental overwrites and deletions."
-msgstr ""
 
 msgid "Versioning Enabled"
 msgstr ""

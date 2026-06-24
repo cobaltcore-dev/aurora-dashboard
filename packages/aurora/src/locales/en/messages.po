@@ -133,9 +133,6 @@ msgstr "<0>Secure & Reliable:</0> Your data and operations are safeguarded with 
 msgid "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
 msgstr "<0>Unified Cloud Management:</0> Consolidates all your cloud assets into one intuitive interface."
 
-msgid "⚠️ Warning: Irreversible Action"
-msgstr "⚠️ Warning: Irreversible Action"
-
 msgid "1 hour"
 msgstr "1 hour"
 
@@ -378,9 +375,6 @@ msgstr "Basic Information"
 
 msgid "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
 msgstr "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
-
-msgid "Benefits:"
-msgstr "Benefits:"
 
 msgid "Boot RAM"
 msgstr "Boot RAM"
@@ -991,6 +985,9 @@ msgstr "Download"
 msgid "Download {rowDisplayName}"
 msgstr "Download {rowDisplayName}"
 
+msgid "Download functionality is not yet implemented for versioned objects."
+msgstr "Download functionality is not yet implemented for versioned objects."
+
 msgid "Downloading..."
 msgstr "Downloading..."
 
@@ -1306,6 +1303,9 @@ msgstr "Failed to delete the extra spec. Please try again."
 msgid "Failed to delete the flavor. Please try again."
 msgstr "Failed to delete the flavor. Please try again."
 
+msgid "Failed to delete version: {errorMessage}"
+msgstr "Failed to delete version: {errorMessage}"
+
 msgid "Failed to Download"
 msgstr "Failed to Download"
 
@@ -1386,6 +1386,9 @@ msgstr "Failed to remove member \"{memberIdToRemove}\""
 
 msgid "Failed to remove tenant access from flavor. Please try again."
 msgstr "Failed to remove tenant access from flavor. Please try again."
+
+msgid "Failed to restore version: {errorMessage}"
+msgstr "Failed to restore version: {errorMessage}"
 
 msgid "Failed to Update Access Control"
 msgstr "Failed to Update Access Control"
@@ -1572,9 +1575,6 @@ msgstr "Hide ACLs Preview"
 
 msgid "Home"
 msgstr "Home"
-
-msgid "How Restore Works"
-msgstr "How Restore Works"
 
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "I confirm that all existing versions will also be deleted"
@@ -1887,9 +1887,6 @@ msgstr "Login to Your Account"
 
 msgid "MAC Address"
 msgstr "MAC Address"
-
-msgid "Maintain object history"
-msgstr "Maintain object history"
 
 msgid "Manage Access"
 msgstr "Manage Access"
@@ -2479,9 +2476,6 @@ msgstr "RBAC Policy Details:"
 msgid "Read ACLs"
 msgstr "Read ACLs"
 
-msgid "Recover from accidental deletions"
-msgstr "Recover from accidental deletions"
-
 msgid "Reject"
 msgstr "Reject"
 
@@ -2553,9 +2547,6 @@ msgstr "Restore"
 
 msgid "Restore Version"
 msgstr "Restore Version"
-
-msgid "Retrieve older versions of objects"
-msgstr "Retrieve older versions of objects"
 
 msgid "Root"
 msgstr "Root"
@@ -2766,9 +2757,6 @@ msgstr "Show Details"
 
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"
-
-msgid "Showing all versions of this object. The latest version is highlighted. Delete markers indicate when the object was deleted."
-msgstr "Showing all versions of this object. The latest version is highlighted. Delete markers indicate when the object was deleted."
 
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Showing first {actualObjectCount} of {total} objects"
@@ -3091,9 +3079,6 @@ msgstr "This container is already empty."
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 
-msgid "This creates a new latest version with the content from the selected version. All existing versions (including the current latest) are preserved."
-msgstr "This creates a new latest version with the content from the selected version. All existing versions (including the current latest) are preserved."
-
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "This extra spec keys already exist. Please use different keys."
 
@@ -3117,9 +3102,6 @@ msgstr "This is a <0>static large object (SLO)</0> manifest. Metadata changes ap
 
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
-
-msgid "This is a delete marker. Deleting it will \"undelete\" the object and restore the previous version as the current version."
-msgstr "This is a delete marker. Deleting it will \"undelete\" the object and restore the previous version as the current version."
 
 msgid "This is a public flavor. All tenants have access to it."
 msgstr "This is a public flavor. All tenants have access to it."
@@ -3150,9 +3132,6 @@ msgstr "This will delete the original object after copying it to the destination
 
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
-
-msgid "This will permanently delete this version. This operation cannot be undone. The version will be lost forever."
-msgstr "This will permanently delete this version. This operation cannot be undone. The version will be lost forever."
 
 msgid "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
 msgstr "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
@@ -3373,6 +3352,14 @@ msgstr "VCPUs"
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs must be an integer ≥ 1."
 
+#. placeholder {0}: versionId.slice(0, 8)
+msgid "Version {0}... deleted successfully"
+msgstr "Version {0}... deleted successfully"
+
+#. placeholder {0}: versionId.slice(0, 8)
+msgid "Version {0}... restored successfully"
+msgstr "Version {0}... restored successfully"
+
 msgid "Version History: {objectKey}"
 msgstr "Version History: {objectKey}"
 
@@ -3384,9 +3371,6 @@ msgstr "Version ID:"
 
 msgid "Versioned writes"
 msgstr "Versioned writes"
-
-msgid "Versioning allows you to keep multiple variants of an object in the same bucket. This protects against accidental overwrites and deletions."
-msgstr "Versioning allows you to keep multiple variants of an object in the same bucket. This protects against accidental overwrites and deletions."
 
 msgid "Versioning Enabled"
 msgstr "Versioning Enabled"

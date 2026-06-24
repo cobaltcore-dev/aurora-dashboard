@@ -51,6 +51,10 @@ export const ObjectVersionHistoryModal = ({
     size?: number
     isDeleteMarker: boolean
   } | null>(null)
+  const [feedbackMessage, setFeedbackMessage] = useState<{
+    variant: "success" | "error"
+    message: string
+  } | null>(null)
 
   const { data, isLoading, error, refetch } = trpcReact.storage.ceph.versioning.listObjectVersions.useQuery(
     {
@@ -77,14 +81,21 @@ export const ObjectVersionHistoryModal = ({
   const handleClose = () => {
     setRestoreTarget(null)
     setDeleteTarget(null)
+    setFeedbackMessage(null)
     onClose()
   }
 
   if (!isOpen) return null
 
   return (
-    <Modal title={t`Version History: ${objectKey}`} open={isOpen} onCancel={handleClose} size="large">
+    <Modal title={t`Version History: ${objectKey}`} open={isOpen} onCancel={handleClose} size="xl">
       <Stack direction="vertical" gap="4">
+        {feedbackMessage && (
+          <Message variant={feedbackMessage.variant} dismissible onDismiss={() => setFeedbackMessage(null)}>
+            {feedbackMessage.message}
+          </Message>
+        )}
+
         {isLoading && (
           <Stack direction="horizontal" gap="2" alignment="center" className="py-8">
             <Spinner />
@@ -108,13 +119,6 @@ export const ObjectVersionHistoryModal = ({
 
         {!isLoading && !error && versions.length > 0 && (
           <>
-            <Message variant="info">
-              <Trans>
-                Showing all versions of this object. The latest version is highlighted. Delete markers indicate when the
-                object was deleted.
-              </Trans>
-            </Message>
-
             <DataGrid columns={6}>
               <DataGridRow>
                 <DataGridHeadCell>
@@ -160,7 +164,7 @@ export const ObjectVersionHistoryModal = ({
                     </DataGridCell>
 
                     <DataGridCell>
-                      <code className="font-mono text-xs break-all" title={version.versionId}>
+                      <code className="text-xs break-all" title={version.versionId}>
                         {version.versionId}
                       </code>
                     </DataGridCell>
@@ -192,8 +196,10 @@ export const ObjectVersionHistoryModal = ({
                                 <PopupMenuItem
                                   label={t`Download`}
                                   onClick={() => {
-                                    // TODO: Generate download URL with versionId
-                                    console.log("Download version:", version.versionId)
+                                    setFeedbackMessage({
+                                      variant: "error",
+                                      message: t`Download functionality is not yet implemented for versioned objects.`,
+                                    })
                                   }}
                                 />
                                 {!isLatest && (
@@ -243,12 +249,19 @@ export const ObjectVersionHistoryModal = ({
         onClose={() => setRestoreTarget(null)}
         onSuccess={(objectKey, versionId) => {
           setRestoreTarget(null)
+          setFeedbackMessage({
+            variant: "success",
+            message: t`Version ${versionId.slice(0, 8)}... restored successfully`,
+          })
           onRestoreVersion?.(objectKey, versionId)
-          // Invalidate is handled by RestoreVersionModal, but we refetch to ensure immediate update
           setTimeout(() => refetch(), 100)
         }}
-        onError={() => {
+        onError={(objectKey, errorMessage) => {
           setRestoreTarget(null)
+          setFeedbackMessage({
+            variant: "error",
+            message: t`Failed to restore version: ${errorMessage}`,
+          })
         }}
       />
 
@@ -263,12 +276,19 @@ export const ObjectVersionHistoryModal = ({
         onClose={() => setDeleteTarget(null)}
         onSuccess={(objectKey, versionId) => {
           setDeleteTarget(null)
+          setFeedbackMessage({
+            variant: "success",
+            message: t`Version ${versionId.slice(0, 8)}... deleted successfully`,
+          })
           onDeleteVersion?.(objectKey, versionId)
-          // Invalidate is handled by DeleteVersionModal, but we refetch to ensure immediate update
           setTimeout(() => refetch(), 100)
         }}
-        onError={() => {
+        onError={(objectKey, errorMessage) => {
           setDeleteTarget(null)
+          setFeedbackMessage({
+            variant: "error",
+            message: t`Failed to delete version: ${errorMessage}`,
+          })
         }}
       />
     </Modal>
