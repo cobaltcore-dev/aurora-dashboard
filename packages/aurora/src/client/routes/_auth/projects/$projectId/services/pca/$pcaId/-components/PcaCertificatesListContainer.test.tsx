@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
-import type { Certificate } from "@/server/Services/types/pca"
+import type { Certificate, CertificatesList } from "@/server/Services/types/pca"
 import { trpcReact } from "@/client/trpcClient"
 import { PcaCertificatesListContainer } from "./PcaCertificatesListContainer"
 
@@ -44,6 +44,38 @@ vi.mock("./-modals/IssueEndEntityCertificateModal", () => ({
   IssueEndEntityCertificateModal: ({ open }: { open: boolean }) => (open ? <div>Issue End-Entity Modal</div> : null),
 }))
 
+const makeCertificates = (count: number): Certificate[] =>
+  Array.from({ length: count }, (_, index) => ({
+    id: `cert-${index + 1}`,
+    certificate_authority_id: "ca-1",
+    project_id: "project-1",
+  }))
+
+const makeListResponse = (
+  certificates: Certificate[],
+  overrides: Partial<CertificatesList> = {}
+): CertificatesList => ({
+  certificates,
+  links: [],
+  ...overrides,
+})
+
+type MockQueryResult = {
+  data: CertificatesList | undefined
+  isLoading: boolean
+  isError: boolean
+  error: { message?: string } | null
+}
+
+const createMockQueryResult = (overrides: Partial<MockQueryResult> = {}) =>
+  ({
+    data: makeListResponse([]),
+    isLoading: false,
+    isError: false,
+    error: null,
+    ...overrides,
+  }) as ReturnType<typeof trpcReact.services.pca.listCertificates.useQuery>
+
 describe("PcaCertificatesListContainer", () => {
   const validCertificate: Certificate = {
     id: "cert-1",
@@ -69,28 +101,22 @@ describe("PcaCertificatesListContainer", () => {
     )
 
   it("calls listCertificates query with correct parameters", () => {
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(createMockQueryResult())
 
     renderComponent()
 
     expect(vi.mocked(trpcReact.services.pca.listCertificates.useQuery)).toHaveBeenCalledWith({
       project_id: "project-1",
       certificate_authority_id: "ca-1",
+      limit: 50,
+      next_page_marker: undefined,
     })
   })
 
   it("renders loading state", () => {
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [],
-      isLoading: true,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({ isLoading: true })
+    )
 
     renderComponent()
 
@@ -99,12 +125,9 @@ describe("PcaCertificatesListContainer", () => {
 
   it("renders error state with error message", () => {
     const errorMessage = "Failed to fetch certificates"
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: true,
-      error: { message: errorMessage },
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({ isError: true, error: { message: errorMessage } })
+    )
 
     renderComponent()
 
@@ -112,12 +135,9 @@ describe("PcaCertificatesListContainer", () => {
   })
 
   it("renders default error message when no error details provided", () => {
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: true,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({ isError: true, error: null })
+    )
 
     renderComponent()
 
@@ -125,12 +145,7 @@ describe("PcaCertificatesListContainer", () => {
   })
 
   it("renders empty state when no certificates exist", () => {
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(createMockQueryResult())
 
     renderComponent()
 
@@ -140,12 +155,9 @@ describe("PcaCertificatesListContainer", () => {
   })
 
   it("renders data grid with certificates", () => {
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [validCertificate, validCertificate2],
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({ data: makeListResponse([validCertificate, validCertificate2]) })
+    )
 
     renderComponent()
 
@@ -156,12 +168,9 @@ describe("PcaCertificatesListContainer", () => {
   it("shows issue certificate action for READY state and opens modal", async () => {
     const user = userEvent.setup()
 
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [validCertificate],
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({ data: makeListResponse([validCertificate]) })
+    )
 
     renderComponent()
 
@@ -173,12 +182,9 @@ describe("PcaCertificatesListContainer", () => {
   })
 
   it("does not show issue certificate action when state is not READY", () => {
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [validCertificate],
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({ data: makeListResponse([validCertificate]) })
+    )
 
     renderComponent("AWAITING_CERTIFICATE")
 
@@ -188,12 +194,7 @@ describe("PcaCertificatesListContainer", () => {
   it("shows issue certificate action in empty state when READY and opens modal", async () => {
     const user = userEvent.setup()
 
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(createMockQueryResult())
 
     renderComponent()
 
@@ -205,12 +206,7 @@ describe("PcaCertificatesListContainer", () => {
   })
 
   it("does not show issue certificate action in empty state when state is not READY", () => {
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(createMockQueryResult())
 
     renderComponent("AWAITING_CERTIFICATE")
 
@@ -218,12 +214,9 @@ describe("PcaCertificatesListContainer", () => {
   })
 
   it("renders correct column headers", () => {
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [validCertificate],
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({ data: makeListResponse([validCertificate]) })
+    )
 
     renderComponent()
 
@@ -232,18 +225,11 @@ describe("PcaCertificatesListContainer", () => {
   })
 
   it("renders multiple certificates with different IDs", () => {
-    const cert3: Certificate = {
-      id: "cert-3",
-      certificate_authority_id: "ca-1",
-      project_id: "project-1",
-    }
+    const cert3: Certificate = { id: "cert-3", certificate_authority_id: "ca-1", project_id: "project-1" }
 
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [validCertificate, validCertificate2, cert3],
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({ data: makeListResponse([validCertificate, validCertificate2, cert3]) })
+    )
 
     renderComponent()
 
@@ -252,13 +238,63 @@ describe("PcaCertificatesListContainer", () => {
     expect(screen.getByTestId("certificate-row-cert-3")).toBeInTheDocument()
   })
 
+  it("does not render pagination when there is only one page", () => {
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({ data: makeListResponse(makeCertificates(10)) })
+    )
+
+    renderComponent()
+
+    expect(screen.queryByRole("button", { name: /previous/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /next/i })).not.toBeInTheDocument()
+  })
+
+  it("renders pagination when the response includes a next page marker", () => {
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({
+        data: makeListResponse(makeCertificates(50), { next_page_marker: "next-marker" }),
+      })
+    )
+
+    renderComponent()
+
+    expect(screen.getByRole("button", { name: /previous/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /next/i })).toBeInTheDocument()
+    expect(screen.getByTestId("certificate-row-cert-1")).toBeInTheDocument()
+    expect(screen.getByTestId("certificate-row-cert-50")).toBeInTheDocument()
+  })
+
+  it("moves to the next page when next is clicked", () => {
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockImplementation((input) => {
+      if (typeof input === "symbol") return createMockQueryResult()
+      if (input.next_page_marker === "marker-page-2") {
+        return createMockQueryResult({
+          data: makeListResponse([{ id: "cert-51", certificate_authority_id: "ca-1", project_id: "project-1" }]),
+        })
+      }
+      return createMockQueryResult({
+        data: makeListResponse(makeCertificates(50), { next_page_marker: "marker-page-2" }),
+      })
+    })
+
+    renderComponent()
+
+    fireEvent.click(screen.getByRole("button", { name: /next/i }))
+
+    expect(vi.mocked(trpcReact.services.pca.listCertificates.useQuery)).toHaveBeenLastCalledWith({
+      project_id: "project-1",
+      certificate_authority_id: "ca-1",
+      limit: 50,
+      next_page_marker: "marker-page-2",
+    })
+    expect(screen.queryByTestId("certificate-row-cert-1")).not.toBeInTheDocument()
+    expect(screen.getByTestId("certificate-row-cert-51")).toBeInTheDocument()
+  })
+
   it("uses default empty array when data is undefined", () => {
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(
+      createMockQueryResult({ data: undefined })
+    )
 
     renderComponent()
 
@@ -266,12 +302,7 @@ describe("PcaCertificatesListContainer", () => {
   })
 
   it("renders with different pcaId prop", () => {
-    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-      error: null,
-    } as never)
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(createMockQueryResult())
 
     const { rerender } = render(
       <I18nProvider i18n={i18n}>
@@ -282,6 +313,8 @@ describe("PcaCertificatesListContainer", () => {
     expect(vi.mocked(trpcReact.services.pca.listCertificates.useQuery)).toHaveBeenCalledWith({
       project_id: "project-1",
       certificate_authority_id: "ca-1",
+      limit: 50,
+      next_page_marker: undefined,
     })
 
     rerender(
@@ -293,6 +326,8 @@ describe("PcaCertificatesListContainer", () => {
     expect(vi.mocked(trpcReact.services.pca.listCertificates.useQuery)).toHaveBeenCalledWith({
       project_id: "project-1",
       certificate_authority_id: "ca-2",
+      limit: 50,
+      next_page_marker: undefined,
     })
   })
 })
