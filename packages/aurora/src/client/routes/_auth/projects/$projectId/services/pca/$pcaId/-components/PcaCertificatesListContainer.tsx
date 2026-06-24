@@ -1,4 +1,5 @@
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useState } from "react"
 import {
   Stack,
   Spinner,
@@ -8,6 +9,7 @@ import {
   ContentHeading,
   DataGridHeadCell,
   Button,
+  Pagination,
 } from "@cloudoperators/juno-ui-components"
 import { CertificateAuthority } from "@/server/Services/types/pca"
 import { trpcReact } from "@/client/trpcClient"
@@ -15,6 +17,8 @@ import { useProjectId } from "@/client/hooks"
 import { useModal } from "@/client/utils/useModal"
 import { PcaCertificatesTableRow } from "./-table/PcaCertificatesTableRow"
 import { IssueEndEntityCertificateModal } from "./-modals/IssueEndEntityCertificateModal"
+
+const ITEMS_PER_PAGE = 50
 
 interface PcaCertificatesListContainerProps {
   pcaId: string
@@ -25,6 +29,8 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
   const { t } = useLingui()
   const projectId = useProjectId()
   const [createIssueEndEntityOpen, toggleIssueEndEntity] = useModal(false)
+  const [pageMarkers, setPageMarkers] = useState<(string | undefined)[]>([undefined])
+  const [currentPage, setCurrentPage] = useState(1)
 
   const columns = () =>
     [
@@ -34,15 +40,32 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
     ] as const
   const columnsLength = columns().length
 
-  const {
-    data: pcaCertificates = [],
-    isLoading,
-    isError,
-    error,
-  } = trpcReact.services.pca.listCertificates.useQuery({
+  const currentMarker = pageMarkers[currentPage - 1]
+
+  const { data, isLoading, isError, error } = trpcReact.services.pca.listCertificates.useQuery({
     project_id: projectId,
     certificate_authority_id: pcaId,
+    limit: ITEMS_PER_PAGE,
+    next_page_marker: currentMarker,
   })
+
+  const certificates = data?.certificates ?? []
+  const nextMarker = data?.next_page_marker
+  const hasNextPage = !!nextMarker
+  const computedTotal = hasNextPage ? currentPage + 1 : currentPage
+  const totalPages = Math.max(computedTotal, pageMarkers.length)
+
+  const goToPage = (page: number) => {
+    if (page < 1 || page > totalPages) return
+    if (page > currentPage && nextMarker) {
+      setPageMarkers((prev) => {
+        const updated = [...prev]
+        updated[page - 1] = nextMarker
+        return updated
+      })
+    }
+    setCurrentPage(page)
+  }
 
   if (isLoading) {
     return (
@@ -78,7 +101,7 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
         </>
       )}
 
-      {pcaCertificates.length === 0 ? (
+      {certificates.length === 0 && currentPage === 1 ? (
         <DataGrid columns={columnsLength} className="pca-certificates" data-testid="no-pcas-certificates">
           <DataGridRow>
             <DataGridCell colSpan={columnsLength}>
@@ -98,10 +121,22 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
               <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
             ))}
           </DataGridRow>
-          {pcaCertificates.map((certificate) => (
+          {certificates.map((certificate) => (
             <PcaCertificatesTableRow key={certificate.id} certificate={certificate} />
           ))}
         </DataGrid>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex justify-center py-4">
+          <Pagination
+            variant="input"
+            currentPage={currentPage}
+            pages={totalPages}
+            onPressPrevious={() => goToPage(currentPage - 1)}
+            onPressNext={() => goToPage(currentPage + 1)}
+          />
+        </div>
       )}
     </div>
   )
