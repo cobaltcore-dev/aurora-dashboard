@@ -484,6 +484,9 @@ msgstr "Certificate Authority not found"
 msgid "Certificate not found"
 msgstr "Certificate not found"
 
+msgid "Change the name, destination container, or folder to move this object."
+msgstr ""
+
 msgid "Checking bucket contents..."
 msgstr "Checking bucket contents..."
 
@@ -636,6 +639,9 @@ msgstr "Metadaten kopieren"
 
 msgid "Copy object:"
 msgstr "Objekt kopieren:"
+
+msgid "Copy Object:"
+msgstr ""
 
 msgid "Copy URL"
 msgstr "URL kopieren"
@@ -1998,6 +2004,9 @@ msgstr "Verschieben/Umbenennen"
 
 msgid "Move/Rename object:"
 msgstr "Objekt verschieben/umbenennen:"
+
+msgid "Move/Rename Object:"
+msgstr ""
 
 msgid "Moving object..."
 msgstr "Objekt wird verschoben..."
