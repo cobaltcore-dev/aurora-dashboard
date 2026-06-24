@@ -265,7 +265,7 @@ export const GenerateTempUrlModal = ({
           <span className="shrink-0">
             <Trans>Share URL:</Trans>
           </span>
-          <span className="truncate font-mono" title={displayName}>
+          <span className="truncate" title={displayName}>
             {displayName}
           </span>
         </span>
@@ -345,7 +345,7 @@ export const GenerateTempUrlModal = ({
         {tempUrl && (
           <Stack direction="vertical" gap="2">
             <div className="relative">
-              <TextInput label={t`Temporary URL`} value={tempUrl} readOnly className="pr-10 font-mono text-xs" />
+              <TextInput label={t`Temporary URL`} value={tempUrl} readOnly className="pr-10 text-xs" />
               <button
                 type="button"
                 onClick={handleCopy}

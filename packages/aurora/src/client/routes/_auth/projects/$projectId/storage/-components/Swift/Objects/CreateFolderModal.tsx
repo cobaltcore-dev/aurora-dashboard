@@ -96,7 +96,7 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
           <span className="shrink-0">
             <Trans>Create folder below:</Trans>
           </span>
-          <span className="truncate font-mono" title={parentPath}>
+          <span className="truncate" title={parentPath}>
             {parentPath}
           </span>
         </span>
