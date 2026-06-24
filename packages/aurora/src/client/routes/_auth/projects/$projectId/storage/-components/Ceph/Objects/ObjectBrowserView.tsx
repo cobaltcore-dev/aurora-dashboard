@@ -25,6 +25,7 @@ import { CreateFolderModal } from "./CreateFolderModal"
 import { EnableVersioningModal } from "../Buckets/EnableVersioningModal"
 import { SuspendVersioningModal } from "../Buckets/SuspendVersioningModal"
 import { BucketPolicyModal } from "../Buckets/BucketPolicyModal"
+import { DeleteBucketPolicyModal } from "../Buckets/DeleteBucketPolicyModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
 import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
@@ -80,6 +81,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [isEnableVersioningModalOpen, setIsEnableVersioningModalOpen] = useState(false)
   const [isSuspendVersioningModalOpen, setIsSuspendVersioningModalOpen] = useState(false)
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false)
+  const [isDeletePolicyModalOpen, setIsDeletePolicyModalOpen] = useState(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   // Local mirror of the committed search term so typing stays responsive while
@@ -358,7 +360,14 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               {versioningStatus && versioningStatus.status === "Enabled" && (
                 <PopupMenuItem label={t`Suspend Versioning`} onClick={() => setIsSuspendVersioningModalOpen(true)} />
               )}
-              <PopupMenuItem label={t`Bucket Policy`} onClick={() => setIsPolicyModalOpen(true)} />
+              {!policyData?.policy ? (
+                <PopupMenuItem label={t`Add Policy`} onClick={() => setIsPolicyModalOpen(true)} />
+              ) : (
+                <>
+                  <PopupMenuItem label={t`Edit/View Policy`} onClick={() => setIsPolicyModalOpen(true)} />
+                  <PopupMenuItem label={t`Delete Policy`} onClick={() => setIsDeletePolicyModalOpen(true)} />
+                </>
+              )}
             </PopupMenuOptions>
           </PopupMenu>
           <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
@@ -502,6 +511,18 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         isOpen={isPolicyModalOpen}
         bucketName={bucketName}
         onClose={() => setIsPolicyModalOpen(false)}
+      />
+
+      <DeleteBucketPolicyModal
+        isOpen={isDeletePolicyModalOpen}
+        bucketName={bucketName}
+        onClose={() => setIsDeletePolicyModalOpen(false)}
+        onSuccess={() => {
+          setIsDeletePolicyModalOpen(false)
+        }}
+        onError={() => {
+          setIsDeletePolicyModalOpen(false)
+        }}
       />
 
       {toastData && <Toast {...toastData} />}

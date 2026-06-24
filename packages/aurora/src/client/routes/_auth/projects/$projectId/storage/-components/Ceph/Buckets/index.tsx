@@ -38,6 +38,7 @@ import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provid
 export { CredentialPrompt } from "./CredentialPrompt"
 export { CreateBucketModal } from "./CreateBucketModal"
 export { DeleteBucketModal } from "./DeleteBucketModal"
+export { DeleteBucketPolicyModal } from "./DeleteBucketPolicyModal"
 export { EmptyBucketModal } from "./EmptyBucketModal"
 export { EmptyBucketsModal } from "./EmptyBucketsModal"
 export * from "./BucketToastNotifications"

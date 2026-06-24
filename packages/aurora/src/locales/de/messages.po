@@ -241,6 +241,9 @@ msgstr "Mitglied hinzufügen"
 msgid "Add Metadata"
 msgstr "Metadata hinzufügen"
 
+msgid "Add Policy"
+msgstr ""
+
 msgid "Add Project Access"
 msgstr "Projektzugriff hinzufügen"
 
@@ -324,6 +327,9 @@ msgstr "Jeder Benutzer kann eine HEAD- oder GET-Operation auf dem Container ausf
 
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anfrage erforderlich."
+
+msgid "Are you sure you want to delete the policy for bucket <0>{bucketName}</0>?"
+msgstr ""
 
 msgid "Associate"
 msgstr "Zuordnen"
@@ -440,9 +446,6 @@ msgid "Bucket name must not start with reserved prefix \"{prefix}\""
 msgstr ""
 
 msgid "Bucket name must start and end with a letter or number"
-msgstr ""
-
-msgid "Bucket Policy"
 msgstr ""
 
 msgid "Bucket Policy - {bucketName}"
@@ -829,6 +832,9 @@ msgstr "Lösche {specKey}"
 msgid "Delete Bucket"
 msgstr ""
 
+msgid "Delete Bucket Policy"
+msgstr ""
+
 msgid "Delete CA"
 msgstr "Delete CA"
 
@@ -898,7 +904,7 @@ msgstr "Deleting certificate authority..."
 msgid "Deleting folder and all its contents..."
 msgstr "Ordner und alle Inhalte werden gelöscht..."
 
-msgid "Deleting the policy will remove all access restrictions defined by it."
+msgid "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
 msgstr ""
 
 msgid "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
@@ -1032,6 +1038,9 @@ msgstr "Metadaten bearbeiten"
 
 msgid "Edit Security Group"
 msgstr "Security Group bearbeiten"
+
+msgid "Edit/View Policy"
+msgstr ""
 
 msgid "Efficient bulk deletion"
 msgstr "Effiziente Massenlöschung"
@@ -1284,6 +1293,9 @@ msgstr "Fehler beim Löschen des Objekts"
 
 msgid "Failed to Delete Objects"
 msgstr "Fehler beim Löschen der Objekte"
+
+msgid "Failed to delete policy"
+msgstr ""
 
 msgid "Failed to delete security group"
 msgstr "Security Group konnte nicht gelöscht werden"
@@ -2112,6 +2124,9 @@ msgstr "No PCAs found"
 
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
+
+msgid "No policy found"
+msgstr ""
 
 msgid "No project selected"
 msgstr "Kein Projekt ausgewählt"
@@ -3062,6 +3077,9 @@ msgid "This action will create a self-signed CA certificate."
 msgstr "This action will create a self-signed CA certificate."
 
 msgid "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
+msgstr ""
+
+msgid "This bucket does not have a policy attached."
 msgstr ""
 
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
