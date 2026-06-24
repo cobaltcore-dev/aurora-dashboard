@@ -70,8 +70,8 @@ msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
-msgid "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
-msgstr "{selectedCount, plural, one {Objekt löschen} other {Objekte löschen}}"
+msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
+msgstr ""
 
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{selectedCount, plural, one {Bucket leeren} other {Buckets leeren}}"
@@ -1509,6 +1509,9 @@ msgstr ""
 
 msgid "folder-name"
 msgstr "folder-name"
+
+msgid "Folders cannot be bulk-deleted. Use the row menu to delete a folder."
+msgstr ""
 
 msgid "Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing slash. The folder will appear once created."
 msgstr "Ordner im Object Storage sind virtuell — sie werden als Null-Byte-Platzhalterobjekte mit einem abschließenden Schrägstrich erstellt. Der Ordner wird nach der Erstellung angezeigt."

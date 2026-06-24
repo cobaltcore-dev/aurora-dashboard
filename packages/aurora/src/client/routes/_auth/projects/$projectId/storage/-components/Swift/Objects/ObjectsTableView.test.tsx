@@ -1,6 +1,6 @@
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act } from "@testing-library/react"
+import { render, screen, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -901,12 +901,28 @@ describe("ObjectsTableView", () => {
       })
     })
 
-    test("does not render a checkbox for folder rows", () => {
+    test("renders a disabled checkbox for folder rows", () => {
       renderView()
       const folderRows = mockRows.filter((r) => r.kind === "folder")
       folderRows.forEach((r) => {
+        const cb = screen.getByTestId(`select-folder-disabled-${r.name}`)
+        expect(cb).toBeDisabled()
+        expect(cb).not.toBeChecked()
         expect(screen.queryByTestId(`select-object-${r.name}`)).not.toBeInTheDocument()
       })
+    })
+
+    test("folder checkbox tooltip text is present on hover", async () => {
+      renderView()
+      // Juno Tooltip only mounts TooltipContent after the trigger is hovered —
+      // find the TooltipTrigger wrapping the first folder's disabled checkbox
+      // and fire mouseEnter to open it, mirroring the ClipboardText tooltip tests.
+      const folderName = mockRows.filter((r) => r.kind === "folder")[0].name
+      const trigger = screen.getByTestId(`select-folder-disabled-${folderName}`).closest("button")!
+      await act(async () => {
+        fireEvent.mouseEnter(trigger)
+      })
+      expect(screen.getByRole("tooltip")).toHaveTextContent(/Folders cannot be bulk-deleted/i)
     })
 
     test("row checkbox is unchecked when object is not selected", () => {
@@ -981,6 +997,11 @@ describe("ObjectsTableView", () => {
       objectRows.forEach((r) => {
         expect(screen.queryByTestId(`select-object-${r.name}`)).not.toBeInTheDocument()
       })
+      mockRows
+        .filter((r) => r.kind === "folder")
+        .forEach((r) => {
+          expect(screen.queryByTestId(`select-folder-disabled-${r.name}`)).not.toBeInTheDocument()
+        })
     })
 
     test("still renders every row when hasAnyBulkAction is false", () => {

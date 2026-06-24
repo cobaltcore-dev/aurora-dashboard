@@ -70,8 +70,8 @@ msgstr "{numberDeleted} objects were permanently deleted."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
-msgid "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
-msgstr "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
+msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
+msgstr "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
@@ -1509,6 +1509,9 @@ msgstr "Folder name is too long (max 255 characters)"
 
 msgid "folder-name"
 msgstr "folder-name"
+
+msgid "Folders cannot be bulk-deleted. Use the row menu to delete a folder."
+msgstr "Folders cannot be bulk-deleted. Use the row menu to delete a folder."
 
 msgid "Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing slash. The folder will appear once created."
 msgstr "Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing slash. The folder will appear once created."

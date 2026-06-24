@@ -10,6 +10,9 @@ import {
   PopupMenuItem,
   PopupMenuOptions,
   Spinner,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
@@ -396,7 +399,20 @@ export const ObjectsTableView = ({
                       The whole column is omitted when no bulk action is available. */}
                   {hasAnyBulkAction && (
                     <DataGridCell onClick={(e) => e.stopPropagation()}>
-                      {!isFolder && (
+                      {isFolder ? (
+                        // Folders have no bulk-delete operation in Swift — show a
+                        // disabled checkbox with an explanatory tooltip so the column
+                        // stays aligned and the user understands why. Folder deletion
+                        // goes through the row menu ("Delete Recursively") instead.
+                        <Tooltip triggerEvent="hover" placement="right">
+                          <TooltipTrigger>
+                            <Checkbox disabled data-testid={`select-folder-disabled-${row.name}`} />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <Trans>Folders cannot be bulk-deleted. Use the row menu to delete a folder.</Trans>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
                         <Checkbox
                           checked={isSelected}
                           onChange={() => handleSelectObject(row.name)}
