@@ -13,6 +13,8 @@ import {
   CertificateSchema,
   Certificate,
   CertificateAuthority,
+  CertificateAuthoritiesList,
+  CertificatesList,
   CertificateIdInputSchema,
   CertificateAuthorityCreateSchema,
   CreateCertificateInputSchema,
@@ -25,7 +27,7 @@ const PCA_BASE_URL = "certificate-authorities"
 export const pcaRouter = {
   list: projectScopedProcedure
     .input(CertificateAuthoritiesListInputSchema)
-    .query(async ({ input, ctx }): Promise<CertificateAuthority[]> => {
+    .query(async ({ input, ctx }): Promise<CertificateAuthoritiesList> => {
       return withErrorHandling(async () => {
         // Use "pca" or "clavis" when the service will be GA as "clavis-beta" and "clavis-dev" are dev keys.
         const pca = ctx.openstack?.service("pca")
@@ -40,7 +42,7 @@ export const pcaRouter = {
         const response = await pca.get(url)
         const data = await response.json()
 
-        return parseOrThrow(CertificateAuthoritiesListSchema, data, "pcaRouter.list").certificate_authorities
+        return parseOrThrow(CertificateAuthoritiesListSchema, data, "pcaRouter.list")
       }, "list certificate authorities")
     }),
   /**
@@ -112,7 +114,7 @@ export const pcaRouter = {
     }),
   listCertificates: projectScopedProcedure
     .input(CertificateAuthorityCertificatesListInputSchema)
-    .query(async ({ input, ctx }): Promise<Certificate[]> => {
+    .query(async ({ input, ctx }): Promise<CertificatesList> => {
       return withErrorHandling(async () => {
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
@@ -126,7 +128,7 @@ export const pcaRouter = {
         const response = await pca.get(url)
         const data = await response.json()
 
-        return parseOrThrow(CertificatesListSchema, data, "pcaRouter.listCertificates").certificates
+        return parseOrThrow(CertificatesListSchema, data, "pcaRouter.listCertificates")
       }, "list certificates for certificate authority")
     }),
   createCertificate: projectScopedProcedure

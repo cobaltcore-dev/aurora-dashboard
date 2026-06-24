@@ -18,6 +18,8 @@ const validListResponse = {
       },
     },
   ],
+  links: [{ href: "/v1/certificate-authorities?limit=10&next_page_marker=next-marker", rel: "next" }],
+  next_page_marker: "next-marker",
 }
 
 const validGetByIdResponse = {
@@ -57,6 +59,10 @@ const validCertificatesResponse = {
       csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
     },
   ],
+  links: [
+    { href: "/v1/certificate-authorities/ca-1/certificates?limit=50&next_page_marker=next-cert-marker", rel: "next" },
+  ],
+  next_page_marker: "next-cert-marker",
 }
 
 const validGetByIdCertificateResponse = validCertificatesResponse.certificates[0]
@@ -201,7 +207,7 @@ describe("pcaRouter", () => {
 
       const result = await caller.services.pca.list({ project_id: TEST_PROJECT_ID })
 
-      expect(result).toEqual(validListResponse.certificate_authorities)
+      expect(result).toEqual(validListResponse)
       expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
       expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities")
     })
@@ -216,7 +222,7 @@ describe("pcaRouter", () => {
         next_page_marker: "next-marker",
       })
 
-      expect(result).toEqual(validListResponse.certificate_authorities)
+      expect(result).toEqual(validListResponse)
       expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities?limit=10&next_page_marker=next-marker")
     })
 
@@ -336,7 +342,7 @@ describe("pcaRouter", () => {
         certificate_authority_id: "ca-1",
       })
 
-      expect(result).toEqual(validCertificatesResponse.certificates)
+      expect(result).toEqual(validCertificatesResponse)
       expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
       expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates")
     })
@@ -348,13 +354,13 @@ describe("pcaRouter", () => {
       const result = await caller.services.pca.listCertificates({
         project_id: TEST_PROJECT_ID,
         certificate_authority_id: "ca-1",
-        limit: 10,
+        limit: 50,
         next_page_marker: "next-marker",
       })
 
-      expect(result).toEqual(validCertificatesResponse.certificates)
+      expect(result).toEqual(validCertificatesResponse)
       expect(ctx.__getMock).toHaveBeenCalledWith(
-        "certificate-authorities/ca-1/certificates?limit=10&next_page_marker=next-marker"
+        "certificate-authorities/ca-1/certificates?limit=50&next_page_marker=next-marker"
       )
     })
 

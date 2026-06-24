@@ -1,5 +1,5 @@
 import { Trans, useLingui } from "@lingui/react/macro"
-import { useEffect, useMemo, useState } from "react"
+import { useState } from "react"
 import {
   Stack,
   Spinner,
@@ -26,25 +26,33 @@ export const PcaListContainer = () => {
   const columns = TABLE_COLUMNS()
   const columnsLength = columns.length
   const [createCaOpen, toggleCreateCa] = useModal(false)
+  const [pageMarkers, setPageMarkers] = useState<(string | undefined)[]>([undefined])
   const [currentPage, setCurrentPage] = useState(1)
 
-  const { data: pcas = [], isLoading, isError, error } = trpcReact.services.pca.list.useQuery({ project_id: projectId })
-  const totalPages = Math.max(1, Math.ceil(pcas.length / ITEMS_PER_PAGE))
+  const currentMarker = pageMarkers[currentPage - 1]
 
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages)
+  const { data, isLoading, isError, error } = trpcReact.services.pca.list.useQuery({
+    project_id: projectId,
+    limit: ITEMS_PER_PAGE,
+    next_page_marker: currentMarker,
+  })
+
+  const pcas = data?.certificate_authorities ?? []
+  const nextMarker = data?.next_page_marker
+  const computedTotal = nextMarker ? currentPage + 1 : currentPage
+  const totalPages = Math.max(computedTotal, pageMarkers.length)
+
+  const goToPage = (page: number) => {
+    if (page < 1 || page > totalPages) return
+    if (page > currentPage && nextMarker) {
+      setPageMarkers((prev) => {
+        const updated = [...prev]
+        updated[page - 1] = nextMarker
+        return updated
+      })
     }
-  }, [currentPage, totalPages])
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [projectId])
-
-  const paginatedPcas = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    return pcas.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-  }, [currentPage, pcas])
+    setCurrentPage(page)
+  }
 
   if (isLoading) {
     return (
@@ -63,7 +71,7 @@ export const PcaListContainer = () => {
     )
   }
 
-  if (pcas.length === 0) {
+  if (pcas.length === 0 && currentPage === 1) {
     return (
       <DataGrid columns={columnsLength} className="pca" data-testid="no-pcas">
         <DataGridRow>
@@ -91,7 +99,7 @@ export const PcaListContainer = () => {
             <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
           ))}
         </DataGridRow>
-        {paginatedPcas.map((pca) => (
+        {pcas.map((pca) => (
           <PcaTableRow key={pca.id} pca={pca} />
         ))}
       </DataGrid>
@@ -102,9 +110,8 @@ export const PcaListContainer = () => {
             variant="input"
             currentPage={currentPage}
             pages={totalPages}
-            onPressPrevious={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))}
-            onPressNext={() => setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages))}
-            onSelectChange={(page) => setCurrentPage(page)}
+            onPressPrevious={() => goToPage(currentPage - 1)}
+            onPressNext={() => goToPage(currentPage + 1)}
           />
         </div>
       )}

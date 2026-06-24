@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { fireEvent, render, screen } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
-import type { CertificateAuthority } from "@/server/Services/types/pca"
+import type { CertificateAuthority, CertificateAuthoritiesList } from "@/server/Services/types/pca"
 import { trpcReact } from "@/client/trpcClient"
 import { PcaListContainer } from "./PcaListContainer"
 
@@ -37,7 +37,7 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
 })
 
 type MockListQueryResult = {
-  data: CertificateAuthority[] | undefined
+  data: CertificateAuthoritiesList | undefined
   isLoading: boolean
   isError: boolean
   error: { message?: string } | null
@@ -60,6 +60,15 @@ const makePcas = (count: number): CertificateAuthority[] =>
     project_id: mockProjectId,
     state: "READY",
   }))
+
+const makeListResponse = (
+  certificateAuthorities: CertificateAuthority[],
+  overrides: Partial<CertificateAuthoritiesList> = {}
+): CertificateAuthoritiesList => ({
+  certificate_authorities: certificateAuthorities,
+  links: [],
+  ...overrides,
+})
 
 const renderComponent = () =>
   render(
@@ -95,7 +104,9 @@ describe("PcaListContainer", () => {
   })
 
   it("renders empty state", () => {
-    vi.mocked(trpcReact.services.pca.list.useQuery).mockReturnValue(createMockListQueryResult({ data: [] }))
+    vi.mocked(trpcReact.services.pca.list.useQuery).mockReturnValue(
+      createMockListQueryResult({ data: makeListResponse([]) })
+    )
 
     renderComponent()
 
@@ -106,10 +117,10 @@ describe("PcaListContainer", () => {
   it("renders rows when data exists and queries with project id", () => {
     vi.mocked(trpcReact.services.pca.list.useQuery).mockReturnValue(
       createMockListQueryResult({
-        data: [
+        data: makeListResponse([
           { id: "pca-1", project_id: mockProjectId, state: "READY" },
           { id: "pca-2", project_id: mockProjectId, state: "FAILED" },
-        ],
+        ]),
       })
     )
 
@@ -117,13 +128,17 @@ describe("PcaListContainer", () => {
 
     expect(screen.getByTestId("pca-row-pca-1")).toBeInTheDocument()
     expect(screen.getByTestId("pca-row-pca-2")).toBeInTheDocument()
-    expect(vi.mocked(trpcReact.services.pca.list.useQuery)).toHaveBeenCalledWith({ project_id: mockProjectId })
+    expect(vi.mocked(trpcReact.services.pca.list.useQuery)).toHaveBeenCalledWith({
+      project_id: mockProjectId,
+      limit: 50,
+      next_page_marker: undefined,
+    })
   })
 
   it("does not render pagination when there is only one page", () => {
     vi.mocked(trpcReact.services.pca.list.useQuery).mockReturnValue(
       createMockListQueryResult({
-        data: makePcas(10),
+        data: makeListResponse(makePcas(10)),
       })
     )
 
@@ -133,10 +148,10 @@ describe("PcaListContainer", () => {
     expect(screen.queryByRole("button", { name: /next/i })).not.toBeInTheDocument()
   })
 
-  it("renders pagination and shows only the first 50 rows on the first page", () => {
+  it("renders pagination when the response includes a next page marker", () => {
     vi.mocked(trpcReact.services.pca.list.useQuery).mockReturnValue(
       createMockListQueryResult({
-        data: makePcas(51),
+        data: makeListResponse(makePcas(10), { next_page_marker: "next-marker" }),
       })
     )
 
@@ -145,22 +160,35 @@ describe("PcaListContainer", () => {
     expect(screen.getByRole("button", { name: /previous/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /next/i })).toBeInTheDocument()
     expect(screen.getByTestId("pca-row-pca-1")).toBeInTheDocument()
-    expect(screen.getByTestId("pca-row-pca-50")).toBeInTheDocument()
-    expect(screen.queryByTestId("pca-row-pca-51")).not.toBeInTheDocument()
+    expect(screen.getByTestId("pca-row-pca-10")).toBeInTheDocument()
   })
 
   it("moves to the next page when next is clicked", () => {
-    vi.mocked(trpcReact.services.pca.list.useQuery).mockReturnValue(
-      createMockListQueryResult({
-        data: makePcas(51),
+    vi.mocked(trpcReact.services.pca.list.useQuery).mockImplementation((input) => {
+      if (typeof input === "symbol") return createMockListQueryResult()
+      if (input.next_page_marker === "marker-page-2") {
+        return createMockListQueryResult({
+          data: makeListResponse([{ id: "pca-11", project_id: mockProjectId, state: "READY" }]),
+        })
+      }
+
+      return createMockListQueryResult({
+        data: makeListResponse(makePcas(10), {
+          next_page_marker: "marker-page-2",
+        }),
       })
-    )
+    })
 
     renderComponent()
 
     fireEvent.click(screen.getByRole("button", { name: /next/i }))
 
+    expect(vi.mocked(trpcReact.services.pca.list.useQuery)).toHaveBeenLastCalledWith({
+      project_id: mockProjectId,
+      limit: 50,
+      next_page_marker: "marker-page-2",
+    })
     expect(screen.queryByTestId("pca-row-pca-1")).not.toBeInTheDocument()
-    expect(screen.getByTestId("pca-row-pca-51")).toBeInTheDocument()
+    expect(screen.getByTestId("pca-row-pca-11")).toBeInTheDocument()
   })
 })

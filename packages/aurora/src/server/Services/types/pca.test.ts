@@ -625,6 +625,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritiesListSchema.safeParse({
           certificate_authorities: [minimalValidCA],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -633,6 +634,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritiesListSchema.safeParse({
           certificate_authorities: [minimalValidCA, minimalValidReadyCA, completeValidCA],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -641,6 +643,24 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritiesListSchema.safeParse({
           certificate_authorities: [],
+          links: [],
+        }).success
+      ).toBe(true)
+    })
+
+    it("should require links field", () => {
+      expect(
+        CertificateAuthoritiesListSchema.safeParse({
+          certificate_authorities: [minimalValidCA],
+        }).success
+      ).toBe(false)
+    })
+
+    it("should validate links with items", () => {
+      expect(
+        CertificateAuthoritiesListSchema.safeParse({
+          certificate_authorities: [minimalValidCA],
+          links: [{ href: "https://example.com/next", rel: "next" }],
         }).success
       ).toBe(true)
     })
@@ -673,6 +693,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritiesListSchema.safeParse({
           certificate_authorities: [creatingCA, awaitingCA, readyCA, failedCA],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -692,6 +713,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritiesListSchema.safeParse({
           certificate_authorities: [...incompleteCAs, ...completeCAs],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -734,6 +756,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
             },
           },
         ],
+        links: [{ href: "https://clavis.example.com/v1/certificate-authorities?next_page_marker=abc", rel: "next" }],
       }
 
       expect(CertificateAuthoritiesListSchema.safeParse(realWorldResponse).success).toBe(true)
@@ -1251,6 +1274,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificatesListSchema.safeParse({
           certificates: [validCertificate],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -1263,6 +1287,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
             { ...validCertificate, id: "cert-2" },
             { ...validCertificate, id: "cert-3" },
           ],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -1271,6 +1296,24 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificatesListSchema.safeParse({
           certificates: [],
+          links: [],
+        }).success
+      ).toBe(true)
+    })
+
+    it("should require links field", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: [validCertificate],
+        }).success
+      ).toBe(false)
+    })
+
+    it("should validate links with items", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: [validCertificate],
+          links: [{ href: "https://example.com/next", rel: "next" }],
         }).success
       ).toBe(true)
     })
@@ -1315,6 +1358,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
               },
             },
           ],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -1330,6 +1374,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
               csr: "-----BEGIN CERTIFICATE REQUEST-----\n...",
             },
           ],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -1348,6 +1393,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
               },
             },
           ],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -1397,6 +1443,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
             },
           },
         ],
+        links: [{ href: "https://clavis.example.com/v1/certificates?next_page_marker=abc", rel: "next" }],
       }
 
       expect(CertificatesListSchema.safeParse(realWorldResponse).success).toBe(true)
