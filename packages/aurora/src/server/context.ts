@@ -1,5 +1,5 @@
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
-import type { FastifyRequest } from "fastify"
+import type { FastifyRequest, FastifyReply } from "fastify"
 import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 import { SessionCookie } from "./sessionCookie"
 import { AuthConfig } from "./Authentication/types/models"
@@ -57,6 +57,8 @@ export interface FormFieldData {
 
 export interface AuroraPortalContext extends AuroraContext {
   req: FastifyRequest
+  /** Fastify reply object for setting response headers/cookies */
+  res: FastifyReply
   /** Normalised identity endpoint (always ends with /) */
   identityEndpoint: string
   /** Ceph/S3 region from consumer config */
@@ -417,6 +419,7 @@ export async function createContext(
 
   return {
     req: opts.req,
+    res: opts.res,
     signal: abortController.signal,
     identityEndpoint: normalizedEndpoint,
     cephRegion: config.cephRegion,

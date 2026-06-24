@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import type { FastifyRequest } from "fastify"
+import type { FastifyRequest, FastifyReply } from "fastify"
 import { flavorRouter } from "./flavorRouter"
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
@@ -21,6 +21,7 @@ vi.mock("../helpers/flavorHelpers", () => ({
 
 const createMockContext = (shouldFailAuth = false, shouldFailRescope = false, shouldFailCompute = false) => ({
   req: { headers: {} } as FastifyRequest,
+  res: { setCookie: vi.fn() } as unknown as FastifyReply,
   signal: new AbortController().signal,
   validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
   identityEndpoint: "http://identity.example.com/",
