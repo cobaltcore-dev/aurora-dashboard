@@ -82,23 +82,6 @@ export const BucketTableView = ({
     overscan: 10,
   })
 
-  const selectedSet = new Set(selectedBuckets)
-  const allSelected = buckets.length > 0 && buckets.every((b) => selectedSet.has(b.name))
-
-  const handleSelectAll = () => {
-    // `buckets` is the filtered/visible list. Scope select-all to the visible rows so
-    // selections hidden by the current search filter are preserved — otherwise bulk
-    // actions drift out of sync with the parent toolbar's full selectedBuckets list.
-    const visibleNames = buckets.map((b) => b.name)
-    if (allSelected) {
-      // Deselect only what's visible; keep hidden selections intact.
-      setSelectedBuckets(selectedBuckets.filter((name) => !visibleNames.includes(name)))
-    } else {
-      // Add visible rows to the existing selection without dropping hidden ones.
-      setSelectedBuckets([...new Set([...selectedBuckets, ...visibleNames])])
-    }
-  }
-
   const handleSelectBucket = (bucketName: string) => {
     if (selectedBuckets.includes(bucketName)) {
       setSelectedBuckets(selectedBuckets.filter((name) => name !== bucketName))
@@ -147,11 +130,7 @@ export const BucketTableView = ({
             data-testid="buckets-table-header"
           >
             <DataGridRow>
-              {hasAnyBulkAction && (
-                <DataGridHeadCell>
-                  <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-buckets" />
-                </DataGridHeadCell>
-              )}
+              {hasAnyBulkAction && <DataGridHeadCell />}
               <DataGridHeadCell>
                 <Trans>Bucket Name</Trans>
               </DataGridHeadCell>
