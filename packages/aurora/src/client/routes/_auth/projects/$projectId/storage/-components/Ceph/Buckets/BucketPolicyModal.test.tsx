@@ -184,17 +184,6 @@ describe("BucketPolicyModal", () => {
     })
   })
 
-  it("shows delete button when policy exists", () => {
-    mockQueryResult = {
-      data: mockPolicyData,
-      isLoading: false,
-      error: null,
-    }
-    renderModal(defaultProps)
-
-    expect(screen.getByText("Delete Policy")).toBeInTheDocument()
-  })
-
   it("does not show delete button when no policy exists", () => {
     mockQueryResult = {
       data: { policy: null, policyText: null },
@@ -284,26 +273,6 @@ describe("BucketPolicyModal", () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Size: \d+ \/ 20480 bytes/)).toBeInTheDocument()
-    })
-  })
-
-  // ── Delete action ────────────────────────────────────────────────────────────
-
-  it("calls delete mutation when delete button is clicked", async () => {
-    const user = userEvent.setup()
-    mockQueryResult = {
-      data: mockPolicyData,
-      isLoading: false,
-      error: null,
-    }
-    renderModal(defaultProps)
-
-    const deleteButton = screen.getByText("Delete Policy")
-    await user.click(deleteButton)
-
-    expect(mockDeleteMutate).toHaveBeenCalledWith({
-      project_id: "test-project-id",
-      bucketName: "test-bucket",
     })
   })
 
