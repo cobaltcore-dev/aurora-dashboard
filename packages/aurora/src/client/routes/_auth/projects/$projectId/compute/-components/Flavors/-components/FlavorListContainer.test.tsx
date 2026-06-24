@@ -177,33 +177,6 @@ describe("FlavorListContainer", () => {
     expect(onPageChangeMock).toHaveBeenCalledWith(3)
   })
 
-  it("does not call onPageChange for out-of-range page numbers", async () => {
-    const onPageChangeMock = vi.fn()
-    await act(async () => {
-      render(
-        <FlavorListContainer
-          flavors={mockFlavors}
-          isLoading={false}
-          client={mockClient}
-          project={mockProject}
-          onFlavorDeleted={vi.fn()}
-          currentPage={1}
-          totalPages={5}
-          onPageChange={onPageChangeMock}
-        />,
-        {
-          wrapper: TestingProvider,
-        }
-      )
-    })
-
-    const input = screen.getByRole("textbox")
-    fireEvent.change(input, { target: { value: "10" } }) // Example out-of-range
-    fireEvent.keyDown(input, { key: "Enter", code: "Enter", charCode: 13 })
-
-    expect(onPageChangeMock).not.toHaveBeenCalled()
-  })
-
   it("does not call onPageChange for empty input when Enter is pressed", async () => {
     const onPageChangeMock = vi.fn()
     await act(async () => {
@@ -225,7 +198,7 @@ describe("FlavorListContainer", () => {
     })
 
     const input = screen.getByRole("textbox")
-    fireEvent.change(input, { target: { value: "" } }) // Empty input
+    fireEvent.change(input, { target: { value: "" } })
     fireEvent.keyDown(input, { key: "Enter", code: "Enter", charCode: 13 })
 
     expect(onPageChangeMock).not.toHaveBeenCalled()

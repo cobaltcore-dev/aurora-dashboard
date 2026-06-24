@@ -93,7 +93,6 @@ export const FlavorListContainer = ({
     closeDeleteModal()
   }
 
-  // Update input to reflect current page
   const updateCurrentPage = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       onPageChange?.(newPage)
@@ -222,6 +221,9 @@ export const FlavorListContainer = ({
             pages={totalPages}
             onPressPrevious={() => updateCurrentPage(Math.max(currentPage - 1, 1))}
             onPressNext={() => updateCurrentPage(Math.min(currentPage + 1, totalPages))}
+            onSelectChange={(selectedPage: number) => {
+              updateCurrentPage(selectedPage)
+            }}
             onInputChange={(newInputPage?: number) => {
               setInputPage(newInputPage === undefined ? "" : String(newInputPage))
             }}
