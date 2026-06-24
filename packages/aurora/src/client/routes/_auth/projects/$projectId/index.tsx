@@ -18,10 +18,16 @@ interface ServiceCardProps {
 function ServiceCard({ group, label, to }: ServiceCardProps) {
   const navigate = useNavigate()
   return (
-    <Card onClick={() => navigate({ to: to as never })} className="flex min-h-40 flex-col gap-4 px-3 pt-2 pb-3">
+    <Card
+      onClick={() => navigate({ to: to as never })}
+      className="flex min-h-40 flex-col gap-4 px-3 pt-2 pb-3"
+      data-testid="service-card"
+    >
       <div className="flex min-w-0 flex-col">
         <p className="text-theme-light text-xs leading-5 font-medium">{group}</p>
-        <p className="text-theme-high text-lg leading-7 font-bold">{label}</p>
+        <p className="text-theme-high text-lg leading-7 font-bold" data-testid="service-card-label">
+          {label}
+        </p>
       </div>
       <div className="flex-1" />
     </Card>
