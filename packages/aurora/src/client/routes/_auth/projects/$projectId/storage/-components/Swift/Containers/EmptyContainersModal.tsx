@@ -1,7 +1,17 @@
-import { useState } from "react"
+import { useState, Fragment } from "react"
+import React from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Spinner,
+  Stack,
+  Message,
+  TextInput,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+} from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -26,6 +36,8 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
   const projectId = useProjectId()
 
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
+  const [confirmValue, setConfirmValue] = useState("")
+  const isConfirmed = confirmValue.trim() === "empty"
 
   const utils = trpcReact.useUtils()
 
@@ -34,6 +46,7 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
   const handleClose = () => {
     emptyContainerMutation.reset()
     setProgress(null)
+    setConfirmValue("")
     onClose()
   }
 
@@ -84,7 +97,7 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
       onConfirm={handleConfirm}
-      disableConfirmButton={isPending}
+      disableConfirmButton={isPending || !isConfirmed}
       disableCancelButton={isPending}
       disableCloseButton={isPending}
       size="small"
@@ -102,12 +115,14 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
         </Stack>
       ) : (
         <div className="my-6">
-          <p className="text-theme-default mb-6">
+          <Message variant="danger" className="mb-6">
             <Trans>All objects in the selected containers will be permanently deleted. This cannot be undone.</Trans>
-            <br />
+          </Message>
+
+          <p className="text-theme-default mb-6 text-sm">
             <Trans>
-              Please note: for <strong>dynamic</strong> and <strong>static large objects</strong> only the manifests are
-              deleted. The related segments are not deleted.
+              For <strong>dynamic</strong> and <strong>static large objects</strong> only the manifests are deleted —
+              the related segments are not deleted.
             </Trans>
           </p>
 
@@ -116,13 +131,23 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
               <Trans>Containers to be emptied ({totalCount})</Trans>
             </h3>
             <div className="jn:bg-theme-background-lvl-1 max-h-48 overflow-y-auto rounded p-4">
-              <ul className="space-y-1">
-                {visibleContainers.map((container) => (
-                  <li key={container.name} className="jn:text-theme-default font-mono text-sm">
-                    {container.name}
-                  </li>
-                ))}
-              </ul>
+              <DescriptionList className="grid-cols-2" alignTerms="left">
+                {visibleContainers.map((container) => {
+                  const count = container.count
+                  return (
+                    <Fragment key={container.name}>
+                      <DescriptionTerm className="col-span-1">
+                        <span className="block truncate" title={container.name}>
+                          {container.name}
+                        </span>
+                      </DescriptionTerm>
+                      <DescriptionDefinition className="col-span-1">
+                        <span className="whitespace-nowrap">{count != null ? t`${count} objects` : ""}</span>
+                      </DescriptionDefinition>
+                    </Fragment>
+                  )
+                })}
+              </DescriptionList>
               {hiddenCount > 0 && (
                 <p className="text-theme-light mt-2 text-xs">
                   <Trans>... and {hiddenCount} more</Trans>
@@ -130,6 +155,13 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
               )}
             </div>
           </div>
+
+          <TextInput
+            label={t`Type "empty" to confirm`}
+            placeholder="empty"
+            value={confirmValue}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmValue(e.target.value)}
+          />
         </div>
       )}
     </Modal>

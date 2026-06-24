@@ -128,15 +128,18 @@ describe("EmptyContainersModal", () => {
   })
 
   describe("Content", () => {
-    test("renders warning message", () => {
+    test("renders warning as a danger Message component", () => {
       renderModal()
-      expect(screen.getByText(/cannot be undone/i)).toBeInTheDocument()
+      const warningEl = screen.getByText(/cannot be undone/i).closest(".juno-message")
+      expect(warningEl).toBeInTheDocument()
+      expect(warningEl).toHaveClass("juno-message-danger")
     })
 
-    test("renders large objects notice", () => {
+    test("renders large objects notice without 'Please note:' prefix", () => {
       renderModal()
       expect(screen.getByText(/dynamic/i)).toBeInTheDocument()
       expect(screen.getByText(/static large objects/i)).toBeInTheDocument()
+      expect(screen.queryByText(/Please note/i)).not.toBeInTheDocument()
     })
 
     test("renders containers to be emptied heading with count", () => {
@@ -149,6 +152,11 @@ describe("EmptyContainersModal", () => {
       expect(screen.getByText("alpha")).toBeInTheDocument()
       expect(screen.getByText("beta")).toBeInTheDocument()
       expect(screen.getByText("gamma")).toBeInTheDocument()
+    })
+
+    test("renders type-to-confirm input", () => {
+      renderModal()
+      expect(screen.getByPlaceholderText("empty")).toBeInTheDocument()
     })
 
     test("renders Empty and Cancel buttons", () => {
@@ -214,11 +222,51 @@ describe("EmptyContainersModal", () => {
     })
   })
 
-  describe("Confirmation", () => {
-    test("calls mutateAsync for each selected container on confirm", async () => {
+  describe("Type-to-confirm gating", () => {
+    test("Empty button is disabled before confirmation word is typed", () => {
+      renderModal()
+      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
+    })
+
+    test("Empty button stays disabled when the wrong word is typed", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByPlaceholderText("empty"), "delete")
+      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
+    })
+
+    test("Empty button is enabled after typing the confirmation word", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByPlaceholderText("empty"), "empty")
+      expect(screen.getByRole("button", { name: /^Empty$/i })).not.toBeDisabled()
+    })
+
+    test("ignores surrounding whitespace when matching the confirmation word", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByPlaceholderText("empty"), "  empty  ")
+      expect(screen.getByRole("button", { name: /^Empty$/i })).not.toBeDisabled()
+    })
+
+    test("does not call mutateAsync when Empty is clicked without confirming", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      expect(mockMutateAsync).not.toHaveBeenCalled()
+    })
+  })
+
+  describe("Confirmation", () => {
+    const typeAndConfirm = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.type(screen.getByPlaceholderText("empty"), "empty")
+      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+    }
+
+    test("calls mutateAsync for each selected container on confirm", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await typeAndConfirm(user)
       await waitFor(() => {
         expect(mockMutateAsync).toHaveBeenCalledTimes(3)
         expect(mockMutateAsync).toHaveBeenCalledWith({ container: "alpha", project_id: mockProjectId })
@@ -230,7 +278,7 @@ describe("EmptyContainersModal", () => {
     test("calls listContainers.invalidate after all containers are emptied", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await typeAndConfirm(user)
       await waitFor(() => {
         expect(mockInvalidate).toHaveBeenCalled()
       })
@@ -241,7 +289,7 @@ describe("EmptyContainersModal", () => {
       const onComplete = vi.fn()
       const user = userEvent.setup()
       renderModal({ onComplete })
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await typeAndConfirm(user)
       await waitFor(() => {
         expect(onComplete).toHaveBeenCalledWith({ emptiedCount: 3, totalDeleted: 15, errors: [] })
       })
@@ -251,7 +299,7 @@ describe("EmptyContainersModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await typeAndConfirm(user)
       await waitFor(() => {
         expect(onClose).toHaveBeenCalled()
       })
@@ -262,7 +310,7 @@ describe("EmptyContainersModal", () => {
       const onComplete = vi.fn()
       const user = userEvent.setup()
       renderModal({ onComplete })
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await typeAndConfirm(user)
       await waitFor(() => {
         expect(onComplete).toHaveBeenCalledWith({ emptiedCount: 3, totalDeleted: 0, errors: [] })
       })
@@ -270,12 +318,17 @@ describe("EmptyContainersModal", () => {
   })
 
   describe("Error handling", () => {
+    const typeAndConfirm = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.type(screen.getByPlaceholderText("empty"), "empty")
+      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+    }
+
     test("calls onComplete with errors when mutation fails", async () => {
       mockState.mutationError = "Bulk delete failed"
       const onComplete = vi.fn()
       const user = userEvent.setup()
       renderModal({ onComplete })
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await typeAndConfirm(user)
       await waitFor(() => {
         expect(onComplete).toHaveBeenCalledTimes(1)
         const result = onComplete.mock.calls[0][0]
@@ -296,7 +349,7 @@ describe("EmptyContainersModal", () => {
       const onComplete = vi.fn()
       const user = userEvent.setup()
       renderModal({ onComplete })
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await typeAndConfirm(user)
       await waitFor(() => {
         const result = onComplete.mock.calls[0][0]
         expect(result.emptiedCount).toBe(1)
@@ -310,7 +363,7 @@ describe("EmptyContainersModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await typeAndConfirm(user)
       await waitFor(() => {
         expect(onClose).toHaveBeenCalled()
       })

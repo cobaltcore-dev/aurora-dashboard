@@ -46,6 +46,9 @@ msgstr "{bucketCount, plural, one {object} other {objects}}"
 msgid "{certificateIdValue} Certificate Details"
 msgstr "{certificateIdValue} Certificate Details"
 
+msgid "{count} objects"
+msgstr "{count} objects"
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
 
@@ -1519,6 +1522,9 @@ msgstr "Folders cannot be bulk-deleted. Use the row menu to delete a folder."
 msgid "Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing slash. The folder will appear once created."
 msgstr "Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing slash. The folder will appear once created."
 
+msgid "For <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted — the related segments are not deleted."
+msgstr "For <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted — the related segments are not deleted."
+
 msgid "For more details, have a look at the <0>documentation</0>."
 msgstr "For more details, have a look at the <0>documentation</0>."
 
@@ -2322,9 +2328,6 @@ msgstr "Please fix the validation errors below."
 
 msgid "Please log in again to continue."
 msgstr "Please log in again to continue."
-
-msgid "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
-msgstr "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
 
 msgid "Please select a file to upload"
 msgstr "Please select a file to upload"
