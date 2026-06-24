@@ -272,7 +272,7 @@ export const CopyObjectModal = ({
             <div className="text-theme-light text-sm">
               <Trans>Source:</Trans>
             </div>
-            <div className="mt-1 text-sm">{`${bucketName}/${objectKey}`}</div>
+            <div className="mt-1 text-sm break-all">{`${bucketName}/${objectKey}`}</div>
             {objectSize !== undefined && (
               <div className="text-theme-light mt-1 text-xs">{(objectSize / 1024).toFixed(2)} KB</div>
             )}

@@ -305,7 +305,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       {/* Bucket header with versioning status badge */}
       <div className="mb-4 flex items-center justify-between">
         <Stack direction="horizontal" gap="3" alignment="center">
-          <h2 className="text-xl font-semibold">{bucketName}</h2>
+          <h1 className="text-theme-high text-3xl font-bold">{bucketName}</h1>
           {versioningStatus && versioningStatus.status === "Enabled" && (
             <Badge variant="success">
               <Trans>Versioning Enabled</Trans>
@@ -339,6 +339,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               options={sortSettings.options}
               sortBy={sortSettings.sortBy}
               sortDirection={sortSettings.sortDirection ?? "asc"}
+              selectClassName="w-40"
               onSortByChange={(value) =>
                 handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
               }

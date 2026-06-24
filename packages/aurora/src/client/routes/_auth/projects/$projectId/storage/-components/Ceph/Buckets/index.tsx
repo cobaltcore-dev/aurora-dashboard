@@ -295,6 +295,7 @@ export const CephBuckets = () => {
               options={sortSettings.options}
               sortBy={sortSettings.sortBy}
               sortDirection={sortSettings.sortDirection ?? "asc"}
+              selectClassName="w-40"
               onSortByChange={(value) =>
                 handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
               }
