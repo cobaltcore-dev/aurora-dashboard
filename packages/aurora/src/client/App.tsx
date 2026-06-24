@@ -39,13 +39,6 @@ const App = (props: AppProps) => {
 
   const [router] = useState(() => createAuroraRouter(trpcReact, trpcClient))
 
-  // Set up analytics tracking for router navigation
-  useEffect(() => {
-    if (props.onTrackEvent) {
-      return setupRouterAnalytics(router)
-    }
-  }, [router, props.onTrackEvent])
-
   const [currentTheme, setCurrentTheme] = useState<"theme-dark" | "theme-light">(props.theme ?? "theme-light")
 
   const [queryClient] = useState(
@@ -141,6 +134,14 @@ function AppInner({
     appName,
     onTrackEvent,
   }
+
+  // Set up analytics tracking for router navigation
+  // Must run AFTER RouterProvider processes the context, so use a separate effect
+  useEffect(() => {
+    if (onTrackEvent) {
+      return setupRouterAnalytics(router)
+    }
+  }, [router, onTrackEvent])
 
   return <RouterProvider router={router} context={routerContext} />
 }
