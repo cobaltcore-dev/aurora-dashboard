@@ -508,10 +508,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled())
     })
 
-    test("selecting all via header checkbox enables Actions and shows the plural Empty item with count", async () => {
+    test("selecting multiple containers enables Actions and shows the plural Empty item with count", async () => {
       const user = userEvent.setup()
       renderList()
-      await user.click(screen.getByTestId("select-all-containers"))
+      await user.click(screen.getByTestId("select-container-alpha"))
+      await user.click(screen.getByTestId("select-container-beta"))
+      await user.click(screen.getByTestId("select-container-gamma"))
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await openActionsMenu(user)
       expect(await screen.findByText("Empty 3 Containers")).toBeInTheDocument()

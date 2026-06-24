@@ -889,11 +889,6 @@ describe("ObjectsTableView", () => {
   describe("Selection", () => {
     const objectRows = mockRows.filter((r) => r.kind === "object")
 
-    test("renders select-all checkbox in table header", () => {
-      renderView()
-      expect(screen.getByTestId("select-all-objects")).toBeInTheDocument()
-    })
-
     test("renders a checkbox for each object row", () => {
       renderView()
       objectRows.forEach((r) => {
@@ -936,21 +931,6 @@ describe("ObjectsTableView", () => {
       expect(screen.getByTestId("select-object-photo.png")).not.toBeChecked()
     })
 
-    test("select-all checkbox is unchecked when nothing is selected", () => {
-      renderView({ selectedObjects: [] })
-      expect(screen.getByTestId("select-all-objects")).not.toBeChecked()
-    })
-
-    test("select-all checkbox is checked when all object rows are selected", () => {
-      renderView({ selectedObjects: objectRows.map((r) => r.name) })
-      expect(screen.getByTestId("select-all-objects")).toBeChecked()
-    })
-
-    test("select-all checkbox is unchecked when only some objects are selected", () => {
-      renderView({ selectedObjects: ["readme.txt"] })
-      expect(screen.getByTestId("select-all-objects")).not.toBeChecked()
-    })
-
     test("clicking a row checkbox calls setSelectedObjects with the object added", async () => {
       const setSelectedObjects = vi.fn()
       const user = userEvent.setup()
@@ -966,31 +946,10 @@ describe("ObjectsTableView", () => {
       await user.click(screen.getByTestId("select-object-readme.txt"))
       expect(setSelectedObjects).toHaveBeenCalledWith(["photo.png"])
     })
-
-    test("clicking select-all calls setSelectedObjects with all object names", async () => {
-      const setSelectedObjects = vi.fn()
-      const user = userEvent.setup()
-      renderView({ selectedObjects: [], setSelectedObjects })
-      await user.click(screen.getByTestId("select-all-objects"))
-      expect(setSelectedObjects).toHaveBeenCalledWith(objectRows.map((r) => r.name))
-    })
-
-    test("clicking select-all when all selected calls setSelectedObjects with empty array", async () => {
-      const setSelectedObjects = vi.fn()
-      const user = userEvent.setup()
-      renderView({ selectedObjects: objectRows.map((r) => r.name), setSelectedObjects })
-      await user.click(screen.getByTestId("select-all-objects"))
-      expect(setSelectedObjects).toHaveBeenCalledWith([])
-    })
   })
 
   describe("Selection column gating (hasAnyBulkAction)", () => {
     const objectRows = mockRows.filter((r) => r.kind === "object")
-
-    test("hides the select-all checkbox when hasAnyBulkAction is false", () => {
-      renderView({ hasAnyBulkAction: false })
-      expect(screen.queryByTestId("select-all-objects")).not.toBeInTheDocument()
-    })
 
     test("renders no per-row checkboxes when hasAnyBulkAction is false", () => {
       renderView({ hasAnyBulkAction: false })
@@ -1020,7 +979,8 @@ describe("ObjectsTableView", () => {
 
     test("renders the selection column by default (hasAnyBulkAction defaults to true)", () => {
       renderView()
-      expect(screen.getByTestId("select-all-objects")).toBeInTheDocument()
+      // Per-row checkboxes are the selection affordance; no header select-all
+      expect(screen.getByTestId("select-object-readme.txt")).toBeInTheDocument()
     })
   })
 

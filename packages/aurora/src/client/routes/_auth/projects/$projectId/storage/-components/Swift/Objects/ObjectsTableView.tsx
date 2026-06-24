@@ -275,18 +275,6 @@ export const ObjectsTableView = ({
   }
 
   // Only object rows (not folders) are selectable
-  const selectableRows = rows.filter((r): r is ObjectRow => r.kind === "object")
-  const selectedSet = new Set(selectedObjects)
-  const allSelected = selectableRows.length > 0 && selectableRows.every((r) => selectedSet.has(r.name))
-
-  const handleSelectAll = () => {
-    if (allSelected) {
-      setSelectedObjects([])
-    } else {
-      setSelectedObjects(selectableRows.map((r) => r.name))
-    }
-  }
-
   const handleSelectObject = (name: string) => {
     if (selectedObjects.includes(name)) {
       setSelectedObjects(selectedObjects.filter((n) => n !== name))
@@ -337,11 +325,7 @@ export const ObjectsTableView = ({
             data-testid="objects-table-header"
           >
             <DataGridRow>
-              {hasAnyBulkAction && (
-                <DataGridHeadCell>
-                  <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-objects" />
-                </DataGridHeadCell>
-              )}
+              {hasAnyBulkAction && <DataGridHeadCell />}
               <DataGridHeadCell>
                 <Trans>Object Name</Trans>
               </DataGridHeadCell>
