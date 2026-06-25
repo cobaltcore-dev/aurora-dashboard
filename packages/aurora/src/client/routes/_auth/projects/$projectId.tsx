@@ -29,9 +29,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId")({
       accountId, // Keep for SideNavBar compatibility
       projectId: params.projectId,
       description:
-        (await context.trpcClient?.project.getAuthProjects
-          .query()
-          .then((projects) => projects?.find((p) => p.id === params.projectId)?.description ?? null)
+        (await context.trpcClient?.project.getProjectById
+          .query({ id: params.projectId })
+          .then((project) => project?.description ?? null)
           .catch(() => null)) ?? null,
     }
   },
