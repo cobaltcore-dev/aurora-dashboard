@@ -36,6 +36,7 @@ export function DeleteObjectModal({
   const deleteMutation = trpcReact.storage.ceph.objects.delete.useMutation({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
       onSuccess(objectKey)
       handleClose()
     },
@@ -81,7 +82,16 @@ export function DeleteObjectModal({
       <Stack direction="vertical" gap="4">
         <p className="text-theme-default">
           {isFolder ? (
-            <Trans>Confirm deletion of {displayName}.</Trans>
+            versioningEnabled ? (
+              <Trans>
+                Confirm deletion of {displayName}. All objects inside this folder will be hidden but can be restored
+                from version history.
+              </Trans>
+            ) : (
+              <Trans>
+                Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted.
+              </Trans>
+            )
           ) : versioningEnabled ? (
             <Trans>
               Confirm deletion of {displayName}. The object will be hidden but can be restored from version history.
@@ -135,9 +145,13 @@ export function DeleteObjectModal({
             placeholder="DELETE"
             autoFocus
             helptext={
-              versioningEnabled && !isFolder
-                ? t`The object can be restored from version history.`
-                : t`This action cannot be undone.`
+              isFolder
+                ? versioningEnabled
+                  ? t`All objects in the folder can be restored from version history.`
+                  : t`All objects in the folder will be permanently deleted.`
+                : versioningEnabled && !isFolder
+                  ? t`The object can be restored from version history.`
+                  : t`This action cannot be undone.`
             }
           />
         </div>

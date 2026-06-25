@@ -40,6 +40,7 @@ export const DeleteVersionModal = ({
     onSuccess: () => {
       utils.storage.ceph.versioning.listObjectVersions.invalidate()
       utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
       onSuccess?.(objectKey, versionId)
       handleClose()
     },

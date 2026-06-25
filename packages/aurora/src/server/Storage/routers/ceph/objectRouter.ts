@@ -323,6 +323,10 @@ export const objectRouter = {
    * Uses AWS SDK DeleteObjectCommand. Deleting a non-existent object is considered
    * a success (S3 is idempotent for deletes).
    *
+   * For folders (keys ending with "/"), recursively deletes all objects inside the folder
+   * first, then deletes the folder marker itself. This ensures that in versioned buckets,
+   * the entire folder content gets delete markers, not just the folder object.
+   *
    * @throws TRPCError NOT_FOUND - bucket does not exist
    * @throws TRPCError FORBIDDEN - no credentials or access denied
    */
@@ -331,6 +335,61 @@ export const objectRouter = {
     const { containerName, objectKey } = input
 
     try {
+      // Check if this is a folder (ends with "/")
+      const isFolder = objectKey.endsWith("/")
+
+      if (isFolder) {
+        // Recursively delete all objects inside the folder first
+        let continuationToken: string | undefined
+        let totalDeleted = 0
+
+        do {
+          // List all objects with this prefix (without delimiter to get ALL nested objects)
+          const listResponse = await s3.send(
+            new ListObjectsV2Command({
+              Bucket: containerName,
+              Prefix: objectKey,
+              MaxKeys: S3_MAX_KEYS_PER_REQUEST,
+              ContinuationToken: continuationToken,
+            })
+          )
+
+          const objects = listResponse.Contents ?? []
+
+          // Filter out the folder marker itself - we'll delete it last
+          const objectsToDelete = objects.filter((obj) => obj.Key !== objectKey)
+
+          if (objectsToDelete.length > 0) {
+            // Batch delete the objects
+            const deleteResponse = await s3.send(
+              new DeleteObjectsCommand({
+                Bucket: containerName,
+                Delete: {
+                  Objects: objectsToDelete.map((obj) => ({ Key: obj.Key! })),
+                },
+              })
+            )
+
+            totalDeleted += deleteResponse.Deleted?.length ?? 0
+
+            // Check for errors
+            if (deleteResponse.Errors && deleteResponse.Errors.length > 0) {
+              console.error(`[delete folder] Errors during batch deletion:`, deleteResponse.Errors)
+              const errorKeys = deleteResponse.Errors.map((e) => e.Key).join(", ")
+              throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: `Failed to delete some objects in folder: ${errorKeys}`,
+              })
+            }
+          }
+
+          continuationToken = listResponse.NextContinuationToken
+        } while (continuationToken)
+
+        console.log(`[delete folder] Deleted ${totalDeleted} objects from folder ${objectKey}`)
+      }
+
+      // Delete the object itself (or folder marker after deleting contents)
       await s3.send(
         new DeleteObjectCommand({
           Bucket: containerName,

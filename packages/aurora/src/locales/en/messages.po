@@ -106,6 +106,9 @@ msgstr "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCo
 msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 msgstr "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 
+msgid "<0>Are you sure?</0> This will permanently delete all versions and delete markers from bucket \"{bucketName}\". After this operation, the bucket will be completely empty and can be deleted."
+msgstr "<0>Are you sure?</0> This will permanently delete all versions and delete markers from bucket \"{bucketName}\". After this operation, the bucket will be completely empty and can be deleted."
+
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Edit metadata:</0> <1>{displayName}</1>"
 
@@ -273,6 +276,12 @@ msgstr "All containers"
 
 msgid "All Images"
 msgstr "All Images"
+
+msgid "All objects in the folder can be restored from version history."
+msgstr "All objects in the folder can be restored from version history."
+
+msgid "All objects in the folder will be permanently deleted."
+msgstr "All objects in the folder will be permanently deleted."
 
 msgid "All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "All objects in the selected containers will be permanently deleted. This cannot be undone."
@@ -526,8 +535,11 @@ msgstr "Compute"
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 
-msgid "Confirm deletion of {displayName}."
-msgstr "Confirm deletion of {displayName}."
+msgid "Confirm deletion of {displayName}. All objects inside this folder will be hidden but can be restored from version history."
+msgstr "Confirm deletion of {displayName}. All objects inside this folder will be hidden but can be restored from version history."
+
+msgid "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted."
+msgstr "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted."
 
 msgid "Confirm deletion of {displayName}. The object will be hidden but can be restored from version history."
 msgstr "Confirm deletion of {displayName}. The object will be hidden but can be restored from version history."
@@ -2161,9 +2173,6 @@ msgstr "Note: for <0>static and dynamic large objects</0> only the manifests are
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 
-msgid "Nothing to do. Bucket is already empty."
-msgstr "Nothing to do. Bucket is already empty."
-
 msgid "Object \"{displayName}\" was permanently deleted."
 msgstr "Object \"{displayName}\" was permanently deleted."
 
@@ -3076,8 +3085,8 @@ msgstr "This action is permanent. The address will be removed from your project 
 msgid "This action will create a self-signed CA certificate."
 msgstr "This action will create a self-signed CA certificate."
 
-msgid "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
-msgstr "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
+msgid "This bucket contains objects (possibly including old versions and delete markers) and cannot be deleted. Use <0>Empty</0> action to remove all content first."
+msgstr "This bucket contains objects (possibly including old versions and delete markers) and cannot be deleted. Use <0>Empty</0> action to remove all content first."
 
 msgid "This bucket does not have a policy attached."
 msgstr "This bucket does not have a policy attached."

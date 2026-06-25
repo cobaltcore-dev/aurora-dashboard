@@ -63,6 +63,7 @@ vi.mock("@/client/trpcClient", () => ({
       storage: {
         ceph: {
           containers: { list: { invalidate: mockInvalidate } },
+          objects: { list: { invalidate: mockInvalidate } },
         },
       },
     }),
@@ -158,30 +159,21 @@ describe("EmptyBucketModal", () => {
   })
 
   describe("Empty bucket state", () => {
-    test("shows info message when bucket is already empty", () => {
+    test("shows special message for bucket with only delete markers (count=0)", () => {
       renderModal({ bucket: mockEmptyBucket })
-      expect(screen.getByText(/Nothing to do. Bucket is already empty./)).toBeInTheDocument()
+      expect(
+        screen.getByText(/This will permanently delete all versions and delete markers from bucket/)
+      ).toBeInTheDocument()
     })
 
-    test("renders Close button for empty bucket", () => {
+    test("still shows confirmation input for empty bucket", () => {
       renderModal({ bucket: mockEmptyBucket })
-      expect(screen.getByTestId("empty-info-close-button")).toBeInTheDocument()
-      expect(screen.queryByRole("button", { name: /^Empty$/i })).not.toBeInTheDocument()
+      expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeInTheDocument()
     })
 
-    test("does not show confirmation input for empty bucket", () => {
+    test("allows emptying bucket even when count is 0", () => {
       renderModal({ bucket: mockEmptyBucket })
-      expect(screen.queryByLabelText(/Type the bucket name to confirm/i)).not.toBeInTheDocument()
-    })
-
-    test("closes modal when Close button is clicked", async () => {
-      const user = userEvent.setup({ delay: null })
-      const mockOnClose = vi.fn()
-      renderModal({ bucket: mockEmptyBucket, onClose: mockOnClose })
-
-      await user.click(screen.getByTestId("empty-info-close-button"))
-
-      expect(mockOnClose).toHaveBeenCalledTimes(1)
+      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeInTheDocument()
     })
   })
 
@@ -363,7 +355,7 @@ describe("EmptyBucketModal", () => {
       )
     })
 
-    test("invalidates containers query on success", async () => {
+    test("invalidates both containers and objects queries on success", async () => {
       const user = userEvent.setup({ delay: null })
       renderModal()
 
@@ -376,7 +368,7 @@ describe("EmptyBucketModal", () => {
 
       await waitFor(
         () => {
-          expect(mockInvalidate).toHaveBeenCalledTimes(1)
+          expect(mockInvalidate).toHaveBeenCalledTimes(2)
         },
         { timeout: 3000 }
       )

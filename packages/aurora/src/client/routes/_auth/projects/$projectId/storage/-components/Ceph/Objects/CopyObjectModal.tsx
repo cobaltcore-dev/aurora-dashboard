@@ -140,6 +140,7 @@ export const CopyObjectModal = ({
   const copyMutation = trpcReact.storage.ceph.objects.copy.useMutation({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
       const targetKey = `${modalState.currentPrefix}${displayName}`
       onSuccess?.(submittedKeyRef.current, modalState.targetBucket, targetKey, targetExists)
       handleClose()

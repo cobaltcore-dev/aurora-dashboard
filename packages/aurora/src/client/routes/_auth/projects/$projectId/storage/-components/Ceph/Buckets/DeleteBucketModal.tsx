@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Trans, useLingui, Plural } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, ModalFooter, ButtonRow, TextInput, Stack, Spinner, Button } from "@cloudoperators/juno-ui-components"
 import type { Bucket } from "@/server/Storage/types/ceph"
@@ -30,7 +30,8 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
 
   const utils = trpcReact.useUtils()
 
-  // Fetch actual objects to get accurate real-time state
+  // Fetch actual objects and versions to get accurate real-time state
+  // Use showVersions=true to also detect delete markers in versioned buckets
   // Use delimiter="" to get ALL objects including folder markers (zero-byte objects ending in "/")
   // Without this, folders are returned as CommonPrefixes and we can't accurately check if bucket is empty
   const {
@@ -38,7 +39,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
     isLoading: isLoadingObjects,
     error: objectsError,
   } = trpcReact.storage.ceph.objects.list.useQuery(
-    { project_id: projectId ?? "", containerName: bucket?.name ?? "", maxKeys: 1, delimiter: "" },
+    { project_id: projectId ?? "", containerName: bucket?.name ?? "", maxKeys: 1, delimiter: "", showVersions: true },
     { enabled: isOpen && bucket !== null }
   )
 
@@ -100,8 +101,9 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
 
   if (!isOpen || !bucket) return null
 
-  // When delimiter="", folders are returned as objects (keys ending in "/")
-  const actualObjectCount = objects?.objects?.length ?? 0
+  // When showVersions=true, check both objects and versions (including delete markers)
+  // When delimiter="", folders are returned as objects/versions (keys ending in "/")
+  const actualObjectCount = (objects?.objects?.length ?? 0) + (objects?.versions?.length ?? 0)
   const isNonEmpty = actualObjectCount > 0
   const errorMessage = objectsError?.message
 
@@ -147,8 +149,8 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
         ) : isNonEmpty ? (
           <p className="text-theme-default">
             <Trans>
-              This bucket contains {actualObjectCount} <Plural value={actualObjectCount} one="object" other="objects" />{" "}
-              and cannot be deleted. Delete all objects first.
+              This bucket contains objects (possibly including old versions and delete markers) and cannot be deleted.
+              Use <strong>Empty</strong> action to remove all content first.
             </Trans>
           </p>
         ) : (

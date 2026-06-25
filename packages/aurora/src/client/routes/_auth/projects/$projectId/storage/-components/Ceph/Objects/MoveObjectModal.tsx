@@ -150,6 +150,7 @@ export const MoveObjectModal = ({
   const deleteMutation = trpcReact.storage.ceph.objects.delete.useMutation({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
       // Use captured target values instead of recomputing from mutable state
       onSuccess?.(submittedKeyRef.current, submittedTargetBucketRef.current, submittedTargetKeyRef.current)
     },

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, ModalFooter, ButtonRow, TextInput, Stack, Button } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Button } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -85,8 +85,6 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
 
   if (!isOpen || !bucket) return null
 
-  // Show info message if bucket is already empty
-  const isEmpty = bucket.count === 0
   const bucketCount = bucket.count
   const bucketName = bucket.name
 
@@ -95,68 +93,58 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       title={t`Empty Bucket`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={isEmpty ? undefined : t`Empty`}
+      confirmButtonLabel={t`Empty`}
       confirmButtonVariant="primary-danger"
-      onConfirm={isEmpty ? undefined : handleSubmit}
-      cancelButtonLabel={isEmpty ? undefined : t`Cancel`}
-      modalFooter={
-        isEmpty ? (
-          <ModalFooter className="flex justify-end">
-            <ButtonRow>
-              <Button variant="primary" onClick={handleClose} data-testid="empty-info-close-button">
-                <Trans>Close</Trans>
-              </Button>
-            </ButtonRow>
-          </ModalFooter>
-        ) : undefined
-      }
+      onConfirm={handleSubmit}
+      cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={emptyBucketMutation.isPending || (!isEmpty && confirmName.trim() !== bucket.name)}
+      disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name}
     >
-      {isEmpty ? (
-        <p className="text-theme-default py-2">
-          <Trans>Nothing to do. Bucket is already empty.</Trans>
-        </p>
-      ) : (
-        <Stack direction="vertical" gap="6">
-          <p className="text-theme-default">
+      <Stack direction="vertical" gap="6">
+        <p className="text-theme-default">
+          {bucketCount > 0 ? (
             <Trans>
               <strong>Are you sure?</strong> All {bucketCount}{" "}
               <Plural value={bucketCount} one="object" other="objects" /> in bucket "{bucketName}" will be permanently
               deleted. This action cannot be undone.
             </Trans>
-          </p>
+          ) : (
+            <Trans>
+              <strong>Are you sure?</strong> This will permanently delete all versions and delete markers from bucket "
+              {bucketName}". After this operation, the bucket will be completely empty and can be deleted.
+            </Trans>
+          )}
+        </p>
 
-          <Stack direction="vertical" gap="2">
-            <div className="flex items-center justify-between">
-              <span className="text-theme-light text-sm">
-                <Trans>Bucket to empty:</Trans>
-              </span>
-              <Button
-                size="small"
-                variant="subdued"
-                onClick={handleCopyName}
-                icon={copied ? "check" : "contentCopy"}
-                label={copied ? t`Copied` : t`Copy`}
-              />
-            </div>
-            <div className="bg-theme-background-lvl-1 rounded p-2 text-sm">{bucket.name}</div>
-          </Stack>
-
-          <TextInput
-            label={t`Type the bucket name to confirm`}
-            required
-            value={confirmName}
-            onChange={handleConfirmNameChange}
-            onKeyDown={handleKeyDown}
-            invalid={!!nameError}
-            errortext={nameError || undefined}
-            disabled={emptyBucketMutation.isPending}
-            placeholder={bucket.name}
-            autoFocus
-          />
+        <Stack direction="vertical" gap="2">
+          <div className="flex items-center justify-between">
+            <span className="text-theme-light text-sm">
+              <Trans>Bucket to empty:</Trans>
+            </span>
+            <Button
+              size="small"
+              variant="subdued"
+              onClick={handleCopyName}
+              icon={copied ? "check" : "contentCopy"}
+              label={copied ? t`Copied` : t`Copy`}
+            />
+          </div>
+          <div className="bg-theme-background-lvl-1 rounded p-2 text-sm">{bucket.name}</div>
         </Stack>
-      )}
+
+        <TextInput
+          label={t`Type the bucket name to confirm`}
+          required
+          value={confirmName}
+          onChange={handleConfirmNameChange}
+          onKeyDown={handleKeyDown}
+          invalid={!!nameError}
+          errortext={nameError || undefined}
+          disabled={emptyBucketMutation.isPending}
+          placeholder={bucket.name}
+          autoFocus
+        />
+      </Stack>
     </Modal>
   )
 }

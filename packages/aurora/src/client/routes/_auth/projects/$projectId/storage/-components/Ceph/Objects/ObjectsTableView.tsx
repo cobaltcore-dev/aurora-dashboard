@@ -318,56 +318,62 @@ export function ObjectsTableView({
                   {/* Actions */}
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end">
-                      <PopupMenu>
-                        <PopupMenuOptions>
-                          {isFolder ? (
-                            <PopupMenuItem label={t`Delete`} onClick={() => setDeleteTarget({ key: row.prefix })} />
-                          ) : isDeletedFile ? (
-                            // For deleted files, only show "Restore" action
-                            <PopupMenuItem
-                              label={t`Restore`}
-                              onClick={() => {
-                                if (row.kind === "version") {
-                                  setRestoreTarget({
-                                    key: row.key,
-                                    versionId: row.versionId,
-                                    size: row.size,
-                                    lastModified: row.lastModified,
-                                  })
-                                }
-                              }}
-                            />
-                          ) : (
-                            <>
-                              {versioningEnabled && !isVersion && (
+                      {/* Don't show actions menu for folders in versions view mode */}
+                      {!(isFolder && showingVersions) && (
+                        <PopupMenu>
+                          <PopupMenuOptions>
+                            {isFolder ? (
+                              <PopupMenuItem label={t`Delete`} onClick={() => setDeleteTarget({ key: row.prefix })} />
+                            ) : isDeletedFile ? (
+                              // For deleted files, only show "Restore" action
+                              <PopupMenuItem
+                                label={t`Restore`}
+                                onClick={() => {
+                                  if (row.kind === "version") {
+                                    setRestoreTarget({
+                                      key: row.key,
+                                      versionId: row.versionId,
+                                      size: row.size,
+                                      lastModified: row.lastModified,
+                                    })
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <>
+                                {versioningEnabled && !isVersion && (
+                                  <PopupMenuItem
+                                    label={t`View Versions`}
+                                    onClick={() => setVersionHistoryTarget(row.key)}
+                                  />
+                                )}
                                 <PopupMenuItem
-                                  label={t`View Versions`}
-                                  onClick={() => setVersionHistoryTarget(row.key)}
+                                  label={t`Copy`}
+                                  onClick={() => setCopyTarget({ key: row.key, size: row.size })}
                                 />
-                              )}
-                              <PopupMenuItem
-                                label={t`Copy`}
-                                onClick={() => setCopyTarget({ key: row.key, size: row.size })}
-                              />
-                              <PopupMenuItem
-                                label={t`Move`}
-                                onClick={() => setMoveTarget({ key: row.key, size: row.size })}
-                              />
-                              <PopupMenuItem label={t`Edit Metadata`} onClick={() => setEditMetadataTarget(row.key)} />
-                              <PopupMenuItem
-                                label={t`Delete`}
-                                onClick={() =>
-                                  setDeleteTarget({
-                                    key: row.key,
-                                    size: row.size,
-                                    lastModified: row.lastModified,
-                                  })
-                                }
-                              />
-                            </>
-                          )}
-                        </PopupMenuOptions>
-                      </PopupMenu>
+                                <PopupMenuItem
+                                  label={t`Move`}
+                                  onClick={() => setMoveTarget({ key: row.key, size: row.size })}
+                                />
+                                <PopupMenuItem
+                                  label={t`Edit Metadata`}
+                                  onClick={() => setEditMetadataTarget(row.key)}
+                                />
+                                <PopupMenuItem
+                                  label={t`Delete`}
+                                  onClick={() =>
+                                    setDeleteTarget({
+                                      key: row.key,
+                                      size: row.size,
+                                      lastModified: row.lastModified,
+                                    })
+                                  }
+                                />
+                              </>
+                            )}
+                          </PopupMenuOptions>
+                        </PopupMenu>
+                      )}
                     </div>
                   </DataGridCell>
                 </div>

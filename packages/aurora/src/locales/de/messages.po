@@ -106,6 +106,9 @@ msgstr "{totalItemCount, plural, one {{totalItemCount} Element} other {{totalIte
 msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
 msgstr ""
 
+msgid "<0>Are you sure?</0> This will permanently delete all versions and delete markers from bucket \"{bucketName}\". After this operation, the bucket will be completely empty and can be deleted."
+msgstr ""
+
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Metadaten bearbeiten:</0> <1>{displayName}</1>"
 
@@ -273,6 +276,12 @@ msgstr "Alle Container"
 
 msgid "All Images"
 msgstr "Alle Images"
+
+msgid "All objects in the folder can be restored from version history."
+msgstr ""
+
+msgid "All objects in the folder will be permanently deleted."
+msgstr ""
 
 msgid "All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "Alle Objekte in den ausgewählten Containern werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
@@ -526,7 +535,10 @@ msgstr "Compute"
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher Datenverkehr für diese Sicherheitsgruppe erlaubt ist."
 
-msgid "Confirm deletion of {displayName}."
+msgid "Confirm deletion of {displayName}. All objects inside this folder will be hidden but can be restored from version history."
+msgstr ""
+
+msgid "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted."
 msgstr ""
 
 msgid "Confirm deletion of {displayName}. The object will be hidden but can be restored from version history."
@@ -2161,9 +2173,6 @@ msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur 
 msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
 msgstr "Hinweis: Das Attribut 'stateful' kann nicht geändert werden, wenn diese Security Group derzeit von einem oder mehreren Ports verwendet wird."
 
-msgid "Nothing to do. Bucket is already empty."
-msgstr ""
-
 msgid "Object \"{displayName}\" was permanently deleted."
 msgstr ""
 
@@ -3076,7 +3085,7 @@ msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt 
 msgid "This action will create a self-signed CA certificate."
 msgstr "This action will create a self-signed CA certificate."
 
-msgid "This bucket contains {actualObjectCount} {actualObjectCount, plural, one {object} other {objects}} and cannot be deleted. Delete all objects first."
+msgid "This bucket contains objects (possibly including old versions and delete markers) and cannot be deleted. Use <0>Empty</0> action to remove all content first."
 msgstr ""
 
 msgid "This bucket does not have a policy attached."
