@@ -223,8 +223,8 @@ importers:
         version: 4.3.6
     devDependencies:
       '@cloudoperators/juno-ui-components':
-        specifier: 8.1.0
-        version: 8.1.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sonner@2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5))
+        specifier: 9.0.1
+        version: 9.0.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sonner@2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5))
       '@cobaltcore-dev/aurora-config':
         specifier: workspace:*
         version: link:../config
@@ -764,8 +764,8 @@ packages:
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
 
-  '@cloudoperators/juno-ui-components@8.1.0':
-    resolution: {integrity: sha512-gJ4sDBHCI+dtgzu8VEM93vr+9xLOV2AjAnfGss4iYH0PtYaOnhNw6W37QsNrCMVkzXg0mdu748y8RbOVkRMfpQ==}
+  '@cloudoperators/juno-ui-components@9.0.1':
+    resolution: {integrity: sha512-K3SuGyPDNG75r/1izrpmJlEmiaac1lyxnXuVZKDj6uF4jueeblxDgBqpzXQ29+JpI1/8lNE/r/OqKj5UN143AA==}
     engines: {node: '>=20.19.0', pnpm: '>=8.0.0'}
     peerDependencies:
       react: ^19.1.0
@@ -6660,7 +6660,7 @@ snapshots:
       human-id: 4.1.3
       prettier: 2.8.8
 
-  '@cloudoperators/juno-ui-components@8.1.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sonner@2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5))':
+  '@cloudoperators/juno-ui-components@9.0.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sonner@2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5))':
     dependencies:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
