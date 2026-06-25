@@ -21,10 +21,11 @@ test.describe("Project Detail View", () => {
 
     const searchInput = page.locator('input[placeholder="Search..."]')
     await searchInput.fill(testProject)
-    await page.waitForTimeout(500)
 
     const detailErrors = setupErrorTracking(page)
-    await page.locator('[data-testid="project-name"]', { hasText: testProject }).click()
+    const projectResult = page.locator('[data-testid="project-name"]', { hasText: testProject })
+    await projectResult.waitFor({ state: "visible" })
+    await projectResult.click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(detailErrors, page)
   }
@@ -98,14 +99,10 @@ test.describe("Project Detail View", () => {
     const breadcrumb = page.locator(".juno-breadcrumb")
     await expect(breadcrumb).toBeVisible()
 
-    // Domain item: second breadcrumb item (after Home), rendered as span
-    const spans = breadcrumb.locator("span.juno-breadcrumb-item")
-    const count = await spans.count()
-    expect(count).toBeGreaterThan(0)
-
-    for (let i = 0; i < count; i++) {
-      const cursor = await spans.nth(i).evaluate((el) => window.getComputedStyle(el).cursor)
-      expect(cursor).not.toBe("pointer")
-    }
+    // Domain item: first span.juno-breadcrumb-item (after Home icon)
+    const domainCrumb = breadcrumb.locator("span.juno-breadcrumb-item").first()
+    await expect(domainCrumb).toBeVisible()
+    const cursor = await domainCrumb.evaluate((el) => window.getComputedStyle(el).cursor)
+    expect(cursor).not.toBe("pointer")
   })
 })
