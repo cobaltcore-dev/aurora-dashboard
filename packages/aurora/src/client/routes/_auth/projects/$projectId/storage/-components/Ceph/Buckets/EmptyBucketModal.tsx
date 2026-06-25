@@ -32,7 +32,9 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
 
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
     onSettled: () => {
+      // Invalidate both containers.list (to update bucket metadata) and objects.list (to refresh empty state)
       utils.storage.ceph.containers.list.invalidate()
+      utils.storage.ceph.objects.list.invalidate()
       handleClose()
     },
   })

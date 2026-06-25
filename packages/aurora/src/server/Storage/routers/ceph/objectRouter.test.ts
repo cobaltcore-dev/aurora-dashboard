@@ -371,15 +371,27 @@ describe("objects.deleteAll", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    // Mock list response with objects
+    // First iteration: Mock list response with versions and delete markers
     mockSend.mockResolvedValueOnce({
-      Contents: [{ Key: "file1.txt" }, { Key: "file2.txt" }, { Key: "file3.txt" }],
+      Versions: [
+        { Key: "file1.txt", VersionId: "v1" },
+        { Key: "file2.txt", VersionId: "v2" },
+        { Key: "file3.txt", VersionId: "v3" },
+      ],
+      DeleteMarkers: [],
       IsTruncated: false,
     })
 
     // Mock delete response
     mockSend.mockResolvedValueOnce({
       Deleted: [{ Key: "file1.txt" }, { Key: "file2.txt" }, { Key: "file3.txt" }],
+    })
+
+    // Second iteration: Check again - now empty
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
     })
 
     const result = await caller.storage.ceph.objects.deleteAll({
@@ -394,23 +406,36 @@ describe("objects.deleteAll", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    // First batch
+    // First batch (truncated)
     mockSend.mockResolvedValueOnce({
-      Contents: [{ Key: "file1.txt" }, { Key: "file2.txt" }],
+      Versions: [
+        { Key: "file1.txt", VersionId: "v1" },
+        { Key: "file2.txt", VersionId: "v2" },
+      ],
+      DeleteMarkers: [],
       IsTruncated: true,
-      NextContinuationToken: "token1",
+      NextKeyMarker: "file2.txt",
+      NextVersionIdMarker: "v2",
     })
     mockSend.mockResolvedValueOnce({
       Deleted: [{ Key: "file1.txt" }, { Key: "file2.txt" }],
     })
 
-    // Second batch
+    // Second batch (last page)
     mockSend.mockResolvedValueOnce({
-      Contents: [{ Key: "file3.txt" }],
+      Versions: [{ Key: "file3.txt", VersionId: "v3" }],
+      DeleteMarkers: [],
       IsTruncated: false,
     })
     mockSend.mockResolvedValueOnce({
       Deleted: [{ Key: "file3.txt" }],
+    })
+
+    // Third iteration: Check again from beginning - now empty
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
     })
 
     const result = await caller.storage.ceph.objects.deleteAll({
@@ -426,7 +451,8 @@ describe("objects.deleteAll", () => {
     const caller = createCaller(ctx)
 
     mockSend.mockResolvedValueOnce({
-      Contents: [],
+      Versions: [],
+      DeleteMarkers: [],
       IsTruncated: false,
     })
 
@@ -438,17 +464,56 @@ describe("objects.deleteAll", () => {
     expect(result).toBe(0)
   })
 
+  it("deletes both versions and delete markers in versioned buckets", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    // First iteration: Mock list response with versions and delete markers
+    mockSend.mockResolvedValueOnce({
+      Versions: [
+        { Key: "file1.txt", VersionId: "v1" },
+        { Key: "file1.txt", VersionId: "v2" },
+      ],
+      DeleteMarkers: [{ Key: "file2.txt", VersionId: "dm1" }],
+      IsTruncated: false,
+    })
+
+    // Mock delete response
+    mockSend.mockResolvedValueOnce({
+      Deleted: [
+        { Key: "file1.txt", VersionId: "v1" },
+        { Key: "file1.txt", VersionId: "v2" },
+        { Key: "file2.txt", VersionId: "dm1" },
+      ],
+    })
+
+    // Second iteration: Check again - now empty
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    const result = await caller.storage.ceph.objects.deleteAll({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result).toBe(3)
+  })
+
   it("throws error when objects have undefined keys", async () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    // Mock list response with object missing Key
+    // Mock list response with version missing Key
     mockSend.mockResolvedValueOnce({
-      Contents: [
-        { Key: "file1.txt" },
-        { Key: undefined }, // Invalid object without key
-        { Key: "file3.txt" },
+      Versions: [
+        { Key: "file1.txt", VersionId: "v1" },
+        { Key: undefined, VersionId: "v2" }, // Invalid version without key
+        { Key: "file3.txt", VersionId: "v3" },
       ],
+      DeleteMarkers: [],
       IsTruncated: false,
     })
 
@@ -457,7 +522,7 @@ describe("objects.deleteAll", () => {
         project_id: TEST_PROJECT_ID,
         containerName: TEST_BUCKET_NAME,
       })
-    ).rejects.toThrow(/Encountered 1 object\(s\) without Key field/)
+    ).rejects.toThrow(/Encountered 1 item\(s\) without Key field/)
   })
 
   it("throws NOT_FOUND when bucket does not exist", async () => {

@@ -31,12 +31,14 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   const utils = trpcReact.useUtils()
 
   // Fetch actual objects to get accurate real-time state
+  // Use delimiter="" to get ALL objects including folder markers (zero-byte objects ending in "/")
+  // Without this, folders are returned as CommonPrefixes and we can't accurately check if bucket is empty
   const {
     data: objects,
     isLoading: isLoadingObjects,
     error: objectsError,
   } = trpcReact.storage.ceph.objects.list.useQuery(
-    { project_id: projectId ?? "", containerName: bucket?.name ?? "", maxKeys: 1 },
+    { project_id: projectId ?? "", containerName: bucket?.name ?? "", maxKeys: 1, delimiter: "" },
     { enabled: isOpen && bucket !== null }
   )
 
@@ -98,6 +100,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
 
   if (!isOpen || !bucket) return null
 
+  // When delimiter="", folders are returned as objects (keys ending in "/")
   const actualObjectCount = objects?.objects?.length ?? 0
   const isNonEmpty = actualObjectCount > 0
   const errorMessage = objectsError?.message
