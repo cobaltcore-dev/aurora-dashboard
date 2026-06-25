@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react"
-import { vi, describe, it, expect, beforeAll, beforeEach } from "vitest"
+import { vi, describe, it, expect, beforeEach } from "vitest"
 import { SideNavBar } from "./SideNavBar"
 import { buildNavSections } from "./buildNavSections"
 import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
@@ -29,12 +29,11 @@ const ALL_SERVICES = [
   { type: "object-store", name: "swift" },
 ]
 
-describe("SideNavBar", () => {
-  beforeAll(async () => {
-    i18n.load({ en: {} })
-    i18n.activate("en")
-  })
+// Activate i18n at module level so buildNavSections can call i18n._() during test setup
+i18n.load({ en: {} })
+i18n.activate("en")
 
+describe("SideNavBar", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockMatches = []
