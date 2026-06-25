@@ -110,9 +110,31 @@ export function AuthLoginPage() {
       await login(null)
       console.error("Error logging in: ", error)
 
-      const errorMessage = (error as Error)?.message
-        ? translateError((error as Error).message)
-        : t`Login failed. Please check your credentials and try again.`
+      // Check if this is a tRPC UNAUTHORIZED error (401)
+      const isTRPCUnauthorized =
+        error &&
+        typeof error === "object" &&
+        "data" in error &&
+        typeof error.data === "object" &&
+        error.data !== null &&
+        "code" in error.data &&
+        error.data.code === "UNAUTHORIZED"
+
+      let errorMessage: string
+      if (
+        isTRPCUnauthorized &&
+        error &&
+        typeof error === "object" &&
+        "message" in error &&
+        typeof error.message === "string"
+      ) {
+        errorMessage = error.message || t`Invalid credentials. Please check your domain, username, and password.`
+      } else {
+        errorMessage =
+          error && typeof error === "object" && "message" in error && typeof error.message === "string"
+            ? translateError(error.message)
+            : t`Login failed. Please check your credentials and try again.`
+      }
 
       setLoginError(errorMessage)
     } finally {

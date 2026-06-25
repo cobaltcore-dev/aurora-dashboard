@@ -1681,6 +1681,9 @@ msgstr "Ingress"
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 
+msgid "Invalid credentials. Please check your domain, username, and password."
+msgstr "Invalid credentials. Please check your domain, username, and password."
+
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
 

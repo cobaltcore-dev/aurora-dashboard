@@ -1,5 +1,5 @@
 import { useNavigate, useMatches, useParams, useRouteContext } from "@tanstack/react-router"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, memo } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import {
   SideNavigation,
@@ -22,7 +22,7 @@ interface SideNavBarProps {
   }[]
 }
 
-export const SideNavBar = ({ projectId, projectName, domainName, availableServices }: SideNavBarProps) => {
+const SideNavBarComponent = ({ projectId, projectName, domainName, availableServices }: SideNavBarProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const matches = useMatches()
@@ -50,13 +50,13 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
     // Only re-open when navigating to a section that Juno may have internally collapsed.
     if (!wasMounted) return
     if (activeSection && activeSection !== prev && activeSection in openSections) {
-      // Set false first, then true in the next tick so Juno's useEffect([open]) sees the change
-      // even if the section was already true in our state (Juno may have internally collapsed it).
-      setOpenSections((s) => ({ ...s, [activeSection]: false }))
-      const section = activeSection
-      setTimeout(() => setOpenSections((s) => ({ ...s, [section]: true })), 0)
+      // Only toggle if the section is currently closed in state
+      // This reduces unnecessary close->open cycles that cause visual blinks
+      if (!openSections[activeSection as keyof typeof openSections]) {
+        setOpenSections((s) => ({ ...s, [activeSection]: true }))
+      }
     }
-  }, [activeSection])
+  }, [activeSection, openSections])
 
   const computeServices = [
     ...(serviceIndex["image"]?.["glance"]
@@ -211,3 +211,5 @@ export const SideNavBar = ({ projectId, projectName, domainName, availableServic
     </SideNavigation>
   )
 }
+
+export const SideNavBar = memo(SideNavBarComponent)
