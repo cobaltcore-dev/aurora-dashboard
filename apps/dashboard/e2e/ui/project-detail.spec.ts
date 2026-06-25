@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+import { test, expect, type Page } from "@playwright/test"
 import { loginAsTestUser } from "../helpers/auth"
 import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "../helpers/test-helpers"
 
@@ -14,7 +14,7 @@ import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "
 test.describe("Project Detail View", () => {
   const testProject = process.env.TEST_PROJECT || "demo"
 
-  async function navigateToProject(page: Parameters<Parameters<typeof test>[1]>[0]) {
+  async function navigateToProject(page: Page) {
     const errors = await loginAsTestUser(page)
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
@@ -24,7 +24,7 @@ test.describe("Project Detail View", () => {
 
     const detailErrors = setupErrorTracking(page)
     const projectResult = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await projectResult.waitFor({ state: "visible" })
+    await expect(page.locator('[data-testid="project-name"]')).toHaveCount(1)
     await projectResult.click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(detailErrors, page)
