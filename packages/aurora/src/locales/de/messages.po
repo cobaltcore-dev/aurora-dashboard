@@ -47,7 +47,7 @@ msgid "{certificateIdValue} Certificate Details"
 msgstr ""
 
 msgid "{count, plural, one {# object} other {# objects}}"
-msgstr ""
+msgstr "{count, plural, one {# Objekt} other {# Objekte}}"
 
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
