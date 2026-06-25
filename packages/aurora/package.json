@@ -85,7 +85,7 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@cloudoperators/juno-ui-components": "8.1.0",
+    "@cloudoperators/juno-ui-components": "9.0.1",
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@cobaltcore-dev/policy-engine": "workspace:*",
     "@cobaltcore-dev/signal-openstack": "workspace:*",
