@@ -26,6 +26,7 @@ type AppProps = {
   slots?: Slots
   appName?: string
   onTrackEvent?: OnTrackEventCallback
+  enabledServices?: string[]
 }
 
 // Additional navigation items can be added here and will be passed to the layout via context
@@ -97,6 +98,7 @@ const App = (props: AppProps) => {
                   slots={props.slots}
                   appName={props.appName}
                   onTrackEvent={props.onTrackEvent}
+                  enabledServices={props.enabledServices}
                 />
               </AuthProvider>
             </QueryClientProvider>
@@ -114,6 +116,7 @@ function AppInner({
   slots,
   appName,
   onTrackEvent,
+  enabledServices,
 }: {
   router: ReturnType<typeof createAuroraRouter>
   navItems: NavigationItem[]
@@ -121,6 +124,7 @@ function AppInner({
   slots?: Slots
   appName?: string
   onTrackEvent?: OnTrackEventCallback
+  enabledServices?: string[]
 }) {
   const auth = useAuth()
 
@@ -133,6 +137,7 @@ function AppInner({
     slots,
     appName,
     onTrackEvent,
+    enabledServices,
   }
 
   // Set up analytics tracking for router navigation

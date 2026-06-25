@@ -114,14 +114,15 @@ await server.listen({ host: "0.0.0.0", port: 4000 })
 
 ### `<AuroraApp />`
 
-| Prop            | Type                            | Default          | Description                                                             |
-| --------------- | ------------------------------- | ---------------- | ----------------------------------------------------------------------- |
-| `bffEndpoint`   | `string`                        | `"/polaris-bff"` | Must match the server's `bffEndpoint`                                   |
-| `theme`         | `"theme-light" \| "theme-dark"` | `"theme-light"`  | Initial theme                                                           |
-| `onThemeChange` | `(theme) => void`               | —                | Called when the user toggles the theme                                  |
-| `appName`       | `string`                        | `"Aurora"`       | App name shown in the header breadcrumb and logo                        |
-| `slots`         | `Slots`                         | —                | Optional UI extension points — see [Slots](#slots)                      |
-| `onTrackEvent`  | `OnTrackEventCallback`          | —                | Called on user interactions for analytics — see [Analytics](#analytics) |
+| Prop              | Type                            | Default          | Description                                                                                                         |
+| ----------------- | ------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `bffEndpoint`     | `string`                        | `"/polaris-bff"` | Must match the server's `bffEndpoint`                                                                               |
+| `theme`           | `"theme-light" \| "theme-dark"` | `"theme-light"`  | Initial theme                                                                                                       |
+| `onThemeChange`   | `(theme) => void`               | —                | Called when the user toggles the theme                                                                              |
+| `appName`         | `string`                        | `"Aurora"`       | App name shown in the header breadcrumb and logo                                                                    |
+| `slots`           | `Slots`                         | —                | Optional UI extension points — see [Slots](#slots)                                                                  |
+| `onTrackEvent`    | `OnTrackEventCallback`          | —                | Called on user interactions for analytics — see [Analytics](#analytics)                                             |
+| `enabledServices` | `string[]`                      | —                | Whitelist of service keys to show. When omitted, all services are shown — see [Enabled services](#enabled-services) |
 
 ## Slots
 
@@ -158,11 +159,20 @@ function MyFooter(_props: SlotProps) {
 
 ### Available slots
 
-| Slot            | Location                                        | Renders in shadow DOM |
-| --------------- | ----------------------------------------------- | --------------------- |
-| `logo`          | Page header, replacing the default Aurora logo  | No                    |
-| `sideNavBanner` | Bottom of the project side navigation           | Yes                   |
-| `pageFooter`    | Page footer, replacing the default empty footer | No                    |
+| Slot                    | Location                                                                     | `auroraContext` extras         | Renders in shadow DOM |
+| ----------------------- | ---------------------------------------------------------------------------- | ------------------------------ | --------------------- |
+| `logo`                  | Page header, replacing the default Aurora logo                               | —                              | No                    |
+| `sideNavBanner`         | Bottom of the project side navigation                                        | —                              | Yes                   |
+| `pageFooter`            | Page footer, replacing the default empty footer                              | —                              | No                    |
+| `login`                 | Replaces the default login form — use in OIDC environments                   | —                              | No                    |
+| `serviceBadge`          | Inline next to each service label in the side nav and project home cards     | `currentService` (service key) | No                    |
+| `servicePageActions`    | Beside the page title in the service page header                             | `currentService` (service key) | No                    |
+| `projectsBanner`        | Below the "Projects" heading on the projects list page                       | —                              | No                    |
+| `projectOverviewBanner` | Below the project description on the project overview page (`/projects/:id`) | —                              | No                    |
+
+The `serviceBadge` and `servicePageActions` slots receive `auroraContext.currentService` — a string identifying which service is being rendered (e.g. `"images"`, `"ceph-containers"`). Return `null` from these slots to suppress rendering for specific services.
+
+**Service key reference:** `"images"`, `"flavors"`, `"securitygroups"`, `"floatingips"`, `"containers"`, `"ceph-containers"`, `"pca"`
 
 **Shadow DOM isolation:** Slots rendered in a shadow DOM cannot inherit styles from the host page. If your slot component uses a CSS framework, inject the styles inline:
 
@@ -177,6 +187,30 @@ function MyBanner(_props: SlotProps) {
     </>
   )
 }
+```
+
+## Enabled services
+
+By default all services available in the OpenStack catalog are shown in the side navigation and project home page. Pass `enabledServices` to restrict which services are visible:
+
+```tsx
+<AuroraApp enabledServices={["ceph-containers", "securitygroups"]} />
+```
+
+Only services whose key appears in the array will be shown. Services absent from the catalog are always hidden regardless of this list.
+
+**Available service keys:** `"images"`, `"flavors"`, `"securitygroups"`, `"floatingips"`, `"containers"`, `"ceph-containers"`, `"pca"`
+
+In a Vite-based consumer app you can drive this from an environment variable:
+
+```ts
+// vite consumer
+enabledServices={import.meta.env.VITE_ENABLED_SERVICES?.split(",").map(s => s.trim())}
+```
+
+```bash
+# .env
+VITE_ENABLED_SERVICES="ceph-containers,securitygroups"
 ```
 
 ## Analytics
