@@ -48,19 +48,22 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
       items.push({ label: projectInfo.domain.name })
     }
 
-    items.push({
-      label: projectInfo.name,
-      onClick: () => navigate({ to: "/projects/$projectId", params: { projectId } }),
-    })
-
     const projectMatches = matches.filter(
       (m) => m.routeId !== "/_auth/projects/$projectId" && m.routeId.startsWith("/_auth/projects/$projectId")
     )
     const deepest = projectMatches[projectMatches.length - 1]
-    if (!deepest) return items
 
-    const info = isRouteInfo(deepest.staticData) ? deepest.staticData : undefined
-    if (!info) return items
+    const info = deepest ? (isRouteInfo(deepest.staticData) ? deepest.staticData : undefined) : undefined
+
+    if (!deepest || !info) {
+      items.push({ label: projectInfo.name, active: true })
+      return items
+    }
+
+    items.push({
+      label: projectInfo.name,
+      onClick: () => navigate({ to: "/projects/$projectId", params: { projectId } }),
+    })
 
     const params = deepest.params as Record<string, string>
 

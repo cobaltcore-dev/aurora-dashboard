@@ -345,18 +345,6 @@ describe("ProjectInfoBox", () => {
   })
 
   describe("Breadcrumb navigation", () => {
-    it("clicking project name navigates to project overview", async () => {
-      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
-
-      await waitFor(() => screen.getByText("My Project"))
-      fireEvent.click(screen.getByText("My Project"))
-
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId",
-        params: { projectId: "test-project" },
-      })
-    })
-
     it("renders and navigates sectionCrumb when it has a to target", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },

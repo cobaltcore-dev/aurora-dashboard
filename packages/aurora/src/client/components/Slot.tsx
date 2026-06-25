@@ -22,15 +22,17 @@ function SlotShadowRoot({ children }: { children: ReactNode }) {
 export function Slot({
   component: Component,
   useShadowDOM = true,
+  currentService,
 }: {
   component: FC<SlotProps>
   useShadowDOM?: boolean
+  currentService?: string
 }) {
   const { trpcClient } = useRouteContext({ strict: false })
 
   if (!trpcClient) return null
 
-  const content = <Component auroraContext={{ client: trpcClient }} />
+  const content = <Component auroraContext={{ client: trpcClient, currentService }} />
 
   if (!useShadowDOM) {
     return content

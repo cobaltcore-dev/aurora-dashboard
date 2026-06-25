@@ -1,6 +1,7 @@
-import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
+import { createFileRoute, Outlet, useLoaderData, useRouteContext } from "@tanstack/react-router"
 import { AppShell, Container, Stack } from "@cloudoperators/juno-ui-components"
 import { SideNavBar } from "@/client/routes/_auth/projects/-components/SideNavBar"
+import { buildNavSections } from "@/client/routes/_auth/projects/-components/buildNavSections"
 import { ProjectInfoBox } from "@/client/components/ProjectView/ProjectInfoBox"
 import { RouteError } from "@/client/components/Error/RouteError"
 
@@ -15,32 +16,37 @@ export const Route = createFileRoute("/_auth/projects/$projectId")({
       type: "project",
       projectId: params.projectId || "",
     })
-    const availableServices = await context.trpcClient?.auth.getAvailableServices.query()
 
-    // Extract accountId (domain id) from the rescoped token
-    // This is needed for SideNavBar navigation until we refactor it
+    const [availableServices, projects] = await Promise.all([
+      context.trpcClient?.auth.getAvailableServices.query(),
+      context.trpcClient?.project.getAuthProjects.query().catch(() => null),
+    ])
+
     const accountId = data?.domain?.id || ""
+    const description = projects?.find((p) => p.id === params.projectId)?.description ?? null
 
     return {
       trpcClient: context.trpcClient,
       crumbDomain: { path: `/projects`, name: data?.domain?.name },
       crumbProject: data?.project,
       availableServices,
-      accountId, // Keep for SideNavBar compatibility
+      accountId,
       projectId: params.projectId,
+      description,
     }
   },
 })
 
 function RouteComponent() {
   const { availableServices, projectId, crumbProject, crumbDomain } = useLoaderData({ from: Route.id })
+  const { enabledServices } = useRouteContext({ strict: false })
 
   return (
     <AppShell
       embedded
       sideNavigation={
         <SideNavBar
-          availableServices={availableServices!}
+          sections={buildNavSections(projectId, availableServices!, enabledServices)}
           projectId={projectId}
           projectName={crumbProject?.name || projectId}
           domainName={crumbDomain?.name}

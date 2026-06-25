@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react"
-import { vi, describe, it, expect, beforeAll, beforeEach } from "vitest"
+import { vi, describe, it, expect, beforeEach } from "vitest"
 import { SideNavBar } from "./SideNavBar"
+import { buildNavSections } from "./buildNavSections"
 import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
 import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
@@ -22,32 +23,34 @@ const TestingProvider = ({ children }: { children: ReactNode }) => (
   </PortalProvider>
 )
 
+const ALL_SERVICES = [
+  { type: "compute", name: "nova" },
+  { type: "image", name: "glance" },
+  { type: "object-store", name: "swift" },
+]
+
+// Activate i18n at module level so buildNavSections can call i18n._() during test setup
+i18n.load({ en: {} })
+i18n.activate("en")
+
 describe("SideNavBar", () => {
-  const defaultProps = {
-    projectId: "proj-1",
-    projectName: "Test Project",
-    domainName: "Test Domain",
-    availableServices: [
-      { type: "compute", name: "nova" },
-      { type: "image", name: "glance" },
-      { type: "object-store", name: "swift" },
-    ],
-  }
-
-  beforeAll(async () => {
-    i18n.activate("en")
-  })
-
   beforeEach(() => {
     vi.clearAllMocks()
     mockMatches = []
+  })
+
+  const getDefaultProps = () => ({
+    projectId: "proj-1",
+    projectName: "Test Project",
+    domainName: "Test Domain",
+    sections: buildNavSections("proj-1", ALL_SERVICES),
   })
 
   describe("Compute Navigation", () => {
     it("renders Compute section when compute services are available", () => {
       render(
         <TestingProvider>
-          <SideNavBar {...defaultProps} />
+          <SideNavBar {...getDefaultProps()} />
         </TestingProvider>
       )
 
@@ -57,7 +60,7 @@ describe("SideNavBar", () => {
     it("renders Compute header", () => {
       render(
         <TestingProvider>
-          <SideNavBar {...defaultProps} />
+          <SideNavBar {...getDefaultProps()} />
         </TestingProvider>
       )
 
@@ -67,21 +70,19 @@ describe("SideNavBar", () => {
     it("renders Images link when glance service is available", () => {
       render(
         <TestingProvider>
-          <SideNavBar {...defaultProps} />
+          <SideNavBar {...getDefaultProps()} />
         </TestingProvider>
       )
       expect(screen.getByText("Images")).toBeInTheDocument()
     })
 
     it("does not render Images link when glance service is unavailable", () => {
-      const propsWithoutGlance = {
-        ...defaultProps,
-        availableServices: [{ type: "compute", name: "nova" }],
-      }
-
       render(
         <TestingProvider>
-          <SideNavBar {...propsWithoutGlance} />
+          <SideNavBar
+            {...getDefaultProps()}
+            sections={buildNavSections("proj-1", [{ type: "compute", name: "nova" }])}
+          />
         </TestingProvider>
       )
 
@@ -91,21 +92,19 @@ describe("SideNavBar", () => {
     it("renders Flavors link when nova service is available", () => {
       render(
         <TestingProvider>
-          <SideNavBar {...defaultProps} />
+          <SideNavBar {...getDefaultProps()} />
         </TestingProvider>
       )
       expect(screen.getByText("Flavors")).toBeInTheDocument()
     })
 
     it("does not render Flavors link when nova service is unavailable", () => {
-      const propsWithoutNova = {
-        ...defaultProps,
-        availableServices: [{ type: "image", name: "glance" }],
-      }
-
       render(
         <TestingProvider>
-          <SideNavBar {...propsWithoutNova} />
+          <SideNavBar
+            {...getDefaultProps()}
+            sections={buildNavSections("proj-1", [{ type: "image", name: "glance" }])}
+          />
         </TestingProvider>
       )
 
@@ -115,7 +114,7 @@ describe("SideNavBar", () => {
     it("toggles compute section open/closed when Compute header is clicked", () => {
       render(
         <TestingProvider>
-          <SideNavBar {...defaultProps} />
+          <SideNavBar {...getDefaultProps()} />
         </TestingProvider>
       )
 
@@ -133,7 +132,7 @@ describe("SideNavBar", () => {
       it("renders Storage section when storage services are available", () => {
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
 
@@ -143,24 +142,22 @@ describe("SideNavBar", () => {
       it("renders Swift link when swift service is available", () => {
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
         expect(screen.getByText("Object Storage (Swift)")).toBeInTheDocument()
       })
 
       it("renders Storage section with Ceph even when swift service is unavailable", () => {
-        const propsWithoutSwift = {
-          ...defaultProps,
-          availableServices: [
-            { type: "compute", name: "nova" },
-            { type: "image", name: "glance" },
-          ],
-        }
-
         render(
           <TestingProvider>
-            <SideNavBar {...propsWithoutSwift} />
+            <SideNavBar
+              {...getDefaultProps()}
+              sections={buildNavSections("proj-1", [
+                { type: "compute", name: "nova" },
+                { type: "image", name: "glance" },
+              ])}
+            />
           </TestingProvider>
         )
         expect(screen.queryByText("Storage")).toBeInTheDocument()
@@ -173,7 +170,7 @@ describe("SideNavBar", () => {
       it("calls navigate with correct params when Flavors link is clicked", () => {
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
         fireEvent.click(screen.getByText("Flavors"))
@@ -187,7 +184,7 @@ describe("SideNavBar", () => {
       it("calls navigate with correct params when Images link is clicked", () => {
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
         fireEvent.click(screen.getByText("Images"))
@@ -201,7 +198,7 @@ describe("SideNavBar", () => {
       it("does not navigate when Compute header is clicked (toggles section instead)", () => {
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
 
@@ -215,7 +212,7 @@ describe("SideNavBar", () => {
       it("renders domain with trailing slash and project name on separate line", () => {
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
         expect(screen.getByText("Test Domain /")).toBeInTheDocument()
@@ -225,7 +222,7 @@ describe("SideNavBar", () => {
       it("omits domain line when domainName is not provided", () => {
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} domainName={undefined} />
+            <SideNavBar {...getDefaultProps()} domainName={undefined} />
           </TestingProvider>
         )
         expect(screen.queryByText("Test Domain /")).not.toBeInTheDocument()
@@ -235,7 +232,7 @@ describe("SideNavBar", () => {
       it("navigates to project overview when context block is clicked", () => {
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
         fireEvent.click(screen.getByText("Test Project"))
@@ -252,7 +249,7 @@ describe("SideNavBar", () => {
 
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
 
@@ -266,7 +263,7 @@ describe("SideNavBar", () => {
 
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
 
@@ -279,7 +276,7 @@ describe("SideNavBar", () => {
 
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
 
@@ -289,36 +286,29 @@ describe("SideNavBar", () => {
     })
 
     describe("Edge Cases", () => {
-      it("renders correctly with empty availableServices array", () => {
-        const propsWithNoServices = {
-          ...defaultProps,
-          availableServices: [],
-        }
-
+      it("renders only Storage section with Ceph when availableServices is empty", () => {
         render(
           <TestingProvider>
-            <SideNavBar {...propsWithNoServices} />
+            <SideNavBar {...getDefaultProps()} sections={buildNavSections("proj-1", [])} />
           </TestingProvider>
         )
 
-        expect(screen.queryByText("Compute")).toBeInTheDocument()
+        expect(screen.queryByText("Compute")).not.toBeInTheDocument()
         expect(screen.queryByText("Storage")).toBeInTheDocument()
         expect(screen.queryByText("Object Storage (Ceph)")).toBeInTheDocument()
       })
 
       it("handles malformed service data gracefully", () => {
-        const propsWithMalformedServices = {
-          ...defaultProps,
-          availableServices: [
-            { type: "", name: "" },
-            { type: "unknown", name: "unknown" },
-          ],
-        }
-
         expect(() => {
           render(
             <TestingProvider>
-              <SideNavBar {...propsWithMalformedServices} />
+              <SideNavBar
+                {...getDefaultProps()}
+                sections={buildNavSections("proj-1", [
+                  { type: "", name: "" },
+                  { type: "unknown", name: "unknown" },
+                ])}
+              />
             </TestingProvider>
           )
         }).not.toThrow()
@@ -327,7 +317,7 @@ describe("SideNavBar", () => {
       it("renders both Compute and Storage sections when both are available", () => {
         render(
           <TestingProvider>
-            <SideNavBar {...defaultProps} />
+            <SideNavBar {...getDefaultProps()} />
           </TestingProvider>
         )
 

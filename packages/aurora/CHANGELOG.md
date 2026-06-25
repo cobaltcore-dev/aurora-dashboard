@@ -1,5 +1,24 @@
 # @cobaltcore-dev/aurora
 
+## 0.9.0
+
+### Minor Changes
+
+- 00bfb76: Add new consumer extension points and service filtering:
+  - `login` slot — replaces the default login form; useful for OIDC environments
+  - `serviceBadge` slot — renders inline next to each service label in the side nav and project home cards; receives `auroraContext.currentService`
+  - `servicePageActions` slot — renders beside the service page title in `ContentHeader`; receives `auroraContext.currentService`
+  - `projectsBanner` slot — renders below the "Projects" heading on the projects list page
+  - `projectOverviewBanner` slot — renders below the project description on the project overview page
+  - `enabledServices` prop — whitelist of service keys; when provided, only listed services appear in the nav and project home cards
+  - Refactor `SideNavBar` into `buildNavSections` utility for better testability
+
+## 0.8.1
+
+### Patch Changes
+
+- bae772e: upgrade juno-ui-components to 9.0.1; add description to project header; fix non-clickable breadcrumb items showing pointer cursor; redesign project overview service cards to match project card layout
+
 ## 0.8.0
 
 ### Minor Changes
