@@ -19,6 +19,10 @@ const renderTooltip = (serviceInfo?: ServiceInfo, accountInfo?: AccountInfo) =>
 const openTooltip = async () => {
   const icon = screen.getByRole("img", { name: /info/i })
   await userEvent.hover(icon)
+  // Wait for tooltip to open by checking data-state attribute
+  await waitFor(() => {
+    expect(icon).toHaveAttribute("data-state", "open")
+  })
 }
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
