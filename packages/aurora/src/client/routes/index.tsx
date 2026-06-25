@@ -6,6 +6,7 @@ import { trpcClient } from "../trpcClient"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Button, ContentHeading, Message } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../utils/useErrorTranslation"
+import { Slot } from "../components/Slot"
 
 function isSafeRedirect(path: unknown): path is string {
   return typeof path === "string" && path.startsWith("/") && !path.startsWith("//")
@@ -72,6 +73,7 @@ export function AuthLoginPage() {
   const search = Route.useSearch()
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
+  const { slots } = Route.useRouteContext()
 
   const [form, setForm] = useState({ domainName: "", user: "", password: "" })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -157,6 +159,14 @@ export function AuthLoginPage() {
   const isLoggingIn = isLoading || isSubmitting
 
   const wasInactive = logoutReason === "inactive" || logoutReason === "expired"
+
+  if (slots?.login && !isAuthenticated && !isLoading) {
+    return (
+      <div className="mt-8 flex justify-center">
+        <Slot component={slots.login} useShadowDOM={false} />
+      </div>
+    )
+  }
 
   return (
     <div className="mt-8 flex justify-center">

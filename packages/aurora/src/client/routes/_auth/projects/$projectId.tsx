@@ -1,6 +1,7 @@
-import { createFileRoute, Outlet, useLoaderData } from "@tanstack/react-router"
+import { createFileRoute, Outlet, useLoaderData, useRouteContext } from "@tanstack/react-router"
 import { AppShell, Container, Stack } from "@cloudoperators/juno-ui-components"
 import { SideNavBar } from "@/client/routes/_auth/projects/-components/SideNavBar"
+import { buildNavSections } from "@/client/routes/_auth/projects/-components/buildNavSections"
 import { ProjectInfoBox } from "@/client/components/ProjectView/ProjectInfoBox"
 import { RouteError } from "@/client/components/Error/RouteError"
 
@@ -38,13 +39,14 @@ export const Route = createFileRoute("/_auth/projects/$projectId")({
 
 function RouteComponent() {
   const { availableServices, projectId, crumbProject, crumbDomain } = useLoaderData({ from: Route.id })
+  const { enabledServices } = useRouteContext({ strict: false })
 
   return (
     <AppShell
       embedded
       sideNavigation={
         <SideNavBar
-          availableServices={availableServices!}
+          sections={buildNavSections(projectId, availableServices!, enabledServices)}
           projectId={projectId}
           projectName={crumbProject?.name || projectId}
           domainName={crumbDomain?.name}
