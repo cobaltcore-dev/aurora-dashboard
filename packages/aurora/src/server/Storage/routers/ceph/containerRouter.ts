@@ -157,6 +157,18 @@ export const containerRouter = {
       const { bucketName, enableVersioning } = input
 
       try {
+        // First, check if bucket already exists by listing all buckets
+        // This prevents the confusing "success" response when creating a bucket that already exists
+        const listResponse = await s3.send(new ListBucketsCommand({}))
+        const existingBucket = listResponse.Buckets?.find((b) => b.Name === bucketName)
+
+        if (existingBucket) {
+          throw mapS3ErrorToTRPCError(
+            Object.assign(new Error("Bucket already exists"), { Code: "BucketAlreadyExists" }),
+            { operation: "create bucket", bucket: bucketName }
+          )
+        }
+
         // Create the bucket
         await s3.send(
           new CreateBucketCommand({
