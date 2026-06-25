@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { vi, describe, it, expect, beforeAll, beforeEach } from "vitest"
 import { SideNavBar } from "./SideNavBar"
+import { buildNavSections } from "./buildNavSections"
 import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
 import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
@@ -22,19 +23,22 @@ const TestingProvider = ({ children }: { children: ReactNode }) => (
   </PortalProvider>
 )
 
+const ALL_SERVICES = [
+  { type: "compute", name: "nova" },
+  { type: "image", name: "glance" },
+  { type: "object-store", name: "swift" },
+]
+
 describe("SideNavBar", () => {
   const defaultProps = {
     projectId: "proj-1",
     projectName: "Test Project",
     domainName: "Test Domain",
-    availableServices: [
-      { type: "compute", name: "nova" },
-      { type: "image", name: "glance" },
-      { type: "object-store", name: "swift" },
-    ],
+    sections: buildNavSections("proj-1", ALL_SERVICES),
   }
 
   beforeAll(async () => {
+    i18n.load({ en: {} })
     i18n.activate("en")
   })
 
@@ -74,14 +78,9 @@ describe("SideNavBar", () => {
     })
 
     it("does not render Images link when glance service is unavailable", () => {
-      const propsWithoutGlance = {
-        ...defaultProps,
-        availableServices: [{ type: "compute", name: "nova" }],
-      }
-
       render(
         <TestingProvider>
-          <SideNavBar {...propsWithoutGlance} />
+          <SideNavBar {...defaultProps} sections={buildNavSections("proj-1", [{ type: "compute", name: "nova" }])} />
         </TestingProvider>
       )
 
@@ -98,14 +97,9 @@ describe("SideNavBar", () => {
     })
 
     it("does not render Flavors link when nova service is unavailable", () => {
-      const propsWithoutNova = {
-        ...defaultProps,
-        availableServices: [{ type: "image", name: "glance" }],
-      }
-
       render(
         <TestingProvider>
-          <SideNavBar {...propsWithoutNova} />
+          <SideNavBar {...defaultProps} sections={buildNavSections("proj-1", [{ type: "image", name: "glance" }])} />
         </TestingProvider>
       )
 
@@ -150,17 +144,15 @@ describe("SideNavBar", () => {
       })
 
       it("renders Storage section with Ceph even when swift service is unavailable", () => {
-        const propsWithoutSwift = {
-          ...defaultProps,
-          availableServices: [
-            { type: "compute", name: "nova" },
-            { type: "image", name: "glance" },
-          ],
-        }
-
         render(
           <TestingProvider>
-            <SideNavBar {...propsWithoutSwift} />
+            <SideNavBar
+              {...defaultProps}
+              sections={buildNavSections("proj-1", [
+                { type: "compute", name: "nova" },
+                { type: "image", name: "glance" },
+              ])}
+            />
           </TestingProvider>
         )
         expect(screen.queryByText("Storage")).toBeInTheDocument()
@@ -290,14 +282,9 @@ describe("SideNavBar", () => {
 
     describe("Edge Cases", () => {
       it("renders correctly with empty availableServices array", () => {
-        const propsWithNoServices = {
-          ...defaultProps,
-          availableServices: [],
-        }
-
         render(
           <TestingProvider>
-            <SideNavBar {...propsWithNoServices} />
+            <SideNavBar {...defaultProps} sections={buildNavSections("proj-1", [])} />
           </TestingProvider>
         )
 
@@ -307,18 +294,16 @@ describe("SideNavBar", () => {
       })
 
       it("handles malformed service data gracefully", () => {
-        const propsWithMalformedServices = {
-          ...defaultProps,
-          availableServices: [
-            { type: "", name: "" },
-            { type: "unknown", name: "unknown" },
-          ],
-        }
-
         expect(() => {
           render(
             <TestingProvider>
-              <SideNavBar {...propsWithMalformedServices} />
+              <SideNavBar
+                {...defaultProps}
+                sections={buildNavSections("proj-1", [
+                  { type: "", name: "" },
+                  { type: "unknown", name: "unknown" },
+                ])}
+              />
             </TestingProvider>
           )
         }).not.toThrow()

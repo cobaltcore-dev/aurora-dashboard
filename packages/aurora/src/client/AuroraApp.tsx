@@ -7,6 +7,8 @@ export type SlotProps = {
   auroraContext: {
     /** tRPC client for making API calls to the Aurora BFF. */
     client: TrpcClient
+    /** Current service key of the badge slot. Only set for the `serviceBadge` slot. */
+    currentService?: string
   }
 }
 
@@ -18,6 +20,16 @@ export type Slots = {
   sideNavBanner?: FC<SlotProps>
   /** Replaces the default page footer. Renders outside shadow DOM — inherits page styles. */
   pageFooter?: FC<SlotProps>
+  /** Replaces the default login form. Use in OIDC environments where password-based login is not needed. Renders outside shadow DOM. */
+  login?: FC<SlotProps>
+  /** Rendered inline next to each side navigation item label and service card. Receives `auroraContext.currentService` — return null to hide for that service. Renders outside shadow DOM. */
+  serviceBadge?: FC<SlotProps>
+  /** Rendered in the service page header actions area, beside the page title. Use to inject custom actions like "View in Elektra". Renders outside shadow DOM. */
+  servicePageActions?: FC<SlotProps>
+  /** Rendered below the "Projects" heading on the projects list page. Renders outside shadow DOM. */
+  projectsBanner?: FC<SlotProps>
+  /** Rendered below the project description on the project overview page (/projects/$projectId). Renders outside shadow DOM. */
+  projectOverviewBanner?: FC<SlotProps>
 }
 
 /**
@@ -72,6 +84,8 @@ export type AuroraAppProps = {
    * ```
    */
   onTrackEvent?: OnTrackEventCallback
+  /** Whitelist of service keys to show in the side nav and project home page. When omitted, all available services are shown. */
+  enabledServices?: string[]
 }
 
 export const AuroraApp: FC<AuroraAppProps> = App
