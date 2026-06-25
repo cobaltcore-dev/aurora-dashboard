@@ -19,6 +19,12 @@ import { useProjectId } from "@/client/hooks/useProjectId"
 // Max number of container names shown in the list before truncating
 const MAX_VISIBLE = 20
 
+// The literal word the user must type to confirm this destructive action.
+// The gating logic (isConfirmed) compares against this constant, NOT the
+// translated label — so a mistranslated label can never weaken or break the
+// confirmation gate. The English label below should name the same word for clarity.
+const CONFIRM_WORD = "empty"
+
 interface EmptyContainersResult {
   emptiedCount: number
   totalDeleted: number
@@ -38,7 +44,7 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
 
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
   const [confirmValue, setConfirmValue] = useState("")
-  const isConfirmed = confirmValue.trim() === "empty"
+  const isConfirmed = confirmValue.trim() === CONFIRM_WORD
 
   const utils = trpcReact.useUtils()
 
@@ -161,7 +167,7 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
 
           <TextInput
             label={t`Type "empty" to confirm`}
-            placeholder="empty"
+            placeholder={CONFIRM_WORD}
             value={confirmValue}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmValue(e.target.value)}
           />
