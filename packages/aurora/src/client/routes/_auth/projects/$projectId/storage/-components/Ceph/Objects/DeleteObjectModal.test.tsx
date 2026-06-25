@@ -76,14 +76,14 @@ describe("DeleteObjectModal", () => {
     renderModal(defaultProps)
 
     expect(screen.getByText("Delete Object")).toBeInTheDocument()
-    expect(screen.getByText(/This action cannot be undone and object will be permanently deleted/)).toBeInTheDocument()
+    expect(screen.getByText(/Confirm deletion of.*This action cannot be undone\./)).toBeInTheDocument()
   })
 
   it("renders modal with title for folder", () => {
     renderModal({ ...defaultProps, objectKey: "folder/" })
 
     expect(screen.getByText("Delete Folder")).toBeInTheDocument()
-    expect(screen.getByText(/This action cannot be undone and folder will be permanently deleted/)).toBeInTheDocument()
+    expect(screen.getByText(/Confirm deletion of/)).toBeInTheDocument()
   })
 
   it("displays object information", () => {

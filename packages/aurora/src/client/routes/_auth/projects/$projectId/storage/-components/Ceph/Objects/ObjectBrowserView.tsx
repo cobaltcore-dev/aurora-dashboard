@@ -28,7 +28,7 @@ import { BucketPolicyModal } from "../Buckets/BucketPolicyModal"
 import { DeleteBucketPolicyModal } from "../Buckets/DeleteBucketPolicyModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
-import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
+import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
 import {
   getFolderCreatedToast,
   getObjectDeletedToast,
@@ -76,6 +76,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined)
   const [allObjects, setAllObjects] = useState<S3Object[]>([])
   const [allFolders, setAllFolders] = useState<S3FolderPrefix[]>([])
+  const [allVersions, setAllVersions] = useState<S3ObjectVersion[]>([])
+  const [showDeletedFiles, setShowDeletedFiles] = useState(false)
   const [hasMore, setHasMore] = useState(false)
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false)
   const [isEnableVersioningModalOpen, setIsEnableVersioningModalOpen] = useState(false)
@@ -134,6 +136,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       delimiter: "/",
       maxKeys: 1000,
       continuationToken,
+      showVersions: showDeletedFiles, // Load versions when showing deleted files
     },
     {
       enabled: !!projectId,
@@ -143,27 +146,38 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   // Update accumulated data when new data arrives
   useEffect(() => {
     if (data) {
-      // Filter out the folder marker itself (object key === current prefix)
-      // When inside "first/", S3 returns "first/" as an object - we don't want to show it
-      const actualObjects = data.objects.filter((obj) => {
-        const stripped = currentPrefix ? obj.key.replace(currentPrefix, "") : obj.key
-        // Skip if stripped is empty (the folder marker itself) or just "/"
-        return stripped !== "" && stripped !== "/"
-      })
+      if (showDeletedFiles && data.versions) {
+        // When showing deleted files, use versions array
+        const actualVersions = data.versions.filter((ver) => {
+          const stripped = currentPrefix ? ver.key.replace(currentPrefix, "") : ver.key
+          return stripped !== "" && stripped !== "/"
+        })
 
-      if (continuationToken) {
-        // Append to existing data (pagination)
-        setAllObjects((prev) => [...prev, ...actualObjects])
-        setAllFolders((prev) => [...prev, ...data.folders])
+        if (continuationToken) {
+          setAllVersions((prev) => [...prev, ...actualVersions])
+          setAllFolders((prev) => [...prev, ...data.folders])
+        } else {
+          setAllVersions(actualVersions)
+          setAllFolders(data.folders)
+        }
       } else {
-        // First load - replace data
-        setAllObjects(actualObjects)
-        setAllFolders(data.folders)
+        // Default: showing current versions only
+        const actualObjects = data.objects.filter((obj) => {
+          const stripped = currentPrefix ? obj.key.replace(currentPrefix, "") : obj.key
+          return stripped !== "" && stripped !== "/"
+        })
+
+        if (continuationToken) {
+          setAllObjects((prev) => [...prev, ...actualObjects])
+          setAllFolders((prev) => [...prev, ...data.folders])
+        } else {
+          setAllObjects(actualObjects)
+          setAllFolders(data.folders)
+        }
       }
-      // Update hasMore state
       setHasMore(data.isTruncated ?? false)
     }
-  }, [data, continuationToken, currentPrefix])
+  }, [data, continuationToken, currentPrefix, showDeletedFiles])
 
   const navigateToPrefix = (prefix: string) => {
     // Reset pagination when navigating
@@ -209,8 +223,49 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     stripPrefix(folder.prefix).toLowerCase().includes(searchParam.toLowerCase().trim())
   )
 
-  const totalItemCount = allObjects.length + allFolders.length
-  const filteredItemCount = filteredObjects.length + filteredFolders.length
+  // When showing deleted files: show the last real version before delete marker (the version we can restore)
+  const deletedFilesList = (() => {
+    if (!showDeletedFiles) return []
+
+    // Group versions by key
+    const versionsByKey = allVersions.reduce((acc: Record<string, S3ObjectVersion[]>, version: S3ObjectVersion) => {
+      if (!acc[version.key]) acc[version.key] = []
+      acc[version.key].push(version)
+      return acc
+    }, {})
+
+    const deletedFiles: Array<S3ObjectVersion & { isDeleted?: boolean }> = []
+    Object.entries(versionsByKey).forEach(([, versions]: [string, S3ObjectVersion[]]) => {
+      // Sort by lastModified descending to find latest version
+      const sorted = [...versions].sort((a, b) => {
+        if (!a.lastModified || !b.lastModified) return 0
+        return new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime()
+      })
+      const latestVersion = sorted.find((v) => v.isLatest) || sorted[0]
+
+      // If latest version is a delete marker, find the previous real version (the one to restore)
+      if (latestVersion?.isDeleteMarker) {
+        const previousVersion = sorted.find((v) => !v.isDeleteMarker)
+        if (previousVersion) {
+          // Add a flag to indicate this is a restorable deleted file
+          deletedFiles.push({
+            ...previousVersion,
+            isDeleted: true, // Custom flag to show "Deleted" badge
+          })
+        }
+      }
+    })
+
+    // Apply search filter
+    return deletedFiles.filter((v) => stripPrefix(v.key).toLowerCase().includes(searchParam.toLowerCase().trim()))
+  })()
+
+  const totalItemCount = showDeletedFiles
+    ? deletedFilesList.length + allFolders.length
+    : allObjects.length + allFolders.length
+  const filteredItemCount = showDeletedFiles
+    ? deletedFilesList.length + filteredFolders.length
+    : filteredObjects.length + filteredFolders.length
 
   // Sort
   const sortedObjects = !sortBy
@@ -353,6 +408,18 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               <Button icon="moreVert" />
             </PopupMenuToggle>
             <PopupMenuOptions>
+              {versioningStatus && versioningStatus.status !== "Unversioned" && (
+                <PopupMenuItem
+                  label={showDeletedFiles ? t`Show current files` : t`Show deleted files`}
+                  onClick={() => {
+                    setShowDeletedFiles(!showDeletedFiles)
+                    setContinuationToken(undefined)
+                    setAllObjects([])
+                    setAllFolders([])
+                    setAllVersions([])
+                  }}
+                />
+              )}
               {versioningStatus &&
                 (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
                   <PopupMenuItem label={t`Enable Versioning`} onClick={() => setIsEnableVersioningModalOpen(true)} />
@@ -403,10 +470,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           </Stack>
         </DataGridToolbar>
 
-        {/* Zone 3 — item count. Ceph objects has no bulk selection/delete, so this
-            zone carries only the count (no select-all or Actions menu). */}
+        {/* Zone 3 — item count. */}
         <DataGridToolbar>
-          <Stack distribution="start" gap="2" alignment="center" className="text-sm">
+          <Stack distribution="between" gap="2" alignment="center" className="text-sm">
             <div className="text-theme-light flex items-center gap-1" data-testid="objects-info-block">
               {searchParam.trim() ? (
                 <Plural
@@ -426,6 +492,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         bucketName={bucketName}
         objects={sortedObjects}
         folders={sortedFolders}
+        versions={deletedFilesList}
+        showingVersions={showDeletedFiles}
         currentPrefix={currentPrefix}
         versioningEnabled={versioningStatus?.status === "Enabled"}
         onFolderClick={navigateToPrefix}

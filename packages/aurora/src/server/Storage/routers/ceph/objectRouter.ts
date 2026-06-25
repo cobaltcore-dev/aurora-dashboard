@@ -1,5 +1,6 @@
 import {
   ListObjectsV2Command,
+  ListObjectVersionsCommand,
   HeadObjectCommand,
   DeleteObjectsCommand,
   DeleteObjectCommand,
@@ -15,6 +16,7 @@ import {
   getObjectDetailsInputSchema,
   s3ObjectDetailsSchema,
   s3ObjectSchema,
+  s3ObjectVersionSchema,
   s3FolderPrefixSchema,
   deleteObjectInputSchema,
   createFolderInputSchema,
@@ -38,14 +40,88 @@ export const objectRouter = {
   /**
    * List objects in a container with optional prefix filtering and pagination.
    * Returns both objects and "folders" (CommonPrefixes).
+   * When showVersions=true, returns all versions including delete markers.
    */
   list: cephProtectedProcedure
     .input(listObjectsInputSchema)
     .query(async ({ ctx, input }): Promise<ListObjectsOutput> => {
       const s3 = ctx.getCephClient!()
-      const { containerName, prefix, delimiter = "/", maxKeys, continuationToken } = input
+      const { containerName, prefix, delimiter = "/", maxKeys, continuationToken, showVersions } = input
 
       try {
+        // When showVersions is true, use ListObjectVersions instead of ListObjectsV2
+        if (showVersions) {
+          const response = await s3.send(
+            new ListObjectVersionsCommand({
+              Bucket: containerName,
+              Prefix: prefix || undefined,
+              Delimiter: delimiter || undefined,
+              MaxKeys: maxKeys,
+              KeyMarker: continuationToken,
+            })
+          )
+
+          // Filter versions to only show objects in current "folder" (respecting delimiter)
+          // When delimiter is "/", we want to show only direct children, not nested objects
+          const allVersions = [
+            ...(response.Versions ?? []).map((v) => ({
+              key: v.Key ?? "",
+              versionId: v.VersionId ?? "",
+              isLatest: v.IsLatest ?? false,
+              lastModified: v.LastModified?.toISOString(),
+              size: v.Size ?? 0,
+              etag: v.ETag,
+              storageClass: v.StorageClass,
+              isDeleteMarker: false,
+            })),
+            ...(response.DeleteMarkers ?? []).map((dm) => ({
+              key: dm.Key ?? "",
+              versionId: dm.VersionId ?? "",
+              isLatest: dm.IsLatest ?? false,
+              lastModified: dm.LastModified?.toISOString(),
+              size: 0,
+              etag: undefined,
+              storageClass: undefined,
+              isDeleteMarker: true,
+            })),
+          ]
+
+          // When delimiter is present, filter out nested objects (objects in subfolders)
+          const filteredVersions = delimiter
+            ? allVersions.filter((v) => {
+                const relativePath = prefix ? v.key.slice(prefix.length) : v.key
+                // Only include if there's no delimiter in the relative path (direct child)
+                return !relativePath.includes(delimiter)
+              })
+            : allVersions
+
+          const versions = filteredVersions
+            .map((v) => s3ObjectVersionSchema.parse(v))
+            .sort((a, b) => {
+              // Sort by key first, then by lastModified (newest first)
+              if (a.key !== b.key) return a.key.localeCompare(b.key)
+              if (!a.lastModified || !b.lastModified) return 0
+              return new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime()
+            })
+
+          const folders = (response.CommonPrefixes ?? []).map((cp) =>
+            s3FolderPrefixSchema.parse({
+              prefix: cp.Prefix ?? "",
+            })
+          )
+
+          return listObjectsOutputSchema.parse({
+            objects: [], // Empty when showing versions
+            folders,
+            isTruncated: response.IsTruncated ?? false,
+            nextContinuationToken: response.NextKeyMarker,
+            versions,
+            nextKeyMarker: response.NextKeyMarker,
+            nextVersionIdMarker: response.NextVersionIdMarker,
+          })
+        }
+
+        // Default behavior: ListObjectsV2 (current versions only)
         const response = await s3.send(
           new ListObjectsV2Command({
             Bucket: containerName,

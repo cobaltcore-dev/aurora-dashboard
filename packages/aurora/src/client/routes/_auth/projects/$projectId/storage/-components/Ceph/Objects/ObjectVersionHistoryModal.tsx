@@ -191,30 +191,17 @@ export const ObjectVersionHistoryModal = ({
                       <div className="flex justify-end">
                         <PopupMenu>
                           <PopupMenuOptions>
-                            {!isDeleteMarker && (
-                              <>
-                                <PopupMenuItem
-                                  label={t`Download`}
-                                  onClick={() => {
-                                    setFeedbackMessage({
-                                      variant: "error",
-                                      message: t`Download functionality is not yet implemented for versioned objects.`,
-                                    })
-                                  }}
-                                />
-                                {!isLatest && (
-                                  <PopupMenuItem
-                                    label={t`Restore`}
-                                    onClick={() => {
-                                      setRestoreTarget({
-                                        versionId: version.versionId,
-                                        date: version.lastModified,
-                                        size: version.size,
-                                      })
-                                    }}
-                                  />
-                                )}
-                              </>
+                            {!isDeleteMarker && !isLatest && (
+                              <PopupMenuItem
+                                label={t`Restore`}
+                                onClick={() => {
+                                  setRestoreTarget({
+                                    versionId: version.versionId,
+                                    date: version.lastModified,
+                                    size: version.size,
+                                  })
+                                }}
+                              />
                             )}
                             <PopupMenuItem
                               label={isDeleteMarker ? t`Delete Marker` : t`Delete Version`}

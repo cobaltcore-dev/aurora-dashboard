@@ -526,10 +526,13 @@ msgstr "Compute"
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher Datenverkehr für diese Sicherheitsgruppe erlaubt ist."
 
-msgid "Confirm deletion of {displayName}. This action cannot be undone and folder will be permanently deleted."
+msgid "Confirm deletion of {displayName}."
 msgstr ""
 
-msgid "Confirm deletion of {displayName}. This action cannot be undone and object will be permanently deleted."
+msgid "Confirm deletion of {displayName}. The object will be hidden but can be restored from version history."
+msgstr ""
+
+msgid "Confirm deletion of {displayName}. This action cannot be undone."
 msgstr ""
 
 msgid "Container \"{containerName}\" properties were successfully updated."
@@ -889,6 +892,9 @@ msgstr ""
 msgid "Delete Version Permanently"
 msgstr ""
 
+msgid "Deleted"
+msgstr ""
+
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "{successCount} Image(s) gelöscht, aber {failedCount} Image(s) konnten nicht gelöscht werden."
 
@@ -984,9 +990,6 @@ msgstr "Herunterladen"
 
 msgid "Download {rowDisplayName}"
 msgstr "{rowDisplayName} herunterladen"
-
-msgid "Download functionality is not yet implemented for versioned objects."
-msgstr ""
 
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."
@@ -2752,6 +2755,12 @@ msgstr "Freigabe-Details"
 msgid "Show ACLs Preview"
 msgstr "ACLs-Vorschau anzeigen"
 
+msgid "Show current files"
+msgstr ""
+
+msgid "Show deleted files"
+msgstr ""
+
 msgid "Show Details"
 msgstr "Details anzeigen"
 
@@ -2967,6 +2976,9 @@ msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: "
 
 msgid "The image \"{imageName}\" could not be updated: "
 msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: "
+
+msgid "The object can be restored from version history."
+msgstr ""
 
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."

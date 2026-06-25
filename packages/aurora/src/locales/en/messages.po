@@ -526,11 +526,14 @@ msgstr "Compute"
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 
-msgid "Confirm deletion of {displayName}. This action cannot be undone and folder will be permanently deleted."
-msgstr "Confirm deletion of {displayName}. This action cannot be undone and folder will be permanently deleted."
+msgid "Confirm deletion of {displayName}."
+msgstr "Confirm deletion of {displayName}."
 
-msgid "Confirm deletion of {displayName}. This action cannot be undone and object will be permanently deleted."
-msgstr "Confirm deletion of {displayName}. This action cannot be undone and object will be permanently deleted."
+msgid "Confirm deletion of {displayName}. The object will be hidden but can be restored from version history."
+msgstr "Confirm deletion of {displayName}. The object will be hidden but can be restored from version history."
+
+msgid "Confirm deletion of {displayName}. This action cannot be undone."
+msgstr "Confirm deletion of {displayName}. This action cannot be undone."
 
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Container \"{containerName}\" properties were successfully updated."
@@ -889,6 +892,9 @@ msgstr "Delete Version"
 msgid "Delete Version Permanently"
 msgstr "Delete Version Permanently"
 
+msgid "Deleted"
+msgstr "Deleted"
+
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 
@@ -984,9 +990,6 @@ msgstr "Download"
 
 msgid "Download {rowDisplayName}"
 msgstr "Download {rowDisplayName}"
-
-msgid "Download functionality is not yet implemented for versioned objects."
-msgstr "Download functionality is not yet implemented for versioned objects."
 
 msgid "Downloading..."
 msgstr "Downloading..."
@@ -2752,6 +2755,12 @@ msgstr "Sharing Details"
 msgid "Show ACLs Preview"
 msgstr "Show ACLs Preview"
 
+msgid "Show current files"
+msgstr "Show current files"
+
+msgid "Show deleted files"
+msgstr "Show deleted files"
+
 msgid "Show Details"
 msgstr "Show Details"
 
@@ -2967,6 +2976,9 @@ msgstr "The image \"{imageName}\" could not be created: "
 
 msgid "The image \"{imageName}\" could not be updated: "
 msgstr "The image \"{imageName}\" could not be updated: "
+
+msgid "The object can be restored from version history."
+msgstr "The object can be restored from version history."
 
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "The object will be copied to this path. Navigate folders above to change the destination."
