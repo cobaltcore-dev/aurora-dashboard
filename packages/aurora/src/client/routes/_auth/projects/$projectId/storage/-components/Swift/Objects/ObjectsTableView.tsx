@@ -325,7 +325,13 @@ export const ObjectsTableView = ({
             data-testid="objects-table-header"
           >
             <DataGridRow>
-              {hasAnyBulkAction && <DataGridHeadCell />}
+              {hasAnyBulkAction && (
+                <DataGridHeadCell>
+                  <span className="sr-only">
+                    <Trans>Select</Trans>
+                  </span>
+                </DataGridHeadCell>
+              )}
               <DataGridHeadCell>
                 <Trans>Object Name</Trans>
               </DataGridHeadCell>
@@ -390,7 +396,11 @@ export const ObjectsTableView = ({
                         // goes through the row menu ("Delete Recursively") instead.
                         <Tooltip triggerEvent="hover" placement="right">
                           <TooltipTrigger>
-                            <Checkbox disabled data-testid={`select-folder-disabled-${row.name}`} />
+                            <Checkbox
+                              disabled
+                              aria-label={t`Folders cannot be bulk-deleted. Use the row menu to delete a folder.`}
+                              data-testid={`select-folder-disabled-${row.name}`}
+                            />
                           </TooltipTrigger>
                           <TooltipContent>
                             <Trans>Folders cannot be bulk-deleted. Use the row menu to delete a folder.</Trans>

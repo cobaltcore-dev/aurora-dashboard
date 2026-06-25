@@ -2647,6 +2647,9 @@ msgstr "Security Group nicht gefunden"
 msgid "Security Groups"
 msgstr "Security Groups"
 
+msgid "Select"
+msgstr "Auswählen"
+
 msgid "Select a DNS domain."
 msgstr "DNS-Domain auswählen."
 
