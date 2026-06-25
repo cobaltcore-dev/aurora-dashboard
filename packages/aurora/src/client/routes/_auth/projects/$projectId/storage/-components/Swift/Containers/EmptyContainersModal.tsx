@@ -1,6 +1,7 @@
 import { useState, Fragment } from "react"
 import React from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
+import { plural } from "@lingui/core/macro"
 import { trpcReact } from "@/client/trpcClient"
 import {
   Modal,
@@ -32,7 +33,7 @@ interface EmptyContainersModalProps {
 }
 
 export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }: EmptyContainersModalProps) => {
-  const { t } = useLingui()
+  const { t, i18n } = useLingui()
   const projectId = useProjectId()
 
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
@@ -142,7 +143,9 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
                         </span>
                       </DescriptionTerm>
                       <DescriptionDefinition className="col-span-1">
-                        <span className="whitespace-nowrap">{count != null ? t`${count} objects` : ""}</span>
+                        <span className="whitespace-nowrap">
+                          {count != null ? i18n._(plural(count, { one: "# object", other: "# objects" })) : ""}
+                        </span>
                       </DescriptionDefinition>
                     </Fragment>
                   )

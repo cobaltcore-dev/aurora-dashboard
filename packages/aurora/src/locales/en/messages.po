@@ -46,8 +46,8 @@ msgstr "{bucketCount, plural, one {object} other {objects}}"
 msgid "{certificateIdValue} Certificate Details"
 msgstr "{certificateIdValue} Certificate Details"
 
-msgid "{count} objects"
-msgstr "{count} objects"
+msgid "{count, plural, one {# object} other {# objects}}"
+msgstr "{count, plural, one {# object} other {# objects}}"
 
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
