@@ -1,5 +1,18 @@
 # @cobaltcore-dev/aurora
 
+## 0.8.0
+
+### Minor Changes
+
+- ce6bb7a: Adds behavioral analytics support to Aurora through a new generic onTrackEvent callback prop
+
+### Patch Changes
+
+- 2182bff: Expose the `res` (FastifyReply) object in `AuroraPortalContext` to allow consumer tRPC procedures to set response headers and cookies.
+- ae3a00b: Upgrade @cloudoperators/juno-ui-components
+- e89fdbb: Fixes a race condition where router analytics subscription was being set up before the `onTrackEvent` callback was available in the router context. This prevented analytics events from being tracked properly.
+- 874b07d: Fixed pagination in the Flavor and Image pages: the current page now updates based on number input in the pagination component.
+
 ## 0.7.0
 
 ### Minor Changes
