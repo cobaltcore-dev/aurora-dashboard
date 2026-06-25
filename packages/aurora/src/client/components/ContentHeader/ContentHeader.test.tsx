@@ -51,5 +51,15 @@ describe("ContentHeader", () => {
       const { container } = render(<ContentHeader title="Images" projectId="proj-123" />, { wrapper: Wrapper })
       expect(container.querySelector(".justify-end")).not.toBeInTheDocument()
     })
+
+    it("renders description when provided", () => {
+      render(<ContentHeader title="Images" projectId="proj-123" description="My project desc" />, { wrapper: Wrapper })
+      expect(screen.getByText("My project desc")).toBeInTheDocument()
+    })
+
+    it("does not render description paragraph when omitted", () => {
+      render(<ContentHeader title="Images" projectId="proj-123" />, { wrapper: Wrapper })
+      expect(screen.queryByText("My project desc")).not.toBeInTheDocument()
+    })
   })
 })

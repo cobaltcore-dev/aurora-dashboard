@@ -6,6 +6,7 @@ import { formatBytesBinary } from "@/client/utils/formatBytes"
 interface ContainerLimitsTooltipProps {
   serviceInfo?: ServiceInfo
   accountInfo?: AccountInfo
+  open?: boolean
 }
 
 interface LimitItemProps {
@@ -39,7 +40,7 @@ const Section = ({ title, children }: { title: React.ReactNode; children: React.
   </span>
 )
 
-export const ContainerLimitsTooltip = ({ serviceInfo, accountInfo }: ContainerLimitsTooltipProps) => {
+export const ContainerLimitsTooltip = ({ serviceInfo, accountInfo, open }: ContainerLimitsTooltipProps) => {
   const { t } = useLingui()
 
   const swift = serviceInfo?.swift
@@ -61,7 +62,7 @@ export const ContainerLimitsTooltip = ({ serviceInfo, accountInfo }: ContainerLi
     .map(([, label]) => label)
 
   return (
-    <Tooltip triggerEvent="hover" placement="bottom-end">
+    <Tooltip triggerEvent="hover" placement="bottom-end" open={open}>
       <TooltipTrigger asChild>
         <Icon icon="info" size="20px" className="text-theme-light hover:text-theme-default cursor-pointer" />
       </TooltipTrigger>
