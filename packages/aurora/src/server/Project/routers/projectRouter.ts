@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
-import { Project, projectResponseSchema, projectsResponseSchema } from "../types/models"
+import { Project, projectsResponseSchema } from "../types/models"
 
 /**
  * Helper function to call Identity API endpoints directly
@@ -181,48 +181,5 @@ export const projectRouter = {
       projects.sort((a, b) => a.name.localeCompare(b.name))
 
       return projects
-    }),
-
-  /**
-   * Get project by ID
-   *
-   * DECISION: Remains as protectedProcedure (not domain-scoped or project-scoped)
-   *
-   * This procedure reads project metadata using the /projects/{id} endpoint.
-   * According to OpenStack Identity API v3, this endpoint can be called with:
-   * 1. An unscoped token (returns basic project info if user has any role on the project)
-   * 2. A domain-scoped token (returns full info if user is domain admin)
-   * 3. A project-scoped token (returns full info if scoped to the same project)
-   *
-   * IMPORTANT: This should be called AFTER rescoping the session to the target project
-   * or a domain with admin privileges. Calling it before rescoping may result in:
-   * - INTERNAL_SERVER_ERROR if the service catalog is not yet populated (identity service unavailable)
-   * - 403 FORBIDDEN response from OpenStack API if the token lacks sufficient privileges
-   *
-   * The procedure itself uses protectedProcedure (no automatic rescoping) for flexibility,
-   * allowing callers to decide the appropriate scope. However, in practice, it should be
-   * called after setCurrentScope() completes to ensure the service catalog is ready.
-   *
-   * If in the future we need to access project-specific resources (compute, network, etc.),
-   * we should create a separate procedure using projectScopedProcedure.
-   */
-  getProjectById: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ input, ctx }): Promise<Project | undefined> => {
-      const identityService = ctx.openstack?.service("identity")
-      if (!ctx.openstack || !identityService) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Identity service unavailable",
-        })
-      }
-      const parsedData = projectResponseSchema.safeParse(
-        await identityService.get(`projects/${input.id}`).then((res) => res.json())
-      )
-      if (!parsedData.success) {
-        console.error("Zod Parsing Error:", parsedData.error.format())
-        return undefined
-      }
-      return parsedData.data.project
     }),
 }

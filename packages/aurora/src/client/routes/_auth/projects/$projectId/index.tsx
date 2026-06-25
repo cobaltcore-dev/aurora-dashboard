@@ -38,7 +38,7 @@ function ServiceCard({ group, label, to }: ServiceCardProps) {
 }
 
 function RouteComponent() {
-  const { crumbProject, availableServices, projectId } = useLoaderData({
+  const { crumbProject, availableServices, projectId, description } = useLoaderData({
     from: "/_auth/projects/$projectId",
   })
   const { t } = useLingui()
@@ -66,7 +66,7 @@ function RouteComponent() {
 
   return (
     <Stack direction="vertical" gap="6" className="pb-4">
-      <ContentHeader title={crumbProject?.name ?? t`Project`} projectId={projectId} />
+      <ContentHeader title={crumbProject?.name ?? t`Project`} projectId={projectId} description={description} />
       {cards.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {cards.map((card) => (
