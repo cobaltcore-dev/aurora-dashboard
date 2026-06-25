@@ -474,7 +474,11 @@ export const ManageContainerAccessModal = ({
                                       {aclEntryLabel(entry)}
                                     </span>
                                     <span className="text-theme-light block text-xs">
-                                      <Trans>valid token required: true</Trans>
+                                      {entry.requiresToken ? (
+                                        <Trans>valid token required: true</Trans>
+                                      ) : (
+                                        <Trans>valid token required: false</Trans>
+                                      )}
                                     </span>
                                   </DescriptionDefinition>
                                 </Fragment>
