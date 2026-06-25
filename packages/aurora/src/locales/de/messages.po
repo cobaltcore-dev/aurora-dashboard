@@ -103,10 +103,7 @@ msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} E
 msgid "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{totalItemCount} Element} other {{totalItemCount} Elemente}}"
 
-msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
-msgstr ""
-
-msgid "<0>Are you sure?</0> This will permanently delete all versions and delete markers from bucket \"{bucketName}\". After this operation, the bucket will be completely empty and can be deleted."
+msgid "<0>Are you sure?</0>"
 msgstr ""
 
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
@@ -3099,6 +3096,9 @@ msgstr "Dieser Container ist bereits leer."
 
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "Dies kann auf unzureichende Berechtigungen oder ein vorübergehendes Serviceproblem zurückzuführen sein. Bitte überprüfen Sie Ihre Zugriffsrechte oder aktualisieren Sie die Seite."
+
+msgid "This dangerous action will permanently delete all objects, all versions, and all delete markers from bucket \"{bucketName}\". This action cannot be undone."
+msgstr ""
 
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "Dieser Metadata-Key existiert bereits. Bitte verwenden Sie einen anderen Key."

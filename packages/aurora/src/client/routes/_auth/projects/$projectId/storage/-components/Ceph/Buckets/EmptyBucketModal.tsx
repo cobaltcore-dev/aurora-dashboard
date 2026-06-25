@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Trans, useLingui, Plural } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack, Button } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
@@ -85,7 +85,6 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
 
   if (!isOpen || !bucket) return null
 
-  const bucketCount = bucket.count
   const bucketName = bucket.name
 
   return (
@@ -101,20 +100,19 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name}
     >
       <Stack direction="vertical" gap="6">
-        <p className="text-theme-default">
-          {bucketCount > 0 ? (
+        <div>
+          <p className="text-theme-default m-0">
             <Trans>
-              <strong>Are you sure?</strong> All {bucketCount}{" "}
-              <Plural value={bucketCount} one="object" other="objects" /> in bucket "{bucketName}" will be permanently
-              deleted. This action cannot be undone.
+              <strong>Are you sure?</strong>
             </Trans>
-          ) : (
+          </p>
+          <p className="text-theme-default">
             <Trans>
-              <strong>Are you sure?</strong> This will permanently delete all versions and delete markers from bucket "
-              {bucketName}". After this operation, the bucket will be completely empty and can be deleted.
+              This dangerous action will permanently delete all objects, all versions, and all delete markers from
+              bucket "{bucketName}". This action cannot be undone.
             </Trans>
-          )}
-        </p>
+          </p>
+        </div>
 
         <Stack direction="vertical" gap="2">
           <div className="flex items-center justify-between">

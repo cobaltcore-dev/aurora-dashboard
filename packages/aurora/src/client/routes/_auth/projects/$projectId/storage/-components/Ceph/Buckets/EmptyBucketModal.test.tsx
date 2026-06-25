@@ -98,13 +98,6 @@ const mockNonEmptyBucket: Bucket = {
   bytes: 1024,
 }
 
-const mockSingleObjectBucket: Bucket = {
-  name: "single-object-bucket",
-  creationDate: "2024-01-15T10:00:00Z",
-  count: 1,
-  bytes: 512,
-}
-
 // ─── Render helper ────────────────────────────────────────────────────────────
 
 const renderModal = ({
@@ -158,12 +151,30 @@ describe("EmptyBucketModal", () => {
     })
   })
 
-  describe("Empty bucket state", () => {
-    test("shows special message for bucket with only delete markers (count=0)", () => {
+  describe("Warning message", () => {
+    test("shows dangerous action warning for all buckets", () => {
       renderModal({ bucket: mockEmptyBucket })
-      expect(
-        screen.getByText(/This will permanently delete all versions and delete markers from bucket/)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Are you sure?/)).toBeInTheDocument()
+      expect(screen.getByText(/This dangerous action will permanently delete all objects/)).toBeInTheDocument()
+      expect(screen.getByText(/all versions.*all delete markers/)).toBeInTheDocument()
+    })
+
+    test("shows same warning for non-empty bucket", () => {
+      renderModal({ bucket: mockNonEmptyBucket })
+      expect(screen.getByText(/Are you sure?/)).toBeInTheDocument()
+      expect(screen.getByText(/This dangerous action will permanently delete all objects/)).toBeInTheDocument()
+    })
+
+    test("warning mentions that action cannot be undone", () => {
+      renderModal()
+      expect(screen.getByText(/This action cannot be undone/)).toBeInTheDocument()
+    })
+  })
+
+  describe("Bucket UI", () => {
+    test("renders modal title", () => {
+      renderModal()
+      expect(screen.getByRole("heading", { name: "Empty Bucket" })).toBeInTheDocument()
     })
 
     test("still shows confirmation input for empty bucket", () => {
@@ -174,25 +185,6 @@ describe("EmptyBucketModal", () => {
     test("allows emptying bucket even when count is 0", () => {
       renderModal({ bucket: mockEmptyBucket })
       expect(screen.getByRole("button", { name: /^Empty$/i })).toBeInTheDocument()
-    })
-  })
-
-  describe("Non-empty bucket UI", () => {
-    test("renders modal title", () => {
-      renderModal()
-      expect(screen.getByRole("heading", { name: "Empty Bucket" })).toBeInTheDocument()
-    })
-
-    test("shows warning message with object count (plural)", () => {
-      renderModal({ bucket: mockNonEmptyBucket })
-      expect(screen.getByText(/Are you sure?/)).toBeInTheDocument()
-      expect(screen.getByText(/All 5 objects/)).toBeInTheDocument()
-      expect(screen.getByText(/will be permanently deleted/)).toBeInTheDocument()
-    })
-
-    test("shows warning message with object count (singular)", () => {
-      renderModal({ bucket: mockSingleObjectBucket })
-      expect(screen.getByText(/All 1 object/)).toBeInTheDocument()
     })
 
     test("displays bucket name", () => {

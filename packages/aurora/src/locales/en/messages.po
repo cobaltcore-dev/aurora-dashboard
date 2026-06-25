@@ -103,11 +103,8 @@ msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} it
 msgid "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 
-msgid "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
-msgstr "<0>Are you sure?</0> All {bucketCount} {bucketCount, plural, one {object} other {objects}} in bucket \"{bucketName}\" will be permanently deleted. This action cannot be undone."
-
-msgid "<0>Are you sure?</0> This will permanently delete all versions and delete markers from bucket \"{bucketName}\". After this operation, the bucket will be completely empty and can be deleted."
-msgstr "<0>Are you sure?</0> This will permanently delete all versions and delete markers from bucket \"{bucketName}\". After this operation, the bucket will be completely empty and can be deleted."
+msgid "<0>Are you sure?</0>"
+msgstr "<0>Are you sure?</0>"
 
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Edit metadata:</0> <1>{displayName}</1>"
@@ -3099,6 +3096,9 @@ msgstr "This container is already empty."
 
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
+
+msgid "This dangerous action will permanently delete all objects, all versions, and all delete markers from bucket \"{bucketName}\". This action cannot be undone."
+msgstr "This dangerous action will permanently delete all objects, all versions, and all delete markers from bucket \"{bucketName}\". This action cannot be undone."
 
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "This extra spec keys already exist. Please use different keys."

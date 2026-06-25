@@ -252,7 +252,8 @@ describe("DeleteBucketModal", () => {
 
       expect(screen.getByText(/This bucket contains objects/)).toBeInTheDocument()
       expect(screen.getByText(/possibly including old versions and delete markers/)).toBeInTheDocument()
-      expect(screen.getByText(/Empty Bucket/)).toBeInTheDocument()
+      expect(screen.getByText(/Empty/)).toBeInTheDocument()
+      expect(screen.getByText(/action to remove all content first/)).toBeInTheDocument()
     })
 
     test("shows same message for multiple objects", () => {
