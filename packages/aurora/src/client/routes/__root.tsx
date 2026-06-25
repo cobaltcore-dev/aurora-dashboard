@@ -21,6 +21,7 @@ export interface RouterContext {
   slots?: Slots
   appName?: string
   onTrackEvent?: OnTrackEventCallback
+  enabledServices?: string[]
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
