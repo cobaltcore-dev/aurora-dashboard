@@ -1,5 +1,5 @@
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { i18n } from "@lingui/core"
+import { t } from "@lingui/core/macro"
 import type { NavigateFn } from "@tanstack/react-router"
 
 export type NavItem = {
@@ -28,7 +28,7 @@ export function buildNavSections(
       ? [
           {
             service: "images",
-            label: i18n._({ id: "Images", message: "Images" }),
+            label: t`Images`,
             navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/compute/images", params: { projectId } }),
             params: { projectId },
           },
@@ -38,7 +38,7 @@ export function buildNavSections(
       ? [
           {
             service: "flavors",
-            label: i18n._({ id: "Flavors", message: "Flavors" }),
+            label: t`Flavors`,
             navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/compute/flavors", params: { projectId } }),
             params: { projectId },
           },
@@ -52,7 +52,7 @@ export function buildNavSections(
           ? [
               {
                 service: "securitygroups",
-                label: i18n._({ id: "Security Groups", message: "Security Groups" }),
+                label: t`Security Groups`,
                 navigate: (nav: NavigateFn) =>
                   nav({ to: "/projects/$projectId/network/securitygroups", params: { projectId } }),
                 params: { projectId },
@@ -63,7 +63,7 @@ export function buildNavSections(
           ? [
               {
                 service: "floatingips",
-                label: i18n._({ id: "Floating IPs", message: "Floating IPs" }),
+                label: t`Floating IPs`,
                 navigate: (nav: NavigateFn) =>
                   nav({ to: "/projects/$projectId/network/floatingips", params: { projectId } }),
                 params: { projectId },
@@ -78,7 +78,7 @@ export function buildNavSections(
       ? [
           {
             service: "containers",
-            label: i18n._({ id: "Object Storage (Swift)", message: "Object Storage (Swift)" }),
+            label: t`Object Storage (Swift)`,
             navigate: (nav: NavigateFn) =>
               nav({
                 to: "/projects/$projectId/storage/$provider/$storageType",
@@ -92,7 +92,7 @@ export function buildNavSections(
       ? [
           {
             service: "ceph-containers",
-            label: i18n._({ id: "Object Storage (Ceph)", message: "Object Storage (Ceph)" }),
+            label: t`Object Storage (Ceph)`,
             navigate: (nav: NavigateFn) =>
               nav({
                 to: "/projects/$projectId/storage/$provider/$storageType",
@@ -111,7 +111,7 @@ export function buildNavSections(
       ? [
           {
             service: "pca",
-            label: i18n._({ id: "PCA (Clavis)", message: "PCA (Clavis)" }),
+            label: t`PCA (Clavis)`,
             navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/services/pca", params: { projectId } }),
             params: { projectId },
           },
@@ -119,9 +119,9 @@ export function buildNavSections(
       : []
 
   return [
-    { section: "compute", label: i18n._({ id: "Compute", message: "Compute" }), services: computeServices },
-    { section: "network", label: i18n._({ id: "Network", message: "Network" }), services: networkServices },
-    { section: "storage", label: i18n._({ id: "Storage", message: "Storage" }), services: storageServices },
-    { section: "services", label: i18n._({ id: "Services", message: "Services" }), services: clavisServices },
+    { section: "compute", label: t`Compute`, services: computeServices },
+    { section: "network", label: t`Network`, services: networkServices },
+    { section: "storage", label: t`Storage`, services: storageServices },
+    { section: "services", label: t`Services`, services: clavisServices },
   ].filter((s) => s.services.length > 0)
 }

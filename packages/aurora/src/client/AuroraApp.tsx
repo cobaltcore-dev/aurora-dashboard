@@ -7,7 +7,7 @@ export type SlotProps = {
   auroraContext: {
     /** tRPC client for making API calls to the Aurora BFF. */
     client: TrpcClient
-    /** Current service key of the badge slot. Only set for the `serviceBadge` slot. */
+    /** Current service key of the slot component*/
     currentService?: string
   }
 }

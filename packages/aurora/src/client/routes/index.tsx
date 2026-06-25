@@ -160,31 +160,9 @@ export function AuthLoginPage() {
 
   const wasInactive = logoutReason === "inactive" || logoutReason === "expired"
 
-  if (slots?.login && !isAuthenticated && !isLoading) {
-    return (
-      <div className="mt-8 flex justify-center">
-        <Slot component={slots.login} useShadowDOM={false} />
-      </div>
-    )
-  }
-
   return (
     <div className="mt-8 flex justify-center">
       <div className="border-theme-light relative w-full max-w-md rounded-lg border p-6 shadow-lg">
-        {loginError && (
-          <Message
-            onDismiss={dismissError}
-            text={loginError}
-            variant="error"
-            className="absolute -top-14 right-0 left-0 z-50"
-          />
-        )}
-        <ContentHeading className="text-center">
-          <Trans>Login to Your Account</Trans>
-        </ContentHeading>
-        <p className="mb-6 text-center">
-          <Trans>Enter your credentials to access your account</Trans>
-        </p>
         {(search.redirect || wasInactive) && (
           <p className="mb-4 text-center text-sm text-red-500">
             {wasInactive ? (
@@ -194,67 +172,87 @@ export function AuthLoginPage() {
             )}
           </p>
         )}
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault()
-            signin()
-          }}
-        >
-          <div className="flex flex-col">
-            <label htmlFor="domain" className="font-medium text-gray-300">
-              <Trans>Domain</Trans>
-            </label>
-            <input
-              id="domain"
-              type="text"
-              placeholder={t`Enter your domain`}
-              className={textinputstyles}
-              onChange={(e) => {
-                setForm({ ...form, domainName: e.target.value })
-                if (loginError) setLoginError(null)
+        {slots?.login && !isAuthenticated && !isLoading ? (
+          <Slot component={slots.login} useShadowDOM={false} />
+        ) : (
+          <>
+            {loginError && (
+              <Message
+                onDismiss={dismissError}
+                text={loginError}
+                variant="error"
+                className="absolute -top-14 right-0 left-0 z-50"
+              />
+            )}
+            <ContentHeading className="text-center">
+              <Trans>Login to Your Account</Trans>
+            </ContentHeading>
+            <p className="mb-6 text-center">
+              <Trans>Enter your credentials to access your account</Trans>
+            </p>
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault()
+                signin()
               }}
-              required
-            />
-          </div>
+            >
+              <div className="flex flex-col">
+                <label htmlFor="domain" className="font-medium text-gray-300">
+                  <Trans>Domain</Trans>
+                </label>
+                <input
+                  id="domain"
+                  type="text"
+                  placeholder={t`Enter your domain`}
+                  className={textinputstyles}
+                  onChange={(e) => {
+                    setForm({ ...form, domainName: e.target.value })
+                    if (loginError) setLoginError(null)
+                  }}
+                  required
+                />
+              </div>
 
-          <div className="flex flex-col">
-            <label htmlFor="user" className="font-medium text-gray-300">
-              <Trans>User C/D/I</Trans>
-            </label>
-            <input
-              id="user"
-              type="text"
-              placeholder={t`Enter your username`}
-              className={textinputstyles}
-              onChange={(e) => {
-                setForm({ ...form, user: e.target.value })
-                if (loginError) setLoginError(null)
-              }}
-              required
-            />
-          </div>
+              <div className="flex flex-col">
+                <label htmlFor="user" className="font-medium text-gray-300">
+                  <Trans>User C/D/I</Trans>
+                </label>
+                <input
+                  id="user"
+                  type="text"
+                  placeholder={t`Enter your username`}
+                  className={textinputstyles}
+                  onChange={(e) => {
+                    setForm({ ...form, user: e.target.value })
+                    if (loginError) setLoginError(null)
+                  }}
+                  required
+                />
+              </div>
 
-          <div className="flex flex-col">
-            <label htmlFor="password" className="font-medium text-gray-300">
-              <Trans>Password</Trans>
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              className={textinputstyles}
-              onChange={(e) => {
-                setForm({ ...form, password: e.target.value })
-                if (loginError) setLoginError(null)
-              }}
-            />
-          </div>
+              <div className="flex flex-col">
+                <label htmlFor="password" className="font-medium text-gray-300">
+                  <Trans>Password</Trans>
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  className={textinputstyles}
+                  onChange={(e) => {
+                    setForm({ ...form, password: e.target.value })
+                    if (loginError) setLoginError(null)
+                  }}
+                />
+              </div>
 
-          <Button type="submit" className="w-full" disabled={isLoggingIn}>
-            {isLoggingIn ? <Trans>Loading...</Trans> : <Trans>Sign In</Trans>}
-          </Button>
-        </form>
+              <Button type="submit" className="w-full" disabled={isLoggingIn}>
+                {isLoggingIn ? <Trans>Loading...</Trans> : <Trans>Sign In</Trans>}
+              </Button>
+            </form>
+          </>
+        )}
       </div>
     </div>
   )

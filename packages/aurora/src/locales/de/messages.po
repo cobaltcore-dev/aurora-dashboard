@@ -523,10 +523,6 @@ msgstr "Common name is required."
 msgid "Community"
 msgstr "Community"
 
-#. js-lingui-explicit-id
-msgid "Compute"
-msgstr ""
-
 msgid "Compute"
 msgstr "Compute"
 
@@ -1451,10 +1447,6 @@ msgstr "Flavor nicht gefunden"
 msgid "Flavor service is not available for this project."
 msgstr "Der Flavor-Service ist für dieses Projekt nicht verfügbar."
 
-#. js-lingui-explicit-id
-msgid "Flavors"
-msgstr ""
-
 msgid "Flavors"
 msgstr "Flavors"
 
@@ -1463,10 +1455,6 @@ msgstr "Floating IP-Adresse"
 
 msgid "Floating IP not found"
 msgstr "Floating IP nicht gefunden"
-
-#. js-lingui-explicit-id
-msgid "Floating IPs"
-msgstr ""
 
 msgid "Floating IPs"
 msgstr "Floating IPs"
@@ -1644,10 +1632,6 @@ msgstr "Image nicht gefunden"
 
 msgid "Image Visibility"
 msgstr "Image-Sichtbarkeit"
-
-#. js-lingui-explicit-id
-msgid "Images"
-msgstr ""
 
 msgid "Images"
 msgstr "Images"
@@ -2048,10 +2032,6 @@ msgstr "Der Name muss 2-50 Zeichen lang sein."
 msgid "Name:"
 msgstr ""
 
-#. js-lingui-explicit-id
-msgid "Network"
-msgstr ""
-
 msgid "Network"
 msgstr "Netzwerk"
 
@@ -2214,16 +2194,8 @@ msgstr " Objektname ist erforderlich"
 msgid "Object properties"
 msgstr "Objekt-Eigenschaften"
 
-#. js-lingui-explicit-id
-msgid "Object Storage (Ceph)"
-msgstr ""
-
 msgid "Object Storage (Ceph)"
 msgstr "Object Storage (Ceph)"
-
-#. js-lingui-explicit-id
-msgid "Object Storage (Swift)"
-msgstr ""
 
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"
@@ -2320,10 +2292,6 @@ msgstr "Paste the code"
 
 msgid "PCA"
 msgstr "PCA"
-
-#. js-lingui-explicit-id
-msgid "PCA (Clavis)"
-msgstr ""
 
 msgid "PCA (Clavis)"
 msgstr "PCA (Clavis)"
@@ -2658,10 +2626,6 @@ msgstr "Security Group-Name ist erforderlich"
 msgid "Security group not found"
 msgstr "Security Group nicht gefunden"
 
-#. js-lingui-explicit-id
-msgid "Security Groups"
-msgstr ""
-
 msgid "Security Groups"
 msgstr "Security Groups"
 
@@ -2739,10 +2703,6 @@ msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 
 msgid "Server Role:"
 msgstr "Serverrolle:"
-
-#. js-lingui-explicit-id
-msgid "Services"
-msgstr ""
 
 msgid "Services"
 msgstr "Services"
@@ -2848,10 +2808,6 @@ msgstr "Statisches Website-Serving"
 
 msgid "Status"
 msgstr "Status"
-
-#. js-lingui-explicit-id
-msgid "Storage"
-msgstr ""
 
 msgid "Storage"
 msgstr "Storage"
