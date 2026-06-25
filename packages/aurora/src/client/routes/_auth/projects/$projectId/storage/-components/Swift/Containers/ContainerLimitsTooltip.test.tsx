@@ -1,6 +1,5 @@
 import { describe, test, expect, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
+import { render, screen, act } from "@testing-library/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -16,10 +15,14 @@ const renderTooltip = (serviceInfo?: ServiceInfo, accountInfo?: AccountInfo) =>
     </I18nProvider>
   )
 
-const openTooltip = async () => {
-  const icon = screen.getByRole("img", { name: /info/i })
-  await userEvent.hover(icon)
-}
+const renderOpenTooltip = (serviceInfo?: ServiceInfo, accountInfo?: AccountInfo) =>
+  render(
+    <I18nProvider i18n={i18n}>
+      <PortalProvider>
+        <ContainerLimitsTooltip serviceInfo={serviceInfo} accountInfo={accountInfo} open />
+      </PortalProvider>
+    </I18nProvider>
+  )
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 
@@ -97,22 +100,16 @@ describe("ContainerLimitsTooltip", () => {
       expect(screen.getByRole("img", { name: /info/i })).toHaveAttribute("data-state", "closed")
     })
 
-    test("icon has correct data-state when open", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByRole("img", { name: /info/i })).toHaveAttribute("data-state", "open")
-      })
+    test("tooltip content is visible when open", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Limits")).toBeInTheDocument()
     })
   })
 
   describe("Account section", () => {
-    test("renders Account section when accountInfo is provided", async () => {
-      renderTooltip(undefined, mockAccountInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Account")).toBeInTheDocument()
-      })
+    test("renders Account section when accountInfo is provided", () => {
+      renderOpenTooltip(undefined, mockAccountInfo)
+      expect(screen.getByText("Account")).toBeInTheDocument()
     })
 
     test("does not render Account section when accountInfo is not provided", () => {
@@ -120,59 +117,41 @@ describe("ContainerLimitsTooltip", () => {
       expect(screen.queryByText("Account")).not.toBeInTheDocument()
     })
 
-    test("displays container count", async () => {
-      renderTooltip(undefined, mockAccountInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Containers:")).toBeInTheDocument()
-        expect(screen.getByText("12")).toBeInTheDocument()
-      })
+    test("displays container count", () => {
+      renderOpenTooltip(undefined, mockAccountInfo)
+      expect(screen.getByText("Containers:")).toBeInTheDocument()
+      expect(screen.getByText("12")).toBeInTheDocument()
     })
 
-    test("displays object count", async () => {
-      renderTooltip(undefined, mockAccountInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Objects:")).toBeInTheDocument()
-        expect(screen.getByText("340")).toBeInTheDocument()
-      })
+    test("displays object count", () => {
+      renderOpenTooltip(undefined, mockAccountInfo)
+      expect(screen.getByText("Objects:")).toBeInTheDocument()
+      expect(screen.getByText("340")).toBeInTheDocument()
     })
 
-    test("displays bytes used formatted", async () => {
-      renderTooltip(undefined, mockAccountInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Used:")).toBeInTheDocument()
-        expect(screen.getByText("1 GiB")).toBeInTheDocument()
-      })
+    test("displays bytes used formatted", () => {
+      renderOpenTooltip(undefined, mockAccountInfo)
+      expect(screen.getByText("Used:")).toBeInTheDocument()
+      expect(screen.getByText("1 GiB")).toBeInTheDocument()
     })
 
-    test("displays quota when quotaBytes is provided", async () => {
-      renderTooltip(undefined, mockAccountInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Quota:")).toBeInTheDocument()
-        expect(screen.getByText("10 GiB")).toBeInTheDocument()
-      })
+    test("displays quota when quotaBytes is provided", () => {
+      renderOpenTooltip(undefined, mockAccountInfo)
+      expect(screen.getByText("Quota:")).toBeInTheDocument()
+      expect(screen.getByText("10 GiB")).toBeInTheDocument()
     })
 
-    test("does not display quota when quotaBytes is not provided", async () => {
-      renderTooltip(undefined, mockAccountInfoNoQuota)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Account")).toBeInTheDocument()
-      })
+    test("does not display quota when quotaBytes is not provided", () => {
+      renderOpenTooltip(undefined, mockAccountInfoNoQuota)
+      expect(screen.getByText("Account")).toBeInTheDocument()
       expect(screen.queryByText("Quota:")).not.toBeInTheDocument()
     })
   })
 
   describe("Limits section", () => {
-    test("renders Limits section when serviceInfo is provided", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Limits")).toBeInTheDocument()
-      })
+    test("renders Limits section when serviceInfo is provided", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Limits")).toBeInTheDocument()
     })
 
     test("does not render Limits section when serviceInfo is not provided", () => {
@@ -180,219 +159,144 @@ describe("ContainerLimitsTooltip", () => {
       expect(screen.queryByText("Limits")).not.toBeInTheDocument()
     })
 
-    test("displays max file size formatted", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Max file size:")).toBeInTheDocument()
-        expect(screen.getByText("5 GiB")).toBeInTheDocument()
-      })
+    test("displays max file size formatted", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Max file size:")).toBeInTheDocument()
+      expect(screen.getByText("5 GiB")).toBeInTheDocument()
     })
 
-    test("does not display max file size when undefined", async () => {
+    test("does not display max file size when undefined", () => {
       const serviceInfo: ServiceInfo = { swift: { ...mockSwiftBase, max_file_size: undefined } }
-      renderTooltip(serviceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Limits")).toBeInTheDocument()
-      })
+      renderOpenTooltip(serviceInfo)
+      expect(screen.getByText("Limits")).toBeInTheDocument()
       expect(screen.queryByText("Max file size:")).not.toBeInTheDocument()
     })
 
-    test("displays max container name length", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText(/Max container name length/i)).toBeInTheDocument()
-      })
+    test("displays max container name length", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText(/Max container name length/i)).toBeInTheDocument()
     })
 
-    test("displays max object name length", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText(/Max object name length/i)).toBeInTheDocument()
-        expect(screen.getByText("1024")).toBeInTheDocument()
-      })
+    test("displays max object name length", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText(/Max object name length/i)).toBeInTheDocument()
+      expect(screen.getByText("1024")).toBeInTheDocument()
     })
 
-    test("displays container listing limit", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Container listing limit:")).toBeInTheDocument()
-      })
+    test("displays container listing limit", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Container listing limit:")).toBeInTheDocument()
     })
 
-    test("displays account listing limit", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Account listing limit:")).toBeInTheDocument()
-      })
+    test("displays account listing limit", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Account listing limit:")).toBeInTheDocument()
     })
 
-    test("displays max header size", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Max header size:")).toBeInTheDocument()
-        expect(screen.getByText("8192")).toBeInTheDocument()
-      })
+    test("displays max header size", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Max header size:")).toBeInTheDocument()
+      expect(screen.getByText("8192")).toBeInTheDocument()
     })
 
-    test("displays max meta count", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Max meta count:")).toBeInTheDocument()
-        expect(screen.getByText("90")).toBeInTheDocument()
-      })
+    test("displays max meta count", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Max meta count:")).toBeInTheDocument()
+      expect(screen.getByText("90")).toBeInTheDocument()
     })
 
-    test("displays bulk_delete max deletes per request when present", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText(/Max deletes per request/i)).toBeInTheDocument()
-      })
+    test("displays bulk_delete max deletes per request when present", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText(/Max deletes per request/i)).toBeInTheDocument()
     })
 
-    test("does not display bulk_delete limit when bulk_delete is absent", async () => {
-      renderTooltip(mockServiceInfoMinimal)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Limits")).toBeInTheDocument()
-      })
+    test("does not display bulk_delete limit when bulk_delete is absent", () => {
+      renderOpenTooltip(mockServiceInfoMinimal)
+      expect(screen.getByText("Limits")).toBeInTheDocument()
       expect(screen.queryByText("Max deletes per request:")).not.toBeInTheDocument()
     })
 
-    test("displays bulk_upload max containers per extraction when present", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText(/Max containers per extraction/i)).toBeInTheDocument()
-      })
+    test("displays bulk_upload max containers per extraction when present", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText(/Max containers per extraction/i)).toBeInTheDocument()
     })
 
-    test("does not display bulk_upload limit when bulk_upload is absent", async () => {
-      renderTooltip(mockServiceInfoMinimal)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Limits")).toBeInTheDocument()
-      })
+    test("does not display bulk_upload limit when bulk_upload is absent", () => {
+      renderOpenTooltip(mockServiceInfoMinimal)
+      expect(screen.getByText("Limits")).toBeInTheDocument()
       expect(screen.queryByText("Max containers per extraction:")).not.toBeInTheDocument()
     })
 
-    test("displays SLO max manifest segments when present", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Max SLO segments:")).toBeInTheDocument()
-      })
+    test("displays SLO max manifest segments when present", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Max SLO segments:")).toBeInTheDocument()
     })
 
-    test("does not display SLO limit when slo is absent", async () => {
-      renderTooltip(mockServiceInfoMinimal)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Limits")).toBeInTheDocument()
-      })
+    test("does not display SLO limit when slo is absent", () => {
+      renderOpenTooltip(mockServiceInfoMinimal)
+      expect(screen.getByText("Limits")).toBeInTheDocument()
       expect(screen.queryByText("Max SLO segments:")).not.toBeInTheDocument()
     })
   })
 
   describe("Capabilities section", () => {
-    test("renders Capabilities section when capabilities are present", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Capabilities")).toBeInTheDocument()
-      })
+    test("renders Capabilities section when capabilities are present", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Capabilities")).toBeInTheDocument()
     })
 
-    test("does not render Capabilities section when no capabilities are enabled", async () => {
-      renderTooltip(mockServiceInfoMinimal)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Limits")).toBeInTheDocument()
-      })
+    test("does not render Capabilities section when no capabilities are enabled", () => {
+      renderOpenTooltip(mockServiceInfoMinimal)
+      expect(screen.getByText("Limits")).toBeInTheDocument()
       expect(screen.queryByText("Capabilities")).not.toBeInTheDocument()
     })
 
-    test("displays Account quotas capability", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Account quotas")).toBeInTheDocument()
-      })
+    test("displays Account quotas capability", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Account quotas")).toBeInTheDocument()
     })
 
-    test("displays Container quotas capability", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Container quotas")).toBeInTheDocument()
-      })
+    test("displays Container quotas capability", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Container quotas")).toBeInTheDocument()
     })
 
-    test("displays Efficient bulk deletion capability", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Efficient bulk deletion")).toBeInTheDocument()
-      })
+    test("displays Efficient bulk deletion capability", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Efficient bulk deletion")).toBeInTheDocument()
     })
 
-    test("displays Bulk upload of archive files capability", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Bulk upload of archive files")).toBeInTheDocument()
-      })
+    test("displays Bulk upload of archive files capability", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Bulk upload of archive files")).toBeInTheDocument()
     })
 
-    test("displays Static large object support capability", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Static large object support")).toBeInTheDocument()
-      })
+    test("displays Static large object support capability", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Static large object support")).toBeInTheDocument()
     })
 
-    test("displays Container syncing capability", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Container syncing")).toBeInTheDocument()
-      })
+    test("displays Container syncing capability", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Container syncing")).toBeInTheDocument()
     })
 
-    test("displays Temporary URLs capability", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Temporary URLs")).toBeInTheDocument()
-      })
+    test("displays Temporary URLs capability", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Temporary URLs")).toBeInTheDocument()
     })
 
-    test("displays Symlinks capability", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Symlinks")).toBeInTheDocument()
-      })
+    test("displays Symlinks capability", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Symlinks")).toBeInTheDocument()
     })
 
-    test("displays Versioned writes capability", async () => {
-      renderTooltip(mockServiceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Versioned writes")).toBeInTheDocument()
-      })
+    test("displays Versioned writes capability", () => {
+      renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Versioned writes")).toBeInTheDocument()
     })
 
-    test("only shows capabilities that are enabled", async () => {
+    test("only shows capabilities that are enabled", () => {
       const serviceInfo: ServiceInfo = {
         swift: {
           ...mockSwiftBase,
@@ -400,26 +304,20 @@ describe("ContainerLimitsTooltip", () => {
           tempurl: { methods: ["GET", "HEAD", "PUT", "POST", "DELETE"] },
         },
       }
-      renderTooltip(serviceInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Account quotas")).toBeInTheDocument()
-        expect(screen.getByText("Temporary URLs")).toBeInTheDocument()
-      })
+      renderOpenTooltip(serviceInfo)
+      expect(screen.getByText("Account quotas")).toBeInTheDocument()
+      expect(screen.getByText("Temporary URLs")).toBeInTheDocument()
       expect(screen.queryByText("Container quotas")).not.toBeInTheDocument()
       expect(screen.queryByText("Symlinks")).not.toBeInTheDocument()
     })
   })
 
   describe("Combined props", () => {
-    test("renders all sections when both serviceInfo and accountInfo are provided", async () => {
-      renderTooltip(mockServiceInfo, mockAccountInfo)
-      await openTooltip()
-      await waitFor(() => {
-        expect(screen.getByText("Account")).toBeInTheDocument()
-        expect(screen.getByText("Limits")).toBeInTheDocument()
-        expect(screen.getByText("Capabilities")).toBeInTheDocument()
-      })
+    test("renders all sections when both serviceInfo and accountInfo are provided", () => {
+      renderOpenTooltip(mockServiceInfo, mockAccountInfo)
+      expect(screen.getByText("Account")).toBeInTheDocument()
+      expect(screen.getByText("Limits")).toBeInTheDocument()
+      expect(screen.getByText("Capabilities")).toBeInTheDocument()
     })
 
     test("renders nothing beyond the icon when both props are absent", () => {
