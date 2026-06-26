@@ -35,8 +35,11 @@ export const SideNavBar = ({ projectId, projectName, domainName, sections }: Sid
   const activeSection = activeRouteInfo?.section ?? null
   const activeService = activeRouteInfo?.service ?? null
 
-  // Keep all sections open at all times
-  const openSections = useMemo(() => Object.fromEntries(sections.map((s) => [s.section, true])), [sections])
+  // Only keep the active section open
+  const openSections = useMemo(
+    () => Object.fromEntries(sections.map((s) => [s.section, s.section === activeSection])),
+    [sections, activeSection]
+  )
 
   return (
     <SideNavigation ariaLabel="Project Side Navigation">
