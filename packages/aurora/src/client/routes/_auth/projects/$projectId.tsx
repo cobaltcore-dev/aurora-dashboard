@@ -4,6 +4,7 @@ import { SideNavBar } from "@/client/routes/_auth/projects/-components/SideNavBa
 import { buildNavSections } from "@/client/routes/_auth/projects/-components/buildNavSections"
 import { ProjectInfoBox } from "@/client/components/ProjectView/ProjectInfoBox"
 import { RouteError } from "@/client/components/Error/RouteError"
+import { useMemo } from "react"
 
 export const Route = createFileRoute("/_auth/projects/$projectId")({
   component: RouteComponent,
@@ -41,12 +42,17 @@ function RouteComponent() {
   const { availableServices, projectId, crumbProject, crumbDomain } = useLoaderData({ from: Route.id })
   const { enabledServices } = useRouteContext({ strict: false })
 
+  const sections = useMemo(
+    () => buildNavSections(projectId, availableServices!, enabledServices),
+    [projectId, availableServices, enabledServices]
+  )
+
   return (
     <AppShell
       embedded
       sideNavigation={
         <SideNavBar
-          sections={buildNavSections(projectId, availableServices!, enabledServices)}
+          sections={sections}
           projectId={projectId}
           projectName={crumbProject?.name || projectId}
           domainName={crumbDomain?.name}
