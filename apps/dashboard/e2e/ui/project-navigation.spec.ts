@@ -1,5 +1,4 @@
 import { test, expect, type Page } from "@playwright/test"
-import { loginAsTestUser } from "../helpers/auth"
 import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "../helpers/test-helpers"
 
 /**
@@ -7,6 +6,7 @@ import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "
  *
  * Tests that clicking service cards loads the respective pages without errors.
  * Verifies each main section (Images, Flavors, Security Groups, etc.) loads correctly.
+ * Authentication state is provided by global setup (storageState.json).
  *
  * Requires TEST_PROJECT environment variable to specify which project to test.
  *
@@ -16,7 +16,10 @@ test.describe("Project Navigation", () => {
   const testProject = process.env.TEST_PROJECT || "demo"
 
   async function navigateToProject(page: Page) {
-    const errors = await loginAsTestUser(page)
+    const errors = setupErrorTracking(page)
+
+    // Navigate to projects (already authenticated via storageState)
+    await page.goto("/projects")
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
 

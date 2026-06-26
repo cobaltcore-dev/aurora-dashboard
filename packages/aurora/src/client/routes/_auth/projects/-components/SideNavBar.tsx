@@ -1,5 +1,5 @@
 import { useNavigate, useMatches, useParams, useRouteContext } from "@tanstack/react-router"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import {
   SideNavigation,
   SideNavigationList,
@@ -35,26 +35,16 @@ export const SideNavBar = ({ projectId, projectName, domainName, sections }: Sid
   const activeSection = activeRouteInfo?.section ?? null
   const activeService = activeRouteInfo?.service ?? null
 
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(sections.map((s) => [s.section, true]))
+  // Track which sections should be forced open by incrementing a counter
+  // This forces a remount of SideNavigationGroup since it doesn't expose onToggle
+  const [forceOpenCounter, setForceOpenCounter] = useState<Record<string, number>>(() =>
+    Object.fromEntries(sections.map((s) => [s.section, 0]))
   )
-  const prevSectionRef = useRef<string | null>(null)
-  const mountedRef = useRef(false)
 
+  // When navigating to a section, force it to expand by remounting
   useEffect(() => {
-    const prev = prevSectionRef.current
-    prevSectionRef.current = activeSection
-    const wasMounted = mountedRef.current
-    mountedRef.current = true
-    // Skip on initial mount: all sections start open, Juno initializes correctly from the open prop.
-    // Only re-open when navigating to a section that Juno may have internally collapsed.
-    if (!wasMounted) return
-    if (activeSection && activeSection !== prev && activeSection in openSections) {
-      // Set false first, then true in the next tick so Juno's useEffect([open]) sees the change
-      // even if the section was already true in our state (Juno may have internally collapsed it).
-      setOpenSections((s) => ({ ...s, [activeSection]: false }))
-      const section = activeSection
-      setTimeout(() => setOpenSections((s) => ({ ...s, [section]: true })), 0)
+    if (activeSection) {
+      setForceOpenCounter((prev) => ({ ...prev, [activeSection]: (prev[activeSection] || 0) + 1 }))
     }
   }, [activeSection])
 
@@ -74,7 +64,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, sections }: Sid
             />
             <Divider spacing="1" />
             {sections.map(({ section, label, services }) => (
-              <SideNavigationGroup key={section} label={label} open={openSections[section]}>
+              <SideNavigationGroup key={`${section}-${forceOpenCounter[section]}`} label={label} open={true}>
                 {services.map((item) => {
                   const isStorageContainers = activeSection === "storage" && activeService === "containers"
                   const isSelected =
