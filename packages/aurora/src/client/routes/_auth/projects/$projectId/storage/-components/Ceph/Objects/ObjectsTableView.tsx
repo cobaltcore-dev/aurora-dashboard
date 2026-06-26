@@ -403,11 +403,13 @@ export function ObjectsTableView({
         versionDate={restoreTarget?.lastModified}
         isOpen={restoreTarget !== null}
         onClose={() => setRestoreTarget(null)}
-        onSuccess={(key) => {
-          onDeleteObjectSuccess(key) // Reuse the success handler to refresh the list
+        onSuccess={(key, versionId) => {
+          setRestoreTarget(null)
+          onRestoreVersion?.(key, versionId)
         }}
-        onError={(key, error) => {
-          onDeleteObjectError(key, error)
+        onError={() => {
+          setRestoreTarget(null)
+          // Error is shown in the modal itself via mutation error state
         }}
       />
 

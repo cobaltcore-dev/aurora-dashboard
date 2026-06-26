@@ -200,6 +200,17 @@ export const MoveObjectModal = ({
     }
   }
 
+  // Synchronize targetBucket with searchTerm when it matches an exact bucket name
+  useEffect(() => {
+    const trimmedSearch = modalState.searchTerm.trim()
+    if (trimmedSearch && buckets) {
+      const matchingBucket = buckets.find((b) => b.name === trimmedSearch)
+      if (matchingBucket && matchingBucket.name !== modalState.targetBucket) {
+        modalState.setTargetBucket(matchingBucket.name)
+      }
+    }
+  }, [modalState.searchTerm, buckets, modalState.targetBucket, modalState])
+
   const handleNewFolderKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") modalState.createFolder()
     if (e.key === "Escape") modalState.cancelCreateFolder()

@@ -234,6 +234,11 @@ export const BucketTableView = ({
                     <PopupMenu>
                       <PopupMenuOptions>
                         <PopupMenuItem
+                          label={t`Show Details`}
+                          onClick={handleRowNavigate}
+                          data-testid={`show-details-action-${bucket.name}`}
+                        />
+                        <PopupMenuItem
                           label={t`Empty`}
                           onClick={() => setEmptyModalBucket(bucket)}
                           data-testid={`empty-action-${bucket.name}`}

@@ -79,6 +79,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const currentPrefix = decodePrefix(encodedPrefix)
 
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined)
+  const [keyMarker, setKeyMarker] = useState<string | undefined>(undefined)
+  const [versionIdMarker, setVersionIdMarker] = useState<string | undefined>(undefined)
   const [allObjects, setAllObjects] = useState<S3Object[]>([])
   const [allFolders, setAllFolders] = useState<S3FolderPrefix[]>([])
   const [allVersions, setAllVersions] = useState<S3ObjectVersion[]>([])
@@ -111,6 +113,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   // Reset accumulated data when tab changes (switching between All/Deleted views)
   useEffect(() => {
     setContinuationToken(undefined)
+    setKeyMarker(undefined)
+    setVersionIdMarker(undefined)
     setAllObjects([])
     setAllFolders([])
     setAllVersions([])
@@ -165,7 +169,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       prefix: currentPrefix || undefined,
       delimiter: "/",
       maxKeys: 1000,
-      continuationToken,
+      continuationToken: tab === "deleted" ? undefined : continuationToken,
+      keyMarker: tab === "deleted" ? keyMarker : undefined,
+      versionIdMarker: tab === "deleted" ? versionIdMarker : undefined,
       showVersions: tab === "deleted", // Load versions when showing deleted tab
     },
     {
@@ -212,6 +218,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const navigateToPrefix = (prefix: string) => {
     // Reset pagination when navigating
     setContinuationToken(undefined)
+    setKeyMarker(undefined)
+    setVersionIdMarker(undefined)
     setAllObjects([])
     setAllFolders([])
     setAllVersions([])
@@ -227,6 +235,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const navigateToBuckets = () => {
     // Reset pagination/accumulated state before leaving the bucket
     setContinuationToken(undefined)
+    setKeyMarker(undefined)
+    setVersionIdMarker(undefined)
     setAllObjects([])
     setAllFolders([])
     setAllVersions([])
@@ -239,8 +249,17 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   }
 
   const loadMore = () => {
-    if (data?.nextContinuationToken) {
-      setContinuationToken(data.nextContinuationToken)
+    if (tab === "deleted") {
+      // Version pagination uses both keyMarker and versionIdMarker
+      if (data?.nextKeyMarker) {
+        setKeyMarker(data.nextKeyMarker)
+        setVersionIdMarker(data.nextVersionIdMarker)
+      }
+    } else {
+      // Regular pagination uses continuationToken
+      if (data?.nextContinuationToken) {
+        setContinuationToken(data.nextContinuationToken)
+      }
     }
   }
 
@@ -288,15 +307,44 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       }
     })
 
-    // Apply search filter
-    return deletedFiles.filter((v) => stripPrefix(v.key).toLowerCase().includes(searchParam.toLowerCase().trim()))
+    return deletedFiles
   })()
+
+  // Sort deleted files (operates on full unfiltered list before search)
+  const sortedDeletedFiles = !sortBy
+    ? deletedFilesList
+    : [...deletedFilesList].sort((a, b) => {
+        let comparison = 0
+        switch (sortBy) {
+          case "name":
+            comparison = stripPrefix(a.key).localeCompare(stripPrefix(b.key))
+            break
+          case "lastModified":
+          case "last_modified": {
+            const aDate = a.lastModified
+            const bDate = b.lastModified
+            if (!aDate || !bDate) break
+            comparison = new Date(aDate).getTime() - new Date(bDate).getTime()
+            break
+          }
+          case "size":
+          case "bytes":
+            comparison = a.size - b.size
+            break
+        }
+        return sortDirection === "desc" ? -comparison : comparison
+      })
+
+  // Apply search filter to sorted deleted files (after sorting)
+  const filteredDeletedFiles = sortedDeletedFiles.filter((v) =>
+    stripPrefix(v.key).toLowerCase().includes(searchParam.toLowerCase().trim())
+  )
 
   const totalItemCount =
     tab === "deleted" ? deletedFilesList.length + allFolders.length : allObjects.length + allFolders.length
   const filteredItemCount =
     tab === "deleted"
-      ? deletedFilesList.length + filteredFolders.length
+      ? filteredDeletedFiles.length + filteredFolders.length
       : filteredObjects.length + filteredFolders.length
 
   // Sort
@@ -547,7 +595,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           bucketName={bucketName}
           objects={sortedObjects}
           folders={sortedFolders}
-          versions={deletedFilesList}
+          versions={filteredDeletedFiles}
           showingVersions={tab === "deleted"}
           currentPrefix={currentPrefix}
           versioningEnabled={versioningStatus?.status === "Enabled"}

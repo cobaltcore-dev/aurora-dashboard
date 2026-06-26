@@ -161,7 +161,9 @@ export const listObjectsInputSchema = projectScopedInputSchema.extend({
   prefix: z.string().optional(), // Filter by prefix
   delimiter: z.string().optional(), // "/" for folder grouping
   maxKeys: z.number().min(1).max(1000).default(1000),
-  continuationToken: z.string().optional(), // For pagination
+  continuationToken: z.string().optional(), // For pagination (ListObjectsV2)
+  keyMarker: z.string().optional(), // For version pagination (ListObjectVersions)
+  versionIdMarker: z.string().optional(), // For version pagination (ListObjectVersions)
   showVersions: z.boolean().optional().default(false), // Show all versions including delete markers
 })
 

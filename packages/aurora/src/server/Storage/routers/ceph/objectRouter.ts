@@ -47,7 +47,16 @@ export const objectRouter = {
     .input(listObjectsInputSchema)
     .query(async ({ ctx, input }): Promise<ListObjectsOutput> => {
       const s3 = ctx.getCephClient!()
-      const { containerName, prefix, delimiter = "/", maxKeys, continuationToken, showVersions } = input
+      const {
+        containerName,
+        prefix,
+        delimiter = "/",
+        maxKeys,
+        continuationToken,
+        keyMarker,
+        versionIdMarker,
+        showVersions,
+      } = input
 
       try {
         // When showVersions is true, use ListObjectVersions instead of ListObjectsV2
@@ -58,7 +67,8 @@ export const objectRouter = {
               Prefix: prefix || undefined,
               Delimiter: delimiter || undefined,
               MaxKeys: maxKeys,
-              KeyMarker: continuationToken,
+              KeyMarker: keyMarker,
+              VersionIdMarker: versionIdMarker,
             })
           )
 
@@ -220,12 +230,12 @@ export const objectRouter = {
           let versionIdMarker: string | undefined
           // Loop until all objects and versions are deleted
           // For versioned buckets, this may take multiple iterations if deleting objects creates new delete markers
-          let iterations = 0
-          const MAX_ITERATIONS = 10 // Safety limit to prevent infinite loops
+          let consecutiveEmptyScans = 0
+          const MAX_EMPTY_SCANS = 3 // Safety: stop if we see empty results 3 times in a row
+          let sameMarkerCount = 0
+          const MAX_SAME_MARKER = 5 // Safety: stop if markers don't advance for 5 iterations
 
-          while (iterations < MAX_ITERATIONS) {
-            iterations++
-
+          while (true) {
             // Use ListObjectVersions to get ALL versions and delete markers
             // This is crucial for versioned buckets - ListObjectsV2 only shows current versions
             const listResponse = await s3.send(
@@ -243,14 +253,27 @@ export const objectRouter = {
             const allItems = [...versions, ...deleteMarkers]
 
             console.log(
-              `[deleteAll] Iteration ${iterations}: found ${versions.length} versions, ${deleteMarkers.length} delete markers, total: ${allItems.length}`
+              `[deleteAll] Found ${versions.length} versions, ${deleteMarkers.length} delete markers, total: ${allItems.length}`
             )
 
             if (allItems.length === 0) {
-              // No more items to delete, we're done
-              console.log(`[deleteAll] Bucket is now empty after ${iterations} iterations`)
-              break
+              consecutiveEmptyScans++
+              console.log(
+                `[deleteAll] Empty scan ${consecutiveEmptyScans}/${MAX_EMPTY_SCANS}. Total deleted: ${totalDeleted}`
+              )
+              if (consecutiveEmptyScans >= MAX_EMPTY_SCANS) {
+                // Bucket is confirmed empty after multiple scans
+                console.log(`[deleteAll] Bucket is now empty. Total deleted: ${totalDeleted}`)
+                break
+              }
+              // Reset markers and scan again to confirm
+              keyMarker = undefined
+              versionIdMarker = undefined
+              continue
             }
+
+            // Reset empty scan counter since we found items
+            consecutiveEmptyScans = 0
 
             // Validate all items have keys before deletion
             const itemsWithoutKeys = allItems.filter((item) => !item.Key)
@@ -293,6 +316,22 @@ export const objectRouter = {
 
             // If there are more objects in this batch (pagination), continue with the next page
             if (listResponse.IsTruncated) {
+              const currentMarkerKey = `${keyMarker || ""}:${versionIdMarker || ""}`
+              const newMarkerKey = `${listResponse.NextKeyMarker || ""}:${listResponse.NextVersionIdMarker || ""}`
+
+              // Detect stall: markers not advancing
+              if (currentMarkerKey === newMarkerKey) {
+                sameMarkerCount++
+                if (sameMarkerCount >= MAX_SAME_MARKER) {
+                  throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: `Pagination stalled: markers not advancing after ${MAX_SAME_MARKER} iterations. The bucket may still contain objects.`,
+                  })
+                }
+              } else {
+                sameMarkerCount = 0 // Reset counter when markers advance
+              }
+
               keyMarker = listResponse.NextKeyMarker
               versionIdMarker = listResponse.NextVersionIdMarker
             } else {
@@ -300,14 +339,8 @@ export const objectRouter = {
               // that may have been created. Reset markers to start from the beginning.
               keyMarker = undefined
               versionIdMarker = undefined
+              sameMarkerCount = 0 // Reset stall counter when resetting markers
             }
-          }
-
-          if (iterations >= MAX_ITERATIONS) {
-            throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
-              message: `Failed to empty bucket after ${MAX_ITERATIONS} iterations. The bucket may still contain objects.`,
-            })
           }
 
           console.log(`[deleteAll] Completed. Total deleted: ${totalDeleted}`)
