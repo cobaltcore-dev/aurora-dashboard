@@ -387,7 +387,21 @@ describe("objects.deleteAll", () => {
       Deleted: [{ Key: "file1.txt" }, { Key: "file2.txt" }, { Key: "file3.txt" }],
     })
 
-    // Second iteration: Check again - now empty
+    // Empty scan 1 - bucket now empty
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    // Empty scan 2 - confirm empty
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    // Empty scan 3 - final confirmation
     mockSend.mockResolvedValueOnce({
       Versions: [],
       DeleteMarkers: [],
@@ -431,7 +445,21 @@ describe("objects.deleteAll", () => {
       Deleted: [{ Key: "file3.txt" }],
     })
 
-    // Third iteration: Check again from beginning - now empty
+    // Empty scan 1 - bucket now empty
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    // Empty scan 2 - confirm empty
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    // Empty scan 3 - final confirmation
     mockSend.mockResolvedValueOnce({
       Versions: [],
       DeleteMarkers: [],
@@ -450,6 +478,21 @@ describe("objects.deleteAll", () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
+    // Empty scan 1
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    // Empty scan 2
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    // Empty scan 3
     mockSend.mockResolvedValueOnce({
       Versions: [],
       DeleteMarkers: [],
@@ -487,7 +530,21 @@ describe("objects.deleteAll", () => {
       ],
     })
 
-    // Second iteration: Check again - now empty
+    // Empty scan 1 - bucket now empty
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    // Empty scan 2 - confirm empty
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    // Empty scan 3 - final confirmation
     mockSend.mockResolvedValueOnce({
       Versions: [],
       DeleteMarkers: [],
