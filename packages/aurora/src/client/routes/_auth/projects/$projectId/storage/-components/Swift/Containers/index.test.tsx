@@ -488,14 +488,14 @@ describe("SwiftContainers (List)", () => {
       expect(await screen.findByText("Empty Container")).toBeInTheDocument()
     })
 
-    test("Empty item label becomes plural as more containers are selected", async () => {
+    test("Empty item label becomes plural with count as more containers are selected", async () => {
       const user = userEvent.setup()
       renderList()
       await selectViaCheckbox(user, "alpha")
       await selectViaCheckbox(user, "beta")
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await openActionsMenu(user)
-      expect(await screen.findByText("Empty Containers")).toBeInTheDocument()
+      expect(await screen.findByText("Empty 2 Containers")).toBeInTheDocument()
     })
 
     test("Actions button returns to disabled after deselecting all", async () => {
@@ -508,13 +508,15 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled())
     })
 
-    test("selecting all via header checkbox enables Actions and shows the plural Empty item", async () => {
+    test("selecting multiple containers enables Actions and shows the plural Empty item with count", async () => {
       const user = userEvent.setup()
       renderList()
-      await user.click(screen.getByTestId("select-all-containers"))
+      await user.click(screen.getByTestId("select-container-alpha"))
+      await user.click(screen.getByTestId("select-container-beta"))
+      await user.click(screen.getByTestId("select-container-gamma"))
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await openActionsMenu(user)
-      expect(await screen.findByText("Empty Containers")).toBeInTheDocument()
+      expect(await screen.findByText("Empty 3 Containers")).toBeInTheDocument()
     })
   })
 

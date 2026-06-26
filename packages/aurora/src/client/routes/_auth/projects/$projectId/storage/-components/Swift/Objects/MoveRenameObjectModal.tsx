@@ -305,8 +305,9 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   // ── Virtualized folder browser ─────────────────────────────────────────────
   // Must be declared before the early return to satisfy Rules of Hooks.
   const folderRows = rows.filter((r) => r.kind === "folder")
-  const objectRows = rows.filter((r) => r.kind === "object")
-  const allBrowserRows = [...folderRows, ...objectRows]
+  // Files are kept in `rows` for folder-name duplicate detection but are not
+  // rendered in the destination picker — only folders are valid destinations.
+  const allBrowserRows = folderRows
 
   const rowVirtualizer = useVirtualizer({
     count: allBrowserRows.length,
@@ -341,9 +342,9 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       title={
         <span className="flex max-w-[500px] items-center gap-1">
           <span className="shrink-0">
-            <Trans>Move/Rename object:</Trans>
+            <Trans>Move/Rename Object:</Trans>
           </span>
-          <span className="truncate font-mono" title={object.displayName}>
+          <span className="truncate" title={object.displayName}>
             {object.displayName}
           </span>
         </span>
@@ -380,8 +381,8 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
 
           {/* New object name */}
           <div>
-            <p className="text-theme-light mb-1">
-              <Trans>You can rename the object by changing the name here.</Trans>
+            <p className="mb-1">
+              <Trans>Change the name, destination container, or folder to move this object.</Trans>
             </p>
             <TextInput
               label={t`New object name`}
@@ -461,7 +462,11 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
                   <Trans>Root</Trans>
                 </span>
               )}
-              {currentPrefix && <span className="text-theme-light truncate font-mono text-xs">/ {currentPrefix}</span>}
+              {currentPrefix && (
+                <span className="text-theme-light truncate text-sm" data-testid="breadcrumb-prefix">
+                  / {currentPrefix}
+                </span>
+              )}
             </div>
 
             {/* Object browser list */}
@@ -528,20 +533,12 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
                           if (newFolderError) setNewFolderError(null)
                         }}
                         onKeyDown={handleNewFolderKeyDown}
-                        placeholder={t`new-folder-name`}
+                        placeholder={t`Folder name`}
                         invalid={!!newFolderError}
                         errortext={newFolderError ?? undefined}
                         autoFocus
                         className="flex-1"
                       />
-                      <Button
-                        size="small"
-                        variant="primary"
-                        onClick={handleCreateFolder}
-                        disabled={!newFolderName.trim()}
-                      >
-                        <Trans>Create</Trans>
-                      </Button>
                       <Button
                         size="small"
                         variant="subdued"
@@ -551,7 +548,15 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
                           setNewFolderError(null)
                         }}
                       >
-                        <Trans>Cancel</Trans>
+                        <Trans>Discard</Trans>
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="primary"
+                        onClick={handleCreateFolder}
+                        disabled={!newFolderName.trim()}
+                      >
+                        <Trans>Create</Trans>
                       </Button>
                     </Stack>
                   </Stack>
@@ -562,10 +567,10 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
 
           {/* Read-only target path preview */}
           <div>
-            <p className="text-theme-light mb-1">
+            <p className="mb-1">
               <Trans>The object will be moved to this path. Navigate folders above to change the destination.</Trans>
             </p>
-            <TextInput label={t`Target path`} value={targetPathDisplay} readOnly className="font-mono" />
+            <p className="text-sm">{targetPathDisplay}</p>
           </div>
         </Stack>
       )}
