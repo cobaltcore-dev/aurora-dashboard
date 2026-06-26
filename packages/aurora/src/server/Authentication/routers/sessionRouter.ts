@@ -66,17 +66,29 @@ export const sessionRouter = {
   createUserSession: publicProcedure
     .input(z.object({ user: z.string(), password: z.string(), domainName: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const openstackSession = await ctx.createSession({
-        user: input.user,
-        password: input.password,
-        domain: input.domainName,
-      })
+      try {
+        const openstackSession = await ctx.createSession({
+          user: input.user,
+          password: input.password,
+          domain: input.domainName,
+        })
 
-      const tokenData = openstackSession.getToken()?.tokenData
-      if (!tokenData) {
-        throw new Error("Could not get token data")
+        const tokenData = openstackSession.getToken()?.tokenData
+        if (!tokenData) {
+          throw new Error("Could not get token data")
+        }
+        return tokenData
+      } catch (error) {
+        // Check if this is a SignalOpenstackApiError with status code 401
+        if (error && typeof error === "object" && "statusCode" in error && error.statusCode === 401) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Invalid credentials. Please check your domain, username, and password.",
+          })
+        }
+        // Re-throw other errors as-is
+        throw error
       }
-      return tokenData
     }),
 
   terminateUserSession: protectedProcedure.mutation(async ({ ctx }) => {

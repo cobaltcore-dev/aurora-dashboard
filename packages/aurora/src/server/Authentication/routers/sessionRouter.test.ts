@@ -393,6 +393,24 @@ describe("sessionRouter", () => {
         })
       ).rejects.toThrow("Could not get token data")
     })
+
+    it("should throw UNAUTHORIZED when createSession throws 401 error", async () => {
+      const error401 = { statusCode: 401, message: "Unauthorized" }
+      mockContext.createSession.mockRejectedValue(error401)
+
+      await expect(
+        caller.createUserSession({
+          user: "testuser",
+          password: "wrongpass",
+          domainName: "testdomain",
+        })
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid credentials. Please check your domain, username, and password.",
+        })
+      )
+    })
   })
 
   describe("terminateUserSession", () => {

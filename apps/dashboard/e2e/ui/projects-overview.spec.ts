@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test"
-import { loginAsTestUser } from "../helpers/auth"
-import { expectPageLoaded, expectNoJavaScriptErrors } from "../helpers/test-helpers"
+import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "../helpers/test-helpers"
 
 /**
  * Projects Overview Page Tests
@@ -9,6 +8,7 @@ import { expectPageLoaded, expectNoJavaScriptErrors } from "../helpers/test-help
  * - Project listing
  * - Search functionality
  * - Project visibility
+ * Authentication state is provided by global setup (storageState.json).
  *
  * Requires TEST_PROJECT environment variable to specify which project to test.
  *
@@ -18,8 +18,9 @@ test.describe("Projects Overview Page", () => {
   const testProject = process.env.TEST_PROJECT || "demo"
 
   test("can search and find test project", async ({ page }) => {
-    // Login and land on projects overview
-    const errors = await loginAsTestUser(page)
+    // Set up error tracking and navigate
+    const errors = setupErrorTracking(page)
+    await page.goto("/projects")
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
 
@@ -39,8 +40,9 @@ test.describe("Projects Overview Page", () => {
   })
 
   test("test project appears in initial project list", async ({ page }) => {
-    // Login and land on projects overview
-    const errors = await loginAsTestUser(page)
+    // Set up error tracking and navigate
+    const errors = setupErrorTracking(page)
+    await page.goto("/projects")
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
 
