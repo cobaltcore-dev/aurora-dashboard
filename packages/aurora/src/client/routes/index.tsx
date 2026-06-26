@@ -7,6 +7,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Button, ContentHeading, Message } from "@cloudoperators/juno-ui-components"
 import { useErrorTranslation } from "../utils/useErrorTranslation"
 import { Slot } from "../components/Slot"
+import { isTRPCUnauthorized } from "../utils/trpcErrors"
 
 function isSafeRedirect(path: unknown): path is string {
   return typeof path === "string" && path.startsWith("/") && !path.startsWith("//")
@@ -112,18 +113,8 @@ export function AuthLoginPage() {
       await login(null)
       console.error("Error logging in: ", error)
 
-      // Check if this is a tRPC UNAUTHORIZED error (401)
-      const isTRPCUnauthorized =
-        error &&
-        typeof error === "object" &&
-        "data" in error &&
-        typeof error.data === "object" &&
-        error.data !== null &&
-        "code" in error.data &&
-        error.data.code === "UNAUTHORIZED"
-
       let errorMessage: string
-      if (isTRPCUnauthorized) {
+      if (isTRPCUnauthorized(error)) {
         errorMessage = t`Invalid credentials. Please check your domain, username, and password.`
       } else {
         errorMessage =
