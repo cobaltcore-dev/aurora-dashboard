@@ -448,8 +448,8 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
                         disabled={!hasSelection}
                         label={i18n._(
                           plural(selectedCount, {
-                            one: "Delete Object",
-                            other: "Delete Objects",
+                            one: "Delete # Object",
+                            other: "Delete # Objects",
                           })
                         )}
                         onClick={() => setDeleteAllModalOpen(true)}

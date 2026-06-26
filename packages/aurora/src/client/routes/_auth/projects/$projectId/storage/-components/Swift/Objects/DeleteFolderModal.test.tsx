@@ -119,6 +119,12 @@ const renderModal = ({
     </I18nProvider>
   )
 
+// Type the confirmation word into the type-to-confirm input so the Delete
+// button becomes enabled. The placeholder is the literal confirm word.
+const typeConfirmation = async (user: ReturnType<typeof userEvent.setup>, word = "delete") => {
+  await user.type(screen.getByPlaceholderText("delete"), word)
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("DeleteFolderModal", () => {
@@ -156,21 +162,56 @@ describe("DeleteFolderModal", () => {
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
     })
 
-    test("renders plain text warning with folder name", () => {
+    test("renders the danger warning message with folder name", () => {
       renderModal()
       expect(screen.getByText(/permanently deleted/i)).toBeInTheDocument()
       expect(screen.getByText(/"documents"/)).toBeInTheDocument()
     })
 
-    test("renders SLO/DLO segments plain text note", () => {
+    test("renders SLO/DLO segments note", () => {
       renderModal()
       expect(screen.getByText(/static and dynamic large objects/i)).toBeInTheDocument()
       expect(screen.getByText(/only the manifests are deleted/i)).toBeInTheDocument()
     })
 
-    test("Delete button is enabled when not pending", () => {
+    test("renders the type-to-confirm input", () => {
       renderModal()
+      expect(screen.getByPlaceholderText("delete")).toBeInTheDocument()
+    })
+  })
+
+  describe("Type-to-confirm gating", () => {
+    test("Delete button is disabled before the confirmation word is typed", () => {
+      renderModal()
+      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+    })
+
+    test("Delete button stays disabled when the wrong word is typed", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await typeConfirmation(user, "remove")
+      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+    })
+
+    test("Delete button is enabled after typing the confirmation word", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await typeConfirmation(user)
       expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+    })
+
+    test("ignores surrounding whitespace when matching the confirmation word", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await typeConfirmation(user, "  delete  ")
+      expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+    })
+
+    test("does not call mutate when Delete is clicked without confirming", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      expect(mockMutate).not.toHaveBeenCalled()
     })
   })
 
@@ -178,6 +219,7 @@ describe("DeleteFolderModal", () => {
     test("calls mutate with correct arguments on Delete click", async () => {
       const user = userEvent.setup()
       renderModal()
+      await typeConfirmation(user)
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       expect(mockMutate).toHaveBeenCalledWith({
         project_id: mockProjectId,
@@ -192,6 +234,7 @@ describe("DeleteFolderModal", () => {
       const onSuccess = vi.fn()
       const user = userEvent.setup()
       renderModal({ onSuccess })
+      await typeConfirmation(user)
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
         expect(onSuccess).toHaveBeenCalledWith("documents", 7)
@@ -201,6 +244,7 @@ describe("DeleteFolderModal", () => {
     test("calls listObjects.invalidate with the current container after successful mutation", async () => {
       const user = userEvent.setup()
       renderModal()
+      await typeConfirmation(user)
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
         expect(mockInvalidate).toHaveBeenCalledWith({
@@ -215,6 +259,7 @@ describe("DeleteFolderModal", () => {
       const onSuccess = vi.fn()
       const user = userEvent.setup()
       renderModal({ onSuccess })
+      await typeConfirmation(user)
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
         expect(onSuccess).toHaveBeenCalledWith("documents", 0)
@@ -228,6 +273,7 @@ describe("DeleteFolderModal", () => {
       const onError = vi.fn()
       const user = userEvent.setup()
       renderModal({ onError })
+      await typeConfirmation(user)
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith("documents", "Bulk delete failed")
@@ -239,6 +285,7 @@ describe("DeleteFolderModal", () => {
       const onSuccess = vi.fn()
       const user = userEvent.setup()
       renderModal({ onSuccess })
+      await typeConfirmation(user)
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
         expect(onSuccess).not.toHaveBeenCalled()
@@ -260,6 +307,7 @@ describe("DeleteFolderModal", () => {
       const user = userEvent.setup()
       renderModal({ onSuccess, onClose })
 
+      await typeConfirmation(user)
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       expect(mockMutate).toHaveBeenCalled()
 
@@ -299,6 +347,7 @@ describe("DeleteFolderModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })
+      await typeConfirmation(user)
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
         expect(onClose).toHaveBeenCalled()
@@ -310,6 +359,7 @@ describe("DeleteFolderModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })
+      await typeConfirmation(user)
       await user.click(screen.getByRole("button", { name: /^Delete$/i }))
       await waitFor(() => {
         expect(onClose).toHaveBeenCalled()

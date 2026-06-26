@@ -46,6 +46,9 @@ msgstr ""
 msgid "{certificateIdValue} Certificate Details"
 msgstr ""
 
+msgid "{count, plural, one {# object} other {# objects}}"
+msgstr "{count, plural, one {# Objekt} other {# Objekte}}"
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
 
@@ -70,14 +73,14 @@ msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
-msgid "{selectedCount, plural, one {Delete Object} other {Delete Objects}}"
-msgstr "{selectedCount, plural, one {Objekt löschen} other {Objekte löschen}}"
+msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
+msgstr "{selectedCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
 
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{selectedCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
-msgid "{selectedCount, plural, one {Empty Container} other {Empty Containers}}"
-msgstr "{selectedCount, plural, one {Container leeren} other {Container leeren}}"
+msgid "{selectedCount, plural, one {Empty Container} other {Empty # Containers}}"
+msgstr "{selectedCount, plural, one {Container leeren} other {# Container leeren}}"
 
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} von {totalCount} Bucket} other {{filteredCount} von {totalCount} Buckets}}"
@@ -88,14 +91,14 @@ msgstr "{totalCount, plural, one {{totalCount} Bucket} other {{totalCount} Bucke
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Container}}"
 
-msgid "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
-msgstr "{totalCount, plural, one {Objekt löschen} other {Objekte löschen}}"
+msgid "{totalCount, plural, one {Delete # Object} other {Delete # Objects}}"
+msgstr "{totalCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
 
 msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
-msgid "{totalCount, plural, one {Empty Container} other {Empty Containers}}"
-msgstr "{totalCount, plural, one {Container leeren} other {Container leeren}}"
+msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
+msgstr "{totalCount, plural, one {Container leeren} other {# Container leeren}}"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"
@@ -114,9 +117,6 @@ msgstr "<0>Erhöhte Produktivität:</0> Durch die Reduzierung der betrieblichen 
 
 msgid "<0>Future-Ready:</0> Aurora is designed to evolve with the latest trends in cloud technology, ensuring your solution is always cutting-edge."
 msgstr "<0>Zukunftssicher:</0> Aurora ist darauf ausgelegt, sich mit den neuesten Trends in der Cloud-Technologie weiterzuentwickeln und stellt so sicher, dass Ihre Lösung immer auf dem neuesten Stand ist."
-
-msgid "<0>No Temp URL key configured.</0> A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure <1>X-Account-Meta-Temp-URL-Key</1> or <2>X-Container-Meta-Temp-URL-Key</2>."
-msgstr "<0>Kein Temp-URL-Schlüssel konfiguriert.</0> Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um <1>X-Account-Meta-Temp-URL-Key</1> oder <2>X-Container-Meta-Temp-URL-Key</2> zu konfigurieren."
 
 msgid "<0>Optimized Scalability:</0> Built for businesses of all sizes, Aurora grows with you, supporting simple environments and intricate multi-cloud setups alike."
 msgstr "<0>Optimierte Skalierbarkeit:</0> Aurora ist für Unternehmen jeder Größe konzipiert und wächst mit Ihnen mit, unterstützt einfache Umgebungen und komplexe Multi-Cloud-Setups gleichermaßen."
@@ -166,7 +166,7 @@ msgstr "Akzeptiert"
 msgid "Accepted Images"
 msgstr "Akzeptierte Images"
 
-msgid "Access Control for container:"
+msgid "Access Control for Container:"
 msgstr "Zugriffskontrolle für Container:"
 
 msgid "Access Control Updated"
@@ -192,9 +192,6 @@ msgstr "Account-Listing-Limit"
 
 msgid "Account quotas"
 msgstr "Account-Quotas"
-
-msgid "ACL entries control who can read from or write to this container. Multiple entries are comma-separated. Changes take effect immediately after saving."
-msgstr "ACL-Einträge steuern, wer von diesem Container lesen oder in ihn schreiben kann. Mehrere Einträge werden durch Kommas getrennt. Änderungen werden sofort nach dem Speichern wirksam."
 
 msgid "ACLs for container \"{containerName}\" were successfully updated."
 msgstr "ACLs für Container \"{containerName}\" wurden erfolgreich aktualisiert."
@@ -382,9 +379,6 @@ msgstr "Grundlegende Informationen"
 msgid "Basic Information"
 msgstr "Grundlegende Informationen"
 
-msgid "Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot validate these values, and incorrect IDs may apply access to wrong projects and users."
-msgstr "Stellen Sie vor dem Fortfahren sicher, dass die eingegebene Projekt-ID und Benutzer-ID korrekt sind. Das System kann diese Werte nicht validieren, und falsche IDs können Zugriff auf falsche Projekte und Benutzer gewähren."
-
 msgid "Boot RAM"
 msgstr "Boot-RAM"
 
@@ -486,6 +480,12 @@ msgstr "Certificate Authority not found"
 
 msgid "Certificate not found"
 msgstr "Certificate not found"
+
+msgid "Change the name, destination container, or folder to move this object."
+msgstr "Ändern Sie den Namen, den Ziel-Container oder den Ordner, um dieses Objekt zu verschieben."
+
+msgid "Changes take effect immediately after saving."
+msgstr "Änderungen werden sofort nach dem Speichern wirksam."
 
 msgid "Checking bucket contents..."
 msgstr "Checking bucket contents..."
@@ -641,6 +641,9 @@ msgid "Copy metadata"
 msgstr "Metadaten kopieren"
 
 msgid "Copy object:"
+msgstr "Objekt kopieren:"
+
+msgid "Copy Object:"
 msgstr "Objekt kopieren:"
 
 msgid "Copy URL"
@@ -1083,6 +1086,9 @@ msgstr ""
 
 msgid "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt-IDs, Benutzer-IDs und Formate liegen in Ihrer Verantwortung. Ungültige Einträge können stillschweigend unbeabsichtigten Zugriff gewähren oder verweigern."
+
+msgid "Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values — incorrect IDs may apply access to wrong projects and users."
+msgstr "Stellen Sie sicher, dass die eingegebene Projekt-ID und Benutzer-ID korrekt sind. Das System kann diese Werte nicht validieren — falsche IDs können Zugriff auf falsche Projekte und Benutzer gewähren."
 
 msgid "Enter a floating IP"
 msgstr "Floating IP eingeben"
@@ -1540,8 +1546,14 @@ msgstr ""
 msgid "folder-name"
 msgstr "folder-name"
 
+msgid "Folders cannot be bulk-deleted. Use the row menu to delete a folder."
+msgstr "Ordner können nicht im Stapel gelöscht werden. Verwenden Sie das Zeilenmenü, um einen Ordner zu löschen."
+
 msgid "Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing slash. The folder will appear once created."
 msgstr "Ordner im Object Storage sind virtuell — sie werden als Null-Byte-Platzhalterobjekte mit einem abschließenden Schrägstrich erstellt. Der Ordner wird nach der Erstellung angezeigt."
+
+msgid "For <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted — the related segments are not deleted."
+msgstr "Für <0>dynamische</0> und <1>statische große Objekte</1> werden nur die Manifeste gelöscht — die zugehörigen Segmente werden nicht gelöscht."
 
 msgid "For more details, have a look at the <0>documentation</0>."
 msgstr "Weitere Details finden Sie in der <0>Dokumentation</0>."
@@ -2023,6 +2035,9 @@ msgstr "Verschieben/Umbenennen"
 msgid "Move/Rename object:"
 msgstr "Objekt verschieben/umbenennen:"
 
+msgid "Move/Rename Object:"
+msgstr "Objekt verschieben/umbenennen:"
+
 msgid "Moving object..."
 msgstr "Objekt wird verschoben..."
 
@@ -2160,6 +2175,9 @@ msgstr "Keine Dienste für dieses Projekt verfügbar."
 
 msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
 msgstr "Kein spezifischer Projektzugriff für diesen privaten Flavor konfiguriert. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
+
+msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
+msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um X-Account-Meta-Temp-URL-Key oder X-Container-Meta-Temp-URL-Key zu konfigurieren."
 
 msgid "No versions found for this object."
 msgstr ""
@@ -2332,9 +2350,6 @@ msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
 msgid "Please log in again to continue."
 msgstr "Bitte melden Sie sich erneut an, um fortzufahren."
 
-msgid "Please note: for <0>dynamic</0> and <1>static large objects</1> only the manifests are deleted. The related segments are not deleted."
-msgstr "Bitte beachten Sie: Für <0>dynamische</0> und <1>statische große Objekte</1> werden nur die Manifeste gelöscht. Die zugehörigen Segmente werden nicht gelöscht."
-
 msgid "Please select a file to upload"
 msgstr "Bitte wählen Sie eine Datei zum Hochladen aus"
 
@@ -2484,6 +2499,9 @@ msgstr "Details der RBAC-Richtlinie:"
 
 msgid "Read ACLs"
 msgstr "Lese-ACLs"
+
+msgid "Read ACLs — Preview"
+msgstr "Lese-ACLs — Vorschau"
 
 msgid "Reject"
 msgstr "Ablehnen"
@@ -2644,6 +2662,9 @@ msgstr "Security Group nicht gefunden"
 msgid "Security Groups"
 msgstr "Security Groups"
 
+msgid "Select"
+msgstr "Auswählen"
+
 msgid "Select a DNS domain."
 msgstr "DNS-Domain auswählen."
 
@@ -2737,17 +2758,17 @@ msgstr "Auf \"Geteilt\" setzen"
 msgid "Share"
 msgstr "Teilen"
 
-msgid "Share (Temporary URL)"
-msgstr "Teilen (Temporäre URL)"
-
-msgid "Share object:"
-msgstr "Objekt teilen:"
-
 msgid "Share Security Group"
 msgstr "Sicherheitsgruppe teilen"
 
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 msgstr "Teilen Sie diese Sicherheitsgruppe mit einem anderen Projekt. Das Zielprojekt kann diese Sicherheitsgruppe ansehen und verwenden, aber nicht ändern oder löschen."
+
+msgid "Share URL"
+msgstr "URL teilen"
+
+msgid "Share URL:"
+msgstr "URL teilen:"
 
 msgid "Shared"
 msgstr "Geteilt"
@@ -3202,6 +3223,9 @@ msgstr "Erneut versuchen"
 msgid "Type"
 msgstr "Typ"
 
+msgid "Type \"{CONFIRM_WORD}\" to confirm"
+msgstr "Geben Sie \"{CONFIRM_WORD}\" zur Bestätigung ein"
+
 msgid "Type \"delete\" to confirm"
 msgstr "Geben Sie \"delete\" zur Bestätigung ein"
 
@@ -3434,6 +3458,9 @@ msgstr "Warum Aurora wählen?"
 
 msgid "Write ACLs"
 msgstr "Schreib-ACLs"
+
+msgid "Write ACLs — Preview"
+msgstr "Schreib-ACLs — Vorschau"
 
 msgid "Yes"
 msgstr "Ja"

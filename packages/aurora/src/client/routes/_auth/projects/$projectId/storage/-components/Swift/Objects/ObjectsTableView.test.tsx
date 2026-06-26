@@ -1,6 +1,6 @@
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act } from "@testing-library/react"
+import { render, screen, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -838,7 +838,7 @@ describe("ObjectsTableView", () => {
     })
   })
 
-  describe("Share (Temporary URL) modal", () => {
+  describe("Share URL modal", () => {
     test("temp URL modal is closed by default", () => {
       renderView({ rows: [makeObject("readme.txt")] })
       expect(screen.queryByTestId("generate-temp-url-modal")).not.toBeInTheDocument()
@@ -889,11 +889,6 @@ describe("ObjectsTableView", () => {
   describe("Selection", () => {
     const objectRows = mockRows.filter((r) => r.kind === "object")
 
-    test("renders select-all checkbox in table header", () => {
-      renderView()
-      expect(screen.getByTestId("select-all-objects")).toBeInTheDocument()
-    })
-
     test("renders a checkbox for each object row", () => {
       renderView()
       objectRows.forEach((r) => {
@@ -901,12 +896,28 @@ describe("ObjectsTableView", () => {
       })
     })
 
-    test("does not render a checkbox for folder rows", () => {
+    test("renders a disabled checkbox for folder rows", () => {
       renderView()
       const folderRows = mockRows.filter((r) => r.kind === "folder")
       folderRows.forEach((r) => {
+        const cb = screen.getByTestId(`select-folder-disabled-${r.name}`)
+        expect(cb).toBeDisabled()
+        expect(cb).not.toBeChecked()
         expect(screen.queryByTestId(`select-object-${r.name}`)).not.toBeInTheDocument()
       })
+    })
+
+    test("folder checkbox tooltip text is present on hover", async () => {
+      renderView()
+      // Juno Tooltip only mounts TooltipContent after the trigger is hovered —
+      // find the TooltipTrigger wrapping the first folder's disabled checkbox
+      // and fire mouseEnter to open it, mirroring the ClipboardText tooltip tests.
+      const folderName = mockRows.filter((r) => r.kind === "folder")[0].name
+      const trigger = screen.getByTestId(`select-folder-disabled-${folderName}`).closest("button")!
+      await act(async () => {
+        fireEvent.mouseEnter(trigger)
+      })
+      expect(screen.getByRole("tooltip")).toHaveTextContent(/Folders cannot be bulk-deleted/i)
     })
 
     test("row checkbox is unchecked when object is not selected", () => {
@@ -918,21 +929,6 @@ describe("ObjectsTableView", () => {
       renderView({ selectedObjects: ["readme.txt"] })
       expect(screen.getByTestId("select-object-readme.txt")).toBeChecked()
       expect(screen.getByTestId("select-object-photo.png")).not.toBeChecked()
-    })
-
-    test("select-all checkbox is unchecked when nothing is selected", () => {
-      renderView({ selectedObjects: [] })
-      expect(screen.getByTestId("select-all-objects")).not.toBeChecked()
-    })
-
-    test("select-all checkbox is checked when all object rows are selected", () => {
-      renderView({ selectedObjects: objectRows.map((r) => r.name) })
-      expect(screen.getByTestId("select-all-objects")).toBeChecked()
-    })
-
-    test("select-all checkbox is unchecked when only some objects are selected", () => {
-      renderView({ selectedObjects: ["readme.txt"] })
-      expect(screen.getByTestId("select-all-objects")).not.toBeChecked()
     })
 
     test("clicking a row checkbox calls setSelectedObjects with the object added", async () => {
@@ -950,37 +946,21 @@ describe("ObjectsTableView", () => {
       await user.click(screen.getByTestId("select-object-readme.txt"))
       expect(setSelectedObjects).toHaveBeenCalledWith(["photo.png"])
     })
-
-    test("clicking select-all calls setSelectedObjects with all object names", async () => {
-      const setSelectedObjects = vi.fn()
-      const user = userEvent.setup()
-      renderView({ selectedObjects: [], setSelectedObjects })
-      await user.click(screen.getByTestId("select-all-objects"))
-      expect(setSelectedObjects).toHaveBeenCalledWith(objectRows.map((r) => r.name))
-    })
-
-    test("clicking select-all when all selected calls setSelectedObjects with empty array", async () => {
-      const setSelectedObjects = vi.fn()
-      const user = userEvent.setup()
-      renderView({ selectedObjects: objectRows.map((r) => r.name), setSelectedObjects })
-      await user.click(screen.getByTestId("select-all-objects"))
-      expect(setSelectedObjects).toHaveBeenCalledWith([])
-    })
   })
 
   describe("Selection column gating (hasAnyBulkAction)", () => {
     const objectRows = mockRows.filter((r) => r.kind === "object")
-
-    test("hides the select-all checkbox when hasAnyBulkAction is false", () => {
-      renderView({ hasAnyBulkAction: false })
-      expect(screen.queryByTestId("select-all-objects")).not.toBeInTheDocument()
-    })
 
     test("renders no per-row checkboxes when hasAnyBulkAction is false", () => {
       renderView({ hasAnyBulkAction: false })
       objectRows.forEach((r) => {
         expect(screen.queryByTestId(`select-object-${r.name}`)).not.toBeInTheDocument()
       })
+      mockRows
+        .filter((r) => r.kind === "folder")
+        .forEach((r) => {
+          expect(screen.queryByTestId(`select-folder-disabled-${r.name}`)).not.toBeInTheDocument()
+        })
     })
 
     test("still renders every row when hasAnyBulkAction is false", () => {
@@ -999,7 +979,8 @@ describe("ObjectsTableView", () => {
 
     test("renders the selection column by default (hasAnyBulkAction defaults to true)", () => {
       renderView()
-      expect(screen.getByTestId("select-all-objects")).toBeInTheDocument()
+      // Per-row checkboxes are the selection affordance; no header select-all
+      expect(screen.getByTestId("select-object-readme.txt")).toBeInTheDocument()
     })
   })
 
