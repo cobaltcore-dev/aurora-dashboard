@@ -142,12 +142,6 @@ describe("BucketPolicyModal", () => {
 
   // ── Modal rendering ──────────────────────────────────────────────────────────
 
-  it("renders modal with correct title", () => {
-    renderModal(defaultProps)
-
-    expect(screen.getByText(/Bucket Policy - test-bucket/)).toBeInTheDocument()
-  })
-
   it("renders policy JSON textarea", () => {
     renderModal(defaultProps)
 

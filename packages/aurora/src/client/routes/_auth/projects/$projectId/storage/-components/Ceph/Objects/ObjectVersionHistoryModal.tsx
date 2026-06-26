@@ -236,14 +236,15 @@ export const ObjectVersionHistoryModal = ({
         onClose={() => setRestoreTarget(null)}
         onSuccess={(objectKey, versionId) => {
           setRestoreTarget(null)
+          const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
           setFeedbackMessage({
             variant: "success",
-            message: t`Version ${versionId.slice(0, 8)}... restored successfully`,
+            message: t`${displayName} was successfully restored`,
           })
           onRestoreVersion?.(objectKey, versionId)
           setTimeout(() => refetch(), 100)
         }}
-        onError={(objectKey, errorMessage) => {
+        onError={(_objectKey, errorMessage) => {
           setRestoreTarget(null)
           setFeedbackMessage({
             variant: "error",
@@ -270,7 +271,7 @@ export const ObjectVersionHistoryModal = ({
           onDeleteVersion?.(objectKey, versionId)
           setTimeout(() => refetch(), 100)
         }}
-        onError={(objectKey, errorMessage) => {
+        onError={(_objectKey, errorMessage) => {
           setDeleteTarget(null)
           setFeedbackMessage({
             variant: "error",

@@ -52,6 +52,9 @@ msgstr "{count, plural, one {# Objekt} other {# Objekte}}"
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
 
+msgid "{displayName} was successfully restored"
+msgstr ""
+
 msgid "{emptiedCount, plural, one {# container was already empty.} other {# containers were already empty.}}"
 msgstr "{emptiedCount, plural, one {# Container war bereits leer.} other {# Container waren bereits leer.}}"
 
@@ -443,9 +446,6 @@ msgid "Bucket name must not start with reserved prefix \"{prefix}\""
 msgstr ""
 
 msgid "Bucket name must start and end with a letter or number"
-msgstr ""
-
-msgid "Bucket Policy - {bucketName}"
 msgstr ""
 
 msgid "Buckets to empty:"
@@ -1047,6 +1047,9 @@ msgstr "Metadaten bearbeiten"
 
 msgid "Edit Security Group"
 msgstr "Security Group bearbeiten"
+
+msgid "Edit/view Bucket Policy"
+msgstr ""
 
 msgid "Efficient bulk deletion"
 msgstr "Effiziente Massenlöschung"
@@ -3405,10 +3408,6 @@ msgstr "VCPUs müssen eine ganze Zahl ≥ 1 sein."
 
 #. placeholder {0}: versionId.slice(0, 8)
 msgid "Version {0}... deleted successfully"
-msgstr ""
-
-#. placeholder {0}: versionId.slice(0, 8)
-msgid "Version {0}... restored successfully"
 msgstr ""
 
 msgid "Version History: {objectKey}"
