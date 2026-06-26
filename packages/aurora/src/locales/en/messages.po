@@ -103,9 +103,6 @@ msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} it
 msgid "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 
-msgid "<0>Are you sure?</0>"
-msgstr "<0>Are you sure?</0>"
-
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Edit metadata:</0> <1>{displayName}</1>"
 
@@ -310,6 +307,9 @@ msgstr "Already deactivated (will be skipped)"
 msgid "Already deactivated (will be skipped):"
 msgstr "Already deactivated (will be skipped):"
 
+msgid "Also delete all versions and all delete markers"
+msgstr "Also delete all versions and all delete markers"
+
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr "An object with this name already exists at the destination and will be overwritten."
 
@@ -453,12 +453,6 @@ msgstr "Bucket name must start and end with a letter or number"
 
 msgid "Bucket Policy - {bucketName}"
 msgstr "Bucket Policy - {bucketName}"
-
-msgid "Bucket to delete:"
-msgstr "Bucket to delete:"
-
-msgid "Bucket to empty:"
-msgstr "Bucket to empty:"
 
 msgid "Buckets to empty:"
 msgstr "Buckets to empty:"
@@ -627,9 +621,6 @@ msgstr "Containers to be emptied ({totalCount})"
 
 msgid "Content type"
 msgstr "Content type"
-
-msgid "Copied"
-msgstr "Copied"
 
 msgid "Copied to clipboard!"
 msgstr "Copied to clipboard!"
@@ -903,6 +894,9 @@ msgstr "Delete Version"
 
 msgid "Delete Version Permanently"
 msgstr "Delete Version Permanently"
+
+msgid "Delete Versions"
+msgstr "Delete Versions"
 
 msgid "Deleted"
 msgstr "Deleted"
@@ -1320,6 +1314,9 @@ msgstr "Failed to delete the flavor. Please try again."
 
 msgid "Failed to delete version: {errorMessage}"
 msgstr "Failed to delete version: {errorMessage}"
+
+msgid "Failed to delete versions from bucket \"{bucketName}\": {errorMessage}"
+msgstr "Failed to delete versions from bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Failed to Download"
 msgstr "Failed to Download"
@@ -2200,9 +2197,6 @@ msgstr "Object count quota"
 msgid "Object Deleted"
 msgstr "Object Deleted"
 
-msgid "Object metadata will be automatically copied during the move operation."
-msgstr "Object metadata will be automatically copied during the move operation."
-
 msgid "Object Moved"
 msgstr "Object Moved"
 
@@ -2671,6 +2665,9 @@ msgstr "Select an external network"
 msgid "Select destination folder"
 msgstr "Select destination folder"
 
+msgid "Select destination folder within target bucket"
+msgstr "Select destination folder within target bucket"
+
 msgid "Select disk format first"
 msgstr "Select disk format first"
 
@@ -2800,8 +2797,8 @@ msgstr "Something went wrong:"
 msgid "Sort by"
 msgstr "Sort by"
 
-msgid "Source:"
-msgstr "Source:"
+msgid "Source"
+msgstr "Source"
 
 msgid "Specific referrer: {host}"
 msgstr "Specific referrer: {host}"
@@ -2862,6 +2859,9 @@ msgstr "Successfully activated {successCount} of {totalCount} image(s)"
 
 msgid "Successfully deactivated {successCount} of {totalCount} image(s)"
 msgstr "Successfully deactivated {successCount} of {totalCount} image(s)"
+
+msgid "Successfully deleted {deletedCount} versions and delete markers from bucket \"{bucketName}\"."
+msgstr "Successfully deleted {deletedCount} versions and delete markers from bucket \"{bucketName}\"."
 
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "Successfully deleted {successCount} of {totalCount} image(s)"
@@ -3088,8 +3088,17 @@ msgstr "This action is permanent. The address will be removed from your project 
 msgid "This action will create a self-signed CA certificate."
 msgstr "This action will create a self-signed CA certificate."
 
-msgid "This bucket contains objects (possibly including old versions and delete markers) and cannot be deleted. Use <0>Empty</0> action to remove all content first."
-msgstr "This bucket contains objects (possibly including old versions and delete markers) and cannot be deleted. Use <0>Empty</0> action to remove all content first."
+msgid "This action will permanently delete all objects from {bucketName}. You may choose to also delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
+msgstr "This action will permanently delete all objects from {bucketName}. You may choose to also delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
+
+msgid "This action will permanently delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
+msgstr "This action will permanently delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
+
+msgid "This bucket contains objects and cannot be deleted. Use <0>Empty Bucket</0> action to remove all content first."
+msgstr "This bucket contains objects and cannot be deleted. Use <0>Empty Bucket</0> action to remove all content first."
+
+msgid "This bucket contains old versions and delete markers. Use <0>Delete Versions</0> action to remove them before deleting the bucket."
+msgstr "This bucket contains old versions and delete markers. Use <0>Delete Versions</0> action to remove them before deleting the bucket."
 
 msgid "This bucket does not have a policy attached."
 msgstr "This bucket does not have a policy attached."
@@ -3102,9 +3111,6 @@ msgstr "This container is already empty."
 
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
-
-msgid "This dangerous action will permanently delete all objects, all versions, and all delete markers from bucket \"{bucketName}\". This action cannot be undone."
-msgstr "This dangerous action will permanently delete all objects, all versions, and all delete markers from bucket \"{bucketName}\". This action cannot be undone."
 
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "This extra spec keys already exist. Please use different keys."
@@ -3153,9 +3159,6 @@ msgstr "This tenant already has access to the flavor."
 
 msgid "This tenant does not have access to the flavor."
 msgstr "This tenant does not have access to the flavor."
-
-msgid "This will delete the original object after copying it to the destination."
-msgstr "This will delete the original object after copying it to the destination."
 
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
@@ -3246,9 +3249,6 @@ msgstr "Type name"
 
 msgid "Type the bucket name to confirm"
 msgstr "Type the bucket name to confirm"
-
-msgid "Type to search buckets..."
-msgstr "Type to search buckets..."
 
 msgid "Type to search containers..."
 msgstr "Type to search containers..."
@@ -3419,9 +3419,6 @@ msgstr "View Versions"
 
 msgid "Visibility"
 msgstr "Visibility"
-
-msgid "Warning:"
-msgstr "Warning:"
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."

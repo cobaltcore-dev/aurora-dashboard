@@ -18,15 +18,6 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   const projectId = useProjectId()
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
-
-  const handleCopyName = () => {
-    if (!bucket) return
-    navigator.clipboard.writeText(bucket.name).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
-  }
 
   const utils = trpcReact.useUtils()
 
@@ -46,7 +37,6 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   const deleteBucketMutation = trpcReact.storage.ceph.containers.delete.useMutation({
     onSettled: () => {
       utils.storage.ceph.containers.list.invalidate()
-      handleClose()
     },
   })
 
@@ -86,9 +76,11 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
       { project_id: projectId, bucketName },
       {
         onSuccess: () => {
+          handleClose()
           onSuccess?.(bucketName)
         },
         onError: (error) => {
+          handleClose()
           onError?.(bucketName, error.message)
         },
       }
@@ -101,10 +93,15 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
 
   if (!isOpen || !bucket) return null
 
-  // When showVersions=true, check both objects and versions (including delete markers)
-  // When delimiter="", folders are returned as objects/versions (keys ending in "/")
-  const actualObjectCount = (objects?.objects?.length ?? 0) + (objects?.versions?.length ?? 0)
-  const isNonEmpty = actualObjectCount > 0
+  // Check if bucket has current objects (not just versions/delete markers)
+  // When delimiter="", folders are returned as objects (keys ending in "/")
+  const currentObjectCount = objects?.objects?.length ?? 0
+  const versionCount = objects?.versions?.length ?? 0
+
+  // Bucket is non-empty if it has current objects
+  // If it only has versions/delete markers (no current objects), it's considered "empty" for deletion purposes
+  const isNonEmpty = currentObjectCount > 0
+  const hasOnlyVersions = currentObjectCount === 0 && versionCount > 0
   const errorMessage = objectsError?.message
 
   return (
@@ -112,12 +109,12 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
       title={t`Delete Bucket`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={isNonEmpty ? undefined : t`Delete Bucket`}
-      confirmButtonVariant={isNonEmpty ? undefined : "primary-danger"}
-      onConfirm={isNonEmpty ? undefined : handleSubmit}
-      cancelButtonLabel={isNonEmpty ? undefined : t`Cancel`}
+      confirmButtonLabel={isNonEmpty || hasOnlyVersions ? undefined : t`Delete Bucket`}
+      confirmButtonVariant={isNonEmpty || hasOnlyVersions ? undefined : "primary-danger"}
+      onConfirm={isNonEmpty || hasOnlyVersions ? undefined : handleSubmit}
+      cancelButtonLabel={isNonEmpty || hasOnlyVersions ? undefined : t`Cancel`}
       modalFooter={
-        isNonEmpty ? (
+        isNonEmpty || hasOnlyVersions ? (
           <ModalFooter className="flex justify-end">
             <ButtonRow>
               <Button variant="primary" onClick={handleClose} data-testid="delete-has-objects-close-button">
@@ -149,8 +146,15 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
         ) : isNonEmpty ? (
           <p className="text-theme-default">
             <Trans>
-              This bucket contains objects (possibly including old versions and delete markers) and cannot be deleted.
-              Use <strong>Empty</strong> action to remove all content first.
+              This bucket contains objects and cannot be deleted. Use <strong>Empty Bucket</strong> action to remove all
+              content first.
+            </Trans>
+          </p>
+        ) : hasOnlyVersions ? (
+          <p className="text-theme-default">
+            <Trans>
+              This bucket contains old versions and delete markers. Use <strong>Delete Versions</strong> action to
+              remove them before deleting the bucket.
             </Trans>
           </p>
         ) : (
@@ -161,22 +165,6 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
                 must be empty before deletion.
               </Trans>
             </p>
-
-            <Stack direction="vertical" gap="2">
-              <div className="flex items-center justify-between">
-                <span className="text-theme-light text-sm">
-                  <Trans>Bucket to delete:</Trans>
-                </span>
-                <Button
-                  size="small"
-                  variant="subdued"
-                  onClick={handleCopyName}
-                  icon={copied ? "check" : "contentCopy"}
-                  label={copied ? t`Copied` : t`Copy`}
-                />
-              </div>
-              <div className="bg-theme-background-lvl-1 rounded p-2 text-sm">{bucket.name}</div>
-            </Stack>
 
             <TextInput
               label={t`Type the bucket name to confirm`}

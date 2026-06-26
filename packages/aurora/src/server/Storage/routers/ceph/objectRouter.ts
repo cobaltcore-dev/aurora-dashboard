@@ -34,6 +34,7 @@ import { z } from "zod"
 const deleteAllObjectsInputSchema = z.object({
   project_id: z.string(),
   containerName: z.string().min(1),
+  includeVersionsAndDeleteMarkers: z.boolean().optional().default(true),
 })
 
 export const objectRouter = {
@@ -209,105 +210,175 @@ export const objectRouter = {
     .input(deleteAllObjectsInputSchema)
     .mutation(async ({ ctx, input }): Promise<number> => {
       const s3 = ctx.getCephClient!()
-      const { containerName } = input
+      const { containerName, includeVersionsAndDeleteMarkers } = input
       let totalDeleted = 0
-      let keyMarker: string | undefined
-      let versionIdMarker: string | undefined
 
       try {
-        // Loop until all objects and versions are deleted
-        // For versioned buckets, this may take multiple iterations if deleting objects creates new delete markers
-        let iterations = 0
-        const MAX_ITERATIONS = 10 // Safety limit to prevent infinite loops
+        if (includeVersionsAndDeleteMarkers) {
+          // Original behavior: Delete ALL versions and delete markers (full empty)
+          let keyMarker: string | undefined
+          let versionIdMarker: string | undefined
+          // Loop until all objects and versions are deleted
+          // For versioned buckets, this may take multiple iterations if deleting objects creates new delete markers
+          let iterations = 0
+          const MAX_ITERATIONS = 10 // Safety limit to prevent infinite loops
 
-        while (iterations < MAX_ITERATIONS) {
-          iterations++
+          while (iterations < MAX_ITERATIONS) {
+            iterations++
 
-          // Use ListObjectVersions to get ALL versions and delete markers
-          // This is crucial for versioned buckets - ListObjectsV2 only shows current versions
-          const listResponse = await s3.send(
-            new ListObjectVersionsCommand({
-              Bucket: containerName,
-              MaxKeys: S3_MAX_KEYS_PER_REQUEST,
-              KeyMarker: keyMarker,
-              VersionIdMarker: versionIdMarker,
-            })
-          )
-
-          // Collect both regular versions and delete markers
-          const versions = listResponse.Versions ?? []
-          const deleteMarkers = listResponse.DeleteMarkers ?? []
-          const allItems = [...versions, ...deleteMarkers]
-
-          console.log(
-            `[deleteAll] Iteration ${iterations}: found ${versions.length} versions, ${deleteMarkers.length} delete markers, total: ${allItems.length}`
-          )
-
-          if (allItems.length === 0) {
-            // No more items to delete, we're done
-            console.log(`[deleteAll] Bucket is now empty after ${iterations} iterations`)
-            break
-          }
-
-          // Validate all items have keys before deletion
-          const itemsWithoutKeys = allItems.filter((item) => !item.Key)
-          if (itemsWithoutKeys.length > 0) {
-            throw new Error(
-              `Encountered ${itemsWithoutKeys.length} item(s) without Key field in S3 list response. Cannot proceed with deletion.`
+            // Use ListObjectVersions to get ALL versions and delete markers
+            // This is crucial for versioned buckets - ListObjectsV2 only shows current versions
+            const listResponse = await s3.send(
+              new ListObjectVersionsCommand({
+                Bucket: containerName,
+                MaxKeys: S3_MAX_KEYS_PER_REQUEST,
+                KeyMarker: keyMarker,
+                VersionIdMarker: versionIdMarker,
+              })
             )
+
+            // Collect both regular versions and delete markers
+            const versions = listResponse.Versions ?? []
+            const deleteMarkers = listResponse.DeleteMarkers ?? []
+            const allItems = [...versions, ...deleteMarkers]
+
+            console.log(
+              `[deleteAll] Iteration ${iterations}: found ${versions.length} versions, ${deleteMarkers.length} delete markers, total: ${allItems.length}`
+            )
+
+            if (allItems.length === 0) {
+              // No more items to delete, we're done
+              console.log(`[deleteAll] Bucket is now empty after ${iterations} iterations`)
+              break
+            }
+
+            // Validate all items have keys before deletion
+            const itemsWithoutKeys = allItems.filter((item) => !item.Key)
+            if (itemsWithoutKeys.length > 0) {
+              throw new Error(
+                `Encountered ${itemsWithoutKeys.length} item(s) without Key field in S3 list response. Cannot proceed with deletion.`
+              )
+            }
+
+            // Batch delete (up to 1000 objects per request)
+            // Include VersionId to delete specific versions and delete markers
+            const objectsToDelete = allItems.map((item) => ({
+              Key: item.Key!,
+              VersionId: item.VersionId,
+            }))
+
+            console.log(`[deleteAll] Deleting batch of ${objectsToDelete.length} items from bucket ${containerName}`)
+
+            const deleteResponse = await s3.send(
+              new DeleteObjectsCommand({
+                Bucket: containerName,
+                Delete: { Objects: objectsToDelete },
+              })
+            )
+
+            const deletedCount = deleteResponse.Deleted?.length ?? 0
+            totalDeleted += deletedCount
+
+            console.log(`[deleteAll] Successfully deleted ${deletedCount} items. Total so far: ${totalDeleted}`)
+
+            // Check for errors
+            if (deleteResponse.Errors && deleteResponse.Errors.length > 0) {
+              console.error(`[deleteAll] Errors during deletion:`, deleteResponse.Errors)
+              const errorKeys = deleteResponse.Errors.map((e) => e.Key).join(", ")
+              throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: `Failed to delete some objects: ${errorKeys}`,
+              })
+            }
+
+            // If there are more objects in this batch (pagination), continue with the next page
+            if (listResponse.IsTruncated) {
+              keyMarker = listResponse.NextKeyMarker
+              versionIdMarker = listResponse.NextVersionIdMarker
+            } else {
+              // No more pages, but we need to list again from the beginning to catch any new delete markers
+              // that may have been created. Reset markers to start from the beginning.
+              keyMarker = undefined
+              versionIdMarker = undefined
+            }
           }
 
-          // Batch delete (up to 1000 objects per request)
-          // Include VersionId to delete specific versions and delete markers
-          const objectsToDelete = allItems.map((item) => ({
-            Key: item.Key!,
-            VersionId: item.VersionId,
-          }))
-
-          console.log(`[deleteAll] Deleting batch of ${objectsToDelete.length} items from bucket ${containerName}`)
-
-          const deleteResponse = await s3.send(
-            new DeleteObjectsCommand({
-              Bucket: containerName,
-              Delete: { Objects: objectsToDelete },
-            })
-          )
-
-          const deletedCount = deleteResponse.Deleted?.length ?? 0
-          totalDeleted += deletedCount
-
-          console.log(`[deleteAll] Successfully deleted ${deletedCount} items. Total so far: ${totalDeleted}`)
-
-          // Check for errors
-          if (deleteResponse.Errors && deleteResponse.Errors.length > 0) {
-            console.error(`[deleteAll] Errors during deletion:`, deleteResponse.Errors)
-            const errorKeys = deleteResponse.Errors.map((e) => e.Key).join(", ")
+          if (iterations >= MAX_ITERATIONS) {
             throw new TRPCError({
               code: "INTERNAL_SERVER_ERROR",
-              message: `Failed to delete some objects: ${errorKeys}`,
+              message: `Failed to empty bucket after ${MAX_ITERATIONS} iterations. The bucket may still contain objects.`,
             })
           }
 
-          // If there are more objects in this batch (pagination), continue with the next page
-          if (listResponse.IsTruncated) {
-            keyMarker = listResponse.NextKeyMarker
-            versionIdMarker = listResponse.NextVersionIdMarker
-          } else {
-            // No more pages, but we need to list again from the beginning to catch any new delete markers
-            // that may have been created. Reset markers to start from the beginning.
-            keyMarker = undefined
-            versionIdMarker = undefined
-          }
+          console.log(`[deleteAll] Completed. Total deleted: ${totalDeleted}`)
+        } else {
+          // New behavior: Delete only current object versions (not all versions/delete markers)
+          // Use ListObjectsV2 to get only current versions
+          let continuationToken: string | undefined
+
+          do {
+            const listResponse = await s3.send(
+              new ListObjectsV2Command({
+                Bucket: containerName,
+                MaxKeys: S3_MAX_KEYS_PER_REQUEST,
+                ContinuationToken: continuationToken,
+              })
+            )
+
+            const objects = listResponse.Contents ?? []
+
+            console.log(`[deleteAll] Found ${objects.length} current objects to delete`)
+
+            if (objects.length === 0) {
+              console.log(`[deleteAll] No more current objects to delete`)
+              break
+            }
+
+            // Validate all items have keys before deletion
+            const objectsWithoutKeys = objects.filter((obj) => !obj.Key)
+            if (objectsWithoutKeys.length > 0) {
+              throw new Error(
+                `Encountered ${objectsWithoutKeys.length} object(s) without Key field in S3 list response. Cannot proceed with deletion.`
+              )
+            }
+
+            // Batch delete current versions only (no VersionId = delete current version)
+            const objectsToDelete = objects.map((obj) => ({
+              Key: obj.Key!,
+            }))
+
+            console.log(
+              `[deleteAll] Deleting batch of ${objectsToDelete.length} current objects from bucket ${containerName}`
+            )
+
+            const deleteResponse = await s3.send(
+              new DeleteObjectsCommand({
+                Bucket: containerName,
+                Delete: { Objects: objectsToDelete },
+              })
+            )
+
+            const deletedCount = deleteResponse.Deleted?.length ?? 0
+            totalDeleted += deletedCount
+
+            console.log(`[deleteAll] Successfully deleted ${deletedCount} objects. Total so far: ${totalDeleted}`)
+
+            // Check for errors
+            if (deleteResponse.Errors && deleteResponse.Errors.length > 0) {
+              console.error(`[deleteAll] Errors during deletion:`, deleteResponse.Errors)
+              const errorKeys = deleteResponse.Errors.map((e) => e.Key).join(", ")
+              throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: `Failed to delete some objects: ${errorKeys}`,
+              })
+            }
+
+            continuationToken = listResponse.NextContinuationToken
+          } while (continuationToken)
+
+          console.log(`[deleteAll] Completed. Total deleted: ${totalDeleted} current objects`)
         }
 
-        if (iterations >= MAX_ITERATIONS) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to empty bucket after ${MAX_ITERATIONS} iterations. The bucket may still contain objects.`,
-          })
-        }
-
-        console.log(`[deleteAll] Completed. Total deleted: ${totalDeleted}`)
         return totalDeleted
       } catch (error) {
         throw mapS3ErrorToTRPCError(error, {

@@ -101,8 +101,9 @@ describe("CopyObjectModal", () => {
 
     expect(screen.getByText("Copy object:")).toBeInTheDocument()
     expect(screen.getByText("test-file.txt")).toBeInTheDocument()
-    expect(screen.getByText("Source:")).toBeInTheDocument()
-    expect(screen.getByText("source-bucket/test-file.txt")).toBeInTheDocument()
+    expect(screen.getByText("Source")).toBeInTheDocument()
+    const sourcePath = screen.getAllByText("source-bucket/test-file.txt")[0]
+    expect(sourcePath).toBeInTheDocument()
   })
 
   it("displays object size", () => {
@@ -120,15 +121,16 @@ describe("CopyObjectModal", () => {
   it("shows folder browser", () => {
     renderModal(defaultProps)
 
-    expect(screen.getByText("Select destination folder")).toBeInTheDocument()
+    expect(screen.getByText("Select destination folder within target bucket")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /new folder/i })).toBeInTheDocument()
   })
 
   it("shows target path preview", () => {
     renderModal(defaultProps)
 
-    expect(screen.getByLabelText("Target path")).toBeInTheDocument()
-    expect(screen.getByDisplayValue("source-bucket/test-file.txt")).toBeInTheDocument()
+    expect(screen.getByText("Target path")).toBeInTheDocument()
+    const targetPath = screen.getAllByText("source-bucket/test-file.txt")[1]
+    expect(targetPath).toBeInTheDocument()
   })
 
   it("shows copy metadata checkbox", () => {

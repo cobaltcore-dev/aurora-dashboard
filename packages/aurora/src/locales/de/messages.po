@@ -103,9 +103,6 @@ msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} E
 msgid "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{totalItemCount} Element} other {{totalItemCount} Elemente}}"
 
-msgid "<0>Are you sure?</0>"
-msgstr ""
-
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Metadaten bearbeiten:</0> <1>{displayName}</1>"
 
@@ -310,6 +307,9 @@ msgstr "Bereits deaktiviert (wird übersprungen)"
 msgid "Already deactivated (will be skipped):"
 msgstr "Bereits deaktiviert (wird übersprungen):"
 
+msgid "Also delete all versions and all delete markers"
+msgstr ""
+
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr ""
 
@@ -452,12 +452,6 @@ msgid "Bucket name must start and end with a letter or number"
 msgstr ""
 
 msgid "Bucket Policy - {bucketName}"
-msgstr ""
-
-msgid "Bucket to delete:"
-msgstr ""
-
-msgid "Bucket to empty:"
 msgstr ""
 
 msgid "Buckets to empty:"
@@ -627,9 +621,6 @@ msgstr "Zu leerende Container ({totalCount})"
 
 msgid "Content type"
 msgstr "Content type"
-
-msgid "Copied"
-msgstr "Copied"
 
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
@@ -902,6 +893,9 @@ msgid "Delete Version"
 msgstr ""
 
 msgid "Delete Version Permanently"
+msgstr ""
+
+msgid "Delete Versions"
 msgstr ""
 
 msgid "Deleted"
@@ -1319,6 +1313,9 @@ msgid "Failed to delete the flavor. Please try again."
 msgstr "Das Löschen des Flavor ist fehlgeschlagen. Bitte versuchen Sie es erneut"
 
 msgid "Failed to delete version: {errorMessage}"
+msgstr ""
+
+msgid "Failed to delete versions from bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
 msgid "Failed to Download"
@@ -2200,9 +2197,6 @@ msgstr "Objekt-Anzahl-Quota"
 msgid "Object Deleted"
 msgstr "Objekt gelöscht"
 
-msgid "Object metadata will be automatically copied during the move operation."
-msgstr ""
-
 msgid "Object Moved"
 msgstr "Objekt verschoben"
 
@@ -2671,6 +2665,9 @@ msgstr "Externes Netzwerk auswählen"
 msgid "Select destination folder"
 msgstr "Zielordner auswählen"
 
+msgid "Select destination folder within target bucket"
+msgstr ""
+
 msgid "Select disk format first"
 msgstr "Wählen Sie zuerst das Festplattenformat"
 
@@ -2800,7 +2797,7 @@ msgstr "Etwas ist schiefgelaufen."
 msgid "Sort by"
 msgstr "Sortieren nach"
 
-msgid "Source:"
+msgid "Source"
 msgstr ""
 
 msgid "Specific referrer: {host}"
@@ -2862,6 +2859,9 @@ msgstr "{successCount} von {totalCount} Image(s) erfolgreich aktiviert"
 
 msgid "Successfully deactivated {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich deaktiviert"
+
+msgid "Successfully deleted {deletedCount} versions and delete markers from bucket \"{bucketName}\"."
+msgstr ""
 
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich gelöscht"
@@ -3088,7 +3088,16 @@ msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt 
 msgid "This action will create a self-signed CA certificate."
 msgstr "This action will create a self-signed CA certificate."
 
-msgid "This bucket contains objects (possibly including old versions and delete markers) and cannot be deleted. Use <0>Empty</0> action to remove all content first."
+msgid "This action will permanently delete all objects from {bucketName}. You may choose to also delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
+msgstr ""
+
+msgid "This action will permanently delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
+msgstr ""
+
+msgid "This bucket contains objects and cannot be deleted. Use <0>Empty Bucket</0> action to remove all content first."
+msgstr ""
+
+msgid "This bucket contains old versions and delete markers. Use <0>Delete Versions</0> action to remove them before deleting the bucket."
 msgstr ""
 
 msgid "This bucket does not have a policy attached."
@@ -3102,9 +3111,6 @@ msgstr "Dieser Container ist bereits leer."
 
 msgid "This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page."
 msgstr "Dies kann auf unzureichende Berechtigungen oder ein vorübergehendes Serviceproblem zurückzuführen sein. Bitte überprüfen Sie Ihre Zugriffsrechte oder aktualisieren Sie die Seite."
-
-msgid "This dangerous action will permanently delete all objects, all versions, and all delete markers from bucket \"{bucketName}\". This action cannot be undone."
-msgstr ""
 
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "Dieser Metadata-Key existiert bereits. Bitte verwenden Sie einen anderen Key."
@@ -3153,9 +3159,6 @@ msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."
 
 msgid "This tenant does not have access to the flavor."
 msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
-
-msgid "This will delete the original object after copying it to the destination."
-msgstr ""
 
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr ""
@@ -3245,9 +3248,6 @@ msgid "Type name"
 msgstr "Name eingeben"
 
 msgid "Type the bucket name to confirm"
-msgstr ""
-
-msgid "Type to search buckets..."
 msgstr ""
 
 msgid "Type to search containers..."
@@ -3419,9 +3419,6 @@ msgstr ""
 
 msgid "Visibility"
 msgstr "Sichtbarkeit"
-
-msgid "Warning:"
-msgstr ""
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."

@@ -30,6 +30,7 @@ import { BucketPolicyModal } from "../Buckets/BucketPolicyModal"
 import { DeleteBucketPolicyModal } from "../Buckets/DeleteBucketPolicyModal"
 import { EmptyBucketModal } from "../Buckets/EmptyBucketModal"
 import { DeleteBucketModal } from "../Buckets/DeleteBucketModal"
+import { DeleteVersionsModal } from "../Buckets/DeleteVersionsModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
@@ -89,6 +90,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [isDeletePolicyModalOpen, setIsDeletePolicyModalOpen] = useState(false)
   const [isEmptyBucketModalOpen, setIsEmptyBucketModalOpen] = useState(false)
   const [isDeleteBucketModalOpen, setIsDeleteBucketModalOpen] = useState(false)
+  const [isDeleteVersionsModalOpen, setIsDeleteVersionsModalOpen] = useState(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   // Local mirror of the committed search term so typing stays responsive while
@@ -138,6 +140,21 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       enabled: !!projectId,
       staleTime: 5 * 60 * 1000, // Cache for 5 minutes
       retry: false,
+    }
+  )
+
+  // Query to check if bucket has versions/delete markers (independent of current tab)
+  const { data: versionCheckData } = trpcReact.storage.ceph.objects.list.useQuery(
+    {
+      project_id: projectId ?? "",
+      containerName: bucketName,
+      maxKeys: 1,
+      delimiter: "",
+      showVersions: true,
+    },
+    {
+      enabled: !!projectId && versioningStatus?.status !== "Unversioned",
+      staleTime: 30 * 1000, // 30 seconds cache
     }
   )
 
@@ -197,6 +214,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setContinuationToken(undefined)
     setAllObjects([])
     setAllFolders([])
+    setAllVersions([])
     setHasMore(false)
     navigate({
       search: (prev) => ({
@@ -211,6 +229,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setContinuationToken(undefined)
     setAllObjects([])
     setAllFolders([])
+    setAllVersions([])
     setHasMore(false)
 
     navigate({
@@ -352,15 +371,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     })
   }
 
-  if (isLoading && !continuationToken) {
-    return (
-      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading objects...</Trans>
-      </Stack>
-    )
-  }
-
   if (error) {
     const errorMessage = error.message
     return (
@@ -369,6 +379,11 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       </Message>
     )
   }
+
+  // Check if bucket is empty (no current objects) but has versions/delete markers
+  const hasCurrentObjects = allObjects.length > 0 || allFolders.length > 0
+  const hasVersionsOrDeleteMarkers = versionCheckData?.versions && versionCheckData.versions.length > 0
+  const isBucketEmptyWithVersions = !hasCurrentObjects && hasVersionsOrDeleteMarkers
 
   return (
     <div className="relative">
@@ -465,7 +480,11 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
                 {policyData?.policy && (
                   <PopupMenuItem label={t`Delete Policy`} onClick={() => setIsDeletePolicyModalOpen(true)} />
                 )}
-                <PopupMenuItem label={t`Empty Bucket`} onClick={() => setIsEmptyBucketModalOpen(true)} />
+                {isBucketEmptyWithVersions ? (
+                  <PopupMenuItem label={t`Delete Versions`} onClick={() => setIsDeleteVersionsModalOpen(true)} />
+                ) : (
+                  <PopupMenuItem label={t`Empty Bucket`} onClick={() => setIsEmptyBucketModalOpen(true)} />
+                )}
                 <PopupMenuItem label={t`Delete Bucket`} onClick={() => setIsDeleteBucketModalOpen(true)} />
               </PopupMenuOptions>
             </PopupMenu>
@@ -518,48 +537,61 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         </DataGridToolbar>
       </Stack>
 
-      <ObjectsTableView
-        bucketName={bucketName}
-        objects={sortedObjects}
-        folders={sortedFolders}
-        versions={deletedFilesList}
-        showingVersions={tab === "deleted"}
-        currentPrefix={currentPrefix}
-        versioningEnabled={versioningStatus?.status === "Enabled"}
-        onFolderClick={navigateToPrefix}
-        onDeleteObjectSuccess={(objectKey) => {
-          setToastData(getObjectDeletedToast(objectKey, { onDismiss: handleToastDismiss }))
-        }}
-        onDeleteObjectError={(objectKey, errorMessage) => {
-          setToastData(getObjectDeleteErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
-        }}
-        onCopyObjectSuccess={(objectKey, targetBucket, targetKey, wasOverwritten) => {
-          setToastData(
-            getObjectCopiedToast(objectKey, targetBucket, targetKey, { onDismiss: handleToastDismiss }, wasOverwritten)
-          )
-        }}
-        onCopyObjectError={(objectKey, errorMessage) => {
-          setToastData(getObjectCopyErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
-        }}
-        onMoveObjectSuccess={(objectKey, targetBucket, targetKey) => {
-          setToastData(getObjectMovedToast(objectKey, targetBucket, targetKey, { onDismiss: handleToastDismiss }))
-        }}
-        onMoveObjectError={(objectKey, errorMessage) => {
-          setToastData(getObjectMoveErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
-        }}
-        onEditMetadataSuccess={(objectKey) => {
-          setToastData(getObjectMetadataUpdatedToast(objectKey, { onDismiss: handleToastDismiss }))
-        }}
-        onEditMetadataError={(objectKey, errorMessage) => {
-          setToastData(getObjectMetadataUpdateErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
-        }}
-        onRestoreVersion={() => {
-          // Version restored successfully - no toast
-        }}
-        onDeleteVersion={() => {
-          // Version deleted successfully - no toast
-        }}
-      />
+      {isLoading && !continuationToken ? (
+        <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
+          <Spinner variant="primary" size="large" className="mb-2" />
+          <Trans>Loading objects...</Trans>
+        </Stack>
+      ) : (
+        <ObjectsTableView
+          bucketName={bucketName}
+          objects={sortedObjects}
+          folders={sortedFolders}
+          versions={deletedFilesList}
+          showingVersions={tab === "deleted"}
+          currentPrefix={currentPrefix}
+          versioningEnabled={versioningStatus?.status === "Enabled"}
+          onFolderClick={navigateToPrefix}
+          onDeleteObjectSuccess={(objectKey) => {
+            setToastData(getObjectDeletedToast(objectKey, { onDismiss: handleToastDismiss }))
+          }}
+          onDeleteObjectError={(objectKey, errorMessage) => {
+            setToastData(getObjectDeleteErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
+          }}
+          onCopyObjectSuccess={(objectKey, targetBucket, targetKey, wasOverwritten) => {
+            setToastData(
+              getObjectCopiedToast(
+                objectKey,
+                targetBucket,
+                targetKey,
+                { onDismiss: handleToastDismiss },
+                wasOverwritten
+              )
+            )
+          }}
+          onCopyObjectError={(objectKey, errorMessage) => {
+            setToastData(getObjectCopyErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
+          }}
+          onMoveObjectSuccess={(objectKey, targetBucket, targetKey) => {
+            setToastData(getObjectMovedToast(objectKey, targetBucket, targetKey, { onDismiss: handleToastDismiss }))
+          }}
+          onMoveObjectError={(objectKey, errorMessage) => {
+            setToastData(getObjectMoveErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
+          }}
+          onEditMetadataSuccess={(objectKey) => {
+            setToastData(getObjectMetadataUpdatedToast(objectKey, { onDismiss: handleToastDismiss }))
+          }}
+          onEditMetadataError={(objectKey, errorMessage) => {
+            setToastData(getObjectMetadataUpdateErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
+          }}
+          onRestoreVersion={() => {
+            // Version restored successfully - no toast
+          }}
+          onDeleteVersion={() => {
+            // Version deleted successfully - no toast
+          }}
+        />
+      )}
 
       {hasMore && (
         <div className="mt-4 flex justify-center">
@@ -656,7 +688,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         }}
         onClose={() => setIsDeleteBucketModalOpen(false)}
         onSuccess={(bucketName) => {
-          setIsDeleteBucketModalOpen(false)
           setToastData({
             variant: "success",
             children: t`Successfully deleted bucket "${bucketName}".`,
@@ -672,10 +703,33 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           })
         }}
         onError={(bucketName, errorMessage) => {
-          setIsDeleteBucketModalOpen(false)
           setToastData({
             variant: "error",
             children: t`Failed to delete bucket "${bucketName}": ${errorMessage}`,
+          })
+        }}
+      />
+
+      <DeleteVersionsModal
+        isOpen={isDeleteVersionsModalOpen}
+        bucket={{
+          name: bucketName,
+          count: 0,
+          bytes: 0,
+        }}
+        onClose={() => setIsDeleteVersionsModalOpen(false)}
+        onSuccess={(bucketName, deletedCount) => {
+          setIsDeleteVersionsModalOpen(false)
+          setToastData({
+            variant: "success",
+            children: t`Successfully deleted ${deletedCount} versions and delete markers from bucket "${bucketName}".`,
+          })
+        }}
+        onError={(bucketName, errorMessage) => {
+          setIsDeleteVersionsModalOpen(false)
+          setToastData({
+            variant: "error",
+            children: t`Failed to delete versions from bucket "${bucketName}": ${errorMessage}`,
           })
         }}
       />

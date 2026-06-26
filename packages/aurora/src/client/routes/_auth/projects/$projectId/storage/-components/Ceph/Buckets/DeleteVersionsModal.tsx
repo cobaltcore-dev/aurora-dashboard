@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Checkbox } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
-interface EmptyBucketModalProps {
+interface DeleteVersionsModalProps {
   isOpen: boolean
   bucket: Bucket | null
   onClose: () => void
@@ -13,16 +13,15 @@ interface EmptyBucketModalProps {
   onError?: (bucketName: string, errorMessage: string) => void
 }
 
-export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }: EmptyBucketModalProps) => {
+export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onError }: DeleteVersionsModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
-  const [deleteVersionsAndMarkers, setDeleteVersionsAndMarkers] = useState(false)
 
   const utils = trpcReact.useUtils()
 
-  const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
+  const deleteVersionsMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
     onSettled: () => {
       // Invalidate both containers.list (to update bucket metadata) and objects.list (to refresh empty state)
       utils.storage.ceph.containers.list.invalidate()
@@ -34,8 +33,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   const handleClose = () => {
     setConfirmName("")
     setNameError(null)
-    setDeleteVersionsAndMarkers(false)
-    emptyBucketMutation.reset()
+    deleteVersionsMutation.reset()
     onClose()
   }
 
@@ -55,11 +53,12 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     // Capture bucket name before async operation to avoid dereferencing null bucket in callbacks
     const bucketName = bucket.name
 
-    emptyBucketMutation.mutate(
+    // Always delete all versions and delete markers (includeVersionsAndDeleteMarkers: true)
+    deleteVersionsMutation.mutate(
       {
         project_id: projectId,
         containerName: bucketName,
-        includeVersionsAndDeleteMarkers: deleteVersionsAndMarkers,
+        includeVersionsAndDeleteMarkers: true,
       },
       {
         onSuccess: (deletedCount) => {
@@ -78,34 +77,25 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
 
   if (!isOpen || !bucket) return null
 
-  const bucketName = bucket.name
-
   return (
     <Modal
-      title={t`Empty Bucket`}
+      title={t`Delete Versions`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={t`Empty Bucket`}
+      confirmButtonLabel={t`Delete Versions`}
       confirmButtonVariant="primary-danger"
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name}
+      disableConfirmButton={deleteVersionsMutation.isPending || confirmName.trim() !== bucket.name}
     >
       <Stack direction="vertical" gap="6">
         <p className="text-theme-default m-0">
           <Trans>
-            This action will permanently delete all objects from {bucketName}. You may choose to also delete all
-            versions and delete markers. This will enable you to delete the bucket. This action cannot be undone.
+            This action will permanently delete all versions and delete markers. This will enable you to delete the
+            bucket. This action cannot be undone.
           </Trans>
         </p>
-
-        <Checkbox
-          checked={deleteVersionsAndMarkers}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDeleteVersionsAndMarkers(e.target.checked)}
-          label={t`Also delete all versions and all delete markers`}
-          disabled={emptyBucketMutation.isPending}
-        />
 
         <TextInput
           label={t`Type the bucket name to confirm`}
@@ -115,7 +105,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
           onKeyDown={handleKeyDown}
           invalid={!!nameError}
           errortext={nameError || undefined}
-          disabled={emptyBucketMutation.isPending}
+          disabled={deleteVersionsMutation.isPending}
           placeholder={bucket.name}
           autoFocus
         />

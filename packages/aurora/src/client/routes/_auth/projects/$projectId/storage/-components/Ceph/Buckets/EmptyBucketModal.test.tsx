@@ -152,17 +152,15 @@ describe("EmptyBucketModal", () => {
   })
 
   describe("Warning message", () => {
-    test("shows dangerous action warning for all buckets", () => {
+    test("shows warning message for all buckets", () => {
       renderModal({ bucket: mockEmptyBucket })
-      expect(screen.getByText(/Are you sure?/)).toBeInTheDocument()
-      expect(screen.getByText(/This dangerous action will permanently delete all objects/)).toBeInTheDocument()
-      expect(screen.getByText(/all versions.*all delete markers/)).toBeInTheDocument()
+      expect(screen.getByText(/This action will permanently delete all objects/)).toBeInTheDocument()
+      expect(screen.getByText(/This action cannot be undone/)).toBeInTheDocument()
     })
 
     test("shows same warning for non-empty bucket", () => {
       renderModal({ bucket: mockNonEmptyBucket })
-      expect(screen.getByText(/Are you sure?/)).toBeInTheDocument()
-      expect(screen.getByText(/This dangerous action will permanently delete all objects/)).toBeInTheDocument()
+      expect(screen.getByText(/This action will permanently delete all objects/)).toBeInTheDocument()
     })
 
     test("warning mentions that action cannot be undone", () => {
@@ -184,13 +182,7 @@ describe("EmptyBucketModal", () => {
 
     test("allows emptying bucket even when count is 0", () => {
       renderModal({ bucket: mockEmptyBucket })
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeInTheDocument()
-    })
-
-    test("displays bucket name", () => {
-      renderModal()
-      expect(screen.getByText("Bucket to empty:")).toBeInTheDocument()
-      expect(screen.getByText(mockNonEmptyBucket.name)).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).toBeInTheDocument()
     })
 
     test("renders confirmation input", () => {
@@ -210,7 +202,7 @@ describe("EmptyBucketModal", () => {
 
     test("renders Empty button", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).toBeInTheDocument()
     })
 
     test("renders Cancel button", () => {
@@ -218,28 +210,9 @@ describe("EmptyBucketModal", () => {
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
     })
 
-    test("renders Copy button", () => {
-      renderModal()
-      expect(screen.getByRole("button", { name: /Copy/i })).toBeInTheDocument()
-    })
-
     test("Empty button is disabled when confirmation name is empty", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
-    })
-  })
-
-  describe("Copy bucket name", () => {
-    test("shows Copy button", () => {
-      renderModal()
-      expect(screen.getByRole("button", { name: /Copy/i })).toBeInTheDocument()
-    })
-
-    test("displays bucket name in styled block", () => {
-      renderModal()
-      const styledBlock = screen.getByText(mockNonEmptyBucket.name).closest("div")
-      expect(styledBlock).toBeInTheDocument()
-      expect(styledBlock).toHaveClass("bg-theme-background-lvl-1")
+      expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).toBeDisabled()
     })
   })
 
@@ -252,7 +225,7 @@ describe("EmptyBucketModal", () => {
       await user.clear(input)
       await user.type(input, "wrong-name")
 
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).toBeDisabled()
     })
 
     test("enables Empty button when name matches exactly", async () => {
@@ -265,7 +238,7 @@ describe("EmptyBucketModal", () => {
 
       await waitFor(
         () => {
-          expect(screen.getByRole("button", { name: /^Empty$/i })).not.toBeDisabled()
+          expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).not.toBeDisabled()
         },
         { timeout: 3000 }
       )
@@ -281,7 +254,7 @@ describe("EmptyBucketModal", () => {
 
       await waitFor(
         () => {
-          expect(screen.getByRole("button", { name: /^Empty$/i })).not.toBeDisabled()
+          expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).not.toBeDisabled()
         },
         { timeout: 3000 }
       )
@@ -297,7 +270,7 @@ describe("EmptyBucketModal", () => {
       await user.clear(input)
       await user.type(input, mockNonEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Bucket$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -306,6 +279,7 @@ describe("EmptyBucketModal", () => {
             {
               project_id: mockProjectId,
               containerName: mockNonEmptyBucket.name,
+              includeVersionsAndDeleteMarkers: false,
             },
             expect.objectContaining({
               onSuccess: expect.any(Function),
@@ -322,7 +296,7 @@ describe("EmptyBucketModal", () => {
       renderModal()
 
       expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeDisabled()
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).toBeDisabled()
     })
   })
 
@@ -336,7 +310,7 @@ describe("EmptyBucketModal", () => {
       await user.clear(input)
       await user.type(input, mockNonEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Bucket$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -355,7 +329,7 @@ describe("EmptyBucketModal", () => {
       await user.clear(input)
       await user.type(input, mockNonEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Bucket$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -375,7 +349,7 @@ describe("EmptyBucketModal", () => {
       await user.clear(input)
       await user.type(input, mockNonEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Bucket$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -398,7 +372,7 @@ describe("EmptyBucketModal", () => {
       await user.clear(input)
       await user.type(input, mockNonEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Bucket$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -419,7 +393,7 @@ describe("EmptyBucketModal", () => {
       await user.clear(input)
       await user.type(input, mockNonEmptyBucket.name)
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Bucket$/i })
       await user.click(emptyButton)
 
       await waitFor(
