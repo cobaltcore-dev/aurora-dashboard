@@ -182,12 +182,6 @@ describe("DeleteBucketModal", () => {
       expect(screen.getByText(/Deleting a bucket permanently removes it/)).toBeInTheDocument()
     })
 
-    test("displays bucket name to delete", () => {
-      renderModal()
-      expect(screen.getByText("Bucket to delete:")).toBeInTheDocument()
-      expect(screen.getByText(mockEmptyBucket.name)).toBeInTheDocument()
-    })
-
     test("renders confirmation input", () => {
       renderModal()
       expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeInTheDocument()
@@ -206,11 +200,6 @@ describe("DeleteBucketModal", () => {
     test("renders Cancel button", () => {
       renderModal()
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
-    })
-
-    test("renders Copy button", () => {
-      renderModal()
-      expect(screen.getByRole("button", { name: /Copy/i })).toBeInTheDocument()
     })
 
     test("Delete button is disabled when confirmation name is empty", () => {
@@ -250,11 +239,12 @@ describe("DeleteBucketModal", () => {
       mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
       renderModal({ bucket: mockNonEmptyBucket })
 
-      expect(screen.getByText(/This bucket contains 1 object and cannot be deleted/)).toBeInTheDocument()
-      expect(screen.getByText(/Delete all objects first/)).toBeInTheDocument()
+      expect(screen.getByText(/This bucket contains objects/)).toBeInTheDocument()
+      expect(screen.getByText(/Empty Bucket/)).toBeInTheDocument()
+      expect(screen.getByText(/action to remove all content first/)).toBeInTheDocument()
     })
 
-    test("shows plural form for multiple objects", () => {
+    test("shows same message for multiple objects", () => {
       mockState.objectsData = {
         objects: [{ key: "file1.txt" }, { key: "file2.txt" }, { key: "file3.txt" }] as never,
         folders: [],
@@ -262,7 +252,7 @@ describe("DeleteBucketModal", () => {
       }
       renderModal({ bucket: mockNonEmptyBucket })
 
-      expect(screen.getByText(/This bucket contains 3 objects and cannot be deleted/)).toBeInTheDocument()
+      expect(screen.getByText(/This bucket contains objects/)).toBeInTheDocument()
     })
 
     test("does not show confirmation input for non-empty bucket", () => {
@@ -306,20 +296,6 @@ describe("DeleteBucketModal", () => {
       renderModal()
 
       expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
-    })
-  })
-
-  describe("Copy bucket name", () => {
-    test("shows Copy button", () => {
-      renderModal()
-      expect(screen.getByRole("button", { name: /Copy/i })).toBeInTheDocument()
-    })
-
-    test("displays bucket name in styled block", () => {
-      renderModal()
-      const styledBlock = screen.getByText(mockEmptyBucket.name).closest("div")
-      expect(styledBlock).toBeInTheDocument()
-      expect(styledBlock).toHaveClass("bg-theme-background-lvl-1")
     })
   })
 

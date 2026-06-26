@@ -129,18 +129,6 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     },
   })
 
-  // Delete mutation
-  const deleteMutation = trpcReact.storage.ceph.bucketPolicy.delete.useMutation({
-    onSuccess: () => {
-      utils.storage.ceph.bucketPolicy.get.invalidate()
-      onSuccess?.(bucketName)
-      handleClose()
-    },
-    onError: (error) => {
-      onError?.(bucketName, error.message)
-    },
-  })
-
   const form = useForm({
     defaultValues: {
       policyText: "",
@@ -180,7 +168,6 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const handleClose = () => {
     form.reset()
     setMutation.reset()
-    deleteMutation.reset()
     onClose()
   }
 
@@ -195,13 +182,6 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       const policy = template.generator(bucketName)
       form.setFieldValue("policyText", JSON.stringify(policy, null, 2))
     }
-  }
-
-  const handleDelete = () => {
-    deleteMutation.mutate({
-      project_id: projectId,
-      bucketName,
-    })
   }
 
   const handleReset = () => {
@@ -252,8 +232,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     }
   }, [policyTextValue])
 
-  const hasPolicy = !!policyData?.policy
-  const isSaving = setMutation.isPending || deleteMutation.isPending || isSubmitting
+  const isSaving = setMutation.isPending || isSubmitting
   const canSubmit =
     !isSaving && !jsonValidationError && policyTextValue.trim().length > 0 && policySize <= MAX_POLICY_SIZE
 
@@ -266,7 +245,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   return (
     <Modal
       key={bucketName} // Remount when bucket changes
-      title={t`Bucket Policy - ${bucketName}`}
+      title={t`Edit/view Bucket Policy`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={t`Save Policy`}
@@ -369,17 +348,6 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
                   )}
                 />
               </div>
-
-              {hasPolicy && (
-                <div className="border-theme-light border-t pt-4">
-                  <Button variant="primary-danger" onClick={handleDelete} disabled={isSaving}>
-                    <Trans>Delete Policy</Trans>
-                  </Button>
-                  <p className="text-theme-light mt-2 text-xs">
-                    <Trans>Deleting the policy will remove all access restrictions defined by it.</Trans>
-                  </p>
-                </div>
-              )}
             </Stack>
           </Form>
         )}

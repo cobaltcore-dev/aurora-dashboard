@@ -38,8 +38,10 @@ import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provid
 export { CredentialPrompt } from "./CredentialPrompt"
 export { CreateBucketModal } from "./CreateBucketModal"
 export { DeleteBucketModal } from "./DeleteBucketModal"
+export { DeleteBucketPolicyModal } from "./DeleteBucketPolicyModal"
 export { EmptyBucketModal } from "./EmptyBucketModal"
 export { EmptyBucketsModal } from "./EmptyBucketsModal"
+export { DeleteVersionsModal } from "./DeleteVersionsModal"
 export * from "./BucketToastNotifications"
 
 export const CephBuckets = () => {
@@ -295,6 +297,7 @@ export const CephBuckets = () => {
               options={sortSettings.options}
               sortBy={sortSettings.sortBy}
               sortDirection={sortSettings.sortDirection ?? "asc"}
+              selectClassName="w-40"
               onSortByChange={(value) =>
                 handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
               }

@@ -1,6 +1,6 @@
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 
@@ -36,6 +36,7 @@ export const RestoreVersionModal = ({
     onSuccess: () => {
       utils.storage.ceph.versioning.listObjectVersions.invalidate()
       utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
       onSuccess?.(objectKey, versionId)
       onClose()
     },
@@ -70,13 +71,6 @@ export const RestoreVersionModal = ({
       disableConfirmButton={restoreMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
-        <Message variant="info" title={t`How Restore Works`}>
-          <Trans>
-            This creates a new latest version with the content from the selected version. All existing versions
-            (including the current latest) are preserved.
-          </Trans>
-        </Message>
-
         <div className="space-y-3">
           <div>
             <label className="text-sm font-semibold">
@@ -113,9 +107,9 @@ export const RestoreVersionModal = ({
           )}
         </div>
 
-        <Message variant="warning">
+        <p>
           <Trans>After restoring, this version's content will become the new latest version.</Trans>
-        </Message>
+        </p>
       </Stack>
     </Modal>
   )

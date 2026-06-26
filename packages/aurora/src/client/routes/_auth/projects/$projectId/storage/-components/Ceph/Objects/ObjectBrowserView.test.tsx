@@ -80,12 +80,25 @@ const mockObjectsData = {
 
 // Mock trpcClient
 vi.mock("@/client/trpcClient", () => {
-  const mockUseQuery = vi.fn(() => ({
-    data: mockObjectsData,
-    isLoading: false,
-    error: null,
-    trpc: {},
-  }))
+  const mockUseQuery = vi.fn((params) => {
+    // Different responses based on query parameters
+    // versionCheckData query has maxKeys: 1 and showVersions: true
+    if (params?.maxKeys === 1 && params?.showVersions === true) {
+      return {
+        data: { objects: [], folders: [], versions: [], isTruncated: false },
+        isLoading: false,
+        error: null,
+        trpc: {},
+      }
+    }
+    // Main objects.list query
+    return {
+      data: mockObjectsData,
+      isLoading: false,
+      error: null,
+      trpc: {},
+    }
+  })
 
   const mockUseMutation = vi.fn(() => ({
     mutate: vi.fn(),
@@ -128,6 +141,9 @@ vi.mock("@/client/trpcClient", () => {
                 trpc: {},
               })),
             },
+            delete: {
+              useMutation: mockUseMutation,
+            },
           },
           objects: {
             list: {
@@ -142,6 +158,9 @@ vi.mock("@/client/trpcClient", () => {
               })),
             },
             delete: {
+              useMutation: mockUseMutation,
+            },
+            deleteAll: {
               useMutation: mockUseMutation,
             },
             copy: {
@@ -316,7 +335,7 @@ describe("ObjectBrowserView - Loading state", () => {
   })
 
   it("shows loading spinner when data is loading", () => {
-    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValueOnce({
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
       data: undefined,
       isLoading: true,
       error: null,
@@ -341,7 +360,7 @@ describe("ObjectBrowserView - Error state", () => {
   })
 
   it("shows error message when fetch fails", () => {
-    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValueOnce({
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
       data: undefined,
       isLoading: false,
       error: { message: "Failed to load objects", shape: {}, data: {} } as ReturnType<

@@ -141,6 +141,17 @@ export const s3ObjectSchema = z.object({
   storageClass: z.string().optional(),
 })
 
+export const s3ObjectVersionSchema = z.object({
+  key: z.string(), // Full path: "photos/2024/img.jpg"
+  versionId: z.string(), // Version ID
+  isLatest: z.boolean(), // Is this the latest version?
+  lastModified: z.string().optional(), // ISO date string
+  size: z.number(), // bytes (0 for delete markers)
+  etag: z.string().optional(),
+  storageClass: z.string().optional(),
+  isDeleteMarker: z.boolean().default(false), // True if this is a delete marker
+})
+
 export const s3FolderPrefixSchema = z.object({
   prefix: z.string(), // "photos/2024/"
 })
@@ -150,7 +161,10 @@ export const listObjectsInputSchema = projectScopedInputSchema.extend({
   prefix: z.string().optional(), // Filter by prefix
   delimiter: z.string().optional(), // "/" for folder grouping
   maxKeys: z.number().min(1).max(1000).default(1000),
-  continuationToken: z.string().optional(), // For pagination
+  continuationToken: z.string().optional(), // For pagination (ListObjectsV2)
+  keyMarker: z.string().optional(), // For version pagination (ListObjectVersions)
+  versionIdMarker: z.string().optional(), // For version pagination (ListObjectVersions)
+  showVersions: z.boolean().optional().default(false), // Show all versions including delete markers
 })
 
 export const listObjectsOutputSchema = z.object({
@@ -158,6 +172,9 @@ export const listObjectsOutputSchema = z.object({
   folders: z.array(s3FolderPrefixSchema), // CommonPrefixes
   isTruncated: z.boolean(),
   nextContinuationToken: z.string().optional(),
+  versions: z.array(s3ObjectVersionSchema).optional(), // When showVersions=true
+  nextKeyMarker: z.string().optional(), // For version pagination
+  nextVersionIdMarker: z.string().optional(), // For version pagination
 })
 
 export const getObjectDetailsInputSchema = projectScopedInputSchema.extend({
@@ -231,6 +248,7 @@ export const updateMetadataInputSchema = projectScopedInputSchema.extend({
 // ============================================================================
 
 export type S3Object = z.infer<typeof s3ObjectSchema>
+export type S3ObjectVersion = z.infer<typeof s3ObjectVersionSchema>
 export type S3FolderPrefix = z.infer<typeof s3FolderPrefixSchema>
 export type ListObjectsOutput = z.infer<typeof listObjectsOutputSchema>
 export type S3ObjectDetails = z.infer<typeof s3ObjectDetailsSchema>

@@ -16,6 +16,7 @@ export interface SortInputProps {
   sortDirection: "asc" | "desc"
   onSortDirectionChange: (direction: "asc" | "desc") => void
   options: SortOption[]
+  selectClassName?: string
 }
 
 export const SortInput: React.FC<SortInputProps> = ({
@@ -24,11 +25,12 @@ export const SortInput: React.FC<SortInputProps> = ({
   sortDirection,
   onSortDirectionChange,
   options,
+  selectClassName,
 }) => {
   const { t } = useLingui()
 
   const getSelectProps = (): SelectProps & { "data-testid"?: string } => ({
-    className: "flex-grow",
+    className: selectClassName,
     onChange: onSortByChange,
     value: sortBy,
     "data-testid": "sort-select",
