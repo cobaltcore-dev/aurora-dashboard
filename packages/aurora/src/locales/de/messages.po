@@ -262,6 +262,9 @@ msgstr "Projektzugriff hinzufügen"
 msgid "After restoring, this version's content will become the new latest version."
 msgstr ""
 
+msgid "All"
+msgstr ""
+
 msgid "All buckets"
 msgstr "Alle Buckets"
 
@@ -1048,9 +1051,6 @@ msgstr "Metadaten bearbeiten"
 msgid "Edit Security Group"
 msgstr "Security Group bearbeiten"
 
-msgid "Edit/View Policy"
-msgstr ""
-
 msgid "Efficient bulk deletion"
 msgstr "Effiziente Massenlöschung"
 
@@ -1285,6 +1285,9 @@ msgstr "{failedCount} von {totalCount} Image(s) konnten nicht gelöscht werden. 
 msgid "Failed to Delete Bucket"
 msgstr ""
 
+msgid "Failed to delete bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Failed to Delete Container"
 msgstr "Fehler beim Löschen des Containers"
 
@@ -1322,6 +1325,9 @@ msgid "Failed to Download"
 msgstr "Fehler beim Herunterladen"
 
 msgid "Failed to Empty Bucket"
+msgstr ""
+
+msgid "Failed to empty bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
 msgid "Failed to Empty Container"
@@ -2761,12 +2767,6 @@ msgstr "Freigabe-Details"
 msgid "Show ACLs Preview"
 msgstr "ACLs-Vorschau anzeigen"
 
-msgid "Show current files"
-msgstr ""
-
-msgid "Show deleted files"
-msgstr ""
-
 msgid "Show Details"
 msgstr "Details anzeigen"
 
@@ -2866,10 +2866,16 @@ msgstr "{successCount} von {totalCount} Image(s) erfolgreich deaktiviert"
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich gelöscht"
 
+msgid "Successfully deleted bucket \"{bucketName}\"."
+msgstr ""
+
 msgid "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
 msgstr ""
 
 msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
+msgstr ""
+
+msgid "Successfully emptied bucket \"{bucketName}\". {deletedCount} objects deleted."
 msgstr ""
 
 msgid "Suggested Images"
@@ -3404,6 +3410,9 @@ msgstr ""
 
 msgid "View Details"
 msgstr "Details ansehen"
+
+msgid "View Policy"
+msgstr ""
 
 msgid "View Versions"
 msgstr ""

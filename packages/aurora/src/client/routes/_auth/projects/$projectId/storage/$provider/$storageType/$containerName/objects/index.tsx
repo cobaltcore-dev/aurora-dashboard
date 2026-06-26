@@ -6,6 +6,7 @@ import { SwiftObjects } from "../../../../-components/Swift/Objects"
 import { CephObjects } from "../../../../-components/Ceph/Objects"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const checkServiceAvailability = (
   availableServices: {
@@ -111,6 +112,7 @@ const objectsSearchSchema = z.object({
   sortBy: z.enum(["name", "last_modified", "bytes", "lastModified", "size"]).optional(),
   sortDirection: z.enum(["asc", "desc"]).optional(),
   search: z.string().optional(),
+  tab: z.enum(["all", "deleted"]).optional().default("all"),
 })
 
 export const Route = createFileRoute(
@@ -166,37 +168,44 @@ function ObjectsDashboard() {
 
   const { prefix, sortBy, sortDirection, search } = Route.useSearch()
 
+  // For Ceph buckets, we need to show ContentHeader
+  // For Swift containers, the component handles its own header
+  const showContentHeader = provider === "ceph"
+
   return (
-    <div>
-      {project ? (
-        <ErrorBoundary
-          resetKeys={[project, provider, containerName, prefix, sortBy, sortDirection, search]}
-          fallback={
-            <div className="p-4 text-center">
-              <Trans>Error loading component</Trans>
-            </div>
-          }
-        >
-          {(() => {
-            switch (provider) {
-              case "swift":
-                return <SwiftObjects provider={provider} containerName={containerName} />
-              case "ceph":
-                return <CephObjects bucketName={containerName} />
-              default:
-                return (
-                  <div className="p-4">
-                    <Trans>Objects — {containerName}</Trans>
-                  </div>
-                )
+    <>
+      {showContentHeader && <ContentHeader title={containerName} projectId={project} />}
+      <div>
+        {project ? (
+          <ErrorBoundary
+            resetKeys={[project, provider, containerName, prefix, sortBy, sortDirection, search]}
+            fallback={
+              <div className="p-4 text-center">
+                <Trans>Error loading component</Trans>
+              </div>
             }
-          })()}
-        </ErrorBoundary>
-      ) : (
-        <div className="p-4 text-center">
-          <Trans>No project selected</Trans>
-        </div>
-      )}
-    </div>
+          >
+            {(() => {
+              switch (provider) {
+                case "swift":
+                  return <SwiftObjects provider={provider} containerName={containerName} />
+                case "ceph":
+                  return <CephObjects bucketName={containerName} />
+                default:
+                  return (
+                    <div className="p-4">
+                      <Trans>Objects — {containerName}</Trans>
+                    </div>
+                  )
+              }
+            })()}
+          </ErrorBoundary>
+        ) : (
+          <div className="p-4 text-center">
+            <Trans>No project selected</Trans>
+          </div>
+        )}
+      </div>
+    </>
   )
 }

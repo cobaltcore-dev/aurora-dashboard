@@ -14,6 +14,8 @@ import {
   PopupMenuItem,
   PopupMenuOptions,
   PopupMenuToggle,
+  TabNavigation,
+  TabNavigationItem,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -26,6 +28,8 @@ import { EnableVersioningModal } from "../Buckets/EnableVersioningModal"
 import { SuspendVersioningModal } from "../Buckets/SuspendVersioningModal"
 import { BucketPolicyModal } from "../Buckets/BucketPolicyModal"
 import { DeleteBucketPolicyModal } from "../Buckets/DeleteBucketPolicyModal"
+import { EmptyBucketModal } from "../Buckets/EmptyBucketModal"
+import { DeleteBucketModal } from "../Buckets/DeleteBucketModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
@@ -70,20 +74,21 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
   const { provider, storageType } = Route.useParams()
-  const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
+  const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "", tab = "all" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
 
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined)
   const [allObjects, setAllObjects] = useState<S3Object[]>([])
   const [allFolders, setAllFolders] = useState<S3FolderPrefix[]>([])
   const [allVersions, setAllVersions] = useState<S3ObjectVersion[]>([])
-  const [showDeletedFiles, setShowDeletedFiles] = useState(false)
   const [hasMore, setHasMore] = useState(false)
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false)
   const [isEnableVersioningModalOpen, setIsEnableVersioningModalOpen] = useState(false)
   const [isSuspendVersioningModalOpen, setIsSuspendVersioningModalOpen] = useState(false)
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false)
   const [isDeletePolicyModalOpen, setIsDeletePolicyModalOpen] = useState(false)
+  const [isEmptyBucketModalOpen, setIsEmptyBucketModalOpen] = useState(false)
+  const [isDeleteBucketModalOpen, setIsDeleteBucketModalOpen] = useState(false)
   const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   // Local mirror of the committed search term so typing stays responsive while
@@ -100,6 +105,14 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   useEffect(() => {
     setLocalSearchTerm(searchParam)
   }, [searchParam])
+
+  // Reset accumulated data when tab changes (switching between All/Deleted views)
+  useEffect(() => {
+    setContinuationToken(undefined)
+    setAllObjects([])
+    setAllFolders([])
+    setAllVersions([])
+  }, [tab])
 
   const handleToastDismiss = () => setToastData(null)
 
@@ -136,7 +149,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       delimiter: "/",
       maxKeys: 1000,
       continuationToken,
-      showVersions: showDeletedFiles, // Load versions when showing deleted files
+      showVersions: tab === "deleted", // Load versions when showing deleted tab
     },
     {
       enabled: !!projectId,
@@ -146,7 +159,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   // Update accumulated data when new data arrives
   useEffect(() => {
     if (data) {
-      if (showDeletedFiles && data.versions) {
+      if (tab === "deleted" && data.versions) {
         // When showing deleted files, use versions array
         const actualVersions = data.versions.filter((ver) => {
           const stripped = currentPrefix ? ver.key.replace(currentPrefix, "") : ver.key
@@ -177,7 +190,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       }
       setHasMore(data.isTruncated ?? false)
     }
-  }, [data, continuationToken, currentPrefix, showDeletedFiles])
+  }, [data, continuationToken, currentPrefix, tab])
 
   const navigateToPrefix = (prefix: string) => {
     // Reset pagination when navigating
@@ -225,7 +238,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   // When showing deleted files: show the last real version before delete marker (the version we can restore)
   const deletedFilesList = (() => {
-    if (!showDeletedFiles) return []
+    if (tab !== "deleted") return []
 
     // Group versions by key
     const versionsByKey = allVersions.reduce((acc: Record<string, S3ObjectVersion[]>, version: S3ObjectVersion) => {
@@ -260,12 +273,12 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     return deletedFiles.filter((v) => stripPrefix(v.key).toLowerCase().includes(searchParam.toLowerCase().trim()))
   })()
 
-  const totalItemCount = showDeletedFiles
-    ? deletedFilesList.length + allFolders.length
-    : allObjects.length + allFolders.length
-  const filteredItemCount = showDeletedFiles
-    ? deletedFilesList.length + filteredFolders.length
-    : filteredObjects.length + filteredFolders.length
+  const totalItemCount =
+    tab === "deleted" ? deletedFilesList.length + allFolders.length : allObjects.length + allFolders.length
+  const filteredItemCount =
+    tab === "deleted"
+      ? deletedFilesList.length + filteredFolders.length
+      : filteredObjects.length + filteredFolders.length
 
   // Sort
   const sortedObjects = !sortBy
@@ -359,26 +372,23 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   return (
     <div className="relative">
-      {/* Bucket header with versioning status badge */}
-      <div className="mb-4 flex items-center justify-between">
-        <Stack direction="horizontal" gap="3" alignment="center">
-          <h1 className="text-theme-high text-3xl font-bold">{bucketName}</h1>
-          {versioningStatus && versioningStatus.status === "Enabled" && (
-            <Badge variant="success">
-              <Trans>Versioning Enabled</Trans>
-            </Badge>
-          )}
-          {versioningStatus && versioningStatus.status === "Suspended" && (
-            <Badge variant="warning">
-              <Trans>Versioning Suspended</Trans>
-            </Badge>
-          )}
-          {policyData?.policy && (
-            <Badge variant="info">
-              <Trans>Policy</Trans>
-            </Badge>
-          )}
-        </Stack>
+      {/* Versioning and Policy status badges */}
+      <div className="mb-4 flex items-center gap-3">
+        {versioningStatus && versioningStatus.status === "Enabled" && (
+          <Badge variant="success">
+            <Trans>Versioning Enabled</Trans>
+          </Badge>
+        )}
+        {versioningStatus && versioningStatus.status === "Suspended" && (
+          <Badge variant="warning">
+            <Trans>Versioning Suspended</Trans>
+          </Badge>
+        )}
+        {policyData?.policy && (
+          <Badge variant="info">
+            <Trans>Policy</Trans>
+          </Badge>
+        )}
       </div>
 
       <ObjectsFileNavigation
@@ -389,8 +399,34 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       />
 
       <Stack direction="vertical">
-        {/* Zone 1 — sort controls and the primary action (plain Stack, no background) */}
-        <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+        {/* Tabs row (shown only when versioning is enabled/suspended) */}
+        {versioningStatus && versioningStatus.status !== "Unversioned" && (
+          <div className="pb-2">
+            <TabNavigation>
+              <TabNavigationItem
+                label={t`All`}
+                active={tab === "all"}
+                onClick={() => {
+                  navigate({
+                    search: (prev) => ({ ...prev, tab: "all" }),
+                  })
+                }}
+              />
+              <TabNavigationItem
+                label={t`Deleted`}
+                active={tab === "deleted"}
+                onClick={() => {
+                  navigate({
+                    search: (prev) => ({ ...prev, tab: "deleted" }),
+                  })
+                }}
+              />
+            </TabNavigation>
+          </div>
+        )}
+
+        {/* Zone 1 — sort controls and page-level actions */}
+        <Stack distribution="between" alignment="center" gap="2" className="pb-2">
           <Stack gap="0.5" alignment="center">
             <SortInput
               options={sortSettings.options}
@@ -403,43 +439,37 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
             />
           </Stack>
-          <PopupMenu>
-            <PopupMenuToggle as="div">
-              <Button icon="moreVert" />
-            </PopupMenuToggle>
-            <PopupMenuOptions>
-              {versioningStatus && versioningStatus.status !== "Unversioned" && (
-                <PopupMenuItem
-                  label={showDeletedFiles ? t`Show current files` : t`Show deleted files`}
-                  onClick={() => {
-                    setShowDeletedFiles(!showDeletedFiles)
-                    setContinuationToken(undefined)
-                    setAllObjects([])
-                    setAllFolders([])
-                    setAllVersions([])
-                  }}
-                />
-              )}
-              {versioningStatus &&
-                (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
-                  <PopupMenuItem label={t`Enable Versioning`} onClick={() => setIsEnableVersioningModalOpen(true)} />
+          <Stack gap="2" alignment="center">
+            <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
+              <Trans>Create Folder</Trans>
+            </Button>
+            <Button
+              variant={policyData?.policy ? "subdued" : "primary"}
+              className="whitespace-nowrap"
+              onClick={() => setIsPolicyModalOpen(true)}
+            >
+              {policyData?.policy ? <Trans>View Policy</Trans> : <Trans>Add Policy</Trans>}
+            </Button>
+            <PopupMenu>
+              <PopupMenuToggle as="div">
+                <Button icon="moreVert" />
+              </PopupMenuToggle>
+              <PopupMenuOptions>
+                {versioningStatus &&
+                  (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
+                    <PopupMenuItem label={t`Enable Versioning`} onClick={() => setIsEnableVersioningModalOpen(true)} />
+                  )}
+                {versioningStatus && versioningStatus.status === "Enabled" && (
+                  <PopupMenuItem label={t`Suspend Versioning`} onClick={() => setIsSuspendVersioningModalOpen(true)} />
                 )}
-              {versioningStatus && versioningStatus.status === "Enabled" && (
-                <PopupMenuItem label={t`Suspend Versioning`} onClick={() => setIsSuspendVersioningModalOpen(true)} />
-              )}
-              {!policyData?.policy ? (
-                <PopupMenuItem label={t`Add Policy`} onClick={() => setIsPolicyModalOpen(true)} />
-              ) : (
-                <>
-                  <PopupMenuItem label={t`Edit/View Policy`} onClick={() => setIsPolicyModalOpen(true)} />
+                {policyData?.policy && (
                   <PopupMenuItem label={t`Delete Policy`} onClick={() => setIsDeletePolicyModalOpen(true)} />
-                </>
-              )}
-            </PopupMenuOptions>
-          </PopupMenu>
-          <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
-            <Trans>Create Folder</Trans>
-          </Button>
+                )}
+                <PopupMenuItem label={t`Empty Bucket`} onClick={() => setIsEmptyBucketModalOpen(true)} />
+                <PopupMenuItem label={t`Delete Bucket`} onClick={() => setIsDeleteBucketModalOpen(true)} />
+              </PopupMenuOptions>
+            </PopupMenu>
+          </Stack>
         </Stack>
 
         {/* Zone 2 — debounced search. DataGridToolbar provides the background. */}
@@ -493,7 +523,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         objects={sortedObjects}
         folders={sortedFolders}
         versions={deletedFilesList}
-        showingVersions={showDeletedFiles}
+        showingVersions={tab === "deleted"}
         currentPrefix={currentPrefix}
         versioningEnabled={versioningStatus?.status === "Enabled"}
         onFolderClick={navigateToPrefix}
@@ -590,6 +620,63 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         }}
         onError={() => {
           setIsDeletePolicyModalOpen(false)
+        }}
+      />
+
+      <EmptyBucketModal
+        isOpen={isEmptyBucketModalOpen}
+        bucket={{
+          name: bucketName,
+          count: 0, // We don't have these stats in this context
+          bytes: 0,
+        }}
+        onClose={() => setIsEmptyBucketModalOpen(false)}
+        onSuccess={(bucketName, deletedCount) => {
+          setIsEmptyBucketModalOpen(false)
+          setToastData({
+            variant: "success",
+            children: t`Successfully emptied bucket "${bucketName}". ${deletedCount} objects deleted.`,
+          })
+        }}
+        onError={(bucketName, errorMessage) => {
+          setIsEmptyBucketModalOpen(false)
+          setToastData({
+            variant: "error",
+            children: t`Failed to empty bucket "${bucketName}": ${errorMessage}`,
+          })
+        }}
+      />
+
+      <DeleteBucketModal
+        isOpen={isDeleteBucketModalOpen}
+        bucket={{
+          name: bucketName,
+          count: 0,
+          bytes: 0,
+        }}
+        onClose={() => setIsDeleteBucketModalOpen(false)}
+        onSuccess={(bucketName) => {
+          setIsDeleteBucketModalOpen(false)
+          setToastData({
+            variant: "success",
+            children: t`Successfully deleted bucket "${bucketName}".`,
+          })
+          // Navigate back to buckets list
+          navigate({
+            to: "/projects/$projectId/storage/$provider/$storageType",
+            params: {
+              projectId: projectId ?? "",
+              provider: (provider as string) ?? "ceph",
+              storageType: (storageType as string) ?? "buckets",
+            },
+          })
+        }}
+        onError={(bucketName, errorMessage) => {
+          setIsDeleteBucketModalOpen(false)
+          setToastData({
+            variant: "error",
+            children: t`Failed to delete bucket "${bucketName}": ${errorMessage}`,
+          })
         }}
       />
 

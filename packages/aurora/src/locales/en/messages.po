@@ -262,6 +262,9 @@ msgstr "Add Tenant Access"
 msgid "After restoring, this version's content will become the new latest version."
 msgstr "After restoring, this version's content will become the new latest version."
 
+msgid "All"
+msgstr "All"
+
 msgid "All buckets"
 msgstr "All buckets"
 
@@ -1048,9 +1051,6 @@ msgstr "Edit Metadata"
 msgid "Edit Security Group"
 msgstr "Edit Security Group"
 
-msgid "Edit/View Policy"
-msgstr "Edit/View Policy"
-
 msgid "Efficient bulk deletion"
 msgstr "Efficient bulk deletion"
 
@@ -1285,6 +1285,9 @@ msgstr "Failed to delete {failedCount} of {totalCount} image(s). Some images may
 msgid "Failed to Delete Bucket"
 msgstr "Failed to Delete Bucket"
 
+msgid "Failed to delete bucket \"{bucketName}\": {errorMessage}"
+msgstr "Failed to delete bucket \"{bucketName}\": {errorMessage}"
+
 msgid "Failed to Delete Container"
 msgstr "Failed to Delete Container"
 
@@ -1323,6 +1326,9 @@ msgstr "Failed to Download"
 
 msgid "Failed to Empty Bucket"
 msgstr "Failed to Empty Bucket"
+
+msgid "Failed to empty bucket \"{bucketName}\": {errorMessage}"
+msgstr "Failed to empty bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Failed to Empty Container"
 msgstr "Failed to Empty Container"
@@ -2761,12 +2767,6 @@ msgstr "Sharing Details"
 msgid "Show ACLs Preview"
 msgstr "Show ACLs Preview"
 
-msgid "Show current files"
-msgstr "Show current files"
-
-msgid "Show deleted files"
-msgstr "Show deleted files"
-
 msgid "Show Details"
 msgstr "Show Details"
 
@@ -2866,11 +2866,17 @@ msgstr "Successfully deactivated {successCount} of {totalCount} image(s)"
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "Successfully deleted {successCount} of {totalCount} image(s)"
 
+msgid "Successfully deleted bucket \"{bucketName}\"."
+msgstr "Successfully deleted bucket \"{bucketName}\"."
+
 msgid "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
 msgstr "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
 
 msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
 msgstr "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
+
+msgid "Successfully emptied bucket \"{bucketName}\". {deletedCount} objects deleted."
+msgstr "Successfully emptied bucket \"{bucketName}\". {deletedCount} objects deleted."
 
 msgid "Suggested Images"
 msgstr "Suggested Images"
@@ -3404,6 +3410,9 @@ msgstr "Versioning Suspended"
 
 msgid "View Details"
 msgstr "View Details"
+
+msgid "View Policy"
+msgstr "View Policy"
 
 msgid "View Versions"
 msgstr "View Versions"
