@@ -1,11 +1,11 @@
 import { test, expect, type Page } from "@playwright/test"
-import { loginAsTestUser } from "../helpers/auth"
 import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "../helpers/test-helpers"
 
 /**
  * Project Detail View Tests
  *
  * Tests the project detail page service cards, breadcrumb behaviour, and cursor states.
+ * Authentication state is provided by global setup (storageState.json).
  *
  * Requires TEST_PROJECT environment variable to specify which project to test.
  *
@@ -15,7 +15,10 @@ test.describe("Project Detail View", () => {
   const testProject = process.env.TEST_PROJECT || "demo"
 
   async function navigateToProject(page: Page) {
-    const errors = await loginAsTestUser(page)
+    const errors = setupErrorTracking(page)
+
+    // Navigate to projects (already authenticated via storageState)
+    await page.goto("/projects")
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
 
