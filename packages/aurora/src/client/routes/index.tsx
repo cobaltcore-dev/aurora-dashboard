@@ -123,14 +123,8 @@ export function AuthLoginPage() {
         error.data.code === "UNAUTHORIZED"
 
       let errorMessage: string
-      if (
-        isTRPCUnauthorized &&
-        error &&
-        typeof error === "object" &&
-        "message" in error &&
-        typeof error.message === "string"
-      ) {
-        errorMessage = error.message || t`Invalid credentials. Please check your domain, username, and password.`
+      if (isTRPCUnauthorized) {
+        errorMessage = t`Invalid credentials. Please check your domain, username, and password.`
       } else {
         errorMessage =
           error && typeof error === "object" && "message" in error && typeof error.message === "string"

@@ -1,5 +1,5 @@
 import { useNavigate, useMatches, useParams, useRouteContext } from "@tanstack/react-router"
-import { useState, useEffect, useRef, memo } from "react"
+import { useMemo } from "react"
 import {
   SideNavigation,
   SideNavigationList,
@@ -18,7 +18,7 @@ interface SideNavBarProps {
   sections: NavSection[]
 }
 
-const SideNavBarComponent = ({ projectId, projectName, domainName, sections }: SideNavBarProps) => {
+export const SideNavBar = ({ projectId, projectName, domainName, sections }: SideNavBarProps) => {
   const navigate = useNavigate()
   const matches = useMatches()
   const { provider } = useParams({ strict: false }) as { provider?: string }
@@ -35,28 +35,8 @@ const SideNavBarComponent = ({ projectId, projectName, domainName, sections }: S
   const activeSection = activeRouteInfo?.section ?? null
   const activeService = activeRouteInfo?.service ?? null
 
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(sections.map((s) => [s.section, true]))
-  )
-  const prevSectionRef = useRef<string | null>(null)
-  const mountedRef = useRef(false)
-
-  useEffect(() => {
-    const prev = prevSectionRef.current
-    prevSectionRef.current = activeSection
-    const wasMounted = mountedRef.current
-    mountedRef.current = true
-    // Skip on initial mount: all sections start open, Juno initializes correctly from the open prop.
-    // Only re-open when navigating to a section that Juno may have internally collapsed.
-    if (!wasMounted) return
-    if (activeSection && activeSection !== prev && activeSection in openSections) {
-      // Set false first, then true in the next tick so Juno's useEffect([open]) sees the change
-      // even if the section was already true in our state (Juno may have internally collapsed it).
-      setOpenSections((s) => ({ ...s, [activeSection]: false }))
-      const section = activeSection
-      setTimeout(() => setOpenSections((s) => ({ ...s, [section]: true })), 0)
-    }
-  }, [activeSection])
+  // Keep all sections open at all times
+  const openSections = useMemo(() => Object.fromEntries(sections.map((s) => [s.section, true])), [sections])
 
   return (
     <SideNavigation ariaLabel="Project Side Navigation">
@@ -74,7 +54,7 @@ const SideNavBarComponent = ({ projectId, projectName, domainName, sections }: S
             />
             <Divider spacing="1" />
             {sections.map(({ section, label, services }) => (
-              <SideNavigationGroup key={section} label={label} open={openSections[section]}>
+              <SideNavigationGroup key={`${section}-${activeSection}`} label={label} open={openSections[section]}>
                 {services.map((item) => {
                   const isStorageContainers = activeSection === "storage" && activeService === "containers"
                   const isSelected =
@@ -104,5 +84,3 @@ const SideNavBarComponent = ({ projectId, projectName, domainName, sections }: S
     </SideNavigation>
   )
 }
-
-export const SideNavBar = memo(SideNavBarComponent)
