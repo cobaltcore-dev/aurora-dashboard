@@ -3,18 +3,42 @@ import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import {
-  Modal,
-  Stack,
-  Textarea,
-  Select,
-  SelectOption,
-  Button,
-  Spinner,
-  Message,
-  Form,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Select, SelectOption, Button, Spinner, Message, Form } from "@cloudoperators/juno-ui-components"
+import { JsonEditor } from "@/client/components/JsonEditor"
 import { useProjectId } from "@/client/hooks/useProjectId"
+
+// Policy schema matching the backend validation (from server/Storage/types/ceph.ts)
+// Duplicated here to avoid importing server code into the client bundle
+// Using .strict() to reject unknown fields that would be stripped by the backend
+const bucketPolicyStatementSchema = z
+  .object({
+    Sid: z.string().optional(),
+    Effect: z.enum(["Allow", "Deny"]),
+    Principal: z.union([
+      z.string(),
+      z
+        .object({
+          AWS: z.union([z.string(), z.array(z.string())]).optional(),
+          Service: z.union([z.string(), z.array(z.string())]).optional(),
+          Federated: z.union([z.string(), z.array(z.string())]).optional(),
+        })
+        .strict(),
+    ]),
+    Action: z.union([z.string(), z.array(z.string())]),
+    Resource: z.union([z.string(), z.array(z.string())]),
+    Condition: z
+      .record(z.string(), z.record(z.string(), z.union([z.string(), z.array(z.string()), z.number(), z.boolean()])))
+      .optional(),
+  })
+  .strict()
+
+const bucketPolicyDocumentSchema = z
+  .object({
+    Version: z.string().default("2012-10-17"),
+    Id: z.string().optional(),
+    Statement: z.array(bucketPolicyStatementSchema).min(1, "Policy must contain at least one statement"),
+  })
+  .strict()
 
 interface BucketPolicyModalProps {
   isOpen: boolean
@@ -81,7 +105,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
-  // Form schema with JSON validation
+  // Form schema with policy validation using the same schema as the backend
   const formSchema = z.object({
     policyText: z
       .string()
@@ -90,13 +114,14 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       .refine(
         (value) => {
           try {
-            JSON.parse(value)
+            const parsed = JSON.parse(value)
+            bucketPolicyDocumentSchema.parse(parsed)
             return true
           } catch {
             return false
           }
         },
-        { message: t`Invalid JSON format` }
+        { message: t`Invalid policy structure` }
       ),
     selectedTemplate: z.string(),
   })
@@ -221,20 +246,31 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     return new Blob([policyTextValue]).size
   }, [policyTextValue])
 
-  // Validate JSON inline for immediate feedback
-  const jsonValidationError = useMemo(() => {
+  // Validate policy using the same schema as the backend
+  const policyValidationError = useMemo(() => {
     if (!policyTextValue.trim()) return null
     try {
-      JSON.parse(policyTextValue)
+      const parsed = JSON.parse(policyTextValue)
+      bucketPolicyDocumentSchema.parse(parsed)
       return null
     } catch (error) {
-      return error instanceof Error ? error.message : "Invalid JSON"
+      if (error instanceof SyntaxError) {
+        return error.message
+      }
+      if (error instanceof z.ZodError) {
+        const zodError = error as z.ZodError
+        const firstError = zodError.issues?.[0]
+        if (!firstError) return "Invalid policy structure"
+        const path = firstError.path?.length > 0 ? `${firstError.path.join(".")}: ` : ""
+        return `${path}${firstError.message}`
+      }
+      return "Invalid policy structure"
     }
   }, [policyTextValue])
 
   const isSaving = setMutation.isPending || isSubmitting
   const canSubmit =
-    !isSaving && !jsonValidationError && policyTextValue.trim().length > 0 && policySize <= MAX_POLICY_SIZE
+    !isSaving && !policyValidationError && policyTextValue.trim().length > 0 && policySize <= MAX_POLICY_SIZE
 
   const handleSave = () => {
     form.handleSubmit()
@@ -264,6 +300,12 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
         {policyError && (
           <Message variant="error" title={t`Failed to load policy`}>
             {policyError.message}
+          </Message>
+        )}
+
+        {setMutation.error && (
+          <Message variant="error" title={t`Failed to save policy`}>
+            {setMutation.error.message}
           </Message>
         )}
 
@@ -325,16 +367,16 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
                           </div>
                         )}
                       </div>
-                      <Textarea
+                      <JsonEditor
                         id={field.name}
                         name={field.name}
                         value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={field.handleChange}
                         onBlur={field.handleBlur}
-                        rows={15}
-                        className="font-mono text-xs"
+                        className="h-96"
                         disabled={isSaving}
                         placeholder={t`Enter bucket policy JSON...`}
+                        error={policyValidationError}
                       />
                       <div className="mt-1 flex items-center justify-between text-xs">
                         <span className={policySize > MAX_POLICY_SIZE ? "text-theme-error" : "text-theme-light"}>
@@ -342,7 +384,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
                             Size: {policySize} / {MAX_POLICY_SIZE} bytes
                           </Trans>
                         </span>
-                        {jsonValidationError && <span className="text-theme-error">{jsonValidationError}</span>}
+                        {policyValidationError && <span className="text-theme-error">{policyValidationError}</span>}
                       </div>
                     </>
                   )}
