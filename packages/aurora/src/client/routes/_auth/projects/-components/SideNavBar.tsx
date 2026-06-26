@@ -1,5 +1,5 @@
 import { useNavigate, useMatches, useParams, useRouteContext } from "@tanstack/react-router"
-import { useMemo } from "react"
+import { useState, useEffect } from "react"
 import {
   SideNavigation,
   SideNavigationList,
@@ -35,11 +35,18 @@ export const SideNavBar = ({ projectId, projectName, domainName, sections }: Sid
   const activeSection = activeRouteInfo?.section ?? null
   const activeService = activeRouteInfo?.service ?? null
 
-  // Only keep the active section open
-  const openSections = useMemo(
-    () => Object.fromEntries(sections.map((s) => [s.section, s.section === activeSection])),
-    [sections, activeSection]
+  // Track which sections should be forced open by incrementing a counter
+  // This forces a remount of SideNavigationGroup since it doesn't expose onToggle
+  const [forceOpenCounter, setForceOpenCounter] = useState<Record<string, number>>(() =>
+    Object.fromEntries(sections.map((s) => [s.section, 0]))
   )
+
+  // When navigating to a section, force it to expand by remounting
+  useEffect(() => {
+    if (activeSection) {
+      setForceOpenCounter((prev) => ({ ...prev, [activeSection]: (prev[activeSection] || 0) + 1 }))
+    }
+  }, [activeSection])
 
   return (
     <SideNavigation ariaLabel="Project Side Navigation">
@@ -57,7 +64,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, sections }: Sid
             />
             <Divider spacing="1" />
             {sections.map(({ section, label, services }) => (
-              <SideNavigationGroup key={`${section}-${activeSection}`} label={label} open={openSections[section]}>
+              <SideNavigationGroup key={`${section}-${forceOpenCounter[section]}`} label={label} open={true}>
                 {services.map((item) => {
                   const isStorageContainers = activeSection === "storage" && activeService === "containers"
                   const isSelected =
