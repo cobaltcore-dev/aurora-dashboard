@@ -141,7 +141,7 @@ describe("AuthProvider", () => {
       expect(useRouter().invalidate).toHaveBeenCalled()
     })
 
-    it("should show modal on inactive logout", async () => {
+    it("should invalidate router on inactive logout (no modal)", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -159,9 +159,10 @@ describe("AuthProvider", () => {
         await result.current.logout("inactive")
       })
 
-      expect(result.current.showInactivityModal).toBe(true)
+      expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.logoutReason).toBe("inactive")
-      expect(result.current.redirectAfterModal).toBe("/dashboard")
+      expect(result.current.showInactivityModal).toBe(false)
+      expect(useRouter().invalidate).toHaveBeenCalled()
     })
 
     it("should show modal on expired logout", async () => {
@@ -187,8 +188,8 @@ describe("AuthProvider", () => {
     })
   })
 
-  describe("Inactivity Timer", () => {
-    it("should logout user after 60 minutes of inactivity", async () => {
+  describe("Inactivity Timer (removed)", () => {
+    it("should NOT logout user after 60 minutes of inactivity", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -204,17 +205,16 @@ describe("AuthProvider", () => {
 
       expect(result.current.isAuthenticated).toBe(true)
 
-      // Fast-forward 60 minutes
+      // Fast-forward 60 minutes — should still be authenticated (inactivity timeout removed)
       await act(async () => {
         vi.advanceTimersByTime(60 * 60 * 1000)
       })
 
-      expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.logoutReason).toBe("inactive")
-      expect(result.current.showInactivityModal).toBe(true)
+      expect(result.current.isAuthenticated).toBe(true)
+      expect(result.current.logoutReason).toBeUndefined()
     })
 
-    it("should reset inactivity timer on user activity", async () => {
+    it("should NOT reset inactivity timer on user activity (timer removed)", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -230,7 +230,7 @@ describe("AuthProvider", () => {
 
       expect(result.current.isAuthenticated).toBe(true)
 
-      // Advance 30 minutes
+      // Advance 90 minutes with various activity events
       await act(async () => {
         vi.advanceTimersByTime(30 * 60 * 1000)
       })
@@ -240,24 +240,16 @@ describe("AuthProvider", () => {
         document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
       })
 
-      // Advance another 30 minutes (total 60, but timer was reset)
       await act(async () => {
-        vi.advanceTimersByTime(30 * 60 * 1000)
+        vi.advanceTimersByTime(60 * 60 * 1000)
       })
 
-      // Should still be authenticated (only 30 min since last activity)
+      // Should still be authenticated — inactivity timer removed
       expect(result.current.isAuthenticated).toBe(true)
-
-      // Advance full 60 minutes from last activity
-      await act(async () => {
-        vi.advanceTimersByTime(30 * 60 * 1000)
-      })
-
-      expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.logoutReason).toBe("inactive")
+      expect(result.current.logoutReason).toBeUndefined()
     })
 
-    it("should detect various activity events", async () => {
+    it("should NOT detect various activity events (timer removed)", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -433,7 +425,7 @@ describe("AuthProvider", () => {
   })
 
   describe("Inactivity Modal", () => {
-    it("should close modal and navigate to login", async () => {
+    it("should close modal and navigate to login (expired logout only)", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -448,7 +440,7 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("inactive")
+        await result.current.logout("expired")
       })
 
       expect(result.current.showInactivityModal).toBe(true)
