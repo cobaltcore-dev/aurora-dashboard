@@ -1414,6 +1414,9 @@ msgstr "Failed to remove tenant access from flavor. Please try again."
 msgid "Failed to restore version: {errorMessage}"
 msgstr "Failed to restore version: {errorMessage}"
 
+msgid "Failed to save policy"
+msgstr "Failed to save policy"
+
 msgid "Failed to Update Access Control"
 msgstr "Failed to Update Access Control"
 
@@ -1732,8 +1735,8 @@ msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
 msgid "Invalid format combination for selected disk format"
 msgstr "Invalid format combination for selected disk format"
 
-msgid "Invalid JSON format"
-msgstr "Invalid JSON format"
+msgid "Invalid policy structure"
+msgstr "Invalid policy structure"
 
 msgid "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)"
 msgstr "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)"
