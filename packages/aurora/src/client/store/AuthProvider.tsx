@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       to: "/",
       search: redirectAfterModal ? { redirect: redirectAfterModal } : undefined,
     })
-  }, [redirectAfterModal])
+  }, [router, redirectAfterModal])
 
   const logout = useCallback(
     async (reason: "inactive" | "expired" | "manual" = "manual") => {
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.invalidate()
       }
     },
-    [clearLogoutTimer]
+    [router, clearLogoutTimer]
   )
 
   const login = useCallback(async (user: User, expires_at?: string) => {
