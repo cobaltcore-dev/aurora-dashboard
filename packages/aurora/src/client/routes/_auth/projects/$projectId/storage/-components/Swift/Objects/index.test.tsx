@@ -667,9 +667,8 @@ describe("SwiftObjects (index)", () => {
   })
 
   describe("Bulk actions menu", () => {
-    // The bulk Delete control is no longer a standalone "Delete All (N)" button.
-    // Selecting objects enables the Zone 3 "Actions" toggle; the Delete item lives
-    // inside that popup and is labeled singular/plural (no numeric count).
+    // The bulk Delete control lives inside the Zone 3 "Actions" popup menu,
+    // labelled with the live selection count: "Delete 1 Object" / "Delete N Objects".
     const openActionsMenu = async (user: ReturnType<typeof userEvent.setup>) => {
       await user.click(screen.getByRole("button", { name: /Actions/i }))
     }
@@ -687,7 +686,7 @@ describe("SwiftObjects (index)", () => {
     test("no Delete item is reachable when no objects are selected", () => {
       renderObjects()
       expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
-      expect(screen.queryByText(/^Delete Object/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/^Delete \d+ Object/)).not.toBeInTheDocument()
     })
 
     test("passes selectedObjects and setSelectedObjects to ObjectsTableView", () => {
@@ -701,7 +700,7 @@ describe("SwiftObjects (index)", () => {
       await user.click(screen.getByTestId("simulate-select-object"))
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await openActionsMenu(user)
-      expect(await screen.findByText("Delete Object")).toBeInTheDocument()
+      expect(await screen.findByText("Delete 1 Object")).toBeInTheDocument()
     })
 
     test("Delete item label becomes plural as more objects are selected", async () => {
@@ -710,7 +709,7 @@ describe("SwiftObjects (index)", () => {
       await user.click(screen.getByTestId("simulate-select-two"))
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await openActionsMenu(user)
-      expect(await screen.findByText("Delete Objects")).toBeInTheDocument()
+      expect(await screen.findByText("Delete 2 Objects")).toBeInTheDocument()
     })
 
     test("Actions button returns to disabled after deselecting all", async () => {
@@ -730,7 +729,7 @@ describe("SwiftObjects (index)", () => {
       await user.click(screen.getByTestId("simulate-select-object"))
       await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
       await user.click(screen.getByRole("button", { name: /Actions/i }))
-      await user.click(await screen.findByText("Delete Object"))
+      await user.click(await screen.findByText("Delete 1 Object"))
     }
 
     test("modal is not visible by default", () => {

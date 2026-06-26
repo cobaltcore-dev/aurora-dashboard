@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, Fragment } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { t } from "@lingui/core/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -15,6 +15,10 @@ import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
+  Message,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 
@@ -313,8 +317,8 @@ export const ManageContainerAccessModal = ({
 
   const modalTitle = (
     <span className="flex items-center gap-2">
-      <Trans>Access Control for container:</Trans>
-      <span className="max-w-[250px] truncate font-mono" title={container.name}>
+      <Trans>Access Control for Container:</Trans>
+      <span className="max-w-[250px] truncate" title={container.name}>
         {container.name}
       </span>
     </span>
@@ -342,18 +346,12 @@ export const ManageContainerAccessModal = ({
       <div className="max-h-[70vh] overflow-y-auto pr-1 pl-1">
         {/* ── Info message ─────────────────────────────────────────────────── */}
         <div className="mb-4">
-          <p className="text-theme-default mb-2">
+          <Message variant="warning" className="mb-4">
             <Trans>
-              Before proceeding, ensure that the Project ID and User ID you enter are correct. The system cannot
-              validate these values, and incorrect IDs may apply access to wrong projects and users.
+              Ensure that the Project ID and User ID you enter are correct. The system cannot validate these values —
+              incorrect IDs may apply access to wrong projects and users.
             </Trans>
-          </p>
-          <p className="text-theme-default">
-            <Trans>
-              ACL entries control who can read from or write to this container. Multiple entries are comma-separated.
-              Changes take effect immediately after saving.
-            </Trans>
-          </p>
+          </Message>
         </div>
 
         {isLoading ? (
@@ -382,7 +380,7 @@ export const ManageContainerAccessModal = ({
                       onChange={handleReadAclChange}
                       disabled={isBusy || publicRead}
                       placeholder={t`e.g. .r:*,.rlistings`}
-                      className="font-mono text-sm"
+                      className="text-sm"
                       rows={3}
                     />
                     <Checkbox
@@ -405,7 +403,7 @@ export const ManageContainerAccessModal = ({
                       }}
                       disabled={isBusy}
                       placeholder={t`e.g. PROJECT_ID:USER_ID`}
-                      className="font-mono text-sm"
+                      className="text-sm"
                       rows={3}
                     />
                   </div>
@@ -417,6 +415,7 @@ export const ManageContainerAccessModal = ({
                       onClick={() => setShowPreview((v) => !v)}
                       variant="subdued"
                       disabled={isBusy}
+                      className="self-start"
                     />
                   )}
 
@@ -426,31 +425,32 @@ export const ManageContainerAccessModal = ({
                       {parsedReadEntries.length > 0 && (
                         <div>
                           <p className="text-theme-default mb-2 text-sm font-semibold">
-                            <Trans>Read ACLs</Trans>
+                            <Trans>Read ACLs — Preview</Trans>
                           </p>
-                          <div className="border-theme-background-lvl-3 divide-theme-background-lvl-3 divide-y rounded border">
-                            {parsedReadEntries.map((entry, i) => (
-                              <div key={i} className="flex flex-col gap-1 px-3 py-2">
-                                <div className="flex items-center justify-between gap-3">
-                                  <p
-                                    className="text-theme-default min-w-0 truncate text-sm font-medium"
-                                    title={aclEntryLabel(entry)}
-                                  >
-                                    {aclEntryLabel(entry)}
-                                  </p>
-                                  <p className="text-theme-light shrink-0 text-xs">
-                                    {entry.requiresToken ? (
-                                      <Trans>valid token required: true</Trans>
-                                    ) : (
-                                      <Trans>valid token required: false</Trans>
-                                    )}
-                                  </p>
-                                </div>
-                                <code className="text-theme-light bg-theme-background-lvl-2 block w-full rounded px-2 py-1 font-mono text-xs break-all">
-                                  {entry.raw}
-                                </code>
-                              </div>
-                            ))}
+                          <div className="border-theme-background-lvl-3 rounded border p-3">
+                            <DescriptionList className="grid-cols-2" alignTerms="left">
+                              {parsedReadEntries.map((entry, i) => (
+                                <Fragment key={i}>
+                                  <DescriptionTerm className="col-span-1">
+                                    <span className="block truncate text-xs" title={entry.raw}>
+                                      {entry.raw}
+                                    </span>
+                                  </DescriptionTerm>
+                                  <DescriptionDefinition className="col-span-1">
+                                    <span className="block truncate text-sm" title={aclEntryLabel(entry)}>
+                                      {aclEntryLabel(entry)}
+                                    </span>
+                                    <span className="text-theme-light block text-xs">
+                                      {entry.requiresToken ? (
+                                        <Trans>valid token required: true</Trans>
+                                      ) : (
+                                        <Trans>valid token required: false</Trans>
+                                      )}
+                                    </span>
+                                  </DescriptionDefinition>
+                                </Fragment>
+                              ))}
+                            </DescriptionList>
                           </div>
                         </div>
                       )}
@@ -458,27 +458,32 @@ export const ManageContainerAccessModal = ({
                       {parsedWriteEntries.length > 0 && (
                         <div>
                           <p className="text-theme-default mb-2 text-sm font-semibold">
-                            <Trans>Write ACLs</Trans>
+                            <Trans>Write ACLs — Preview</Trans>
                           </p>
-                          <div className="border-theme-background-lvl-3 divide-theme-background-lvl-3 divide-y rounded border">
-                            {parsedWriteEntries.map((entry, i) => (
-                              <div key={i} className="flex flex-col gap-1 px-3 py-2">
-                                <div className="flex items-center justify-between gap-3">
-                                  <p
-                                    className="text-theme-default min-w-0 truncate text-sm font-medium"
-                                    title={aclEntryLabel(entry)}
-                                  >
-                                    {aclEntryLabel(entry)}
-                                  </p>
-                                  <p className="text-theme-light shrink-0 text-xs">
-                                    <Trans>valid token required: true</Trans>
-                                  </p>
-                                </div>
-                                <code className="text-theme-light bg-theme-background-lvl-2 block w-full rounded px-2 py-1 font-mono text-xs break-all">
-                                  {entry.raw}
-                                </code>
-                              </div>
-                            ))}
+                          <div className="border-theme-background-lvl-3 rounded border p-3">
+                            <DescriptionList className="grid-cols-2" alignTerms="left">
+                              {parsedWriteEntries.map((entry, i) => (
+                                <Fragment key={i}>
+                                  <DescriptionTerm className="col-span-1">
+                                    <span className="block truncate text-xs" title={entry.raw}>
+                                      {entry.raw}
+                                    </span>
+                                  </DescriptionTerm>
+                                  <DescriptionDefinition className="col-span-1">
+                                    <span className="block truncate text-sm" title={aclEntryLabel(entry)}>
+                                      {aclEntryLabel(entry)}
+                                    </span>
+                                    <span className="text-theme-light block text-xs">
+                                      {entry.requiresToken ? (
+                                        <Trans>valid token required: true</Trans>
+                                      ) : (
+                                        <Trans>valid token required: false</Trans>
+                                      )}
+                                    </span>
+                                  </DescriptionDefinition>
+                                </Fragment>
+                              ))}
+                            </DescriptionList>
                           </div>
                         </div>
                       )}
@@ -531,6 +536,13 @@ export const ManageContainerAccessModal = ({
             </div>
           </>
         )}
+
+        {/* Note shown at the bottom of the modal body, just above the Save button */}
+        {!isLoading && !isMetaError && (
+          <p className="text-theme-light mt-4 text-xs">
+            <Trans>Changes take effect immediately after saving.</Trans>
+          </p>
+        )}
       </div>
     </Modal>
   )
@@ -546,7 +558,7 @@ interface AclExampleProps {
 function AclExample({ code, description }: AclExampleProps) {
   return (
     <div>
-      <Badge variant="info" className="mb-1 font-mono text-xs">
+      <Badge variant="info" className="mb-1 text-xs">
         {code}
       </Badge>
       <p className="text-theme-light text-xs leading-relaxed">{description}</p>

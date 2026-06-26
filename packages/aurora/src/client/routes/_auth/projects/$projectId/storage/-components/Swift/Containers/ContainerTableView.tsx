@@ -101,17 +101,6 @@ export const ContainerTableView = ({
     overscan: 10,
   })
 
-  const selectedSet = new Set(selectedContainers)
-  const allSelected = containers.length > 0 && containers.every((c) => selectedSet.has(c.name))
-
-  const handleSelectAll = () => {
-    if (allSelected) {
-      setSelectedContainers([])
-    } else {
-      setSelectedContainers(containers.map((c) => c.name))
-    }
-  }
-
   const handleSelectContainer = (containerName: string) => {
     if (selectedContainers.includes(containerName)) {
       setSelectedContainers(selectedContainers.filter((name) => name !== containerName))
@@ -171,11 +160,7 @@ export const ContainerTableView = ({
             data-testid="containers-table-header"
           >
             <DataGridRow>
-              {hasAnyBulkAction && (
-                <DataGridHeadCell>
-                  <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-containers" />
-                </DataGridHeadCell>
-              )}
+              {hasAnyBulkAction && <DataGridHeadCell />}
               <DataGridHeadCell>
                 <Trans>Container Name</Trans>
               </DataGridHeadCell>

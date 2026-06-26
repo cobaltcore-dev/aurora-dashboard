@@ -159,6 +159,8 @@ describe("GenerateTempUrlModal", () => {
     test("shows object displayName in modal title", () => {
       renderModal()
       expect(screen.getByTitle("report.pdf")).toBeInTheDocument()
+      // Title prefix is "Share URL:" per finding 1
+      expect(screen.getByText(/Share URL:/i)).toBeInTheDocument()
     })
   })
 
@@ -381,6 +383,35 @@ describe("GenerateTempUrlModal", () => {
       expect(screen.getByText(/No Temp URL key configured/i)).toBeInTheDocument()
     })
 
+    test("no-key warning is rendered as a Message component", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.click(screen.getByRole("button", { name: /Generate URL/i }))
+      await act(async () => {
+        capturedMutateOpts.onError?.({
+          message: "Temp URL key not configured for this account or container",
+          data: { code: "BAD_REQUEST" },
+        })
+      })
+      // Juno Message renders as a div with class "juno-message" — no ARIA role
+      const warningEl = screen.getByText(/No Temp URL key configured/i).closest(".juno-message")
+      expect(warningEl).toBeInTheDocument()
+      expect(warningEl).toHaveClass("juno-message-warning")
+    })
+
+    test("Generate URL button is disabled when no-key error is active", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.click(screen.getByRole("button", { name: /Generate URL/i }))
+      await act(async () => {
+        capturedMutateOpts.onError?.({
+          message: "Temp URL key not configured for this account or container",
+          data: { code: "BAD_REQUEST" },
+        })
+      })
+      expect(screen.getByRole("button", { name: /Generate URL/i })).toBeDisabled()
+    })
+
     test("no-key warning references both meta header names", async () => {
       const user = userEvent.setup()
       renderModal()
@@ -492,20 +523,20 @@ describe("GenerateTempUrlModal", () => {
   // ── Close / reset ───────────────────────────────────────────────────────────
 
   describe("Close and reset", () => {
-    test("calls onClose when the footer Close button is clicked", async () => {
+    test("calls onClose when the footer Cancel button is clicked", async () => {
       const user = userEvent.setup()
       const onClose = vi.fn()
       renderModal({ onClose })
-      // The modal footer button has text "Close"; the header icon button has aria-label="close".
-      // Exact case match on "Close" targets only the footer button.
-      await user.click(screen.getByRole("button", { name: "Close" }))
+      // The modal footer button has text "Cancel"; the header icon button has aria-label="close".
+      // Exact case match on "Cancel" targets only the footer button.
+      await user.click(screen.getByRole("button", { name: "Cancel" }))
       expect(onClose).toHaveBeenCalled()
     })
 
-    test("does not call mutate when Close is clicked without generating", async () => {
+    test("does not call mutate when Cancel is clicked without generating", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.click(screen.getByRole("button", { name: "Close" }))
+      await user.click(screen.getByRole("button", { name: "Cancel" }))
       expect(trpcState.mutate).not.toHaveBeenCalled()
     })
   })

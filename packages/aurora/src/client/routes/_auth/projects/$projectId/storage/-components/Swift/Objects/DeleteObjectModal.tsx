@@ -103,7 +103,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
           <span className="shrink-0">
             <Trans>Delete object:</Trans>
           </span>
-          <span className="truncate font-mono" title={displayName}>
+          <span className="truncate" title={displayName}>
             {displayName}
           </span>
         </span>
@@ -136,8 +136,8 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">
             <Trans>
-              Object <span className="font-mono font-semibold">"{displayName}"</span> will be permanently deleted. This
-              cannot be undone.
+              Object <span className="font-semibold">"{displayName}"</span> will be permanently deleted. This cannot be
+              undone.
             </Trans>
           </p>
           {isSLO && (
