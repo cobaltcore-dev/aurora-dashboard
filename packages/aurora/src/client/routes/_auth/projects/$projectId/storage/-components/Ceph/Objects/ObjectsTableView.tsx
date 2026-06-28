@@ -8,12 +8,19 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  Badge,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import type { S3Object, S3FolderPrefix } from "@/server/Storage/types/ceph"
+import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
+
+// Extended version type for frontend use (includes isDeleted flag)
+type S3ObjectVersionExtended = S3ObjectVersion & {
+  isDeleted?: boolean // Flag for showing "Deleted" badge (file that can be restored)
+}
 import { DeleteObjectModal } from "./DeleteObjectModal"
+import { RestoreVersionModal } from "./RestoreVersionModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveObjectModal } from "./MoveObjectModal"
 import { EditMetadataModal } from "./EditMetadataModal"
@@ -27,7 +34,18 @@ type ObjectRow = {
   lastModified: string | undefined
   displayName: string
 }
-type CephRow = FolderRow | ObjectRow
+type VersionRow = {
+  kind: "version"
+  key: string
+  versionId: string
+  isLatest: boolean
+  isDeleteMarker: boolean
+  isDeleted?: boolean // Flag for showing "Deleted" badge (file that can be restored)
+  size: number
+  lastModified: string | undefined
+  displayName: string
+}
+type CephRow = FolderRow | ObjectRow | VersionRow
 
 // Define column template — 4 columns: name | size | last modified | actions
 const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(100px, 1fr) minmax(180px, 2fr) 60px"
@@ -36,8 +54,10 @@ interface ObjectsTableViewProps {
   bucketName: string
   objects: S3Object[]
   folders: S3FolderPrefix[]
+  versions?: S3ObjectVersionExtended[] // When showing all versions (extended with isDeleted flag)
   currentPrefix: string
   versioningEnabled?: boolean
+  showingVersions?: boolean // Flag to indicate we're in versions view mode
   onFolderClick: (prefix: string) => void
   onDeleteObjectSuccess: (objectKey: string) => void
   onDeleteObjectError: (objectKey: string, errorMessage: string) => void
@@ -55,8 +75,10 @@ export function ObjectsTableView({
   bucketName,
   objects,
   folders,
+  versions,
   currentPrefix,
   versioningEnabled = false,
+  showingVersions = false,
   onFolderClick,
   onDeleteObjectSuccess,
   onDeleteObjectError,
@@ -77,6 +99,12 @@ export function ObjectsTableView({
     size?: number
     lastModified?: string
   } | null>(null)
+  const [restoreTarget, setRestoreTarget] = useState<{
+    key: string
+    versionId: string
+    size?: number
+    lastModified?: string
+  } | null>(null)
   const [copyTarget, setCopyTarget] = useState<{
     key: string
     size?: number
@@ -91,25 +119,49 @@ export function ObjectsTableView({
   // Strip current prefix from display names
   const stripPrefix = (fullKey: string) => (currentPrefix ? fullKey.replace(currentPrefix, "") : fullKey)
 
-  // Build combined rows — folders first, then objects
-  const rows: CephRow[] = [
-    ...folders.map(
-      (f): FolderRow => ({
-        kind: "folder",
-        prefix: f.prefix,
-        displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
-      })
-    ),
-    ...objects.map(
-      (o): ObjectRow => ({
-        kind: "object",
-        key: o.key,
-        size: o.size,
-        lastModified: o.lastModified,
-        displayName: stripPrefix(o.key),
-      })
-    ),
-  ]
+  // Build combined rows — folders first, then objects or versions
+  const rows: CephRow[] =
+    showingVersions && versions
+      ? [
+          ...folders.map(
+            (f): FolderRow => ({
+              kind: "folder",
+              prefix: f.prefix,
+              displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
+            })
+          ),
+          ...versions.map(
+            (v): VersionRow => ({
+              kind: "version",
+              key: v.key,
+              versionId: v.versionId,
+              isLatest: v.isLatest,
+              isDeleteMarker: v.isDeleteMarker,
+              isDeleted: v.isDeleted, // Carry over the isDeleted flag
+              size: v.size,
+              lastModified: v.lastModified,
+              displayName: stripPrefix(v.key),
+            })
+          ),
+        ]
+      : [
+          ...folders.map(
+            (f): FolderRow => ({
+              kind: "folder",
+              prefix: f.prefix,
+              displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
+            })
+          ),
+          ...objects.map(
+            (o): ObjectRow => ({
+              kind: "object",
+              key: o.key,
+              size: o.size,
+              lastModified: o.lastModified,
+              displayName: stripPrefix(o.key),
+            })
+          ),
+        ]
 
   // Calculate scrollbar width to keep the fixed header aligned with the scrollable body
   useEffect(() => {
@@ -157,6 +209,7 @@ export function ObjectsTableView({
           objectKey={deleteTarget?.key ?? ""}
           objectSize={deleteTarget?.size}
           lastModified={deleteTarget?.lastModified}
+          versioningEnabled={versioningEnabled}
           isOpen={deleteTarget !== null}
           onClose={() => setDeleteTarget(null)}
           onSuccess={onDeleteObjectSuccess}
@@ -204,10 +257,12 @@ export function ObjectsTableView({
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
               const row = rows[virtualRow.index]
               const isFolder = row.kind === "folder"
+              const isVersion = row.kind === "version"
+              const isDeletedFile = isVersion && row.isDeleted // File that was deleted (can be restored)
 
               return (
                 <div
-                  key={isFolder ? row.prefix : row.key}
+                  key={isFolder ? row.prefix : isVersion ? `${row.key}-${row.versionId}` : row.key}
                   data-index={virtualRow.index}
                   ref={rowVirtualizer.measureElement}
                   className="juno-datagrid"
@@ -239,6 +294,11 @@ export function ObjectsTableView({
                       <div className="flex items-center gap-2">
                         <MdDescription size={18} className="text-theme-light shrink-0" />
                         <span className="truncate text-sm">{row.displayName}</span>
+                        {isDeletedFile && (
+                          <Badge variant="error">
+                            <Trans>Deleted</Trans>
+                          </Badge>
+                        )}
                       </div>
                     )}
                   </DataGridCell>
@@ -258,41 +318,62 @@ export function ObjectsTableView({
                   {/* Actions */}
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end">
-                      <PopupMenu>
-                        <PopupMenuOptions>
-                          {isFolder ? (
-                            <PopupMenuItem label={t`Delete`} onClick={() => setDeleteTarget({ key: row.prefix })} />
-                          ) : (
-                            <>
-                              {versioningEnabled && (
+                      {/* Don't show actions menu for folders in versions view mode */}
+                      {!(isFolder && showingVersions) && (
+                        <PopupMenu>
+                          <PopupMenuOptions>
+                            {isFolder ? (
+                              <PopupMenuItem label={t`Delete`} onClick={() => setDeleteTarget({ key: row.prefix })} />
+                            ) : isDeletedFile ? (
+                              // For deleted files, only show "Restore" action
+                              <PopupMenuItem
+                                label={t`Restore`}
+                                onClick={() => {
+                                  if (row.kind === "version") {
+                                    setRestoreTarget({
+                                      key: row.key,
+                                      versionId: row.versionId,
+                                      size: row.size,
+                                      lastModified: row.lastModified,
+                                    })
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <>
+                                {versioningEnabled && !isVersion && (
+                                  <PopupMenuItem
+                                    label={t`View Versions`}
+                                    onClick={() => setVersionHistoryTarget(row.key)}
+                                  />
+                                )}
                                 <PopupMenuItem
-                                  label={t`View Versions`}
-                                  onClick={() => setVersionHistoryTarget(row.key)}
+                                  label={t`Copy`}
+                                  onClick={() => setCopyTarget({ key: row.key, size: row.size })}
                                 />
-                              )}
-                              <PopupMenuItem
-                                label={t`Copy`}
-                                onClick={() => setCopyTarget({ key: row.key, size: row.size })}
-                              />
-                              <PopupMenuItem
-                                label={t`Move`}
-                                onClick={() => setMoveTarget({ key: row.key, size: row.size })}
-                              />
-                              <PopupMenuItem label={t`Edit Metadata`} onClick={() => setEditMetadataTarget(row.key)} />
-                              <PopupMenuItem
-                                label={t`Delete`}
-                                onClick={() =>
-                                  setDeleteTarget({
-                                    key: row.key,
-                                    size: row.size,
-                                    lastModified: row.lastModified,
-                                  })
-                                }
-                              />
-                            </>
-                          )}
-                        </PopupMenuOptions>
-                      </PopupMenu>
+                                <PopupMenuItem
+                                  label={t`Move`}
+                                  onClick={() => setMoveTarget({ key: row.key, size: row.size })}
+                                />
+                                <PopupMenuItem
+                                  label={t`Edit Metadata`}
+                                  onClick={() => setEditMetadataTarget(row.key)}
+                                />
+                                <PopupMenuItem
+                                  label={t`Delete`}
+                                  onClick={() =>
+                                    setDeleteTarget({
+                                      key: row.key,
+                                      size: row.size,
+                                      lastModified: row.lastModified,
+                                    })
+                                  }
+                                />
+                              </>
+                            )}
+                          </PopupMenuOptions>
+                        </PopupMenu>
+                      )}
                     </div>
                   </DataGridCell>
                 </div>
@@ -307,10 +388,29 @@ export function ObjectsTableView({
         objectKey={deleteTarget?.key ?? ""}
         objectSize={deleteTarget?.size}
         lastModified={deleteTarget?.lastModified}
+        versioningEnabled={versioningEnabled}
         isOpen={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}
         onSuccess={onDeleteObjectSuccess}
         onError={onDeleteObjectError}
+      />
+
+      <RestoreVersionModal
+        bucketName={bucketName}
+        objectKey={restoreTarget?.key ?? ""}
+        versionId={restoreTarget?.versionId ?? ""}
+        versionSize={restoreTarget?.size}
+        versionDate={restoreTarget?.lastModified}
+        isOpen={restoreTarget !== null}
+        onClose={() => setRestoreTarget(null)}
+        onSuccess={(key, versionId) => {
+          setRestoreTarget(null)
+          onRestoreVersion?.(key, versionId)
+        }}
+        onError={() => {
+          setRestoreTarget(null)
+          // Error is shown in the modal itself via mutation error state
+        }}
       />
 
       <CopyObjectModal

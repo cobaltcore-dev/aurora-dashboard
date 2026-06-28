@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
@@ -11,6 +11,7 @@ interface DeleteObjectModalProps {
   objectSize?: number
   lastModified?: string
   isOpen: boolean
+  versioningEnabled?: boolean
   onClose: () => void
   onSuccess: (objectKey: string) => void
   onError: (objectKey: string, errorMessage: string) => void
@@ -22,6 +23,7 @@ export function DeleteObjectModal({
   objectSize,
   lastModified,
   isOpen,
+  versioningEnabled = false,
   onClose,
   onSuccess,
   onError,
@@ -34,6 +36,7 @@ export function DeleteObjectModal({
   const deleteMutation = trpcReact.storage.ceph.objects.delete.useMutation({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
       onSuccess(objectKey)
       handleClose()
     },
@@ -77,17 +80,26 @@ export function DeleteObjectModal({
       disableCloseButton={deleteMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
-        <Message variant="danger">
+        <p className="text-theme-default">
           {isFolder ? (
+            versioningEnabled ? (
+              <Trans>
+                Confirm deletion of {displayName}. All objects inside this folder will be hidden but can be restored
+                from version history.
+              </Trans>
+            ) : (
+              <Trans>
+                Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted.
+              </Trans>
+            )
+          ) : versioningEnabled ? (
             <Trans>
-              Confirm deletion of {displayName}. This action cannot be undone and folder will be permanently deleted.
+              Confirm deletion of {displayName}. The object will be hidden but can be restored from version history.
             </Trans>
           ) : (
-            <Trans>
-              Confirm deletion of {displayName}. This action cannot be undone and object will be permanently deleted.
-            </Trans>
+            <Trans>Confirm deletion of {displayName}. This action cannot be undone.</Trans>
           )}
-        </Message>
+        </p>
 
         <div className="bg-theme-background-lvl-2 rounded p-4">
           <Stack direction="vertical" gap="2">
@@ -95,7 +107,7 @@ export function DeleteObjectModal({
               <span className="text-theme-light text-sm">
                 <Trans>Name:</Trans>
               </span>
-              <div className="mt-1 text-sm">{displayName}</div>
+              <div className="mt-1">{displayName}</div>
             </div>
 
             {!isFolder && objectSize !== undefined && (
@@ -103,7 +115,7 @@ export function DeleteObjectModal({
                 <span className="text-theme-light text-sm">
                   <Trans>Size:</Trans>
                 </span>
-                <div className="mt-1 text-sm">{formatBytesBinary(objectSize)}</div>
+                <div className="mt-1">{formatBytesBinary(objectSize)}</div>
               </div>
             )}
 
@@ -112,7 +124,7 @@ export function DeleteObjectModal({
                 <span className="text-theme-light text-sm">
                   <Trans>Last Modified:</Trans>
                 </span>
-                <div className="mt-1 text-sm">{new Date(lastModified).toLocaleString()}</div>
+                <div className="mt-1">{new Date(lastModified).toLocaleString()}</div>
               </div>
             )}
 
@@ -120,7 +132,7 @@ export function DeleteObjectModal({
               <span className="text-theme-light text-sm">
                 <Trans>Full Path:</Trans>
               </span>
-              <div className="mt-1 text-sm break-all">{objectKey}</div>
+              <div className="mt-1 break-all">{objectKey}</div>
             </div>
           </Stack>
         </div>
@@ -132,7 +144,15 @@ export function DeleteObjectModal({
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder="DELETE"
             autoFocus
-            helptext={t`This action cannot be undone.`}
+            helptext={
+              isFolder
+                ? versioningEnabled
+                  ? t`All objects in the folder can be restored from version history.`
+                  : t`All objects in the folder will be permanently deleted.`
+                : versioningEnabled && !isFolder
+                  ? t`The object can be restored from version history.`
+                  : t`This action cannot be undone.`
+            }
           />
         </div>
 

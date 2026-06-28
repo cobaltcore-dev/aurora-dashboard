@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Spinner, Stack, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack, TextInput } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -104,12 +104,10 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          <Message variant="danger">
-            <Trans>
-              This will permanently delete all objects from {totalCount} selected{" "}
-              <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
-            </Trans>
-          </Message>
+          <Trans>
+            This will permanently delete all objects from {totalCount} selected{" "}
+            <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
+          </Trans>
 
           <div>
             <p className="text-theme-light mb-2 text-sm">

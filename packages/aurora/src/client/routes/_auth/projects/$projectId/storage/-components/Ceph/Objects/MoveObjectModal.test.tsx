@@ -107,20 +107,19 @@ describe("MoveObjectModal", () => {
     expect(screen.getByText("test-file.txt")).toBeInTheDocument()
   })
 
-  it("shows warning message about deletion", () => {
+  it("shows source and target info", () => {
     renderModal(defaultProps)
 
-    expect(screen.getByText("Warning:")).toBeInTheDocument()
-    expect(
-      screen.getByText("This will delete the original object after copying it to the destination.")
-    ).toBeInTheDocument()
+    expect(screen.getByText("Source")).toBeInTheDocument()
+    expect(screen.getByText("Target path")).toBeInTheDocument()
   })
 
   it("displays source object info", () => {
     renderModal(defaultProps)
 
-    expect(screen.getByText("Source:")).toBeInTheDocument()
-    expect(screen.getByText("source-bucket/test-file.txt")).toBeInTheDocument()
+    expect(screen.getByText("Source")).toBeInTheDocument()
+    const sourcePath = screen.getAllByText("source-bucket/test-file.txt")[0]
+    expect(sourcePath).toBeInTheDocument()
     expect(screen.getByText("2.00 KB")).toBeInTheDocument()
   })
 
@@ -152,36 +151,9 @@ describe("MoveObjectModal", () => {
   it("shows folder browser", () => {
     renderModal(defaultProps)
 
-    expect(screen.getByText("Select destination folder")).toBeInTheDocument()
+    expect(screen.getByText("Select destination folder within target bucket")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /new folder/i })).toBeInTheDocument()
     expect(screen.getByText("Root")).toBeInTheDocument()
-  })
-
-  it("shows target path preview", () => {
-    renderModal(defaultProps)
-
-    expect(screen.getByLabelText("Target path")).toBeInTheDocument()
-    expect(screen.getByDisplayValue("source-bucket/test-file.txt")).toBeInTheDocument()
-  })
-
-  it("updates target path when object name changes", async () => {
-    const user = userEvent.setup()
-    renderModal(defaultProps)
-
-    const input = screen.getByLabelText("New object name")
-    await user.clear(input)
-    await user.type(input, "new-name.txt")
-
-    const targetPath = screen.getByLabelText("Target path")
-    expect(targetPath).toHaveValue("source-bucket/new-name.txt")
-  })
-
-  it("shows info message about metadata copying", () => {
-    renderModal(defaultProps)
-
-    expect(
-      screen.getByText("Object metadata will be automatically copied during the move operation.")
-    ).toBeInTheDocument()
   })
 
   it("has New Folder button", () => {
@@ -193,7 +165,7 @@ describe("MoveObjectModal", () => {
   it("disables Move button when destination is unchanged", () => {
     renderModal(defaultProps)
 
-    const moveButton = screen.getByRole("button", { name: "Move" })
+    const moveButton = screen.getByRole("button", { name: "Move/Rename" })
     expect(moveButton).toBeDisabled()
   })
 

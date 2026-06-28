@@ -48,6 +48,10 @@ vi.mock("./ObjectVersionHistoryModal", () => ({
   ObjectVersionHistoryModal: () => <div data-testid="version-history-modal">Version History Modal</div>,
 }))
 
+vi.mock("./RestoreVersionModal", () => ({
+  RestoreVersionModal: () => <div data-testid="restore-version-modal">Restore Version Modal</div>,
+}))
+
 describe("ObjectsTableView", () => {
   const mockFolders = [{ prefix: "documents/" }, { prefix: "images/" }]
 
@@ -224,6 +228,7 @@ describe("ObjectsTableView", () => {
       expect(screen.getByTestId("move-modal")).toBeInTheDocument()
       expect(screen.getByTestId("edit-metadata-modal")).toBeInTheDocument()
       expect(screen.getByTestId("version-history-modal")).toBeInTheDocument()
+      expect(screen.getByTestId("restore-version-modal")).toBeInTheDocument()
     })
   })
 

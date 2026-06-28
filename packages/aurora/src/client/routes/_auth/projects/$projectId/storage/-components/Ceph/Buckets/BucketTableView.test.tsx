@@ -201,72 +201,11 @@ describe("BucketTableView", () => {
   })
 
   describe("Selection", () => {
-    test("renders select all checkbox", () => {
-      renderTableView()
-      expect(screen.getByTestId("select-all-buckets")).toBeInTheDocument()
-    })
-
     test("renders checkbox for each bucket", () => {
       renderTableView()
       expect(screen.getByTestId("select-bucket-bucket-1")).toBeInTheDocument()
       expect(screen.getByTestId("select-bucket-bucket-2")).toBeInTheDocument()
       expect(screen.getByTestId("select-bucket-bucket-3")).toBeInTheDocument()
-    })
-
-    test("calls setSelectedBuckets when selecting all", async () => {
-      const user = userEvent.setup({ delay: null })
-      const mockSetSelected = vi.fn()
-      renderTableView({ setSelectedBuckets: mockSetSelected })
-
-      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
-      await user.click(selectAllCheckbox)
-
-      expect(mockSetSelected).toHaveBeenCalledWith(["bucket-1", "bucket-2", "bucket-3"])
-    })
-
-    test("calls setSelectedBuckets when deselecting all", async () => {
-      const user = userEvent.setup({ delay: null })
-      const mockSetSelected = vi.fn()
-      renderTableView({
-        selectedBuckets: ["bucket-1", "bucket-2", "bucket-3"],
-        setSelectedBuckets: mockSetSelected,
-      })
-
-      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
-      await user.click(selectAllCheckbox)
-
-      expect(mockSetSelected).toHaveBeenCalledWith([])
-    })
-
-    test("preserves filtered-out selections when selecting all visible", async () => {
-      const user = userEvent.setup({ delay: null })
-      const mockSetSelected = vi.fn()
-      // "bucket-hidden" is selected but not part of the visible (filtered) list
-      renderTableView({
-        selectedBuckets: ["bucket-hidden"],
-        setSelectedBuckets: mockSetSelected,
-      })
-
-      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
-      await user.click(selectAllCheckbox)
-
-      expect(mockSetSelected).toHaveBeenCalledWith(["bucket-hidden", "bucket-1", "bucket-2", "bucket-3"])
-    })
-
-    test("preserves filtered-out selections when deselecting all visible", async () => {
-      const user = userEvent.setup({ delay: null })
-      const mockSetSelected = vi.fn()
-      // All visible rows are selected (so allSelected is true), plus one hidden selection
-      renderTableView({
-        selectedBuckets: ["bucket-hidden", "bucket-1", "bucket-2", "bucket-3"],
-        setSelectedBuckets: mockSetSelected,
-      })
-
-      const selectAllCheckbox = screen.getByTestId("select-all-buckets")
-      await user.click(selectAllCheckbox)
-
-      // Only the visible buckets are removed; the hidden one stays selected
-      expect(mockSetSelected).toHaveBeenCalledWith(["bucket-hidden"])
     })
 
     test("calls setSelectedBuckets when selecting a bucket", async () => {

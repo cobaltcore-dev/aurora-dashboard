@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, TextInput } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 
@@ -40,6 +40,7 @@ export const DeleteVersionModal = ({
     onSuccess: () => {
       utils.storage.ceph.versioning.listObjectVersions.invalidate()
       utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
       onSuccess?.(objectKey, versionId)
       handleClose()
     },
@@ -79,24 +80,9 @@ export const DeleteVersionModal = ({
       onConfirm={handleDelete}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={confirmText !== "DELETE" || deleteMutation.isPending}
+      confirmButtonVariant="primary-danger"
     >
       <Stack direction="vertical" gap="4">
-        <Message variant="error" title={t`⚠️ Warning: Irreversible Action`}>
-          <Trans>
-            This will permanently delete this version. This operation cannot be undone. The version will be lost
-            forever.
-          </Trans>
-        </Message>
-
-        {isDeleteMarker && (
-          <Message variant="info">
-            <Trans>
-              This is a delete marker. Deleting it will "undelete" the object and restore the previous version as the
-              current version.
-            </Trans>
-          </Message>
-        )}
-
         <div className="space-y-3">
           <div>
             <label className="text-sm font-semibold">

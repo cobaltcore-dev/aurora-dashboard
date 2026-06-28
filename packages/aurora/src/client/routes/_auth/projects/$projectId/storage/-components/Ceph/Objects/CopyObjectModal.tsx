@@ -140,6 +140,7 @@ export const CopyObjectModal = ({
   const copyMutation = trpcReact.storage.ceph.objects.copy.useMutation({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
       const targetKey = `${modalState.currentPrefix}${displayName}`
       onSuccess?.(submittedKeyRef.current, modalState.targetBucket, targetKey, targetExists)
       handleClose()
@@ -198,6 +199,17 @@ export const CopyObjectModal = ({
       modalState.setTargetBucket(v)
     }
   }
+
+  // Synchronize targetBucket with searchTerm when it matches an exact bucket name
+  useEffect(() => {
+    const trimmedSearch = modalState.searchTerm.trim()
+    if (trimmedSearch && buckets) {
+      const matchingBucket = buckets.find((b) => b.name === trimmedSearch)
+      if (matchingBucket && matchingBucket.name !== modalState.targetBucket) {
+        modalState.setTargetBucket(matchingBucket.name)
+      }
+    }
+  }, [modalState.searchTerm, buckets, modalState.targetBucket, modalState])
 
   const handleNewFolderKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") modalState.createFolder()
@@ -267,27 +279,18 @@ export const CopyObjectModal = ({
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          {/* Source object info */}
-          <div className="bg-theme-background-lvl-2 rounded p-3">
-            <div className="text-theme-light text-sm">
-              <Trans>Source:</Trans>
-            </div>
-            <div className="mt-1 text-sm">{`${bucketName}/${objectKey}`}</div>
-            {objectSize !== undefined && (
-              <div className="text-theme-light mt-1 text-xs">{(objectSize / 1024).toFixed(2)} KB</div>
-            )}
-          </div>
-
           {/* Target bucket — ComboBox with debounced search */}
           <ComboBox
             label={t`Target bucket`}
-            value={modalState.targetBucket}
+            value={modalState.searchTerm || undefined}
             onChange={handleBucketChange}
             onInputChange={modalState.handleSearchChange}
-            placeholder={t`Type to search buckets...`}
+            placeholder={bucketName}
             helptext={(() => {
               if (isLoadingBuckets) return t`Loading buckets...`
-              if (modalState.searchTerm.trim().length === 0) return t`Start typing to search for a bucket`
+              if (!modalState.searchTerm.trim() && modalState.visibleBuckets.length > MAX_COMBO_OPTIONS) {
+                return t`Start typing to search for a bucket`
+              }
               if (modalState.hiddenCount > 0) {
                 const totalBuckets = modalState.visibleBuckets.length + modalState.hiddenCount
                 return t`Showing first ${MAX_COMBO_OPTIONS} of ${totalBuckets} — refine your search to narrow results`
@@ -308,7 +311,7 @@ export const CopyObjectModal = ({
           <div>
             <div className="mb-1 flex items-center justify-between">
               <span className="text-sm font-medium">
-                <Trans>Select destination folder</Trans>
+                <Trans>Select destination folder within target bucket</Trans>
               </span>
               <Button
                 size="small"
@@ -429,12 +432,25 @@ export const CopyObjectModal = ({
             </div>
           </div>
 
-          {/* Read-only target path */}
-          <div>
-            <p className="text-theme-light mb-1">
-              <Trans>The object will be copied to this path. Navigate folders above to change the destination.</Trans>
-            </p>
-            <TextInput label={t`Target path`} value={targetPathDisplay} readOnly />
+          {/* Source + Target info box */}
+          <div className="bg-theme-background-lvl-2 rounded p-3">
+            <Stack direction="vertical" gap="2">
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Source</Trans>
+                </div>
+                <div className="text-sm break-all">{`${bucketName}/${objectKey}`}</div>
+                {objectSize !== undefined && (
+                  <div className="text-theme-light mt-1 text-xs">{(objectSize / 1024).toFixed(2)} KB</div>
+                )}
+              </div>
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Target path</Trans>
+                </div>
+                <div className="text-sm break-all">{targetPathDisplay}</div>
+              </div>
+            </Stack>
           </div>
 
           {/* Warning if target exists */}
