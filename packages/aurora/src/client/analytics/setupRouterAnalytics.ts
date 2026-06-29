@@ -1,4 +1,4 @@
-import { isRouteInfo } from "../routes/routeInfo"
+import { isRouteInfo, ROUTE_SERVICES } from "../routes/routeInfo"
 import { createAuroraRouter } from "../router"
 
 /**
@@ -44,8 +44,16 @@ export function setupRouterAnalytics(router: ReturnType<typeof createAuroraRoute
     // Check if route has section/service metadata and add them if present
     if (isRouteInfo(deepestMatch.staticData)) {
       const { section, service } = deepestMatch.staticData
+
       if (section) metadata.section = section
-      if (service) metadata.service = service
+
+      // For object-store, use the provider (swift/ceph) as the service
+      if (service === ROUTE_SERVICES.OBJECT_STORE && deepestMatch.params) {
+        const { provider } = deepestMatch.params as Record<string, string>
+        metadata.service = provider || service
+      } else if (service) {
+        metadata.service = service
+      }
     }
 
     const payload = {

@@ -9,7 +9,7 @@ import {
   PopupMenuItem,
 } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
@@ -24,8 +24,8 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors/$flavorId")({
   staticData: {
-    section: "compute",
-    service: "flavors",
+    section: ROUTE_SECTIONS.COMPUTE,
+    service: ROUTE_SERVICES.FLAVORS,
     isDetail: true,
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Flavors", to: "/projects/$projectId/compute/flavors" },

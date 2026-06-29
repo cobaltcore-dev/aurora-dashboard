@@ -7,7 +7,7 @@ import {
   Spinner,
 } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useMemo } from "react"
 import { getServiceIndex } from "@/server/Authentication/helpers"
@@ -20,8 +20,8 @@ import { trpcReact } from "@/client/trpcClient"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/securitygroups/$securityGroupId/")({
   staticData: {
-    section: "network",
-    service: "securitygroups",
+    section: ROUTE_SECTIONS.NETWORK,
+    service: ROUTE_SERVICES.SECURITY_GROUPS,
     isDetail: true,
     sectionCrumb: { labelKey: "Network" },
     crumb: { labelKey: "Security Groups", to: "/projects/$projectId/network/securitygroups" },

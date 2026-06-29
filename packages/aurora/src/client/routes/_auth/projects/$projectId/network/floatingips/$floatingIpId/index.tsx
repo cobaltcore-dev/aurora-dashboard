@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
 import { Button, ContentHeading, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { useProjectId } from "@/client/hooks"
 import { trpcReact } from "@/client/trpcClient"
@@ -9,8 +9,8 @@ import { FloatingIpDetailsView } from "./-components/-details/FloatingIpDetailsV
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/floatingips/$floatingIpId/")({
   staticData: {
-    section: "network",
-    service: "floatingips",
+    section: ROUTE_SECTIONS.NETWORK,
+    service: ROUTE_SERVICES.FLOATING_IPS,
     isDetail: true,
     sectionCrumb: { labelKey: "Network" },
     crumb: { labelKey: "Floating IPs", to: "/projects/$projectId/network/floatingips" },

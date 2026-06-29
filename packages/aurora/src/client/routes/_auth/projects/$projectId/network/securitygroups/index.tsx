@@ -2,13 +2,13 @@ import { createFileRoute } from "@tanstack/react-router"
 import { t } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
 import { SecurityGroups } from "./-components/SecurityGroupsList"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeading } from "@cloudoperators/juno-ui-components"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/securitygroups/")({
   staticData: {
-    section: "network",
-    service: "securitygroups",
+    section: ROUTE_SECTIONS.NETWORK,
+    service: ROUTE_SERVICES.SECURITY_GROUPS,
     sectionCrumb: { labelKey: "Network" },
     crumb: { labelKey: "Security Groups" },
   } satisfies RouteInfo,

@@ -5,7 +5,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { SwiftContainers } from "../../-components/Swift/Containers"
 import { CephBuckets } from "../../-components/Ceph/Buckets"
 import { Trans, useLingui } from "@lingui/react/macro"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 /**
@@ -114,8 +114,8 @@ const containersSearchSchema = z.object({
 
 export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provider/$storageType/")({
   staticData: {
-    section: "storage",
-    service: "containers",
+    section: ROUTE_SECTIONS.STORAGE,
+    service: ROUTE_SERVICES.OBJECT_STORE,
     sectionCrumb: { labelKey: "Storage" },
     crumb: { useParamAsLabel: "provider" },
   } satisfies RouteInfo,

@@ -12,7 +12,7 @@ import {
 } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { z } from "zod"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
@@ -35,8 +35,8 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/$imageId")({
   staticData: {
-    section: "compute",
-    service: "images",
+    section: ROUTE_SECTIONS.COMPUTE,
+    service: ROUTE_SERVICES.IMAGES,
     isDetail: true,
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Images", to: "/projects/$projectId/compute/images" },

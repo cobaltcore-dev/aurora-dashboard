@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { z } from "zod"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { RouteError } from "@/client/components/Error/RouteError"
 
 const multiValueEnum = (allowedValues: string[]) => {
@@ -48,8 +48,8 @@ const imagesSearchSchema = z.object(imagesSearchFields).passthrough()
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images")({
   staticData: {
-    section: "compute",
-    service: "images",
+    section: ROUTE_SECTIONS.COMPUTE,
+    service: ROUTE_SERVICES.IMAGES,
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Images" },
   } satisfies RouteInfo,

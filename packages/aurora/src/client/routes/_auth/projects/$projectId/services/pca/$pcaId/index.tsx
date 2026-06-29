@@ -2,15 +2,15 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
 import { Trans } from "@lingui/react/macro"
 import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { PcaDetailsView } from "./-components/PcaDetailsView"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/")({
   staticData: {
-    section: "services",
-    service: "pca",
+    section: ROUTE_SECTIONS.SERVICES,
+    service: ROUTE_SERVICES.PCA,
     isDetail: true,
     sectionCrumb: { labelKey: "Services" },
     crumb: { labelKey: "PCA (Clavis)", to: "/projects/$projectId/services/pca" },

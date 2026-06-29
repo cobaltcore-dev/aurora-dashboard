@@ -10,13 +10,13 @@ import {
   Spinner,
   Stack,
 } from "@cloudoperators/juno-ui-components/index"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { trpcReact } from "@/client/trpcClient"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/$certificateId")({
   staticData: {
-    section: "services",
-    service: "pca",
+    section: ROUTE_SECTIONS.SERVICES,
+    service: ROUTE_SERVICES.PCA,
     isDetail: true,
     sectionCrumb: { labelKey: "Services" },
     crumb: { labelKey: "PCA (Clavis)", to: "/projects/$projectId/services/pca" },

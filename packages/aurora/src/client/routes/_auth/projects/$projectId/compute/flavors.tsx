@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { z } from "zod"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 
 const flavorsSearchFields = {
   search: z.string().optional(),
@@ -16,8 +16,8 @@ export type FlavorsSearchParams = z.infer<typeof flavorsSearchSchema>
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors")({
   staticData: {
-    section: "compute",
-    service: "flavors",
+    section: ROUTE_SECTIONS.COMPUTE,
+    service: ROUTE_SERVICES.FLAVORS,
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Flavors" },
   } satisfies RouteInfo,

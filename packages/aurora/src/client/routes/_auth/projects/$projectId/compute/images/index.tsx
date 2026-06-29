@@ -2,13 +2,13 @@ import { createFileRoute } from "@tanstack/react-router"
 import { t } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
 import { Images } from "../-components/Images/List"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/")({
   staticData: {
-    section: "compute",
-    service: "images",
+    section: ROUTE_SECTIONS.COMPUTE,
+    service: ROUTE_SERVICES.IMAGES,
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Images" },
   } satisfies RouteInfo,

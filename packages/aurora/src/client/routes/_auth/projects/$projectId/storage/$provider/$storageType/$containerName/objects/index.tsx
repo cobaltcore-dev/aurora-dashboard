@@ -5,7 +5,7 @@ import { Trans } from "@lingui/react/macro"
 import { SwiftObjects } from "../../../../-components/Swift/Objects"
 import { CephObjects } from "../../../../-components/Ceph/Objects"
 import { z } from "zod"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ROUTE_SECTIONS, ROUTE_SERVICES, type RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
 export const checkServiceAvailability = (
@@ -119,8 +119,8 @@ export const Route = createFileRoute(
   "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/"
 )({
   staticData: {
-    section: "storage",
-    service: "containers",
+    section: ROUTE_SECTIONS.STORAGE,
+    service: ROUTE_SERVICES.OBJECT_STORE,
     isDetail: true,
     sectionCrumb: { labelKey: "Storage" },
     crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/$storageType" },
