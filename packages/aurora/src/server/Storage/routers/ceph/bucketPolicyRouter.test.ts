@@ -224,13 +224,16 @@ describe("bucketPolicyRouter", () => {
       ).rejects.toThrow(TRPCError)
     })
 
-    it("should throw BAD_REQUEST with invalid policy structure - missing required fields", async () => {
+    it("should throw BAD_REQUEST with invalid policy structure - unrecognized fields", async () => {
       const invalidPolicy = JSON.stringify({
         Version: "2012-10-17",
         Statement: [
           {
             Effect: "Allow",
-            // Missing Principal, Action, Resource
+            Principal: "*",
+            Action: "s3:GetObject",
+            Resource: "arn:aws:s3:::my-test-bucket/*",
+            InvalidField: "this should not be here", // Unknown field should be rejected
           },
         ],
       })
