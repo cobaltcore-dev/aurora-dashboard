@@ -11,9 +11,10 @@ interface ContentHeaderProps {
   projectId: string
   description?: string | null
   actions?: ReactNode
+  badges?: ReactNode
 }
 
-export function ContentHeader({ title, projectId, description, actions }: ContentHeaderProps) {
+export function ContentHeader({ title, projectId, description, actions, badges }: ContentHeaderProps) {
   const { slots } = useRouteContext({ strict: false })
   const matches = useMatches()
   const { provider } = useParams({ strict: false }) as { provider?: string }
@@ -30,7 +31,7 @@ export function ContentHeader({ title, projectId, description, actions }: Conten
   ) : null
 
   return (
-    <header>
+    <header className="mb-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <ContentHeading>{title}</ContentHeading>
@@ -45,7 +46,12 @@ export function ContentHeader({ title, projectId, description, actions }: Conten
       </div>
       {description && <p className="text-sm font-normal">{description}</p>}
       <Divider className="mt-4" />
-      {actions && <div className="mt-3 flex justify-end">{actions}</div>}
+      {(badges || actions) && (
+        <div className="mt-3 flex items-start justify-between">
+          <div className="flex items-center gap-2">{badges} </div>
+          {actions && <div className="flex gap-2">{actions}</div>}
+        </div>
+      )}
     </header>
   )
 }
