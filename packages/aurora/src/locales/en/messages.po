@@ -820,8 +820,8 @@ msgstr "Deactivated {successCount} image(s), but {failedCount} image(s) could no
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 msgstr "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 
-msgid "Define access permissions for this bucket using JSON policy document. The policy controls who can access the bucket and what actions they can perform."
-msgstr "Define access permissions for this bucket using JSON policy document. The policy controls who can access the bucket and what actions they can perform."
+msgid "Define permissions for this bucket. You may use one of the predefined templates."
+msgstr "Define permissions for this bucket. You may use one of the predefined templates."
 
 msgid "delete"
 msgstr "delete"
@@ -1414,6 +1414,9 @@ msgstr "Failed to remove tenant access from flavor. Please try again."
 msgid "Failed to restore version: {errorMessage}"
 msgstr "Failed to restore version: {errorMessage}"
 
+msgid "Failed to save policy"
+msgstr "Failed to save policy"
+
 msgid "Failed to Update Access Control"
 msgstr "Failed to Update Access Control"
 
@@ -1821,6 +1824,9 @@ msgstr "Leave empty for all codes"
 
 msgid "Leave empty for all types"
 msgstr "Leave empty for all types"
+
+msgid "Leaving the JSON field empty will remove the policy from the bucket."
+msgstr "Leaving the JSON field empty will remove the policy from the bucket."
 
 msgid "Lifecycle action"
 msgstr "Lifecycle action"
@@ -2362,9 +2368,6 @@ msgstr "Please select a file to upload"
 msgid "Policy"
 msgstr "Policy"
 
-msgid "Policy cannot be empty"
-msgstr "Policy cannot be empty"
-
 msgid "Policy document exceeds maximum size of 20KB"
 msgstr "Policy document exceeds maximum size of 20KB"
 
@@ -2569,9 +2572,6 @@ msgstr "Removing..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 
-msgid "Reset"
-msgstr "Reset"
-
 msgid "Restart"
 msgstr "Restart"
 
@@ -2628,9 +2628,6 @@ msgstr "Save Changes"
 
 msgid "Save Metadata"
 msgstr "Save Metadata"
-
-msgid "Save Policy"
-msgstr "Save Policy"
 
 msgid "Saving..."
 msgstr "Saving..."
@@ -3322,9 +3319,6 @@ msgstr "Unknown domain"
 msgid "Unnamed"
 msgstr "Unnamed"
 
-msgid "Unsaved changes"
-msgstr "Unsaved changes"
-
 msgid "Update object"
 msgstr "Update object"
 
@@ -3372,9 +3366,6 @@ msgstr "URL Copied"
 
 msgid "URL for public access"
 msgstr "URL for public access"
-
-msgid "URL format: <0>https://ceph-endpoint/project_id:bucket_name/file_path</0>"
-msgstr "URL format: <0>https://ceph-endpoint/project_id:bucket_name/file_path</0>"
 
 msgid "Used"
 msgstr "Used"
