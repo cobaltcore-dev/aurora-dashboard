@@ -178,7 +178,7 @@ describe("BucketPolicyModal", () => {
     })
   })
 
-  it("shows Delete Policy button when policy field is empty", () => {
+  it("shows Save button when policy field is empty", () => {
     mockQueryResult = {
       data: { policy: null, policyText: null },
       isLoading: false,
@@ -186,7 +186,7 @@ describe("BucketPolicyModal", () => {
     }
     renderModal(defaultProps)
 
-    expect(screen.getByText("Delete Policy")).toBeInTheDocument()
+    expect(screen.getByText("Save")).toBeInTheDocument()
   })
 
   // ── Template selection ───────────────────────────────────────────────────────
@@ -232,14 +232,14 @@ describe("BucketPolicyModal", () => {
 
   // ── Save button state ────────────────────────────────────────────────────────
 
-  it("shows Delete Policy button when policy is empty and button is enabled", () => {
+  it("disables Save button when no changes made", () => {
     renderModal(defaultProps)
 
-    const deleteButton = screen.getByText("Delete Policy")
-    expect(deleteButton).not.toBeDisabled()
+    const saveButton = screen.getByText("Save")
+    expect(saveButton).toBeDisabled()
   })
 
-  it("enables save button when valid JSON is entered", async () => {
+  it("enables Save button when valid JSON is entered", async () => {
     const user = userEvent.setup()
     renderModal(defaultProps)
 
@@ -250,7 +250,7 @@ describe("BucketPolicyModal", () => {
     )
 
     await waitFor(() => {
-      const saveButton = screen.getByText("Save Policy")
+      const saveButton = screen.getByText("Save")
       expect(saveButton).not.toBeDisabled()
     })
   })
