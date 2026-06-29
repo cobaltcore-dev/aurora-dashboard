@@ -117,13 +117,13 @@ vi.mock("./EmptyBucketsModal", () => ({
 // ─── Mock toast notifications ─────────────────────────────────────────────────
 
 vi.mock("./BucketToastNotifications", () => ({
-  getBucketCreatedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getBucketCreateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getBucketEmptiedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getBucketEmptyErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getBucketDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getBucketDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getBucketsEmptyCompleteToast: vi.fn(() => ({ variant: "success", children: null })),
+  getBucketCreatedToast: vi.fn(() => ({ message: null, description: null })),
+  getBucketCreateErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getBucketEmptiedToast: vi.fn(() => ({ message: null, description: null })),
+  getBucketEmptyErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getBucketDeletedToast: vi.fn(() => ({ message: null, description: null })),
+  getBucketDeleteErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getBucketsEmptyCompleteToast: vi.fn(() => ({ message: null, description: null })),
 }))
 
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
@@ -404,12 +404,7 @@ describe("CephBuckets (index)", () => {
       await openEmptyModal(user, "Empty Bucket")
       await user.click(screen.getByTestId("simulate-empty-success"))
       await waitFor(() => {
-        expect(getBucketsEmptyCompleteToast).toHaveBeenCalledWith(
-          1,
-          8,
-          [],
-          expect.objectContaining({ onDismiss: expect.any(Function) })
-        )
+        expect(getBucketsEmptyCompleteToast).toHaveBeenCalledWith(1, 8, [])
         expect(actionsButton()).toBeDisabled()
       })
     })
