@@ -26,13 +26,15 @@ export function ContentHeader({ title, projectId, description, actions, badges }
   // Distinguish them by the $provider param.
   const currentService = routeService === "containers" && provider === "ceph" ? "ceph-containers" : routeService
 
-  const slotActions = slots?.servicePageActions ? (
-    <Slot component={slots.servicePageActions} useShadowDOM={false} currentService={currentService} />
-  ) : null
+  const slotActions =
+    slots?.servicePageActions && currentService ? (
+      <Slot component={slots.servicePageActions} useShadowDOM={false} currentService={currentService} />
+    ) : null
 
-  const serviceBanner = slots?.serviceBanner ? (
-    <Slot component={slots.serviceBanner} useShadowDOM={false} currentService={currentService} />
-  ) : null
+  const serviceBanner =
+    slots?.serviceBanner && currentService ? (
+      <Slot component={slots.serviceBanner} useShadowDOM={false} currentService={currentService} />
+    ) : null
 
   return (
     <header className="mb-8">
