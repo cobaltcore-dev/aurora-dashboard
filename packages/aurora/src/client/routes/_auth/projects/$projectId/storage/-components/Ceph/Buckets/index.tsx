@@ -133,7 +133,11 @@ export const CephBuckets = () => {
 
     const { message, ...options } = getBucketsEmptyCompleteToast(emptiedCount, totalDeleted, errors)
 
-    return errors.length > 0 ? toast.warning(message, options) : toast.success(message, options)
+    if (errors.length > 0) {
+      toast.warning(message, options)
+    } else {
+      toast.success(message, options)
+    }
   }
 
   const sortSettings: SortSettings = {
