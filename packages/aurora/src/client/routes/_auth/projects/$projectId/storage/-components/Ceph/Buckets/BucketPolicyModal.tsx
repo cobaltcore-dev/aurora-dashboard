@@ -303,16 +303,11 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
           >
             <Stack direction="vertical" gap="4">
               <div>
-                <p className="mb-2 text-sm">
-                  <Trans>
-                    Define access permissions for this bucket using JSON policy document. The policy controls who can
-                    access the bucket and what actions they can perform.
-                  </Trans>
+                <p className="mb-2">
+                  <Trans>Define permissions for this bucket. You may use one of the predefined templates.</Trans>
                 </p>
-                <p className="text-sm">
-                  <Trans>
-                    URL format: <code className="text-xs">https://ceph-endpoint/project_id:bucket_name/file_path</code>
-                  </Trans>
+                <p>
+                  <Trans>Leaving the JSON field empty will remove the policy from the bucket.</Trans>
                 </p>
               </div>
 
