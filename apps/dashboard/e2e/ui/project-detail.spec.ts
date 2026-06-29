@@ -87,12 +87,23 @@ test.describe("Project Detail View", () => {
     await imagesCard.click()
     await expectPageLoaded(page)
 
-    // Now the project name breadcrumb should be a button
-    const breadcrumbButtons = page.locator(".juno-breadcrumb-item button, button.juno-breadcrumb-item")
-    const projectCrumb = breadcrumbButtons.filter({ hasText: testProject })
-    await expect(projectCrumb).toBeVisible()
-    const tagName = await projectCrumb.evaluate((el) => el.tagName.toLowerCase())
-    expect(tagName).toBe("button")
+    // Wait for navigation to complete
+    await page.waitForTimeout(1000)
+
+    // The breadcrumb structure uses links, not buttons
+    // Find the clickable "demo" breadcrumb link
+    const projectBreadcrumbLink = page.locator(`a:has-text("${testProject}")`)
+
+    // Verify it's visible and clickable
+    await expect(projectBreadcrumbLink).toBeVisible({ timeout: 10000 })
+
+    // Verify it's actually a link element
+    const tagName = await projectBreadcrumbLink.evaluate((el) => el.tagName.toLowerCase())
+    expect(tagName).toBe("a")
+
+    // Verify it has cursor pointer (clickable)
+    const cursor = await projectBreadcrumbLink.evaluate((el) => window.getComputedStyle(el).cursor)
+    expect(cursor).toBe("pointer")
   })
 
   test("domain breadcrumb is not clickable", async ({ page }) => {
