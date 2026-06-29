@@ -4,8 +4,7 @@ import {
   Spinner,
   Stack,
   Button,
-  Toast,
-  ToastProps,
+  toast,
   Badge,
   Message,
   DataGridToolbar,
@@ -93,7 +92,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [isEmptyBucketModalOpen, setIsEmptyBucketModalOpen] = useState(false)
   const [isDeleteBucketModalOpen, setIsDeleteBucketModalOpen] = useState(false)
   const [isDeleteVersionsModalOpen, setIsDeleteVersionsModalOpen] = useState(false)
-  const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   // Local mirror of the committed search term so typing stays responsive while
   // the URL commit is debounced (see Zone 2 SearchInput below).
@@ -119,8 +117,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setAllFolders([])
     setAllVersions([])
   }, [tab])
-
-  const handleToastDismiss = () => setToastData(null)
 
   // Query versioning status for current bucket
   const { data: versioningStatus } = trpcReact.storage.ceph.versioning.getStatus.useQuery(
@@ -601,36 +597,36 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           versioningEnabled={versioningStatus?.status === "Enabled"}
           onFolderClick={navigateToPrefix}
           onDeleteObjectSuccess={(objectKey) => {
-            setToastData(getObjectDeletedToast(objectKey, { onDismiss: handleToastDismiss }))
+            const { message, ...options } = getObjectDeletedToast(objectKey)
+            toast.success(message, options)
           }}
           onDeleteObjectError={(objectKey, errorMessage) => {
-            setToastData(getObjectDeleteErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
+            const { message, ...options } = getObjectDeleteErrorToast(objectKey, errorMessage)
+            toast.error(message, options)
           }}
           onCopyObjectSuccess={(objectKey, targetBucket, targetKey, wasOverwritten) => {
-            setToastData(
-              getObjectCopiedToast(
-                objectKey,
-                targetBucket,
-                targetKey,
-                { onDismiss: handleToastDismiss },
-                wasOverwritten
-              )
-            )
+            const { message, ...options } = getObjectCopiedToast(objectKey, targetBucket, targetKey, wasOverwritten)
+            toast.success(message, options)
           }}
           onCopyObjectError={(objectKey, errorMessage) => {
-            setToastData(getObjectCopyErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
+            const { message, ...options } = getObjectCopyErrorToast(objectKey, errorMessage)
+            toast.error(message, options)
           }}
           onMoveObjectSuccess={(objectKey, targetBucket, targetKey) => {
-            setToastData(getObjectMovedToast(objectKey, targetBucket, targetKey, { onDismiss: handleToastDismiss }))
+            const { message, ...options } = getObjectMovedToast(objectKey, targetBucket, targetKey)
+            toast.success(message, options)
           }}
           onMoveObjectError={(objectKey, errorMessage) => {
-            setToastData(getObjectMoveErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
+            const { message, ...options } = getObjectMoveErrorToast(objectKey, errorMessage)
+            toast.error(message, options)
           }}
           onEditMetadataSuccess={(objectKey) => {
-            setToastData(getObjectMetadataUpdatedToast(objectKey, { onDismiss: handleToastDismiss }))
+            const { message, ...options } = getObjectMetadataUpdatedToast(objectKey)
+            toast.success(message, options)
           }}
           onEditMetadataError={(objectKey, errorMessage) => {
-            setToastData(getObjectMetadataUpdateErrorToast(objectKey, errorMessage, { onDismiss: handleToastDismiss }))
+            const { message, ...options } = getObjectMetadataUpdateErrorToast(objectKey, errorMessage)
+            toast.error(message, options)
           }}
           onRestoreVersion={() => {
             // Version restored successfully - no toast
@@ -656,7 +652,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         onClose={() => setIsCreateFolderModalOpen(false)}
         onSuccess={(folderPath) => {
           setIsCreateFolderModalOpen(false)
-          setToastData(getFolderCreatedToast(folderPath, { onDismiss: handleToastDismiss }))
+          const { message, ...options } = getFolderCreatedToast(folderPath)
+          toast.success(message, options)
           navigateToPrefix(folderPath)
         }}
       />
@@ -713,17 +710,11 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         onClose={() => setIsEmptyBucketModalOpen(false)}
         onSuccess={(bucketName, deletedCount) => {
           setIsEmptyBucketModalOpen(false)
-          setToastData({
-            variant: "success",
-            children: t`Successfully emptied bucket "${bucketName}". ${deletedCount} objects deleted.`,
-          })
+          toast.success(t`Successfully emptied bucket "${bucketName}". ${deletedCount} objects deleted.`)
         }}
         onError={(bucketName, errorMessage) => {
           setIsEmptyBucketModalOpen(false)
-          setToastData({
-            variant: "error",
-            children: t`Failed to empty bucket "${bucketName}": ${errorMessage}`,
-          })
+          toast.error(t`Failed to empty bucket "${bucketName}": ${errorMessage}`)
         }}
       />
 
@@ -736,10 +727,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         }}
         onClose={() => setIsDeleteBucketModalOpen(false)}
         onSuccess={(bucketName) => {
-          setToastData({
-            variant: "success",
-            children: t`Successfully deleted bucket "${bucketName}".`,
-          })
+          toast.success(t`Successfully deleted bucket "${bucketName}".`)
           // Navigate back to buckets list
           navigate({
             to: "/projects/$projectId/storage/$provider/$storageType",
@@ -751,10 +739,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           })
         }}
         onError={(bucketName, errorMessage) => {
-          setToastData({
-            variant: "error",
-            children: t`Failed to delete bucket "${bucketName}": ${errorMessage}`,
-          })
+          toast.error(t`Failed to delete bucket "${bucketName}": ${errorMessage}`)
         }}
       />
 
@@ -768,21 +753,15 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         onClose={() => setIsDeleteVersionsModalOpen(false)}
         onSuccess={(bucketName, deletedCount) => {
           setIsDeleteVersionsModalOpen(false)
-          setToastData({
-            variant: "success",
-            children: t`Successfully deleted ${deletedCount} versions and delete markers from bucket "${bucketName}".`,
-          })
+          toast.success(
+            t`Successfully deleted ${deletedCount} versions and delete markers from bucket "${bucketName}".`
+          )
         }}
         onError={(bucketName, errorMessage) => {
           setIsDeleteVersionsModalOpen(false)
-          setToastData({
-            variant: "error",
-            children: t`Failed to delete versions from bucket "${bucketName}": ${errorMessage}`,
-          })
+          toast.error(t`Failed to delete versions from bucket "${bucketName}": ${errorMessage}`)
         }}
       />
-
-      {toastData && <Toast {...toastData} />}
     </div>
   )
 }
