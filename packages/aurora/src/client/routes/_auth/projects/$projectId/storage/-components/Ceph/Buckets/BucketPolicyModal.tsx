@@ -3,17 +3,8 @@ import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import {
-  Modal,
-  Stack,
-  Textarea,
-  Select,
-  SelectOption,
-  Button,
-  Spinner,
-  Message,
-  Form,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Select, SelectOption, Spinner, Message, Form } from "@cloudoperators/juno-ui-components"
+import { JsonEditor } from "@/client/components/JsonEditor"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface BucketPolicyModalProps {
@@ -81,14 +72,15 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
-  // Form schema with JSON validation
+  // Form schema - only validates JSON syntax and size, backend handles policy structure validation
+  // Empty string is allowed (will trigger delete)
   const formSchema = z.object({
     policyText: z
       .string()
-      .min(1, t`Policy cannot be empty`)
       .max(MAX_POLICY_SIZE, t`Policy document exceeds maximum size of 20KB`)
       .refine(
         (value) => {
+          if (!value.trim()) return true // Empty is valid (will delete policy)
           try {
             JSON.parse(value)
             return true
@@ -129,6 +121,18 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     },
   })
 
+  // Delete mutation (for when policy is cleared)
+  const deleteMutation = trpcReact.storage.ceph.bucketPolicy.delete.useMutation({
+    onSuccess: () => {
+      utils.storage.ceph.bucketPolicy.get.invalidate()
+      onSuccess?.(bucketName)
+      handleClose()
+    },
+    onError: (error) => {
+      onError?.(bucketName, error.message)
+    },
+  })
+
   const form = useForm({
     defaultValues: {
       policyText: "",
@@ -138,13 +142,37 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      setMutation.mutate({
-        project_id: projectId,
-        bucketName,
-        policy: value.policyText,
-      })
+      if (!value.policyText.trim()) {
+        // Empty policy = delete
+        deleteMutation.mutate({
+          project_id: projectId,
+          bucketName,
+        })
+      } else {
+        setMutation.mutate({
+          project_id: projectId,
+          bucketName,
+          policy: value.policyText,
+        })
+      }
     },
   })
+
+  // Check if a policy matches one of the predefined templates
+  const findMatchingTemplate = (policyText: string): string => {
+    try {
+      const policy = JSON.parse(policyText)
+      for (const template of POLICY_TEMPLATES) {
+        const templatePolicy = template.generator(bucketName)
+        if (JSON.stringify(policy) === JSON.stringify(templatePolicy)) {
+          return template.value
+        }
+      }
+    } catch {
+      // Invalid JSON, no match
+    }
+    return ""
+  }
 
   // Load policy data into form when modal opens or data changes
   useEffect(() => {
@@ -155,19 +183,23 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
         const parsed = JSON.parse(policyData.policyText)
         const formatted = JSON.stringify(parsed, null, 2)
         form.setFieldValue("policyText", formatted)
-        form.setFieldValue("selectedTemplate", "")
+        // Check if the loaded policy matches a template
+        const matchingTemplate = findMatchingTemplate(policyData.policyText)
+        form.setFieldValue("selectedTemplate", matchingTemplate)
       } catch {
         form.setFieldValue("policyText", policyData.policyText)
+        form.setFieldValue("selectedTemplate", "")
       }
     } else if (policyData?.policy === null) {
       form.setFieldValue("policyText", "")
       form.setFieldValue("selectedTemplate", "")
     }
-  }, [isOpen, policyData, form])
+  }, [isOpen, policyData, form, bucketName])
 
   const handleClose = () => {
     form.reset()
     setMutation.reset()
+    deleteMutation.reset()
     onClose()
   }
 
@@ -184,27 +216,16 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     }
   }
 
-  const handleReset = () => {
-    if (policyData?.policyText) {
-      try {
-        const parsed = JSON.parse(policyData.policyText)
-        form.setFieldValue("policyText", JSON.stringify(parsed, null, 2))
-      } catch {
-        form.setFieldValue("policyText", policyData.policyText)
-      }
-    } else {
-      form.setFieldValue("policyText", "")
-    }
-    form.setFieldValue("selectedTemplate", "")
-  }
-
   // Subscribe to form state for reactivity
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting)
   const policyTextValue = useStore(form.store, (state) => state.values.policyText)
   const selectedTemplateValue = useStore(form.store, (state) => state.values.selectedTemplate)
 
-  // Compute isDirty relative to the loaded policy, not form's defaultValues (which are empty strings).
-  // This prevents false "Unsaved changes" indicator when the modal opens with existing policy.
+  const policySize = useMemo(() => {
+    return new Blob([policyTextValue]).size
+  }, [policyTextValue])
+
+  // Compare current value with original to detect changes
   const originalPolicyText = useMemo(() => {
     if (!policyData?.policyText) return ""
     try {
@@ -215,26 +236,24 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     }
   }, [policyData?.policyText])
 
-  const isDirty = policyTextValue !== originalPolicyText
+  const hasChanges = policyTextValue !== originalPolicyText
 
-  const policySize = useMemo(() => {
-    return new Blob([policyTextValue]).size
-  }, [policyTextValue])
-
-  // Validate JSON inline for immediate feedback
-  const jsonValidationError = useMemo(() => {
+  // Validate JSON syntax only - backend handles policy structure validation
+  const jsonSyntaxError = useMemo(() => {
     if (!policyTextValue.trim()) return null
     try {
       JSON.parse(policyTextValue)
       return null
     } catch (error) {
-      return error instanceof Error ? error.message : "Invalid JSON"
+      if (error instanceof SyntaxError) {
+        return error.message
+      }
+      return "Invalid JSON"
     }
   }, [policyTextValue])
 
-  const isSaving = setMutation.isPending || isSubmitting
-  const canSubmit =
-    !isSaving && !jsonValidationError && policyTextValue.trim().length > 0 && policySize <= MAX_POLICY_SIZE
+  const isSaving = setMutation.isPending || deleteMutation.isPending || isSubmitting
+  const canSubmit = !isSaving && !jsonSyntaxError && policySize <= MAX_POLICY_SIZE && hasChanges
 
   const handleSave = () => {
     form.handleSubmit()
@@ -248,7 +267,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       title={t`Edit/view Bucket Policy`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={t`Save Policy`}
+      confirmButtonLabel={t`Save`}
       onConfirm={handleSave}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={!canSubmit}
@@ -267,6 +286,18 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
           </Message>
         )}
 
+        {setMutation.error && (
+          <Message variant="error" title={t`Failed to save policy`}>
+            {setMutation.error.message}
+          </Message>
+        )}
+
+        {deleteMutation.error && (
+          <Message variant="error" title={t`Failed to delete policy`}>
+            {deleteMutation.error.message}
+          </Message>
+        )}
+
         {!isPolicyLoading && !policyError && (
           <Form
             onSubmit={(e) => {
@@ -276,16 +307,11 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
           >
             <Stack direction="vertical" gap="4">
               <div>
-                <p className="mb-2 text-sm">
-                  <Trans>
-                    Define access permissions for this bucket using JSON policy document. The policy controls who can
-                    access the bucket and what actions they can perform.
-                  </Trans>
+                <p className="mb-2">
+                  <Trans>Define permissions for this bucket. You may use one of the predefined templates.</Trans>
                 </p>
-                <p className="text-sm">
-                  <Trans>
-                    URL format: <code className="text-xs">https://ceph-endpoint/project_id:bucket_name/file_path</code>
-                  </Trans>
+                <p>
+                  <Trans>Leaving the JSON field empty will remove the policy from the bucket.</Trans>
                 </p>
               </div>
 
@@ -310,31 +336,19 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
                   name="policyText"
                   children={(field) => (
                     <>
-                      <div className="mb-1.5 flex items-center justify-between">
-                        <label htmlFor={field.name} className="juno-label">
-                          <Trans>Policy JSON</Trans>
-                        </label>
-                        {isDirty && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-theme-warning text-xs">
-                              <Trans>Unsaved changes</Trans>
-                            </span>
-                            <Button variant="subdued" size="small" onClick={handleReset} disabled={isSaving}>
-                              <Trans>Reset</Trans>
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                      <Textarea
+                      <label htmlFor={field.name} className="juno-label mb-1.5">
+                        <Trans>Policy JSON</Trans>
+                      </label>
+                      <JsonEditor
                         id={field.name}
                         name={field.name}
                         value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={field.handleChange}
                         onBlur={field.handleBlur}
-                        rows={15}
-                        className="font-mono text-xs"
+                        className="h-96"
                         disabled={isSaving}
                         placeholder={t`Enter bucket policy JSON...`}
+                        error={jsonSyntaxError}
                       />
                       <div className="mt-1 flex items-center justify-between text-xs">
                         <span className={policySize > MAX_POLICY_SIZE ? "text-theme-error" : "text-theme-light"}>
@@ -342,7 +356,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
                             Size: {policySize} / {MAX_POLICY_SIZE} bytes
                           </Trans>
                         </span>
-                        {jsonValidationError && <span className="text-theme-error">{jsonValidationError}</span>}
+                        {jsonSyntaxError && <span className="text-theme-error">{jsonSyntaxError}</span>}
                       </div>
                     </>
                   )}
