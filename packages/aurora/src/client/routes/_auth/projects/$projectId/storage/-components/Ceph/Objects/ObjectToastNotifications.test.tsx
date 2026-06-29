@@ -1,4 +1,7 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, beforeEach } from "vitest"
+import { render, screen } from "@testing-library/react"
+import { I18nProvider } from "@lingui/react"
+import { i18n } from "@lingui/core"
 import {
   getFolderCreatedToast,
   getFolderCreateErrorToast,
@@ -12,118 +15,172 @@ import {
   getObjectMetadataUpdateErrorToast,
 } from "./ObjectToastNotifications"
 
+// Helpers return the Juno NotificationManager shape: { message, description }.
+// `description` is typed `(() => ReactNode) | ReactNode`, so resolve the function
+// form before rendering. Both nodes are bare <Trans>, so render each in its own
+// wrapper element to keep getByText able to resolve them individually.
+type ObjectNotification = ReturnType<typeof getObjectDeletedToast>
+
+const renderNotification = (notification: ObjectNotification) => {
+  const description =
+    typeof notification.description === "function" ? notification.description() : notification.description
+  return render(
+    <I18nProvider i18n={i18n}>
+      <div>{notification.message}</div>
+      <div>{description}</div>
+    </I18nProvider>
+  )
+}
+
 describe("ObjectToastNotifications", () => {
-  const mockConfig = {
-    onDismiss: vi.fn(),
-  }
+  beforeEach(() => {
+    i18n.activate("en")
+  })
 
-  describe("Folder operations", () => {
-    it("creates folder created toast", () => {
-      const toast = getFolderCreatedToast("documents/reports/", mockConfig)
+  // ── Folder operations ──────────────────────────────────────────────────────
 
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockConfig.onDismiss)
-      expect(toast.children).toBeDefined()
+  describe("getFolderCreatedToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getFolderCreatedToast("documents/reports/")
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
-    it("creates folder create error toast", () => {
-      const toast = getFolderCreateErrorToast("documents/reports/", "Access denied", mockConfig)
-
-      expect(toast.variant).toBe("error")
-      expect(toast.children).toBeDefined()
+    it("renders correct message content", () => {
+      renderNotification(getFolderCreatedToast("documents/reports/"))
+      expect(screen.getByText("Folder Created")).toBeInTheDocument()
+      expect(screen.getByText(/documents\/reports\//)).toBeInTheDocument()
+      expect(screen.getByText(/was successfully created/)).toBeInTheDocument()
     })
   })
 
-  describe("Object delete operations", () => {
-    it("creates object deleted toast", () => {
-      const toast = getObjectDeletedToast("folder/file.txt", mockConfig)
-
-      expect(toast.variant).toBe("success")
-      expect(toast.children).toBeDefined()
-    })
-
-    it("creates object delete error toast", () => {
-      const toast = getObjectDeleteErrorToast("folder/file.txt", "Permission denied", mockConfig)
-
-      expect(toast.variant).toBe("error")
-      expect(toast.children).toBeDefined()
-    })
-
-    it("extracts display name from object key", () => {
-      const toast = getObjectDeletedToast("documents/reports/Q1.pdf", mockConfig)
-
-      expect(toast.variant).toBe("success")
-      expect(toast.children).toBeDefined()
-    })
-
-    it("handles object key without path", () => {
-      const toast = getObjectDeletedToast("simple-file.txt", mockConfig)
-
-      expect(toast.variant).toBe("success")
-      expect(toast.children).toBeDefined()
+  describe("getFolderCreateErrorToast", () => {
+    it("renders correct error content", () => {
+      renderNotification(getFolderCreateErrorToast("documents/reports/", "Access denied"))
+      expect(screen.getByText("Failed to Create Folder")).toBeInTheDocument()
+      expect(screen.getByText(/Could not create folder/)).toBeInTheDocument()
+      expect(screen.getByText(/Access denied/)).toBeInTheDocument()
     })
   })
 
-  describe("Object copy operations", () => {
-    it("creates object copied toast", () => {
-      const toast = getObjectCopiedToast("file.txt", "target-bucket", "folder/file.txt", mockConfig)
+  // ── Object delete ──────────────────────────────────────────────────────────
 
-      expect(toast.variant).toBe("success")
-      expect(toast.children).toBeDefined()
+  describe("getObjectDeletedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getObjectDeletedToast("folder/file.txt"))
+      expect(screen.getByText("Object Deleted")).toBeInTheDocument()
+      expect(screen.getByText(/was permanently deleted/)).toBeInTheDocument()
     })
 
-    it("creates object copied toast with overwrite flag", () => {
-      const toast = getObjectCopiedToast("file.txt", "target-bucket", "folder/file.txt", mockConfig, true)
-
-      expect(toast.variant).toBe("success")
-      expect(toast.children).toBeDefined()
+    it("extracts the display name from a nested object key", () => {
+      renderNotification(getObjectDeletedToast("documents/reports/Q1.pdf"))
+      expect(screen.getByText(/Q1\.pdf/)).toBeInTheDocument()
+      expect(screen.queryByText(/documents\/reports/)).not.toBeInTheDocument()
     })
 
-    it("creates object copy error toast", () => {
-      const toast = getObjectCopyErrorToast("file.txt", "Bucket not found", mockConfig)
-
-      expect(toast.variant).toBe("error")
-      expect(toast.children).toBeDefined()
+    it("handles an object key without a path", () => {
+      renderNotification(getObjectDeletedToast("simple-file.txt"))
+      expect(screen.getByText(/simple-file\.txt/)).toBeInTheDocument()
     })
   })
 
-  describe("Object move operations", () => {
-    it("creates object moved toast", () => {
-      const toast = getObjectMovedToast("old/file.txt", "new-bucket", "new/path/file.txt", mockConfig)
-
-      expect(toast.variant).toBe("success")
-      expect(toast.children).toBeDefined()
-    })
-
-    it("creates object move error toast", () => {
-      const toast = getObjectMoveErrorToast("old/file.txt", "Insufficient permissions", mockConfig)
-
-      expect(toast.variant).toBe("error")
-      expect(toast.children).toBeDefined()
+  describe("getObjectDeleteErrorToast", () => {
+    it("renders correct error content", () => {
+      renderNotification(getObjectDeleteErrorToast("folder/file.txt", "Permission denied"))
+      expect(screen.getByText("Failed to Delete Object")).toBeInTheDocument()
+      expect(screen.getByText(/Could not delete/)).toBeInTheDocument()
+      expect(screen.getByText(/Permission denied/)).toBeInTheDocument()
     })
   })
 
-  describe("Object metadata operations", () => {
-    it("creates metadata updated toast", () => {
-      const toast = getObjectMetadataUpdatedToast("documents/file.txt", mockConfig)
+  // ── Object copy ────────────────────────────────────────────────────────────
 
-      expect(toast.variant).toBe("success")
-      expect(toast.children).toBeDefined()
+  describe("getObjectCopiedToast", () => {
+    it("renders the destination", () => {
+      renderNotification(getObjectCopiedToast("file.txt", "target-bucket", "folder/file.txt"))
+      expect(screen.getByText("Object Copied")).toBeInTheDocument()
+      expect(screen.getByText(/target-bucket\/folder\/file\.txt/)).toBeInTheDocument()
     })
 
-    it("creates metadata update error toast", () => {
-      const toast = getObjectMetadataUpdateErrorToast("documents/file.txt", "Metadata too large", mockConfig)
-
-      expect(toast.variant).toBe("error")
-      expect(toast.children).toBeDefined()
+    it("notes when an existing object was replaced", () => {
+      renderNotification(getObjectCopiedToast("file.txt", "target-bucket", "folder/file.txt", true))
+      expect(screen.getByText(/existing object was replaced/)).toBeInTheDocument()
     })
   })
 
-  describe("Toast configuration", () => {
-    it("includes onDismiss callback", () => {
-      const toast = getFolderCreatedToast("folder/", mockConfig)
+  describe("getObjectCopyErrorToast", () => {
+    it("renders correct error content", () => {
+      renderNotification(getObjectCopyErrorToast("file.txt", "Bucket not found"))
+      expect(screen.getByText("Failed to Copy Object")).toBeInTheDocument()
+      expect(screen.getByText(/Bucket not found/)).toBeInTheDocument()
+    })
+  })
 
-      expect(toast.onDismiss).toBe(mockConfig.onDismiss)
+  // ── Object move ────────────────────────────────────────────────────────────
+
+  describe("getObjectMovedToast", () => {
+    it("renders the destination", () => {
+      renderNotification(getObjectMovedToast("old/file.txt", "new-bucket", "new/path/file.txt"))
+      expect(screen.getByText("Object Moved")).toBeInTheDocument()
+      expect(screen.getByText(/new-bucket\/new\/path\/file\.txt/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getObjectMoveErrorToast", () => {
+    it("renders correct error content", () => {
+      renderNotification(getObjectMoveErrorToast("old/file.txt", "Insufficient permissions"))
+      expect(screen.getByText("Failed to Move Object")).toBeInTheDocument()
+      expect(screen.getByText(/Insufficient permissions/)).toBeInTheDocument()
+    })
+  })
+
+  // ── Object metadata update ──────────────────────────────────────────────────
+
+  describe("getObjectMetadataUpdatedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getObjectMetadataUpdatedToast("documents/file.txt"))
+      expect(screen.getByText("Object Updated")).toBeInTheDocument()
+      expect(screen.getByText(/were successfully updated/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getObjectMetadataUpdateErrorToast", () => {
+    it("renders correct error content", () => {
+      renderNotification(getObjectMetadataUpdateErrorToast("documents/file.txt", "Metadata too large"))
+      expect(screen.getByText("Failed to Update Object")).toBeInTheDocument()
+      expect(screen.getByText(/Metadata too large/)).toBeInTheDocument()
+    })
+  })
+
+  // ── Notification configuration ───────────────────────────────────────────────
+
+  describe("Notification configuration", () => {
+    it("all helpers return a message and description as ReactNodes", () => {
+      const notifications = [
+        getFolderCreatedToast("folder/"),
+        getFolderCreateErrorToast("folder/", "err"),
+        getObjectDeletedToast("a/b.txt"),
+        getObjectDeleteErrorToast("a/b.txt", "err"),
+        getObjectCopiedToast("a.txt", "bucket", "a.txt"),
+        getObjectCopyErrorToast("a.txt", "err"),
+        getObjectMovedToast("a.txt", "bucket", "a.txt"),
+        getObjectMoveErrorToast("a.txt", "err"),
+        getObjectMetadataUpdatedToast("a.txt"),
+        getObjectMetadataUpdateErrorToast("a.txt", "err"),
+      ]
+      notifications.forEach((notification) => {
+        expect(notification.message).toBeTruthy()
+        expect(typeof notification.message).toBe("object")
+        expect(notification.description).toBeTruthy()
+        expect(typeof notification.description).toBe("object")
+      })
+    })
+
+    it("does not expose legacy toast props (variant / children / onDismiss)", () => {
+      const toast = getObjectDeletedToast("a/b.txt")
+      expect(toast).not.toHaveProperty("variant")
+      expect(toast).not.toHaveProperty("children")
+      expect(toast).not.toHaveProperty("onDismiss")
     })
   })
 })
