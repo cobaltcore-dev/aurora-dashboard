@@ -18,8 +18,6 @@ export interface AuthContext {
 
 const AuthContext = React.createContext<AuthContext | null>(null)
 
-const INACTIVITY_TIMEOUT = 60 * 60 * 1000 // 60 minutes
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [user, setUser] = React.useState<User | null>(null)
@@ -29,7 +27,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [redirectAfterModal, setRedirectAfterModal] = useState<string | undefined>(undefined)
 
   const logoutTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const isAuthenticated = !!user
 
@@ -40,13 +37,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const clearInactivityTimer = useCallback(() => {
-    if (inactivityTimerRef.current) {
-      clearTimeout(inactivityTimerRef.current)
-      inactivityTimerRef.current = null
-    }
-  }, [])
-
   const closeInactivityModal = useCallback(() => {
     setShowInactivityModal(false)
 
@@ -54,19 +44,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       to: "/",
       search: redirectAfterModal ? { redirect: redirectAfterModal } : undefined,
     })
-  }, [redirectAfterModal])
+  }, [router, redirectAfterModal])
 
   const logout = useCallback(
     async (reason: "inactive" | "expired" | "manual" = "manual") => {
       clearLogoutTimer()
-      clearInactivityTimer()
 
       setUser(null)
       setExpiresAt(undefined)
       setLogoutReason(reason)
 
-      // For inactive/expired: Show modal instead of direct navigation
-      if (reason === "inactive" || reason === "expired") {
+      // For expired: Show modal instead of direct navigation
+      if (reason === "expired") {
         const currentPath = window.location.pathname + window.location.search
         if (currentPath && currentPath.startsWith("/")) {
           setRedirectAfterModal(currentPath)
@@ -78,37 +67,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.invalidate()
       }
     },
-    [clearLogoutTimer, clearInactivityTimer]
+    [router, clearLogoutTimer]
   )
 
-  const resetInactivityTimer = useCallback(() => {
-    if (!isAuthenticated) return
+  const login = useCallback(async (user: User, expires_at?: string) => {
+    setUser(user)
+    setLogoutReason(undefined)
+    setShowInactivityModal(false)
+    setRedirectAfterModal(undefined)
 
-    clearInactivityTimer()
-
-    inactivityTimerRef.current = setTimeout(() => {
-      logout("inactive")
-    }, INACTIVITY_TIMEOUT)
-  }, [isAuthenticated, clearInactivityTimer, logout])
-
-  const login = useCallback(
-    async (user: User, expires_at?: string) => {
-      setUser(user)
-      setLogoutReason(undefined)
-      setShowInactivityModal(false)
-      setRedirectAfterModal(undefined)
-
-      if (expires_at) {
-        const expiration = new Date(expires_at)
-        setExpiresAt(expiration)
-      } else {
-        setExpiresAt(undefined)
-      }
-
-      resetInactivityTimer()
-    },
-    [resetInactivityTimer]
-  )
+    if (expires_at) {
+      const expiration = new Date(expires_at)
+      setExpiresAt(expiration)
+    } else {
+      setExpiresAt(undefined)
+    }
+  }, [])
 
   useEffect(() => {
     clearLogoutTimer()
@@ -130,32 +104,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearLogoutTimer()
     }
   }, [user, expiresAt, logout, clearLogoutTimer])
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      clearInactivityTimer()
-      return
-    }
-
-    const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart", "click"]
-
-    const handleActivity = () => {
-      resetInactivityTimer()
-    }
-
-    resetInactivityTimer()
-
-    events.forEach((event) => {
-      document.addEventListener(event, handleActivity, true)
-    })
-
-    return () => {
-      clearInactivityTimer()
-      events.forEach((event) => {
-        document.removeEventListener(event, handleActivity, true)
-      })
-    }
-  }, [isAuthenticated, resetInactivityTimer, clearInactivityTimer])
 
   return (
     <AuthContext.Provider
