@@ -1,10 +1,30 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { render, screen, waitFor, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
+import { PortalProvider, toast } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
+import type { ReactNode } from "react"
 import { CredentialPrompt } from "./CredentialPrompt"
+
+// ─── Mock the Juno toast API ──────────────────────────────────────────────────
+// The component now fires notifications through the NotificationManager (Sonner).
+// We assert the component calls the right toast method with the right content;
+// rendering/auto-dismiss is the library's responsibility, not this component's.
+
+vi.mock("@cloudoperators/juno-ui-components", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@cloudoperators/juno-ui-components")>()
+  return {
+    ...actual,
+    toast: Object.assign(actual.toast, { success: vi.fn(), error: vi.fn() }),
+  }
+})
+
+// Resolve the toast message argument, which may be a ReactNode or a () => ReactNode.
+const resolveNode = (node: ReactNode | (() => ReactNode)): ReactNode => (typeof node === "function" ? node() : node)
+
+const renderToastMessage = (node: ReactNode | (() => ReactNode)) =>
+  render(<I18nProvider i18n={i18n}>{resolveNode(node)}</I18nProvider>)
 
 // ─── Mock useProjectId ────────────────────────────────────────────────────────
 
@@ -161,36 +181,42 @@ describe("CredentialPrompt", () => {
         expect(mockInvalidate).toHaveBeenCalledTimes(1)
       })
     })
+
+    test("does not fire an error notification on success", async () => {
+      const user = userEvent.setup()
+      renderCredentialPrompt()
+
+      await user.click(screen.getByRole("button", { name: "Create S3 Credentials" }))
+
+      await waitFor(() => expect(mockInvalidate).toHaveBeenCalled())
+      expect(toast.error).not.toHaveBeenCalled()
+    })
   })
 
   describe("Error handling", () => {
-    test("shows error toast when credential creation fails", async () => {
+    test("fires an error notification when credential creation fails", async () => {
       const user = userEvent.setup()
       mockState.mutationError = "Failed to create EC2 credential"
       renderCredentialPrompt()
 
-      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
-      await user.click(button)
+      await user.click(screen.getByRole("button", { name: "Create S3 Credentials" }))
 
-      await waitFor(() => {
-        expect(screen.getByText(/Failed to create credential:/)).toBeInTheDocument()
-        expect(screen.getByText(/Failed to create EC2 credential/)).toBeInTheDocument()
-      })
+      await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(1))
+
+      renderToastMessage(vi.mocked(toast.error).mock.calls[0][0])
+      expect(screen.getByText(/Failed to create credential:/)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to create EC2 credential/)).toBeInTheDocument()
     })
 
-    test("error toast has error variant and auto-dismiss", async () => {
+    test("uses the error notification, not success", async () => {
       const user = userEvent.setup()
       mockState.mutationError = "Permission denied"
       renderCredentialPrompt()
 
-      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
-      await user.click(button)
+      await user.click(screen.getByRole("button", { name: "Create S3 Credentials" }))
 
-      await waitFor(() => {
-        const toast = screen.getByText(/Failed to create credential:/).closest(".juno-toast")
-        expect(toast).toBeInTheDocument()
-        expect(toast).toHaveClass("juno-toast-error")
-      })
+      await waitFor(() => expect(toast.error).toHaveBeenCalled())
+      expect(toast.success).not.toHaveBeenCalled()
     })
 
     test("does not call onSuccess callback when creation fails", async () => {
@@ -199,47 +225,23 @@ describe("CredentialPrompt", () => {
       mockState.mutationError = "Creation failed"
       renderCredentialPrompt({ onSuccess: mockOnSuccess })
 
-      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
-      await user.click(button)
+      await user.click(screen.getByRole("button", { name: "Create S3 Credentials" }))
 
-      await waitFor(() => {
-        expect(screen.getByText(/Failed to create credential:/)).toBeInTheDocument()
-      })
-
+      await waitFor(() => expect(toast.error).toHaveBeenCalled())
       expect(mockOnSuccess).not.toHaveBeenCalled()
     })
 
-    test("shows different error messages based on error content", async () => {
+    test("includes the specific error message in the notification", async () => {
       const user = userEvent.setup()
       mockState.mutationError = "Quota exceeded"
       renderCredentialPrompt()
 
-      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
-      await user.click(button)
+      await user.click(screen.getByRole("button", { name: "Create S3 Credentials" }))
 
-      await waitFor(() => {
-        expect(screen.getByText(/Quota exceeded/)).toBeInTheDocument()
-      })
-    })
+      await waitFor(() => expect(toast.error).toHaveBeenCalled())
 
-    test("error toast can be dismissed", async () => {
-      const user = userEvent.setup()
-      mockState.mutationError = "Test error"
-      renderCredentialPrompt()
-
-      const button = screen.getByRole("button", { name: "Create S3 Credentials" })
-      await user.click(button)
-
-      await waitFor(() => {
-        expect(screen.getByText(/Failed to create credential:/)).toBeInTheDocument()
-      })
-
-      const closeButton = screen.getByRole("button", { name: /close/i })
-      await user.click(closeButton)
-
-      await waitFor(() => {
-        expect(screen.queryByText(/Failed to create credential:/)).not.toBeInTheDocument()
-      })
+      renderToastMessage(vi.mocked(toast.error).mock.calls[0][0])
+      expect(screen.getByText(/Quota exceeded/)).toBeInTheDocument()
     })
   })
 
