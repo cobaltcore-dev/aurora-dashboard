@@ -350,64 +350,86 @@ export type S3ServiceInfo = z.infer<typeof s3ServiceInfoSchema>
  *
  * @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html
  */
-export const bucketPolicyStatementSchema = z.object({
-  Sid: z.string().optional(), // Statement ID (optional identifier)
-  Effect: z.enum(["Allow", "Deny"]), // Allow or Deny access
-  Principal: z
-    .union([
-      z.string(), // "*" for public
-      z.object({
-        AWS: z.union([z.string(), z.array(z.string())]).optional(), // AWS account/user ARNs
-        Service: z.union([z.string(), z.array(z.string())]).optional(),
-        Federated: z.union([z.string(), z.array(z.string())]).optional(),
-      }),
-    ])
-    .superRefine((val, ctx) => {
-      // When Principal is an object, require at least one of AWS, Service, or Federated
-      if (typeof val === "object" && !val.AWS && !val.Service && !val.Federated) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Principal object must contain at least one of: AWS, Service, or Federated",
-        })
-      }
+export const bucketPolicyStatementSchema = z
+  .object({
+    Sid: z.string().optional(), // Statement ID (optional identifier)
+    Effect: z.enum(["Allow", "Deny"]), // Allow or Deny access
+    Principal: z
+      .union([
+        z.string(), // "*" for public
+        z.object({
+          AWS: z.union([z.string(), z.array(z.string())]).optional(), // AWS account/user ARNs
+          Service: z.union([z.string(), z.array(z.string())]).optional(),
+          Federated: z.union([z.string(), z.array(z.string())]).optional(),
+        }),
+      ])
+      .optional()
+      .superRefine((val, ctx) => {
+        if (val === undefined) return
+        // When Principal is an object, require at least one of AWS, Service, or Federated
+        if (typeof val === "object" && !val.AWS && !val.Service && !val.Federated) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Principal object must contain at least one of: AWS, Service, or Federated",
+          })
+        }
 
-      // Validate AWS principal ARN format
-      if (typeof val === "object" && val.AWS) {
-        const arns = Array.isArray(val.AWS) ? val.AWS : [val.AWS]
-        for (const arn of arns) {
-          if (arn !== "*" && !/^arn:aws:iam::\d{12}:(?:root|user\/.+|role\/.+)$/.test(arn)) {
-            ctx.addIssue({
-              code: "custom",
-              message: `Invalid AWS principal ARN format: ${arn}. Expected arn:aws:iam::ACCOUNT-ID:root or arn:aws:iam::ACCOUNT-ID:(user|role)/NAME`,
-            })
+        // Validate AWS principal ARN format
+        if (typeof val === "object" && val.AWS) {
+          const arns = Array.isArray(val.AWS) ? val.AWS : [val.AWS]
+          for (const arn of arns) {
+            if (arn !== "*" && !/^arn:aws:iam::\d{12}:(?:root|user\/.+|role\/.+)$/.test(arn)) {
+              ctx.addIssue({
+                code: "custom",
+                message: `Invalid AWS principal ARN format: ${arn}. Expected arn:aws:iam::ACCOUNT-ID:root or arn:aws:iam::ACCOUNT-ID:(user|role)/NAME`,
+              })
+            }
           }
         }
-      }
-    }),
-  Action: z.union([
-    z.string(), // Single action: "s3:GetObject"
-    z.array(z.string()), // Multiple actions: ["s3:GetObject", "s3:PutObject"]
-  ]),
-  Resource: z.union([
-    z.string(), // Single resource: "arn:aws:s3:::bucket/*"
-    z.array(z.string()), // Multiple resources
-  ]),
-  Condition: z
-    .record(
-      z.string(), // Condition operator: "StringEquals", "IpAddress", etc.
-      z.record(
-        z.string(), // Condition key: "aws:SourceIp", "s3:prefix", etc.
-        z.union([z.string(), z.array(z.string()), z.number(), z.boolean()])
+      }),
+    NotPrincipal: z
+      .union([
+        z.string(),
+        z.object({
+          AWS: z.union([z.string(), z.array(z.string())]).optional(),
+          Service: z.union([z.string(), z.array(z.string())]).optional(),
+          Federated: z.union([z.string(), z.array(z.string())]).optional(),
+        }),
+      ])
+      .optional(),
+    Action: z
+      .union([
+        z.string(), // Single action: "s3:GetObject"
+        z.array(z.string()), // Multiple actions: ["s3:GetObject", "s3:PutObject"]
+      ])
+      .optional(),
+    NotAction: z.union([z.string(), z.array(z.string())]).optional(),
+    Resource: z
+      .union([
+        z.string(), // Single resource: "arn:aws:s3:::bucket/*"
+        z.array(z.string()), // Multiple resources
+      ])
+      .optional(),
+    NotResource: z.union([z.string(), z.array(z.string())]).optional(),
+    Condition: z
+      .record(
+        z.string(), // Condition operator: "StringEquals", "IpAddress", etc.
+        z.record(
+          z.string(), // Condition key: "aws:SourceIp", "s3:prefix", etc.
+          z.union([z.string(), z.array(z.string()), z.number(), z.boolean()])
+        )
       )
-    )
-    .optional(), // Conditions (IP, date, etc.)
-})
+      .optional(), // Conditions (IP, date, etc.)
+  })
+  .strict() // Reject unknown fields - don't silently strip them
 
-export const bucketPolicyDocumentSchema = z.object({
-  Version: z.string().default("2012-10-17"), // Policy language version
-  Id: z.string().optional(), // Policy ID
-  Statement: z.array(bucketPolicyStatementSchema).min(1, "Policy must contain at least one statement"),
-})
+export const bucketPolicyDocumentSchema = z
+  .object({
+    Version: z.string().default("2012-10-17"), // Policy language version
+    Id: z.string().optional(), // Policy ID
+    Statement: z.array(bucketPolicyStatementSchema).min(1, "Policy must contain at least one statement"),
+  })
+  .strict() // Reject unknown fields - don't silently strip them
 
 export const getBucketPolicyInputSchema = projectScopedInputSchema.extend({
   bucketName: existingBucketNameSchema,
