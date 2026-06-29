@@ -50,6 +50,9 @@ function checkPolicySetRateLimit(bucketName: string, projectId: string): void {
  */
 function validateResourceARNsMatchBucket(policy: BucketPolicyDocument, bucketName: string): void {
   for (const statement of policy.Statement) {
+    // Skip if no Resource (could be using NotResource instead)
+    if (!statement.Resource) continue
+
     const resources = Array.isArray(statement.Resource) ? statement.Resource : [statement.Resource]
 
     for (const resource of resources) {
@@ -221,13 +224,29 @@ export const bucketPolicyRouter = {
       return true
     } catch (error) {
       // JSON parse error or zod validation error
-      if (error instanceof SyntaxError || error instanceof z.ZodError) {
-        const errorDetails = error instanceof z.ZodError ? error.message : "Invalid JSON format"
+      if (error instanceof SyntaxError) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid JSON format",
+        })
+      }
+
+      if (error instanceof z.ZodError) {
+        // Format Zod errors into human-readable messages
+        const zodError = error as z.ZodError
+        const firstError = zodError.issues?.[0]
+        if (!firstError) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid policy structure",
+          })
+        }
+        const path = firstError.path?.length > 0 ? `${firstError.path.join(".")}: ` : ""
+        const message = firstError.message || "Invalid policy structure"
 
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: `Invalid policy JSON structure: ${errorDetails}`,
-          // Do NOT include cause - prevents information disclosure
+          message: `${path}${message}`,
         })
       }
 

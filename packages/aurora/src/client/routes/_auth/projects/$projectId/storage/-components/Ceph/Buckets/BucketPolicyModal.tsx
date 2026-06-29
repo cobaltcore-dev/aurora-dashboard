@@ -7,73 +7,6 @@ import { Modal, Stack, Select, SelectOption, Button, Spinner, Message, Form } fr
 import { JsonEditor } from "@/client/components/JsonEditor"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
-// Policy schema matching the backend validation (from server/Storage/types/ceph.ts)
-// Duplicated here to avoid importing server code into the client bundle
-// Using .strict() to reject unknown fields that would be stripped by the backend
-const bucketPolicyStatementSchema = z
-  .object({
-    Sid: z.string().optional(),
-    Effect: z.enum(["Allow", "Deny"]),
-    Principal: z
-      .union([
-        z.string(),
-        z.object({
-          AWS: z.union([z.string(), z.array(z.string())]).optional(),
-          Service: z.union([z.string(), z.array(z.string())]).optional(),
-          Federated: z.union([z.string(), z.array(z.string())]).optional(),
-        }),
-      ])
-      .optional()
-      .superRefine((val, ctx) => {
-        if (val === undefined) return
-        // When Principal is an object, require at least one of AWS, Service, or Federated
-        if (typeof val === "object" && !val.AWS && !val.Service && !val.Federated) {
-          ctx.addIssue({
-            code: "custom",
-            message: "Principal object must contain at least one of: AWS, Service, or Federated",
-          })
-        }
-        // Validate AWS principal ARN format
-        if (typeof val === "object" && val.AWS) {
-          const arns = Array.isArray(val.AWS) ? val.AWS : [val.AWS]
-          for (const arn of arns) {
-            if (arn !== "*" && !/^arn:aws:iam::\d{12}:(?:root|user\/.+|role\/.+)$/.test(arn)) {
-              ctx.addIssue({
-                code: "custom",
-                message: `Invalid AWS principal ARN format: ${arn}. Expected arn:aws:iam::ACCOUNT-ID:root or arn:aws:iam::ACCOUNT-ID:(user|role)/NAME`,
-              })
-            }
-          }
-        }
-      }),
-    NotPrincipal: z
-      .union([
-        z.string(),
-        z.object({
-          AWS: z.union([z.string(), z.array(z.string())]).optional(),
-          Service: z.union([z.string(), z.array(z.string())]).optional(),
-          Federated: z.union([z.string(), z.array(z.string())]).optional(),
-        }),
-      ])
-      .optional(),
-    Action: z.union([z.string(), z.array(z.string())]).optional(),
-    NotAction: z.union([z.string(), z.array(z.string())]).optional(),
-    Resource: z.union([z.string(), z.array(z.string())]).optional(),
-    NotResource: z.union([z.string(), z.array(z.string())]).optional(),
-    Condition: z
-      .record(z.string(), z.record(z.string(), z.union([z.string(), z.array(z.string()), z.number(), z.boolean()])))
-      .optional(),
-  })
-  .strict()
-
-const bucketPolicyDocumentSchema = z
-  .object({
-    Version: z.string().default("2012-10-17"),
-    Id: z.string().optional(),
-    Statement: z.array(bucketPolicyStatementSchema).min(1, "Policy must contain at least one statement"),
-  })
-  .strict()
-
 interface BucketPolicyModalProps {
   isOpen: boolean
   bucketName: string
@@ -139,7 +72,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
 
-  // Form schema with policy validation using the same schema as the backend
+  // Form schema - only validates JSON syntax and size, backend handles policy structure validation
   const formSchema = z.object({
     policyText: z
       .string()
@@ -148,14 +81,13 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       .refine(
         (value) => {
           try {
-            const parsed = JSON.parse(value)
-            bucketPolicyDocumentSchema.parse(parsed)
+            JSON.parse(value)
             return true
           } catch {
             return false
           }
         },
-        { message: t`Invalid policy structure` }
+        { message: t`Invalid JSON format` }
       ),
     selectedTemplate: z.string(),
   })
@@ -280,31 +212,22 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     return new Blob([policyTextValue]).size
   }, [policyTextValue])
 
-  // Validate policy using the same schema as the backend
-  const policyValidationError = useMemo(() => {
+  // Validate JSON syntax only - backend handles policy structure validation
+  const jsonSyntaxError = useMemo(() => {
     if (!policyTextValue.trim()) return null
     try {
-      const parsed = JSON.parse(policyTextValue)
-      bucketPolicyDocumentSchema.parse(parsed)
+      JSON.parse(policyTextValue)
       return null
     } catch (error) {
       if (error instanceof SyntaxError) {
         return error.message
       }
-      if (error instanceof z.ZodError) {
-        const zodError = error as z.ZodError
-        const firstError = zodError.issues?.[0]
-        if (!firstError) return "Invalid policy structure"
-        const path = firstError.path?.length > 0 ? `${firstError.path.join(".")}: ` : ""
-        return `${path}${firstError.message}`
-      }
-      return "Invalid policy structure"
+      return "Invalid JSON"
     }
   }, [policyTextValue])
 
   const isSaving = setMutation.isPending || isSubmitting
-  const canSubmit =
-    !isSaving && !policyValidationError && policyTextValue.trim().length > 0 && policySize <= MAX_POLICY_SIZE
+  const canSubmit = !isSaving && !jsonSyntaxError && policyTextValue.trim().length > 0 && policySize <= MAX_POLICY_SIZE
 
   const handleSave = () => {
     form.handleSubmit()
@@ -410,7 +333,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
                         className="h-96"
                         disabled={isSaving}
                         placeholder={t`Enter bucket policy JSON...`}
-                        error={policyValidationError}
+                        error={jsonSyntaxError}
                       />
                       <div className="mt-1 flex items-center justify-between text-xs">
                         <span className={policySize > MAX_POLICY_SIZE ? "text-theme-error" : "text-theme-light"}>
@@ -418,7 +341,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
                             Size: {policySize} / {MAX_POLICY_SIZE} bytes
                           </Trans>
                         </span>
-                        {policyValidationError && <span className="text-theme-error">{policyValidationError}</span>}
+                        {jsonSyntaxError && <span className="text-theme-error">{jsonSyntaxError}</span>}
                       </div>
                     </>
                   )}

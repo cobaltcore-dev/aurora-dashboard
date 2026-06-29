@@ -1735,7 +1735,7 @@ msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
 msgid "Invalid format combination for selected disk format"
 msgstr "Ungültige Formatkombination für das ausgewählte Festplattenformat"
 
-msgid "Invalid policy structure"
+msgid "Invalid JSON format"
 msgstr ""
 
 msgid "Invalid project ID format. Must be 32 hexadecimal characters (e.g., b90f9c4bc76140e18540b2cec1299e2a) or UUID format (e.g., 12345678-1234-1234-1234-123456789abc)"
