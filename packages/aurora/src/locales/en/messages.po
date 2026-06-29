@@ -1288,9 +1288,6 @@ msgstr "Failed to delete {failedCount} of {totalCount} image(s). Some images may
 msgid "Failed to Delete Bucket"
 msgstr "Failed to Delete Bucket"
 
-msgid "Failed to delete bucket \"{bucketName}\": {errorMessage}"
-msgstr "Failed to delete bucket \"{bucketName}\": {errorMessage}"
-
 msgid "Failed to Delete Container"
 msgstr "Failed to Delete Container"
 
@@ -1324,17 +1321,11 @@ msgstr "Failed to delete the flavor. Please try again."
 msgid "Failed to delete version: {errorMessage}"
 msgstr "Failed to delete version: {errorMessage}"
 
-msgid "Failed to delete versions from bucket \"{bucketName}\": {errorMessage}"
-msgstr "Failed to delete versions from bucket \"{bucketName}\": {errorMessage}"
-
 msgid "Failed to Download"
 msgstr "Failed to Download"
 
 msgid "Failed to Empty Bucket"
 msgstr "Failed to Empty Bucket"
-
-msgid "Failed to empty bucket \"{bucketName}\": {errorMessage}"
-msgstr "Failed to empty bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Failed to Empty Container"
 msgstr "Failed to Empty Container"
@@ -2884,23 +2875,14 @@ msgstr "Successfully activated {successCount} of {totalCount} image(s)"
 msgid "Successfully deactivated {successCount} of {totalCount} image(s)"
 msgstr "Successfully deactivated {successCount} of {totalCount} image(s)"
 
-msgid "Successfully deleted {deletedCount} versions and delete markers from bucket \"{bucketName}\"."
-msgstr "Successfully deleted {deletedCount} versions and delete markers from bucket \"{bucketName}\"."
-
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "Successfully deleted {successCount} of {totalCount} image(s)"
-
-msgid "Successfully deleted bucket \"{bucketName}\"."
-msgstr "Successfully deleted bucket \"{bucketName}\"."
 
 msgid "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
 msgstr "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
 
 msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
 msgstr "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
-
-msgid "Successfully emptied bucket \"{bucketName}\". {deletedCount} objects deleted."
-msgstr "Successfully emptied bucket \"{bucketName}\". {deletedCount} objects deleted."
 
 msgid "Suggested Images"
 msgstr "Suggested Images"
