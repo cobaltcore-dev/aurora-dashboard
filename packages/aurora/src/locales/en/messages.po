@@ -2365,9 +2365,6 @@ msgstr "Please select a file to upload"
 msgid "Policy"
 msgstr "Policy"
 
-msgid "Policy cannot be empty"
-msgstr "Policy cannot be empty"
-
 msgid "Policy document exceeds maximum size of 20KB"
 msgstr "Policy document exceeds maximum size of 20KB"
 

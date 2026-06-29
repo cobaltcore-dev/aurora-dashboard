@@ -2365,9 +2365,6 @@ msgstr "Bitte wählen Sie eine Datei zum Hochladen aus"
 msgid "Policy"
 msgstr "Richtlinie"
 
-msgid "Policy cannot be empty"
-msgstr ""
-
 msgid "Policy document exceeds maximum size of 20KB"
 msgstr ""
 

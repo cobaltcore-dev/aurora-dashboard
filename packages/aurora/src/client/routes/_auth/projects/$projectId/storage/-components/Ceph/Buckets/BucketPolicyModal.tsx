@@ -73,13 +73,14 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const utils = trpcReact.useUtils()
 
   // Form schema - only validates JSON syntax and size, backend handles policy structure validation
+  // Empty string is allowed (will trigger delete)
   const formSchema = z.object({
     policyText: z
       .string()
-      .min(1, t`Policy cannot be empty`)
       .max(MAX_POLICY_SIZE, t`Policy document exceeds maximum size of 20KB`)
       .refine(
         (value) => {
+          if (!value.trim()) return true // Empty is valid (will delete policy)
           try {
             JSON.parse(value)
             return true
@@ -120,6 +121,18 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     },
   })
 
+  // Delete mutation (for when policy is cleared)
+  const deleteMutation = trpcReact.storage.ceph.bucketPolicy.delete.useMutation({
+    onSuccess: () => {
+      utils.storage.ceph.bucketPolicy.get.invalidate()
+      onSuccess?.(bucketName)
+      handleClose()
+    },
+    onError: (error) => {
+      onError?.(bucketName, error.message)
+    },
+  })
+
   const form = useForm({
     defaultValues: {
       policyText: "",
@@ -129,11 +142,19 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      setMutation.mutate({
-        project_id: projectId,
-        bucketName,
-        policy: value.policyText,
-      })
+      if (!value.policyText.trim()) {
+        // Empty policy = delete
+        deleteMutation.mutate({
+          project_id: projectId,
+          bucketName,
+        })
+      } else {
+        setMutation.mutate({
+          project_id: projectId,
+          bucketName,
+          policy: value.policyText,
+        })
+      }
     },
   })
 
@@ -159,6 +180,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const handleClose = () => {
     form.reset()
     setMutation.reset()
+    deleteMutation.reset()
     onClose()
   }
 
@@ -226,8 +248,8 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     }
   }, [policyTextValue])
 
-  const isSaving = setMutation.isPending || isSubmitting
-  const canSubmit = !isSaving && !jsonSyntaxError && policyTextValue.trim().length > 0 && policySize <= MAX_POLICY_SIZE
+  const isSaving = setMutation.isPending || deleteMutation.isPending || isSubmitting
+  const canSubmit = !isSaving && !jsonSyntaxError && policySize <= MAX_POLICY_SIZE
 
   const handleSave = () => {
     form.handleSubmit()
@@ -241,7 +263,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       title={t`Edit/view Bucket Policy`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={t`Save Policy`}
+      confirmButtonLabel={policyTextValue.trim() ? t`Save Policy` : t`Delete Policy`}
       onConfirm={handleSave}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={!canSubmit}
@@ -263,6 +285,12 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
         {setMutation.error && (
           <Message variant="error" title={t`Failed to save policy`}>
             {setMutation.error.message}
+          </Message>
+        )}
+
+        {deleteMutation.error && (
+          <Message variant="error" title={t`Failed to delete policy`}>
+            {deleteMutation.error.message}
           </Message>
         )}
 
