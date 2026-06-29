@@ -1,5 +1,5 @@
 import { ReactNode } from "react"
-import { ToastProps } from "@cloudoperators/juno-ui-components"
+import { NotificationOptions, ToastProps } from "@cloudoperators/juno-ui-components"
 import { Trans, Plural } from "@lingui/react/macro"
 import { Stack } from "@cloudoperators/juno-ui-components/index"
 
@@ -21,14 +21,12 @@ interface ToastConfig {
   onDismiss: () => void
 }
 
-export const getBucketCreatedToast = (bucketName: string, config: ToastConfig): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Bucket Created</Trans>}
-      description={<Trans>Bucket "{bucketName}" was successfully created.</Trans>}
-    />
-  ),
+export const getBucketCreatedToast = (
+  bucketName: string,
+  config: ToastConfig
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Bucket Created</Trans>,
+  description: <Trans>Bucket "{bucketName}" was successfully created.</Trans>,
   onDismiss: config.onDismiss,
 })
 

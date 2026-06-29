@@ -17,6 +17,7 @@ import {
   SearchInput,
   Spinner,
   Stack,
+  toast,
   Toast,
   ToastProps,
 } from "@cloudoperators/juno-ui-components"
@@ -81,7 +82,9 @@ export const CephBuckets = () => {
   const handleToastDismiss = () => setToastData(null)
 
   const handleCreateSuccess = (bucketName: string) => {
-    setToastData(getBucketCreatedToast(bucketName, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getBucketCreatedToast(bucketName, { onDismiss: handleToastDismiss })
+
+    toast.success(message, options)
   }
 
   const handleCreateError = (bucketName: string, errorMessage: string) => {
