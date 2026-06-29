@@ -167,10 +167,11 @@ function MyFooter(_props: SlotProps) {
 | `login`                 | Replaces the default login form — use in OIDC environments                   | —                              | No                    |
 | `serviceBadge`          | Inline next to each service label in the side nav and project home cards     | `currentService` (service key) | No                    |
 | `servicePageActions`    | Beside the page title in the service page header                             | `currentService` (service key) | No                    |
+| `serviceBanner`         | Below the page title divider on every service page                           | `currentService` (service key) | No                    |
 | `projectsBanner`        | Below the "Projects" heading on the projects list page                       | —                              | No                    |
 | `projectOverviewBanner` | Below the project description on the project overview page (`/projects/:id`) | —                              | No                    |
 
-The `serviceBadge` and `servicePageActions` slots receive `auroraContext.currentService` — a string identifying which service is being rendered (e.g. `"images"`, `"ceph-containers"`). Return `null` from these slots to suppress rendering for specific services.
+The `serviceBadge`, `servicePageActions`, and `serviceBanner` slots receive `auroraContext.currentService` — a string identifying which service is being rendered (e.g. `"images"`, `"ceph-containers"`). Return `null` from these slots to suppress rendering for specific services.
 
 **Service key reference:** `"images"`, `"flavors"`, `"securitygroups"`, `"floatingips"`, `"containers"`, `"ceph-containers"`, `"pca"`
 

@@ -1,8 +1,7 @@
-import { useState } from "react"
 import { Trans } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Button, Stack, Toast, ToastProps } from "@cloudoperators/juno-ui-components"
+import { Button, Stack, toast } from "@cloudoperators/juno-ui-components"
 
 interface CredentialPromptProps {
   onSuccess: () => void
@@ -10,7 +9,6 @@ interface CredentialPromptProps {
 
 export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
   const projectId = useProjectId()
-  const [toast, setToast] = useState<ToastProps | null>(null)
   const utils = trpcReact.useUtils()
 
   const createMutation = trpcReact.storage.ceph.ec2Credentials.create.useMutation({
@@ -20,17 +18,12 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
     },
     onError: (err) => {
       const errorMessage = err.message
-      setToast({
-        variant: "error",
-        children: <Trans>Failed to create credential: {errorMessage}</Trans>,
-        onDismiss: () => setToast(null),
-      })
+      toast.error(<Trans>Failed to create credential: {errorMessage}</Trans>)
     },
   })
 
   return (
     <Stack direction="vertical" gap="4" className="mt-8 max-w-lg">
-      {toast && <Toast {...toast} />}
       <h2 className="text-lg font-semibold">
         <Trans>S3 Object Storage — Setup Required</Trans>
       </h2>

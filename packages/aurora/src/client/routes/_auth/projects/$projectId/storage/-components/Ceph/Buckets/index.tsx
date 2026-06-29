@@ -17,8 +17,7 @@ import {
   SearchInput,
   Spinner,
   Stack,
-  Toast,
-  ToastProps,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { BucketTableView } from "./BucketTableView"
 import {
@@ -61,7 +60,6 @@ export const CephBuckets = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [emptyAllModalOpen, setEmptyAllModalOpen] = useState(false)
   const [selectedBuckets, setSelectedBuckets] = useState<string[]>([])
-  const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   // Local mirror of the committed search term so typing stays responsive while
   // the URL commit is debounced (see Zone 2 SearchInput below).
@@ -78,30 +76,40 @@ export const CephBuckets = () => {
     setLocalSearchTerm(searchParam)
   }, [searchParam])
 
-  const handleToastDismiss = () => setToastData(null)
-
   const handleCreateSuccess = (bucketName: string) => {
-    setToastData(getBucketCreatedToast(bucketName, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getBucketCreatedToast(bucketName)
+
+    toast.success(message, options)
   }
 
   const handleCreateError = (bucketName: string, errorMessage: string) => {
-    setToastData(getBucketCreateErrorToast(bucketName, errorMessage, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getBucketCreateErrorToast(bucketName, errorMessage)
+
+    toast.error(message, options)
   }
 
   const handleEmptySuccess = (bucketName: string, deletedCount: number) => {
-    setToastData(getBucketEmptiedToast(bucketName, deletedCount, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getBucketEmptiedToast(bucketName, deletedCount)
+
+    toast.success(message, options)
   }
 
   const handleEmptyError = (bucketName: string, errorMessage: string) => {
-    setToastData(getBucketEmptyErrorToast(bucketName, errorMessage, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getBucketEmptyErrorToast(bucketName, errorMessage)
+
+    toast.error(message, options)
   }
 
   const handleDeleteSuccess = (bucketName: string) => {
-    setToastData(getBucketDeletedToast(bucketName, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getBucketDeletedToast(bucketName)
+
+    toast.success(message, options)
   }
 
   const handleDeleteError = (bucketName: string, errorMessage: string) => {
-    setToastData(getBucketDeleteErrorToast(bucketName, errorMessage, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getBucketDeleteErrorToast(bucketName, errorMessage)
+
+    toast.error(message, options)
   }
 
   const handleEmptyAllComplete = ({
@@ -122,7 +130,14 @@ export const CephBuckets = () => {
       const failedBucketNames = new Set(errors.map((e) => e.split(": ")[0]))
       setSelectedBuckets((prev) => prev.filter((name) => failedBucketNames.has(name)))
     }
-    setToastData(getBucketsEmptyCompleteToast(emptiedCount, totalDeleted, errors, { onDismiss: handleToastDismiss }))
+
+    const { message, ...options } = getBucketsEmptyCompleteToast(emptiedCount, totalDeleted, errors)
+
+    if (errors.length > 0) {
+      toast.warning(message, options)
+    } else {
+      toast.success(message, options)
+    }
   }
 
   const sortSettings: SortSettings = {
@@ -413,10 +428,6 @@ export const CephBuckets = () => {
         onClose={() => setEmptyAllModalOpen(false)}
         onComplete={handleEmptyAllComplete}
       />
-
-      {toastData && (
-        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
-      )}
     </div>
   )
 }
