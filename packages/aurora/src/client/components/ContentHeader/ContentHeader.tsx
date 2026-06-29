@@ -4,7 +4,7 @@ import { Trans } from "@lingui/react/macro"
 import { useRouteContext, useMatches, useParams } from "@tanstack/react-router"
 import ClipboardText from "../ClipboardText"
 import { Slot } from "../Slot"
-import { isRouteInfo } from "@/client/routes/routeInfo"
+import { isRouteInfo, ROUTE_SERVICES } from "@/client/routes/routeInfo"
 
 interface ContentHeaderProps {
   title: string
@@ -22,9 +22,10 @@ export function ContentHeader({ title, projectId, description, actions, badges }
   const activeMatch = [...matches].reverse().find((m) => isRouteInfo(m.staticData))
   const routeService = activeMatch && isRouteInfo(activeMatch.staticData) ? activeMatch.staticData.service : undefined
 
-  // Storage routes share service: "containers" for both Swift and Ceph.
-  // Distinguish them by the $provider param.
-  const currentService = routeService === "containers" && provider === "ceph" ? "ceph-containers" : routeService
+  // Storage routes use service: "object-store" for both Swift and Ceph.
+  // Distinguish them by the $provider param for slot rendering.
+  const currentService =
+    routeService === ROUTE_SERVICES.OBJECT_STORE && provider === "ceph" ? "ceph-containers" : routeService
 
   const slotActions =
     slots?.servicePageActions && currentService ? (

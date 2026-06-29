@@ -7,7 +7,7 @@ import {
   SideNavigationItem,
   Divider,
 } from "@cloudoperators/juno-ui-components/index"
-import { isRouteInfo } from "@/client/routes/routeInfo"
+import { isRouteInfo, ROUTE_SECTIONS, ROUTE_SERVICES } from "@/client/routes/routeInfo"
 import { Slot } from "@/client/components/Slot"
 import type { NavSection } from "./buildNavSections"
 
@@ -66,10 +66,11 @@ export const SideNavBar = ({ projectId, projectName, domainName, sections }: Sid
             {sections.map(({ section, label, services }) => (
               <SideNavigationGroup key={`${section}-${forceOpenCounter[section]}`} label={label} open={true}>
                 {services.map((item) => {
-                  const isStorageContainers = activeSection === "storage" && activeService === "containers"
+                  const isStorageObjectStore =
+                    activeSection === ROUTE_SECTIONS.STORAGE && activeService === ROUTE_SERVICES.OBJECT_STORE
                   const isSelected =
                     activeSection === section &&
-                    (isStorageContainers ? item.params.provider === provider : activeService === item.service)
+                    (isStorageObjectStore ? item.params.provider === provider : activeService === item.service)
 
                   return (
                     <SideNavigationItem

@@ -46,6 +46,9 @@ export const ROUTE_SERVICES = {
 
 export type RouteService = (typeof ROUTE_SERVICES)[keyof typeof ROUTE_SERVICES]
 
+const ROUTE_SECTIONS_VALUES = Object.values(ROUTE_SECTIONS) as [RouteSection, ...RouteSection[]]
+const ROUTE_SERVICES_VALUES = Object.values(ROUTE_SERVICES) as [RouteService, ...RouteService[]]
+
 const CrumbSchema = z.object({
   labelKey: z.enum(CRUMB_LABEL_KEYS).optional(),
   to: z.string().optional(),
@@ -54,8 +57,8 @@ const CrumbSchema = z.object({
 })
 
 const RouteInfoSchema = z.object({
-  section: z.string(),
-  service: z.string().optional(),
+  section: z.enum(ROUTE_SECTIONS_VALUES),
+  service: z.enum(ROUTE_SERVICES_VALUES).optional(),
   isDetail: z.boolean().optional(),
   crumb: CrumbSchema.optional(),
   sectionCrumb: CrumbSchema.optional(),
