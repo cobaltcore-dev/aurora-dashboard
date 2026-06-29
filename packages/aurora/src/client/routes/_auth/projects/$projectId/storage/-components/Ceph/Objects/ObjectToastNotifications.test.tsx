@@ -170,9 +170,12 @@ describe("ObjectToastNotifications", () => {
       ]
       notifications.forEach((notification) => {
         expect(notification.message).toBeTruthy()
-        expect(typeof notification.message).toBe("object")
         expect(notification.description).toBeTruthy()
-        expect(typeof notification.description).toBe("object")
+        // Prove each payload is actually renderable rather than asserting a
+        // specific typeof — ReactNode also covers strings, numbers, and the
+        // () => ReactNode form of description.
+        const view = renderNotification(notification)
+        view.unmount()
       })
     })
 

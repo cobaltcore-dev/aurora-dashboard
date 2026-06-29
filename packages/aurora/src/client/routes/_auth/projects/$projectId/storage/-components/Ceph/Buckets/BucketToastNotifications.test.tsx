@@ -34,8 +34,6 @@ describe("BucketToastNotifications", () => {
     i18n.activate("en")
   })
 
-  // ── getBucketCreatedToast ────────────────────────────────────────────────────
-
   describe("getBucketCreatedToast", () => {
     it("returns notification with correct structure", () => {
       const toast = getBucketCreatedToast("my-bucket")
@@ -60,8 +58,6 @@ describe("BucketToastNotifications", () => {
       expect(screen.getByText("Bucket Created")).toBeInTheDocument()
     })
   })
-
-  // ── getBucketCreateErrorToast ────────────────────────────────────────────────
 
   describe("getBucketCreateErrorToast", () => {
     it("returns notification with correct structure", () => {
@@ -95,8 +91,6 @@ describe("BucketToastNotifications", () => {
     })
   })
 
-  // ── getBucketEmptiedToast ────────────────────────────────────────────────────
-
   describe("getBucketEmptiedToast", () => {
     it("returns notification with correct structure", () => {
       const toast = getBucketEmptiedToast("my-bucket", 5)
@@ -128,8 +122,6 @@ describe("BucketToastNotifications", () => {
     })
   })
 
-  // ── getBucketEmptyErrorToast ────────────────────────────────────────────────
-
   describe("getBucketEmptyErrorToast", () => {
     it("returns notification with correct structure", () => {
       const toast = getBucketEmptyErrorToast("my-bucket", "Internal Server Error")
@@ -156,8 +148,6 @@ describe("BucketToastNotifications", () => {
     })
   })
 
-  // ── getBucketDeletedToast ────────────────────────────────────────────────────
-
   describe("getBucketDeletedToast", () => {
     it("returns notification with correct structure", () => {
       const toast = getBucketDeletedToast("my-bucket")
@@ -177,8 +167,6 @@ describe("BucketToastNotifications", () => {
       expect(screen.getByText(/my-bucket-2024/)).toBeInTheDocument()
     })
   })
-
-  // ── getBucketDeleteErrorToast ────────────────────────────────────────────────
 
   describe("getBucketDeleteErrorToast", () => {
     it("returns notification with correct structure", () => {
@@ -205,8 +193,6 @@ describe("BucketToastNotifications", () => {
       expect(screen.getByText("Failed to Delete Bucket")).toBeInTheDocument()
     })
   })
-
-  // ── getBucketsEmptyCompleteToast ─────────────────────────────────────────────
 
   describe("getBucketsEmptyCompleteToast", () => {
     it("returns notification with correct structure when no errors", () => {
@@ -259,8 +245,6 @@ describe("BucketToastNotifications", () => {
     })
   })
 
-  // ── Notification configuration ───────────────────────────────────────────────
-
   describe("Notification configuration", () => {
     it("all helpers return a message and description as ReactNodes", () => {
       const notifications = [
@@ -274,9 +258,12 @@ describe("BucketToastNotifications", () => {
       ]
       notifications.forEach((notification) => {
         expect(notification.message).toBeTruthy()
-        expect(typeof notification.message).toBe("object")
         expect(notification.description).toBeTruthy()
-        expect(typeof notification.description).toBe("object")
+        // Prove each payload is actually renderable rather than asserting a
+        // specific typeof — ReactNode also covers strings, numbers, and the
+        // () => ReactNode form of description.
+        const view = renderNotification(notification)
+        view.unmount()
       })
     })
 
