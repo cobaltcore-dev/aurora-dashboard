@@ -30,6 +30,8 @@ export type Slots = {
   projectsBanner?: FC<SlotProps>
   /** Rendered below the project description on the project overview page (/projects/$projectId). Renders outside shadow DOM. */
   projectOverviewBanner?: FC<SlotProps>
+  /** Rendered below the page title divider on every service page. Receives `auroraContext.currentService`. Renders outside shadow DOM. */
+  serviceBanner?: FC<SlotProps>
 }
 
 /**
