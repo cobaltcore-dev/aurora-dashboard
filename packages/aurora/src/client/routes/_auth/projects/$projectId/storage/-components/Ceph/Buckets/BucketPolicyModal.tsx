@@ -14,18 +14,52 @@ const bucketPolicyStatementSchema = z
   .object({
     Sid: z.string().optional(),
     Effect: z.enum(["Allow", "Deny"]),
-    Principal: z.union([
-      z.string(),
-      z
-        .object({
+    Principal: z
+      .union([
+        z.string(),
+        z.object({
           AWS: z.union([z.string(), z.array(z.string())]).optional(),
           Service: z.union([z.string(), z.array(z.string())]).optional(),
           Federated: z.union([z.string(), z.array(z.string())]).optional(),
-        })
-        .strict(),
-    ]),
-    Action: z.union([z.string(), z.array(z.string())]),
-    Resource: z.union([z.string(), z.array(z.string())]),
+        }),
+      ])
+      .optional()
+      .superRefine((val, ctx) => {
+        if (val === undefined) return
+        // When Principal is an object, require at least one of AWS, Service, or Federated
+        if (typeof val === "object" && !val.AWS && !val.Service && !val.Federated) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Principal object must contain at least one of: AWS, Service, or Federated",
+          })
+        }
+        // Validate AWS principal ARN format
+        if (typeof val === "object" && val.AWS) {
+          const arns = Array.isArray(val.AWS) ? val.AWS : [val.AWS]
+          for (const arn of arns) {
+            if (arn !== "*" && !/^arn:aws:iam::\d{12}:(?:root|user\/.+|role\/.+)$/.test(arn)) {
+              ctx.addIssue({
+                code: "custom",
+                message: `Invalid AWS principal ARN format: ${arn}. Expected arn:aws:iam::ACCOUNT-ID:root or arn:aws:iam::ACCOUNT-ID:(user|role)/NAME`,
+              })
+            }
+          }
+        }
+      }),
+    NotPrincipal: z
+      .union([
+        z.string(),
+        z.object({
+          AWS: z.union([z.string(), z.array(z.string())]).optional(),
+          Service: z.union([z.string(), z.array(z.string())]).optional(),
+          Federated: z.union([z.string(), z.array(z.string())]).optional(),
+        }),
+      ])
+      .optional(),
+    Action: z.union([z.string(), z.array(z.string())]).optional(),
+    NotAction: z.union([z.string(), z.array(z.string())]).optional(),
+    Resource: z.union([z.string(), z.array(z.string())]).optional(),
+    NotResource: z.union([z.string(), z.array(z.string())]).optional(),
     Condition: z
       .record(z.string(), z.record(z.string(), z.union([z.string(), z.array(z.string()), z.number(), z.boolean()])))
       .optional(),
