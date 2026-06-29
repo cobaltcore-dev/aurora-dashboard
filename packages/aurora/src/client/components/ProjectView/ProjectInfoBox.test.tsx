@@ -149,7 +149,7 @@ describe("ProjectInfoBox", () => {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
           staticData: {
             section: "storage",
-            service: "containers",
+            service: "object-store",
             sectionCrumb: { labelKey: "Storage" },
             crumb: { useParamAsLabel: "provider" },
           },
@@ -172,7 +172,7 @@ describe("ProjectInfoBox", () => {
           routeId: `${PROJECT_ROUTE_ID}/storage/ceph/containers`,
           staticData: {
             section: "storage",
-            service: "containers",
+            service: "object-store",
             sectionCrumb: { labelKey: "Storage" },
             crumb: { useParamAsLabel: "provider" },
           },
@@ -195,7 +195,7 @@ describe("ProjectInfoBox", () => {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
           staticData: {
             section: "storage",
-            service: "containers",
+            service: "object-store",
             isDetail: true,
             sectionCrumb: { labelKey: "Storage" },
             crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/$storageType" },
@@ -479,7 +479,7 @@ describe("ProjectInfoBox", () => {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
           staticData: {
             section: "storage",
-            service: "containers",
+            service: "object-store",
             isDetail: true,
             sectionCrumb: { labelKey: "Storage" },
             crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/$storageType" },
