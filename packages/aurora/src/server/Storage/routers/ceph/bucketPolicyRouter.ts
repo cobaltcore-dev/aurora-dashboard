@@ -241,7 +241,26 @@ export const bucketPolicyRouter = {
             message: "Invalid policy structure",
           })
         }
-        const path = firstError.path?.length > 0 ? `${firstError.path.join(".")}: ` : ""
+
+        // Convert path to human-readable format (e.g., "Statement.0" -> "Statement 1")
+        const formatPath = (path: readonly (string | number)[]): string => {
+          if (path.length === 0) return ""
+          return (
+            path
+              .map((segment, index) => {
+                if (typeof segment === "number") {
+                  // Convert 0-based index to 1-based for humans
+                  return `${segment + 1}`
+                }
+                // Add space before segment if previous was a number
+                const prev = path[index - 1]
+                return typeof prev === "number" ? ` ${segment}` : segment
+              })
+              .join(" ") + ": "
+          )
+        }
+
+        const path = formatPath(firstError.path as (string | number)[])
         const message = firstError.message || "Invalid policy structure"
 
         throw new TRPCError({

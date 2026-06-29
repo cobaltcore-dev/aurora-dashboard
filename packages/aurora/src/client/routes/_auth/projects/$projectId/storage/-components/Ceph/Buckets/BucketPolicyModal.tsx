@@ -3,7 +3,7 @@ import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Select, SelectOption, Button, Spinner, Message, Form } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Select, SelectOption, Spinner, Message, Form } from "@cloudoperators/juno-ui-components"
 import { JsonEditor } from "@/client/components/JsonEditor"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -158,6 +158,22 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     },
   })
 
+  // Check if a policy matches one of the predefined templates
+  const findMatchingTemplate = (policyText: string): string => {
+    try {
+      const policy = JSON.parse(policyText)
+      for (const template of POLICY_TEMPLATES) {
+        const templatePolicy = template.generator(bucketName)
+        if (JSON.stringify(policy) === JSON.stringify(templatePolicy)) {
+          return template.value
+        }
+      }
+    } catch {
+      // Invalid JSON, no match
+    }
+    return ""
+  }
+
   // Load policy data into form when modal opens or data changes
   useEffect(() => {
     if (!isOpen) return
@@ -167,15 +183,18 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
         const parsed = JSON.parse(policyData.policyText)
         const formatted = JSON.stringify(parsed, null, 2)
         form.setFieldValue("policyText", formatted)
-        form.setFieldValue("selectedTemplate", "")
+        // Check if the loaded policy matches a template
+        const matchingTemplate = findMatchingTemplate(policyData.policyText)
+        form.setFieldValue("selectedTemplate", matchingTemplate)
       } catch {
         form.setFieldValue("policyText", policyData.policyText)
+        form.setFieldValue("selectedTemplate", "")
       }
     } else if (policyData?.policy === null) {
       form.setFieldValue("policyText", "")
       form.setFieldValue("selectedTemplate", "")
     }
-  }, [isOpen, policyData, form])
+  }, [isOpen, policyData, form, bucketName])
 
   const handleClose = () => {
     form.reset()
@@ -197,27 +216,16 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     }
   }
 
-  const handleReset = () => {
-    if (policyData?.policyText) {
-      try {
-        const parsed = JSON.parse(policyData.policyText)
-        form.setFieldValue("policyText", JSON.stringify(parsed, null, 2))
-      } catch {
-        form.setFieldValue("policyText", policyData.policyText)
-      }
-    } else {
-      form.setFieldValue("policyText", "")
-    }
-    form.setFieldValue("selectedTemplate", "")
-  }
-
   // Subscribe to form state for reactivity
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting)
   const policyTextValue = useStore(form.store, (state) => state.values.policyText)
   const selectedTemplateValue = useStore(form.store, (state) => state.values.selectedTemplate)
 
-  // Compute isDirty relative to the loaded policy, not form's defaultValues (which are empty strings).
-  // This prevents false "Unsaved changes" indicator when the modal opens with existing policy.
+  const policySize = useMemo(() => {
+    return new Blob([policyTextValue]).size
+  }, [policyTextValue])
+
+  // Compare current value with original to detect changes
   const originalPolicyText = useMemo(() => {
     if (!policyData?.policyText) return ""
     try {
@@ -228,11 +236,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     }
   }, [policyData?.policyText])
 
-  const isDirty = policyTextValue !== originalPolicyText
-
-  const policySize = useMemo(() => {
-    return new Blob([policyTextValue]).size
-  }, [policyTextValue])
+  const hasChanges = policyTextValue !== originalPolicyText
 
   // Validate JSON syntax only - backend handles policy structure validation
   const jsonSyntaxError = useMemo(() => {
@@ -249,7 +253,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   }, [policyTextValue])
 
   const isSaving = setMutation.isPending || deleteMutation.isPending || isSubmitting
-  const canSubmit = !isSaving && !jsonSyntaxError && policySize <= MAX_POLICY_SIZE
+  const canSubmit = !isSaving && !jsonSyntaxError && policySize <= MAX_POLICY_SIZE && hasChanges
 
   const handleSave = () => {
     form.handleSubmit()
@@ -263,7 +267,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       title={t`Edit/view Bucket Policy`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={policyTextValue.trim() ? t`Save Policy` : t`Delete Policy`}
+      confirmButtonLabel={t`Save`}
       onConfirm={handleSave}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={!canSubmit}
@@ -332,21 +336,9 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
                   name="policyText"
                   children={(field) => (
                     <>
-                      <div className="mb-1.5 flex items-center justify-between">
-                        <label htmlFor={field.name} className="juno-label">
-                          <Trans>Policy JSON</Trans>
-                        </label>
-                        {isDirty && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-theme-warning text-xs">
-                              <Trans>Unsaved changes</Trans>
-                            </span>
-                            <Button variant="subdued" size="small" onClick={handleReset} disabled={isSaving}>
-                              <Trans>Reset</Trans>
-                            </Button>
-                          </div>
-                        )}
-                      </div>
+                      <label htmlFor={field.name} className="juno-label mb-1.5">
+                        <Trans>Policy JSON</Trans>
+                      </label>
                       <JsonEditor
                         id={field.name}
                         name={field.name}

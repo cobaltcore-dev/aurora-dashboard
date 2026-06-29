@@ -2572,9 +2572,6 @@ msgstr "Wird entfernt..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reservierte Schlüssel: web-index, web-listings, quota-count, quota-bytes"
 
-msgid "Reset"
-msgstr ""
-
 msgid "Restart"
 msgstr "Neustart"
 
@@ -2631,9 +2628,6 @@ msgstr "Änderungen speichern"
 
 msgid "Save Metadata"
 msgstr "Metadata speichern"
-
-msgid "Save Policy"
-msgstr ""
 
 msgid "Saving..."
 msgstr "Wird gespeichert..."
@@ -3324,9 +3318,6 @@ msgstr ""
 
 msgid "Unnamed"
 msgstr "Unbenannt"
-
-msgid "Unsaved changes"
-msgstr ""
 
 msgid "Update object"
 msgstr "Objekt aktualisieren"
