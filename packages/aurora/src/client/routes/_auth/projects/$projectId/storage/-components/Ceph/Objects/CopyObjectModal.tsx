@@ -290,11 +290,11 @@ export const CopyObjectModal = ({
               if (isLoadingBuckets) return t`Loading buckets...`
               const bucketsCount = buckets?.length ?? 0
               if (!modalState.searchTerm.trim() && bucketsCount > MAX_COMBO_OPTIONS) {
-                return t`There are ${bucketsCount} buckets — start typing to search`
+                return t`There are ${bucketsCount} buckets, start typing to search`
               }
               if (modalState.hiddenCount > 0) {
                 const totalBuckets = modalState.visibleBuckets.length + modalState.hiddenCount
-                return t`Showing first ${MAX_COMBO_OPTIONS} of ${totalBuckets} — refine your search to narrow results`
+                return t`Showing first ${MAX_COMBO_OPTIONS} of ${totalBuckets}, refine your search to narrow results`
               }
               return undefined
             })()}
@@ -362,7 +362,7 @@ export const CopyObjectModal = ({
                 </Stack>
               ) : allBrowserRows.length === 0 && !modalState.showNewFolderInput ? (
                 <div className="text-theme-light px-4 py-6 text-center text-sm">
-                  <Trans>This folder is empty — use New Folder to create one.</Trans>
+                  <Trans>This folder is empty, use New Folder to create one.</Trans>
                 </div>
               ) : (
                 <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: "relative" }}>

@@ -2326,14 +2326,14 @@ msgstr "Object:"
 msgid "Objects"
 msgstr "Objects"
 
-msgid "Objects — {containerName}"
-msgstr "Objects — {containerName}"
-
 msgid "Objects Deleted"
 msgstr "Objects Deleted"
 
 msgid "Objects to be deleted ({totalCount})"
 msgstr "Objects to be deleted ({totalCount})"
+
+msgid "Objects: {containerName}"
+msgstr "Objects: {containerName}"
 
 msgid "OK"
 msgstr "OK"
@@ -2341,8 +2341,8 @@ msgstr "OK"
 msgid "Older"
 msgstr "Older"
 
-msgid "Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain even after suspension."
-msgstr "Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain even after suspension."
+msgid "Once enabled, versioning cannot be fully disabled, it can only be suspended. Existing versions will remain even after suspension."
+msgstr "Once enabled, versioning cannot be fully disabled, it can only be suspended. Existing versions will remain even after suspension."
 
 msgid "One or more containers could not be emptied: {errorMessage}"
 msgstr "One or more containers could not be emptied: {errorMessage}"
@@ -2671,8 +2671,8 @@ msgstr "RX/TX Factor must be an integer ≥ 1."
 msgid "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
 msgstr "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
 
-msgid "S3 Object Storage — Setup Required"
-msgstr "S3 Object Storage — Setup Required"
+msgid "S3 Object Storage: Setup Required"
+msgstr "S3 Object Storage: Setup Required"
 
 msgid "Save"
 msgstr "Save"
@@ -2851,8 +2851,8 @@ msgstr "Showing {filteredCount} of {totalCount} {itemName}"
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Showing first {actualObjectCount} of {total} objects"
 
-msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets} — refine your search to narrow results"
-msgstr "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets} — refine your search to narrow results"
+msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
+msgstr "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 msgstr "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
@@ -3112,8 +3112,8 @@ msgstr "The text must match “detach” in lowercase."
 msgid "The text must match “release” in lowercase."
 msgstr "The text must match “release” in lowercase."
 
-msgid "There are {bucketsCount} buckets — start typing to search"
-msgstr "There are {bucketsCount} buckets — start typing to search"
+msgid "There are {bucketsCount} buckets, start typing to search"
+msgstr "There are {bucketsCount} buckets, start typing to search"
 
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
 msgstr "There are no buckets available with the current search criteria. Try adjusting your search term."
@@ -3201,6 +3201,9 @@ msgstr "This extra spec keys already exist. Please use different keys."
 
 msgid "This folder is empty — use New Folder to create one."
 msgstr "This folder is empty — use New Folder to create one."
+
+msgid "This folder is empty, use New Folder to create one."
+msgstr "This folder is empty, use New Folder to create one."
 
 msgid "This folder is empty."
 msgstr "This folder is empty."

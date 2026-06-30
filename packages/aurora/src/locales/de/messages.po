@@ -2326,14 +2326,14 @@ msgstr ""
 msgid "Objects"
 msgstr "Objekte"
 
-msgid "Objects — {containerName}"
-msgstr "Objekte — {containerName}"
-
 msgid "Objects Deleted"
 msgstr "Objekte gelöscht"
 
 msgid "Objects to be deleted ({totalCount})"
 msgstr "Zu löschende Objekte ({totalCount})"
+
+msgid "Objects: {containerName}"
+msgstr ""
 
 msgid "OK"
 msgstr "OK"
@@ -2341,7 +2341,7 @@ msgstr "OK"
 msgid "Older"
 msgstr ""
 
-msgid "Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain even after suspension."
+msgid "Once enabled, versioning cannot be fully disabled, it can only be suspended. Existing versions will remain even after suspension."
 msgstr ""
 
 msgid "One or more containers could not be emptied: {errorMessage}"
@@ -2671,7 +2671,7 @@ msgstr "RX/TX Faktor muss eine ganze Zahl ≥ 1 sein."
 msgid "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
 msgstr ""
 
-msgid "S3 Object Storage — Setup Required"
+msgid "S3 Object Storage: Setup Required"
 msgstr ""
 
 msgid "Save"
@@ -2851,7 +2851,7 @@ msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Erste {actualObjectCount} von {total} Objekten werden angezeigt"
 
-msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets} — refine your search to narrow results"
+msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 msgstr ""
 
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
@@ -3112,7 +3112,7 @@ msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
 msgid "The text must match “release” in lowercase."
 msgstr "Der Text muss “release” in Kleinbuchstaben entsprechen."
 
-msgid "There are {bucketsCount} buckets — start typing to search"
+msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr ""
 
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
@@ -3201,6 +3201,9 @@ msgstr "Dieser Metadata-Key existiert bereits. Bitte verwenden Sie einen anderen
 
 msgid "This folder is empty — use New Folder to create one."
 msgstr "Dieser Ordner ist leer — verwenden Sie \"Neuer Ordner\", um einen zu erstellen."
+
+msgid "This folder is empty, use New Folder to create one."
+msgstr ""
 
 msgid "This folder is empty."
 msgstr "Dieser Ordner ist leer."

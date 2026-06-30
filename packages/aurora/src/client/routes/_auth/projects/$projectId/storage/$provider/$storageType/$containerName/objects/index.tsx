@@ -99,7 +99,7 @@ function ObjectsDashboard() {
                 default:
                   return (
                     <div className="p-4">
-                      <Trans>Objects — {containerName}</Trans>
+                      <Trans>Objects: {containerName}</Trans>
                     </div>
                   )
               }
