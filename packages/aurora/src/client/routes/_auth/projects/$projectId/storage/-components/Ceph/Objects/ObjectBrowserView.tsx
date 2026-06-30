@@ -38,8 +38,6 @@ import {
   getObjectMoveErrorToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
-  getVersionRestoredToast,
-  getVersionDeletedToast,
 } from "./ObjectToastNotifications"
 import { encodePrefix, decodePrefix } from "../../utils/prefixEncoding"
 
@@ -527,14 +525,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
             const { message, ...options } = getObjectMetadataUpdateErrorToast(objectKey, errorMessage)
             toast.error(message, options)
           }}
-          onRestoreVersion={(objectKey) => {
-            const { message, ...options } = getVersionRestoredToast(objectKey)
-            toast.success(message, options)
-          }}
-          onDeleteVersion={(objectKey) => {
-            const { message, ...options } = getVersionDeletedToast(objectKey)
-            toast.success(message, options)
-          }}
         />
       )}
 
@@ -555,7 +545,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           setIsCreateFolderModalOpen(false)
           const { message, ...options } = getFolderCreatedToast(folderPath)
           toast.success(message, options)
-          navigateToPrefix(folderPath)
         }}
       />
 

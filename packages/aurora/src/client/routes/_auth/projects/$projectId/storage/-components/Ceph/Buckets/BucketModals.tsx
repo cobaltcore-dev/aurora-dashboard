@@ -126,6 +126,13 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         }}
       />
 
+      {/*
+        EmptyBucketModal receives a placeholder bucket object with count: 0, bytes: 0.
+        This is intentional - the modal fetches real-time bucket state (versioning status,
+        object count, versions) via its own queries when opened. The placeholder only provides
+        the bucket name for API calls and UI display. This ensures the modal always shows
+        fresh data and avoids stale metadata from the parent component.
+      */}
       <EmptyBucketModal
         isOpen={activeModal === "emptyBucket"}
         bucket={{
@@ -146,6 +153,13 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         }}
       />
 
+      {/*
+        DeleteBucketModal receives a placeholder bucket object with count: 0, bytes: 0.
+        This is intentional - the modal fetches real-time bucket state (object list, versions)
+        via its own queries when opened. The placeholder only provides the bucket name for
+        API calls and UI display. This ensures the modal always shows fresh data and avoids
+        stale metadata from the parent component.
+      */}
       <DeleteBucketModal
         isOpen={activeModal === "deleteBucket"}
         bucket={{
@@ -158,6 +172,13 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         onError={handleDeleteBucketError}
       />
 
+      {/*
+        DeleteVersionsModal receives a placeholder bucket object with count: 0, bytes: 0.
+        This is intentional - the modal fetches real-time bucket state (versions, delete markers)
+        via its own queries when opened. The placeholder only provides the bucket name for
+        API calls and UI display. This ensures the modal always shows fresh data and avoids
+        stale metadata from the parent component.
+      */}
       <DeleteVersionsModal
         isOpen={activeModal === "deleteVersions"}
         bucket={{

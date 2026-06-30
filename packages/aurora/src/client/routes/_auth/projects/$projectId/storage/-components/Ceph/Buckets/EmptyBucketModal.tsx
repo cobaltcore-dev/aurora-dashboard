@@ -23,20 +23,27 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   const utils = trpcReact.useUtils()
 
   // Query versioning status for the bucket
-  const { data: versioningStatus, isLoading: isLoadingVersioning } =
-    trpcReact.storage.ceph.versioning.getStatus.useQuery(
-      {
-        project_id: projectId ?? "",
-        bucket: bucket?.name ?? "",
-      },
-      {
-        enabled: !!projectId && !!bucket && isOpen,
-        staleTime: 30 * 1000,
-      }
-    )
+  const {
+    data: versioningStatus,
+    isLoading: isLoadingVersioning,
+    error: versioningError,
+  } = trpcReact.storage.ceph.versioning.getStatus.useQuery(
+    {
+      project_id: projectId ?? "",
+      bucket: bucket?.name ?? "",
+    },
+    {
+      enabled: !!projectId && !!bucket && isOpen,
+      staleTime: 30 * 1000,
+    }
+  )
 
   // Query to check if bucket has versions/delete markers (only when versioning is enabled/suspended)
-  const { data: versionCheckData, isLoading: isLoadingVersionCheck } = trpcReact.storage.ceph.objects.list.useQuery(
+  const {
+    data: versionCheckData,
+    isLoading: isLoadingVersionCheck,
+    error: versionCheckError,
+  } = trpcReact.storage.ceph.objects.list.useQuery(
     {
       project_id: projectId ?? "",
       containerName: bucket?.name ?? "",
@@ -120,6 +127,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
 
   const bucketName = bucket.name
   const isLoading = isLoadingVersioning || isLoadingVersionCheck
+  const hasQueryError = !!versioningError || !!versionCheckError
 
   // If bucket is empty with only delete markers, show "Delete Versions" UI
   if (isBucketEmptyWithVersions && !isLoading) {
@@ -133,9 +141,15 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
         onConfirm={handleSubmit}
         cancelButtonLabel={t`Cancel`}
         size="small"
-        disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name}
+        disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name || hasQueryError}
       >
         <Stack direction="vertical" gap="6">
+          {hasQueryError && (
+            <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
+              <Trans>Unable to verify bucket versioning status. Please try again.</Trans>
+            </div>
+          )}
+
           <p className="text-theme-default m-0">
             <Trans>
               This action will permanently delete all versions and delete markers. This will enable you to delete the
@@ -151,7 +165,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
             onKeyDown={handleKeyDown}
             invalid={!!nameError}
             errortext={nameError || undefined}
-            disabled={emptyBucketMutation.isPending}
+            disabled={emptyBucketMutation.isPending || hasQueryError}
             placeholder={bucket.name}
             autoFocus
           />
@@ -171,7 +185,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name}
+      disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name || hasQueryError}
     >
       {isLoading ? (
         <Stack direction="horizontal" gap="2" alignment="center">
@@ -182,6 +196,12 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
         </Stack>
       ) : (
         <Stack direction="vertical" gap="6">
+          {hasQueryError && (
+            <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
+              <Trans>Unable to verify bucket versioning status. Please try again.</Trans>
+            </div>
+          )}
+
           <p className="text-theme-default m-0">
             <Trans>
               This action will permanently delete all objects from {bucketName}. You may choose to also delete all
@@ -194,7 +214,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
               checked={deleteVersionsAndMarkers}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDeleteVersionsAndMarkers(e.target.checked)}
               label={t`Also delete all versions and all delete markers`}
-              disabled={emptyBucketMutation.isPending}
+              disabled={emptyBucketMutation.isPending || hasQueryError}
             />
           )}
 
@@ -206,7 +226,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
             onKeyDown={handleKeyDown}
             invalid={!!nameError}
             errortext={nameError || undefined}
-            disabled={emptyBucketMutation.isPending}
+            disabled={emptyBucketMutation.isPending || hasQueryError}
             placeholder={bucket.name}
             autoFocus
           />

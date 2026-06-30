@@ -93,7 +93,7 @@ export const useBucketInfo = ({ bucketName, enabled = true }: UseBucketInfoProps
       showVersions: true,
     },
     {
-      enabled: !!projectId && enabled && versioningStatus?.status !== "Unversioned",
+      enabled: !!projectId && enabled && !!versioningStatus && versioningStatus.status !== "Unversioned",
       staleTime: 30 * 1000, // 30 seconds cache
     }
   )

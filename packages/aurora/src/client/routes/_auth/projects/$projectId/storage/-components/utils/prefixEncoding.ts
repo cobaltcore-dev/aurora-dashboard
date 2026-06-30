@@ -15,7 +15,7 @@ export const decodePrefix = (encoded: string | undefined): string => {
   try {
     const binString = atob(encoded)
     const bytes = Uint8Array.from(binString, (char) => char.codePointAt(0)!)
-    return new TextDecoder().decode(bytes)
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes)
   } catch {
     return ""
   }

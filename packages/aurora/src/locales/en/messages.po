@@ -3376,6 +3376,9 @@ msgstr "Unable to Update Image Visibility"
 msgid "Unable to Upload Image File"
 msgstr "Unable to Upload Image File"
 
+msgid "Unable to verify bucket versioning status. Please try again."
+msgstr "Unable to verify bucket versioning status. Please try again."
+
 msgid "Unknown domain"
 msgstr "Unknown domain"
 
