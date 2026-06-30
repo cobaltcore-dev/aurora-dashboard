@@ -1,5 +1,31 @@
 # @cobaltcore-dev/aurora
 
+## 0.11.0
+
+### Minor Changes
+
+- 8689aa9: Add badge support to ContentHeader component. Badges can be passed via the `badges` prop and will display on the left side of the actions row below the divider. Also adds consistent mb-8 margin to the header element.
+- c67430d: Add JsonEditor component for bucket policy editing
+  - New `JsonEditor` component with line numbers and smart indentation
+  - BucketPolicyModal now uses JsonEditor with improved UX:
+    - Auto-selects template when loaded policy matches a predefined template
+    - Empty policy field deletes the policy from the bucket
+    - Save button disabled when no changes made
+  - Backend validation improvements:
+    - Strict schema validation rejects unknown fields
+    - Added NotPrincipal, NotAction, NotResource support
+    - Human-readable error messages (Statement 1 instead of Statement.0)
+
+- 32223ac: Integrate Juno NotificationManager and replace legacy `<Toast>` notifications across the Ceph object-storage UI. Bucket, object, and credential-prompt notifications now fire through the centralized NotificationManager (`toast.success` / `toast.error` / `toast.warning`) for consistent placement, lifetime, and dismissal. Notification builders return `{ message, description }` instead of the legacy `{ variant, children }` toast props.
+- bd484d5: Add `serviceBanner` slot — renders below the page title divider on service pages, receives `auroraContext.currentService`
+
+### Patch Changes
+
+- 4325092: Remove inactivity timeout logout
+- 4325092: fix: add router to useCallback dependencies in AuthProvider
+
+  Fixes stale closure issue where logout and closeInactivityModal callbacks could capture outdated router references.
+
 ## 0.10.0
 
 ### Minor Changes
