@@ -239,9 +239,9 @@ describe("DeleteBucketModal", () => {
       mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
       renderModal({ bucket: mockNonEmptyBucket })
 
-      expect(screen.getByText(/This bucket contains objects/)).toBeInTheDocument()
-      expect(screen.getByText(/Empty Bucket/)).toBeInTheDocument()
-      expect(screen.getByText(/action to remove all content first/)).toBeInTheDocument()
+      expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
+      expect(screen.getByText(/Empty the bucket/)).toBeInTheDocument()
+      expect(screen.getByText(/Do the following to be able to delete the bucket/)).toBeInTheDocument()
     })
 
     test("shows same message for multiple objects", () => {
@@ -252,7 +252,7 @@ describe("DeleteBucketModal", () => {
       }
       renderModal({ bucket: mockNonEmptyBucket })
 
-      expect(screen.getByText(/This bucket contains objects/)).toBeInTheDocument()
+      expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
     })
 
     test("does not show confirmation input for non-empty bucket", () => {

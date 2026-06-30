@@ -69,7 +69,21 @@ vi.mock("@/client/trpcClient", () => ({
     }),
     storage: {
       ceph: {
+        versioning: {
+          getStatus: {
+            useQuery: () => ({
+              data: { status: "Unversioned" },
+              isLoading: false,
+            }),
+          },
+        },
         objects: {
+          list: {
+            useQuery: () => ({
+              data: { versions: [], objects: [], folders: [] },
+              isLoading: false,
+            }),
+          },
           deleteAll: {
             useMutation: (options: MutationOptions) => {
               mockState.capturedOptions = options ?? {}
