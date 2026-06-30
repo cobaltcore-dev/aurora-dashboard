@@ -389,7 +389,7 @@ export const EditMetadataModal = ({
               />
             </Stack>
 
-            <DataGrid columns={3} gridColumnTemplate="minmax(150px, 1fr) minmax(200px, 2fr) 120px">
+            <DataGrid columns={3} gridColumnTemplate="minmax(150px, 1fr) minmax(200px, 2fr) minmax(120px, min-content)">
               <DataGridRow>
                 <DataGridHeadCell>
                   <Trans>Key</Trans>
