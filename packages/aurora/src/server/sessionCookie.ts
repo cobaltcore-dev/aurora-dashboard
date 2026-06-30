@@ -22,7 +22,7 @@ export function SessionCookie({
   const DEFAULT_COOKIE_VALUES = {
     secure: !insecureCookies,
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
     ...(cookieDomain && { domain: cookieDomain }),
   } as const

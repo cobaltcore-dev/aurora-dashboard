@@ -45,7 +45,7 @@ describe("SessionCookie", () => {
         expect.objectContaining({
           path: "/",
           httpOnly: true,
-          sameSite: "strict",
+          sameSite: "lax",
           secure: true,
         })
       )
@@ -93,7 +93,7 @@ describe("SessionCookie", () => {
         expect.objectContaining({
           path: "/",
           httpOnly: true,
-          sameSite: "strict",
+          sameSite: "lax",
           secure: true,
         })
       )
@@ -191,7 +191,7 @@ describe("SessionCookie", () => {
       )
     })
 
-    it("should set sameSite to strict", () => {
+    it("should set sameSite to lax", () => {
       const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set("test-token")
@@ -200,7 +200,7 @@ describe("SessionCookie", () => {
         DEFAULT_COOKIE_NAME,
         "test-token",
         expect.objectContaining({
-          sameSite: "strict",
+          sameSite: "lax",
         })
       )
     })
