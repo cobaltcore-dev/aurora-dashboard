@@ -19,8 +19,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
     section: "storage",
     service: "swift",
     analytics: {
-      name: "storage.swift.list"
-    }
+      name: "storage.swift.list",
+    },
   } satisfies RouteInfo,
   component: StorageComponent,
 })
@@ -31,6 +31,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
 Use dot-separated semantic names that describe **what** the user is viewing, not the URL structure:
 
 ### ✅ Good Examples
+
 - `storage.swift.list` - List of Swift containers
 - `storage.swift.detail` - Single Swift container detail view
 - `compute.flavors.list` - List of compute flavors
@@ -38,6 +39,7 @@ Use dot-separated semantic names that describe **what** the user is viewing, not
 - `network.floatingips.edit` - Edit floating IP
 
 ### ❌ Avoid
+
 - `/_auth/projects/$projectId/storage/swift/` - Raw route paths
 - `/projects/abc-123/storage/swift/containers` - URLs with IDs
 - `page_view_storage_swift` - Generic prefixes
@@ -45,6 +47,7 @@ Use dot-separated semantic names that describe **what** the user is viewing, not
 ## Pattern by Route Type
 
 ### List Views
+
 ```tsx
 analytics: {
   name: "storage.swift.list"
@@ -52,6 +55,7 @@ analytics: {
 ```
 
 ### Detail Views
+
 ```tsx
 analytics: {
   name: "storage.swift.detail"
@@ -59,6 +63,7 @@ analytics: {
 ```
 
 ### Action Views (Create/Edit)
+
 ```tsx
 analytics: {
   name: "compute.instances.create"
@@ -66,6 +71,7 @@ analytics: {
 ```
 
 ### Section Landing Pages
+
 ```tsx
 analytics: {
   name: "compute.overview"
@@ -110,6 +116,7 @@ To add analytics tracking to an existing route:
    - Flavor detail page → `compute.flavors.detail`
 
 2. **Add the analytics field** to staticData:
+
    ```tsx
    staticData: {
      section: "storage",
@@ -139,8 +146,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Flavors" },
     analytics: {
-      name: "compute.flavors.list"
-    }
+      name: "compute.flavors.list",
+    },
   } satisfies RouteInfo,
   validateSearch: searchSchema,
   component: FlavorsComponent,
