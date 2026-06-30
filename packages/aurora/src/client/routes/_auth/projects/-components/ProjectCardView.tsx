@@ -42,7 +42,7 @@ export function ProjectCardView({ projects }: ProjectCardViewProps) {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((project) => <ProjectCard key={project.id} project={project} />)
         ) : (
-          <p className="text-center">
+          <p>
             <Trans>No projects available.</Trans>
           </p>
         )}
