@@ -7,7 +7,7 @@ interface BucketHeaderActionsProps {
     status: "Enabled" | "Suspended" | "Unversioned"
   }
   hasPolicy: boolean
-  isBucketEmptyWithVersions: boolean
+  hasOldVersionsOrDeleteMarkers: boolean
   isBucketEmpty: boolean
   onOpenModal: (modal: ModalType) => void
 }
@@ -22,7 +22,7 @@ interface BucketHeaderActionsProps {
 export const BucketHeaderActions = ({
   versioningStatus,
   hasPolicy,
-  isBucketEmptyWithVersions,
+  hasOldVersionsOrDeleteMarkers,
   isBucketEmpty,
   onOpenModal,
 }: BucketHeaderActionsProps) => {
@@ -50,14 +50,15 @@ export const BucketHeaderActions = ({
             <PopupMenuItem label={t`Suspend Versioning`} onClick={() => onOpenModal("suspendVersioning")} />
           )}
           {hasPolicy && <PopupMenuItem label={t`Delete Policy`} onClick={() => onOpenModal("deletePolicy")} />}
-          {isBucketEmptyWithVersions ? (
-            <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />
+          {/* Show either "Empty Bucket" or "Delete Versions", not both:
+              - If bucket has current objects: show "Empty Bucket" (it will delete everything including versions)
+              - If bucket is empty but has old versions/delete markers: show "Delete Versions" */}
+          {!isBucketEmpty ? (
+            <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />
           ) : (
-            <PopupMenuItem
-              label={t`Empty Bucket`}
-              disabled={isBucketEmpty}
-              onClick={() => onOpenModal("emptyBucket")}
-            />
+            hasOldVersionsOrDeleteMarkers && (
+              <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />
+            )
           )}
           <PopupMenuItem label={t`Delete Bucket`} onClick={() => onOpenModal("deleteBucket")} />
         </PopupMenuOptions>

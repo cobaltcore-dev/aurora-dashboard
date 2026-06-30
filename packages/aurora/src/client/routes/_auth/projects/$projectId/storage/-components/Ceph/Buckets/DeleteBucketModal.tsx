@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { Modal, ModalFooter, ButtonRow, TextInput, Stack, Spinner, Button } from "@cloudoperators/juno-ui-components"
 import type { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { calculateBucketState } from "../hooks/bucketStateHelpers"
 
 interface DeleteBucketModalProps {
   isOpen: boolean
@@ -104,28 +105,22 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
 
   if (!isOpen || !bucket) return null
 
-  // Check if bucket has current objects (not just versions/delete markers)
-  // When delimiter="", folders are returned as objects (keys ending in "/")
+  // Calculate bucket state using shared helper
+  // When showVersions=true, BFF returns all objects in "versions" array, not "objects"
+  // So bucketObjectCount from objects?.objects is used only as a fallback
   const currentObjectCount = objects?.objects?.length ?? 0
   const allVersions = objects?.versions ?? []
-
-  // When showVersions=true, BFF returns all objects in "versions" array, not "objects"
-  // So we need to count current objects from versions with isLatest=true (excluding delete markers)
-  const currentVersions = allVersions.filter((v) => v.isLatest && !v.isDeleteMarker)
-  const effectiveCurrentObjectCount = currentObjectCount + currentVersions.length
-
-  // For versioned buckets, we need to delete:
-  // 1. Old versions (!isLatest && !isDeleteMarker)
-  // 2. Any delete markers (both current and old) - they need explicit deletion
-  // Note: current delete markers (isLatest=true && isDeleteMarker) represent "deleted" objects
-  // that still occupy space and prevent bucket deletion
-  const hasVersionsOrMarkersToDelete = isVersioningEnabled && allVersions.some((v) => !v.isLatest || v.isDeleteMarker)
+  const { effectiveCurrentObjectCount, hasOldVersionsOrDeleteMarkers } = calculateBucketState(
+    allVersions,
+    isVersioningEnabled,
+    currentObjectCount
+  )
 
   // Bucket cannot be deleted if it has:
   // 1. Current objects (effectiveCurrentObjectCount > 0) - show "Empty the bucket"
   // 2. Old versions or any delete markers in a versioned bucket - show "Delete all versions"
   const hasCurrentObjects = effectiveCurrentObjectCount > 0
-  const hasVersionsInVersionedBucket = hasVersionsOrMarkersToDelete
+  const hasVersionsInVersionedBucket = hasOldVersionsOrDeleteMarkers
   const cannotDelete = hasCurrentObjects || hasVersionsInVersionedBucket
   const errorMessage = objectsError?.message
   const isLoading = isLoadingObjects || isLoadingVersioning

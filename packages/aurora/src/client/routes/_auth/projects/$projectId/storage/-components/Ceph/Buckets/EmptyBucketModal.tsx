@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack, Checkbox, Spinner } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { calculateBucketState } from "../hooks/bucketStateHelpers"
 
 interface EmptyBucketModalProps {
   isOpen: boolean
@@ -39,6 +40,8 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   )
 
   // Query to check if bucket has versions/delete markers (only when versioning is enabled/suspended)
+  // Use maxKeys=100 to get enough data - with maxKeys=1 we might miss current objects
+  // if the first result is a delete marker
   const {
     data: versionCheckData,
     isLoading: isLoadingVersionCheck,
@@ -47,7 +50,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     {
       project_id: projectId ?? "",
       containerName: bucket?.name ?? "",
-      maxKeys: 1,
+      maxKeys: 100,
       delimiter: "",
       showVersions: true,
     },
@@ -57,13 +60,15 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     }
   )
 
-  // Check bucket state
+  // Check bucket state using shared helper
+  const isVersioningEnabled = versioningStatus?.status === "Enabled" || versioningStatus?.status === "Suspended"
   const allVersions = versionCheckData?.versions ?? []
-  const realVersions = allVersions.filter((v) => !v.isDeleteMarker)
-  const hasRealVersions = realVersions.length > 0
-  const hasOnlyDeleteMarkers = allVersions.length > 0 && realVersions.length === 0
   const bucketObjectCount = bucket?.count ?? 0
-  const isBucketEmpty = bucketObjectCount === 0 && !hasRealVersions
+  const { isBucketEmpty, hasOnlyDeleteMarkers } = calculateBucketState(
+    allVersions,
+    isVersioningEnabled,
+    bucketObjectCount
+  )
   const isBucketEmptyWithVersions = isBucketEmpty && hasOnlyDeleteMarkers
 
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
