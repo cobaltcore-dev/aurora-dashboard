@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Checkbox } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Checkbox, Spinner } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -21,6 +21,43 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   const [deleteVersionsAndMarkers, setDeleteVersionsAndMarkers] = useState(false)
 
   const utils = trpcReact.useUtils()
+
+  // Query versioning status for the bucket
+  const { data: versioningStatus, isLoading: isLoadingVersioning } =
+    trpcReact.storage.ceph.versioning.getStatus.useQuery(
+      {
+        project_id: projectId ?? "",
+        bucket: bucket?.name ?? "",
+      },
+      {
+        enabled: !!projectId && !!bucket && isOpen,
+        staleTime: 30 * 1000,
+      }
+    )
+
+  // Query to check if bucket has versions/delete markers (only when versioning is enabled/suspended)
+  const { data: versionCheckData, isLoading: isLoadingVersionCheck } = trpcReact.storage.ceph.objects.list.useQuery(
+    {
+      project_id: projectId ?? "",
+      containerName: bucket?.name ?? "",
+      maxKeys: 1,
+      delimiter: "",
+      showVersions: true,
+    },
+    {
+      enabled: !!projectId && !!bucket && isOpen && versioningStatus?.status !== "Unversioned",
+      staleTime: 30 * 1000,
+    }
+  )
+
+  // Check bucket state
+  const allVersions = versionCheckData?.versions ?? []
+  const realVersions = allVersions.filter((v) => !v.isDeleteMarker)
+  const hasRealVersions = realVersions.length > 0
+  const hasOnlyDeleteMarkers = allVersions.length > 0 && realVersions.length === 0
+  const bucketObjectCount = bucket?.count ?? 0
+  const isBucketEmpty = bucketObjectCount === 0 && !hasRealVersions
+  const isBucketEmptyWithVersions = isBucketEmpty && hasOnlyDeleteMarkers
 
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
     onSettled: () => {
@@ -55,11 +92,14 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     // Capture bucket name before async operation to avoid dereferencing null bucket in callbacks
     const bucketName = bucket.name
 
+    // If bucket is empty with only delete markers, always delete versions
+    const shouldDeleteVersions = isBucketEmptyWithVersions || deleteVersionsAndMarkers
+
     emptyBucketMutation.mutate(
       {
         project_id: projectId,
         containerName: bucketName,
-        includeVersionsAndDeleteMarkers: deleteVersionsAndMarkers,
+        includeVersionsAndDeleteMarkers: shouldDeleteVersions,
       },
       {
         onSuccess: (deletedCount) => {
@@ -79,7 +119,48 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   if (!isOpen || !bucket) return null
 
   const bucketName = bucket.name
+  const isLoading = isLoadingVersioning || isLoadingVersionCheck
 
+  // If bucket is empty with only delete markers, show "Delete Versions" UI
+  if (isBucketEmptyWithVersions && !isLoading) {
+    return (
+      <Modal
+        title={t`Delete Versions`}
+        open={isOpen}
+        onCancel={handleClose}
+        confirmButtonLabel={t`Delete Versions`}
+        confirmButtonVariant="primary-danger"
+        onConfirm={handleSubmit}
+        cancelButtonLabel={t`Cancel`}
+        size="small"
+        disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name}
+      >
+        <Stack direction="vertical" gap="6">
+          <p className="text-theme-default m-0">
+            <Trans>
+              This action will permanently delete all versions and delete markers. This will enable you to delete the
+              bucket. This action cannot be undone.
+            </Trans>
+          </p>
+
+          <TextInput
+            label={t`Type the bucket name to confirm`}
+            required
+            value={confirmName}
+            onChange={handleConfirmNameChange}
+            onKeyDown={handleKeyDown}
+            invalid={!!nameError}
+            errortext={nameError || undefined}
+            disabled={emptyBucketMutation.isPending}
+            placeholder={bucket.name}
+            autoFocus
+          />
+        </Stack>
+      </Modal>
+    )
+  }
+
+  // Otherwise show normal "Empty Bucket" UI
   return (
     <Modal
       title={t`Empty Bucket`}
@@ -92,34 +173,45 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       size="small"
       disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name}
     >
-      <Stack direction="vertical" gap="6">
-        <p className="text-theme-default m-0">
-          <Trans>
-            This action will permanently delete all objects from {bucketName}. You may choose to also delete all
-            versions and delete markers. This will enable you to delete the bucket. This action cannot be undone.
-          </Trans>
-        </p>
+      {isLoading ? (
+        <Stack direction="horizontal" gap="2" alignment="center">
+          <Spinner />
+          <span className="text-juno-grey-light-1 text-sm">
+            <Trans>Checking bucket contents...</Trans>
+          </span>
+        </Stack>
+      ) : (
+        <Stack direction="vertical" gap="6">
+          <p className="text-theme-default m-0">
+            <Trans>
+              This action will permanently delete all objects from {bucketName}. You may choose to also delete all
+              versions and delete markers. This will enable you to delete the bucket. This action cannot be undone.
+            </Trans>
+          </p>
 
-        <Checkbox
-          checked={deleteVersionsAndMarkers}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDeleteVersionsAndMarkers(e.target.checked)}
-          label={t`Also delete all versions and all delete markers`}
-          disabled={emptyBucketMutation.isPending}
-        />
+          {versioningStatus && versioningStatus.status !== "Unversioned" && (
+            <Checkbox
+              checked={deleteVersionsAndMarkers}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDeleteVersionsAndMarkers(e.target.checked)}
+              label={t`Also delete all versions and all delete markers`}
+              disabled={emptyBucketMutation.isPending}
+            />
+          )}
 
-        <TextInput
-          label={t`Type the bucket name to confirm`}
-          required
-          value={confirmName}
-          onChange={handleConfirmNameChange}
-          onKeyDown={handleKeyDown}
-          invalid={!!nameError}
-          errortext={nameError || undefined}
-          disabled={emptyBucketMutation.isPending}
-          placeholder={bucket.name}
-          autoFocus
-        />
-      </Stack>
+          <TextInput
+            label={t`Type the bucket name to confirm`}
+            required
+            value={confirmName}
+            onChange={handleConfirmNameChange}
+            onKeyDown={handleKeyDown}
+            invalid={!!nameError}
+            errortext={nameError || undefined}
+            disabled={emptyBucketMutation.isPending}
+            placeholder={bucket.name}
+            autoFocus
+          />
+        </Stack>
+      )}
     </Modal>
   )
 }

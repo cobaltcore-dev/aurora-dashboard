@@ -8,6 +8,7 @@ interface BucketHeaderActionsProps {
   }
   hasPolicy: boolean
   isBucketEmptyWithVersions: boolean
+  isBucketEmpty: boolean
   onOpenModal: (modal: ModalType) => void
 }
 
@@ -22,6 +23,7 @@ export const BucketHeaderActions = ({
   versioningStatus,
   hasPolicy,
   isBucketEmptyWithVersions,
+  isBucketEmpty,
   onOpenModal,
 }: BucketHeaderActionsProps) => {
   const { t } = useLingui()
@@ -51,7 +53,11 @@ export const BucketHeaderActions = ({
           {isBucketEmptyWithVersions ? (
             <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />
           ) : (
-            <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />
+            <PopupMenuItem
+              label={t`Empty Bucket`}
+              disabled={isBucketEmpty}
+              onClick={() => onOpenModal("emptyBucket")}
+            />
           )}
           <PopupMenuItem label={t`Delete Bucket`} onClick={() => onOpenModal("deleteBucket")} />
         </PopupMenuOptions>

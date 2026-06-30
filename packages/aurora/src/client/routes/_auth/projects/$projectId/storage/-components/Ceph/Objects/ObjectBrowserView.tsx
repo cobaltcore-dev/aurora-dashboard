@@ -374,9 +374,10 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       />
 
       <Stack direction="vertical">
-        {/* Tabs row (shown only when versioning is enabled/suspended) */}
-        {versioningStatus && versioningStatus.status !== "Unversioned" && (
-          <div className="pb-2">
+        {/* Zone 1 — sort controls and page-level actions */}
+        <Stack distribution="between" alignment="center" gap="2" className="pb-2">
+          {/* Tabs row (shown only when versioning is enabled/suspended) */}
+          {versioningStatus && versioningStatus.status !== "Unversioned" ? (
             <TabNavigation>
               <TabNavigationItem
                 label={t`All`}
@@ -397,12 +398,11 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
                 }}
               />
             </TabNavigation>
-          </div>
-        )}
+          ) : (
+            <div />
+          )}
 
-        {/* Zone 1 — sort controls and page-level actions */}
-        <Stack distribution="between" alignment="center" gap="2" className="pb-2">
-          <Stack gap="0.5" alignment="center">
+          <Stack gap="2" alignment="center">
             <SortInput
               options={sortSettings.options}
               sortBy={sortSettings.sortBy}
@@ -413,8 +413,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               }
               onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
             />
-          </Stack>
-          <Stack gap="2" alignment="center">
             <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
               <Trans>Create Folder</Trans>
             </Button>

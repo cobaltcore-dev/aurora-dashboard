@@ -36,7 +36,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
   const [activeModal, setActiveModal] = useState<ModalType | null>(null)
 
   // Fetch bucket information
-  const { versioningStatus, policyData, isBucketEmptyWithVersions } = useBucketInfo({
+  const { versioningStatus, policyData, isBucketEmptyWithVersions, isBucketEmpty } = useBucketInfo({
     bucketName,
     enabled: isAtRoot, // Only fetch when at root level
   })
@@ -71,6 +71,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
       versioningStatus={versioningStatus}
       hasPolicy={Boolean(policyData?.policy)}
       isBucketEmptyWithVersions={isBucketEmptyWithVersions}
+      isBucketEmpty={isBucketEmpty}
       onOpenModal={openModal}
     />
   ) : null

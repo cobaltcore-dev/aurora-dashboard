@@ -96,12 +96,15 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   // Check if bucket has current objects (not just versions/delete markers)
   // When delimiter="", folders are returned as objects (keys ending in "/")
   const currentObjectCount = objects?.objects?.length ?? 0
-  const versionCount = objects?.versions?.length ?? 0
+  const allVersions = objects?.versions ?? []
+  const realVersions = allVersions.filter((v) => !v.isDeleteMarker)
+  const hasRealVersions = realVersions.length > 0
+  const hasOnlyDeleteMarkers = allVersions.length > 0 && realVersions.length === 0
 
-  // Bucket is non-empty if it has current objects
-  // If it only has versions/delete markers (no current objects), it's considered "empty" for deletion purposes
-  const isNonEmpty = currentObjectCount > 0
-  const hasOnlyVersions = currentObjectCount === 0 && versionCount > 0
+  // Bucket is non-empty if it has current objects OR real versions (not delete markers)
+  const isNonEmpty = currentObjectCount > 0 || hasRealVersions
+  const hasOnlyVersions = currentObjectCount === 0 && hasOnlyDeleteMarkers
+  const cannotDelete = isNonEmpty || hasOnlyVersions
   const errorMessage = objectsError?.message
 
   return (
@@ -109,12 +112,12 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
       title={t`Delete Bucket`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={isNonEmpty || hasOnlyVersions ? undefined : t`Delete Bucket`}
-      confirmButtonVariant={isNonEmpty || hasOnlyVersions ? undefined : "primary-danger"}
-      onConfirm={isNonEmpty || hasOnlyVersions ? undefined : handleSubmit}
-      cancelButtonLabel={isNonEmpty || hasOnlyVersions ? undefined : t`Cancel`}
+      confirmButtonLabel={cannotDelete ? undefined : t`Delete Bucket`}
+      confirmButtonVariant={cannotDelete ? undefined : "primary-danger"}
+      onConfirm={cannotDelete ? undefined : handleSubmit}
+      cancelButtonLabel={cannotDelete ? undefined : t`Cancel`}
       modalFooter={
-        isNonEmpty || hasOnlyVersions ? (
+        cannotDelete ? (
           <ModalFooter className="flex justify-end">
             <ButtonRow>
               <Button variant="primary" onClick={handleClose} data-testid="delete-has-objects-close-button">
@@ -143,20 +146,24 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
               <Trans>Checking bucket contents...</Trans>
             </span>
           </Stack>
-        ) : isNonEmpty ? (
-          <p className="text-theme-default">
-            <Trans>
-              This bucket contains objects and cannot be deleted. Use <strong>Empty Bucket</strong> action to remove all
-              content first.
-            </Trans>
-          </p>
-        ) : hasOnlyVersions ? (
-          <p className="text-theme-default">
-            <Trans>
-              This bucket contains old versions and delete markers. Use <strong>Delete Versions</strong> action to
-              remove them before deleting the bucket.
-            </Trans>
-          </p>
+        ) : cannotDelete ? (
+          <div className="text-theme-default">
+            <p className="mb-4">
+              <Trans>This bucket cannot be deleted yet. Do the following to be able to delete the bucket:</Trans>
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              {isNonEmpty && (
+                <li>
+                  <Trans>Empty the bucket</Trans>
+                </li>
+              )}
+              {allVersions.length > 0 && (
+                <li>
+                  <Trans>Delete all versions and delete markers</Trans>
+                </li>
+              )}
+            </ul>
+          </div>
         ) : (
           <>
             <p className="text-theme-default">
