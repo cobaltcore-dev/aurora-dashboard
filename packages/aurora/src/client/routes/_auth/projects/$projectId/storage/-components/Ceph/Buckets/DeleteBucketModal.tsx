@@ -34,12 +34,14 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   // Use showVersions=true to also detect delete markers in versioned buckets
   // Use delimiter="" to get ALL objects including folder markers (zero-byte objects ending in "/")
   // Without this, folders are returned as CommonPrefixes and we can't accurately check if bucket is empty
+  // Use maxKeys=100 to get enough objects/versions to accurately determine bucket state
+  // (with maxKeys=1 we might miss current objects if the first result is a delete marker)
   const {
     data: objects,
     isLoading: isLoadingObjects,
     error: objectsError,
   } = trpcReact.storage.ceph.objects.list.useQuery(
-    { project_id: projectId ?? "", containerName: bucket?.name ?? "", maxKeys: 1, delimiter: "", showVersions: true },
+    { project_id: projectId ?? "", containerName: bucket?.name ?? "", maxKeys: 100, delimiter: "", showVersions: true },
     { enabled: isOpen && bucket !== null }
   )
 
@@ -107,20 +109,23 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   const currentObjectCount = objects?.objects?.length ?? 0
   const allVersions = objects?.versions ?? []
 
-  // When versioning is NOT enabled, ListObjectVersionsCommand still returns current objects
-  // in the "versions" array (not "objects"). We need to distinguish between:
-  // 1. Real versions (versioning enabled/suspended) - show "Delete all versions"
-  // 2. Current objects returned as "versions" (unversioned bucket) - show "Empty the bucket"
-  const realVersions = allVersions.filter((v) => !v.isDeleteMarker)
+  // When showVersions=true, BFF returns all objects in "versions" array, not "objects"
+  // So we need to count current objects from versions with isLatest=true (excluding delete markers)
+  const currentVersions = allVersions.filter((v) => v.isLatest && !v.isDeleteMarker)
+  const effectiveCurrentObjectCount = currentObjectCount + currentVersions.length
 
-  // For unversioned buckets: versions array contains current objects, treat them as regular objects
-  const effectiveObjectCount = isVersioningEnabled ? currentObjectCount : currentObjectCount + realVersions.length
+  // For versioned buckets, we need to delete:
+  // 1. Old versions (!isLatest && !isDeleteMarker)
+  // 2. Any delete markers (both current and old) - they need explicit deletion
+  // Note: current delete markers (isLatest=true && isDeleteMarker) represent "deleted" objects
+  // that still occupy space and prevent bucket deletion
+  const hasVersionsOrMarkersToDelete = isVersioningEnabled && allVersions.some((v) => !v.isLatest || v.isDeleteMarker)
 
   // Bucket cannot be deleted if it has:
-  // 1. Current objects (effectiveObjectCount > 0)
-  // 2. Versions in a versioned bucket (isVersioningEnabled && allVersions.length > 0)
-  const hasCurrentObjects = effectiveObjectCount > 0
-  const hasVersionsInVersionedBucket = isVersioningEnabled && allVersions.length > 0
+  // 1. Current objects (effectiveCurrentObjectCount > 0) - show "Empty the bucket"
+  // 2. Old versions or any delete markers in a versioned bucket - show "Delete all versions"
+  const hasCurrentObjects = effectiveCurrentObjectCount > 0
+  const hasVersionsInVersionedBucket = hasVersionsOrMarkersToDelete
   const cannotDelete = hasCurrentObjects || hasVersionsInVersionedBucket
   const errorMessage = objectsError?.message
   const isLoading = isLoadingObjects || isLoadingVersioning
