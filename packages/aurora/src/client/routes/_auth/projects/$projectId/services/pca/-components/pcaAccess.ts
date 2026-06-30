@@ -1,4 +1,4 @@
-import { getServiceIndex } from "@/server/Authentication/helpers"
+import type { getServiceIndex } from "@/server/Authentication/helpers"
 
 type ServiceIndex = ReturnType<typeof getServiceIndex>
 
