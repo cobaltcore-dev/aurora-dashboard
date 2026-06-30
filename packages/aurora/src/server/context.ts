@@ -31,7 +31,7 @@ export interface ContextConfig {
   cephRegion?: string
   imageMetadataExcludedProperties?: string
   cookieName?: string
-  crossDomainCookie?: boolean
+  cookieDomain?: string
   insecureCookies?: boolean
 }
 
@@ -113,7 +113,7 @@ export async function createContext(
     req: opts.req,
     res: opts.res,
     cookieName: config.cookieName,
-    crossDomainCookie: config.crossDomainCookie,
+    cookieDomain: config.cookieDomain,
     insecureCookies: config.insecureCookies,
   })
   const currentAuthToken = sessionCookie.get()
