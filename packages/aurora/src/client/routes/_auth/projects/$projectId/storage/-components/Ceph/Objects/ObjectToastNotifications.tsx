@@ -143,3 +143,20 @@ export const getObjectMetadataUpdateErrorToast = (
     ),
   }
 }
+
+// ── Object download ────────────────────────────────────────────────────────────
+
+export const getObjectDownloadErrorToast = (
+  objectKey: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Failed to Download Object</Trans>,
+    description: (
+      <Trans>
+        Could not download "{displayName}": {errorMessage}
+      </Trans>
+    ),
+  }
+}

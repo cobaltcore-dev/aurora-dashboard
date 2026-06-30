@@ -40,6 +40,10 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
+#. placeholder {0}: downloadProgress.percent
+msgid "{0}%"
+msgstr "{0}%"
+
 msgid "{bucketCount, plural, one {object} other {objects}}"
 msgstr "{bucketCount, plural, one {object} other {objects}}"
 
@@ -688,6 +692,9 @@ msgstr "Could not delete container \"{containerName}\": {errorMessage}"
 msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Could not delete folder \"{folderName}\": {errorMessage}"
 
+msgid "Could not download \"{displayName}\": {errorMessage}"
+msgstr "Could not download \"{displayName}\": {errorMessage}"
+
 msgid "Could not download \"{objectName}\": {errorMessage}"
 msgstr "Could not download \"{objectName}\": {errorMessage}"
 
@@ -1329,6 +1336,9 @@ msgstr "Failed to delete versions from bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Failed to Download"
 msgstr "Failed to Download"
+
+msgid "Failed to Download Object"
+msgstr "Failed to Download Object"
 
 msgid "Failed to Empty Bucket"
 msgstr "Failed to Empty Bucket"

@@ -9,10 +9,13 @@ import {
   PopupMenuItem,
   PopupMenuOptions,
   Badge,
+  Spinner,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { trpcClient, trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
 
 // Extended version type for frontend use (includes isDeleted flag)
@@ -67,6 +70,7 @@ interface ObjectsTableViewProps {
   onMoveObjectError: (objectKey: string, errorMessage: string) => void
   onEditMetadataSuccess: (objectKey: string) => void
   onEditMetadataError: (objectKey: string, errorMessage: string) => void
+  onDownloadError: (objectKey: string, errorMessage: string) => void
   onRestoreVersion?: (objectKey: string, versionId: string) => void
   onDeleteVersion?: (objectKey: string, versionId: string) => void
 }
@@ -88,11 +92,20 @@ export function ObjectsTableView({
   onMoveObjectError,
   onEditMetadataSuccess,
   onEditMetadataError,
+  onDownloadError,
   onRestoreVersion,
   onDeleteVersion,
 }: ObjectsTableViewProps) {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const parentRef = useRef<HTMLDivElement>(null)
+  const isMounted = useRef(true)
+  useEffect(() => {
+    isMounted.current = true
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteTarget, setDeleteTarget] = useState<{
     key: string
@@ -115,6 +128,71 @@ export function ObjectsTableView({
   } | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<string | null>(null)
   const [versionHistoryTarget, setVersionHistoryTarget] = useState<string | null>(null)
+  const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
+  const [downloadId, setDownloadId] = useState<string | null>(null)
+
+  // Live download progress for the in-flight download (drives the per-row bar).
+  const { data: downloadProgress } = trpcReact.storage.ceph.objects.watchDownloadProgress.useSubscription(
+    { project_id: projectId, downloadId: downloadId ?? "" },
+    { enabled: !!downloadId && downloadingRow !== null }
+  )
+
+  // Stream the object from the BFF and assemble a Blob. downloadId is set before
+  // the mutation starts so the watchDownloadProgress subscription is active from
+  // the very first byte. Chunks arrive base64-encoded (JSON/SSE transport).
+  const streamObjectToBlob = async (
+    row: ObjectRow,
+    activeDownloadId: string
+  ): Promise<{ blob: Blob; filename: string }> => {
+    let contentType = "application/octet-stream"
+    let filename = row.displayName
+
+    const iterable = await trpcClient.storage.ceph.objects.downloadObject.mutate({
+      project_id: projectId,
+      containerName: bucketName,
+      objectKey: row.key,
+      filename: row.displayName,
+      downloadId: activeDownloadId,
+    })
+
+    const chunks: Uint8Array<ArrayBuffer>[] = []
+    for await (const { chunk, contentType: ct, filename: fn } of iterable) {
+      if (ct) contentType = ct
+      if (fn) filename = fn
+      chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
+    }
+
+    return { blob: new Blob(chunks, { type: contentType }), filename }
+  }
+
+  // Trigger a browser file-save for the blob URL, then revoke it shortly after
+  // to avoid racing the browser starting the download.
+  const triggerAnchorDownload = (url: string, filename: string) => {
+    const anchor = document.createElement("a")
+    anchor.href = url
+    anchor.download = filename
+    document.body.appendChild(anchor)
+    anchor.click()
+    document.body.removeChild(anchor)
+    setTimeout(() => URL.revokeObjectURL(url), 10000)
+  }
+
+  const handleDownload = async (row: ObjectRow) => {
+    const activeDownloadId = `${bucketName}:${row.key}:${crypto.randomUUID()}`
+    setDownloadingRow(row)
+    setDownloadId(activeDownloadId)
+    try {
+      const { blob, filename } = await streamObjectToBlob(row, activeDownloadId)
+      triggerAnchorDownload(URL.createObjectURL(blob), filename)
+    } catch (err) {
+      onDownloadError(row.key, err instanceof Error ? err.message : String(err))
+    } finally {
+      if (isMounted.current) {
+        setDownloadingRow(null)
+        setDownloadId(null)
+      }
+    }
+  }
 
   // Strip current prefix from display names
   const stripPrefix = (fullKey: string) => (currentPrefix ? fullKey.replace(currentPrefix, "") : fullKey)
@@ -259,6 +337,7 @@ export function ObjectsTableView({
               const isFolder = row.kind === "folder"
               const isVersion = row.kind === "version"
               const isDeletedFile = isVersion && row.isDeleted // File that was deleted (can be restored)
+              const isDownloading = row.kind === "object" && downloadingRow?.key === row.key
 
               return (
                 <div
@@ -310,9 +389,30 @@ export function ObjectsTableView({
 
                   {/* Last Modified */}
                   <DataGridCell>
-                    <span className="text-sm">
-                      {!isFolder && row.lastModified ? new Date(row.lastModified).toLocaleString() : "—"}
-                    </span>
+                    {isDownloading ? (
+                      <span className="flex min-w-0 flex-col gap-1">
+                        <span className="text-theme-light flex items-center gap-2 text-sm">
+                          <Spinner size="small" />
+                          {downloadProgress?.percent != null ? (
+                            <Trans>{downloadProgress.percent}%</Trans>
+                          ) : (
+                            <Trans>Downloading...</Trans>
+                          )}
+                        </span>
+                        {downloadProgress?.percent != null && (
+                          <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
+                            <div
+                              className="bg-theme-accent h-1 rounded-full transition-all duration-150"
+                              style={{ width: `${downloadProgress.percent}%` }}
+                            />
+                          </div>
+                        )}
+                      </span>
+                    ) : (
+                      <span className="text-sm">
+                        {!isFolder && row.lastModified ? new Date(row.lastModified).toLocaleString() : "—"}
+                      </span>
+                    )}
                   </DataGridCell>
 
                   {/* Actions */}
@@ -341,6 +441,12 @@ export function ObjectsTableView({
                               />
                             ) : (
                               <>
+                                <PopupMenuItem
+                                  label={isDownloading ? t`Downloading...` : t`Download`}
+                                  disabled={isDownloading}
+                                  onClick={() => handleDownload(row as ObjectRow)}
+                                  data-testid={`download-action-${row.key}`}
+                                />
                                 {versioningEnabled && !isVersion && (
                                   <PopupMenuItem
                                     label={t`View Versions`}

@@ -1,10 +1,29 @@
-import { render as rtlRender, screen } from "@testing-library/react"
+import { render as rtlRender, screen, within, waitFor } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import type { ReactNode } from "react"
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import userEvent from "@testing-library/user-event"
 import { ObjectsTableView } from "./ObjectsTableView"
+
+// Hoisted mocks for the download wiring (referenced inside vi.mock factories).
+const { downloadObjectMutate, useSubscriptionMock } = vi.hoisted(() => ({
+  downloadObjectMutate: vi.fn(),
+  useSubscriptionMock: vi.fn(() => ({ data: undefined })),
+}))
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => "test-project",
+}))
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcClient: {
+    storage: { ceph: { objects: { downloadObject: { mutate: downloadObjectMutate } } } },
+  },
+  trpcReact: {
+    storage: { ceph: { objects: { watchDownloadProgress: { useSubscription: useSubscriptionMock } } } },
+  },
+}))
 
 // Mock child components to isolate ObjectsTableView
 const render = (ui: React.ReactElement) => {
@@ -82,6 +101,7 @@ describe("ObjectsTableView", () => {
     onMoveObjectError: vi.fn(),
     onEditMetadataSuccess: vi.fn(),
     onEditMetadataError: vi.fn(),
+    onDownloadError: vi.fn(),
   }
 
   describe("rendering", () => {
@@ -216,6 +236,49 @@ describe("ObjectsTableView", () => {
       // Each folder row is rendered
       expect(screen.getByTestId("folder-row-documents/")).toBeInTheDocument()
       expect(screen.getByTestId("folder-row-images/")).toBeInTheDocument()
+    })
+  })
+
+  describe("download", () => {
+    beforeEach(() => {
+      downloadObjectMutate.mockReset()
+      downloadObjectMutate.mockImplementation(async () => {
+        async function* gen() {
+          yield {
+            chunk: btoa("hello"),
+            downloaded: 5,
+            total: 5,
+            contentType: "text/plain",
+            filename: "file1.txt",
+          }
+        }
+        return gen()
+      })
+    })
+
+    it("calls downloadObject with bucket and key when Download is clicked", async () => {
+      const user = userEvent.setup()
+      vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
+      vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+
+      // Open the object row's actions menu (the only button in an object row),
+      // then click the Download item. Adjust the trigger query if Juno's
+      // PopupMenu renders its trigger differently.
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button"))
+      await user.click(screen.getByTestId("download-action-file1.txt"))
+
+      await waitFor(() => expect(downloadObjectMutate).toHaveBeenCalled())
+      expect(downloadObjectMutate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          project_id: "test-project",
+          containerName: "test-bucket",
+          objectKey: "file1.txt",
+          filename: "file1.txt",
+        })
+      )
     })
   })
 
