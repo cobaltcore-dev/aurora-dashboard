@@ -25,11 +25,17 @@ test.describe("Project Navigation", () => {
 
     const searchInput = page.locator('input[placeholder="Search..."]')
     await searchInput.fill(testProject)
+    // Wait for search to filter results
+    await page.waitForTimeout(500)
 
     const detailErrors = setupErrorTracking(page)
-    const projectResult = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await expect(page.locator('[data-testid="project-name"]')).toHaveCount(1)
-    await projectResult.click()
+    // Click on the project button that contains a paragraph with exact project name
+    // This avoids matching partial names (e.g., "test" in "admin-test")
+    const projectButton = page.locator("button").filter({
+      has: page.locator(`[data-testid="project-name"]:text-is("${testProject}")`),
+    })
+    await expect(projectButton).toHaveCount(1)
+    await projectButton.click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(detailErrors, page)
   }

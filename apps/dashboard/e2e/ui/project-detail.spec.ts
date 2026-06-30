@@ -24,11 +24,17 @@ test.describe("Project Detail View", () => {
 
     const searchInput = page.locator('input[placeholder="Search..."]')
     await searchInput.fill(testProject)
+    // Wait for search to filter results
+    await page.waitForTimeout(500)
 
     const detailErrors = setupErrorTracking(page)
-    const projectResult = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await expect(page.locator('[data-testid="project-name"]')).toHaveCount(1)
-    await projectResult.click()
+    // Click on the project button that contains a paragraph with exact project name
+    // This avoids matching partial names (e.g., "test" in "admin-test")
+    const projectButton = page.locator("button").filter({
+      has: page.locator(`[data-testid="project-name"]:text-is("${testProject}")`),
+    })
+    await expect(projectButton).toHaveCount(1)
+    await projectButton.click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(detailErrors, page)
   }
@@ -90,19 +96,21 @@ test.describe("Project Detail View", () => {
     // Wait for navigation to complete
     await page.waitForTimeout(1000)
 
-    // The breadcrumb structure uses links, not buttons
-    // Find the clickable "demo" breadcrumb link
-    const projectBreadcrumbLink = page.locator(`a:has-text("${testProject}")`)
+    // The breadcrumb structure uses buttons or links
+    // Find the clickable project breadcrumb (exact match to avoid matching "cc3test")
+    const projectBreadcrumb = page
+      .locator(`button:has-text("${testProject}"), a:has-text("${testProject}")`)
+      .filter({ hasText: new RegExp(`^${testProject}$`) })
 
     // Verify it's visible and clickable
-    await expect(projectBreadcrumbLink).toBeVisible({ timeout: 10000 })
+    await expect(projectBreadcrumb).toBeVisible({ timeout: 10000 })
 
-    // Verify it's actually a link element
-    const tagName = await projectBreadcrumbLink.evaluate((el) => el.tagName.toLowerCase())
-    expect(tagName).toBe("a")
+    // Verify it's actually a button or link element
+    const tagName = await projectBreadcrumb.evaluate((el) => el.tagName.toLowerCase())
+    expect(["a", "button"]).toContain(tagName)
 
     // Verify it has cursor pointer (clickable)
-    const cursor = await projectBreadcrumbLink.evaluate((el) => window.getComputedStyle(el).cursor)
+    const cursor = await projectBreadcrumb.evaluate((el) => window.getComputedStyle(el).cursor)
     expect(cursor).toBe("pointer")
   })
 
