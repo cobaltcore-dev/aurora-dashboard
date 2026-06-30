@@ -19,8 +19,8 @@ export default defineConfig({
   /* Retry (3x) on CI and locally (1x) for flaky tests */
   retries: process.env.CI ? 3 : 1,
 
-  /* Limit workers to 2 to avoid overwhelming backend with parallel requests and rate limiting */
-  workers: 2,
+  /* Use Playwright's default worker allocation (50% of CPU cores) */
+  workers: undefined,
 
   /* Global setup to login once and reuse session across tests */
   globalSetup: "./e2e/global-setup.ts",
