@@ -414,7 +414,13 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
                 active={tab === "all"}
                 onClick={() => {
                   navigate({
-                    search: (prev) => ({ ...prev, tab: "all" }),
+                    search: (prev) => ({
+                      ...prev,
+                      tab: "all",
+                      // Reset prefix when switching from deleted to all
+                      // because the current folder might not exist in "all" view
+                      prefix: tab === "deleted" ? undefined : prev.prefix,
+                    }),
                   })
                 }}
               />
@@ -423,7 +429,13 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
                 active={tab === "deleted"}
                 onClick={() => {
                   navigate({
-                    search: (prev) => ({ ...prev, tab: "deleted" }),
+                    search: (prev) => ({
+                      ...prev,
+                      tab: "deleted",
+                      // Reset prefix when switching from all to deleted
+                      // because the current folder might not exist in "deleted" view
+                      prefix: tab === "all" ? undefined : prev.prefix,
+                    }),
                   })
                 }}
               />
