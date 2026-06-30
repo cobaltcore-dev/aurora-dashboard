@@ -83,7 +83,11 @@ export const useBucketInfo = ({ bucketName, enabled = true }: UseBucketInfoProps
     }
   )
 
-  // Query to check if bucket has versions/delete markers (only when versioning is enabled/suspended)
+  // Query to check if bucket has objects/versions/delete markers
+  // Use showVersions=true to detect all content types
+  // This query works for both versioned and unversioned buckets:
+  // - Unversioned: returns current objects in "versions" array
+  // - Versioned: returns all versions and delete markers
   const { data: versionCheckData, isLoading: isLoadingVersionCheck } = trpcReact.storage.ceph.objects.list.useQuery(
     {
       project_id: projectId ?? "",
@@ -93,21 +97,29 @@ export const useBucketInfo = ({ bucketName, enabled = true }: UseBucketInfoProps
       showVersions: true,
     },
     {
-      enabled: !!projectId && enabled && !!versioningStatus && versioningStatus.status !== "Unversioned",
+      enabled: !!projectId && enabled,
       staleTime: 30 * 1000, // 30 seconds cache
     }
   )
 
+  const isVersioningEnabled = versioningStatus?.status === "Enabled" || versioningStatus?.status === "Suspended"
+
   // Check if bucket has versions/delete markers
   const allVersions = versionCheckData?.versions ?? []
   const realVersions = allVersions.filter((v) => !v.isDeleteMarker)
-  const hasRealVersions = realVersions.length > 0
-  const hasOnlyDeleteMarkers = allVersions.length > 0 && realVersions.length === 0
+
+  // For unversioned buckets: versions array contains current objects
+  // For versioned buckets: check actual versions
+  const hasRealVersions = isVersioningEnabled ? realVersions.length > 0 : false
+  const hasOnlyDeleteMarkers = isVersioningEnabled && allVersions.length > 0 && realVersions.length === 0
+
+  // For unversioned buckets, versions array contains current objects
+  const effectiveObjectCount = isVersioningEnabled ? bucketObjectCount : bucketObjectCount + realVersions.length
 
   // Bucket is empty only if:
-  // - bucket.count is 0 (no current objects) AND
+  // - no current objects (considering unversioned bucket logic) AND
   // - no real versions exist (only delete markers or nothing)
-  const isBucketEmpty = bucketObjectCount === 0 && !hasRealVersions
+  const isBucketEmpty = effectiveObjectCount === 0 && !hasRealVersions
 
   // Show "Delete Versions" only when bucket is truly empty but has delete markers
   const isBucketEmptyWithVersions = isBucketEmpty && hasOnlyDeleteMarkers

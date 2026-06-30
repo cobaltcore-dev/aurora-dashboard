@@ -108,6 +108,19 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     }
   )
 
+  // Query to check which folders contain deleted content (only in deleted tab)
+  const { data: folderDeletedStatus } = trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery(
+    {
+      project_id: projectId ?? "",
+      bucket: bucketName,
+      folders: allFolders.map((f) => f.prefix),
+    },
+    {
+      enabled: !!projectId && tab === "deleted" && allFolders.length > 0,
+      staleTime: 30 * 1000, // Cache for 30 seconds
+    }
+  )
+
   const { data, isLoading, error } = trpcReact.storage.ceph.objects.list.useQuery(
     {
       project_id: projectId ?? "",
@@ -216,10 +229,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     stripPrefix(obj.key).toLowerCase().includes(searchParam.toLowerCase().trim())
   )
 
-  const filteredFolders = allFolders.filter((folder) =>
-    stripPrefix(folder.prefix).toLowerCase().includes(searchParam.toLowerCase().trim())
-  )
-
   // When showing deleted files: show the last real version before delete marker (the version we can restore)
   const deletedFilesList = (() => {
     if (tab !== "deleted") return []
@@ -256,6 +265,24 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     return deletedFiles
   })()
 
+  // Filter folders based on deleted content check from BFF
+  const deletedFoldersList = (() => {
+    if (tab !== "deleted") return allFolders
+    if (!folderDeletedStatus) return allFolders // Show all while loading
+
+    // Filter folders that have deleted content
+    const foldersWithDeleted = allFolders.filter((folder) => {
+      const status = folderDeletedStatus.find((s) => s.prefix === folder.prefix)
+      return status?.hasDeletedContent ?? false
+    })
+
+    return foldersWithDeleted
+  })()
+
+  const filteredFolders = deletedFoldersList.filter((folder) =>
+    stripPrefix(folder.prefix).toLowerCase().includes(searchParam.toLowerCase().trim())
+  )
+
   // Sort deleted files (operates on full unfiltered list before search)
   const sortedDeletedFiles = !sortBy
     ? deletedFilesList
@@ -287,7 +314,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   )
 
   const totalItemCount =
-    tab === "deleted" ? deletedFilesList.length + allFolders.length : allObjects.length + allFolders.length
+    tab === "deleted" ? deletedFilesList.length + deletedFoldersList.length : allObjects.length + allFolders.length
   const filteredItemCount =
     tab === "deleted"
       ? filteredDeletedFiles.length + filteredFolders.length

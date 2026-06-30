@@ -21,6 +21,15 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
 
   const utils = trpcReact.useUtils()
 
+  // Fetch versioning status to determine if bucket has versioning enabled
+  const { data: versioningStatus, isLoading: isLoadingVersioning } =
+    trpcReact.storage.ceph.versioning.getStatus.useQuery(
+      { project_id: projectId ?? "", bucket: bucket?.name ?? "" },
+      { enabled: isOpen && bucket !== null }
+    )
+
+  const isVersioningEnabled = versioningStatus?.status === "Enabled" || versioningStatus?.status === "Suspended"
+
   // Fetch actual objects and versions to get accurate real-time state
   // Use showVersions=true to also detect delete markers in versioned buckets
   // Use delimiter="" to get ALL objects including folder markers (zero-byte objects ending in "/")
@@ -97,15 +106,24 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   // When delimiter="", folders are returned as objects (keys ending in "/")
   const currentObjectCount = objects?.objects?.length ?? 0
   const allVersions = objects?.versions ?? []
-  const realVersions = allVersions.filter((v) => !v.isDeleteMarker)
-  const hasRealVersions = realVersions.length > 0
-  const hasOnlyDeleteMarkers = allVersions.length > 0 && realVersions.length === 0
 
-  // Bucket is non-empty if it has current objects OR real versions (not delete markers)
-  const isNonEmpty = currentObjectCount > 0 || hasRealVersions
-  const hasOnlyVersions = currentObjectCount === 0 && hasOnlyDeleteMarkers
-  const cannotDelete = isNonEmpty || hasOnlyVersions
+  // When versioning is NOT enabled, ListObjectVersionsCommand still returns current objects
+  // in the "versions" array (not "objects"). We need to distinguish between:
+  // 1. Real versions (versioning enabled/suspended) - show "Delete all versions"
+  // 2. Current objects returned as "versions" (unversioned bucket) - show "Empty the bucket"
+  const realVersions = allVersions.filter((v) => !v.isDeleteMarker)
+
+  // For unversioned buckets: versions array contains current objects, treat them as regular objects
+  const effectiveObjectCount = isVersioningEnabled ? currentObjectCount : currentObjectCount + realVersions.length
+
+  // Bucket cannot be deleted if it has:
+  // 1. Current objects (effectiveObjectCount > 0)
+  // 2. Versions in a versioned bucket (isVersioningEnabled && allVersions.length > 0)
+  const hasCurrentObjects = effectiveObjectCount > 0
+  const hasVersionsInVersionedBucket = isVersioningEnabled && allVersions.length > 0
+  const cannotDelete = hasCurrentObjects || hasVersionsInVersionedBucket
   const errorMessage = objectsError?.message
+  const isLoading = isLoadingObjects || isLoadingVersioning
 
   return (
     <Modal
@@ -129,7 +147,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
       }
       size="small"
       disableConfirmButton={
-        deleteBucketMutation.isPending || isLoadingObjects || !!objectsError || confirmName.trim() !== bucket.name
+        deleteBucketMutation.isPending || isLoading || !!objectsError || confirmName.trim() !== bucket.name
       }
     >
       <Stack direction="vertical" gap="6">
@@ -139,7 +157,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
           </p>
         )}
 
-        {isLoadingObjects ? (
+        {isLoading ? (
           <Stack direction="horizontal" gap="2" alignment="center">
             <Spinner />
             <span className="text-juno-grey-light-1 text-sm">
@@ -152,12 +170,12 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
               <Trans>This bucket cannot be deleted yet. Do the following to be able to delete the bucket:</Trans>
             </p>
             <ul className="list-disc space-y-1 pl-5">
-              {isNonEmpty && (
+              {hasCurrentObjects && (
                 <li>
                   <Trans>Empty the bucket</Trans>
                 </li>
               )}
-              {allVersions.length > 0 && (
+              {hasVersionsInVersionedBucket && (
                 <li>
                   <Trans>Delete all versions and delete markers</Trans>
                 </li>

@@ -203,10 +203,16 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
           )}
 
           <p className="text-theme-default m-0">
-            <Trans>
-              This action will permanently delete all objects from {bucketName}. You may choose to also delete all
-              versions and delete markers. This will enable you to delete the bucket. This action cannot be undone.
-            </Trans>
+            {versioningStatus && versioningStatus.status !== "Unversioned" ? (
+              <Trans>
+                This action will permanently delete all objects from {bucketName}. You may choose to also delete all
+                versions and delete markers. This will enable you to delete the bucket. This action cannot be undone.
+              </Trans>
+            ) : (
+              <Trans>
+                This action will permanently delete all objects from {bucketName}. This action cannot be undone.
+              </Trans>
+            )}
           </p>
 
           {versioningStatus && versioningStatus.status !== "Unversioned" && (

@@ -3175,6 +3175,9 @@ msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt 
 msgid "This action will create a self-signed CA certificate."
 msgstr "This action will create a self-signed CA certificate."
 
+msgid "This action will permanently delete all objects from {bucketName}. This action cannot be undone."
+msgstr ""
+
 msgid "This action will permanently delete all objects from {bucketName}. You may choose to also delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
 msgstr ""
 
