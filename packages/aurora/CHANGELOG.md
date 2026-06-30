@@ -1,5 +1,11 @@
 # @cobaltcore-dev/aurora
 
+## 0.12.1
+
+### Patch Changes
+
+- 4abf513: chore(aurora): update locale message catalogs
+
 ## 0.12.0
 
 ### Minor Changes
