@@ -51,6 +51,50 @@ const deleteAllObjectsInputSchema = z.object({
   includeVersionsAndDeleteMarkers: z.boolean().optional().default(true),
 })
 
+// Derive a MIME type from a file extension when S3 returns a generic
+// octet-stream sentinel ("binary/octet-stream" or "application/octet-stream").
+// S3 and Ceph RGW use these as the default Content-Type when an object was
+// uploaded without an explicit value — they mean "unknown", not "definitely
+// binary". Resolving from the key extension lets the frontend preview files
+// (images, PDFs, text) that were uploaded without explicit metadata.
+// Falls back to "application/octet-stream" for unknown or missing extensions.
+function resolveMimeFromKey(key: string): string {
+  const ext = key.split(".").pop()?.toLowerCase() ?? ""
+  const map: Record<string, string> = {
+    // Images
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    gif: "image/gif",
+    webp: "image/webp",
+    svg: "image/svg+xml",
+    ico: "image/x-icon",
+    bmp: "image/bmp",
+    avif: "image/avif",
+    // Video
+    mp4: "video/mp4",
+    webm: "video/webm",
+    ogv: "video/ogg",
+    // Audio
+    mp3: "audio/mpeg",
+    wav: "audio/wav",
+    ogg: "audio/ogg",
+    flac: "audio/flac",
+    aac: "audio/aac",
+    // Documents / text
+    pdf: "application/pdf",
+    txt: "text/plain",
+    md: "text/markdown",
+    csv: "text/csv",
+    log: "text/plain",
+    xml: "application/xml",
+    json: "application/json",
+    html: "text/html",
+    htm: "text/html",
+  }
+  return map[ext] ?? "application/octet-stream"
+}
+
 export const objectRouter = {
   /**
    * List objects in a container with optional prefix filtering and pagination.
@@ -794,7 +838,20 @@ export const objectRouter = {
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "S3 response has no body" })
     }
 
-    const contentType = response.ContentType ?? "application/octet-stream"
+    // Determine the MIME type to advertise to the frontend.
+    //
+    // Object stores frequently hold a wrong or generic Content-Type: S3/Ceph
+    // default to "binary/octet-stream" when none was set on upload, and some
+    // upload tools store "application/x-www-form-urlencoded" or similar. These
+    // make the browser download a file it could otherwise preview.
+    //
+    // Strategy: if the object key has a recognized extension, trust the
+    // extension-derived MIME (it reflects the user's intent far better than a
+    // generic/default stored type). Otherwise keep whatever S3 returned.
+    const rawContentType = response.ContentType ?? "application/octet-stream"
+    const mimeFromKey = resolveMimeFromKey(objectKey)
+    const contentType = mimeFromKey !== "application/octet-stream" ? mimeFromKey : rawContentType
+
     // ContentLength may be absent for chunked responses; treat 0 as unknown.
     const total = response.ContentLength ?? 0
 

@@ -1010,6 +1010,9 @@ msgstr "Download {rowDisplayName}"
 msgid "Downloading..."
 msgstr "Downloading..."
 
+msgid "Downloading…"
+msgstr "Downloading…"
+
 msgid "Drop your file here"
 msgstr "Drop your file here"
 
@@ -1916,6 +1919,12 @@ msgstr "Loading objects..."
 msgid "Loading Objects..."
 msgstr "Loading Objects..."
 
+msgid "Loading preview..."
+msgstr "Loading preview..."
+
+msgid "Loading preview…"
+msgstr "Loading preview…"
+
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
@@ -2308,6 +2317,10 @@ msgstr "One or more containers could not be emptied: {errorMessage}"
 
 msgid "One or more objects could not be deleted:"
 msgstr "One or more objects could not be deleted:"
+
+#. placeholder {0}: row.displayName
+msgid "Open {0}"
+msgstr "Open {0}"
 
 msgid "Open in new tab"
 msgstr "Open in new tab"

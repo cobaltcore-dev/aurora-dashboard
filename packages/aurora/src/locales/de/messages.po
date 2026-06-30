@@ -1010,6 +1010,9 @@ msgstr "{rowDisplayName} herunterladen"
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."
 
+msgid "Downloading…"
+msgstr ""
+
 msgid "Drop your file here"
 msgstr "Legen Sie Ihre Datei hier ab"
 
@@ -1916,6 +1919,12 @@ msgstr "Objekte werden geladen..."
 msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
+msgid "Loading preview..."
+msgstr ""
+
+msgid "Loading preview…"
+msgstr ""
+
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
 
@@ -2308,6 +2317,10 @@ msgstr "Ein oder mehrere Container konnten nicht geleert werden: {errorMessage}"
 
 msgid "One or more objects could not be deleted:"
 msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
+
+#. placeholder {0}: row.displayName
+msgid "Open {0}"
+msgstr ""
 
 msgid "Open in new tab"
 msgstr "In neuem Tab öffnen"

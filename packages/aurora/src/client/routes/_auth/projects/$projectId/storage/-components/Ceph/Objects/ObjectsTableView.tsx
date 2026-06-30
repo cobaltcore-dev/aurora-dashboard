@@ -29,6 +29,19 @@ import { MoveObjectModal } from "./MoveObjectModal"
 import { EditMetadataModal } from "./EditMetadataModal"
 import { ObjectVersionHistoryModal } from "./ObjectVersionHistoryModal"
 
+// MIME types that browsers can render natively in a tab. The decision to
+// preview vs download is made from the Content-Type the BFF actually returns
+// (resolved server-side from the object key when S3 stores a generic default),
+// not from the filename — so it works for UUID-keyed objects too.
+const BROWSER_PREVIEWABLE_MIME_PREFIXES = ["image/", "video/", "audio/", "text/"]
+const BROWSER_PREVIEWABLE_MIME_EXACT = new Set(["application/pdf", "application/json", "application/xml"])
+
+function isPreviewableContentType(contentType: string): boolean {
+  const base = contentType.split(";")[0].trim().toLowerCase()
+  if (BROWSER_PREVIEWABLE_MIME_EXACT.has(base)) return true
+  return BROWSER_PREVIEWABLE_MIME_PREFIXES.some((prefix) => base.startsWith(prefix))
+}
+
 type FolderRow = { kind: "folder"; prefix: string; displayName: string }
 type ObjectRow = {
   kind: "object"
@@ -129,21 +142,26 @@ export function ObjectsTableView({
   const [editMetadataTarget, setEditMetadataTarget] = useState<string | null>(null)
   const [versionHistoryTarget, setVersionHistoryTarget] = useState<string | null>(null)
   const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
+  const [previewingRow, setPreviewingRow] = useState<ObjectRow | null>(null)
   const [downloadId, setDownloadId] = useState<string | null>(null)
 
-  // Live download progress for the in-flight download (drives the per-row bar).
+  // The active in-flight row for progress tracking — either download or preview.
+  const activeStreamRow = downloadingRow ?? previewingRow
+
+  // Live download progress (drives the per-row progress bar).
   const { data: downloadProgress } = trpcReact.storage.ceph.objects.watchDownloadProgress.useSubscription(
     { project_id: projectId, downloadId: downloadId ?? "" },
-    { enabled: !!downloadId && downloadingRow !== null }
+    { enabled: !!downloadId && activeStreamRow !== null }
   )
 
   // Stream the object from the BFF and assemble a Blob. downloadId is set before
   // the mutation starts so the watchDownloadProgress subscription is active from
   // the very first byte. Chunks arrive base64-encoded (JSON/SSE transport).
+  // Returns the resolved contentType so the caller can decide preview vs download.
   const streamObjectToBlob = async (
     row: ObjectRow,
     activeDownloadId: string
-  ): Promise<{ blob: Blob; filename: string }> => {
+  ): Promise<{ blob: Blob; filename: string; contentType: string }> => {
     let contentType = "application/octet-stream"
     let filename = row.displayName
 
@@ -162,11 +180,9 @@ export function ObjectsTableView({
       chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
     }
 
-    return { blob: new Blob(chunks, { type: contentType }), filename }
+    return { blob: new Blob(chunks, { type: contentType }), filename, contentType }
   }
 
-  // Trigger a browser file-save for the blob URL, then revoke it shortly after
-  // to avoid racing the browser starting the download.
   const triggerAnchorDownload = (url: string, filename: string) => {
     const anchor = document.createElement("a")
     anchor.href = url
@@ -177,6 +193,7 @@ export function ObjectsTableView({
     setTimeout(() => URL.revokeObjectURL(url), 10000)
   }
 
+  // Context-menu Download: always forces a file save, regardless of type.
   const handleDownload = async (row: ObjectRow) => {
     const activeDownloadId = `${bucketName}:${row.key}:${crypto.randomUUID()}`
     setDownloadingRow(row)
@@ -189,6 +206,47 @@ export function ObjectsTableView({
     } finally {
       if (isMounted.current) {
         setDownloadingRow(null)
+        setDownloadId(null)
+      }
+    }
+  }
+
+  // Open a blob URL in a new tab for preview. Uses an anchor with
+  // target="_blank" rather than window.open — anchors are not subject to the
+  // same post-await popup-blocking that window.open is, so we can open the tab
+  // *after* streaming completes and only for files we know are previewable.
+  const openBlobInNewTab = (url: string) => {
+    const anchor = document.createElement("a")
+    anchor.href = url
+    anchor.target = "_blank"
+    anchor.rel = "noopener,noreferrer"
+    document.body.appendChild(anchor)
+    anchor.click()
+    document.body.removeChild(anchor)
+    setTimeout(() => URL.revokeObjectURL(url), 60000)
+  }
+
+  // Row-click: stream the object, then decide from its actual Content-Type —
+  // previewable types open in a new tab, everything else downloads. Nothing is
+  // opened until the type is known, so non-previewable files download with no
+  // blank-tab flash.
+  const handlePreviewOrDownload = async (row: ObjectRow) => {
+    const activeDownloadId = `${bucketName}:${row.key}:${crypto.randomUUID()}`
+    setPreviewingRow(row)
+    setDownloadId(activeDownloadId)
+    try {
+      const { blob, filename, contentType } = await streamObjectToBlob(row, activeDownloadId)
+      const url = URL.createObjectURL(blob)
+      if (isPreviewableContentType(contentType)) {
+        openBlobInNewTab(url)
+      } else {
+        triggerAnchorDownload(url, filename)
+      }
+    } catch (err) {
+      onDownloadError(row.key, err instanceof Error ? err.message : String(err))
+    } finally {
+      if (isMounted.current) {
+        setPreviewingRow(null)
         setDownloadId(null)
       }
     }
@@ -338,6 +396,8 @@ export function ObjectsTableView({
               const isVersion = row.kind === "version"
               const isDeletedFile = isVersion && row.isDeleted // File that was deleted (can be restored)
               const isDownloading = row.kind === "object" && downloadingRow?.key === row.key
+              const isPreviewing = row.kind === "object" && previewingRow?.key === row.key
+              const isStreaming = isDownloading || isPreviewing
 
               return (
                 <div
@@ -371,8 +431,26 @@ export function ObjectsTableView({
                       </button>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <MdDescription size={18} className="text-theme-light shrink-0" />
-                        <span className="truncate text-sm">{row.displayName}</span>
+                        {isStreaming ? (
+                          <Spinner size="small" className="shrink-0" />
+                        ) : (
+                          <MdDescription size={18} className="text-theme-light shrink-0" />
+                        )}
+                        <button
+                          type="button"
+                          className="min-w-0 truncate text-left text-sm hover:underline focus-visible:outline focus-visible:outline-2 disabled:cursor-wait disabled:no-underline"
+                          onClick={() => handlePreviewOrDownload(row as ObjectRow)}
+                          disabled={isStreaming}
+                          title={
+                            isStreaming
+                              ? isPreviewing
+                                ? t`Loading preview…`
+                                : t`Downloading…`
+                              : t`Open ${row.displayName}`
+                          }
+                        >
+                          {row.displayName}
+                        </button>
                         {isDeletedFile && (
                           <Badge variant="error">
                             <Trans>Deleted</Trans>
@@ -389,12 +467,14 @@ export function ObjectsTableView({
 
                   {/* Last Modified */}
                   <DataGridCell>
-                    {isDownloading ? (
+                    {isStreaming ? (
                       <span className="flex min-w-0 flex-col gap-1">
                         <span className="text-theme-light flex items-center gap-2 text-sm">
                           <Spinner size="small" />
                           {downloadProgress?.percent != null ? (
                             <Trans>{downloadProgress.percent}%</Trans>
+                          ) : isPreviewing ? (
+                            <Trans>Loading preview...</Trans>
                           ) : (
                             <Trans>Downloading...</Trans>
                           )}
@@ -443,7 +523,7 @@ export function ObjectsTableView({
                               <>
                                 <PopupMenuItem
                                   label={isDownloading ? t`Downloading...` : t`Download`}
-                                  disabled={isDownloading}
+                                  disabled={isStreaming}
                                   onClick={() => handleDownload(row as ObjectRow)}
                                   data-testid={`download-action-${row.key}`}
                                 />

@@ -1328,6 +1328,74 @@ describe("objects.downloadObject", () => {
     expect(receivedContentType).toBe("application/octet-stream")
   })
 
+  it("resolves MIME from key extension when S3 returns binary/octet-stream", async () => {
+    const content = new TextEncoder().encode("hello")
+    mockSend.mockResolvedValue(makeBodyResponse([content], "binary/octet-stream", content.byteLength))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "notes.txt",
+      filename: "notes.txt",
+      downloadId: `${TEST_BUCKET_NAME}:notes.txt:uuid-mime-1`,
+    })
+
+    let receivedContentType: string | undefined
+    for await (const item of iterable) {
+      if (item.contentType) receivedContentType = item.contentType
+    }
+    expect(receivedContentType).toBe("text/plain")
+  })
+
+  it("prefers the key extension over a wrong stored content type", async () => {
+    // Some upload tools store text files as application/x-www-form-urlencoded,
+    // which forces the browser to download. The extension wins.
+    const content = new TextEncoder().encode("hello")
+    mockSend.mockResolvedValue(makeBodyResponse([content], "application/x-www-form-urlencoded", content.byteLength))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "test_file_key2.txt",
+      filename: "test_file_key2.txt",
+      downloadId: `${TEST_BUCKET_NAME}:test_file_key2.txt:uuid-mime-2`,
+    })
+
+    let receivedContentType: string | undefined
+    for await (const item of iterable) {
+      if (item.contentType) receivedContentType = item.contentType
+    }
+    expect(receivedContentType).toBe("text/plain")
+  })
+
+  it("keeps the stored content type when the key has no recognized extension", async () => {
+    const content = new TextEncoder().encode("hello")
+    mockSend.mockResolvedValue(makeBodyResponse([content], "text/html", content.byteLength))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "a1b2c3d4-no-extension",
+      filename: "a1b2c3d4-no-extension",
+      downloadId: `${TEST_BUCKET_NAME}:a1b2c3d4:uuid-mime-3`,
+    })
+
+    let receivedContentType: string | undefined
+    for await (const item of iterable) {
+      if (item.contentType) receivedContentType = item.contentType
+    }
+    expect(receivedContentType).toBe("text/html")
+  })
+
   it("reports total as 0 when ContentLength is absent", async () => {
     const content = new TextEncoder().encode("abc")
     mockSend.mockResolvedValue(makeBodyResponse([content], "text/plain", undefined))

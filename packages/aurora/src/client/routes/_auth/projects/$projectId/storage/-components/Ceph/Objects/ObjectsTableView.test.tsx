@@ -244,18 +244,13 @@ describe("ObjectsTableView", () => {
     })
   })
 
-  describe("download", () => {
+  describe("download and preview", () => {
     beforeEach(() => {
       downloadObjectMutate.mockReset()
+      // Default: BFF returns text/plain (previewable)
       downloadObjectMutate.mockImplementation(async () => {
         async function* gen() {
-          yield {
-            chunk: btoa("hello"),
-            downloaded: 5,
-            total: 5,
-            contentType: "text/plain",
-            filename: "file1.txt",
-          }
+          yield { chunk: btoa("hello"), downloaded: 5, total: 5, contentType: "text/plain", filename: "file1.txt" }
         }
         return gen()
       })
@@ -266,23 +261,20 @@ describe("ObjectsTableView", () => {
       render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
 
       const row = screen.getByTestId("object-row-file1.txt")
-      await user.click(within(row).getByRole("button"))
+      await user.click(within(row).getByRole("button", { name: /more/i }))
 
       expect(screen.getByTestId("download-action-file1.txt")).toBeInTheDocument()
     })
 
-    it("calls downloadObject with correct params when Download is clicked", async () => {
+    it("context-menu Download always triggers a file save", async () => {
       const user = userEvent.setup()
       vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
       vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
 
       render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
 
-      // Open the object row's actions menu (the only button in an object row),
-      // then click the Download item. Adjust the trigger query if Juno's
-      // PopupMenu renders its trigger differently.
       const row = screen.getByTestId("object-row-file1.txt")
-      await user.click(within(row).getByRole("button"))
+      await user.click(within(row).getByRole("button", { name: /more/i }))
       await user.click(screen.getByTestId("download-action-file1.txt"))
 
       await waitFor(() => expect(downloadObjectMutate).toHaveBeenCalled())
@@ -294,6 +286,106 @@ describe("ObjectsTableView", () => {
           filename: "file1.txt",
         })
       )
+    })
+
+    it("row-click previews in a new tab when Content-Type is previewable", async () => {
+      const user = userEvent.setup()
+      const mockTab = { location: { href: "" }, close: vi.fn() }
+      vi.spyOn(window, "open").mockReturnValue(mockTab as unknown as Window)
+      vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:preview")
+      vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+
+      downloadObjectMutate.mockImplementationOnce(async () => {
+        async function* gen() {
+          yield { chunk: btoa("data"), downloaded: 4, total: 4, contentType: "image/png", filename: "photo.jpg" }
+        }
+        return gen()
+      })
+
+      const obj = [{ key: "photo.jpg", size: 1024, lastModified: "2024-01-15T10:00:00Z" }]
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={obj} />)
+
+      await user.click(screen.getByRole("button", { name: /open photo\.jpg/i }))
+
+      // Blank tab opened synchronously, blob URL assigned after stream completes
+      expect(window.open).toHaveBeenCalledWith("", "_blank")
+      await waitFor(() => expect(mockTab.location.href).toBe("blob:preview"))
+    })
+
+    it("row-click previews text files in a new tab", async () => {
+      const user = userEvent.setup()
+      const mockTab = { location: { href: "" }, close: vi.fn() }
+      vi.spyOn(window, "open").mockReturnValue(mockTab as unknown as Window)
+      vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:preview")
+      vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+
+      // text/plain — previewable
+      const obj = [{ key: "notes.txt", size: 1024, lastModified: "2024-01-15T10:00:00Z" }]
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={obj} />)
+
+      await user.click(screen.getByRole("button", { name: /open notes\.txt/i }))
+
+      await waitFor(() => expect(mockTab.location.href).toBe("blob:preview"))
+    })
+
+    it("row-click downloads when Content-Type is not previewable", async () => {
+      const user = userEvent.setup()
+      const mockTab = { location: { href: "" }, close: vi.fn() }
+      vi.spyOn(window, "open").mockReturnValue(mockTab as unknown as Window)
+      vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:download")
+      vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+
+      downloadObjectMutate.mockImplementationOnce(async () => {
+        async function* gen() {
+          yield {
+            chunk: btoa("data"),
+            downloaded: 4,
+            total: 4,
+            contentType: "application/zip",
+            filename: "archive.zip",
+          }
+        }
+        return gen()
+      })
+
+      const obj = [{ key: "archive.zip", size: 1024, lastModified: "2024-01-15T10:00:00Z" }]
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={obj} />)
+
+      await user.click(screen.getByRole("button", { name: /open archive\.zip/i }))
+
+      await waitFor(() => expect(downloadObjectMutate).toHaveBeenCalled())
+      // Non-previewable: blank tab closed, no preview navigation
+      await waitFor(() => expect(mockTab.close).toHaveBeenCalled())
+      expect(mockTab.location.href).toBe("")
+    })
+
+    it("row-click downloads when BFF returns octet-stream (unknown type)", async () => {
+      const user = userEvent.setup()
+      const mockTab = { location: { href: "" }, close: vi.fn() }
+      vi.spyOn(window, "open").mockReturnValue(mockTab as unknown as Window)
+      vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:download")
+      vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+
+      downloadObjectMutate.mockImplementationOnce(async () => {
+        async function* gen() {
+          yield {
+            chunk: btoa("data"),
+            downloaded: 4,
+            total: 4,
+            contentType: "application/octet-stream",
+            filename: "a1b2-uuid",
+          }
+        }
+        return gen()
+      })
+
+      const obj = [{ key: "a1b2-uuid", size: 1024, lastModified: "2024-01-15T10:00:00Z" }]
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={obj} />)
+
+      await user.click(screen.getByRole("button", { name: /open a1b2-uuid/i }))
+
+      await waitFor(() => expect(mockTab.close).toHaveBeenCalled())
+      expect(mockTab.location.href).toBe("")
     })
   })
 
