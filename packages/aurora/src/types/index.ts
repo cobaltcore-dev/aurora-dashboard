@@ -23,6 +23,12 @@ export interface AuroraServerConfig {
    */
   insecureCookies?: boolean
   /**
+   * Trust X-Forwarded-* headers from reverse proxy (Ingress/nginx).
+   * Required when running behind a proxy to correctly determine hostname, IP, and protocol.
+   * Default: false
+   */
+  trustProxy?: boolean
+  /**
    * Absolute path to a directory containing consumer-supplied OpenStack policy
    * files (e.g. compute.yaml, image.yaml).  Files found here take precedence
    * over the legacy in-tree permission_custom_policies/ directory.
