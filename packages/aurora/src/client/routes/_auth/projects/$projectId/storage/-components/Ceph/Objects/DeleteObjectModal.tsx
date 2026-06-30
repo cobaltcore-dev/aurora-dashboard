@@ -69,7 +69,7 @@ export function DeleteObjectModal({
     <Modal
       open={isOpen}
       onCancel={handleClose}
-      title={isFolder ? <Trans>Delete Folder</Trans> : <Trans>Delete Object</Trans>}
+      title={isFolder ? <Trans>Delete Folder "{displayName}"</Trans> : <Trans>Delete Object</Trans>}
       size="large"
       confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}
       confirmButtonVariant="primary-danger"
@@ -84,8 +84,8 @@ export function DeleteObjectModal({
           {isFolder ? (
             versioningEnabled ? (
               <Trans>
-                Confirm deletion of {displayName}. All objects inside this folder will be hidden but can be restored
-                from version history.
+                Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be
+                restored from version history.
               </Trans>
             ) : (
               <Trans>
@@ -94,7 +94,8 @@ export function DeleteObjectModal({
             )
           ) : versioningEnabled ? (
             <Trans>
-              Confirm deletion of {displayName}. The object will be hidden but can be restored from version history.
+              Confirm deletion of {displayName}. The object will be marked as deleted but can be restored from version
+              history.
             </Trans>
           ) : (
             <Trans>Confirm deletion of {displayName}. This action cannot be undone.</Trans>

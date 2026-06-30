@@ -537,7 +537,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         onSuccess={(folderPath) => {
           setIsCreateFolderModalOpen(false)
           setToastData(getFolderCreatedToast(folderPath, { onDismiss: handleToastDismiss }))
-          navigateToPrefix(folderPath)
         }}
       />
 

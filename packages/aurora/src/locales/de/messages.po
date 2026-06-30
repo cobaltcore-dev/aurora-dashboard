@@ -529,13 +529,13 @@ msgstr "Compute"
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher Datenverkehr für diese Sicherheitsgruppe erlaubt ist."
 
-msgid "Confirm deletion of {displayName}. All objects inside this folder will be hidden but can be restored from version history."
+msgid "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 msgstr ""
 
 msgid "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted."
 msgstr ""
 
-msgid "Confirm deletion of {displayName}. The object will be hidden but can be restored from version history."
+msgid "Confirm deletion of {displayName}. The object will be marked as deleted but can be restored from version history."
 msgstr ""
 
 msgid "Confirm deletion of {displayName}. This action cannot be undone."
@@ -856,7 +856,7 @@ msgstr "Container löschen:"
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
 
-msgid "Delete Folder"
+msgid "Delete Folder \"{displayName}\""
 msgstr ""
 
 msgid "Delete folder:"
