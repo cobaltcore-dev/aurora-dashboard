@@ -96,9 +96,13 @@ function RouteComponent() {
   }
 
   return (
-    <Stack direction="vertical" gap="6" className="pb-4">
+    <Stack direction="vertical">
       <ContentHeader title={crumbProject?.name ?? t`Project`} projectId={projectId} description={description} />
-      {slots?.projectOverviewBanner && <Slot component={slots.projectOverviewBanner} useShadowDOM={false} />}
+      {slots?.projectOverviewBanner && (
+        <div className="mb-6">
+          <Slot component={slots.projectOverviewBanner} useShadowDOM={false} />
+        </div>
+      )}
       {cards.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {cards.map((card) => (
