@@ -1,4 +1,4 @@
-import { AppShellProvider } from "@cloudoperators/juno-ui-components"
+import { AppShellProvider, NotificationManager } from "@cloudoperators/juno-ui-components"
 import { RouterProvider } from "@tanstack/react-router"
 import { AuthProvider, useAuth } from "./store/AuthProvider"
 import { QueryClient, QueryClientProvider, hashKey } from "@tanstack/react-query"
@@ -91,6 +91,7 @@ const App = (props: AppProps) => {
           <trpcReact.Provider client={reactClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
               <AuthProvider>
+                <NotificationManager position="top-right" />
                 <AppInner
                   router={router}
                   navItems={navItems}

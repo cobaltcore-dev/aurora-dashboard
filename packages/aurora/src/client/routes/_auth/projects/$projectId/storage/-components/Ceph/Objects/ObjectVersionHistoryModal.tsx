@@ -264,9 +264,10 @@ export const ObjectVersionHistoryModal = ({
         onClose={() => setDeleteTarget(null)}
         onSuccess={(objectKey, versionId) => {
           setDeleteTarget(null)
+          const shortVersionId = versionId.slice(0, 8)
           setFeedbackMessage({
             variant: "success",
-            message: t`Version ${versionId.slice(0, 8)}... deleted successfully`,
+            message: t`Version ${shortVersionId}... deleted successfully`,
           })
           onDeleteVersion?.(objectKey, versionId)
           setTimeout(() => refetch(), 100)

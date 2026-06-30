@@ -288,8 +288,9 @@ export const CopyObjectModal = ({
             placeholder={bucketName}
             helptext={(() => {
               if (isLoadingBuckets) return t`Loading buckets...`
-              if (!modalState.searchTerm.trim() && (buckets?.length ?? 0) > MAX_COMBO_OPTIONS) {
-                return t`There are ${buckets?.length} buckets — start typing to search`
+              const bucketsCount = buckets?.length ?? 0
+              if (!modalState.searchTerm.trim() && bucketsCount > MAX_COMBO_OPTIONS) {
+                return t`There are ${bucketsCount} buckets — start typing to search`
               }
               if (modalState.hiddenCount > 0) {
                 const totalBuckets = modalState.visibleBuckets.length + modalState.hiddenCount

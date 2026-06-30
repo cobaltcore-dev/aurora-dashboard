@@ -31,6 +31,9 @@ msgstr ""
 msgid "\"{displayName}\" was successfully moved to {destination}."
 msgstr ""
 
+msgid "\"{displayName}\" was successfully restored."
+msgstr ""
+
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" wurde erfolgreich nach {destination} kopiert."
 
@@ -448,6 +451,9 @@ msgstr ""
 msgid "Bucket name must start and end with a letter or number"
 msgstr ""
 
+msgid "Bucket policy was successfully deleted from \"{bucketName}\"."
+msgstr ""
+
 msgid "Buckets to empty:"
 msgstr ""
 
@@ -682,11 +688,20 @@ msgstr "\"{objectName}\" konnte nicht gelöscht werden: {errorMessage}"
 msgid "Could not delete bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
+msgid "Could not delete bucket policy from \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not delete container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht gelöscht werden: {errorMessage}"
 
 msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht gelöscht werden: {errorMessage}"
+
+msgid "Could not delete version of \"{displayName}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not delete versions from bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not download \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht heruntergeladen werden: {errorMessage}"
@@ -697,11 +712,20 @@ msgstr ""
 msgid "Could not empty container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht geleert werden: {errorMessage}"
 
+msgid "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not move \"{displayName}\": {errorMessage}"
 msgstr ""
 
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
+
+msgid "Could not restore \"{displayName}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not update \"{displayName}\": {errorMessage}"
 msgstr ""
@@ -1294,6 +1318,9 @@ msgstr "{failedCount} von {totalCount} Image(s) konnten nicht gelöscht werden. 
 msgid "Failed to Delete Bucket"
 msgstr ""
 
+msgid "Failed to delete bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Failed to Delete Container"
 msgstr "Fehler beim Löschen des Containers"
 
@@ -1315,6 +1342,9 @@ msgstr "Fehler beim Löschen der Objekte"
 msgid "Failed to delete policy"
 msgstr ""
 
+msgid "Failed to Delete Policy"
+msgstr ""
+
 msgid "Failed to delete security group"
 msgstr "Security Group konnte nicht gelöscht werden"
 
@@ -1324,7 +1354,16 @@ msgstr "Fehler beim Löschen des Extra-Specs. Bitte versuchen Sie es erneut."
 msgid "Failed to delete the flavor. Please try again."
 msgstr "Das Löschen des Flavor ist fehlgeschlagen. Bitte versuchen Sie es erneut"
 
+msgid "Failed to Delete Version"
+msgstr ""
+
 msgid "Failed to delete version: {errorMessage}"
+msgstr ""
+
+msgid "Failed to Delete Versions"
+msgstr ""
+
+msgid "Failed to delete versions from bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
 msgid "Failed to Download"
@@ -1333,11 +1372,17 @@ msgstr "Fehler beim Herunterladen"
 msgid "Failed to Empty Bucket"
 msgstr ""
 
+msgid "Failed to empty bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Failed to Empty Container"
 msgstr "Fehler beim Leeren des Containers"
 
 msgid "Failed to Empty Containers"
 msgstr "Fehler beim Leeren der Container"
+
+msgid "Failed to Enable Versioning"
+msgstr ""
 
 msgid "Failed to fetch flavor access information. Please try again."
 msgstr "Fehler beim Abrufen der Flavor-Zugriffsinformationen. Bitte versuchen Sie es erneut."
@@ -1408,10 +1453,16 @@ msgstr "Fehler beim Entfernen des Mitglieds \"{memberIdToRemove}\""
 msgid "Failed to remove tenant access from flavor. Please try again."
 msgstr "Fehler beim Entfernen des Mandantenzugriffs vom Flavor. Bitte versuchen Sie es erneut."
 
+msgid "Failed to Restore Version"
+msgstr ""
+
 msgid "Failed to restore version: {errorMessage}"
 msgstr ""
 
 msgid "Failed to save policy"
+msgstr ""
+
+msgid "Failed to Suspend Versioning"
 msgstr ""
 
 msgid "Failed to Update Access Control"
@@ -2191,6 +2242,9 @@ msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel mu
 msgid "No versions found for this object."
 msgstr ""
 
+msgid "No versions to delete in bucket \"{bucketName}\"."
+msgstr ""
+
 msgid "None"
 msgstr "Keine"
 
@@ -2364,6 +2418,9 @@ msgstr "Bitte wählen Sie eine Datei zum Hochladen aus"
 
 msgid "Policy"
 msgstr "Richtlinie"
+
+msgid "Policy Deleted"
+msgstr ""
 
 msgid "Policy document exceeds maximum size of 20KB"
 msgstr ""
@@ -2881,13 +2938,28 @@ msgstr "{successCount} von {totalCount} Image(s) erfolgreich aktiviert"
 msgid "Successfully deactivated {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich deaktiviert"
 
+msgid "Successfully deleted {deletedCount} version from bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "Successfully deleted {deletedCount} versions and delete markers from bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "Successfully deleted {deletedCount} versions from bucket \"{bucketName}\"."
+msgstr ""
+
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich gelöscht"
+
+msgid "Successfully deleted bucket \"{bucketName}\"."
+msgstr ""
 
 msgid "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
 msgstr ""
 
 msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
+msgstr ""
+
+msgid "Successfully emptied bucket \"{bucketName}\". {deletedCount} objects deleted."
 msgstr ""
 
 msgid "Suggested Images"
@@ -3040,8 +3112,7 @@ msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
 msgid "The text must match “release” in lowercase."
 msgstr "Der Text muss “release” in Kleinbuchstaben entsprechen."
 
-#. placeholder {0}: buckets?.length
-msgid "There are {0} buckets — start typing to search"
+msgid "There are {bucketsCount} buckets — start typing to search"
 msgstr ""
 
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
@@ -3389,8 +3460,10 @@ msgstr "VCPUs"
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs müssen eine ganze Zahl ≥ 1 sein."
 
-#. placeholder {0}: versionId.slice(0, 8)
-msgid "Version {0}... deleted successfully"
+msgid "Version {shortVersionId}... deleted successfully"
+msgstr ""
+
+msgid "Version Deleted"
 msgstr ""
 
 msgid "Version History: {objectKey}"
@@ -3400,6 +3473,12 @@ msgid "Version ID"
 msgstr ""
 
 msgid "Version ID:"
+msgstr ""
+
+msgid "Version of \"{displayName}\" was permanently deleted."
+msgstr ""
+
+msgid "Version Restored"
 msgstr ""
 
 msgid "Versioned writes"
@@ -3412,6 +3491,15 @@ msgid "Versioning is enabled"
 msgstr "Versionierung ist aktiviert"
 
 msgid "Versioning Suspended"
+msgstr ""
+
+msgid "Versioning was successfully enabled for bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "Versioning was successfully suspended for bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "Versions Deleted"
 msgstr ""
 
 msgid "View Details"
