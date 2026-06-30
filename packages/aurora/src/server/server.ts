@@ -36,6 +36,7 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
 
   const server = Fastify({
     logger: true,
+    trustProxy: true, // Trust X-Forwarded-* headers from reverse proxy (Ingress)
     bodyLimit: 1 * 1024 * 1024, // 1MB default; upload route overrides per-route
     requestTimeout: 30000, // 30 seconds default
     keepAliveTimeout: 600000, // 10 minutes keep-alive
