@@ -1,11 +1,13 @@
 ---
-"@cobaltcore-dev/aurora": patch
+"@cobaltcore-dev/aurora": minor
 "@cobaltcore-dev/dashboard": patch
 ---
 
-fix(server): add COOKIE_HOST env var for correct cross-domain cookie sharing
+feat(server): replace crossDomainCookie with explicit cookieDomain config
 
-When running behind a reverse proxy, the server may not see the correct hostname
-from the request. Set `COOKIE_HOST` to the external hostname (e.g.,
-`dashboard-aurora.qa-de-1.cloud.sap`) to ensure cookies are set with the correct
-wildcard domain (e.g., `.qa-de-1.cloud.sap`) for cross-dashboard sharing.
+**Breaking change:** `crossDomainCookie` and `ENABLE_CROSS_DASHBOARD_COOKIE` are removed.
+
+Use the new `cookieDomain` config option (or `COOKIE_DOMAIN` env var) to explicitly set
+the cookie domain for cross-subdomain sharing (e.g., `.qa-de-1.cloud.sap`).
+
+When not set, cookies are host-specific (no cross-subdomain sharing).

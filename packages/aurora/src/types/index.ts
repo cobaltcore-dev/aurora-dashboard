@@ -15,19 +15,17 @@ export interface AuroraServerConfig {
   imageMetadataExcludedProperties?: string
   /** Override the session cookie name. Default: "dashboard-session-auth" */
   cookieName?: string
-  /** Allow cookies across subdomains. Default: true */
-  crossDomainCookie?: boolean
+  /**
+   * Explicit cookie domain for cross-subdomain sharing (e.g., ".qa-de-1.cloud.sap").
+   * When set, cookies are shared across all subdomains of this domain.
+   * When not set, cookies are host-specific (no cross-subdomain sharing).
+   */
+  cookieDomain?: string
   /**
    * Disable the `Secure` flag on cookies (for HTTP-only local dev environments).
    * Never set this in production.
    */
   insecureCookies?: boolean
-  /**
-   * Hostname used for cookie domain extraction (e.g., "dashboard-aurora.qa-de-1.cloud.sap").
-   * When set, this overrides req.hostname for determining the cookie domain.
-   * Use this when running behind a proxy to ensure correct cross-domain cookie sharing.
-   */
-  cookieHost?: string
   /**
    * Absolute path to a directory containing consumer-supplied OpenStack policy
    * files (e.g. compute.yaml, image.yaml).  Files found here take precedence

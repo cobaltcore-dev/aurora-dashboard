@@ -24,11 +24,8 @@ createServer({
   cephRegion: process.env.CEPH_REGION,
   imageMetadataExcludedProperties: process.env.IMAGE_METADATA_EXCLUDED_PROPERTIES,
   cookieName: process.env.DASHBOARD_COOKIE_NAME || undefined,
-  crossDomainCookie: process.env.ENABLE_CROSS_DASHBOARD_COOKIE
-    ? process.env.ENABLE_CROSS_DASHBOARD_COOKIE.toLowerCase() === "true"
-    : undefined,
+  cookieDomain: process.env.COOKIE_DOMAIN || undefined,
   insecureCookies: process.env.INSECURE_COOKIES ? process.env.INSECURE_COOKIES.toLowerCase() === "true" : undefined,
-  cookieHost: process.env.COOKIE_HOST || undefined,
   policyDir,
 })
   .then((server) => server.listen({ host: "0.0.0.0", port: PORT }))

@@ -3,41 +3,22 @@ import "@fastify/cookie"
 
 export interface SessionProps {
   cookieName?: string
-  crossDomainCookie?: boolean
+  /** Explicit cookie domain for cross-subdomain sharing (e.g., ".qa-de-1.cloud.sap"). */
+  cookieDomain?: string
   insecureCookies?: boolean
-  cookieHost?: string
   req: FastifyRequest
   res: FastifyReply
 }
 
 export const DEFAULT_COOKIE_NAME = "dashboard-session-auth"
 
-function extractCookieDomain(hostname: string, crossDomainCookie: boolean): string | undefined {
-  if (!crossDomainCookie) return undefined
-
-  if (hostname === "localhost" || /^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
-    return undefined
-  }
-
-  const parts = hostname.split(".")
-  if (parts.length >= 3) {
-    return `.${parts.slice(1).join(".")}`
-  }
-
-  return undefined
-}
-
 export function SessionCookie({
   cookieName = DEFAULT_COOKIE_NAME,
-  crossDomainCookie = true,
+  cookieDomain,
   insecureCookies = false,
-  cookieHost,
   req,
   res,
 }: SessionProps) {
-  const hostname = cookieHost || req.hostname
-  const cookieDomain = extractCookieDomain(hostname, crossDomainCookie)
-
   const DEFAULT_COOKIE_VALUES = {
     secure: !insecureCookies,
     httpOnly: true,

@@ -31,9 +31,8 @@ export interface ContextConfig {
   cephRegion?: string
   imageMetadataExcludedProperties?: string
   cookieName?: string
-  crossDomainCookie?: boolean
+  cookieDomain?: string
   insecureCookies?: boolean
-  cookieHost?: string
 }
 
 // Global registry of pending rescope operations per session
@@ -114,9 +113,8 @@ export async function createContext(
     req: opts.req,
     res: opts.res,
     cookieName: config.cookieName,
-    crossDomainCookie: config.crossDomainCookie,
+    cookieDomain: config.cookieDomain,
     insecureCookies: config.insecureCookies,
-    cookieHost: config.cookieHost,
   })
   const currentAuthToken = sessionCookie.get()
   let openstackSession: Awaited<SignalOpenstackSessionType> | undefined = undefined
