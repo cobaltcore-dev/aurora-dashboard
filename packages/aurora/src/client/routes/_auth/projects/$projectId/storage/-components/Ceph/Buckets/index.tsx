@@ -261,7 +261,7 @@ export const CephBuckets = () => {
     const isAuthError = errorMessage.includes("Invalid access key") || errorMessage.includes("InvalidAccessKeyId")
 
     return (
-      <div className="p-8">
+      <div>
         <p className="text-theme-default text-sm">
           {isAccessDenied ? (
             <Trans>

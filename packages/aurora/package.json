@@ -1,6 +1,6 @@
 {
   "name": "@cobaltcore-dev/aurora",
-  "version": "0.11.0",
+  "version": "0.12.1",
   "private": false,
   "description": "Aurora OpenStack dashboard — server and client library",
   "license": "Apache-2.0",
@@ -85,7 +85,7 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@cloudoperators/juno-ui-components": "9.0.1",
+    "@cloudoperators/juno-ui-components": "9.1.0",
     "@cobaltcore-dev/aurora-config": "workspace:*",
     "@cobaltcore-dev/policy-engine": "workspace:*",
     "@cobaltcore-dev/signal-openstack": "workspace:*",

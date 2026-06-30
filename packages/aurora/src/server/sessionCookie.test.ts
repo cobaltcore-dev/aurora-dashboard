@@ -45,7 +45,7 @@ describe("SessionCookie", () => {
         expect.objectContaining({
           path: "/",
           httpOnly: true,
-          sameSite: "strict",
+          sameSite: "lax",
           secure: true,
         })
       )
@@ -93,7 +93,7 @@ describe("SessionCookie", () => {
         expect.objectContaining({
           path: "/",
           httpOnly: true,
-          sameSite: "strict",
+          sameSite: "lax",
           secure: true,
         })
       )
@@ -191,7 +191,7 @@ describe("SessionCookie", () => {
       )
     })
 
-    it("should set sameSite to strict", () => {
+    it("should set sameSite to lax", () => {
       const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({ req: mockReq, res: mockRes })
       cookie.set("test-token")
@@ -200,116 +200,59 @@ describe("SessionCookie", () => {
         DEFAULT_COOKIE_NAME,
         "test-token",
         expect.objectContaining({
-          sameSite: "strict",
+          sameSite: "lax",
         })
       )
     })
   })
 
-  describe("Domain Extraction", () => {
-    it("should set domain for Aurora dashboard hostname", () => {
-      const mockReq = createMockReq(TEST_HOSTNAME)
-      const cookie = SessionCookie({ req: mockReq, res: mockRes })
-
-      cookie.set("test-token")
-
-      expect(mockRes.setCookie).toHaveBeenCalledWith(
-        DEFAULT_COOKIE_NAME,
-        "test-token",
-        expect.objectContaining({
-          domain: ".region-1.example.com",
-        })
-      )
-    })
-
-    it("should set domain for Elektra dashboard hostname", () => {
-      const mockReq = createMockReq("dashboard.region-1.example.com")
-      const cookie = SessionCookie({ req: mockReq, res: mockRes })
-
-      cookie.set("test-token")
-
-      expect(mockRes.setCookie).toHaveBeenCalledWith(
-        DEFAULT_COOKIE_NAME,
-        "test-token",
-        expect.objectContaining({
-          domain: ".region-1.example.com",
-        })
-      )
-    })
-
-    it("should set domain for production hostnames", () => {
-      const mockReq = createMockReq("aurora.region-2.example.com")
-      const cookie = SessionCookie({ req: mockReq, res: mockRes })
-
-      cookie.set("test-token")
-
-      expect(mockRes.setCookie).toHaveBeenCalledWith(
-        DEFAULT_COOKIE_NAME,
-        "test-token",
-        expect.objectContaining({
-          domain: ".region-2.example.com",
-        })
-      )
-    })
-
-    it("should set domain for hostnames with multiple subdomains", () => {
-      const mockReq = createMockReq("app.subdomain.example.com")
-      const cookie = SessionCookie({ req: mockReq, res: mockRes })
-
-      cookie.set("test-token")
-
-      expect(mockRes.setCookie).toHaveBeenCalledWith(
-        DEFAULT_COOKIE_NAME,
-        "test-token",
-        expect.objectContaining({
-          domain: ".subdomain.example.com",
-        })
-      )
-    })
-
-    it("should not set domain for localhost", () => {
-      const mockReq = createMockReq("localhost")
-      const cookie = SessionCookie({ req: mockReq, res: mockRes })
-
-      cookie.set("test-token")
-
-      const call = vi.mocked(mockRes.setCookie).mock.calls[0]
-      expect(call[2]).not.toHaveProperty("domain")
-    })
-
-    it("should not set domain for IP addresses", () => {
-      const mockReq = createMockReq("192.168.1.100")
-      const cookie = SessionCookie({ req: mockReq, res: mockRes })
-
-      cookie.set("test-token")
-
-      const call = vi.mocked(mockRes.setCookie).mock.calls[0]
-      expect(call[2]).not.toHaveProperty("domain")
-    })
-
-    it("should not set domain for hostnames with less than 3 parts", () => {
-      const mockReq = createMockReq("example.com")
-      const cookie = SessionCookie({ req: mockReq, res: mockRes })
-
-      cookie.set("test-token")
-
-      const call = vi.mocked(mockRes.setCookie).mock.calls[0]
-      expect(call[2]).not.toHaveProperty("domain")
-    })
-
-    it("should not set domain when crossDomainCookie=false", () => {
+  describe("Cookie Domain", () => {
+    it("should set domain when cookieDomain is provided", () => {
       const mockReq = createMockReq(TEST_HOSTNAME)
       const cookie = SessionCookie({
         req: mockReq,
         res: mockRes,
-        cookieName: DEFAULT_COOKIE_NAME,
-        crossDomainCookie: false,
+        cookieDomain: ".region-1.example.com",
       })
+
+      cookie.set("test-token")
+
+      expect(mockRes.setCookie).toHaveBeenCalledWith(
+        DEFAULT_COOKIE_NAME,
+        "test-token",
+        expect.objectContaining({
+          domain: ".region-1.example.com",
+        })
+      )
+    })
+
+    it("should not set domain when cookieDomain is not provided", () => {
+      const mockReq = createMockReq(TEST_HOSTNAME)
+      const cookie = SessionCookie({ req: mockReq, res: mockRes })
 
       cookie.set("test-token")
 
       const call = vi.mocked(mockRes.setCookie).mock.calls[0]
       expect(call[2]).not.toHaveProperty("domain")
+    })
+
+    it("should set explicit cookieDomain even on localhost", () => {
+      const mockReq = createMockReq("localhost")
+      const cookie = SessionCookie({
+        req: mockReq,
+        res: mockRes,
+        cookieDomain: ".example.com",
+      })
+
+      cookie.set("test-token")
+
+      expect(mockRes.setCookie).toHaveBeenCalledWith(
+        DEFAULT_COOKIE_NAME,
+        "test-token",
+        expect.objectContaining({
+          domain: ".example.com",
+        })
+      )
     })
   })
 })
