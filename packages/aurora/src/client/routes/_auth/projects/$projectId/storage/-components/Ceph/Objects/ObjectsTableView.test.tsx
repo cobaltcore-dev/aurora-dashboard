@@ -1,6 +1,7 @@
 import { render as rtlRender, screen, within, waitFor } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { ReactNode } from "react"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import userEvent from "@testing-library/user-event"
@@ -28,7 +29,11 @@ vi.mock("@/client/trpcClient", () => ({
 // Mock child components to isolate ObjectsTableView
 const render = (ui: React.ReactElement) => {
   return rtlRender(ui, {
-    wrapper: ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>,
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <PortalProvider>
+        <I18nProvider i18n={i18n}>{children}</I18nProvider>
+      </PortalProvider>
+    ),
   })
 }
 
@@ -256,7 +261,17 @@ describe("ObjectsTableView", () => {
       })
     })
 
-    it("calls downloadObject with bucket and key when Download is clicked", async () => {
+    it("renders Download menu item in the object row actions", async () => {
+      const user = userEvent.setup()
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button"))
+
+      expect(screen.getByTestId("download-action-file1.txt")).toBeInTheDocument()
+    })
+
+    it("calls downloadObject with correct params when Download is clicked", async () => {
       const user = userEvent.setup()
       vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
       vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
