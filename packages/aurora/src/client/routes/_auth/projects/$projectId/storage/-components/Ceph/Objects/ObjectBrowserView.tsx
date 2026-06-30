@@ -378,13 +378,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   return (
     <div className="relative">
-      <ObjectsFileNavigation
-        bucketName={bucketName}
-        prefix={currentPrefix}
-        onBucketsClick={navigateToBuckets}
-        onPrefixClick={navigateToPrefix}
-      />
-
       <Stack direction="vertical">
         {/* Zone 1 — sort controls and page-level actions */}
         <Stack distribution="between" alignment="center" gap="2" className="pb-2">
@@ -459,7 +452,17 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           </Stack>
         </DataGridToolbar>
 
-        {/* Zone 3 — item count. */}
+        {/* Zone 3 — breadcrumb navigation in its own row */}
+        <DataGridToolbar>
+          <ObjectsFileNavigation
+            bucketName={bucketName}
+            prefix={currentPrefix}
+            onBucketsClick={navigateToBuckets}
+            onPrefixClick={navigateToPrefix}
+          />
+        </DataGridToolbar>
+
+        {/* Zone 4 — item count. */}
         <DataGridToolbar>
           <Stack distribution="between" gap="2" alignment="center" className="text-sm">
             <div className="text-theme-light flex items-center gap-1" data-testid="objects-info-block">
