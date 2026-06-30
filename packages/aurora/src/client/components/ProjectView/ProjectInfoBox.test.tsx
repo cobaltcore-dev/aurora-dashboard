@@ -48,31 +48,25 @@ describe("ProjectInfoBox", () => {
   })
 
   describe("Rendering", () => {
-    it("renders project name in breadcrumb", async () => {
+    it("renders combined domain/project in breadcrumb", async () => {
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
       await waitFor(() => {
-        expect(screen.getByText("My Project")).toBeInTheDocument()
+        expect(screen.getByText("my-domain.com/My Project")).toBeInTheDocument()
       })
     })
 
-    it("renders domain name in breadcrumb when available", async () => {
-      render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
-      await waitFor(() => {
-        expect(screen.getByText("my-domain.com")).toBeInTheDocument()
-      })
-    })
-
-    it("omits domain when not provided", async () => {
+    it("renders project name only when domain not provided", async () => {
       const props = { ...defaultProjectInfo, domain: undefined }
       render(<ProjectInfoBox projectInfo={props} />, { wrapper: Wrapper })
       await waitFor(() => {
+        expect(screen.getByText("My Project")).toBeInTheDocument()
         expect(screen.queryByText("my-domain.com")).not.toBeInTheDocument()
       })
     })
   })
 
   describe("Breadcrumbs — service list pages", () => {
-    it("renders domain > project > Images on images list", async () => {
+    it("renders domain/project > Images on images list", async () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
@@ -90,8 +84,7 @@ describe("ProjectInfoBox", () => {
       render(<ProjectInfoBox projectInfo={defaultProjectInfo} />, { wrapper: Wrapper })
 
       await waitFor(() => {
-        expect(screen.getByText("my-domain.com")).toBeInTheDocument()
-        expect(screen.getByText("My Project")).toBeInTheDocument()
+        expect(screen.getByText("my-domain.com/My Project")).toBeInTheDocument()
         expect(screen.queryByText("Compute")).not.toBeInTheDocument()
         expect(screen.getByText("Images")).toBeInTheDocument()
       })
