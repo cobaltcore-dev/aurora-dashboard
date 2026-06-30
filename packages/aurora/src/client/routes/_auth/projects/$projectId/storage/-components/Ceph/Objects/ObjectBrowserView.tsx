@@ -541,7 +541,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         }}
       />
 
-      {toastData && <Toast {...toastData} />}
+      {toastData && (
+        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
+      )}
     </div>
   )
 }

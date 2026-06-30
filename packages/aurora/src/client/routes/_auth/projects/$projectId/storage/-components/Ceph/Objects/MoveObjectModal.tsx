@@ -336,8 +336,8 @@ export const MoveObjectModal = ({
             placeholder={bucketName}
             helptext={(() => {
               if (isLoadingBuckets) return t`Loading buckets...`
-              if (!modalState.searchTerm.trim() && modalState.visibleBuckets.length > MAX_COMBO_OPTIONS) {
-                return t`Start typing to search for a bucket`
+              if (!modalState.searchTerm.trim() && (buckets?.length ?? 0) > MAX_COMBO_OPTIONS) {
+                return t`There are ${buckets?.length} buckets — start typing to search`
               }
               if (modalState.hiddenCount > 0) {
                 const totalBuckets = modalState.visibleBuckets.length + modalState.hiddenCount
@@ -348,11 +348,17 @@ export const MoveObjectModal = ({
             disabled={isLoadingBuckets || isPending}
             required
           >
-            {modalState.visibleBuckets.map((b) => (
-              <ComboBoxOption key={b.name} value={b.name}>
-                {b.name}
+            {!modalState.searchTerm.trim() && (buckets?.length ?? 0) > MAX_COMBO_OPTIONS ? (
+              <ComboBoxOption key="__placeholder__" value="" disabled>
+                {t`Start typing to search for a bucket`}
               </ComboBoxOption>
-            ))}
+            ) : (
+              modalState.visibleBuckets.map((b) => (
+                <ComboBoxOption key={b.name} value={b.name}>
+                  {b.name}
+                </ComboBoxOption>
+              ))
+            )}
           </ComboBox>
 
           {/* Folder browser */}

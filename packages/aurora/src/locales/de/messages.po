@@ -3040,6 +3040,10 @@ msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
 msgid "The text must match “release” in lowercase."
 msgstr "Der Text muss “release” in Kleinbuchstaben entsprechen."
 
+#. placeholder {0}: buckets?.length
+msgid "There are {0} buckets — start typing to search"
+msgstr ""
+
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
 msgstr ""
 
