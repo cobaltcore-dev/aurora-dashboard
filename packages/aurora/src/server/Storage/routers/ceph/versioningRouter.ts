@@ -381,17 +381,35 @@ export const versioningRouter = {
             input.folders.map(async (folderPrefix) => {
               try {
                 // Query without delimiter to get all nested objects
-                // Use MaxKeys=1 since we only need to know if ANY deleted file exists
-                const response = await s3.send(
-                  new ListObjectVersionsCommand({
-                    Bucket: input.bucket,
-                    Prefix: folderPrefix,
-                    MaxKeys: 1, // Only need to find one deleted item
-                  })
-                )
+                // Paginate through all versions to find if ANY delete marker exists
+                let hasDeleteMarkers = false
+                let keyMarker: string | undefined
+                let versionIdMarker: string | undefined
 
-                // Check if there are any delete markers
-                const hasDeleteMarkers = (response.DeleteMarkers?.length ?? 0) > 0
+                // Keep paginating until we find a delete marker or reach the end
+                while (!hasDeleteMarkers) {
+                  const response = await s3.send(
+                    new ListObjectVersionsCommand({
+                      Bucket: input.bucket,
+                      Prefix: folderPrefix,
+                      MaxKeys: 100, // Reasonable batch size for pagination
+                      KeyMarker: keyMarker,
+                      VersionIdMarker: versionIdMarker,
+                    })
+                  )
+
+                  // Check if there are any delete markers in this page
+                  hasDeleteMarkers = (response.DeleteMarkers?.length ?? 0) > 0
+
+                  // If no more results or found a delete marker, stop
+                  if (!response.IsTruncated || hasDeleteMarkers) {
+                    break
+                  }
+
+                  // Continue to next page
+                  keyMarker = response.NextKeyMarker
+                  versionIdMarker = response.NextVersionIdMarker
+                }
 
                 return {
                   prefix: folderPrefix,
