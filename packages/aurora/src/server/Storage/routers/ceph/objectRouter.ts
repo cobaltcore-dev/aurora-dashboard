@@ -6,6 +6,7 @@ import {
   DeleteObjectCommand,
   PutObjectCommand,
   CopyObjectCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3"
 import { TRPCError } from "@trpc/server"
 import { cephProtectedProcedure } from "../../cephProcedure"
@@ -24,12 +25,25 @@ import {
   copyObjectOutputSchema,
   moveObjectInputSchema,
   updateMetadataInputSchema,
+  downloadObjectInputSchema,
+  watchDownloadProgressInputSchema,
   type ListObjectsOutput,
   type S3ObjectDetails,
   type CopyObjectOutput,
 } from "../../types/ceph"
 import { S3_MAX_KEYS_PER_REQUEST } from "../../constants"
 import { z } from "zod"
+import EventEmitter from "node:events"
+
+// ============================================================================
+// DOWNLOAD PROGRESS TRACKING
+// ============================================================================
+
+const downloadProgressEmitter = new EventEmitter()
+downloadProgressEmitter.setMaxListeners(0) // 0 = unlimited; shared across all concurrent downloads
+
+type DownloadProgress = { downloaded: number; total: number; percent: number }
+const downloadProgressMap = new Map<string, DownloadProgress>()
 
 const deleteAllObjectsInputSchema = z.object({
   project_id: z.string(),
@@ -723,4 +737,192 @@ export const objectRouter = {
         })
       }
     }),
+
+  // ============================================================================
+  // DOWNLOAD OPERATIONS
+  // ============================================================================
+
+  /**
+   * Download a Ceph (S3) object via the BFF, streaming the content as chunks of
+   * base64-encoded data using an async iterable.
+   *
+   * Mirrors the Swift `downloadObject` implementation so the existing client-side
+   * download-assembly logic can be reused unchanged:
+   *   - tRPC iterables use a JSON-based SSE transport, so each yielded value must
+   *     be JSON-serializable. Each Uint8Array chunk is base64-encoded, and the
+   *     content-type + filename are sent only in the first chunk.
+   *   - The server never buffers the whole object in memory; it streams the S3
+   *     `GetObject` body chunk by chunk.
+   *
+   * Progress tracking:
+   *   Per-chunk progress is stored in `downloadProgressMap` and emitted via
+   *   `downloadProgressEmitter`, so a concurrent `watchDownloadProgress`
+   *   subscription can drive a progress bar. The client computes `downloadId`
+   *   as "<bucket>:<objectKey>:<uuid>" and passes it before the mutation starts.
+   *   The id is scoped with the project id to prevent cross-tenant observation.
+   *
+   * Client-side assembly:
+   *   Collect all base64 chunks -> decode each -> concatenate into a single
+   *   Uint8Array -> wrap in a Blob -> trigger <a download>.
+   */
+  downloadObject: cephProtectedProcedure.input(downloadObjectInputSchema).mutation(async function* ({
+    ctx,
+    input,
+  }): AsyncGenerator<{
+    chunk: string // base64-encoded Uint8Array chunk
+    downloaded: number // cumulative bytes received so far
+    total: number // total object size in bytes (0 if unknown)
+    contentType?: string // only present in the first chunk
+    filename?: string // only present in the first chunk
+  }> {
+    const s3 = ctx.getCephClient!()
+    const { project_id, containerName, objectKey, filename, downloadId } = input
+
+    const response = await s3
+      .send(
+        new GetObjectCommand({
+          Bucket: containerName,
+          Key: objectKey,
+        })
+      )
+      .catch((error) => {
+        throw mapS3ErrorToTRPCError(error, { operation: "download object", bucket: containerName, key: objectKey })
+      })
+
+    const body = response.Body
+    if (!body) {
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "S3 response has no body" })
+    }
+
+    const contentType = response.ContentType ?? "application/octet-stream"
+    // ContentLength may be absent for chunked responses; treat 0 as unknown.
+    const total = response.ContentLength ?? 0
+
+    // Scope to the project so cross-tenant observation is impossible.
+    const scopedDownloadId = `${project_id}:${downloadId}`
+    downloadProgressMap.set(scopedDownloadId, { downloaded: 0, total, percent: 0 })
+
+    let isFirst = true
+    let downloaded = 0
+
+    try {
+      // The AWS SDK v3 S3 client returns GetObject `Body` typed as a union
+      // (Readable | ReadableStream | Blob). In the Node BFF runtime it is a
+      // Readable, i.e. an async iterable of Uint8Array chunks; cast via unknown
+      // because the union as a whole is not assignable to AsyncIterable.
+      for await (const value of body as unknown as AsyncIterable<Uint8Array>) {
+        downloaded += value.byteLength
+
+        const progress = downloadProgressMap.get(scopedDownloadId)!
+        progress.downloaded = downloaded
+        progress.percent = total > 0 ? Math.round((downloaded / total) * 100) : 0
+        downloadProgressEmitter.emit(`progress:${scopedDownloadId}`, { ...progress })
+
+        // Yield to the event loop so subscriptions can flush between chunks.
+        await new Promise((resolve) => setTimeout(resolve, 0))
+
+        yield {
+          chunk: Buffer.from(value).toString("base64"),
+          downloaded,
+          total,
+          ...(isFirst ? { contentType, filename } : {}),
+        }
+
+        isFirst = false
+      }
+
+      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
+    } catch (error) {
+      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:error`, error)
+      throw mapS3ErrorToTRPCError(error, { operation: "download object", bucket: containerName, key: objectKey })
+    } finally {
+      downloadProgressMap.delete(scopedDownloadId)
+    }
+  }),
+
+  /**
+   * Subscribe to real-time download progress for a given `downloadId`.
+   *
+   * Mirrors the Swift `watchDownloadProgress` subscription. The `downloadId` is
+   * computed client-side as "<bucket>:<objectKey>:<uuid>" and passed to
+   * `downloadObject` before the mutation starts, so this subscription can be
+   * opened in advance. Yields `{ downloaded, total, percent }` as bytes flow
+   * through the server; completes when the download finishes or throws on error.
+   */
+  watchDownloadProgress: cephProtectedProcedure.input(watchDownloadProgressInputSchema).subscription(async function* ({
+    input,
+  }) {
+    const { project_id, downloadId } = input
+    const scopedDownloadId = `${project_id}:${downloadId}`
+
+    // Yield current snapshot immediately for late subscribers.
+    const current = downloadProgressMap.get(scopedDownloadId)
+    if (current) {
+      yield { ...current }
+    }
+
+    const queue: Array<DownloadProgress> = []
+    let isComplete = false
+    let isError = false
+    let caughtError: Error | undefined
+    let waitResolver: ((value?: unknown) => void) | null = null
+
+    const onProgress = (data: DownloadProgress) => {
+      queue.push(data)
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onComplete = () => {
+      isComplete = true
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onError = (err: unknown) => {
+      isError = true
+      caughtError = err instanceof Error ? err : new Error(String(err))
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    downloadProgressEmitter.on(`progress:${scopedDownloadId}`, onProgress)
+    downloadProgressEmitter.on(`progress:${scopedDownloadId}:complete`, onComplete)
+    downloadProgressEmitter.on(`progress:${scopedDownloadId}:error`, onError)
+
+    try {
+      while (!isComplete && !isError) {
+        while (queue.length > 0) {
+          yield { ...queue.shift()! }
+        }
+
+        if (!isComplete && !isError) {
+          // Bounded wait: if no events arrive within 30 s the download has
+          // likely already completed and the map entry was deleted before we
+          // subscribed. Break rather than hanging forever.
+          const timeout = new Promise((resolve) => setTimeout(resolve, 30_000))
+          await Promise.race([
+            new Promise((resolve) => {
+              waitResolver = resolve
+            }),
+            timeout,
+          ])
+          if (!isComplete && !isError && queue.length === 0) break
+        }
+      }
+
+      // Drain any final events that arrived while we were awaiting.
+      while (queue.length > 0) {
+        yield { ...queue.shift()! }
+      }
+
+      if (isError && caughtError) {
+        throw caughtError
+      }
+    } finally {
+      downloadProgressEmitter.off(`progress:${scopedDownloadId}`, onProgress)
+      downloadProgressEmitter.off(`progress:${scopedDownloadId}:complete`, onComplete)
+      downloadProgressEmitter.off(`progress:${scopedDownloadId}:error`, onError)
+    }
+  }),
 }
