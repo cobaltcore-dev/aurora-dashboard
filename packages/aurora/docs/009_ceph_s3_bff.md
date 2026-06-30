@@ -165,7 +165,9 @@ storage.ceph
   │   ├── createFolder()    → { success: boolean }
   │   ├── copy()            → { success: boolean, etag?: string }
   │   ├── move()            → { success: boolean, etag?: string }
-  │   └── updateMetadata()  → { success: boolean }
+  │   ├── updateMetadata()  → { success: boolean }
+  │   ├── downloadObject()       → AsyncIterable<{ chunk, downloaded, total, contentType?, filename? }>
+  │   └── watchDownloadProgress() → AsyncIterable<{ downloaded, total, percent }>  (subscription)
   └── versioning
       ├── getStatus()         → { status: 'Enabled' | 'Suspended' | 'Unversioned' }
       ├── setStatus()         → { success: boolean }
@@ -854,6 +856,116 @@ await trpc.storage.ceph.objects.updateMetadata.mutate({
 
 ---
 
+#### `downloadObject`
+
+Downloads an object by streaming its content through the BFF as base64-encoded chunks via a tRPC async iterable (S3 `GetObjectCommand`). The server never buffers the whole object in memory, and per-chunk progress is published so a concurrent `watchDownloadProgress` subscription can drive a progress bar. This is a **direct stream** — no presigned/temporary URLs are issued.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  containerName: string,
+  objectKey: string,
+  filename: string,    // Suggested download filename (echoed in the first chunk)
+  downloadId: string   // Client-computed "<bucket>:<objectKey>:<uuid>" correlating
+                       // the stream with a watchDownloadProgress subscription
+}
+```
+
+**Output:** an async iterable yielding chunks:
+
+```typescript
+{
+  chunk: string,         // base64-encoded Uint8Array slice of the object
+  downloaded: number,    // cumulative bytes streamed so far
+  total: number,         // total object size in bytes (0 if unknown)
+  contentType?: string,  // present only in the first chunk
+  filename?: string      // present only in the first chunk
+}
+```
+
+**Example:**
+
+```typescript
+const downloadId = `${bucket}:${objectKey}:${crypto.randomUUID()}`
+
+const iterable = await trpc.storage.ceph.objects.downloadObject.mutate({
+  project_id: "abc123",
+  containerName: "my-bucket",
+  objectKey: "documents/report.pdf",
+  filename: "report.pdf",
+  downloadId,
+})
+
+const parts: Uint8Array[] = []
+let contentType = "application/octet-stream"
+for await (const { chunk, contentType: ct } of iterable) {
+  if (ct) contentType = ct
+  parts.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)))
+}
+const blob = new Blob(parts, { type: contentType })
+// → wrap in an object URL and trigger an <a download>
+```
+
+**Notes:**
+
+- Each chunk is base64-encoded because tRPC's iterable transport is JSON/SSE-based and yielded values must be JSON-serializable.
+- `contentType` and `filename` are sent only in the first chunk to avoid repetition.
+- Progress is scoped by `project_id`, so a user can never observe another tenant's transfer.
+- An empty object yields no chunks (the loop simply never runs).
+
+---
+
+#### `watchDownloadProgress`
+
+Subscribes to live progress for an in-flight download identified by `downloadId`. Open this **before** calling `downloadObject` so no early events are missed; a snapshot of current progress is emitted immediately for late subscribers.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  downloadId: string   // Same id passed to downloadObject
+}
+```
+
+**Output:** an async iterable (subscription) yielding progress:
+
+```typescript
+{
+  downloaded: number,  // cumulative bytes streamed
+  total: number,       // total object size in bytes (0 if unknown)
+  percent: number      // 0–100 (0 when total is unknown)
+}
+```
+
+**Example:**
+
+```typescript
+const downloadId = `${bucket}:${objectKey}:${crypto.randomUUID()}`
+
+trpc.storage.ceph.objects.watchDownloadProgress.subscribe(
+  { project_id: "abc123", downloadId },
+  { onData: ({ percent }) => setProgress(percent) }
+)
+
+await trpc.storage.ceph.objects.downloadObject.mutate({
+  project_id: "abc123",
+  containerName: "my-bucket",
+  objectKey: "documents/report.pdf",
+  filename: "report.pdf",
+  downloadId,
+})
+```
+
+**Notes:**
+
+- The subscription completes when the download finishes and re-throws if the download errors.
+- If no events arrive within 30 s (e.g. the download finished before the subscription opened), it ends gracefully rather than hanging.
+
+---
+
 ### Versioning (`storage.ceph.versioning`)
 
 Bucket versioning allows keeping multiple variants of objects in the same bucket, enabling recovery from accidental deletions and overwrites.
@@ -1531,17 +1643,17 @@ console.log("Old credential deleted")
 
 ## Comparison: Ceph S3 vs. Swift
 
-| Feature              | Ceph S3 (this BFF)                | Swift BFF                              |
-| -------------------- | --------------------------------- | -------------------------------------- |
-| **Authentication**   | EC2 credentials (access + secret) | Keystone token                         |
-| **API Style**        | S3-compatible (AWS SDK)           | OpenStack Swift API                    |
-| **Bucket/Container** | S3 buckets                        | Swift containers                       |
-| **Object Hierarchy** | `delimiter` + `prefix`            | `delimiter` + `prefix`                 |
-| **Metadata**         | User metadata via `x-amz-meta-`   | Custom headers via `X-Object-Meta-`    |
-| **Large Objects**    | Multipart uploads                 | Static/Dynamic Large Objects (SLO/DLO) |
-| **Uploads**          | (Not yet implemented)             | `octetInputParser` streaming           |
-| **Downloads**        | (Not yet implemented)             | Async iterable base64 chunks           |
-| **Temporary URLs**   | Presigned URLs (not yet impl)     | HMAC-SHA256 signed temp URLs           |
+| Feature              | Ceph S3 (this BFF)                        | Swift BFF                              |
+| -------------------- | ----------------------------------------- | -------------------------------------- |
+| **Authentication**   | EC2 credentials (access + secret)         | Keystone token                         |
+| **API Style**        | S3-compatible (AWS SDK)                   | OpenStack Swift API                    |
+| **Bucket/Container** | S3 buckets                                | Swift containers                       |
+| **Object Hierarchy** | `delimiter` + `prefix`                    | `delimiter` + `prefix`                 |
+| **Metadata**         | User metadata via `x-amz-meta-`           | Custom headers via `X-Object-Meta-`    |
+| **Large Objects**    | Multipart uploads                         | Static/Dynamic Large Objects (SLO/DLO) |
+| **Uploads**          | (Not yet implemented)                     | `octetInputParser` streaming           |
+| **Downloads**        | Async iterable base64 chunks (+ progress) | Async iterable base64 chunks           |
+| **Temporary URLs**   | Presigned URLs (not yet impl)             | HMAC-SHA256 signed temp URLs           |
 
 **When to use which?**
 
@@ -1564,8 +1676,8 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
 
 2. **Object Upload/Download**
    - Upload object (`PutObjectCommand`)
-   - Download object (`GetObjectCommand`)
-   - Streaming upload/download via tRPC (similar to Swift BFF `uploadObject`/`downloadObject`)
+   - ~~Download object (`GetObjectCommand`)~~ ✅ Implemented — streamed through the BFF as a tRPC async iterable, with a `watchDownloadProgress` subscription for progress
+   - Streaming upload via tRPC (similar to Swift BFF `uploadObject`)
    - Multipart uploads for large files
 
 3. **Object Manipulation**
@@ -1790,7 +1902,7 @@ openstack endpoint list --service ceph
 
 ## Next Steps
 
-1. **Implement object upload/download** — streaming via `octetInputParser` / async iterables (similar to Swift BFF)
+1. **Implement object upload** — streaming via `octetInputParser` (download already implemented via async-iterable streaming with progress tracking)
 2. **Add presigned URL generation** — allow direct client → Ceph transfers for large files
 3. ~~**Implement bucket management**~~ ✅ Completed — create, delete, empty buckets
 4. **Add credential caching** — reduce Keystone API calls
