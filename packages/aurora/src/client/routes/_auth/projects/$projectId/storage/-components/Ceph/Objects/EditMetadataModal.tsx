@@ -389,7 +389,7 @@ export const EditMetadataModal = ({
               />
             </Stack>
 
-            <DataGrid columns={3}>
+            <DataGrid columns={3} gridColumnTemplate="minmax(150px, 1fr) minmax(200px, 2fr) 120px">
               <DataGridRow>
                 <DataGridHeadCell>
                   <Trans>Key</Trans>
@@ -397,7 +397,7 @@ export const EditMetadataModal = ({
                 <DataGridHeadCell>
                   <Trans>Value</Trans>
                 </DataGridHeadCell>
-                <DataGridHeadCell>
+                <DataGridHeadCell className="text-right">
                   <Trans>Actions</Trans>
                 </DataGridHeadCell>
               </DataGridRow>
@@ -426,7 +426,7 @@ export const EditMetadataModal = ({
                     />
                   </DataGridCell>
                   <DataGridCell>
-                    <Stack direction="horizontal" gap="2">
+                    <Stack direction="horizontal" gap="2" distribution="end" className="whitespace-nowrap">
                       <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
                       <Button
                         size="small"
@@ -471,7 +471,7 @@ export const EditMetadataModal = ({
                   </DataGridCell>
                   <DataGridCell>
                     {entry.isEditing ? (
-                      <Stack direction="horizontal" gap="2">
+                      <Stack direction="horizontal" gap="2" distribution="end" className="whitespace-nowrap">
                         <Button
                           size="small"
                           variant="primary"
@@ -488,7 +488,7 @@ export const EditMetadataModal = ({
                         />
                       </Stack>
                     ) : (
-                      <Stack direction="horizontal" gap="2">
+                      <Stack direction="horizontal" gap="2" distribution="end" className="whitespace-nowrap">
                         <Button
                           size="small"
                           variant="subdued"
