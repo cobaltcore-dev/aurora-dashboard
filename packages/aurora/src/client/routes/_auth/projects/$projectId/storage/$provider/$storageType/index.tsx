@@ -118,6 +118,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
     service: "containers",
     sectionCrumb: { labelKey: "Storage" },
     crumb: { useParamAsLabel: "provider" },
+    analytics: {
+      name: "storage.objectstore.list",
+    },
   } satisfies RouteInfo,
   validateSearch: containersSearchSchema,
   head: ({ match }) => ({
