@@ -1,5 +1,27 @@
 # @cobaltcore-dev/dashboard
 
+## 1.1.8
+
+### Patch Changes
+
+- e070437: feat(server): replace crossDomainCookie with explicit cookieDomain config
+
+  **Breaking change:** `crossDomainCookie` and `ENABLE_CROSS_DASHBOARD_COOKIE` are removed.
+
+  Use the new `cookieDomain` config option (or `COOKIE_DOMAIN` env var) to explicitly set
+  the cookie domain for cross-subdomain sharing (e.g., `.example.com`).
+
+  When not set, cookies are host-specific (no cross-subdomain sharing).
+
+  Also changes `SameSite` cookie attribute from `strict` to `lax` for consistency with
+  other dashboards and better UX when following external links.
+
+- Updated dependencies [e070437]
+- Updated dependencies [63e7834]
+- Updated dependencies [94552b7]
+- Updated dependencies [63e7834]
+  - @cobaltcore-dev/aurora@0.12.0
+
 ## 1.1.7
 
 ### Patch Changes

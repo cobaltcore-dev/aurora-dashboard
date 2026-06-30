@@ -51,8 +51,8 @@ export function ContentHeader({ title, projectId, description, actions, badges }
         </div>
       </div>
       {description && <p className="text-sm font-normal">{description}</p>}
-      <Divider className="mt-4" />
       {serviceBanner}
+      <Divider className="mt-4" />
       {(badges || actions) && (
         <div className="mt-3 flex items-start justify-between">
           <div className="flex items-center gap-2">{badges} </div>
