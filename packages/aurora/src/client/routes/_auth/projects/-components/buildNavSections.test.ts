@@ -32,8 +32,8 @@ describe("buildNavSections", () => {
     expect(network?.services.map((s) => s.service)).toEqual(["securitygroups", "floatingips"])
 
     const storage = sections.find((s) => s.section === "storage")
-    expect(storage?.services.map((s) => s.service)).toContain("containers")
-    expect(storage?.services.map((s) => s.service)).toContain("ceph-containers")
+    expect(storage?.services.map((s) => s.service)).toContain("swift")
+    expect(storage?.services.map((s) => s.service)).toContain("ceph")
 
     const services = sections.find((s) => s.section === "services")
     expect(services?.services.map((s) => s.service)).toEqual(["pca"])

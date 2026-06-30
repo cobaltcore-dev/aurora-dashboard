@@ -50,9 +50,9 @@ vi.mock("@tanstack/react-router", async () => {
 
 // ─── Mock Route (search params + fullPath) ────────────────────────────────────
 
-vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType", () => ({
+vi.mock("@/client/routes/_auth/projects/$projectId/storage/ceph/buckets/index", () => ({
   Route: {
-    fullPath: "/_auth/projects/$projectId/storage/$provider/$storageType/",
+    fullPath: "/_auth/projects/$projectId/storage/ceph/buckets/",
     useSearch: mockUseSearch,
   },
 }))

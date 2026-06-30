@@ -62,8 +62,8 @@ export const ContainerTableView = ({
   setSelectedContainers,
   hasAnyBulkAction = true,
 }: ContainerTableViewProps) => {
-  const { projectId, provider, storageType } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/$storageType/",
+  const { projectId } = useParams({
+    from: "/_auth/projects/$projectId/storage/swift/containers/",
   })
 
   const { t } = useLingui()
@@ -202,8 +202,8 @@ export const ContainerTableView = ({
 
               const handleRowNavigate = () =>
                 navigate({
-                  to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
-                  params: { projectId, provider, storageType, containerName: container.name },
+                  to: "/projects/$projectId/storage/swift/containers/$containerName/objects",
+                  params: { projectId, containerName: container.name },
                 })
 
               return (

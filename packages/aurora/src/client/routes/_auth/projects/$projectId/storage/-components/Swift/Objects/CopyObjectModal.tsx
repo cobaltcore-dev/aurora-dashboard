@@ -23,7 +23,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName: sourceContainer } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/swift/containers/$containerName/objects",
   })
 
   const utils = trpcReact.useUtils()

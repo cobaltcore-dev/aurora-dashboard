@@ -21,7 +21,7 @@ import { ObjectSummary } from "@/server/Storage/types/swift"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { useNavigate } from "@tanstack/react-router"
-import { Route } from "../../../$provider/$storageType/$containerName/objects"
+import { Route } from "@/client/routes/_auth/projects/$projectId/storage/swift/containers/$containerName/objects"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { CreateFolderModal } from "./CreateFolderModal"
@@ -147,13 +147,12 @@ const resolveSortBy = (sortBy: SortSettings["sortBy"]): SortKey | undefined => {
 
 // ── SwiftObjects ──────────────────────────────────────────────────────────────
 
-export const SwiftObjects = ({ provider, containerName }: { provider: string; containerName: string }) => {
+export const SwiftObjects = ({ containerName }: { containerName: string }) => {
   const { t, i18n } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
 
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
-  const { storageType } = Route.useParams()
   const currentPrefix = decodePrefix(encodedPrefix)
 
   // Whether the list exposes any bulk action — drives the selection column in
@@ -270,8 +269,8 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
 
   const navigateToContainers = () => {
     navigate({
-      to: "/projects/$projectId/storage/$provider/$storageType",
-      params: { projectId, provider, storageType },
+      to: "/projects/$projectId/storage/swift/containers",
+      params: { projectId },
     })
   }
 

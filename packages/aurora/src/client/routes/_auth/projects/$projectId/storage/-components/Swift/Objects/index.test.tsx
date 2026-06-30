@@ -57,14 +57,13 @@ vi.mock("@tanstack/react-router", async () => {
 
 // ─── Mock Route (search params + fullPath) ────────────────────────────────────
 
-vi.mock("../../../$provider/$storageType/$containerName/objects", () => ({
+vi.mock("@/client/routes/_auth/projects/$projectId/storage/swift/containers/$containerName/objects", () => ({
   Route: {
-    fullPath: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
+    fullPath: "/_auth/projects/$projectId/storage/swift/containers/$containerName/objects",
     useSearch: mockUseSearch,
     useParams: vi.fn(() => ({
       accountId: "test-account",
       projectId: "test-project",
-      storageType: "containers",
     })),
   },
 }))
@@ -283,7 +282,7 @@ const renderObjects = () =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <SwiftObjects provider="swift" containerName="test-container" />
+        <SwiftObjects containerName="test-container" />
       </PortalProvider>
     </I18nProvider>
   )

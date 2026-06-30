@@ -48,7 +48,7 @@ export const BucketTableView = ({
   setSelectedBuckets,
   hasAnyBulkAction = true,
 }: BucketTableViewProps) => {
-  const { projectId, provider, storageType } = useParams({ strict: false })
+  const { projectId } = useParams({ strict: false })
   const { t } = useLingui()
   const navigate = useNavigate()
 
@@ -170,12 +170,10 @@ export const BucketTableView = ({
 
               const handleRowNavigate = () =>
                 navigate({
-                  to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+                  to: "/projects/$projectId/storage/ceph/buckets/$bucketName/objects",
                   params: {
                     projectId: projectId ?? "",
-                    provider: (provider as string) ?? "ceph",
-                    storageType: (storageType as string) ?? "buckets",
-                    containerName: bucket.name,
+                    bucketName: bucket.name,
                   },
                 })
 

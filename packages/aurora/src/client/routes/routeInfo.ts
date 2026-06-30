@@ -10,6 +10,8 @@ export const CRUMB_LABEL_KEYS = [
   "Security Groups",
   "Floating IPs",
   "PCA (Clavis)",
+  "Swift",
+  "Ceph",
 ] as const
 
 export type CrumbLabelKey = (typeof CRUMB_LABEL_KEYS)[number]
