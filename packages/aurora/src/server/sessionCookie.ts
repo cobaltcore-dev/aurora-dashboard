@@ -5,6 +5,7 @@ export interface SessionProps {
   cookieName?: string
   crossDomainCookie?: boolean
   insecureCookies?: boolean
+  cookieHost?: string
   req: FastifyRequest
   res: FastifyReply
 }
@@ -30,10 +31,12 @@ export function SessionCookie({
   cookieName = DEFAULT_COOKIE_NAME,
   crossDomainCookie = true,
   insecureCookies = false,
+  cookieHost,
   req,
   res,
 }: SessionProps) {
-  const cookieDomain = extractCookieDomain(req.hostname, crossDomainCookie)
+  const hostname = cookieHost || req.hostname
+  const cookieDomain = extractCookieDomain(hostname, crossDomainCookie)
 
   const DEFAULT_COOKIE_VALUES = {
     secure: !insecureCookies,

@@ -28,7 +28,7 @@ createServer({
     ? process.env.ENABLE_CROSS_DASHBOARD_COOKIE.toLowerCase() === "true"
     : undefined,
   insecureCookies: process.env.INSECURE_COOKIES ? process.env.INSECURE_COOKIES.toLowerCase() === "true" : undefined,
-  trustProxy: process.env.TRUST_PROXY ? process.env.TRUST_PROXY.toLowerCase() === "true" : undefined,
+  cookieHost: process.env.COOKIE_HOST || undefined,
   policyDir,
 })
   .then((server) => server.listen({ host: "0.0.0.0", port: PORT }))

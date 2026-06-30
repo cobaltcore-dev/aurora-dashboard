@@ -30,13 +30,13 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
     cookieName: config.cookieName,
     crossDomainCookie: config.crossDomainCookie,
     insecureCookies: config.insecureCookies,
+    cookieHost: config.cookieHost,
   }
 
   const appRouter = buildAppRouter(config.policyDir, config.routers ?? [])
 
   const server = Fastify({
     logger: true,
-    trustProxy: config.trustProxy ?? false,
     bodyLimit: 1 * 1024 * 1024, // 1MB default; upload route overrides per-route
     requestTimeout: 30000, // 30 seconds default
     keepAliveTimeout: 600000, // 10 minutes keep-alive

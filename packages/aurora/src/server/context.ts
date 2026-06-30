@@ -33,6 +33,7 @@ export interface ContextConfig {
   cookieName?: string
   crossDomainCookie?: boolean
   insecureCookies?: boolean
+  cookieHost?: string
 }
 
 // Global registry of pending rescope operations per session
@@ -115,6 +116,7 @@ export async function createContext(
     cookieName: config.cookieName,
     crossDomainCookie: config.crossDomainCookie,
     insecureCookies: config.insecureCookies,
+    cookieHost: config.cookieHost,
   })
   const currentAuthToken = sessionCookie.get()
   let openstackSession: Awaited<SignalOpenstackSessionType> | undefined = undefined

@@ -23,11 +23,11 @@ export interface AuroraServerConfig {
    */
   insecureCookies?: boolean
   /**
-   * Trust X-Forwarded-* headers from reverse proxy (Ingress/nginx).
-   * Required when running behind a proxy to correctly determine hostname, IP, and protocol.
-   * Default: false
+   * Hostname used for cookie domain extraction (e.g., "dashboard-aurora.qa-de-1.cloud.sap").
+   * When set, this overrides req.hostname for determining the cookie domain.
+   * Use this when running behind a proxy to ensure correct cross-domain cookie sharing.
    */
-  trustProxy?: boolean
+  cookieHost?: string
   /**
    * Absolute path to a directory containing consumer-supplied OpenStack policy
    * files (e.g. compute.yaml, image.yaml).  Files found here take precedence
