@@ -126,4 +126,25 @@ describe("ProjectCardView", () => {
       { timeout: 1000 }
     )
   })
+
+  test("renders projects sorted alphabetically by name", async () => {
+    const unsortedProjects = [
+      { ...projects[0], id: "3", name: "Zebra Project" },
+      { ...projects[0], id: "1", name: "Alpha Project" },
+      { ...projects[0], id: "2", name: "Beta Project" },
+    ]
+
+    render(
+      <I18nProvider i18n={i18n}>
+        <ProjectCardView projects={unsortedProjects} />
+      </I18nProvider>
+    )
+
+    await waitFor(() => {
+      const projectNames = screen.getAllByTestId("project-name")
+      expect(projectNames[0].textContent).toBe("Alpha Project")
+      expect(projectNames[1].textContent).toBe("Beta Project")
+      expect(projectNames[2].textContent).toBe("Zebra Project")
+    })
+  })
 })

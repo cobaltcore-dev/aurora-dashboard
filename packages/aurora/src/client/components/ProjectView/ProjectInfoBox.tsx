@@ -44,10 +44,6 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     items.push({ icon: "home", label: t`Home`, onClick: () => navigate({ to: "/projects" }) })
 
-    if (projectInfo.domain?.name) {
-      items.push({ label: projectInfo.domain.name })
-    }
-
     const projectMatches = matches.filter(
       (m) => m.routeId !== "/_auth/projects/$projectId" && m.routeId.startsWith("/_auth/projects/$projectId")
     )
@@ -55,13 +51,15 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     const info = deepest ? (isRouteInfo(deepest.staticData) ? deepest.staticData : undefined) : undefined
 
+    const combinedLabel = projectInfo.domain?.name ? `${projectInfo.domain.name}/${projectInfo.name}` : projectInfo.name
+
     if (!deepest || !info) {
-      items.push({ label: projectInfo.name, active: true })
+      items.push({ label: combinedLabel, active: true })
       return items
     }
 
     items.push({
-      label: projectInfo.name,
+      label: combinedLabel,
       onClick: () => navigate({ to: "/projects/$projectId", params: { projectId } }),
     })
 
