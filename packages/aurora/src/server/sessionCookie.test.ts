@@ -236,7 +236,7 @@ describe("SessionCookie", () => {
       expect(call[2]).not.toHaveProperty("domain")
     })
 
-    it("should not set domain for localhost even with cookieDomain", () => {
+    it("should set explicit cookieDomain even on localhost", () => {
       const mockReq = createMockReq("localhost")
       const cookie = SessionCookie({
         req: mockReq,
