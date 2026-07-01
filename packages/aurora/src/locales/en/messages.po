@@ -451,6 +451,9 @@ msgstr "Bucket name must not start with reserved prefix \"{prefix}\""
 msgid "Bucket name must start and end with a letter or number"
 msgstr "Bucket name must start and end with a letter or number"
 
+msgid "Bucket Policy"
+msgstr "Bucket Policy"
+
 msgid "Bucket policy was successfully deleted from \"{bucketName}\"."
 msgstr "Bucket policy was successfully deleted from \"{bucketName}\"."
 

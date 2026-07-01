@@ -51,7 +51,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
       )}
       {policyData?.policy && (
         <Badge variant="info">
-          <Trans>Policy</Trans>
+          <Trans>Bucket Policy</Trans>
         </Badge>
       )}
     </>

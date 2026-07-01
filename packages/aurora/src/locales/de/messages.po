@@ -451,6 +451,9 @@ msgstr ""
 msgid "Bucket name must start and end with a letter or number"
 msgstr ""
 
+msgid "Bucket Policy"
+msgstr ""
+
 msgid "Bucket policy was successfully deleted from \"{bucketName}\"."
 msgstr ""
 
