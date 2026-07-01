@@ -40,10 +40,6 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
-#. placeholder {0}: downloadProgress.percent
-msgid "{0}%"
-msgstr "{0}%"
-
 msgid "{bucketCount, plural, one {object} other {objects}}"
 msgstr "{bucketCount, plural, one {object} other {objects}}"
 
@@ -76,6 +72,9 @@ msgstr "{numberDeleted} objects were deleted successfully, but some deletions fa
 
 msgid "{numberDeleted} objects were permanently deleted."
 msgstr "{numberDeleted} objects were permanently deleted."
+
+msgid "{percent}%"
+msgstr "{percent}%"
 
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
@@ -2318,9 +2317,8 @@ msgstr "One or more containers could not be emptied: {errorMessage}"
 msgid "One or more objects could not be deleted:"
 msgstr "One or more objects could not be deleted:"
 
-#. placeholder {0}: row.displayName
-msgid "Open {0}"
-msgstr "Open {0}"
+msgid "Open {displayName}"
+msgstr "Open {displayName}"
 
 msgid "Open in new tab"
 msgstr "Open in new tab"

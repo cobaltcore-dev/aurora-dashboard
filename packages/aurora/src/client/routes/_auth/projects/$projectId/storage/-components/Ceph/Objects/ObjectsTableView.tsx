@@ -398,6 +398,7 @@ export function ObjectsTableView({
               const isDownloading = row.kind === "object" && downloadingRow?.key === row.key
               const isPreviewing = row.kind === "object" && previewingRow?.key === row.key
               const isStreaming = isDownloading || isPreviewing
+              const displayName = row.displayName
 
               return (
                 <div
@@ -446,7 +447,7 @@ export function ObjectsTableView({
                               ? isPreviewing
                                 ? t`Loading preview…`
                                 : t`Downloading…`
-                              : t`Open ${row.displayName}`
+                              : t`Open ${displayName}`
                           }
                         >
                           {row.displayName}
@@ -471,13 +472,13 @@ export function ObjectsTableView({
                       <span className="flex min-w-0 flex-col gap-1">
                         <span className="text-theme-light flex items-center gap-2 text-sm">
                           <Spinner size="small" />
-                          {downloadProgress?.percent != null ? (
-                            <Trans>{downloadProgress.percent}%</Trans>
-                          ) : isPreviewing ? (
-                            <Trans>Loading preview...</Trans>
-                          ) : (
-                            <Trans>Downloading...</Trans>
-                          )}
+                          {(() => {
+                            const percent = downloadProgress?.percent
+                            if (percent == null) {
+                              return isPreviewing ? <Trans>Loading preview...</Trans> : <Trans>Downloading...</Trans>
+                            }
+                            return <Trans>{percent}%</Trans>
+                          })()}
                         </span>
                         {downloadProgress?.percent != null && (
                           <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
