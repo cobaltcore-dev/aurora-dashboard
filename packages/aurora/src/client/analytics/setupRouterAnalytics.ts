@@ -41,16 +41,29 @@ export function setupRouterAnalytics(router: ReturnType<typeof createAuroraRoute
       metadata.search = searchString
     }
 
-    // Check if route has section/service metadata and add them if present
+    // Use analytics.name if available, otherwise fallback to routeId
+    let action: string = deepestMatch.routeId
+
+    // Check if route has analytics metadata
     if (isRouteInfo(deepestMatch.staticData)) {
-      const { section, service } = deepestMatch.staticData
-      if (section) metadata.section = section
-      if (service) metadata.service = service
+      const { analytics } = deepestMatch.staticData
+
+      if (analytics?.name) {
+        action = analytics.name
+
+        // For object-store routes, replace "objectstore" with the actual provider (swift/ceph)
+        if (analytics.name.includes("storage.objectstore") && deepestMatch.params) {
+          const { provider } = deepestMatch.params as Record<string, string>
+          if (provider) {
+            action = analytics.name.replace("objectstore", provider)
+          }
+        }
+      }
     }
 
     const payload = {
       source: "router",
-      action: deepestMatch.routeId,
+      action,
       metadata,
     }
 

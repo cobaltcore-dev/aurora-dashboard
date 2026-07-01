@@ -6,9 +6,15 @@ import { useLingui } from "@lingui/react/macro"
 import { useRouteContext } from "@tanstack/react-router"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { Slot } from "@/client/components/Slot"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 import { canAccessClavisPca } from "@/client/routes/_auth/projects/$projectId/services/pca/-components/pcaAccess"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
+  staticData: {
+    analytics: {
+      name: "projects.detail",
+    },
+  } satisfies RouteInfo,
   component: RouteComponent,
 })
 

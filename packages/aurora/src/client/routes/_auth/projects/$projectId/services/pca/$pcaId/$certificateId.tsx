@@ -19,6 +19,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$p
   staticData: {
     section: "services",
     service: "pca",
+    analytics: {
+      name: "services.pca.certificate.detail",
+    },
     isDetail: true,
     sectionCrumb: { labelKey: "Services" },
     crumb: { labelKey: "PCA (Clavis)", to: "/projects/$projectId/services/pca" },

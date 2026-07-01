@@ -4,7 +4,7 @@ import { setupRouterAnalytics } from "./setupRouterAnalytics"
 describe("setupRouterAnalytics", () => {
   const createMockRouter = (options: {
     onTrackEvent?: ReturnType<typeof vi.fn>
-    matches?: Array<{ routeId: string; staticData?: Record<string, unknown> }>
+    matches?: Array<{ routeId: string; staticData?: Record<string, unknown>; params?: Record<string, unknown> }>
     pathname?: string
     search?: string
   }) => {
@@ -94,7 +94,7 @@ describe("setupRouterAnalytics", () => {
     })
   })
 
-  it("should include section and service in metadata when available in staticData", () => {
+  it("should fallback to routeId when analytics.name is not available", () => {
     const onTrackEvent = vi.fn()
     const mockRouter = createMockRouter({
       onTrackEvent,
@@ -118,8 +118,6 @@ describe("setupRouterAnalytics", () => {
       action: "/_auth/projects/$projectId/compute/images",
       metadata: {
         pathname: "/projects/abc-123/compute/images",
-        section: "compute",
-        service: "images",
       },
     })
   })
@@ -151,13 +149,11 @@ describe("setupRouterAnalytics", () => {
       action: "/_auth/projects/$projectId/compute/flavors",
       metadata: {
         pathname: "/projects/abc-123/compute/flavors",
-        section: "compute",
-        service: "flavors",
       },
     })
   })
 
-  it("should only include section in metadata if service is not defined", () => {
+  it("should handle routes without analytics.name", () => {
     const onTrackEvent = vi.fn()
     const mockRouter = createMockRouter({
       onTrackEvent,
@@ -181,7 +177,6 @@ describe("setupRouterAnalytics", () => {
       action: "/_auth/projects/$projectId/network",
       metadata: {
         pathname: "/projects/abc-123/network",
-        section: "network",
       },
     })
   })
@@ -212,8 +207,6 @@ describe("setupRouterAnalytics", () => {
       metadata: {
         pathname: "/projects/abc-123/compute/images",
         search: "?memberStatus=accepted",
-        section: "compute",
-        service: "images",
       },
     })
   })
@@ -261,5 +254,132 @@ describe("setupRouterAnalytics", () => {
     expect(consoleErrorSpy).toHaveBeenCalledWith("onTrackEvent callback threw:", error)
 
     consoleErrorSpy.mockRestore()
+  })
+
+  it("should use analytics.name as action when available", () => {
+    const onTrackEvent = vi.fn()
+    const mockRouter = createMockRouter({
+      onTrackEvent,
+      matches: [
+        {
+          routeId: "/_auth/projects/$projectId/storage/$provider/$storageType",
+          staticData: {
+            section: "storage",
+            service: "swift",
+            analytics: {
+              name: "storage.swift.list",
+            },
+          },
+        },
+      ],
+      pathname: "/projects/abc-123/storage/swift/containers",
+    })
+
+    setupRouterAnalytics(mockRouter as unknown as Parameters<typeof setupRouterAnalytics>[0])
+    mockRouter._triggerOnResolved()
+
+    expect(onTrackEvent).toHaveBeenCalledWith({
+      source: "router",
+      action: "storage.swift.list",
+      metadata: {
+        pathname: "/projects/abc-123/storage/swift/containers",
+      },
+    })
+  })
+
+  it("should fallback to routeId when analytics.name is not set", () => {
+    const onTrackEvent = vi.fn()
+    const mockRouter = createMockRouter({
+      onTrackEvent,
+      matches: [
+        {
+          routeId: "/_auth/projects/$projectId/compute/flavors",
+          staticData: {
+            section: "compute",
+            service: "flavors",
+          },
+        },
+      ],
+      pathname: "/projects/abc-123/compute/flavors",
+    })
+
+    setupRouterAnalytics(mockRouter as unknown as Parameters<typeof setupRouterAnalytics>[0])
+    mockRouter._triggerOnResolved()
+
+    expect(onTrackEvent).toHaveBeenCalledWith({
+      source: "router",
+      action: "/_auth/projects/$projectId/compute/flavors",
+      metadata: {
+        pathname: "/projects/abc-123/compute/flavors",
+      },
+    })
+  })
+
+  it("should replace objectstore with provider param in analytics.name", () => {
+    const onTrackEvent = vi.fn()
+    const mockRouter = createMockRouter({
+      onTrackEvent,
+      matches: [
+        {
+          routeId: "/_auth/projects/$projectId/storage/$provider/$storageType",
+          staticData: {
+            section: "storage",
+            service: "containers",
+            analytics: {
+              name: "storage.objectstore.list",
+            },
+          },
+          params: {
+            provider: "swift",
+          },
+        },
+      ],
+      pathname: "/projects/abc-123/storage/swift/containers",
+    })
+
+    setupRouterAnalytics(mockRouter as unknown as Parameters<typeof setupRouterAnalytics>[0])
+    mockRouter._triggerOnResolved()
+
+    expect(onTrackEvent).toHaveBeenCalledWith({
+      source: "router",
+      action: "storage.swift.list",
+      metadata: {
+        pathname: "/projects/abc-123/storage/swift/containers",
+      },
+    })
+  })
+
+  it("should handle ceph provider in analytics.name", () => {
+    const onTrackEvent = vi.fn()
+    const mockRouter = createMockRouter({
+      onTrackEvent,
+      matches: [
+        {
+          routeId: "/_auth/projects/$projectId/storage/$provider/$storageType",
+          staticData: {
+            section: "storage",
+            service: "containers",
+            analytics: {
+              name: "storage.objectstore.list",
+            },
+          },
+          params: {
+            provider: "ceph",
+          },
+        },
+      ],
+      pathname: "/projects/abc-123/storage/ceph/buckets",
+    })
+
+    setupRouterAnalytics(mockRouter as unknown as Parameters<typeof setupRouterAnalytics>[0])
+    mockRouter._triggerOnResolved()
+
+    expect(onTrackEvent).toHaveBeenCalledWith({
+      source: "router",
+      action: "storage.ceph.list",
+      metadata: {
+        pathname: "/projects/abc-123/storage/ceph/buckets",
+      },
+    })
   })
 })

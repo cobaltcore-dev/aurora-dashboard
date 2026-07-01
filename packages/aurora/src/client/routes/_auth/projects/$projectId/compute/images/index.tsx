@@ -9,6 +9,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/
   staticData: {
     section: "compute",
     service: "images",
+    analytics: {
+      name: "compute.images.list",
+    },
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Images" },
   } satisfies RouteInfo,
