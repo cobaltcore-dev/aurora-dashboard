@@ -924,7 +924,7 @@ S3/Ceph often can't be trusted to report a useful `Content-Type` — RGW default
 
 This means the `contentType` yielded in the first chunk may differ from the object's stored `Content-Type` in S3. Consumers that need the _raw_ stored value (rather than the resolved/display value) should call `getDetails` instead, which returns the S3 metadata unmodified.
 
-The Ceph frontend (`ObjectsTableView`) uses this resolved `contentType` to decide row-click behavior: browser-previewable types (`image/*`, `video/*`, `audio/*`, `text/*`, `application/pdf`, `application/json`, `application/xml`) open in a new tab; everything else downloads. The context-menu **Download** action always forces a download regardless of type.
+The Ceph frontend (`ObjectsTableView`) uses this resolved `contentType` to decide row-click behavior: safe browser-previewable types (passive media `image/*` excluding `image/svg+xml`, `video/*`, `audio/*`, plus `application/pdf` and `text/plain`) open in a new tab; everything else downloads. The context-menu **Download** action always forces a download regardless of type.
 
 ---
 
