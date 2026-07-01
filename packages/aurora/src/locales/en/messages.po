@@ -31,6 +31,9 @@ msgstr "\"{displayName}\" was successfully copied to {destination}."
 msgid "\"{displayName}\" was successfully moved to {destination}."
 msgstr "\"{displayName}\" was successfully moved to {destination}."
 
+msgid "\"{displayName}\" was successfully restored."
+msgstr "\"{displayName}\" was successfully restored."
+
 msgid "\"{objectName}\" was successfully copied to {destination}."
 msgstr "\"{objectName}\" was successfully copied to {destination}."
 
@@ -448,6 +451,12 @@ msgstr "Bucket name must not start with reserved prefix \"{prefix}\""
 msgid "Bucket name must start and end with a letter or number"
 msgstr "Bucket name must start and end with a letter or number"
 
+msgid "Bucket Policy"
+msgstr "Bucket Policy"
+
+msgid "Bucket policy was successfully deleted from \"{bucketName}\"."
+msgstr "Bucket policy was successfully deleted from \"{bucketName}\"."
+
 msgid "Buckets to empty:"
 msgstr "Buckets to empty:"
 
@@ -529,14 +538,14 @@ msgstr "Compute"
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 
-msgid "Confirm deletion of {displayName}. All objects inside this folder will be hidden but can be restored from version history."
-msgstr "Confirm deletion of {displayName}. All objects inside this folder will be hidden but can be restored from version history."
+msgid "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
+msgstr "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 
 msgid "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted."
 msgstr "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted."
 
-msgid "Confirm deletion of {displayName}. The object will be hidden but can be restored from version history."
-msgstr "Confirm deletion of {displayName}. The object will be hidden but can be restored from version history."
+msgid "Confirm deletion of {displayName}. The object will be marked as deleted but can be restored from version history."
+msgstr "Confirm deletion of {displayName}. The object will be marked as deleted but can be restored from version history."
 
 msgid "Confirm deletion of {displayName}. This action cannot be undone."
 msgstr "Confirm deletion of {displayName}. This action cannot be undone."
@@ -682,11 +691,20 @@ msgstr "Could not delete \"{objectName}\": {errorMessage}"
 msgid "Could not delete bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete bucket \"{bucketName}\": {errorMessage}"
 
+msgid "Could not delete bucket policy from \"{bucketName}\": {errorMessage}"
+msgstr "Could not delete bucket policy from \"{bucketName}\": {errorMessage}"
+
 msgid "Could not delete container \"{containerName}\": {errorMessage}"
 msgstr "Could not delete container \"{containerName}\": {errorMessage}"
 
 msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Could not delete folder \"{folderName}\": {errorMessage}"
+
+msgid "Could not delete version of \"{displayName}\": {errorMessage}"
+msgstr "Could not delete version of \"{displayName}\": {errorMessage}"
+
+msgid "Could not delete versions from bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not delete versions from bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Could not download \"{objectName}\": {errorMessage}"
 msgstr "Could not download \"{objectName}\": {errorMessage}"
@@ -697,11 +715,20 @@ msgstr "Could not empty bucket \"{bucketName}\": {errorMessage}"
 msgid "Could not empty container \"{containerName}\": {errorMessage}"
 msgstr "Could not empty container \"{containerName}\": {errorMessage}"
 
+msgid "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
+
 msgid "Could not move \"{displayName}\": {errorMessage}"
 msgstr "Could not move \"{displayName}\": {errorMessage}"
 
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "Could not move \"{objectName}\": {errorMessage}"
+
+msgid "Could not restore \"{displayName}\": {errorMessage}"
+msgstr "Could not restore \"{displayName}\": {errorMessage}"
+
+msgid "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Could not update \"{displayName}\": {errorMessage}"
 msgstr "Could not update \"{displayName}\": {errorMessage}"
@@ -832,6 +859,9 @@ msgstr "Delete"
 msgid "Delete {specKey}"
 msgstr "Delete {specKey}"
 
+msgid "Delete all versions and delete markers"
+msgstr "Delete all versions and delete markers"
+
 msgid "Delete Bucket"
 msgstr "Delete Bucket"
 
@@ -853,8 +883,8 @@ msgstr "Delete container:"
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
 
-msgid "Delete Folder"
-msgstr "Delete Folder"
+msgid "Delete Folder \"{displayName}\""
+msgstr "Delete Folder \"{displayName}\""
 
 msgid "Delete folder:"
 msgstr "Delete folder:"
@@ -1048,8 +1078,11 @@ msgstr "Edit Metadata"
 msgid "Edit Security Group"
 msgstr "Edit Security Group"
 
-msgid "Edit/view Bucket Policy"
-msgstr "Edit/view Bucket Policy"
+msgid "Edit/View Bucket Policy"
+msgstr "Edit/View Bucket Policy"
+
+msgid "Edit/View Policy"
+msgstr "Edit/View Policy"
 
 msgid "Efficient bulk deletion"
 msgstr "Efficient bulk deletion"
@@ -1065,6 +1098,9 @@ msgstr "Empty All Completed with Errors"
 
 msgid "Empty Bucket"
 msgstr "Empty Bucket"
+
+msgid "Empty the bucket"
+msgstr "Empty the bucket"
 
 msgid "Empty:"
 msgstr "Empty:"
@@ -1312,6 +1348,9 @@ msgstr "Failed to Delete Objects"
 msgid "Failed to delete policy"
 msgstr "Failed to delete policy"
 
+msgid "Failed to Delete Policy"
+msgstr "Failed to Delete Policy"
+
 msgid "Failed to delete security group"
 msgstr "Failed to delete security group"
 
@@ -1321,8 +1360,14 @@ msgstr "Failed to delete the extra spec. Please try again."
 msgid "Failed to delete the flavor. Please try again."
 msgstr "Failed to delete the flavor. Please try again."
 
+msgid "Failed to Delete Version"
+msgstr "Failed to Delete Version"
+
 msgid "Failed to delete version: {errorMessage}"
 msgstr "Failed to delete version: {errorMessage}"
+
+msgid "Failed to Delete Versions"
+msgstr "Failed to Delete Versions"
 
 msgid "Failed to delete versions from bucket \"{bucketName}\": {errorMessage}"
 msgstr "Failed to delete versions from bucket \"{bucketName}\": {errorMessage}"
@@ -1341,6 +1386,9 @@ msgstr "Failed to Empty Container"
 
 msgid "Failed to Empty Containers"
 msgstr "Failed to Empty Containers"
+
+msgid "Failed to Enable Versioning"
+msgstr "Failed to Enable Versioning"
 
 msgid "Failed to fetch flavor access information. Please try again."
 msgstr "Failed to fetch flavor access information. Please try again."
@@ -1411,11 +1459,17 @@ msgstr "Failed to remove member \"{memberIdToRemove}\""
 msgid "Failed to remove tenant access from flavor. Please try again."
 msgstr "Failed to remove tenant access from flavor. Please try again."
 
+msgid "Failed to Restore Version"
+msgstr "Failed to Restore Version"
+
 msgid "Failed to restore version: {errorMessage}"
 msgstr "Failed to restore version: {errorMessage}"
 
 msgid "Failed to save policy"
 msgstr "Failed to save policy"
+
+msgid "Failed to Suspend Versioning"
+msgstr "Failed to Suspend Versioning"
 
 msgid "Failed to Update Access Control"
 msgstr "Failed to Update Access Control"
@@ -2194,6 +2248,9 @@ msgstr "No Temp URL key configured. A temporary URL key must be set at the accou
 msgid "No versions found for this object."
 msgstr "No versions found for this object."
 
+msgid "No versions to delete in bucket \"{bucketName}\"."
+msgstr "No versions to delete in bucket \"{bucketName}\"."
+
 msgid "None"
 msgstr "None"
 
@@ -2275,14 +2332,14 @@ msgstr "Object:"
 msgid "Objects"
 msgstr "Objects"
 
-msgid "Objects — {containerName}"
-msgstr "Objects — {containerName}"
-
 msgid "Objects Deleted"
 msgstr "Objects Deleted"
 
 msgid "Objects to be deleted ({totalCount})"
 msgstr "Objects to be deleted ({totalCount})"
+
+msgid "Objects: {containerName}"
+msgstr "Objects: {containerName}"
 
 msgid "OK"
 msgstr "OK"
@@ -2290,8 +2347,8 @@ msgstr "OK"
 msgid "Older"
 msgstr "Older"
 
-msgid "Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain even after suspension."
-msgstr "Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain even after suspension."
+msgid "Once enabled, versioning cannot be fully disabled, it can only be suspended. Existing versions will remain even after suspension."
+msgstr "Once enabled, versioning cannot be fully disabled, it can only be suspended. Existing versions will remain even after suspension."
 
 msgid "One or more containers could not be emptied: {errorMessage}"
 msgstr "One or more containers could not be emptied: {errorMessage}"
@@ -2367,6 +2424,9 @@ msgstr "Please select a file to upload"
 
 msgid "Policy"
 msgstr "Policy"
+
+msgid "Policy Deleted"
+msgstr "Policy Deleted"
 
 msgid "Policy document exceeds maximum size of 20KB"
 msgstr "Policy document exceeds maximum size of 20KB"
@@ -2617,8 +2677,8 @@ msgstr "RX/TX Factor must be an integer ≥ 1."
 msgid "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
 msgstr "S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and hyphens. They must start and end with a letter or number, and be globally unique within the cluster."
 
-msgid "S3 Object Storage — Setup Required"
-msgstr "S3 Object Storage — Setup Required"
+msgid "S3 Object Storage: Setup Required"
+msgstr "S3 Object Storage: Setup Required"
 
 msgid "Save"
 msgstr "Save"
@@ -2797,8 +2857,8 @@ msgstr "Showing {filteredCount} of {totalCount} {itemName}"
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Showing first {actualObjectCount} of {total} objects"
 
-msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets} — refine your search to narrow results"
-msgstr "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets} — refine your search to narrow results"
+msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
+msgstr "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 msgstr "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
@@ -2884,8 +2944,14 @@ msgstr "Successfully activated {successCount} of {totalCount} image(s)"
 msgid "Successfully deactivated {successCount} of {totalCount} image(s)"
 msgstr "Successfully deactivated {successCount} of {totalCount} image(s)"
 
+msgid "Successfully deleted {deletedCount} version from bucket \"{bucketName}\"."
+msgstr "Successfully deleted {deletedCount} version from bucket \"{bucketName}\"."
+
 msgid "Successfully deleted {deletedCount} versions and delete markers from bucket \"{bucketName}\"."
 msgstr "Successfully deleted {deletedCount} versions and delete markers from bucket \"{bucketName}\"."
+
+msgid "Successfully deleted {deletedCount} versions from bucket \"{bucketName}\"."
+msgstr "Successfully deleted {deletedCount} versions from bucket \"{bucketName}\"."
 
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "Successfully deleted {successCount} of {totalCount} image(s)"
@@ -3052,6 +3118,9 @@ msgstr "The text must match “detach” in lowercase."
 msgid "The text must match “release” in lowercase."
 msgstr "The text must match “release” in lowercase."
 
+msgid "There are {bucketsCount} buckets, start typing to search"
+msgstr "There are {bucketsCount} buckets, start typing to search"
+
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
 msgstr "There are no buckets available with the current search criteria. Try adjusting your search term."
 
@@ -3112,17 +3181,17 @@ msgstr "This action is permanent. The address will be removed from your project 
 msgid "This action will create a self-signed CA certificate."
 msgstr "This action will create a self-signed CA certificate."
 
+msgid "This action will permanently delete all objects from {bucketName}. This action cannot be undone."
+msgstr "This action will permanently delete all objects from {bucketName}. This action cannot be undone."
+
 msgid "This action will permanently delete all objects from {bucketName}. You may choose to also delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
 msgstr "This action will permanently delete all objects from {bucketName}. You may choose to also delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
 
 msgid "This action will permanently delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
 msgstr "This action will permanently delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
 
-msgid "This bucket contains objects and cannot be deleted. Use <0>Empty Bucket</0> action to remove all content first."
-msgstr "This bucket contains objects and cannot be deleted. Use <0>Empty Bucket</0> action to remove all content first."
-
-msgid "This bucket contains old versions and delete markers. Use <0>Delete Versions</0> action to remove them before deleting the bucket."
-msgstr "This bucket contains old versions and delete markers. Use <0>Delete Versions</0> action to remove them before deleting the bucket."
+msgid "This bucket cannot be deleted yet. Do the following to be able to delete the bucket:"
+msgstr "This bucket cannot be deleted yet. Do the following to be able to delete the bucket:"
 
 msgid "This bucket does not have a policy attached."
 msgstr "This bucket does not have a policy attached."
@@ -3141,6 +3210,9 @@ msgstr "This extra spec keys already exist. Please use different keys."
 
 msgid "This folder is empty — use New Folder to create one."
 msgstr "This folder is empty — use New Folder to create one."
+
+msgid "This folder is empty, use New Folder to create one."
+msgstr "This folder is empty, use New Folder to create one."
 
 msgid "This folder is empty."
 msgstr "This folder is empty."
@@ -3313,6 +3385,9 @@ msgstr "Unable to Update Image Visibility"
 msgid "Unable to Upload Image File"
 msgstr "Unable to Upload Image File"
 
+msgid "Unable to verify bucket versioning status. Please try again."
+msgstr "Unable to verify bucket versioning status. Please try again."
+
 msgid "Unknown domain"
 msgstr "Unknown domain"
 
@@ -3400,9 +3475,11 @@ msgstr "VCPUs"
 msgid "VCPUs must be an integer ≥ 1."
 msgstr "VCPUs must be an integer ≥ 1."
 
-#. placeholder {0}: versionId.slice(0, 8)
-msgid "Version {0}... deleted successfully"
-msgstr "Version {0}... deleted successfully"
+msgid "Version {shortVersionId}... deleted successfully"
+msgstr "Version {shortVersionId}... deleted successfully"
+
+msgid "Version Deleted"
+msgstr "Version Deleted"
 
 msgid "Version History: {objectKey}"
 msgstr "Version History: {objectKey}"
@@ -3412,6 +3489,12 @@ msgstr "Version ID"
 
 msgid "Version ID:"
 msgstr "Version ID:"
+
+msgid "Version of \"{displayName}\" was permanently deleted."
+msgstr "Version of \"{displayName}\" was permanently deleted."
+
+msgid "Version Restored"
+msgstr "Version Restored"
 
 msgid "Versioned writes"
 msgstr "Versioned writes"
@@ -3425,11 +3508,17 @@ msgstr "Versioning is enabled"
 msgid "Versioning Suspended"
 msgstr "Versioning Suspended"
 
+msgid "Versioning was successfully enabled for bucket \"{bucketName}\"."
+msgstr "Versioning was successfully enabled for bucket \"{bucketName}\"."
+
+msgid "Versioning was successfully suspended for bucket \"{bucketName}\"."
+msgstr "Versioning was successfully suspended for bucket \"{bucketName}\"."
+
+msgid "Versions Deleted"
+msgstr "Versions Deleted"
+
 msgid "View Details"
 msgstr "View Details"
-
-msgid "View Policy"
-msgstr "View Policy"
 
 msgid "View Versions"
 msgstr "View Versions"

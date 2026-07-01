@@ -5,6 +5,7 @@ import {
   DeleteObjectCommand,
   CopyObjectCommand,
 } from "@aws-sdk/client-s3"
+import { z } from "zod"
 import { cephProtectedProcedure } from "../../cephProcedure"
 import {
   getVersioningStatusInputSchema,
@@ -341,4 +342,97 @@ export const versioningRouter = {
         })
       }
     }),
+
+  /**
+   * Check if folders contain deleted files (files with delete markers).
+   *
+   * For each folder, performs a query without delimiter to check all nested objects.
+   * Returns whether each folder contains at least one file with a delete marker as latest version.
+   *
+   * Note: This can be expensive for many folders (N S3 requests for N folders).
+   * Use sparingly and consider caching.
+   *
+   * @throws TRPCError NOT_FOUND - bucket does not exist
+   * @throws TRPCError FORBIDDEN - no credentials or access denied
+   */
+  checkDeletedContent: cephProtectedProcedure
+    .input(
+      z.object({
+        project_id: z.string(),
+        bucket: z.string().min(1),
+        folders: z.array(z.string()).max(100), // Limit to 100 folders to avoid too many S3 requests
+      })
+    )
+    .query(
+      async ({
+        ctx,
+        input,
+      }): Promise<
+        Array<{
+          prefix: string
+          hasDeletedContent: boolean
+        }>
+      > => {
+        const s3 = ctx.getCephClient()
+
+        try {
+          // Check each folder in parallel
+          const results = await Promise.all(
+            input.folders.map(async (folderPrefix) => {
+              try {
+                // Query without delimiter to get all nested objects
+                // Paginate through all versions to find if ANY delete marker exists
+                let hasDeleteMarkers = false
+                let keyMarker: string | undefined
+                let versionIdMarker: string | undefined
+
+                // Keep paginating until we find a delete marker or reach the end
+                while (!hasDeleteMarkers) {
+                  const response = await s3.send(
+                    new ListObjectVersionsCommand({
+                      Bucket: input.bucket,
+                      Prefix: folderPrefix,
+                      MaxKeys: 100, // Reasonable batch size for pagination
+                      KeyMarker: keyMarker,
+                      VersionIdMarker: versionIdMarker,
+                    })
+                  )
+
+                  // Check if there are any delete markers in this page
+                  hasDeleteMarkers = (response.DeleteMarkers?.length ?? 0) > 0
+
+                  // If no more results or found a delete marker, stop
+                  if (!response.IsTruncated || hasDeleteMarkers) {
+                    break
+                  }
+
+                  // Continue to next page
+                  keyMarker = response.NextKeyMarker
+                  versionIdMarker = response.NextVersionIdMarker
+                }
+
+                return {
+                  prefix: folderPrefix,
+                  hasDeletedContent: hasDeleteMarkers,
+                }
+              } catch (error) {
+                // If query fails for this folder, assume no deleted content
+                console.error(`Failed to check deleted content for folder ${folderPrefix}:`, error)
+                return {
+                  prefix: folderPrefix,
+                  hasDeletedContent: false,
+                }
+              }
+            })
+          )
+
+          return results
+        } catch (error) {
+          throw mapS3ErrorToTRPCError(error, {
+            operation: "check deleted content",
+            bucket: input.bucket,
+          })
+        }
+      }
+    ),
 }

@@ -45,7 +45,7 @@ export const useBucketSearch = (allBuckets: Array<{ name: string }> | undefined)
   const filteredBuckets =
     debouncedSearch.trim().length > 0
       ? (allBuckets ?? []).filter((b) => b.name.toLowerCase().includes(debouncedSearch.toLowerCase()))
-      : []
+      : (allBuckets ?? [])
 
   const visibleBuckets = filteredBuckets.slice(0, MAX_COMBO_OPTIONS)
   const hiddenCount = filteredBuckets.length - visibleBuckets.length

@@ -82,7 +82,7 @@ describe("DeleteObjectModal", () => {
   it("renders modal with title for folder", () => {
     renderModal({ ...defaultProps, objectKey: "folder/" })
 
-    expect(screen.getByText("Delete Folder")).toBeInTheDocument()
+    expect(screen.getByText(/Delete Folder "folder"/)).toBeInTheDocument()
     expect(screen.getByText(/Confirm deletion of/)).toBeInTheDocument()
   })
 
