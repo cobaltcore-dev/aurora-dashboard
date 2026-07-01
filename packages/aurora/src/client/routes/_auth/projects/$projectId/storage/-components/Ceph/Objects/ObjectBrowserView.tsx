@@ -517,7 +517,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         </DataGridToolbar>
       </Stack>
 
-      {isLoading && !continuationToken ? (
+      {isLoading && !continuationToken && !keyMarker ? (
         <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
           <Spinner variant="primary" size="large" className="mb-2" />
           <Trans>Loading objects...</Trans>

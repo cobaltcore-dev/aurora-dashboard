@@ -6,8 +6,6 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { useBucketInfo } from "../hooks/useBucketInfo"
 import { BucketHeaderActions } from "./BucketHeaderActions"
 import { BucketModals, type ModalType } from "./BucketModals"
-import { decodePrefix } from "../../utils/prefixEncoding"
-import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
 
 interface BucketHeaderProps {
   bucketName: string
@@ -18,34 +16,28 @@ interface BucketHeaderProps {
  *
  * Displays:
  * - Bucket name as title
- * - Badges for versioning status and policy (only at root level)
- * - Action buttons (only at root level)
+ * - Badges for versioning status and policy
+ * - Action buttons
  * - All bucket management modals
- *
- * Actions are only shown at the root folder level to avoid confusion.
  */
 export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
   const { projectId, provider, storageType } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
   })
 
-  const { prefix: encodedPrefix } = Route.useSearch()
-  const currentPrefix = decodePrefix(encodedPrefix)
-  const isAtRoot = !currentPrefix || currentPrefix === ""
-
   const [activeModal, setActiveModal] = useState<ModalType | null>(null)
 
   // Fetch bucket information
   const { versioningStatus, policyData, hasOldVersionsOrDeleteMarkers, isBucketEmpty } = useBucketInfo({
     bucketName,
-    enabled: isAtRoot, // Only fetch when at root level
+    enabled: true,
   })
 
   const openModal = (modal: ModalType) => setActiveModal(modal)
   const closeModal = () => setActiveModal(null)
 
-  // Build badges (only show at root level)
-  const badges = isAtRoot ? (
+  // Build badges
+  const badges = (
     <>
       {versioningStatus && versioningStatus.status === "Enabled" && (
         <Badge variant="success">
@@ -63,10 +55,10 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
         </Badge>
       )}
     </>
-  ) : null
+  )
 
-  // Build actions (only show at root level)
-  const actions = isAtRoot ? (
+  // Build actions
+  const actions = (
     <BucketHeaderActions
       versioningStatus={versioningStatus}
       hasPolicy={Boolean(policyData?.policy)}
@@ -74,7 +66,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
       isBucketEmpty={isBucketEmpty}
       onOpenModal={openModal}
     />
-  ) : null
+  )
 
   return (
     <>

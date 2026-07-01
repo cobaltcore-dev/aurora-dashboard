@@ -1075,8 +1075,11 @@ msgstr "Edit Metadata"
 msgid "Edit Security Group"
 msgstr "Edit Security Group"
 
-msgid "Edit/view Bucket Policy"
-msgstr "Edit/view Bucket Policy"
+msgid "Edit/View Bucket Policy"
+msgstr "Edit/View Bucket Policy"
+
+msgid "Edit/View Policy"
+msgstr "Edit/View Policy"
 
 msgid "Efficient bulk deletion"
 msgstr "Efficient bulk deletion"
@@ -3513,9 +3516,6 @@ msgstr "Versions Deleted"
 
 msgid "View Details"
 msgstr "View Details"
-
-msgid "View Policy"
-msgstr "View Policy"
 
 msgid "View Versions"
 msgstr "View Versions"
