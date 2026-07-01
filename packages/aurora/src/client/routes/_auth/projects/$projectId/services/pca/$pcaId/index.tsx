@@ -13,6 +13,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$p
     section: "services",
     service: "pca",
     isDetail: true,
+    analytics: {
+      name: "services.pca.detail",
+    },
     sectionCrumb: { labelKey: "Services" },
     crumb: { labelKey: "PCA (Clavis)", to: "/projects/$projectId/services/pca" },
   } satisfies RouteInfo,
