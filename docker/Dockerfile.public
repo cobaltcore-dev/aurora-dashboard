@@ -1,3 +1,4 @@
+# NOTE: do not use it in CI this Dockerfile is deprecated and will be removed in the future. Use Dockerfile instead.
 FROM node:24-alpine
 LABEL source_repository="https://github.com/cobaltcore-dev/aurora-dashboard"
 
