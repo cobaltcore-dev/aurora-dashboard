@@ -28,7 +28,7 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
     cephRegion: config.cephRegion,
     imageMetadataExcludedProperties: config.imageMetadataExcludedProperties,
     cookieName: config.cookieName,
-    crossDomainCookie: config.crossDomainCookie,
+    cookieDomain: config.cookieDomain,
     insecureCookies: config.insecureCookies,
   }
 
