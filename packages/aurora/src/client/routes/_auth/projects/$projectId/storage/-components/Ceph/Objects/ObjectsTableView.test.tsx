@@ -399,6 +399,65 @@ describe("ObjectsTableView", () => {
       expect(clicked[0]).toMatchObject({ href: "blob:download", download: "a1b2-uuid" })
       expect(clicked[0].target).toBe("")
     })
+
+    it("tracks two concurrent transfers independently — finishing one must not clear the other's state", async () => {
+      // Regression test for a bug where a single shared piece of state tracked
+      // the "active" row/downloadId. Starting a second transfer overwrote the
+      // first's tracked row, and the first request's `finally` cleanup then
+      // cleared state belonging to the still-running second request.
+      const user = userEvent.setup()
+      vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
+      vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {})
+
+      // Builds an async iterable whose second chunk only yields once an
+      // external gate is resolved, so each stream's completion can be
+      // controlled independently and interleaved from the test.
+      const makeControllableStream = (contentType: string, filename: string) => {
+        let resolveGate: () => void = () => {}
+        const gate = new Promise<void>((resolve) => {
+          resolveGate = resolve
+        })
+        async function* gen() {
+          yield { chunk: btoa("a"), downloaded: 1, total: 2, contentType, filename }
+          await gate
+          yield { chunk: btoa("b"), downloaded: 2, total: 2 }
+        }
+        return { iterable: gen(), resolveGate: () => resolveGate() }
+      }
+
+      const streamA = makeControllableStream("text/plain", "file1.txt")
+      const streamB = makeControllableStream("application/pdf", "file2.pdf")
+
+      downloadObjectMutate.mockImplementation(async (input: { objectKey: string }) => {
+        if (input.objectKey === "file1.txt") return streamA.iterable
+        if (input.objectKey === "file2.pdf") return streamB.iterable
+        throw new Error(`unexpected objectKey: ${input.objectKey}`)
+      })
+
+      render(<ObjectsTableView {...defaultProps} folders={[]} />)
+
+      const buttonA = () => screen.getByRole("button", { name: "file1.txt" })
+      const buttonB = () => screen.getByRole("button", { name: "file2.pdf" })
+
+      // Start both row-click transfers; both stall mid-stream on their own gate.
+      await user.click(buttonA())
+      await user.click(buttonB())
+
+      await waitFor(() => {
+        expect(buttonA()).toBeDisabled()
+        expect(buttonB()).toBeDisabled()
+      })
+
+      // Let A finish. B must remain untouched — still disabled/streaming.
+      streamA.resolveGate()
+      await waitFor(() => expect(buttonA()).not.toBeDisabled())
+      expect(buttonB()).toBeDisabled()
+
+      // Now finish B independently.
+      streamB.resolveGate()
+      await waitFor(() => expect(buttonB()).not.toBeDisabled())
+    })
   })
 
   describe("modals", () => {

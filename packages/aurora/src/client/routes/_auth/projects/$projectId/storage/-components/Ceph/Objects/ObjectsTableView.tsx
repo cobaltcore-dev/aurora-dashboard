@@ -42,6 +42,54 @@ function isPreviewableContentType(contentType: string): boolean {
   return BROWSER_PREVIEWABLE_MIME_PREFIXES.some((prefix) => base.startsWith(prefix))
 }
 
+// One in-flight transfer for a given row: either a forced download (from the
+// context menu) or a row-click preview-or-download. Keyed by row.key in a Map
+// so multiple rows can transfer concurrently without clobbering each other.
+type ActiveTransfer = { kind: "download" | "preview"; downloadId: string }
+
+// Subscribes to live progress for a single in-flight transfer. Each active row
+// renders its own instance of this component (keyed by downloadId), so
+// concurrent transfers each get an independent subscription rather than
+// sharing one — starting a second transfer never disrupts the first's progress.
+function RowTransferProgress({
+  projectId,
+  downloadId,
+  isPreviewing,
+}: {
+  projectId: string
+  downloadId: string
+  isPreviewing: boolean
+}) {
+  const { data: progress } = trpcReact.storage.ceph.objects.watchDownloadProgress.useSubscription(
+    { project_id: projectId, downloadId },
+    { enabled: !!downloadId }
+  )
+  const percent = progress?.percent
+
+  return (
+    <span className="flex min-w-0 flex-col gap-1">
+      <span className="text-theme-light flex items-center gap-2 text-sm">
+        <Spinner size="small" />
+        {percent != null ? (
+          <Trans>{percent}%</Trans>
+        ) : isPreviewing ? (
+          <Trans>Loading preview...</Trans>
+        ) : (
+          <Trans>Downloading...</Trans>
+        )}
+      </span>
+      {percent != null && (
+        <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
+          <div
+            className="bg-theme-accent h-1 rounded-full transition-all duration-150"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+      )}
+    </span>
+  )
+}
+
 type FolderRow = { kind: "folder"; prefix: string; displayName: string }
 type ObjectRow = {
   kind: "object"
@@ -141,18 +189,9 @@ export function ObjectsTableView({
   } | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<string | null>(null)
   const [versionHistoryTarget, setVersionHistoryTarget] = useState<string | null>(null)
-  const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
-  const [previewingRow, setPreviewingRow] = useState<ObjectRow | null>(null)
-  const [downloadId, setDownloadId] = useState<string | null>(null)
-
-  // The active in-flight row for progress tracking — either download or preview.
-  const activeStreamRow = downloadingRow ?? previewingRow
-
-  // Live download progress (drives the per-row progress bar).
-  const { data: downloadProgress } = trpcReact.storage.ceph.objects.watchDownloadProgress.useSubscription(
-    { project_id: projectId, downloadId: downloadId ?? "" },
-    { enabled: !!downloadId && activeStreamRow !== null }
-  )
+  // Keyed by row.key so multiple rows can have an in-flight download/preview
+  // at once without one transfer's completion clobbering another's state.
+  const [activeTransfers, setActiveTransfers] = useState<Map<string, ActiveTransfer>>(new Map())
 
   // Stream the object from the BFF and assemble a Blob. downloadId is set before
   // the mutation starts so the watchDownloadProgress subscription is active from
@@ -196,8 +235,7 @@ export function ObjectsTableView({
   // Context-menu Download: always forces a file save, regardless of type.
   const handleDownload = async (row: ObjectRow) => {
     const activeDownloadId = `${bucketName}:${row.key}:${crypto.randomUUID()}`
-    setDownloadingRow(row)
-    setDownloadId(activeDownloadId)
+    setActiveTransfers((prev) => new Map(prev).set(row.key, { kind: "download", downloadId: activeDownloadId }))
     try {
       const { blob, filename } = await streamObjectToBlob(row, activeDownloadId)
       triggerAnchorDownload(URL.createObjectURL(blob), filename)
@@ -205,8 +243,15 @@ export function ObjectsTableView({
       onDownloadError(row.key, err instanceof Error ? err.message : String(err))
     } finally {
       if (isMounted.current) {
-        setDownloadingRow(null)
-        setDownloadId(null)
+        setActiveTransfers((prev) => {
+          // Only clear this row's entry if it's still the one we started —
+          // guards against a stale request's cleanup wiping a newer transfer's
+          // state if the row was clicked again after this one began.
+          if (prev.get(row.key)?.downloadId !== activeDownloadId) return prev
+          const next = new Map(prev)
+          next.delete(row.key)
+          return next
+        })
       }
     }
   }
@@ -232,8 +277,7 @@ export function ObjectsTableView({
   // blank-tab flash.
   const handlePreviewOrDownload = async (row: ObjectRow) => {
     const activeDownloadId = `${bucketName}:${row.key}:${crypto.randomUUID()}`
-    setPreviewingRow(row)
-    setDownloadId(activeDownloadId)
+    setActiveTransfers((prev) => new Map(prev).set(row.key, { kind: "preview", downloadId: activeDownloadId }))
     try {
       const { blob, filename, contentType } = await streamObjectToBlob(row, activeDownloadId)
       const url = URL.createObjectURL(blob)
@@ -246,8 +290,13 @@ export function ObjectsTableView({
       onDownloadError(row.key, err instanceof Error ? err.message : String(err))
     } finally {
       if (isMounted.current) {
-        setPreviewingRow(null)
-        setDownloadId(null)
+        setActiveTransfers((prev) => {
+          // Same guard as handleDownload: only clear the entry we started.
+          if (prev.get(row.key)?.downloadId !== activeDownloadId) return prev
+          const next = new Map(prev)
+          next.delete(row.key)
+          return next
+        })
       }
     }
   }
@@ -395,9 +444,10 @@ export function ObjectsTableView({
               const isFolder = row.kind === "folder"
               const isVersion = row.kind === "version"
               const isDeletedFile = isVersion && row.isDeleted // File that was deleted (can be restored)
-              const isDownloading = row.kind === "object" && downloadingRow?.key === row.key
-              const isPreviewing = row.kind === "object" && previewingRow?.key === row.key
-              const isStreaming = isDownloading || isPreviewing
+              const activeTransfer = row.kind === "object" ? activeTransfers.get(row.key) : undefined
+              const isDownloading = activeTransfer?.kind === "download"
+              const isPreviewing = activeTransfer?.kind === "preview"
+              const isStreaming = activeTransfer !== undefined
               const displayName = row.displayName
 
               return (
@@ -468,27 +518,12 @@ export function ObjectsTableView({
 
                   {/* Last Modified */}
                   <DataGridCell>
-                    {isStreaming ? (
-                      <span className="flex min-w-0 flex-col gap-1">
-                        <span className="text-theme-light flex items-center gap-2 text-sm">
-                          <Spinner size="small" />
-                          {(() => {
-                            const percent = downloadProgress?.percent
-                            if (percent == null) {
-                              return isPreviewing ? <Trans>Loading preview...</Trans> : <Trans>Downloading...</Trans>
-                            }
-                            return <Trans>{percent}%</Trans>
-                          })()}
-                        </span>
-                        {downloadProgress?.percent != null && (
-                          <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
-                            <div
-                              className="bg-theme-accent h-1 rounded-full transition-all duration-150"
-                              style={{ width: `${downloadProgress.percent}%` }}
-                            />
-                          </div>
-                        )}
-                      </span>
+                    {isStreaming && activeTransfer ? (
+                      <RowTransferProgress
+                        projectId={projectId}
+                        downloadId={activeTransfer.downloadId}
+                        isPreviewing={isPreviewing}
+                      />
                     ) : (
                       <span className="text-sm">
                         {!isFolder && row.lastModified ? new Date(row.lastModified).toLocaleString() : "—"}
