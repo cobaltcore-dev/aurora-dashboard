@@ -46,7 +46,7 @@ export const GenerateTempUrlModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/swift/containers/$containerName/objects",
   })
 
   // Defined inside the component so t`` runs in the correct Lingui context,

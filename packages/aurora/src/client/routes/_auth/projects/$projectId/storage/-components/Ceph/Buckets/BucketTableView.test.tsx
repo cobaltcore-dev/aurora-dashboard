@@ -30,7 +30,7 @@ const mockNavigate = vi.fn()
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
-  useParams: () => ({ projectId: "test-project", provider: "ceph", storageType: "buckets" }),
+  useParams: () => ({ projectId: "test-project" }),
 }))
 
 // ─── Mock modals ──────────────────────────────────────────────────────────────
@@ -243,12 +243,10 @@ describe("BucketTableView", () => {
       await user.click(row)
 
       expect(mockNavigate).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        to: "/projects/$projectId/storage/ceph/buckets/$bucketName/objects",
         params: {
           projectId: "test-project",
-          provider: "ceph",
-          storageType: "buckets",
-          containerName: "bucket-1",
+          bucketName: "bucket-1",
         },
       })
     })
@@ -264,7 +262,7 @@ describe("BucketTableView", () => {
       expect(mockNavigate).toHaveBeenCalledWith(
         expect.objectContaining({
           params: expect.objectContaining({
-            containerName: "bucket-1",
+            bucketName: "bucket-1",
           }),
         })
       )

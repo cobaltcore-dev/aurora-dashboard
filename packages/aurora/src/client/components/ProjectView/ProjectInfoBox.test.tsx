@@ -142,11 +142,11 @@ describe("ProjectInfoBox", () => {
           routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers`,
           staticData: {
             section: "storage",
-            service: "containers",
+            service: "swift",
             sectionCrumb: { labelKey: "Storage" },
-            crumb: { useParamAsLabel: "provider" },
+            crumb: { labelKey: "Swift" },
           },
-          params: { projectId: "test-project", provider: "swift" },
+          params: { projectId: "test-project" },
         },
       ]
 
@@ -162,14 +162,14 @@ describe("ProjectInfoBox", () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
-          routeId: `${PROJECT_ROUTE_ID}/storage/ceph/containers`,
+          routeId: `${PROJECT_ROUTE_ID}/storage/ceph/buckets`,
           staticData: {
             section: "storage",
-            service: "containers",
+            service: "ceph",
             sectionCrumb: { labelKey: "Storage" },
-            crumb: { useParamAsLabel: "provider" },
+            crumb: { labelKey: "Ceph" },
           },
-          params: { projectId: "test-project", provider: "ceph" },
+          params: { projectId: "test-project" },
         },
       ]
 
@@ -185,18 +185,16 @@ describe("ProjectInfoBox", () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
-          routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
+          routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$containerName/objects`,
           staticData: {
             section: "storage",
-            service: "containers",
+            service: "swift",
             isDetail: true,
             sectionCrumb: { labelKey: "Storage" },
-            crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/$storageType" },
+            crumb: { labelKey: "Swift", to: "/projects/$projectId/storage/swift/containers" },
           },
           params: {
             projectId: "test-project",
-            provider: "swift",
-            storageType: "containers",
             containerName: "my-bucket",
           },
           meta: [{ title: "my-bucket" }],
@@ -469,18 +467,16 @@ describe("ProjectInfoBox", () => {
       mockMatches = [
         { routeId: PROJECT_ROUTE_ID },
         {
-          routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$container/objects`,
+          routeId: `${PROJECT_ROUTE_ID}/storage/swift/containers/$containerName/objects`,
           staticData: {
             section: "storage",
-            service: "containers",
+            service: "swift",
             isDetail: true,
             sectionCrumb: { labelKey: "Storage" },
-            crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/$storageType" },
+            crumb: { labelKey: "Swift", to: "/projects/$projectId/storage/swift/containers" },
           },
           params: {
             projectId: "test-project",
-            provider: "swift",
-            storageType: "containers",
             containerName: "my-bucket",
           },
           meta: [{ title: "my-bucket" }],
@@ -493,7 +489,7 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("Object Storage (Swift)"))
 
       expect(mockNavigate).toHaveBeenCalledWith(
-        expect.objectContaining({ to: "/projects/$projectId/storage/$provider/$storageType" })
+        expect.objectContaining({ to: "/projects/$projectId/storage/swift/containers" })
       )
     })
   })

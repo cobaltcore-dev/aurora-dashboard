@@ -31,7 +31,7 @@ import { EmptyBucketModal } from "../Buckets/EmptyBucketModal"
 import { DeleteBucketModal } from "../Buckets/DeleteBucketModal"
 import { DeleteVersionsModal } from "../Buckets/DeleteVersionsModal"
 import { useNavigate } from "@tanstack/react-router"
-import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
+import { Route } from "@/client/routes/_auth/projects/$projectId/storage/ceph/buckets/$bucketName/objects"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
 import {
   getFolderCreatedToast,
@@ -73,7 +73,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
-  const { provider, storageType } = Route.useParams()
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "", tab = "all" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
 
@@ -239,8 +238,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setHasMore(false)
 
     navigate({
-      to: "/projects/$projectId/storage/$provider/$storageType",
-      params: { projectId, provider, storageType },
+      to: "/projects/$projectId/storage/ceph/buckets",
+      params: { projectId },
     })
   }
 
@@ -730,11 +729,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           toast.success(t`Successfully deleted bucket "${bucketName}".`)
           // Navigate back to buckets list
           navigate({
-            to: "/projects/$projectId/storage/$provider/$storageType",
+            to: "/projects/$projectId/storage/ceph/buckets",
             params: {
               projectId: projectId ?? "",
-              provider: (provider as string) ?? "ceph",
-              storageType: (storageType as string) ?? "buckets",
             },
           })
         }}

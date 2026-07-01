@@ -17,7 +17,7 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/swift/containers/$containerName/objects",
   })
 
   const [folderName, setFolderName] = useState("")

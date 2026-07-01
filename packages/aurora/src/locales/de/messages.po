@@ -2167,9 +2167,6 @@ msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 msgid "No policy found"
 msgstr ""
 
-msgid "No project selected"
-msgstr "Kein Projekt ausgewählt"
-
 msgid "No projects available."
 msgstr "Keine Projekte verfügbar."
 
@@ -2274,9 +2271,6 @@ msgstr ""
 
 msgid "Objects"
 msgstr "Objekte"
-
-msgid "Objects — {containerName}"
-msgstr "Objekte — {containerName}"
 
 msgid "Objects Deleted"
 msgstr "Objekte gelöscht"
@@ -2851,11 +2845,11 @@ msgstr "Status"
 msgid "Storage"
 msgstr "Storage"
 
+msgid "Storage bucket not found"
+msgstr ""
+
 msgid "Storage container not found"
 msgstr "Storage-Container nicht gefunden"
-
-msgid "Storage Overview"
-msgstr "Speicherübersicht"
 
 msgid "Store old object versions"
 msgstr "Alte Objekt-Versionen speichern"

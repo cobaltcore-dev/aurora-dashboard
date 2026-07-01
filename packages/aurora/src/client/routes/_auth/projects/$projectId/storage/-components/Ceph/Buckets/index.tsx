@@ -32,7 +32,7 @@ import {
 import { EmptyBucketsModal } from "./EmptyBucketsModal"
 import { CredentialPrompt } from "./CredentialPrompt"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType"
+import { Route } from "@/client/routes/_auth/projects/$projectId/storage/ceph/buckets/index"
 
 export { CredentialPrompt } from "./CredentialPrompt"
 export { CreateBucketModal } from "./CreateBucketModal"

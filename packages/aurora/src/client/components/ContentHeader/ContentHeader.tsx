@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { Divider, ContentHeading } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
-import { useRouteContext, useMatches, useParams } from "@tanstack/react-router"
+import { useRouteContext, useMatches } from "@tanstack/react-router"
 import ClipboardText from "../ClipboardText"
 import { Slot } from "../Slot"
 import { isRouteInfo } from "@/client/routes/routeInfo"
@@ -17,23 +17,18 @@ interface ContentHeaderProps {
 export function ContentHeader({ title, projectId, description, actions, badges }: ContentHeaderProps) {
   const { slots } = useRouteContext({ strict: false })
   const matches = useMatches()
-  const { provider } = useParams({ strict: false }) as { provider?: string }
 
   const activeMatch = [...matches].reverse().find((m) => isRouteInfo(m.staticData))
   const routeService = activeMatch && isRouteInfo(activeMatch.staticData) ? activeMatch.staticData.service : undefined
 
-  // Storage routes share service: "containers" for both Swift and Ceph.
-  // Distinguish them by the $provider param.
-  const currentService = routeService === "containers" && provider === "ceph" ? "ceph-containers" : routeService
-
   const slotActions =
-    slots?.servicePageActions && currentService ? (
-      <Slot component={slots.servicePageActions} useShadowDOM={false} currentService={currentService} />
+    slots?.servicePageActions && routeService ? (
+      <Slot component={slots.servicePageActions} useShadowDOM={false} currentService={routeService} />
     ) : null
 
   const serviceBanner =
-    slots?.serviceBanner && currentService ? (
-      <Slot component={slots.serviceBanner} useShadowDOM={false} currentService={currentService} />
+    slots?.serviceBanner && routeService ? (
+      <Slot component={slots.serviceBanner} useShadowDOM={false} currentService={routeService} />
     ) : null
 
   return (

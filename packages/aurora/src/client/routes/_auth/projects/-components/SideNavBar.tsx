@@ -1,4 +1,4 @@
-import { useNavigate, useMatches, useParams, useRouteContext } from "@tanstack/react-router"
+import { useNavigate, useMatches, useRouteContext } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
 import {
   SideNavigation,
@@ -21,7 +21,6 @@ interface SideNavBarProps {
 export const SideNavBar = ({ projectId, projectName, domainName, sections }: SideNavBarProps) => {
   const navigate = useNavigate()
   const matches = useMatches()
-  const { provider } = useParams({ strict: false }) as { provider?: string }
   const { slots } = useRouteContext({ strict: false })
 
   const navBadge = (service: string) => {
@@ -66,10 +65,7 @@ export const SideNavBar = ({ projectId, projectName, domainName, sections }: Sid
             {sections.map(({ section, label, services }) => (
               <SideNavigationGroup key={`${section}-${forceOpenCounter[section]}`} label={label} open={true}>
                 {services.map((item) => {
-                  const isStorageContainers = activeSection === "storage" && activeService === "containers"
-                  const isSelected =
-                    activeSection === section &&
-                    (isStorageContainers ? item.params.provider === provider : activeService === item.service)
+                  const isSelected = activeSection === section && activeService === item.service
 
                   return (
                     <SideNavigationItem

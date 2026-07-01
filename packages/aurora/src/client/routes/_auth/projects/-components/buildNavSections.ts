@@ -75,31 +75,31 @@ export function buildNavSections(
     : []
 
   const storageServices: NavItem[] = [
-    ...(serviceIndex?.["object-store"]?.["swift"] && isEnabled("containers")
+    ...(serviceIndex?.["object-store"]?.["swift"] && isEnabled("swift")
       ? [
           {
-            service: "containers",
+            service: "swift",
             label: t`Object Storage (Swift)`,
             navigate: (nav: NavigateFn) =>
               nav({
-                to: "/projects/$projectId/storage/$provider/$storageType",
-                params: { projectId, provider: "swift", storageType: "containers" },
+                to: "/projects/$projectId/storage/swift/containers",
+                params: { projectId },
               }),
-            params: { projectId, provider: "swift", storageType: "containers" },
+            params: { projectId },
           },
         ]
       : []),
-    ...(isEnabled("ceph-containers")
+    ...(isEnabled("ceph")
       ? [
           {
-            service: "ceph-containers",
+            service: "ceph",
             label: t`Object Storage (Ceph)`,
             navigate: (nav: NavigateFn) =>
               nav({
-                to: "/projects/$projectId/storage/$provider/$storageType",
-                params: { projectId, provider: "ceph", storageType: "buckets" },
+                to: "/projects/$projectId/storage/ceph/buckets",
+                params: { projectId },
               }),
-            params: { projectId, provider: "ceph", storageType: "buckets" },
+            params: { projectId },
           },
         ]
       : []),

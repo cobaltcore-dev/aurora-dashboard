@@ -32,12 +32,8 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
       "Security Groups": t`Security Groups`,
       "Floating IPs": t`Floating IPs`,
       "PCA (Clavis)": t`PCA (Clavis)`,
-    }
-
-    const resolveProviderLabel = (provider: string | undefined) => {
-      if (provider === "swift") return t`Object Storage (Swift)`
-      if (provider === "ceph") return t`Object Storage (Ceph)`
-      return t`Storage`
+      Swift: t`Object Storage (Swift)`,
+      Ceph: t`Object Storage (Ceph)`,
     }
 
     const items: Array<{ label?: string; icon?: KnownIcons; onClick?: () => void; active?: boolean }> = []
@@ -67,16 +63,16 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     if (info.sectionCrumb?.to) {
       const { labelKey, to } = info.sectionCrumb
-      const label = labelKey ? crumbLabels[labelKey] : undefined
+      const label = labelKey ? crumbLabels[labelKey as CrumbLabelKey] : undefined
       items.push({ label, onClick: () => navigate({ to: to as never, params: params as never }) })
     }
 
     if (info.crumb) {
       const { labelKey, to, useParamAsLabel } = info.crumb
-      const resolvedLabel = useParamAsLabel
-        ? resolveProviderLabel(params[useParamAsLabel])
-        : labelKey
-          ? crumbLabels[labelKey]
+      const resolvedLabel = labelKey
+        ? crumbLabels[labelKey as CrumbLabelKey]
+        : useParamAsLabel
+          ? params[useParamAsLabel]
           : undefined
 
       if (info.isDetail) {
@@ -85,7 +81,9 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
         if (info.intermediateCrumb) {
           const { to: iTo, useParamAsLabel: iParam, useParentTitleAsLabel } = info.intermediateCrumb
           const parentMatch = projectMatches[projectMatches.length - 2]
-          const parentTitle = parentMatch?.meta?.find((m) => m != null && "title" in m)?.title as string | undefined
+          const parentTitle = parentMatch?.meta?.find(
+            (m: unknown) => m != null && typeof m === "object" && "title" in m
+          )?.title as string | undefined
           const iLabel = useParentTitleAsLabel
             ? (parentTitle ?? (iParam ? params[iParam] : undefined))
             : iParam
@@ -98,7 +96,9 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
           )
         }
 
-        const title = deepest.meta?.find((m) => m != null && "title" in m)?.title as string | undefined
+        const title = deepest.meta?.find((m: unknown) => m != null && typeof m === "object" && "title" in m)?.title as
+          | string
+          | undefined
         if (title) items.push({ label: title, active: true })
       } else {
         items.push(
