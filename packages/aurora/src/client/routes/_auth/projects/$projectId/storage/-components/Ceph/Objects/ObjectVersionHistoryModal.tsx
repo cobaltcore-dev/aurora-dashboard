@@ -88,7 +88,16 @@ export const ObjectVersionHistoryModal = ({
   if (!isOpen) return null
 
   return (
-    <Modal title={t`Version History: ${objectKey}`} open={isOpen} onCancel={handleClose} size="xl">
+    <Modal
+      title={
+        <div className="overflow-x-hidden [overflow-wrap:anywhere]">
+          <Trans>Version History: {objectKey}</Trans>
+        </div>
+      }
+      open={isOpen}
+      onCancel={handleClose}
+      size="xl"
+    >
       <Stack direction="vertical" gap="4">
         {feedbackMessage && (
           <Message variant={feedbackMessage.variant} dismissible onDismiss={() => setFeedbackMessage(null)}>

@@ -108,6 +108,7 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
           disabled={deleteVersionsMutation.isPending}
           placeholder={bucket.name}
           autoFocus
+          className="overflow-x-hidden [overflow-wrap:anywhere]"
         />
       </Stack>
     </Modal>
