@@ -26,11 +26,11 @@ describe("useBucketSearch", () => {
       expect(result.current.debouncedSearch).toBe("")
     })
 
-    it("should initialize with empty visible buckets when no search", () => {
+    it("should initialize with visible buckets when no search (up to max)", () => {
       const buckets = generateMockBuckets(10)
       const { result } = renderHook(() => useBucketSearch(buckets))
 
-      expect(result.current.visibleBuckets).toEqual([])
+      expect(result.current.visibleBuckets).toEqual(buckets)
       expect(result.current.hiddenCount).toBe(0)
     })
   })
@@ -294,7 +294,7 @@ describe("useBucketSearch", () => {
 
       expect(result.current.searchTerm).toBe("")
       expect(result.current.debouncedSearch).toBe("")
-      expect(result.current.visibleBuckets).toEqual([])
+      expect(result.current.visibleBuckets).toEqual([{ name: "test-bucket" }])
       expect(result.current.hiddenCount).toBe(0)
     })
 
@@ -337,7 +337,7 @@ describe("useBucketSearch", () => {
         vi.advanceTimersByTime(300)
       })
 
-      expect(result.current.visibleBuckets).toEqual([])
+      expect(result.current.visibleBuckets).toEqual([{ name: "test" }])
     })
 
     it("should handle whitespace-only search", () => {
@@ -353,7 +353,7 @@ describe("useBucketSearch", () => {
         vi.advanceTimersByTime(300)
       })
 
-      expect(result.current.visibleBuckets).toEqual([])
+      expect(result.current.visibleBuckets).toEqual([{ name: "test" }])
     })
 
     it("should handle special characters in search", () => {

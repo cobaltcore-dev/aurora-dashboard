@@ -38,8 +38,15 @@ const { mockInvalidate, mockMutate, mockReset, mockState } = vi.hoisted(() => {
     mutationError: null as string | null,
     isPending: false,
     isLoading: false,
-    objectsData: { objects: [], folders: [], isTruncated: false },
+    objectsData: { objects: [], folders: [], isTruncated: false, versions: [] } as {
+      objects: unknown[]
+      folders: unknown[]
+      isTruncated: boolean
+      versions?: unknown[]
+    },
     objectsError: null as string | null,
+    versioningData: { status: "Unversioned" as "Enabled" | "Suspended" | "Unversioned", mfaDelete: undefined },
+    isLoadingVersioning: false,
     capturedOptions: {} as DeleteMutationOptions,
   }
   const mockMutate = vi.fn().mockImplementation((_variables: unknown, options?: DeleteMutationOptions) => {
@@ -71,6 +78,20 @@ vi.mock("@/client/trpcClient", () => ({
     }),
     storage: {
       ceph: {
+        versioning: {
+          getStatus: {
+            useQuery: (_params: unknown, options: { enabled: boolean }) => {
+              if (!options.enabled) {
+                return { data: undefined, isLoading: false, error: null }
+              }
+              return {
+                data: mockState.versioningData,
+                isLoading: mockState.isLoadingVersioning,
+                error: null,
+              }
+            },
+          },
+        },
         objects: {
           list: {
             useQuery: (_params: unknown, options: { enabled: boolean }) => {
@@ -239,9 +260,9 @@ describe("DeleteBucketModal", () => {
       mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
       renderModal({ bucket: mockNonEmptyBucket })
 
-      expect(screen.getByText(/This bucket contains objects/)).toBeInTheDocument()
-      expect(screen.getByText(/Empty Bucket/)).toBeInTheDocument()
-      expect(screen.getByText(/action to remove all content first/)).toBeInTheDocument()
+      expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
+      expect(screen.getByText(/Empty the bucket/)).toBeInTheDocument()
+      expect(screen.getByText(/Do the following to be able to delete the bucket/)).toBeInTheDocument()
     })
 
     test("shows same message for multiple objects", () => {
@@ -252,7 +273,7 @@ describe("DeleteBucketModal", () => {
       }
       renderModal({ bucket: mockNonEmptyBucket })
 
-      expect(screen.getByText(/This bucket contains objects/)).toBeInTheDocument()
+      expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
     })
 
     test("does not show confirmation input for non-empty bucket", () => {
@@ -279,6 +300,89 @@ describe("DeleteBucketModal", () => {
       await user.click(screen.getByTestId("delete-has-objects-close-button"))
 
       expect(onClose).toHaveBeenCalled()
+    })
+  })
+
+  describe("Versioning logic", () => {
+    test("shows only 'Empty the bucket' for unversioned bucket with objects", () => {
+      mockState.versioningData = { status: "Unversioned", mfaDelete: undefined }
+      mockState.objectsData = {
+        objects: [],
+        folders: [],
+        isTruncated: false,
+        versions: [{ key: "folder/", versionId: "null", isLatest: true, isDeleteMarker: false }] as never,
+      }
+      renderModal({ bucket: mockNonEmptyBucket })
+
+      expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
+      expect(screen.getByText(/Empty the bucket/)).toBeInTheDocument()
+      expect(screen.queryByText(/Delete all versions and delete markers/)).not.toBeInTheDocument()
+    })
+
+    test("shows both items for versioned bucket with objects and versions", () => {
+      mockState.versioningData = { status: "Enabled", mfaDelete: undefined }
+      mockState.objectsData = {
+        objects: [{ key: "file.txt" }] as never,
+        folders: [],
+        isTruncated: false,
+        versions: [
+          { key: "file.txt", versionId: "v1", isLatest: true, isDeleteMarker: false },
+          { key: "file.txt", versionId: "v2", isLatest: false, isDeleteMarker: false },
+        ] as never,
+      }
+      renderModal({ bucket: mockNonEmptyBucket })
+
+      expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
+      expect(screen.getByText(/Empty the bucket/)).toBeInTheDocument()
+      expect(screen.getByText(/Delete all versions and delete markers/)).toBeInTheDocument()
+    })
+
+    test("shows only 'Delete all versions' for versioned bucket with only versions", () => {
+      mockState.versioningData = { status: "Enabled", mfaDelete: undefined }
+      mockState.objectsData = {
+        objects: [],
+        folders: [],
+        isTruncated: false,
+        versions: [
+          { key: "file.txt", versionId: "v1", isLatest: false, isDeleteMarker: false },
+          { key: "file.txt", versionId: "v2", isLatest: false, isDeleteMarker: false },
+        ] as never,
+      }
+      renderModal({ bucket: mockNonEmptyBucket })
+
+      expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
+      expect(screen.queryByText(/Empty the bucket/)).not.toBeInTheDocument()
+      expect(screen.getByText(/Delete all versions and delete markers/)).toBeInTheDocument()
+    })
+
+    test("shows only 'Delete all versions' for bucket with only delete markers", () => {
+      mockState.versioningData = { status: "Suspended", mfaDelete: undefined }
+      mockState.objectsData = {
+        objects: [],
+        folders: [],
+        isTruncated: false,
+        versions: [{ key: "file.txt", versionId: "v1", isLatest: true, isDeleteMarker: true }] as never,
+      }
+      renderModal({ bucket: mockNonEmptyBucket })
+
+      expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
+      expect(screen.queryByText(/Empty the bucket/)).not.toBeInTheDocument()
+      expect(screen.getByText(/Delete all versions and delete markers/)).toBeInTheDocument()
+    })
+
+    test("allows deletion for empty unversioned bucket", () => {
+      mockState.versioningData = { status: "Unversioned", mfaDelete: undefined }
+      mockState.objectsData = {
+        objects: [],
+        folders: [],
+        isTruncated: false,
+        versions: [],
+      }
+      renderModal()
+
+      expect(screen.queryByText(/This bucket cannot be deleted yet/)).not.toBeInTheDocument()
+      expect(screen.getByText(/This action is irreversible/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeInTheDocument()
     })
   })
 

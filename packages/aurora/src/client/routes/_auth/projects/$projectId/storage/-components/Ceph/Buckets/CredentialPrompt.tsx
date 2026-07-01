@@ -25,7 +25,7 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
   return (
     <Stack direction="vertical" gap="4" className="mt-8 max-w-lg">
       <h2 className="text-lg font-semibold">
-        <Trans>S3 Object Storage — Setup Required</Trans>
+        <Trans>S3 Object Storage: Setup Required</Trans>
       </h2>
       <p className="text-theme-default">
         <Trans>

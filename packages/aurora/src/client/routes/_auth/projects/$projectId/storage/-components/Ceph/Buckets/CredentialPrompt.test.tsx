@@ -108,7 +108,7 @@ describe("CredentialPrompt", () => {
   describe("Rendering", () => {
     test("renders setup prompt with correct title", () => {
       renderCredentialPrompt()
-      expect(screen.getByText("S3 Object Storage — Setup Required")).toBeInTheDocument()
+      expect(screen.getByText("S3 Object Storage: Setup Required")).toBeInTheDocument()
     })
 
     test("renders explanatory text about EC2 credentials", () => {
@@ -255,7 +255,7 @@ describe("CredentialPrompt", () => {
 
     test("title uses heading style", () => {
       renderCredentialPrompt()
-      const title = screen.getByText("S3 Object Storage — Setup Required")
+      const title = screen.getByText("S3 Object Storage: Setup Required")
       expect(title.tagName).toBe("H2")
     })
   })

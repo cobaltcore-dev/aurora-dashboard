@@ -93,3 +93,91 @@ export const getBucketsEmptyCompleteToast = (
     ),
   }
 }
+
+// ── Versioning operations ──────────────────────────────────────────────────
+
+export const getVersioningEnabledToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Versioning Enabled</Trans>,
+  description: <Trans>Versioning was successfully enabled for bucket "{bucketName}".</Trans>,
+})
+
+export const getVersioningEnableErrorToast = (
+  bucketName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Enable Versioning</Trans>,
+  description: (
+    <Trans>
+      Could not enable versioning for bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getVersioningSuspendedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Versioning Suspended</Trans>,
+  description: <Trans>Versioning was successfully suspended for bucket "{bucketName}".</Trans>,
+})
+
+export const getVersioningSuspendErrorToast = (
+  bucketName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Suspend Versioning</Trans>,
+  description: (
+    <Trans>
+      Could not suspend versioning for bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+// ── Bucket policy operations ───────────────────────────────────────────────
+
+export const getBucketPolicyDeletedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Policy Deleted</Trans>,
+  description: <Trans>Bucket policy was successfully deleted from "{bucketName}".</Trans>,
+})
+
+export const getBucketPolicyDeleteErrorToast = (
+  bucketName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete Policy</Trans>,
+  description: (
+    <Trans>
+      Could not delete bucket policy from "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+// ── Delete versions operation ──────────────────────────────────────────────
+
+export const getVersionsDeletedToast = (
+  bucketName: string,
+  deletedCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Versions Deleted</Trans>,
+  description:
+    deletedCount === 0 ? (
+      <Trans>No versions to delete in bucket "{bucketName}".</Trans>
+    ) : deletedCount === 1 ? (
+      <Trans>
+        Successfully deleted {deletedCount} version from bucket "{bucketName}".
+      </Trans>
+    ) : (
+      <Trans>
+        Successfully deleted {deletedCount} versions from bucket "{bucketName}".
+      </Trans>
+    ),
+})
+
+export const getVersionsDeleteErrorToast = (
+  bucketName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete Versions</Trans>,
+  description: (
+    <Trans>
+      Could not delete versions from bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})

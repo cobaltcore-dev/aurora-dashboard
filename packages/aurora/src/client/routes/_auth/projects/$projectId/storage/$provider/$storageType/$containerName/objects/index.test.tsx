@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { redirect } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { checkServiceAvailability } from "./"
+import { checkServiceAvailability } from "../../../../-components/utils/serviceAvailability"
 
 // Mock the dependencies
 vi.mock("@tanstack/react-router", async () => {
