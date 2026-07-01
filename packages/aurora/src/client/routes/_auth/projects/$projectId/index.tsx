@@ -7,6 +7,7 @@ import { useRouteContext } from "@tanstack/react-router"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { Slot } from "@/client/components/Slot"
 import type { RouteInfo } from "@/client/routes/routeInfo"
+import { canAccessClavisPca } from "@/client/routes/_auth/projects/$projectId/services/pca/-components/pcaAccess"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
   staticData: {
@@ -98,7 +99,7 @@ function RouteComponent() {
       to: `${base}/storage/ceph/buckets`,
       service: "ceph-containers",
     })
-  if ((serviceIndex["pca"]?.["clavis-dev"] || serviceIndex["pca"]?.["clavis-beta"]) && isEnabled("pca")) {
+  if (canAccessClavisPca(serviceIndex, enabledServices)) {
     cards.push({ group: t`Services`, label: t`PCA (Clavis)`, to: `${base}/services/pca`, service: "pca" })
   }
 
