@@ -3,14 +3,20 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { ReactNode } from "react"
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import userEvent from "@testing-library/user-event"
 import { ObjectsTableView } from "./ObjectsTableView"
 
 // Hoisted mocks for the download wiring (referenced inside vi.mock factories).
+// useSubscriptionMock's return type is declared explicitly (rather than
+// inferred from the default `() => ({ data: undefined })` implementation) so
+// individual tests can mock live progress data via mockImplementation without
+// TypeScript narrowing `data` to the literal type `undefined`.
 const { downloadObjectMutate, useSubscriptionMock } = vi.hoisted(() => ({
   downloadObjectMutate: vi.fn(),
-  useSubscriptionMock: vi.fn(() => ({ data: undefined })),
+  useSubscriptionMock: vi.fn((): { data: { downloaded: number; total: number; percent: number } | undefined } => ({
+    data: undefined,
+  })),
 }))
 
 vi.mock("@/client/hooks/useProjectId", () => ({
@@ -77,6 +83,22 @@ vi.mock("./RestoreVersionModal", () => ({
 }))
 
 describe("ObjectsTableView", () => {
+  // vitest.config.ts doesn't enable global mock restoration, so spies created
+  // with vi.spyOn (URL.createObjectURL/revokeObjectURL, HTMLAnchorElement's
+  // click) must be restored explicitly, or they leak into later tests.
+  //
+  // vi.restoreAllMocks() also resets the hoisted useSubscriptionMock/
+  // downloadObjectMutate vi.fn()s (they have no "original" to restore to, so
+  // restoring clears their implementation) — re-establish useSubscriptionMock's
+  // default here so components that read live progress don't crash on the
+  // next test after one that customized it.
+  beforeEach(() => {
+    useSubscriptionMock.mockImplementation(() => ({ data: undefined }))
+  })
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   const mockFolders = [{ prefix: "documents/" }, { prefix: "images/" }]
 
   const mockObjects = [
@@ -398,6 +420,59 @@ describe("ObjectsTableView", () => {
       await waitFor(() => expect(clicked).toHaveLength(1))
       expect(clicked[0]).toMatchObject({ href: "blob:download", download: "a1b2-uuid" })
       expect(clicked[0].target).toBe("")
+    })
+
+    it("subscribes to watchDownloadProgress scoped to the row's downloadId and renders live progress", async () => {
+      const user = userEvent.setup()
+      vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
+      vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {})
+
+      // Stall the stream after the first chunk so the row stays in the
+      // "streaming" state long enough to assert on the subscription and the
+      // rendered progress UI, then release it at the end of the test.
+      let releaseStream: () => void = () => {}
+      const stalled = new Promise<void>((resolve) => {
+        releaseStream = resolve
+      })
+      downloadObjectMutate.mockImplementationOnce(async () => {
+        async function* gen() {
+          yield { chunk: btoa("a"), downloaded: 1, total: 2, contentType: "text/plain", filename: "file1.txt" }
+          await stalled
+          yield { chunk: btoa("b"), downloaded: 2, total: 2 }
+        }
+        return gen()
+      })
+
+      // Simulate the BFF pushing a live progress update once subscribed.
+      useSubscriptionMock.mockImplementation(() => ({ data: { downloaded: 5, total: 10, percent: 50 } }))
+
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+      await user.click(screen.getByTestId("download-action-file1.txt"))
+
+      // The percentage text should come from the (mocked) live subscription
+      // data, proving RowTransferProgress actually renders what the hook returns.
+      await waitFor(() => expect(within(row).getByText("50%")).toBeInTheDocument())
+
+      // The hook must be called scoped to this row's own downloadId and the
+      // current project — not some stale/shared value.
+      //
+      // useSubscriptionMock's inferred call signature is based on its hoisted
+      // default implementation `() => ({ data: undefined })`, which takes no
+      // arguments — so `mock.calls` types as an empty tuple. Cast locally to
+      // the shape it's actually called with by RowTransferProgress.
+      type SubscriptionCall = [{ project_id: string; downloadId: string }, { enabled: boolean }]
+      const calls = useSubscriptionMock.mock.calls as unknown as SubscriptionCall[]
+      const call = calls.find(([input]) => input?.downloadId?.startsWith("test-bucket:file1.txt:"))
+      expect(call).toBeDefined()
+      expect(call?.[0]).toMatchObject({ project_id: "test-project" })
+      expect(call?.[1]).toMatchObject({ enabled: true })
+
+      releaseStream()
+      await waitFor(() => expect(within(row).queryByText("50%")).not.toBeInTheDocument())
     })
 
     it("tracks two concurrent transfers independently — finishing one must not clear the other's state", async () => {
