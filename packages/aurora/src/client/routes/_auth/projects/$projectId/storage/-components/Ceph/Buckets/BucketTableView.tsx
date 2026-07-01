@@ -242,6 +242,7 @@ export const BucketTableView = ({
                           label={t`Empty`}
                           onClick={() => setEmptyModalBucket(bucket)}
                           data-testid={`empty-action-${bucket.name}`}
+                          disabled={bucket.count === 0}
                         />
                         <PopupMenuItem
                           label={t`Delete`}

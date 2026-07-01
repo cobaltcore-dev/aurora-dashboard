@@ -143,20 +143,24 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
               <Trans>Checking bucket contents...</Trans>
             </span>
           </Stack>
-        ) : isNonEmpty ? (
-          <p className="text-theme-default">
-            <Trans>
-              This bucket contains objects and cannot be deleted. Use <strong>Empty Bucket</strong> action to remove all
-              content first.
-            </Trans>
-          </p>
-        ) : hasOnlyVersions ? (
-          <p className="text-theme-default">
-            <Trans>
-              This bucket contains old versions and delete markers. Use <strong>Delete Versions</strong> action to
-              remove them before deleting the bucket.
-            </Trans>
-          </p>
+        ) : isNonEmpty || hasOnlyVersions ? (
+          <div className="text-theme-default">
+            <p className="mb-3">
+              <Trans>This bucket cannot be deleted yet. Do the following to be able to delete the bucket:</Trans>
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              {isNonEmpty && (
+                <li>
+                  <Trans>Empty the bucket</Trans>
+                </li>
+              )}
+              {versionCount > 0 && (
+                <li>
+                  <Trans>Delete all versions and delete markers</Trans>
+                </li>
+              )}
+            </ul>
+          </div>
         ) : (
           <>
             <p className="text-theme-default">

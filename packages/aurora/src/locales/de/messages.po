@@ -832,6 +832,9 @@ msgstr "Löschen"
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
+msgid "Delete all versions and delete markers"
+msgstr ""
+
 msgid "Delete Bucket"
 msgstr ""
 
@@ -853,11 +856,11 @@ msgstr "Container löschen:"
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
 
-msgid "Delete Folder"
-msgstr ""
-
 msgid "Delete folder:"
 msgstr "Ordner löschen:"
+
+msgid "Delete Folder:"
+msgstr ""
 
 msgid "Delete Images"
 msgstr "Images löschen"
@@ -865,11 +868,11 @@ msgstr "Images löschen"
 msgid "Delete Marker"
 msgstr ""
 
-msgid "Delete Object"
-msgstr ""
-
 msgid "Delete object:"
 msgstr "Objekt löschen:"
+
+msgid "Delete Object:"
+msgstr ""
 
 msgid "Delete Permanently"
 msgstr ""
@@ -1064,6 +1067,9 @@ msgid "Empty All Completed with Errors"
 msgstr ""
 
 msgid "Empty Bucket"
+msgstr ""
+
+msgid "Empty the bucket"
 msgstr ""
 
 msgid "Empty:"
@@ -3118,10 +3124,7 @@ msgstr ""
 msgid "This action will permanently delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
 msgstr ""
 
-msgid "This bucket contains objects and cannot be deleted. Use <0>Empty Bucket</0> action to remove all content first."
-msgstr ""
-
-msgid "This bucket contains old versions and delete markers. Use <0>Delete Versions</0> action to remove them before deleting the bucket."
+msgid "This bucket cannot be deleted yet. Do the following to be able to delete the bucket:"
 msgstr ""
 
 msgid "This bucket does not have a policy attached."

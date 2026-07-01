@@ -88,14 +88,14 @@ export const DeleteVersionModal = ({
             <label className="text-sm font-semibold">
               <Trans>Object:</Trans>
             </label>
-            <p className="mt-1 text-sm">{objectKey}</p>
+            <p className="mt-1 overflow-x-hidden text-sm wrap-anywhere">{objectKey}</p>
           </div>
 
           <div>
             <label className="text-sm font-semibold">
               <Trans>Version ID:</Trans>
             </label>
-            <p className="mt-1">
+            <p className="mt-1 overflow-x-hidden wrap-anywhere">
               <code className="text-sm">{versionId}</code>
             </p>
           </div>

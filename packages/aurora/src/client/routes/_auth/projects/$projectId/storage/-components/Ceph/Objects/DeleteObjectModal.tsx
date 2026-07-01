@@ -69,7 +69,14 @@ export function DeleteObjectModal({
     <Modal
       open={isOpen}
       onCancel={handleClose}
-      title={isFolder ? <Trans>Delete Folder</Trans> : <Trans>Delete Object</Trans>}
+      title={
+        <span className="flex max-w-125 items-center gap-1">
+          <span className="shrink-0">{isFolder ? <Trans>Delete Folder:</Trans> : <Trans>Delete Object:</Trans>}</span>
+          <span className="truncate" title={displayName}>
+            {displayName}
+          </span>
+        </span>
+      }
       size="large"
       confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}
       confirmButtonVariant="primary-danger"
@@ -80,7 +87,7 @@ export function DeleteObjectModal({
       disableCloseButton={deleteMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
-        <p className="text-theme-default">
+        <p className="text-theme-default overflow-x-hidden wrap-anywhere">
           {isFolder ? (
             versioningEnabled ? (
               <Trans>
@@ -107,7 +114,7 @@ export function DeleteObjectModal({
               <span className="text-theme-light text-sm">
                 <Trans>Name:</Trans>
               </span>
-              <div className="mt-1">{displayName}</div>
+              <div className="mt-1 overflow-x-hidden wrap-anywhere">{displayName}</div>
             </div>
 
             {!isFolder && objectSize !== undefined && (
@@ -132,7 +139,7 @@ export function DeleteObjectModal({
               <span className="text-theme-light text-sm">
                 <Trans>Full Path:</Trans>
               </span>
-              <div className="mt-1 break-all">{objectKey}</div>
+              <div className="mt-1 overflow-x-hidden wrap-anywhere">{objectKey}</div>
             </div>
           </Stack>
         </div>
