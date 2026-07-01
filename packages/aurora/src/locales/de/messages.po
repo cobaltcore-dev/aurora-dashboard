@@ -76,6 +76,9 @@ msgstr "{numberDeleted} Objekte wurden erfolgreich gelöscht, aber einige Lösch
 msgid "{numberDeleted} objects were permanently deleted."
 msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
 
+msgid "{percent}%"
+msgstr "{percent}%"
+
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
@@ -705,6 +708,9 @@ msgstr ""
 
 msgid "Could not delete versions from bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
+
+msgid "Could not download \"{displayName}\": {errorMessage}"
+msgstr "\"{displayName}\" konnte nicht heruntergeladen werden: {errorMessage}"
 
 msgid "Could not download \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht heruntergeladen werden: {errorMessage}"
@@ -1375,6 +1381,9 @@ msgstr ""
 msgid "Failed to Download"
 msgstr "Fehler beim Herunterladen"
 
+msgid "Failed to Download Object"
+msgstr "Fehler beim Herunterladen des Objekts"
+
 msgid "Failed to Empty Bucket"
 msgstr ""
 
@@ -1960,6 +1969,9 @@ msgstr "Objekte werden geladen..."
 msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
+msgid "Loading preview..."
+msgstr "Vorschau wird geladen..."
+
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
 
@@ -2356,6 +2368,9 @@ msgstr "Ein oder mehrere Container konnten nicht geleert werden: {errorMessage}"
 msgid "One or more objects could not be deleted:"
 msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
 
+msgid "Open {displayName}"
+msgstr "{displayName} öffnen"
+
 msgid "Open in new tab"
 msgstr "In neuem Tab öffnen"
 
@@ -2466,6 +2481,9 @@ msgstr "Vorschau"
 
 msgid "Preview {rowDisplayName}"
 msgstr "{rowDisplayName} vorschauen"
+
+msgid "Preview and download aren't available for older versions yet"
+msgstr "Vorschau und Download sind für ältere Versionen noch nicht verfügbar"
 
 msgid "Preview and Edit metadata"
 msgstr "Vorschau und Metadaten bearbeiten"

@@ -38,6 +38,7 @@ import {
   getObjectMoveErrorToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
+  getObjectDownloadErrorToast,
 } from "./ObjectToastNotifications"
 import { encodePrefix, decodePrefix } from "../../utils/prefixEncoding"
 
@@ -562,6 +563,10 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           }}
           onEditMetadataError={(objectKey, errorMessage) => {
             const { message, ...options } = getObjectMetadataUpdateErrorToast(objectKey, errorMessage)
+            toast.error(message, options)
+          }}
+          onDownloadError={(objectKey, errorMessage) => {
+            const { message, ...options } = getObjectDownloadErrorToast(objectKey, errorMessage)
             toast.error(message, options)
           }}
         />

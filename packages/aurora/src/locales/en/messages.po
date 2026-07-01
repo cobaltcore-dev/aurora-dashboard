@@ -76,6 +76,9 @@ msgstr "{numberDeleted} objects were deleted successfully, but some deletions fa
 msgid "{numberDeleted} objects were permanently deleted."
 msgstr "{numberDeleted} objects were permanently deleted."
 
+msgid "{percent}%"
+msgstr "{percent}%"
+
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
@@ -705,6 +708,9 @@ msgstr "Could not delete version of \"{displayName}\": {errorMessage}"
 
 msgid "Could not delete versions from bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete versions from bucket \"{bucketName}\": {errorMessage}"
+
+msgid "Could not download \"{displayName}\": {errorMessage}"
+msgstr "Could not download \"{displayName}\": {errorMessage}"
 
 msgid "Could not download \"{objectName}\": {errorMessage}"
 msgstr "Could not download \"{objectName}\": {errorMessage}"
@@ -1375,6 +1381,9 @@ msgstr "Failed to delete versions from bucket \"{bucketName}\": {errorMessage}"
 msgid "Failed to Download"
 msgstr "Failed to Download"
 
+msgid "Failed to Download Object"
+msgstr "Failed to Download Object"
+
 msgid "Failed to Empty Bucket"
 msgstr "Failed to Empty Bucket"
 
@@ -1960,6 +1969,9 @@ msgstr "Loading objects..."
 msgid "Loading Objects..."
 msgstr "Loading Objects..."
 
+msgid "Loading preview..."
+msgstr "Loading preview..."
+
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
@@ -2356,6 +2368,9 @@ msgstr "One or more containers could not be emptied: {errorMessage}"
 msgid "One or more objects could not be deleted:"
 msgstr "One or more objects could not be deleted:"
 
+msgid "Open {displayName}"
+msgstr "Open {displayName}"
+
 msgid "Open in new tab"
 msgstr "Open in new tab"
 
@@ -2466,6 +2481,9 @@ msgstr "Preview"
 
 msgid "Preview {rowDisplayName}"
 msgstr "Preview {rowDisplayName}"
+
+msgid "Preview and download aren't available for older versions yet"
+msgstr "Preview and download aren't available for older versions yet"
 
 msgid "Preview and Edit metadata"
 msgstr "Preview and Edit metadata"
