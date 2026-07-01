@@ -36,6 +36,10 @@ export function ContentHeader({ title, projectId, description, actions, badges }
       <Slot component={slots.serviceBanner} useShadowDOM={false} currentService={currentService} />
     ) : null
 
+  const projectOverviewBanner = slots?.projectOverviewBanner ? (
+    <Slot component={slots.projectOverviewBanner} useShadowDOM={false} />
+  ) : null
+
   return (
     <header className="mb-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -52,6 +56,7 @@ export function ContentHeader({ title, projectId, description, actions, badges }
       </div>
       {description && <p className="text-sm font-normal">{description}</p>}
       {serviceBanner}
+      {projectOverviewBanner}
       <Divider className="mt-4" />
       {(badges || actions) && (
         <div className="mt-3 flex items-start justify-between">
