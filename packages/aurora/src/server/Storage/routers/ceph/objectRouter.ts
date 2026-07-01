@@ -51,12 +51,12 @@ const deleteAllObjectsInputSchema = z.object({
   includeVersionsAndDeleteMarkers: z.boolean().optional().default(true),
 })
 
-// Derive a MIME type from a file extension when S3 returns a generic
-// octet-stream sentinel ("binary/octet-stream" or "application/octet-stream").
-// S3 and Ceph RGW use these as the default Content-Type when an object was
-// uploaded without an explicit value — they mean "unknown", not "definitely
-// binary". Resolving from the key extension lets the frontend preview files
-// (images, PDFs, text) that were uploaded without explicit metadata.
+// Derive a MIME type from a file extension.
+//
+// S3/Ceph Content-Type can be generic ("binary/octet-stream"/
+// "application/octet-stream") or simply wrong (set by an upload tool). When
+// the key has a recognized extension, advertising the extension-derived MIME
+// lets the frontend make a more accurate preview-vs-download decision.
 // Falls back to "application/octet-stream" for unknown or missing extensions.
 function resolveMimeFromKey(key: string): string {
   const ext = key.split(".").pop()?.toLowerCase() ?? ""
