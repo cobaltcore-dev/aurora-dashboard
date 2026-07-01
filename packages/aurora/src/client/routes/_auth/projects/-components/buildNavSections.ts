@@ -1,6 +1,7 @@
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { t } from "@lingui/core/macro"
 import type { NavigateFn } from "@tanstack/react-router"
+import { canAccessClavisPca } from "@/client/routes/_auth/projects/$projectId/services/pca/-components/pcaAccess"
 
 export type NavItem = {
   service: string
@@ -104,19 +105,16 @@ export function buildNavSections(
       : []),
   ]
 
-  // temporary as clavis is not fully GA, after GA replace with ["pca"]?.["clavis"]
-  const pcaServices = serviceIndex["pca"]?.["clavis-beta"] || serviceIndex["pca"]?.["clavis-dev"]
-  const clavisServices: NavItem[] =
-    pcaServices && isEnabled("pca")
-      ? [
-          {
-            service: "pca",
-            label: t`PCA (Clavis)`,
-            navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/services/pca", params: { projectId } }),
-            params: { projectId },
-          },
-        ]
-      : []
+  const clavisServices: NavItem[] = canAccessClavisPca(serviceIndex, enabledServices)
+    ? [
+        {
+          service: "pca",
+          label: t`PCA (Clavis)`,
+          navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/services/pca", params: { projectId } }),
+          params: { projectId },
+        },
+      ]
+    : []
 
   return [
     { section: "compute", label: t`Compute`, services: computeServices },
