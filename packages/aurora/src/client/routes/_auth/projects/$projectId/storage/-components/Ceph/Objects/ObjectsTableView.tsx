@@ -29,17 +29,20 @@ import { MoveObjectModal } from "./MoveObjectModal"
 import { EditMetadataModal } from "./EditMetadataModal"
 import { ObjectVersionHistoryModal } from "./ObjectVersionHistoryModal"
 
-// MIME types that browsers can render natively in a tab. The decision to
+// MIME types that are safe to preview in a browser tab. The decision to
 // preview vs download is made from the Content-Type the BFF actually returns
 // (resolved server-side from the object key when S3 stores a generic default),
 // not from the filename — so it works for UUID-keyed objects too.
-const BROWSER_PREVIEWABLE_MIME_PREFIXES = ["image/", "video/", "audio/", "text/"]
-const BROWSER_PREVIEWABLE_MIME_EXACT = new Set(["application/pdf", "application/json", "application/xml"])
+//
+// NOTE: Intentionally exclude scriptable types (e.g. text/html, application/json,
+// application/xml) and SVG (can execute scripts when opened via blob URLs).
+const BROWSER_PREVIEWABLE_MIME_TYPES = new Set(["application/pdf", "text/plain"])
 
 function isPreviewableContentType(contentType: string): boolean {
   const base = contentType.split(";")[0].trim().toLowerCase()
-  if (BROWSER_PREVIEWABLE_MIME_EXACT.has(base)) return true
-  return BROWSER_PREVIEWABLE_MIME_PREFIXES.some((prefix) => base.startsWith(prefix))
+  if (BROWSER_PREVIEWABLE_MIME_TYPES.has(base)) return true
+  if (base === "image/svg+xml") return false
+  return base.startsWith("image/") || base.startsWith("video/") || base.startsWith("audio/")
 }
 
 // One in-flight transfer for a given row: either a forced download (from the
