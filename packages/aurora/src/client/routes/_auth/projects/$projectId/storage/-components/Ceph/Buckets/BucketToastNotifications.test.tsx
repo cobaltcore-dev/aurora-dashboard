@@ -10,6 +10,14 @@ import {
   getBucketDeletedToast,
   getBucketDeleteErrorToast,
   getBucketsEmptyCompleteToast,
+  getVersioningEnabledToast,
+  getVersioningEnableErrorToast,
+  getVersioningSuspendedToast,
+  getVersioningSuspendErrorToast,
+  getBucketPolicyDeletedToast,
+  getBucketPolicyDeleteErrorToast,
+  getVersionsDeletedToast,
+  getVersionsDeleteErrorToast,
 } from "./BucketToastNotifications"
 
 // Helpers return the Juno NotificationManager shape: { message, description }.
@@ -255,6 +263,14 @@ describe("BucketToastNotifications", () => {
         getBucketDeletedToast("b"),
         getBucketDeleteErrorToast("b", "err"),
         getBucketsEmptyCompleteToast(3, 100, []),
+        getVersioningEnabledToast("b"),
+        getVersioningEnableErrorToast("b", "err"),
+        getVersioningSuspendedToast("b"),
+        getVersioningSuspendErrorToast("b", "err"),
+        getBucketPolicyDeletedToast("b"),
+        getBucketPolicyDeleteErrorToast("b", "err"),
+        getVersionsDeletedToast("b", 5),
+        getVersionsDeleteErrorToast("b", "err"),
       ]
       notifications.forEach((notification) => {
         expect(notification.message).toBeTruthy()
@@ -271,6 +287,112 @@ describe("BucketToastNotifications", () => {
       const toast = getBucketCreatedToast("b")
       expect(toast).not.toHaveProperty("variant")
       expect(toast).not.toHaveProperty("children")
+    })
+  })
+
+  // ── Versioning operations ──────────────────────────────────────────────────
+
+  describe("getVersioningEnabledToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getVersioningEnabledToast("my-bucket")
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
+    })
+
+    it("renders correct message content", () => {
+      renderNotification(getVersioningEnabledToast("my-bucket"))
+      expect(screen.getByText("Versioning Enabled")).toBeInTheDocument()
+      expect(screen.getByText(/successfully enabled for bucket "my-bucket"/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getVersioningEnableErrorToast", () => {
+    it("renders correct error message", () => {
+      renderNotification(getVersioningEnableErrorToast("my-bucket", "Access denied"))
+      expect(screen.getByText("Failed to Enable Versioning")).toBeInTheDocument()
+      expect(screen.getByText(/Could not enable versioning for bucket "my-bucket": Access denied/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getVersioningSuspendedToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getVersioningSuspendedToast("my-bucket")
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
+    })
+
+    it("renders correct message content", () => {
+      renderNotification(getVersioningSuspendedToast("my-bucket"))
+      expect(screen.getByText("Versioning Suspended")).toBeInTheDocument()
+      expect(screen.getByText(/successfully suspended for bucket "my-bucket"/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getVersioningSuspendErrorToast", () => {
+    it("renders correct error message", () => {
+      renderNotification(getVersioningSuspendErrorToast("my-bucket", "Internal error"))
+      expect(screen.getByText("Failed to Suspend Versioning")).toBeInTheDocument()
+      expect(
+        screen.getByText(/Could not suspend versioning for bucket "my-bucket": Internal error/)
+      ).toBeInTheDocument()
+    })
+  })
+
+  // ── Bucket policy operations ───────────────────────────────────────────────
+
+  describe("getBucketPolicyDeletedToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getBucketPolicyDeletedToast("my-bucket")
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
+    })
+
+    it("renders correct message content", () => {
+      renderNotification(getBucketPolicyDeletedToast("my-bucket"))
+      expect(screen.getByText("Policy Deleted")).toBeInTheDocument()
+      expect(screen.getByText(/successfully deleted from "my-bucket"/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getBucketPolicyDeleteErrorToast", () => {
+    it("renders correct error message", () => {
+      renderNotification(getBucketPolicyDeleteErrorToast("my-bucket", "Permission denied"))
+      expect(screen.getByText("Failed to Delete Policy")).toBeInTheDocument()
+      expect(screen.getByText(/Could not delete bucket policy from "my-bucket": Permission denied/)).toBeInTheDocument()
+    })
+  })
+
+  // ── Delete versions operation ──────────────────────────────────────────────
+
+  describe("getVersionsDeletedToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getVersionsDeletedToast("my-bucket", 5)
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
+    })
+
+    it("renders correct message for multiple versions", () => {
+      renderNotification(getVersionsDeletedToast("my-bucket", 5))
+      expect(screen.getByText("Versions Deleted")).toBeInTheDocument()
+      expect(screen.getByText(/Successfully deleted 5 versions from bucket "my-bucket"/)).toBeInTheDocument()
+    })
+
+    it("renders correct message for single version", () => {
+      renderNotification(getVersionsDeletedToast("my-bucket", 1))
+      expect(screen.getByText(/Successfully deleted 1 version from bucket "my-bucket"/)).toBeInTheDocument()
+    })
+
+    it("renders correct message for zero versions", () => {
+      renderNotification(getVersionsDeletedToast("my-bucket", 0))
+      expect(screen.getByText(/No versions to delete in bucket "my-bucket"/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getVersionsDeleteErrorToast", () => {
+    it("renders correct error message", () => {
+      renderNotification(getVersionsDeleteErrorToast("my-bucket", "Network timeout"))
+      expect(screen.getByText("Failed to Delete Versions")).toBeInTheDocument()
+      expect(screen.getByText(/Could not delete versions from bucket "my-bucket": Network timeout/)).toBeInTheDocument()
     })
   })
 })

@@ -69,7 +69,7 @@ export const EnableVersioningModal = ({
       <Stack direction="vertical" gap="4">
         <p>
           <Trans>
-            Once enabled, versioning cannot be fully disabled—it can only be suspended. Existing versions will remain
+            Once enabled, versioning cannot be fully disabled, it can only be suspended. Existing versions will remain
             even after suspension.
           </Trans>
         </p>

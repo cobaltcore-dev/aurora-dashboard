@@ -88,7 +88,16 @@ export const ObjectVersionHistoryModal = ({
   if (!isOpen) return null
 
   return (
-    <Modal title={t`Version History: ${objectKey}`} open={isOpen} onCancel={handleClose} size="xl">
+    <Modal
+      title={
+        <div className="overflow-x-hidden [overflow-wrap:anywhere]">
+          <Trans>Version History: {objectKey}</Trans>
+        </div>
+      }
+      open={isOpen}
+      onCancel={handleClose}
+      size="xl"
+    >
       <Stack direction="vertical" gap="4">
         {feedbackMessage && (
           <Message variant={feedbackMessage.variant} dismissible onDismiss={() => setFeedbackMessage(null)}>
@@ -264,9 +273,10 @@ export const ObjectVersionHistoryModal = ({
         onClose={() => setDeleteTarget(null)}
         onSuccess={(objectKey, versionId) => {
           setDeleteTarget(null)
+          const shortVersionId = versionId.slice(0, 8)
           setFeedbackMessage({
             variant: "success",
-            message: t`Version ${versionId.slice(0, 8)}... deleted successfully`,
+            message: t`Version ${shortVersionId}... deleted successfully`,
           })
           onDeleteVersion?.(objectKey, versionId)
           setTimeout(() => refetch(), 100)

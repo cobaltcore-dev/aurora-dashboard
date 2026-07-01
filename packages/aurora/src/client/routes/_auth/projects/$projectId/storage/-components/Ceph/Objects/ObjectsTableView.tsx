@@ -579,7 +579,7 @@ export function ObjectsTableView({
                                   onClick={() => setCopyTarget({ key: row.key, size: row.size })}
                                 />
                                 <PopupMenuItem
-                                  label={t`Move`}
+                                  label={t`Move/Rename`}
                                   onClick={() => setMoveTarget({ key: row.key, size: row.size })}
                                 />
                                 <PopupMenuItem

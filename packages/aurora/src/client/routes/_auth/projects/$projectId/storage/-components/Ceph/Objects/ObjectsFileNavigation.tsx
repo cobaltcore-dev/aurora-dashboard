@@ -45,7 +45,7 @@ export function ObjectsFileNavigation({
   const isAtRoot = prefixSegments.length === 0
 
   return (
-    <div className="mb-2 px-2 pt-2">
+    <div>
       <Breadcrumb>
         {/* "All buckets" root — always navigates back to the bucket list.
             Always clickable (you're inside a bucket whenever this view is shown).
