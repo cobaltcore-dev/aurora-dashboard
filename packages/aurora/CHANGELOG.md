@@ -1,5 +1,11 @@
 # @cobaltcore-dev/aurora
 
+## 0.13.1
+
+### Patch Changes
+
+- 40ad7cb: fix(aurora): gate projectOverviewBanner to only show when no service is active
+
 ## 0.13.0
 
 ### Minor Changes
