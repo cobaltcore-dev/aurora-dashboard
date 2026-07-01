@@ -490,14 +490,16 @@ export function ObjectsTableView({
                         <button
                           type="button"
                           className="min-w-0 truncate text-left text-sm hover:underline focus-visible:outline focus-visible:outline-2 disabled:cursor-wait disabled:no-underline"
-                          onClick={() => handlePreviewOrDownload(row as ObjectRow)}
-                          disabled={isStreaming}
+                          onClick={row.kind === "object" ? () => handlePreviewOrDownload(row) : undefined}
+                          disabled={row.kind !== "object" || isStreaming}
                           title={
-                            isStreaming
-                              ? isPreviewing
-                                ? t`Loading preview...`
-                                : t`Downloading...`
-                              : t`Open ${displayName}`
+                            row.kind !== "object"
+                              ? t`Preview and download aren't available for older versions yet`
+                              : isStreaming
+                                ? isPreviewing
+                                  ? t`Loading preview...`
+                                  : t`Downloading...`
+                                : t`Open ${displayName}`
                           }
                         >
                           {row.displayName}
@@ -559,8 +561,8 @@ export function ObjectsTableView({
                               <>
                                 <PopupMenuItem
                                   label={isDownloading ? t`Downloading...` : t`Download`}
-                                  disabled={isStreaming}
-                                  onClick={() => handleDownload(row as ObjectRow)}
+                                  disabled={row.kind !== "object" || isStreaming}
+                                  onClick={row.kind === "object" ? () => handleDownload(row) : undefined}
                                   data-testid={`download-action-${row.key}`}
                                 />
                                 {versioningEnabled && !isVersion && (

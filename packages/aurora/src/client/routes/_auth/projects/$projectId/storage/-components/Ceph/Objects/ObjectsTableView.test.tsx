@@ -458,6 +458,63 @@ describe("ObjectsTableView", () => {
       streamB.resolveGate()
       await waitFor(() => expect(buttonB()).not.toBeDisabled())
     })
+
+    it("does not allow row-click preview/download for version rows (versionId would be dropped)", async () => {
+      // The download contract only accepts an objectKey, not a versionId. A
+      // version row cast to ObjectRow and downloaded via the object-only path
+      // would silently fetch the *current* object at that key rather than the
+      // specific historical version the user clicked — so it must be inert
+      // until a version-aware download endpoint exists.
+      const user = userEvent.setup()
+      const versions = [
+        {
+          key: "file1.txt",
+          versionId: "v-123",
+          isLatest: false,
+          isDeleteMarker: false,
+          isDeleted: false,
+          size: 512,
+          lastModified: "2024-01-10T10:00:00Z",
+        },
+      ]
+
+      render(
+        <ObjectsTableView {...defaultProps} folders={[]} objects={[]} versions={versions} showingVersions={true} />
+      )
+
+      const nameButton = screen.getByRole("button", { name: "file1.txt" })
+      expect(nameButton).toBeDisabled()
+
+      await user.click(nameButton)
+      expect(downloadObjectMutate).not.toHaveBeenCalled()
+    })
+
+    it("does not allow the context-menu Download action for version rows", async () => {
+      const user = userEvent.setup()
+      const versions = [
+        {
+          key: "file1.txt",
+          versionId: "v-123",
+          isLatest: false,
+          isDeleteMarker: false,
+          isDeleted: false,
+          size: 512,
+          lastModified: "2024-01-10T10:00:00Z",
+        },
+      ]
+
+      render(
+        <ObjectsTableView {...defaultProps} folders={[]} objects={[]} versions={versions} showingVersions={true} />
+      )
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+      await user.click(screen.getByTestId("download-action-file1.txt"))
+
+      // No onClick is attached for version rows, so the click is a no-op
+      // regardless of how the disabled state is rendered internally.
+      expect(downloadObjectMutate).not.toHaveBeenCalled()
+    })
   })
 
   describe("modals", () => {

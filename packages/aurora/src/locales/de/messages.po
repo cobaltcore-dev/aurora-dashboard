@@ -2422,6 +2422,9 @@ msgstr "Vorschau"
 msgid "Preview {rowDisplayName}"
 msgstr "{rowDisplayName} vorschauen"
 
+msgid "Preview and download aren't available for older versions yet"
+msgstr "Vorschau und Download sind für ältere Versionen noch nicht verfügbar"
+
 msgid "Preview and Edit metadata"
 msgstr "Vorschau und Metadaten bearbeiten"
 

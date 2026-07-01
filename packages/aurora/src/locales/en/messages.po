@@ -2422,6 +2422,9 @@ msgstr "Preview"
 msgid "Preview {rowDisplayName}"
 msgstr "Preview {rowDisplayName}"
 
+msgid "Preview and download aren't available for older versions yet"
+msgstr "Preview and download aren't available for older versions yet"
+
 msgid "Preview and Edit metadata"
 msgstr "Preview and Edit metadata"
 
