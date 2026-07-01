@@ -1009,9 +1009,6 @@ msgstr "Download {rowDisplayName}"
 msgid "Downloading..."
 msgstr "Downloading..."
 
-msgid "Downloading…"
-msgstr "Downloading…"
-
 msgid "Drop your file here"
 msgstr "Drop your file here"
 
@@ -1920,9 +1917,6 @@ msgstr "Loading Objects..."
 
 msgid "Loading preview..."
 msgstr "Loading preview..."
-
-msgid "Loading preview…"
-msgstr "Loading preview…"
 
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."

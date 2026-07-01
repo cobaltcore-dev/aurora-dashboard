@@ -445,8 +445,8 @@ export function ObjectsTableView({
                           title={
                             isStreaming
                               ? isPreviewing
-                                ? t`Loading preview…`
-                                : t`Downloading…`
+                                ? t`Loading preview...`
+                                : t`Downloading...`
                               : t`Open ${displayName}`
                           }
                         >

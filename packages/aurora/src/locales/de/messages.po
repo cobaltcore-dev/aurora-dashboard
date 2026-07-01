@@ -74,7 +74,7 @@ msgid "{numberDeleted} objects were permanently deleted."
 msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
 
 msgid "{percent}%"
-msgstr ""
+msgstr "{percent}%"
 
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
@@ -692,7 +692,7 @@ msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht gelöscht werden: {errorMessage}"
 
 msgid "Could not download \"{displayName}\": {errorMessage}"
-msgstr ""
+msgstr "\"{displayName}\" konnte nicht heruntergeladen werden: {errorMessage}"
 
 msgid "Could not download \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht heruntergeladen werden: {errorMessage}"
@@ -1008,9 +1008,6 @@ msgstr "{rowDisplayName} herunterladen"
 
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."
-
-msgid "Downloading…"
-msgstr ""
 
 msgid "Drop your file here"
 msgstr "Legen Sie Ihre Datei hier ab"
@@ -1340,7 +1337,7 @@ msgid "Failed to Download"
 msgstr "Fehler beim Herunterladen"
 
 msgid "Failed to Download Object"
-msgstr ""
+msgstr "Fehler beim Herunterladen des Objekts"
 
 msgid "Failed to Empty Bucket"
 msgstr ""
@@ -1919,10 +1916,7 @@ msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
 msgid "Loading preview..."
-msgstr ""
-
-msgid "Loading preview…"
-msgstr ""
+msgstr "Vorschau wird geladen..."
 
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
@@ -2318,7 +2312,7 @@ msgid "One or more objects could not be deleted:"
 msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
 
 msgid "Open {displayName}"
-msgstr ""
+msgstr "{displayName} öffnen"
 
 msgid "Open in new tab"
 msgstr "In neuem Tab öffnen"
