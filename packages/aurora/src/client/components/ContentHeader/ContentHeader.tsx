@@ -36,9 +36,10 @@ export function ContentHeader({ title, projectId, description, actions, badges }
       <Slot component={slots.serviceBanner} useShadowDOM={false} currentService={currentService} />
     ) : null
 
-  const projectOverviewBanner = slots?.projectOverviewBanner ? (
-    <Slot component={slots.projectOverviewBanner} useShadowDOM={false} />
-  ) : null
+  const projectOverviewBanner =
+    slots?.projectOverviewBanner && !currentService ? (
+      <Slot component={slots.projectOverviewBanner} useShadowDOM={false} />
+    ) : null
 
   return (
     <header className="mb-8">
