@@ -915,6 +915,17 @@ const blob = new Blob(parts, { type: contentType })
 - Progress is scoped by `project_id`, so a user can never observe another tenant's transfer.
 - An empty object yields no chunks (the loop simply never runs).
 
+**Content-Type resolution:**
+
+S3/Ceph often can't be trusted to report a useful `Content-Type` — RGW defaults to `binary/octet-stream` when none was set on upload, and some upload tools store an unrelated type (e.g. `application/x-www-form-urlencoded`). Since the raw stored value directly determines whether the frontend can preview a file inline vs. must force a download, `downloadObject` resolves the type as follows before yielding the first chunk:
+
+1. If the object key has a recognized extension (`.jpg`, `.pdf`, `.txt`, `.png`, etc.), the MIME type is derived from that extension and takes priority over whatever S3 returned.
+2. Otherwise (unknown or missing extension — e.g. a UUID-style key), the `ContentType` from the S3 `GetObjectCommand` response is used as-is, falling back to `application/octet-stream` if absent.
+
+This means the `contentType` yielded in the first chunk may differ from the object's stored `Content-Type` in S3. Consumers that need the _raw_ stored value (rather than the resolved/display value) should call `getDetails` instead, which returns the S3 metadata unmodified.
+
+The Ceph frontend (`ObjectsTableView`) uses this resolved `contentType` to decide row-click behavior: browser-previewable types (`image/*`, `video/*`, `audio/*`, `text/*`, `application/pdf`, `application/json`, `application/xml`) open in a new tab; everything else downloads. The context-menu **Download** action always forces a download regardless of type.
+
 ---
 
 #### `watchDownloadProgress`
