@@ -973,13 +973,20 @@ export const objectRouter = {
           // Bounded wait: if no events arrive within 30 s the download has
           // likely already completed and the map entry was deleted before we
           // subscribed. Break rather than hanging forever.
-          const timeout = new Promise((resolve) => setTimeout(resolve, 30_000))
-          await Promise.race([
-            new Promise((resolve) => {
-              waitResolver = resolve
-            }),
-            timeout,
-          ])
+          let timeoutId: ReturnType<typeof setTimeout> | undefined
+          const timeout = new Promise((resolve) => {
+            timeoutId = setTimeout(resolve, 30_000)
+          })
+          try {
+            await Promise.race([
+              new Promise((resolve) => {
+                waitResolver = resolve
+              }),
+              timeout,
+            ])
+          } finally {
+            if (timeoutId) clearTimeout(timeoutId)
+          }
           if (!isComplete && !isError && queue.length === 0) break
         }
       }
