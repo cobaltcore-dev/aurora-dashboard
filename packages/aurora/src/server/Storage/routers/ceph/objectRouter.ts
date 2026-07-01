@@ -822,6 +822,27 @@ export const objectRouter = {
     const s3 = ctx.getCephClient!()
     const { project_id, containerName, objectKey, filename, downloadId } = input
 
+    // Scope to the project so cross-tenant observation is impossible. Computed
+    // up front — before any S3 call — so that even a failure on the initial
+    // GetObject request can still notify an already-open watchDownloadProgress
+    // subscriber, rather than leaving it to wait out its 30s timeout.
+    const scopedDownloadId = `${project_id}:${downloadId}`
+
+    // Maps an S3/unknown error to the same TRPCError shape downloadObject
+    // itself throws, emits it as a terminal progress event so a concurrent
+    // watchDownloadProgress subscriber is notified immediately (instead of
+    // silently waiting), then re-throws the mapped error. Used for every
+    // failure path in this procedure so the watcher's error contract is
+    // consistent regardless of where the failure occurred.
+    const emitMappedError = (error: unknown): never => {
+      try {
+        mapS3ErrorToTRPCError(error, { operation: "download object", bucket: containerName, key: objectKey })
+      } catch (mappedError) {
+        downloadProgressEmitter.emit(`progress:${scopedDownloadId}:error`, mappedError)
+        throw mappedError
+      }
+    }
+
     const response = await s3
       .send(
         new GetObjectCommand({
@@ -829,13 +850,11 @@ export const objectRouter = {
           Key: objectKey,
         })
       )
-      .catch((error) => {
-        throw mapS3ErrorToTRPCError(error, { operation: "download object", bucket: containerName, key: objectKey })
-      })
+      .catch(emitMappedError)
 
     const body = response.Body
     if (!body) {
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "S3 response has no body" })
+      emitMappedError(new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "S3 response has no body" }))
     }
 
     // Determine the MIME type to advertise to the frontend.
@@ -855,8 +874,6 @@ export const objectRouter = {
     // ContentLength may be absent for chunked responses; treat 0 as unknown.
     const total = response.ContentLength ?? 0
 
-    // Scope to the project so cross-tenant observation is impossible.
-    const scopedDownloadId = `${project_id}:${downloadId}`
     downloadProgressMap.set(scopedDownloadId, { downloaded: 0, total, percent: 0 })
 
     let isFirst = true
@@ -890,8 +907,7 @@ export const objectRouter = {
 
       downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
     } catch (error) {
-      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:error`, error)
-      throw mapS3ErrorToTRPCError(error, { operation: "download object", bucket: containerName, key: objectKey })
+      emitMappedError(error)
     } finally {
       downloadProgressMap.delete(scopedDownloadId)
     }
