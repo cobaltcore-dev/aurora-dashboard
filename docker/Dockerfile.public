@@ -2,8 +2,6 @@ FROM node:24-alpine
 LABEL source_repository="https://github.com/cobaltcore-dev/aurora-dashboard"
 
 RUN apk upgrade --no-cache --no-progress && apk add --no-cache ca-certificates curl
-RUN set -e; curl -fL https://aia.pki.co.sap.com/aia/SAP%20Global%20Root%20CA.crt | tr -d '\r' > /usr/local/share/ca-certificates/SAP_Global_Root_CA.crt \
-  && update-ca-certificates;
 
 WORKDIR /app
 COPY . .
