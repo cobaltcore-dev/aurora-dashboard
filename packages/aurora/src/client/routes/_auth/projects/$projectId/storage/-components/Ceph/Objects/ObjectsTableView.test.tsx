@@ -290,8 +290,10 @@ describe("ObjectsTableView", () => {
 
     it("row-click previews in a new tab when Content-Type is previewable", async () => {
       const user = userEvent.setup()
-      const mockTab = { location: { href: "" }, close: vi.fn() }
-      vi.spyOn(window, "open").mockReturnValue(mockTab as unknown as Window)
+      const clicked: Array<{ href: string; target: string; download: string }> = []
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+        clicked.push({ href: this.href, target: this.target, download: this.download })
+      })
       vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:preview")
       vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
 
@@ -305,33 +307,39 @@ describe("ObjectsTableView", () => {
       const obj = [{ key: "photo.jpg", size: 1024, lastModified: "2024-01-15T10:00:00Z" }]
       render(<ObjectsTableView {...defaultProps} folders={[]} objects={obj} />)
 
-      await user.click(screen.getByRole("button", { name: /open photo\.jpg/i }))
+      // The button's accessible name is its visible text content (the filename),
+      // not the title attribute.
+      await user.click(screen.getByRole("button", { name: "photo.jpg" }))
 
-      // Blank tab opened synchronously, blob URL assigned after stream completes
-      expect(window.open).toHaveBeenCalledWith("", "_blank")
-      await waitFor(() => expect(mockTab.location.href).toBe("blob:preview"))
+      await waitFor(() => expect(clicked).toHaveLength(1))
+      expect(clicked[0]).toMatchObject({ href: "blob:preview", target: "_blank" })
     })
 
     it("row-click previews text files in a new tab", async () => {
       const user = userEvent.setup()
-      const mockTab = { location: { href: "" }, close: vi.fn() }
-      vi.spyOn(window, "open").mockReturnValue(mockTab as unknown as Window)
+      const clicked: Array<{ href: string; target: string }> = []
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+        clicked.push({ href: this.href, target: this.target })
+      })
       vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:preview")
       vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
 
-      // text/plain — previewable
+      // text/plain — previewable (default mock from beforeEach)
       const obj = [{ key: "notes.txt", size: 1024, lastModified: "2024-01-15T10:00:00Z" }]
       render(<ObjectsTableView {...defaultProps} folders={[]} objects={obj} />)
 
-      await user.click(screen.getByRole("button", { name: /open notes\.txt/i }))
+      await user.click(screen.getByRole("button", { name: "notes.txt" }))
 
-      await waitFor(() => expect(mockTab.location.href).toBe("blob:preview"))
+      await waitFor(() => expect(clicked).toHaveLength(1))
+      expect(clicked[0]).toMatchObject({ href: "blob:preview", target: "_blank" })
     })
 
     it("row-click downloads when Content-Type is not previewable", async () => {
       const user = userEvent.setup()
-      const mockTab = { location: { href: "" }, close: vi.fn() }
-      vi.spyOn(window, "open").mockReturnValue(mockTab as unknown as Window)
+      const clicked: Array<{ href: string; target: string; download: string }> = []
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+        clicked.push({ href: this.href, target: this.target, download: this.download })
+      })
       vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:download")
       vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
 
@@ -351,18 +359,21 @@ describe("ObjectsTableView", () => {
       const obj = [{ key: "archive.zip", size: 1024, lastModified: "2024-01-15T10:00:00Z" }]
       render(<ObjectsTableView {...defaultProps} folders={[]} objects={obj} />)
 
-      await user.click(screen.getByRole("button", { name: /open archive\.zip/i }))
+      await user.click(screen.getByRole("button", { name: "archive.zip" }))
 
       await waitFor(() => expect(downloadObjectMutate).toHaveBeenCalled())
-      // Non-previewable: blank tab closed, no preview navigation
-      await waitFor(() => expect(mockTab.close).toHaveBeenCalled())
-      expect(mockTab.location.href).toBe("")
+      // Non-previewable: a download anchor is clicked (no target="_blank")
+      await waitFor(() => expect(clicked).toHaveLength(1))
+      expect(clicked[0]).toMatchObject({ href: "blob:download", download: "archive.zip" })
+      expect(clicked[0].target).toBe("")
     })
 
     it("row-click downloads when BFF returns octet-stream (unknown type)", async () => {
       const user = userEvent.setup()
-      const mockTab = { location: { href: "" }, close: vi.fn() }
-      vi.spyOn(window, "open").mockReturnValue(mockTab as unknown as Window)
+      const clicked: Array<{ href: string; target: string; download: string }> = []
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+        clicked.push({ href: this.href, target: this.target, download: this.download })
+      })
       vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:download")
       vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
 
@@ -382,10 +393,11 @@ describe("ObjectsTableView", () => {
       const obj = [{ key: "a1b2-uuid", size: 1024, lastModified: "2024-01-15T10:00:00Z" }]
       render(<ObjectsTableView {...defaultProps} folders={[]} objects={obj} />)
 
-      await user.click(screen.getByRole("button", { name: /open a1b2-uuid/i }))
+      await user.click(screen.getByRole("button", { name: "a1b2-uuid" }))
 
-      await waitFor(() => expect(mockTab.close).toHaveBeenCalled())
-      expect(mockTab.location.href).toBe("")
+      await waitFor(() => expect(clicked).toHaveLength(1))
+      expect(clicked[0]).toMatchObject({ href: "blob:download", download: "a1b2-uuid" })
+      expect(clicked[0].target).toBe("")
     })
   })
 
