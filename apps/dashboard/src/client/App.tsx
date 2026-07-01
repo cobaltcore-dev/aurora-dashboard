@@ -13,5 +13,16 @@ export function App() {
     localStorage.setItem(THEME_KEY, newTheme)
   }
 
-  return <AuroraApp bffEndpoint={import.meta.env.VITE_BFF_ENDPOINT} theme={theme} onThemeChange={handleThemeChange} />
+  const handleTrackEvent = (metadata: unknown) => {
+    console.log(">>>>Track event metadata:", metadata)
+  }
+
+  return (
+    <AuroraApp
+      bffEndpoint={import.meta.env.VITE_BFF_ENDPOINT}
+      theme={theme}
+      onThemeChange={handleThemeChange}
+      onTrackEvent={handleTrackEvent}
+    />
+  )
 }

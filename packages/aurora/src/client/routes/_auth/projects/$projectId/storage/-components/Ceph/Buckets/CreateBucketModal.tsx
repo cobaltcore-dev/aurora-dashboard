@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack, Checkbox } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useRouteContext } from "@tanstack/react-router"
 
 interface CreateBucketModalProps {
   isOpen: boolean
@@ -23,8 +24,25 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
   const [bucketName, setBucketName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
   const [enableVersioning, setEnableVersioning] = useState(false)
+  const [hasSubmitted, setHasSubmitted] = useState(false)
+  const { onTrackEvent } = useRouteContext({ strict: false })
+  const hasTrackedOpen = useRef(false)
 
   const utils = trpcReact.useUtils()
+
+  // Track when user opens the create modal (only once per session)
+  useEffect(() => {
+    if (isOpen && !hasTrackedOpen.current) {
+      onTrackEvent?.({
+        source: "user-action",
+        action: "storage.ceph.bucket.create.open",
+        metadata: {
+          accessed: true,
+        },
+      })
+      hasTrackedOpen.current = true
+    }
+  }, [isOpen, onTrackEvent])
 
   const createBucketMutation = trpcReact.storage.ceph.containers.create.useMutation({
     onSuccess: () => {
@@ -41,9 +59,22 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
   })
 
   const handleClose = () => {
+    // Track when user manually closes the modal without submitting
+    if (isOpen && !hasSubmitted) {
+      onTrackEvent?.({
+        source: "user-action",
+        action: "storage.ceph.bucket.create.close",
+        metadata: {
+          cancelled: true,
+        },
+      })
+    }
+
     setBucketName("")
     setNameError(null)
     setEnableVersioning(false)
+    setHasSubmitted(false)
+    hasTrackedOpen.current = false
     createBucketMutation.reset()
     onClose()
   }
@@ -117,6 +148,7 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
 
   const handleSubmit = () => {
     if (!validateName(bucketName)) return
+    setHasSubmitted(true)
     createBucketMutation.mutate({
       project_id: projectId,
       bucketName: bucketName.trim(),
