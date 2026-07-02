@@ -194,7 +194,6 @@ export const MoveObjectModal = ({
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleClose = () => {
-    trackClose()
     copyMutation.reset()
     deleteMutation.reset()
     resetTracking()
@@ -291,7 +290,10 @@ export const MoveObjectModal = ({
         </span>
       }
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Moving...` : t`Move/Rename`}
       onConfirm={handleMove}
       cancelButtonLabel={t`Cancel`}

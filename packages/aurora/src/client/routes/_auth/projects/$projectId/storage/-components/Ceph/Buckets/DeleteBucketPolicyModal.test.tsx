@@ -138,4 +138,27 @@ describe("DeleteBucketPolicyModal - Analytics tracking", () => {
     })
     expect(mockOnClose).toHaveBeenCalled()
   })
+
+  test("does not track .close event on successful submit", async () => {
+    const user = userEvent.setup({ delay: null })
+    renderModal()
+
+    // Wait for .open event
+    await waitFor(() => {
+      expect(mockOnTrackEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.bucket.policy.delete.open" })
+      )
+    })
+
+    mockOnTrackEvent.mockClear()
+
+    // Click the Delete Policy button
+    const deleteButton = screen.getByRole("button", { name: /Delete Policy/i })
+    await user.click(deleteButton)
+
+    // .close should NOT have been tracked since user submitted
+    expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ action: "storage.ceph.bucket.policy.delete.close" })
+    )
+  })
 })

@@ -467,5 +467,38 @@ describe("EmptyBucketsModal", () => {
       })
       expect(mockOnClose).toHaveBeenCalled()
     })
+
+    test("does not track .close event after successful submit", async () => {
+      const user = userEvent.setup({ delay: null })
+      const mockOnClose = vi.fn()
+      renderModal({ onClose: mockOnClose })
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
+
+      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      await user.click(emptyButton)
+
+      // Wait for modal to close after completion
+      await waitFor(
+        () => {
+          expect(mockOnClose).toHaveBeenCalled()
+        },
+        { timeout: 3000 }
+      )
+
+      // .close should NOT have been tracked since user submitted
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.buckets.empty.close" })
+      )
+    })
   })
 })

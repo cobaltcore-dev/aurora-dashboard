@@ -195,7 +195,6 @@ export const CopyObjectModal = ({
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleClose = () => {
-    trackClose()
     copyMutation.reset()
     resetTracking()
     onClose()
@@ -274,7 +273,10 @@ export const CopyObjectModal = ({
         </span>
       }
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Copying...` : t`Copy`}
       onConfirm={handleCopy}
       cancelButtonLabel={t`Cancel`}

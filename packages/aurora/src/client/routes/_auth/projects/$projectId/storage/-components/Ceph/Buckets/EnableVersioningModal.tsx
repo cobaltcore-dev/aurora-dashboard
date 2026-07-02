@@ -45,7 +45,6 @@ export const EnableVersioningModal = ({
   })
 
   const handleClose = () => {
-    trackClose()
     setConfirmed(false)
     enableMutation.reset()
     resetTracking()
@@ -69,7 +68,10 @@ export const EnableVersioningModal = ({
     <Modal
       title={t`Enable Versioning`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Enable Versioning`}
       onConfirm={handleEnable}
       cancelButtonLabel={t`Cancel`}

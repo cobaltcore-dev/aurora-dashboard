@@ -254,5 +254,30 @@ describe("MoveObjectModal", () => {
         action: "storage.ceph.object.move.close",
       })
     })
+
+    it("does not track .close event on successful submit", async () => {
+      const user = userEvent.setup()
+      renderModal(defaultProps)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.object.move.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Change the object name to enable the Move/Rename button
+      const input = screen.getByLabelText("New object name")
+      await user.clear(input)
+      await user.type(input, "renamed-file.txt")
+
+      const moveButton = screen.getByRole("button", { name: "Move/Rename" })
+      await user.click(moveButton)
+
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.object.move.close" })
+      )
+    })
   })
 })

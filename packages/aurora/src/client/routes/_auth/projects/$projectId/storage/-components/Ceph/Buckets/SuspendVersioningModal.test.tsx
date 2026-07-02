@@ -130,4 +130,27 @@ describe("SuspendVersioningModal - Analytics tracking", () => {
     })
     expect(mockOnClose).toHaveBeenCalled()
   })
+
+  test("does not track .close event on successful submit", async () => {
+    const user = userEvent.setup({ delay: null })
+    renderModal()
+
+    // Wait for .open event
+    await waitFor(() => {
+      expect(mockOnTrackEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.bucket.versioning.suspend.open" })
+      )
+    })
+
+    mockOnTrackEvent.mockClear()
+
+    // Click the Suspend Versioning button
+    const suspendButton = screen.getByRole("button", { name: /Suspend Versioning/i })
+    await user.click(suspendButton)
+
+    // .close should NOT have been tracked since user submitted
+    expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ action: "storage.ceph.bucket.versioning.suspend.close" })
+    )
+  })
 })

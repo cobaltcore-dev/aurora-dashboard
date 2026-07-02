@@ -660,5 +660,33 @@ describe("DeleteBucketModal", () => {
       })
       expect(mockOnClose).toHaveBeenCalled()
     })
+
+    test("does not track .close event on successful submit", async () => {
+      const user = userEvent.setup({ delay: null })
+      renderModal()
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.bucket.delete.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Type the bucket name to confirm
+      const input = screen.getByLabelText(/Type the bucket name to confirm/i)
+      await user.clear(input)
+      await user.type(input, mockEmptyBucket.name)
+
+      // Click the Delete Bucket button
+      const deleteButton = screen.getByRole("button", { name: /^Delete Bucket$/i })
+      await user.click(deleteButton)
+
+      // .close should NOT have been tracked since user submitted
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.bucket.delete.close" })
+      )
+    })
   })
 })

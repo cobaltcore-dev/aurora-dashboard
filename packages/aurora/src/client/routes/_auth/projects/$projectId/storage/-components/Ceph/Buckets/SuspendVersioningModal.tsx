@@ -45,7 +45,6 @@ export const SuspendVersioningModal = ({
   })
 
   const handleClose = () => {
-    trackClose()
     resetTracking()
     onClose()
   }
@@ -65,7 +64,10 @@ export const SuspendVersioningModal = ({
     <Modal
       title={t`Suspend Versioning`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Suspend Versioning`}
       onConfirm={handleSuspend}
       cancelButtonLabel={t`Cancel`}

@@ -321,5 +321,29 @@ describe("EditMetadataModal", () => {
         action: "storage.ceph.object.metadata.edit.close",
       })
     })
+
+    it("does not track .close event on successful submit", async () => {
+      const user = userEvent.setup()
+      renderModal(defaultProps)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.object.metadata.edit.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Delete a metadata entry to enable the Update button
+      const deleteButtons = screen.getAllByTitle("Delete")
+      await user.click(deleteButtons[0])
+
+      const updateButton = screen.getByRole("button", { name: "Update object" })
+      await user.click(updateButton)
+
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.object.metadata.edit.close" })
+      )
+    })
   })
 })

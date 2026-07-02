@@ -87,7 +87,6 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   })
 
   const handleClose = () => {
-    trackClose()
     setConfirmName("")
     setNameError(null)
     setDeleteVersionsAndMarkers(false)
@@ -150,7 +149,10 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       <Modal
         title={t`Delete Versions`}
         open={isOpen}
-        onCancel={handleClose}
+        onCancel={() => {
+          trackClose()
+          handleClose()
+        }}
         confirmButtonLabel={t`Delete Versions`}
         confirmButtonVariant="primary-danger"
         onConfirm={handleSubmit}
@@ -194,7 +196,10 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     <Modal
       title={t`Empty Bucket`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Empty Bucket`}
       confirmButtonVariant="primary-danger"
       onConfirm={handleSubmit}

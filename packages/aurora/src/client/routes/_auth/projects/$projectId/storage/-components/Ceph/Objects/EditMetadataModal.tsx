@@ -173,7 +173,6 @@ export const EditMetadataModal = ({
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleClose = () => {
-    trackClose()
     resetForm()
     resetTracking()
     onClose()
@@ -310,7 +309,10 @@ export const EditMetadataModal = ({
         </span>
       }
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Saving...` : t`Update object`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}

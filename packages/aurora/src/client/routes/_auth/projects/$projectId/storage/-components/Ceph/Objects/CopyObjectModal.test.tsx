@@ -229,5 +229,31 @@ describe("CopyObjectModal", () => {
         action: "storage.ceph.object.copy.close",
       })
     })
+
+    it("does not track .close event on successful submit", async () => {
+      const user = userEvent.setup()
+      renderModal(defaultProps)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.object.copy.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Select a different target bucket to enable the Copy button
+      const bucketSelect = screen.getByLabelText("Target bucket")
+      await user.click(bucketSelect)
+      const bucket2Option = screen.getByRole("option", { name: "bucket-2" })
+      await user.click(bucket2Option)
+
+      const copyButton = screen.getByRole("button", { name: "Copy" })
+      await user.click(copyButton)
+
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.object.copy.close" })
+      )
+    })
   })
 })

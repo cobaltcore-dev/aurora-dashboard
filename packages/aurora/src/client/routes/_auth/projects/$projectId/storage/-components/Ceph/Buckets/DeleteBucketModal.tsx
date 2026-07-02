@@ -68,7 +68,6 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   }, [isOpen, bucket?.name])
 
   const handleClose = () => {
-    trackClose()
     setConfirmName("")
     setNameError(null)
     deleteBucketMutation.reset()
@@ -140,7 +139,10 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
     <Modal
       title={t`Delete Bucket`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={cannotDelete ? undefined : t`Delete Bucket`}
       confirmButtonVariant={cannotDelete ? undefined : "primary-danger"}
       onConfirm={cannotDelete ? undefined : handleSubmit}

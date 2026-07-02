@@ -56,7 +56,6 @@ export const RestoreVersionModal = ({
   })
 
   const handleClose = () => {
-    trackClose()
     resetTracking()
     onClose()
   }
@@ -77,7 +76,10 @@ export const RestoreVersionModal = ({
     <Modal
       title={t`Restore Version`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Restore Version`}
       onConfirm={handleRestore}
       cancelButtonLabel={t`Cancel`}

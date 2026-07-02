@@ -36,7 +36,6 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation()
 
   const handleClose = () => {
-    trackClose()
     emptyBucketMutation.reset()
     setProgress(null)
     setConfirmText("")
@@ -90,7 +89,10 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
     <Modal
       title={<Plural value={totalCount} one="Empty Bucket" other="Empty Buckets" />}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}

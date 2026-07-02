@@ -52,7 +52,6 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
   })
 
   const handleClose = () => {
-    trackClose()
     setFolderName("")
     setValidationError(null)
     createFolderMutation.reset()
@@ -93,7 +92,10 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
   return (
     <Modal
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       title={<Trans>Create New Folder</Trans>}
       size="large"
       confirmButtonLabel={createFolderMutation.isPending ? t`Creating...` : t`Create Folder`}

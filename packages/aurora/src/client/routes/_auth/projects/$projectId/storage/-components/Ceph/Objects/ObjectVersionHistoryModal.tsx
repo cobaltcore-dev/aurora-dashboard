@@ -86,7 +86,6 @@ export const ObjectVersionHistoryModal = ({
   const versions = data || []
 
   const handleClose = () => {
-    trackClose()
     setRestoreTarget(null)
     setDeleteTarget(null)
     setFeedbackMessage(null)
@@ -104,7 +103,10 @@ export const ObjectVersionHistoryModal = ({
         </div>
       }
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       size="xl"
     >
       <Stack direction="vertical" gap="4">

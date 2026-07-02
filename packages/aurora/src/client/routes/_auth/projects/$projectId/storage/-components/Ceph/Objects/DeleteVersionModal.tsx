@@ -60,7 +60,6 @@ export const DeleteVersionModal = ({
   })
 
   const handleClose = () => {
-    trackClose()
     setConfirmText("")
     resetTracking()
     onClose()
@@ -84,7 +83,10 @@ export const DeleteVersionModal = ({
     <Modal
       title={t`Delete Version Permanently`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Delete Permanently`}
       onConfirm={handleDelete}
       cancelButtonLabel={t`Cancel`}

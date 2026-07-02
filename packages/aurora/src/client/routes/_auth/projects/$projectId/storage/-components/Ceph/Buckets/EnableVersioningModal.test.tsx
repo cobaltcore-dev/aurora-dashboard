@@ -130,4 +130,31 @@ describe("EnableVersioningModal - Analytics tracking", () => {
     })
     expect(mockOnClose).toHaveBeenCalled()
   })
+
+  test("does not track .close event on successful submit", async () => {
+    const user = userEvent.setup({ delay: null })
+    renderModal()
+
+    // Wait for .open event
+    await waitFor(() => {
+      expect(mockOnTrackEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.bucket.versioning.enable.open" })
+      )
+    })
+
+    mockOnTrackEvent.mockClear()
+
+    // Check the confirmation checkbox
+    const checkbox = screen.getByRole("checkbox", { name: /I understand/i })
+    await user.click(checkbox)
+
+    // Click the Enable Versioning button
+    const enableButton = screen.getByRole("button", { name: /Enable Versioning/i })
+    await user.click(enableButton)
+
+    // .close should NOT have been tracked since user submitted
+    expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ action: "storage.ceph.bucket.versioning.enable.close" })
+    )
+  })
 })

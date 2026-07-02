@@ -47,7 +47,6 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
   })
 
   const handleClose = () => {
-    trackClose()
     setBucketName("")
     setNameError(null)
     setEnableVersioning(false)
@@ -145,7 +144,10 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
     <Modal
       title={t`Create Bucket`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Create`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
