@@ -103,8 +103,8 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }) => {
     actionPrefix: "storage.ceph.bucket.create",
   })
 
+  // handleClose does NOT call trackClose
   const handleClose = () => {
-    trackClose()        // Tracks .close event if user didn't submit
     // ... cleanup
     resetTracking()     // Reset for next modal open
     onClose()
@@ -115,7 +115,18 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }) => {
     mutation.mutate(...)
   }
 
-  // ...
+  return (
+    <Modal
+      open={isOpen}
+      onCancel={() => {
+        trackClose()    // Track .close ONLY when user cancels
+        handleClose()
+      }}
+      onConfirm={handleSubmit}
+    >
+      {/* ... */}
+    </Modal>
+  )
 }
 ```
 
@@ -157,8 +168,8 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }) => {
     createBucketMutation.mutate({ bucketName })
   }
 
+  // handleClose does NOT call trackClose - that's done in onCancel
   const handleClose = () => {
-    trackClose()
     setBucketName("")
     createBucketMutation.reset()
     resetTracking()
@@ -168,7 +179,14 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }) => {
   if (!isOpen) return null
 
   return (
-    <Modal open={isOpen} onClose={handleClose} onConfirm={handleSubmit}>
+    <Modal
+      open={isOpen}
+      onCancel={() => {
+        trackClose()   // Track close ONLY when user cancels
+        handleClose()
+      }}
+      onConfirm={handleSubmit}
+    >
       {/* Modal content */}
     </Modal>
   )
@@ -177,10 +195,11 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }) => {
 
 **Key points:**
 
-- `useModalTracking` handles all tracking logic in ~3 lines
-- Call `trackClose()` at the start of your close handler
-- Call `markSubmitted()` before your mutation
+- `useModalTracking` handles all tracking logic
+- Call `trackClose()` in `onCancel`, NOT inside `handleClose` - this ensures `.close` is only tracked when user cancels
+- Call `markSubmitted()` before your mutation to prevent `.close` tracking on successful submit
 - Call `resetTracking()` at the end of your close handler
+- The mutation's `onSuccess` calls `handleClose()` directly (without `trackClose()`) so `.close` is not tracked after submit
 
 ### Manual Implementation (Advanced)
 
@@ -342,8 +361,8 @@ const { trackClose, markSubmitted, resetTracking } = useModalTracking({
   actionPrefix: "section.service.resource.action",
 })
 
+// handleClose does NOT call trackClose
 const handleClose = () => {
-  trackClose()
   // ... cleanup
   resetTracking()
   onClose()
@@ -353,6 +372,15 @@ const handleSubmit = () => {
   markSubmitted()
   // ... submit logic
 }
+
+// In your Modal component:
+<Modal
+  onCancel={() => {
+    trackClose()   // Track .close ONLY when user cancels
+    handleClose()
+  }}
+  onConfirm={handleSubmit}
+>
 ```
 
 ## Current Route Analytics
