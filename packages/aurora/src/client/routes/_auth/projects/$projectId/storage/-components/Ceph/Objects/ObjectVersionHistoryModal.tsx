@@ -98,9 +98,14 @@ export const ObjectVersionHistoryModal = ({
   return (
     <Modal
       title={
-        <div className="overflow-x-hidden [overflow-wrap:anywhere]">
-          <Trans>Version History: {objectKey}</Trans>
-        </div>
+        <span className="flex max-w-[400px] items-center gap-1 md:max-w-[500px] lg:max-w-[1000px] xl:max-w-[1100px]">
+          <span className="shrink-0">
+            <Trans>Version History:</Trans>
+          </span>
+          <span className="truncate" title={objectKey}>
+            {objectKey}
+          </span>
+        </span>
       }
       open={isOpen}
       onCancel={() => {
