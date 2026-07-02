@@ -30,6 +30,11 @@ vi.mock("./ObjectsFileNavigation", () => ({
   ),
 }))
 
+vi.mock("../Buckets/EnableVersioningModal", () => ({
+  EnableVersioningModal: ({ isOpen }: { isOpen: boolean }) =>
+    isOpen ? <div data-testid="enable-versioning-modal">Enable Versioning</div> : null,
+}))
+
 vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => "test-project-id",
 }))
