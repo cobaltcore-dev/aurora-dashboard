@@ -14,6 +14,13 @@ vi.mock("@/client/hooks/useProjectId", () => ({
 const mockMutate = vi.fn()
 const mockReset = vi.fn()
 const mockInvalidate = vi.fn()
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
 
 const mockObjectDetails = {
   key: "test-file.txt",
@@ -277,5 +284,44 @@ describe("EditMetadataModal", () => {
     await user.click(discardButtons[0])
 
     expect(screen.getByText("John Doe")).toBeInTheDocument()
+  })
+
+  describe("Analytics tracking", () => {
+    it("tracks .open event once per modal open", async () => {
+      renderModal(defaultProps)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "user-action",
+          action: "storage.ceph.object.metadata.edit.open",
+          metadata: { accessed: true },
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    it("tracks .close event when user cancels without submitting", async () => {
+      const user = userEvent.setup()
+      const onClose = vi.fn()
+      renderModal({ ...defaultProps, onClose })
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.object.metadata.edit.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      const cancelButton = screen.getByRole("button", { name: "Cancel" })
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "user-action",
+        action: "storage.ceph.object.metadata.edit.close",
+        metadata: { cancelled: true },
+      })
+    })
   })
 })

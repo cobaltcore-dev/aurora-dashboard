@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import {
   Modal,
   TextInput,
@@ -75,6 +76,11 @@ export const EditMetadataModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.metadata.edit",
+  })
 
   // ── Metadata fetch ─────────────────────────────────────────────────────────
   const {
@@ -167,7 +173,9 @@ export const EditMetadataModal = ({
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleClose = () => {
+    trackClose()
     resetForm()
+    resetTracking()
     onClose()
   }
 
@@ -178,6 +186,7 @@ export const EditMetadataModal = ({
       return
     }
 
+    markSubmitted()
     objectKeyRef.current = objectKey
 
     // Build metadata record from current entries

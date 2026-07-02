@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import type { ObjectVersion } from "@/server/Storage/types/versioning"
 import {
   Modal,
@@ -40,6 +41,12 @@ export const ObjectVersionHistoryModal = ({
 }: ObjectVersionHistoryModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
+
+  const { trackClose, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.version.history",
+  })
+
   const [restoreTarget, setRestoreTarget] = useState<{
     versionId: string
     date?: string
@@ -79,9 +86,11 @@ export const ObjectVersionHistoryModal = ({
   const versions = data || []
 
   const handleClose = () => {
+    trackClose()
     setRestoreTarget(null)
     setDeleteTarget(null)
     setFeedbackMessage(null)
+    resetTracking()
     onClose()
   }
 

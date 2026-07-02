@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
@@ -15,6 +15,13 @@ const mockCopyMutate = vi.fn()
 const mockDeleteMutate = vi.fn()
 const mockReset = vi.fn()
 const mockInvalidate = vi.fn()
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -210,5 +217,44 @@ describe("MoveObjectModal", () => {
 
     const input = screen.getByLabelText("New object name")
     expect(input).toHaveValue("document.txt")
+  })
+
+  describe("Analytics tracking", () => {
+    it("tracks .open event once per modal open", async () => {
+      renderModal(defaultProps)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "user-action",
+          action: "storage.ceph.object.move.open",
+          metadata: { accessed: true },
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    it("tracks .close event when user cancels without submitting", async () => {
+      const user = userEvent.setup()
+      const onClose = vi.fn()
+      renderModal({ ...defaultProps, onClose })
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.object.move.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      const cancelButton = screen.getByRole("button", { name: "Cancel" })
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "user-action",
+        action: "storage.ceph.object.move.close",
+        metadata: { cancelled: true },
+      })
+    })
   })
 })

@@ -2,6 +2,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 
 interface RestoreVersionModalProps {
@@ -30,6 +31,11 @@ export const RestoreVersionModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.version.restore",
+  })
+
   const utils = trpcReact.useUtils()
 
   const restoreMutation = trpcReact.storage.ceph.versioning.restoreVersion.useMutation({
@@ -38,18 +44,25 @@ export const RestoreVersionModal = ({
       utils.storage.ceph.objects.list.invalidate()
       utils.storage.ceph.containers.list.invalidate()
       onSuccess?.(objectKey, versionId)
-      onClose()
+      handleClose()
     },
     onError: (error) => {
       onError?.(objectKey, error.message)
-      onClose()
+      handleClose()
     },
     onSettled: () => {
       restoreMutation.reset()
     },
   })
 
+  const handleClose = () => {
+    trackClose()
+    resetTracking()
+    onClose()
+  }
+
   const handleRestore = () => {
+    markSubmitted()
     restoreMutation.mutate({
       project_id: projectId,
       bucket: bucketName,
@@ -64,7 +77,7 @@ export const RestoreVersionModal = ({
     <Modal
       title={t`Restore Version`}
       open={isOpen}
-      onCancel={onClose}
+      onCancel={handleClose}
       confirmButtonLabel={t`Restore Version`}
       onConfirm={handleRestore}
       cancelButtonLabel={t`Cancel`}
