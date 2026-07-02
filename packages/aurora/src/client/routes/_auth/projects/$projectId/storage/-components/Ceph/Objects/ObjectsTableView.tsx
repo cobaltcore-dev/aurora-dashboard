@@ -93,7 +93,7 @@ function RowTransferProgress({
   )
 }
 
-type FolderRow = { kind: "folder"; prefix: string; displayName: string }
+type FolderRow = { kind: "folder"; prefix: string; displayName: string; isDeleted?: boolean }
 type ObjectRow = {
   kind: "object"
   key: string
@@ -120,7 +120,7 @@ const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(100px, 1fr) minmax(180px
 interface ObjectsTableViewProps {
   bucketName: string
   objects: S3Object[]
-  folders: S3FolderPrefix[]
+  folders: Array<S3FolderPrefix & { isDeleted?: boolean }>
   versions?: S3ObjectVersionExtended[] // When showing all versions (extended with isDeleted flag)
   currentPrefix: string
   versioningEnabled?: boolean
@@ -316,6 +316,7 @@ export function ObjectsTableView({
               kind: "folder",
               prefix: f.prefix,
               displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
+              isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
             })
           ),
           ...versions.map(
@@ -338,6 +339,7 @@ export function ObjectsTableView({
               kind: "folder",
               prefix: f.prefix,
               displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
+              isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
             })
           ),
           ...objects.map(
@@ -474,15 +476,22 @@ export function ObjectsTableView({
                   {/* Name */}
                   <DataGridCell>
                     {isFolder ? (
-                      <button
-                        type="button"
-                        className="flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2"
-                        onClick={() => onFolderClick(row.prefix)}
-                        title={row.prefix}
-                      >
-                        <MdFolder size={18} className="text-theme-light shrink-0" />
-                        <span className="truncate text-sm">{row.displayName}</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2"
+                          onClick={() => onFolderClick(row.prefix)}
+                          title={row.prefix}
+                        >
+                          <MdFolder size={18} className="text-theme-light shrink-0" />
+                          <span className="truncate text-sm">{row.displayName}</span>
+                        </button>
+                        {row.isDeleted && (
+                          <Badge variant="error">
+                            <Trans>Deleted</Trans>
+                          </Badge>
+                        )}
+                      </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         {isStreaming ? (

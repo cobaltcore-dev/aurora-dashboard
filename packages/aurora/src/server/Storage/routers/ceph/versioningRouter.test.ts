@@ -350,4 +350,138 @@ describe("versioningRouter", () => {
       expect(copyCommand.input.CopySource).not.toContain("?param=value")
     })
   })
+
+  describe("checkDeletedContent", () => {
+    it("should detect folders with deleted content", async () => {
+      mockSend.mockResolvedValueOnce({
+        DeleteMarkers: [
+          {
+            Key: "folder1/file1.txt",
+            VersionId: "dm-123",
+            IsLatest: true,
+            LastModified: TEST_DATE,
+          },
+        ],
+        IsTruncated: false,
+      })
+
+      const result = await caller.checkDeletedContent({
+        project_id: TEST_PROJECT_ID,
+        bucket: TEST_BUCKET_NAME,
+        folders: ["folder1/"],
+      })
+
+      expect(result).toHaveLength(1)
+      expect(result[0].prefix).toBe("folder1/")
+      expect(result[0].hasDeletedContent).toBe(true)
+      expect(result[0].isFolderDeleted).toBe(false)
+    })
+
+    it("should detect when folder marker itself is deleted", async () => {
+      mockSend.mockResolvedValueOnce({
+        DeleteMarkers: [
+          {
+            Key: "folder1/",
+            VersionId: "dm-456",
+            IsLatest: true,
+            LastModified: TEST_DATE,
+          },
+        ],
+        IsTruncated: false,
+      })
+
+      const result = await caller.checkDeletedContent({
+        project_id: TEST_PROJECT_ID,
+        bucket: TEST_BUCKET_NAME,
+        folders: ["folder1/"],
+      })
+
+      expect(result).toHaveLength(1)
+      expect(result[0].prefix).toBe("folder1/")
+      expect(result[0].hasDeletedContent).toBe(true)
+      expect(result[0].isFolderDeleted).toBe(true)
+    })
+
+    it("should detect both deleted folder marker and deleted content", async () => {
+      mockSend.mockResolvedValueOnce({
+        DeleteMarkers: [
+          {
+            Key: "folder1/",
+            VersionId: "dm-folder",
+            IsLatest: true,
+            LastModified: TEST_DATE,
+          },
+          {
+            Key: "folder1/file.txt",
+            VersionId: "dm-file",
+            IsLatest: true,
+            LastModified: TEST_DATE,
+          },
+        ],
+        IsTruncated: false,
+      })
+
+      const result = await caller.checkDeletedContent({
+        project_id: TEST_PROJECT_ID,
+        bucket: TEST_BUCKET_NAME,
+        folders: ["folder1/"],
+      })
+
+      expect(result).toHaveLength(1)
+      expect(result[0].hasDeletedContent).toBe(true)
+      expect(result[0].isFolderDeleted).toBe(true)
+    })
+
+    it("should return false when no deleted content", async () => {
+      mockSend.mockResolvedValueOnce({
+        DeleteMarkers: [],
+        IsTruncated: false,
+      })
+
+      const result = await caller.checkDeletedContent({
+        project_id: TEST_PROJECT_ID,
+        bucket: TEST_BUCKET_NAME,
+        folders: ["folder1/"],
+      })
+
+      expect(result).toHaveLength(1)
+      expect(result[0].hasDeletedContent).toBe(false)
+      expect(result[0].isFolderDeleted).toBe(false)
+    })
+
+    it("should check multiple folders in parallel", async () => {
+      mockSend
+        .mockResolvedValueOnce({
+          DeleteMarkers: [{ Key: "folder1/file.txt", VersionId: "dm-1", IsLatest: true, LastModified: TEST_DATE }],
+          IsTruncated: false,
+        })
+        .mockResolvedValueOnce({
+          DeleteMarkers: [],
+          IsTruncated: false,
+        })
+
+      const result = await caller.checkDeletedContent({
+        project_id: TEST_PROJECT_ID,
+        bucket: TEST_BUCKET_NAME,
+        folders: ["folder1/", "folder2/"],
+      })
+
+      expect(result).toHaveLength(2)
+      expect(result[0].hasDeletedContent).toBe(true)
+      expect(result[1].hasDeletedContent).toBe(false)
+    })
+
+    it("should throw FORBIDDEN when no credentials", async () => {
+      const ctx = createMockContext({ hasCredentials: false })
+      const callerNoAuth = createCaller(ctx)
+
+      await expect(
+        callerNoAuth.checkDeletedContent({
+          project_id: TEST_PROJECT_ID,
+          bucket: TEST_BUCKET_NAME,
+          folders: ["folder1/"],
+        })
+      ).rejects.toThrow(TRPCError)
+    })
+  })
 })

@@ -15,8 +15,8 @@ import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
 // - sortDirection: "asc" | "desc" — persisted alongside sortBy
 const objectsSearchSchema = z.object({
   prefix: z.string().optional(),
-  sortBy: z.enum(["name", "last_modified", "bytes", "lastModified", "size"]).optional(),
-  sortDirection: z.enum(["asc", "desc"]).optional(),
+  sortBy: z.enum(["name", "last_modified", "bytes", "lastModified", "size"]).optional().default("name"),
+  sortDirection: z.enum(["asc", "desc"]).optional().default("asc"),
   search: z.string().optional(),
   tab: z.enum(["all", "deleted"]).optional().default("all"),
 })
