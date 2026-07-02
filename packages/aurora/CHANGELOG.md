@@ -1,5 +1,15 @@
 # @cobaltcore-dev/aurora
 
+## 0.14.0
+
+### Minor Changes
+
+- 219ed22: feat(aurora): make OpenStack session debug logging configurable
+
+  Add optional `debug` field to `ContextConfig` to allow consumers to control
+  debug logging in SignalOpenstackSession. Falls back to existing behavior
+  (enabled in non-production) when not explicitly set.
+
 ## 0.13.1
 
 ### Patch Changes
