@@ -16,8 +16,7 @@ import {
   SearchInput,
   Spinner,
   Stack,
-  Toast,
-  ToastProps,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { ContainerTableView } from "./ContainerTableView"
@@ -61,7 +60,6 @@ export const SwiftContainers = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [emptyAllModalOpen, setEmptyAllModalOpen] = useState(false)
   const [selectedContainers, setSelectedContainers] = useState<string[]>([])
-  const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   // Local mirror of the committed search term so typing stays responsive while
   // the URL commit is debounced (see Zone 2 SearchInput below).
@@ -78,46 +76,54 @@ export const SwiftContainers = () => {
     setLocalSearchTerm(searchParam)
   }, [searchParam])
 
-  const handleToastDismiss = () => setToastData(null)
-
   const handleCreateSuccess = (containerName: string) => {
-    setToastData(getContainerCreatedToast(containerName, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getContainerCreatedToast(containerName)
+    toast.success(message, options)
   }
 
   const handleCreateError = (containerName: string, errorMessage: string) => {
-    setToastData(getContainerCreateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getContainerCreateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
   }
 
   const handleEmptySuccess = (containerName: string, deletedCount: number) => {
-    setToastData(getContainerEmptiedToast(containerName, deletedCount, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getContainerEmptiedToast(containerName, deletedCount)
+    toast.success(message, options)
   }
 
   const handleEmptyError = (containerName: string, errorMessage: string) => {
-    setToastData(getContainerEmptyErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getContainerEmptyErrorToast(containerName, errorMessage)
+    toast.error(message, options)
   }
 
   const handleDeleteSuccess = (containerName: string) => {
-    setToastData(getContainerDeletedToast(containerName, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getContainerDeletedToast(containerName)
+    toast.success(message, options)
   }
 
   const handleDeleteError = (containerName: string, errorMessage: string) => {
-    setToastData(getContainerDeleteErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getContainerDeleteErrorToast(containerName, errorMessage)
+    toast.error(message, options)
   }
 
   const handlePropertiesSuccess = (containerName: string) => {
-    setToastData(getContainerUpdatedToast(containerName, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getContainerUpdatedToast(containerName)
+    toast.success(message, options)
   }
 
   const handlePropertiesError = (containerName: string, errorMessage: string) => {
-    setToastData(getContainerUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getContainerUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
   }
 
   const handleAclSuccess = (containerName: string) => {
-    setToastData(getContainerAclUpdatedToast(containerName, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getContainerAclUpdatedToast(containerName)
+    toast.success(message, options)
   }
 
   const handleAclError = (containerName: string, errorMessage: string) => {
-    setToastData(getContainerAclUpdateErrorToast(containerName, errorMessage, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getContainerAclUpdateErrorToast(containerName, errorMessage)
+    toast.error(message, options)
   }
 
   const handleEmptyAllComplete = ({
@@ -138,7 +144,18 @@ export const SwiftContainers = () => {
       const failedContainerNames = new Set(errors.map((e) => e.split(": ")[0]))
       setSelectedContainers((prev) => prev.filter((name) => failedContainerNames.has(name)))
     }
-    setToastData(getContainersEmptyCompleteToast(emptiedCount, totalDeleted, errors, { onDismiss: handleToastDismiss }))
+
+    const { message, ...options } = getContainersEmptyCompleteToast(emptiedCount, totalDeleted, errors)
+    const hasErrors = errors.length > 0
+    const hasSuccess = emptiedCount > 0
+
+    if (hasErrors && hasSuccess) {
+      toast.warning(message, options)
+    } else if (hasErrors) {
+      toast.error(message, options)
+    } else {
+      toast.success(message, options)
+    }
   }
 
   const sortSettings: SortSettings = {
@@ -427,10 +444,6 @@ export const SwiftContainers = () => {
         onClose={() => setEmptyAllModalOpen(false)}
         onComplete={handleEmptyAllComplete}
       />
-
-      {toastData && (
-        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
-      )}
     </div>
   )
 }
