@@ -230,7 +230,7 @@ export const CreateBucketModal = ({ isOpen, onClose }) => {
 **Key points:**
 
 - `useEffect` = Proper side effect container (React best practice)
-- `useRef` = Prevents duplicate tracking on re-opens or re-renders
+- `useRef` = Prevents duplicate tracking during a single open (e.g., re-renders / React 18 Strict Mode)
 - Works correctly with React 18 Strict Mode
 - `hasSubmitted` flag = Clearly tracks whether user submitted vs. cancelled
 - All cleanup logic consolidated in `handleClose` for better maintainability

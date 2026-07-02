@@ -30,7 +30,7 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
 
   const utils = trpcReact.useUtils()
 
-  // Track when user opens the create modal (only once per session)
+  // Track when user opens the create modal (once per modal open)
   useEffect(() => {
     if (isOpen && !hasTrackedOpen.current) {
       onTrackEvent?.({
