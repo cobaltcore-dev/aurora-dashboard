@@ -344,10 +344,11 @@ export const versioningRouter = {
     }),
 
   /**
-   * Check if folders contain deleted files (files with delete markers).
+   * Check if folders contain deleted files (files with delete markers) or if the folder marker itself is deleted.
    *
-   * For each folder, performs a query without delimiter to check all nested objects.
-   * Returns whether each folder contains at least one file with a delete marker as latest version.
+   * For each folder, checks:
+   * 1. If the folder marker itself (key ending in "/") has a delete marker
+   * 2. If any nested objects have delete markers
    *
    * Note: This can be expensive for many folders (N S3 requests for N folders).
    * Use sparingly and consider caching.
@@ -371,6 +372,7 @@ export const versioningRouter = {
         Array<{
           prefix: string
           hasDeletedContent: boolean
+          isFolderDeleted: boolean
         }>
       > => {
         const s3 = ctx.getCephClient()
@@ -383,6 +385,7 @@ export const versioningRouter = {
                 // Query without delimiter to get all nested objects
                 // Paginate through all versions to find if ANY delete marker exists
                 let hasDeleteMarkers = false
+                let isFolderMarkerDeleted = false
                 let keyMarker: string | undefined
                 let versionIdMarker: string | undefined
 
@@ -397,6 +400,18 @@ export const versioningRouter = {
                       VersionIdMarker: versionIdMarker,
                     })
                   )
+
+                  // Check if the folder marker itself is deleted (latest version is a delete marker)
+                  if (!isFolderMarkerDeleted && response.DeleteMarkers) {
+                    const folderMarkerDeleteMarkers = response.DeleteMarkers.filter((dm) => dm.Key === folderPrefix)
+                    if (folderMarkerDeleteMarkers.length > 0) {
+                      // Check if latest version is a delete marker
+                      const latestFolderMarker = folderMarkerDeleteMarkers.find((dm) => dm.IsLatest)
+                      if (latestFolderMarker) {
+                        isFolderMarkerDeleted = true
+                      }
+                    }
+                  }
 
                   // Check if there are any delete markers in this page
                   hasDeleteMarkers = (response.DeleteMarkers?.length ?? 0) > 0
@@ -414,6 +429,7 @@ export const versioningRouter = {
                 return {
                   prefix: folderPrefix,
                   hasDeletedContent: hasDeleteMarkers,
+                  isFolderDeleted: isFolderMarkerDeleted,
                 }
               } catch (error) {
                 // If query fails for this folder, assume no deleted content
@@ -421,6 +437,7 @@ export const versioningRouter = {
                 return {
                   prefix: folderPrefix,
                   hasDeletedContent: false,
+                  isFolderDeleted: false,
                 }
               }
             })

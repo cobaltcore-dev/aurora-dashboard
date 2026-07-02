@@ -267,15 +267,24 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   })()
 
   // Filter folders based on deleted content check from BFF
-  const deletedFoldersList = (() => {
+  // Also add isDeleted flag to folders whose marker is deleted
+  const deletedFoldersList: Array<S3FolderPrefix & { isDeleted?: boolean }> = (() => {
     if (tab !== "deleted") return allFolders
     if (!folderDeletedStatus) return allFolders // Show all while loading
 
-    // Filter folders that have deleted content
-    const foldersWithDeleted = allFolders.filter((folder) => {
-      const status = folderDeletedStatus.find((s) => s.prefix === folder.prefix)
-      return status?.hasDeletedContent ?? false
-    })
+    // Filter folders that have deleted content or are themselves deleted
+    const foldersWithDeleted = allFolders
+      .filter((folder) => {
+        const status = folderDeletedStatus.find((s) => s.prefix === folder.prefix)
+        return status?.hasDeletedContent ?? false
+      })
+      .map((folder) => {
+        const status = folderDeletedStatus.find((s) => s.prefix === folder.prefix)
+        return {
+          ...folder,
+          isDeleted: status?.isFolderDeleted ?? false, // Add isDeleted flag for badge
+        }
+      })
 
     return foldersWithDeleted
   })()

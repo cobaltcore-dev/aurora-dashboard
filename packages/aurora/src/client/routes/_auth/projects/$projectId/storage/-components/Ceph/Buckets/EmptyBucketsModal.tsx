@@ -61,6 +61,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
 
     if (emptiedCount > 0) {
       await utils.storage.ceph.containers.list.invalidate()
+      await utils.storage.ceph.objects.list.invalidate()
     }
 
     onComplete?.({ emptiedCount, totalDeleted, errors })
@@ -114,20 +115,9 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
               <Trans>Buckets to empty:</Trans>
             </p>
             <ul className="list-inside list-disc space-y-1 text-sm">
-              {visibleBuckets.map((bucket) => {
-                const bucketName = bucket.name
-                const bucketCount = bucket.count
-                return (
-                  <li key={bucketName}>
-                    {bucketName}
-                    {bucketCount > 0 && (
-                      <span className="text-theme-light ml-2">
-                        ({bucketCount} <Plural value={bucketCount} one="object" other="objects" />)
-                      </span>
-                    )}
-                  </li>
-                )
-              })}
+              {visibleBuckets.map((bucket) => (
+                <li key={bucket.name}>{bucket.name}</li>
+              ))}
               {hiddenCount > 0 && (
                 <li className="text-theme-light">
                   <Trans>... and {hiddenCount} more</Trans>
