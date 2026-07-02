@@ -27,6 +27,12 @@ export interface AuroraServerConfig {
    */
   insecureCookies?: boolean
   /**
+   * Enable debug logging for OpenStack session operations.
+   * Logs HTTP requests/responses to help diagnose API issues.
+   * Default: false in production, true in development
+   */
+  debug?: boolean
+  /**
    * Absolute path to a directory containing consumer-supplied OpenStack policy
    * files (e.g. compute.yaml, image.yaml).  Files found here take precedence
    * over the legacy in-tree permission_custom_policies/ directory.
