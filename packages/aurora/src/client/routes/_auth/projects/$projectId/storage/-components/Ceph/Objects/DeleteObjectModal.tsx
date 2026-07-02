@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 
 interface DeleteObjectModalProps {
@@ -33,6 +34,11 @@ export function DeleteObjectModal({
   const [confirmText, setConfirmText] = useState("")
   const utils = trpcReact.useUtils()
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.delete",
+  })
+
   const deleteMutation = trpcReact.storage.ceph.objects.delete.useMutation({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
@@ -48,12 +54,14 @@ export function DeleteObjectModal({
   const handleClose = () => {
     setConfirmText("")
     deleteMutation.reset()
+    resetTracking()
     onClose()
   }
 
   const handleConfirm = () => {
     if (!projectId) return
 
+    markSubmitted()
     deleteMutation.mutate({
       project_id: projectId,
       containerName: bucketName,
@@ -68,7 +76,10 @@ export function DeleteObjectModal({
   return (
     <Modal
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       title={isFolder ? <Trans>Delete Folder "{displayName}"</Trans> : <Trans>Delete Object</Trans>}
       size="large"
       confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}

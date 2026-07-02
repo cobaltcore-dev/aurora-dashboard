@@ -5,6 +5,7 @@ import { Modal, TextInput, Stack, Checkbox, Spinner } from "@cloudoperators/juno
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { calculateBucketState } from "../hooks/bucketStateHelpers"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface EmptyBucketModalProps {
   isOpen: boolean
@@ -20,6 +21,11 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
   const [deleteVersionsAndMarkers, setDeleteVersionsAndMarkers] = useState(false)
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.bucket.empty",
+  })
 
   const utils = trpcReact.useUtils()
 
@@ -85,6 +91,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     setNameError(null)
     setDeleteVersionsAndMarkers(false)
     emptyBucketMutation.reset()
+    resetTracking()
     onClose()
   }
 
@@ -100,6 +107,8 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       setNameError(t`Bucket name does not match`)
       return
     }
+
+    markSubmitted()
 
     // Capture bucket name before async operation to avoid dereferencing null bucket in callbacks
     const bucketName = bucket.name
@@ -140,7 +149,10 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       <Modal
         title={t`Delete Versions`}
         open={isOpen}
-        onCancel={handleClose}
+        onCancel={() => {
+          trackClose()
+          handleClose()
+        }}
         confirmButtonLabel={t`Delete Versions`}
         confirmButtonVariant="primary-danger"
         onConfirm={handleSubmit}
@@ -184,7 +196,10 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     <Modal
       title={t`Empty Bucket`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Empty Bucket`}
       confirmButtonVariant="primary-danger"
       onConfirm={handleSubmit}

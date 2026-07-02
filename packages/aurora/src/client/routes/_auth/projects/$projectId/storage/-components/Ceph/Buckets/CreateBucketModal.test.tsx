@@ -14,6 +14,16 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => mockProjectId,
 }))
 
+// ─── useRouteContext mock ─────────────────────────────────────────────────────
+
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 type MutationOptions = {
@@ -28,7 +38,9 @@ const { mockInvalidate, mockMutate, mockReset, mockState } = vi.hoisted(() => {
     isPending: false,
     capturedOptions: {} as MutationOptions,
   }
-  const mockMutate = vi.fn().mockImplementation(() => {
+  const mockMutate = vi.fn().mockImplementation(async () => {
+    // Use microtask to allow state updates to flush
+    await Promise.resolve()
     if (mockState.mutationError) {
       mockState.capturedOptions.onError?.({ message: mockState.mutationError })
     } else {
@@ -97,6 +109,7 @@ describe("CreateBucketModal", () => {
     mockState.mutationError = null
     mockState.capturedOptions = {}
     mockState.isPending = false
+    mockOnTrackEvent.mockClear()
     await act(async () => {
       i18n.activate("en")
     })
@@ -820,6 +833,124 @@ describe("CreateBucketModal", () => {
         })
         expect(errorText).toBeInTheDocument()
       })
+    })
+  })
+
+  describe("Analytics tracking", () => {
+    test("tracks .open event once per modal open", async () => {
+      renderModal({ isOpen: true })
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "modal",
+          action: "storage.ceph.bucket.create.open",
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    test("tracks .open event again when modal is reopened", async () => {
+      const user = userEvent.setup()
+      const mockOnClose = vi.fn()
+      const { rerender } = renderModal({ isOpen: true, onClose: mockOnClose })
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+      })
+
+      // Close the modal by clicking cancel (this resets hasTrackedOpen)
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i })
+      await user.click(cancelButton)
+
+      expect(mockOnClose).toHaveBeenCalled()
+
+      // Simulate closing by rerendering with isOpen=false
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <CreateBucketModal isOpen={false} onClose={mockOnClose} onSuccess={vi.fn()} onError={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+
+      mockOnTrackEvent.mockClear()
+
+      // Reopen the modal
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <CreateBucketModal isOpen={true} onClose={mockOnClose} onSuccess={vi.fn()} onError={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "modal",
+          action: "storage.ceph.bucket.create.open",
+        })
+      })
+    })
+
+    test("tracks .close event when user manually closes without submitting", async () => {
+      const user = userEvent.setup()
+      const mockOnClose = vi.fn()
+      renderModal({ onClose: mockOnClose })
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "modal",
+          action: "storage.ceph.bucket.create.open",
+        })
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Close the modal without submitting
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i })
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "modal",
+        action: "storage.ceph.bucket.create.close",
+      })
+      expect(mockOnClose).toHaveBeenCalled()
+    })
+
+    test("does not track .close event when modal closes after successful submit", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "modal",
+          action: "storage.ceph.bucket.create.open",
+        })
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Submit the form
+      const input = screen.getByLabelText(/Bucket name/i)
+      await user.type(input, "my-bucket")
+
+      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      await user.click(createButton)
+
+      // The .close event should not be tracked because hasSubmitted is true
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalled()
+      })
+
+      // Only .open was tracked, not .close
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: "storage.ceph.bucket.create.close",
+        })
+      )
     })
   })
 })

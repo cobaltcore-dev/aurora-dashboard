@@ -14,6 +14,13 @@ vi.mock("@/client/hooks/useProjectId", () => ({
 const mockMutate = vi.fn()
 const mockReset = vi.fn()
 const mockInvalidate = vi.fn()
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
 
 const mockObjectDetails = {
   key: "test-file.txt",
@@ -277,5 +284,66 @@ describe("EditMetadataModal", () => {
     await user.click(discardButtons[0])
 
     expect(screen.getByText("John Doe")).toBeInTheDocument()
+  })
+
+  describe("Analytics tracking", () => {
+    it("tracks .open event once per modal open", async () => {
+      renderModal(defaultProps)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "modal",
+          action: "storage.ceph.object.metadata.edit.open",
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    it("tracks .close event when user cancels without submitting", async () => {
+      const user = userEvent.setup()
+      const onClose = vi.fn()
+      renderModal({ ...defaultProps, onClose })
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.object.metadata.edit.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      const cancelButton = screen.getByRole("button", { name: "Cancel" })
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "modal",
+        action: "storage.ceph.object.metadata.edit.close",
+      })
+    })
+
+    it("does not track .close event on successful submit", async () => {
+      const user = userEvent.setup()
+      renderModal(defaultProps)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.object.metadata.edit.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Delete a metadata entry to enable the Update button
+      const deleteButtons = screen.getAllByTitle("Delete")
+      await user.click(deleteButtons[0])
+
+      const updateButton = screen.getByRole("button", { name: "Update object" })
+      await user.click(updateButton)
+
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.object.metadata.edit.close" })
+      )
+    })
   })
 })

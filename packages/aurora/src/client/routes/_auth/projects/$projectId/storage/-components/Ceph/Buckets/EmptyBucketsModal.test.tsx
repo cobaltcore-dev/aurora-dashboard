@@ -15,6 +15,16 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => mockProjectId,
 }))
 
+// ─── useRouteContext mock ─────────────────────────────────────────────────────
+
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const { mockInvalidateContainers, mockInvalidateObjects, mockMutateAsync, mockReset, mockState } = vi.hoisted(() => {
@@ -399,6 +409,81 @@ describe("EmptyBucketsModal", () => {
       await user.click(cancelButton)
 
       expect(mockReset).toHaveBeenCalled()
+    })
+  })
+
+  describe("Analytics tracking", () => {
+    beforeEach(() => {
+      mockOnTrackEvent.mockClear()
+    })
+
+    test("tracks .open event when modal opens", async () => {
+      renderModal()
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "modal",
+          action: "storage.ceph.buckets.empty.open",
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    test("tracks .close event when user cancels without emptying", async () => {
+      const user = userEvent.setup({ delay: null })
+      const mockOnClose = vi.fn()
+      renderModal({ onClose: mockOnClose })
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Close the modal without submitting
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i })
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "modal",
+        action: "storage.ceph.buckets.empty.close",
+      })
+      expect(mockOnClose).toHaveBeenCalled()
+    })
+
+    test("does not track .close event after successful submit", async () => {
+      const user = userEvent.setup({ delay: null })
+      const mockOnClose = vi.fn()
+      renderModal({ onClose: mockOnClose })
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
+
+      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      await user.click(emptyButton)
+
+      // Wait for modal to close after completion
+      await waitFor(
+        () => {
+          expect(mockOnClose).toHaveBeenCalled()
+        },
+        { timeout: 3000 }
+      )
+
+      // .close should NOT have been tracked since user submitted
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.buckets.empty.close" })
+      )
     })
   })
 })

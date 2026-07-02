@@ -5,6 +5,7 @@ import { Modal, ModalFooter, ButtonRow, TextInput, Stack, Spinner, Button } from
 import type { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { calculateBucketState } from "../hooks/bucketStateHelpers"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteBucketModalProps {
   isOpen: boolean
@@ -19,6 +20,11 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   const projectId = useProjectId()
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.bucket.delete",
+  })
 
   const utils = trpcReact.useUtils()
 
@@ -57,6 +63,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
       setConfirmName("")
       setNameError(null)
       deleteBucketMutation.reset()
+      resetTracking()
     }
   }, [isOpen, bucket?.name])
 
@@ -64,6 +71,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
     setConfirmName("")
     setNameError(null)
     deleteBucketMutation.reset()
+    resetTracking()
     onClose()
   }
 
@@ -80,6 +88,8 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
       setNameError(t`Bucket name does not match`)
       return
     }
+
+    markSubmitted()
 
     // Capture bucket name before async operation to avoid dereferencing null bucket in callbacks
     const bucketName = bucket.name
@@ -129,7 +139,10 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
     <Modal
       title={t`Delete Bucket`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={cannotDelete ? undefined : t`Delete Bucket`}
       confirmButtonVariant={cannotDelete ? undefined : "primary-danger"}
       onConfirm={cannotDelete ? undefined : handleSubmit}

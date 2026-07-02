@@ -7,10 +7,11 @@ import { CreateFolderModal } from "./CreateFolderModal"
 import type { ReactNode } from "react"
 
 // Mock hooks and trpc - use vi.hoisted for mocks used in vi.mock()
-const { mockMutate, mockReset, mockInvalidate } = vi.hoisted(() => ({
+const { mockMutate, mockReset, mockInvalidate, mockOnTrackEvent } = vi.hoisted(() => ({
   mockMutate: vi.fn(),
   mockReset: vi.fn(),
   mockInvalidate: vi.fn(),
+  mockOnTrackEvent: vi.fn(),
 }))
 
 const render = (ui: React.ReactElement) => {
@@ -21,6 +22,12 @@ const render = (ui: React.ReactElement) => {
 
 vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => "test-project-id",
+}))
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -260,5 +267,65 @@ describe("CreateFolderModal", () => {
     render(<CreateFolderModal {...defaultProps} isOpen={false} />)
 
     expect(screen.queryByText("Create New Folder")).not.toBeInTheDocument()
+  })
+
+  describe("Analytics tracking", () => {
+    it("tracks .open event once per modal open", async () => {
+      render(<CreateFolderModal {...defaultProps} />)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "modal",
+          action: "storage.ceph.folder.create.open",
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    it("tracks .close event when user cancels without submitting", async () => {
+      const user = userEvent.setup()
+      const onClose = vi.fn()
+      render(<CreateFolderModal {...defaultProps} onClose={onClose} />)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.folder.create.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      const cancelButton = screen.getByRole("button", { name: "Cancel" })
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "modal",
+        action: "storage.ceph.folder.create.close",
+      })
+    })
+
+    it("does not track .close event on successful submit", async () => {
+      const user = userEvent.setup()
+      render(<CreateFolderModal {...defaultProps} />)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.folder.create.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      const input = screen.getByLabelText("Folder Name")
+      await user.type(input, "new-folder")
+
+      const createButton = screen.getByRole("button", { name: "Create Folder" })
+      await user.click(createButton)
+
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.folder.create.close" })
+      )
+    })
   })
 })

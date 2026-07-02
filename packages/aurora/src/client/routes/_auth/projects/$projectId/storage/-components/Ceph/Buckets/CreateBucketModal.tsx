@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack, Checkbox } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface CreateBucketModalProps {
   isOpen: boolean
@@ -24,6 +25,11 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
   const [nameError, setNameError] = useState<string | null>(null)
   const [enableVersioning, setEnableVersioning] = useState(false)
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.bucket.create",
+  })
+
   const utils = trpcReact.useUtils()
 
   const createBucketMutation = trpcReact.storage.ceph.containers.create.useMutation({
@@ -44,6 +50,7 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
     setBucketName("")
     setNameError(null)
     setEnableVersioning(false)
+    resetTracking()
     createBucketMutation.reset()
     onClose()
   }
@@ -117,6 +124,7 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
 
   const handleSubmit = () => {
     if (!validateName(bucketName)) return
+    markSubmitted()
     createBucketMutation.mutate({
       project_id: projectId,
       bucketName: bucketName.trim(),
@@ -136,7 +144,10 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
     <Modal
       title={t`Create Bucket`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Create`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}

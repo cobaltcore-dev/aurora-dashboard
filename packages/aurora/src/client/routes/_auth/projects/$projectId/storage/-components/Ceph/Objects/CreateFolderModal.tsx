@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { validateFolderName } from "./utils/objectValidation"
 
 interface CreateFolderModalProps {
@@ -19,6 +20,11 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
   const [folderName, setFolderName] = useState("")
   const [validationError, setValidationError] = useState<string | null>(null)
   const utils = trpcReact.useUtils()
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.folder.create",
+  })
 
   // Fetch existing folders for duplicate detection
   const { data: objectsData } = trpcReact.storage.ceph.objects.list.useQuery(
@@ -49,6 +55,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
     setFolderName("")
     setValidationError(null)
     createFolderMutation.reset()
+    resetTracking()
     onClose()
   }
 
@@ -70,6 +77,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
       return
     }
 
+    markSubmitted()
     const fullPath = currentPrefix + folderName.trim()
 
     createFolderMutation.mutate({
@@ -84,7 +92,10 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
   return (
     <Modal
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       title={<Trans>Create New Folder</Trans>}
       size="large"
       confirmButtonLabel={createFolderMutation.isPending ? t`Creating...` : t`Create Folder`}

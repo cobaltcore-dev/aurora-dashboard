@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Stack, TextInput } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 
 interface DeleteVersionModalProps {
@@ -34,6 +35,11 @@ export const DeleteVersionModal = ({
   const projectId = useProjectId()
   const [confirmText, setConfirmText] = useState("")
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.version.delete",
+  })
+
   const utils = trpcReact.useUtils()
 
   const deleteMutation = trpcReact.storage.ceph.versioning.deleteVersion.useMutation({
@@ -55,12 +61,14 @@ export const DeleteVersionModal = ({
 
   const handleClose = () => {
     setConfirmText("")
+    resetTracking()
     onClose()
   }
 
   const handleDelete = () => {
     if (confirmText !== "DELETE") return
 
+    markSubmitted()
     deleteMutation.mutate({
       project_id: projectId,
       bucket: bucketName,
@@ -75,7 +83,10 @@ export const DeleteVersionModal = ({
     <Modal
       title={t`Delete Version Permanently`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Delete Permanently`}
       onConfirm={handleDelete}
       cancelButtonLabel={t`Cancel`}

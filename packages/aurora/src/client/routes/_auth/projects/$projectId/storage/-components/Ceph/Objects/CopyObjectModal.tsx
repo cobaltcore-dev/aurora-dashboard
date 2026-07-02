@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { Modal, Stack, Spinner, ComboBox, ComboBoxOption, TextInput, Button } from "@cloudoperators/juno-ui-components"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
 import { useVirtualizer } from "@tanstack/react-virtual"
@@ -46,6 +47,11 @@ export const CopyObjectModal = ({
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
   const submittedKeyRef = useRef("")
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.copy",
+  })
 
   const [copyMetadata, setCopyMetadata] = useState(true)
   const [targetExists, setTargetExists] = useState(false)
@@ -190,6 +196,7 @@ export const CopyObjectModal = ({
 
   const handleClose = () => {
     copyMutation.reset()
+    resetTracking()
     onClose()
   }
 
@@ -218,6 +225,7 @@ export const CopyObjectModal = ({
 
   const handleCopy = () => {
     if (!projectId) return
+    markSubmitted()
     submittedKeyRef.current = objectKey
     const targetKey = `${modalState.currentPrefix}${displayName}`
     copyMutation.mutate({
@@ -265,7 +273,10 @@ export const CopyObjectModal = ({
         </span>
       }
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Copying...` : t`Copy`}
       onConfirm={handleCopy}
       cancelButtonLabel={t`Cancel`}

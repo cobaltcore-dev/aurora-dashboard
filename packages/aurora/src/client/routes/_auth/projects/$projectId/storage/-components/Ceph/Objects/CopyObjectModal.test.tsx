@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
@@ -14,6 +14,13 @@ vi.mock("@/client/hooks/useProjectId", () => ({
 const mockMutate = vi.fn()
 const mockReset = vi.fn()
 const mockInvalidate = vi.fn()
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -185,5 +192,68 @@ describe("CopyObjectModal", () => {
 
     expect(screen.getByText("file.pdf")).toBeInTheDocument()
     expect(screen.getByText("source-bucket/documents/reports/file.pdf")).toBeInTheDocument()
+  })
+
+  describe("Analytics tracking", () => {
+    it("tracks .open event once per modal open", async () => {
+      renderModal(defaultProps)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "modal",
+          action: "storage.ceph.object.copy.open",
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    it("tracks .close event when user cancels without submitting", async () => {
+      const user = userEvent.setup()
+      const onClose = vi.fn()
+      renderModal({ ...defaultProps, onClose })
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.object.copy.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      const cancelButton = screen.getByRole("button", { name: "Cancel" })
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "modal",
+        action: "storage.ceph.object.copy.close",
+      })
+    })
+
+    it("does not track .close event on successful submit", async () => {
+      const user = userEvent.setup()
+      renderModal(defaultProps)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.object.copy.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Select a different target bucket to enable the Copy button
+      const bucketSelect = screen.getByLabelText("Target bucket")
+      await user.click(bucketSelect)
+      const bucket2Option = screen.getByRole("option", { name: "bucket-2" })
+      await user.click(bucket2Option)
+
+      const copyButton = screen.getByRole("button", { name: "Copy" })
+      await user.click(copyButton)
+
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.object.copy.close" })
+      )
+    })
   })
 })

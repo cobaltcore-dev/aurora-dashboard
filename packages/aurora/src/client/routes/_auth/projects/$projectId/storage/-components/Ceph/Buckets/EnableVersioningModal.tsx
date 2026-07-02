@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Stack, Checkbox } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface EnableVersioningModalProps {
   isOpen: boolean
@@ -23,6 +24,11 @@ export const EnableVersioningModal = ({
   const projectId = useProjectId()
   const [confirmed, setConfirmed] = useState(false)
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.bucket.versioning.enable",
+  })
+
   const utils = trpcReact.useUtils()
 
   const enableMutation = trpcReact.storage.ceph.versioning.setStatus.useMutation({
@@ -41,12 +47,14 @@ export const EnableVersioningModal = ({
   const handleClose = () => {
     setConfirmed(false)
     enableMutation.reset()
+    resetTracking()
     onClose()
   }
 
   const handleEnable = () => {
     if (!confirmed) return
 
+    markSubmitted()
     enableMutation.mutate({
       project_id: projectId,
       bucket: bucketName,
@@ -60,7 +68,10 @@ export const EnableVersioningModal = ({
     <Modal
       title={t`Enable Versioning`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Enable Versioning`}
       onConfirm={handleEnable}
       cancelButtonLabel={t`Cancel`}
