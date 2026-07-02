@@ -90,130 +90,78 @@ If a route doesn't have `analytics.name` set, the system falls back to using the
 
 Action tracking is for user-initiated events like creating, deleting, or editing resources. These don't go through the router and must be tracked manually.
 
-### Implementation
+### Using the useModalTracking Hook (Recommended)
 
-1. **Import useRouteContext** to access the tracking callback:
-
-```typescript
-import { useRouteContext } from "@tanstack/react-router"
-```
-
-2. **Get the tracking function** from context:
+For modal tracking, use the `useModalTracking` hook which handles all the complexity:
 
 ```typescript
-const { onTrackEvent } = useRouteContext({ strict: false })
-```
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
-3. **Call onTrackEvent** when user actions occur:
+export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }) => {
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.bucket.create",
+  })
 
-```typescript
-import { useEffect, useState, useRef } from "react"
-
-const [hasSubmitted, setHasSubmitted] = useState(false)
-const hasTrackedOpen = useRef(false)
-
-// Track when user opens a modal (only once per session)
-useEffect(() => {
-  if (isOpen && !hasTrackedOpen.current) {
-    onTrackEvent?.({
-      source: "user-action",
-      action: "storage.swift.container.create.open",
-      metadata: {
-        accessed: true,
-      },
-    })
-    hasTrackedOpen.current = true
-  }
-}, [isOpen, onTrackEvent])
-
-// Track submission attempt
-const handleSubmit = () => {
-  setHasSubmitted(true)
-  submitForm()
-}
-
-// Track when user closes without submitting
-const handleClose = () => {
-  if (isOpen && !hasSubmitted) {
-    onTrackEvent?.({
-      source: "user-action",
-      action: "storage.swift.container.create.close",
-      metadata: {
-        cancelled: true,
-      },
-    })
+  const handleClose = () => {
+    trackClose()        // Tracks .close event if user didn't submit
+    // ... cleanup
+    resetTracking()     // Reset for next modal open
+    onClose()
   }
 
-  // All cleanup in one place
-  setHasSubmitted(false)
-  hasTrackedOpen.current = false
-  onClose()
+  const handleSubmit = () => {
+    markSubmitted()     // Prevents .close tracking on successful submit
+    mutation.mutate(...)
+  }
+
+  // ...
 }
 ```
+
+The hook automatically:
+
+- Tracks `.open` event when the modal opens (once per open)
+- Tracks `.close` event when cancelled (only if not submitted)
+- Handles React 18 Strict Mode correctly
+- Uses `source: "modal"` for all events
 
 ### Complete Example: Create Bucket Modal
 
-This example shows tracking user behavior (accessing and leaving the modal) using `useEffect` with `useRef` to prevent duplicate tracking:
-
 ```typescript
-import { useState, useEffect, useRef } from "react"
-import { useRouteContext } from "@tanstack/react-router"
+import { useState } from "react"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { Modal, TextInput } from "@cloudoperators/juno-ui-components"
 
-export const CreateBucketModal = ({ isOpen, onClose }) => {
+export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }) => {
   const [bucketName, setBucketName] = useState("")
-  const [hasSubmitted, setHasSubmitted] = useState(false)
-  const { onTrackEvent } = useRouteContext({ strict: false })
-  const hasTrackedOpen = useRef(false)
 
-  // Track when user opens the create modal (only once per session)
-  useEffect(() => {
-    if (isOpen && !hasTrackedOpen.current) {
-      onTrackEvent?.({
-        source: "user-action",
-        action: "storage.ceph.bucket.create.open",
-        metadata: {
-          accessed: true,
-        },
-      })
-      hasTrackedOpen.current = true
-    }
-  }, [isOpen, onTrackEvent])
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.bucket.create",
+  })
 
   const createBucketMutation = trpcReact.storage.ceph.containers.create.useMutation({
     onSuccess: () => {
       onSuccess?.(bucketName)
+      handleClose()
     },
     onError: (error) => {
       onError?.(bucketName, error.message)
-    },
-    onSettled: () => {
-      handleClose()
     },
   })
 
   const handleSubmit = () => {
     if (!validateName(bucketName)) return
-    setHasSubmitted(true)  // Mark that user submitted the form
+    markSubmitted()
     createBucketMutation.mutate({ bucketName })
   }
 
   const handleClose = () => {
-    // Track cancellation only if user didn't submit
-    if (isOpen && !hasSubmitted) {
-      onTrackEvent?.({
-        source: "user-action",
-        action: "storage.ceph.bucket.create.close",
-        metadata: {
-          cancelled: true,
-        },
-      })
-    }
-
-    // All cleanup in one place
+    trackClose()
     setBucketName("")
-    setHasSubmitted(false)
-    hasTrackedOpen.current = false
+    createBucketMutation.reset()
+    resetTracking()
     onClose()
   }
 
@@ -229,11 +177,47 @@ export const CreateBucketModal = ({ isOpen, onClose }) => {
 
 **Key points:**
 
-- `useEffect` = Proper side effect container (React best practice)
-- `useRef` = Prevents duplicate tracking during a single open (e.g., re-renders / React 18 Strict Mode)
-- Works correctly with React 18 Strict Mode
-- `hasSubmitted` flag = Clearly tracks whether user submitted vs. cancelled
-- All cleanup logic consolidated in `handleClose` for better maintainability
+- `useModalTracking` handles all tracking logic in ~3 lines
+- Call `trackClose()` at the start of your close handler
+- Call `markSubmitted()` before your mutation
+- Call `resetTracking()` at the end of your close handler
+
+### Manual Implementation (Advanced)
+
+If you need custom tracking behavior, you can implement it manually:
+
+```typescript
+import { useEffect, useRef, useState } from "react"
+import { useRouteContext } from "@tanstack/react-router"
+
+const { onTrackEvent } = useRouteContext({ strict: false })
+const hasTrackedOpen = useRef(false)
+const [hasSubmitted, setHasSubmitted] = useState(false)
+
+// Track when modal opens
+useEffect(() => {
+  if (isOpen && !hasTrackedOpen.current) {
+    onTrackEvent?.({
+      source: "modal",
+      action: "storage.ceph.bucket.create.open",
+    })
+    hasTrackedOpen.current = true
+  }
+}, [isOpen, onTrackEvent])
+
+// Track close without submit
+const handleClose = () => {
+  if (isOpen && !hasSubmitted) {
+    onTrackEvent?.({
+      source: "modal",
+      action: "storage.ceph.bucket.create.close",
+    })
+  }
+  setHasSubmitted(false)
+  hasTrackedOpen.current = false
+  onClose()
+}
+```
 
 ### Important: Track User Behavior, Not Action Results
 
@@ -264,34 +248,24 @@ createBucketMutation.onSuccess(() => {
 **Example - Correct Approach:**
 
 ```typescript
-// ✅ Track user accessing the feature
-useEffect(() => {
-  if (isOpen) {
-    onTrackEvent({ action: "storage.ceph.bucket.create.open", metadata: { accessed: true } })
-  }
-}, [isOpen])
-
-// ✅ Track user leaving without completing
-const handleClose = () => {
-  if (isOpen && !isPending && !isSuccess) {
-    onTrackEvent({ action: "storage.ceph.bucket.create.close", metadata: { cancelled: true } })
-  }
-  onClose()
-}
+// ✅ Use the useModalTracking hook
+const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+  isOpen,
+  actionPrefix: "storage.ceph.bucket.create",
+})
 ```
 
 ## Metadata Guidelines
 
-### Always Include
+### When to Include Metadata
 
-- `accessed: true` - When user opens/accesses a feature
-- `cancelled: true` - When user closes/cancels without completing
+Metadata is optional. The action name (e.g., `.open`, `.close`) already conveys user intent.
 
-### Sometimes Include
+Include metadata only when you need additional context:
 
-- Configuration options that the user selected (e.g., `versioning: boolean`)
+- Configuration options the user selected (e.g., `versioning: boolean`)
 - User selections (e.g., selected tab, filter value)
-- Context that helps understand user intent
+- Context that helps understand user behavior
 
 ### Never Include
 
@@ -327,11 +301,11 @@ const handleClose = () => {
 
 **Characteristics:**
 
-- Always uses `source: "user-action"`
+- Use `source: "modal"` for modal events
+- Use `source: "button"` for button clicks
 - Action follows `section.service.resource.action.state` pattern
 - Tracks user **intent** and **interaction**, not results
-- Includes `accessed` or `cancelled` in metadata
-- Includes additional context as needed (user selections, configuration)
+- Metadata is optional - include only when additional context is needed
 
 ## Migration Guide
 
@@ -358,47 +332,26 @@ staticData: {
 
 ### Adding Action Tracking
 
-For modals and components that allow users to create/delete/edit resources:
-
-1. Import useRouteContext and useEffect:
+For modals and components that allow users to create/delete/edit resources, use the `useModalTracking` hook:
 
 ```typescript
-import { useRouteContext } from "@tanstack/react-router"
-import { useEffect } from "react"
-```
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
-2. Get the tracking function:
+const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+  isOpen,
+  actionPrefix: "section.service.resource.action",
+})
 
-```typescript
-const { onTrackEvent } = useRouteContext({ strict: false })
-```
-
-3. Track when user accesses the feature:
-
-```typescript
-useEffect(() => {
-  if (isOpen) {
-    onTrackEvent?.({
-      source: "user-action",
-      action: "section.service.resource.action.open",
-      metadata: { accessed: true },
-    })
-  }
-}, [isOpen, onTrackEvent])
-```
-
-4. Track when user leaves without completing:
-
-```typescript
 const handleClose = () => {
-  if (isOpen && !isPending && !isSuccess) {
-    onTrackEvent?.({
-      source: "user-action",
-      action: "section.service.resource.action.close",
-      metadata: { cancelled: true },
-    })
-  }
+  trackClose()
+  // ... cleanup
+  resetTracking()
   onClose()
+}
+
+const handleSubmit = () => {
+  markSubmitted()
+  // ... submit logic
 }
 ```
 
@@ -443,6 +396,7 @@ Key test scenarios:
 - `packages/aurora/src/client/routes/routeInfo.ts` - RouteInfo schema with analytics field
 - `packages/aurora/src/client/analytics/setupRouterAnalytics.ts` - Router event handler
 - `packages/aurora/src/client/analytics/setupRouterAnalytics.test.ts` - Unit tests
+- `packages/aurora/src/client/hooks/useModalTracking.ts` - Modal tracking hook
 
 ### Event Flow
 
@@ -485,8 +439,7 @@ For user actions, the flow is simpler:
 
 ### Missing metadata
 
-- Confirm you're including expected user-action metadata (e.g., `accessed: true` for `.open`, `cancelled: true` for `.close`)
-- Add relevant context fields based on the action type
+- Metadata is optional - include only when additional context is needed
 - Don't include sensitive data in metadata
 
 ## Additional Resources
