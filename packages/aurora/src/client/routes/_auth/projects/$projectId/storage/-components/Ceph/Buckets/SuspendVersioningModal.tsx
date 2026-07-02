@@ -2,6 +2,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface SuspendVersioningModalProps {
   isOpen: boolean
@@ -21,6 +22,11 @@ export const SuspendVersioningModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.bucket.versioning.suspend",
+  })
+
   const utils = trpcReact.useUtils()
 
   const suspendMutation = trpcReact.storage.ceph.versioning.setStatus.useMutation({
@@ -33,11 +39,19 @@ export const SuspendVersioningModal = ({
     },
     onSettled: () => {
       suspendMutation.reset()
+      resetTracking()
       onClose()
     },
   })
 
+  const handleClose = () => {
+    trackClose()
+    resetTracking()
+    onClose()
+  }
+
   const handleSuspend = () => {
+    markSubmitted()
     suspendMutation.mutate({
       project_id: projectId,
       bucket: bucketName,
@@ -51,7 +65,7 @@ export const SuspendVersioningModal = ({
     <Modal
       title={t`Suspend Versioning`}
       open={isOpen}
-      onCancel={onClose}
+      onCancel={handleClose}
       confirmButtonLabel={t`Suspend Versioning`}
       onConfirm={handleSuspend}
       cancelButtonLabel={t`Cancel`}

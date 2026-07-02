@@ -15,6 +15,16 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => mockProjectId,
 }))
 
+// ─── useRouteContext mock ─────────────────────────────────────────────────────
+
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const { mockInvalidate, mockMutateAsync, mockReset, mockState } = vi.hoisted(() => {
@@ -414,6 +424,54 @@ describe("EmptyBucketsModal", () => {
       await user.click(cancelButton)
 
       expect(mockReset).toHaveBeenCalled()
+    })
+  })
+
+  describe("Analytics tracking", () => {
+    beforeEach(() => {
+      mockOnTrackEvent.mockClear()
+    })
+
+    test("tracks .open event when modal opens", async () => {
+      renderModal()
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "user-action",
+          action: "storage.ceph.buckets.empty.open",
+          metadata: {
+            accessed: true,
+          },
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    test("tracks .close event when user cancels without emptying", async () => {
+      const user = userEvent.setup({ delay: null })
+      const mockOnClose = vi.fn()
+      renderModal({ onClose: mockOnClose })
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Close the modal without submitting
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i })
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "user-action",
+        action: "storage.ceph.buckets.empty.close",
+        metadata: {
+          cancelled: true,
+        },
+      })
+      expect(mockOnClose).toHaveBeenCalled()
     })
   })
 })

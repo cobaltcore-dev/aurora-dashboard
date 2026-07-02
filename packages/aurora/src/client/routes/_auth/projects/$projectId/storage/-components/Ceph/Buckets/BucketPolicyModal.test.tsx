@@ -11,6 +11,14 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => "test-project-id",
 }))
 
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
+
 const mockSetMutate = vi.fn()
 const mockSetReset = vi.fn()
 const mockDeleteMutate = vi.fn()
@@ -105,6 +113,7 @@ describe("BucketPolicyModal", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockOnTrackEvent.mockClear()
     i18n.activate("en")
     mockQueryResult = {
       data: null,
@@ -286,5 +295,83 @@ describe("BucketPolicyModal", () => {
     renderModal({ ...defaultProps, isOpen: false })
 
     expect(screen.queryByText(/Bucket Policy/)).not.toBeInTheDocument()
+  })
+
+  // ── Analytics tracking ───────────────────────────────────────────────────────
+
+  describe("Analytics tracking", () => {
+    it("tracks .open event when modal opens", async () => {
+      renderModal(defaultProps)
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "user-action",
+          action: "storage.ceph.bucket.policy.open",
+          metadata: {
+            accessed: true,
+          },
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    it("tracks .close event when user cancels without saving", async () => {
+      const user = userEvent.setup()
+      const mockOnClose = vi.fn()
+      renderModal({ ...defaultProps, onClose: mockOnClose })
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Close the modal without saving
+      const cancelButton = screen.getByText("Cancel")
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "user-action",
+        action: "storage.ceph.bucket.policy.close",
+        metadata: {
+          cancelled: true,
+        },
+      })
+      expect(mockOnClose).toHaveBeenCalled()
+    })
+
+    it("does not track .close event when modal closes after save", async () => {
+      const user = userEvent.setup()
+      renderModal(defaultProps)
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Enter valid JSON and save
+      const textarea = screen.getByPlaceholderText("Enter bucket policy JSON...")
+      await user.click(textarea)
+      await user.paste('{"Version":"2012-10-17","Statement":[]}')
+
+      await waitFor(() => {
+        const saveButton = screen.getByText("Save")
+        expect(saveButton).not.toBeDisabled()
+      })
+
+      const saveButton = screen.getByText("Save")
+      await user.click(saveButton)
+
+      // Should not track .close event because form was submitted
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: "storage.ceph.bucket.policy.close",
+        })
+      )
+    })
   })
 })

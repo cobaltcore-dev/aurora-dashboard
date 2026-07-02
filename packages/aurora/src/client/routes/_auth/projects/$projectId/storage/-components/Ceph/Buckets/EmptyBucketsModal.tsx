@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { Modal, Spinner, Stack, TextInput } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 const MAX_VISIBLE = 20
 
@@ -26,17 +27,25 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
   const [confirmText, setConfirmText] = useState("")
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.buckets.empty",
+  })
+
   const utils = trpcReact.useUtils()
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation()
 
   const handleClose = () => {
+    trackClose()
     emptyBucketMutation.reset()
     setProgress(null)
     setConfirmText("")
+    resetTracking()
     onClose()
   }
 
   const handleConfirm = async () => {
+    markSubmitted()
     let emptiedCount = 0
     let totalDeleted = 0
     const errors: string[] = []

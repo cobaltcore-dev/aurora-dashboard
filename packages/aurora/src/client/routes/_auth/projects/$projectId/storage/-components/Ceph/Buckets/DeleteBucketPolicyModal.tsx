@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Stack, Spinner, Message } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteBucketPolicyModalProps {
   isOpen: boolean
@@ -22,6 +23,11 @@ export const DeleteBucketPolicyModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.bucket.policy.delete",
+  })
 
   // Query to verify policy exists
   const {
@@ -56,15 +62,19 @@ export const DeleteBucketPolicyModal = ({
   useEffect(() => {
     if (!isOpen) {
       deleteMutation.reset()
+      resetTracking()
     }
   }, [isOpen, bucketName])
 
   const handleClose = () => {
+    trackClose()
     deleteMutation.reset()
+    resetTracking()
     onClose()
   }
 
   const handleDelete = () => {
+    markSubmitted()
     deleteMutation.mutate({
       project_id: projectId,
       bucketName,
