@@ -100,11 +100,8 @@ describe("EnableVersioningModal - Analytics tracking", () => {
 
     await waitFor(() => {
       expect(mockOnTrackEvent).toHaveBeenCalledWith({
-        source: "user-action",
+        source: "modal",
         action: "storage.ceph.bucket.versioning.enable.open",
-        metadata: {
-          accessed: true,
-        },
       })
     })
 
@@ -128,11 +125,8 @@ describe("EnableVersioningModal - Analytics tracking", () => {
     await user.click(cancelButton)
 
     expect(mockOnTrackEvent).toHaveBeenCalledWith({
-      source: "user-action",
+      source: "modal",
       action: "storage.ceph.bucket.versioning.enable.close",
-      metadata: {
-        cancelled: true,
-      },
     })
     expect(mockOnClose).toHaveBeenCalled()
   })

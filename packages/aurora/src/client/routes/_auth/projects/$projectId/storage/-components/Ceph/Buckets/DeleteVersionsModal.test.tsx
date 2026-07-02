@@ -108,11 +108,8 @@ describe("DeleteVersionsModal - Analytics tracking", () => {
 
     await waitFor(() => {
       expect(mockOnTrackEvent).toHaveBeenCalledWith({
-        source: "user-action",
+        source: "modal",
         action: "storage.ceph.bucket.versions.delete.open",
-        metadata: {
-          accessed: true,
-        },
       })
     })
 
@@ -136,11 +133,8 @@ describe("DeleteVersionsModal - Analytics tracking", () => {
     await user.click(cancelButton)
 
     expect(mockOnTrackEvent).toHaveBeenCalledWith({
-      source: "user-action",
+      source: "modal",
       action: "storage.ceph.bucket.versions.delete.close",
-      metadata: {
-        cancelled: true,
-      },
     })
     expect(mockOnClose).toHaveBeenCalled()
   })

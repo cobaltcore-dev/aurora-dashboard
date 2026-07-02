@@ -43,11 +43,8 @@ export const useModalTracking = ({ isOpen, actionPrefix }: UseModalTrackingOptio
   useEffect(() => {
     if (isOpen && !hasTrackedOpen.current) {
       onTrackEvent?.({
-        source: "user-action",
+        source: "modal",
         action: `${actionPrefix}.open`,
-        metadata: {
-          accessed: true,
-        },
       })
       hasTrackedOpen.current = true
     }
@@ -60,11 +57,8 @@ export const useModalTracking = ({ isOpen, actionPrefix }: UseModalTrackingOptio
   const trackClose = () => {
     if (isOpen && !hasSubmitted) {
       onTrackEvent?.({
-        source: "user-action",
+        source: "modal",
         action: `${actionPrefix}.close`,
-        metadata: {
-          cancelled: true,
-        },
       })
     }
   }

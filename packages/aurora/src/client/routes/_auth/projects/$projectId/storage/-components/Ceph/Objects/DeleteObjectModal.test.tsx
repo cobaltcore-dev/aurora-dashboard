@@ -245,9 +245,8 @@ describe("DeleteObjectModal", () => {
 
       await waitFor(() => {
         expect(mockOnTrackEvent).toHaveBeenCalledWith({
-          source: "user-action",
+          source: "modal",
           action: "storage.ceph.object.delete.open",
-          metadata: { accessed: true },
         })
       })
 
@@ -271,9 +270,8 @@ describe("DeleteObjectModal", () => {
       await user.click(cancelButton)
 
       expect(mockOnTrackEvent).toHaveBeenCalledWith({
-        source: "user-action",
+        source: "modal",
         action: "storage.ceph.object.delete.close",
-        metadata: { cancelled: true },
       })
     })
 

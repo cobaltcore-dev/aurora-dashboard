@@ -292,9 +292,8 @@ describe("EditMetadataModal", () => {
 
       await waitFor(() => {
         expect(mockOnTrackEvent).toHaveBeenCalledWith({
-          source: "user-action",
+          source: "modal",
           action: "storage.ceph.object.metadata.edit.open",
-          metadata: { accessed: true },
         })
       })
 
@@ -318,9 +317,8 @@ describe("EditMetadataModal", () => {
       await user.click(cancelButton)
 
       expect(mockOnTrackEvent).toHaveBeenCalledWith({
-        source: "user-action",
+        source: "modal",
         action: "storage.ceph.object.metadata.edit.close",
-        metadata: { cancelled: true },
       })
     })
   })

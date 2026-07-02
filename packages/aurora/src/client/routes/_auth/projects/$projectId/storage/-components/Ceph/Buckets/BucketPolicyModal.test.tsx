@@ -305,11 +305,8 @@ describe("BucketPolicyModal", () => {
 
       await waitFor(() => {
         expect(mockOnTrackEvent).toHaveBeenCalledWith({
-          source: "user-action",
+          source: "modal",
           action: "storage.ceph.bucket.policy.open",
-          metadata: {
-            accessed: true,
-          },
         })
       })
 
@@ -333,11 +330,8 @@ describe("BucketPolicyModal", () => {
       await user.click(cancelButton)
 
       expect(mockOnTrackEvent).toHaveBeenCalledWith({
-        source: "user-action",
+        source: "modal",
         action: "storage.ceph.bucket.policy.close",
-        metadata: {
-          cancelled: true,
-        },
       })
       expect(mockOnClose).toHaveBeenCalled()
     })

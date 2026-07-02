@@ -473,11 +473,8 @@ describe("EmptyBucketModal", () => {
 
       await waitFor(() => {
         expect(mockOnTrackEvent).toHaveBeenCalledWith({
-          source: "user-action",
+          source: "modal",
           action: "storage.ceph.bucket.empty.open",
-          metadata: {
-            accessed: true,
-          },
         })
       })
 
@@ -501,11 +498,8 @@ describe("EmptyBucketModal", () => {
       await user.click(cancelButton)
 
       expect(mockOnTrackEvent).toHaveBeenCalledWith({
-        source: "user-action",
+        source: "modal",
         action: "storage.ceph.bucket.empty.close",
-        metadata: {
-          cancelled: true,
-        },
       })
       expect(mockOnClose).toHaveBeenCalled()
     })

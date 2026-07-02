@@ -200,9 +200,8 @@ describe("CopyObjectModal", () => {
 
       await waitFor(() => {
         expect(mockOnTrackEvent).toHaveBeenCalledWith({
-          source: "user-action",
+          source: "modal",
           action: "storage.ceph.object.copy.open",
-          metadata: { accessed: true },
         })
       })
 
@@ -226,9 +225,8 @@ describe("CopyObjectModal", () => {
       await user.click(cancelButton)
 
       expect(mockOnTrackEvent).toHaveBeenCalledWith({
-        source: "user-action",
+        source: "modal",
         action: "storage.ceph.object.copy.close",
-        metadata: { cancelled: true },
       })
     })
   })

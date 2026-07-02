@@ -275,9 +275,8 @@ describe("CreateFolderModal", () => {
 
       await waitFor(() => {
         expect(mockOnTrackEvent).toHaveBeenCalledWith({
-          source: "user-action",
+          source: "modal",
           action: "storage.ceph.folder.create.open",
-          metadata: { accessed: true },
         })
       })
 
@@ -301,9 +300,8 @@ describe("CreateFolderModal", () => {
       await user.click(cancelButton)
 
       expect(mockOnTrackEvent).toHaveBeenCalledWith({
-        source: "user-action",
+        source: "modal",
         action: "storage.ceph.folder.create.close",
-        metadata: { cancelled: true },
       })
     })
 

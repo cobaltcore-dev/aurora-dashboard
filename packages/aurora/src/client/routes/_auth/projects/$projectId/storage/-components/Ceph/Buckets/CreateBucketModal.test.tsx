@@ -842,11 +842,8 @@ describe("CreateBucketModal", () => {
 
       await waitFor(() => {
         expect(mockOnTrackEvent).toHaveBeenCalledWith({
-          source: "user-action",
+          source: "modal",
           action: "storage.ceph.bucket.create.open",
-          metadata: {
-            accessed: true,
-          },
         })
       })
 
@@ -890,11 +887,8 @@ describe("CreateBucketModal", () => {
 
       await waitFor(() => {
         expect(mockOnTrackEvent).toHaveBeenCalledWith({
-          source: "user-action",
+          source: "modal",
           action: "storage.ceph.bucket.create.open",
-          metadata: {
-            accessed: true,
-          },
         })
       })
     })
@@ -907,11 +901,8 @@ describe("CreateBucketModal", () => {
       // Wait for .open event
       await waitFor(() => {
         expect(mockOnTrackEvent).toHaveBeenCalledWith({
-          source: "user-action",
+          source: "modal",
           action: "storage.ceph.bucket.create.open",
-          metadata: {
-            accessed: true,
-          },
         })
       })
 
@@ -922,11 +913,8 @@ describe("CreateBucketModal", () => {
       await user.click(cancelButton)
 
       expect(mockOnTrackEvent).toHaveBeenCalledWith({
-        source: "user-action",
+        source: "modal",
         action: "storage.ceph.bucket.create.close",
-        metadata: {
-          cancelled: true,
-        },
       })
       expect(mockOnClose).toHaveBeenCalled()
     })
@@ -938,11 +926,8 @@ describe("CreateBucketModal", () => {
       // Wait for .open event
       await waitFor(() => {
         expect(mockOnTrackEvent).toHaveBeenCalledWith({
-          source: "user-action",
+          source: "modal",
           action: "storage.ceph.bucket.create.open",
-          metadata: {
-            accessed: true,
-          },
         })
       })
 
