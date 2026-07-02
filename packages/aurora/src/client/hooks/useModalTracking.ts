@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { useRouteContext } from "@tanstack/react-router"
 
 interface UseModalTrackingOptions {
@@ -37,7 +37,10 @@ interface UseModalTrackingReturn {
 export const useModalTracking = ({ isOpen, actionPrefix }: UseModalTrackingOptions): UseModalTrackingReturn => {
   const { onTrackEvent } = useRouteContext({ strict: false })
   const hasTrackedOpen = useRef(false)
-  const [hasSubmitted, setHasSubmitted] = useState(false)
+  // Use useRef instead of useState to avoid timing race with synchronous close paths
+  // See: https://github.com/... - setState doesn't apply until next render, so trackClose()
+  // could read stale hasSubmitted === false even after markSubmitted() was called
+  const hasSubmitted = useRef(false)
 
   // Track when user opens the modal (once per modal open)
   useEffect(() => {
@@ -55,7 +58,7 @@ export const useModalTracking = ({ isOpen, actionPrefix }: UseModalTrackingOptio
    * Call this at the start of your handleClose function.
    */
   const trackClose = () => {
-    if (isOpen && !hasSubmitted) {
+    if (isOpen && !hasSubmitted.current) {
       onTrackEvent?.({
         source: "modal",
         action: `${actionPrefix}.close`,
@@ -68,7 +71,7 @@ export const useModalTracking = ({ isOpen, actionPrefix }: UseModalTrackingOptio
    * Call this in your handleSubmit function before the mutation.
    */
   const markSubmitted = () => {
-    setHasSubmitted(true)
+    hasSubmitted.current = true
   }
 
   /**
@@ -76,7 +79,7 @@ export const useModalTracking = ({ isOpen, actionPrefix }: UseModalTrackingOptio
    * Call this in handleClose after tracking close event.
    */
   const resetTracking = () => {
-    setHasSubmitted(false)
+    hasSubmitted.current = false
     hasTrackedOpen.current = false
   }
 

@@ -136,6 +136,7 @@ The hook automatically:
 - Tracks `.close` event when cancelled (only if not submitted)
 - Handles React 18 Strict Mode correctly
 - Uses `source: "modal"` for all events
+- Uses `useRef` for tracking state to avoid timing races with synchronous close paths
 
 ### Complete Example: Create Bucket Modal
 
@@ -203,15 +204,15 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }) => {
 
 ### Manual Implementation (Advanced)
 
-If you need custom tracking behavior, you can implement it manually:
+If you need custom tracking behavior, you can implement it manually. Note: use `useRef` instead of `useState` for the `hasSubmitted` flag to avoid timing races with synchronous close paths (e.g., when `onSuccess` calls `handleClose` in the same tick as `markSubmitted`):
 
 ```typescript
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { useRouteContext } from "@tanstack/react-router"
 
 const { onTrackEvent } = useRouteContext({ strict: false })
 const hasTrackedOpen = useRef(false)
-const [hasSubmitted, setHasSubmitted] = useState(false)
+const hasSubmitted = useRef(false) // useRef, not useState - avoids timing race
 
 // Track when modal opens
 useEffect(() => {
@@ -224,17 +225,25 @@ useEffect(() => {
   }
 }, [isOpen, onTrackEvent])
 
-// Track close without submit
-const handleClose = () => {
-  if (isOpen && !hasSubmitted) {
+// Track close - called in onCancel, NOT in handleClose
+const trackClose = () => {
+  if (isOpen && !hasSubmitted.current) {
     onTrackEvent?.({
       source: "modal",
       action: "storage.ceph.bucket.create.close",
     })
   }
-  setHasSubmitted(false)
+}
+
+// Mark submitted before mutation
+const markSubmitted = () => {
+  hasSubmitted.current = true
+}
+
+// Reset tracking state
+const resetTracking = () => {
+  hasSubmitted.current = false
   hasTrackedOpen.current = false
-  onClose()
 }
 ```
 
@@ -403,6 +412,8 @@ All major routes in the application already have analytics configured:
 
 ## Testing
 
+### Route Analytics Tests
+
 The analytics system is covered by unit tests in `setupRouterAnalytics.test.ts`:
 
 ```bash
@@ -416,6 +427,88 @@ Key test scenarios:
 - Fallback to routeId when analytics.name is missing
 - Metadata structure (pathname, search)
 - Error handling
+
+### Modal Tracking Tests
+
+Every modal using `useModalTracking` should have three analytics tests:
+
+```typescript
+describe("Analytics tracking", () => {
+  it("tracks .open event when modal opens", async () => {
+    renderModal(defaultProps)
+
+    await waitFor(() => {
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "modal",
+        action: "storage.ceph.bucket.create.open",
+      })
+    })
+
+    expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+  })
+
+  it("tracks .close event when user cancels without submitting", async () => {
+    const user = userEvent.setup()
+    renderModal(defaultProps)
+
+    await waitFor(() => {
+      expect(mockOnTrackEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.bucket.create.open" })
+      )
+    })
+
+    mockOnTrackEvent.mockClear()
+
+    const cancelButton = screen.getByRole("button", { name: "Cancel" })
+    await user.click(cancelButton)
+
+    expect(mockOnTrackEvent).toHaveBeenCalledWith({
+      source: "modal",
+      action: "storage.ceph.bucket.create.close",
+    })
+  })
+
+  it("does not track .close event on successful submit", async () => {
+    const user = userEvent.setup()
+    renderModal(defaultProps)
+
+    await waitFor(() => {
+      expect(mockOnTrackEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.bucket.create.open" })
+      )
+    })
+
+    mockOnTrackEvent.mockClear()
+
+    // Fill form and submit (modal-specific steps)
+    // ...
+
+    const submitButton = screen.getByRole("button", { name: "Create" })
+    await user.click(submitButton)
+
+    // .close should NOT have been tracked since user submitted
+    expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ action: "storage.ceph.bucket.create.close" })
+    )
+  })
+})
+```
+
+**Required test setup:**
+
+```typescript
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+```
 
 ## Architecture
 
