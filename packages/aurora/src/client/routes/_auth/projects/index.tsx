@@ -8,12 +8,18 @@ import { Container, ContentHeading } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import { z } from "zod"
 import { Slot } from "@/client/components/Slot"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 
 const searchSchema = z.object({
   search: z.string().optional(),
 })
 
 export const Route = createFileRoute("/_auth/projects/")({
+  staticData: {
+    analytics: {
+      name: "projects.list",
+    },
+  } satisfies RouteInfo,
   component: ProjectsOverview,
   errorComponent: ({ error }) => (
     <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />

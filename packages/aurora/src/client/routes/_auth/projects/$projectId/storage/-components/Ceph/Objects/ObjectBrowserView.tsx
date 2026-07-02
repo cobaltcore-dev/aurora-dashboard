@@ -5,14 +5,9 @@ import {
   Stack,
   Button,
   toast,
-  Badge,
   Message,
   DataGridToolbar,
   SearchInput,
-  PopupMenu,
-  PopupMenuItem,
-  PopupMenuOptions,
-  PopupMenuToggle,
   TabNavigation,
   TabNavigationItem,
 } from "@cloudoperators/juno-ui-components"
@@ -43,25 +38,9 @@ import {
   getObjectMoveErrorToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
+  getObjectDownloadErrorToast,
 } from "./ObjectToastNotifications"
-
-// Prefix encoding (reuse from Swift pattern)
-const encodePrefix = (prefix: string): string => {
-  const bytes = new TextEncoder().encode(prefix)
-  const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join("")
-  return btoa(binString)
-}
-
-const decodePrefix = (encoded: string | undefined): string => {
-  if (!encoded) return ""
-  try {
-    const binString = atob(encoded)
-    const bytes = Uint8Array.from(binString, (char) => char.codePointAt(0)!)
-    return new TextDecoder().decode(bytes)
-  } catch {
-    return ""
-  }
-}
+import { encodePrefix, decodePrefix } from "../../utils/prefixEncoding"
 
 interface ObjectBrowserViewProps {
   bucketName: string
@@ -130,31 +109,16 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     }
   )
 
-  // Query bucket policy status
-  const { data: policyData } = trpcReact.storage.ceph.bucketPolicy.get.useQuery(
+  // Query to check which folders contain deleted content (only in deleted tab)
+  const { data: folderDeletedStatus } = trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery(
     {
       project_id: projectId ?? "",
-      bucketName,
+      bucket: bucketName,
+      folders: allFolders.map((f) => f.prefix),
     },
     {
-      enabled: !!projectId,
-      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-      retry: false,
-    }
-  )
-
-  // Query to check if bucket has versions/delete markers (independent of current tab)
-  const { data: versionCheckData } = trpcReact.storage.ceph.objects.list.useQuery(
-    {
-      project_id: projectId ?? "",
-      containerName: bucketName,
-      maxKeys: 1,
-      delimiter: "",
-      showVersions: true,
-    },
-    {
-      enabled: !!projectId && versioningStatus?.status !== "Unversioned",
-      staleTime: 30 * 1000, // 30 seconds cache
+      enabled: !!projectId && tab === "deleted" && allFolders.length > 0,
+      staleTime: 30 * 1000, // Cache for 30 seconds
     }
   )
 
@@ -266,10 +230,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     stripPrefix(obj.key).toLowerCase().includes(searchParam.toLowerCase().trim())
   )
 
-  const filteredFolders = allFolders.filter((folder) =>
-    stripPrefix(folder.prefix).toLowerCase().includes(searchParam.toLowerCase().trim())
-  )
-
   // When showing deleted files: show the last real version before delete marker (the version we can restore)
   const deletedFilesList = (() => {
     if (tab !== "deleted") return []
@@ -306,6 +266,24 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     return deletedFiles
   })()
 
+  // Filter folders based on deleted content check from BFF
+  const deletedFoldersList = (() => {
+    if (tab !== "deleted") return allFolders
+    if (!folderDeletedStatus) return allFolders // Show all while loading
+
+    // Filter folders that have deleted content
+    const foldersWithDeleted = allFolders.filter((folder) => {
+      const status = folderDeletedStatus.find((s) => s.prefix === folder.prefix)
+      return status?.hasDeletedContent ?? false
+    })
+
+    return foldersWithDeleted
+  })()
+
+  const filteredFolders = deletedFoldersList.filter((folder) =>
+    stripPrefix(folder.prefix).toLowerCase().includes(searchParam.toLowerCase().trim())
+  )
+
   // Sort deleted files (operates on full unfiltered list before search)
   const sortedDeletedFiles = !sortBy
     ? deletedFilesList
@@ -337,7 +315,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   )
 
   const totalItemCount =
-    tab === "deleted" ? deletedFilesList.length + allFolders.length : allObjects.length + allFolders.length
+    tab === "deleted" ? deletedFilesList.length + deletedFoldersList.length : allObjects.length + allFolders.length
   const filteredItemCount =
     tab === "deleted"
       ? filteredDeletedFiles.length + filteredFolders.length
@@ -424,50 +402,26 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     )
   }
 
-  // Check if bucket is empty (no current objects) but has versions/delete markers
-  const hasCurrentObjects = allObjects.length > 0 || allFolders.length > 0
-  const hasVersionsOrDeleteMarkers = versionCheckData?.versions && versionCheckData.versions.length > 0
-  const isBucketEmptyWithVersions = !hasCurrentObjects && hasVersionsOrDeleteMarkers
-
   return (
     <div className="relative">
-      {/* Versioning and Policy status badges */}
-      <div className="mb-4 flex items-center gap-3">
-        {versioningStatus && versioningStatus.status === "Enabled" && (
-          <Badge variant="success">
-            <Trans>Versioning Enabled</Trans>
-          </Badge>
-        )}
-        {versioningStatus && versioningStatus.status === "Suspended" && (
-          <Badge variant="warning">
-            <Trans>Versioning Suspended</Trans>
-          </Badge>
-        )}
-        {policyData?.policy && (
-          <Badge variant="info">
-            <Trans>Policy</Trans>
-          </Badge>
-        )}
-      </div>
-
-      <ObjectsFileNavigation
-        bucketName={bucketName}
-        prefix={currentPrefix}
-        onBucketsClick={navigateToBuckets}
-        onPrefixClick={navigateToPrefix}
-      />
-
       <Stack direction="vertical">
-        {/* Tabs row (shown only when versioning is enabled/suspended) */}
-        {versioningStatus && versioningStatus.status !== "Unversioned" && (
-          <div className="pb-2">
+        {/* Zone 1 — sort controls and page-level actions */}
+        <Stack distribution="between" alignment="center" gap="2" className="pb-2">
+          {/* Tabs row (shown only when versioning is enabled/suspended) */}
+          {versioningStatus && versioningStatus.status !== "Unversioned" ? (
             <TabNavigation>
               <TabNavigationItem
                 label={t`All`}
                 active={tab === "all"}
                 onClick={() => {
                   navigate({
-                    search: (prev) => ({ ...prev, tab: "all" }),
+                    search: (prev) => ({
+                      ...prev,
+                      tab: "all",
+                      // Reset prefix when switching from deleted to all
+                      // because the current folder might not exist in "all" view
+                      prefix: tab === "deleted" ? undefined : prev.prefix,
+                    }),
                   })
                 }}
               />
@@ -476,17 +430,22 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
                 active={tab === "deleted"}
                 onClick={() => {
                   navigate({
-                    search: (prev) => ({ ...prev, tab: "deleted" }),
+                    search: (prev) => ({
+                      ...prev,
+                      tab: "deleted",
+                      // Reset prefix when switching from all to deleted
+                      // because the current folder might not exist in "deleted" view
+                      prefix: tab === "all" ? undefined : prev.prefix,
+                    }),
                   })
                 }}
               />
             </TabNavigation>
-          </div>
-        )}
+          ) : (
+            <div />
+          )}
 
-        {/* Zone 1 — sort controls and page-level actions */}
-        <Stack distribution="between" alignment="center" gap="2" className="pb-2">
-          <Stack gap="0.5" alignment="center">
+          <Stack gap="2" alignment="center">
             <SortInput
               options={sortSettings.options}
               sortBy={sortSettings.sortBy}
@@ -497,41 +456,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               }
               onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
             />
-          </Stack>
-          <Stack gap="2" alignment="center">
             <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
               <Trans>Create Folder</Trans>
             </Button>
-            <Button
-              variant={policyData?.policy ? "subdued" : "primary"}
-              className="whitespace-nowrap"
-              onClick={() => setIsPolicyModalOpen(true)}
-            >
-              {policyData?.policy ? <Trans>View Policy</Trans> : <Trans>Add Policy</Trans>}
-            </Button>
-            <PopupMenu>
-              <PopupMenuToggle as="div">
-                <Button icon="moreVert" />
-              </PopupMenuToggle>
-              <PopupMenuOptions>
-                {versioningStatus &&
-                  (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
-                    <PopupMenuItem label={t`Enable Versioning`} onClick={() => setIsEnableVersioningModalOpen(true)} />
-                  )}
-                {versioningStatus && versioningStatus.status === "Enabled" && (
-                  <PopupMenuItem label={t`Suspend Versioning`} onClick={() => setIsSuspendVersioningModalOpen(true)} />
-                )}
-                {policyData?.policy && (
-                  <PopupMenuItem label={t`Delete Policy`} onClick={() => setIsDeletePolicyModalOpen(true)} />
-                )}
-                {isBucketEmptyWithVersions ? (
-                  <PopupMenuItem label={t`Delete Versions`} onClick={() => setIsDeleteVersionsModalOpen(true)} />
-                ) : (
-                  <PopupMenuItem label={t`Empty Bucket`} onClick={() => setIsEmptyBucketModalOpen(true)} />
-                )}
-                <PopupMenuItem label={t`Delete Bucket`} onClick={() => setIsDeleteBucketModalOpen(true)} />
-              </PopupMenuOptions>
-            </PopupMenu>
           </Stack>
         </Stack>
 
@@ -563,7 +490,17 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           </Stack>
         </DataGridToolbar>
 
-        {/* Zone 3 — item count. */}
+        {/* Zone 3 — breadcrumb navigation in its own row */}
+        <DataGridToolbar>
+          <ObjectsFileNavigation
+            bucketName={bucketName}
+            prefix={currentPrefix}
+            onBucketsClick={navigateToBuckets}
+            onPrefixClick={navigateToPrefix}
+          />
+        </DataGridToolbar>
+
+        {/* Zone 4 — item count. */}
         <DataGridToolbar>
           <Stack distribution="between" gap="2" alignment="center" className="text-sm">
             <div className="text-theme-light flex items-center gap-1" data-testid="objects-info-block">
@@ -581,7 +518,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         </DataGridToolbar>
       </Stack>
 
-      {isLoading && !continuationToken ? (
+      {isLoading && !continuationToken && !keyMarker ? (
         <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
           <Spinner variant="primary" size="large" className="mb-2" />
           <Trans>Loading objects...</Trans>
@@ -628,11 +565,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
             const { message, ...options } = getObjectMetadataUpdateErrorToast(objectKey, errorMessage)
             toast.error(message, options)
           }}
-          onRestoreVersion={() => {
-            // Version restored successfully - no toast
-          }}
-          onDeleteVersion={() => {
-            // Version deleted successfully - no toast
+          onDownloadError={(objectKey, errorMessage) => {
+            const { message, ...options } = getObjectDownloadErrorToast(objectKey, errorMessage)
+            toast.error(message, options)
           }}
         />
       )}
@@ -654,7 +589,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           setIsCreateFolderModalOpen(false)
           const { message, ...options } = getFolderCreatedToast(folderPath)
           toast.success(message, options)
-          navigateToPrefix(folderPath)
         }}
       />
 

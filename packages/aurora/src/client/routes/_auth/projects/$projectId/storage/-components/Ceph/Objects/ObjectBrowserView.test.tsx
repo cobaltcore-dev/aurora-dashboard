@@ -188,6 +188,14 @@ vi.mock("@/client/trpcClient", () => {
             setStatus: {
               useMutation: mockUseMutation,
             },
+            checkDeletedContent: {
+              useQuery: vi.fn(() => ({
+                data: {},
+                isLoading: false,
+                error: null,
+                trpc: {},
+              })),
+            },
           },
           bucketPolicy: {
             get: {

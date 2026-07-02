@@ -264,7 +264,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   return (
     <Modal
       key={bucketName} // Remount when bucket changes
-      title={t`Edit/view Bucket Policy`}
+      title={t`Edit/View Bucket Policy`}
       open={isOpen}
       onCancel={handleClose}
       confirmButtonLabel={t`Save`}

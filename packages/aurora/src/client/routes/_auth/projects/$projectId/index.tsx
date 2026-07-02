@@ -6,7 +6,15 @@ import { useLingui } from "@lingui/react/macro"
 import { useRouteContext } from "@tanstack/react-router"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { Slot } from "@/client/components/Slot"
+import type { RouteInfo } from "@/client/routes/routeInfo"
+import { canAccessClavisPca } from "@/client/routes/_auth/projects/$projectId/services/pca/-components/pcaAccess"
+
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
+  staticData: {
+    analytics: {
+      name: "projects.detail",
+    },
+  } satisfies RouteInfo,
   component: RouteComponent,
 })
 
@@ -30,7 +38,7 @@ function ServiceCard({ group, label, to, service }: ServiceCardProps) {
       <div className="flex min-w-0 flex-col">
         <div className="flex items-center gap-1">
           <p className="text-theme-light text-xs leading-5 font-medium">{group}</p>
-          <Icon icon="expandLess" size="16" className="text-theme-high" />
+          <Icon icon="expandMore" size="16" className="text-theme-high" />
         </div>
         <div className="flex items-center gap-2">
           <p className="text-theme-high text-lg leading-7 font-bold" data-testid="service-card-label">
@@ -49,7 +57,7 @@ function RouteComponent() {
     from: "/_auth/projects/$projectId",
   })
   const { t } = useLingui()
-  const { slots, enabledServices } = useRouteContext({ strict: false })
+  const { enabledServices } = useRouteContext({ strict: false })
   const isEnabled = (service: string) => !enabledServices || enabledServices.includes(service)
 
   const serviceIndex = getServiceIndex(availableServices ?? [])
@@ -91,18 +99,13 @@ function RouteComponent() {
       to: `${base}/storage/ceph/buckets`,
       service: "ceph-containers",
     })
-  if ((serviceIndex["pca"]?.["clavis-dev"] || serviceIndex["pca"]?.["clavis-beta"]) && isEnabled("pca")) {
+  if (canAccessClavisPca(serviceIndex, enabledServices)) {
     cards.push({ group: t`Services`, label: t`PCA (Clavis)`, to: `${base}/services/pca`, service: "pca" })
   }
 
   return (
     <Stack direction="vertical">
       <ContentHeader title={crumbProject?.name ?? t`Project`} projectId={projectId} description={description} />
-      {slots?.projectOverviewBanner && (
-        <div className="mb-6">
-          <Slot component={slots.projectOverviewBanner} useShadowDOM={false} />
-        </div>
-      )}
       {cards.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {cards.map((card) => (

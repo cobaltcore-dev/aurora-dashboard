@@ -13,6 +13,11 @@ import {
   getObjectMoveErrorToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
+  getObjectDownloadErrorToast,
+  getVersionRestoredToast,
+  getVersionRestoreErrorToast,
+  getVersionDeletedToast,
+  getVersionDeleteErrorToast,
 } from "./ObjectToastNotifications"
 
 // Helpers return the Juno NotificationManager shape: { message, description }.
@@ -152,6 +157,22 @@ describe("ObjectToastNotifications", () => {
     })
   })
 
+  // ── Object download ──────────────────────────────────────────────────────────
+
+  describe("getObjectDownloadErrorToast", () => {
+    it("renders correct error content", () => {
+      renderNotification(getObjectDownloadErrorToast("documents/file.txt", "Network error"))
+      expect(screen.getByText("Failed to Download Object")).toBeInTheDocument()
+      expect(screen.getByText(/Could not download/)).toBeInTheDocument()
+      expect(screen.getByText(/Network error/)).toBeInTheDocument()
+    })
+
+    it("extracts the display name from a nested object key", () => {
+      renderNotification(getObjectDownloadErrorToast("documents/reports/Q1.pdf", "err"))
+      expect(screen.getByText(/Q1\.pdf/)).toBeInTheDocument()
+    })
+  })
+
   // ── Notification configuration ───────────────────────────────────────────────
 
   describe("Notification configuration", () => {
@@ -167,6 +188,11 @@ describe("ObjectToastNotifications", () => {
         getObjectMoveErrorToast("a.txt", "err"),
         getObjectMetadataUpdatedToast("a.txt"),
         getObjectMetadataUpdateErrorToast("a.txt", "err"),
+        getObjectDownloadErrorToast("a.txt", "err"),
+        getVersionRestoredToast("a.txt"),
+        getVersionRestoreErrorToast("a.txt", "err"),
+        getVersionDeletedToast("a.txt"),
+        getVersionDeleteErrorToast("a.txt", "err"),
       ]
       notifications.forEach((notification) => {
         expect(notification.message).toBeTruthy()
@@ -184,6 +210,76 @@ describe("ObjectToastNotifications", () => {
       expect(toast).not.toHaveProperty("variant")
       expect(toast).not.toHaveProperty("children")
       expect(toast).not.toHaveProperty("onDismiss")
+    })
+  })
+
+  // ── Version restore ────────────────────────────────────────────────────────
+
+  describe("getVersionRestoredToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getVersionRestoredToast("documents/file.txt")
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
+    })
+
+    it("renders correct message content", () => {
+      renderNotification(getVersionRestoredToast("documents/file.txt"))
+      expect(screen.getByText("Version Restored")).toBeInTheDocument()
+      expect(screen.getByText('"file.txt" was successfully restored.')).toBeInTheDocument()
+    })
+
+    it("extracts basename from path", () => {
+      renderNotification(getVersionRestoredToast("a/b/c/report.pdf"))
+      expect(screen.getByText('"report.pdf" was successfully restored.')).toBeInTheDocument()
+    })
+  })
+
+  describe("getVersionRestoreErrorToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getVersionRestoreErrorToast("file.txt", "Network error")
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
+    })
+
+    it("renders correct error message", () => {
+      renderNotification(getVersionRestoreErrorToast("documents/file.txt", "Access denied"))
+      expect(screen.getByText("Failed to Restore Version")).toBeInTheDocument()
+      expect(screen.getByText('Could not restore "file.txt": Access denied')).toBeInTheDocument()
+    })
+  })
+
+  // ── Version delete ─────────────────────────────────────────────────────────
+
+  describe("getVersionDeletedToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getVersionDeletedToast("documents/file.txt")
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
+    })
+
+    it("renders correct message content", () => {
+      renderNotification(getVersionDeletedToast("documents/file.txt"))
+      expect(screen.getByText("Version Deleted")).toBeInTheDocument()
+      expect(screen.getByText('Version of "file.txt" was permanently deleted.')).toBeInTheDocument()
+    })
+
+    it("extracts basename from path", () => {
+      renderNotification(getVersionDeletedToast("a/b/c/report.pdf"))
+      expect(screen.getByText('Version of "report.pdf" was permanently deleted.')).toBeInTheDocument()
+    })
+  })
+
+  describe("getVersionDeleteErrorToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getVersionDeleteErrorToast("file.txt", "Network error")
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
+    })
+
+    it("renders correct error message", () => {
+      renderNotification(getVersionDeleteErrorToast("documents/file.txt", "Permission denied"))
+      expect(screen.getByText("Failed to Delete Version")).toBeInTheDocument()
+      expect(screen.getByText('Could not delete version of "file.txt": Permission denied')).toBeInTheDocument()
     })
   })
 })

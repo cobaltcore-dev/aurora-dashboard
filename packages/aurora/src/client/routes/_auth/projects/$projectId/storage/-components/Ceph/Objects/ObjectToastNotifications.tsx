@@ -143,3 +143,70 @@ export const getObjectMetadataUpdateErrorToast = (
     ),
   }
 }
+
+// ── Object download ────────────────────────────────────────────────────────────
+
+export const getObjectDownloadErrorToast = (
+  objectKey: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Failed to Download Object</Trans>,
+    description: (
+      <Trans>
+        Could not download "{displayName}": {errorMessage}
+      </Trans>
+    ),
+  }
+}
+
+// ── Version restore ────────────────────────────────────────────────────────
+
+export const getVersionRestoredToast = (objectKey: string): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Version Restored</Trans>,
+    description: <Trans>"{displayName}" was successfully restored.</Trans>,
+  }
+}
+
+export const getVersionRestoreErrorToast = (
+  objectKey: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Failed to Restore Version</Trans>,
+    description: (
+      <Trans>
+        Could not restore "{displayName}": {errorMessage}
+      </Trans>
+    ),
+  }
+}
+
+// ── Version delete ─────────────────────────────────────────────────────────
+
+export const getVersionDeletedToast = (objectKey: string): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Version Deleted</Trans>,
+    description: <Trans>Version of "{displayName}" was permanently deleted.</Trans>,
+  }
+}
+
+export const getVersionDeleteErrorToast = (
+  objectKey: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Failed to Delete Version</Trans>,
+    description: (
+      <Trans>
+        Could not delete version of "{displayName}": {errorMessage}
+      </Trans>
+    ),
+  }
+}

@@ -9,6 +9,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/floatin
   staticData: {
     section: "network",
     service: "floatingips",
+    analytics: {
+      name: "network.floatingips.list",
+    },
     sectionCrumb: { labelKey: "Network" },
     crumb: { labelKey: "Floating IPs" },
   } satisfies RouteInfo,

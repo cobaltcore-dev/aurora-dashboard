@@ -5,6 +5,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { canAccessClavisPca } from "../-components/pcaAccess"
 import { PcaDetailsView } from "./-components/PcaDetailsView"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/")({
@@ -12,6 +13,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$p
     section: "services",
     service: "pca",
     isDetail: true,
+    analytics: {
+      name: "services.pca.detail",
+    },
     sectionCrumb: { labelKey: "Services" },
     crumb: { labelKey: "PCA (Clavis)", to: "/projects/$projectId/services/pca" },
   } satisfies RouteInfo,
@@ -30,13 +34,10 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$p
     const { trpcClient } = context
     const availableServices = (await trpcClient?.auth.getAvailableServices.query()) || []
     const serviceIndex = getServiceIndex(availableServices)
-    // temporary as clavis is not fully GA, after GA replace with ["pca"]?.["clavis"]
-    const pcaServices = serviceIndex["pca"]?.["clavis-beta"] || serviceIndex["pca"]?.["clavis-dev"]
 
-    // Redirect if clavis service not available
-    if (!pcaServices) {
+    if (!canAccessClavisPca(serviceIndex, context.enabledServices)) {
       throw redirect({
-        to: "/projects/$projectId/services/pca",
+        to: "/projects/$projectId",
         params: { projectId: params.projectId },
       })
     }
