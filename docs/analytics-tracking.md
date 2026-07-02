@@ -485,7 +485,7 @@ For user actions, the flow is simpler:
 
 ### Missing metadata
 
-- Confirm you're including `success` boolean for user actions
+- Confirm you're including expected user-action metadata (e.g., `accessed: true` for `.open`, `cancelled: true` for `.close`)
 - Add relevant context fields based on the action type
 - Don't include sensitive data in metadata
 
