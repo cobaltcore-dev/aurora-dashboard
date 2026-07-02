@@ -1,5 +1,37 @@
 # @cobaltcore-dev/aurora
 
+## 0.14.0
+
+### Minor Changes
+
+- 219ed22: feat(aurora): make OpenStack session debug logging configurable
+
+  Add optional `debug` field to `ContextConfig` to allow consumers to control
+  debug logging in SignalOpenstackSession. Falls back to existing behavior
+  (enabled in non-production) when not explicitly set.
+
+## 0.13.1
+
+### Patch Changes
+
+- 40ad7cb: fix(aurora): gate projectOverviewBanner to only show when no service is active
+
+## 0.13.0
+
+### Minor Changes
+
+- 532cf06: Add object download and preview for Ceph object storage, bringing Ceph to parity with the existing Swift capability.
+  - Stream downloads through the BFF (`downloadObject`) with live progress tracking via `watchDownloadProgress`. Multiple downloads/previews can be in flight at once, each tracked and reported independently.
+  - Row-click on an object previews it in a new browser tab when the type is safely renderable (images excluding SVG, video, audio, PDF, and plain text); everything else downloads directly. Scriptable types (HTML, JSON, XML, SVG) are intentionally excluded from preview since they can execute active content when opened from a blob URL.
+  - New context-menu **Download** action always forces a file save, regardless of type.
+  - The BFF resolves a reliable MIME type from the object key extension when S3/Ceph reports a generic or incorrect `Content-Type` (e.g. the `binary/octet-stream` default, or values set by some upload tools), so files preview correctly even without proper upload metadata.
+
+- 16a5a52: fix Ceph findings for Q2 go-live
+
+### Patch Changes
+
+- f67c54f: Routes now track with meaningful names like `storage.swift.list` or `compute.flavors.detail` instead of raw URL paths like `/_auth/projects/$projectId/storage/$provider/$storageType/`
+
 ## 0.12.1
 
 ### Patch Changes

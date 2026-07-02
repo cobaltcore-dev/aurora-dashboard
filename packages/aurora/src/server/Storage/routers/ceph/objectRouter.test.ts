@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
+import { Readable } from "node:stream"
 import { objectRouter } from "./objectRouter"
 import { createCallerFactory, auroraRouter } from "../../../trpc"
 import { createMockContext, TEST_PROJECT_ID } from "./mockContext"
@@ -1216,5 +1217,302 @@ describe("objects.updateMetadata", () => {
         metadata: { key: "value" },
       })
     ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+})
+
+// ============================================================================
+// objects.downloadObject
+// ============================================================================
+
+describe("objects.downloadObject", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  // Build a mock GetObject response with a Node Readable body (as the AWS SDK
+  // returns in Node).
+  const makeBodyResponse = (chunks: Uint8Array[], contentType = "text/plain", contentLength?: number) => ({
+    Body: Readable.from(chunks),
+    ContentType: contentType,
+    ContentLength: contentLength,
+    $metadata: { httpStatusCode: 200 },
+  })
+
+  it("streams object content as base64 chunks", async () => {
+    const content = new TextEncoder().encode("Hello, World!")
+    mockSend.mockResolvedValue(makeBodyResponse([content], "text/plain", content.byteLength))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "hello.txt",
+      filename: "hello.txt",
+      downloadId: `${TEST_BUCKET_NAME}:hello.txt:uuid-1`,
+    })
+
+    const chunks: string[] = []
+    let receivedContentType: string | undefined
+    let receivedFilename: string | undefined
+    let lastDownloaded = 0
+    let lastTotal = 0
+    for await (const item of iterable) {
+      chunks.push(item.chunk)
+      if (item.contentType) receivedContentType = item.contentType
+      if (item.filename) receivedFilename = item.filename
+      lastDownloaded = item.downloaded
+      lastTotal = item.total
+    }
+
+    expect(receivedContentType).toBe("text/plain")
+    expect(receivedFilename).toBe("hello.txt")
+    const decoded = chunks.map((b64) => Buffer.from(b64, "base64").toString()).join("")
+    expect(decoded).toBe("Hello, World!")
+    expect(lastDownloaded).toBe(content.byteLength)
+    expect(lastTotal).toBe(content.byteLength)
+  })
+
+  it("sends contentType and filename only in the first chunk", async () => {
+    const c1 = new TextEncoder().encode("part1")
+    const c2 = new TextEncoder().encode("part2")
+    mockSend.mockResolvedValue(makeBodyResponse([c1, c2]))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "file.txt",
+      filename: "file.txt",
+      downloadId: `${TEST_BUCKET_NAME}:file.txt:uuid-2`,
+    })
+
+    const items: Array<{ chunk: string; contentType?: string; filename?: string }> = []
+    for await (const item of iterable) items.push(item)
+
+    expect(items).toHaveLength(2)
+    expect(items[0].contentType).toBe("text/plain")
+    expect(items[0].filename).toBe("file.txt")
+    expect(items[1].contentType).toBeUndefined()
+    expect(items[1].filename).toBeUndefined()
+  })
+
+  it("falls back to application/octet-stream when ContentType is absent", async () => {
+    const content = new TextEncoder().encode("data")
+    // Omit ContentType entirely — passing `undefined` through makeBodyResponse
+    // would hit its default ("text/plain") instead of leaving the field absent.
+    mockSend.mockResolvedValue({
+      Body: Readable.from([content]),
+      ContentLength: content.byteLength,
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "binary.bin",
+      filename: "binary.bin",
+      downloadId: `${TEST_BUCKET_NAME}:binary.bin:uuid-3`,
+    })
+
+    let receivedContentType: string | undefined
+    for await (const item of iterable) {
+      if (item.contentType) receivedContentType = item.contentType
+    }
+    expect(receivedContentType).toBe("application/octet-stream")
+  })
+
+  it("resolves MIME from key extension when S3 returns binary/octet-stream", async () => {
+    const content = new TextEncoder().encode("hello")
+    mockSend.mockResolvedValue(makeBodyResponse([content], "binary/octet-stream", content.byteLength))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "notes.txt",
+      filename: "notes.txt",
+      downloadId: `${TEST_BUCKET_NAME}:notes.txt:uuid-mime-1`,
+    })
+
+    let receivedContentType: string | undefined
+    for await (const item of iterable) {
+      if (item.contentType) receivedContentType = item.contentType
+    }
+    expect(receivedContentType).toBe("text/plain")
+  })
+
+  it("prefers the key extension over a wrong stored content type", async () => {
+    // Some upload tools store text files as application/x-www-form-urlencoded,
+    // which forces the browser to download. The extension wins.
+    const content = new TextEncoder().encode("hello")
+    mockSend.mockResolvedValue(makeBodyResponse([content], "application/x-www-form-urlencoded", content.byteLength))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "test_file_key2.txt",
+      filename: "test_file_key2.txt",
+      downloadId: `${TEST_BUCKET_NAME}:test_file_key2.txt:uuid-mime-2`,
+    })
+
+    let receivedContentType: string | undefined
+    for await (const item of iterable) {
+      if (item.contentType) receivedContentType = item.contentType
+    }
+    expect(receivedContentType).toBe("text/plain")
+  })
+
+  it("keeps the stored content type when the key has no recognized extension", async () => {
+    const content = new TextEncoder().encode("hello")
+    mockSend.mockResolvedValue(makeBodyResponse([content], "text/html", content.byteLength))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "a1b2c3d4-no-extension",
+      filename: "a1b2c3d4-no-extension",
+      downloadId: `${TEST_BUCKET_NAME}:a1b2c3d4:uuid-mime-3`,
+    })
+
+    let receivedContentType: string | undefined
+    for await (const item of iterable) {
+      if (item.contentType) receivedContentType = item.contentType
+    }
+    expect(receivedContentType).toBe("text/html")
+  })
+
+  it("reports total as 0 when ContentLength is absent", async () => {
+    const content = new TextEncoder().encode("abc")
+    mockSend.mockResolvedValue(makeBodyResponse([content], "text/plain", undefined))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "x.txt",
+      filename: "x.txt",
+      downloadId: `${TEST_BUCKET_NAME}:x.txt:uuid-4`,
+    })
+
+    let lastTotal = -1
+    for await (const item of iterable) lastTotal = item.total
+    expect(lastTotal).toBe(0)
+  })
+
+  it("yields nothing for an empty body", async () => {
+    mockSend.mockResolvedValue(makeBodyResponse([], "text/plain", 0))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "empty.txt",
+      filename: "empty.txt",
+      downloadId: `${TEST_BUCKET_NAME}:empty.txt:uuid-5`,
+    })
+
+    const items: unknown[] = []
+    for await (const item of iterable) items.push(item)
+    expect(items).toHaveLength(0)
+  })
+
+  it("requests the object from the correct bucket and key", async () => {
+    const content = new TextEncoder().encode("data")
+    mockSend.mockResolvedValue(makeBodyResponse([content]))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: TEST_OBJECT_KEY,
+      filename: "image.jpg",
+      downloadId: `${TEST_BUCKET_NAME}:${TEST_OBJECT_KEY}:uuid-6`,
+    })
+    for await (const item of iterable) void item
+
+    const sentCommand = mockSend.mock.calls[0][0]
+    expect(sentCommand.input).toMatchObject({ Bucket: TEST_BUCKET_NAME, Key: TEST_OBJECT_KEY })
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContext({ shouldFailAuth: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.downloadObject({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKey: TEST_OBJECT_KEY,
+        filename: "image.jpg",
+        downloadId: `${TEST_BUCKET_NAME}:${TEST_OBJECT_KEY}:uuid-7`,
+      })
+    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+  })
+
+  it("surfaces S3 errors while iterating", async () => {
+    const s3Error = Object.assign(new Error("NoSuchKey"), { Code: "NoSuchKey" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "missing.txt",
+      filename: "missing.txt",
+      downloadId: `${TEST_BUCKET_NAME}:missing.txt:uuid-8`,
+    })
+
+    await expect(async () => {
+      for await (const item of iterable) void item
+    }).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+
+  it("tracks cumulative progress across chunks", async () => {
+    const p1 = new TextEncoder().encode("Hello, ")
+    const p2 = new TextEncoder().encode("World!")
+    const totalBytes = p1.byteLength + p2.byteLength
+    mockSend.mockResolvedValue(makeBodyResponse([p1, p2], "text/plain", totalBytes))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const iterable = await caller.storage.ceph.objects.downloadObject({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: "hello.txt",
+      filename: "hello.txt",
+      downloadId: `${TEST_BUCKET_NAME}:hello.txt:uuid-9`,
+    })
+
+    const snapshots: Array<{ downloaded: number; total: number }> = []
+    for await (const { downloaded, total } of iterable) snapshots.push({ downloaded, total })
+
+    expect(snapshots).toHaveLength(2)
+    expect(snapshots[0].downloaded).toBe(p1.byteLength)
+    expect(snapshots[1].downloaded).toBe(totalBytes)
+    expect(snapshots[1].total).toBe(totalBytes)
   })
 })

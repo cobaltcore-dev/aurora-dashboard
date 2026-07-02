@@ -13,6 +13,7 @@ import {
   getObjectMoveErrorToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
+  getObjectDownloadErrorToast,
   getVersionRestoredToast,
   getVersionRestoreErrorToast,
   getVersionDeletedToast,
@@ -156,6 +157,22 @@ describe("ObjectToastNotifications", () => {
     })
   })
 
+  // ── Object download ──────────────────────────────────────────────────────────
+
+  describe("getObjectDownloadErrorToast", () => {
+    it("renders correct error content", () => {
+      renderNotification(getObjectDownloadErrorToast("documents/file.txt", "Network error"))
+      expect(screen.getByText("Failed to Download Object")).toBeInTheDocument()
+      expect(screen.getByText(/Could not download/)).toBeInTheDocument()
+      expect(screen.getByText(/Network error/)).toBeInTheDocument()
+    })
+
+    it("extracts the display name from a nested object key", () => {
+      renderNotification(getObjectDownloadErrorToast("documents/reports/Q1.pdf", "err"))
+      expect(screen.getByText(/Q1\.pdf/)).toBeInTheDocument()
+    })
+  })
+
   // ── Notification configuration ───────────────────────────────────────────────
 
   describe("Notification configuration", () => {
@@ -171,6 +188,7 @@ describe("ObjectToastNotifications", () => {
         getObjectMoveErrorToast("a.txt", "err"),
         getObjectMetadataUpdatedToast("a.txt"),
         getObjectMetadataUpdateErrorToast("a.txt", "err"),
+        getObjectDownloadErrorToast("a.txt", "err"),
         getVersionRestoredToast("a.txt"),
         getVersionRestoreErrorToast("a.txt", "err"),
         getVersionDeletedToast("a.txt"),

@@ -26,7 +26,7 @@ const getCsrfHeaders = async () => {
 // Procedures that return async iterables (chunked streaming responses).
 // These are routed through httpBatchStreamLink instead of httpBatchLink.
 // Add any new streaming procedure paths here.
-const STREAMING_PROCEDURES = new Set<string>(["storage.swift.downloadObject"])
+const STREAMING_PROCEDURES = new Set<string>(["storage.swift.downloadObject", "storage.ceph.objects.downloadObject"])
 
 // Mutable endpoint — set once by App before any tRPC calls are made.
 let _bffEndpoint = "/polaris-bff"

@@ -243,6 +243,25 @@ export const updateMetadataInputSchema = projectScopedInputSchema.extend({
   metadata: z.record(z.string(), z.string()),
 })
 
+/**
+ * Download an object (streamed through the BFF as base64 chunks).
+ * `downloadId` is the client-computed "<bucket>:<objectKey>:<uuid>" used to
+ * correlate the stream with a watchDownloadProgress subscription opened in advance.
+ */
+export const downloadObjectInputSchema = projectScopedInputSchema.extend({
+  containerName: z.string().min(1),
+  objectKey: z.string().min(1),
+  filename: z.string().min(1),
+  downloadId: z.string().min(1),
+})
+
+/**
+ * Subscribe to live progress for an in-flight download, keyed by `downloadId`.
+ */
+export const watchDownloadProgressInputSchema = projectScopedInputSchema.extend({
+  downloadId: z.string().min(1),
+})
+
 // ============================================================================
 // S3 OBJECT TYPES
 // ============================================================================

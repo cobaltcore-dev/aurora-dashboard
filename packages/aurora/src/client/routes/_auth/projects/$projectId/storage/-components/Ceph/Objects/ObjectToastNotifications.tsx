@@ -144,6 +144,23 @@ export const getObjectMetadataUpdateErrorToast = (
   }
 }
 
+// ── Object download ────────────────────────────────────────────────────────────
+
+export const getObjectDownloadErrorToast = (
+  objectKey: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Failed to Download Object</Trans>,
+    description: (
+      <Trans>
+        Could not download "{displayName}": {errorMessage}
+      </Trans>
+    ),
+  }
+}
+
 // ── Version restore ────────────────────────────────────────────────────────
 
 export const getVersionRestoredToast = (objectKey: string): { message: ReactNode } & NotificationOptions => {

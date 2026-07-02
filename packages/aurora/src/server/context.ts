@@ -33,6 +33,7 @@ export interface ContextConfig {
   cookieName?: string
   cookieDomain?: string
   insecureCookies?: boolean
+  debug?: boolean
 }
 
 // Global registry of pending rescope operations per session
@@ -101,7 +102,7 @@ export async function createContext(
 
   const defaultSignalOpenstackOptions = {
     interfaceName: config.defaultEndpointInterface || "public",
-    debug: process.env.NODE_ENV !== "production",
+    debug: config.debug ?? process.env.NODE_ENV !== "production",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
