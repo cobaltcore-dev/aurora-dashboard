@@ -11,7 +11,6 @@ import { RouteError } from "../components/Error/RouteError"
 import { useLingui } from "@lingui/react/macro"
 import { StatusError } from "../components/Error/StatusError"
 import { Slot } from "../components/Slot"
-import { useSessionMonitor } from "../hooks/useSessionMonitor"
 
 export interface RouterContext {
   trpcReact: TrpcReact
@@ -55,9 +54,6 @@ function AuroraLayout({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  // Monitor session expiration using TanStack Query
-  useSessionMonitor()
-
   return (
     <AuroraLayout>
       <Outlet />

@@ -7,7 +7,9 @@ import {
   splitLink,
   isNonJsonSerializable,
   httpSubscriptionLink,
+  TRPCLink,
 } from "@trpc/client"
+import { observable } from "@trpc/server/observable"
 import type { AuroraRouter } from "../server/routers"
 
 // CSRF headers factory
@@ -35,7 +37,33 @@ export function setBffEndpoint(endpoint: string) {
   _bffEndpoint = endpoint
 }
 
+// Error handling link that catches 401 Unauthorized
+const errorHandlingLink: TRPCLink<AuroraRouter> = () => {
+  return ({ next, op }) => {
+    return observable((observer) => {
+      const unsubscribe = next(op).subscribe({
+        next(value) {
+          observer.next(value)
+        },
+        error(err) {
+          // Check if it's a tRPC error with UNAUTHORIZED code
+          if (err.data?.code === "UNAUTHORIZED") {
+            // Session expired on server - reload to trigger login redirect
+            window.location.href = "/"
+          }
+          observer.error(err)
+        },
+        complete() {
+          observer.complete()
+        },
+      })
+      return unsubscribe
+    })
+  }
+}
+
 const getLinks = () => [
+  errorHandlingLink,
   splitLink({
     // First check: is it a subscription?
     condition: (op) => op.type === "subscription",
