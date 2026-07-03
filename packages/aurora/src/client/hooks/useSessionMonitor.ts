@@ -26,13 +26,7 @@ export function useSessionMonitor() {
 
   // Sync session state with query result
   useEffect(() => {
-    if (!isAuthenticated) return
-
-    if (!session) {
-      // Session no longer valid on server
-      logout("expired")
-      return
-    }
+    if (!isAuthenticated || !session) return
 
     if (session.expires_at) {
       const newExpiry = new Date(session.expires_at)
