@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useCallback, useState } from "react"
+import React, { useCallback, useState } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
 import { useRouter } from "@tanstack/react-router"
+import { trpcClient } from "../trpcClient"
 
 export type User = TokenData["user"] | null
 
@@ -26,16 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showInactivityModal, setShowInactivityModal] = useState(false)
   const [redirectAfterModal, setRedirectAfterModal] = useState<string | undefined>(undefined)
 
-  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null)
-
   const isAuthenticated = !!user
-
-  const clearLogoutTimer = useCallback(() => {
-    if (logoutTimerRef.current) {
-      clearTimeout(logoutTimerRef.current)
-      logoutTimerRef.current = null
-    }
-  }, [])
 
   const closeInactivityModal = useCallback(() => {
     setShowInactivityModal(false)
@@ -48,7 +40,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(
     async (reason: "inactive" | "expired" | "manual" = "manual") => {
-      clearLogoutTimer()
+      // Terminate the session on the server to delete the cookie
+      // This ensures expired sessions are truly expired (no stale cookie)
+      try {
+        await trpcClient.auth.terminateUserSession.mutate()
+      } catch (error) {
+        // Log error but continue with logout to clear local state
+        console.error("Error terminating session:", error)
+      }
 
       setUser(null)
       setExpiresAt(undefined)
@@ -67,8 +66,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.invalidate()
       }
     },
-    [router, clearLogoutTimer]
+    [router]
   )
+
+  // Timer-based expiration check (fallback/safety net)
+  React.useEffect(() => {
+    if (!isAuthenticated || !expiresAt) return
+
+    // Check immediately if already expired
+    if (expiresAt.getTime() <= Date.now()) {
+      logout("expired")
+      return
+    }
+
+    // Set timeout to logout at exact expiration time
+    const timeUntilExpiration = expiresAt.getTime() - Date.now()
+    const timeout = setTimeout(() => {
+      logout("expired")
+    }, timeUntilExpiration)
+
+    return () => clearTimeout(timeout)
+  }, [isAuthenticated, expiresAt, logout])
 
   const login = useCallback(async (user: User, expires_at?: string) => {
     setUser(user)
@@ -83,27 +101,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setExpiresAt(undefined)
     }
   }, [])
-
-  useEffect(() => {
-    clearLogoutTimer()
-
-    if (user && expiresAt) {
-      const timeUntilExpiry = expiresAt.getTime() - Date.now()
-
-      if (timeUntilExpiry <= 0) {
-        logout("expired")
-        return
-      }
-
-      logoutTimerRef.current = setTimeout(() => {
-        logout("expired")
-      }, timeUntilExpiry)
-    }
-
-    return () => {
-      clearLogoutTimer()
-    }
-  }, [user, expiresAt, logout, clearLogoutTimer])
 
   return (
     <AuthContext.Provider
