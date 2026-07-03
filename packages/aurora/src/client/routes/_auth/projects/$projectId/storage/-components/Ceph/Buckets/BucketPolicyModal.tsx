@@ -6,6 +6,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { Modal, Stack, Select, SelectOption, Spinner, Message, Form } from "@cloudoperators/juno-ui-components"
 import { JsonEditor } from "@/client/components/JsonEditor"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface BucketPolicyModalProps {
   isOpen: boolean
@@ -71,6 +72,11 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.bucket.policy",
+  })
 
   // Form schema - only validates JSON syntax and size, backend handles policy structure validation
   // Empty string is allowed (will trigger delete)
@@ -142,6 +148,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
+      markSubmitted()
       if (!value.policyText.trim()) {
         // Empty policy = delete
         deleteMutation.mutate({
@@ -200,6 +207,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
     form.reset()
     setMutation.reset()
     deleteMutation.reset()
+    resetTracking()
     onClose()
   }
 
@@ -266,7 +274,10 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       key={bucketName} // Remount when bucket changes
       title={t`Edit/View Bucket Policy`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Save`}
       onConfirm={handleSave}
       cancelButtonLabel={t`Cancel`}

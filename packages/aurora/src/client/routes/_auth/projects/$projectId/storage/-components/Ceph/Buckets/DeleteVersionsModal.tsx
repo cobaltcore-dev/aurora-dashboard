@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteVersionsModalProps {
   isOpen: boolean
@@ -18,6 +19,11 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
   const projectId = useProjectId()
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.bucket.versions.delete",
+  })
 
   const utils = trpcReact.useUtils()
 
@@ -34,6 +40,7 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
     setConfirmName("")
     setNameError(null)
     deleteVersionsMutation.reset()
+    resetTracking()
     onClose()
   }
 
@@ -49,6 +56,8 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
       setNameError(t`Bucket name does not match`)
       return
     }
+
+    markSubmitted()
 
     // Capture bucket name before async operation to avoid dereferencing null bucket in callbacks
     const bucketName = bucket.name
@@ -81,7 +90,10 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
     <Modal
       title={t`Delete Versions`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Delete Versions`}
       confirmButtonVariant="primary-danger"
       onConfirm={handleSubmit}

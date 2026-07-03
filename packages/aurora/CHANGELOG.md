@@ -1,5 +1,21 @@
 # @cobaltcore-dev/aurora
 
+## 0.15.0
+
+### Minor Changes
+
+- 3966415: refactor(ui): ceph ui improvements
+
+## 0.14.1
+
+### Patch Changes
+
+- 1205d67: feat(aurora): add debug option to AuroraServerConfig
+
+  Add missing `debug` configuration option to AuroraServerConfig and pass it
+  through to contextConfig, allowing consumers to explicitly control OpenStack
+  session debug logging behavior via server configuration.
+
 ## 0.14.0
 
 ### Minor Changes

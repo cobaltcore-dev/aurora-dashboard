@@ -15,9 +15,19 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => mockProjectId,
 }))
 
+// ─── useRouteContext mock ─────────────────────────────────────────────────────
+
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
-const { mockInvalidate, mockMutateAsync, mockReset, mockState } = vi.hoisted(() => {
+const { mockInvalidateContainers, mockInvalidateObjects, mockMutateAsync, mockReset, mockState } = vi.hoisted(() => {
   const mockState = {
     isPending: false,
     shouldFail: false,
@@ -31,7 +41,8 @@ const { mockInvalidate, mockMutateAsync, mockReset, mockState } = vi.hoisted(() 
     return 5
   })
   return {
-    mockInvalidate: vi.fn(),
+    mockInvalidateContainers: vi.fn(),
+    mockInvalidateObjects: vi.fn(),
     mockMutateAsync,
     mockReset: vi.fn(),
     mockState,
@@ -43,7 +54,8 @@ vi.mock("@/client/trpcClient", () => ({
     useUtils: () => ({
       storage: {
         ceph: {
-          containers: { list: { invalidate: mockInvalidate } },
+          containers: { list: { invalidate: mockInvalidateContainers } },
+          objects: { list: { invalidate: mockInvalidateObjects } },
         },
       },
     }),
@@ -161,26 +173,6 @@ describe("EmptyBucketsModal", () => {
       expect(screen.getByText("bucket-3")).toBeInTheDocument()
     })
 
-    test("shows object count for non-empty buckets", () => {
-      renderModal()
-      expect(screen.getByText(/\(5 objects\)/)).toBeInTheDocument()
-      expect(screen.getByText(/\(3 objects\)/)).toBeInTheDocument()
-    })
-
-    test("shows singular form for single object", () => {
-      const singleObjectBucket: Bucket[] = [
-        { name: "bucket-1", creationDate: "2024-01-15T10:00:00Z", count: 1, bytes: 100 },
-      ]
-      renderModal({ buckets: singleObjectBucket })
-      expect(screen.getByText(/\(1 object\)/)).toBeInTheDocument()
-    })
-
-    test("does not show object count for empty buckets", () => {
-      const emptyBucket: Bucket[] = [{ name: "empty-bucket", creationDate: "2024-01-15T10:00:00Z", count: 0, bytes: 0 }]
-      renderModal({ buckets: emptyBucket })
-      expect(screen.queryByText(/\(0 objects\)/)).not.toBeInTheDocument()
-    })
-
     test("limits visible buckets to 20 and shows hidden count", () => {
       renderModal({ buckets: mockManyBuckets })
       expect(screen.getByText("bucket-1")).toBeInTheDocument()
@@ -258,7 +250,7 @@ describe("EmptyBucketsModal", () => {
       )
     })
 
-    test("invalidates buckets query after success", async () => {
+    test("invalidates buckets and objects queries after success", async () => {
       const user = userEvent.setup({ delay: null })
       renderModal({ buckets: mockBuckets })
 
@@ -271,7 +263,8 @@ describe("EmptyBucketsModal", () => {
 
       await waitFor(
         () => {
-          expect(mockInvalidate).toHaveBeenCalledTimes(1)
+          expect(mockInvalidateContainers).toHaveBeenCalledTimes(1)
+          expect(mockInvalidateObjects).toHaveBeenCalledTimes(1)
         },
         { timeout: 3000 }
       )
@@ -353,7 +346,7 @@ describe("EmptyBucketsModal", () => {
       )
     })
 
-    test("does not invalidate query when all operations fail", async () => {
+    test("does not invalidate queries when all operations fail", async () => {
       const user = userEvent.setup({ delay: null })
       mockState.shouldFail = true
       renderModal({ buckets: mockBuckets })
@@ -367,13 +360,14 @@ describe("EmptyBucketsModal", () => {
 
       await waitFor(
         () => {
-          expect(mockInvalidate).not.toHaveBeenCalled()
+          expect(mockInvalidateContainers).not.toHaveBeenCalled()
+          expect(mockInvalidateObjects).not.toHaveBeenCalled()
         },
         { timeout: 3000 }
       )
     })
 
-    test("invalidates query when some operations succeed", async () => {
+    test("invalidates queries when some operations succeed", async () => {
       const user = userEvent.setup({ delay: null })
       mockState.failOnBucket = "bucket-2"
       renderModal({ buckets: mockBuckets })
@@ -387,7 +381,8 @@ describe("EmptyBucketsModal", () => {
 
       await waitFor(
         () => {
-          expect(mockInvalidate).toHaveBeenCalledTimes(1)
+          expect(mockInvalidateContainers).toHaveBeenCalledTimes(1)
+          expect(mockInvalidateObjects).toHaveBeenCalledTimes(1)
         },
         { timeout: 3000 }
       )
@@ -414,6 +409,81 @@ describe("EmptyBucketsModal", () => {
       await user.click(cancelButton)
 
       expect(mockReset).toHaveBeenCalled()
+    })
+  })
+
+  describe("Analytics tracking", () => {
+    beforeEach(() => {
+      mockOnTrackEvent.mockClear()
+    })
+
+    test("tracks .open event when modal opens", async () => {
+      renderModal()
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "modal",
+          action: "storage.ceph.buckets.empty.open",
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    test("tracks .close event when user cancels without emptying", async () => {
+      const user = userEvent.setup({ delay: null })
+      const mockOnClose = vi.fn()
+      renderModal({ onClose: mockOnClose })
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Close the modal without submitting
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i })
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "modal",
+        action: "storage.ceph.buckets.empty.close",
+      })
+      expect(mockOnClose).toHaveBeenCalled()
+    })
+
+    test("does not track .close event after successful submit", async () => {
+      const user = userEvent.setup({ delay: null })
+      const mockOnClose = vi.fn()
+      renderModal({ onClose: mockOnClose })
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Type "empty" to enable the button
+      const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
+      await user.type(confirmInput, "empty")
+
+      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      await user.click(emptyButton)
+
+      // Wait for modal to close after completion
+      await waitFor(
+        () => {
+          expect(mockOnClose).toHaveBeenCalled()
+        },
+        { timeout: 3000 }
+      )
+
+      // .close should NOT have been tracked since user submitted
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.buckets.empty.close" })
+      )
     })
   })
 })

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import type { ObjectVersion } from "@/server/Storage/types/versioning"
 import {
   Modal,
@@ -40,6 +41,12 @@ export const ObjectVersionHistoryModal = ({
 }: ObjectVersionHistoryModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
+
+  const { trackClose, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.version.history",
+  })
+
   const [restoreTarget, setRestoreTarget] = useState<{
     versionId: string
     date?: string
@@ -82,6 +89,7 @@ export const ObjectVersionHistoryModal = ({
     setRestoreTarget(null)
     setDeleteTarget(null)
     setFeedbackMessage(null)
+    resetTracking()
     onClose()
   }
 
@@ -90,12 +98,20 @@ export const ObjectVersionHistoryModal = ({
   return (
     <Modal
       title={
-        <div className="overflow-x-hidden [overflow-wrap:anywhere]">
-          <Trans>Version History: {objectKey}</Trans>
-        </div>
+        <span className="flex max-w-[400px] items-center gap-1 md:max-w-[500px] lg:max-w-[1000px] xl:max-w-[1100px]">
+          <span className="shrink-0">
+            <Trans>Version History:</Trans>
+          </span>
+          <span className="truncate" title={objectKey}>
+            {objectKey}
+          </span>
+        </span>
       }
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       size="xl"
     >
       <Stack direction="vertical" gap="4">

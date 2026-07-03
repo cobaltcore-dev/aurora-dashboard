@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { Modal, Spinner, Stack, TextInput } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 const MAX_VISIBLE = 20
 
@@ -26,6 +27,11 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
   const [confirmText, setConfirmText] = useState("")
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.buckets.empty",
+  })
+
   const utils = trpcReact.useUtils()
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation()
 
@@ -33,10 +39,12 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
     emptyBucketMutation.reset()
     setProgress(null)
     setConfirmText("")
+    resetTracking()
     onClose()
   }
 
   const handleConfirm = async () => {
+    markSubmitted()
     let emptiedCount = 0
     let totalDeleted = 0
     const errors: string[] = []
@@ -61,6 +69,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
 
     if (emptiedCount > 0) {
       await utils.storage.ceph.containers.list.invalidate()
+      await utils.storage.ceph.objects.list.invalidate()
     }
 
     onComplete?.({ emptiedCount, totalDeleted, errors })
@@ -81,7 +90,10 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
     <Modal
       title={<Plural value={totalCount} one="Empty Bucket" other="Empty Buckets" />}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
@@ -114,20 +126,9 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
               <Trans>Buckets to empty:</Trans>
             </p>
             <ul className="list-inside list-disc space-y-1 text-sm">
-              {visibleBuckets.map((bucket) => {
-                const bucketName = bucket.name
-                const bucketCount = bucket.count
-                return (
-                  <li key={bucketName}>
-                    {bucketName}
-                    {bucketCount > 0 && (
-                      <span className="text-theme-light ml-2">
-                        ({bucketCount} <Plural value={bucketCount} one="object" other="objects" />)
-                      </span>
-                    )}
-                  </li>
-                )
-              })}
+              {visibleBuckets.map((bucket) => (
+                <li key={bucket.name}>{bucket.name}</li>
+              ))}
               {hiddenCount > 0 && (
                 <li className="text-theme-light">
                   <Trans>... and {hiddenCount} more</Trans>

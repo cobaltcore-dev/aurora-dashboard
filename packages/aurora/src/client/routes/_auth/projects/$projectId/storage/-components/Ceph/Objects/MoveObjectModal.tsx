@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import {
   Modal,
   Stack,
@@ -58,6 +59,11 @@ export const MoveObjectModal = ({
   const submittedKeyRef = useRef("")
   const submittedTargetKeyRef = useRef("")
   const submittedTargetBucketRef = useRef("")
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.move",
+  })
 
   const [newObjectName, setNewObjectName] = useState("")
   const [newObjectNameError, setNewObjectNameError] = useState<string | null>(null)
@@ -190,6 +196,7 @@ export const MoveObjectModal = ({
   const handleClose = () => {
     copyMutation.reset()
     deleteMutation.reset()
+    resetTracking()
     onClose()
   }
 
@@ -225,6 +232,7 @@ export const MoveObjectModal = ({
       return
     }
 
+    markSubmitted()
     const trimmedName = newObjectName.trim()
     const targetKey = `${modalState.currentPrefix}${trimmedName}`
 
@@ -282,7 +290,10 @@ export const MoveObjectModal = ({
         </span>
       }
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Moving...` : t`Move/Rename`}
       onConfirm={handleMove}
       cancelButtonLabel={t`Cancel`}

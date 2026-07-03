@@ -43,9 +43,6 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
-msgid "{bucketCount, plural, one {object} other {objects}}"
-msgstr ""
-
 msgid "{certificateIdValue} Certificate Details"
 msgstr ""
 
@@ -3499,7 +3496,7 @@ msgstr ""
 msgid "Version Deleted"
 msgstr ""
 
-msgid "Version History: {objectKey}"
+msgid "Version History:"
 msgstr ""
 
 msgid "Version ID"

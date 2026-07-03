@@ -15,6 +15,16 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => mockProjectId,
 }))
 
+// ─── useRouteContext mock ─────────────────────────────────────────────────────
+
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
+
 // ─── Mock clipboard API ───────────────────────────────────────────────────────
 
 const mockWriteText = vi.fn().mockResolvedValue(undefined)
@@ -607,6 +617,76 @@ describe("DeleteBucketModal", () => {
       await user.click(cancelButton)
 
       expect(mockReset).toHaveBeenCalled()
+    })
+  })
+
+  describe("Analytics tracking", () => {
+    beforeEach(() => {
+      mockOnTrackEvent.mockClear()
+    })
+
+    test("tracks .open event when modal opens", async () => {
+      renderModal()
+
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith({
+          source: "modal",
+          action: "storage.ceph.bucket.delete.open",
+        })
+      })
+
+      expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+    })
+
+    test("tracks .close event when user cancels without submitting", async () => {
+      const user = userEvent.setup({ delay: null })
+      const mockOnClose = vi.fn()
+      renderModal({ onClose: mockOnClose })
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledTimes(1)
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Close the modal without submitting
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i })
+      await user.click(cancelButton)
+
+      expect(mockOnTrackEvent).toHaveBeenCalledWith({
+        source: "modal",
+        action: "storage.ceph.bucket.delete.close",
+      })
+      expect(mockOnClose).toHaveBeenCalled()
+    })
+
+    test("does not track .close event on successful submit", async () => {
+      const user = userEvent.setup({ delay: null })
+      renderModal()
+
+      // Wait for .open event
+      await waitFor(() => {
+        expect(mockOnTrackEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "storage.ceph.bucket.delete.open" })
+        )
+      })
+
+      mockOnTrackEvent.mockClear()
+
+      // Type the bucket name to confirm
+      const input = screen.getByLabelText(/Type the bucket name to confirm/i)
+      await user.clear(input)
+      await user.type(input, mockEmptyBucket.name)
+
+      // Click the Delete Bucket button
+      const deleteButton = screen.getByRole("button", { name: /^Delete Bucket$/i })
+      await user.click(deleteButton)
+
+      // .close should NOT have been tracked since user submitted
+      expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ action: "storage.ceph.bucket.delete.close" })
+      )
     })
   })
 })
