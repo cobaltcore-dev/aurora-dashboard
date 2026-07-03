@@ -32,10 +32,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const closeInactivityModal = useCallback(() => {
     setShowInactivityModal(false)
 
-    router.navigate({
-      to: "/",
-      search: redirectAfterModal ? { redirect: redirectAfterModal } : undefined,
-    })
+    try {
+      router.navigate({
+        to: "/",
+        search: redirectAfterModal ? { redirect: redirectAfterModal } : undefined,
+      })
+    } catch {
+      // Fallback if router not ready
+      window.location.href = "/"
+    }
   }, [router, redirectAfterModal])
 
   const logout = useCallback(
@@ -63,7 +68,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setShowInactivityModal(true)
       } else {
         // Manual logout: direct navigation
-        router.invalidate()
+        try {
+          router.invalidate()
+        } catch {
+          // Fallback if router not ready
+          window.location.href = "/"
+        }
       }
     },
     [router]
@@ -75,18 +85,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Check immediately if already expired
     if (expiresAt.getTime() <= Date.now()) {
-      logout("expired")
+      // Call logout directly with state updates to avoid closure issues
+      setUser(null)
+      setExpiresAt(undefined)
+      setLogoutReason("expired")
+      setShowInactivityModal(true)
+
+      const currentPath = window.location.pathname + window.location.search
+      if (currentPath && currentPath.startsWith("/")) {
+        setRedirectAfterModal(currentPath)
+      }
       return
     }
 
     // Set timeout to logout at exact expiration time
     const timeUntilExpiration = expiresAt.getTime() - Date.now()
     const timeout = setTimeout(() => {
-      logout("expired")
+      // Call logout directly with state updates to avoid closure issues
+      setUser(null)
+      setExpiresAt(undefined)
+      setLogoutReason("expired")
+      setShowInactivityModal(true)
+
+      const currentPath = window.location.pathname + window.location.search
+      if (currentPath && currentPath.startsWith("/")) {
+        setRedirectAfterModal(currentPath)
+      }
+
+      // Terminate session on server (best effort)
+      try {
+        trpcClient.auth.terminateUserSession.mutate().catch((error) => {
+          console.error("Error terminating session:", error)
+        })
+      } catch (error) {
+        // Ignore if trpcClient not available (e.g., in tests)
+        console.error("trpcClient not available:", error)
+      }
     }, timeUntilExpiration)
 
     return () => clearTimeout(timeout)
-  }, [isAuthenticated, expiresAt, logout])
+  }, [isAuthenticated, expiresAt])
 
   const login = useCallback(async (user: User, expires_at?: string) => {
     setUser(user)
