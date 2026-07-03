@@ -2,11 +2,24 @@ import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { render, screen, act, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
+import { PortalProvider, toast } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { SwiftObjects } from "./"
 import type { ObjectSummary } from "@/server/Storage/types/swift"
+
+// ─── Mock the Juno toast API ──────────────────────────────────────────────────
+// The component now fires notifications through the NotificationManager (Sonner)
+// instead of rendering a local <Toast>. Tests assert the right builder function
+// and toast method were called; rendering/auto-dismiss is the library's job.
+
+vi.mock("@cloudoperators/juno-ui-components", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@cloudoperators/juno-ui-components")>()
+  return {
+    ...actual,
+    toast: Object.assign(actual.toast, { success: vi.fn(), error: vi.fn(), warning: vi.fn() }),
+  }
+})
 
 // ─── Hoisted mocks ───────────────────────────────────────────────────────────
 // vi.mock factories are hoisted to the top of the file by Vitest, so any
@@ -221,25 +234,25 @@ let trpcState = {
 }
 
 vi.mock("./ObjectToastNotifications", () => ({
-  getFolderCreatedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getFolderCreateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getFolderDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getFolderDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getObjectDownloadErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getObjectDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getObjectDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getObjectCopiedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getObjectCopyErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getObjectMovedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getObjectMoveErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getTempUrlCopiedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getObjectMetadataUpdatedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getObjectMetadataUpdateErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getObjectUploadedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getObjectUploadCancelledToast: vi.fn(() => ({ variant: "warning", children: null })),
-  getObjectUploadErrorToast: vi.fn(() => ({ variant: "error", children: null })),
-  getObjectsBulkDeletedToast: vi.fn(() => ({ variant: "success", children: null })),
-  getObjectsBulkDeleteErrorToast: vi.fn(() => ({ variant: "error", children: null })),
+  getFolderCreatedToast: vi.fn(() => ({ message: null, description: null })),
+  getFolderCreateErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getFolderDeletedToast: vi.fn(() => ({ message: null, description: null })),
+  getFolderDeleteErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectDownloadErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectDeletedToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectDeleteErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectCopiedToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectCopyErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectMovedToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectMoveErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getTempUrlCopiedToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectMetadataUpdatedToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectMetadataUpdateErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectUploadedToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectUploadCancelledToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectUploadErrorToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectsBulkDeletedToast: vi.fn(() => ({ message: null, description: null })),
+  getObjectsBulkDeleteErrorToast: vi.fn(() => ({ message: null, description: null })),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -406,11 +419,7 @@ describe("SwiftObjects (index)", () => {
       await act(async () => {
         capturedOnDownloadError?.("report.pdf", "403 Forbidden")
       })
-      expect(getObjectDownloadErrorToast).toHaveBeenCalledWith(
-        "report.pdf",
-        "403 Forbidden",
-        expect.objectContaining({ onDismiss: expect.any(Function) })
-      )
+      expect(getObjectDownloadErrorToast).toHaveBeenCalledWith("report.pdf", "403 Forbidden")
     })
 
     test("passes onDeleteObjectSuccess callback to ObjectsTableView", () => {
@@ -439,12 +448,7 @@ describe("SwiftObjects (index)", () => {
       await act(async () => {
         capturedOnCopyObjectSuccess?.("report.pdf", "dest-container", "archive/")
       })
-      expect(getObjectCopiedToast).toHaveBeenCalledWith(
-        "report.pdf",
-        "dest-container",
-        "archive/",
-        expect.objectContaining({ onDismiss: expect.any(Function) })
-      )
+      expect(getObjectCopiedToast).toHaveBeenCalledWith("report.pdf", "dest-container", "archive/")
     })
 
     test("onCopyObjectError shows error toast via getObjectCopyErrorToast", async () => {
@@ -453,11 +457,7 @@ describe("SwiftObjects (index)", () => {
       await act(async () => {
         capturedOnCopyObjectError?.("report.pdf", "403 Forbidden")
       })
-      expect(getObjectCopyErrorToast).toHaveBeenCalledWith(
-        "report.pdf",
-        "403 Forbidden",
-        expect.objectContaining({ onDismiss: expect.any(Function) })
-      )
+      expect(getObjectCopyErrorToast).toHaveBeenCalledWith("report.pdf", "403 Forbidden")
     })
 
     test("passes onMoveObjectSuccess callback to ObjectsTableView", () => {
@@ -476,12 +476,7 @@ describe("SwiftObjects (index)", () => {
       await act(async () => {
         capturedOnMoveObjectSuccess?.("report.pdf", "dest-container", "archive/")
       })
-      expect(getObjectMovedToast).toHaveBeenCalledWith(
-        "report.pdf",
-        "dest-container",
-        "archive/",
-        expect.objectContaining({ onDismiss: expect.any(Function) })
-      )
+      expect(getObjectMovedToast).toHaveBeenCalledWith("report.pdf", "dest-container", "archive/")
     })
 
     test("onMoveObjectError shows error toast via getObjectMoveErrorToast", async () => {
@@ -490,11 +485,7 @@ describe("SwiftObjects (index)", () => {
       await act(async () => {
         capturedOnMoveObjectError?.("report.pdf", "403 Forbidden")
       })
-      expect(getObjectMoveErrorToast).toHaveBeenCalledWith(
-        "report.pdf",
-        "403 Forbidden",
-        expect.objectContaining({ onDismiss: expect.any(Function) })
-      )
+      expect(getObjectMoveErrorToast).toHaveBeenCalledWith("report.pdf", "403 Forbidden")
     })
 
     test("passes onTempUrlCopySuccess callback to ObjectsTableView", () => {
@@ -508,10 +499,7 @@ describe("SwiftObjects (index)", () => {
       await act(async () => {
         capturedOnTempUrlCopySuccess?.("report.pdf")
       })
-      expect(getTempUrlCopiedToast).toHaveBeenCalledWith(
-        "report.pdf",
-        expect.objectContaining({ onDismiss: expect.any(Function) })
-      )
+      expect(getTempUrlCopiedToast).toHaveBeenCalledWith("report.pdf")
     })
 
     test("passes onEditMetadataSuccess callback to ObjectsTableView", () => {
@@ -530,10 +518,7 @@ describe("SwiftObjects (index)", () => {
       await act(async () => {
         capturedOnEditMetadataSuccess?.("sample.txt")
       })
-      expect(getObjectMetadataUpdatedToast).toHaveBeenCalledWith(
-        "sample.txt",
-        expect.objectContaining({ onDismiss: expect.any(Function) })
-      )
+      expect(getObjectMetadataUpdatedToast).toHaveBeenCalledWith("sample.txt")
     })
 
     test("onEditMetadataError shows error toast via getObjectMetadataUpdateErrorToast", async () => {
@@ -542,11 +527,7 @@ describe("SwiftObjects (index)", () => {
       await act(async () => {
         capturedOnEditMetadataError?.("sample.txt", "403 Forbidden")
       })
-      expect(getObjectMetadataUpdateErrorToast).toHaveBeenCalledWith(
-        "sample.txt",
-        "403 Forbidden",
-        expect.objectContaining({ onDismiss: expect.any(Function) })
-      )
+      expect(getObjectMetadataUpdateErrorToast).toHaveBeenCalledWith("sample.txt", "403 Forbidden")
     })
 
     test("subtracts 1 from deletedCount before passing to getFolderDeletedToast", async () => {
@@ -557,7 +538,7 @@ describe("SwiftObjects (index)", () => {
         capturedOnDeleteFolderSuccess?.("my-folder", 4)
       })
       // nestedCount = 4 - 1 = 3 should be passed to the toast factory
-      expect(getFolderDeletedToast).toHaveBeenCalledWith("my-folder", 3, expect.any(Object))
+      expect(getFolderDeletedToast).toHaveBeenCalledWith("my-folder", 3)
     })
   })
 
@@ -644,7 +625,7 @@ describe("SwiftObjects (index)", () => {
       act(() => {
         capturedOnUploadSuccess?.("report.pdf")
       })
-      expect(getObjectUploadedToast).toHaveBeenCalledWith("report.pdf", expect.any(Object))
+      expect(getObjectUploadedToast).toHaveBeenCalledWith("report.pdf")
     })
 
     test("shows error toast when upload fails", async () => {
@@ -653,7 +634,7 @@ describe("SwiftObjects (index)", () => {
       act(() => {
         capturedOnUploadError?.("report.pdf", "Quota exceeded")
       })
-      expect(getObjectUploadErrorToast).toHaveBeenCalledWith("report.pdf", "Quota exceeded", expect.any(Object))
+      expect(getObjectUploadErrorToast).toHaveBeenCalledWith("report.pdf", "Quota exceeded")
     })
 
     test("shows warning toast when upload is cancelled", async () => {
@@ -662,7 +643,9 @@ describe("SwiftObjects (index)", () => {
       act(() => {
         capturedOnUploadCancelled?.("report.pdf")
       })
-      expect(getObjectUploadCancelledToast).toHaveBeenCalledWith("report.pdf", expect.any(Object))
+      expect(getObjectUploadCancelledToast).toHaveBeenCalledWith("report.pdf")
+      // Cancellation dispatches via toast.warning, not toast.success/error.
+      expect(toast.warning).toHaveBeenCalled()
     })
   })
 
@@ -783,10 +766,7 @@ describe("SwiftObjects (index)", () => {
       await waitFor(() => expect(screen.getByTestId("delete-objects-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateBulkDeleteSuccess" }))
       await waitFor(() => {
-        expect(getObjectsBulkDeletedToast).toHaveBeenCalledWith(
-          1,
-          expect.objectContaining({ onDismiss: expect.any(Function) })
-        )
+        expect(getObjectsBulkDeletedToast).toHaveBeenCalledWith(1)
         // Selection cleared → the Actions toggle is disabled again.
         expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
       })
@@ -800,10 +780,7 @@ describe("SwiftObjects (index)", () => {
       await waitFor(() => expect(screen.getByTestId("delete-objects-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateBulkDeleteError" }))
       await waitFor(() => {
-        expect(getObjectsBulkDeleteErrorToast).toHaveBeenCalledWith(
-          "bulk delete failed",
-          expect.objectContaining({ onDismiss: expect.any(Function) })
-        )
+        expect(getObjectsBulkDeleteErrorToast).toHaveBeenCalledWith("bulk delete failed")
       })
     })
   })
