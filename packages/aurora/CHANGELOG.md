@@ -1,5 +1,11 @@
 # @cobaltcore-dev/aurora
 
+## 0.15.0
+
+### Minor Changes
+
+- 3966415: refactor(ui): ceph ui improvements
+
 ## 0.14.1
 
 ### Patch Changes
