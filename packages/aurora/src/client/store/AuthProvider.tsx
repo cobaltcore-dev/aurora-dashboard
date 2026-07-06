@@ -67,9 +67,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setShowInactivityModal(true)
       } else {
-        // Manual logout: direct navigation
+        // Manual logout: navigate to login
         try {
-          router.invalidate()
+          router.navigate({ to: "/" })
         } catch {
           // Fallback if router not ready
           window.location.href = "/"

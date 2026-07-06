@@ -129,6 +129,35 @@ function AppInner({
 }) {
   const auth = useAuth()
 
+  // Handle chunk loading failures (e.g., when dev server crashes)
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      const error = event.error
+      if (error && typeof error.message === "string" && error.message.includes("Failed to fetch")) {
+        console.error("Chunk loading failed - dev server may have crashed:", error)
+        event.preventDefault()
+
+        // Show user-friendly error instead of white screen
+        const root = document.getElementById("root")
+        if (root) {
+          root.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; text-align: center;">
+              <h1 style="font-size: 2rem; margin-bottom: 1rem;">Connection Lost</h1>
+              <p style="margin-bottom: 1rem;">The development server has stopped responding.</p>
+              <p style="font-size: 0.875rem; color: #666; margin-bottom: 2rem;">This usually happens when the build fails. Check the terminal for errors.</p>
+              <button onclick="window.location.reload()" style="padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer;">
+                Reload Page
+              </button>
+            </div>
+          `
+        }
+      }
+    }
+
+    window.addEventListener("error", handleError)
+    return () => window.removeEventListener("error", handleError)
+  }, [])
+
   const routerContext = {
     trpcReact,
     trpcClient,
