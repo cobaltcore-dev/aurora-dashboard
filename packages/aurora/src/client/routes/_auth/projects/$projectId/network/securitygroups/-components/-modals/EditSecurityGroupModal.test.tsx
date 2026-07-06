@@ -68,11 +68,9 @@ describe("EditSecurityGroupModal", () => {
 
       const nameInput = screen.getByLabelText(/Name/i) as HTMLInputElement
       const descriptionTextarea = screen.getByLabelText(/Description/i) as HTMLTextAreaElement
-      const statefulCheckbox = screen.getByLabelText(/Stateful/i) as HTMLInputElement
 
       expect(nameInput.value).toBe("existing-sg")
       expect(descriptionTextarea.value).toBe("Existing description")
-      expect(statefulCheckbox.checked).toBe(true)
     })
 
     test("handles security group with null description", () => {
@@ -95,28 +93,6 @@ describe("EditSecurityGroupModal", () => {
 
       const nameInput = screen.getByLabelText(/Name/i) as HTMLInputElement
       expect(nameInput.value).toBe("")
-    })
-
-    test("handles security group with stateful as false", () => {
-      const sgStateless: SecurityGroup = {
-        ...mockSecurityGroup,
-        stateful: false,
-      }
-      renderModal({ securityGroup: sgStateless })
-
-      const statefulCheckbox = screen.getByLabelText(/Stateful/i) as HTMLInputElement
-      expect(statefulCheckbox.checked).toBe(false)
-    })
-
-    test("handles security group with undefined stateful (defaults to true)", () => {
-      const sgNoStateful: SecurityGroup = {
-        ...mockSecurityGroup,
-        stateful: undefined,
-      }
-      renderModal({ securityGroup: sgNoStateful })
-
-      const statefulCheckbox = screen.getByLabelText(/Stateful/i) as HTMLInputElement
-      expect(statefulCheckbox.checked).toBe(true)
     })
   })
 
@@ -154,11 +130,9 @@ describe("EditSecurityGroupModal", () => {
       await waitFor(() => {
         const updatedNameInput = screen.getByLabelText(/Name/i) as HTMLInputElement
         const updatedDescriptionTextarea = screen.getByLabelText(/Description/i) as HTMLTextAreaElement
-        const updatedStatefulCheckbox = screen.getByLabelText(/Stateful/i) as HTMLInputElement
 
         expect(updatedNameInput.value).toBe("updated-sg")
         expect(updatedDescriptionTextarea.value).toBe("Updated description")
-        expect(updatedStatefulCheckbox.checked).toBe(false)
       })
     })
   })
@@ -172,13 +146,6 @@ describe("EditSecurityGroupModal", () => {
     test("displays 'Update Security Group' button text", () => {
       renderModal()
       expect(screen.getByTestId("update-security-group-button")).toHaveTextContent("Update Security Group")
-    })
-
-    test("displays info message about stateful restrictions", () => {
-      renderModal()
-      expect(
-        screen.getByText(/The 'stateful' attribute cannot be changed if this security group is currently in use/i)
-      ).toBeInTheDocument()
     })
 
     test("shows 'Updating security group...' when loading", () => {
@@ -209,7 +176,6 @@ describe("EditSecurityGroupModal", () => {
         expect(onUpdate).toHaveBeenCalledWith("sg-123", {
           name: "updated-name",
           description: "updated description",
-          stateful: true,
         })
       })
     })
@@ -234,7 +200,6 @@ describe("EditSecurityGroupModal", () => {
         expect(onUpdate).toHaveBeenCalledWith("sg-123", {
           name: "updated-name",
           description: "updated description",
-          stateful: true,
         })
       })
     })
@@ -254,27 +219,6 @@ describe("EditSecurityGroupModal", () => {
         expect(onUpdate).toHaveBeenCalledWith("sg-123", {
           name: "existing-sg",
           description: undefined,
-          stateful: true,
-        })
-      })
-    })
-
-    test("calls onUpdate with changed stateful value", async () => {
-      const onUpdate = vi.fn().mockResolvedValue(undefined)
-      const user = userEvent.setup()
-      renderModal({ onUpdate })
-
-      const statefulCheckbox = screen.getByLabelText(/Stateful/i)
-      await user.click(statefulCheckbox) // Toggle to false
-
-      const submitButton = screen.getByTestId("update-security-group-button")
-      await user.click(submitButton)
-
-      await waitFor(() => {
-        expect(onUpdate).toHaveBeenCalledWith("sg-123", {
-          name: "existing-sg",
-          description: "Existing description",
-          stateful: false,
         })
       })
     })
