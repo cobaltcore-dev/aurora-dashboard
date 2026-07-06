@@ -88,7 +88,7 @@ describe("App Chunk Loading Error Handler", () => {
 
     expect(mockEvent.preventDefault).toHaveBeenCalled()
     expect(rootDiv.innerHTML).toContain("Connection Lost")
-    expect(rootDiv.innerHTML).toContain("development server has stopped responding")
+    expect(rootDiv.innerHTML).toContain("Failed to load application resources")
 
     document.body.removeChild(rootDiv)
   })

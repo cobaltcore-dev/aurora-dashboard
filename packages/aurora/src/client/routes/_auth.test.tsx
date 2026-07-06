@@ -23,7 +23,7 @@ describe("_auth route", () => {
         if (e && typeof e === "object" && "to" in e) {
           const redirectObj = e as { to: string; search?: { redirect: string } }
           expect(redirectObj.to).toBe("/")
-          expect(redirectObj.search?.redirect).toBe("/projects/123/compute?tab%3Dinstances%26filter%3Dactive")
+          expect(redirectObj.search?.redirect).toBe("/projects/123/compute?tab=instances&filter=active")
         }
       }
     })

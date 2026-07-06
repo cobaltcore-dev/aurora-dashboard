@@ -39,7 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
     } catch {
       // Fallback if router not ready
-      window.location.href = "/"
+      const redirect = redirectAfterModal ? `?redirect=${encodeURIComponent(redirectAfterModal)}` : ""
+      window.location.href = `/${redirect}`
     }
   }, [router, redirectAfterModal])
 
@@ -50,8 +51,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         await trpcClient.auth.terminateUserSession.mutate()
       } catch (error) {
-        // Log error but continue with logout to clear local state
-        console.error("Error terminating session:", error)
+        // UNAUTHORIZED is expected when the token is already expired
+        // Only log unexpected errors
+        const isExpectedUnauthorized = (error as any)?.data?.code === "UNAUTHORIZED"
+        if (!isExpectedUnauthorized) {
+          console.error("Error terminating session:", error)
+        }
       }
 
       setUser(null)

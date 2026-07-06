@@ -156,8 +156,8 @@ function AppInner({
           root.innerHTML = `
             <div>
               <h1>Connection Lost</h1>
-              <p>The development server has stopped responding.</p>
-              <p>Check the terminal for build errors.</p>
+              <p>Failed to load application resources.</p>
+              <p>This may be due to a network issue or stale cached files.</p>
               <button onclick="window.location.reload()">Reload</button>
             </div>
           `
