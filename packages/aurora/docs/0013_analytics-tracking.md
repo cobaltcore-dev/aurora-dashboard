@@ -1,172 +1,423 @@
-# Analytics Tracking in Routes
+# Analytics Tracking Guide
 
-This guide explains how to add semantic analytics tracking to your routes using TanStack Router's `staticData`.
+This guide explains how to implement analytics tracking in the Aurora dashboard for both route navigation and user actions.
 
 ## Overview
 
-Aurora's analytics system uses the `onResolved` event from TanStack Router to track page views. Instead of tracking raw URLs like `/projects/abc-123/storage/swift/containers`, we track semantic names like `storage.swift.list` that have meaning independent of dynamic parameters.
+The Aurora dashboard uses a semantic analytics system that tracks:
 
-## Basic Pattern
+1. **Page views** - Automatic tracking when users navigate between routes
+2. **User actions** - Manual tracking when users interact with modals, buttons, and components
 
-Add an `analytics` field to your route's `staticData`:
+## Architecture
 
-```tsx
-import { createFileRoute } from "@tanstack/react-router"
-import type { RouteInfo } from "@/client/routes/routeInfo"
+### The `onTrackEvent` Callback
 
-export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provider/$storageType/")({
-  staticData: {
-    section: "storage",
-    service: "swift",
-    analytics: {
-      name: "storage.swift.list",
-    },
-  } satisfies RouteInfo,
-  component: StorageComponent,
-})
+The `onTrackEvent` callback is the **consumer endpoint** for all analytics events. It's passed as a prop to `<AuroraApp />` and called whenever a trackable event occurs:
+
+```typescript
+// Consumer implementation
+<AuroraApp
+  onTrackEvent={(payload) => {
+    // Send to your analytics backend
+    analytics.track(payload.action, {
+      source: payload.source,
+      ...payload.metadata
+    })
+  }}
+/>
 ```
 
-## Naming Convention
+**Type definition:** See [`AuroraApp.tsx:37-54`](../src/client/AuroraApp.tsx#L37-L54)
 
-Use dot-separated semantic names that describe **what** the user is viewing, not the URL structure:
-
-### ✅ Good Examples
-
-- `storage.swift.list` - List of Swift containers
-- `storage.swift.detail` - Single Swift container detail view
-- `compute.flavors.list` - List of compute flavors
-- `compute.instances.create` - Instance creation form
-- `network.floatingips.edit` - Edit floating IP
-
-### ❌ Avoid
-
-- `/_auth/projects/$projectId/storage/swift/` - Raw route paths
-- `/projects/abc-123/storage/swift/containers` - URLs with IDs
-- `page_view_storage_swift` - Generic prefixes
-
-## Pattern by Route Type
-
-### List Views
-
-```tsx
-analytics: {
-  name: "storage.swift.list"
-}
-```
-
-### Detail Views
-
-```tsx
-analytics: {
-  name: "storage.swift.detail"
-}
-```
-
-### Action Views (Create/Edit)
-
-```tsx
-analytics: {
-  name: "compute.instances.create"
-}
-```
-
-### Section Landing Pages
-
-```tsx
-analytics: {
-  name: "compute.overview"
-}
-```
-
-## What Gets Tracked
-
-The analytics event includes:
+The payload structure:
 
 ```typescript
 {
-  source: "router",
-  action: "storage.swift.list",  // From analytics.name, or routeId if not set
-  metadata: {
-    pathname: "/projects/abc-123/storage/swift/containers",  // For debugging
-    search: "?sortBy=name",  // Query params (if present)
-  }
+  source: string      // "router", "modal", "button", etc.
+  action: string      // Semantic name or action identifier
+  metadata?: Record<string, string | number | boolean | undefined>
 }
 ```
 
-The semantic `action` name contains all the context you need - section, service, and operation are all encoded in the analytics name itself (e.g., `storage.swift.list`).
-
-## Fallback Behavior
-
-If you don't set `analytics.name`, the system falls back to the `routeId`:
+The callback is available to all components via the router context:
 
 ```typescript
-// Without analytics.name:
-action: "/_auth/projects/$projectId/storage/$provider/$storageType/"
+const { onTrackEvent } = useRouteContext({ strict: false })
 
-// With analytics.name:
-action: "storage.swift.list"
+onTrackEvent?.({ source: "modal", action: "storage.ceph.bucket.create.open" })
+```
+
+### Router Analytics Implementation
+
+**How it works:**
+
+1. Consumer passes `onTrackEvent` callback to `<AuroraApp />`
+2. Callback is added to router context in [`App.tsx:140`](../src/client/App.tsx#L140)
+3. `setupRouterAnalytics()` subscribes to TanStack Router's `onResolved` event ([`App.tsx:148`](../src/client/App.tsx#L148))
+4. On each navigation, it extracts route metadata and calls `onTrackEvent`
+
+**Implementation:** See [`setupRouterAnalytics.ts`](../src/client/analytics/setupRouterAnalytics.ts)
+
+Key behaviors:
+
+- Uses semantic `analytics.name` from route `staticData` if present, otherwise falls back to `routeId`
+- For storage routes with `storage.objectstore.X`, automatically replaces `objectstore` with the actual provider (`swift` or `ceph`)
+- Always includes `pathname` in metadata, includes `search` when query params exist
+
+## Naming Conventions
+
+### Page View Actions
+
+Format: `section.service.list` or `section.service.detail`
+
+**Examples:**
+
+- `projects.list` - List of all projects
+- `compute.flavors.detail` - Detail view of a specific flavor
+- `storage.swift.list` - List of Swift containers (provider dynamically replaced)
+
+### User Action Events
+
+Format: `section.service.resource.action` or `section.service.resource.action.state`
+
+**Examples:**
+
+- `storage.swift.container.create.open` - User opened the create container modal
+- `storage.swift.container.create.close` - User closed the modal without creating
+- `storage.ceph.bucket.create.open` - User opened the create bucket modal
+- `compute.securitygroups.rule.add.open` - User opened the add rule dialog
+
+## Route Tracking
+
+Add the `analytics` field to your route's `staticData`:
+
+```typescript
+import { createFileRoute } from "@tanstack/react-router"
+import type { RouteInfo } from "@/client/routes/routeInfo"
+
+export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors/")({
+  staticData: {
+    section: "compute",
+    service: "flavors",
+    analytics: {
+      name: "compute.flavors.list",
+    },
+    sectionCrumb: { labelKey: "Compute" },
+    crumb: { labelKey: "Flavors" },
+  } satisfies RouteInfo,
+  component: RouteComponent,
+})
+```
+
+### Dynamic Provider Replacement
+
+For storage routes, use `storage.objectstore.X` as the analytics name. The system automatically replaces `objectstore` with the actual provider:
+
+```typescript
+analytics: {
+  name: "storage.objectstore.list", // Becomes "storage.swift.list" or "storage.ceph.list"
+}
+```
+
+**Implementation:** See [`setupRouterAnalytics.ts:54-60`](../src/client/analytics/setupRouterAnalytics.ts#L54-L60)
+
+## Action Tracking (User Interactions)
+
+### Modal Actions (Implemented)
+
+For modal tracking, use the `useModalTracking` hook:
+
+**Implementation:** See [`useModalTracking.ts`](../src/client/hooks/useModalTracking.ts)
+
+The hook handles:
+
+- Tracking `.open` event when modal opens (once per open)
+- Tracking `.close` event when cancelled (only if not submitted)
+- React 18 Strict Mode compatibility
+- Uses `useRef` for state to avoid timing races
+
+**Usage:**
+
+```typescript
+import { useModalTracking } from "@/client/hooks/useModalTracking"
+
+const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+  isOpen,
+  actionPrefix: "storage.ceph.bucket.create",
+})
+
+const handleClose = () => {
+  resetTracking()
+  onClose()
+}
+
+const handleSubmit = () => {
+  markSubmitted()
+  mutation.mutate(...)
+}
+
+<Modal
+  onCancel={() => {
+    trackClose()
+    handleClose()
+  }}
+  onConfirm={handleSubmit}
+/>
+```
+
+**Reference implementations:** See `EmptyBucketModal.test.tsx`, `EnableVersioningModal.test.tsx`
+
+### Other Actions (Manual Implementation)
+
+For tracking other user interactions (buttons, tabs, filters, dropdowns), use `onTrackEvent` directly:
+
+```typescript
+import { useRouteContext } from "@tanstack/react-router"
+
+const { onTrackEvent } = useRouteContext({ strict: false })
+
+// Button click
+const handleDelete = () => {
+  onTrackEvent?.({
+    source: "button",
+    action: "storage.ceph.bucket.delete",
+    metadata: { bucketName }, // Optional
+  })
+  deleteMutation.mutate({ bucketName })
+}
+
+// Tab change
+const handleTabChange = (tabId: string) => {
+  onTrackEvent?.({
+    source: "tab",
+    action: `compute.instances.view.${tabId}`,
+  })
+  setActiveTab(tabId)
+}
+
+// Filter/search (debounced)
+const trackFilter = useMemo(
+  () =>
+    debounce((value: string) => {
+      onTrackEvent?.({
+        source: "filter",
+        action: "storage.ceph.buckets.filter.search",
+        metadata: { value },
+      })
+    }, 1000),
+  [onTrackEvent]
+)
+
+// Dropdown selection
+const handleBulkAction = (action: string) => {
+  onTrackEvent?.({
+    source: "dropdown",
+    action: `storage.ceph.buckets.bulk.${action}`,
+    metadata: { count: selectedBuckets.length },
+  })
+  performBulkAction(action, selectedBuckets)
+}
+```
+
+**Pattern:**
+
+```typescript
+onTrackEvent?.({
+  source: "button" | "tab" | "filter" | "dropdown" | "custom",
+  action: "section.service.resource.action[.state]",
+  metadata?: { /* optional context */ }
+})
+```
+
+**Best practices:**
+
+- Use `useRef` for tracking flags to avoid timing races
+- Debounce high-frequency events (search, scroll, resize)
+- Track user **intent**, not results
+- Don't track: cancel buttons (modal `.close`), navigation buttons (router), submit buttons inside modals (modal `.open`)
+
+**Note:** Currently, only modal tracking has a dedicated hook. Button, tab, filter, and dropdown tracking are not yet implemented in the codebase but can be added following this pattern.
+
+## What to Track
+
+### Track User Behavior
+
+**Modal interactions (implemented):**
+
+- When the user opens a modal (`.open` suffix)
+- When the user closes a modal without completing (`.close` suffix)
+
+**Other interactions (not yet implemented, but can be added):**
+
+- Button clicks for destructive or important actions
+- Tab switches and view mode changes
+- Filter selections and search queries (debounced)
+- Dropdown and context menu selections
+
+### Do NOT Track
+
+- Whether the backend operation succeeded (that's for error monitoring)
+- Internal state changes that the user didn't initiate
+- Automatic retries or background processes
+- API call results or errors
+
+## Metadata Guidelines
+
+Metadata is **optional**. The action name already conveys user intent.
+
+**When to include:**
+
+- Configuration options selected (e.g., `versioning: boolean`)
+- User selections (e.g., selected tab)
+- Context that helps understand behavior
+
+**Never include:**
+
+- Success/failure state of backend operations
+- Error messages from API calls
+- Sensitive data (passwords, tokens, keys)
+- User personal information beyond what's necessary
+
+## Testing
+
+### Router Analytics
+
+**Tests:** See [`setupRouterAnalytics.test.ts`](../src/client/analytics/setupRouterAnalytics.test.ts)
+
+Key scenarios:
+
+- Analytics name usage
+- Provider replacement for storage routes
+- Fallback to routeId when analytics.name is missing
+- Metadata structure
+
+### Modal Tracking
+
+Every modal using `useModalTracking` should have three tests:
+
+1. **Tracks `.open` event** when modal opens
+2. **Tracks `.close` event** when user cancels without submitting
+3. **Does NOT track `.close`** on successful submit
+
+**Reference implementations:** See `EmptyBucketModal.test.tsx`, `EnableVersioningModal.test.tsx`, `EmptyBucketsModal.test.tsx`
+
+### Button/Tab/Filter Tracking
+
+For other action types, verify the event is tracked with correct payload:
+
+```typescript
+it("tracks button click event", async () => {
+  const user = userEvent.setup()
+  render(<YourComponent />)
+
+  const deleteButton = screen.getByRole("button", { name: "Delete" })
+  await user.click(deleteButton)
+
+  expect(mockOnTrackEvent).toHaveBeenCalledWith({
+    source: "button",
+    action: "storage.ceph.bucket.delete",
+    metadata: expect.objectContaining({ bucketName: "test-bucket" })
+  })
+})
+```
+
+Pattern is the same for tab, filter, and dropdown actions - just verify the correct `source` and `action` are used.
+
+**Test setup:**
+
+```typescript
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
 ```
 
 ## Migration Guide
 
-To add analytics tracking to an existing route:
+### Add Analytics to Existing Routes
 
-1. **Identify the semantic name** - What is the user actually viewing?
-   - Swift containers list → `storage.swift.list`
-   - Flavor detail page → `compute.flavors.detail`
+1. Add the `analytics` field to `staticData`:
 
-2. **Add the analytics field** to staticData:
+```typescript
+staticData: {
+  section: "compute",
+  service: "images",
+  analytics: {
+    name: "compute.images.list", // Add this
+  },
+} satisfies RouteInfo,
+```
 
-   ```tsx
-   staticData: {
-     section: "storage",
-     service: "swift",
-     analytics: { name: "storage.swift.list" }  // ADD THIS
-   } satisfies RouteInfo
-   ```
+2. Choose a semantic name:
+   - List pages: `section.service.list`
+   - Detail pages: `section.service.detail`
+   - Storage: Use `storage.objectstore.X` for automatic provider replacement
 
-3. **Test** - Navigate to the route and check the console for the track event
+### Add Modal Tracking
 
-## Complete Example
+Use the `useModalTracking` hook for modals that create/delete/edit resources:
 
-```tsx
-import { createFileRoute } from "@tanstack/react-router"
-import type { RouteInfo } from "@/client/routes/routeInfo"
-import { z } from "zod"
+```typescript
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
-const searchSchema = z.object({
-  sortBy: z.enum(["name", "size"]).optional(),
-  search: z.string().optional(),
-})
-
-export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors")({
-  staticData: {
-    section: "compute",
-    service: "flavors",
-    sectionCrumb: { labelKey: "Compute" },
-    crumb: { labelKey: "Flavors" },
-    analytics: {
-      name: "compute.flavors.list",
-    },
-  } satisfies RouteInfo,
-  validateSearch: searchSchema,
-  component: FlavorsComponent,
+const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+  isOpen,
+  actionPrefix: "section.service.resource.action",
 })
 ```
 
+## Current Route Analytics
+
+Major routes already configured:
+
+- **Projects**: `projects.list`, `projects.detail`
+- **Compute**: `compute.flavors.list`, `compute.images.list`, etc.
+- **Network**: `network.floatingips.list`, `network.securitygroups.list`, etc.
+- **Services**: `services.pca.list`, `services.pca.detail`, etc.
+- **Storage**: `storage.objectstore.list` → `storage.swift.list` / `storage.ceph.list`
+
+## Files
+
+- [`AuroraApp.tsx`](../src/client/AuroraApp.tsx) - Type definitions for `onTrackEvent` callback
+- [`App.tsx`](../src/client/App.tsx) - Router context setup and analytics initialization
+- [`__root.tsx`](../src/client/routes/__root.tsx) - Root route with RouterContext type
+- [`routeInfo.ts`](../src/client/routes/routeInfo.ts) - RouteInfo schema with analytics field
+- [`setupRouterAnalytics.ts`](../src/client/analytics/setupRouterAnalytics.ts) - Router event handler
+- [`setupRouterAnalytics.test.ts`](../src/client/analytics/setupRouterAnalytics.test.ts) - Unit tests
+- [`useModalTracking.ts`](../src/client/hooks/useModalTracking.ts) - Modal tracking hook
+
 ## Best Practices
 
-1. **Be consistent** - Use the same naming pattern across your app
-2. **Be specific** - `storage.swift.list` is better than `storage.list`
-3. **Keep it flat** - 2-3 levels deep is ideal (section.service.action)
-4. **Add analytics early** - Add it when creating the route, not as an afterthought
-5. **Document unusual names** - If the semantic name isn't obvious, add a comment
+1. **Be specific** - Use meaningful names that describe the actual page or action
+2. **Be consistent** - Follow the established naming conventions
+3. **Track user intent** - Track when users try to do something, not just when it succeeds
+4. **Protect privacy** - Never track sensitive data
+5. **Test thoroughly** - Verify tracking works in both success and error cases
+6. **Document new patterns** - Update this guide when adding new tracking patterns
 
-## Testing
+## Troubleshooting
 
-To verify your analytics tracking works:
+### Analytics not firing
 
-1. Start the dev server
-2. Navigate to your route
-3. Check the console for `>>>>Track event metadata:`
-4. Verify the `action` field contains your semantic name
+- Verify `onTrackEvent` is provided to `<AuroraApp />`
+- Check that the route has `staticData` with `analytics.name`
+- Look for errors in browser console
+- Confirm the event handler is called (add console.log temporarily)
+
+### Wrong action name
+
+- Verify `analytics.name` matches the convention
+- For storage, confirm provider replacement logic works
+- Check that you're not using routeId when you should use analytics.name
+
+## Additional Resources
+
+- [TanStack Router Events](https://tanstack.com/router/latest/docs/framework/react/guide/routing-events)
