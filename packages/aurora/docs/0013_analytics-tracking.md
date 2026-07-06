@@ -168,7 +168,9 @@ const handleSubmit = () => {
 
 **Reference implementations:** See `EmptyBucketModal.test.tsx`, `EnableVersioningModal.test.tsx`
 
-### Other Actions (Manual Implementation)
+### Other Actions (Not Yet Implemented)
+
+**Note:** The following patterns are not yet implemented in the codebase. These are examples showing how to add tracking for other action types when needed.
 
 For tracking other user interactions (buttons, tabs, filters, dropdowns), use `onTrackEvent` directly:
 
@@ -237,7 +239,7 @@ onTrackEvent?.({
 - Track user **intent**, not results
 - Don't track: cancel buttons (modal `.close`), navigation buttons (router), submit buttons inside modals (modal `.open`)
 
-**Note:** Currently, only modal tracking has a dedicated hook. Button, tab, filter, and dropdown tracking are not yet implemented in the codebase but can be added following this pattern.
+**Important:** These are examples only. Currently, only modal tracking is implemented in the codebase. Button, tab, filter, and dropdown tracking patterns are provided as guidance for future implementation.
 
 ## What to Track
 
@@ -373,6 +375,8 @@ const { trackClose, markSubmitted, resetTracking } = useModalTracking({
   actionPrefix: "section.service.resource.action",
 })
 ```
+
+**Reference implementation:** See [PR #1007](https://github.com/cobaltcore-dev/aurora-dashboard/pull/1007) for example of adding modal tracking to Ceph storage modals.
 
 ## Current Route Analytics
 
