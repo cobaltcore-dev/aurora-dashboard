@@ -3,10 +3,25 @@ import { renderHook, act } from "@testing-library/react"
 import { AuthProvider, useAuth } from "./AuthProvider"
 import type { User } from "./AuthProvider"
 import { ReactNode } from "react"
-import { useRouter } from "@tanstack/react-router"
 
-// Mock router — AuthProvider uses useRouter() internally
-vi.mock("../router", () => ({}))
+// Mock trpcClient
+vi.mock("../trpcClient", () => ({
+  trpcClient: {
+    auth: {
+      terminateUserSession: {
+        mutate: vi.fn().mockResolvedValue(undefined),
+      },
+    },
+  },
+}))
+
+// Mock router
+const mockNavigate = vi.fn()
+vi.mock("@tanstack/react-router", () => ({
+  useRouter: () => ({
+    navigate: mockNavigate,
+  }),
+}))
 
 // Extract the non-null user type
 type AuthUser = NonNullable<User>
@@ -17,12 +32,14 @@ describe("AuthProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.useFakeTimers()
+    mockNavigate.mockClear()
 
     // Mock window.location
     Object.defineProperty(window, "location", {
       value: {
-        pathname: "/dashboard",
+        pathname: "/projects",
         search: "",
+        href: "http://localhost/projects",
       },
       writable: true,
       configurable: true,
@@ -117,7 +134,7 @@ describe("AuthProvider", () => {
   })
 
   describe("Logout", () => {
-    it("should logout with manual reason and invalidate router", async () => {
+    it("should logout with manual reason and navigate to login", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -138,10 +155,10 @@ describe("AuthProvider", () => {
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.user).toBeNull()
       expect(result.current.logoutReason).toBe("manual")
-      expect(useRouter().invalidate).toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledWith({ to: "/" })
     })
 
-    it("should invalidate router on inactive logout (no modal)", async () => {
+    it("should navigate to login on inactive logout (no modal)", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -162,10 +179,10 @@ describe("AuthProvider", () => {
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.logoutReason).toBe("inactive")
       expect(result.current.showInactivityModal).toBe(false)
-      expect(useRouter().invalidate).toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledWith({ to: "/" })
     })
 
-    it("should show modal on expired logout", async () => {
+    it("should show modal on expired logout and preserve redirect path", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -185,6 +202,7 @@ describe("AuthProvider", () => {
 
       expect(result.current.showInactivityModal).toBe(true)
       expect(result.current.logoutReason).toBe("expired")
+      expect(result.current.redirectAfterModal).toBe("/projects")
     })
   })
 
@@ -425,7 +443,7 @@ describe("AuthProvider", () => {
   })
 
   describe("Inactivity Modal", () => {
-    it("should close modal and navigate to login (expired logout only)", async () => {
+    it("should close modal and navigate to login with redirect param (expired logout only)", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -450,9 +468,49 @@ describe("AuthProvider", () => {
       })
 
       expect(result.current.showInactivityModal).toBe(false)
-      expect(useRouter().navigate).toHaveBeenCalledWith({
+      expect(mockNavigate).toHaveBeenCalledWith({
         to: "/",
-        search: { redirect: "/dashboard" },
+        search: { redirect: "/projects" },
+      })
+    })
+
+    it("should preserve query params in redirect", async () => {
+      Object.defineProperty(window, "location", {
+        value: {
+          pathname: "/projects",
+          search: "?search=myproject",
+          href: "http://localhost/projects?search=myproject",
+        },
+        writable: true,
+        configurable: true,
+      })
+
+      const { result } = renderHook(() => useAuth(), { wrapper })
+
+      const mockUser: AuthUser = {
+        id: "1",
+        name: "Test",
+        domain: { id: "123", name: "Test Domain" },
+        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+      }
+
+      await act(async () => {
+        await result.current.login(mockUser)
+      })
+
+      await act(async () => {
+        await result.current.logout("expired")
+      })
+
+      expect(result.current.redirectAfterModal).toBe("/projects?search=myproject")
+
+      act(() => {
+        result.current.closeInactivityModal()
+      })
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/",
+        search: { redirect: "/projects?search=myproject" },
       })
     })
 
@@ -461,6 +519,7 @@ describe("AuthProvider", () => {
         value: {
           pathname: "",
           search: "",
+          href: "http://localhost",
         },
         writable: true,
         configurable: true,
@@ -483,13 +542,8 @@ describe("AuthProvider", () => {
         await result.current.logout("inactive")
       })
 
-      act(() => {
-        result.current.closeInactivityModal()
-      })
-
-      expect(useRouter().navigate).toHaveBeenCalledWith({
+      expect(mockNavigate).toHaveBeenCalledWith({
         to: "/",
-        search: undefined,
       })
     })
   })

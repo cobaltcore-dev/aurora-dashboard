@@ -133,21 +133,32 @@ function AppInner({
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
       const error = event.error
-      if (error && typeof error.message === "string" && error.message.includes("Failed to fetch")) {
+
+      // Chunk loading errors are TypeError instances with specific characteristics:
+      // - filename contains chunk/asset paths (starts with http/https or /)
+      // - message contains "import" or "fetch" keywords
+      // This is more robust than matching exact error strings which vary by browser/bundler
+      const isChunkError =
+        error instanceof TypeError &&
+        typeof error.message === "string" &&
+        event.filename &&
+        (event.filename.includes("/assets/") || event.filename.startsWith("http")) &&
+        (/import/i.test(error.message) || /fetch.*module/i.test(error.message))
+
+      if (isChunkError) {
         console.error("Chunk loading failed - dev server may have crashed:", error)
         event.preventDefault()
 
         // Show user-friendly error instead of white screen
+        // Note: Cannot use React here as the error may have occurred during React's own chunk loading
         const root = document.getElementById("root")
         if (root) {
           root.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; text-align: center;">
-              <h1 style="font-size: 2rem; margin-bottom: 1rem;">Connection Lost</h1>
-              <p style="margin-bottom: 1rem;">The development server has stopped responding.</p>
-              <p style="font-size: 0.875rem; color: #666; margin-bottom: 2rem;">This usually happens when the build fails. Check the terminal for errors.</p>
-              <button onclick="window.location.reload()" style="padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer;">
-                Reload Page
-              </button>
+            <div>
+              <h1>Connection Lost</h1>
+              <p>The development server has stopped responding.</p>
+              <p>Check the terminal for build errors.</p>
+              <button onclick="window.location.reload()">Reload</button>
             </div>
           `
         }

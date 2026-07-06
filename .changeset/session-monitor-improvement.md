@@ -2,7 +2,12 @@
 "@cobaltcore-dev/aurora": patch
 ---
 
-Add session monitor with timer-based expiration check. Sessions now show an expiration modal instead of immediately redirecting to login, improving UX by explaining why the session ended.
+Consolidate session expiration logic and fix session handling edge cases.
 
-- Timer-based expiration logic consolidated: both immediate-expiry and timeout branches call `logout("expired")` for consistent server session termination
-- Remove redundant `getCurrentUserSession` fetch in route guard since expiration is purely timer-based
+- Both immediate-expiry and timeout branches now call `logout("expired")` for consistent logout handling
+- Remove redundant `getCurrentUserSession` fetch in the `/_auth` route guard (session is still probed in the "/" route loader on refresh)
+- Fix _auth route to preserve query params in redirect (not just pathname)
+- Fix trpcClient UNAUTHORIZED handler to skip redirect for auth.terminateUserSession (prevents loops)
+- Fix trpcClient UNAUTHORIZED handler to preserve current URL in redirect query param
+- Fix App.tsx error handler to only match chunk-loading errors (not all fetch failures)
+- Add comprehensive tests for AuthProvider, _auth route redirect, and App error handler
