@@ -126,16 +126,21 @@ export const getContainersEmptyErrorToast = (errorMessage: string): { message: R
   ),
 })
 
+export type NotificationSeverity = "success" | "warning" | "error"
+
 export const getContainersEmptyCompleteToast = (
   emptiedCount: number,
   totalDeleted: number,
   errors: string[]
-): { message: ReactNode } & NotificationOptions => {
+): { message: ReactNode; severity: NotificationSeverity } & NotificationOptions => {
   const hasErrors = errors.length > 0
   const hasSuccess = emptiedCount > 0
   const isPartial = hasErrors && hasSuccess
 
   return {
+    // Severity is derived here alongside the title so the two never drift; the
+    // caller dispatches toast.success / warning / error off this single value.
+    severity: isPartial ? "warning" : hasErrors ? "error" : "success",
     message: isPartial ? (
       <Trans>Containers Partially Emptied</Trans>
     ) : hasErrors ? (

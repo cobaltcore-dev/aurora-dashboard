@@ -236,6 +236,7 @@ vi.mock("./ContainerToastNotifications", () => ({
     description: `One or more containers could not be emptied: ${errorMessage}`,
   })),
   getContainersEmptyCompleteToast: vi.fn((emptiedCount, totalDeleted, errors) => ({
+    severity: errors.length > 0 && emptiedCount > 0 ? "warning" : errors.length > 0 ? "error" : "success",
     message:
       errors.length > 0 && emptiedCount > 0
         ? "Containers Partially Emptied"

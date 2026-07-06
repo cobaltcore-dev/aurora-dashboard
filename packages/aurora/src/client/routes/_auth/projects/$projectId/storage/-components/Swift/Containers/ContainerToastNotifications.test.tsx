@@ -201,22 +201,28 @@ describe("ContainerToastNotifications", () => {
   })
 
   describe("getContainersEmptyCompleteToast", () => {
-    it("renders success title and counts when no errors", () => {
-      renderNotification(getContainersEmptyCompleteToast(3, 12, []))
+    it("returns success severity and renders success title/counts when no errors", () => {
+      const toast = getContainersEmptyCompleteToast(3, 12, [])
+      expect(toast.severity).toBe("success")
+      renderNotification(toast)
       expect(screen.getByText("Containers Emptied")).toBeInTheDocument()
       expect(screen.getByText(/3 containers/)).toBeInTheDocument()
       expect(screen.getByText(/12 objects/)).toBeInTheDocument()
     })
 
-    it("renders partial title and both success and error info", () => {
-      renderNotification(getContainersEmptyCompleteToast(2, 8, ["bucket-c: 500 error"]))
+    it("returns warning severity and renders partial title with both success and error info", () => {
+      const toast = getContainersEmptyCompleteToast(2, 8, ["bucket-c: 500 error"])
+      expect(toast.severity).toBe("warning")
+      renderNotification(toast)
       expect(screen.getByText("Containers Partially Emptied")).toBeInTheDocument()
       expect(screen.getByText(/2 containers/)).toBeInTheDocument()
       expect(screen.getByText(/bucket-c/)).toBeInTheDocument()
     })
 
-    it("renders error title and error details when emptiedCount is 0", () => {
-      renderNotification(getContainersEmptyCompleteToast(0, 0, ["a: err", "b: err"]))
+    it("returns error severity and renders error title/details when emptiedCount is 0", () => {
+      const toast = getContainersEmptyCompleteToast(0, 0, ["a: err", "b: err"])
+      expect(toast.severity).toBe("error")
+      renderNotification(toast)
       expect(screen.getByText("Failed to Empty Containers")).toBeInTheDocument()
       expect(screen.getByText(/a: err/)).toBeInTheDocument()
     })

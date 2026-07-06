@@ -145,17 +145,8 @@ export const SwiftContainers = () => {
       setSelectedContainers((prev) => prev.filter((name) => failedContainerNames.has(name)))
     }
 
-    const { message, ...options } = getContainersEmptyCompleteToast(emptiedCount, totalDeleted, errors)
-    const hasErrors = errors.length > 0
-    const hasSuccess = emptiedCount > 0
-
-    if (hasErrors && hasSuccess) {
-      toast.warning(message, options)
-    } else if (hasErrors) {
-      toast.error(message, options)
-    } else {
-      toast.success(message, options)
-    }
+    const { message, severity, ...options } = getContainersEmptyCompleteToast(emptiedCount, totalDeleted, errors)
+    toast[severity](message, options)
   }
 
   const sortSettings: SortSettings = {
