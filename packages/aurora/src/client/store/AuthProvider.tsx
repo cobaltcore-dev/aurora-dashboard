@@ -85,46 +85,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Check immediately if already expired
     if (expiresAt.getTime() <= Date.now()) {
-      // Call logout directly with state updates to avoid closure issues
-      setUser(null)
-      setExpiresAt(undefined)
-      setLogoutReason("expired")
-      setShowInactivityModal(true)
-
-      const currentPath = window.location.pathname + window.location.search
-      if (currentPath && currentPath.startsWith("/")) {
-        setRedirectAfterModal(currentPath)
-      }
+      logout("expired")
       return
     }
 
     // Set timeout to logout at exact expiration time
     const timeUntilExpiration = expiresAt.getTime() - Date.now()
     const timeout = setTimeout(() => {
-      // Call logout directly with state updates to avoid closure issues
-      setUser(null)
-      setExpiresAt(undefined)
-      setLogoutReason("expired")
-      setShowInactivityModal(true)
-
-      const currentPath = window.location.pathname + window.location.search
-      if (currentPath && currentPath.startsWith("/")) {
-        setRedirectAfterModal(currentPath)
-      }
-
-      // Terminate session on server (best effort)
-      try {
-        trpcClient.auth.terminateUserSession.mutate().catch((error) => {
-          console.error("Error terminating session:", error)
-        })
-      } catch (error) {
-        // Ignore if trpcClient not available (e.g., in tests)
-        console.error("trpcClient not available:", error)
-      }
+      logout("expired")
     }, timeUntilExpiration)
 
     return () => clearTimeout(timeout)
-  }, [isAuthenticated, expiresAt])
+  }, [isAuthenticated, expiresAt, logout])
 
   const login = useCallback(async (user: User, expires_at?: string) => {
     setUser(user)
