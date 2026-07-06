@@ -166,7 +166,10 @@ const handleSubmit = () => {
 />
 ```
 
-**Reference implementations:** See `EmptyBucketModal.test.tsx`, `EnableVersioningModal.test.tsx`
+**Reference implementations:**
+
+- [`CreateBucketModal.tsx`](../src/client/routes/_auth/projects/$projectId/storage/-components/Ceph/Buckets/CreateBucketModal.tsx) - Complete modal implementation with useModalTracking
+- Test files: `EmptyBucketModal.test.tsx`, `EnableVersioningModal.test.tsx`
 
 ### Other Actions (Not Yet Implemented)
 
