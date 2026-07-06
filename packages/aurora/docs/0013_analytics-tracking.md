@@ -21,8 +21,8 @@ The `onTrackEvent` callback is the **consumer endpoint** for all analytics event
   onTrackEvent={(payload) => {
     // Send to your analytics backend
     analytics.track(payload.action, {
+      ...payload.metadata,
       source: payload.source,
-      ...payload.metadata
     })
   }}
 />
