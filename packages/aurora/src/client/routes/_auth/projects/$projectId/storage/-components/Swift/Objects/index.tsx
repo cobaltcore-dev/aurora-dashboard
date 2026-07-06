@@ -12,8 +12,7 @@ import {
   SearchInput,
   Spinner,
   Stack,
-  Toast,
-  ToastProps,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -175,7 +174,6 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   useEffect(() => {
     setSelectedObjects([])
   }, [currentPrefix])
-  const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   // Local mirror of the committed search term so typing stays responsive while
   // the URL commit is debounced (see Zone 2 SearchInput below).
@@ -192,59 +190,90 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
     setLocalSearchTerm(searchParam)
   }, [searchParam])
 
-  const handleToastDismiss = () => setToastData(null)
-
-  const handleCreateFolderSuccess = (folderName: string) =>
-    setToastData(getFolderCreatedToast(folderName, { onDismiss: handleToastDismiss }))
-  const handleCreateFolderError = (folderName: string, errorMessage: string) =>
-    setToastData(getFolderCreateErrorToast(folderName, errorMessage, { onDismiss: handleToastDismiss }))
-  const handleUploadSuccess = (objectName: string) =>
-    setToastData(getObjectUploadedToast(objectName, { onDismiss: handleToastDismiss }))
-  const handleUploadCancelled = (objectName: string) =>
-    setToastData(getObjectUploadCancelledToast(objectName, { onDismiss: handleToastDismiss }))
-  const handleUploadError = (objectName: string, errorMessage: string) =>
-    setToastData(getObjectUploadErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+  const handleCreateFolderSuccess = (folderName: string) => {
+    const { message, ...options } = getFolderCreatedToast(folderName)
+    toast.success(message, options)
+  }
+  const handleCreateFolderError = (folderName: string, errorMessage: string) => {
+    const { message, ...options } = getFolderCreateErrorToast(folderName, errorMessage)
+    toast.error(message, options)
+  }
+  const handleUploadSuccess = (objectName: string) => {
+    const { message, ...options } = getObjectUploadedToast(objectName)
+    toast.success(message, options)
+  }
+  const handleUploadCancelled = (objectName: string) => {
+    const { message, ...options } = getObjectUploadCancelledToast(objectName)
+    toast.warning(message, options)
+  }
+  const handleUploadError = (objectName: string, errorMessage: string) => {
+    const { message, ...options } = getObjectUploadErrorToast(objectName, errorMessage)
+    toast.error(message, options)
+  }
   const handleDeleteFolderSuccess = (folderName: string, deletedCount: number) => {
     const nestedCount = Math.max(0, deletedCount - 1)
-    setToastData(getFolderDeletedToast(folderName, nestedCount, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getFolderDeletedToast(folderName, nestedCount)
+    toast.success(message, options)
   }
-  const handleDeleteFolderError = (folderName: string, errorMessage: string) =>
-    setToastData(getFolderDeleteErrorToast(folderName, errorMessage, { onDismiss: handleToastDismiss }))
-  const handleDownloadError = (objectName: string, errorMessage: string) =>
-    setToastData(getObjectDownloadErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+  const handleDeleteFolderError = (folderName: string, errorMessage: string) => {
+    const { message, ...options } = getFolderDeleteErrorToast(folderName, errorMessage)
+    toast.error(message, options)
+  }
+  const handleDownloadError = (objectName: string, errorMessage: string) => {
+    const { message, ...options } = getObjectDownloadErrorToast(objectName, errorMessage)
+    toast.error(message, options)
+  }
   const handleDeleteObjectSuccess = (objectName: string) => {
     setSelectedObjects((prev) => prev.filter((name) => name !== objectName))
-    setToastData(getObjectDeletedToast(objectName, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getObjectDeletedToast(objectName)
+    toast.success(message, options)
   }
-  const handleDeleteObjectError = (objectName: string, errorMessage: string) =>
-    setToastData(getObjectDeleteErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
-  const handleCopyObjectSuccess = (objectName: string, targetContainer: string, targetPath: string) =>
-    setToastData(getObjectCopiedToast(objectName, targetContainer, targetPath, { onDismiss: handleToastDismiss }))
-  const handleCopyObjectError = (objectName: string, errorMessage: string) =>
-    setToastData(getObjectCopyErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+  const handleDeleteObjectError = (objectName: string, errorMessage: string) => {
+    const { message, ...options } = getObjectDeleteErrorToast(objectName, errorMessage)
+    toast.error(message, options)
+  }
+  const handleCopyObjectSuccess = (objectName: string, targetContainer: string, targetPath: string) => {
+    const { message, ...options } = getObjectCopiedToast(objectName, targetContainer, targetPath)
+    toast.success(message, options)
+  }
+  const handleCopyObjectError = (objectName: string, errorMessage: string) => {
+    const { message, ...options } = getObjectCopyErrorToast(objectName, errorMessage)
+    toast.error(message, options)
+  }
   const handleMoveObjectSuccess = (objectName: string, targetContainer: string, targetPath: string) => {
     setSelectedObjects((prev) => prev.filter((name) => name !== objectName))
-    setToastData(getObjectMovedToast(objectName, targetContainer, targetPath, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getObjectMovedToast(objectName, targetContainer, targetPath)
+    toast.success(message, options)
   }
-  const handleMoveObjectError = (objectName: string, errorMessage: string) =>
-    setToastData(getObjectMoveErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
-  const handleTempUrlCopySuccess = (objectName: string) =>
-    setToastData(getTempUrlCopiedToast(objectName, { onDismiss: handleToastDismiss }))
-  const handleEditMetadataSuccess = (objectName: string) =>
-    setToastData(getObjectMetadataUpdatedToast(objectName, { onDismiss: handleToastDismiss }))
-  const handleEditMetadataError = (objectName: string, errorMessage: string) =>
-    setToastData(getObjectMetadataUpdateErrorToast(objectName, errorMessage, { onDismiss: handleToastDismiss }))
+  const handleMoveObjectError = (objectName: string, errorMessage: string) => {
+    const { message, ...options } = getObjectMoveErrorToast(objectName, errorMessage)
+    toast.error(message, options)
+  }
+  const handleTempUrlCopySuccess = (objectName: string) => {
+    const { message, ...options } = getTempUrlCopiedToast(objectName)
+    toast.success(message, options)
+  }
+  const handleEditMetadataSuccess = (objectName: string) => {
+    const { message, ...options } = getObjectMetadataUpdatedToast(objectName)
+    toast.success(message, options)
+  }
+  const handleEditMetadataError = (objectName: string, errorMessage: string) => {
+    const { message, ...options } = getObjectMetadataUpdateErrorToast(objectName, errorMessage)
+    toast.error(message, options)
+  }
 
   const handleBulkDeleteSuccess = (numberDeleted: number) => {
     setSelectedObjects([])
-    setToastData(getObjectsBulkDeletedToast(numberDeleted, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getObjectsBulkDeletedToast(numberDeleted)
+    toast.success(message, options)
   }
 
   const handleBulkDeleteError = (errorMessage: string, deletedKeys: string[]) => {
     if (deletedKeys.length > 0) {
       setSelectedObjects((prev) => prev.filter((key) => !deletedKeys.includes(key)))
     }
-    setToastData(getObjectsBulkDeleteErrorToast(errorMessage, { onDismiss: handleToastDismiss }))
+    const { message, ...options } = getObjectsBulkDeleteErrorToast(errorMessage)
+    toast.error(message, options)
   }
 
   const sortSettings: SortSettings = {
@@ -526,10 +555,6 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         onCancelled={handleUploadCancelled}
         onError={handleUploadError}
       />
-
-      {toastData && (
-        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
-      )}
     </div>
   )
 }

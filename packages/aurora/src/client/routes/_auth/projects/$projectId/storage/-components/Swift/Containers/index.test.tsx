@@ -2,11 +2,24 @@ import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { render, screen, act, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
+import { PortalProvider, toast } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { SwiftContainers } from "./"
 import type { ContainerSummary } from "@/server/Storage/types/swift"
+
+// ─── Mock the Juno toast API ──────────────────────────────────────────────────
+// Container feedback now fires through the NotificationManager (Sonner). We assert
+// the component calls the right toast method with the right content; rendering and
+// dismissal are the library's responsibility.
+
+vi.mock("@cloudoperators/juno-ui-components", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@cloudoperators/juno-ui-components")>()
+  return {
+    ...actual,
+    toast: Object.assign(actual.toast, { success: vi.fn(), error: vi.fn(), warning: vi.fn() }),
+  }
+})
 
 // ─── Mock tRPC ────────────────────────────────────────────────────────────────
 
@@ -172,73 +185,66 @@ vi.mock("@/client/trpcClient", () => ({
 
 vi.mock("./ContainerToastNotifications", () => ({
   getContainerCreatedToast: vi.fn((name) => ({
-    text: `Container "${name}" was successfully created.`,
-    variant: "success",
-    autoDismiss: true,
+    message: "Container Created",
+    description: `Container "${name}" was successfully created.`,
   })),
   getContainerCreateErrorToast: vi.fn((name, error) => ({
-    text: `Could not create container "${name}": ${error}`,
-    variant: "error",
-    autoDismiss: true,
+    message: "Failed to Create Container",
+    description: `Could not create container "${name}": ${error}`,
   })),
   getContainerEmptiedToast: vi.fn((name, deletedCount) => ({
-    text:
+    message: "Container Emptied",
+    description:
       deletedCount === 0
         ? `Container "${name}" was already empty.`
         : `Container "${name}" was successfully emptied. ${deletedCount} objects deleted.`,
-    variant: "success",
-    autoDismiss: true,
   })),
   getContainerEmptyErrorToast: vi.fn((name, error) => ({
-    text: `Could not empty container "${name}": ${error}`,
-    variant: "error",
-    autoDismiss: true,
+    message: "Failed to Empty Container",
+    description: `Could not empty container "${name}": ${error}`,
   })),
   getContainerDeletedToast: vi.fn((name) => ({
-    text: `Container "${name}" was successfully deleted.`,
-    variant: "success",
-    autoDismiss: true,
+    message: "Container Deleted",
+    description: `Container "${name}" was successfully deleted.`,
   })),
   getContainerDeleteErrorToast: vi.fn((name, error) => ({
-    text: `Could not delete container "${name}": ${error}`,
-    variant: "error",
-    autoDismiss: true,
+    message: "Failed to Delete Container",
+    description: `Could not delete container "${name}": ${error}`,
   })),
   getContainerUpdatedToast: vi.fn((name) => ({
-    text: `Container "${name}" properties were successfully updated.`,
-    variant: "success",
-    autoDismiss: true,
+    message: "Container Updated",
+    description: `Container "${name}" properties were successfully updated.`,
   })),
   getContainerUpdateErrorToast: vi.fn((name, error) => ({
-    text: `Could not update container "${name}": ${error}`,
-    variant: "error",
-    autoDismiss: true,
+    message: "Failed to Update Container",
+    description: `Could not update container "${name}": ${error}`,
   })),
   getContainerAclUpdatedToast: vi.fn((name) => ({
-    text: `ACLs for container "${name}" were successfully updated.`,
-    variant: "success",
-    autoDismiss: true,
+    message: "Access Control Updated",
+    description: `ACLs for container "${name}" were successfully updated.`,
   })),
   getContainerAclUpdateErrorToast: vi.fn((name, error) => ({
-    text: `Could not update ACLs for container "${name}": ${error}`,
-    variant: "error",
-    autoDismiss: true,
+    message: "Failed to Update Access Control",
+    description: `Could not update ACLs for container "${name}": ${error}`,
   })),
   getContainersEmptiedToast: vi.fn((emptiedCount, totalDeleted) => ({
-    text: `${emptiedCount} container(s) successfully emptied. ${totalDeleted} object(s) deleted in total.`,
-    variant: "success",
-    autoDismiss: true,
+    message: "Containers Emptied",
+    description: `${emptiedCount} container(s) successfully emptied. ${totalDeleted} object(s) deleted in total.`,
   })),
   getContainersEmptyErrorToast: vi.fn((errorMessage) => ({
-    text: `One or more containers could not be emptied: ${errorMessage}`,
-    variant: "error",
-    autoDismiss: true,
+    message: "Failed to Empty Containers",
+    description: `One or more containers could not be emptied: ${errorMessage}`,
   })),
   getContainersEmptyCompleteToast: vi.fn((emptiedCount, totalDeleted, errors) => ({
-    text:
+    severity: errors.length > 0 && emptiedCount > 0 ? "warning" : errors.length > 0 ? "error" : "success",
+    message:
+      errors.length > 0 && emptiedCount > 0
+        ? "Containers Partially Emptied"
+        : errors.length > 0
+          ? "Failed to Empty Containers"
+          : "Containers Emptied",
+    description:
       errors.length > 0 ? `Partial: ${emptiedCount} emptied, errors: ${errors.join(", ")}` : `${emptiedCount} emptied`,
-    variant: errors.length > 0 && emptiedCount > 0 ? "warning" : errors.length > 0 ? "error" : "success",
-    autoDismiss: true,
   })),
 }))
 
@@ -572,12 +578,8 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateEmptyAllSuccess" }))
       await waitFor(() => {
-        expect(getContainersEmptyCompleteToast).toHaveBeenCalledWith(
-          1,
-          3,
-          [],
-          expect.objectContaining({ onDismiss: expect.any(Function) })
-        )
+        expect(getContainersEmptyCompleteToast).toHaveBeenCalledWith(1, 3, [])
+        expect(toast.success).toHaveBeenCalled()
         // Selection cleared → the Actions toggle is disabled again.
         expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
       })
@@ -591,12 +593,8 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("empty-containers-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateEmptyAllError" }))
       await waitFor(() => {
-        expect(getContainersEmptyCompleteToast).toHaveBeenCalledWith(
-          0,
-          0,
-          ["bulk empty failed"],
-          expect.objectContaining({ onDismiss: expect.any(Function) })
-        )
+        expect(getContainersEmptyCompleteToast).toHaveBeenCalledWith(0, 0, ["bulk empty failed"])
+        expect(toast.error).toHaveBeenCalled()
       })
     })
   })
@@ -778,7 +776,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("create-container-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateSuccess" }))
       await waitFor(() => {
-        expect(screen.getByText(/Container "new-container" was successfully created/i)).toBeInTheDocument()
+        expect(toast.success).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            description: expect.stringContaining('Container "new-container" was successfully created'),
+          })
+        )
       })
     })
 
@@ -789,7 +792,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("create-container-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateError" }))
       await waitFor(() => {
-        expect(screen.getByText(/Could not create container "new-container": Server error/i)).toBeInTheDocument()
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            description: expect.stringContaining('Could not create container "new-container": Server error'),
+          })
+        )
       })
     })
 
@@ -801,7 +809,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("empty-container-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateEmptySuccess" }))
       await waitFor(() => {
-        expect(screen.getByText(/Container "alpha" was successfully emptied/i)).toBeInTheDocument()
+        expect(toast.success).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            description: expect.stringContaining('Container "alpha" was successfully emptied'),
+          })
+        )
       })
     })
 
@@ -813,7 +826,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("empty-container-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateEmptyError" }))
       await waitFor(() => {
-        expect(screen.getByText(/Could not empty container "alpha": Delete failed/i)).toBeInTheDocument()
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            description: expect.stringContaining('Could not empty container "alpha": Delete failed'),
+          })
+        )
       })
     })
 
@@ -825,7 +843,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("delete-container-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateDeleteSuccess" }))
       await waitFor(() => {
-        expect(screen.getByText(/Container "alpha" was successfully deleted/i)).toBeInTheDocument()
+        expect(toast.success).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            description: expect.stringContaining('Container "alpha" was successfully deleted'),
+          })
+        )
       })
     })
 
@@ -837,7 +860,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("delete-container-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateDeleteError" }))
       await waitFor(() => {
-        expect(screen.getByText(/Could not delete container "alpha": Delete failed/i)).toBeInTheDocument()
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            description: expect.stringContaining('Could not delete container "alpha": Delete failed'),
+          })
+        )
       })
     })
 
@@ -849,7 +877,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("edit-container-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateEditSuccess" }))
       await waitFor(() => {
-        expect(screen.getByText(/Container "alpha" properties were successfully updated/i)).toBeInTheDocument()
+        expect(toast.success).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            description: expect.stringContaining('Container "alpha" properties were successfully updated'),
+          })
+        )
       })
     })
 
@@ -861,7 +894,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("edit-container-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateEditError" }))
       await waitFor(() => {
-        expect(screen.getByText(/Could not update container "alpha": Update failed/i)).toBeInTheDocument()
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            description: expect.stringContaining('Could not update container "alpha": Update failed'),
+          })
+        )
       })
     })
 
@@ -873,7 +911,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("manage-access-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateAclSuccess" }))
       await waitFor(() => {
-        expect(screen.getByText(/ACLs for container "alpha" were successfully updated/i)).toBeInTheDocument()
+        expect(toast.success).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            description: expect.stringContaining('ACLs for container "alpha" were successfully updated'),
+          })
+        )
       })
     })
 
@@ -885,7 +928,12 @@ describe("SwiftContainers (List)", () => {
       await waitFor(() => expect(screen.getByTestId("manage-access-modal")).toBeInTheDocument())
       await user.click(screen.getByRole("button", { name: "SimulateAclError" }))
       await waitFor(() => {
-        expect(screen.getByText(/Could not update ACLs for container "alpha": ACL update failed/i)).toBeInTheDocument()
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            description: expect.stringContaining('Could not update ACLs for container "alpha": ACL update failed'),
+          })
+        )
       })
     })
   })

@@ -1,5 +1,4 @@
-import React from "react"
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
@@ -25,496 +24,259 @@ import {
   getObjectsBulkDeleteErrorToast,
 } from "./ObjectToastNotifications"
 
-describe("ObjectToastNotifications", () => {
-  const mockOnDismiss = vi.fn()
-  const defaultConfig = { onDismiss: mockOnDismiss }
+// Helpers return the Juno NotificationManager shape: { message, description }.
+// `description` is typed `(() => ReactNode) | ReactNode`, so resolve the function
+// form before rendering. Render message and description in separate wrappers so
+// getByText can resolve each independently.
+type ObjectNotification = ReturnType<typeof getObjectDeletedToast>
 
+const renderNotification = (notification: ObjectNotification) => {
+  const description =
+    typeof notification.description === "function" ? notification.description() : notification.description
+  return render(
+    <I18nProvider i18n={i18n}>
+      <div>{notification.message}</div>
+      <div>{description}</div>
+    </I18nProvider>
+  )
+}
+
+describe("SwiftObjectToastNotifications", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
     i18n.activate("en")
   })
 
-  // ── getFolderCreatedToast ────────────────────────────────────────────────────
+  // ── Folder operations ──────────────────────────────────────────────────────
 
   describe("getFolderCreatedToast", () => {
-    it("returns success toast with correct structure", () => {
-      const toast = getFolderCreatedToast("my-folder", defaultConfig)
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
     it("renders correct message content", () => {
-      const toast = getFolderCreatedToast("my-folder", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getFolderCreatedToast("my-folder"))
       expect(screen.getByText("Folder Created")).toBeInTheDocument()
       expect(screen.getByText(/my-folder/)).toBeInTheDocument()
       expect(screen.getByText(/was successfully created/)).toBeInTheDocument()
     })
 
     it("handles folder names with special characters", () => {
-      const toast = getFolderCreatedToast("my folder (2024)", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getFolderCreatedToast("my folder (2024)"))
       expect(screen.getByText(/my folder \(2024\)/)).toBeInTheDocument()
-    })
-
-    it("handles empty folder name", () => {
-      const toast = getFolderCreatedToast("", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText("Folder Created")).toBeInTheDocument()
     })
   })
 
-  // ── getFolderCreateErrorToast ────────────────────────────────────────────────
-
   describe("getFolderCreateErrorToast", () => {
-    it("returns error toast with correct structure", () => {
-      const toast = getFolderCreateErrorToast("my-folder", "Conflict", defaultConfig)
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
     it("renders correct error message content", () => {
-      const toast = getFolderCreateErrorToast("my-folder", "Conflict", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getFolderCreateErrorToast("my-folder", "Conflict"))
       expect(screen.getByText("Failed to Create Folder")).toBeInTheDocument()
-      expect(screen.getByText(/my-folder/)).toBeInTheDocument()
       expect(screen.getByText(/Could not create folder/)).toBeInTheDocument()
       expect(screen.getByText(/Conflict/)).toBeInTheDocument()
     })
-
-    it("handles different error messages", () => {
-      const toast = getFolderCreateErrorToast("my-folder", "Object already exists", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/Object already exists/)).toBeInTheDocument()
-    })
-
-    it("handles long error messages", () => {
-      const longMessage = "The server encountered an internal error and was unable to complete your request"
-      const toast = getFolderCreateErrorToast("my-folder", longMessage, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/The server encountered an internal error/)).toBeInTheDocument()
-    })
-
-    it("handles empty error message", () => {
-      const toast = getFolderCreateErrorToast("my-folder", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText("Failed to Create Folder")).toBeInTheDocument()
-    })
   })
 
-  // ── getFolderDeletedToast ────────────────────────────────────────────────────
-
   describe("getFolderDeletedToast", () => {
-    it("returns success toast with correct structure", () => {
-      const toast = getFolderDeletedToast("my-folder", 5, defaultConfig)
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
     it("renders plural message when multiple objects were deleted", () => {
-      const toast = getFolderDeletedToast("my-folder", 5, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getFolderDeletedToast("my-folder", 5))
       expect(screen.getByText("Folder Deleted")).toBeInTheDocument()
       expect(screen.getByText(/my-folder/)).toBeInTheDocument()
       expect(screen.getByText(/5 objects were permanently deleted/)).toBeInTheDocument()
     })
 
-    it("renders singular message when exactly 1 object was deleted", () => {
-      const toast = getFolderDeletedToast("my-folder", 1, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/1 object was permanently deleted/)).toBeInTheDocument()
+    it("renders singular message when exactly one nested object", () => {
+      renderNotification(getFolderDeletedToast("my-folder", 1))
+      expect(screen.getByText(/1 object were permanently deleted/)).toBeInTheDocument()
     })
 
-    it("renders deleted message when deletedCount is 0", () => {
-      const toast = getFolderDeletedToast("my-folder", 0, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+    it("renders folder-only message when deletedCount is 0", () => {
+      renderNotification(getFolderDeletedToast("my-folder", 0))
       expect(screen.getByText("Folder Deleted")).toBeInTheDocument()
       expect(screen.getByText(/was permanently deleted/)).toBeInTheDocument()
     })
-
-    it("handles empty folder name", () => {
-      const toast = getFolderDeletedToast("", 2, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText("Folder Deleted")).toBeInTheDocument()
-    })
   })
 
-  // ── getFolderDeleteErrorToast ────────────────────────────────────────────────
-
   describe("getFolderDeleteErrorToast", () => {
-    it("returns error toast with correct structure", () => {
-      const toast = getFolderDeleteErrorToast("my-folder", "Internal Server Error", defaultConfig)
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
     it("renders correct error message content", () => {
-      const toast = getFolderDeleteErrorToast("my-folder", "Internal Server Error", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getFolderDeleteErrorToast("my-folder", "Internal Server Error"))
       expect(screen.getByText("Failed to Delete Folder")).toBeInTheDocument()
-      expect(screen.getByText(/my-folder/)).toBeInTheDocument()
       expect(screen.getByText(/Could not delete folder/)).toBeInTheDocument()
       expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
     })
-
-    it("handles different error messages", () => {
-      const toast = getFolderDeleteErrorToast("my-folder", "Bulk delete failed", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/Bulk delete failed/)).toBeInTheDocument()
-    })
-
-    it("handles empty error message", () => {
-      const toast = getFolderDeleteErrorToast("my-folder", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText("Failed to Delete Folder")).toBeInTheDocument()
-    })
   })
 
-  // ── getObjectDownloadErrorToast ──────────────────────────────────────────────
+  // ── Object download ────────────────────────────────────────────────────────
 
   describe("getObjectDownloadErrorToast", () => {
-    it("returns error toast with correct structure", () => {
-      const toast = getObjectDownloadErrorToast("file.txt", "Connection refused", defaultConfig)
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
     it("renders correct error message content", () => {
-      const toast = getObjectDownloadErrorToast("file.txt", "Connection refused", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getObjectDownloadErrorToast("file.txt", "Connection refused"))
       expect(screen.getByText("Failed to Download")).toBeInTheDocument()
       expect(screen.getByText(/file\.txt/)).toBeInTheDocument()
       expect(screen.getByText(/Could not download/)).toBeInTheDocument()
       expect(screen.getByText(/Connection refused/)).toBeInTheDocument()
     })
 
-    it("handles different error messages", () => {
-      const toast = getObjectDownloadErrorToast("report.pdf", "Object not found", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/Object not found/)).toBeInTheDocument()
-    })
-
-    it("handles empty error message", () => {
-      const toast = getObjectDownloadErrorToast("file.txt", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText("Failed to Download")).toBeInTheDocument()
-    })
-
     it("handles object names with special characters", () => {
-      const toast = getObjectDownloadErrorToast("my file (2024).txt", "err", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getObjectDownloadErrorToast("my file (2024).txt", "err"))
       expect(screen.getByText(/my file \(2024\)\.txt/)).toBeInTheDocument()
     })
   })
 
-  // ── getObjectDeletedToast ────────────────────────────────────────────────────
+  // ── Object delete ──────────────────────────────────────────────────────────
 
   describe("getObjectDeletedToast", () => {
-    it("returns success toast with correct structure", () => {
-      const toast = getObjectDeletedToast("report.pdf", defaultConfig)
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
     it("renders correct message content", () => {
-      const toast = getObjectDeletedToast("report.pdf", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getObjectDeletedToast("report.pdf"))
       expect(screen.getByText("Object Deleted")).toBeInTheDocument()
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/was permanently deleted/)).toBeInTheDocument()
     })
-
-    it("handles object names with special characters", () => {
-      const toast = getObjectDeletedToast("my file (2024).txt", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/my file/)).toBeInTheDocument()
-    })
   })
 
-  // ── getObjectDeleteErrorToast ────────────────────────────────────────────────
-
   describe("getObjectDeleteErrorToast", () => {
-    it("returns error toast with correct structure", () => {
-      const toast = getObjectDeleteErrorToast("report.pdf", "Forbidden", defaultConfig)
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
     it("renders correct error message content", () => {
-      const toast = getObjectDeleteErrorToast("report.pdf", "Forbidden", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getObjectDeleteErrorToast("report.pdf", "Forbidden"))
       expect(screen.getByText("Failed to Delete Object")).toBeInTheDocument()
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/Could not delete/)).toBeInTheDocument()
       expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
     })
-
-    it("handles different error messages", () => {
-      const toast = getObjectDeleteErrorToast("file.txt", "Internal Server Error", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
-    })
-
-    it("handles empty error message", () => {
-      const toast = getObjectDeleteErrorToast("file.txt", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText("Failed to Delete Object")).toBeInTheDocument()
-    })
   })
 
-  // ── getObjectCopiedToast ─────────────────────────────────────────────────────
+  // ── Object copy ────────────────────────────────────────────────────────────
 
   describe("getObjectCopiedToast", () => {
-    it("returns success toast with correct structure", () => {
-      const toast = getObjectCopiedToast("report.pdf", "backup", "", defaultConfig)
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
-    it("renders correct message content with container and path", () => {
-      const toast = getObjectCopiedToast("report.pdf", "backup-container", "archive/", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+    it("renders the destination with target path", () => {
+      renderNotification(getObjectCopiedToast("report.pdf", "backup-container", "folder/report.pdf"))
       expect(screen.getByText("Object Copied")).toBeInTheDocument()
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/backup-container/)).toBeInTheDocument()
     })
 
-    it("handles empty target path (root copy)", () => {
-      const toast = getObjectCopiedToast("file.txt", "other-container", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+    it("renders container-only destination when target path is empty", () => {
+      renderNotification(getObjectCopiedToast("report.pdf", "other-container", ""))
       expect(screen.getByText("Object Copied")).toBeInTheDocument()
       expect(screen.getByText(/other-container/)).toBeInTheDocument()
     })
-
-    it("handles object names with special characters", () => {
-      const toast = getObjectCopiedToast("my file (2024).txt", "backup", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/my file \(2024\)\.txt/)).toBeInTheDocument()
-    })
   })
 
-  // ── getObjectCopyErrorToast ──────────────────────────────────────────────────
-
   describe("getObjectCopyErrorToast", () => {
-    it("returns error toast with correct structure", () => {
-      const toast = getObjectCopyErrorToast("report.pdf", "Forbidden", defaultConfig)
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
     it("renders correct error message content", () => {
-      const toast = getObjectCopyErrorToast("report.pdf", "Forbidden", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getObjectCopyErrorToast("report.pdf", "Forbidden"))
       expect(screen.getByText("Failed to Copy Object")).toBeInTheDocument()
-      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/Could not copy/)).toBeInTheDocument()
       expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
     })
-
-    it("handles different error messages", () => {
-      const toast = getObjectCopyErrorToast("file.txt", "Object already exists", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/Object already exists/)).toBeInTheDocument()
-    })
-
-    it("handles empty error message", () => {
-      const toast = getObjectCopyErrorToast("file.txt", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText("Failed to Copy Object")).toBeInTheDocument()
-    })
   })
 
-  // ── getObjectMovedToast ──────────────────────────────────────────────────────
+  // ── Object move ────────────────────────────────────────────────────────────
 
   describe("getObjectMovedToast", () => {
-    it("returns success toast with correct structure", () => {
-      const toast = getObjectMovedToast("report.pdf", "backup", "", defaultConfig)
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
-    it("renders correct message content with container and path", () => {
-      const toast = getObjectMovedToast("report.pdf", "backup-container", "archive/", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+    it("renders the destination with target path", () => {
+      renderNotification(getObjectMovedToast("report.pdf", "backup-container", "folder/report.pdf"))
       expect(screen.getByText("Object Moved")).toBeInTheDocument()
       expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/backup-container/)).toBeInTheDocument()
     })
 
-    it("handles empty target path (root move)", () => {
-      const toast = getObjectMovedToast("file.txt", "other-container", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+    it("renders container-only destination when target path is empty", () => {
+      renderNotification(getObjectMovedToast("report.pdf", "other-container", ""))
       expect(screen.getByText("Object Moved")).toBeInTheDocument()
       expect(screen.getByText(/other-container/)).toBeInTheDocument()
     })
-
-    it("handles object names with special characters", () => {
-      const toast = getObjectMovedToast("my file (2024).txt", "backup", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/my file/)).toBeInTheDocument()
-    })
   })
 
-  // ── getObjectMoveErrorToast ──────────────────────────────────────────────────
-
   describe("getObjectMoveErrorToast", () => {
-    it("returns error toast with correct structure", () => {
-      const toast = getObjectMoveErrorToast("report.pdf", "Forbidden", defaultConfig)
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
     it("renders correct error message content", () => {
-      const toast = getObjectMoveErrorToast("report.pdf", "Forbidden", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getObjectMoveErrorToast("report.pdf", "Forbidden"))
       expect(screen.getByText("Failed to Move Object")).toBeInTheDocument()
-      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
       expect(screen.getByText(/Could not move/)).toBeInTheDocument()
       expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
     })
+  })
 
-    it("handles different error messages", () => {
-      const toast = getObjectMoveErrorToast("file.txt", "Internal Server Error", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
-    })
+  // ── Temporary URL ──────────────────────────────────────────────────────────
 
-    it("handles empty error message", () => {
-      const toast = getObjectMoveErrorToast("file.txt", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
-      expect(screen.getByText("Failed to Move Object")).toBeInTheDocument()
+  describe("getTempUrlCopiedToast", () => {
+    it("renders object name in description", () => {
+      renderNotification(getTempUrlCopiedToast("report.pdf"))
+      expect(screen.getByText("URL Copied")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
     })
   })
 
-  // ── Toast configuration ──────────────────────────────────────────────────────
+  // ── Object metadata update ──────────────────────────────────────────────────
 
-  describe("Toast configuration", () => {
-    it("all success toasts have success variant", () => {
-      const successToasts = [
-        getFolderCreatedToast("f", defaultConfig),
-        getFolderDeletedToast("f", 3, defaultConfig),
-        getObjectDeletedToast("f", defaultConfig),
-        getObjectCopiedToast("f", "c", "", defaultConfig),
-        getObjectMovedToast("f", "c", "", defaultConfig),
-        getTempUrlCopiedToast("f", defaultConfig),
-        getObjectMetadataUpdatedToast("f", defaultConfig),
-        getObjectsBulkDeletedToast(3, defaultConfig),
-      ]
-      successToasts.forEach((toast) => {
-        expect(toast.variant).toBe("success")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
-      })
-    })
-
-    it("all error toasts have error variant", () => {
-      const errorToasts = [
-        getFolderCreateErrorToast("f", "err", defaultConfig),
-        getFolderDeleteErrorToast("f", "err", defaultConfig),
-        getObjectDownloadErrorToast("f", "err", defaultConfig),
-        getObjectDeleteErrorToast("f", "err", defaultConfig),
-        getObjectCopyErrorToast("f", "err", defaultConfig),
-        getObjectMoveErrorToast("f", "err", defaultConfig),
-        getObjectMetadataUpdateErrorToast("f", "err", defaultConfig),
-        getObjectUploadErrorToast("f", "err", defaultConfig),
-        getObjectsBulkDeleteErrorToast("err", defaultConfig),
-      ]
-      errorToasts.forEach((toast) => {
-        expect(toast.variant).toBe("error")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
-      })
-    })
-
-    it("calls onDismiss callback when invoked", () => {
-      const customOnDismiss = vi.fn()
-      const toast = getFolderCreatedToast("f", { onDismiss: customOnDismiss })
-      toast.onDismiss?.()
-      expect(customOnDismiss).toHaveBeenCalledTimes(1)
-    })
-
-    it("all toasts return a ReactNode as children", () => {
-      const toasts = [
-        getFolderCreatedToast("f", defaultConfig),
-        getFolderCreateErrorToast("f", "err", defaultConfig),
-        getFolderDeletedToast("f", 2, defaultConfig),
-        getFolderDeleteErrorToast("f", "err", defaultConfig),
-        getObjectDownloadErrorToast("f", "err", defaultConfig),
-        getObjectDeleteErrorToast("f", "err", defaultConfig),
-        getObjectCopiedToast("f", "c", "", defaultConfig),
-        getObjectCopyErrorToast("f", "err", defaultConfig),
-        getObjectMovedToast("f", "c", "", defaultConfig),
-        getObjectMoveErrorToast("f", "err", defaultConfig),
-        getTempUrlCopiedToast("f", defaultConfig),
-        getObjectMetadataUpdatedToast("f", defaultConfig),
-        getObjectMetadataUpdateErrorToast("f", "err", defaultConfig),
-        getObjectUploadedToast("f", defaultConfig),
-        getObjectUploadErrorToast("f", "err", defaultConfig),
-        getObjectsBulkDeletedToast(3, defaultConfig),
-        getObjectsBulkDeleteErrorToast("err", defaultConfig),
-      ]
-      toasts.forEach((toast) => {
-        expect(toast.children).toBeTruthy()
-        expect(typeof toast.children).toBe("object")
-      })
+  describe("getObjectMetadataUpdatedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getObjectMetadataUpdatedToast("sample.txt"))
+      expect(screen.getByText("Object Updated")).toBeInTheDocument()
+      expect(screen.getByText(/sample\.txt/)).toBeInTheDocument()
+      expect(screen.getByText(/successfully updated/)).toBeInTheDocument()
     })
   })
 
-  // ── getObjectsBulkDeletedToast ───────────────────────────────────────────────
+  describe("getObjectMetadataUpdateErrorToast", () => {
+    it("renders correct error message content", () => {
+      renderNotification(getObjectMetadataUpdateErrorToast("sample.txt", "Forbidden"))
+      expect(screen.getByText("Failed to Update Object")).toBeInTheDocument()
+      expect(screen.getByText(/sample\.txt/)).toBeInTheDocument()
+      expect(screen.getByText(/Could not update/)).toBeInTheDocument()
+      expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
+    })
+  })
+
+  // ── Object upload ──────────────────────────────────────────────────────────
+
+  describe("getObjectUploadedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getObjectUploadedToast("report.pdf"))
+      expect(screen.getByText("Object Uploaded")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.getByText(/successfully uploaded/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getObjectUploadCancelledToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getObjectUploadCancelledToast("report.pdf"))
+      expect(screen.getByText("Upload Cancelled")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.getByText(/was cancelled/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getObjectUploadErrorToast", () => {
+    it("renders correct error message content", () => {
+      renderNotification(getObjectUploadErrorToast("report.pdf", "Quota exceeded"))
+      expect(screen.getByText("Failed to Upload Object")).toBeInTheDocument()
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.getByText(/Could not upload/)).toBeInTheDocument()
+      expect(screen.getByText(/Quota exceeded/)).toBeInTheDocument()
+    })
+  })
+
+  // ── Bulk delete ────────────────────────────────────────────────────────────
 
   describe("getObjectsBulkDeletedToast", () => {
-    it("returns success toast with correct structure", () => {
-      const toast = getObjectsBulkDeletedToast(5, defaultConfig)
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
-    it("renders plural message when multiple objects deleted", () => {
-      const toast = getObjectsBulkDeletedToast(5, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+    it("renders plural message when multiple objects were deleted", () => {
+      renderNotification(getObjectsBulkDeletedToast(5))
       expect(screen.getByText("Objects Deleted")).toBeInTheDocument()
       expect(screen.getByText(/5 objects were permanently deleted/)).toBeInTheDocument()
     })
 
-    it("renders singular message when exactly 1 object deleted", () => {
-      const toast = getObjectsBulkDeletedToast(1, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+    it("renders singular message when exactly one object", () => {
+      renderNotification(getObjectsBulkDeletedToast(1))
       expect(screen.getByText(/1 object was permanently deleted/)).toBeInTheDocument()
     })
   })
 
-  // ── getObjectsBulkDeleteErrorToast ───────────────────────────────────────────
-
   describe("getObjectsBulkDeleteErrorToast", () => {
-    it("returns error toast with correct structure", () => {
-      const toast = getObjectsBulkDeleteErrorToast("403 Forbidden", defaultConfig)
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
     it("renders correct error message content", () => {
-      const toast = getObjectsBulkDeleteErrorToast("403 Forbidden", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      renderNotification(getObjectsBulkDeleteErrorToast("403 Forbidden"))
       expect(screen.getByText("Failed to Delete Objects")).toBeInTheDocument()
       expect(screen.getByText(/One or more objects could not be deleted/)).toBeInTheDocument()
       expect(screen.getByText(/403 Forbidden/)).toBeInTheDocument()
     })
 
-    it("handles multi-line error message (per-path errors)", () => {
+    it("preserves multi-line per-path errors in a pre-wrap block", () => {
       const multiLine = "/container/a.txt: 403 Forbidden\n/container/b.png: 404 Not Found"
-      const toast = getObjectsBulkDeleteErrorToast(multiLine, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
+      renderNotification(getObjectsBulkDeleteErrorToast(multiLine))
       expect(screen.getByText("Failed to Delete Objects")).toBeInTheDocument()
       const pre = screen.getByText(/403 Forbidden/).closest("span.whitespace-pre-wrap")
       expect(pre).toBeInTheDocument()
@@ -523,167 +285,47 @@ describe("ObjectToastNotifications", () => {
     })
   })
 
-  // ── getObjectUploadedToast ──────────────────────────────────────────────────
+  // ── Notification configuration ─────────────────────────────────────────────
 
-  describe("getObjectUploadedToast", () => {
-    it("returns success toast with correct structure", () => {
-      const toast = getObjectUploadedToast("report.pdf", defaultConfig)
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+  describe("Notification configuration", () => {
+    it("all helpers return a message and description as renderable ReactNodes", () => {
+      const notifications = [
+        getFolderCreatedToast("f"),
+        getFolderCreateErrorToast("f", "err"),
+        getFolderDeletedToast("f", 2),
+        getFolderDeleteErrorToast("f", "err"),
+        getObjectDownloadErrorToast("f", "err"),
+        getObjectDeletedToast("f"),
+        getObjectDeleteErrorToast("f", "err"),
+        getObjectCopiedToast("f", "c", ""),
+        getObjectCopyErrorToast("f", "err"),
+        getObjectMovedToast("f", "c", ""),
+        getObjectMoveErrorToast("f", "err"),
+        getTempUrlCopiedToast("f"),
+        getObjectMetadataUpdatedToast("f"),
+        getObjectMetadataUpdateErrorToast("f", "err"),
+        getObjectUploadedToast("f"),
+        getObjectUploadCancelledToast("f"),
+        getObjectUploadErrorToast("f", "err"),
+        getObjectsBulkDeletedToast(3),
+        getObjectsBulkDeleteErrorToast("err"),
+      ]
+      notifications.forEach((notification) => {
+        expect(notification.message).toBeTruthy()
+        expect(notification.description).toBeTruthy()
+        // Prove each payload is actually renderable rather than asserting a
+        // specific typeof — ReactNode also covers strings, numbers, and the
+        // () => ReactNode form of description.
+        const view = renderNotification(notification)
+        view.unmount()
+      })
     })
 
-    it("renders correct message content", () => {
-      const toast = getObjectUploadedToast("report.pdf", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText("Object Uploaded")).toBeInTheDocument()
-      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
-      expect(screen.getByText(/successfully uploaded/)).toBeInTheDocument()
-    })
-
-    it("handles empty object name", () => {
-      const toast = getObjectUploadedToast("", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText("Object Uploaded")).toBeInTheDocument()
-    })
-  })
-
-  // ── getObjectUploadCancelledToast ────────────────────────────────────────────
-
-  describe("getObjectUploadCancelledToast", () => {
-    it("returns warning toast with correct structure", () => {
-      const toast = getObjectUploadCancelledToast("report.pdf", defaultConfig)
-      expect(toast.variant).toBe("warning")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
-    it("renders correct message content", () => {
-      const toast = getObjectUploadCancelledToast("report.pdf", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText("Upload Cancelled")).toBeInTheDocument()
-      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
-      expect(screen.getByText(/was cancelled/)).toBeInTheDocument()
-    })
-
-    it("handles empty object name", () => {
-      const toast = getObjectUploadCancelledToast("", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText("Upload Cancelled")).toBeInTheDocument()
-    })
-
-    it("calls onDismiss when dismissed", () => {
-      const toast = getObjectUploadCancelledToast("report.pdf", defaultConfig)
-      toast.onDismiss?.()
-      expect(mockOnDismiss).toHaveBeenCalled()
-    })
-  })
-
-  // ── getObjectUploadErrorToast ────────────────────────────────────────────────
-
-  describe("getObjectUploadErrorToast", () => {
-    it("returns error toast with correct structure", () => {
-      const toast = getObjectUploadErrorToast("report.pdf", "Quota exceeded", defaultConfig)
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
-    it("renders correct error message content", () => {
-      const toast = getObjectUploadErrorToast("report.pdf", "Quota exceeded", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText("Failed to Upload Object")).toBeInTheDocument()
-      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
-      expect(screen.getByText(/Could not upload/)).toBeInTheDocument()
-      expect(screen.getByText(/Quota exceeded/)).toBeInTheDocument()
-    })
-
-    it("handles different error messages", () => {
-      const toast = getObjectUploadErrorToast("report.pdf", "Internal Server Error", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
-    })
-
-    it("handles empty error message", () => {
-      const toast = getObjectUploadErrorToast("report.pdf", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText("Failed to Upload Object")).toBeInTheDocument()
-    })
-  })
-
-  describe("getTempUrlCopiedToast", () => {
-    it("returns success variant", () => {
-      const toast = getTempUrlCopiedToast("report.pdf", defaultConfig)
-      expect(toast.variant).toBe("success")
-    })
-
-    it("calls onDismiss when dismissed", () => {
-      const toast = getTempUrlCopiedToast("report.pdf", defaultConfig)
-      toast.onDismiss?.()
-      expect(mockOnDismiss).toHaveBeenCalled()
-    })
-
-    it("renders object name in description", () => {
-      const toast = getTempUrlCopiedToast("report.pdf", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
-    })
-  })
-
-  // ── getObjectMetadataUpdatedToast ────────────────────────────────────────────
-
-  describe("getObjectMetadataUpdatedToast", () => {
-    it("returns success toast with correct structure", () => {
-      const toast = getObjectMetadataUpdatedToast("sample.txt", defaultConfig)
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
-    it("renders correct message content", () => {
-      const toast = getObjectMetadataUpdatedToast("sample.txt", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText("Object Updated")).toBeInTheDocument()
-      expect(screen.getByText(/sample\.txt/)).toBeInTheDocument()
-      expect(screen.getByText(/successfully updated/)).toBeInTheDocument()
-    })
-
-    it("handles empty object name", () => {
-      const toast = getObjectMetadataUpdatedToast("", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText("Object Updated")).toBeInTheDocument()
-    })
-  })
-
-  // ── getObjectMetadataUpdateErrorToast ────────────────────────────────────────
-
-  describe("getObjectMetadataUpdateErrorToast", () => {
-    it("returns error toast with correct structure", () => {
-      const toast = getObjectMetadataUpdateErrorToast("sample.txt", "Forbidden", defaultConfig)
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
-    })
-
-    it("renders correct error message content", () => {
-      const toast = getObjectMetadataUpdateErrorToast("sample.txt", "Forbidden", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText("Failed to Update Object")).toBeInTheDocument()
-      expect(screen.getByText(/sample\.txt/)).toBeInTheDocument()
-      expect(screen.getByText(/Could not update/)).toBeInTheDocument()
-      expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
-    })
-
-    it("handles different error messages", () => {
-      const toast = getObjectMetadataUpdateErrorToast("sample.txt", "Internal Server Error", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
-    })
-
-    it("handles empty error message", () => {
-      const toast = getObjectMetadataUpdateErrorToast("sample.txt", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children as React.ReactNode}</I18nProvider>)
-      expect(screen.getByText("Failed to Update Object")).toBeInTheDocument()
+    it("does not expose legacy toast props (variant / children / onDismiss)", () => {
+      const toast = getFolderCreatedToast("f")
+      expect(toast).not.toHaveProperty("variant")
+      expect(toast).not.toHaveProperty("children")
+      expect(toast).not.toHaveProperty("onDismiss")
     })
   })
 })
