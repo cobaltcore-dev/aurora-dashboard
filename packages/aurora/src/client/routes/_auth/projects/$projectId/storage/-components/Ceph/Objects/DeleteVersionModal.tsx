@@ -1,8 +1,9 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, TextInput } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 
 interface DeleteVersionModalProps {
@@ -34,12 +35,18 @@ export const DeleteVersionModal = ({
   const projectId = useProjectId()
   const [confirmText, setConfirmText] = useState("")
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.version.delete",
+  })
+
   const utils = trpcReact.useUtils()
 
   const deleteMutation = trpcReact.storage.ceph.versioning.deleteVersion.useMutation({
     onSuccess: () => {
       utils.storage.ceph.versioning.listObjectVersions.invalidate()
       utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
       onSuccess?.(objectKey, versionId)
       handleClose()
     },
@@ -54,12 +61,14 @@ export const DeleteVersionModal = ({
 
   const handleClose = () => {
     setConfirmText("")
+    resetTracking()
     onClose()
   }
 
   const handleDelete = () => {
     if (confirmText !== "DELETE") return
 
+    markSubmitted()
     deleteMutation.mutate({
       project_id: projectId,
       bucket: bucketName,
@@ -74,42 +83,30 @@ export const DeleteVersionModal = ({
     <Modal
       title={t`Delete Version Permanently`}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={t`Delete Permanently`}
       onConfirm={handleDelete}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={confirmText !== "DELETE" || deleteMutation.isPending}
+      confirmButtonVariant="primary-danger"
     >
       <Stack direction="vertical" gap="4">
-        <Message variant="error" title={t`⚠️ Warning: Irreversible Action`}>
-          <Trans>
-            This will permanently delete this version. This operation cannot be undone. The version will be lost
-            forever.
-          </Trans>
-        </Message>
-
-        {isDeleteMarker && (
-          <Message variant="info">
-            <Trans>
-              This is a delete marker. Deleting it will "undelete" the object and restore the previous version as the
-              current version.
-            </Trans>
-          </Message>
-        )}
-
         <div className="space-y-3">
           <div>
             <label className="text-sm font-semibold">
               <Trans>Object:</Trans>
             </label>
-            <p className="mt-1 text-sm">{objectKey}</p>
+            <p className="mt-1 overflow-x-hidden text-sm [overflow-wrap:anywhere]">{objectKey}</p>
           </div>
 
           <div>
             <label className="text-sm font-semibold">
               <Trans>Version ID:</Trans>
             </label>
-            <p className="mt-1">
+            <p className="mt-1 overflow-x-hidden [overflow-wrap:anywhere]">
               <code className="text-sm">{versionId}</code>
             </p>
           </div>

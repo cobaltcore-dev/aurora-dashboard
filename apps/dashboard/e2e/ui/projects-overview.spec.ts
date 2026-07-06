@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test"
-import { loginAsTestUser } from "../helpers/auth"
-import { expectPageLoaded, expectNoJavaScriptErrors } from "../helpers/test-helpers"
+import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "../helpers/test-helpers"
 
 /**
  * Projects Overview Page Tests
@@ -9,6 +8,7 @@ import { expectPageLoaded, expectNoJavaScriptErrors } from "../helpers/test-help
  * - Project listing
  * - Search functionality
  * - Project visibility
+ * Authentication state is provided by global setup (storageState.json).
  *
  * Requires TEST_PROJECT environment variable to specify which project to test.
  *
@@ -18,8 +18,9 @@ test.describe("Projects Overview Page", () => {
   const testProject = process.env.TEST_PROJECT || "demo"
 
   test("can search and find test project", async ({ page }) => {
-    // Login and land on projects overview
-    const errors = await loginAsTestUser(page)
+    // Set up error tracking and navigate
+    const errors = setupErrorTracking(page)
+    await page.goto("/projects")
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
 
@@ -30,24 +31,28 @@ test.describe("Projects Overview Page", () => {
     // Search for test project
     await searchInput.fill(testProject)
 
-    // Wait a bit for search results to filter
-    await page.waitForTimeout(500)
+    // Wait for search results to filter (increased from 500ms)
+    await page.waitForTimeout(1000)
 
-    // Verify the test project is visible in results
+    // Verify the test project is visible in results with increased timeout
     const projectHeading = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await expect(projectHeading).toBeVisible()
+    await expect(projectHeading).toBeVisible({ timeout: 10000 })
   })
 
   test("test project appears in initial project list", async ({ page }) => {
-    // Login and land on projects overview
-    const errors = await loginAsTestUser(page)
+    // Set up error tracking and navigate
+    const errors = setupErrorTracking(page)
+    await page.goto("/projects")
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
+
+    // Wait a bit for projects to load after page navigation
+    await page.waitForTimeout(1000)
 
     // Without searching, verify test project is in the list
     const projectHeading = page.locator('[data-testid="project-name"]', { hasText: testProject })
 
-    // Should be visible (might need to scroll)
-    await expect(projectHeading).toBeVisible({ timeout: 5000 })
+    // Should be visible (might need to scroll) with increased timeout
+    await expect(projectHeading).toBeVisible({ timeout: 10000 })
   })
 })

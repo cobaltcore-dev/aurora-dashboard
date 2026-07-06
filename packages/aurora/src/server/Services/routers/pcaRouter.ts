@@ -5,12 +5,16 @@ import { omit } from "@/server/helpers/object"
 import { parseOrThrow } from "@/server/Network/helpers"
 import {
   CertificateAuthoritiesListSchema,
+  CertificateAuthoritiesListInputSchema,
   CertificateAuthoritySchema,
   CertificateAuthorityIdInputSchema,
+  CertificateAuthorityCertificatesListInputSchema,
   CertificatesListSchema,
   CertificateSchema,
   Certificate,
   CertificateAuthority,
+  CertificateAuthoritiesList,
+  CertificatesList,
   CertificateIdInputSchema,
   CertificateAuthorityCreateSchema,
   CreateCertificateInputSchema,
@@ -21,18 +25,26 @@ import {
 const PCA_BASE_URL = "certificate-authorities"
 
 export const pcaRouter = {
-  list: projectScopedProcedure.query(async ({ ctx }): Promise<CertificateAuthority[]> => {
-    return withErrorHandling(async () => {
-      // Use "pca" or "clavis" when the service will be GA as "clavis-beta" and "clavis-dev" are dev keys.
-      const pca = ctx.openstack?.service("pca")
-      validateOpenstackService(pca, "pca")
+  list: projectScopedProcedure
+    .input(CertificateAuthoritiesListInputSchema)
+    .query(async ({ input, ctx }): Promise<CertificateAuthoritiesList> => {
+      return withErrorHandling(async () => {
+        // Use "pca" or "clavis" when the service will be GA as "clavis-beta" and "clavis-dev" are dev keys.
+        const pca = ctx.openstack?.service("pca")
+        validateOpenstackService(pca, "pca")
 
-      const response = await pca.get(PCA_BASE_URL)
-      const data = await response.json()
+        const queryParams = new URLSearchParams()
+        if (input.limit !== undefined) queryParams.set("limit", String(input.limit))
+        if (input.next_page_marker !== undefined) queryParams.set("next_page_marker", input.next_page_marker)
+        const queryString = queryParams.toString()
+        const url = queryString ? `${PCA_BASE_URL}?${queryString}` : PCA_BASE_URL
 
-      return parseOrThrow(CertificateAuthoritiesListSchema, data, "pcaRouter.list").certificate_authorities
-    }, "list certificate authorities")
-  }),
+        const response = await pca.get(url)
+        const data = await response.json()
+
+        return parseOrThrow(CertificateAuthoritiesListSchema, data, "pcaRouter.list")
+      }, "list certificate authorities")
+    }),
   /**
    * Creates a new Certificate Authority (CA).
    * The CA is created in CREATING state and transitions to AWAITING_CERTIFICATE state once its CSR has been generated.
@@ -101,17 +113,22 @@ export const pcaRouter = {
       }, "import certificate of certificate authority")
     }),
   listCertificates: projectScopedProcedure
-    .input(CertificateAuthorityIdInputSchema)
-    .query(async ({ input, ctx }): Promise<Certificate[]> => {
+    .input(CertificateAuthorityCertificatesListInputSchema)
+    .query(async ({ input, ctx }): Promise<CertificatesList> => {
       return withErrorHandling(async () => {
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
 
-        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates`
+        const queryParams = new URLSearchParams()
+        if (input.limit !== undefined) queryParams.set("limit", String(input.limit))
+        if (input.next_page_marker !== undefined) queryParams.set("next_page_marker", input.next_page_marker)
+        const queryString = queryParams.toString()
+        const baseUrl = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates`
+        const url = queryString ? `${baseUrl}?${queryString}` : baseUrl
         const response = await pca.get(url)
         const data = await response.json()
 
-        return parseOrThrow(CertificatesListSchema, data, "pcaRouter.listCertificates").certificates
+        return parseOrThrow(CertificatesListSchema, data, "pcaRouter.listCertificates")
       }, "list certificates for certificate authority")
     }),
   createCertificate: projectScopedProcedure

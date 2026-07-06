@@ -4,7 +4,6 @@ import { NotificationText } from "./NotificationText"
 
 interface ToastConfig {
   onDismiss: () => void
-  autoDismissTimeout?: number
 }
 
 export const getImageUpdatedToast = (imageName: string, config: ToastConfig): ToastProps => ({
@@ -15,8 +14,6 @@ export const getImageUpdatedToast = (imageName: string, config: ToastConfig): To
       description={<Trans>Image instance "{imageName}" has been updated</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -33,8 +30,6 @@ export const getImageUpdateErrorToast = (imageName: string, message: string, con
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -46,8 +41,6 @@ export const getImageCreatedToast = (imageName: string, config: ToastConfig): To
       description={<Trans>Image instance "{imageName}" has been created</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -64,8 +57,6 @@ export const getImageCreateErrorToast = (imageName: string, message: string, con
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -82,8 +73,6 @@ export const getImageFileUploadErrorToast = (fileName: string, message: string, 
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -95,8 +84,6 @@ export const getImageDeletedToast = (imageName: string, config: ToastConfig): To
       description={<Trans>Image instance "{imageName}" has been deleted</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -112,8 +99,6 @@ export const getImageDeleteErrorToast = (imageId: string, message: string, confi
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -125,8 +110,6 @@ export const getImageActivatedToast = (imageName: string, config: ToastConfig): 
       description={<Trans>Image instance "{imageName}" has been activated</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -138,8 +121,6 @@ export const getImageDeactivatedToast = (imageName: string, config: ToastConfig)
       description={<Trans>Image instance "{imageName}" has been deactivated</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -155,8 +136,6 @@ export const getImageActivationErrorToast = (imageId: string, message: string, c
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -172,8 +151,6 @@ export const getImageDeactivationErrorToast = (imageId: string, message: string,
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -194,8 +171,6 @@ export const getBulkDeleteSuccessToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -211,8 +186,6 @@ export const getBulkDeleteErrorToast = (failedCount: number, totalCount: number,
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -232,8 +205,6 @@ export const getBulkDeletePartialToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -253,8 +224,6 @@ export const getBulkActivateSuccessToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -275,8 +244,6 @@ export const getBulkActivateErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -296,8 +263,6 @@ export const getBulkActivatePartialToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -317,8 +282,6 @@ export const getBulkDeactivateSuccessToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -339,8 +302,6 @@ export const getBulkDeactivateErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -360,8 +321,6 @@ export const getBulkDeactivatePartialToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -374,8 +333,6 @@ export const getImageAccessStatusUpdatedToast = (newStatus: string, config: Toas
       description={<Trans>Access status updated to "{newStatus}".</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -387,8 +344,6 @@ export const getImageAccessStatusErrorToast = (errorMessage: string, config: Toa
       description={errorMessage || <Trans>Failed to update access status</Trans>}
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })
 
@@ -409,8 +364,6 @@ export const getImageVisibilityUpdatedToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 3000,
   onDismiss: config.onDismiss,
 })
 
@@ -431,7 +384,5 @@ export const getImageVisibilityUpdateErrorToast = (
       }
     />
   ),
-  autoDismiss: true,
-  autoDismissTimeout: config.autoDismissTimeout ?? 5000,
   onDismiss: config.onDismiss,
 })

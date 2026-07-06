@@ -23,7 +23,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName: sourceContainer } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()
@@ -254,8 +254,9 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
   // ── Virtualized folder browser ─────────────────────────────────────────────
   // Must be declared before the early return to satisfy Rules of Hooks.
   const folderRows = rows.filter((r) => r.kind === "folder")
-  const objectRows = rows.filter((r) => r.kind === "object")
-  const allBrowserRows = [...folderRows, ...objectRows]
+  // Files are kept in `rows` for folder-name duplicate detection but are not
+  // rendered in the destination picker — only folders are valid destinations.
+  const allBrowserRows = folderRows
 
   const rowVirtualizer = useVirtualizer({
     count: allBrowserRows.length,
@@ -288,9 +289,9 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
       title={
         <span className="flex max-w-[500px] items-center gap-1">
           <span className="shrink-0">
-            <Trans>Copy object:</Trans>
+            <Trans>Copy Object:</Trans>
           </span>
-          <span className="truncate font-mono" title={displayName}>
+          <span className="truncate" title={displayName}>
             {displayName}
           </span>
         </span>
@@ -385,7 +386,11 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
                   <Trans>Root</Trans>
                 </span>
               )}
-              {currentPrefix && <span className="text-theme-light truncate font-mono text-xs">/ {currentPrefix}</span>}
+              {currentPrefix && (
+                <span className="text-theme-light truncate text-sm" data-testid="breadcrumb-prefix">
+                  / {currentPrefix}
+                </span>
+              )}
             </div>
 
             {/* Object browser list */}
@@ -453,20 +458,12 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
                           if (newFolderError) setNewFolderError(null)
                         }}
                         onKeyDown={handleNewFolderKeyDown}
-                        placeholder={t`new-folder-name`}
+                        placeholder={t`Folder name`}
                         invalid={!!newFolderError}
                         errortext={newFolderError ?? undefined}
                         autoFocus
                         className="flex-1"
                       />
-                      <Button
-                        size="small"
-                        variant="primary"
-                        onClick={handleCreateFolder}
-                        disabled={!newFolderName.trim()}
-                      >
-                        <Trans>Create</Trans>
-                      </Button>
                       <Button
                         size="small"
                         variant="subdued"
@@ -476,7 +473,15 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
                           setNewFolderError(null)
                         }}
                       >
-                        <Trans>Cancel</Trans>
+                        <Trans>Discard</Trans>
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="primary"
+                        onClick={handleCreateFolder}
+                        disabled={!newFolderName.trim()}
+                      >
+                        <Trans>Create</Trans>
                       </Button>
                     </Stack>
                   </Stack>
@@ -487,10 +492,10 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
 
           {/* Read-only target path */}
           <div>
-            <p className="text-theme-light mb-1">
+            <p className="mb-1">
               <Trans>The object will be copied to this path. Navigate folders above to change the destination.</Trans>
             </p>
-            <TextInput label={t`Target path`} value={targetPathDisplay} readOnly className="font-mono" />
+            <p className="text-sm">{targetPathDisplay}</p>
           </div>
 
           {/* Copy metadata checkbox */}

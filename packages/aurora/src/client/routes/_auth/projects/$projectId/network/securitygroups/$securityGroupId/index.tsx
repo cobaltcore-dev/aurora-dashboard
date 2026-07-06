@@ -23,6 +23,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/securit
   staticData: {
     section: "network",
     service: "securitygroups",
+    analytics: {
+      name: "network.securitygroups.detail",
+    },
     isDetail: true,
     sectionCrumb: { labelKey: "Network" },
     crumb: { labelKey: "Security Groups", to: "/projects/$projectId/network/securitygroups" },

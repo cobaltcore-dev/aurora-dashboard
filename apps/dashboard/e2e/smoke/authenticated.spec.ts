@@ -1,21 +1,22 @@
 import { test, expect } from "@playwright/test"
-import { loginAsTestUser } from "../helpers/auth"
-import { expectPageLoaded, expectNoJavaScriptErrors } from "../helpers/test-helpers"
+import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "../helpers/test-helpers"
 
 /**
  * Authenticated Routes - OpenStack UI Smoke Tests
  *
  * These tests verify that authenticated OpenStack UIs load without errors.
- * Requires TEST_DOMAIN, TEST_USER, TEST_PASSWORD environment variables.
+ * Authentication state is provided by global setup (storageState.json).
  *
  * Run with: pnpm test:e2e e2e/smoke/authenticated.spec.ts
  */
 test.describe("Authenticated OpenStack UIs", () => {
   test("projects page loads without errors", async ({ page }) => {
-    // loginAsTestUser sets up error tracking before navigation
-    const errors = await loginAsTestUser(page)
+    // Set up error tracking
+    const errors = setupErrorTracking(page)
 
-    // Already on /projects from login
+    // Navigate to projects (already authenticated via storageState)
+    await page.goto("/projects")
+
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
 
@@ -24,10 +25,12 @@ test.describe("Authenticated OpenStack UIs", () => {
   })
 
   test("projects list shows search functionality", async ({ page }) => {
-    // loginAsTestUser sets up error tracking before navigation
-    const errors = await loginAsTestUser(page)
+    // Set up error tracking
+    const errors = setupErrorTracking(page)
 
-    // Should already be on /projects from login
+    // Navigate to projects (already authenticated via storageState)
+    await page.goto("/projects")
+
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
 

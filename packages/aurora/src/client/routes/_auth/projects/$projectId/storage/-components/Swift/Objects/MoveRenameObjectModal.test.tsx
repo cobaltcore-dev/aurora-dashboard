@@ -261,7 +261,7 @@ describe("MoveRenameObjectModal", () => {
 
     test("target path shows root path with object name by default", () => {
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
-      expect(screen.getByDisplayValue("/source-container/report.pdf")).toBeInTheDocument()
+      expect(screen.getByText("/source-container/report.pdf")).toBeInTheDocument()
     })
 
     test("shows Root breadcrumb when at root level", () => {
@@ -353,7 +353,7 @@ describe("MoveRenameObjectModal", () => {
       const nameInput = screen.getByDisplayValue("report.pdf")
       await user.clear(nameInput)
       await user.type(nameInput, "renamed.pdf")
-      expect(screen.getByDisplayValue("/source-container/renamed.pdf")).toBeInTheDocument()
+      expect(screen.getByText("/source-container/renamed.pdf")).toBeInTheDocument()
     })
 
     test("shows error when name is cleared and Move is clicked", async () => {
@@ -395,9 +395,10 @@ describe("MoveRenameObjectModal", () => {
       expect(screen.getByText("docs")).toBeInTheDocument()
     })
 
-    test("shows files as non-clickable items", () => {
+    test("does not show files in the destination picker", () => {
       renderModal()
-      expect(screen.getByText("readme.txt")).toBeInTheDocument()
+      // Files are not valid destinations — only folders are rendered
+      expect(screen.queryByText("readme.txt")).not.toBeInTheDocument()
     })
 
     test("navigates into a folder when clicked", async () => {
@@ -411,7 +412,7 @@ describe("MoveRenameObjectModal", () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
       await user.click(screen.getByText("docs"))
-      expect(screen.getByDisplayValue("/source-container/docs/report.pdf")).toBeInTheDocument()
+      expect(screen.getByText("/source-container/docs/report.pdf")).toBeInTheDocument()
     })
 
     test("navigates back to root when Back is clicked", async () => {
@@ -442,23 +443,26 @@ describe("MoveRenameObjectModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      expect(screen.getByPlaceholderText(/new-folder-name/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Folder name/i)).toBeInTheDocument()
     })
 
     test("creates folder and navigates into it", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      await user.type(screen.getByPlaceholderText(/new-folder-name/i), "archive")
+      await user.type(screen.getByPlaceholderText(/Folder name/i), "archive")
       await user.click(screen.getByRole("button", { name: /^Create$/i }))
-      expect(screen.getByText(/archive\//)).toBeInTheDocument()
+      // Breadcrumb span proves navigation — more specific than getByText since
+      // the folder name also appears in the target path <p> after this change.
+      const breadcrumb = screen.getByTestId("breadcrumb-prefix")
+      expect(breadcrumb.textContent).toMatch(/archive\//)
     })
 
     test("shows error when folder name contains slashes", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      await user.type(screen.getByPlaceholderText(/new-folder-name/i), "foo/bar")
+      await user.type(screen.getByPlaceholderText(/Folder name/i), "foo/bar")
       await user.click(screen.getByRole("button", { name: /^Create$/i }))
       expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
     })
@@ -467,16 +471,17 @@ describe("MoveRenameObjectModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      await user.type(screen.getByPlaceholderText(/new-folder-name/i), "archive{Enter}")
-      expect(screen.getByText(/archive\//)).toBeInTheDocument()
+      await user.type(screen.getByPlaceholderText(/Folder name/i), "archive{Enter}")
+      const breadcrumb = screen.getByTestId("breadcrumb-prefix")
+      expect(breadcrumb.textContent).toMatch(/archive\//)
     })
 
     test("dismisses folder input with Escape", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      await user.type(screen.getByPlaceholderText(/new-folder-name/i), "x{Escape}")
-      expect(screen.queryByPlaceholderText(/new-folder-name/i)).not.toBeInTheDocument()
+      await user.type(screen.getByPlaceholderText(/Folder name/i), "x{Escape}")
+      expect(screen.queryByPlaceholderText(/Folder name/i)).not.toBeInTheDocument()
     })
   })
 

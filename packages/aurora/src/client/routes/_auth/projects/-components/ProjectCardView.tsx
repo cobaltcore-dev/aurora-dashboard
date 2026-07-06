@@ -27,7 +27,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </p>
       </div>
       {project.description && (
-        <p className="text-theme-default line-clamp-2 text-base leading-6 font-normal">{project.description}</p>
+        <p className="text-theme-default line-clamp-2 text-sm font-normal">{project.description}</p>
       )}
     </Card>
   )
@@ -38,9 +38,11 @@ export function ProjectCardView({ projects }: ProjectCardViewProps) {
     <div className="w-full">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {projects?.length ? (
-          projects.map((project) => <ProjectCard key={project.id} project={project} />)
+          [...projects]
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((project) => <ProjectCard key={project.id} project={project} />)
         ) : (
-          <p className="text-center">
+          <p>
             <Trans>No projects available.</Trans>
           </p>
         )}

@@ -1,4 +1,4 @@
-import { AppShellProvider } from "@cloudoperators/juno-ui-components"
+import { AppShellProvider, NotificationManager } from "@cloudoperators/juno-ui-components"
 import { RouterProvider } from "@tanstack/react-router"
 import { AuthProvider, useAuth } from "./store/AuthProvider"
 import { QueryClient, QueryClientProvider, hashKey } from "@tanstack/react-query"
@@ -10,8 +10,9 @@ import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
-import type { Slots } from "./AuroraApp"
+import type { Slots, OnTrackEventCallback } from "./AuroraApp"
 import { messages as enMessages } from "../locales/en/messages"
+import { setupRouterAnalytics } from "./analytics/setupRouterAnalytics"
 
 // Initialise i18n here so AuroraApp is self-contained and consumers don't need
 // to set up Lingui before mounting the component.
@@ -24,6 +25,8 @@ type AppProps = {
   onThemeChange?: (theme: "theme-dark" | "theme-light") => void
   slots?: Slots
   appName?: string
+  onTrackEvent?: OnTrackEventCallback
+  enabledServices?: string[]
 }
 
 // Additional navigation items can be added here and will be passed to the layout via context
@@ -88,12 +91,15 @@ const App = (props: AppProps) => {
           <trpcReact.Provider client={reactClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
               <AuthProvider>
+                <NotificationManager position="top-right" />
                 <AppInner
                   router={router}
                   navItems={navItems}
                   handleThemeToggle={handleThemeToggle}
                   slots={props.slots}
                   appName={props.appName}
+                  onTrackEvent={props.onTrackEvent}
+                  enabledServices={props.enabledServices}
                 />
               </AuthProvider>
             </QueryClientProvider>
@@ -110,12 +116,16 @@ function AppInner({
   handleThemeToggle,
   slots,
   appName,
+  onTrackEvent,
+  enabledServices,
 }: {
   router: ReturnType<typeof createAuroraRouter>
   navItems: NavigationItem[]
   handleThemeToggle: (theme: string) => void
   slots?: Slots
   appName?: string
+  onTrackEvent?: OnTrackEventCallback
+  enabledServices?: string[]
 }) {
   const auth = useAuth()
 
@@ -127,7 +137,17 @@ function AppInner({
     handleThemeToggle,
     slots,
     appName,
+    onTrackEvent,
+    enabledServices,
   }
+
+  // Set up analytics tracking for router navigation
+  // Must run AFTER RouterProvider processes the context, so use a separate effect
+  useEffect(() => {
+    if (onTrackEvent) {
+      return setupRouterAnalytics(router)
+    }
+  }, [router, onTrackEvent])
 
   return <RouterProvider router={router} context={routerContext} />
 }

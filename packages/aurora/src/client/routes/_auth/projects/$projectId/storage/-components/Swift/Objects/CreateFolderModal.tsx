@@ -17,7 +17,7 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
   })
 
   const [folderName, setFolderName] = useState("")
@@ -96,7 +96,7 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
           <span className="shrink-0">
             <Trans>Create folder below:</Trans>
           </span>
-          <span className="truncate font-mono" title={parentPath}>
+          <span className="truncate" title={parentPath}>
             {parentPath}
           </span>
         </span>

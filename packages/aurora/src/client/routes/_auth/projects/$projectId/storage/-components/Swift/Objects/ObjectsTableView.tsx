@@ -10,6 +10,9 @@ import {
   PopupMenuItem,
   PopupMenuOptions,
   Spinner,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
@@ -272,18 +275,6 @@ export const ObjectsTableView = ({
   }
 
   // Only object rows (not folders) are selectable
-  const selectableRows = rows.filter((r): r is ObjectRow => r.kind === "object")
-  const selectedSet = new Set(selectedObjects)
-  const allSelected = selectableRows.length > 0 && selectableRows.every((r) => selectedSet.has(r.name))
-
-  const handleSelectAll = () => {
-    if (allSelected) {
-      setSelectedObjects([])
-    } else {
-      setSelectedObjects(selectableRows.map((r) => r.name))
-    }
-  }
-
   const handleSelectObject = (name: string) => {
     if (selectedObjects.includes(name)) {
       setSelectedObjects(selectedObjects.filter((n) => n !== name))
@@ -336,7 +327,9 @@ export const ObjectsTableView = ({
             <DataGridRow>
               {hasAnyBulkAction && (
                 <DataGridHeadCell>
-                  <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-objects" />
+                  <span className="sr-only">
+                    <Trans>Select</Trans>
+                  </span>
                 </DataGridHeadCell>
               )}
               <DataGridHeadCell>
@@ -396,7 +389,24 @@ export const ObjectsTableView = ({
                       The whole column is omitted when no bulk action is available. */}
                   {hasAnyBulkAction && (
                     <DataGridCell onClick={(e) => e.stopPropagation()}>
-                      {!isFolder && (
+                      {isFolder ? (
+                        // Folders have no bulk-delete operation in Swift — show a
+                        // disabled checkbox with an explanatory tooltip so the column
+                        // stays aligned and the user understands why. Folder deletion
+                        // goes through the row menu ("Delete Recursively") instead.
+                        <Tooltip triggerEvent="hover" placement="right">
+                          <TooltipTrigger>
+                            <Checkbox
+                              disabled
+                              aria-label={t`Folders cannot be bulk-deleted. Use the row menu to delete a folder.`}
+                              data-testid={`select-folder-disabled-${row.name}`}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <Trans>Folders cannot be bulk-deleted. Use the row menu to delete a folder.</Trans>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
                         <Checkbox
                           checked={isSelected}
                           onChange={() => handleSelectObject(row.name)}
@@ -512,7 +522,7 @@ export const ObjectsTableView = ({
                               data-testid={`move-rename-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Share (Temporary URL)`}
+                              label={t`Share URL`}
                               onClick={() => setTempUrlTarget(row as ObjectRow)}
                               data-testid={`temp-url-action-${row.name}`}
                             />

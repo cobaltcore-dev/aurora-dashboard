@@ -1,7 +1,9 @@
 import { describe, it, expect } from "vitest"
 import {
   CertificateAuthoritiesListSchema,
+  CertificateAuthoritiesListInputSchema,
   CertificateAuthorityCreateSchema,
+  CertificateAuthorityCertificatesListInputSchema,
   CertificateAuthorityImportInputSchema,
   CertificateAuthoritySchema,
   CertificateConfigurationSchema,
@@ -98,6 +100,39 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
     csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE REQUEST-----",
     imported_certificate_chain: "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",
   }
+
+  const projectScopedSchemaCases = [
+    {
+      name: "CertificateAuthoritiesListInputSchema",
+      schema: CertificateAuthoritiesListInputSchema,
+      validInput: {
+        project_id: " project-1 ",
+      },
+    },
+    {
+      name: "CertificateAuthorityIdInputSchema",
+      schema: CertificateAuthorityIdInputSchema,
+      validInput: {
+        project_id: " project-1 ",
+        certificate_authority_id: "ca-123",
+      },
+    },
+    {
+      name: "CreateCertificateInputSchema",
+      schema: CreateCertificateInputSchema,
+      validInput: {
+        project_id: " project-1 ",
+        certificate_authority_id: "ca-123",
+        csr: "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+        configuration: {
+          validity: {
+            not_after: 1736851200,
+            not_before: 1705315200,
+          },
+        },
+      },
+    },
+  ] as const
 
   describe("CAStateSchema", () => {
     it("should validate CREATING state", () => {
@@ -590,6 +625,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritiesListSchema.safeParse({
           certificate_authorities: [minimalValidCA],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -598,6 +634,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritiesListSchema.safeParse({
           certificate_authorities: [minimalValidCA, minimalValidReadyCA, completeValidCA],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -606,6 +643,24 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritiesListSchema.safeParse({
           certificate_authorities: [],
+          links: [],
+        }).success
+      ).toBe(true)
+    })
+
+    it("should require links field", () => {
+      expect(
+        CertificateAuthoritiesListSchema.safeParse({
+          certificate_authorities: [minimalValidCA],
+        }).success
+      ).toBe(false)
+    })
+
+    it("should validate links with items", () => {
+      expect(
+        CertificateAuthoritiesListSchema.safeParse({
+          certificate_authorities: [minimalValidCA],
+          links: [{ href: "https://example.com/next", rel: "next" }],
         }).success
       ).toBe(true)
     })
@@ -638,6 +693,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritiesListSchema.safeParse({
           certificate_authorities: [creatingCA, awaitingCA, readyCA, failedCA],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -657,6 +713,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritiesListSchema.safeParse({
           certificate_authorities: [...incompleteCAs, ...completeCAs],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -699,9 +756,81 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
             },
           },
         ],
+        links: [{ href: "https://clavis.example.com/v1/certificate-authorities?next_page_marker=abc", rel: "next" }],
       }
 
       expect(CertificateAuthoritiesListSchema.safeParse(realWorldResponse).success).toBe(true)
+    })
+  })
+
+  describe("CertificateAuthoritiesListInputSchema", () => {
+    it("should validate with only required project_id", () => {
+      expect(
+        CertificateAuthoritiesListInputSchema.safeParse({
+          project_id: "project-1",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should validate with optional pagination fields", () => {
+      expect(
+        CertificateAuthoritiesListInputSchema.safeParse({
+          project_id: "project-1",
+          limit: 100,
+          next_page_marker: "opaque-marker",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject limit lower than minimum", () => {
+      expect(
+        CertificateAuthoritiesListInputSchema.safeParse({
+          project_id: "project-1",
+          limit: 0,
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject limit greater than maximum", () => {
+      expect(
+        CertificateAuthoritiesListInputSchema.safeParse({
+          project_id: "project-1",
+          limit: 1001,
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject empty next_page_marker", () => {
+      expect(
+        CertificateAuthoritiesListInputSchema.safeParse({
+          project_id: "project-1",
+          next_page_marker: "",
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject input without project_id", () => {
+      expect(CertificateAuthoritiesListInputSchema.safeParse({ limit: 10 }).success).toBe(false)
+    })
+  })
+
+  describe("project_id validation consistency", () => {
+    it.each(projectScopedSchemaCases)("should trim project_id for %s", ({ schema, validInput }) => {
+      const result = schema.safeParse(validInput)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.project_id).toBe("project-1")
+      }
+    })
+
+    it.each(projectScopedSchemaCases)("should reject whitespace-only project_id for %s", ({ schema, validInput }) => {
+      expect(
+        schema.safeParse({
+          ...validInput,
+          project_id: "   ",
+        }).success
+      ).toBe(false)
     })
   })
 
@@ -747,6 +876,58 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
           certificate_authority_id: "ca-456",
         }).success
       ).toBe(true)
+    })
+  })
+
+  describe("CertificateAuthorityCertificatesListInputSchema", () => {
+    it("should validate with required CA identifiers only", () => {
+      expect(
+        CertificateAuthorityCertificatesListInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should validate with optional pagination fields", () => {
+      expect(
+        CertificateAuthorityCertificatesListInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          limit: 100,
+          next_page_marker: "opaque-marker",
+        }).success
+      ).toBe(true)
+    })
+
+    it("should reject limit below minimum", () => {
+      expect(
+        CertificateAuthorityCertificatesListInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          limit: 0,
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject limit above maximum", () => {
+      expect(
+        CertificateAuthorityCertificatesListInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          limit: 1001,
+        }).success
+      ).toBe(false)
+    })
+
+    it("should reject empty next_page_marker", () => {
+      expect(
+        CertificateAuthorityCertificatesListInputSchema.safeParse({
+          project_id: "project-1",
+          certificate_authority_id: "ca-123",
+          next_page_marker: "",
+        }).success
+      ).toBe(false)
     })
   })
 
@@ -1093,6 +1274,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificatesListSchema.safeParse({
           certificates: [validCertificate],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -1105,6 +1287,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
             { ...validCertificate, id: "cert-2" },
             { ...validCertificate, id: "cert-3" },
           ],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -1113,6 +1296,24 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificatesListSchema.safeParse({
           certificates: [],
+          links: [],
+        }).success
+      ).toBe(true)
+    })
+
+    it("should require links field", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: [validCertificate],
+        }).success
+      ).toBe(false)
+    })
+
+    it("should validate links with items", () => {
+      expect(
+        CertificatesListSchema.safeParse({
+          certificates: [validCertificate],
+          links: [{ href: "https://example.com/next", rel: "next" }],
         }).success
       ).toBe(true)
     })
@@ -1157,6 +1358,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
               },
             },
           ],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -1172,6 +1374,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
               csr: "-----BEGIN CERTIFICATE REQUEST-----\n...",
             },
           ],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -1190,6 +1393,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
               },
             },
           ],
+          links: [],
         }).success
       ).toBe(true)
     })
@@ -1239,6 +1443,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
             },
           },
         ],
+        links: [{ href: "https://clavis.example.com/v1/certificates?next_page_marker=abc", rel: "next" }],
       }
 
       expect(CertificatesListSchema.safeParse(realWorldResponse).success).toBe(true)

@@ -110,3 +110,138 @@ describe("buckets.list", () => {
     await expect(caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(TRPCError)
   })
 })
+
+// ============================================================================
+// buckets.create
+// ============================================================================
+
+describe("buckets.create", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("creates a new bucket successfully", async () => {
+    // Mock ListBucketsCommand to return empty list (no existing buckets)
+    mockSend.mockResolvedValueOnce({
+      Buckets: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Mock CreateBucketCommand success
+    mockSend.mockResolvedValueOnce({
+      Location: `/${TEST_BUCKET_NAME}`,
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.create({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+      enableVersioning: false,
+    })
+
+    expect(result).toEqual({ success: true })
+    expect(mockSend).toHaveBeenCalledTimes(2) // ListBucketsCommand + CreateBucketCommand
+  })
+
+  it("throws CONFLICT when bucket already exists", async () => {
+    // Mock ListBucketsCommand to return existing bucket
+    mockSend.mockResolvedValueOnce({
+      Buckets: [{ Name: TEST_BUCKET_NAME, CreationDate: TEST_CREATION_DATE }],
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const error = await caller.storage.ceph.containers
+      .create({
+        project_id: TEST_PROJECT_ID,
+        bucketName: TEST_BUCKET_NAME,
+        enableVersioning: false,
+      })
+      .catch((e) => e)
+
+    expect(error).toBeInstanceOf(TRPCError)
+    expect(error.code).toBe("CONFLICT")
+    expect(error.message).toContain("Failed to create bucket")
+    expect(error.message).toContain(TEST_BUCKET_NAME)
+
+    expect(mockSend).toHaveBeenCalledTimes(1) // Only ListBucketsCommand, CreateBucketCommand not called
+  })
+
+  it("creates bucket with versioning enabled", async () => {
+    // Mock ListBucketsCommand
+    mockSend.mockResolvedValueOnce({
+      Buckets: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Mock CreateBucketCommand
+    mockSend.mockResolvedValueOnce({
+      Location: `/${TEST_BUCKET_NAME}`,
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Mock PutBucketVersioningCommand
+    mockSend.mockResolvedValueOnce({
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.create({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+      enableVersioning: true,
+    })
+
+    expect(result).toEqual({ success: true })
+    expect(mockSend).toHaveBeenCalledTimes(3) // ListBucketsCommand + CreateBucketCommand + PutBucketVersioningCommand
+  })
+
+  it("returns success with versioningError when versioning fails", async () => {
+    // Mock ListBucketsCommand
+    mockSend.mockResolvedValueOnce({
+      Buckets: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Mock CreateBucketCommand
+    mockSend.mockResolvedValueOnce({
+      Location: `/${TEST_BUCKET_NAME}`,
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Mock PutBucketVersioningCommand failure
+    const versioningError = Object.assign(new Error("Versioning not supported"), {
+      Code: "InvalidBucketState",
+    })
+    mockSend.mockRejectedValueOnce(versioningError)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.create({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+      enableVersioning: true,
+    })
+
+    expect(result).toEqual({
+      success: true,
+      versioningError: expect.stringContaining("Failed to enable versioning"),
+    })
+  })
+
+  it("throws FORBIDDEN when no credentials exist", async () => {
+    const ctx = createMockContext({ hasCredentials: false })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.containers.create({
+        project_id: TEST_PROJECT_ID,
+        bucketName: TEST_BUCKET_NAME,
+        enableVersioning: false,
+      })
+    ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN", message: "NO_CEPH_CREDENTIALS" }))
+  })
+})

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import {
   Modal,
   TextInput,
@@ -75,6 +76,11 @@ export const EditMetadataModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.metadata.edit",
+  })
 
   // ── Metadata fetch ─────────────────────────────────────────────────────────
   const {
@@ -168,6 +174,7 @@ export const EditMetadataModal = ({
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleClose = () => {
     resetForm()
+    resetTracking()
     onClose()
   }
 
@@ -178,6 +185,7 @@ export const EditMetadataModal = ({
       return
     }
 
+    markSubmitted()
     objectKeyRef.current = objectKey
 
     // Build metadata record from current entries
@@ -301,7 +309,10 @@ export const EditMetadataModal = ({
         </span>
       }
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Saving...` : t`Update object`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
@@ -389,7 +400,7 @@ export const EditMetadataModal = ({
               />
             </Stack>
 
-            <DataGrid columns={3}>
+            <DataGrid columns={3} gridColumnTemplate="minmax(150px, 1fr) minmax(200px, 2fr) minmax(120px, min-content)">
               <DataGridRow>
                 <DataGridHeadCell>
                   <Trans>Key</Trans>
@@ -397,7 +408,7 @@ export const EditMetadataModal = ({
                 <DataGridHeadCell>
                   <Trans>Value</Trans>
                 </DataGridHeadCell>
-                <DataGridHeadCell>
+                <DataGridHeadCell className="text-right">
                   <Trans>Actions</Trans>
                 </DataGridHeadCell>
               </DataGridRow>
@@ -426,7 +437,7 @@ export const EditMetadataModal = ({
                     />
                   </DataGridCell>
                   <DataGridCell>
-                    <Stack direction="horizontal" gap="2">
+                    <Stack direction="horizontal" gap="2" distribution="end" className="whitespace-nowrap">
                       <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
                       <Button
                         size="small"
@@ -471,7 +482,7 @@ export const EditMetadataModal = ({
                   </DataGridCell>
                   <DataGridCell>
                     {entry.isEditing ? (
-                      <Stack direction="horizontal" gap="2">
+                      <Stack direction="horizontal" gap="2" distribution="end" className="whitespace-nowrap">
                         <Button
                           size="small"
                           variant="primary"
@@ -488,7 +499,7 @@ export const EditMetadataModal = ({
                         />
                       </Stack>
                     ) : (
-                      <Stack direction="horizontal" gap="2">
+                      <Stack direction="horizontal" gap="2" distribution="end" className="whitespace-nowrap">
                         <Button
                           size="small"
                           variant="subdued"

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import type { ObjectVersion } from "@/server/Storage/types/versioning"
 import {
   Modal,
@@ -40,6 +41,12 @@ export const ObjectVersionHistoryModal = ({
 }: ObjectVersionHistoryModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
+
+  const { trackClose, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.version.history",
+  })
+
   const [restoreTarget, setRestoreTarget] = useState<{
     versionId: string
     date?: string
@@ -50,6 +57,10 @@ export const ObjectVersionHistoryModal = ({
     date?: string
     size?: number
     isDeleteMarker: boolean
+  } | null>(null)
+  const [feedbackMessage, setFeedbackMessage] = useState<{
+    variant: "success" | "error"
+    message: string
   } | null>(null)
 
   const { data, isLoading, error, refetch } = trpcReact.storage.ceph.versioning.listObjectVersions.useQuery(
@@ -77,14 +88,39 @@ export const ObjectVersionHistoryModal = ({
   const handleClose = () => {
     setRestoreTarget(null)
     setDeleteTarget(null)
+    setFeedbackMessage(null)
+    resetTracking()
     onClose()
   }
 
   if (!isOpen) return null
 
   return (
-    <Modal title={t`Version History: ${objectKey}`} open={isOpen} onCancel={handleClose} size="large">
+    <Modal
+      title={
+        <span className="flex max-w-[400px] items-center gap-1 md:max-w-[500px] lg:max-w-[1000px] xl:max-w-[1100px]">
+          <span className="shrink-0">
+            <Trans>Version History:</Trans>
+          </span>
+          <span className="truncate" title={objectKey}>
+            {objectKey}
+          </span>
+        </span>
+      }
+      open={isOpen}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
+      size="xl"
+    >
       <Stack direction="vertical" gap="4">
+        {feedbackMessage && (
+          <Message variant={feedbackMessage.variant} dismissible onDismiss={() => setFeedbackMessage(null)}>
+            {feedbackMessage.message}
+          </Message>
+        )}
+
         {isLoading && (
           <Stack direction="horizontal" gap="2" alignment="center" className="py-8">
             <Spinner />
@@ -108,13 +144,6 @@ export const ObjectVersionHistoryModal = ({
 
         {!isLoading && !error && versions.length > 0 && (
           <>
-            <Message variant="info">
-              <Trans>
-                Showing all versions of this object. The latest version is highlighted. Delete markers indicate when the
-                object was deleted.
-              </Trans>
-            </Message>
-
             <DataGrid columns={6}>
               <DataGridRow>
                 <DataGridHeadCell>
@@ -160,7 +189,7 @@ export const ObjectVersionHistoryModal = ({
                     </DataGridCell>
 
                     <DataGridCell>
-                      <code className="font-mono text-xs break-all" title={version.versionId}>
+                      <code className="text-xs break-all" title={version.versionId}>
                         {version.versionId}
                       </code>
                     </DataGridCell>
@@ -187,28 +216,17 @@ export const ObjectVersionHistoryModal = ({
                       <div className="flex justify-end">
                         <PopupMenu>
                           <PopupMenuOptions>
-                            {!isDeleteMarker && (
-                              <>
-                                <PopupMenuItem
-                                  label={t`Download`}
-                                  onClick={() => {
-                                    // TODO: Generate download URL with versionId
-                                    console.log("Download version:", version.versionId)
-                                  }}
-                                />
-                                {!isLatest && (
-                                  <PopupMenuItem
-                                    label={t`Restore`}
-                                    onClick={() => {
-                                      setRestoreTarget({
-                                        versionId: version.versionId,
-                                        date: version.lastModified,
-                                        size: version.size,
-                                      })
-                                    }}
-                                  />
-                                )}
-                              </>
+                            {!isDeleteMarker && !isLatest && (
+                              <PopupMenuItem
+                                label={t`Restore`}
+                                onClick={() => {
+                                  setRestoreTarget({
+                                    versionId: version.versionId,
+                                    date: version.lastModified,
+                                    size: version.size,
+                                  })
+                                }}
+                              />
                             )}
                             <PopupMenuItem
                               label={isDeleteMarker ? t`Delete Marker` : t`Delete Version`}
@@ -243,12 +261,20 @@ export const ObjectVersionHistoryModal = ({
         onClose={() => setRestoreTarget(null)}
         onSuccess={(objectKey, versionId) => {
           setRestoreTarget(null)
+          const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+          setFeedbackMessage({
+            variant: "success",
+            message: t`${displayName} was successfully restored`,
+          })
           onRestoreVersion?.(objectKey, versionId)
-          // Invalidate is handled by RestoreVersionModal, but we refetch to ensure immediate update
           setTimeout(() => refetch(), 100)
         }}
-        onError={() => {
+        onError={(_objectKey, errorMessage) => {
           setRestoreTarget(null)
+          setFeedbackMessage({
+            variant: "error",
+            message: t`Failed to restore version: ${errorMessage}`,
+          })
         }}
       />
 
@@ -263,12 +289,20 @@ export const ObjectVersionHistoryModal = ({
         onClose={() => setDeleteTarget(null)}
         onSuccess={(objectKey, versionId) => {
           setDeleteTarget(null)
+          const shortVersionId = versionId.slice(0, 8)
+          setFeedbackMessage({
+            variant: "success",
+            message: t`Version ${shortVersionId}... deleted successfully`,
+          })
           onDeleteVersion?.(objectKey, versionId)
-          // Invalidate is handled by DeleteVersionModal, but we refetch to ensure immediate update
           setTimeout(() => refetch(), 100)
         }}
-        onError={() => {
+        onError={(_objectKey, errorMessage) => {
           setDeleteTarget(null)
+          setFeedbackMessage({
+            variant: "error",
+            message: t`Failed to delete version: ${errorMessage}`,
+          })
         }}
       />
     </Modal>

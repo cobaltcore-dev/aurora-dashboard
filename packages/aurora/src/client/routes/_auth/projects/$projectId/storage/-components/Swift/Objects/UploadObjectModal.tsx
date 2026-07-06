@@ -185,7 +185,7 @@ export const UploadObjectModal = ({
           <span className="shrink-0">
             <Trans>Upload object to:</Trans>
           </span>
-          <span className="truncate font-mono" title={parentPath}>
+          <span className="truncate" title={parentPath}>
             {parentPath}
           </span>
         </span>
@@ -211,7 +211,7 @@ export const UploadObjectModal = ({
         {selectedFile && !isPending && (
           <p className="text-theme-default">
             <Trans>
-              Object will be uploaded as: <span className="font-mono font-semibold">{selectedObjectName}</span>
+              Object will be uploaded as: <span className="font-semibold">{selectedObjectName}</span>
             </Trans>
           </p>
         )}

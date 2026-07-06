@@ -1,12 +1,11 @@
-import { test, expect } from "@playwright/test"
-import { loginAsTestUser } from "../helpers/auth"
+import { test, expect, type Page } from "@playwright/test"
 import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "../helpers/test-helpers"
 
 /**
  * Project Detail View Tests
  *
- * Tests the project detail page navigation and menu items.
- * Verifies that all expected navigation links are present.
+ * Tests the project detail page service cards, breadcrumb behaviour, and cursor states.
+ * Authentication state is provided by global setup (storageState.json).
  *
  * Requires TEST_PROJECT environment variable to specify which project to test.
  *
@@ -15,77 +14,109 @@ import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "
 test.describe("Project Detail View", () => {
   const testProject = process.env.TEST_PROJECT || "demo"
 
-  test("has all required navigation links", async ({ page }) => {
-    // Login and land on projects overview
-    const errors = await loginAsTestUser(page)
+  async function navigateToProject(page: Page) {
+    const errors = setupErrorTracking(page)
+
+    // Navigate to projects (already authenticated via storageState)
+    await page.goto("/projects")
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
 
-    // Search for test project
     const searchInput = page.locator('input[placeholder="Search..."]')
     await searchInput.fill(testProject)
-    await page.waitForTimeout(500)
 
-    // Set up error tracking for project detail page navigation
     const detailErrors = setupErrorTracking(page)
-
-    // Click on test project
-    const projectHeading = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await projectHeading.click()
-
-    // Wait for project detail page to load
+    const projectResult = page.locator('[data-testid="project-name"]', { hasText: testProject })
+    await expect(page.locator('[data-testid="project-name"]')).toHaveCount(1)
+    await projectResult.click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(detailErrors, page)
+  }
 
-    // Check for Images link
-    const imagesLink = page.locator("a", { hasText: "Images" })
-    await expect(imagesLink).toBeVisible()
+  test("shows service cards for available services", async ({ page }) => {
+    await navigateToProject(page)
 
-    // Check for Flavors link
-    const flavorsLink = page.locator("a", { hasText: "Flavors" })
-    await expect(flavorsLink).toBeVisible()
-
-    // Check for Security Groups link
-    const securityGroupsLink = page.locator("a", { hasText: "Security Groups" })
-    await expect(securityGroupsLink).toBeVisible()
-
-    // Check for Floating IPs link
-    const floatingIPsLink = page.locator("a", { hasText: "Floating IPs" })
-    await expect(floatingIPsLink).toBeVisible()
-
-    // Check for Swift link
-    const swiftLink = page.locator("a", { hasText: "Swift" })
-    await expect(swiftLink).toBeVisible()
+    const cards = page.locator('[data-testid="service-card"]')
+    await expect(cards.first()).toBeVisible()
   })
 
-  test("navigation links are clickable", async ({ page }) => {
-    // Login and land on projects overview
-    const errors = await loginAsTestUser(page)
+  test("service cards contain expected services", async ({ page }) => {
+    await navigateToProject(page)
+
+    const imagesCard = page.locator('[data-testid="service-card-label"]', { hasText: "Images" })
+    await expect(imagesCard).toBeVisible()
+
+    const flavorsCard = page.locator('[data-testid="service-card-label"]', { hasText: "Flavors" })
+    await expect(flavorsCard).toBeVisible()
+
+    const securityGroupsCard = page.locator('[data-testid="service-card-label"]', { hasText: "Security Groups" })
+    await expect(securityGroupsCard).toBeVisible()
+
+    const floatingIPsCard = page.locator('[data-testid="service-card-label"]', { hasText: "Floating IPs" })
+    await expect(floatingIPsCard).toBeVisible()
+  })
+
+  test("service cards are buttons (not links)", async ({ page }) => {
+    await navigateToProject(page)
+
+    const card = page.locator('[data-testid="service-card"]').first()
+    await expect(card).toBeVisible()
+    const tagName = await card.evaluate((el) => el.tagName.toLowerCase())
+    expect(tagName).toBe("button")
+  })
+
+  test("project name breadcrumb is not clickable on project overview", async ({ page }) => {
+    await navigateToProject(page)
+
+    // The active breadcrumb item should be a span, not a button or anchor
+    const breadcrumbItem = page.locator(".juno-breadcrumb-item-active")
+    await expect(breadcrumbItem).toBeVisible()
+    const tagName = await breadcrumbItem.evaluate((el) => el.tagName.toLowerCase())
+    expect(tagName).toBe("span")
+
+    // Cursor should not be pointer
+    const cursor = await breadcrumbItem.evaluate((el) => window.getComputedStyle(el).cursor)
+    expect(cursor).not.toBe("pointer")
+  })
+
+  test("project name breadcrumb becomes clickable on sub-routes", async ({ page }) => {
+    await navigateToProject(page)
+
+    // Navigate into a sub-route via the side nav
+    const imagesCard = page.locator('[data-testid="service-card-label"]', { hasText: "Images" })
+    await imagesCard.click()
     await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(errors, page)
 
-    // Search for test project
-    const searchInput = page.locator('input[placeholder="Search..."]')
-    await searchInput.fill(testProject)
-    await page.waitForTimeout(500)
+    // Wait for navigation to complete
+    await page.waitForTimeout(1000)
 
-    // Set up error tracking for project detail page navigation
-    const detailErrors = setupErrorTracking(page)
+    // The breadcrumb structure uses links, not buttons
+    // Find the clickable "demo" breadcrumb link
+    const projectBreadcrumbLink = page.locator(`a:has-text("${testProject}")`)
 
-    // Click on test project
-    const projectHeading = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await projectHeading.click()
+    // Verify it's visible and clickable
+    await expect(projectBreadcrumbLink).toBeVisible({ timeout: 10000 })
 
-    // Wait for project detail page to load
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(detailErrors, page)
+    // Verify it's actually a link element
+    const tagName = await projectBreadcrumbLink.evaluate((el) => el.tagName.toLowerCase())
+    expect(tagName).toBe("a")
 
-    // Test that Images link is clickable
-    const imagesLink = page.locator("a", { hasText: "Images" }).first()
-    await expect(imagesLink).toBeEnabled()
+    // Verify it has cursor pointer (clickable)
+    const cursor = await projectBreadcrumbLink.evaluate((el) => window.getComputedStyle(el).cursor)
+    expect(cursor).toBe("pointer")
+  })
 
-    // Verify link has href attribute
-    const href = await imagesLink.getAttribute("href")
-    expect(href).toBeTruthy()
+  test("domain breadcrumb is not clickable", async ({ page }) => {
+    await navigateToProject(page)
+
+    // The breadcrumb should have a span for domain (no onClick, no href)
+    const breadcrumb = page.locator(".juno-breadcrumb")
+    await expect(breadcrumb).toBeVisible()
+
+    // Domain item: first span.juno-breadcrumb-item (after Home icon)
+    const domainCrumb = breadcrumb.locator("span.juno-breadcrumb-item").first()
+    await expect(domainCrumb).toBeVisible()
+    const cursor = await domainCrumb.evaluate((el) => window.getComputedStyle(el).cursor)
+    expect(cursor).not.toBe("pointer")
   })
 })

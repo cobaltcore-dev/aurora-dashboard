@@ -30,6 +30,11 @@ vi.mock("./ObjectsFileNavigation", () => ({
   ),
 }))
 
+vi.mock("../Buckets/EnableVersioningModal", () => ({
+  EnableVersioningModal: ({ isOpen }: { isOpen: boolean }) =>
+    isOpen ? <div data-testid="enable-versioning-modal">Enable Versioning</div> : null,
+}))
+
 vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => "test-project-id",
 }))
@@ -39,12 +44,21 @@ vi.mock("@tanstack/react-router", async () => {
   return {
     ...actual,
     useNavigate: () => vi.fn(),
+    useRouteContext: () => ({
+      onTrackEvent: vi.fn(),
+    }),
   }
 })
 
-vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects", () => ({
+vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects", () => ({
   Route: {
     fullPath: "/test/path",
+    useParams: () => ({
+      projectId: "test-project-id",
+      provider: "ceph",
+      storageType: "buckets",
+      containerName: "test-bucket",
+    }),
     useSearch: () => ({
       prefix: undefined,
       sortBy: undefined,
@@ -74,12 +88,25 @@ const mockObjectsData = {
 
 // Mock trpcClient
 vi.mock("@/client/trpcClient", () => {
-  const mockUseQuery = vi.fn(() => ({
-    data: mockObjectsData,
-    isLoading: false,
-    error: null,
-    trpc: {},
-  }))
+  const mockUseQuery = vi.fn((params) => {
+    // Different responses based on query parameters
+    // versionCheckData query has maxKeys: 1 and showVersions: true
+    if (params?.maxKeys === 1 && params?.showVersions === true) {
+      return {
+        data: { objects: [], folders: [], versions: [], isTruncated: false },
+        isLoading: false,
+        error: null,
+        trpc: {},
+      }
+    }
+    // Main objects.list query
+    return {
+      data: mockObjectsData,
+      isLoading: false,
+      error: null,
+      trpc: {},
+    }
+  })
 
   const mockUseMutation = vi.fn(() => ({
     mutate: vi.fn(),
@@ -103,6 +130,11 @@ vi.mock("@/client/trpcClient", () => {
                 invalidate: vi.fn(),
               },
             },
+            bucketPolicy: {
+              get: {
+                invalidate: vi.fn(),
+              },
+            },
           },
         },
       })),
@@ -116,6 +148,9 @@ vi.mock("@/client/trpcClient", () => {
                 error: null,
                 trpc: {},
               })),
+            },
+            delete: {
+              useMutation: mockUseMutation,
             },
           },
           objects: {
@@ -131,6 +166,9 @@ vi.mock("@/client/trpcClient", () => {
               })),
             },
             delete: {
+              useMutation: mockUseMutation,
+            },
+            deleteAll: {
               useMutation: mockUseMutation,
             },
             copy: {
@@ -156,6 +194,30 @@ vi.mock("@/client/trpcClient", () => {
               })),
             },
             setStatus: {
+              useMutation: mockUseMutation,
+            },
+            checkDeletedContent: {
+              useQuery: vi.fn(() => ({
+                data: {},
+                isLoading: false,
+                error: null,
+                trpc: {},
+              })),
+            },
+          },
+          bucketPolicy: {
+            get: {
+              useQuery: vi.fn(() => ({
+                data: { policy: null, policyText: null },
+                isLoading: false,
+                error: null,
+                trpc: {},
+              })),
+            },
+            set: {
+              useMutation: mockUseMutation,
+            },
+            delete: {
               useMutation: mockUseMutation,
             },
           },
@@ -289,7 +351,7 @@ describe("ObjectBrowserView - Loading state", () => {
   })
 
   it("shows loading spinner when data is loading", () => {
-    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValueOnce({
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
       data: undefined,
       isLoading: true,
       error: null,
@@ -314,7 +376,7 @@ describe("ObjectBrowserView - Error state", () => {
   })
 
   it("shows error message when fetch fails", () => {
-    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValueOnce({
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
       data: undefined,
       isLoading: false,
       error: { message: "Failed to load objects", shape: {}, data: {} } as ReturnType<

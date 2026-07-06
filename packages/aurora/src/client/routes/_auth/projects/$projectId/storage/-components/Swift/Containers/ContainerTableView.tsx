@@ -62,8 +62,8 @@ export const ContainerTableView = ({
   setSelectedContainers,
   hasAnyBulkAction = true,
 }: ContainerTableViewProps) => {
-  const { projectId, provider } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/",
+  const { projectId, provider, storageType } = useParams({
+    from: "/_auth/projects/$projectId/storage/$provider/$storageType/",
   })
 
   const { t } = useLingui()
@@ -100,17 +100,6 @@ export const ContainerTableView = ({
     estimateSize: () => 48, // Estimated row height
     overscan: 10,
   })
-
-  const selectedSet = new Set(selectedContainers)
-  const allSelected = containers.length > 0 && containers.every((c) => selectedSet.has(c.name))
-
-  const handleSelectAll = () => {
-    if (allSelected) {
-      setSelectedContainers([])
-    } else {
-      setSelectedContainers(containers.map((c) => c.name))
-    }
-  }
 
   const handleSelectContainer = (containerName: string) => {
     if (selectedContainers.includes(containerName)) {
@@ -171,11 +160,7 @@ export const ContainerTableView = ({
             data-testid="containers-table-header"
           >
             <DataGridRow>
-              {hasAnyBulkAction && (
-                <DataGridHeadCell>
-                  <Checkbox checked={allSelected} onChange={handleSelectAll} data-testid="select-all-containers" />
-                </DataGridHeadCell>
-              )}
+              {hasAnyBulkAction && <DataGridHeadCell />}
               <DataGridHeadCell>
                 <Trans>Container Name</Trans>
               </DataGridHeadCell>
@@ -217,8 +202,8 @@ export const ContainerTableView = ({
 
               const handleRowNavigate = () =>
                 navigate({
-                  to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-                  params: { projectId, provider, containerName: container.name },
+                  to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+                  params: { projectId, provider, storageType, containerName: container.name },
                 })
 
               return (

@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, Message, TextInput } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { FolderRow } from "./"
 
@@ -14,11 +14,14 @@ interface DeleteFolderModalProps {
   onError?: (folderName: string, errorMessage: string) => void
 }
 
+// User must type this word to enable the destructive action.
+const CONFIRM_WORD = "delete"
+
 export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError }: DeleteFolderModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()
@@ -26,6 +29,11 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
   // useRef so the folder display name survives re-renders triggered by
   // deleteFolderMutation.reset() inside handleClose() before onSuccess/onError fire.
   const submittedFolderNameRef = useRef("")
+
+  // Type-to-confirm guard. Deleting a folder destroys every object inside it,
+  // so a single click is not enough — the user must type CONFIRM_WORD first.
+  const [confirmValue, setConfirmValue] = useState("")
+  const isConfirmed = confirmValue.trim() === CONFIRM_WORD
 
   const deleteFolderMutation = trpcReact.storage.swift.deleteFolder.useMutation({
     onSuccess: (deletedCount) => {
@@ -43,16 +51,18 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
   useEffect(() => {
     if (!isOpen) {
       deleteFolderMutation.reset()
+      setConfirmValue("")
     }
   }, [isOpen])
 
   const handleClose = () => {
     deleteFolderMutation.reset()
+    setConfirmValue("")
     onClose()
   }
 
   const handleConfirm = () => {
-    if (!folder) return
+    if (!folder || !isConfirmed) return
     submittedFolderNameRef.current = folder.displayName
     deleteFolderMutation.mutate({
       project_id: projectId,
@@ -85,7 +95,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={deleteFolderMutation.isPending}
+      disableConfirmButton={deleteFolderMutation.isPending || !isConfirmed}
     >
       {deleteFolderMutation.isPending ? (
         <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
@@ -94,18 +104,24 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          <p className="text-theme-default">
+          <Message variant="danger">
             <Trans>
               Folder <span className="font-semibold">"{folderDisplayName}"</span> and all objects within it will be
               permanently deleted. This cannot be undone.
             </Trans>
-          </p>
+          </Message>
           <p className="text-theme-default">
             <Trans>
               Note: for <strong>static and dynamic large objects</strong> only the manifests are deleted — their
               segments outside this folder prefix are not affected.
             </Trans>
           </p>
+          <TextInput
+            label={t`Type "${CONFIRM_WORD}" to confirm`}
+            placeholder={CONFIRM_WORD}
+            value={confirmValue}
+            onChange={(event) => setConfirmValue(event.target.value)}
+          />
         </Stack>
       )}
     </Modal>

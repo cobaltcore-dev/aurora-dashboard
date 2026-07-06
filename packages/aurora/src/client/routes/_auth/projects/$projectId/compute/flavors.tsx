@@ -20,6 +20,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
     service: "flavors",
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Flavors" },
+    analytics: {
+      name: "compute.flavors.list",
+    },
   } satisfies RouteInfo,
   validateSearch: (search) => {
     const result = flavorsSearchSchema.safeParse(search)

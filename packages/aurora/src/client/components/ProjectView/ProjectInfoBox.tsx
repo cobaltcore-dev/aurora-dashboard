@@ -44,35 +44,31 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
 
     items.push({ icon: "home", label: t`Home`, onClick: () => navigate({ to: "/projects" }) })
 
-    if (projectInfo.domain?.name) {
-      items.push({ label: projectInfo.domain.name })
-    }
-
-    items.push({
-      label: projectInfo.name,
-      onClick: () => navigate({ to: "/projects/$projectId", params: { projectId } }),
-    })
-
     const projectMatches = matches.filter(
       (m) => m.routeId !== "/_auth/projects/$projectId" && m.routeId.startsWith("/_auth/projects/$projectId")
     )
     const deepest = projectMatches[projectMatches.length - 1]
-    if (!deepest) return items
 
-    const info = isRouteInfo(deepest.staticData) ? deepest.staticData : undefined
-    if (!info) return items
+    const info = deepest ? (isRouteInfo(deepest.staticData) ? deepest.staticData : undefined) : undefined
+
+    const combinedLabel = projectInfo.domain?.name ? `${projectInfo.domain.name}/${projectInfo.name}` : projectInfo.name
+
+    if (!deepest || !info) {
+      items.push({ label: combinedLabel, active: true })
+      return items
+    }
+
+    items.push({
+      label: combinedLabel,
+      onClick: () => navigate({ to: "/projects/$projectId", params: { projectId } }),
+    })
 
     const params = deepest.params as Record<string, string>
 
-    if (info.sectionCrumb) {
+    if (info.sectionCrumb?.to) {
       const { labelKey, to } = info.sectionCrumb
       const label = labelKey ? crumbLabels[labelKey] : undefined
-      const isLeaf = !info.crumb
-      items.push(
-        to
-          ? { label, onClick: () => navigate({ to: to as never, params: params as never }) }
-          : { label, active: isLeaf }
-      )
+      items.push({ label, onClick: () => navigate({ to: to as never, params: params as never }) })
     }
 
     if (info.crumb) {

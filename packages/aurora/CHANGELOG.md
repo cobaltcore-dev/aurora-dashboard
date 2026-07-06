@@ -1,5 +1,212 @@
 # @cobaltcore-dev/aurora
 
+## 0.15.0
+
+### Minor Changes
+
+- 3966415: refactor(ui): ceph ui improvements
+
+## 0.14.1
+
+### Patch Changes
+
+- 1205d67: feat(aurora): add debug option to AuroraServerConfig
+
+  Add missing `debug` configuration option to AuroraServerConfig and pass it
+  through to contextConfig, allowing consumers to explicitly control OpenStack
+  session debug logging behavior via server configuration.
+
+## 0.14.0
+
+### Minor Changes
+
+- 219ed22: feat(aurora): make OpenStack session debug logging configurable
+
+  Add optional `debug` field to `ContextConfig` to allow consumers to control
+  debug logging in SignalOpenstackSession. Falls back to existing behavior
+  (enabled in non-production) when not explicitly set.
+
+## 0.13.1
+
+### Patch Changes
+
+- 40ad7cb: fix(aurora): gate projectOverviewBanner to only show when no service is active
+
+## 0.13.0
+
+### Minor Changes
+
+- 532cf06: Add object download and preview for Ceph object storage, bringing Ceph to parity with the existing Swift capability.
+  - Stream downloads through the BFF (`downloadObject`) with live progress tracking via `watchDownloadProgress`. Multiple downloads/previews can be in flight at once, each tracked and reported independently.
+  - Row-click on an object previews it in a new browser tab when the type is safely renderable (images excluding SVG, video, audio, PDF, and plain text); everything else downloads directly. Scriptable types (HTML, JSON, XML, SVG) are intentionally excluded from preview since they can execute active content when opened from a blob URL.
+  - New context-menu **Download** action always forces a file save, regardless of type.
+  - The BFF resolves a reliable MIME type from the object key extension when S3/Ceph reports a generic or incorrect `Content-Type` (e.g. the `binary/octet-stream` default, or values set by some upload tools), so files preview correctly even without proper upload metadata.
+
+- 16a5a52: fix Ceph findings for Q2 go-live
+
+### Patch Changes
+
+- f67c54f: Routes now track with meaningful names like `storage.swift.list` or `compute.flavors.detail` instead of raw URL paths like `/_auth/projects/$projectId/storage/$provider/$storageType/`
+
+## 0.12.1
+
+### Patch Changes
+
+- 4abf513: chore(aurora): update locale message catalogs
+
+## 0.12.0
+
+### Minor Changes
+
+- e070437: feat(server): replace crossDomainCookie with explicit cookieDomain config
+
+  **Breaking change:** `crossDomainCookie` and `ENABLE_CROSS_DASHBOARD_COOKIE` are removed.
+
+  Use the new `cookieDomain` config option (or `COOKIE_DOMAIN` env var) to explicitly set
+  the cookie domain for cross-subdomain sharing (e.g., `.example.com`).
+
+  When not set, cookies are host-specific (no cross-subdomain sharing).
+
+  Also changes `SameSite` cookie attribute from `strict` to `lax` for consistency with
+  other dashboards and better UX when following external links.
+
+### Patch Changes
+
+- 63e7834: chore(aurora): upgrade Juno UI components to 9.1.0 and fix margins in overview
+- 94552b7: Sort projects alphabetically by name on the projects overview page
+- 63e7834: Combine domain and project in breadcrumb (domain/project)
+
+## 0.11.0
+
+### Minor Changes
+
+- 8689aa9: Add badge support to ContentHeader component. Badges can be passed via the `badges` prop and will display on the left side of the actions row below the divider. Also adds consistent mb-8 margin to the header element.
+- c67430d: Add JsonEditor component for bucket policy editing
+  - New `JsonEditor` component with line numbers and smart indentation
+  - BucketPolicyModal now uses JsonEditor with improved UX:
+    - Auto-selects template when loaded policy matches a predefined template
+    - Empty policy field deletes the policy from the bucket
+    - Save button disabled when no changes made
+  - Backend validation improvements:
+    - Strict schema validation rejects unknown fields
+    - Added NotPrincipal, NotAction, NotResource support
+    - Human-readable error messages (Statement 1 instead of Statement.0)
+
+- 32223ac: Integrate Juno NotificationManager and replace legacy `<Toast>` notifications across the Ceph object-storage UI. Bucket, object, and credential-prompt notifications now fire through the centralized NotificationManager (`toast.success` / `toast.error` / `toast.warning`) for consistent placement, lifetime, and dismissal. Notification builders return `{ message, description }` instead of the legacy `{ variant, children }` toast props.
+- bd484d5: Add `serviceBanner` slot — renders below the page title divider on service pages, receives `auroraContext.currentService`
+
+### Patch Changes
+
+- 4325092: Remove inactivity timeout logout
+- 4325092: fix: add router to useCallback dependencies in AuthProvider
+
+  Fixes stale closure issue where logout and closeInactivityModal callbacks could capture outdated router references.
+
+## 0.10.0
+
+### Minor Changes
+
+- 783d7f0: Ceph global refactor, ui/ux changes, bugs fixing
+
+### Patch Changes
+
+- e232ad0: Improve login error handling to show specific error messages for invalid credentials (401 errors) instead of generic "unexpected error". Simplify SideNavBar implementation by removing complex state management and keeping navigation sections always open.
+- 7a5acd1: Fix Swift Object Storage UI findings from UX review (#916)
+
+  **Destructive modals — high-risk pattern**
+
+  Applied `<Message variant="danger">` + type-to-confirm `<TextInput>` to all irreversible bulk actions:
+  - `DeleteFolderModal`: danger Message, type `"delete"` to confirm
+  - `DeleteObjectsModal`: danger Message, type `"delete"` to confirm, count-aware title (`Delete # Object / Delete # Objects`)
+  - `EmptyContainersModal`: danger Message, type `"empty"` to confirm, count-aware title and bulk menu label (`Empty # Containers`), `<DescriptionList>` for container names, removed "Please note:" prefix
+
+  **GenerateTempUrlModal**
+  - Title `"Share object:"` → `"Share URL:"`, row menu item renamed to match
+  - "No Temp URL key" warning wrapped in `<Message variant="warning">`
+  - Generate URL button disabled when no key is configured
+  - Cancel label: `"Close"` → `"Cancel"`
+
+  **MoveRename and Copy modals**
+  - Title capitalisation: `"object"` → `"Object"`
+  - Target path `<TextInput readOnly>` replaced with plain `<p>`
+  - Destination picker filters to folders only
+  - New folder form: placeholder, button order, and dismiss label (`"Cancel"` → `"Discard"`) corrected
+
+  **ManageContainerAccessModal**
+  - Title capitalisation: `"container"` → `"Container"`, `font-mono` removed from container name
+  - "Before proceeding" warning wrapped in `<Message variant="warning">`
+  - Redundant intro paragraph removed; "Changes take effect immediately" note added above Save
+  - ACL preview rows replaced with `<DescriptionList>`
+  - Preview headings renamed to `"Read ACLs — Preview"` / `"Write ACLs — Preview"`
+
+  **Bulk action scoping**
+  - Folder rows show a disabled `<Checkbox>` with a `<Tooltip>` instead of an empty cell
+  - Bulk delete button uses count-aware label (`Delete # Object / Delete # Objects`)
+
+  **DataGrid header cleanup**
+  - Select-all header checkbox removed from `ContainerTableView` and `ObjectsTableView`
+  - Dead `allSelected` / `handleSelectAll` logic removed
+
+  **Monospace removal**
+  - `font-mono` removed from all user-defined name/path values across Swift views
+
+## 0.9.0
+
+### Minor Changes
+
+- 00bfb76: Add new consumer extension points and service filtering:
+  - `login` slot — replaces the default login form; useful for OIDC environments
+  - `serviceBadge` slot — renders inline next to each service label in the side nav and project home cards; receives `auroraContext.currentService`
+  - `servicePageActions` slot — renders beside the service page title in `ContentHeader`; receives `auroraContext.currentService`
+  - `projectsBanner` slot — renders below the "Projects" heading on the projects list page
+  - `projectOverviewBanner` slot — renders below the project description on the project overview page
+  - `enabledServices` prop — whitelist of service keys; when provided, only listed services appear in the nav and project home cards
+  - Refactor `SideNavBar` into `buildNavSections` utility for better testability
+
+## 0.8.1
+
+### Patch Changes
+
+- bae772e: upgrade juno-ui-components to 9.0.1; add description to project header; fix non-clickable breadcrumb items showing pointer cursor; redesign project overview service cards to match project card layout
+
+## 0.8.0
+
+### Minor Changes
+
+- ce6bb7a: Adds behavioral analytics support to Aurora through a new generic onTrackEvent callback prop
+
+### Patch Changes
+
+- 2182bff: Expose the `res` (FastifyReply) object in `AuroraPortalContext` to allow consumer tRPC procedures to set response headers and cookies.
+- ae3a00b: Upgrade @cloudoperators/juno-ui-components
+- e89fdbb: Fixes a race condition where router analytics subscription was being set up before the `onTrackEvent` callback was available in the router context. This prevented analytics events from being tracked properly.
+- 874b07d: Fixed pagination in the Flavor and Image pages: the current page now updates based on number input in the pagination component.
+
+## 0.7.0
+
+### Minor Changes
+
+- 662f071: Make `createServer` extensible for consumers. Extra tRPC routers can now be passed via `routers` in `AuroraServerConfig` and are merged into the Aurora router at startup, sharing the same context (session, cookies, OpenStack). The tRPC primitives needed to build compatible routers (`auroraRouter`, `protectedProcedure`, `projectScopedProcedure`, `domainScopedProcedure`, and the scoped input schemas) are now exported from the package. Built-in HTTP metrics collection has been removed from `createServer` — consumers can register their own metrics solution on the `FastifyInstance` returned before calling `.listen()`.
+
+## 0.6.0
+
+### Minor Changes
+
+- 0f4de1b: Adds UI for managing Bucket Policy in Object Storage Ceph
+
+### Patch Changes
+
+- 8185a39: Use SideNavigationGroup for Compute/Network/Storage/Services section headers, bump juno-ui-components to 8.1.0, and remove domain/project breadcrumb from the page header.
+- 8185a39: Add domain/project context block to side navigation, replacing the home item.
+- 96fe087: Hide the Ceph (Object Storage) navigation item when the Ceph service is not available. The item is now gated on the service-discovery result and the route is guarded so direct navigation when the service is absent no longer leads to a broken view.
+- 9f9015a: Fix cookie name configuration not being respected from env var. `DASHBOARD_COOKIE_NAME`, `ENABLE_CROSS_DASHBOARD_COOKIE`, and `INSECURE_COOKIES` env vars are now correctly forwarded by the OSS consumer. The default cookie name is defined once in `SessionCookie` and exported as `DEFAULT_COOKIE_NAME` for use throughout the package.
+- aa91ba8: Ceph object storage UI fixes and storage-route improvements:
+  - Add an "All buckets" breadcrumb in the object browser so users can navigate directly back to the bucket list.
+  - Introduce a dynamic `storageType` route segment (`buckets` for Ceph, `containers` for Swift) and enforce the canonical segment per provider, redirecting non-canonical URLs.
+  - Always pass the required `storageType` parameter when navigating back to the bucket/container list, preventing a runtime navigation failure.
+  - Scope the bucket list "select all" to the currently visible rows so selections hidden by an active search filter are no longer dropped.
+  - Align Ceph terminology with S3 ("container" → "bucket") across types, UI, and locale strings.
+
 ## 0.5.0
 
 ### Minor Changes

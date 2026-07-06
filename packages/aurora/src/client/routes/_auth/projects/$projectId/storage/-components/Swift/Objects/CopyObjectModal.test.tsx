@@ -214,7 +214,7 @@ describe("CopyObjectModal", () => {
 
     test("target path shows root path with object name by default", () => {
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
-      expect(screen.getByDisplayValue("/source-container/report.pdf")).toBeInTheDocument()
+      expect(screen.getByText("/source-container/report.pdf")).toBeInTheDocument()
     })
 
     test("Copy metadata checkbox is checked by default", () => {
@@ -291,9 +291,10 @@ describe("CopyObjectModal", () => {
       expect(screen.getByText("docs")).toBeInTheDocument()
     })
 
-    test("shows files as non-clickable items", () => {
+    test("does not show files in the destination picker", () => {
       renderModal()
-      expect(screen.getByText("readme.txt")).toBeInTheDocument()
+      // Files are not valid destinations — only folders are rendered
+      expect(screen.queryByText("readme.txt")).not.toBeInTheDocument()
     })
 
     test("navigates into a folder when clicked", async () => {
@@ -308,7 +309,7 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       renderModal({ object: makeObject("report.pdf", "report.pdf") })
       await user.click(screen.getByText("docs"))
-      expect(screen.getByDisplayValue("/source-container/docs/report.pdf")).toBeInTheDocument()
+      expect(screen.getByText("/source-container/docs/report.pdf")).toBeInTheDocument()
     })
 
     test("navigates back to root when Back is clicked", async () => {
@@ -324,7 +325,8 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByText("docs"))
-      expect(screen.getByText(/docs\//)).toBeInTheDocument()
+      const breadcrumb = screen.getByTestId("breadcrumb-prefix")
+      expect(breadcrumb.textContent).toMatch(/docs\//)
     })
 
     test("shows loading spinner when objects are loading", () => {
@@ -348,7 +350,7 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      expect(screen.getByPlaceholderText(/new-folder-name/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Folder name/i)).toBeInTheDocument()
     })
 
     test("Create button is disabled when folder name is empty", async () => {
@@ -358,25 +360,25 @@ describe("CopyObjectModal", () => {
       expect(screen.getByRole("button", { name: /^Create$/i })).toBeDisabled()
     })
 
-    test("hides new folder input when Cancel is clicked", async () => {
+    test("hides new folder input when Discard is clicked", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      expect(screen.getByPlaceholderText(/new-folder-name/i)).toBeInTheDocument()
-      // There are two Cancel buttons — use the one inside the new folder form
-      const cancelButtons = screen.getAllByRole("button", { name: /Cancel/i })
-      await user.click(cancelButtons[cancelButtons.length - 1])
-      expect(screen.queryByPlaceholderText(/new-folder-name/i)).not.toBeInTheDocument()
+      expect(screen.getByPlaceholderText(/Folder name/i)).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: /^Discard$/i }))
+      expect(screen.queryByPlaceholderText(/Folder name/i)).not.toBeInTheDocument()
     })
 
     test("creates folder and navigates into it", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      await user.type(screen.getByPlaceholderText(/new-folder-name/i), "my-new-folder")
+      await user.type(screen.getByPlaceholderText(/Folder name/i), "my-new-folder")
       await user.click(screen.getByRole("button", { name: /^Create$/i }))
-      // Should navigate into the new folder — breadcrumb shows its path
-      expect(screen.getByText(/my-new-folder\//)).toBeInTheDocument()
+      // Breadcrumb span proves navigation — more specific than getByText since
+      // the folder name also appears in the target path <p> after this change.
+      const breadcrumb = screen.getByTestId("breadcrumb-prefix")
+      expect(breadcrumb.textContent).toMatch(/my-new-folder\//)
     })
 
     test("shows error when folder name is empty on create", async () => {
@@ -384,7 +386,7 @@ describe("CopyObjectModal", () => {
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
       // Manually trigger create with empty name by directly submitting (button is disabled, so use keyboard)
-      const input = screen.getByPlaceholderText(/new-folder-name/i)
+      const input = screen.getByPlaceholderText(/Folder name/i)
       await user.type(input, " ")
       await user.keyboard("{Enter}")
       expect(screen.getByText(/Folder name is required/i)).toBeInTheDocument()
@@ -394,7 +396,7 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      await user.type(screen.getByPlaceholderText(/new-folder-name/i), "foo/bar")
+      await user.type(screen.getByPlaceholderText(/Folder name/i), "foo/bar")
       await user.click(screen.getByRole("button", { name: /^Create$/i }))
       expect(screen.getByText(/cannot contain slashes/i)).toBeInTheDocument()
     })
@@ -403,7 +405,7 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      const input = screen.getByPlaceholderText(/new-folder-name/i)
+      const input = screen.getByPlaceholderText(/Folder name/i)
       // Use clipboard paste to insert value with leading space
       await user.click(input)
       await user.paste(" leading")
@@ -415,16 +417,17 @@ describe("CopyObjectModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      await user.type(screen.getByPlaceholderText(/new-folder-name/i), "keyboard-folder{Enter}")
-      expect(screen.getByText(/keyboard-folder\//)).toBeInTheDocument()
+      await user.type(screen.getByPlaceholderText(/Folder name/i), "keyboard-folder{Enter}")
+      const breadcrumb = screen.getByTestId("breadcrumb-prefix")
+      expect(breadcrumb.textContent).toMatch(/keyboard-folder\//)
     })
 
     test("dismisses new folder input with Escape key", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("button", { name: /New Folder/i }))
-      await user.type(screen.getByPlaceholderText(/new-folder-name/i), "test{Escape}")
-      expect(screen.queryByPlaceholderText(/new-folder-name/i)).not.toBeInTheDocument()
+      await user.type(screen.getByPlaceholderText(/Folder name/i), "test{Escape}")
+      expect(screen.queryByPlaceholderText(/Folder name/i)).not.toBeInTheDocument()
     })
   })
 

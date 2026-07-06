@@ -1,12 +1,12 @@
-import { test, expect } from "@playwright/test"
-import { loginAsTestUser } from "../helpers/auth"
+import { test, expect, type Page } from "@playwright/test"
 import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "../helpers/test-helpers"
 
 /**
  * Project Navigation Tests
  *
- * Tests that clicking navigation links loads the respective pages without errors.
+ * Tests that clicking service cards loads the respective pages without errors.
  * Verifies each main section (Images, Flavors, Security Groups, etc.) loads correctly.
+ * Authentication state is provided by global setup (storageState.json).
  *
  * Requires TEST_PROJECT environment variable to specify which project to test.
  *
@@ -15,188 +15,77 @@ import { expectPageLoaded, expectNoJavaScriptErrors, setupErrorTracking } from "
 test.describe("Project Navigation", () => {
   const testProject = process.env.TEST_PROJECT || "demo"
 
-  test("Images page loads without errors", async ({ page }) => {
-    // Login and navigate to project detail
-    const errors = await loginAsTestUser(page)
+  async function navigateToProject(page: Page) {
+    const errors = setupErrorTracking(page)
+
+    // Navigate to projects (already authenticated via storageState)
+    await page.goto("/projects")
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(errors, page)
 
-    // Search for test project
     const searchInput = page.locator('input[placeholder="Search..."]')
     await searchInput.fill(testProject)
-    await page.waitForTimeout(500)
 
-    // Set up error tracking for project detail navigation
     const detailErrors = setupErrorTracking(page)
-
-    // Click on test project
-    const projectHeading = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await projectHeading.click()
-
-    // Wait for project detail page to load
+    const projectResult = page.locator('[data-testid="project-name"]', { hasText: testProject })
+    await expect(page.locator('[data-testid="project-name"]')).toHaveCount(1)
+    await projectResult.click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(detailErrors, page)
+  }
 
-    // Set up error tracking for Images page navigation
+  test("Images page loads without errors", async ({ page }) => {
+    await navigateToProject(page)
+
     const pageErrors = setupErrorTracking(page)
-
-    // Click on Images link
-    const imagesLink = page.locator("a", { hasText: "Images" }).first()
-    await imagesLink.click()
-
-    // Wait for page to load
+    await page.locator('[data-testid="service-card-label"]', { hasText: "Images" }).click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(pageErrors, page)
 
-    // Verify we're on the Images page
     await expect(page.locator("body")).not.toBeEmpty()
   })
 
   test("Flavors page loads without errors", async ({ page }) => {
-    // Login and navigate to project detail
-    const errors = await loginAsTestUser(page)
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(errors, page)
+    await navigateToProject(page)
 
-    // Search for test project
-    const searchInput = page.locator('input[placeholder="Search..."]')
-    await searchInput.fill(testProject)
-    await page.waitForTimeout(500)
-
-    // Set up error tracking for project detail navigation
-    const detailErrors = setupErrorTracking(page)
-
-    // Click on test project
-    const projectHeading = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await projectHeading.click()
-
-    // Wait for project detail page to load
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(detailErrors, page)
-
-    // Set up error tracking for Flavors page navigation
     const pageErrors = setupErrorTracking(page)
-
-    // Click on Flavors link
-    const flavorsLink = page.locator("a", { hasText: "Flavors" }).first()
-    await flavorsLink.click()
-
-    // Wait for page to load
+    await page.locator('[data-testid="service-card-label"]', { hasText: "Flavors" }).click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(pageErrors, page)
 
-    // Verify we're on the Flavors page
     await expect(page.locator("body")).not.toBeEmpty()
   })
 
   test("Security Groups page loads without errors", async ({ page }) => {
-    // Login and navigate to project detail
-    const errors = await loginAsTestUser(page)
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(errors, page)
+    await navigateToProject(page)
 
-    // Search for test project
-    const searchInput = page.locator('input[placeholder="Search..."]')
-    await searchInput.fill(testProject)
-    await page.waitForTimeout(500)
-
-    // Set up error tracking for project detail navigation
-    const detailErrors = setupErrorTracking(page)
-
-    // Click on test project
-    const projectHeading = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await projectHeading.click()
-
-    // Wait for project detail page to load
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(detailErrors, page)
-
-    // Set up error tracking for Security Groups page navigation
     const pageErrors = setupErrorTracking(page)
-
-    // Click on Security Groups link
-    const securityGroupsLink = page.locator("a", { hasText: "Security Groups" }).first()
-    await securityGroupsLink.click()
-
-    // Wait for page to load
+    await page.locator('[data-testid="service-card-label"]', { hasText: "Security Groups" }).click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(pageErrors, page)
 
-    // Verify we're on the Security Groups page
     await expect(page.locator("body")).not.toBeEmpty()
   })
 
   test("Floating IPs page loads without errors", async ({ page }) => {
-    // Login and navigate to project detail
-    const errors = await loginAsTestUser(page)
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(errors, page)
+    await navigateToProject(page)
 
-    // Search for test project
-    const searchInput = page.locator('input[placeholder="Search..."]')
-    await searchInput.fill(testProject)
-    await page.waitForTimeout(500)
-
-    // Set up error tracking for project detail navigation
-    const detailErrors = setupErrorTracking(page)
-
-    // Click on test project
-    const projectHeading = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await projectHeading.click()
-
-    // Wait for project detail page to load
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(detailErrors, page)
-
-    // Set up error tracking for Floating IPs page navigation
     const pageErrors = setupErrorTracking(page)
-
-    // Click on Floating IPs link
-    const floatingIPsLink = page.locator("a", { hasText: "Floating IPs" }).first()
-    await floatingIPsLink.click()
-
-    // Wait for page to load
+    await page.locator('[data-testid="service-card-label"]', { hasText: "Floating IPs" }).click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(pageErrors, page)
 
-    // Verify we're on the Floating IPs page
     await expect(page.locator("body")).not.toBeEmpty()
   })
 
-  test("Swift page loads without errors", async ({ page }) => {
-    // Login and navigate to project detail
-    const errors = await loginAsTestUser(page)
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(errors, page)
+  test("Object Storage (Swift) page loads without errors", async ({ page }) => {
+    await navigateToProject(page)
 
-    // Search for test project
-    const searchInput = page.locator('input[placeholder="Search..."]')
-    await searchInput.fill(testProject)
-    await page.waitForTimeout(500)
-
-    // Set up error tracking for project detail navigation
-    const detailErrors = setupErrorTracking(page)
-
-    // Click on test project
-    const projectHeading = page.locator('[data-testid="project-name"]', { hasText: testProject })
-    await projectHeading.click()
-
-    // Wait for project detail page to load
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(detailErrors, page)
-
-    // Set up error tracking for Swift page navigation
     const pageErrors = setupErrorTracking(page)
-
-    // Click on Swift link
-    const swiftLink = page.locator("a", { hasText: "Swift" }).first()
-    await swiftLink.click()
-
-    // Wait for page to load
+    await page.locator('[data-testid="service-card-label"]', { hasText: "Object Storage (Swift)" }).click()
     await expectPageLoaded(page)
     await expectNoJavaScriptErrors(pageErrors, page)
 
-    // Verify we're on the Swift page
     await expect(page.locator("body")).not.toBeEmpty()
   })
 })

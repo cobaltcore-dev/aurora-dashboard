@@ -743,7 +743,7 @@ export const EditContainerMetadataModal = ({
                           invalid={!!metaErrors[`edit-${index}`]}
                         />
                       ) : (
-                        <span className="block max-w-xs truncate font-mono text-sm" title={entry.key}>
+                        <span className="block max-w-xs truncate text-sm" title={entry.key}>
                           {entry.key}
                         </span>
                       )}

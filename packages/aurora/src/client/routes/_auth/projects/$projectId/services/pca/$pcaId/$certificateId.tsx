@@ -1,5 +1,5 @@
 import { Fragment } from "react"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Button,
@@ -10,13 +10,18 @@ import {
   Spinner,
   Stack,
 } from "@cloudoperators/juno-ui-components/index"
+import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { trpcReact } from "@/client/trpcClient"
+import { canAccessClavisPca } from "../-components/pcaAccess"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/$certificateId")({
   staticData: {
     section: "services",
     service: "pca",
+    analytics: {
+      name: "services.pca.certificate.detail",
+    },
     isDetail: true,
     sectionCrumb: { labelKey: "Services" },
     crumb: { labelKey: "PCA (Clavis)", to: "/projects/$projectId/services/pca" },
@@ -37,6 +42,17 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$p
   head: ({ loaderData }) => ({
     meta: [{ title: loaderData?.certTitle ?? "Certificate" }],
   }),
+  beforeLoad: async ({ context, params }) => {
+    const availableServices = (await context.trpcClient?.auth.getAvailableServices.query()) || []
+    const serviceIndex = getServiceIndex(availableServices)
+
+    if (!canAccessClavisPca(serviceIndex, context.enabledServices)) {
+      throw redirect({
+        to: "/projects/$projectId",
+        params: { projectId: params.projectId },
+      })
+    }
+  },
   component: RouteComponent,
 })
 

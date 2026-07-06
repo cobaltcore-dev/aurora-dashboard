@@ -21,6 +21,7 @@ vi.mock("@tanstack/react-router", async () => {
     useParams: vi.fn(() => ({
       projectId: "test-project",
       provider: "swift",
+      storageType: "containers",
     })),
     useNavigate: vi.fn(() => mockNavigateFn),
   }
@@ -285,11 +286,6 @@ describe("ContainerTableView", () => {
   })
 
   describe("Selection", () => {
-    test("renders a checkbox in the table header", () => {
-      renderView()
-      expect(screen.getByTestId("select-all-containers")).toBeInTheDocument()
-    })
-
     test("renders a checkbox for each container row", () => {
       renderView()
       mockContainers.forEach((c) => {
@@ -297,37 +293,27 @@ describe("ContainerTableView", () => {
       })
     })
 
+    test("does not render a header select-all checkbox", () => {
+      renderView()
+      expect(screen.queryByTestId("select-all-containers")).not.toBeInTheDocument()
+    })
+
     test("row checkbox is unchecked when container is not selected", () => {
       renderView({ selectedContainers: [] })
-      expect(screen.getByTestId("select-container-alpha").querySelector("input")).not.toBeChecked()
+      expect(screen.getByTestId("select-container-alpha")).not.toBeChecked()
     })
 
     test("row checkbox is checked when container is in selectedContainers", () => {
       renderView({ selectedContainers: ["alpha"] })
-      expect(screen.getByTestId("select-container-alpha").querySelector("input")).toBeChecked()
-      expect(screen.getByTestId("select-container-beta").querySelector("input")).not.toBeChecked()
-    })
-
-    test("select-all checkbox is unchecked when nothing is selected", () => {
-      renderView({ selectedContainers: [] })
-      expect(screen.getByTestId("select-all-containers").querySelector("input")).not.toBeChecked()
-    })
-
-    test("select-all checkbox is checked when all containers are selected", () => {
-      renderView({ selectedContainers: mockContainers.map((c) => c.name) })
-      expect(screen.getByTestId("select-all-containers").querySelector("input")).toBeChecked()
-    })
-
-    test("select-all checkbox is unchecked when only some containers are selected", () => {
-      renderView({ selectedContainers: ["alpha"] })
-      expect(screen.getByTestId("select-all-containers").querySelector("input")).not.toBeChecked()
+      expect(screen.getByTestId("select-container-alpha")).toBeChecked()
+      expect(screen.getByTestId("select-container-beta")).not.toBeChecked()
     })
 
     test("clicking a row checkbox calls setSelectedContainers with the container added", async () => {
       const setSelectedContainers = vi.fn()
       const user = userEvent.setup()
       renderView({ selectedContainers: [], setSelectedContainers })
-      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-container-alpha"))
       expect(setSelectedContainers).toHaveBeenCalledWith(["alpha"])
     })
 
@@ -335,30 +321,14 @@ describe("ContainerTableView", () => {
       const setSelectedContainers = vi.fn()
       const user = userEvent.setup()
       renderView({ selectedContainers: ["alpha", "beta"], setSelectedContainers })
-      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-container-alpha"))
       expect(setSelectedContainers).toHaveBeenCalledWith(["beta"])
-    })
-
-    test("clicking select-all calls setSelectedContainers with all container names", async () => {
-      const setSelectedContainers = vi.fn()
-      const user = userEvent.setup()
-      renderView({ selectedContainers: [], setSelectedContainers })
-      await user.click(screen.getByTestId("select-all-containers").querySelector("input") as HTMLElement)
-      expect(setSelectedContainers).toHaveBeenCalledWith(mockContainers.map((c) => c.name))
-    })
-
-    test("clicking select-all when all selected calls setSelectedContainers with empty array", async () => {
-      const setSelectedContainers = vi.fn()
-      const user = userEvent.setup()
-      renderView({ selectedContainers: mockContainers.map((c) => c.name), setSelectedContainers })
-      await user.click(screen.getByTestId("select-all-containers").querySelector("input") as HTMLElement)
-      expect(setSelectedContainers).toHaveBeenCalledWith([])
     })
 
     test("clicking a row checkbox does not trigger row navigation", async () => {
       const user = userEvent.setup()
       renderView()
-      await user.click(screen.getByTestId("select-container-alpha").querySelector("input") as HTMLElement)
+      await user.click(screen.getByTestId("select-container-alpha"))
       expect(mockNavigateFn).not.toHaveBeenCalled()
     })
   })
@@ -369,8 +339,8 @@ describe("ContainerTableView", () => {
       renderView()
       await user.click(screen.getByTestId("container-row-alpha"))
       expect(mockNavigateFn).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-        params: { projectId: "test-project", provider: "swift", containerName: "alpha" },
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId: "test-project", provider: "swift", storageType: "containers", containerName: "alpha" },
       })
     })
 
@@ -381,8 +351,8 @@ describe("ContainerTableView", () => {
       row.focus()
       await user.keyboard("{Enter}")
       expect(mockNavigateFn).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-        params: { projectId: "test-project", provider: "swift", containerName: "alpha" },
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId: "test-project", provider: "swift", storageType: "containers", containerName: "alpha" },
       })
     })
 
@@ -393,8 +363,8 @@ describe("ContainerTableView", () => {
       row.focus()
       await user.keyboard(" ")
       expect(mockNavigateFn).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/containers/$containerName/objects",
-        params: { projectId: "test-project", provider: "swift", containerName: "alpha" },
+        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+        params: { projectId: "test-project", provider: "swift", storageType: "containers", containerName: "alpha" },
       })
     })
 

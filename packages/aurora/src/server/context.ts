@@ -1,5 +1,5 @@
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
-import type { FastifyRequest } from "fastify"
+import type { FastifyRequest, FastifyReply } from "fastify"
 import { SignalOpenstackSession, SignalOpenstackSessionType } from "@cobaltcore-dev/signal-openstack"
 import { SessionCookie } from "./sessionCookie"
 import { AuthConfig } from "./Authentication/types/models"
@@ -31,8 +31,9 @@ export interface ContextConfig {
   cephRegion?: string
   imageMetadataExcludedProperties?: string
   cookieName?: string
-  crossDomainCookie?: boolean
+  cookieDomain?: string
   insecureCookies?: boolean
+  debug?: boolean
 }
 
 // Global registry of pending rescope operations per session
@@ -57,6 +58,8 @@ export interface FormFieldData {
 
 export interface AuroraPortalContext extends AuroraContext {
   req: FastifyRequest
+  /** Fastify reply object for setting response headers/cookies */
+  res: FastifyReply
   /** Normalised identity endpoint (always ends with /) */
   identityEndpoint: string
   /** Ceph/S3 region from consumer config */
@@ -99,7 +102,7 @@ export async function createContext(
 
   const defaultSignalOpenstackOptions = {
     interfaceName: config.defaultEndpointInterface || "public",
-    debug: process.env.NODE_ENV !== "production",
+    debug: config.debug ?? process.env.NODE_ENV !== "production",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -111,7 +114,7 @@ export async function createContext(
     req: opts.req,
     res: opts.res,
     cookieName: config.cookieName,
-    crossDomainCookie: config.crossDomainCookie,
+    cookieDomain: config.cookieDomain,
     insecureCookies: config.insecureCookies,
   })
   const currentAuthToken = sessionCookie.get()
@@ -417,6 +420,7 @@ export async function createContext(
 
   return {
     req: opts.req,
+    res: opts.res,
     signal: abortController.signal,
     identityEndpoint: normalizedEndpoint,
     cephRegion: config.cephRegion,

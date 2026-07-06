@@ -19,8 +19,11 @@ export default defineConfig({
   /* Retry (3x) on CI and locally (1x) for flaky tests */
   retries: process.env.CI ? 3 : 1,
 
-  /* Use half of available CPU cores (Playwright's default behavior) */
+  /* Use Playwright's default worker allocation (50% of CPU cores) */
   workers: undefined,
+
+  /* Global setup to login once and reuse session across tests */
+  globalSetup: "./e2e/global-setup.ts",
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { open: "never" }], ["list"], ["junit", { outputFile: "e2e/playwright-results/results.xml" }]],
@@ -29,6 +32,9 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.PLAYWRIGHT_BASE_URL || process.env.BASE_URL || "http://localhost:3000",
+
+    /* Reuse authentication state from global setup */
+    storageState: "e2e/playwright-results/storageState.json",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
@@ -42,9 +48,23 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    // Project for testing unauthenticated flows (login, about page, etc.)
+    // Does NOT use storageState so tests start logged out
+    // Must come FIRST to avoid inheriting storageState from the default use config
+    {
+      name: "chromium-unauthenticated",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: { cookies: [], origins: [] }, // Explicitly clear storage state
+      },
+      testMatch: /.*unauthenticated\.spec\.ts/, // Only run unauthenticated tests
+    },
+
+    // Default project for authenticated tests
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      testIgnore: /.*unauthenticated\.spec\.ts/, // Skip unauthenticated tests
     },
 
     // Uncomment for multi-browser testing

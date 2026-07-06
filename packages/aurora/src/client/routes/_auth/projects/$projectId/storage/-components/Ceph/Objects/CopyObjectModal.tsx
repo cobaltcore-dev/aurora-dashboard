@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { Modal, Stack, Spinner, ComboBox, ComboBoxOption, TextInput, Button } from "@cloudoperators/juno-ui-components"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
 import { useVirtualizer } from "@tanstack/react-virtual"
@@ -46,6 +47,11 @@ export const CopyObjectModal = ({
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
   const submittedKeyRef = useRef("")
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.object.copy",
+  })
 
   const [copyMetadata, setCopyMetadata] = useState(true)
   const [targetExists, setTargetExists] = useState(false)
@@ -140,6 +146,7 @@ export const CopyObjectModal = ({
   const copyMutation = trpcReact.storage.ceph.objects.copy.useMutation({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
       const targetKey = `${modalState.currentPrefix}${displayName}`
       onSuccess?.(submittedKeyRef.current, modalState.targetBucket, targetKey, targetExists)
       handleClose()
@@ -189,6 +196,7 @@ export const CopyObjectModal = ({
 
   const handleClose = () => {
     copyMutation.reset()
+    resetTracking()
     onClose()
   }
 
@@ -199,6 +207,17 @@ export const CopyObjectModal = ({
     }
   }
 
+  // Synchronize targetBucket with searchTerm when it matches an exact bucket name
+  useEffect(() => {
+    const trimmedSearch = modalState.searchTerm.trim()
+    if (trimmedSearch && buckets) {
+      const matchingBucket = buckets.find((b) => b.name === trimmedSearch)
+      if (matchingBucket && matchingBucket.name !== modalState.targetBucket) {
+        modalState.setTargetBucket(matchingBucket.name)
+      }
+    }
+  }, [modalState.searchTerm, buckets, modalState.targetBucket, modalState])
+
   const handleNewFolderKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") modalState.createFolder()
     if (e.key === "Escape") modalState.cancelCreateFolder()
@@ -206,6 +225,7 @@ export const CopyObjectModal = ({
 
   const handleCopy = () => {
     if (!projectId) return
+    markSubmitted()
     submittedKeyRef.current = objectKey
     const targetKey = `${modalState.currentPrefix}${displayName}`
     copyMutation.mutate({
@@ -253,7 +273,10 @@ export const CopyObjectModal = ({
         </span>
       }
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Copying...` : t`Copy`}
       onConfirm={handleCopy}
       cancelButtonLabel={t`Cancel`}
@@ -267,48 +290,46 @@ export const CopyObjectModal = ({
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          {/* Source object info */}
-          <div className="bg-theme-background-lvl-2 rounded p-3">
-            <div className="text-theme-light text-sm">
-              <Trans>Source:</Trans>
-            </div>
-            <div className="mt-1 text-sm">{`${bucketName}/${objectKey}`}</div>
-            {objectSize !== undefined && (
-              <div className="text-theme-light mt-1 text-xs">{(objectSize / 1024).toFixed(2)} KB</div>
-            )}
-          </div>
-
           {/* Target bucket — ComboBox with debounced search */}
           <ComboBox
             label={t`Target bucket`}
-            value={modalState.targetBucket}
+            value={modalState.searchTerm || undefined}
             onChange={handleBucketChange}
             onInputChange={modalState.handleSearchChange}
-            placeholder={t`Type to search buckets...`}
+            placeholder={bucketName}
             helptext={(() => {
               if (isLoadingBuckets) return t`Loading buckets...`
-              if (modalState.searchTerm.trim().length === 0) return t`Start typing to search for a bucket`
+              const bucketsCount = buckets?.length ?? 0
+              if (!modalState.searchTerm.trim() && bucketsCount > MAX_COMBO_OPTIONS) {
+                return t`There are ${bucketsCount} buckets, start typing to search`
+              }
               if (modalState.hiddenCount > 0) {
                 const totalBuckets = modalState.visibleBuckets.length + modalState.hiddenCount
-                return t`Showing first ${MAX_COMBO_OPTIONS} of ${totalBuckets} — refine your search to narrow results`
+                return t`Showing first ${MAX_COMBO_OPTIONS} of ${totalBuckets}, refine your search to narrow results`
               }
               return undefined
             })()}
             disabled={isLoadingBuckets || isPending}
             required
           >
-            {modalState.visibleBuckets.map((b) => (
-              <ComboBoxOption key={b.name} value={b.name}>
-                {b.name}
+            {!modalState.searchTerm.trim() && (buckets?.length ?? 0) > MAX_COMBO_OPTIONS ? (
+              <ComboBoxOption key="__placeholder__" value="" disabled>
+                {t`Start typing to search for a bucket`}
               </ComboBoxOption>
-            ))}
+            ) : (
+              modalState.visibleBuckets.map((b) => (
+                <ComboBoxOption key={b.name} value={b.name}>
+                  {b.name}
+                </ComboBoxOption>
+              ))
+            )}
           </ComboBox>
 
           {/* Folder browser */}
           <div>
             <div className="mb-1 flex items-center justify-between">
               <span className="text-sm font-medium">
-                <Trans>Select destination folder</Trans>
+                <Trans>Select destination folder within target bucket</Trans>
               </span>
               <Button
                 size="small"
@@ -352,7 +373,7 @@ export const CopyObjectModal = ({
                 </Stack>
               ) : allBrowserRows.length === 0 && !modalState.showNewFolderInput ? (
                 <div className="text-theme-light px-4 py-6 text-center text-sm">
-                  <Trans>This folder is empty — use New Folder to create one.</Trans>
+                  <Trans>This folder is empty, use New Folder to create one.</Trans>
                 </div>
               ) : (
                 <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: "relative" }}>
@@ -429,12 +450,25 @@ export const CopyObjectModal = ({
             </div>
           </div>
 
-          {/* Read-only target path */}
-          <div>
-            <p className="text-theme-light mb-1">
-              <Trans>The object will be copied to this path. Navigate folders above to change the destination.</Trans>
-            </p>
-            <TextInput label={t`Target path`} value={targetPathDisplay} readOnly />
+          {/* Source + Target info box */}
+          <div className="bg-theme-background-lvl-2 rounded p-3">
+            <Stack direction="vertical" gap="2">
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Source</Trans>
+                </div>
+                <div className="text-sm break-all">{`${bucketName}/${objectKey}`}</div>
+                {objectSize !== undefined && (
+                  <div className="text-theme-light mt-1 text-xs">{(objectSize / 1024).toFixed(2)} KB</div>
+                )}
+              </div>
+              <div>
+                <div className="text-theme-light mb-1 text-sm">
+                  <Trans>Target path</Trans>
+                </div>
+                <div className="text-sm break-all">{targetPathDisplay}</div>
+              </div>
+            </Stack>
           </div>
 
           {/* Warning if target exists */}

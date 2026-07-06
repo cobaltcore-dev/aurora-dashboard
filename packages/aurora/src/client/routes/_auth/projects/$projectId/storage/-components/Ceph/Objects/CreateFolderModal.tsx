@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { validateFolderName } from "./utils/objectValidation"
 
 interface CreateFolderModalProps {
@@ -20,6 +21,11 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
   const [validationError, setValidationError] = useState<string | null>(null)
   const utils = trpcReact.useUtils()
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.folder.create",
+  })
+
   // Fetch existing folders for duplicate detection
   const { data: objectsData } = trpcReact.storage.ceph.objects.list.useQuery(
     {
@@ -36,6 +42,8 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
     onSuccess: (_data, variables) => {
       // Invalidate all object list queries to refresh the view
       utils.storage.ceph.objects.list.invalidate()
+      // Invalidate bucket list to update object count
+      utils.storage.ceph.containers.list.invalidate()
       // Use the exact path that was submitted (with trailing slash for display)
       const submittedFullPath = variables.folderPath.endsWith("/") ? variables.folderPath : `${variables.folderPath}/`
       onSuccess(submittedFullPath)
@@ -47,6 +55,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
     setFolderName("")
     setValidationError(null)
     createFolderMutation.reset()
+    resetTracking()
     onClose()
   }
 
@@ -68,6 +77,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
       return
     }
 
+    markSubmitted()
     const fullPath = currentPrefix + folderName.trim()
 
     createFolderMutation.mutate({
@@ -82,7 +92,10 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
   return (
     <Modal
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       title={<Trans>Create New Folder</Trans>}
       size="large"
       confirmButtonLabel={createFolderMutation.isPending ? t`Creating...` : t`Create Folder`}

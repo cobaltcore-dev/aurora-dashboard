@@ -105,7 +105,7 @@ export const EditObjectMetadataModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName } = useParams({
-    from: "/_auth/projects/$projectId/storage/$provider/containers/$containerName/objects/",
+    from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
   })
 
   const utils = trpcReact.useUtils()
@@ -357,7 +357,7 @@ export const EditObjectMetadataModal = ({
         <span className="flex max-w-[400px] items-center gap-1">
           <Trans>
             <span className="shrink-0">Edit metadata:</span>{" "}
-            <span className="truncate font-mono" title={displayName}>
+            <span className="truncate" title={displayName}>
               {displayName}
             </span>
           </Trans>
@@ -416,12 +416,12 @@ export const EditObjectMetadataModal = ({
               <span className="text-theme-light text-right">
                 <Trans>Content type</Trans>
               </span>
-              <span className="font-mono">{metadataRaw?.contentType ?? "—"}</span>
+              <span>{metadataRaw?.contentType ?? "—"}</span>
 
               <span className="text-theme-light text-right">
                 <Trans>MD5 checksum</Trans>
               </span>
-              <span className="font-mono break-all">{metadataRaw?.etag ?? "—"}</span>
+              <span className="break-all">{metadataRaw?.etag ?? "—"}</span>
 
               <span className="text-theme-light text-right">
                 <Trans>Size</Trans>
@@ -553,7 +553,7 @@ export const EditObjectMetadataModal = ({
                         invalid={!!metaErrors[`edit-${index}`]}
                       />
                     ) : (
-                      <span className="block max-w-xs truncate font-mono text-sm" title={entry.key}>
+                      <span className="block max-w-xs truncate text-sm" title={entry.key}>
                         {entry.key}
                       </span>
                     )}

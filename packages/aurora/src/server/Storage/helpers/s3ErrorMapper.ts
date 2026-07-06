@@ -29,6 +29,9 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
   MalformedPolicy: "BAD_REQUEST",
   EntityTooLarge: "PAYLOAD_TOO_LARGE",
   EntityTooSmall: "BAD_REQUEST",
+  // Generic errors that might be unmapped
+  UnknownError: "INTERNAL_SERVER_ERROR",
+  InternalError: "INTERNAL_SERVER_ERROR",
 }
 
 /**
@@ -52,7 +55,7 @@ export function mapS3ErrorToTRPCError(
 
   // Log unmapped errors for future improvements
   if (!S3_ERROR_MAP[errorCode] && errorCode) {
-    logger.warn("Unmapped S3 error code", { errorCode, operation: context.operation })
+    logger.warn("Unmapped S3 error code", { errorCode, operation: context.operation, errorName: s3Error.name })
   }
 
   // Build contextual error message
@@ -70,8 +73,17 @@ export function mapS3ErrorToTRPCError(
     errorCode === "RequestTimeTooSkewed"
   ) {
     parts.push("Invalid access key — your credentials may be expired or incorrect")
+  } else if (errorCode === "BucketNotEmpty") {
+    parts.push(
+      "The bucket is not empty. Some objects or versions may still exist. Use 'Empty Bucket' first to delete all contents."
+    )
   } else if (s3Error.message) {
     parts.push(s3Error.message)
+  }
+
+  // Include error code for debugging unmapped errors
+  if (!S3_ERROR_MAP[errorCode] && errorCode) {
+    parts.push(`(Error code: ${errorCode})`)
   }
 
   throw new TRPCError({

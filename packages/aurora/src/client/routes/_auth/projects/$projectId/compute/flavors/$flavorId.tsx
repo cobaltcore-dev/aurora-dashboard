@@ -26,6 +26,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
   staticData: {
     section: "compute",
     service: "flavors",
+    analytics: {
+      name: "compute.flavors.detail",
+    },
     isDetail: true,
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Flavors", to: "/projects/$projectId/compute/flavors" },
