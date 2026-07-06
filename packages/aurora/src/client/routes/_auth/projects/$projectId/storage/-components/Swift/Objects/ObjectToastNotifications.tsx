@@ -31,7 +31,7 @@ export const getFolderDeletedToast = (
       <Trans>Folder "{folderName}" was permanently deleted.</Trans>
     ) : deletedCount === 1 ? (
       <Trans>
-        Folder "{folderName}" and {deletedCount} object was permanently deleted.
+        Folder "{folderName}" and {deletedCount} object were permanently deleted.
       </Trans>
     ) : (
       <Trans>

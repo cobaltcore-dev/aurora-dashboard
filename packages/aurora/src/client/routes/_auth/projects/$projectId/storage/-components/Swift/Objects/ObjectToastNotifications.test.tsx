@@ -81,7 +81,7 @@ describe("SwiftObjectToastNotifications", () => {
 
     it("renders singular message when exactly one nested object", () => {
       renderNotification(getFolderDeletedToast("my-folder", 1))
-      expect(screen.getByText(/1 object was permanently deleted/)).toBeInTheDocument()
+      expect(screen.getByText(/1 object were permanently deleted/)).toBeInTheDocument()
     })
 
     it("renders folder-only message when deletedCount is 0", () => {
