@@ -45,8 +45,8 @@ export function UserMenu() {
           <>
             <PopupMenuSection>
               <PopupMenuSectionHeading>
-                <div className="font-semibold">{user?.name}</div>
-                {user?.domain?.name && <div className="text-xs opacity-60">{user.domain.name}</div>}
+                <div className="font-semibold">User ID: {user?.name}</div>
+                {user?.domain?.name && <div className="text-xs opacity-60">User Domain: {user.domain.name}</div>}
               </PopupMenuSectionHeading>
             </PopupMenuSection>
             <PopupMenuSectionSeparator />
