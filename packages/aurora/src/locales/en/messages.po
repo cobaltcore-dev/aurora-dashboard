@@ -1567,8 +1567,8 @@ msgstr "Floating Network"
 msgid "Floating Network ID"
 msgstr "Floating Network ID"
 
-msgid "Folder \"{folderName}\" and {deletedCount} object was permanently deleted."
-msgstr "Folder \"{folderName}\" and {deletedCount} object was permanently deleted."
+msgid "Folder \"{folderName}\" and {deletedCount} object were permanently deleted."
+msgstr "Folder \"{folderName}\" and {deletedCount} object were permanently deleted."
 
 msgid "Folder \"{folderName}\" and {deletedCount} objects were permanently deleted."
 msgstr "Folder \"{folderName}\" and {deletedCount} objects were permanently deleted."

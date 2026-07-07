@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useCallback, useState } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
-import { useRouter } from "@tanstack/react-router"
 
 export type User = TokenData["user"] | null
 
@@ -16,10 +15,14 @@ export interface AuthContext {
   redirectAfterModal?: string
 }
 
+interface RouterNavigation {
+  navigate: (options: { to: string; search?: Record<string, unknown> }) => void
+  invalidate: () => void
+}
+
 const AuthContext = React.createContext<AuthContext | null>(null)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
+export function AuthProvider({ children, router }: { children: React.ReactNode; router: RouterNavigation }) {
   const [user, setUser] = React.useState<User | null>(null)
   const [expiresAt, setExpiresAt] = React.useState<Date | undefined>(undefined)
   const [logoutReason, setLogoutReason] = React.useState<"inactive" | "expired" | "manual" | undefined>(undefined)

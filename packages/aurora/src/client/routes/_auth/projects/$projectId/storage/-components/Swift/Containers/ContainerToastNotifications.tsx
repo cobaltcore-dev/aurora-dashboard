@@ -1,275 +1,172 @@
 import { ReactNode } from "react"
-import { ToastProps } from "@cloudoperators/juno-ui-components"
+import { NotificationOptions, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans, Plural } from "@lingui/react/macro"
-import { Stack } from "@cloudoperators/juno-ui-components/index"
 
-interface NotificationTextProps {
-  title: ReactNode
-  description: ReactNode
-}
-
-export function NotificationText({ title, description }: NotificationTextProps) {
-  return (
-    <Stack direction="vertical" gap="1.5">
-      <span>{title}</span>
-      <span className="text-theme-light">{description}</span>
-    </Stack>
-  )
-}
-
-interface ToastConfig {
-  onDismiss: () => void
-}
-
-export const getContainerCreatedToast = (containerName: string, config: ToastConfig): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Container Created</Trans>}
-      description={<Trans>Container "{containerName}" was successfully created.</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+export const getContainerCreatedToast = (containerName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Container Created</Trans>,
+  description: <Trans>Container "{containerName}" was successfully created.</Trans>,
 })
 
 export const getContainerCreateErrorToast = (
   containerName: string,
-  errorMessage: string,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Failed to Create Container</Trans>}
-      description={
-        <Trans>
-          Could not create container "{containerName}": {errorMessage}
-        </Trans>
-      }
-    />
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Create Container</Trans>,
+  description: (
+    <Trans>
+      Could not create container "{containerName}": {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
 export const getContainerEmptiedToast = (
   containerName: string,
-  deletedCount: number,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Container Emptied</Trans>}
-      description={
-        deletedCount === 0 ? (
-          <Trans>Container "{containerName}" was already empty.</Trans>
-        ) : deletedCount === 1 ? (
-          <Trans>
-            Container "{containerName}" was successfully emptied. {deletedCount} object deleted.
-          </Trans>
-        ) : (
-          <Trans>
-            Container "{containerName}" was successfully emptied. {deletedCount} objects deleted.
-          </Trans>
-        )
-      }
-    />
-  ),
-  onDismiss: config.onDismiss,
+  deletedCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Container Emptied</Trans>,
+  description:
+    deletedCount === 0 ? (
+      <Trans>Container "{containerName}" was already empty.</Trans>
+    ) : deletedCount === 1 ? (
+      <Trans>
+        Container "{containerName}" was successfully emptied. {deletedCount} object deleted.
+      </Trans>
+    ) : (
+      <Trans>
+        Container "{containerName}" was successfully emptied. {deletedCount} objects deleted.
+      </Trans>
+    ),
 })
 
 export const getContainerEmptyErrorToast = (
   containerName: string,
-  errorMessage: string,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Failed to Empty Container</Trans>}
-      description={
-        <Trans>
-          Could not empty container "{containerName}": {errorMessage}
-        </Trans>
-      }
-    />
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Empty Container</Trans>,
+  description: (
+    <Trans>
+      Could not empty container "{containerName}": {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-export const getContainerDeletedToast = (containerName: string, config: ToastConfig): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Container Deleted</Trans>}
-      description={<Trans>Container "{containerName}" was successfully deleted.</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+export const getContainerDeletedToast = (containerName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Container Deleted</Trans>,
+  description: <Trans>Container "{containerName}" was successfully deleted.</Trans>,
 })
 
 export const getContainerDeleteErrorToast = (
   containerName: string,
-  errorMessage: string,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Failed to Delete Container</Trans>}
-      description={
-        <Trans>
-          Could not delete container "{containerName}": {errorMessage}
-        </Trans>
-      }
-    />
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete Container</Trans>,
+  description: (
+    <Trans>
+      Could not delete container "{containerName}": {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-export const getContainerUpdatedToast = (containerName: string, config: ToastConfig): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Container Updated</Trans>}
-      description={<Trans>Container "{containerName}" properties were successfully updated.</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+export const getContainerUpdatedToast = (containerName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Container Updated</Trans>,
+  description: <Trans>Container "{containerName}" properties were successfully updated.</Trans>,
 })
 
 export const getContainerUpdateErrorToast = (
   containerName: string,
-  errorMessage: string,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Failed to Update Container</Trans>}
-      description={
-        <Trans>
-          Could not update container "{containerName}": {errorMessage}
-        </Trans>
-      }
-    />
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Update Container</Trans>,
+  description: (
+    <Trans>
+      Could not update container "{containerName}": {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-export const getContainerAclUpdatedToast = (containerName: string, config: ToastConfig): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Access Control Updated</Trans>}
-      description={<Trans>ACLs for container "{containerName}" were successfully updated.</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+export const getContainerAclUpdatedToast = (containerName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Access Control Updated</Trans>,
+  description: <Trans>ACLs for container "{containerName}" were successfully updated.</Trans>,
 })
 
 export const getContainerAclUpdateErrorToast = (
   containerName: string,
-  errorMessage: string,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Failed to Update Access Control</Trans>}
-      description={
-        <Trans>
-          Could not update ACLs for container "{containerName}": {errorMessage}
-        </Trans>
-      }
-    />
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Update Access Control</Trans>,
+  description: (
+    <Trans>
+      Could not update ACLs for container "{containerName}": {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
 export const getContainersEmptiedToast = (
   emptiedCount: number,
-  totalDeleted: number,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Containers Emptied</Trans>}
-      description={
-        totalDeleted === 0 ? (
-          <Plural value={emptiedCount} one="# container was already empty." other="# containers were already empty." />
-        ) : (
-          <Trans>
-            <Plural value={emptiedCount} one="# container" other="# containers" /> successfully emptied.{" "}
-            <Plural value={totalDeleted} one="# object" other="# objects" /> deleted in total.
-          </Trans>
-        )
-      }
-    />
-  ),
-  onDismiss: config.onDismiss,
+  totalDeleted: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Containers Emptied</Trans>,
+  description:
+    totalDeleted === 0 ? (
+      <Plural value={emptiedCount} one="# container was already empty." other="# containers were already empty." />
+    ) : (
+      <Trans>
+        <Plural value={emptiedCount} one="# container" other="# containers" /> successfully emptied.{" "}
+        <Plural value={totalDeleted} one="# object" other="# objects" /> deleted in total.
+      </Trans>
+    ),
 })
 
-export const getContainersEmptyErrorToast = (errorMessage: string, config: ToastConfig): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Failed to Empty Containers</Trans>}
-      description={
-        <span className="whitespace-pre-line">
-          <Trans>One or more containers could not be emptied: {errorMessage}</Trans>
-        </span>
-      }
-    />
+export const getContainersEmptyErrorToast = (errorMessage: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Empty Containers</Trans>,
+  description: (
+    <span className="whitespace-pre-line">
+      <Trans>One or more containers could not be emptied: {errorMessage}</Trans>
+    </span>
   ),
-  onDismiss: config.onDismiss,
 })
+
+export type NotificationSeverity = "success" | "warning" | "error"
+
 export const getContainersEmptyCompleteToast = (
   emptiedCount: number,
   totalDeleted: number,
-  errors: string[],
-  config: ToastConfig
-): ToastProps => {
+  errors: string[]
+): { message: ReactNode; severity: NotificationSeverity } & NotificationOptions => {
   const hasErrors = errors.length > 0
   const hasSuccess = emptiedCount > 0
   const isPartial = hasErrors && hasSuccess
 
   return {
-    variant: isPartial ? "warning" : hasErrors ? "error" : "success",
-    children: (
-      <NotificationText
-        title={
-          isPartial ? (
-            <Trans>Containers Partially Emptied</Trans>
-          ) : hasErrors ? (
-            <Trans>Failed to Empty Containers</Trans>
-          ) : (
-            <Trans>Containers Emptied</Trans>
-          )
-        }
-        description={
-          <Stack direction="vertical" gap="1">
-            {hasSuccess && (
-              <span>
-                <Trans>
-                  <Plural value={emptiedCount} one="# container" other="# containers" /> successfully emptied.{" "}
-                  <Plural value={totalDeleted} one="# object" other="# objects" /> deleted in total.
-                </Trans>
-              </span>
-            )}
-            {hasErrors && (
-              <span className="whitespace-pre-line">
-                {(() => {
-                  const errorDetails = errors.join("\n")
-                  return <Trans>Failed: {errorDetails}</Trans>
-                })()}
-              </span>
-            )}
-          </Stack>
-        }
-      />
+    // Severity is derived here alongside the title so the two never drift; the
+    // caller dispatches toast.success / warning / error off this single value.
+    severity: isPartial ? "warning" : hasErrors ? "error" : "success",
+    message: isPartial ? (
+      <Trans>Containers Partially Emptied</Trans>
+    ) : hasErrors ? (
+      <Trans>Failed to Empty Containers</Trans>
+    ) : (
+      <Trans>Containers Emptied</Trans>
     ),
-    onDismiss: config.onDismiss,
+    description: (
+      <Stack direction="vertical" gap="1">
+        {hasSuccess && (
+          <span>
+            <Trans>
+              <Plural value={emptiedCount} one="# container" other="# containers" /> successfully emptied.{" "}
+              <Plural value={totalDeleted} one="# object" other="# objects" /> deleted in total.
+            </Trans>
+          </span>
+        )}
+        {hasErrors && (
+          <span className="whitespace-pre-line">
+            {(() => {
+              const errorDetails = errors.join("\n")
+              return <Trans>Failed: {errorDetails}</Trans>
+            })()}
+          </span>
+        )}
+      </Stack>
+    ),
   }
 }
