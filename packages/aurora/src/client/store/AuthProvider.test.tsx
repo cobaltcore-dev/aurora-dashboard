@@ -171,7 +171,7 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout(true)
+        await result.current.logout()
       })
 
       expect(result.current.isAuthenticated).toBe(false)
@@ -297,7 +297,7 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout(true)
+        await result.current.logout()
       })
 
       expect(mockNavigate).toHaveBeenCalledWith({

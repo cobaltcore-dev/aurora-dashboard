@@ -8,7 +8,7 @@ export type User = TokenData["user"] | null
 export interface AuthContext {
   isAuthenticated: boolean
   login: (user: User, expires_at?: string) => Promise<void>
-  logout: (preserveRedirect?: boolean) => Promise<void>
+  logout: () => Promise<void>
   user?: User
   expiresAt?: Date
 }
@@ -22,44 +22,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAuthenticated = !!user
 
-  const logout = useCallback(
-    async (preserveRedirect: boolean = false) => {
-      // Terminate the session on the server to delete the cookie
-      // This ensures expired sessions are truly expired (no stale cookie)
-      try {
-        await trpcClient.auth.terminateUserSession.mutate()
-      } catch (error) {
-        // UNAUTHORIZED is expected when the token is already expired
-        // Only log unexpected errors
-        const isExpectedUnauthorized =
-          error && typeof error === "object" && "data" in error
-            ? (error.data as { code?: string } | undefined)?.code === "UNAUTHORIZED"
-            : false
-        if (!isExpectedUnauthorized) {
-          console.error("Error terminating session:", error)
-        }
+  const logout = useCallback(async () => {
+    // Terminate the session on the server to delete the cookie
+    // This ensures expired sessions are truly expired (no stale cookie)
+    try {
+      await trpcClient.auth.terminateUserSession.mutate()
+    } catch (error) {
+      // UNAUTHORIZED is expected when the token is already expired
+      // Only log unexpected errors
+      const isExpectedUnauthorized =
+        error && typeof error === "object" && "data" in error
+          ? (error.data as { code?: string } | undefined)?.code === "UNAUTHORIZED"
+          : false
+      if (!isExpectedUnauthorized) {
+        console.error("Error terminating session:", error)
       }
+    }
 
-      setUser(null)
-      setExpiresAt(undefined)
+    setUser(null)
+    setExpiresAt(undefined)
 
-      // Navigate to login with redirect param if requested (for expired sessions)
-      const currentPath = window.location.pathname + window.location.search
-      const shouldRedirect = preserveRedirect && currentPath && currentPath.startsWith("/")
+    // Navigate to login with redirect param to return user to current page after re-authentication
+    const currentPath = window.location.pathname + window.location.search
+    const shouldRedirect = currentPath && currentPath.startsWith("/")
 
-      try {
-        await router.navigate({
-          to: "/",
-          search: shouldRedirect ? { redirect: currentPath } : undefined,
-        })
-      } catch {
-        // Fallback if router not ready
-        const redirect = shouldRedirect ? `?redirect=${encodeURIComponent(currentPath)}` : ""
-        window.location.href = `/${redirect}`
-      }
-    },
-    [router]
-  )
+    try {
+      await router.navigate({
+        to: "/",
+        search: shouldRedirect ? { redirect: currentPath } : undefined,
+      })
+    } catch {
+      // Fallback if router not ready
+      const redirect = shouldRedirect ? `?redirect=${encodeURIComponent(currentPath)}` : ""
+      window.location.href = `/${redirect}`
+    }
+  }, [router])
 
   // Timer-based expiration check (fallback/safety net)
   useEffect(() => {
@@ -67,14 +64,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Check immediately if already expired
     if (expiresAt.getTime() <= Date.now()) {
-      logout(true)
+      logout()
       return
     }
 
     // Set timeout to logout at exact expiration time
     const timeUntilExpiration = expiresAt.getTime() - Date.now()
     const timeout = setTimeout(() => {
-      logout(true)
+      logout()
     }, timeUntilExpiration)
 
     return () => clearTimeout(timeout)
