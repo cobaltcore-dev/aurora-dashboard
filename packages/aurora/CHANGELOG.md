@@ -1,5 +1,11 @@
 # @cobaltcore-dev/aurora
 
+## 0.17.1
+
+### Patch Changes
+
+- 21584e0: fix: resolve merge conflict in client index exports
+
 ## 0.17.0
 
 ### Minor Changes
