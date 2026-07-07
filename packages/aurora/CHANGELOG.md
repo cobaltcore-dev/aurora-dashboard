@@ -1,5 +1,20 @@
 # @cobaltcore-dev/aurora
 
+## 0.17.0
+
+### Minor Changes
+
+- 2e9d83f: fix(aurora): improve project not found error handling with better UX
+  - Add proper 404 error page when project doesn't exist or user lacks access
+  - Extract scope resolution logic into reusable resolveProjectScope utility
+  - Differentiate between "project not found" vs "scope operation failed" states
+  - Catch NOT_FOUND errors from setCurrentScope instead of letting them bubble up
+  - Display user-friendly error message with navigation options (back/home)
+
+### Patch Changes
+
+- 1376e9f: Fix useRouter warning by passing router as prop to AuthProvider instead of calling useRouter() hook internally
+
 ## 0.16.0
 
 ### Minor Changes
