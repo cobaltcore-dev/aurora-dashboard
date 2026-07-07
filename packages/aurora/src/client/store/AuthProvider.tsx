@@ -1,4 +1,4 @@
-import React, { useCallback } from "react"
+import React, { useCallback, useState, useEffect } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
 import { useRouter } from "@tanstack/react-router"
 import { trpcClient } from "../trpcClient"
@@ -8,24 +8,22 @@ export type User = TokenData["user"] | null
 export interface AuthContext {
   isAuthenticated: boolean
   login: (user: User, expires_at?: string) => Promise<void>
-  logout: (reason?: "expired" | "manual") => Promise<void>
+  logout: (preserveRedirect?: boolean) => Promise<void>
   user?: User
   expiresAt?: Date
-  logoutReason?: "expired" | "manual"
 }
 
 const AuthContext = React.createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const [user, setUser] = React.useState<User | null>(null)
-  const [expiresAt, setExpiresAt] = React.useState<Date | undefined>(undefined)
-  const [logoutReason, setLogoutReason] = React.useState<"expired" | "manual" | undefined>(undefined)
+  const [user, setUser] = useState<User | null>(null)
+  const [expiresAt, setExpiresAt] = useState<Date | undefined>(undefined)
 
   const isAuthenticated = !!user
 
   const logout = useCallback(
-    async (reason: "expired" | "manual" = "manual") => {
+    async (preserveRedirect: boolean = false) => {
       // Terminate the session on the server to delete the cookie
       // This ensures expired sessions are truly expired (no stale cookie)
       try {
@@ -44,11 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(null)
       setExpiresAt(undefined)
-      setLogoutReason(reason)
 
-      // Navigate to login with redirect param for expired sessions
+      // Navigate to login with redirect param if requested (for expired sessions)
       const currentPath = window.location.pathname + window.location.search
-      const shouldRedirect = reason === "expired" && currentPath && currentPath.startsWith("/")
+      const shouldRedirect = preserveRedirect && currentPath && currentPath.startsWith("/")
 
       try {
         await router.navigate({
@@ -65,19 +62,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   )
 
   // Timer-based expiration check (fallback/safety net)
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isAuthenticated || !expiresAt) return
 
     // Check immediately if already expired
     if (expiresAt.getTime() <= Date.now()) {
-      logout("expired")
+      logout(true)
       return
     }
 
     // Set timeout to logout at exact expiration time
     const timeUntilExpiration = expiresAt.getTime() - Date.now()
     const timeout = setTimeout(() => {
-      logout("expired")
+      logout(true)
     }, timeUntilExpiration)
 
     return () => clearTimeout(timeout)
@@ -85,7 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (user: User, expires_at?: string) => {
     setUser(user)
-    setLogoutReason(undefined)
 
     if (expires_at) {
       const expiration = new Date(expires_at)
@@ -103,7 +99,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         expiresAt,
-        logoutReason,
       }}
     >
       {children}

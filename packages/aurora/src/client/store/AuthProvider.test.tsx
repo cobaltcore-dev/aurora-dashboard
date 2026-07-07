@@ -102,7 +102,7 @@ describe("AuthProvider", () => {
       expect(result.current.expiresAt).toBeInstanceOf(Date)
     })
 
-    it("should clear logout reason on login", async () => {
+    it("should clear state on login", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -118,22 +118,22 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("manual")
+        await result.current.logout()
       })
 
-      expect(result.current.logoutReason).toBe("manual")
+      expect(result.current.isAuthenticated).toBe(false)
 
       // Login again
       await act(async () => {
         await result.current.login(mockUser)
       })
 
-      expect(result.current.logoutReason).toBeUndefined()
+      expect(result.current.isAuthenticated).toBe(true)
     })
   })
 
   describe("Logout", () => {
-    it("should logout with manual reason and navigate to login", async () => {
+    it("should logout without redirect for manual logout", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -148,16 +148,15 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("manual")
+        await result.current.logout()
       })
 
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.user).toBeNull()
-      expect(result.current.logoutReason).toBe("manual")
       expect(mockNavigate).toHaveBeenCalledWith({ to: "/", search: undefined })
     })
 
-    it("should logout with expired reason and navigate with redirect", async () => {
+    it("should logout with redirect when preserveRedirect is true", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -172,11 +171,10 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("expired")
+        await result.current.logout(true)
       })
 
       expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.logoutReason).toBe("expired")
       expect(mockNavigate).toHaveBeenCalledWith({
         to: "/",
         search: { redirect: "/projects" },
@@ -208,7 +206,6 @@ describe("AuthProvider", () => {
       })
 
       expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.logoutReason).toBe("expired")
     })
 
     it("should logout immediately if token is already expired", async () => {
@@ -227,7 +224,6 @@ describe("AuthProvider", () => {
       })
 
       expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.logoutReason).toBe("expired")
     })
 
     it("should clear logout timer on new login", async () => {
@@ -276,7 +272,7 @@ describe("AuthProvider", () => {
   })
 
   describe("Redirect Handling", () => {
-    it("should preserve query params in redirect for expired sessions", async () => {
+    it("should preserve query params in redirect when requested", async () => {
       Object.defineProperty(window, "location", {
         value: {
           pathname: "/projects",
@@ -301,7 +297,7 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("expired")
+        await result.current.logout(true)
       })
 
       expect(mockNavigate).toHaveBeenCalledWith({
@@ -312,7 +308,7 @@ describe("AuthProvider", () => {
   })
 
   describe("Edge Cases", () => {
-    it("should handle default logout reason", async () => {
+    it("should handle logout without parameters", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -330,7 +326,7 @@ describe("AuthProvider", () => {
         await result.current.logout()
       })
 
-      expect(result.current.logoutReason).toBe("manual")
+      expect(result.current.isAuthenticated).toBe(false)
     })
 
     it("should handle rapid login/logout cycles", async () => {
@@ -351,7 +347,7 @@ describe("AuthProvider", () => {
         expect(result.current.isAuthenticated).toBe(true)
 
         await act(async () => {
-          await result.current.logout("manual")
+          await result.current.logout()
         })
 
         expect(result.current.isAuthenticated).toBe(false)
