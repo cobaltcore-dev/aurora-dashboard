@@ -414,11 +414,24 @@ describe("sessionRouter", () => {
   })
 
   describe("terminateUserSession", () => {
-    it("should reject unauthenticated callers with UNAUTHORIZED", async () => {
-      mockContext.validateSession.mockReturnValue(false)
-      await expect(caller.terminateUserSession()).rejects.toThrow(
-        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+    it("should reject callers without a session cookie with UNAUTHORIZED", async () => {
+      const callerWithoutSession = createCaller({
+        ...mockContext,
+        openstack: undefined,
+      } as unknown as AuroraPortalContext)
+
+      await expect(callerWithoutSession.terminateUserSession()).rejects.toThrow(
+        new TRPCError({ code: "UNAUTHORIZED", message: "No session found" })
       )
+    })
+
+    it("should call terminateSession even with expired token", async () => {
+      // Session cookie exists but token is expired
+      mockContext.validateSession.mockReturnValue(false)
+
+      await caller.terminateUserSession()
+
+      expect(mockContext.terminateSession).toHaveBeenCalledTimes(1)
     })
 
     it("should call terminateSession on context", async () => {
