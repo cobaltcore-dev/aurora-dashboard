@@ -4,32 +4,31 @@ import { validateOpenstackService } from "@/server/helpers/validateOpenstackServ
 import { omit } from "@/server/helpers/object"
 import { parseOrThrow } from "@/server/Network/helpers"
 import {
-  CertificateAuthoritiesListSchema,
   CertificateAuthoritiesListInputSchema,
+  CertificateAuthoritiesList,
+  CertificateAuthoritiesListSchema,
+  CertificateAuthorityCreateSchema,
+  CertificateAuthority,
   CertificateAuthoritySchema,
   CertificateAuthorityIdInputSchema,
-  CertificateAuthorityCertificatesListInputSchema,
-  CertificatesListSchema,
-  CertificateSchema,
-  Certificate,
-  CertificateAuthority,
-  CertificateAuthoritiesList,
-  CertificatesList,
-  CertificateIdInputSchema,
-  CertificateAuthorityCreateSchema,
-  CreateCertificateInputSchema,
   CertificateAuthorityImportInputSchema,
+  CertificateAuthorityCertificatesListInputSchema,
+  CertificatesList,
+  CertificatesListSchema,
+  CreateCertificateInputSchema,
+  Certificate,
+  CertificateSchema,
+  CertificateIdInputSchema,
 } from "../types/pca"
 
 /** PCA (Private Certificate Authority) - Clavis service for certificate authority management  */
-const PCA_BASE_URL = "certificate-authorities"
+const PCA_BASE_URL = "v1/certificate-authorities"
 
 export const pcaRouter = {
   list: projectScopedProcedure
     .input(CertificateAuthoritiesListInputSchema)
     .query(async ({ input, ctx }): Promise<CertificateAuthoritiesList> => {
       return withErrorHandling(async () => {
-        // Use "pca" or "clavis" when the service will be GA as "clavis-beta" and "clavis-dev" are dev keys.
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
 
@@ -54,7 +53,6 @@ export const pcaRouter = {
     .input(CertificateAuthorityCreateSchema)
     .mutation(async ({ input, ctx }): Promise<CertificateAuthority> => {
       return withErrorHandling(async () => {
-        // Use "pca" or "clavis" when the service will be GA as "clavis-beta" and "clavis-dev" are dev keys.
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
 
