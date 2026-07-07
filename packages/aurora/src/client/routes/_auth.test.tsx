@@ -51,8 +51,7 @@ describe("_auth route", () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         expect(e.options.to).toBe("/")
-        // Bug: empty search params produce "?" suffix
-        expect(e.options.search.redirect).toBe("/projects/123/compute?")
+        expect(e.options.search.redirect).toBe("/projects/123/compute")
       }
     })
 
@@ -77,8 +76,7 @@ describe("_auth route", () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         expect(e.options.to).toBe("/")
-        // Bug: empty search params produce "?" suffix
-        expect(e.options.search.redirect).toBe("?")
+        expect(e.options.search.redirect).toBe("")
       }
     })
 

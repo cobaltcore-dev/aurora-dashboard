@@ -92,7 +92,7 @@ export const sessionRouter = {
     }),
 
   terminateUserSession: sessionCookieProcedure.mutation(async ({ ctx }) => {
-    ctx.terminateSession()
+    await ctx.terminateSession()
   }),
 
   /**

@@ -37,6 +37,11 @@ describe("sessionRouter", () => {
     identityEndpoint: "http://identity.example.com/",
     imageMetadataExcludedProperties: [],
     openstack: mockOpenstackSession,
+    req: {
+      cookies: {
+        "dashboard-session-auth": "test-cookie-value",
+      },
+    },
   }
 
   beforeEach(() => {
@@ -418,6 +423,9 @@ describe("sessionRouter", () => {
       const callerWithoutSession = createCaller({
         ...mockContext,
         openstack: undefined,
+        req: {
+          cookies: {},
+        },
       } as unknown as AuroraPortalContext)
 
       await expect(callerWithoutSession.terminateUserSession()).rejects.toThrow(

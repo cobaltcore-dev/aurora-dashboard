@@ -49,7 +49,7 @@ const errorHandlingLink: TRPCLink<AuroraRouter> = () => {
           // Check if it's a tRPC error with UNAUTHORIZED code
           if (err.data?.code === "UNAUTHORIZED" && typeof window !== "undefined") {
             // Skip redirect for explicit logout calls to avoid loops
-            // (terminateUserSession is a protected procedure and will 401 when token is already expired)
+            // terminateUserSession uses sessionCookieProcedure which allows expired tokens
             if (op.path !== "auth.terminateUserSession" && window.location.pathname !== "/") {
               const redirect = encodeURIComponent(window.location.pathname + window.location.search)
               window.location.replace(`/?redirect=${redirect}`)
