@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react"
+import React, { useCallback } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
 import { useRouter } from "@tanstack/react-router"
 import { trpcClient } from "../trpcClient"
@@ -8,13 +8,10 @@ export type User = TokenData["user"] | null
 export interface AuthContext {
   isAuthenticated: boolean
   login: (user: User, expires_at?: string) => Promise<void>
-  logout: (reason?: "inactive" | "expired" | "manual") => Promise<void>
+  logout: (reason?: "expired" | "manual") => Promise<void>
   user?: User
   expiresAt?: Date
-  logoutReason?: "inactive" | "expired" | "manual"
-  showInactivityModal: boolean
-  closeInactivityModal: () => void
-  redirectAfterModal?: string
+  logoutReason?: "expired" | "manual"
 }
 
 const AuthContext = React.createContext<AuthContext | null>(null)
@@ -23,29 +20,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [user, setUser] = React.useState<User | null>(null)
   const [expiresAt, setExpiresAt] = React.useState<Date | undefined>(undefined)
-  const [logoutReason, setLogoutReason] = React.useState<"inactive" | "expired" | "manual" | undefined>(undefined)
-  const [showInactivityModal, setShowInactivityModal] = useState(false)
-  const [redirectAfterModal, setRedirectAfterModal] = useState<string | undefined>(undefined)
+  const [logoutReason, setLogoutReason] = React.useState<"expired" | "manual" | undefined>(undefined)
 
   const isAuthenticated = !!user
 
-  const closeInactivityModal = useCallback(async () => {
-    setShowInactivityModal(false)
-
-    try {
-      await router.navigate({
-        to: "/",
-        search: redirectAfterModal ? { redirect: redirectAfterModal } : undefined,
-      })
-    } catch {
-      // Fallback if router not ready
-      const redirect = redirectAfterModal ? `?redirect=${encodeURIComponent(redirectAfterModal)}` : ""
-      window.location.href = `/${redirect}`
-    }
-  }, [router, redirectAfterModal])
-
   const logout = useCallback(
-    async (reason: "inactive" | "expired" | "manual" = "manual") => {
+    async (reason: "expired" | "manual" = "manual") => {
       // Terminate the session on the server to delete the cookie
       // This ensures expired sessions are truly expired (no stale cookie)
       try {
@@ -66,22 +46,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setExpiresAt(undefined)
       setLogoutReason(reason)
 
-      // For expired: Show modal instead of direct navigation
-      if (reason === "expired") {
-        const currentPath = window.location.pathname + window.location.search
-        if (currentPath && currentPath.startsWith("/")) {
-          setRedirectAfterModal(currentPath)
-        }
+      // Navigate to login with redirect param for expired sessions
+      const currentPath = window.location.pathname + window.location.search
+      const shouldRedirect = reason === "expired" && currentPath && currentPath.startsWith("/")
 
-        setShowInactivityModal(true)
-      } else {
-        // Manual logout: navigate to login
-        try {
-          await router.navigate({ to: "/" })
-        } catch {
-          // Fallback if router not ready
-          window.location.href = "/"
-        }
+      try {
+        await router.navigate({
+          to: "/",
+          search: shouldRedirect ? { redirect: currentPath } : undefined,
+        })
+      } catch {
+        // Fallback if router not ready
+        const redirect = shouldRedirect ? `?redirect=${encodeURIComponent(currentPath)}` : ""
+        window.location.href = `/${redirect}`
       }
     },
     [router]
@@ -109,8 +86,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (user: User, expires_at?: string) => {
     setUser(user)
     setLogoutReason(undefined)
-    setShowInactivityModal(false)
-    setRedirectAfterModal(undefined)
 
     if (expires_at) {
       const expiration = new Date(expires_at)
@@ -129,9 +104,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         expiresAt,
         logoutReason,
-        showInactivityModal,
-        closeInactivityModal,
-        redirectAfterModal,
       }}
     >
       {children}

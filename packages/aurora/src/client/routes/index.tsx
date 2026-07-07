@@ -165,7 +165,7 @@ export function AuthLoginPage() {
 
   const isLoggingIn = isLoading || isSubmitting
 
-  const wasInactive = logoutReason === "inactive" || logoutReason === "expired"
+  const wasInactive = logoutReason === "expired"
 
   if (slots?.login && !isAuthenticated && !isLoading) {
     return (

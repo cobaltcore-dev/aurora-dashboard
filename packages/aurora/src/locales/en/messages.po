@@ -1777,9 +1777,6 @@ msgstr "Import Signed Certificate"
 msgid "Importing Certificate..."
 msgstr "Importing Certificate..."
 
-msgid "Inactivity Timeout"
-msgstr "Inactivity Timeout"
-
 msgid "Ingress"
 msgstr "Ingress"
 
@@ -2350,9 +2347,6 @@ msgstr "Objects to be deleted ({totalCount})"
 msgid "Objects: {containerName}"
 msgstr "Objects: {containerName}"
 
-msgid "OK"
-msgstr "OK"
-
 msgid "Older"
 msgstr "Older"
 
@@ -2427,9 +2421,6 @@ msgstr "Please enter a valid number of minutes greater than 0"
 
 msgid "Please fix the validation errors below."
 msgstr "Please fix the validation errors below."
-
-msgid "Please log in again to continue."
-msgstr "Please log in again to continue."
 
 msgid "Please select a file to upload"
 msgstr "Please select a file to upload"
@@ -2823,9 +2814,6 @@ msgstr "Server Role:"
 
 msgid "Services"
 msgstr "Services"
-
-msgid "Session Expired"
-msgstr "Session Expired"
 
 msgid "Session expires in"
 msgstr "Session expires in"
@@ -3640,9 +3628,6 @@ msgstr "You don't have permission to view extra specs for this flavor."
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
 
-msgid "You have been logged out due to inactivity."
-msgstr "You have been logged out due to inactivity."
-
 msgid "You need to login to access this page."
 msgstr "You need to login to access this page."
 
@@ -3657,9 +3642,6 @@ msgstr "Your S3 credentials are invalid or expired. Please try creating new cred
 
 msgid "Your session expired. Please login again."
 msgstr "Your session expired. Please login again."
-
-msgid "Your session has expired."
-msgstr "Your session has expired."
 
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
