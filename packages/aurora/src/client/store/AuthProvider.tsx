@@ -29,11 +29,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAuthenticated = !!user
 
-  const closeInactivityModal = useCallback(() => {
+  const closeInactivityModal = useCallback(async () => {
     setShowInactivityModal(false)
 
     try {
-      router.navigate({
+      await router.navigate({
         to: "/",
         search: redirectAfterModal ? { redirect: redirectAfterModal } : undefined,
       })
@@ -53,7 +53,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         // UNAUTHORIZED is expected when the token is already expired
         // Only log unexpected errors
-        const isExpectedUnauthorized = (error as any)?.data?.code === "UNAUTHORIZED"
+        const isExpectedUnauthorized =
+          error && typeof error === "object" && "data" in error
+            ? (error.data as { code?: string } | undefined)?.code === "UNAUTHORIZED"
+            : false
         if (!isExpectedUnauthorized) {
           console.error("Error terminating session:", error)
         }
@@ -74,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Manual logout: navigate to login
         try {
-          router.navigate({ to: "/" })
+          await router.navigate({ to: "/" })
         } catch {
           // Fallback if router not ready
           window.location.href = "/"

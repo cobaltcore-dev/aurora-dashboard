@@ -158,9 +158,12 @@ function AppInner({
               <h1>Connection Lost</h1>
               <p>Failed to load application resources.</p>
               <p>This may be due to a network issue or stale cached files.</p>
-              <button onclick="window.location.reload()">Reload</button>
+              <button id="chunk-reload-btn" type="button">Reload</button>
             </div>
           `
+          root.querySelector<HTMLButtonElement>("#chunk-reload-btn")?.addEventListener("click", () => {
+            window.location.reload()
+          })
         }
       }
     }
