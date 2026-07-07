@@ -3,20 +3,26 @@ import { renderHook, act } from "@testing-library/react"
 import { AuthProvider, useAuth } from "./AuthProvider"
 import type { User } from "./AuthProvider"
 import { ReactNode } from "react"
-import { useRouter } from "@tanstack/react-router"
-
-// Mock router — AuthProvider uses useRouter() internally
-vi.mock("../router", () => ({}))
 
 // Extract the non-null user type
 type AuthUser = NonNullable<User>
 
-const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider>{children}</AuthProvider>
+// Mock router object passed as prop
+const mockRouter = {
+  navigate: vi.fn(),
+  invalidate: vi.fn(),
+}
+
+const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider router={mockRouter}>{children}</AuthProvider>
 
 describe("AuthProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.useFakeTimers()
+
+    // Reset mock router
+    mockRouter.navigate.mockClear()
+    mockRouter.invalidate.mockClear()
 
     // Mock window.location
     Object.defineProperty(window, "location", {
@@ -138,7 +144,7 @@ describe("AuthProvider", () => {
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.user).toBeNull()
       expect(result.current.logoutReason).toBe("manual")
-      expect(useRouter().invalidate).toHaveBeenCalled()
+      expect(mockRouter.invalidate).toHaveBeenCalled()
     })
 
     it("should invalidate router on inactive logout (no modal)", async () => {
@@ -162,7 +168,7 @@ describe("AuthProvider", () => {
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.logoutReason).toBe("inactive")
       expect(result.current.showInactivityModal).toBe(false)
-      expect(useRouter().invalidate).toHaveBeenCalled()
+      expect(mockRouter.invalidate).toHaveBeenCalled()
     })
 
     it("should show modal on expired logout", async () => {
@@ -450,7 +456,7 @@ describe("AuthProvider", () => {
       })
 
       expect(result.current.showInactivityModal).toBe(false)
-      expect(useRouter().navigate).toHaveBeenCalledWith({
+      expect(mockRouter.navigate).toHaveBeenCalledWith({
         to: "/",
         search: { redirect: "/dashboard" },
       })
@@ -487,7 +493,7 @@ describe("AuthProvider", () => {
         result.current.closeInactivityModal()
       })
 
-      expect(useRouter().navigate).toHaveBeenCalledWith({
+      expect(mockRouter.navigate).toHaveBeenCalledWith({
         to: "/",
         search: undefined,
       })

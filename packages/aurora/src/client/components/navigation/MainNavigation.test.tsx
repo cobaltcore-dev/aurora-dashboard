@@ -22,8 +22,14 @@ beforeAll(() => {
   }
 })
 
+// Mock router for AuthProvider
+const mockRouter = {
+  navigate: vi.fn(),
+  invalidate: vi.fn(),
+}
+
 const TestingProvider = ({ children }: { children: ReactNode }) => (
-  <AuthProvider>
+  <AuthProvider router={mockRouter}>
     <I18nProvider i18n={i18n}>{children}</I18nProvider>
   </AuthProvider>
 )
