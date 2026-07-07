@@ -136,14 +136,17 @@ function AppInner({
 
       // Chunk loading errors are TypeError instances with specific characteristics:
       // - filename contains chunk/asset paths (starts with http/https or /)
-      // - message contains "import" or "fetch" keywords
-      // This is more robust than matching exact error strings which vary by browser/bundler
+      // - message matches known dynamic import/chunk loading failure patterns
+      // Match only actual chunk-load failures, not unrelated TypeErrors from app code
       const isChunkError =
         error instanceof TypeError &&
         typeof error.message === "string" &&
         event.filename &&
         (event.filename.includes("/assets/") || event.filename.startsWith("http")) &&
-        (/import/i.test(error.message) || /fetch.*module/i.test(error.message))
+        (/failed to fetch dynamically imported module/i.test(error.message) ||
+          /importing a module script failed/i.test(error.message) ||
+          /error loading dynamically imported module/i.test(error.message) ||
+          /dynamically imported module/i.test(error.message))
 
       if (isChunkError) {
         console.error("Chunk loading failed - dev server may have crashed:", error)

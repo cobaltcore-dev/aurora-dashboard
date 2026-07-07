@@ -22,6 +22,23 @@ export const protectedProcedure = publicProcedure.use(async function isAuthentic
   })
 })
 
+// Middleware that requires a session cookie to exist, but doesn't validate the token
+// Use for operations that should work even with expired tokens (e.g., logout/cookie cleanup)
+export const sessionCookieProcedure = publicProcedure.use(async function hasSessionCookie(opts) {
+  // Check if a session exists in the request (cookie present)
+  // This prevents anonymous users from calling the endpoint
+  // but allows expired token holders to clean up their session
+  if (!opts.ctx.openstack) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "No session found",
+    })
+  }
+  return opts.next({
+    ctx: opts.ctx,
+  })
+})
+
 /**
  * Base input schema that all project-scoped procedures must extend
  * Ensures project_id is always present and validated

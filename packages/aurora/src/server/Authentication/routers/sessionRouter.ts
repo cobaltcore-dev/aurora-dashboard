@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { protectedProcedure, publicProcedure } from "../../trpc"
+import { protectedProcedure, publicProcedure, sessionCookieProcedure } from "../../trpc"
 import { TRPCError } from "@trpc/server"
 
 const discriminatedSchema = z.discriminatedUnion("type", [
@@ -91,7 +91,7 @@ export const sessionRouter = {
       }
     }),
 
-  terminateUserSession: protectedProcedure.mutation(async ({ ctx }) => {
+  terminateUserSession: sessionCookieProcedure.mutation(async ({ ctx }) => {
     ctx.terminateSession()
   }),
 

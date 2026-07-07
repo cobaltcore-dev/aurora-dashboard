@@ -8,7 +8,7 @@ export interface AuthContext {
   isAuthenticated: boolean
   login: (user: User, expires_at?: string) => Promise<void>
   logout: () => Promise<void>
-  user?: User
+  user: User
   expiresAt?: Date
 }
 
