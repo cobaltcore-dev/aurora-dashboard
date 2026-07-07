@@ -66,7 +66,7 @@ describe("CreatePcaModal", () => {
     })
   })
 
-  it("submits create payload with project_id and configuration.subject.common_name", async () => {
+  it("submits create payload with project_id and configuration.subject.named_attributes.cn", async () => {
     const user = userEvent.setup()
     const onClose = vi.fn()
 
@@ -80,7 +80,9 @@ describe("CreatePcaModal", () => {
         project_id: "project-123",
         configuration: {
           subject: {
-            common_name: "demo-ca.test.sci",
+            named_attributes: {
+              cn: "demo-ca.test.sci",
+            },
           },
         },
       })

@@ -29,22 +29,23 @@ const CertificateAuthorityAdditionalAttributeSchema = z.object({
 
 const CertificateAuthoritySubjectSchema = z.object({
   additional_attribute: z.array(CertificateAuthorityAdditionalAttributeSchema).optional(),
-  /** Typically domain name */
-  common_name: z.string(),
-  /** Country codes (ISO 3166-1 alpha-2). */
-  country: z.array(z.string()).optional(),
-  /** Locality/city names. */
-  locality: z.array(z.string()).optional(),
-  /** Organization names. */
-  organization: z.array(z.string()).optional(),
-  /** Organizational unit names. */
-  organizational_unit: z.array(z.string()).optional(),
-  /** Postal/ZIP codes. */
-  postal_code: z.array(z.string()).optional(),
-  /** State or province names. */
-  province: z.array(z.string()).optional(),
-  serial_number: z.string().optional(),
-  street_address: z.array(z.string()).optional(),
+  named_attributes: z.object({
+    cn: z.string(),
+    /** Country codes (ISO 3166-1 alpha-2). */
+    c: z.array(z.string()).optional(),
+    /** Locality/city names. */
+    l: z.array(z.string()).optional(),
+    /** Organization names. */
+    o: z.array(z.string()).optional(),
+    /** Organizational unit names. */
+    ou: z.array(z.string()).optional(),
+    /** Postal/ZIP codes. */
+    postal_code: z.array(z.string()).optional(),
+    /** State or province names. */
+    st: z.array(z.string()).optional(),
+    serial_number: z.string().optional(),
+    street: z.array(z.string()).optional(),
+  }),
 })
 
 const CertificateAuthorityStateSchema = z.enum(["CREATING", "AWAITING_CERTIFICATE", "READY", "FAILED", "UNEXPECTED"])
@@ -60,6 +61,8 @@ export const CertificateAuthoritySchema = z.object({
     })
     .optional(),
   csr: z.string().optional(),
+  /** Human-readable subject string, e.g. "CN=demo-ca.test.sci". */
+  display_subject: z.string().optional(),
   id: z.string(),
   /**
    * Required on import certificate operation.
@@ -94,7 +97,11 @@ export const CertificateAuthoritiesListInputSchema = projectScopedInputSchema.ex
 // Used by: /v1/certificate-authorities - Create new Certificate Authority
 export const CertificateAuthorityCreateSchema = z.object({
   configuration: z.object({
-    subject: CertificateAuthoritySubjectSchema,
+    subject: z.object({
+      named_attributes: z.object({
+        cn: z.string().trim().min(1),
+      }),
+    }),
   }),
 })
 
