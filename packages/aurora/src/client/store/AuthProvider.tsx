@@ -1,6 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
-import { useRouter } from "@tanstack/react-router"
 import { trpcClient } from "../trpcClient"
 
 export type User = TokenData["user"] | null
@@ -13,10 +12,14 @@ export interface AuthContext {
   expiresAt?: Date
 }
 
+interface RouterNavigation {
+  navigate: (options: { to: string; search?: Record<string, unknown> }) => void
+  invalidate: () => void
+}
+
 const AuthContext = React.createContext<AuthContext | null>(null)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
+export function AuthProvider({ children, router }: { children: React.ReactNode; router: RouterNavigation }) {
   const [user, setUser] = useState<User | null>(null)
   const [expiresAt, setExpiresAt] = useState<Date | undefined>(undefined)
 
@@ -46,8 +49,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const currentPath = window.location.pathname + window.location.search
     const shouldRedirect = currentPath && currentPath.startsWith("/")
 
+    router.invalidate()
+
     try {
-      await router.navigate({
+      router.navigate({
         to: "/",
         search: shouldRedirect ? { redirect: currentPath } : undefined,
       })

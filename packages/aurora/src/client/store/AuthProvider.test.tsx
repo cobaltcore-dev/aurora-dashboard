@@ -15,24 +15,25 @@ vi.mock("../trpcClient", () => ({
   },
 }))
 
-// Mock router
-const mockNavigate = vi.fn()
-vi.mock("@tanstack/react-router", () => ({
-  useRouter: () => ({
-    navigate: mockNavigate,
-  }),
-}))
-
 // Extract the non-null user type
 type AuthUser = NonNullable<User>
 
-const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider>{children}</AuthProvider>
+// Mock router object passed as prop
+const mockRouter = {
+  navigate: vi.fn(),
+  invalidate: vi.fn(),
+}
+
+const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider router={mockRouter}>{children}</AuthProvider>
 
 describe("AuthProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.useFakeTimers()
-    mockNavigate.mockClear()
+
+    // Reset mock router
+    mockRouter.navigate.mockClear()
+    mockRouter.invalidate.mockClear()
 
     // Mock window.location
     Object.defineProperty(window, "location", {
@@ -133,7 +134,7 @@ describe("AuthProvider", () => {
   })
 
   describe("Logout", () => {
-    it("should logout without redirect for manual logout", async () => {
+    it("should logout and preserve redirect path", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -153,29 +154,8 @@ describe("AuthProvider", () => {
 
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.user).toBeNull()
-      expect(mockNavigate).toHaveBeenCalledWith({ to: "/", search: undefined })
-    })
-
-    it("should logout with redirect when preserveRedirect is true", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
-      })
-
-      await act(async () => {
-        await result.current.logout()
-      })
-
-      expect(result.current.isAuthenticated).toBe(false)
-      expect(mockNavigate).toHaveBeenCalledWith({
+      expect(mockRouter.invalidate).toHaveBeenCalled()
+      expect(mockRouter.navigate).toHaveBeenCalledWith({
         to: "/",
         search: { redirect: "/projects" },
       })
@@ -272,7 +252,7 @@ describe("AuthProvider", () => {
   })
 
   describe("Redirect Handling", () => {
-    it("should preserve query params in redirect when requested", async () => {
+    it("should preserve query params in redirect", async () => {
       Object.defineProperty(window, "location", {
         value: {
           pathname: "/projects",
@@ -300,7 +280,7 @@ describe("AuthProvider", () => {
         await result.current.logout()
       })
 
-      expect(mockNavigate).toHaveBeenCalledWith({
+      expect(mockRouter.navigate).toHaveBeenCalledWith({
         to: "/",
         search: { redirect: "/projects?search=myproject" },
       })
