@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useNavigate, useRouterState } from "@tanstack/react-router"
 import { cn } from "@/client/utils/cn"
 import { Trans } from "@lingui/react/macro"
 
@@ -9,8 +8,6 @@ export function SessionExpirationTimer(props: {
   logout: () => Promise<void>
 }) {
   const [timeLeft, setTimeLeft] = useState<string>("")
-  const navigate = useNavigate()
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -45,16 +42,6 @@ export function SessionExpirationTimer(props: {
       } catch (error) {
         console.error("Error during session expiration logout: ", error)
       }
-
-      // Only navigate if not already on login page
-      if (pathname !== "/") {
-        navigate({
-          to: "/",
-          search: {
-            redirect: pathname || undefined,
-          },
-        })
-      }
     }
 
     let logoutTimer: NodeJS.Timeout | undefined
@@ -69,7 +56,7 @@ export function SessionExpirationTimer(props: {
       clearInterval(intervalId)
       if (logoutTimer) clearTimeout(logoutTimer)
     }
-  }, [props.sessionExpired, props.logout, navigate, pathname])
+  }, [props.sessionExpired, props.logout])
 
   return (
     <div className={cn("text-theme-light pt-2 pb-2 text-xs", props.className)}>

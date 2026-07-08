@@ -233,6 +233,7 @@ export function AuthLoginPage() {
               id="user"
               type="text"
               placeholder={t`Enter your username`}
+              autoComplete="username"
               className={textinputstyles}
               onChange={(e) => {
                 setForm({ ...form, user: e.target.value })
@@ -249,6 +250,7 @@ export function AuthLoginPage() {
             <input
               id="password"
               type="password"
+              autoComplete="current-password"
               required
               className={textinputstyles}
               onChange={(e) => {
