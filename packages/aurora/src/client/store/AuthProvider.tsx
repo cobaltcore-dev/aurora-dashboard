@@ -39,7 +39,7 @@ export function AuthProvider({ children, router }: { children: React.ReactNode; 
     setUser(null)
     setExpiresAt(undefined)
 
-    // Navigate to login page with redirect (only if not already on login page)
+    // Navigate to login page; include a redirect back to the current path when not already on "/"
     const currentPath = window.location.pathname !== "/" ? window.location.pathname + window.location.search : null
 
     router.navigate({

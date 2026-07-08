@@ -2,11 +2,7 @@ import { useEffect, useState } from "react"
 import { cn } from "@/client/utils/cn"
 import { Trans } from "@lingui/react/macro"
 
-export function SessionExpirationTimer(props: {
-  className?: string
-  sessionExpired: Date
-  logout: () => Promise<void>
-}) {
+export function SessionExpirationTimer(props: { className?: string; sessionExpired: Date }) {
   const [timeLeft, setTimeLeft] = useState<string>("")
 
   useEffect(() => {
@@ -34,29 +30,10 @@ export function SessionExpirationTimer(props: {
     updateCountdown()
     const intervalId = setInterval(updateCountdown, 1000)
 
-    const delay = props.sessionExpired.getTime() - Date.now()
-
-    const handleExpiration = async () => {
-      try {
-        await props.logout()
-      } catch (error) {
-        console.error("Error during session expiration logout: ", error)
-      }
-    }
-
-    let logoutTimer: NodeJS.Timeout | undefined
-
-    if (delay <= 0) {
-      handleExpiration()
-    } else {
-      logoutTimer = setTimeout(handleExpiration, delay)
-    }
-
     return () => {
       clearInterval(intervalId)
-      if (logoutTimer) clearTimeout(logoutTimer)
     }
-  }, [props.sessionExpired, props.logout])
+  }, [props.sessionExpired])
 
   return (
     <div className={cn("text-theme-light pt-2 pb-2 text-xs", props.className)}>
