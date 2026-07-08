@@ -65,7 +65,7 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths(),
       isLib &&
         dts({
-          include: ["index.ts", "AuroraApp.tsx"],
+          include: ["index.ts", "AuroraApp.tsx", "trpcClient.ts"],
           outDir: "../../dist/client",
           tsconfigPath: "../../tsconfig.json",
           entryRoot: ".",

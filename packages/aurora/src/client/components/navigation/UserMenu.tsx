@@ -59,7 +59,7 @@ export function UserMenu() {
               />
               {expiresAt && (
                 <PopupMenuSectionHeading>
-                  <SessionExpirationTimer sessionExpired={expiresAt} logout={() => logout()} />
+                  <SessionExpirationTimer sessionExpired={expiresAt} />
                 </PopupMenuSectionHeading>
               )}
             </PopupMenuSection>

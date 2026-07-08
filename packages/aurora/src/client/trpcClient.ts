@@ -1,6 +1,7 @@
 import { createTRPCReact } from "@trpc/react-query"
+import type { CreateTRPCReact } from "@trpc/react-query"
+import { createTRPCClient, type TRPCClient } from "@trpc/client"
 import {
-  createTRPCClient,
   httpBatchLink,
   httpBatchStreamLink,
   httpLink,
@@ -11,6 +12,18 @@ import {
 } from "@trpc/client"
 import { observable } from "@trpc/server/observable"
 import type { AuroraRouter } from "../server/routers"
+
+/** Type alias for the React tRPC client */
+export type TrpcReact = ReturnType<typeof createTRPCReact<AuroraRouter>>
+
+/** Type alias for the vanilla tRPC client */
+export type TrpcClient = ReturnType<typeof createTRPCClient<AuroraRouter>>
+
+/** Generic type for creating a typed React tRPC client with a custom router */
+export type CreateTypedTrpcReact<TRouter extends AuroraRouter> = CreateTRPCReact<TRouter, unknown>
+
+/** Generic type for creating a typed vanilla tRPC client with a custom router */
+export type CreateTypedTrpcClient<TRouter extends AuroraRouter> = TRPCClient<TRouter>
 
 // CSRF headers factory
 const getCsrfHeaders = async () => {
@@ -123,10 +136,10 @@ const getLinks = () => [
 ]
 
 // React Query client (for hooks like useQuery/useMutation/useSubscription)
-export const trpcReact: ReturnType<typeof createTRPCReact<AuroraRouter>> = createTRPCReact<AuroraRouter>()
+export const trpcReact: TrpcReact = createTRPCReact<AuroraRouter>()
 
 let _trpcReactClient: ReturnType<typeof trpcReact.createClient> | null = null
-let _trpcClient: ReturnType<typeof createTRPCClient<AuroraRouter>> | null = null
+let _trpcClient: TrpcClient | null = null
 
 // Lazily initialised — created on first access after setBffEndpoint() has been called by App.
 export const trpcReactClient = new Proxy({} as ReturnType<typeof trpcReact.createClient>, {
@@ -138,7 +151,7 @@ export const trpcReactClient = new Proxy({} as ReturnType<typeof trpcReact.creat
   },
 })
 
-export const trpcClient = new Proxy({} as ReturnType<typeof createTRPCClient<AuroraRouter>>, {
+export const trpcClient: TrpcClient = new Proxy({} as TrpcClient, {
   get(_target, prop) {
     if (!_trpcClient) {
       _trpcClient = createTRPCClient<AuroraRouter>({ links: getLinks() })
@@ -146,6 +159,3 @@ export const trpcClient = new Proxy({} as ReturnType<typeof createTRPCClient<Aur
     return (_trpcClient as Record<string | symbol, unknown>)[prop]
   },
 })
-
-export type TrpcReact = typeof trpcReact
-export type TrpcClient = typeof trpcClient
