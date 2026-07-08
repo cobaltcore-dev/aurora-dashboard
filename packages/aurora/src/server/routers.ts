@@ -26,7 +26,7 @@ export type AuroraRouter = ReturnType<typeof buildBaseRouter>
  * @example
  * ```ts
  * import type { AuroraRouterWithCustom } from "@cobaltcore-dev/aurora/server"
- * import type { customRouters } from "./server/customRouters"
+ * import { customRouters } from "./server/customRouters"
  *
  * export type AppRouter = AuroraRouterWithCustom<typeof customRouters>
  * ```
