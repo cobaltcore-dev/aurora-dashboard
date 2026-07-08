@@ -1777,9 +1777,6 @@ msgstr "Import Signed Certificate"
 msgid "Importing Certificate..."
 msgstr "Importing Certificate..."
 
-msgid "Inactivity Timeout"
-msgstr "Inaktivitäts-Timeout"
-
 msgid "Ingress"
 msgstr "Ingress"
 
@@ -2350,9 +2347,6 @@ msgstr "Zu löschende Objekte ({totalCount})"
 msgid "Objects: {containerName}"
 msgstr ""
 
-msgid "OK"
-msgstr "OK"
-
 msgid "Older"
 msgstr ""
 
@@ -2427,9 +2421,6 @@ msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
 msgid "Please fix the validation errors below."
 msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
-
-msgid "Please log in again to continue."
-msgstr "Bitte melden Sie sich erneut an, um fortzufahren."
 
 msgid "Please select a file to upload"
 msgstr "Bitte wählen Sie eine Datei zum Hochladen aus"
@@ -2826,9 +2817,6 @@ msgstr "Serverrolle:"
 
 msgid "Services"
 msgstr "Services"
-
-msgid "Session Expired"
-msgstr "Sitzung abgelaufen"
 
 msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
@@ -3646,9 +3634,6 @@ msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 msgid "You don't have permission to view this flavor's details."
 msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
 
-msgid "You have been logged out due to inactivity."
-msgstr "Sie wurden aufgrund von Inaktivität abgemeldet."
-
 msgid "You need to login to access this page."
 msgstr "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."
 
@@ -3663,9 +3648,6 @@ msgstr ""
 
 msgid "Your session expired. Please login again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
-
-msgid "Your session has expired."
-msgstr "Ihre Sitzung ist abgelaufen."
 
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
