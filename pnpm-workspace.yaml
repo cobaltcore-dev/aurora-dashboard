@@ -1,5 +1,6 @@
 packages:
   - "apps/*"
+  - "!apps/dev"
   - "packages/*"
 
 minimumReleaseAge: 10080
