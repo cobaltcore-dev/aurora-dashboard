@@ -39,16 +39,16 @@ export function AuthProvider({ children, router }: { children: React.ReactNode; 
     async (reason: "inactive" | "expired" | "manual" = "manual") => {
       clearLogoutTimer()
 
-      const currentPath = window.location.pathname + window.location.search
-
       setUser(null)
       setExpiresAt(undefined)
       setLogoutReason(reason)
 
-      // Navigate to login page with redirect
+      // Navigate to login page with redirect (only if not already on login page)
+      const currentPath = window.location.pathname !== "/" ? window.location.pathname + window.location.search : null
+
       router.navigate({
         to: "/",
-        search: currentPath && currentPath !== "/" ? { redirect: currentPath } : undefined,
+        search: currentPath ? { redirect: currentPath } : undefined,
       })
 
       if (reason === "manual") {
