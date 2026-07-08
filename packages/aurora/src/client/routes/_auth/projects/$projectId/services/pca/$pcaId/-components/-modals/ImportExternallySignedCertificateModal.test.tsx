@@ -46,6 +46,12 @@ vi.mock("@/client/trpcClient", () => ({
   },
 }))
 
+vi.mock("./ParsedCertificateInfo", () => ({
+  ParsedCertificateInfo: ({ csrCode }: { csrCode: string }) => (
+    <div data-testid="parsed-certificate-info">{csrCode}</div>
+  ),
+}))
+
 const renderModal = (onClose = vi.fn()) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -69,6 +75,7 @@ describe("ImportExternallySignedCertificateModal", () => {
     expect(screen.getByText("Import Externally Signed Certificate")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Choose Certificate to Import" })).toBeInTheDocument()
     expect(screen.getByPlaceholderText("Paste the code")).toBeInTheDocument()
+    expect(screen.getByTestId("parsed-certificate-info")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
   })
 

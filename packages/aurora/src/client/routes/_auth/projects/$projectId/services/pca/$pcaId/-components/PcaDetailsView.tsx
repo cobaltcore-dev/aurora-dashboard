@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Badge, Button, Stack } from "@cloudoperators/juno-ui-components/index"

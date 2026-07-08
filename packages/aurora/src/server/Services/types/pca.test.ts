@@ -272,6 +272,47 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       ).toBe(true)
     })
 
+    it.each([
+      ["c", "DE"],
+      ["l", "Berlin"],
+      ["o", "Example Corp"],
+      ["ou", "IT"],
+      ["postal_code", "10115"],
+      ["st", "Bavaria"],
+      ["street", "Main St 1"],
+    ] as const)("should accept plain string for %s and coerce it to an array", (field, value) => {
+      const result = CertificateAuthoritySchema.safeParse({
+        ...minimalValidCA,
+        configuration: { subject: { named_attributes: { cn: "test.com", [field]: value } } },
+      })
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.configuration?.subject.named_attributes[field]).toEqual([value])
+      }
+    })
+
+    it("should accept a real-world API response where o is a plain string", () => {
+      const result = CertificateAuthoritySchema.safeParse({
+        id: "tahv5by0ch1ws3px8vf66pt07w",
+        project_id: "e9141fb24eee4b3e9f25ae69cda31132",
+        state: "AWAITING_CERTIFICATE",
+        display_subject: "CN=test-nkb3b5ja3s45x17rdcqan4cj2c.com,O=Test Org - 27vksr8xxx4zsdnascwnxh8194",
+        configuration: {
+          subject: {
+            named_attributes: {
+              cn: "test-nkb3b5ja3s45x17rdcqan4cj2c.com",
+              o: "Test Org - 27vksr8xxx4zsdnascwnxh8194",
+            },
+          },
+        },
+        csr: "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+      })
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.configuration?.subject.named_attributes.o).toEqual(["Test Org - 27vksr8xxx4zsdnascwnxh8194"])
+      }
+    })
+
     it("should validate additional_attribute as array", () => {
       expect(
         CertificateAuthoritySchema.safeParse({

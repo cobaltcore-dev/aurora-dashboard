@@ -27,24 +27,27 @@ const CertificateAuthorityAdditionalAttributeSchema = z.object({
   value: z.string(),
 })
 
+// API may return multi-value subject fields as a single string or as an array
+const stringOrStringArray = z.union([z.array(z.string()), z.string().transform((s) => [s])])
+
 const CertificateAuthoritySubjectSchema = z.object({
   additional_attribute: z.array(CertificateAuthorityAdditionalAttributeSchema).optional(),
   named_attributes: z.object({
     cn: z.string(),
     /** Country codes (ISO 3166-1 alpha-2). */
-    c: z.array(z.string()).optional(),
+    c: stringOrStringArray.optional(),
     /** Locality/city names. */
-    l: z.array(z.string()).optional(),
+    l: stringOrStringArray.optional(),
     /** Organization names. */
-    o: z.array(z.string()).optional(),
+    o: stringOrStringArray.optional(),
     /** Organizational unit names. */
-    ou: z.array(z.string()).optional(),
+    ou: stringOrStringArray.optional(),
     /** Postal/ZIP codes. */
-    postal_code: z.array(z.string()).optional(),
+    postal_code: stringOrStringArray.optional(),
     /** State or province names. */
-    st: z.array(z.string()).optional(),
+    st: stringOrStringArray.optional(),
     serial_number: z.string().optional(),
-    street: z.array(z.string()).optional(),
+    street: stringOrStringArray.optional(),
   }),
 })
 
