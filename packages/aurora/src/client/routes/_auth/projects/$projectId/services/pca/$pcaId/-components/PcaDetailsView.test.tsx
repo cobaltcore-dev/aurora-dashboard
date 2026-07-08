@@ -26,7 +26,7 @@ vi.mock("../../-components/-modals/DeletePcaModal", () => ({
     ) : null,
 }))
 
-vi.mock("./PcaCertificatesListContainer", () => ({
+vi.mock("./-table/PcaCertificatesListContainer", () => ({
   PcaCertificatesListContainer: ({ pcaId, pcaState }: { pcaId: string; pcaState: string }) => (
     <div data-testid="pca-certificates-list">
       Certificates list for {pcaId} ({pcaState})

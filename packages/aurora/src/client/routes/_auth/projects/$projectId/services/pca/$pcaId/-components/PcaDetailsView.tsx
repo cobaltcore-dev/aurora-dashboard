@@ -1,22 +1,14 @@
-import { Fragment } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import {
-  Badge,
-  Button,
-  CodeBlock,
-  DescriptionDefinition,
-  DescriptionList,
-  DescriptionTerm,
-  Stack,
-} from "@cloudoperators/juno-ui-components/index"
+import { Badge, Button, Stack } from "@cloudoperators/juno-ui-components/index"
 import { CertificateAuthority } from "@/server/Services/types/pca"
 import { useProjectId } from "@/client/hooks"
 import { useModal } from "@/client/utils/useModal"
 import { DeletePcaModal } from "../../-components/-modals/DeletePcaModal"
 import { IssueSelfSignedCertificateModal } from "./-modals/IssueSelfSignedCertificateModal"
 import { ImportExternallySignedCertificateModal } from "./-modals/ImportExternallySignedCertificateModal"
-import { PcaCertificatesListContainer } from "./PcaCertificatesListContainer"
+import { PcaCertificatesListContainer } from "./-table/PcaCertificatesListContainer"
+import { DetailsInfo } from "./DetailsInfo"
 
 interface PcaDetailsViewProps {
   pca: CertificateAuthority
@@ -99,23 +91,11 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
           </Stack>
         )}
 
-        <Stack gap="4" className="grid grid-cols-2 items-start">
-          <DescriptionList alignTerms="right" className="w-full">
-            {BASIC_INFO.map(({ label, value }) => (
-              <Fragment key={label}>
-                <DescriptionTerm>{label}</DescriptionTerm>
-                <DescriptionDefinition>{value || "—"}</DescriptionDefinition>
-              </Fragment>
-            ))}
-          </DescriptionList>
-
-          <CodeBlock
-            heading={`Certificate ${pca.configuration?.subject?.named_attributes?.cn}`}
-            content={pca?.csr ?? ""}
-            className="w-full [&_pre_code]:block [&_pre_code]:w-full"
-            wrap
-          />
-        </Stack>
+        <DetailsInfo
+          basicInfo={BASIC_INFO}
+          heading={`Certificate ${pca.configuration?.subject?.named_attributes?.cn}`}
+          content={pca?.csr ?? ""}
+        />
       </Stack>
 
       {importExternallySignedModalOpen && (
