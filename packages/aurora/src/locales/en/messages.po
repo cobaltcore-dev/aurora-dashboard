@@ -877,9 +877,6 @@ msgstr "Delete Bucket Policy"
 msgid "Delete CA"
 msgstr "Delete CA"
 
-msgid "Delete certificate authority"
-msgstr "Delete certificate authority"
-
 msgid "Delete Certificate Authority"
 msgstr "Delete Certificate Authority"
 
