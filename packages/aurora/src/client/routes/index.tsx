@@ -68,7 +68,7 @@ const textinputstyles = `
 `
 
 export function AuthLoginPage() {
-  const { isAuthenticated, login, logoutReason } = useAuth()
+  const { isAuthenticated, login } = useAuth()
   const isLoading = useRouterState({ select: (s) => s.isLoading })
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
@@ -165,8 +165,6 @@ export function AuthLoginPage() {
 
   const isLoggingIn = isLoading || isSubmitting
 
-  const wasInactive = logoutReason === "inactive" || logoutReason === "expired"
-
   if (slots?.login && !isAuthenticated && !isLoading) {
     return (
       <div className="mt-8 flex justify-center">
@@ -192,13 +190,9 @@ export function AuthLoginPage() {
         <p className="mb-6 text-center">
           <Trans>Enter your credentials to access your account</Trans>
         </p>
-        {(search.redirect || wasInactive) && (
+        {search.redirect && (
           <p className="mb-4 text-center text-sm text-red-500">
-            {wasInactive ? (
-              <Trans>Your session expired. Please login again.</Trans>
-            ) : (
-              <Trans>You need to login to access this page.</Trans>
-            )}
+            <Trans>You need to login to access this page.</Trans>
           </p>
         )}
         <form

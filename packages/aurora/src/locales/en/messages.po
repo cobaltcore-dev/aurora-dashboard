@@ -3655,9 +3655,6 @@ msgstr "Your credentials are valid but you don't have permission to perform this
 msgid "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
 msgstr "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
 
-msgid "Your session expired. Please login again."
-msgstr "Your session expired. Please login again."
-
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
 
