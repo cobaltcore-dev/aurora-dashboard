@@ -2,6 +2,7 @@ import { Fragment } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
+  Badge,
   Button,
   CodeBlock,
   DescriptionDefinition,
@@ -13,10 +14,9 @@ import { CertificateAuthority } from "@/server/Services/types/pca"
 import { useProjectId } from "@/client/hooks"
 import { useModal } from "@/client/utils/useModal"
 import { DeletePcaModal } from "../../-components/-modals/DeletePcaModal"
-import { STATE_CONFIG } from "../../-components/-table/constants"
-import { PcaCertificatesListContainer } from "./PcaCertificatesListContainer"
 import { IssueSelfSignedCertificateModal } from "./-modals/IssueSelfSignedCertificateModal"
 import { ImportExternallySignedCertificateModal } from "./-modals/ImportExternallySignedCertificateModal"
+import { PcaCertificatesListContainer } from "./PcaCertificatesListContainer"
 
 interface PcaDetailsViewProps {
   pca: CertificateAuthority
@@ -26,8 +26,6 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const projectId = useProjectId()
-  const subjectCommonName = pca.configuration?.subject?.common_name ?? ""
-  const certificateHeading = t`Certificate ${subjectCommonName}`
   const [issueSelfSignedModalOpen, toggleIssueSelfSignedModal] = useModal(false)
   const [importExternallySignedModalOpen, toggleImportExternallySignedModal] = useModal(false)
   const [deletePcaModalOpen, toggleDeletePcaModal] = useModal(false)
@@ -38,10 +36,10 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
       params: { projectId },
     })
 
-  const basicInfo = [
+  const BASIC_INFO = [
     { label: t`CA ID`, value: pca.id },
     { label: t`Project ID`, value: pca.project_id },
-    { label: t`Subject`, value: pca.configuration?.subject?.common_name },
+    { label: t`Subject`, value: pca.display_subject },
     {
       label: t`Duration/validity`,
       value:
@@ -53,15 +51,23 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
     },
   ] as const
 
+  const STATE_CONFIG = {
+    CREATING: <Badge icon="bolt" variant="info" text={t`Creating`} />,
+    AWAITING_CERTIFICATE: <Badge icon="accessTime" variant="warning" text={t`Awaiting Certificate`} />,
+    READY: <Badge icon="checkCircle" variant="success" text={t`Ready`} />,
+    FAILED: <Badge icon="error" variant="error" text={t`Failed`} />,
+    UNEXPECTED: <Badge icon="severityUnknown" variant="default" text={t`Unexpected`} />,
+  } as const
+
   return (
     <>
       <Stack direction="vertical" gap="3">
         <Stack direction="horizontal" distribution="between">
           <Stack gap="2" alignment="center">
             <div className="text-theme-default text-2xl font-semibold">
-              {`${pca.configuration?.subject?.common_name} Certificate Authority Details`}
+              {`${pca.configuration?.subject?.named_attributes?.cn} Certificate Authority Details`}
             </div>
-            {STATE_CONFIG[pca.state].badge}
+            {STATE_CONFIG[pca.state]}
           </Stack>
           <Button onClick={toggleDeletePcaModal}>
             <Trans>Delete Certificate Authority</Trans>
@@ -95,7 +101,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
 
         <Stack gap="4" className="grid grid-cols-2 items-start">
           <DescriptionList alignTerms="right" className="w-full">
-            {basicInfo.map(({ label, value }) => (
+            {BASIC_INFO.map(({ label, value }) => (
               <Fragment key={label}>
                 <DescriptionTerm>{label}</DescriptionTerm>
                 <DescriptionDefinition>{value || "—"}</DescriptionDefinition>
@@ -104,7 +110,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
           </DescriptionList>
 
           <CodeBlock
-            heading={certificateHeading}
+            heading={`Certificate ${pca.configuration?.subject?.named_attributes?.cn}`}
             content={pca?.csr ?? ""}
             className="w-full [&_pre_code]:block [&_pre_code]:w-full"
             wrap

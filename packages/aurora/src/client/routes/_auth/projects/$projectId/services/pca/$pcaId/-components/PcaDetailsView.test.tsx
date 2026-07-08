@@ -50,7 +50,9 @@ describe("PcaDetailsView", () => {
     state: "READY",
     configuration: {
       subject: {
-        common_name: "ca.example.internal",
+        named_attributes: {
+          cn: "ca.example.internal",
+        },
       },
     },
     csr: "-----BEGIN CSR-----",

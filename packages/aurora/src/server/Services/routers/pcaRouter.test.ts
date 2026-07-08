@@ -13,7 +13,9 @@ const validListResponse = {
       state: "CREATING" as const,
       configuration: {
         subject: {
-          common_name: "ca.example.com",
+          named_attributes: {
+            cn: "ca.example.com",
+          },
         },
       },
     },
@@ -28,7 +30,9 @@ const validGetByIdResponse = {
   state: "READY" as const,
   configuration: {
     subject: {
-      common_name: "ca.example.com",
+      named_attributes: {
+        cn: "ca.example.com",
+      },
     },
   },
 }
@@ -73,7 +77,9 @@ const validCreateCAResponse = {
   state: "CREATING" as const,
   configuration: {
     subject: {
-      common_name: "new-ca.example.com",
+      named_attributes: {
+        cn: "new-ca.example.com",
+      },
     },
   },
 }
@@ -460,7 +466,9 @@ describe("pcaRouter", () => {
         project_id: TEST_PROJECT_ID,
         configuration: {
           subject: {
-            common_name: "new-ca.example.com",
+            named_attributes: {
+              cn: "new-ca.example.com",
+            },
           },
         },
       })
@@ -472,7 +480,9 @@ describe("pcaRouter", () => {
       expect(lastPostCall?.[1]).toEqual({
         configuration: {
           subject: {
-            common_name: "new-ca.example.com",
+            named_attributes: {
+              cn: "new-ca.example.com",
+            },
           },
         },
       })
@@ -488,7 +498,9 @@ describe("pcaRouter", () => {
           project_id: TEST_PROJECT_ID,
           configuration: {
             subject: {
-              common_name: "new-ca.example.com",
+              named_attributes: {
+                cn: "new-ca.example.com",
+              },
             },
           },
         })

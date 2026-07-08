@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$p
       project_id: params.projectId,
       certificate_authority_id: params.pcaId,
     })
-    return { pcaTitle: pca?.configuration?.subject?.common_name || pca?.id || null }
+    return { pcaTitle: pca?.configuration?.subject?.named_attributes?.cn || pca?.id || null }
   },
   head: ({ loaderData }) => ({
     meta: [{ title: loaderData?.pcaTitle ?? "Certificate Authority" }],
@@ -75,7 +75,6 @@ function RouteComponent() {
       params: { projectId },
     })
 
-  // Error state
   if (isError) {
     const errorMessage = error?.message || "Unknown error"
     return (
@@ -91,7 +90,6 @@ function RouteComponent() {
     )
   }
 
-  // No data state
   if (!pca) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">

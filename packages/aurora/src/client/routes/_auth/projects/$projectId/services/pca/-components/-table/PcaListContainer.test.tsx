@@ -16,7 +16,7 @@ vi.mock("./-table/PcaTableRow", () => ({
   PcaTableRow: ({ pca }: { pca: CertificateAuthority }) => <div data-testid={`pca-row-${pca.id}`}>{pca.id}</div>,
 }))
 
-vi.mock("./-modals/CreatePcaModal", () => ({
+vi.mock("../-modals/CreatePcaModal", () => ({
   CreatePcaModal: ({ open }: { open: boolean }) => (open ? <div data-testid="create-pca-modal" /> : null),
 }))
 
@@ -26,6 +26,15 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
     ...actual,
     trpcReact: {
       ...actual.trpcReact,
+      useUtils: vi.fn(() => ({
+        services: {
+          pca: {
+            list: {
+              invalidate: vi.fn(),
+            },
+          },
+        },
+      })),
       services: {
         ...actual.trpcReact.services,
         pca: {
@@ -33,6 +42,14 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
           list: {
             ...actual.trpcReact.services.pca.list,
             useQuery: vi.fn(),
+          },
+          create: {
+            useMutation: vi.fn(() => ({
+              isPending: false,
+              mutateAsync: vi.fn().mockResolvedValue({ id: "pca-123" }),
+              reset: vi.fn(),
+              error: null,
+            })),
           },
         },
       },

@@ -22,7 +22,7 @@ vi.mock("@/client/hooks", () => ({
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
-    useUtils: () => ({
+    useUtils: vi.fn(() => ({
       services: {
         pca: {
           list: {
@@ -30,7 +30,7 @@ vi.mock("@/client/trpcClient", () => ({
           },
         },
       },
-    }),
+    })),
     services: {
       pca: {
         create: {
@@ -42,6 +42,7 @@ vi.mock("@/client/trpcClient", () => ({
               return result
             },
             reset: mockReset,
+            error: null,
           }),
         },
       },
