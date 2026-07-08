@@ -29,7 +29,7 @@ export function UserMenu() {
       console.error("Error logging out: ", error)
     } finally {
       try {
-        await logout("manual")
+        await logout()
       } catch (error) {
         console.error("Error during logout: ", error)
       }
@@ -59,7 +59,7 @@ export function UserMenu() {
               />
               {expiresAt && (
                 <PopupMenuSectionHeading>
-                  <SessionExpirationTimer sessionExpired={expiresAt} logout={() => logout("expired")} />
+                  <SessionExpirationTimer sessionExpired={expiresAt} />
                 </PopupMenuSectionHeading>
               )}
             </PopupMenuSection>
