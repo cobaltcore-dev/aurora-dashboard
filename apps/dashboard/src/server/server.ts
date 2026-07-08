@@ -1,6 +1,5 @@
 import path from "path"
 import { createServer } from "@cobaltcore-dev/aurora/server"
-import { customRouters } from "./customRouters"
 
 const rawPort = process.env.PORT ?? "4005"
 if (!/^\d+$/.test(rawPort)) {
@@ -28,7 +27,6 @@ createServer({
   cookieDomain: process.env.COOKIE_DOMAIN || undefined,
   insecureCookies: process.env.INSECURE_COOKIES ? process.env.INSECURE_COOKIES.toLowerCase() === "true" : undefined,
   policyDir,
-  routers: [customRouters],
 })
   .then((server) => server.listen({ host: "0.0.0.0", port: PORT }))
   .then((address) => console.log(`Server listening on ${address}`))
