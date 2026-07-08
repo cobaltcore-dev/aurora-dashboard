@@ -1,15 +1,15 @@
-import React, { useCallback, useState, useEffect } from "react"
+import React, { useEffect, useRef, useCallback } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
-import { trpcClient } from "../trpcClient"
 
 export type User = TokenData["user"] | null
 
 export interface AuthContext {
   isAuthenticated: boolean
   login: (user: User, expires_at?: string) => Promise<void>
-  logout: () => Promise<void>
+  logout: (reason?: "inactive" | "expired" | "manual") => Promise<void>
   user: User
   expiresAt?: Date
+  logoutReason?: "inactive" | "expired" | "manual"
 }
 
 interface RouterNavigation {
@@ -20,48 +20,43 @@ interface RouterNavigation {
 const AuthContext = React.createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children, router }: { children: React.ReactNode; router: RouterNavigation }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [expiresAt, setExpiresAt] = useState<Date | undefined>(undefined)
+  const [user, setUser] = React.useState<User | null>(null)
+  const [expiresAt, setExpiresAt] = React.useState<Date | undefined>(undefined)
+  const [logoutReason, setLogoutReason] = React.useState<"inactive" | "expired" | "manual" | undefined>(undefined)
+
+  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const isAuthenticated = !!user
 
-  const logout = useCallback(async () => {
-    // Terminate the session on the server to delete the cookie
-    // This ensures expired sessions are truly expired (no stale cookie)
-    try {
-      await trpcClient.auth.terminateUserSession.mutate()
-    } catch (error) {
-      // UNAUTHORIZED is expected when the token is already expired
-      // Only log unexpected errors
-      const isExpectedUnauthorized =
-        error && typeof error === "object" && "data" in error
-          ? (error.data as { code?: string } | undefined)?.code === "UNAUTHORIZED"
-          : false
-      if (!isExpectedUnauthorized) {
-        console.error("Error terminating session:", error)
-      }
+  const clearLogoutTimer = useCallback(() => {
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current)
+      logoutTimerRef.current = null
     }
+  }, [])
 
-    setUser(null)
-    setExpiresAt(undefined)
+  const logout = useCallback(
+    async (reason: "inactive" | "expired" | "manual" = "manual") => {
+      clearLogoutTimer()
 
-    // Navigate to login with redirect param to return user to current page after re-authentication
-    const currentPath = window.location.pathname + window.location.search
-    const shouldRedirect = currentPath && currentPath.startsWith("/")
+      setUser(null)
+      setExpiresAt(undefined)
+      setLogoutReason(reason)
 
-    router.invalidate()
+      // Navigate to login page with redirect (only if not already on login page)
+      const currentPath = window.location.pathname !== "/" ? window.location.pathname + window.location.search : null
 
-    try {
       router.navigate({
         to: "/",
-        search: shouldRedirect ? { redirect: currentPath } : undefined,
+        search: currentPath ? { redirect: currentPath } : undefined,
       })
-    } catch {
-      // Fallback if router not ready
-      const redirect = shouldRedirect ? `?redirect=${encodeURIComponent(currentPath)}` : ""
-      window.location.href = `/${redirect}`
-    }
-  }, [router])
+
+      if (reason === "manual") {
+        router.invalidate()
+      }
+    },
+    [router, clearLogoutTimer]
+  )
 
   // Timer-based expiration check (fallback/safety net)
   useEffect(() => {
@@ -69,14 +64,14 @@ export function AuthProvider({ children, router }: { children: React.ReactNode; 
 
     // Check immediately if already expired
     if (expiresAt.getTime() <= Date.now()) {
-      logout()
+      logout("expired")
       return
     }
 
     // Set timeout to logout at exact expiration time
     const timeUntilExpiration = expiresAt.getTime() - Date.now()
     const timeout = setTimeout(() => {
-      logout()
+      logout("expired")
     }, timeUntilExpiration)
 
     return () => clearTimeout(timeout)
@@ -84,6 +79,7 @@ export function AuthProvider({ children, router }: { children: React.ReactNode; 
 
   const login = useCallback(async (user: User, expires_at?: string) => {
     setUser(user)
+    setLogoutReason(undefined)
 
     if (expires_at) {
       const expiration = new Date(expires_at)
@@ -101,6 +97,7 @@ export function AuthProvider({ children, router }: { children: React.ReactNode; 
         login,
         logout,
         expiresAt,
+        logoutReason,
       }}
     >
       {children}
