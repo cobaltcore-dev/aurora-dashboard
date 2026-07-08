@@ -1033,8 +1033,14 @@ msgstr "Herunterladen"
 msgid "Download {rowDisplayName}"
 msgstr "{rowDisplayName} herunterladen"
 
+msgid "Downloading larger files may take a while. While files are downloading, you may browse other buckets and folders."
+msgstr ""
+
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."
+
+msgid "Downloading…"
+msgstr ""
 
 msgid "Drop your file here"
 msgstr "Legen Sie Ihre Datei hier ab"

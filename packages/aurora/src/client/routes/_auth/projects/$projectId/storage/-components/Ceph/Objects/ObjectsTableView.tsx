@@ -10,6 +10,8 @@ import {
   PopupMenuOptions,
   Badge,
   Spinner,
+  Icon,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
@@ -17,6 +19,7 @@ import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
+import { getObjectDownloadStartedToast } from "./ObjectToastNotifications"
 
 // Extended version type for frontend use (includes isDeleted flag)
 type S3ObjectVersionExtended = S3ObjectVersion & {
@@ -48,7 +51,10 @@ function isPreviewableContentType(contentType: string): boolean {
 // One in-flight transfer for a given row: either a forced download (from the
 // context menu) or a row-click preview-or-download. Keyed by row.key in a Map
 // so multiple rows can transfer concurrently without clobbering each other.
-type ActiveTransfer = { kind: "download" | "preview"; downloadId: string }
+// controller lets the user cancel via the row's cancel button, and lets an
+// unmount (e.g. navigating to another page) abort the request immediately
+// instead of letting it keep running in the background.
+type ActiveTransfer = { kind: "download" | "preview"; downloadId: string; controller: AbortController }
 
 // Subscribes to live progress for a single in-flight transfer. Each active row
 // renders its own instance of this component (keyed by downloadId), so
@@ -164,10 +170,18 @@ export function ObjectsTableView({
   const projectId = useProjectId()
   const parentRef = useRef<HTMLDivElement>(null)
   const isMounted = useRef(true)
+  // Keyed by row.key — lets unmount (e.g. navigating to another page mid-
+  // download) abort every in-flight request immediately, and backs the
+  // per-row cancel button. Kept in a ref (not state) so unmount's cleanup
+  // closure always sees the live set of controllers, not a stale one captured
+  // at mount time.
+  const controllersRef = useRef<Map<string, AbortController>>(new Map())
   useEffect(() => {
     isMounted.current = true
     return () => {
       isMounted.current = false
+      controllersRef.current.forEach((controller) => controller.abort())
+      controllersRef.current.clear()
     }
   }, [])
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
@@ -196,24 +210,43 @@ export function ObjectsTableView({
   // at once without one transfer's completion clobbering another's state.
   const [activeTransfers, setActiveTransfers] = useState<Map<string, ActiveTransfer>>(new Map())
 
-  // Stream the object from the BFF and assemble a Blob. downloadId is set before
-  // the mutation starts so the watchDownloadProgress subscription is active from
-  // the very first byte. Chunks arrive base64-encoded (JSON/SSE transport).
+  // Recognizes a cancellation (either the cancel button or unmount aborting
+  // the controller) so it can be treated as a quiet no-op rather than an
+  // error — see 0010_abort_signal_propagation.md for the string variants
+  // different layers of the stack can throw for the same underlying abort.
+  const isCancellation = (err: unknown, controller: AbortController) =>
+    controller.signal.aborted ||
+    (err instanceof Error &&
+      (err.name === "AbortError" ||
+        err.message === "Request canceled" ||
+        err.message.includes("signal is aborted") ||
+        err.message.includes("aborted")))
+
+  // Stream the object from the BFF and assemble a Blob. downloadId is set
+  // before the mutation starts so the watchDownloadProgress subscription is
+  // active from the very first byte. Chunks arrive base64-encoded (JSON/SSE
+  // transport). The AbortSignal is forwarded to the tRPC call so cancelling
+  // (button click or unmount) actually tears down the request rather than
+  // just ignoring its result — see 0010_abort_signal_propagation.md.
   // Returns the resolved contentType so the caller can decide preview vs download.
   const streamObjectToBlob = async (
     row: ObjectRow,
-    activeDownloadId: string
+    activeDownloadId: string,
+    signal: AbortSignal
   ): Promise<{ blob: Blob; filename: string; contentType: string }> => {
     let contentType = "application/octet-stream"
     let filename = row.displayName
 
-    const iterable = await trpcClient.storage.ceph.objects.downloadObject.mutate({
-      project_id: projectId,
-      containerName: bucketName,
-      objectKey: row.key,
-      filename: row.displayName,
-      downloadId: activeDownloadId,
-    })
+    const iterable = await trpcClient.storage.ceph.objects.downloadObject.mutate(
+      {
+        project_id: projectId,
+        containerName: bucketName,
+        objectKey: row.key,
+        filename: row.displayName,
+        downloadId: activeDownloadId,
+      },
+      { signal }
+    )
 
     const chunks: Uint8Array<ArrayBuffer>[] = []
     for await (const { chunk, contentType: ct, filename: fn } of iterable) {
@@ -238,13 +271,26 @@ export function ObjectsTableView({
   // Context-menu Download: always forces a file save, regardless of type.
   const handleDownload = async (row: ObjectRow) => {
     const activeDownloadId = `${bucketName}:${row.key}:${crypto.randomUUID()}`
-    setActiveTransfers((prev) => new Map(prev).set(row.key, { kind: "download", downloadId: activeDownloadId }))
+    const controller = new AbortController()
+    controllersRef.current.set(row.key, controller)
+    setActiveTransfers((prev) =>
+      new Map(prev).set(row.key, { kind: "download", downloadId: activeDownloadId, controller })
+    )
+
+    const { message, ...options } = getObjectDownloadStartedToast()
+    toast(message, options)
+
     try {
-      const { blob, filename } = await streamObjectToBlob(row, activeDownloadId)
+      const { blob, filename } = await streamObjectToBlob(row, activeDownloadId, controller.signal)
       triggerAnchorDownload(URL.createObjectURL(blob), filename)
     } catch (err) {
-      onDownloadError(row.key, err instanceof Error ? err.message : String(err))
+      if (!isCancellation(err, controller)) {
+        onDownloadError(row.key, err instanceof Error ? err.message : String(err))
+      }
     } finally {
+      if (controllersRef.current.get(row.key) === controller) {
+        controllersRef.current.delete(row.key)
+      }
       if (isMounted.current) {
         setActiveTransfers((prev) => {
           // Only clear this row's entry if it's still the one we started —
@@ -280,9 +326,17 @@ export function ObjectsTableView({
   // blank-tab flash.
   const handlePreviewOrDownload = async (row: ObjectRow) => {
     const activeDownloadId = `${bucketName}:${row.key}:${crypto.randomUUID()}`
-    setActiveTransfers((prev) => new Map(prev).set(row.key, { kind: "preview", downloadId: activeDownloadId }))
+    const controller = new AbortController()
+    controllersRef.current.set(row.key, controller)
+    setActiveTransfers((prev) =>
+      new Map(prev).set(row.key, { kind: "preview", downloadId: activeDownloadId, controller })
+    )
+
+    const { message, ...options } = getObjectDownloadStartedToast()
+    toast(message, options)
+
     try {
-      const { blob, filename, contentType } = await streamObjectToBlob(row, activeDownloadId)
+      const { blob, filename, contentType } = await streamObjectToBlob(row, activeDownloadId, controller.signal)
       const url = URL.createObjectURL(blob)
       if (isPreviewableContentType(contentType)) {
         openBlobInNewTab(url)
@@ -290,8 +344,13 @@ export function ObjectsTableView({
         triggerAnchorDownload(url, filename)
       }
     } catch (err) {
-      onDownloadError(row.key, err instanceof Error ? err.message : String(err))
+      if (!isCancellation(err, controller)) {
+        onDownloadError(row.key, err instanceof Error ? err.message : String(err))
+      }
     } finally {
+      if (controllersRef.current.get(row.key) === controller) {
+        controllersRef.current.delete(row.key)
+      }
       if (isMounted.current) {
         setActiveTransfers((prev) => {
           // Same guard as handleDownload: only clear the entry we started.
@@ -302,6 +361,13 @@ export function ObjectsTableView({
         })
       }
     }
+  }
+
+  // Cancels the in-flight transfer for a row, if any. Aborting the controller
+  // rejects the pending tRPC mutation, which the catch blocks above recognize
+  // via isCancellation() and treat as a quiet no-op rather than an error.
+  const handleCancelTransfer = (rowKey: string) => {
+    controllersRef.current.get(rowKey)?.abort()
   }
 
   // Strip current prefix from display names
@@ -531,13 +597,23 @@ export function ObjectsTableView({
                   </DataGridCell>
 
                   {/* Last Modified */}
-                  <DataGridCell>
-                    {isStreaming && activeTransfer ? (
-                      <RowTransferProgress
-                        projectId={projectId}
-                        downloadId={activeTransfer.downloadId}
-                        isPreviewing={isPreviewing}
-                      />
+                  <DataGridCell onClick={(e) => e.stopPropagation()}>
+                    {isStreaming && activeTransfer && row.kind === "object" ? (
+                      <div className="flex items-center gap-2">
+                        <RowTransferProgress
+                          projectId={projectId}
+                          downloadId={activeTransfer.downloadId}
+                          isPreviewing={isPreviewing}
+                        />
+                        <Icon
+                          icon="cancel"
+                          size={18}
+                          onClick={() => handleCancelTransfer(row.key)}
+                          title={t`Cancel`}
+                          className="text-theme-light hover:text-theme-danger shrink-0 cursor-pointer"
+                          data-testid={`cancel-transfer-${row.key}`}
+                        />
+                      </div>
                     ) : (
                       <span className="text-sm">
                         {!isFolder && row.lastModified ? new Date(row.lastModified).toLocaleString() : "—"}

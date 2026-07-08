@@ -13,6 +13,7 @@ import {
   getObjectMoveErrorToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
+  getObjectDownloadStartedToast,
   getObjectDownloadErrorToast,
   getVersionRestoredToast,
   getVersionRestoreErrorToast,
@@ -159,6 +160,15 @@ describe("ObjectToastNotifications", () => {
 
   // ── Object download ──────────────────────────────────────────────────────────
 
+  describe("getObjectDownloadStartedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getObjectDownloadStartedToast())
+      expect(screen.getByText("Downloading…")).toBeInTheDocument()
+      expect(screen.getByText(/Downloading larger files may take a while/)).toBeInTheDocument()
+      expect(screen.getByText(/you may browse other buckets and folders/)).toBeInTheDocument()
+    })
+  })
+
   describe("getObjectDownloadErrorToast", () => {
     it("renders correct error content", () => {
       renderNotification(getObjectDownloadErrorToast("documents/file.txt", "Network error"))
@@ -188,6 +198,7 @@ describe("ObjectToastNotifications", () => {
         getObjectMoveErrorToast("a.txt", "err"),
         getObjectMetadataUpdatedToast("a.txt"),
         getObjectMetadataUpdateErrorToast("a.txt", "err"),
+        getObjectDownloadStartedToast(),
         getObjectDownloadErrorToast("a.txt", "err"),
         getVersionRestoredToast("a.txt"),
         getVersionRestoreErrorToast("a.txt", "err"),

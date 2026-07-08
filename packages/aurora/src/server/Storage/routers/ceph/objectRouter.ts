@@ -848,7 +848,13 @@ export const objectRouter = {
         new GetObjectCommand({
           Bucket: containerName,
           Key: objectKey,
-        })
+        }),
+        // AWS SDK v3's per-call cancellation option — the equivalent of passing
+        // `{ signal }` to a raw fetch() (see 0010_abort_signal_propagation.md).
+        // ctx.req.signal is aborted automatically when the client disconnects
+        // (tab closed, navigated away) or explicitly via the cancel button,
+        // which calls AbortController.abort() on the frontend.
+        { abortSignal: ctx.req.signal }
       )
       .catch(emitMappedError)
 
@@ -885,6 +891,13 @@ export const objectRouter = {
       // Readable, i.e. an async iterable of Uint8Array chunks; cast via unknown
       // because the union as a whole is not assignable to AsyncIterable.
       for await (const value of body as unknown as AsyncIterable<Uint8Array>) {
+        // abortSignal on the initial send() cancels the request/response
+        // handshake, but doesn't interrupt an already-established body stream
+        // read-by-read — check explicitly so cancellation mid-transfer stops
+        // the loop promptly instead of streaming the rest of a large file
+        // nobody wants anymore.
+        if (ctx.req.signal.aborted) break
+
         downloaded += value.byteLength
 
         const progress = downloadProgressMap.get(scopedDownloadId)!
