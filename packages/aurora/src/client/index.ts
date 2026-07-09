@@ -15,3 +15,6 @@ export {
   trpcReactClient,
   trpcReact,
 } from "./trpcClient"
+
+export { useAuth } from "./store/AuthProvider"
+export { useDomainId, useProjectId } from "./hooks"
