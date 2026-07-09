@@ -848,7 +848,13 @@ export const objectRouter = {
         new GetObjectCommand({
           Bucket: containerName,
           Key: objectKey,
-        })
+        }),
+        // AWS SDK v3's per-call cancellation option — the equivalent of passing
+        // `{ signal }` to a raw fetch() (see 0010_abort_signal_propagation.md).
+        // ctx.req.signal is aborted automatically when the client disconnects
+        // (tab closed, navigated away) or explicitly via the cancel button,
+        // which calls AbortController.abort() on the frontend.
+        { abortSignal: ctx.req.signal }
       )
       .catch(emitMappedError)
 
@@ -878,6 +884,7 @@ export const objectRouter = {
 
     let isFirst = true
     let downloaded = 0
+    let aborted = false
 
     try {
       // The AWS SDK v3 S3 client returns GetObject `Body` typed as a union
@@ -885,6 +892,18 @@ export const objectRouter = {
       // Readable, i.e. an async iterable of Uint8Array chunks; cast via unknown
       // because the union as a whole is not assignable to AsyncIterable.
       for await (const value of body as unknown as AsyncIterable<Uint8Array>) {
+        // abortSignal on the initial send() cancels the request/response
+        // handshake, but doesn't interrupt an already-established body stream
+        // read-by-read — check explicitly so cancellation mid-transfer stops
+        // the loop promptly instead of streaming the rest of a large file
+        // nobody wants anymore. The signal is optional: callers created via
+        // createCallerFactory (tests, server-side calls) have no HTTP request
+        // behind them, so there is nothing to abort.
+        if (ctx.req.signal?.aborted) {
+          aborted = true
+          break
+        }
+
         downloaded += value.byteLength
 
         const progress = downloadProgressMap.get(scopedDownloadId)!
@@ -905,7 +924,13 @@ export const objectRouter = {
         isFirst = false
       }
 
-      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
+      // Only signal completion for a stream that actually ran to the end — an
+      // aborted transfer stopped at a partial byte count, and emitting
+      // `complete` would make watchDownloadProgress report it as a finished
+      // download.
+      if (!aborted) {
+        downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
+      }
     } catch (error) {
       emitMappedError(error)
     } finally {
