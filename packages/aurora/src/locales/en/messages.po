@@ -1033,6 +1033,12 @@ msgstr "Download"
 msgid "Download {rowDisplayName}"
 msgstr "Download {rowDisplayName}"
 
+msgid "Download Cancelled"
+msgstr "Download Cancelled"
+
+msgid "Download of \"{displayName}\" was cancelled."
+msgstr "Download of \"{displayName}\" was cancelled."
+
 msgid "Downloading larger files may take a while. While files are downloading, you may browse other buckets and folders."
 msgstr "Downloading larger files may take a while. While files are downloading, you may browse other buckets and folders."
 

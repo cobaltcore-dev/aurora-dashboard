@@ -543,9 +543,10 @@ describe("ObjectsTableView", () => {
 
       releaseGate()
 
-      // A user-initiated cancellation is not an error — onDownloadError must
-      // not fire for it.
+      // A user-initiated cancellation is not an error — it is confirmed with a
+      // toast, and onDownloadError must not fire for it.
       await waitFor(() => expect(screen.queryByTestId("cancel-transfer-file1.txt")).not.toBeInTheDocument())
+      await waitFor(() => expect(toast.warning).toHaveBeenCalledWith("Download Cancelled", expect.anything()))
       expect(defaultProps.onDownloadError).not.toHaveBeenCalled()
     })
 
@@ -583,6 +584,10 @@ describe("ObjectsTableView", () => {
       expect(capturedSignal?.aborted).toBe(true)
 
       releaseGate()
+
+      // An unmount-triggered abort is not a user-initiated cancellation — the
+      // component (and the page it lived on) is gone, so no toast is shown.
+      expect(toast.warning).not.toHaveBeenCalled()
     })
 
     it("tracks two concurrent transfers independently — finishing one must not clear the other's state", async () => {

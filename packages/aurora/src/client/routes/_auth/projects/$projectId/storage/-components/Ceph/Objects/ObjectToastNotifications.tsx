@@ -159,6 +159,16 @@ export const getObjectDownloadStartedToast = (): { message: ReactNode } & Notifi
   ),
 })
 
+// A cancelled transfer is a user-initiated outcome, not a failure — confirm it
+// so the disappearing progress spinner isn't the only feedback.
+export const getObjectDownloadCancelledToast = (objectKey: string): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Download Cancelled</Trans>,
+    description: <Trans>Download of "{displayName}" was cancelled.</Trans>,
+  }
+}
+
 export const getObjectDownloadErrorToast = (
   objectKey: string,
   errorMessage: string

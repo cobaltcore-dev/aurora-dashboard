@@ -19,7 +19,7 @@ import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
-import { getObjectDownloadStartedToast } from "./ObjectToastNotifications"
+import { getObjectDownloadCancelledToast, getObjectDownloadStartedToast } from "./ObjectToastNotifications"
 
 // Extended version type for frontend use (includes isDeleted flag)
 type S3ObjectVersionExtended = S3ObjectVersion & {
@@ -211,7 +211,7 @@ export function ObjectsTableView({
   const [activeTransfers, setActiveTransfers] = useState<Map<string, ActiveTransfer>>(new Map())
 
   // Recognizes a cancellation (either the cancel button or unmount aborting
-  // the controller) so it can be treated as a quiet no-op rather than an
+  // the controller) so it can be reported as a cancellation rather than an
   // error — see 0010_abort_signal_propagation.md for the string variants
   // different layers of the stack can throw for the same underlying abort.
   const isCancellation = (err: unknown, controller: AbortController) =>
@@ -221,6 +221,19 @@ export function ObjectsTableView({
         err.message === "Request canceled" ||
         err.message.includes("signal is aborted") ||
         err.message.includes("aborted")))
+
+  // A cancellation isn't an error — the user asked for it, so confirm it with a
+  // toast rather than routing it to onDownloadError. Aborts triggered by unmount
+  // stay quiet: isMounted is already false by the time the rejection lands here.
+  const handleTransferError = (row: ObjectRow, err: unknown, controller: AbortController) => {
+    if (isCancellation(err, controller)) {
+      if (!isMounted.current) return
+      const { message, ...options } = getObjectDownloadCancelledToast(row.key)
+      toast.warning(message, options)
+      return
+    }
+    onDownloadError(row.key, err instanceof Error ? err.message : String(err))
+  }
 
   // Stream the object from the BFF and assemble a Blob. downloadId is set
   // before the mutation starts so the watchDownloadProgress subscription is
@@ -284,9 +297,7 @@ export function ObjectsTableView({
       const { blob, filename } = await streamObjectToBlob(row, activeDownloadId, controller.signal)
       triggerAnchorDownload(URL.createObjectURL(blob), filename)
     } catch (err) {
-      if (!isCancellation(err, controller)) {
-        onDownloadError(row.key, err instanceof Error ? err.message : String(err))
-      }
+      handleTransferError(row, err, controller)
     } finally {
       if (controllersRef.current.get(row.key) === controller) {
         controllersRef.current.delete(row.key)
@@ -344,9 +355,7 @@ export function ObjectsTableView({
         triggerAnchorDownload(url, filename)
       }
     } catch (err) {
-      if (!isCancellation(err, controller)) {
-        onDownloadError(row.key, err instanceof Error ? err.message : String(err))
-      }
+      handleTransferError(row, err, controller)
     } finally {
       if (controllersRef.current.get(row.key) === controller) {
         controllersRef.current.delete(row.key)
@@ -364,8 +373,8 @@ export function ObjectsTableView({
   }
 
   // Cancels the in-flight transfer for a row, if any. Aborting the controller
-  // rejects the pending tRPC mutation, which the catch blocks above recognize
-  // via isCancellation() and treat as a quiet no-op rather than an error.
+  // rejects the pending tRPC mutation, which the catch blocks above route through
+  // handleTransferError() — recognized as a cancellation and surfaced as a toast.
   const handleCancelTransfer = (rowKey: string) => {
     controllersRef.current.get(rowKey)?.abort()
   }
