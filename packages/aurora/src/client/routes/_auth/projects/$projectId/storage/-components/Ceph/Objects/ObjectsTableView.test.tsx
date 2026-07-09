@@ -1,7 +1,7 @@
 import { render as rtlRender, screen, within, waitFor } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
+import { PortalProvider, toast } from "@cloudoperators/juno-ui-components"
 import type { ReactNode } from "react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import userEvent from "@testing-library/user-event"
@@ -32,6 +32,22 @@ vi.mock("@/client/trpcClient", () => ({
   },
 }))
 
+// The component calls toast(...) directly for the "download started"
+// notification (a neutral/base call, not .success/.error/.warning), so the
+// mock needs the base export itself to be a spy — not just its sub-methods.
+vi.mock("@cloudoperators/juno-ui-components", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@cloudoperators/juno-ui-components")>()
+  const toastFn = Object.assign(vi.fn(), {
+    success: vi.fn(),
+    error: vi.fn(),
+    warning: vi.fn(),
+  })
+  return {
+    ...actual,
+    toast: toastFn,
+  }
+})
+
 // Mock child components to isolate ObjectsTableView
 const render = (ui: React.ReactElement) => {
   return rtlRender(ui, {
@@ -42,6 +58,12 @@ const render = (ui: React.ReactElement) => {
     ),
   })
 }
+
+// The toast helpers hand toast()/toast.warning() the raw <Trans> elements, not
+// rendered strings, so assertions match on the macro-generated `message` prop
+// (the source copy) rather than on the element's text.
+const transMessage = (message: string | RegExp) =>
+  expect.objectContaining({ props: expect.objectContaining({ message: expect.stringMatching(message) }) })
 
 vi.mock("@tanstack/react-virtual", () => ({
   useVirtualizer: ({ count }: { count: number }) => ({
@@ -268,6 +290,11 @@ describe("ObjectsTableView", () => {
 
   describe("download and preview", () => {
     beforeEach(() => {
+      // toast lives in the module mock factory, so vi.restoreAllMocks() in
+      // afterEach leaves its call history intact — clear it explicitly or calls
+      // leak between tests and "not.toHaveBeenCalled()" assertions see them.
+      vi.mocked(toast).mockClear()
+      vi.mocked(toast.warning).mockClear()
       downloadObjectMutate.mockReset()
       // Default: BFF returns text/plain (previewable)
       downloadObjectMutate.mockImplementation(async () => {
@@ -306,7 +333,8 @@ describe("ObjectsTableView", () => {
           containerName: "test-bucket",
           objectKey: "file1.txt",
           filename: "file1.txt",
-        })
+        }),
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
       )
     })
 
@@ -473,6 +501,126 @@ describe("ObjectsTableView", () => {
 
       releaseStream()
       await waitFor(() => expect(within(row).queryByText("50%")).not.toBeInTheDocument())
+    })
+
+    it("fires the 'downloading' toast when a download starts", async () => {
+      const user = userEvent.setup()
+      vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
+      vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+      await user.click(screen.getByTestId("download-action-file1.txt"))
+
+      await waitFor(() => expect(toast).toHaveBeenCalledWith(transMessage(/^Downloading/), expect.anything()))
+    })
+
+    it("shows a cancel button while a transfer is in flight, and clicking it aborts the request", async () => {
+      const user = userEvent.setup()
+      vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
+      vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+
+      let capturedSignal: AbortSignal | undefined
+      let releaseGate!: () => void
+      const gate = new Promise<void>((resolve) => {
+        releaseGate = resolve
+      })
+      downloadObjectMutate.mockImplementationOnce(async (_input, options: { signal?: AbortSignal }) => {
+        capturedSignal = options?.signal
+        async function* gen() {
+          yield { chunk: btoa("a"), downloaded: 1, total: 2, contentType: "text/plain", filename: "file1.txt" }
+          await gate
+          if (capturedSignal?.aborted) {
+            const abortError = new Error("Request canceled")
+            abortError.name = "AbortError"
+            throw abortError
+          }
+          yield { chunk: btoa("b"), downloaded: 2, total: 2 }
+        }
+        return gen()
+      })
+
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+      await user.click(screen.getByTestId("download-action-file1.txt"))
+
+      const cancelButton = await screen.findByTestId("cancel-transfer-file1.txt")
+      // The cancel control must be operable without a mouse: a real <button>
+      // with an accessible name, not a clickable <div>/<span>.
+      expect(cancelButton.tagName).toBe("BUTTON")
+      expect(cancelButton).toHaveAccessibleName("Cancel")
+
+      await user.click(cancelButton)
+
+      expect(capturedSignal?.aborted).toBe(true)
+
+      releaseGate()
+
+      // A user-initiated cancellation is not an error — it is confirmed with a
+      // toast, and onDownloadError must not fire for it.
+      await waitFor(() => expect(screen.queryByTestId("cancel-transfer-file1.txt")).not.toBeInTheDocument())
+      await waitFor(() =>
+        expect(toast.warning).toHaveBeenCalledWith(transMessage("Download Cancelled"), expect.anything())
+      )
+      expect(defaultProps.onDownloadError).not.toHaveBeenCalled()
+    })
+
+    it("aborts in-flight transfers when the component unmounts", async () => {
+      // The point of forwarding the AbortSignal to the tRPC call: navigating
+      // away mid-download must actually stop the request, not just ignore its
+      // result while it keeps running (and competing for bandwidth/CPU) in
+      // the background.
+      const user = userEvent.setup()
+      vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
+      vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+
+      let capturedSignal: AbortSignal | undefined
+      let releaseGate!: () => void
+      const gate = new Promise<void>((resolve) => {
+        releaseGate = resolve
+      })
+      // The stream must reject once the signal is aborted, exactly as it does in
+      // the cancel test — otherwise it completes normally, handleTransferError()
+      // is never reached, and the assertion below would pass for the wrong
+      // reason (no error path taken) rather than because the isMounted guard
+      // suppressed the toast.
+      downloadObjectMutate.mockImplementationOnce(async (_input, options: { signal?: AbortSignal }) => {
+        capturedSignal = options?.signal
+        async function* gen() {
+          yield { chunk: btoa("a"), downloaded: 1, total: 2, contentType: "text/plain", filename: "file1.txt" }
+          await gate
+          if (capturedSignal?.aborted) {
+            const abortError = new Error("Request canceled")
+            abortError.name = "AbortError"
+            throw abortError
+          }
+          yield { chunk: btoa("b"), downloaded: 2, total: 2 }
+        }
+        return gen()
+      })
+
+      const { unmount } = render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+      await user.click(screen.getByTestId("download-action-file1.txt"))
+
+      unmount()
+
+      expect(capturedSignal?.aborted).toBe(true)
+
+      releaseGate()
+
+      // Let the aborted stream reject and handleTransferError() run before
+      // asserting on what it did (and didn't) do.
+      await waitFor(() => expect(defaultProps.onDownloadError).not.toHaveBeenCalled())
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      // An unmount-triggered abort is not a user-initiated cancellation — the
+      // component (and the page it lived on) is gone, so no toast is shown.
+      expect(toast.warning).not.toHaveBeenCalled()
     })
 
     it("tracks two concurrent transfers independently — finishing one must not clear the other's state", async () => {

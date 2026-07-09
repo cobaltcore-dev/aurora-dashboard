@@ -13,6 +13,8 @@ import {
   getObjectMoveErrorToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
+  getObjectDownloadStartedToast,
+  getObjectDownloadCancelledToast,
   getObjectDownloadErrorToast,
   getVersionRestoredToast,
   getVersionRestoreErrorToast,
@@ -159,6 +161,36 @@ describe("ObjectToastNotifications", () => {
 
   // ── Object download ──────────────────────────────────────────────────────────
 
+  describe("getObjectDownloadStartedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getObjectDownloadStartedToast())
+      expect(screen.getByText("Downloading...")).toBeInTheDocument()
+      expect(screen.getByText(/Downloading larger files may take a while/)).toBeInTheDocument()
+      expect(screen.getByText(/the download\(s\) will be interrupted/)).toBeInTheDocument()
+      expect(screen.getByText(/We are working to improve the user experience/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getObjectDownloadCancelledToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getObjectDownloadCancelledToast("documents/file.txt")
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
+    })
+
+    it("renders correct message content", () => {
+      renderNotification(getObjectDownloadCancelledToast("documents/file.txt"))
+      expect(screen.getByText("Download Cancelled")).toBeInTheDocument()
+      expect(screen.getByText('Download of "file.txt" was cancelled.')).toBeInTheDocument()
+    })
+
+    it("extracts the display name from a nested object key", () => {
+      renderNotification(getObjectDownloadCancelledToast("documents/reports/Q1.pdf"))
+      expect(screen.getByText(/Q1\.pdf/)).toBeInTheDocument()
+      expect(screen.queryByText(/documents\/reports/)).not.toBeInTheDocument()
+    })
+  })
+
   describe("getObjectDownloadErrorToast", () => {
     it("renders correct error content", () => {
       renderNotification(getObjectDownloadErrorToast("documents/file.txt", "Network error"))
@@ -188,6 +220,8 @@ describe("ObjectToastNotifications", () => {
         getObjectMoveErrorToast("a.txt", "err"),
         getObjectMetadataUpdatedToast("a.txt"),
         getObjectMetadataUpdateErrorToast("a.txt", "err"),
+        getObjectDownloadStartedToast(),
+        getObjectDownloadCancelledToast("a.txt"),
         getObjectDownloadErrorToast("a.txt", "err"),
         getVersionRestoredToast("a.txt"),
         getVersionRestoreErrorToast("a.txt", "err"),
