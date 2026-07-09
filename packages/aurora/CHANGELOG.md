@@ -1,5 +1,11 @@
 # @cobaltcore-dev/aurora
 
+## 0.19.1
+
+### Patch Changes
+
+- 622ad68: Fix missing type declarations for exported hooks and auth provider by using glob patterns in vite-plugin-dts configuration.
+
 ## 0.19.0
 
 ### Minor Changes
