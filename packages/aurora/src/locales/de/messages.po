@@ -3406,6 +3406,9 @@ msgstr ""
 msgid "Unexpected"
 msgstr ""
 
+msgid "Unknown"
+msgstr ""
+
 msgid "Unknown domain"
 msgstr ""
 

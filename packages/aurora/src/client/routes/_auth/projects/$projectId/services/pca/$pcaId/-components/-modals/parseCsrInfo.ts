@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { Pkcs10CertificateRequest, SubjectAlternativeNameExtension } from "@peculiar/x509"
 
 export interface PemFieldInfo {

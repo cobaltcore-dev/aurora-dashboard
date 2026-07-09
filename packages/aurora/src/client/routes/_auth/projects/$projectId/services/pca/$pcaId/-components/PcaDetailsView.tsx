@@ -1,4 +1,3 @@
-import "reflect-metadata"
 import { useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Badge, Button, Stack } from "@cloudoperators/juno-ui-components/index"
@@ -22,6 +21,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   const [issueSelfSignedModalOpen, toggleIssueSelfSignedModal] = useModal(false)
   const [importExternallySignedModalOpen, toggleImportExternallySignedModal] = useModal(false)
   const [deletePcaModalOpen, toggleDeletePcaModal] = useModal(false)
+  const pcaName = pca.configuration?.subject?.named_attributes?.cn ?? t`Unknown`
 
   const navigateToPcaList = () =>
     navigate({
@@ -58,7 +58,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         <Stack direction="horizontal" distribution="between">
           <Stack gap="2" alignment="center">
             <div className="text-theme-default text-2xl font-semibold">
-              {`${pca.configuration?.subject?.named_attributes?.cn} Certificate Authority Details`}
+              {`${pcaName} Certificate Authority Details`}
             </div>
             {STATE_CONFIG[pca.state]}
           </Stack>
@@ -92,11 +92,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
           </Stack>
         )}
 
-        <DetailsInfo
-          basicInfo={BASIC_INFO}
-          heading={`Certificate ${pca.configuration?.subject?.named_attributes?.cn}`}
-          content={pca?.csr ?? ""}
-        />
+        <DetailsInfo basicInfo={BASIC_INFO} heading={`Certificate ${pcaName}`} content={pca?.csr ?? ""} />
       </Stack>
 
       {importExternallySignedModalOpen && (
