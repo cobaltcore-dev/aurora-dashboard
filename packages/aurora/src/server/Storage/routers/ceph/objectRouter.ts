@@ -895,8 +895,10 @@ export const objectRouter = {
         // handshake, but doesn't interrupt an already-established body stream
         // read-by-read — check explicitly so cancellation mid-transfer stops
         // the loop promptly instead of streaming the rest of a large file
-        // nobody wants anymore.
-        if (ctx.req.signal.aborted) break
+        // nobody wants anymore. The signal is optional: callers created via
+        // createCallerFactory (tests, server-side calls) have no HTTP request
+        // behind them, so there is nothing to abort.
+        if (ctx.req.signal?.aborted) break
 
         downloaded += value.byteLength
 

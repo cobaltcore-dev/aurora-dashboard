@@ -59,6 +59,12 @@ const render = (ui: React.ReactElement) => {
   })
 }
 
+// The toast helpers hand toast()/toast.warning() the raw <Trans> elements, not
+// rendered strings, so assertions match on the macro-generated `message` prop
+// (the source copy) rather than on the element's text.
+const transMessage = (message: string | RegExp) =>
+  expect.objectContaining({ props: expect.objectContaining({ message: expect.stringMatching(message) }) })
+
 vi.mock("@tanstack/react-virtual", () => ({
   useVirtualizer: ({ count }: { count: number }) => ({
     getVirtualItems: () =>
@@ -284,6 +290,11 @@ describe("ObjectsTableView", () => {
 
   describe("download and preview", () => {
     beforeEach(() => {
+      // toast lives in the module mock factory, so vi.restoreAllMocks() in
+      // afterEach leaves its call history intact — clear it explicitly or calls
+      // leak between tests and "not.toHaveBeenCalled()" assertions see them.
+      vi.mocked(toast).mockClear()
+      vi.mocked(toast.warning).mockClear()
       downloadObjectMutate.mockReset()
       // Default: BFF returns text/plain (previewable)
       downloadObjectMutate.mockImplementation(async () => {
@@ -503,7 +514,7 @@ describe("ObjectsTableView", () => {
       await user.click(within(row).getByRole("button", { name: /more/i }))
       await user.click(screen.getByTestId("download-action-file1.txt"))
 
-      await waitFor(() => expect(toast).toHaveBeenCalledWith("Downloading…", expect.anything()))
+      await waitFor(() => expect(toast).toHaveBeenCalledWith(transMessage(/^Downloading/), expect.anything()))
     })
 
     it("shows a cancel button while a transfer is in flight, and clicking it aborts the request", async () => {
@@ -546,7 +557,9 @@ describe("ObjectsTableView", () => {
       // A user-initiated cancellation is not an error — it is confirmed with a
       // toast, and onDownloadError must not fire for it.
       await waitFor(() => expect(screen.queryByTestId("cancel-transfer-file1.txt")).not.toBeInTheDocument())
-      await waitFor(() => expect(toast.warning).toHaveBeenCalledWith("Download Cancelled", expect.anything()))
+      await waitFor(() =>
+        expect(toast.warning).toHaveBeenCalledWith(transMessage("Download Cancelled"), expect.anything())
+      )
       expect(defaultProps.onDownloadError).not.toHaveBeenCalled()
     })
 
