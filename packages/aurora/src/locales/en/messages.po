@@ -1039,14 +1039,11 @@ msgstr "Download Cancelled"
 msgid "Download of \"{displayName}\" was cancelled."
 msgstr "Download of \"{displayName}\" was cancelled."
 
-msgid "Downloading larger files may take a while. While files are downloading, you may browse other buckets and folders."
-msgstr "Downloading larger files may take a while. While files are downloading, you may browse other buckets and folders."
+msgid "Downloading larger files may take a while. Do not leave this view, otherwise the download(s) will be interrupted. We are working to improve the user experience in the future."
+msgstr "Downloading larger files may take a while. Do not leave this view, otherwise the download(s) will be interrupted. We are working to improve the user experience in the future."
 
 msgid "Downloading..."
 msgstr "Downloading..."
-
-msgid "Downloading…"
-msgstr "Downloading…"
 
 msgid "Drop your file here"
 msgstr "Drop your file here"

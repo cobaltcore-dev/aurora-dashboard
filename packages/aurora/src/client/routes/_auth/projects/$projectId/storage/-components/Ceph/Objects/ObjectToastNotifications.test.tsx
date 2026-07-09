@@ -164,9 +164,10 @@ describe("ObjectToastNotifications", () => {
   describe("getObjectDownloadStartedToast", () => {
     it("renders correct message content", () => {
       renderNotification(getObjectDownloadStartedToast())
-      expect(screen.getByText("Downloading…")).toBeInTheDocument()
+      expect(screen.getByText("Downloading...")).toBeInTheDocument()
       expect(screen.getByText(/Downloading larger files may take a while/)).toBeInTheDocument()
-      expect(screen.getByText(/you may browse other buckets and folders/)).toBeInTheDocument()
+      expect(screen.getByText(/the download\(s\) will be interrupted/)).toBeInTheDocument()
+      expect(screen.getByText(/We are working to improve the user experience/)).toBeInTheDocument()
     })
   })
 

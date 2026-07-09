@@ -149,12 +149,14 @@ export const getObjectMetadataUpdateErrorToast = (
 // Shown as soon as a download/preview transfer starts. Large objects stream
 // through the BFF before anything happens client-side (no native browser
 // download progress until the whole file has arrived), so this sets
-// expectations up front and reassures the user the UI is still usable.
+// expectations up front. It also warns that navigating away aborts the
+// in-flight transfer — the unmount cleanup aborts every active controller.
 export const getObjectDownloadStartedToast = (): { message: ReactNode } & NotificationOptions => ({
-  message: <Trans>Downloading…</Trans>,
+  message: <Trans>Downloading...</Trans>,
   description: (
     <Trans>
-      Downloading larger files may take a while. While files are downloading, you may browse other buckets and folders.
+      Downloading larger files may take a while. Do not leave this view, otherwise the download(s) will be interrupted.
+      We are working to improve the user experience in the future.
     </Trans>
   ),
 })
