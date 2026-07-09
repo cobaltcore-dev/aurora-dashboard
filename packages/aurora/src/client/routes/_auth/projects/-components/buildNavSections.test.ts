@@ -1,6 +1,10 @@
-import { describe, it, expect, beforeAll } from "vitest"
+import { describe, it, expect, beforeAll, vi } from "vitest"
 import { i18n } from "@lingui/core"
 import { buildNavSections } from "./buildNavSections"
+
+vi.mock("@/client/routes/_auth/projects/$projectId/services/pca/-components/pcaAccess", () => ({
+  canAccessClavisPca: (serviceIndex: Record<string, unknown>) => !!serviceIndex["pca"],
+}))
 
 beforeAll(() => {
   i18n.load({ en: {} })

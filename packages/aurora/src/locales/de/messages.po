@@ -361,6 +361,9 @@ msgstr "Anhängen"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
+msgid "Awaiting Certificate"
+msgstr ""
+
 msgid "Back"
 msgstr "Zurück"
 
@@ -479,9 +482,6 @@ msgid "Capabilities"
 msgstr "Capabilities"
 
 msgid "Certificate {certificateIdValue}"
-msgstr ""
-
-msgid "Certificate {subjectCommonName}"
 msgstr ""
 
 msgid "Certificate Authority not found"
@@ -799,6 +799,9 @@ msgstr "Erstellt"
 msgid "Created At"
 msgstr "Erstellt am"
 
+msgid "Creating"
+msgstr ""
+
 msgid "Creating Certificate Authority..."
 msgstr "Creating Certificate Authority..."
 
@@ -873,9 +876,6 @@ msgstr ""
 
 msgid "Delete CA"
 msgstr "Delete CA"
-
-msgid "Delete certificate authority"
-msgstr "Delete certificate authority"
 
 msgid "Delete Certificate Authority"
 msgstr "Delete Certificate Authority"
@@ -1263,6 +1263,9 @@ msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
 
 msgid "Extra Specs"
 msgstr "Zusätzliche Spezifikationen"
+
+msgid "Failed"
+msgstr ""
 
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
 msgstr "{failedCount} von {totalCount} Image(s) konnten nicht aktiviert werden. Einige Images sind möglicherweise bereits aktiv oder in einem ungültigen Zustand."
@@ -2581,6 +2584,9 @@ msgstr "Lese-ACLs"
 msgid "Read ACLs — Preview"
 msgstr "Lese-ACLs — Vorschau"
 
+msgid "Ready"
+msgstr ""
+
 msgid "Reject"
 msgstr "Ablehnen"
 
@@ -3395,6 +3401,12 @@ msgid "Unable to Upload Image File"
 msgstr "Image-Datei kann nicht hochgeladen werden"
 
 msgid "Unable to verify bucket versioning status. Please try again."
+msgstr ""
+
+msgid "Unexpected"
+msgstr ""
+
+msgid "Unknown"
 msgstr ""
 
 msgid "Unknown domain"

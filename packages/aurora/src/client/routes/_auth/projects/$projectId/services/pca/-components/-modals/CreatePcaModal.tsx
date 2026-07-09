@@ -6,7 +6,7 @@ import { Modal, Form, FormSection, Spinner, TextInput, Message } from "@cloudope
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 
-export interface CreateCaModalProps {
+interface CreatePcaModalProps {
   open: boolean
   onClose: () => void
 }
@@ -14,7 +14,7 @@ export interface CreateCaModalProps {
 const csrRegex = /^(?=.{1,253}$)(?:\*\.)?(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/
 const isValidCommonName = (value: string) => csrRegex.test(value)
 
-export const CreatePcaModal = ({ open, onClose }: CreateCaModalProps) => {
+export const CreatePcaModal = ({ open, onClose }: CreatePcaModalProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const projectId = useProjectId()
@@ -45,7 +45,11 @@ export const CreatePcaModal = ({ open, onClose }: CreateCaModalProps) => {
       const createdPca = await createPcaMutation.mutateAsync({
         project_id: projectId,
         configuration: {
-          subject: { common_name: value.common_name },
+          subject: {
+            named_attributes: {
+              cn: value.common_name,
+            },
+          },
         },
       })
       handleClose()

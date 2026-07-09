@@ -1,3 +1,4 @@
+import { MdAutorenew, MdCheckCircle, MdHelpOutline, MdHourglassEmpty, MdReportProblem } from "react-icons/md"
 import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
@@ -11,7 +12,6 @@ import { CertificateAuthority } from "@/server/Services/types/pca"
 import { useModal } from "@/client/utils/useModal"
 import { useProjectId } from "@/client/hooks"
 import { DeletePcaModal } from "../-modals/DeletePcaModal"
-import { STATE_CONFIG } from "./constants"
 
 interface PcaTableRowProps {
   pca: CertificateAuthority
@@ -29,6 +29,29 @@ export const PcaTableRow = ({ pca }: PcaTableRowProps) => {
       params: { projectId, pcaId: pca.id },
     })
 
+  const STATE_CONFIG = {
+    CREATING: {
+      text: t`Creating`,
+      icon: <MdAutorenew size={20} color="white" fill="#1976D2" />,
+    },
+    AWAITING_CERTIFICATE: {
+      text: t`Awaiting Certificate`,
+      icon: <MdHourglassEmpty size={20} color="white" fill="#FBC02D" />,
+    },
+    READY: {
+      text: t`Ready`,
+      icon: <MdCheckCircle size={20} color="white" fill="#4FB81C" />,
+    },
+    FAILED: {
+      text: t`Failed`,
+      icon: <MdReportProblem size={20} color="white" fill="#D32F2F" />,
+    },
+    UNEXPECTED: {
+      text: t`Unexpected`,
+      icon: <MdHelpOutline size={20} color="white" fill="#757575" />,
+    },
+  } as const
+
   return (
     <>
       <DataGridRow key={pca.id} data-testid={`pca-row-${pca.id}`} onClick={navigateToDetailsPage}>
@@ -39,7 +62,7 @@ export const PcaTableRow = ({ pca }: PcaTableRowProps) => {
           </div>
         </DataGridCell>
         <DataGridCell>{pca.id}</DataGridCell>
-        <DataGridCell>{pca.configuration?.subject?.common_name || "—"}</DataGridCell>
+        <DataGridCell>{pca.display_subject || "—"}</DataGridCell>
         <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
           <PopupMenu>
             <PopupMenuOptions>

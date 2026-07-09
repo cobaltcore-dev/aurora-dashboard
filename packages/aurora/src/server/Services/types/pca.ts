@@ -27,24 +27,28 @@ const CertificateAuthorityAdditionalAttributeSchema = z.object({
   value: z.string(),
 })
 
+// API may return multi-value subject fields as a single string or as an array
+const stringOrStringArray = z.union([z.array(z.string()), z.string().transform((s) => [s])])
+
 const CertificateAuthoritySubjectSchema = z.object({
   additional_attribute: z.array(CertificateAuthorityAdditionalAttributeSchema).optional(),
-  /** Typically domain name */
-  common_name: z.string(),
-  /** Country codes (ISO 3166-1 alpha-2). */
-  country: z.array(z.string()).optional(),
-  /** Locality/city names. */
-  locality: z.array(z.string()).optional(),
-  /** Organization names. */
-  organization: z.array(z.string()).optional(),
-  /** Organizational unit names. */
-  organizational_unit: z.array(z.string()).optional(),
-  /** Postal/ZIP codes. */
-  postal_code: z.array(z.string()).optional(),
-  /** State or province names. */
-  province: z.array(z.string()).optional(),
-  serial_number: z.string().optional(),
-  street_address: z.array(z.string()).optional(),
+  named_attributes: z.object({
+    cn: z.string(),
+    /** Country codes (ISO 3166-1 alpha-2). */
+    c: stringOrStringArray.optional(),
+    /** Locality/city names. */
+    l: stringOrStringArray.optional(),
+    /** Organization names. */
+    o: stringOrStringArray.optional(),
+    /** Organizational unit names. */
+    ou: stringOrStringArray.optional(),
+    /** Postal/ZIP codes. */
+    postal_code: stringOrStringArray.optional(),
+    /** State or province names. */
+    st: stringOrStringArray.optional(),
+    serial_number: z.string().optional(),
+    street: stringOrStringArray.optional(),
+  }),
 })
 
 const CertificateAuthorityStateSchema = z.enum(["CREATING", "AWAITING_CERTIFICATE", "READY", "FAILED", "UNEXPECTED"])
@@ -60,6 +64,8 @@ export const CertificateAuthoritySchema = z.object({
     })
     .optional(),
   csr: z.string().optional(),
+  /** Human-readable subject string, e.g. "CN=demo-ca.test.sci". */
+  display_subject: z.string().optional(),
   id: z.string(),
   /**
    * Required on import certificate operation.
@@ -94,7 +100,11 @@ export const CertificateAuthoritiesListInputSchema = projectScopedInputSchema.ex
 // Used by: /v1/certificate-authorities - Create new Certificate Authority
 export const CertificateAuthorityCreateSchema = z.object({
   configuration: z.object({
-    subject: CertificateAuthoritySubjectSchema,
+    subject: z.object({
+      named_attributes: z.object({
+        cn: z.string().trim().min(1),
+      }),
+    }),
   }),
 })
 

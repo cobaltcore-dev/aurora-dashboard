@@ -5,7 +5,7 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { canAccessClavisPca } from "./-components/pcaAccess"
-import { PcaListContainer } from "./-components/PcaListContainer"
+import { PcaListContainer } from "./-components/-table/PcaListContainer"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/")({
   staticData: {
