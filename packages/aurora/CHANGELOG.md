@@ -1,5 +1,19 @@
 # @cobaltcore-dev/aurora
 
+## 0.19.0
+
+### Minor Changes
+
+- 194a480: Ceph object storage: object downloads and previews can now be cancelled while
+  in flight. The abort signal is propagated from the frontend through the BFF, so
+  cancelling tears down the request instead of letting it run in the background.
+  A toast is shown when a download starts, and a warning toast confirms when one
+  is cancelled.
+
+### Patch Changes
+
+- 4518889: Add CSRF token caching to tRPC client to reduce redundant /csrf-token fetches. Concurrent requests now share a single token fetch, and a new `invalidateCsrfToken()` export allows cache invalidation on 403 responses.
+
 ## 0.18.0
 
 ### Minor Changes
