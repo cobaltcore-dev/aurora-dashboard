@@ -577,11 +577,21 @@ describe("ObjectsTableView", () => {
       const gate = new Promise<void>((resolve) => {
         releaseGate = resolve
       })
+      // The stream must reject once the signal is aborted, exactly as it does in
+      // the cancel test — otherwise it completes normally, handleTransferError()
+      // is never reached, and the assertion below would pass for the wrong
+      // reason (no error path taken) rather than because the isMounted guard
+      // suppressed the toast.
       downloadObjectMutate.mockImplementationOnce(async (_input, options: { signal?: AbortSignal }) => {
         capturedSignal = options?.signal
         async function* gen() {
           yield { chunk: btoa("a"), downloaded: 1, total: 2, contentType: "text/plain", filename: "file1.txt" }
           await gate
+          if (capturedSignal?.aborted) {
+            const abortError = new Error("Request canceled")
+            abortError.name = "AbortError"
+            throw abortError
+          }
           yield { chunk: btoa("b"), downloaded: 2, total: 2 }
         }
         return gen()
@@ -597,6 +607,11 @@ describe("ObjectsTableView", () => {
       expect(capturedSignal?.aborted).toBe(true)
 
       releaseGate()
+
+      // Let the aborted stream reject and handleTransferError() run before
+      // asserting on what it did (and didn't) do.
+      await waitFor(() => expect(defaultProps.onDownloadError).not.toHaveBeenCalled())
+      await new Promise((resolve) => setTimeout(resolve, 0))
 
       // An unmount-triggered abort is not a user-initiated cancellation — the
       // component (and the page it lived on) is gone, so no toast is shown.
