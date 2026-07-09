@@ -76,7 +76,7 @@ function RowTransferProgress({
   const percent = progress?.percent
 
   return (
-    <span className="flex min-w-0 flex-col gap-1">
+    <span className="flex w-full flex-1 flex-col gap-1">
       <span className="text-theme-light flex items-center gap-2 text-sm">
         <Spinner size="small" />
         {percent != null ? (
