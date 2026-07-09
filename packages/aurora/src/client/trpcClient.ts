@@ -23,17 +23,43 @@ export type CreateTypedTrpcReact<TRouter extends AuroraRouter> = CreateTRPCReact
 /** Generic type for creating a typed vanilla tRPC client with a custom router */
 export type CreateTypedTrpcClient<TRouter extends AuroraRouter> = TRPCClient<TRouter>
 
-// CSRF headers factory
+// CSRF token caching to avoid redundant fetches
+let _csrfToken: string | null = null
+let _csrfTokenPromise: Promise<string | null> | null = null
+
+// CSRF headers factory with caching and request deduplication
 const getCsrfHeaders = async () => {
-  try {
-    const { csrfToken } = await fetch("/csrf-token").then((res) => res.json())
-    return {
-      "x-csrf-token": csrfToken,
-    }
-  } catch (error) {
-    console.error("Failed to fetch CSRF token:", error)
-    return {}
+  // Return cached token if available
+  if (_csrfToken) {
+    return { "x-csrf-token": _csrfToken }
   }
+
+  // Dedupe concurrent fetches - only one request in flight at a time
+  if (!_csrfTokenPromise) {
+    _csrfTokenPromise = fetch("/csrf-token")
+      .then((res) => res.json())
+      .then(({ csrfToken }) => {
+        _csrfToken = csrfToken
+        _csrfTokenPromise = null
+        return csrfToken as string
+      })
+      .catch((error) => {
+        _csrfTokenPromise = null
+        console.error("Failed to fetch CSRF token:", error)
+        return null
+      })
+  }
+
+  const token = await _csrfTokenPromise
+  return token ? { "x-csrf-token": token } : {}
+}
+
+/**
+ * Invalidate the cached CSRF token.
+ * Call this when receiving a 403 response to trigger a fresh token fetch on the next request.
+ */
+export const invalidateCsrfToken = () => {
+  _csrfToken = null
 }
 
 // Procedures that return async iterables (chunked streaming responses).
