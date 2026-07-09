@@ -281,21 +281,25 @@ export function ObjectsTableView({
     setTimeout(() => URL.revokeObjectURL(url), 10000)
   }
 
-  // Context-menu Download: always forces a file save, regardless of type.
-  const handleDownload = async (row: ObjectRow) => {
+  // Setup/teardown shared by both transfer entry points: register the row's
+  // AbortController, seed the active-transfer state, announce the start, stream
+  // the object, then clean up. Only the `kind` and what happens with the
+  // resolved blob differ — those are the caller's job, via `onResolved`.
+  const runTransfer = async (
+    row: ObjectRow,
+    kind: ActiveTransfer["kind"],
+    onResolved: (result: { blob: Blob; filename: string; contentType: string }) => void
+  ) => {
     const activeDownloadId = `${bucketName}:${row.key}:${crypto.randomUUID()}`
     const controller = new AbortController()
     controllersRef.current.set(row.key, controller)
-    setActiveTransfers((prev) =>
-      new Map(prev).set(row.key, { kind: "download", downloadId: activeDownloadId, controller })
-    )
+    setActiveTransfers((prev) => new Map(prev).set(row.key, { kind, downloadId: activeDownloadId, controller }))
 
     const { message, ...options } = getObjectDownloadStartedToast()
     toast(message, options)
 
     try {
-      const { blob, filename } = await streamObjectToBlob(row, activeDownloadId, controller.signal)
-      triggerAnchorDownload(URL.createObjectURL(blob), filename)
+      onResolved(await streamObjectToBlob(row, activeDownloadId, controller.signal))
     } catch (err) {
       handleTransferError(row, err, controller)
     } finally {
@@ -316,6 +320,12 @@ export function ObjectsTableView({
     }
   }
 
+  // Context-menu Download: always forces a file save, regardless of type.
+  const handleDownload = (row: ObjectRow) =>
+    runTransfer(row, "download", ({ blob, filename }) => {
+      triggerAnchorDownload(URL.createObjectURL(blob), filename)
+    })
+
   // Open a blob URL in a new tab for preview. Uses an anchor with
   // target="_blank" rather than window.open — anchors are not subject to the
   // same post-await popup-blocking that window.open is, so we can open the tab
@@ -335,42 +345,15 @@ export function ObjectsTableView({
   // previewable types open in a new tab, everything else downloads. Nothing is
   // opened until the type is known, so non-previewable files download with no
   // blank-tab flash.
-  const handlePreviewOrDownload = async (row: ObjectRow) => {
-    const activeDownloadId = `${bucketName}:${row.key}:${crypto.randomUUID()}`
-    const controller = new AbortController()
-    controllersRef.current.set(row.key, controller)
-    setActiveTransfers((prev) =>
-      new Map(prev).set(row.key, { kind: "preview", downloadId: activeDownloadId, controller })
-    )
-
-    const { message, ...options } = getObjectDownloadStartedToast()
-    toast(message, options)
-
-    try {
-      const { blob, filename, contentType } = await streamObjectToBlob(row, activeDownloadId, controller.signal)
+  const handlePreviewOrDownload = (row: ObjectRow) =>
+    runTransfer(row, "preview", ({ blob, filename, contentType }) => {
       const url = URL.createObjectURL(blob)
       if (isPreviewableContentType(contentType)) {
         openBlobInNewTab(url)
       } else {
         triggerAnchorDownload(url, filename)
       }
-    } catch (err) {
-      handleTransferError(row, err, controller)
-    } finally {
-      if (controllersRef.current.get(row.key) === controller) {
-        controllersRef.current.delete(row.key)
-      }
-      if (isMounted.current) {
-        setActiveTransfers((prev) => {
-          // Same guard as handleDownload: only clear the entry we started.
-          if (prev.get(row.key)?.downloadId !== activeDownloadId) return prev
-          const next = new Map(prev)
-          next.delete(row.key)
-          return next
-        })
-      }
-    }
-  }
+    })
 
   // Cancels the in-flight transfer for a row, if any. Aborting the controller
   // rejects the pending tRPC mutation, which the catch blocks above route through
