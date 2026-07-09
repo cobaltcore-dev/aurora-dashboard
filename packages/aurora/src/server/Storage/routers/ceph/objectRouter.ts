@@ -884,6 +884,7 @@ export const objectRouter = {
 
     let isFirst = true
     let downloaded = 0
+    let aborted = false
 
     try {
       // The AWS SDK v3 S3 client returns GetObject `Body` typed as a union
@@ -898,7 +899,10 @@ export const objectRouter = {
         // nobody wants anymore. The signal is optional: callers created via
         // createCallerFactory (tests, server-side calls) have no HTTP request
         // behind them, so there is nothing to abort.
-        if (ctx.req.signal?.aborted) break
+        if (ctx.req.signal?.aborted) {
+          aborted = true
+          break
+        }
 
         downloaded += value.byteLength
 
@@ -920,7 +924,13 @@ export const objectRouter = {
         isFirst = false
       }
 
-      downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
+      // Only signal completion for a stream that actually ran to the end — an
+      // aborted transfer stopped at a partial byte count, and emitting
+      // `complete` would make watchDownloadProgress report it as a finished
+      // download.
+      if (!aborted) {
+        downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
+      }
     } catch (error) {
       emitMappedError(error)
     } finally {
