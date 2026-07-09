@@ -548,6 +548,11 @@ describe("ObjectsTableView", () => {
       await user.click(screen.getByTestId("download-action-file1.txt"))
 
       const cancelButton = await screen.findByTestId("cancel-transfer-file1.txt")
+      // The cancel control must be operable without a mouse: a real <button>
+      // with an accessible name, not a clickable <div>/<span>.
+      expect(cancelButton.tagName).toBe("BUTTON")
+      expect(cancelButton).toHaveAccessibleName("Cancel")
+
       await user.click(cancelButton)
 
       expect(capturedSignal?.aborted).toBe(true)
