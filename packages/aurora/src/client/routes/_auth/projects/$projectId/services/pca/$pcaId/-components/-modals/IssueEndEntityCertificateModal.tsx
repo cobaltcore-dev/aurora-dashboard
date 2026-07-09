@@ -5,6 +5,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, Spinner, Message, Textarea } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import { ParsedCertificateInfo } from "./ParsedCertificateInfo"
 
 export interface IssueEndEntityCertificateModalProps {
   open: boolean
@@ -113,6 +114,7 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
                 />
               )}
             />
+            <ParsedCertificateInfo csrCode={currentCsr} />
           </FormSection>
         </Form>
       )}

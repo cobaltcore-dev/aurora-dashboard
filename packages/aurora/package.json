@@ -1,6 +1,6 @@
 {
   "name": "@cobaltcore-dev/aurora",
-  "version": "0.16.0",
+  "version": "0.18.0",
   "private": false,
   "description": "Aurora OpenStack dashboard — server and client library",
   "license": "Apache-2.0",
@@ -66,6 +66,7 @@
     "@headlessui/react": "^2.2.2",
     "@lingui/core": "^5.9.5",
     "@lingui/react": "^5.9.5",
+    "@peculiar/x509": "^2.0.0",
     "@tanstack/react-form": "^1.28.5",
     "@tanstack/react-query": "^5.95.2",
     "@tanstack/react-router": "^1.168.4",
@@ -80,6 +81,7 @@
     "node-fetch": "^3.3.2",
     "react-error-boundary": "^6.1.0",
     "react-icons": "^5.6.0",
+    "reflect-metadata": "^0.2.2",
     "tailwind-merge": "^3.2.0",
     "zod": "^4.0.0"
   },

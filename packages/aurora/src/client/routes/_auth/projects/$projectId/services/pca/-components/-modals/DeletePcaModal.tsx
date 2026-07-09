@@ -59,7 +59,7 @@ export const DeletePcaModal = ({ pca, open, onClose, onSuccess }: DeletePcaModal
     <Modal
       open={open}
       size="large"
-      title={t`Delete certificate authority`}
+      title={t`Delete Certificate Authority`}
       onCancel={handleClose}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Delete`}

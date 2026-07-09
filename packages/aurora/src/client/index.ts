@@ -6,4 +6,12 @@ export {
   type TrackEventPayload,
   type OnTrackEventCallback,
 } from "./AuroraApp"
-export type { TrpcClient } from "./trpcClient"
+export {
+  type TrpcClient,
+  type TrpcReact,
+  type CreateTypedTrpcReact,
+  type CreateTypedTrpcClient,
+  trpcClient,
+  trpcReactClient,
+  trpcReact,
+} from "./trpcClient"

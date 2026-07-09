@@ -45,7 +45,6 @@ describe("AuthProvider", () => {
 
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.user).toBeNull()
-      expect(result.current.showInactivityModal).toBe(false)
     })
 
     it("should throw error when used outside provider", () => {
@@ -108,22 +107,22 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("manual")
+        await result.current.logout()
       })
 
-      expect(result.current.logoutReason).toBe("manual")
+      expect(result.current.isAuthenticated).toBe(false)
 
       // Login again
       await act(async () => {
         await result.current.login(mockUser)
       })
 
-      expect(result.current.logoutReason).toBeUndefined()
+      expect(result.current.isAuthenticated).toBe(true)
     })
   })
 
   describe("Logout", () => {
-    it("should logout with manual reason and invalidate router", async () => {
+    it("should logout and invalidate router", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -138,16 +137,15 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("manual")
+        await result.current.logout()
       })
 
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.user).toBeNull()
-      expect(result.current.logoutReason).toBe("manual")
       expect(mockRouter.invalidate).toHaveBeenCalled()
     })
 
-    it("should invalidate router on inactive logout (no modal)", async () => {
+    it("should navigate to login on logout", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -162,16 +160,17 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("inactive")
+        await result.current.logout()
       })
 
       expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.logoutReason).toBe("inactive")
-      expect(result.current.showInactivityModal).toBe(false)
-      expect(mockRouter.invalidate).toHaveBeenCalled()
+      expect(mockRouter.navigate).toHaveBeenCalledWith({
+        to: "/",
+        search: { redirect: "/dashboard" },
+      })
     })
 
-    it("should show modal on expired logout", async () => {
+    it("should navigate to login on expired logout", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -186,11 +185,14 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("expired")
+        await result.current.logout()
       })
 
-      expect(result.current.showInactivityModal).toBe(true)
-      expect(result.current.logoutReason).toBe("expired")
+      expect(result.current.isAuthenticated).toBe(false)
+      expect(mockRouter.navigate).toHaveBeenCalledWith({
+        to: "/",
+        search: { redirect: "/dashboard" },
+      })
     })
   })
 
@@ -217,7 +219,6 @@ describe("AuthProvider", () => {
       })
 
       expect(result.current.isAuthenticated).toBe(true)
-      expect(result.current.logoutReason).toBeUndefined()
     })
 
     it("should NOT reset inactivity timer on user activity (timer removed)", async () => {
@@ -252,7 +253,6 @@ describe("AuthProvider", () => {
 
       // Should still be authenticated — inactivity timer removed
       expect(result.current.isAuthenticated).toBe(true)
-      expect(result.current.logoutReason).toBeUndefined()
     })
 
     it("should NOT detect various activity events (timer removed)", async () => {
@@ -301,7 +301,6 @@ describe("AuthProvider", () => {
 
       // Should remain unauthenticated without any logout reason
       expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.logoutReason).toBeUndefined()
     })
 
     it("should clear inactivity timer on manual logout", async () => {
@@ -325,7 +324,7 @@ describe("AuthProvider", () => {
 
       // Manual logout
       await act(async () => {
-        await result.current.logout("manual")
+        await result.current.logout()
       })
 
       // Advance past what would have been the inactivity timeout
@@ -333,8 +332,8 @@ describe("AuthProvider", () => {
         vi.advanceTimersByTime(60 * 60 * 1000)
       })
 
-      // Should have logged out with manual reason, not inactive
-      expect(result.current.logoutReason).toBe("manual")
+      // Should have logged out
+      expect(result.current.isAuthenticated).toBe(false)
     })
   })
 
@@ -362,8 +361,10 @@ describe("AuthProvider", () => {
       })
 
       expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.logoutReason).toBe("expired")
-      expect(result.current.showInactivityModal).toBe(true)
+      expect(mockRouter.navigate).toHaveBeenCalledWith({
+        to: "/",
+        search: { redirect: "/dashboard" },
+      })
     })
 
     it("should logout immediately if token is already expired", async () => {
@@ -382,7 +383,6 @@ describe("AuthProvider", () => {
       })
 
       expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.logoutReason).toBe("expired")
     })
 
     it("should clear logout timer on new login", async () => {
@@ -430,8 +430,8 @@ describe("AuthProvider", () => {
     })
   })
 
-  describe("Inactivity Modal", () => {
-    it("should close modal and navigate to login (expired logout only)", async () => {
+  describe("Navigation on logout", () => {
+    it("should navigate to login with redirect on expired logout", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -446,26 +446,19 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("expired")
+        await result.current.logout()
       })
 
-      expect(result.current.showInactivityModal).toBe(true)
-
-      act(() => {
-        result.current.closeInactivityModal()
-      })
-
-      expect(result.current.showInactivityModal).toBe(false)
       expect(mockRouter.navigate).toHaveBeenCalledWith({
         to: "/",
         search: { redirect: "/dashboard" },
       })
     })
 
-    it("should navigate without redirect if no path", async () => {
+    it("should navigate without redirect if on login page", async () => {
       Object.defineProperty(window, "location", {
         value: {
-          pathname: "",
+          pathname: "/",
           search: "",
         },
         writable: true,
@@ -486,11 +479,7 @@ describe("AuthProvider", () => {
       })
 
       await act(async () => {
-        await result.current.logout("inactive")
-      })
-
-      act(() => {
-        result.current.closeInactivityModal()
+        await result.current.logout()
       })
 
       expect(mockRouter.navigate).toHaveBeenCalledWith({
@@ -501,7 +490,7 @@ describe("AuthProvider", () => {
   })
 
   describe("Edge Cases", () => {
-    it("should handle default logout reason", async () => {
+    it("should handle logout", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
 
       const mockUser: AuthUser = {
@@ -519,7 +508,7 @@ describe("AuthProvider", () => {
         await result.current.logout()
       })
 
-      expect(result.current.logoutReason).toBe("manual")
+      expect(result.current.isAuthenticated).toBe(false)
     })
 
     it("should handle rapid login/logout cycles", async () => {
@@ -540,7 +529,7 @@ describe("AuthProvider", () => {
         expect(result.current.isAuthenticated).toBe(true)
 
         await act(async () => {
-          await result.current.logout("manual")
+          await result.current.logout()
         })
 
         expect(result.current.isAuthenticated).toBe(false)

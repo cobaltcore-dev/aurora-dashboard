@@ -1,5 +1,83 @@
 # @cobaltcore-dev/aurora
 
+## 0.18.0
+
+### Minor Changes
+
+- d2cc53d: Add support for custom tRPC routers with full type safety
+
+  **New exports from `@cobaltcore-dev/aurora/server`:**
+  - `AuroraRouterWithCustom<T>` - Type helper to merge custom routers with base Aurora router
+
+  **New exports from `@cobaltcore-dev/aurora/client`:**
+  - `CreateTypedTrpcReact<T>` - Generic type for typed React tRPC client
+  - `CreateTypedTrpcClient<T>` - Generic type for typed vanilla tRPC client
+  - `TrpcReact` - Type alias for the React tRPC client
+
+  **Usage:**
+  1. Define custom routers using `auroraRouter` and `protectedProcedure`:
+
+  ```typescript
+  import { auroraRouter, protectedProcedure } from "@cobaltcore-dev/aurora/server"
+
+  export const customRouters = auroraRouter({
+    feedback: auroraRouter({
+      submit: protectedProcedure
+        .input(z.object({ message: z.string() }))
+        .mutation(async ({ input }) => ({ success: true })),
+    }),
+  })
+  ```
+
+  2. Register with `createServer`:
+
+  ```typescript
+  createServer({ routers: [customRouters], ... })
+  ```
+
+  3. Create typed client exports:
+
+  ```typescript
+  import type { AuroraRouterWithCustom } from "@cobaltcore-dev/aurora/server"
+  import { trpcReact, CreateTypedTrpcReact } from "@cobaltcore-dev/aurora/client"
+
+  type AppRouter = AuroraRouterWithCustom<typeof customRouters>
+  export const trpc = trpcReact as unknown as CreateTypedTrpcReact<AppRouter>
+  ```
+
+  4. Use with full type safety:
+
+  ```typescript
+  const mutation = trpc.feedback.submit.useMutation() // ✅ Type-safe!
+  ```
+
+- 2f8cca6: Remove InactivityModal and redirect directly to login on session expiration
+
+### Patch Changes
+
+- 914411a: Simplify logout type - remove logoutReason tracking
+
+## 0.17.1
+
+### Patch Changes
+
+- 21584e0: fix: resolve merge conflict in client index exports
+
+## 0.17.0
+
+### Minor Changes
+
+- 2e9d83f: fix(aurora): improve project not found error handling with better UX
+  - Add proper 404 error page when project doesn't exist or user lacks access
+  - Extract scope resolution logic into reusable resolveProjectScope utility
+  - Differentiate between "project not found" vs "scope operation failed" states
+  - Catch NOT_FOUND errors from setCurrentScope instead of letting them bubble up
+  - Display user-friendly error message with navigation options (back/home)
+
+### Patch Changes
+
+- 1376e9f: Fix useRouter warning by passing router as prop to AuthProvider instead of calling useRouter() hook internally
+
 ## 0.16.0
 
 ### Minor Changes

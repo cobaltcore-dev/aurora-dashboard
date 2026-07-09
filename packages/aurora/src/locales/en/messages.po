@@ -361,6 +361,9 @@ msgstr "Attach"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
+msgid "Awaiting Certificate"
+msgstr "Awaiting Certificate"
+
 msgid "Back"
 msgstr "Back"
 
@@ -480,9 +483,6 @@ msgstr "Capabilities"
 
 msgid "Certificate {certificateIdValue}"
 msgstr "Certificate {certificateIdValue}"
-
-msgid "Certificate {subjectCommonName}"
-msgstr "Certificate {subjectCommonName}"
 
 msgid "Certificate Authority not found"
 msgstr "Certificate Authority not found"
@@ -799,6 +799,9 @@ msgstr "Created"
 msgid "Created At"
 msgstr "Created At"
 
+msgid "Creating"
+msgstr "Creating"
+
 msgid "Creating Certificate Authority..."
 msgstr "Creating Certificate Authority..."
 
@@ -873,9 +876,6 @@ msgstr "Delete Bucket Policy"
 
 msgid "Delete CA"
 msgstr "Delete CA"
-
-msgid "Delete certificate authority"
-msgstr "Delete certificate authority"
 
 msgid "Delete Certificate Authority"
 msgstr "Delete Certificate Authority"
@@ -1272,6 +1272,9 @@ msgstr "Extra spec key is required and cannot be empty."
 
 msgid "Extra Specs"
 msgstr "Extra Specs"
+
+msgid "Failed"
+msgstr "Failed"
 
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
 msgstr "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
@@ -1785,9 +1788,6 @@ msgstr "Import Signed Certificate"
 
 msgid "Importing Certificate..."
 msgstr "Importing Certificate..."
-
-msgid "Inactivity Timeout"
-msgstr "Inactivity Timeout"
 
 msgid "Ingress"
 msgstr "Ingress"
@@ -2359,9 +2359,6 @@ msgstr "Objects to be deleted ({totalCount})"
 msgid "Objects: {containerName}"
 msgstr "Objects: {containerName}"
 
-msgid "OK"
-msgstr "OK"
-
 msgid "Older"
 msgstr "Older"
 
@@ -2437,9 +2434,6 @@ msgstr "Please enter a valid number of minutes greater than 0"
 msgid "Please fix the validation errors below."
 msgstr "Please fix the validation errors below."
 
-msgid "Please log in again to continue."
-msgstr "Please log in again to continue."
-
 msgid "Please select a file to upload"
 msgstr "Please select a file to upload"
 
@@ -2511,6 +2505,9 @@ msgstr "Project id"
 
 msgid "Project ID"
 msgstr "Project ID"
+
+msgid "Project Not Found"
+msgstr "Project Not Found"
 
 msgid "projects"
 msgstr "projects"
@@ -2595,6 +2592,9 @@ msgstr "Read ACLs"
 
 msgid "Read ACLs — Preview"
 msgstr "Read ACLs — Preview"
+
+msgid "Ready"
+msgstr "Ready"
 
 msgid "Reject"
 msgstr "Reject"
@@ -2832,9 +2832,6 @@ msgstr "Server Role:"
 
 msgid "Services"
 msgstr "Services"
-
-msgid "Session Expired"
-msgstr "Session Expired"
 
 msgid "Session expires in"
 msgstr "Session expires in"
@@ -3114,6 +3111,9 @@ msgstr "The object will be moved to this path. Navigate folders above to change 
 
 msgid "The page you are looking for does not exist."
 msgstr "The page you are looking for does not exist."
+
+msgid "The project you are looking for doesn't exist or you don't have access to it."
+msgstr "The project you are looking for doesn't exist or you don't have access to it."
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
@@ -3412,6 +3412,12 @@ msgstr "Unable to Upload Image File"
 msgid "Unable to verify bucket versioning status. Please try again."
 msgstr "Unable to verify bucket versioning status. Please try again."
 
+msgid "Unexpected"
+msgstr "Unexpected"
+
+msgid "Unknown"
+msgstr "Unknown"
+
 msgid "Unknown domain"
 msgstr "Unknown domain"
 
@@ -3649,9 +3655,6 @@ msgstr "You don't have permission to view extra specs for this flavor."
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
 
-msgid "You have been logged out due to inactivity."
-msgstr "You have been logged out due to inactivity."
-
 msgid "You need to login to access this page."
 msgstr "You need to login to access this page."
 
@@ -3663,12 +3666,6 @@ msgstr "Your credentials are valid but you don't have permission to perform this
 
 msgid "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
 msgstr "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
-
-msgid "Your session expired. Please login again."
-msgstr "Your session expired. Please login again."
-
-msgid "Your session has expired."
-msgstr "Your session has expired."
 
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."

@@ -1,19 +1,11 @@
-import { Fragment } from "react"
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import {
-  Button,
-  CodeBlock,
-  DescriptionDefinition,
-  DescriptionList,
-  DescriptionTerm,
-  Spinner,
-  Stack,
-} from "@cloudoperators/juno-ui-components/index"
+import { Button, Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { trpcReact } from "@/client/trpcClient"
 import { canAccessClavisPca } from "../-components/pcaAccess"
+import { DetailsInfo } from "./-components/DetailsInfo"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/services/pca/$pcaId/$certificateId")({
   staticData: {
@@ -72,7 +64,6 @@ export function RouteComponent() {
     certificate_id: certificateId,
   })
 
-  // Loading state
   if (isLoading) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
@@ -88,7 +79,6 @@ export function RouteComponent() {
       params: { projectId, pcaId },
     })
 
-  // Error state
   if (isError) {
     const errorMessage = error?.message || "Unknown error"
     return (
@@ -104,7 +94,6 @@ export function RouteComponent() {
     )
   }
 
-  // No data state
   if (!certificate) {
     return (
       <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
@@ -122,16 +111,16 @@ export function RouteComponent() {
   const certificateHeading = t`Certificate ${certificateIdValue}`
   const certificateDetails = t`${certificateIdValue} Certificate Details`
 
-  const basicInfo = [
+  const BASIC_INFO = [
     { label: t`CA ID`, value: certificate.certificate_authority_id },
     { label: t`ID`, value: certificateIdValue },
     {
       label: t`Duration/validity`,
       value:
-        certificate.configuration?.validity.not_before !== undefined &&
-        certificate.configuration?.validity.not_after !== undefined
+        certificate.certificate?.validity.not_before !== undefined &&
+        certificate.certificate?.validity.not_after !== undefined
           ? `${Math.round(
-              (certificate.configuration.validity.not_after - certificate.configuration.validity.not_before) /
+              (certificate.certificate.validity.not_after - certificate.certificate.validity.not_before) /
                 (60 * 60 * 24)
             )} days`
           : undefined,
@@ -146,23 +135,7 @@ export function RouteComponent() {
         <Trans>Manage your Certificate</Trans>
       </p>
 
-      <Stack gap="4" className="grid grid-cols-2 items-start">
-        <DescriptionList alignTerms="right" className="w-full">
-          {basicInfo.map(({ label, value }) => (
-            <Fragment key={label}>
-              <DescriptionTerm>{label}</DescriptionTerm>
-              <DescriptionDefinition>{value || "—"}</DescriptionDefinition>
-            </Fragment>
-          ))}
-        </DescriptionList>
-
-        <CodeBlock
-          heading={certificateHeading}
-          content={certificate?.csr ?? ""}
-          className="w-full [&_pre_code]:block [&_pre_code]:w-full"
-          wrap
-        />
-      </Stack>
+      <DetailsInfo basicInfo={BASIC_INFO} heading={certificateHeading} content={certificate?.certificate?.pem ?? ""} />
     </Stack>
   )
 }

@@ -5,6 +5,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Modal, Form, FormSection, Spinner, Message, Textarea, Button } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import { ParsedCertificateInfo } from "./ParsedCertificateInfo"
 
 export interface ImportExternallySignedCertificateModalProps {
   open: boolean
@@ -151,6 +152,7 @@ export const ImportExternallySignedCertificateModal = ({
                 />
               )}
             />
+            <ParsedCertificateInfo csrCode={currentChain} />
           </FormSection>
         </Form>
       )}
