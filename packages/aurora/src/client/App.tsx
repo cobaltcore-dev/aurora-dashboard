@@ -129,52 +129,6 @@ function AppInner({
 }) {
   const auth = useAuth()
 
-  // Handle chunk loading failures (e.g., when dev server crashes)
-  useEffect(() => {
-    const handleError = (event: ErrorEvent) => {
-      const error = event.error
-
-      // Chunk loading errors are TypeError instances with specific characteristics:
-      // - filename contains chunk/asset paths (starts with http/https or /)
-      // - message matches known dynamic import/chunk loading failure patterns
-      // Match only actual chunk-load failures, not unrelated TypeErrors from app code
-      const isChunkError =
-        error instanceof TypeError &&
-        typeof error.message === "string" &&
-        event.filename &&
-        (event.filename.includes("/assets/") || event.filename.startsWith("http")) &&
-        (/failed to fetch dynamically imported module/i.test(error.message) ||
-          /importing a module script failed/i.test(error.message) ||
-          /error loading dynamically imported module/i.test(error.message) ||
-          /dynamically imported module/i.test(error.message))
-
-      if (isChunkError) {
-        console.error("Chunk loading failed - dev server may have crashed:", error)
-        event.preventDefault()
-
-        // Show user-friendly error instead of white screen
-        // Note: Cannot use React here as the error may have occurred during React's own chunk loading
-        const root = document.getElementById("root")
-        if (root) {
-          root.innerHTML = `
-            <div>
-              <h1>Connection Lost</h1>
-              <p>Failed to load application resources.</p>
-              <p>This may be due to a network issue or stale cached files.</p>
-              <button id="chunk-reload-btn" type="button">Reload</button>
-            </div>
-          `
-          root.querySelector<HTMLButtonElement>("#chunk-reload-btn")?.addEventListener("click", () => {
-            window.location.reload()
-          })
-        }
-      }
-    }
-
-    window.addEventListener("error", handleError)
-    return () => window.removeEventListener("error", handleError)
-  }, [])
-
   const routerContext = {
     trpcReact,
     trpcClient,
