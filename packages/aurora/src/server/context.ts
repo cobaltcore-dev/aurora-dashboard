@@ -176,7 +176,7 @@ export async function createContext(
           : undefined
       lastValidationError = { statusCode, message: err.message }
       console.error("[createContext] Token validation failed:", err.message, "Status:", statusCode)
-      sessionCookie.del()
+if (statusCode === 401) sessionCookie.del()
       return undefined
     })
   }
