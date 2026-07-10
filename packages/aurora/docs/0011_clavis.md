@@ -22,7 +22,7 @@ Implemented screens and interactions:
 
 - PCA list page with loading, error, and empty states
 - primary action to create a certificate authority
-- row action menu with delete certificate authority
+- row action menu with Delete Certificate Authority
 - create modal with FQDN/common name validation
 - delete modal with explicit confirmation by typing `delete`
 - CA details page at `/projects/$projectId/services/pca/$pcaId/` via `PcaDetailsView`

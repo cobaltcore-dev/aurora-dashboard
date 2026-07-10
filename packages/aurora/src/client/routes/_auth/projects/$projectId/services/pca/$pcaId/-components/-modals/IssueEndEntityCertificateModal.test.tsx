@@ -50,6 +50,12 @@ vi.mock("@/client/trpcClient", () => ({
   },
 }))
 
+vi.mock("./ParsedCertificateInfo", () => ({
+  ParsedCertificateInfo: ({ csrCode }: { csrCode: string }) => (
+    <div data-testid="parsed-certificate-info">{csrCode}</div>
+  ),
+}))
+
 const renderModal = (onClose = vi.fn()) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -75,6 +81,7 @@ describe("IssueEndEntityCertificateModal", () => {
     const user = userEvent.setup()
 
     renderModal()
+    expect(screen.getByTestId("parsed-certificate-info")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Save" }))
 
     await waitFor(() => {

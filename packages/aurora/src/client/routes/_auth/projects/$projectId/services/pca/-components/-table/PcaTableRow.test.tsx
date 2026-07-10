@@ -26,11 +26,7 @@ describe("PcaTableRow", () => {
     id: "pca-123",
     project_id: "project-1",
     state: "CREATING",
-    configuration: {
-      subject: {
-        common_name: "example.internal",
-      },
-    },
+    display_subject: "example.internal",
   }
 
   const renderRow = (pca: CertificateAuthority) =>
@@ -51,14 +47,10 @@ describe("PcaTableRow", () => {
     expect(screen.getByText("example.internal")).toBeInTheDocument()
   })
 
-  it("renders em dash when common_name is empty", () => {
+  it("renders em dash when display_subject is absent", () => {
     renderRow({
       ...basePca,
-      configuration: {
-        subject: {
-          common_name: "",
-        },
-      },
+      display_subject: undefined,
     })
 
     expect(screen.getByText("—")).toBeInTheDocument()

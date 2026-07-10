@@ -13,7 +13,9 @@ const validListResponse = {
       state: "CREATING" as const,
       configuration: {
         subject: {
-          common_name: "ca.example.com",
+          named_attributes: {
+            cn: "ca.example.com",
+          },
         },
       },
     },
@@ -28,7 +30,9 @@ const validGetByIdResponse = {
   state: "READY" as const,
   configuration: {
     subject: {
-      common_name: "ca.example.com",
+      named_attributes: {
+        cn: "ca.example.com",
+      },
     },
   },
 }
@@ -73,7 +77,9 @@ const validCreateCAResponse = {
   state: "CREATING" as const,
   configuration: {
     subject: {
-      common_name: "new-ca.example.com",
+      named_attributes: {
+        cn: "new-ca.example.com",
+      },
     },
   },
 }
@@ -127,7 +133,7 @@ const createMockContext = (opts?: {
       responseBody = getByIdCertificateParseError ? { invalid: true } : validGetByIdCertificateResponse
     } else if (url.includes("/certificates")) {
       responseBody = certificateParseError ? { invalid: true } : validCertificatesResponse
-    } else if (url === "certificate-authorities" || url.startsWith("certificate-authorities?")) {
+    } else if (url === "v1/certificate-authorities" || url.startsWith("v1/certificate-authorities?")) {
       responseBody = parseError ? { invalid: true } : validListResponse
     } else {
       responseBody = getByIdParseError ? { invalid: true } : validGetByIdResponse
@@ -209,7 +215,7 @@ describe("pcaRouter", () => {
 
       expect(result).toEqual(validListResponse)
       expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
-      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities")
+      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities")
     })
 
     it("forwards pagination query params for list requests", async () => {
@@ -223,7 +229,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validListResponse)
-      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities?limit=10&next_page_marker=next-marker")
+      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities?limit=10&next_page_marker=next-marker")
     })
 
     it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
@@ -262,7 +268,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validGetByIdResponse)
-      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1")
+      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1")
     })
 
     it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
@@ -311,7 +317,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toBeUndefined()
-      expect(ctx.__delMock).toHaveBeenCalledWith("certificate-authorities/ca-1")
+      expect(ctx.__delMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1")
     })
 
     it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
@@ -344,7 +350,7 @@ describe("pcaRouter", () => {
 
       expect(result).toEqual(validCertificatesResponse)
       expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
-      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates")
+      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates")
     })
 
     it("forwards pagination query params for listCertificates requests", async () => {
@@ -360,7 +366,7 @@ describe("pcaRouter", () => {
 
       expect(result).toEqual(validCertificatesResponse)
       expect(ctx.__getMock).toHaveBeenCalledWith(
-        "certificate-authorities/ca-1/certificates?limit=50&next_page_marker=next-marker"
+        "v1/certificate-authorities/ca-1/certificates?limit=50&next_page_marker=next-marker"
       )
     })
 
@@ -411,7 +417,7 @@ describe("pcaRouter", () => {
       })
 
       expect(result).toEqual(validGetByIdCertificateResponse)
-      expect(ctx.__getMock).toHaveBeenCalledWith("certificate-authorities/ca-1/certificates/cert-1")
+      expect(ctx.__getMock).toHaveBeenCalledWith("v1/certificate-authorities/ca-1/certificates/cert-1")
     })
 
     it("throws INTERNAL_SERVER_ERROR when pca service is unavailable", async () => {
@@ -460,7 +466,9 @@ describe("pcaRouter", () => {
         project_id: TEST_PROJECT_ID,
         configuration: {
           subject: {
-            common_name: "new-ca.example.com",
+            named_attributes: {
+              cn: "new-ca.example.com",
+            },
           },
         },
       })
@@ -468,11 +476,13 @@ describe("pcaRouter", () => {
       expect(result).toEqual(validCreateCAResponse)
       const lastPostCall = ctx.__postMock.mock.lastCall
       expect(lastPostCall).toBeDefined()
-      expect(lastPostCall?.[0]).toBe("certificate-authorities")
+      expect(lastPostCall?.[0]).toBe("v1/certificate-authorities")
       expect(lastPostCall?.[1]).toEqual({
         configuration: {
           subject: {
-            common_name: "new-ca.example.com",
+            named_attributes: {
+              cn: "new-ca.example.com",
+            },
           },
         },
       })
@@ -488,7 +498,9 @@ describe("pcaRouter", () => {
           project_id: TEST_PROJECT_ID,
           configuration: {
             subject: {
-              common_name: "new-ca.example.com",
+              named_attributes: {
+                cn: "new-ca.example.com",
+              },
             },
           },
         })
@@ -522,7 +534,7 @@ describe("pcaRouter", () => {
       expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
       const lastPostCall = ctx.__postMock.mock.lastCall
       expect(lastPostCall).toBeDefined()
-      expect(lastPostCall?.[0]).toBe("certificate-authorities/ca-1/certificates")
+      expect(lastPostCall?.[0]).toBe("v1/certificate-authorities/ca-1/certificates")
       expect(lastPostCall?.[1]).toEqual({
         configuration: {
           validity: {
@@ -601,7 +613,7 @@ describe("pcaRouter", () => {
       expect(ctx.__serviceMock).toHaveBeenCalledWith("pca")
       const lastPostCall = ctx.__postMock.mock.lastCall
       expect(lastPostCall).toBeDefined()
-      expect(lastPostCall?.[0]).toBe("certificate-authorities/ca-1:importCertificate")
+      expect(lastPostCall?.[0]).toBe("v1/certificate-authorities/ca-1:importCertificate")
       expect(lastPostCall?.[1]).toEqual({
         imported_certificate_chain:
           "-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKHHC...ABC123==\n-----END CERTIFICATE-----",

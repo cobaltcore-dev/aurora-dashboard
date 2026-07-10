@@ -1,5 +1,24 @@
 # @cobaltcore-dev/dashboard
 
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [622ad68]
+  - @cobaltcore-dev/aurora@0.19.1
+
+## 1.2.0
+
+### Minor Changes
+
+- 16440c1: Add CSR parsing and certificate details enhancements for Clavis PCA workflows.
+
+### Patch Changes
+
+- Updated dependencies [194a480]
+- Updated dependencies [4518889]
+  - @cobaltcore-dev/aurora@0.19.0
+
 ## 1.1.18
 
 ### Patch Changes

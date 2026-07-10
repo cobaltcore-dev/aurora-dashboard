@@ -361,6 +361,9 @@ msgstr "Attach"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
+msgid "Awaiting Certificate"
+msgstr "Awaiting Certificate"
+
 msgid "Back"
 msgstr "Back"
 
@@ -480,9 +483,6 @@ msgstr "Capabilities"
 
 msgid "Certificate {certificateIdValue}"
 msgstr "Certificate {certificateIdValue}"
-
-msgid "Certificate {subjectCommonName}"
-msgstr "Certificate {subjectCommonName}"
 
 msgid "Certificate Authority not found"
 msgstr "Certificate Authority not found"
@@ -799,6 +799,9 @@ msgstr "Created"
 msgid "Created At"
 msgstr "Created At"
 
+msgid "Creating"
+msgstr "Creating"
+
 msgid "Creating Certificate Authority..."
 msgstr "Creating Certificate Authority..."
 
@@ -873,9 +876,6 @@ msgstr "Delete Bucket Policy"
 
 msgid "Delete CA"
 msgstr "Delete CA"
-
-msgid "Delete certificate authority"
-msgstr "Delete certificate authority"
 
 msgid "Delete Certificate Authority"
 msgstr "Delete Certificate Authority"
@@ -1032,6 +1032,15 @@ msgstr "Download"
 
 msgid "Download {rowDisplayName}"
 msgstr "Download {rowDisplayName}"
+
+msgid "Download Cancelled"
+msgstr "Download Cancelled"
+
+msgid "Download of \"{displayName}\" was cancelled."
+msgstr "Download of \"{displayName}\" was cancelled."
+
+msgid "Downloading larger files may take a while. Do not leave this view, otherwise the download(s) will be interrupted. We are working to improve the user experience in the future."
+msgstr "Downloading larger files may take a while. Do not leave this view, otherwise the download(s) will be interrupted. We are working to improve the user experience in the future."
 
 msgid "Downloading..."
 msgstr "Downloading..."
@@ -1263,6 +1272,9 @@ msgstr "Extra spec key is required and cannot be empty."
 
 msgid "Extra Specs"
 msgstr "Extra Specs"
+
+msgid "Failed"
+msgstr "Failed"
 
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
 msgstr "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
@@ -2581,6 +2593,9 @@ msgstr "Read ACLs"
 msgid "Read ACLs — Preview"
 msgstr "Read ACLs — Preview"
 
+msgid "Ready"
+msgstr "Ready"
+
 msgid "Reject"
 msgstr "Reject"
 
@@ -3396,6 +3411,12 @@ msgstr "Unable to Upload Image File"
 
 msgid "Unable to verify bucket versioning status. Please try again."
 msgstr "Unable to verify bucket versioning status. Please try again."
+
+msgid "Unexpected"
+msgstr "Unexpected"
+
+msgid "Unknown"
+msgstr "Unknown"
 
 msgid "Unknown domain"
 msgstr "Unknown domain"

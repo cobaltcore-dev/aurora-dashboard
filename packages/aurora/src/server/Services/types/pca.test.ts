@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest"
+import { omit } from "@/server/helpers/object"
 import {
   CertificateAuthoritiesListSchema,
   CertificateAuthoritiesListInputSchema,
@@ -13,11 +14,10 @@ import {
   CertificatesListSchema,
   CreateCertificateInputSchema,
 } from "./pca"
-import { omit } from "@/server/helpers/object"
 
 describe("PCA (Private Certificate Authority) Schema Validation", () => {
   const minimalValidSubject = {
-    common_name: "example.com",
+    named_attributes: { cn: "example.com" },
   }
 
   const minimalValidCA = {
@@ -61,15 +61,17 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
         value: "custom-value",
       },
     ],
-    common_name: "ca.example.com",
-    country: ["DE"],
-    locality: ["Berlin"],
-    organization: ["Example Org"],
-    organizational_unit: ["IT Security"],
-    postal_code: ["10115"],
-    province: ["Berlin"],
-    serial_number: "12345678",
-    street_address: ["Example Street 1"],
+    named_attributes: {
+      cn: "ca.example.com",
+      c: ["DE"],
+      l: ["Berlin"],
+      o: ["Example Org"],
+      ou: ["IT Security"],
+      postal_code: ["10115"],
+      st: ["Berlin"],
+      serial_number: "12345678",
+      street: ["Example Street 1"],
+    },
   }
 
   const completeValidCA = {
@@ -165,11 +167,11 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
   })
 
   describe("CertificateAuthoritySubjectSchema", () => {
-    it("should validate minimal subject with only common_name", () => {
+    it("should validate minimal subject with only cn", () => {
       expect(
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
-          configuration: { subject: { common_name: "test.com" } },
+          configuration: { subject: { named_attributes: { cn: "test.com" } } },
         }).success
       ).toBe(true)
     })
@@ -181,55 +183,55 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       ).toBe(true)
     })
 
-    it("should require common_name", () => {
+    it("should require named_attributes.cn", () => {
       const result = CertificateAuthoritySchema.safeParse({
         ...minimalValidCA,
-        configuration: { subject: { country: ["US"] } },
+        configuration: { subject: { named_attributes: {} } },
       })
       expect(result.success).toBe(false)
     })
 
-    it("should validate common_name as string", () => {
+    it("should validate cn as string", () => {
       expect(
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
-          configuration: { subject: { common_name: "example.com" } },
+          configuration: { subject: { named_attributes: { cn: "example.com" } } },
         }).success
       ).toBe(true)
     })
 
-    it("should validate country as array of strings", () => {
+    it("should validate c as array of strings", () => {
       expect(
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
-          configuration: { subject: { common_name: "test.com", country: ["DE", "US"] } },
+          configuration: { subject: { named_attributes: { cn: "test.com", c: ["DE", "US"] } } },
         }).success
       ).toBe(true)
     })
 
-    it("should validate locality as array of strings", () => {
+    it("should validate l as array of strings", () => {
       expect(
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
-          configuration: { subject: { common_name: "test.com", locality: ["Berlin"] } },
+          configuration: { subject: { named_attributes: { cn: "test.com", l: ["Berlin"] } } },
         }).success
       ).toBe(true)
     })
 
-    it("should validate organization as array of strings", () => {
+    it("should validate o as array of strings", () => {
       expect(
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
-          configuration: { subject: { common_name: "test.com", organization: ["Example Corp"] } },
+          configuration: { subject: { named_attributes: { cn: "test.com", o: ["Example Corp"] } } },
         }).success
       ).toBe(true)
     })
 
-    it("should validate organizational_unit as array of strings", () => {
+    it("should validate ou as array of strings", () => {
       expect(
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
-          configuration: { subject: { common_name: "test.com", organizational_unit: ["IT"] } },
+          configuration: { subject: { named_attributes: { cn: "test.com", ou: ["IT"] } } },
         }).success
       ).toBe(true)
     })
@@ -238,16 +240,16 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
-          configuration: { subject: { common_name: "test.com", postal_code: ["10115"] } },
+          configuration: { subject: { named_attributes: { cn: "test.com", postal_code: ["10115"] } } },
         }).success
       ).toBe(true)
     })
 
-    it("should validate province as array of strings", () => {
+    it("should validate st as array of strings", () => {
       expect(
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
-          configuration: { subject: { common_name: "test.com", province: ["Berlin"] } },
+          configuration: { subject: { named_attributes: { cn: "test.com", st: ["Berlin"] } } },
         }).success
       ).toBe(true)
     })
@@ -256,18 +258,59 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
-          configuration: { subject: { common_name: "test.com", serial_number: "SN123456" } },
+          configuration: { subject: { named_attributes: { cn: "test.com", serial_number: "SN123456" } } },
         }).success
       ).toBe(true)
     })
 
-    it("should validate street_address as array of strings", () => {
+    it("should validate street as array of strings", () => {
       expect(
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
-          configuration: { subject: { common_name: "test.com", street_address: ["Example Street 1"] } },
+          configuration: { subject: { named_attributes: { cn: "test.com", street: ["Example Street 1"] } } },
         }).success
       ).toBe(true)
+    })
+
+    it.each([
+      ["c", "DE"],
+      ["l", "Berlin"],
+      ["o", "Example Corp"],
+      ["ou", "IT"],
+      ["postal_code", "10115"],
+      ["st", "Bavaria"],
+      ["street", "Main St 1"],
+    ] as const)("should accept plain string for %s and coerce it to an array", (field, value) => {
+      const result = CertificateAuthoritySchema.safeParse({
+        ...minimalValidCA,
+        configuration: { subject: { named_attributes: { cn: "test.com", [field]: value } } },
+      })
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.configuration?.subject.named_attributes[field]).toEqual([value])
+      }
+    })
+
+    it("should accept a real-world API response where o is a plain string", () => {
+      const result = CertificateAuthoritySchema.safeParse({
+        id: "tahv5by0ch1ws3px8vf66pt07w",
+        project_id: "e9141fb24eee4b3e9f25ae69cda31132",
+        state: "AWAITING_CERTIFICATE",
+        display_subject: "CN=test-nkb3b5ja3s45x17rdcqan4cj2c.com,O=Test Org - 27vksr8xxx4zsdnascwnxh8194",
+        configuration: {
+          subject: {
+            named_attributes: {
+              cn: "test-nkb3b5ja3s45x17rdcqan4cj2c.com",
+              o: "Test Org - 27vksr8xxx4zsdnascwnxh8194",
+            },
+          },
+        },
+        csr: "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+      })
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.configuration?.subject.named_attributes.o).toEqual(["Test Org - 27vksr8xxx4zsdnascwnxh8194"])
+      }
     })
 
     it("should validate additional_attribute as array", () => {
@@ -276,7 +319,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
           ...minimalValidCA,
           configuration: {
             subject: {
-              common_name: "test.com",
+              named_attributes: { cn: "test.com" },
               additional_attribute: [
                 {
                   key: [1, 2, 3, 4],
@@ -295,7 +338,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
           ...minimalValidCA,
           configuration: {
             subject: {
-              common_name: "test.com",
+              named_attributes: { cn: "test.com" },
               additional_attribute: [
                 { key: [1, 2, 3, 4], value: "value1" },
                 { key: [1, 2, 3, 5], value: "value2" },
@@ -311,7 +354,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
         ...minimalValidCA,
         configuration: {
           subject: {
-            common_name: "test.com",
+            named_attributes: { cn: "test.com" },
             additional_attribute: [{ value: "custom-value" }],
           },
         },
@@ -324,7 +367,7 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
         ...minimalValidCA,
         configuration: {
           subject: {
-            common_name: "test.com",
+            named_attributes: { cn: "test.com" },
             additional_attribute: [{ key: [1, 2, 3, 4] }],
           },
         },
@@ -565,6 +608,19 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(CertificateAuthoritySchema.safeParse(minimalValidCA).success).toBe(true)
     })
 
+    it("should allow display_subject to be omitted", () => {
+      expect(CertificateAuthoritySchema.safeParse(minimalValidCA).success).toBe(true)
+    })
+
+    it("should validate display_subject as string", () => {
+      expect(
+        CertificateAuthoritySchema.safeParse({
+          ...minimalValidCA,
+          display_subject: "CN=example.internal",
+        }).success
+      ).toBe(true)
+    })
+
     it("should validate certificate and certificate_chain together in READY state", () => {
       expect(CertificateAuthoritySchema.safeParse(minimalValidReadyCA).success).toBe(true)
     })
@@ -725,11 +781,14 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
             id: "pca-prod-001",
             project_id: "prod-project",
             state: "READY" as const,
+            display_subject: "CN=prod-ca.example.com,C=DE,O=Example Corp",
             configuration: {
               subject: {
-                common_name: "prod-ca.example.com",
-                country: ["DE"],
-                organization: ["Example Corp"],
+                named_attributes: {
+                  cn: "prod-ca.example.com",
+                  c: ["DE"],
+                  o: ["Example Corp"],
+                },
               },
             },
             certificate: {
@@ -749,9 +808,10 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
             id: "pca-staging-001",
             project_id: "staging-project",
             state: "CREATING" as const,
+            display_subject: "CN=staging-ca.example.com",
             configuration: {
               subject: {
-                common_name: "staging-ca.example.com",
+                named_attributes: { cn: "staging-ca.example.com" },
               },
             },
           },
@@ -964,21 +1024,21 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
   })
 
   describe("CertificateAuthorityCreateSchema", () => {
-    it("should validate create input with subject.common_name", () => {
+    it("should validate create input with subject.named_attributes.cn", () => {
       expect(
         CertificateAuthorityCreateSchema.safeParse({
           configuration: {
-            subject: { common_name: "ca.example.com" },
+            subject: { named_attributes: { cn: "ca.example.com" } },
           },
         }).success
       ).toBe(true)
     })
 
-    it("should reject create input without subject.common_name", () => {
+    it("should reject create input without subject.named_attributes.cn", () => {
       expect(
         CertificateAuthorityCreateSchema.safeParse({
           configuration: {
-            subject: {},
+            subject: { named_attributes: {} },
           },
         }).success
       ).toBe(false)

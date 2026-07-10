@@ -22,7 +22,7 @@ vi.mock("@/client/hooks", () => ({
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
-    useUtils: () => ({
+    useUtils: vi.fn(() => ({
       services: {
         pca: {
           list: {
@@ -30,7 +30,7 @@ vi.mock("@/client/trpcClient", () => ({
           },
         },
       },
-    }),
+    })),
     services: {
       pca: {
         create: {
@@ -42,6 +42,7 @@ vi.mock("@/client/trpcClient", () => ({
               return result
             },
             reset: mockReset,
+            error: null,
           }),
         },
       },
@@ -66,7 +67,7 @@ describe("CreatePcaModal", () => {
     })
   })
 
-  it("submits create payload with project_id and configuration.subject.common_name", async () => {
+  it("submits create payload with project_id and configuration.subject.named_attributes.cn", async () => {
     const user = userEvent.setup()
     const onClose = vi.fn()
 
@@ -80,7 +81,9 @@ describe("CreatePcaModal", () => {
         project_id: "project-123",
         configuration: {
           subject: {
-            common_name: "demo-ca.test.sci",
+            named_attributes: {
+              cn: "demo-ca.test.sci",
+            },
           },
         },
       })
