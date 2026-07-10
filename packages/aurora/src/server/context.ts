@@ -407,19 +407,14 @@ export async function createContext(
   const terminateSession = async () => {
     if (openstackSession) {
       const token = openstackSession.getToken()?.authToken
-      try {
-        await openstackSession.terminate()
-      } catch (error) {
-        // Token may already be invalid/expired - ignore termination errors
-        console.warn("Session termination failed (token may be expired):", error)
-      } finally {
+      await openstackSession.terminate().finally(() => {
         openstackSession = undefined
         sessionCookie.del()
         // Clean up the session's pending rescopes on logout
         if (token) {
           sessionRescopes.delete(token)
         }
-      }
+      })
     }
   }
 

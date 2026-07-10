@@ -1,7 +1,6 @@
 import type { AuroraPortalContext } from "./context"
 import { initTRPC, TRPCError } from "@trpc/server"
 import { z } from "zod"
-import { DEFAULT_COOKIE_NAME } from "./sessionCookie"
 
 const t = initTRPC.context<AuroraPortalContext>().create()
 
@@ -16,27 +15,6 @@ export const protectedProcedure = publicProcedure.use(async function isAuthentic
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "The session is invalid",
-    })
-  }
-  return opts.next({
-    ctx: opts.ctx,
-  })
-})
-
-// Middleware that requires a session cookie to exist, but doesn't validate the token
-// Use for operations that should work even with expired tokens (e.g., logout/cookie cleanup)
-export const sessionCookieProcedure = publicProcedure.use(async function hasSessionCookie(opts) {
-  // Check if a session cookie exists in the request
-  // This prevents anonymous users from calling the endpoint
-  // but allows expired token holders to clean up their session
-  // We check the cookie directly, not ctx.openstack, because ctx.openstack
-  // is only set after successful Keystone validation. If Keystone is down,
-  // a user with a valid cookie should still be able to logout.
-  const hasCookie = opts.ctx.req?.cookies?.[DEFAULT_COOKIE_NAME]
-  if (!hasCookie) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "No session found",
     })
   }
   return opts.next({
