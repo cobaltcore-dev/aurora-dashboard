@@ -6,6 +6,7 @@ import { AuthConfig } from "./Authentication/types/models"
 
 export interface AuroraContext {
   validateSession: () => boolean
+  getLastValidationError?: () => { statusCode?: number; message: string } | undefined
   openstack?: Awaited<SignalOpenstackSessionType>
   // AbortSignal tied to the HTTP connection lifecycle.
   // Aborted automatically when the client disconnects mid-request.
@@ -151,6 +152,9 @@ export async function createContext(
   // anywhere that has access to req (e.g. non-tRPC routes like upload-image-direct).
   Object.defineProperty(opts.req, "signal", { value: abortController.signal, writable: false })
 
+  // Track last validation error to provide better error messages
+  let lastValidationError: { statusCode?: number; message: string } | undefined
+
   // If we have a token, initialize the session
   if (currentAuthToken) {
     openstackSession = await SignalOpenstackSession(
@@ -166,13 +170,20 @@ export async function createContext(
       defaultSignalOpenstackOptions
     ).catch((err: Error) => {
       // If the token is invalid, clear the cookie
-      console.error("[createContext] Token validation failed:", err.message)
+      const statusCode =
+        "statusCode" in err && typeof (err as { statusCode?: number }).statusCode === "number"
+          ? (err as { statusCode: number }).statusCode
+          : undefined
+      lastValidationError = { statusCode, message: err.message }
+      console.error("[createContext] Token validation failed:", err.message, "Status:", statusCode)
       sessionCookie.del()
       return undefined
     })
   }
 
   const validateSession = () => openstackSession?.isValid() || false
+
+  const getLastValidationError = () => lastValidationError
 
   // Cache for user info to avoid repeated API calls
   let cachedUserInfo: { availableDomains: Array<{ id: string; name: string }> } | undefined
@@ -432,6 +443,7 @@ export async function createContext(
     rescopeSession,
     terminateSession,
     validateSession,
+    getLastValidationError,
     openstack: openstackSession,
     getUserInfo,
   }

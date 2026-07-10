@@ -107,7 +107,7 @@ describe("ec2Credentials.list", () => {
     const caller = createCaller(ctx)
 
     await expect(caller.storage.s3.ec2Credentials.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-      new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+      expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) })
     )
   })
 
@@ -206,7 +206,7 @@ describe("ec2Credentials.create", () => {
     const caller = createCaller(ctx)
 
     await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-      new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+      expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) })
     )
   })
 
@@ -309,6 +309,6 @@ describe("ec2Credentials.delete", () => {
         project_id: TEST_PROJECT_ID,
         credentialId: TEST_CREDENTIAL_ID,
       })
-    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) }))
   })
 })

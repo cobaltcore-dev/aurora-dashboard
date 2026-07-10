@@ -12,9 +12,12 @@ export const createCallerFactory = t.createCallerFactory
 
 export const protectedProcedure = publicProcedure.use(async function isAuthenticated(opts) {
   if (opts.ctx.validateSession() === false) {
+    const error = opts.ctx.getLastValidationError?.()
+    const isForbidden = error?.statusCode === 403
+
     throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "The session is invalid",
+      code: isForbidden ? "FORBIDDEN" : "UNAUTHORIZED",
+      message: isForbidden ? "Access denied. Insufficient permissions." : "The session is invalid or expired.",
     })
   }
   return opts.next({
@@ -93,12 +96,13 @@ export const projectScopedProcedure = protectedProcedure
     const openstackSession = await ctx.rescopeSession({ projectId: project_id })
 
     // If rescoping fails, it means either:
-    // 1. The user's token is invalid (should be caught by protectedProcedure)
-    // 2. The user doesn't have access to this project (no role assignment)
+    // 1. The user's token is invalid (401 - should be caught by protectedProcedure)
+    // 2. The user doesn't have access to this project (403 - no role assignment)
+    // Since we passed protectedProcedure, the token is valid, so this must be a permission issue
     if (!openstackSession) {
       throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Failed to scope session to project. User may not have access to this project.",
+        code: "FORBIDDEN",
+        message: "Access denied. User does not have access to this project.",
       })
     }
 

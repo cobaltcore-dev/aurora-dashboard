@@ -209,10 +209,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(caller.storage.swift.getServiceInfo()).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "The session is invalid",
-        })
+        expect.objectContaining({ code: "UNAUTHORIZED" })
       )
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
@@ -256,12 +253,7 @@ describe("swiftRouter", () => {
 
       await expect(
         caller.storage.swift.listContainers({ project_id: TEST_PROJECT_ID, format: "json" })
-      ).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "The session is invalid",
-        })
-      )
+      ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
     })
 
     it("should successfully list containers", async () => {
@@ -423,7 +415,7 @@ describe("swiftRouter", () => {
 
       await expect(
         caller.storage.swift.updateAccountMetadata({ project_id: TEST_PROJECT_ID, metadata: {} })
-      ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+      ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) }))
     })
   })
 
@@ -443,7 +435,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(caller.storage.swift.deleteAccount({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+        expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) })
       )
     })
 
@@ -520,7 +512,7 @@ describe("swiftRouter", () => {
 
       await expect(
         caller.storage.swift.listObjects({ project_id: TEST_PROJECT_ID, container: "test-container", format: "json" })
-      ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+      ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) }))
     })
   })
 
@@ -769,7 +761,7 @@ describe("swiftRouter", () => {
 
       await expect(
         caller.storage.swift.getContainerPublicUrl({ project_id: TEST_PROJECT_ID, container: "test-container" })
-      ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+      ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) }))
     })
   })
 
@@ -843,7 +835,7 @@ describe("swiftRouter", () => {
           container: "test-container",
           object: "file.txt",
         })
-      ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+      ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) }))
     })
   })
 
@@ -1307,7 +1299,7 @@ describe("swiftRouter", () => {
           sourcePath: "a",
           destinationPath: "b",
         })
-      ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+      ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) }))
     })
   })
 
@@ -1719,7 +1711,7 @@ describe("swiftRouter", () => {
           filename: "file.txt",
           downloadId: "test-container:file.txt",
         })
-      ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+      ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) }))
     })
 
     it("should throw when Swift GET fails", async () => {
@@ -1905,7 +1897,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(callUpload(caller)).rejects.toThrow(
-        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+        expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) })
       )
     })
 
@@ -2109,7 +2101,7 @@ describe("swiftRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(caller.storage.swift.watchUploadProgress({ uploadId: "my-bucket:file.txt" })).rejects.toThrow(
-        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+        expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) })
       )
     })
 

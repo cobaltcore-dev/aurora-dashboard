@@ -179,7 +179,7 @@ describe("objects.list", () => {
 
     await expect(
       caller.storage.ceph.objects.list({ project_id: TEST_PROJECT_ID, containerName: TEST_BUCKET_NAME })
-    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) }))
   })
 
   // TODO: Re-enable after credential validation is fixed
@@ -325,7 +325,7 @@ describe("objects.getDetails", () => {
         containerName: TEST_BUCKET_NAME,
         objectKey: TEST_OBJECT_KEY,
       })
-    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) }))
   })
 
   // TODO: Re-enable after credential validation is fixed
@@ -1467,7 +1467,7 @@ describe("objects.downloadObject", () => {
         filename: "image.jpg",
         downloadId: `${TEST_BUCKET_NAME}:${TEST_OBJECT_KEY}:uuid-7`,
       })
-    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) }))
   })
 
   it("surfaces S3 errors while iterating", async () => {

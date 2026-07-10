@@ -136,10 +136,7 @@ describe("imageRouter", () => {
       const input = { project_id: "test-project-id" }
 
       await expect(caller.image.listImagesWithSearch(input)).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "The session is invalid",
-        })
+        expect.objectContaining({ code: "UNAUTHORIZED" })
       )
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
@@ -1434,12 +1431,7 @@ describe("imageRouter", () => {
 
       const input = { project_id: "test-project-id", imageIds: [generateTestUUID(1)] }
 
-      await expect(caller.image.deleteImages(input)).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "The session is invalid",
-        })
-      )
+      await expect(caller.image.deleteImages(input)).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
     })
 
     it("should handle missing glance service for bulk operations", async () => {

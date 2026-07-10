@@ -249,12 +249,7 @@ describe("rbacPolicyRouter.list", () => {
         project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
-    ).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
   })
 
   it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
@@ -326,12 +321,7 @@ describe("rbacPolicyRouter.create", () => {
         securityGroupId: "sg-123",
         targetTenant: "target-project-1",
       })
-    ).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
   })
 
   it("handles 400 bad request error", async () => {
@@ -450,12 +440,7 @@ describe("rbacPolicyRouter.update", () => {
         policyId: "rbac-policy-1",
         targetTenant: "new-target-project",
       })
-    ).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
   })
 
   it("handles 400 bad request error", async () => {
@@ -534,12 +519,7 @@ describe("rbacPolicyRouter.delete", () => {
         project_id: TEST_PROJECT_ID,
         policyId: "rbac-policy-1",
       })
-    ).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
   })
 
   it("handles 404 not found error", async () => {

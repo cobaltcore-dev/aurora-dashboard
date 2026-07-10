@@ -45,6 +45,7 @@ const createMockContext = (opts?: {
 
   return {
     validateSession: vi.fn().mockReturnValue(!invalidSession),
+    getLastValidationError: vi.fn().mockReturnValue(undefined),
     identityEndpoint: "http://identity.example.com/",
     imageMetadataExcludedProperties: [],
     signal: new AbortController().signal,
@@ -150,7 +151,7 @@ describe("projectScopedProcedure", () => {
     )
   })
 
-  it("should throw UNAUTHORIZED when session rescoping fails", async () => {
+  it("should throw FORBIDDEN when session rescoping fails", async () => {
     const ctx = createMockContext({ rescopeFails: true })
 
     const testRouter = auroraRouter({
@@ -167,8 +168,8 @@ describe("projectScopedProcedure", () => {
 
     await expect(caller.test.testProcedure({ project_id: "proj-123" })).rejects.toThrow(
       expect.objectContaining({
-        code: "UNAUTHORIZED",
-        message: expect.stringContaining("Failed to scope session to project"),
+        code: "FORBIDDEN",
+        message: expect.stringContaining("Access denied"),
       })
     )
   })

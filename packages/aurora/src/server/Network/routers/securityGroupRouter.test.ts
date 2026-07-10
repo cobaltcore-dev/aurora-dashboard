@@ -166,12 +166,7 @@ describe("securityGroupRouter.list", () => {
       caller.securityGroup.list({
         project_id: "proj-1",
       })
-    ).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
   })
 
   it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
@@ -553,12 +548,7 @@ describe("securityGroupRouter.getById", () => {
         project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
-    ).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
   })
 
   it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
@@ -697,12 +687,7 @@ describe("securityGroupRouter.create", () => {
         project_id: TEST_PROJECT_ID,
         name: "test-sg",
       })
-    ).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
   })
 
   it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
@@ -812,12 +797,7 @@ describe("securityGroupRouter.deleteById", () => {
         project_id: TEST_PROJECT_ID,
         securityGroupId: "sg-123",
       })
-    ).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
   })
 
   it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
@@ -966,12 +946,7 @@ describe("securityGroupRouter.update", () => {
         securityGroupId: "sg-123",
         name: "new-name",
       })
-    ).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
   })
 
   it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {

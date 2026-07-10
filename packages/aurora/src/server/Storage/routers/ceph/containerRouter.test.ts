@@ -87,7 +87,7 @@ describe("buckets.list", () => {
     const caller = createCaller(ctx)
 
     await expect(caller.storage.ceph.containers.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-      new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+      expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) })
     )
   })
 

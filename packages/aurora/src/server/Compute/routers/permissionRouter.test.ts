@@ -57,7 +57,7 @@ describe("permissionRouter", () => {
 
   describe("canUser", () => {
     describe("Authentication validation", () => {
-      it("should throw UNAUTHORIZED when rescoping fails", async () => {
+      it("should throw FORBIDDEN when rescoping fails", async () => {
         const mockContextWithFailedRescope = {
           ...mockContext,
           rescopeSession: vi.fn().mockResolvedValue(null),
@@ -68,8 +68,8 @@ describe("permissionRouter", () => {
         await expect(
           callerWithFailedRescope.canUser({ project_id: TEST_PROJECT_ID, permission: "servers:list" })
         ).rejects.toMatchObject({
-          code: "UNAUTHORIZED",
-          message: expect.stringContaining("Failed to scope session to project"),
+          code: "FORBIDDEN",
+          message: expect.stringContaining("Access denied"),
         })
       })
 

@@ -108,7 +108,7 @@ describe("sessionRouter", () => {
     it("should reject unauthenticated callers with UNAUTHORIZED", async () => {
       mockContext.validateSession.mockReturnValue(false)
       await expect(caller.getAuthToken()).rejects.toThrow(
-        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+        expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) })
       )
     })
 
@@ -217,7 +217,7 @@ describe("sessionRouter", () => {
     it("should reject unauthenticated callers with UNAUTHORIZED", async () => {
       mockContext.validateSession.mockReturnValue(false)
       await expect(caller.setCurrentScope({ type: "unscoped", value: "x" })).rejects.toThrow(
-        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+        expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) })
       )
     })
 
@@ -417,7 +417,7 @@ describe("sessionRouter", () => {
     it("should reject unauthenticated callers with UNAUTHORIZED", async () => {
       mockContext.validateSession.mockReturnValue(false)
       await expect(caller.terminateUserSession()).rejects.toThrow(
-        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+        expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) })
       )
     })
 

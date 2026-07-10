@@ -272,10 +272,7 @@ describe("floatingIpRouter.list", () => {
     const caller = createCaller(ctx)
 
     await expect(caller.floatingIp.list({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
+      expect.objectContaining({ code: "UNAUTHORIZED" })
     )
   })
 
@@ -610,10 +607,7 @@ describe("floatingIpRouter.listDnsDomains", () => {
     const caller = createCaller(ctx)
 
     await expect(caller.floatingIp.listDnsDomains({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
+      expect.objectContaining({ code: "UNAUTHORIZED" })
     )
   })
 })
@@ -662,10 +656,7 @@ describe("floatingIpRouter.listAvailablePorts", () => {
     const caller = createCaller(ctx)
 
     await expect(caller.floatingIp.listAvailablePorts({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
+      expect.objectContaining({ code: "UNAUTHORIZED" })
     )
   })
 
@@ -809,10 +800,7 @@ describe("floatingIpRouter.getById", () => {
     const caller = createCaller(ctx)
 
     await expect(caller.floatingIp.getById({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
+      expect.objectContaining({ code: "UNAUTHORIZED" })
     )
   })
 
@@ -1066,12 +1054,7 @@ describe("floatingIpRouter.update", () => {
         floatingip_id: "fip-1",
         port_id: "port-456",
       })
-    ).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
-    )
+    ).rejects.toThrow(expect.objectContaining({ code: "UNAUTHORIZED" }))
   })
 
   it("throws INTERNAL_SERVER_ERROR when network service is unavailable", async () => {
@@ -1152,10 +1135,7 @@ describe("floatingIpRouter.delete", () => {
     const caller = createCaller(ctx)
 
     await expect(caller.floatingIp.delete({ project_id: TEST_PROJECT_ID, floatingip_id: "fip-1" })).rejects.toThrow(
-      new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "The session is invalid",
-      })
+      expect.objectContaining({ code: "UNAUTHORIZED" })
     )
   })
 

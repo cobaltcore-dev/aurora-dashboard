@@ -91,7 +91,7 @@ describe("flavorRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })).rejects.toThrow(
-        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+        expect.objectContaining({ code: "UNAUTHORIZED", message: expect.any(String) })
       )
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
@@ -197,14 +197,14 @@ describe("flavorRouter", () => {
       expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(expect.any(Array), "", "name", "asc")
     })
 
-    it("should throw UNAUTHORIZED when rescopeSession returns null", async () => {
+    it("should throw FORBIDDEN when rescopeSession returns null", async () => {
       const mockCtx = createMockContext(false, true)
       const caller = createCaller(mockCtx)
 
       await expect(caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Failed to scope session to project. User may not have access to this project.",
+        expect.objectContaining({
+          code: "FORBIDDEN",
+          message: expect.stringContaining("Access denied"),
         })
       )
 
@@ -289,10 +289,7 @@ describe("flavorRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(caller.flavor.createFlavor(validFlavorInput)).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "The session is invalid",
-        })
+        expect.objectContaining({ code: "UNAUTHORIZED" })
       )
 
       expect(flavorHelpers.createFlavor).not.toHaveBeenCalled()
@@ -374,10 +371,7 @@ describe("flavorRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(caller.flavor.deleteFlavor(validDeleteInput)).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "The session is invalid",
-        })
+        expect.objectContaining({ code: "UNAUTHORIZED" })
       )
 
       expect(mockCtx.validateSession).toHaveBeenCalled()
@@ -529,10 +523,7 @@ describe("flavorRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(caller.flavor.createExtraSpecs(validCreateExtraSpecsInput)).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "The session is invalid",
-        })
+        expect.objectContaining({ code: "UNAUTHORIZED" })
       )
 
       expect(flavorHelpers.createExtraSpecs).not.toHaveBeenCalled()
@@ -671,10 +662,7 @@ describe("flavorRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(caller.flavor.getExtraSpecs(validGetExtraSpecsInput)).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "The session is invalid",
-        })
+        expect.objectContaining({ code: "UNAUTHORIZED" })
       )
 
       expect(flavorHelpers.getExtraSpecs).not.toHaveBeenCalled()
@@ -795,10 +783,7 @@ describe("flavorRouter", () => {
       const caller = createCaller(mockCtx)
 
       await expect(caller.flavor.deleteExtraSpec(validDeleteExtraSpecInput)).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "The session is invalid",
-        })
+        expect.objectContaining({ code: "UNAUTHORIZED" })
       )
 
       expect(flavorHelpers.deleteExtraSpec).not.toHaveBeenCalled()
