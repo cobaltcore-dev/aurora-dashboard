@@ -5,8 +5,7 @@ export const Route = createFileRoute("/_auth")({
   component: RouteComponent,
   beforeLoad: async ({ context, location }) => {
     if (!context.auth?.isAuthenticated) {
-      const searchString = new URLSearchParams(location.search).toString()
-      const redirectPath = location.pathname + (searchString ? `?${searchString}` : "")
+      const redirectPath = `${location.pathname}${location.searchStr || ""}${location.hash || ""}`
 
       throw redirect({
         to: "/",
