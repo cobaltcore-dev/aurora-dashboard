@@ -5,7 +5,6 @@ import type { TrpcReact, TrpcClient } from "./trpcClient"
 export function createAuroraRouter(trpcReact: TrpcReact, trpcClient: TrpcClient) {
   return createRouter({
     routeTree,
-    defaultPendingMs: 0,
     context: {
       trpcReact,
       trpcClient,
