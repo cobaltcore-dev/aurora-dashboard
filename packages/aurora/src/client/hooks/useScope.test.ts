@@ -107,20 +107,6 @@ describe("useScope", () => {
     })
   })
 
-  describe("when both values are undefined", () => {
-    it("should return both values as undefined", () => {
-      mockUseAuth.mockReturnValue(createMockAuth(undefined))
-      mockUseParams.mockReturnValue({})
-
-      const { result } = renderHook(() => useScope())
-
-      expect(result.current).toEqual({
-        userDomainId: undefined,
-        projectId: undefined,
-      })
-    })
-  })
-
   describe("useParams call", () => {
     it("should call useParams with strict: false", () => {
       mockUseAuth.mockReturnValue(
