@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react"
+import { useRef, useEffect, useState, useSyncExternalStore } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   DataGrid,
@@ -20,6 +20,13 @@ import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
 import { getObjectDownloadCancelledToast, getObjectDownloadStartedToast } from "./ObjectToastNotifications"
+import {
+  startObjectDownload,
+  cancelObjectDownload,
+  subscribeTransfers,
+  getTransfersSnapshot,
+  transferKey,
+} from "./stores/objectDownloadStore"
 
 // Extended version type for frontend use (includes isDeleted flag)
 type S3ObjectVersionExtended = S3ObjectVersion & {
@@ -32,29 +39,10 @@ import { MoveObjectModal } from "./MoveObjectModal"
 import { EditMetadataModal } from "./EditMetadataModal"
 import { ObjectVersionHistoryModal } from "./ObjectVersionHistoryModal"
 
-// MIME types that are safe to preview in a browser tab. The decision to
-// preview vs download is made from the Content-Type the BFF actually returns
-// (resolved server-side from the object key when S3 stores a generic default),
-// not from the filename — so it works for UUID-keyed objects too.
-//
-// NOTE: Intentionally exclude scriptable types (e.g. text/html, application/json,
-// application/xml) and SVG (can execute scripts when opened via blob URLs).
-const BROWSER_PREVIEWABLE_MIME_TYPES = new Set(["application/pdf", "text/plain"])
-
-function isPreviewableContentType(contentType: string): boolean {
-  const base = contentType.split(";")[0].trim().toLowerCase()
-  if (BROWSER_PREVIEWABLE_MIME_TYPES.has(base)) return true
-  if (base === "image/svg+xml") return false
-  return base.startsWith("image/") || base.startsWith("video/") || base.startsWith("audio/")
-}
-
-// One in-flight transfer for a given row: either a forced download (from the
-// context menu) or a row-click preview-or-download. Keyed by row.key in a Map
-// so multiple rows can transfer concurrently without clobbering each other.
-// controller lets the user cancel via the row's cancel button, and lets an
-// unmount (e.g. navigating to another page) abort the request immediately
-// instead of letting it keep running in the background.
-type ActiveTransfer = { kind: "download" | "preview"; downloadId: string; controller: AbortController }
+// The transfer lifecycle (worker, streaming, decode, Blob, DOM save) lives in
+// ./stores/objectDownloadStore so downloads survive this component unmounting
+// (ObjectBrowserView swaps in a <Spinner> while a folder loads). This component
+// only reads the store for UI and drives start/cancel.
 
 // Subscribes to live progress for a single in-flight transfer. Each active row
 // renders its own instance of this component (keyed by downloadId), so
@@ -169,21 +157,10 @@ export function ObjectsTableView({
   const { t } = useLingui()
   const projectId = useProjectId()
   const parentRef = useRef<HTMLDivElement>(null)
-  const isMounted = useRef(true)
-  // Keyed by row.key — lets unmount (e.g. navigating to another page mid-
-  // download) abort every in-flight request immediately, and backs the
-  // per-row cancel button. Kept in a ref (not state) so unmount's cleanup
-  // closure always sees the live set of controllers, not a stale one captured
-  // at mount time.
-  const controllersRef = useRef<Map<string, AbortController>>(new Map())
-  useEffect(() => {
-    isMounted.current = true
-    return () => {
-      isMounted.current = false
-      controllersRef.current.forEach((controller) => controller.abort())
-      controllersRef.current.clear()
-    }
-  }, [])
+  // In-flight transfers are owned by the module store (outside React) so they
+  // survive this component unmounting during folder navigation. We only read
+  // them here for rendering.
+  const activeTransfers = useSyncExternalStore(subscribeTransfers, getTransfersSnapshot)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteTarget, setDeleteTarget] = useState<{
     key: string
@@ -206,160 +183,55 @@ export function ObjectsTableView({
   } | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<string | null>(null)
   const [versionHistoryTarget, setVersionHistoryTarget] = useState<string | null>(null)
-  // Keyed by row.key so multiple rows can have an in-flight download/preview
-  // at once without one transfer's completion clobbering another's state.
-  const [activeTransfers, setActiveTransfers] = useState<Map<string, ActiveTransfer>>(new Map())
 
-  // Recognizes a cancellation (either the cancel button or unmount aborting
-  // the controller) so it can be reported as a cancellation rather than an
-  // error — see 0010_abort_signal_propagation.md for the string variants
-  // different layers of the stack can throw for the same underlying abort.
-  const isCancellation = (err: unknown, controller: AbortController) =>
-    controller.signal.aborted ||
-    (err instanceof Error &&
-      (err.name === "AbortError" ||
-        err.message === "Request canceled" ||
-        err.message.includes("signal is aborted") ||
-        err.message.includes("aborted")))
-
-  // A cancellation isn't an error — the user asked for it, so confirm it with a
-  // toast rather than routing it to onDownloadError. Aborts triggered by unmount
-  // stay quiet: isMounted is already false by the time the rejection lands here.
-  const handleTransferError = (row: ObjectRow, err: unknown, controller: AbortController) => {
-    if (isCancellation(err, controller)) {
-      if (!isMounted.current) return
-      const { message, ...options } = getObjectDownloadCancelledToast(row.key)
-      toast.warning(message, options)
-      return
-    }
-    onDownloadError(row.key, err instanceof Error ? err.message : String(err))
-  }
-
-  // Stream the object from the BFF and assemble a Blob. downloadId is set
-  // before the mutation starts so the watchDownloadProgress subscription is
-  // active from the very first byte. Chunks arrive base64-encoded (JSON/SSE
-  // transport). The AbortSignal is forwarded to the tRPC call so cancelling
-  // (button click or unmount) actually tears down the request rather than
-  // just ignoring its result — see 0010_abort_signal_propagation.md.
-  // Returns the resolved contentType so the caller can decide preview vs download.
-  const streamObjectToBlob = async (
-    row: ObjectRow,
-    activeDownloadId: string,
-    signal: AbortSignal
-  ): Promise<{ blob: Blob; filename: string; contentType: string }> => {
-    let contentType = "application/octet-stream"
-    let filename = row.displayName
-
-    const iterable = await trpcClient.storage.ceph.objects.downloadObject.mutate(
-      {
-        project_id: projectId,
-        containerName: bucketName,
-        objectKey: row.key,
-        filename: row.displayName,
-        downloadId: activeDownloadId,
-      },
-      { signal }
-    )
-
-    const chunks: Uint8Array<ArrayBuffer>[] = []
-    for await (const { chunk, contentType: ct, filename: fn } of iterable) {
-      if (ct) contentType = ct
-      if (fn) filename = fn
-      chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
-    }
-
-    return { blob: new Blob(chunks, { type: contentType }), filename, contentType }
-  }
-
-  const triggerAnchorDownload = (url: string, filename: string) => {
-    const anchor = document.createElement("a")
-    anchor.href = url
-    anchor.download = filename
-    document.body.appendChild(anchor)
-    anchor.click()
-    document.body.removeChild(anchor)
-    setTimeout(() => URL.revokeObjectURL(url), 10000)
-  }
-
-  // Setup/teardown shared by both transfer entry points: register the row's
-  // AbortController, seed the active-transfer state, announce the start, stream
-  // the object, then clean up. Only the `kind` and what happens with the
-  // resolved blob differ — those are the caller's job, via `onResolved`.
-  const runTransfer = async (
-    row: ObjectRow,
-    kind: ActiveTransfer["kind"],
-    onResolved: (result: { blob: Blob; filename: string; contentType: string }) => void
-  ) => {
-    const activeDownloadId = `${bucketName}:${row.key}:${crypto.randomUUID()}`
-    const controller = new AbortController()
-    controllersRef.current.set(row.key, controller)
-    setActiveTransfers((prev) => new Map(prev).set(row.key, { kind, downloadId: activeDownloadId, controller }))
-
+  // A download's start/cancel toasts live here (the component owns `toast` and
+  // lingui); the actual transfer + completion handling lives in the store.
+  const notifyDownloadStarted = () => {
     const { message, ...options } = getObjectDownloadStartedToast()
     toast(message, options)
-
-    try {
-      onResolved(await streamObjectToBlob(row, activeDownloadId, controller.signal))
-    } catch (err) {
-      handleTransferError(row, err, controller)
-    } finally {
-      if (controllersRef.current.get(row.key) === controller) {
-        controllersRef.current.delete(row.key)
-      }
-      if (isMounted.current) {
-        setActiveTransfers((prev) => {
-          // Only clear this row's entry if it's still the one we started —
-          // guards against a stale request's cleanup wiping a newer transfer's
-          // state if the row was clicked again after this one began.
-          if (prev.get(row.key)?.downloadId !== activeDownloadId) return prev
-          const next = new Map(prev)
-          next.delete(row.key)
-          return next
-        })
-      }
-    }
   }
 
   // Context-menu Download: always forces a file save, regardless of type.
-  const handleDownload = (row: ObjectRow) =>
-    runTransfer(row, "download", ({ blob, filename }) => {
-      triggerAnchorDownload(URL.createObjectURL(blob), filename)
+  const handleDownload = (row: ObjectRow) => {
+    notifyDownloadStarted()
+    startObjectDownload({
+      kind: "download",
+      projectId,
+      bucketName,
+      objectKey: row.key,
+      filename: row.displayName,
+      onError: onDownloadError,
     })
-
-  // Open a blob URL in a new tab for preview. Uses an anchor with
-  // target="_blank" rather than window.open — anchors are not subject to the
-  // same post-await popup-blocking that window.open is, so we can open the tab
-  // *after* streaming completes and only for files we know are previewable.
-  const openBlobInNewTab = (url: string) => {
-    const anchor = document.createElement("a")
-    anchor.href = url
-    anchor.target = "_blank"
-    anchor.rel = "noopener,noreferrer"
-    document.body.appendChild(anchor)
-    anchor.click()
-    document.body.removeChild(anchor)
-    setTimeout(() => URL.revokeObjectURL(url), 60000)
   }
 
-  // Row-click: stream the object, then decide from its actual Content-Type —
-  // previewable types open in a new tab, everything else downloads. Nothing is
-  // opened until the type is known, so non-previewable files download with no
-  // blank-tab flash.
-  const handlePreviewOrDownload = (row: ObjectRow) =>
-    runTransfer(row, "preview", ({ blob, filename, contentType }) => {
-      const url = URL.createObjectURL(blob)
-      if (isPreviewableContentType(contentType)) {
-        openBlobInNewTab(url)
-      } else {
-        triggerAnchorDownload(url, filename)
-      }
+  // Row-click: preview previewable types in a new tab, download everything else.
+  const handlePreviewOrDownload = (row: ObjectRow) => {
+    notifyDownloadStarted()
+    startObjectDownload({
+      kind: "preview",
+      projectId,
+      bucketName,
+      objectKey: row.key,
+      filename: row.displayName,
+      onError: onDownloadError,
     })
+  }
 
-  // Cancels the in-flight transfer for a row, if any. Aborting the controller
-  // rejects the pending tRPC mutation, which the catch blocks above route through
-  // handleTransferError() — recognized as a cancellation and surfaced as a toast.
+  // Cancel the in-flight transfer for a row. The store drops the entry right away
+  // (UI clears on the next render, no worker round-trip) and tells the worker to
+  // abort its tRPC call. We additionally tell the BFF directly: aborting the
+  // client fetch only reaches the server once the keep-alive connection closes,
+  // which httpBatchStreamLink delays — cancelDownload rides its own request and
+  // stops the S3 read immediately. Cancellation is a user action, so confirm it
+  // with a toast rather than treating it as an error.
   const handleCancelTransfer = (rowKey: string) => {
-    controllersRef.current.get(rowKey)?.abort()
+    const transfer = cancelObjectDownload(bucketName, rowKey)
+    if (!transfer) return
+    trpcClient.storage.ceph.objects.cancelDownload
+      .mutate({ project_id: projectId, downloadId: transfer.downloadId })
+      .catch(() => {})
+    const { message, ...options } = getObjectDownloadCancelledToast(rowKey)
+    toast.warning(message, options)
   }
 
   // Strip current prefix from display names
@@ -507,7 +379,8 @@ export function ObjectsTableView({
               const isFolder = row.kind === "folder"
               const isVersion = row.kind === "version"
               const isDeletedFile = isVersion && row.isDeleted // File that was deleted (can be restored)
-              const activeTransfer = row.kind === "object" ? activeTransfers.get(row.key) : undefined
+              const activeTransfer =
+                row.kind === "object" ? activeTransfers.get(transferKey(bucketName, row.key)) : undefined
               const isDownloading = activeTransfer?.kind === "download"
               const isPreviewing = activeTransfer?.kind === "preview"
               const isStreaming = activeTransfer !== undefined

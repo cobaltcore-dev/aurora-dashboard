@@ -45,6 +45,12 @@ downloadProgressEmitter.setMaxListeners(0) // 0 = unlimited; shared across all c
 type DownloadProgress = { downloaded: number; total: number; percent: number }
 const downloadProgressMap = new Map<string, DownloadProgress>()
 
+// Keyed by the same scopedDownloadId as downloadProgressMap. Backs the explicit
+// `cancelDownload` mutation: the client's AbortSignal only reaches this server
+// once the underlying keep-alive fetch actually closes, which httpBatchStreamLink
+// delays — so cancelDownload aborts this controller directly instead of waiting.
+const downloadAborters = new Map<string, AbortController>()
+
 const deleteAllObjectsInputSchema = z.object({
   project_id: z.string(),
   containerName: z.string().min(1),
@@ -828,6 +834,16 @@ export const objectRouter = {
     // subscriber, rather than leaving it to wait out its 30s timeout.
     const scopedDownloadId = `${project_id}:${downloadId}`
 
+    // Abort source for this download. Tripped by a genuine client disconnect
+    // (ctx.req.signal, bridged below) or by an explicit cancelDownload mutation
+    // (which aborts this controller via downloadAborters). Either one aborts the
+    // S3 GetObject and breaks the yield loop. ctx.req.signal is optional: callers
+    // created via createCallerFactory (tests, server-side) have no HTTP request.
+    const downloadAbort = new AbortController()
+    if (ctx.req.signal?.aborted) downloadAbort.abort()
+    else ctx.req.signal?.addEventListener("abort", () => downloadAbort.abort(), { once: true })
+    downloadAborters.set(scopedDownloadId, downloadAbort)
+
     // Maps an S3/unknown error to the same TRPCError shape downloadObject
     // itself throws, emits it as a terminal progress event so a concurrent
     // watchDownloadProgress subscriber is notified immediately (instead of
@@ -854,7 +870,7 @@ export const objectRouter = {
         // ctx.req.signal is aborted automatically when the client disconnects
         // (tab closed, navigated away) or explicitly via the cancel button,
         // which calls AbortController.abort() on the frontend.
-        { abortSignal: ctx.req.signal }
+        { abortSignal: downloadAbort.signal }
       )
       .catch(emitMappedError)
 
@@ -899,7 +915,7 @@ export const objectRouter = {
         // nobody wants anymore. The signal is optional: callers created via
         // createCallerFactory (tests, server-side calls) have no HTTP request
         // behind them, so there is nothing to abort.
-        if (ctx.req.signal?.aborted) {
+        if (downloadAbort.signal.aborted) {
           aborted = true
           break
         }
@@ -935,8 +951,35 @@ export const objectRouter = {
       emitMappedError(error)
     } finally {
       downloadProgressMap.delete(scopedDownloadId)
+      downloadAborters.delete(scopedDownloadId)
     }
   }),
+
+  /**
+   * Cancel an in-flight download by its client-computed `downloadId`.
+   *
+   * Aborts the server-side AbortController registered by `downloadObject`, which
+   * aborts the S3 GetObject and breaks the streaming loop.
+   *
+   * Why this exists rather than relying on the client's AbortSignal alone: the
+   * download rides `httpBatchStreamLink`, which does not dependably tear down its
+   * keep-alive fetch when a single streamed operation is aborted client-side. The
+   * connection close — and therefore `ctx.req.signal` — can lag by seconds. This
+   * mutation rides its own (non-streamed) request, so the server stops reading
+   * immediately.
+   *
+   * Scoped by project id (same key as downloadObject) so a caller can only cancel
+   * their own project's transfers. Idempotent: cancelling an unknown or
+   * already-finished download is a no-op.
+   */
+  cancelDownload: cephProtectedProcedure
+    .input(watchDownloadProgressInputSchema)
+    .mutation(({ input }): { cancelled: boolean } => {
+      const scopedDownloadId = `${input.project_id}:${input.downloadId}`
+      const aborter = downloadAborters.get(scopedDownloadId)
+      aborter?.abort()
+      return { cancelled: aborter !== undefined }
+    }),
 
   /**
    * Subscribe to real-time download progress for a given `downloadId`.
