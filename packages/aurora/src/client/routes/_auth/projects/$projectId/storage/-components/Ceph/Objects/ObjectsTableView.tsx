@@ -16,7 +16,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { trpcClient, trpcReact } from "@/client/trpcClient"
+import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
 import { getObjectDownloadCancelledToast, getObjectDownloadStartedToast } from "./ObjectToastNotifications"
@@ -219,17 +219,11 @@ export function ObjectsTableView({
 
   // Cancel the in-flight transfer for a row. The store drops the entry right away
   // (UI clears on the next render, no worker round-trip) and tells the worker to
-  // abort its tRPC call. We additionally tell the BFF directly: aborting the
-  // client fetch only reaches the server once the keep-alive connection closes,
-  // which httpBatchStreamLink delays — cancelDownload rides its own request and
-  // stops the S3 read immediately. Cancellation is a user action, so confirm it
-  // with a toast rather than treating it as an error.
+  // abort its tRPC call, which tears down the fetch so the BFF stops reading.
+  // Cancellation is a user action, so confirm it with a toast, not an error.
   const handleCancelTransfer = (rowKey: string) => {
     const transfer = cancelObjectDownload(bucketName, rowKey)
     if (!transfer) return
-    trpcClient.storage.ceph.objects.cancelDownload
-      .mutate({ project_id: projectId, downloadId: transfer.downloadId })
-      .catch(() => {})
     const { message, ...options } = getObjectDownloadCancelledToast(rowKey)
     toast.warning(message, options)
   }
