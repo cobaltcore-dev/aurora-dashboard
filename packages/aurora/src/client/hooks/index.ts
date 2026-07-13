@@ -14,3 +14,4 @@
 
 export { useProjectId } from "./useProjectId"
 export { useDomainId } from "./useDomainId"
+export { useScope } from "./useScope"

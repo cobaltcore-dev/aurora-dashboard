@@ -17,4 +17,4 @@ export {
 } from "./trpcClient"
 
 export { useAuth } from "./store/AuthProvider"
-export { useDomainId, useProjectId } from "./hooks"
+export { useDomainId, useProjectId, useScope } from "./hooks"
