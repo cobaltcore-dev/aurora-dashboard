@@ -7,27 +7,27 @@ describe("resolveProjectScope", () => {
       const result = resolveProjectScope({
         projectId: "project-123",
         scopeProject: { id: "project-123" },
-        userProjects: [{ id: "project-123" }, { id: "project-456" }],
+        userProject: { id: "project-123" },
       })
 
       expect(result).toBe("valid")
     })
 
-    it("returns 'valid' even when userProjects is null if scope succeeded", () => {
+    it("returns 'valid' even when userProject is null if scope succeeded", () => {
       const result = resolveProjectScope({
         projectId: "project-123",
         scopeProject: { id: "project-123" },
-        userProjects: null,
+        userProject: null,
       })
 
       expect(result).toBe("valid")
     })
 
-    it("returns 'valid' even when userProjects is undefined if scope succeeded", () => {
+    it("returns 'valid' even when userProject is undefined if scope succeeded", () => {
       const result = resolveProjectScope({
         projectId: "project-123",
         scopeProject: { id: "project-123" },
-        userProjects: undefined,
+        userProject: undefined,
       })
 
       expect(result).toBe("valid")
@@ -35,51 +35,31 @@ describe("resolveProjectScope", () => {
   })
 
   describe("not_found status", () => {
-    it("returns 'not_found' when scopeProject is undefined and project not in userProjects", () => {
+    it("returns 'not_found' when scopeProject is undefined and userProject id doesn't match", () => {
       const result = resolveProjectScope({
         projectId: "project-999",
         scopeProject: undefined,
-        userProjects: [{ id: "project-123" }, { id: "project-456" }],
+        userProject: { id: "project-123" },
       })
 
       expect(result).toBe("not_found")
     })
 
-    it("returns 'not_found' when scopeProject is null and project not in userProjects", () => {
+    it("returns 'not_found' when scopeProject is null and userProject id doesn't match", () => {
       const result = resolveProjectScope({
         projectId: "project-999",
         scopeProject: null,
-        userProjects: [{ id: "project-123" }, { id: "project-456" }],
+        userProject: { id: "project-123" },
       })
 
       expect(result).toBe("not_found")
     })
 
-    it("returns 'not_found' when scopeProject is undefined and userProjects is empty", () => {
-      const result = resolveProjectScope({
-        projectId: "project-999",
-        scopeProject: undefined,
-        userProjects: [],
-      })
-
-      expect(result).toBe("not_found")
-    })
-
-    it("returns 'not_found' when scopeProject is undefined and userProjects is empty", () => {
-      const result = resolveProjectScope({
-        projectId: "project-999",
-        scopeProject: undefined,
-        userProjects: [],
-      })
-
-      expect(result).toBe("not_found")
-    })
-
-    it("returns 'not_found' when scopeProject has no id property and project not in userProjects", () => {
+    it("returns 'not_found' when scopeProject has no id and userProject id doesn't match", () => {
       const result = resolveProjectScope({
         projectId: "project-999",
         scopeProject: {},
-        userProjects: [{ id: "project-123" }],
+        userProject: { id: "project-123" },
       })
 
       expect(result).toBe("not_found")
@@ -87,61 +67,51 @@ describe("resolveProjectScope", () => {
   })
 
   describe("scope_failed status", () => {
-    it("returns 'scope_failed' when project is in userProjects but scopeProject is undefined", () => {
+    it("returns 'scope_failed' when project matches userProject but scopeProject is undefined", () => {
       const result = resolveProjectScope({
         projectId: "project-123",
         scopeProject: undefined,
-        userProjects: [{ id: "project-123" }, { id: "project-456" }],
+        userProject: { id: "project-123" },
       })
 
       expect(result).toBe("scope_failed")
     })
 
-    it("returns 'scope_failed' when project is in userProjects but scopeProject is null", () => {
+    it("returns 'scope_failed' when project matches userProject but scopeProject is null", () => {
       const result = resolveProjectScope({
         projectId: "project-123",
         scopeProject: null,
-        userProjects: [{ id: "project-123" }, { id: "project-456" }],
+        userProject: { id: "project-123" },
       })
 
       expect(result).toBe("scope_failed")
     })
 
-    it("returns 'scope_failed' when project is in userProjects but scopeProject.id doesn't match", () => {
+    it("returns 'scope_failed' when project matches userProject but scopeProject.id doesn't match", () => {
       const result = resolveProjectScope({
         projectId: "project-123",
         scopeProject: { id: "project-456" },
-        userProjects: [{ id: "project-123" }, { id: "project-456" }],
+        userProject: { id: "project-123" },
       })
 
       expect(result).toBe("scope_failed")
     })
 
-    it("returns 'scope_failed' when project is in userProjects but scopeProject has no id", () => {
-      const result = resolveProjectScope({
-        projectId: "project-123",
-        scopeProject: {},
-        userProjects: [{ id: "project-123" }, { id: "project-456" }],
-      })
-
-      expect(result).toBe("scope_failed")
-    })
-
-    it("returns 'scope_failed' when scopeProject is undefined and userProjects is null (can't verify)", () => {
+    it("returns 'scope_failed' when scopeProject is undefined and userProject is null (can't verify)", () => {
       const result = resolveProjectScope({
         projectId: "project-999",
         scopeProject: undefined,
-        userProjects: null,
+        userProject: null,
       })
 
       expect(result).toBe("scope_failed")
     })
 
-    it("returns 'scope_failed' when scopeProject is undefined and userProjects is undefined (can't verify)", () => {
+    it("returns 'scope_failed' when scopeProject is undefined and userProject is undefined (can't verify)", () => {
       const result = resolveProjectScope({
         projectId: "project-999",
         scopeProject: undefined,
-        userProjects: undefined,
+        userProject: undefined,
       })
 
       expect(result).toBe("scope_failed")
@@ -155,7 +125,7 @@ describe("resolveProjectScope", () => {
       const result = resolveProjectScope({
         projectId: "project-123",
         scopeProject: { id: "project-123" },
-        userProjects: [{ id: "project-123" }],
+        userProject: { id: "project-123" },
       })
 
       expect(validStatuses).toContain(result)

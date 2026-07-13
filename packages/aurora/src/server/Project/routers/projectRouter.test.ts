@@ -87,3 +87,54 @@ describe("projectRouter.getAuthProjects", () => {
     expect(result?.every((p) => p.domain_name === undefined)).toBe(true)
   })
 })
+
+describe("projectRouter.getProject", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("returns the project when found", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ project: { id: "p1", name: "shadowvault", enabled: true } }),
+    } as Response)
+
+    const caller = createCaller(makeCtx())
+    const result = await caller.getProject({ projectId: "p1" })
+
+    expect(result?.id).toBe("p1")
+    expect(result?.name).toBe("shadowvault")
+  })
+
+  it("returns null when project is not found (404)", async () => {
+    mockFetch.mockResolvedValueOnce({ ok: false, status: 404, statusText: "Not Found" } as Response)
+
+    const caller = createCaller(makeCtx())
+    const result = await caller.getProject({ projectId: "nonexistent" })
+
+    expect(result).toBeNull()
+  })
+
+  it("returns null when access is denied (403)", async () => {
+    mockFetch.mockResolvedValueOnce({ ok: false, status: 403, statusText: "Forbidden" } as Response)
+
+    const caller = createCaller(makeCtx())
+    const result = await caller.getProject({ projectId: "p1" })
+
+    expect(result).toBeNull()
+  })
+
+  it("returns null when fetch fails", async () => {
+    mockFetch.mockRejectedValueOnce(new Error("network error"))
+
+    const caller = createCaller(makeCtx())
+    const result = await caller.getProject({ projectId: "p1" })
+
+    expect(result).toBeNull()
+  })
+
+  it("throws UNAUTHORIZED when no openstack session", async () => {
+    const caller = createCaller(makeCtx({ openstack: undefined }))
+    await expect(caller.getProject({ projectId: "p1" })).rejects.toBeInstanceOf(TRPCError)
+  })
+})
