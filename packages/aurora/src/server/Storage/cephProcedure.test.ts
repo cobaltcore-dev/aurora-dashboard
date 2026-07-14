@@ -215,7 +215,7 @@ describe("cephProcedure", () => {
         const caller = createCaller(ctx)
 
         await expect(caller.test.checkStatus({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-          "Ceph service not found in catalog"
+          "Ceph service not found in OpenStack service catalog"
         )
       })
 
@@ -224,7 +224,7 @@ describe("cephProcedure", () => {
         const caller = createCaller(ctx)
 
         await expect(caller.test.checkStatus({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-          "Ceph service not found in catalog"
+          "Ceph service not found in OpenStack service catalog"
         )
       })
 
@@ -233,7 +233,7 @@ describe("cephProcedure", () => {
         const caller = createCaller(ctx)
 
         await expect(caller.test.checkStatus({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-          "Ceph service not found in catalog"
+          "Ceph service not found in OpenStack service catalog"
         )
       })
 
@@ -242,7 +242,7 @@ describe("cephProcedure", () => {
         const caller = createCaller(ctx)
 
         await expect(caller.test.checkStatus({ project_id: TEST_PROJECT_ID })).rejects.toThrow(
-          "Ceph service not found in catalog"
+          "Region not found in Ceph service endpoints"
         )
       })
     })
