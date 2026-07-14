@@ -31,15 +31,15 @@ export const Route = createFileRoute("/_auth/projects/$projectId")({
       }
     }
 
-    const [availableServices, projects] = await Promise.all([
+    const [availableServices, project] = await Promise.all([
       context.trpcClient?.auth.getAvailableServices.query(),
-      context.trpcClient?.project.getAuthProjects.query().catch(() => null),
+      context.trpcClient?.project.getProject.query({ projectId: params.projectId }).catch(() => null),
     ])
 
     const projectScopeStatus = resolveProjectScope({
       projectId: params.projectId,
       scopeProject: scopeData?.project,
-      userProjects: projects,
+      userProject: project,
     })
 
     if (projectScopeStatus === "scope_failed") {
@@ -53,7 +53,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId")({
     }
 
     const accountId = scopeData?.domain?.id || ""
-    const description = projects?.find((p) => p.id === params.projectId)?.description ?? null
+    const description = project?.description ?? null
 
     return {
       trpcClient: context.trpcClient,

@@ -4,7 +4,7 @@ import { ProjectsOverviewNavBar } from "@/client/routes/_auth/projects/-componen
 import { ProjectCardView } from "@/client/routes/_auth/projects/-components/ProjectCardView"
 import { RouteError } from "@/client/components/Error/RouteError"
 import { TRPCClientError } from "@trpc/client"
-import { Container, ContentHeading } from "@cloudoperators/juno-ui-components"
+import { Container, ContentHeading, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import { z } from "zod"
 import { Slot } from "@/client/components/Slot"
@@ -21,6 +21,12 @@ export const Route = createFileRoute("/_auth/projects/")({
     },
   } satisfies RouteInfo,
   component: ProjectsOverview,
+  pendingComponent: () => (
+    <Stack className="fixed inset-0" distribution="center" alignment="center">
+      <div className="absolute inset-0 backdrop-blur-sm" />
+      <Spinner variant="primary" size="large" />
+    </Stack>
+  ),
   errorComponent: ({ error }) => (
     <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />
   ),
