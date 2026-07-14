@@ -1,5 +1,12 @@
 # @cobaltcore-dev/aurora
 
+## 0.20.1
+
+### Patch Changes
+
+- 7549dec: Fix project detail page slowdown by fetching single project instead of all projects
+- 04cc26d: fix error message when ceph region is not set
+
 ## 0.20.0
 
 ### Minor Changes
