@@ -43,32 +43,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         else setError("Could not load current user session")
       })
       .finally(() => setIsLoading(false))
-  }, [setUser, setExpiresAt, setError, setIsLoading])
+  }, [])
 
   const logout = useCallback(async () => {
     await trpcClient.auth.terminateUserSession.mutate().catch()
     setUser(null)
     setExpiresAt(null)
-  }, [setUser, setExpiresAt])
+  }, [])
 
-  const login = useCallback(
-    async ({ domain, user, password }: { domain: string; user: string; password: string }) => {
-      try {
-        setIsLoading(true)
-        const session = await trpcClient.auth.createUserSession.mutate({ domainName: domain, user, password })
-        setUser(session.user)
-        setExpiresAt(session.expires_at)
-        setIsLoading(false)
-        return { success: true }
-      } catch (error) {
-        if (error instanceof Error) setError(error.message)
-        else setError(`Cloud not create session ${error}`)
-        setIsLoading(false)
-        return { success: false }
-      }
-    },
-    [setUser, setExpiresAt, setError]
-  )
+  const login = useCallback(async ({ domain, user, password }: { domain: string; user: string; password: string }) => {
+    try {
+      setIsLoading(true)
+      const session = await trpcClient.auth.createUserSession.mutate({ domainName: domain, user, password })
+      setUser(session.user)
+      setExpiresAt(session.expires_at)
+      setIsLoading(false)
+      return { success: true }
+    } catch (error) {
+      if (error instanceof Error) setError(error.message)
+      else setError(`Could not create session: ${error}`)
+      setIsLoading(false)
+      return { success: false }
+    }
+  }, [])
 
   return (
     <AuthContext.Provider

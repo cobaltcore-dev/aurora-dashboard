@@ -21,23 +21,15 @@ function LandingPage() {
   const { redirect: searchRedirect } = Route.useSearch()
   const navigate = useNavigate()
 
-  // Redirect-Ziel ermitteln
-  const getRedirectTarget = (): string => {
-    const savedRedirect = sessionStorage.getItem("redirect_after_login")
-
-    if (isSafeRedirect(savedRedirect)) {
-      return savedRedirect
-    }
-    if (isSafeRedirect(searchRedirect)) {
-      return searchRedirect
-    }
-    return "/projects"
-  }
-
-  // Redirect wenn authentifiziert (in useEffect, nicht im Render!)
+  // Redirect when authenticated
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      const target = getRedirectTarget()
+      const savedRedirect = sessionStorage.getItem("redirect_after_login")
+      const target = isSafeRedirect(savedRedirect)
+        ? savedRedirect
+        : isSafeRedirect(searchRedirect)
+          ? searchRedirect
+          : "/projects"
       sessionStorage.removeItem("redirect_after_login")
       navigate({ to: target, replace: true })
     }
@@ -52,17 +44,10 @@ function LandingPage() {
     )
   }
 
-  // Nicht authentifiziert → Login Form
   if (!isAuthenticated) {
-    const handleAfterLogin = async () => {
-      const target = getRedirectTarget()
-      sessionStorage.removeItem("redirect_after_login")
-      navigate({ to: target, replace: true })
-    }
-
-    return <LoginForm afterLogin={handleAfterLogin} />
+    return <LoginForm />
   }
 
-  // Wird redirected...
+  // Redirecting...
   return null
 }

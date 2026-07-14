@@ -19,7 +19,7 @@ const textinputstyles = `
   peer
 `
 
-export function LoginForm({ afterLogin }: { afterLogin: () => Promise<void> }) {
+export function LoginForm() {
   const { t } = useLingui()
   const { isLoading, error: loginError, login } = useAuth()
 
@@ -39,20 +39,10 @@ export function LoginForm({ afterLogin }: { afterLogin: () => Promise<void> }) {
           onSubmit={(e) => {
             e.preventDefault()
             const formData = new FormData(e.currentTarget)
-            console.log("====", {
-              domain: formData.get("domain") as string,
-              user: formData.get("user") as string,
-              password: formData.get("password") as string,
-            })
             login({
               domain: formData.get("domain") as string,
               user: formData.get("user") as string,
               password: formData.get("password") as string,
-            }).then(({ success }) => {
-              if (success) {
-                console.log(afterLogin)
-                afterLogin()
-              }
             })
           }}
         >
