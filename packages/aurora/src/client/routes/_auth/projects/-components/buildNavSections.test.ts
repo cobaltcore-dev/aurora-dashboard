@@ -16,6 +16,7 @@ const ALL_SERVICES = [
   { type: "compute", name: "nova" },
   { type: "network", name: "neutron" },
   { type: "object-store", name: "swift" },
+  { type: "object-store-ceph", name: "ceph" },
   { type: "pca", name: "clavis-beta" },
 ]
 
@@ -45,11 +46,10 @@ describe("buildNavSections", () => {
 
   it("omits a section when none of its services are available", () => {
     const sections = buildNavSections("proj-1", [])
-    // storage always has ceph-containers regardless of availableServices,
-    // so only compute, network, and services are absent
     const keys = sections.map((s) => s.section)
     expect(keys).not.toContain("compute")
     expect(keys).not.toContain("network")
+    expect(keys).not.toContain("storage")
     expect(keys).not.toContain("services")
   })
 
