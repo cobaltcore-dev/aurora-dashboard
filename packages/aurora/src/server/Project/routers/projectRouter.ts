@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
-import { Project, projectsResponseSchema } from "../types/models"
+import { Project, projectResponseSchema, projectsResponseSchema } from "../types/models"
 
 /**
  * Helper function to call Identity API endpoints directly
@@ -181,5 +181,36 @@ export const projectRouter = {
       projects.sort((a, b) => a.name.localeCompare(b.name))
 
       return projects
+    }),
+
+  getProject: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }): Promise<Project | null> => {
+      if (!ctx.openstack) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "No authenticated session",
+        })
+      }
+
+      const token = ctx.openstack.getToken()
+      if (!token?.authToken) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "No auth token available",
+        })
+      }
+
+      const response = await callIdentityAPI(
+        ctx.identityEndpoint,
+        token.authToken,
+        `projects/${input.projectId}`
+      ).catch(() => null)
+
+      if (!response) return null
+
+      const data = await response.json()
+      const parsed = projectResponseSchema.safeParse(data)
+      return parsed.success ? parsed.data.project : null
     }),
 }
