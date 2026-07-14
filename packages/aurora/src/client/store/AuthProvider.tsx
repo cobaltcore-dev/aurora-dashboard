@@ -22,14 +22,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const [expiresAt, setExpiresAt] = useState<string | null>(null)
 
-  // Shared logout logic
-  const clearSessionAndRedirect = () => {
-    if (window.location.pathname !== "/") {
+  // Clear session and optionally save return URL
+  const clearSessionAndRedirect = (saveReturnUrl: boolean = false) => {
+    if (saveReturnUrl && window.location.pathname !== "/") {
       sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search)
-      window.location.href = "/"
     }
     setUser(null)
     setExpiresAt(null)
+    if (window.location.pathname !== "/") {
+      window.location.href = "/"
+    }
   }
 
   // Get current session on mount
@@ -54,11 +56,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
     if (timeUntilExpiry <= 0) {
-      clearSessionAndRedirect()
+      clearSessionAndRedirect(true) // Save return URL on expiry
       return
     }
 
-    const timer = setTimeout(clearSessionAndRedirect, timeUntilExpiry)
+    const timer = setTimeout(() => clearSessionAndRedirect(true), timeUntilExpiry)
     return () => clearTimeout(timer)
   }, [user, expiresAt])
 
@@ -81,8 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     setIsLoading(true)
     await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
-    clearSessionAndRedirect()
-    setIsLoading(false)
+    clearSessionAndRedirect(false) // Don't save return URL on manual logout
   }
 
   return (

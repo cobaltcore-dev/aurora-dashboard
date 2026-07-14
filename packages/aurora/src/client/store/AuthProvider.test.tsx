@@ -253,20 +253,18 @@ describe("AuthProvider", () => {
       })
 
       // Start logout
-      let logoutPromise: Promise<void>
       act(() => {
-        logoutPromise = result.current.logout()
+        result.current.logout()
       })
 
       expect(result.current.isLoading).toBe(true)
 
-      // Resolve logout
+      // Resolve logout - in real app this triggers page reload via window.location.href
       await act(async () => {
         resolveLogout!()
-        await logoutPromise
       })
 
-      expect(result.current.isLoading).toBe(false)
+      // After logout, user should be cleared (page would reload in real browser)
       expect(result.current.isAuthenticated).toBe(false)
     })
 
