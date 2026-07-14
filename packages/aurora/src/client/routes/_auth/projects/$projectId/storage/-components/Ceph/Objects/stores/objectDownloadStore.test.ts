@@ -1,0 +1,212 @@
+// @vitest-environment jsdom
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+
+// A controllable stand-in for the module Worker the store spawns. The store only
+// imports the worker's *types* (erased at build), so it never loads the real
+// worker file — stubbing the global Worker constructor is enough. Tests drive
+// replies via emitMessage/emitError.
+class MockWorker {
+  static instances: MockWorker[] = []
+  onmessage: ((e: MessageEvent) => void) | null = null
+  onerror: ((e: { message: string }) => void) | null = null
+  posted: unknown[] = []
+  terminated = false
+  constructor(
+    public url: URL | string,
+    public options?: WorkerOptions
+  ) {
+    MockWorker.instances.push(this)
+  }
+  postMessage(msg: unknown) {
+    this.posted.push(msg)
+  }
+  terminate() {
+    this.terminated = true
+  }
+  emitMessage(data: unknown) {
+    this.onmessage?.({ data } as MessageEvent)
+  }
+  emitError(message: string) {
+    this.onerror?.({ message })
+  }
+}
+
+// The store keeps module-scope state (the transfers Map), so each test gets a
+// fresh module via resetModules + dynamic import to avoid cross-test leakage.
+type StoreModule = typeof import("./objectDownloadStore")
+let store: StoreModule
+
+const clicked: Array<{ href: string; target: string; download: string }> = []
+
+beforeEach(async () => {
+  MockWorker.instances = []
+  clicked.length = 0
+  vi.stubGlobal("Worker", MockWorker as unknown as typeof Worker)
+  vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
+  vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
+  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+    clicked.push({ href: this.href, target: this.target, download: this.download })
+  })
+
+  vi.resetModules()
+  store = await import("./objectDownloadStore")
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
+})
+
+const start = (over: Partial<Parameters<StoreModule["startObjectDownload"]>[0]> = {}) => {
+  const onError = vi.fn()
+  store.startObjectDownload({
+    kind: "download",
+    projectId: "p",
+    bucketName: "b",
+    objectKey: "k.zip",
+    filename: "k.zip",
+    onError,
+    ...over,
+  })
+  return { onError, worker: MockWorker.instances.at(-1)! }
+}
+
+describe("objectDownloadStore", () => {
+  it("spawns a worker and posts a start message with a scoped downloadId", () => {
+    const { worker } = start()
+
+    expect(MockWorker.instances).toHaveLength(1)
+    expect(worker.options).toMatchObject({ type: "module" })
+    const msg = worker.posted[0] as { type: string; downloadId: string; objectKey: string }
+    expect(msg).toMatchObject({ type: "start", projectId: "p", bucketName: "b", objectKey: "k.zip" })
+    expect(msg.downloadId.startsWith("b:k.zip:")).toBe(true)
+  })
+
+  it("exposes the active transfer in the snapshot and notifies subscribers", () => {
+    const listener = vi.fn()
+    store.subscribeTransfers(listener)
+
+    start()
+
+    expect(listener).toHaveBeenCalled()
+    const transfer = store.getTransfersSnapshot().get(store.transferKey("b", "k.zip"))
+    expect(transfer).toMatchObject({ kind: "download" })
+  })
+
+  it("ignores a second start for a row already transferring", () => {
+    start()
+    start()
+    expect(MockWorker.instances).toHaveLength(1)
+  })
+
+  it("saves the file on a successful 'download' transfer, then clears + terminates", () => {
+    const { worker } = start({ kind: "download" })
+
+    worker.emitMessage({ ok: true, blob: new Blob(["x"]), filename: "k.zip", contentType: "application/zip" })
+
+    expect(clicked).toHaveLength(1)
+    expect(clicked[0]).toMatchObject({ href: "blob:mock", download: "k.zip", target: "" })
+    expect(store.getTransfersSnapshot().get(store.transferKey("b", "k.zip"))).toBeUndefined()
+    expect(worker.terminated).toBe(true)
+  })
+
+  it("opens a new tab for a 'preview' transfer when the type is previewable", () => {
+    const { worker } = start({ kind: "preview", objectKey: "doc.pdf", filename: "doc.pdf" })
+
+    worker.emitMessage({ ok: true, blob: new Blob(["x"]), filename: "doc.pdf", contentType: "application/pdf" })
+
+    expect(clicked).toHaveLength(1)
+    expect(clicked[0]).toMatchObject({ href: "blob:mock", target: "_blank" })
+  })
+
+  it("downloads a 'preview' transfer when the type is not previewable", () => {
+    const { worker } = start({ kind: "preview", objectKey: "a.zip", filename: "a.zip" })
+
+    worker.emitMessage({ ok: true, blob: new Blob(["x"]), filename: "a.zip", contentType: "application/zip" })
+
+    expect(clicked).toHaveLength(1)
+    expect(clicked[0]).toMatchObject({ download: "a.zip", target: "" })
+  })
+
+  it("routes a worker error to onError (and not a save)", () => {
+    const { worker, onError } = start()
+
+    worker.emitMessage({ ok: false, cancelled: false, message: "boom" })
+
+    expect(onError).toHaveBeenCalledWith("k.zip", "boom")
+    expect(clicked).toHaveLength(0)
+    expect(store.getTransfersSnapshot().get(store.transferKey("b", "k.zip"))).toBeUndefined()
+  })
+
+  it("does not treat a cancelled reply as an error", () => {
+    const { worker, onError } = start()
+
+    worker.emitMessage({ ok: false, cancelled: true, message: "aborted" })
+
+    expect(onError).not.toHaveBeenCalled()
+    expect(clicked).toHaveLength(0)
+  })
+
+  it("cancelObjectDownload posts cancel, drops the entry, and returns the transfer", () => {
+    const { worker } = start()
+
+    const transfer = store.cancelObjectDownload("b", "k.zip")
+
+    expect(transfer).toBeDefined()
+    expect(worker.posted).toContainEqual({ type: "cancel" })
+    expect(store.getTransfersSnapshot().get(store.transferKey("b", "k.zip"))).toBeUndefined()
+  })
+
+  it("cancelObjectDownload returns undefined for an unknown transfer", () => {
+    expect(store.cancelObjectDownload("b", "missing")).toBeUndefined()
+  })
+
+  it("ignores a late reply from a cancelled worker (no save)", () => {
+    const { worker } = start()
+    store.cancelObjectDownload("b", "k.zip")
+
+    // The worker finishes its abort and replies after cancel — must be ignored.
+    worker.emitMessage({ ok: true, blob: new Blob(["x"]), filename: "k.zip", contentType: "application/zip" })
+
+    expect(clicked).toHaveLength(0)
+    expect(worker.terminated).toBe(true)
+  })
+
+  it("errors through onError when the Worker constructor throws", () => {
+    vi.stubGlobal(
+      "Worker",
+      class {
+        constructor() {
+          throw new Error("no workers")
+        }
+      } as unknown as typeof Worker
+    )
+    const onError = vi.fn()
+    store.startObjectDownload({
+      kind: "download",
+      projectId: "p",
+      bucketName: "b",
+      objectKey: "k.zip",
+      filename: "k.zip",
+      onError,
+    })
+    expect(onError).toHaveBeenCalledWith("k.zip", "no workers")
+    expect(store.getTransfersSnapshot().get(store.transferKey("b", "k.zip"))).toBeUndefined()
+  })
+
+  describe("isPreviewableContentType", () => {
+    it("previews pdf, text, images, video, audio", () => {
+      for (const ct of ["application/pdf", "text/plain", "image/png", "video/mp4", "audio/mpeg"]) {
+        expect(store.isPreviewableContentType(ct)).toBe(true)
+      }
+    })
+    it("does not preview scriptable types or svg or unknown binaries", () => {
+      for (const ct of ["text/html", "application/json", "image/svg+xml", "application/octet-stream"]) {
+        expect(store.isPreviewableContentType(ct)).toBe(false)
+      }
+    })
+    it("ignores charset parameters", () => {
+      expect(store.isPreviewableContentType("text/plain; charset=utf-8")).toBe(true)
+    })
+  })
+})
