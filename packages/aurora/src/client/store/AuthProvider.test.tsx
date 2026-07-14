@@ -1,38 +1,49 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { renderHook, act } from "@testing-library/react"
+import { renderHook, act, waitFor } from "@testing-library/react"
 import { AuthProvider, useAuth } from "./AuthProvider"
-import type { User } from "./AuthProvider"
 import { ReactNode } from "react"
 
-// Extract the non-null user type
-type AuthUser = NonNullable<User>
+// Mock trpcClient
+vi.mock("../trpcClient", () => ({
+  trpcClient: {
+    auth: {
+      getCurrentUserSession: {
+        query: vi.fn(),
+      },
+      createUserSession: {
+        mutate: vi.fn(),
+      },
+      terminateUserSession: {
+        mutate: vi.fn(),
+      },
+    },
+  },
+}))
 
-// Mock router object passed as prop
-const mockRouter = {
-  navigate: vi.fn(),
-  invalidate: vi.fn(),
+import { trpcClient } from "../trpcClient"
+
+const mockGetCurrentUserSession = trpcClient.auth.getCurrentUserSession.query as ReturnType<typeof vi.fn>
+const mockCreateUserSession = trpcClient.auth.createUserSession.mutate as ReturnType<typeof vi.fn>
+const mockTerminateUserSession = trpcClient.auth.terminateUserSession.mutate as ReturnType<typeof vi.fn>
+
+const mockSession = {
+  user: {
+    id: "1",
+    name: "Test User",
+    domain: { id: "123", name: "Test Domain" },
+    password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
 }
 
-const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider router={mockRouter}>{children}</AuthProvider>
+const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider>{children}</AuthProvider>
 
 describe("AuthProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.useFakeTimers()
-
-    // Reset mock router
-    mockRouter.navigate.mockClear()
-    mockRouter.invalidate.mockClear()
-
-    // Mock window.location
-    Object.defineProperty(window, "location", {
-      value: {
-        pathname: "/dashboard",
-        search: "",
-      },
-      writable: true,
-      configurable: true,
-    })
+    // Default: no existing session
+    mockGetCurrentUserSession.mockResolvedValue(null)
+    mockTerminateUserSession.mockResolvedValue(undefined)
   })
 
   afterEach(() => {
@@ -40,11 +51,46 @@ describe("AuthProvider", () => {
   })
 
   describe("Initialization", () => {
-    it("should start with unauthenticated state", () => {
+    it("should start with loading state and fetch current session", async () => {
       const { result } = renderHook(() => useAuth(), { wrapper })
+
+      // Initially loading
+      expect(result.current.isLoading).toBe(true)
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
 
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.user).toBeNull()
+      expect(mockGetCurrentUserSession).toHaveBeenCalledOnce()
+    })
+
+    it("should restore session if one exists", async () => {
+      mockGetCurrentUserSession.mockResolvedValue(mockSession)
+
+      const { result } = renderHook(() => useAuth(), { wrapper })
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.isAuthenticated).toBe(true)
+      expect(result.current.user).toEqual(mockSession.user)
+      expect(result.current.expiresAt).toBeInstanceOf(Date)
+    })
+
+    it("should set error if session fetch fails", async () => {
+      mockGetCurrentUserSession.mockRejectedValue(new Error("Network error"))
+
+      const { result } = renderHook(() => useAuth(), { wrapper })
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.isAuthenticated).toBe(false)
+      expect(result.current.error).toBe("Network error")
     })
 
     it("should throw error when used outside provider", () => {
@@ -55,85 +101,107 @@ describe("AuthProvider", () => {
   })
 
   describe("Login", () => {
-    it("should authenticate user on login", async () => {
+    it("should authenticate user on successful login", async () => {
+      mockCreateUserSession.mockResolvedValue(mockSession)
+
       const { result } = renderHook(() => useAuth(), { wrapper })
 
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test User",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
       })
 
+      let loginResult: { success: boolean } | undefined
+
+      await act(async () => {
+        loginResult = await result.current.login({
+          domain: "test-domain",
+          user: "testuser",
+          password: "testpass",
+        })
+      })
+
+      expect(loginResult?.success).toBe(true)
       expect(result.current.isAuthenticated).toBe(true)
-      expect(result.current.user).toEqual(mockUser)
-    })
-
-    it("should set expiration date when provided", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test User",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser, expiresAt)
-      })
-
+      expect(result.current.user).toEqual(mockSession.user)
       expect(result.current.expiresAt).toBeInstanceOf(Date)
+      expect(mockCreateUserSession).toHaveBeenCalledWith({
+        domainName: "test-domain",
+        user: "testuser",
+        password: "testpass",
+      })
     })
 
-    it("should clear logout reason on login", async () => {
+    it("should return success false and set error on failed login", async () => {
+      mockCreateUserSession.mockRejectedValue(new Error("Invalid credentials"))
+
       const { result } = renderHook(() => useAuth(), { wrapper })
 
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      // First login and logout
-      await act(async () => {
-        await result.current.login(mockUser)
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
       })
 
+      let loginResult: { success: boolean } | undefined
+
       await act(async () => {
-        await result.current.logout()
+        loginResult = await result.current.login({
+          domain: "test-domain",
+          user: "testuser",
+          password: "wrongpass",
+        })
       })
 
+      expect(loginResult?.success).toBe(false)
       expect(result.current.isAuthenticated).toBe(false)
+      expect(result.current.error).toBe("Invalid credentials")
+    })
 
-      // Login again
-      await act(async () => {
-        await result.current.login(mockUser)
+    it("should set loading state during login", async () => {
+      let resolveLogin: (value: typeof mockSession) => void
+      mockCreateUserSession.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveLogin = resolve
+          })
+      )
+
+      const { result } = renderHook(() => useAuth(), { wrapper })
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
       })
 
+      // Start login
+      let loginPromise: Promise<{ success: boolean }>
+      act(() => {
+        loginPromise = result.current.login({
+          domain: "test-domain",
+          user: "testuser",
+          password: "testpass",
+        })
+      })
+
+      // Should be loading
+      expect(result.current.isLoading).toBe(true)
+
+      // Resolve login
+      await act(async () => {
+        resolveLogin!(mockSession)
+        await loginPromise
+      })
+
+      expect(result.current.isLoading).toBe(false)
       expect(result.current.isAuthenticated).toBe(true)
     })
   })
 
   describe("Logout", () => {
-    it("should logout and invalidate router", async () => {
+    it("should clear user and call terminate session on logout", async () => {
+      mockGetCurrentUserSession.mockResolvedValue(mockSession)
+
       const { result } = renderHook(() => useAuth(), { wrapper })
 
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
+      await waitFor(() => {
+        expect(result.current.isAuthenticated).toBe(true)
       })
 
       await act(async () => {
@@ -142,388 +210,46 @@ describe("AuthProvider", () => {
 
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.user).toBeNull()
-      expect(mockRouter.invalidate).toHaveBeenCalled()
+      expect(mockTerminateUserSession).toHaveBeenCalledOnce()
     })
 
-    it("should navigate to login on logout", async () => {
+    it("should clear user even if terminate session fails", async () => {
+      mockGetCurrentUserSession.mockResolvedValue(mockSession)
+      mockTerminateUserSession.mockRejectedValue(new Error("Network error"))
+
       const { result } = renderHook(() => useAuth(), { wrapper })
 
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
-      })
-
-      await act(async () => {
-        await result.current.logout()
-      })
-
-      expect(result.current.isAuthenticated).toBe(false)
-      expect(mockRouter.navigate).toHaveBeenCalledWith({
-        to: "/",
-        search: { redirect: "/dashboard" },
-      })
-    })
-
-    it("should navigate to login on expired logout", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
-      })
-
-      await act(async () => {
-        await result.current.logout()
-      })
-
-      expect(result.current.isAuthenticated).toBe(false)
-      expect(mockRouter.navigate).toHaveBeenCalledWith({
-        to: "/",
-        search: { redirect: "/dashboard" },
-      })
-    })
-  })
-
-  describe("Inactivity Timer (removed)", () => {
-    it("should NOT logout user after 60 minutes of inactivity", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test User",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
-      })
-
-      expect(result.current.isAuthenticated).toBe(true)
-
-      // Fast-forward 60 minutes — should still be authenticated (inactivity timeout removed)
-      await act(async () => {
-        vi.advanceTimersByTime(60 * 60 * 1000)
-      })
-
-      expect(result.current.isAuthenticated).toBe(true)
-    })
-
-    it("should NOT reset inactivity timer on user activity (timer removed)", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test User",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
-      })
-
-      expect(result.current.isAuthenticated).toBe(true)
-
-      // Advance 90 minutes with various activity events
-      await act(async () => {
-        vi.advanceTimersByTime(30 * 60 * 1000)
-      })
-
-      // Simulate user activity
-      await act(async () => {
-        document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
-      })
-
-      await act(async () => {
-        vi.advanceTimersByTime(60 * 60 * 1000)
-      })
-
-      // Should still be authenticated — inactivity timer removed
-      expect(result.current.isAuthenticated).toBe(true)
-    })
-
-    it("should NOT detect various activity events (timer removed)", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test User",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
-      })
-
-      const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart", "click"] as const
-
-      for (const eventType of events) {
-        // Advance 30 minutes
-        await act(async () => {
-          vi.advanceTimersByTime(30 * 60 * 1000)
-        })
-
-        // Trigger activity event
-        await act(async () => {
-          const event =
-            eventType === "mousedown" || eventType === "click"
-              ? new MouseEvent(eventType, { bubbles: true })
-              : new Event(eventType, { bubbles: true })
-          document.dispatchEvent(event)
-        })
-
-        // Should still be authenticated
+      await waitFor(() => {
         expect(result.current.isAuthenticated).toBe(true)
-      }
-    })
-
-    it("should not start inactivity timer when not authenticated", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      // Don't login, just advance time
-      await act(async () => {
-        vi.advanceTimersByTime(60 * 60 * 1000)
-      })
-
-      // Should remain unauthenticated without any logout reason
-      expect(result.current.isAuthenticated).toBe(false)
-    })
-
-    it("should clear inactivity timer on manual logout", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test User",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
-      })
-
-      // Advance partway through timeout
-      await act(async () => {
-        vi.advanceTimersByTime(30 * 60 * 1000)
-      })
-
-      // Manual logout
-      await act(async () => {
-        await result.current.logout()
-      })
-
-      // Advance past what would have been the inactivity timeout
-      await act(async () => {
-        vi.advanceTimersByTime(60 * 60 * 1000)
-      })
-
-      // Should have logged out
-      expect(result.current.isAuthenticated).toBe(false)
-    })
-  })
-
-  describe("Session Expiration", () => {
-    it("should logout when token expires", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const expiresAt = new Date(Date.now() + 5000).toISOString() // 5 seconds
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test User",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser, expiresAt)
-      })
-
-      expect(result.current.isAuthenticated).toBe(true)
-
-      // Fast-forward to expiration
-      await act(async () => {
-        vi.advanceTimersByTime(5000)
-      })
-
-      expect(result.current.isAuthenticated).toBe(false)
-      expect(mockRouter.navigate).toHaveBeenCalledWith({
-        to: "/",
-        search: { redirect: "/dashboard" },
-      })
-    })
-
-    it("should logout immediately if token is already expired", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const expiredDate = new Date(Date.now() - 1000).toISOString()
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test User",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser, expiredDate)
-      })
-
-      expect(result.current.isAuthenticated).toBe(false)
-    })
-
-    it("should clear logout timer on new login", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const firstExpiry = new Date(Date.now() + 10000).toISOString()
-      const mockUser1: AuthUser = {
-        id: "1",
-        name: "Test User",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser1, firstExpiry)
-      })
-
-      // Login again with new expiry
-      const secondExpiry = new Date(Date.now() + 20000).toISOString()
-      const mockUser2: AuthUser = {
-        id: "2",
-        name: "Test User 2",
-        domain: { id: "456", name: "Test Domain 2" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser2, secondExpiry)
-      })
-
-      // Advance past first expiry
-      await act(async () => {
-        vi.advanceTimersByTime(10000)
-      })
-
-      // Should still be authenticated (second timer is active)
-      expect(result.current.isAuthenticated).toBe(true)
-
-      // Advance to second expiry
-      await act(async () => {
-        vi.advanceTimersByTime(10000)
-      })
-
-      expect(result.current.isAuthenticated).toBe(false)
-    })
-  })
-
-  describe("Navigation on logout", () => {
-    it("should navigate to login with redirect on expired logout", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
       })
 
       await act(async () => {
         await result.current.logout()
       })
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith({
-        to: "/",
-        search: { redirect: "/dashboard" },
-      })
-    })
-
-    it("should navigate without redirect if on login page", async () => {
-      Object.defineProperty(window, "location", {
-        value: {
-          pathname: "/",
-          search: "",
-        },
-        writable: true,
-        configurable: true,
-      })
-
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
-      })
-
-      await act(async () => {
-        await result.current.logout()
-      })
-
-      expect(mockRouter.navigate).toHaveBeenCalledWith({
-        to: "/",
-        search: undefined,
-      })
+      // Should still clear local state even if server call fails
+      expect(result.current.isAuthenticated).toBe(false)
+      expect(result.current.user).toBeNull()
     })
   })
 
   describe("Edge Cases", () => {
-    it("should handle logout", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      const mockUser: AuthUser = {
-        id: "1",
-        name: "Test",
-        domain: { id: "123", name: "Test Domain" },
-        password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      }
-
-      await act(async () => {
-        await result.current.login(mockUser)
-      })
-
-      await act(async () => {
-        await result.current.logout()
-      })
-
-      expect(result.current.isAuthenticated).toBe(false)
-    })
-
     it("should handle rapid login/logout cycles", async () => {
+      mockCreateUserSession.mockResolvedValue(mockSession)
+
       const { result } = renderHook(() => useAuth(), { wrapper })
 
-      for (let i = 0; i < 5; i++) {
-        const mockUser: AuthUser = {
-          id: String(i),
-          name: `User ${i}`,
-          domain: { id: `${i}00`, name: `Domain ${i}` },
-          password_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-        }
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
 
+      for (let i = 0; i < 3; i++) {
         await act(async () => {
-          await result.current.login(mockUser)
+          await result.current.login({
+            domain: "test-domain",
+            user: "testuser",
+            password: "testpass",
+          })
         })
 
         expect(result.current.isAuthenticated).toBe(true)
@@ -534,6 +260,38 @@ describe("AuthProvider", () => {
 
         expect(result.current.isAuthenticated).toBe(false)
       }
+    })
+
+    it("should handle non-Error rejection in login", async () => {
+      mockCreateUserSession.mockRejectedValue("String error")
+
+      const { result } = renderHook(() => useAuth(), { wrapper })
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      await act(async () => {
+        await result.current.login({
+          domain: "test-domain",
+          user: "testuser",
+          password: "testpass",
+        })
+      })
+
+      expect(result.current.error).toContain("String error")
+    })
+
+    it("should handle non-Error rejection in session fetch", async () => {
+      mockGetCurrentUserSession.mockRejectedValue("Connection refused")
+
+      const { result } = renderHook(() => useAuth(), { wrapper })
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.error).toBe("Could not load current user session")
     })
   })
 })
