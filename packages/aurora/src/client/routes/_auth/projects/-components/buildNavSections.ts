@@ -89,7 +89,7 @@ export function buildNavSections(
           },
         ]
       : []),
-    ...(isEnabled("ceph-containers")
+    ...(serviceIndex?.["object-store-ceph"]?.["ceph"] && isEnabled("ceph-containers")
       ? [
           {
             service: "ceph-containers",

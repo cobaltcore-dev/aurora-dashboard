@@ -27,6 +27,7 @@ const ALL_SERVICES = [
   { type: "compute", name: "nova" },
   { type: "image", name: "glance" },
   { type: "object-store", name: "swift" },
+  { type: "object-store-ceph", name: "ceph" },
 ]
 
 // Activate i18n at module level so buildNavSections can call i18n._() during test setup
@@ -148,7 +149,7 @@ describe("SideNavBar", () => {
         expect(screen.getByText("Object Storage (Swift)")).toBeInTheDocument()
       })
 
-      it("renders Storage section with Ceph even when swift service is unavailable", () => {
+      it("renders Storage section with Ceph when ceph service is available", () => {
         render(
           <TestingProvider>
             <SideNavBar
@@ -156,6 +157,7 @@ describe("SideNavBar", () => {
               sections={buildNavSections("proj-1", [
                 { type: "compute", name: "nova" },
                 { type: "image", name: "glance" },
+                { type: "object-store-ceph", name: "ceph" },
               ])}
             />
           </TestingProvider>
@@ -286,7 +288,7 @@ describe("SideNavBar", () => {
     })
 
     describe("Edge Cases", () => {
-      it("renders only Storage section with Ceph when availableServices is empty", () => {
+      it("does not render Storage section when no storage services are available", () => {
         render(
           <TestingProvider>
             <SideNavBar {...getDefaultProps()} sections={buildNavSections("proj-1", [])} />
@@ -294,8 +296,8 @@ describe("SideNavBar", () => {
         )
 
         expect(screen.queryByText("Compute")).not.toBeInTheDocument()
-        expect(screen.queryByText("Storage")).toBeInTheDocument()
-        expect(screen.queryByText("Object Storage (Ceph)")).toBeInTheDocument()
+        expect(screen.queryByText("Storage")).not.toBeInTheDocument()
+        expect(screen.queryByText("Object Storage (Ceph)")).not.toBeInTheDocument()
       })
 
       it("handles malformed service data gracefully", () => {
