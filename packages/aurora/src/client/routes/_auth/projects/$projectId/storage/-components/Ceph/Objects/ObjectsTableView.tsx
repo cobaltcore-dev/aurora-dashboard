@@ -295,14 +295,16 @@ export function ObjectsTableView({
     controllersRef.current.set(row.key, controller)
     setActiveTransfers((prev) => new Map(prev).set(row.key, { kind, downloadId: activeDownloadId, controller }))
 
-    const { message, ...options } = getObjectDownloadStartedToast()
-    toast(message, options)
+    const { message, ...options } = getObjectDownloadStartedToast(row.key)
+    const toastId = toast(message, options)
 
     try {
       onResolved(await streamObjectToBlob(row, activeDownloadId, controller.signal))
     } catch (err) {
       handleTransferError(row, err, controller)
     } finally {
+      // Dismiss the "Downloading..." toast when transfer completes (success, error, or cancel)
+      toast.dismiss(toastId)
       if (controllersRef.current.get(row.key) === controller) {
         controllersRef.current.delete(row.key)
       }
