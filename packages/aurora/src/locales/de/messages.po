@@ -1039,8 +1039,8 @@ msgstr "Download abgebrochen"
 msgid "Download of \"{displayName}\" was cancelled."
 msgstr "Download von \"{displayName}\" wurde abgebrochen."
 
-msgid "Downloading larger files may take a while. Do not leave this view, otherwise the download(s) will be interrupted. We are working to improve the user experience in the future."
-msgstr "Das Herunterladen größerer Dateien kann eine Weile dauern. Verlassen Sie diese Ansicht nicht, da sonst der/die Download(s) unterbrochen werden. Wir arbeiten daran, die Benutzererfahrung in Zukunft zu verbessern."
+msgid "Downloading larger files may take a while. You can keep browsing buckets and folders — downloads continue in the background, and this message disappears once they finish."
+msgstr ""
 
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."

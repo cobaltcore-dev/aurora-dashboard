@@ -1,6 +1,23 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 
+// The store raises/dismisses the shared "Downloading..." toast itself, so both
+// the notifier and the copy helper are mocked here.
+const { toastMock } = vi.hoisted(() => {
+  const fn = Object.assign(vi.fn(), {
+    success: vi.fn(),
+    error: vi.fn(),
+    warning: vi.fn(),
+    dismiss: vi.fn(),
+  })
+  return { toastMock: fn }
+})
+
+vi.mock("@cloudoperators/juno-ui-components", () => ({ toast: toastMock }))
+vi.mock("../ObjectToastNotifications", () => ({
+  getObjectDownloadStartedToast: () => ({ message: "Downloading...", description: "desc" }),
+}))
+
 // A controllable stand-in for the module Worker the store spawns. The store only
 // imports the worker's *types* (erased at build), so it never loads the real
 // worker file — stubbing the global Worker constructor is enough. Tests drive
@@ -41,6 +58,8 @@ const clicked: Array<{ href: string; target: string; download: string }> = []
 beforeEach(async () => {
   MockWorker.instances = []
   clicked.length = 0
+  toastMock.mockClear()
+  toastMock.dismiss.mockClear()
   vi.stubGlobal("Worker", MockWorker as unknown as typeof Worker)
   vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
   vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
@@ -192,6 +211,54 @@ describe("objectDownloadStore", () => {
     })
     expect(onError).toHaveBeenCalledWith("k.zip", "no workers")
     expect(store.getTransfersSnapshot().get(store.transferKey("b", "k.zip"))).toBeUndefined()
+  })
+
+  describe("the shared 'Downloading...' toast", () => {
+    it("is raised once for the first transfer and not repeated for further ones", () => {
+      start({ objectKey: "a.zip", filename: "a.zip" })
+      expect(toastMock).toHaveBeenCalledTimes(1)
+      expect(toastMock).toHaveBeenCalledWith(
+        "Downloading...",
+        expect.objectContaining({ id: "ceph-object-download", duration: Infinity })
+      )
+
+      // A second concurrent download must not stack another notification.
+      start({ objectKey: "b.zip", filename: "b.zip" })
+      expect(toastMock).toHaveBeenCalledTimes(1)
+    })
+
+    it("is dismissed only once the last transfer ends", () => {
+      const a = start({ objectKey: "a.zip", filename: "a.zip" })
+      const b = start({ objectKey: "b.zip", filename: "b.zip" })
+
+      a.worker.emitMessage({ ok: true, blob: new Blob(["x"]), filename: "a.zip", contentType: "application/zip" })
+      // b is still running — the toast must stay up.
+      expect(toastMock.dismiss).not.toHaveBeenCalled()
+
+      b.worker.emitMessage({ ok: true, blob: new Blob(["x"]), filename: "b.zip", contentType: "application/zip" })
+      expect(toastMock.dismiss).toHaveBeenCalledWith("ceph-object-download")
+    })
+
+    it("is dismissed when the last transfer fails", () => {
+      const { worker } = start()
+      worker.emitMessage({ ok: false, cancelled: false, message: "boom" })
+      expect(toastMock.dismiss).toHaveBeenCalledWith("ceph-object-download")
+    })
+
+    it("is dismissed when the last transfer is cancelled", () => {
+      start()
+      store.cancelObjectDownload("b", "k.zip")
+      expect(toastMock.dismiss).toHaveBeenCalledWith("ceph-object-download")
+    })
+
+    it("is raised again after a later transfer starts", () => {
+      const first = start()
+      first.worker.emitMessage({ ok: true, blob: new Blob(["x"]), filename: "k.zip", contentType: "application/zip" })
+      expect(toastMock).toHaveBeenCalledTimes(1)
+
+      start({ objectKey: "c.zip", filename: "c.zip" })
+      expect(toastMock).toHaveBeenCalledTimes(2)
+    })
   })
 
   describe("isPreviewableContentType", () => {

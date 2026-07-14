@@ -13,7 +13,9 @@
 // whether any component is mounted, so a download that finishes while the user is
 // in another folder still saves the file.
 
+import { toast } from "@cloudoperators/juno-ui-components"
 import type { DownloadWorkerRequest, DownloadWorkerResponse } from "../workers/objectDownload.worker"
+import { getObjectDownloadStartedToast } from "../ObjectToastNotifications"
 
 export type TransferKind = "download" | "preview"
 export type ActiveTransfer = { kind: TransferKind; downloadId: string; worker: Worker }
@@ -27,8 +29,33 @@ const listeners = new Set<() => void>()
 // changes, so we hand out a frozen copy that's only rebuilt on mutation.
 let snapshot: ReadonlyMap<string, ActiveTransfer> = new Map()
 
+// Fixed id so the "Downloading..." notification is a single toast for the whole
+// session rather than one per file — sonner (which backs Juno's toast) treats a
+// repeated id as an update, not a new notification.
+const DOWNLOAD_TOAST_ID = "ceph-object-download"
+let downloadToastShown = false
+
+// Raise the toast when the first transfer starts, dismiss it when the last one
+// ends — however it ended (saved, failed, or cancelled). Living in the store
+// rather than in a component matters: the last transfer can finish while
+// ObjectsTableView is unmounted (the user navigated away), and the toast must
+// still be dismissed.
+const syncDownloadToast = () => {
+  const hasActiveTransfers = transfers.size > 0
+  if (hasActiveTransfers && !downloadToastShown) {
+    const { message, ...options } = getObjectDownloadStartedToast()
+    // duration: Infinity — this toast is dismissed explicitly, not on a timer.
+    toast(message, { ...options, id: DOWNLOAD_TOAST_ID, duration: Infinity })
+    downloadToastShown = true
+  } else if (!hasActiveTransfers && downloadToastShown) {
+    toast.dismiss(DOWNLOAD_TOAST_ID)
+    downloadToastShown = false
+  }
+}
+
 const emit = () => {
   snapshot = new Map(transfers)
+  syncDownloadToast()
   listeners.forEach((listener) => listener())
 }
 

@@ -19,7 +19,7 @@ import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
-import { getObjectDownloadCancelledToast, getObjectDownloadStartedToast } from "./ObjectToastNotifications"
+import { getObjectDownloadCancelledToast } from "./ObjectToastNotifications"
 import {
   startObjectDownload,
   cancelObjectDownload,
@@ -184,16 +184,12 @@ export function ObjectsTableView({
   const [editMetadataTarget, setEditMetadataTarget] = useState<string | null>(null)
   const [versionHistoryTarget, setVersionHistoryTarget] = useState<string | null>(null)
 
-  // A download's start/cancel toasts live here (the component owns `toast` and
-  // lingui); the actual transfer + completion handling lives in the store.
-  const notifyDownloadStarted = () => {
-    const { message, ...options } = getObjectDownloadStartedToast()
-    toast(message, options)
-  }
-
+  // The "Downloading..." notification is raised by the store (one toast for all
+  // in-flight transfers, dismissed when the last finishes), so starting a
+  // transfer here is just the call.
+  //
   // Context-menu Download: always forces a file save, regardless of type.
   const handleDownload = (row: ObjectRow) => {
-    notifyDownloadStarted()
     startObjectDownload({
       kind: "download",
       projectId,
@@ -206,7 +202,6 @@ export function ObjectsTableView({
 
   // Row-click: preview previewable types in a new tab, download everything else.
   const handlePreviewOrDownload = (row: ObjectRow) => {
-    notifyDownloadStarted()
     startObjectDownload({
       kind: "preview",
       projectId,

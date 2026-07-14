@@ -395,17 +395,6 @@ describe("ObjectsTableView", () => {
       )
     })
 
-    it("fires the 'downloading' toast when a download starts", async () => {
-      const user = userEvent.setup()
-      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
-
-      const row = screen.getByTestId("object-row-file1.txt")
-      await user.click(within(row).getByRole("button", { name: /more/i }))
-      await user.click(screen.getByTestId("download-action-file1.txt"))
-
-      expect(toast).toHaveBeenCalledWith(transMessage(/^Downloading/), expect.anything())
-    })
-
     it("subscribes to watchDownloadProgress scoped to the row's downloadId and renders live progress", async () => {
       // Live progress comes from the subscription hook; the row is shown as
       // streaming because the store reports an active transfer for it.
