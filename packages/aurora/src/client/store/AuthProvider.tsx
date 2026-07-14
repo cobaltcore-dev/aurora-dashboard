@@ -45,12 +45,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
     if (timeUntilExpiry <= 0) {
+      // Session already expired
+      if (window.location.pathname !== "/") {
+        sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search)
+        window.location.href = "/"
+      }
       setUser(null)
       setExpiresAt(null)
       return
     }
 
     const timer = setTimeout(() => {
+      // Save current location for redirect after re-login
+      if (window.location.pathname !== "/") {
+        sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search)
+        window.location.href = "/"
+      }
       setUser(null)
       setExpiresAt(null)
     }, timeUntilExpiry)
