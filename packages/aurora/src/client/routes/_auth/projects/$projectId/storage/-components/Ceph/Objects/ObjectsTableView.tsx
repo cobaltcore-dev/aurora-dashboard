@@ -515,23 +515,28 @@ export function ObjectsTableView({
                                 {versioningEnabled && !isVersion && (
                                   <PopupMenuItem
                                     label={t`View Versions`}
+                                    disabled={isStreaming}
                                     onClick={() => setVersionHistoryTarget(row.key)}
                                   />
                                 )}
                                 <PopupMenuItem
                                   label={t`Copy`}
+                                  disabled={isStreaming}
                                   onClick={() => setCopyTarget({ key: row.key, size: row.size })}
                                 />
                                 <PopupMenuItem
                                   label={t`Move/Rename`}
+                                  disabled={isStreaming}
                                   onClick={() => setMoveTarget({ key: row.key, size: row.size })}
                                 />
                                 <PopupMenuItem
                                   label={t`Edit Metadata`}
+                                  disabled={isStreaming}
                                   onClick={() => setEditMetadataTarget(row.key)}
                                 />
                                 <PopupMenuItem
                                   label={t`Delete`}
+                                  disabled={isStreaming}
                                   onClick={() =>
                                     setDeleteTarget({
                                       key: row.key,

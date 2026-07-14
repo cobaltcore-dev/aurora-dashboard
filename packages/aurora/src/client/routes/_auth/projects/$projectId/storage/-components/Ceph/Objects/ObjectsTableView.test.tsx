@@ -471,6 +471,27 @@ describe("ObjectsTableView", () => {
       await waitFor(() => expect(nameButton()).toBeDisabled())
     })
 
+    it("disables all row actions while that row is streaming, not just Download", async () => {
+      const user = userEvent.setup()
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+      setActiveTransfer("test-bucket", "file1.txt", "download", "test-bucket:file1.txt:uuid-1")
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+
+      // Tolerant of how the menu item renders "disabled" (native attribute or
+      // aria-disabled) — the point is the action can't be taken mid-transfer.
+      const expectDisabled = (el: HTMLElement) => {
+        const target = el.closest("button") ?? el
+        expect(target.hasAttribute("disabled") || target.getAttribute("aria-disabled") === "true").toBe(true)
+      }
+
+      expectDisabled(screen.getByTestId("download-action-file1.txt"))
+      for (const label of ["Copy", "Move/Rename", "Edit Metadata", "Delete"]) {
+        expectDisabled(screen.getByText(label))
+      }
+    })
+
     it("tracks concurrent transfers independently — each row reflects its own transfer", async () => {
       render(<ObjectsTableView {...defaultProps} folders={[]} />)
 
