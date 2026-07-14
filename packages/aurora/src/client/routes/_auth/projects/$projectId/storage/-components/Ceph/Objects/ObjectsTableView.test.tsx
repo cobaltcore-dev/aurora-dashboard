@@ -41,6 +41,7 @@ vi.mock("@cloudoperators/juno-ui-components", async (importOriginal) => {
     success: vi.fn(),
     error: vi.fn(),
     warning: vi.fn(),
+    dismiss: vi.fn(),
   })
   return {
     ...actual,
