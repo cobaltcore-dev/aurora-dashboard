@@ -1,5 +1,11 @@
 # @cobaltcore-dev/aurora
 
+## 0.20.2
+
+### Patch Changes
+
+- 6dd15fd: Optimistically render projects page static content while project cards load via Suspense and useSuspenseQuery
+
 ## 0.20.1
 
 ### Patch Changes
