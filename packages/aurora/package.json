@@ -1,6 +1,6 @@
 {
   "name": "@cobaltcore-dev/aurora",
-  "version": "0.20.0",
+  "version": "0.20.2",
   "private": false,
   "description": "Aurora OpenStack dashboard — server and client library",
   "license": "Apache-2.0",
