@@ -155,6 +155,29 @@ describe("AuthProvider", () => {
       expect(result.current.error).toBe("Invalid credentials")
     })
 
+    it("should clear previous error on new login attempt", async () => {
+      mockCreateUserSession.mockRejectedValueOnce(new Error("First error")).mockResolvedValueOnce(mockSession)
+
+      const { result } = renderHook(() => useAuth(), { wrapper })
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      // First failed login
+      await act(async () => {
+        await result.current.login({ domain: "d", user: "u", password: "p" })
+      })
+      expect(result.current.error).toBe("First error")
+
+      // Second successful login should clear error
+      await act(async () => {
+        await result.current.login({ domain: "d", user: "u", password: "p" })
+      })
+      expect(result.current.error).toBeNull()
+      expect(result.current.isAuthenticated).toBe(true)
+    })
+
     it("should set loading state during login", async () => {
       let resolveLogin: (value: typeof mockSession) => void
       mockCreateUserSession.mockImplementation(
@@ -213,6 +236,40 @@ describe("AuthProvider", () => {
       expect(mockTerminateUserSession).toHaveBeenCalledOnce()
     })
 
+    it("should set loading state during logout", async () => {
+      let resolveLogout: (value?: unknown) => void
+      mockTerminateUserSession.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveLogout = resolve
+          })
+      )
+      mockGetCurrentUserSession.mockResolvedValue(mockSession)
+
+      const { result } = renderHook(() => useAuth(), { wrapper })
+
+      await waitFor(() => {
+        expect(result.current.isAuthenticated).toBe(true)
+      })
+
+      // Start logout
+      let logoutPromise: Promise<void>
+      act(() => {
+        logoutPromise = result.current.logout()
+      })
+
+      expect(result.current.isLoading).toBe(true)
+
+      // Resolve logout
+      await act(async () => {
+        resolveLogout!()
+        await logoutPromise
+      })
+
+      expect(result.current.isLoading).toBe(false)
+      expect(result.current.isAuthenticated).toBe(false)
+    })
+
     it("should clear user even if terminate session fails", async () => {
       mockGetCurrentUserSession.mockResolvedValue(mockSession)
       mockTerminateUserSession.mockRejectedValue(new Error("Network error"))
@@ -230,6 +287,49 @@ describe("AuthProvider", () => {
       // Should still clear local state even if server call fails
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.user).toBeNull()
+    })
+  })
+
+  describe("Session Expiration", () => {
+    it("should auto-logout when session expires", async () => {
+      vi.useFakeTimers()
+      const shortSession = {
+        ...mockSession,
+        expires_at: new Date(Date.now() + 5000).toISOString(), // 5 seconds
+      }
+      mockGetCurrentUserSession.mockResolvedValue(shortSession)
+
+      const { result } = renderHook(() => useAuth(), { wrapper })
+
+      await vi.waitFor(() => {
+        expect(result.current.isAuthenticated).toBe(true)
+      })
+
+      // Advance time past expiration
+      await act(async () => {
+        vi.advanceTimersByTime(5000)
+      })
+
+      expect(result.current.isAuthenticated).toBe(false)
+      expect(result.current.user).toBeNull()
+    })
+
+    it("should logout immediately if session is already expired", async () => {
+      vi.useFakeTimers()
+      const expiredSession = {
+        ...mockSession,
+        expires_at: new Date(Date.now() - 1000).toISOString(), // Already expired
+      }
+      mockGetCurrentUserSession.mockResolvedValue(expiredSession)
+
+      const { result } = renderHook(() => useAuth(), { wrapper })
+
+      await vi.waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      // Should be logged out immediately
+      expect(result.current.isAuthenticated).toBe(false)
     })
   })
 

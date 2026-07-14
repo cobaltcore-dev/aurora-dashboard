@@ -20,50 +20,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [expiresAt, setExpiresAt] = React.useState<string | null>(null)
+  const [expiresAt, setExpiresAt] = useState<string | null>(null)
 
-  // get current session
+  // Get current session on mount
   useEffect(() => {
-    setError(null)
-    setIsLoading(true)
-
     trpcClient.auth.getCurrentUserSession
       .query()
       .then((session) => {
         if (session !== null) {
           setUser(session.user)
           setExpiresAt(session.expires_at)
-        } else {
-          setUser(null)
-          setExpiresAt(null)
         }
       })
-      .catch((error) => {
-        if (error instanceof Error) setError(error.message)
+      .catch((err) => {
+        if (err instanceof Error) setError(err.message)
         else setError("Could not load current user session")
       })
       .finally(() => setIsLoading(false))
   }, [])
 
+  // Auto-logout when session expires
+  useEffect(() => {
+    if (!user || !expiresAt) return
+
+    const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
+    if (timeUntilExpiry <= 0) {
+      setUser(null)
+      setExpiresAt(null)
+      return
+    }
+
+    const timer = setTimeout(() => {
+      setUser(null)
+      setExpiresAt(null)
+    }, timeUntilExpiry)
+
+    return () => clearTimeout(timer)
+  }, [user, expiresAt])
+
   const logout = useCallback(async () => {
-    await trpcClient.auth.terminateUserSession.mutate().catch()
+    setIsLoading(true)
+    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
     setUser(null)
     setExpiresAt(null)
+    setIsLoading(false)
   }, [])
 
   const login = useCallback(async ({ domain, user, password }: { domain: string; user: string; password: string }) => {
+    setError(null)
+    setIsLoading(true)
     try {
-      setIsLoading(true)
       const session = await trpcClient.auth.createUserSession.mutate({ domainName: domain, user, password })
       setUser(session.user)
       setExpiresAt(session.expires_at)
-      setIsLoading(false)
       return { success: true }
-    } catch (error) {
-      if (error instanceof Error) setError(error.message)
-      else setError(`Could not create session: ${error}`)
-      setIsLoading(false)
+    } catch (err) {
+      if (err instanceof Error) setError(err.message)
+      else setError(`Could not create session: ${err}`)
       return { success: false }
+    } finally {
+      setIsLoading(false)
     }
   }, [])
 
