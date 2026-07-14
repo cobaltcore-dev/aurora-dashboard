@@ -302,6 +302,11 @@ describe("BucketTableView", () => {
       expect(screen.queryByTestId("create-bucket-modal")).not.toBeInTheDocument()
     })
 
+    test("renders CreateBucketModal even when bucket list is empty", () => {
+      renderTableView({ buckets: [], createModalOpen: true })
+      expect(screen.getByTestId("create-bucket-modal")).toBeInTheDocument()
+    })
+
     test("closes CreateBucketModal when Cancel clicked", async () => {
       const user = userEvent.setup()
       const mockSetCreateOpen = vi.fn()

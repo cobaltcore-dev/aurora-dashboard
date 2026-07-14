@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { useRouteContext } from "@tanstack/react-router"
+import { Suspense } from "react"
+import { ErrorBoundary } from "react-error-boundary"
+import { createFileRoute, useRouteContext } from "@tanstack/react-router"
 import { ProjectsOverviewNavBar } from "@/client/routes/_auth/projects/-components/ProjectOverviewNavBar"
 import { ProjectCardView } from "@/client/routes/_auth/projects/-components/ProjectCardView"
 import { RouteError } from "@/client/components/Error/RouteError"
@@ -8,6 +9,7 @@ import { Container, ContentHeading, Spinner, Stack } from "@cloudoperators/juno-
 import { Trans } from "@lingui/react/macro"
 import { z } from "zod"
 import { Slot } from "@/client/components/Slot"
+import { trpcReact } from "@/client/trpcClient"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 const searchSchema = z.object({
@@ -21,12 +23,6 @@ export const Route = createFileRoute("/_auth/projects/")({
     },
   } satisfies RouteInfo,
   component: ProjectsOverview,
-  pendingComponent: () => (
-    <Stack className="fixed inset-0" distribution="center" alignment="center">
-      <div className="absolute inset-0 backdrop-blur-sm" />
-      <Spinner variant="primary" size="large" />
-    </Stack>
-  ),
   errorComponent: ({ error }) => (
     <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />
   ),
@@ -34,34 +30,35 @@ export const Route = createFileRoute("/_auth/projects/")({
     return <p>Projects not found</p>
   },
   validateSearch: searchSchema,
-  loaderDeps: ({ search }) => ({
-    search: search.search || "",
-  }),
-  loader: async ({ context, deps }) => {
-    const allProjects = await context.trpcClient?.project.getAuthProjects.query()
-
-    let projects = allProjects
-    if (deps.search && deps.search.trim() !== "") {
-      const searchTermLower = deps.search.toLowerCase()
-      projects = allProjects?.filter(
-        (project) =>
-          project.name?.toLowerCase().includes(searchTermLower) ||
-          project.description?.toLowerCase().includes(searchTermLower)
-      )
-    }
-
-    return { projects }
-  },
 })
 
-function ProjectsOverview() {
-  const { projects } = Route.useLoaderData()
+interface ProjectsContentProps {
+  search: string
+}
+
+function ProjectsContent({ search }: ProjectsContentProps) {
+  const [allProjects] = trpcReact.project.getAuthProjects.useSuspenseQuery()
+
+  const normalizedSearch = search.trim().toLowerCase()
+  const projects =
+    allProjects && normalizedSearch
+      ? allProjects.filter(
+          (project) =>
+            project.name?.toLowerCase().includes(normalizedSearch) ||
+            project.description?.toLowerCase().includes(normalizedSearch)
+        )
+      : allProjects
+
+  return <ProjectCardView projects={projects} />
+}
+
+export function ProjectsOverview() {
   const { search = "" } = Route.useSearch()
   const navigate = Route.useNavigate()
   const { slots } = useRouteContext({ strict: false })
 
   const handleSearch = (value: string) => {
-    navigate({ search: { search: value }, replace: true })
+    navigate({ search: (prev) => ({ ...prev, search: value || undefined }), replace: true })
   }
 
   return (
@@ -69,10 +66,30 @@ function ProjectsOverview() {
       <ContentHeading className="pb-4">
         <Trans>Projects</Trans>
       </ContentHeading>
-      {slots?.projectsBanner && <Slot component={slots.projectsBanner} useShadowDOM={false} />}
+      {slots?.projectsBanner && (
+        <ErrorBoundary fallbackRender={() => null}>
+          <Suspense fallback={null}>
+            <Slot component={slots.projectsBanner} useShadowDOM={false} />
+          </Suspense>
+        </ErrorBoundary>
+      )}
       <ProjectsOverviewNavBar searchTerm={search} onSearch={handleSearch} />
       <div className="pt-5">
-        <ProjectCardView projects={projects} />
+        <ErrorBoundary
+          fallbackRender={({ error }) => (
+            <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />
+          )}
+        >
+          <Suspense
+            fallback={
+              <Stack distribution="center" alignment="center" direction="vertical" className="py-12">
+                <Spinner variant="primary" size="large" />
+              </Stack>
+            }
+          >
+            <ProjectsContent search={search} />
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </Container>
   )
