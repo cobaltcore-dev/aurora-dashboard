@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
 import { trpcClient } from "../trpcClient"
 
@@ -18,23 +18,32 @@ const AuthContext = React.createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expiresAt, setExpiresAt] = useState<string | null>(null)
+
+  // Shared logout logic
+  const clearSessionAndRedirect = () => {
+    if (window.location.pathname !== "/") {
+      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search)
+      window.location.href = "/"
+    }
+    setUser(null)
+    setExpiresAt(null)
+  }
 
   // Get current session on mount
   useEffect(() => {
     trpcClient.auth.getCurrentUserSession
       .query()
       .then((session) => {
-        if (session !== null) {
+        if (session) {
           setUser(session.user)
           setExpiresAt(session.expires_at)
         }
       })
       .catch((err) => {
-        if (err instanceof Error) setError(err.message)
-        else setError("Could not load current user session")
+        setError(err instanceof Error ? err.message : "Could not load session")
       })
       .finally(() => setIsLoading(false))
   }, [])
@@ -45,38 +54,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
     if (timeUntilExpiry <= 0) {
-      // Session already expired
-      if (window.location.pathname !== "/") {
-        sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search)
-        window.location.href = "/"
-      }
-      setUser(null)
-      setExpiresAt(null)
+      clearSessionAndRedirect()
       return
     }
 
-    const timer = setTimeout(() => {
-      // Save current location for redirect after re-login
-      if (window.location.pathname !== "/") {
-        sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search)
-        window.location.href = "/"
-      }
-      setUser(null)
-      setExpiresAt(null)
-    }, timeUntilExpiry)
-
+    const timer = setTimeout(clearSessionAndRedirect, timeUntilExpiry)
     return () => clearTimeout(timer)
   }, [user, expiresAt])
 
-  const logout = useCallback(async () => {
-    setIsLoading(true)
-    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
-    setUser(null)
-    setExpiresAt(null)
-    setIsLoading(false)
-  }, [])
-
-  const login = useCallback(async ({ domain, user, password }: { domain: string; user: string; password: string }) => {
+  const login = async ({ domain, user, password }: { domain: string; user: string; password: string }) => {
     setError(null)
     setIsLoading(true)
     try {
@@ -85,13 +71,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setExpiresAt(session.expires_at)
       return { success: true }
     } catch (err) {
-      if (err instanceof Error) setError(err.message)
-      else setError(`Could not create session: ${err}`)
+      setError(err instanceof Error ? err.message : `Could not create session: ${err}`)
       return { success: false }
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }
+
+  const logout = async () => {
+    setIsLoading(true)
+    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
+    clearSessionAndRedirect()
+    setIsLoading(false)
+  }
 
   return (
     <AuthContext.Provider
@@ -102,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         error,
         login,
         logout,
-        expiresAt: expiresAt === null ? undefined : new Date(expiresAt),
+        expiresAt: expiresAt ? new Date(expiresAt) : undefined,
       }}
     >
       {children}

@@ -391,7 +391,7 @@ describe("AuthProvider", () => {
         expect(result.current.isLoading).toBe(false)
       })
 
-      expect(result.current.error).toBe("Could not load current user session")
+      expect(result.current.error).toBe("Could not load session")
     })
   })
 })
