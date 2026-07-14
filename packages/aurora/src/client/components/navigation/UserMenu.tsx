@@ -18,12 +18,6 @@ export function UserMenu() {
     navigate({ to: "/" })
   }
 
-  const handleLogout = async () => {
-    logout().finally(() => {
-      navigate({ to: "/" })
-    })
-  }
-
   return (
     <PopupMenu icon="accountCircle">
       <PopupMenuOptions>
@@ -41,7 +35,7 @@ export function UserMenu() {
                 icon="exitToApp"
                 label={isLoading ? "Signing out…" : "Log Out"}
                 disabled={isLoading}
-                onClick={handleLogout}
+                onClick={logout}
               />
               {expiresAt && (
                 <PopupMenuSectionHeading>
