@@ -1,4 +1,4 @@
-import { ContentHeading, Message, Button, FormRow, TextInput } from "@cloudoperators/juno-ui-components"
+import { ContentHeading, Message, Button, FormRow, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import { useAuth } from "../../store/AuthProvider"
 
@@ -6,7 +6,7 @@ export function LoginForm() {
   const { isLoading, error: loginError, login } = useAuth()
 
   return (
-    <div className="mt-8 flex justify-center">
+    <Stack className="fixed inset-0" distribution="center" alignment="center">
       <div className="border-theme-light relative w-full max-w-md rounded-lg border p-6 shadow-lg">
         <ContentHeading className="text-center">
           <Trans>Login to Your Account</Trans>
@@ -50,6 +50,6 @@ export function LoginForm() {
           </Button>
         </form>
       </div>
-    </div>
+    </Stack>
   )
 }

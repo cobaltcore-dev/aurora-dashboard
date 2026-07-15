@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
-import { trpcClient } from "../trpcClient"
+import { trpcReact } from "../trpcClient"
 
 export type User = TokenData["user"] | null
 
@@ -17,10 +17,17 @@ export interface AuthContext {
 const AuthContext = React.createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [expiresAt, setExpiresAt] = useState<string | null>(null)
+  // Session query with React Query
+  const sessionQuery = trpcReact.auth.getCurrentUserSession.useQuery(undefined, {
+    staleTime: Infinity, // Session only changes via login/logout
+    retry: false,
+  })
+
+  const user = sessionQuery.data?.user ?? null
+  const expiresAt = sessionQuery.data?.expires_at
+  const isInitialLoading = sessionQuery.isLoading
+  const isRefetching = sessionQuery.isRefetching
+  const error = sessionQuery.error?.message ?? null
 
   // Redirect to login, optionally with return URL
   const redirectToLogin = (saveReturnUrl: boolean = false) => {
@@ -32,28 +39,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Clear local session state
-  const clearLocalSession = () => {
-    setUser(null)
-    setExpiresAt(null)
-  }
-
-  // Get current session on mount
-  useEffect(() => {
-    trpcClient.auth.getCurrentUserSession
-      .query()
-      .then((session) => {
-        if (session) {
-          setUser(session.user)
-          setExpiresAt(session.expires_at)
-        }
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : "Could not load session")
-      })
-      .finally(() => setIsLoading(false))
-  }, [])
-
   // Auto-logout when session expires
   useEffect(() => {
     if (!user || !expiresAt) return
@@ -61,8 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
 
     const handleExpiry = () => {
-      clearLocalSession()
-      redirectToLogin(true)
+      redirectToLogin(true) // Page reload clears the cache
     }
 
     if (timeUntilExpiry <= 0) {
@@ -74,40 +58,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(timer)
   }, [user, expiresAt])
 
+  // Login mutation
+  const loginMutation = trpcReact.auth.createUserSession.useMutation({
+    onSuccess: () => {
+      sessionQuery.refetch()
+    },
+  })
+
   const login = async ({ domain, user, password }: { domain: string; user: string; password: string }) => {
-    setError(null)
-    setIsLoading(true)
     try {
-      const session = await trpcClient.auth.createUserSession.mutate({ domainName: domain, user, password })
-      setUser(session.user)
-      setExpiresAt(session.expires_at)
+      await loginMutation.mutateAsync({ domainName: domain, user, password })
       return { success: true }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : `Could not create session: ${err}`)
+    } catch {
       return { success: false }
-    } finally {
-      setIsLoading(false)
     }
   }
 
+  // Logout mutation
+  const logoutMutation = trpcReact.auth.terminateUserSession.useMutation()
+
   const logout = async () => {
-    setIsLoading(true)
-    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
-    clearLocalSession()
-    redirectToLogin(false) // Don't save return URL on manual logout
-    // If already on login page, no redirect happens - reset loading state
-    if (window.location.pathname === "/") {
-      setIsLoading(false)
-    }
+    await logoutMutation.mutateAsync().catch(() => {})
+    redirectToLogin(false) // Page reload clears the cache
   }
+
+  // Combined loading state (initial load, during login, or refetching after login)
+  const combinedLoading = isInitialLoading || loginMutation.isPending || isRefetching
+
+  // Error from session query or login mutation
+  const combinedError = error || loginMutation.error?.message || null
 
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated: !!user,
-        isLoading,
-        error,
+        isLoading: combinedLoading,
+        error: combinedError,
         login,
         logout,
         expiresAt: expiresAt ? new Date(expiresAt) : undefined,
