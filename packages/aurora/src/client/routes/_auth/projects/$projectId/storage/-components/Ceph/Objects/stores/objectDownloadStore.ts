@@ -14,7 +14,8 @@
 // in another folder still saves the file.
 
 import { toast } from "@cloudoperators/juno-ui-components"
-import { getBffEndpoint } from "@/client/trpcClient"
+import { getBffEndpoint, getCsrfToken } from "@/client/trpcClient"
+import DownloadWorker from "../workers/objectDownload.worker?worker&inline"
 import type { DownloadWorkerRequest, DownloadWorkerResponse } from "../workers/objectDownload.worker"
 import { getObjectDownloadStartedToast } from "../ObjectToastNotifications"
 
@@ -139,8 +140,14 @@ export function startObjectDownload(opts: {
 
   let worker: Worker
   try {
-    // Module worker — the bundler pulls the tRPC client into the worker chunk.
-    worker = new Worker(new URL("../workers/objectDownload.worker.ts", import.meta.url), { type: "module" })
+    // Inlined worker (Vite's ?worker&inline), NOT `new Worker(new URL(…))`.
+    // Aurora ships as a library: a URL-referenced worker is emitted as a separate
+    // asset and the reference is baked into our bundle as a plain string. The app
+    // consuming this library re-bundles us, sees only that string, and never
+    // copies the worker chunk into its own output — so the request 404s and lands
+    // in the SPA fallback, which serves index.html and fails strict MIME checking
+    // for module scripts. Inlining leaves no asset for a consumer to lose.
+    worker = new DownloadWorker()
   } catch (err) {
     onError(objectKey, err instanceof Error ? err.message : "Failed to start download worker")
     return
@@ -194,7 +201,16 @@ export function startObjectDownload(opts: {
     type: "start",
     // The worker has its own module instance and never sees App's
     // setBffEndpoint() call — hand it the resolved endpoint explicitly.
-    bffEndpoint: getBffEndpoint(),
+    //
+    // Absolute, not relative: the worker is inlined and therefore runs from a
+    // blob: URL, whose location has an opaque path. Resolving "/polaris-bff"
+    // against it throws ("Failed to parse URL"), so the endpoint has to carry its
+    // own origin. An already-absolute endpoint passes through unchanged.
+    bffEndpoint: new URL(getBffEndpoint(), location.origin).href,
+    // Same story for CSRF: the worker's own token cache starts empty, and
+    // fetching /csrf-token there is a round-trip we don't need. Null (nothing has
+    // needed a token yet this session) is fine — the worker resolves one itself.
+    csrfToken: getCsrfToken(),
     projectId,
     bucketName,
     objectKey,
@@ -211,7 +227,7 @@ export function startObjectDownload(opts: {
 // forces it down if that never happens.
 //
 // Returns the cancelled transfer (or undefined if the row wasn't transferring) so
-// the caller can tell a real cancellation apart from a no-op.
+// callers can tell a real cancellation apart from a no-op.
 export function cancelObjectDownload(bucketName: string, objectKey: string): ActiveTransfer | undefined {
   const key = transferKey(bucketName, objectKey)
   const transfer = transfers.get(key)

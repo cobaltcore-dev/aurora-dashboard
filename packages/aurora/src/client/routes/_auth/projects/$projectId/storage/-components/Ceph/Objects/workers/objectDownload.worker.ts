@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 //
-// Dedicated module worker for Ceph object downloads.
+// Dedicated Web Worker for Ceph object downloads.
 //
 // Why a worker: for large objects the wire carries a lot of base64 text and
 // `Uint8Array.from(atob(chunk), …)` runs over all of it. Doing that on the main
@@ -13,9 +13,10 @@
 // A worker runs in its own module instance, so it does NOT see the
 // setBffEndpoint() call App makes at startup and would otherwise fall back to
 // the default "/polaris-bff" — breaking any deployment configured with a
-// different bffEndpoint. The store passes the resolved endpoint in the start
-// message and we apply it below, before the lazy trpcClient proxy builds its
-// links on first access.
+// different bffEndpoint. Its CSRF cache starts empty for the same reason. The
+// store passes both the resolved endpoint and the token it already holds in the
+// start message and we apply them below, before the lazy trpcClient proxy builds
+// its links on first access.
 //
 // Cancellation: a "cancel" message aborts the AbortController passed to the tRPC
 // mutation, which aborts the underlying fetch. The BFF sees the client disconnect
@@ -26,15 +27,19 @@
 // What stays on the main thread: all DOM work (anchor download / open-in-tab) and
 // the watchDownloadProgress subscription (a React hook keyed by downloadId).
 //
-// Must be instantiated as a module worker so the bundler pulls the client in:
-//   new Worker(new URL("../workers/objectDownload.worker.ts", import.meta.url), { type: "module" })
+// The store imports this via Vite's `?worker&inline`, so Vite bundles it (with
+// everything it imports) and embeds it as a blob — there is no separate asset.
+// That matters because aurora ships as a library: a URL-referenced worker would
+// be emitted into aurora's own dist and the consuming app, which re-bundles us,
+// would never copy it into its output. See objectDownloadStore for the details.
 
-import { trpcClient, setBffEndpoint } from "@/client/trpcClient"
+import { trpcClient, setBffEndpoint, setCsrfToken } from "@/client/trpcClient"
 
 export type DownloadWorkerRequest =
   | {
       type: "start"
       bffEndpoint: string
+      csrfToken: string | null
       projectId: string
       bucketName: string
       objectKey: string
@@ -62,6 +67,11 @@ self.addEventListener("message", async (event: MessageEvent<DownloadWorkerReques
   // Must happen before the first trpcClient access — the client is created
   // lazily and captures the endpoint when its links are built.
   setBffEndpoint(msg.bffEndpoint)
+  // Reuse the main thread's token rather than fetching our own: one less
+  // round-trip per download, and it does not touch the CSRF cookie the main
+  // thread's cached token is validated against. A null token is a no-op — the
+  // cache then resolves one itself against the absolute endpoint set above.
+  setCsrfToken(msg.csrfToken)
   abortController = new AbortController()
 
   let contentType = "application/octet-stream"

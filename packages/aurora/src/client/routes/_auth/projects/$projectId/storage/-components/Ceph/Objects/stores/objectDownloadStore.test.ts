@@ -14,42 +14,54 @@ const { toastMock } = vi.hoisted(() => {
 })
 
 vi.mock("@cloudoperators/juno-ui-components", () => ({ toast: toastMock }))
-// The store only reads the resolved BFF endpoint to hand it to the worker;
-// mock it so the test doesn't construct a real tRPC client.
-vi.mock("@/client/trpcClient", () => ({ getBffEndpoint: () => "/custom-bff" }))
+
+// The store only reads what it has to hand to the worker — the resolved BFF
+// endpoint and the cached CSRF token. Mocked so the test doesn't construct a
+// real tRPC client; mutable so tests can vary both.
+const { trpcMock } = vi.hoisted(() => ({
+  trpcMock: { bffEndpoint: "/custom-bff", csrfToken: "tok-abc" as string | null },
+}))
+vi.mock("@/client/trpcClient", () => ({
+  getBffEndpoint: () => trpcMock.bffEndpoint,
+  getCsrfToken: () => trpcMock.csrfToken,
+}))
 vi.mock("../ObjectToastNotifications", () => ({
   getObjectDownloadStartedToast: () => ({ message: "Downloading...", description: "desc" }),
 }))
 
-// A controllable stand-in for the module Worker the store spawns. The store only
-// imports the worker's *types* (erased at build), so it never loads the real
-// worker file — stubbing the global Worker constructor is enough. Tests drive
-// replies via emitMessage/emitError.
-class MockWorker {
-  static instances: MockWorker[] = []
-  onmessage: ((e: MessageEvent) => void) | null = null
-  onerror: ((e: { message: string }) => void) | null = null
-  posted: unknown[] = []
-  terminated = false
-  constructor(
-    public url: URL | string,
-    public options?: WorkerOptions
-  ) {
-    MockWorker.instances.push(this)
+// A controllable stand-in for the worker constructor. The store imports the
+// worker via Vite's ?worker&inline, so the constructor comes from that module —
+// mock the module, not the global Worker. Tests drive replies via
+// emitMessage/emitError.
+const { MockWorker } = vi.hoisted(() => {
+  class MockWorker {
+    static instances: MockWorker[] = []
+    static throwOnConstruct = false
+    onmessage: ((e: MessageEvent) => void) | null = null
+    onerror: ((e: { message: string }) => void) | null = null
+    posted: unknown[] = []
+    terminated = false
+    constructor() {
+      if (MockWorker.throwOnConstruct) throw new Error("no workers")
+      MockWorker.instances.push(this)
+    }
+    postMessage(msg: unknown) {
+      this.posted.push(msg)
+    }
+    terminate() {
+      this.terminated = true
+    }
+    emitMessage(data: unknown) {
+      this.onmessage?.({ data } as MessageEvent)
+    }
+    emitError(message: string) {
+      this.onerror?.({ message })
+    }
   }
-  postMessage(msg: unknown) {
-    this.posted.push(msg)
-  }
-  terminate() {
-    this.terminated = true
-  }
-  emitMessage(data: unknown) {
-    this.onmessage?.({ data } as MessageEvent)
-  }
-  emitError(message: string) {
-    this.onerror?.({ message })
-  }
-}
+  return { MockWorker }
+})
+
+vi.mock("../workers/objectDownload.worker?worker&inline", () => ({ default: MockWorker }))
 
 // The store keeps module-scope state (the transfers Map), so each test gets a
 // fresh module via resetModules + dynamic import to avoid cross-test leakage.
@@ -60,10 +72,12 @@ const clicked: Array<{ href: string; target: string; download: string }> = []
 
 beforeEach(async () => {
   MockWorker.instances = []
+  MockWorker.throwOnConstruct = false
+  trpcMock.bffEndpoint = "/custom-bff"
+  trpcMock.csrfToken = "tok-abc"
   clicked.length = 0
   toastMock.mockClear()
   toastMock.dismiss.mockClear()
-  vi.stubGlobal("Worker", MockWorker as unknown as typeof Worker)
   vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
   vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
   vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
@@ -99,18 +113,44 @@ describe("objectDownloadStore", () => {
     const { worker } = start()
 
     expect(MockWorker.instances).toHaveLength(1)
-    expect(worker.options).toMatchObject({ type: "module" })
     const msg = worker.posted[0] as { type: string; downloadId: string; objectKey: string }
     expect(msg).toMatchObject({ type: "start", projectId: "p", bucketName: "b", objectKey: "k.zip" })
     expect(msg.downloadId.startsWith("b:k.zip:")).toBe(true)
   })
 
-  it("hands the worker the app's resolved BFF endpoint", () => {
-    // The worker has its own module instance and never sees App's
-    // setBffEndpoint() call, so it must be told explicitly — otherwise it falls
-    // back to the default and breaks non-default deployments.
-    const { worker } = start()
-    expect(worker.posted[0]).toMatchObject({ bffEndpoint: "/custom-bff" })
+  // Everything the worker can't work out for itself has to travel in the start
+  // message: it has its own module instance of trpcClient, so it sees neither
+  // App's setBffEndpoint() call nor the token cache the main thread has already
+  // filled — and it runs from a blob: URL, so it can't resolve a relative URL
+  // either. Each of these was a live bug.
+  describe("the start message", () => {
+    it("carries the app's resolved BFF endpoint, made absolute", () => {
+      // Relative would leave the worker resolving against a blob: location,
+      // whose opaque path throws "Failed to parse URL".
+      const { worker } = start()
+      expect(worker.posted[0]).toMatchObject({ bffEndpoint: `${location.origin}/custom-bff` })
+    })
+
+    it("passes an already-absolute endpoint through unchanged", () => {
+      trpcMock.bffEndpoint = "https://bff.example.com/polaris-bff"
+      const { worker } = start()
+      expect(worker.posted[0]).toMatchObject({ bffEndpoint: "https://bff.example.com/polaris-bff" })
+    })
+
+    it("carries the main thread's cached CSRF token", () => {
+      // Without it the worker's own cache is empty, it sends no x-csrf-token,
+      // and the BFF rejects the download with "Invalid csrf token".
+      const { worker } = start()
+      expect(worker.posted[0]).toMatchObject({ csrfToken: "tok-abc" })
+    })
+
+    it("carries a null token when the main thread has none yet", () => {
+      // Not an error: the worker resolves one itself against the absolute
+      // endpoint above. The field must still be present and explicit.
+      trpcMock.csrfToken = null
+      const { worker } = start()
+      expect(worker.posted[0]).toMatchObject({ csrfToken: null })
+    })
   })
 
   it("exposes the active transfer in the snapshot and notifies subscribers", () => {
@@ -252,15 +292,8 @@ describe("objectDownloadStore", () => {
     expect(second.worker.terminated).toBe(false)
   })
 
-  it("errors through onError when the Worker constructor throws", () => {
-    vi.stubGlobal(
-      "Worker",
-      class {
-        constructor() {
-          throw new Error("no workers")
-        }
-      } as unknown as typeof Worker
-    )
+  it("errors through onError when the worker constructor throws", () => {
+    MockWorker.throwOnConstruct = true
     const onError = vi.fn()
     store.startObjectDownload({
       kind: "download",
