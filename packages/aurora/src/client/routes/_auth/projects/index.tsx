@@ -83,7 +83,6 @@ export function ProjectsOverview() {
           <Suspense
             fallback={
               <Stack className="fixed inset-0" distribution="center" alignment="center">
-                <div className="absolute inset-0 backdrop-blur-sm" />
                 <Spinner variant="primary" size="large" />
               </Stack>
             }
