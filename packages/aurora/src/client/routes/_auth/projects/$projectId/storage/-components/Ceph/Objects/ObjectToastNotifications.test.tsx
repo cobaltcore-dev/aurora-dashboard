@@ -162,12 +162,17 @@ describe("ObjectToastNotifications", () => {
   // ── Object download ──────────────────────────────────────────────────────────
 
   describe("getObjectDownloadStartedToast", () => {
-    it("renders correct message content", () => {
-      renderNotification(getObjectDownloadStartedToast())
-      expect(screen.getByText("Downloading...")).toBeInTheDocument()
+    it("renders correct message content with filename", () => {
+      renderNotification(getObjectDownloadStartedToast("documents/report.pdf"))
+      expect(screen.getByText("Downloading report.pdf")).toBeInTheDocument()
       expect(screen.getByText(/Downloading larger files may take a while/)).toBeInTheDocument()
       expect(screen.getByText(/the download\(s\) will be interrupted/)).toBeInTheDocument()
       expect(screen.getByText(/We are working to improve the user experience/)).toBeInTheDocument()
+    })
+
+    it("extracts display name from object key", () => {
+      renderNotification(getObjectDownloadStartedToast("folder/subfolder/image.png"))
+      expect(screen.getByText("Downloading image.png")).toBeInTheDocument()
     })
   })
 
@@ -220,7 +225,7 @@ describe("ObjectToastNotifications", () => {
         getObjectMoveErrorToast("a.txt", "err"),
         getObjectMetadataUpdatedToast("a.txt"),
         getObjectMetadataUpdateErrorToast("a.txt", "err"),
-        getObjectDownloadStartedToast(),
+        getObjectDownloadStartedToast("a.txt"),
         getObjectDownloadCancelledToast("a.txt"),
         getObjectDownloadErrorToast("a.txt", "err"),
         getVersionRestoredToast("a.txt"),

@@ -151,15 +151,18 @@ export const getObjectMetadataUpdateErrorToast = (
 // download progress until the whole file has arrived), so this sets
 // expectations up front. It also warns that navigating away aborts the
 // in-flight transfer — the unmount cleanup aborts every active controller.
-export const getObjectDownloadStartedToast = (): { message: ReactNode } & NotificationOptions => ({
-  message: <Trans>Downloading...</Trans>,
-  description: (
-    <Trans>
-      Downloading larger files may take a while. Do not leave this view, otherwise the download(s) will be interrupted.
-      We are working to improve the user experience in the future.
-    </Trans>
-  ),
-})
+export const getObjectDownloadStartedToast = (objectKey: string): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Downloading {displayName}</Trans>,
+    description: (
+      <Trans>
+        Downloading larger files may take a while. Do not leave this view, otherwise the download(s) will be
+        interrupted. We are working to improve the user experience in the future.
+      </Trans>
+    ),
+  }
+}
 
 // A cancelled transfer is a user-initiated outcome, not a failure — confirm it
 // so the disappearing progress spinner isn't the only feedback.
