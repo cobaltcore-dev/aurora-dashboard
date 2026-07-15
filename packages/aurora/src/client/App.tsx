@@ -90,7 +90,7 @@ const App = (props: AppProps) => {
         <AppShellProvider shadowRoot={false} theme={currentTheme}>
           <trpcReact.Provider client={reactClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
-              <AuthProvider router={router}>
+              <AuthProvider>
                 <NotificationManager position="top-right" />
                 <AppInner
                   router={router}
