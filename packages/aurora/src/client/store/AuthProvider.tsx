@@ -32,11 +32,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Clear session state and terminate server session
-  const clearSession = async () => {
-    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
+  // Clear local session state
+  const clearLocalSession = () => {
     setUser(null)
     setExpiresAt(null)
+  }
+
+  // Terminate server session (best effort, don't block on failure)
+  const terminateServerSession = () => {
+    trpcClient.auth.terminateUserSession.mutate().catch(() => {})
   }
 
   // Get current session on mount
@@ -61,8 +65,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
 
-    const handleExpiry = async () => {
-      await clearSession()
+    const handleExpiry = () => {
+      clearLocalSession()
+      terminateServerSession() // Fire-and-forget, token already expired
       redirectToLogin(true) // Save return URL on expiry
     }
 
@@ -93,7 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     setIsLoading(true)
-    await clearSession()
+    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
+    clearLocalSession()
     redirectToLogin(false) // Don't save return URL on manual logout
     // If already on login page, no redirect happens - reset loading state
     if (window.location.pathname === "/") {
