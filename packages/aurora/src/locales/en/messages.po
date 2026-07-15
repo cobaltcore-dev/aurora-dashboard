@@ -1795,9 +1795,6 @@ msgstr "Ingress"
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 
-msgid "Invalid credentials. Please check your domain, username, and password."
-msgstr "Invalid credentials. Please check your domain, username, and password."
-
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
 
@@ -1989,9 +1986,6 @@ msgstr "Loading versions..."
 
 msgid "Loading..."
 msgstr "Loading..."
-
-msgid "Login failed. Please check your credentials and try again."
-msgstr "Login failed. Please check your credentials and try again."
 
 msgid "Login to Your Account"
 msgstr "Login to Your Account"
@@ -3654,9 +3648,6 @@ msgstr "You don't have permission to view extra specs for this flavor."
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
-
-msgid "You need to login to access this page."
-msgstr "You need to login to access this page."
 
 msgid "Your action is required"
 msgstr "Your action is required"

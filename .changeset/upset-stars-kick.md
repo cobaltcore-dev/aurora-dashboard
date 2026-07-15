@@ -2,4 +2,4 @@
 "@cobaltcore-dev/aurora": patch
 ---
 
-deleted rate limit
+Remove application-level rate limiting configuration from the Aurora server.
