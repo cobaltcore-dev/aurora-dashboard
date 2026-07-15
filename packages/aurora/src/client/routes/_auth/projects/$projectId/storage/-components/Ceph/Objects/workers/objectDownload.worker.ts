@@ -10,6 +10,13 @@
 // Reuses the app's existing `trpcClient` (same links / CSRF / streaming routing)
 // instead of building a separate client — no config duplication or drift.
 //
+// A worker runs in its own module instance, so it does NOT see the
+// setBffEndpoint() call App makes at startup and would otherwise fall back to
+// the default "/polaris-bff" — breaking any deployment configured with a
+// different bffEndpoint. The store passes the resolved endpoint in the start
+// message and we apply it below, before the lazy trpcClient proxy builds its
+// links on first access.
+//
 // Cancellation: a "cancel" message aborts the AbortController passed to the tRPC
 // mutation, which stops the read here and tears down the request so the BFF stops
 // reading too. The store drops the transfer from its state right away, so the UI
@@ -21,11 +28,12 @@
 // Must be instantiated as a module worker so the bundler pulls the client in:
 //   new Worker(new URL("../workers/objectDownload.worker.ts", import.meta.url), { type: "module" })
 
-import { trpcClient } from "@/client/trpcClient"
+import { trpcClient, setBffEndpoint } from "@/client/trpcClient"
 
 export type DownloadWorkerRequest =
   | {
       type: "start"
+      bffEndpoint: string
       projectId: string
       bucketName: string
       objectKey: string
@@ -50,6 +58,9 @@ self.addEventListener("message", async (event: MessageEvent<DownloadWorkerReques
     return
   }
 
+  // Must happen before the first trpcClient access — the client is created
+  // lazily and captures the endpoint when its links are built.
+  setBffEndpoint(msg.bffEndpoint)
   abortController = new AbortController()
 
   let contentType = "application/octet-stream"

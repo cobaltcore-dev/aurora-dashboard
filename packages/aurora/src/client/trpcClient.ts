@@ -78,6 +78,17 @@ export function setBffEndpoint(endpoint: string) {
   config.bffEndpoint = endpoint
 }
 
+/**
+ * Read the endpoint App configured. Needed by code that has to hand the value to
+ * a separate JS context — a module Web Worker gets its own instance of this
+ * module and never sees App's setBffEndpoint() call, so it would otherwise fall
+ * back to the default and break any non-default deployment. Read-only: does not
+ * affect link routing.
+ */
+export function getBffEndpoint() {
+  return config.bffEndpoint
+}
+
 const getLinks = () => [
   splitLink({
     // First check: is it a subscription?

@@ -14,6 +14,7 @@
 // in another folder still saves the file.
 
 import { toast } from "@cloudoperators/juno-ui-components"
+import { getBffEndpoint } from "@/client/trpcClient"
 import type { DownloadWorkerRequest, DownloadWorkerResponse } from "../workers/objectDownload.worker"
 import { getObjectDownloadStartedToast } from "../ObjectToastNotifications"
 
@@ -182,6 +183,9 @@ export function startObjectDownload(opts: {
 
   worker.postMessage({
     type: "start",
+    // The worker has its own module instance and never sees App's
+    // setBffEndpoint() call — hand it the resolved endpoint explicitly.
+    bffEndpoint: getBffEndpoint(),
     projectId,
     bucketName,
     objectKey,

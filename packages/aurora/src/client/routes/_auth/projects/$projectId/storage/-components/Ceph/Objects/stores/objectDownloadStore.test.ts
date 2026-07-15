@@ -14,6 +14,9 @@ const { toastMock } = vi.hoisted(() => {
 })
 
 vi.mock("@cloudoperators/juno-ui-components", () => ({ toast: toastMock }))
+// The store only reads the resolved BFF endpoint to hand it to the worker;
+// mock it so the test doesn't construct a real tRPC client.
+vi.mock("@/client/trpcClient", () => ({ getBffEndpoint: () => "/custom-bff" }))
 vi.mock("../ObjectToastNotifications", () => ({
   getObjectDownloadStartedToast: () => ({ message: "Downloading...", description: "desc" }),
 }))
@@ -99,6 +102,14 @@ describe("objectDownloadStore", () => {
     const msg = worker.posted[0] as { type: string; downloadId: string; objectKey: string }
     expect(msg).toMatchObject({ type: "start", projectId: "p", bucketName: "b", objectKey: "k.zip" })
     expect(msg.downloadId.startsWith("b:k.zip:")).toBe(true)
+  })
+
+  it("hands the worker the app's resolved BFF endpoint", () => {
+    // The worker has its own module instance and never sees App's
+    // setBffEndpoint() call, so it must be told explicitly — otherwise it falls
+    // back to the default and breaks non-default deployments.
+    const { worker } = start()
+    expect(worker.posted[0]).toMatchObject({ bffEndpoint: "/custom-bff" })
   })
 
   it("exposes the active transfer in the snapshot and notifies subscribers", () => {
