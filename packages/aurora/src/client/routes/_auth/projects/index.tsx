@@ -23,9 +23,6 @@ export const Route = createFileRoute("/_auth/projects/")({
     },
   } satisfies RouteInfo,
   component: ProjectsOverview,
-  errorComponent: ({ error }) => (
-    <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />
-  ),
   notFoundComponent: () => {
     return <p>Projects not found</p>
   },
@@ -73,13 +70,13 @@ export function ProjectsOverview() {
           </Suspense>
         </ErrorBoundary>
       )}
-      <ProjectsOverviewNavBar searchTerm={search} onSearch={handleSearch} />
-      <div className="pt-5">
-        <ErrorBoundary
-          fallbackRender={({ error }) => (
-            <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />
-          )}
-        >
+      <ErrorBoundary
+        fallbackRender={({ error }) => (
+          <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />
+        )}
+      >
+        <ProjectsOverviewNavBar searchTerm={search} onSearch={handleSearch} />
+        <div className="pt-5">
           <Suspense
             fallback={
               <Stack distribution="center" alignment="center" direction="vertical" className="py-12">
@@ -89,8 +86,8 @@ export function ProjectsOverview() {
           >
             <ProjectsContent search={search} />
           </Suspense>
-        </ErrorBoundary>
-      </div>
+        </div>
+      </ErrorBoundary>
     </Container>
   )
 }

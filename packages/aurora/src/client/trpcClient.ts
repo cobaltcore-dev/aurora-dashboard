@@ -58,12 +58,6 @@ const csrfCache = {
   },
 }
 
-/**
- * Invalidate the cached CSRF token.
- * Call this when receiving a 403 response to trigger a fresh token fetch on the next request.
- */
-export const invalidateCsrfToken = () => csrfCache.invalidate()
-
 // Procedures that return async iterables (chunked streaming responses).
 // These are routed through httpBatchStreamLink instead of httpBatchLink.
 // Add any new streaming procedure paths here.

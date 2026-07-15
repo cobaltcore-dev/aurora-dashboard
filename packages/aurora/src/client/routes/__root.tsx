@@ -7,6 +7,7 @@ import { NavigationItem } from "../components/navigation/types"
 import type { Slots, OnTrackEventCallback } from "../AuroraApp"
 import styles from "../index.css?inline"
 import { RouteError } from "../components/Error/RouteError"
+import { TRPCClientError } from "@trpc/client"
 import { useLingui } from "@lingui/react/macro"
 import { StatusError } from "../components/Error/StatusError"
 import { Slot } from "../components/Slot"
@@ -62,7 +63,7 @@ function RootComponent() {
 function RootErrorComponent({ error }: { error: Error }) {
   return (
     <AuroraLayout>
-      <RouteError error={error} />
+      <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />
     </AuroraLayout>
   )
 }
