@@ -1,4 +1,3 @@
-import { trpcClient } from "../../trpcClient"
 import {
   PopupMenu,
   PopupMenuOptions,
@@ -10,32 +9,13 @@ import {
 import { useAuth } from "../../store/AuthProvider"
 import { useNavigate } from "@tanstack/react-router"
 import { SessionExpirationTimer } from "../Auth/SessionExpirationTimer"
-import { useState } from "react"
 
 export function UserMenu() {
-  const [isLoading, setIsLoading] = useState(false)
-  const { isAuthenticated, user, logout, expiresAt } = useAuth()
+  const { isAuthenticated, isLoading, user, logout, expiresAt } = useAuth()
   const navigate = useNavigate()
 
   const handleLogin = () => {
     navigate({ to: "/" })
-  }
-
-  const handleLogout = async () => {
-    setIsLoading(true)
-    try {
-      await trpcClient.auth.terminateUserSession.mutate()
-    } catch (error) {
-      console.error("Error logging out: ", error)
-    } finally {
-      try {
-        await logout()
-      } catch (error) {
-        console.error("Error during logout: ", error)
-      }
-      setIsLoading(false)
-      await navigate({ to: "/" })
-    }
   }
 
   return (
@@ -55,7 +35,7 @@ export function UserMenu() {
                 icon="exitToApp"
                 label={isLoading ? "Signing out…" : "Log Out"}
                 disabled={isLoading}
-                onClick={handleLogout}
+                onClick={logout}
               />
               {expiresAt && (
                 <PopupMenuSectionHeading>

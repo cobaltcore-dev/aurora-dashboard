@@ -1024,9 +1024,6 @@ msgstr "DNS-Name"
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 
-msgid "Domain"
-msgstr "Domain"
-
 msgid "Download"
 msgstr "Herunterladen"
 
@@ -1194,12 +1191,6 @@ msgstr "Value eingeben"
 
 msgid "Enter your credentials to access your account"
 msgstr "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen."
-
-msgid "Enter your domain"
-msgstr "Geben Sie den Domain ein"
-
-msgid "Enter your username"
-msgstr "Geben Sie Ihren Benutzernamen ein"
 
 msgid "Entries in ACLs are comma-separated. Examples:"
 msgstr "Einträge in ACLs werden durch Kommas getrennt. Beispiele:"
@@ -1795,9 +1786,6 @@ msgstr "Ingress"
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
 
-msgid "Invalid credentials. Please check your domain, username, and password."
-msgstr "Ungültige Anmeldedaten. Bitte überprüfen Sie Ihre Domain, Ihren Benutzernamen und Ihr Passwort."
-
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
 
@@ -1989,9 +1977,6 @@ msgstr ""
 
 msgid "Loading..."
 msgstr "Lädt..."
-
-msgid "Login failed. Please check your credentials and try again."
-msgstr "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen und versuchen Sie es erneut."
 
 msgid "Login to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
@@ -2406,9 +2391,6 @@ msgstr "Teilweise erfolgreich deaktiviert"
 
 msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
-
-msgid "Password"
-msgstr "Passwort"
 
 msgid "Paste CSR code"
 msgstr "Paste CSR code"
@@ -3481,9 +3463,6 @@ msgstr "Benutzer {userId} (beliebiges Projekt)"
 msgid "User {userId} from project {projectId}"
 msgstr "Benutzer {userId} aus Projekt {projectId}"
 
-msgid "User C/D/I"
-msgstr "Benutzer C/D/I"
-
 msgid "valid token required: false"
 msgstr "gültiges Token erforderlich: false"
 
@@ -3654,9 +3633,6 @@ msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
-
-msgid "You need to login to access this page."
-msgstr "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."
 
 msgid "Your action is required"
 msgstr "Ihre Aktion ist erforderlich"

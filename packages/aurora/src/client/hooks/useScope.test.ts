@@ -21,6 +21,8 @@ const mockUseAuth = vi.mocked(useAuth)
 // Helper to create a mock auth context
 const createMockAuth = (user: AuthContext["user"]): AuthContext => ({
   isAuthenticated: !!user,
+  isLoading: false,
+  error: null,
   login: vi.fn(),
   logout: vi.fn(),
   user,
