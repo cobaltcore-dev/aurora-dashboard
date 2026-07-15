@@ -18,9 +18,10 @@
 // links on first access.
 //
 // Cancellation: a "cancel" message aborts the AbortController passed to the tRPC
-// mutation, which stops the read here and tears down the request so the BFF stops
-// reading too. The store drops the transfer from its state right away, so the UI
-// doesn't wait on this unwinding.
+// mutation, which aborts the underlying fetch. The BFF sees the client disconnect
+// via `ctx.req.signal` and stops reading the S3 stream on its next chunk. The
+// store drops the transfer from its state right away, so the UI doesn't wait on
+// this unwinding.
 //
 // What stays on the main thread: all DOM work (anchor download / open-in-tab) and
 // the watchDownloadProgress subscription (a React hook keyed by downloadId).
