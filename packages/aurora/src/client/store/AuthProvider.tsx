@@ -62,7 +62,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const handleExpiry = () => {
       clearLocalSession()
-      trpcClient.auth.terminateUserSession.mutate().catch(() => {}) // Fire-and-forget
       redirectToLogin(true)
     }
 
