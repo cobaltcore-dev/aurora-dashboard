@@ -22,16 +22,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const [expiresAt, setExpiresAt] = useState<string | null>(null)
 
-  // Clear session and optionally save return URL
-  const clearSessionAndRedirect = (saveReturnUrl: boolean = false) => {
-    if (saveReturnUrl && window.location.pathname !== "/") {
-      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search)
+  // Redirect to login, optionally with return URL
+  const redirectToLogin = (saveReturnUrl: boolean = false) => {
+    if (window.location.pathname !== "/") {
+      const returnUrl = saveReturnUrl
+        ? `/?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
+        : "/"
+      window.location.href = returnUrl
     }
+  }
+
+  // Clear session state and terminate server session
+  const clearSession = async () => {
+    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
     setUser(null)
     setExpiresAt(null)
-    if (window.location.pathname !== "/") {
-      window.location.href = "/"
-    }
   }
 
   // Get current session on mount
@@ -55,12 +60,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user || !expiresAt) return
 
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
+
+    const handleExpiry = async () => {
+      await clearSession()
+      redirectToLogin(true) // Save return URL on expiry
+    }
+
     if (timeUntilExpiry <= 0) {
-      clearSessionAndRedirect(true) // Save return URL on expiry
+      handleExpiry()
       return
     }
 
-    const timer = setTimeout(() => clearSessionAndRedirect(true), timeUntilExpiry)
+    const timer = setTimeout(handleExpiry, timeUntilExpiry)
     return () => clearTimeout(timer)
   }, [user, expiresAt])
 
@@ -82,8 +93,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     setIsLoading(true)
-    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
-    clearSessionAndRedirect(false) // Don't save return URL on manual logout
+    await clearSession()
+    redirectToLogin(false) // Don't save return URL on manual logout
   }
 
   return (

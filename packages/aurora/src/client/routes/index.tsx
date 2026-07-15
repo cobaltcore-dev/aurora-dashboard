@@ -24,13 +24,7 @@ function LandingPage() {
   // Redirect when authenticated
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      const savedRedirect = sessionStorage.getItem("redirect_after_login")
-      const target = isSafeRedirect(savedRedirect)
-        ? savedRedirect
-        : isSafeRedirect(searchRedirect)
-          ? searchRedirect
-          : "/projects"
-      sessionStorage.removeItem("redirect_after_login")
+      const target = isSafeRedirect(searchRedirect) ? searchRedirect : "/projects"
       navigate({ to: target, replace: true })
     }
   }, [isAuthenticated, isLoading, navigate, searchRedirect])
