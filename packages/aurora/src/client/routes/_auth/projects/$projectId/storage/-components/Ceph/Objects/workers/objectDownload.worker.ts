@@ -11,9 +11,9 @@
 // instead of building a separate client — no config duplication or drift.
 //
 // Cancellation: a "cancel" message aborts the AbortController passed to the tRPC
-// mutation, which stops the client read. The BFF is stopped separately and
-// promptly by the store's cancelDownload mutation (the fetch teardown alone can
-// lag behind httpBatchStreamLink's keep-alive connection).
+// mutation, which stops the read here and tears down the request so the BFF stops
+// reading too. The store drops the transfer from its state right away, so the UI
+// doesn't wait on this unwinding.
 //
 // What stays on the main thread: all DOM work (anchor download / open-in-tab) and
 // the watchDownloadProgress subscription (a React hook keyed by downloadId).

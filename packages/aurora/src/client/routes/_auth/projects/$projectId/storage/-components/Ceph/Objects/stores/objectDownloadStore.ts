@@ -192,12 +192,12 @@ export function startObjectDownload(opts: {
 
 // Cancel an in-flight transfer. Removes it from the store immediately (so the UI
 // clears on the very next render, with no worker round-trip) and tells the worker
-// to abort its tRPC call. The worker isn't terminated here — it unwinds its own
-// abort and is dropped once idle, avoiding a mid-stream hard kill.
+// to abort its tRPC call, which tears down the request so the BFF stops reading
+// from S3. The worker isn't terminated here — it unwinds its own abort and is
+// dropped once idle, avoiding a mid-stream hard kill.
 //
-// Returns the cancelled transfer so the caller can also tell the BFF to stop
-// server-side (aborting the client fetch alone reaches the BFF only once the
-// keep-alive connection actually closes, which httpBatchStreamLink delays).
+// Returns the cancelled transfer (or undefined if the row wasn't transferring) so
+// the caller can tell a real cancellation apart from a no-op.
 export function cancelObjectDownload(bucketName: string, objectKey: string): ActiveTransfer | undefined {
   const key = transferKey(bucketName, objectKey)
   const transfer = transfers.get(key)
