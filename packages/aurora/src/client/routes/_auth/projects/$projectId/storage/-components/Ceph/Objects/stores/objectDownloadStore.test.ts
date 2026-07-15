@@ -233,6 +233,25 @@ describe("objectDownloadStore", () => {
     expect(worker.terminated).toBe(true)
   })
 
+  it("ignores a late reply from a worker superseded by a new transfer for the same row", () => {
+    const first = start()
+    store.cancelObjectDownload("b", "k.zip")
+    // Cancelling frees the row, so the user can immediately start it again.
+    const second = start()
+    expect(second.worker).not.toBe(first.worker)
+
+    // The superseded worker finally finishes and replies. It must not save the
+    // file, and must not disturb the transfer that replaced it — this is the
+    // "slot taken by someone else" half of the staleness guard, distinct from the
+    // "slot empty" case above.
+    first.worker.emitMessage({ ok: true, blob: new Blob(["x"]), filename: "k.zip", contentType: "application/zip" })
+
+    expect(clicked).toHaveLength(0)
+    expect(first.worker.terminated).toBe(true)
+    expect(store.getTransfersSnapshot().get(store.transferKey("b", "k.zip"))?.worker).toBe(second.worker)
+    expect(second.worker.terminated).toBe(false)
+  })
+
   it("errors through onError when the Worker constructor throws", () => {
     vi.stubGlobal(
       "Worker",
