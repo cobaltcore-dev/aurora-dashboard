@@ -40,9 +40,9 @@ export function LoginForm() {
             e.preventDefault()
             const formData = new FormData(e.currentTarget)
             login({
-              domain: formData.get("domain") as string,
-              user: formData.get("user") as string,
-              password: formData.get("password") as string,
+              domain: String(formData.get("domain") ?? ""),
+              user: String(formData.get("user") ?? ""),
+              password: String(formData.get("password") ?? ""),
             })
           }}
         >

@@ -95,6 +95,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true)
     await clearSession()
     redirectToLogin(false) // Don't save return URL on manual logout
+    // If already on login page, no redirect happens - reset loading state
+    if (window.location.pathname === "/") {
+      setIsLoading(false)
+    }
   }
 
   return (
