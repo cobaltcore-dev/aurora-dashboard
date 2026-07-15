@@ -1,4 +1,5 @@
 import React, { useEffect } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { TokenData } from "../../server/Authentication/types/models"
 import { trpcReact } from "../trpcClient"
 
@@ -17,6 +18,8 @@ export interface AuthContext {
 const AuthContext = React.createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient()
+
   // Session query with React Query
   const sessionQuery = trpcReact.auth.getCurrentUserSession.useQuery(undefined, {
     staleTime: Infinity, // Session only changes via login/logout
@@ -31,10 +34,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Redirect to login, optionally with return URL
   const redirectToLogin = (saveReturnUrl: boolean = false) => {
-    if (window.location.pathname !== "/") {
-      const returnUrl = saveReturnUrl
-        ? `/?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
-        : "/"
+    const returnUrl = saveReturnUrl
+      ? `/?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
+      : "/"
+
+    if (window.location.pathname === "/") {
+      // Already on login page - just clear cache, no redirect needed
+      queryClient.clear()
+    } else {
+      // Redirect triggers page reload which clears cache
       window.location.href = returnUrl
     }
   }
@@ -46,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
 
     const handleExpiry = () => {
-      redirectToLogin(true) // Page reload clears the cache
+      redirectToLogin(true)
     }
 
     if (timeUntilExpiry <= 0) {
@@ -56,18 +64,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const timer = setTimeout(handleExpiry, timeUntilExpiry)
     return () => clearTimeout(timer)
-  }, [user, expiresAt])
+  }, [user, expiresAt, queryClient])
 
   // Login mutation
-  const loginMutation = trpcReact.auth.createUserSession.useMutation({
-    onSuccess: () => {
-      sessionQuery.refetch()
-    },
-  })
+  const loginMutation = trpcReact.auth.createUserSession.useMutation()
 
   const login = async ({ domain, user, password }: { domain: string; user: string; password: string }) => {
     try {
       await loginMutation.mutateAsync({ domainName: domain, user, password })
+      await sessionQuery.refetch()
       return { success: true }
     } catch {
       return { success: false }
@@ -78,8 +83,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logoutMutation = trpcReact.auth.terminateUserSession.useMutation()
 
   const logout = async () => {
-    await logoutMutation.mutateAsync().catch(() => {})
-    redirectToLogin(false) // Page reload clears the cache
+    try {
+      await logoutMutation.mutateAsync()
+    } catch {
+      // Server-side termination failed, but we still clear local state
+      // The server session may remain valid but user wants to logout locally
+    }
+    redirectToLogin(false)
   }
 
   // Combined loading state (initial load, during login, or refetching after login)

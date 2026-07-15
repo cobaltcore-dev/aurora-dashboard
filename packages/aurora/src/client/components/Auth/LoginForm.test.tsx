@@ -120,27 +120,23 @@ describe("LoginForm", () => {
   })
 
   it("shows loading state while submitting", async () => {
-    // Start with non-pending state
-    render(<LoginForm />, { wrapper: createWrapper() })
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/domain/i)).toBeInTheDocument()
-    })
-
-    // Update mock to return pending state
+    // Mock with isPending true to simulate loading state
     mockUseLoginMutation.mockReturnValue({
       mutateAsync: mockLoginMutateAsync,
       isPending: true,
       error: null,
     })
 
-    // Re-render with pending state by triggering form submission
-    fireEvent.change(screen.getByLabelText(/domain/i), { target: { value: "test-domain" } })
-    fireEvent.change(screen.getByLabelText(/user/i), { target: { value: "testuser" } })
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: "testpass" } })
+    render(<LoginForm />, { wrapper: createWrapper() })
 
-    // The component should show loading state based on isLoading from useAuth
-    // which combines sessionQuery.isLoading and loginMutation.isPending
+    await waitFor(() => {
+      expect(screen.getByLabelText(/domain/i)).toBeInTheDocument()
+    })
+
+    // Button should show loading state and be disabled
+    const button = screen.getByRole("button")
+    expect(button).toBeDisabled()
+    expect(button).toHaveTextContent(/loading/i)
   })
 
   it("displays error message on login failure", async () => {

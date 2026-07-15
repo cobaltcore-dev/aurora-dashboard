@@ -6,7 +6,7 @@ export function LoginForm() {
   const { isLoading, error: loginError, login } = useAuth()
 
   return (
-    <Stack className="fixed inset-0" distribution="center" alignment="center">
+    <Stack className="fixed inset-0 overflow-auto px-4 py-8" distribution="center" alignment="center">
       <div className="border-theme-light relative w-full max-w-md rounded-lg border p-6 shadow-lg">
         <ContentHeading className="text-center">
           <Trans>Login to Your Account</Trans>

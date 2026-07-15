@@ -262,14 +262,16 @@ describe("AuthProvider", () => {
       const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
       expect(result.current.isAuthenticated).toBe(true)
+      expect(result.current.user).toEqual(shortSession.user)
 
-      // Advance time past expiration
+      // Advance time past expiration - this triggers redirectToLogin
+      // which changes window.location.href (mocked in jsdom as no-op)
       await act(async () => {
         vi.advanceTimersByTime(5000)
       })
 
-      // The session should be cleared via queryClient.setQueryData
-      // Note: In the real implementation, this triggers a redirect
+      // Session expiry triggers redirect, not local state change
+      // The redirect clears state via page reload
     })
 
     it("should clear session immediately if already expired", async () => {
@@ -282,10 +284,11 @@ describe("AuthProvider", () => {
       mockUseLoginMutation.mockReturnValue(createMockMutationResult({}))
       mockUseLogoutMutation.mockReturnValue(createMockMutationResult({}))
 
-      renderHook(() => useAuth(), { wrapper: createWrapper() })
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
-      // Session should be cleared immediately
-      // The effect runs and calls clearLocalSession -> redirectToLogin
+      // Even with expired session data, isAuthenticated reflects the query data
+      // The useEffect immediately triggers redirectToLogin for expired sessions
+      expect(result.current.user).toEqual(expiredSession.user)
     })
   })
 
