@@ -77,6 +77,7 @@ beforeEach(async () => {
 afterEach(() => {
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
+  vi.useRealTimers()
 })
 
 const start = (over: Partial<Parameters<StoreModule["startObjectDownload"]>[0]> = {}) => {
@@ -189,6 +190,36 @@ describe("objectDownloadStore", () => {
 
   it("cancelObjectDownload returns undefined for an unknown transfer", () => {
     expect(store.cancelObjectDownload("b", "missing")).toBeUndefined()
+  })
+
+  it("force-terminates a cancelled worker that never reports back", () => {
+    vi.useFakeTimers()
+    const { worker } = start()
+
+    store.cancelObjectDownload("b", "k.zip")
+    // Cooperative first: the worker is asked to abort and gets a grace period to
+    // unwind on its own.
+    expect(worker.posted).toContainEqual({ type: "cancel" })
+    expect(worker.terminated).toBe(false)
+
+    // It never replies — without the fallback it would keep streaming and
+    // buffering a file nobody wants, unreachable from `transfers`.
+    vi.advanceTimersByTime(5000)
+    expect(worker.terminated).toBe(true)
+  })
+
+  it("the force-terminate fallback is harmless once the worker already replied", () => {
+    vi.useFakeTimers()
+    const { worker } = start()
+
+    store.cancelObjectDownload("b", "k.zip")
+    worker.emitMessage({ ok: false, cancelled: true, message: "aborted" })
+    expect(worker.terminated).toBe(true)
+
+    // terminate() is idempotent — the pending timer must not throw or resurrect
+    // any state.
+    expect(() => vi.advanceTimersByTime(5000)).not.toThrow()
+    expect(store.getTransfersSnapshot().size).toBe(0)
   })
 
   it("ignores a late reply from a cancelled worker (no save)", () => {
