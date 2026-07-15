@@ -21,8 +21,8 @@ vi.mock("../../trpcClient", () => ({
   trpcClient: {
     auth: {
       getCurrentUserSession: { query: vi.fn().mockResolvedValue(null) },
-      createUserSession: { mutate: vi.fn() },
-      terminateUserSession: { mutate: vi.fn() },
+      createUserSession: { mutate: vi.fn().mockResolvedValue({ user: null, expires_at: null }) },
+      terminateUserSession: { mutate: vi.fn().mockResolvedValue(undefined) },
     },
   },
 }))
