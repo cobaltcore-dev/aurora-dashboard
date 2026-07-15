@@ -27,7 +27,7 @@ const transfers = new Map<string, ActiveTransfer>()
 const listeners = new Set<() => void>()
 
 // useSyncExternalStore requires getSnapshot to return a stable reference between
-// changes, so we hand out a frozen copy that's only rebuilt on mutation.
+// changes, so we hand out a copy that's only rebuilt on mutation.
 let snapshot: ReadonlyMap<string, ActiveTransfer> = new Map()
 
 // Fixed id so the "Downloading..." notification is a single toast for the whole
