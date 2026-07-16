@@ -1,5 +1,4 @@
 import React, { useEffect } from "react"
-import { useQueryClient } from "@tanstack/react-query"
 import { TokenData } from "../../server/Authentication/types/models"
 import { trpcReact } from "../trpcClient"
 
@@ -18,7 +17,6 @@ export interface AuthContext {
 const AuthContext = React.createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const queryClient = useQueryClient()
   const trpcUtils = trpcReact.useUtils()
 
   // Session query with React Query
@@ -40,8 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       : "/"
 
     if (window.location.pathname === "/") {
-      // Already on login page - just clear cache, no redirect needed
-      queryClient.clear()
+      // Already on login page - just clear session query, no redirect needed
+      trpcUtils.auth.getCurrentUserSession.setData(undefined, undefined)
     } else {
       // Redirect triggers page reload which clears cache
       window.location.href = returnUrl
@@ -65,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const timer = setTimeout(handleExpiry, timeUntilExpiry)
     return () => clearTimeout(timer)
-  }, [user, expiresAt, queryClient])
+  }, [user, expiresAt])
 
   // Login mutation
   const loginMutation = trpcReact.auth.createUserSession.useMutation()
