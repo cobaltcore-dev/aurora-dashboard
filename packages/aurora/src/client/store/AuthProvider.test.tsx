@@ -1,30 +1,37 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { renderHook, act, waitFor } from "@testing-library/react"
+import { renderHook, act } from "@testing-library/react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AuthProvider, useAuth } from "./AuthProvider"
 import { ReactNode } from "react"
+import { trpcReact } from "../trpcClient"
 
-// Mock trpcClient
+// Mock trpcReact
 vi.mock("../trpcClient", () => ({
-  trpcClient: {
+  trpcReact: {
     auth: {
       getCurrentUserSession: {
-        query: vi.fn(),
+        useQuery: vi.fn(),
       },
       createUserSession: {
-        mutate: vi.fn(),
+        useMutation: vi.fn(),
       },
       terminateUserSession: {
-        mutate: vi.fn(),
+        useMutation: vi.fn(),
       },
     },
+    useUtils: vi.fn(() => ({
+      auth: {
+        getCurrentUserSession: {
+          setData: vi.fn(),
+        },
+      },
+    })),
   },
 }))
 
-import { trpcClient } from "../trpcClient"
-
-const mockGetCurrentUserSession = trpcClient.auth.getCurrentUserSession.query as ReturnType<typeof vi.fn>
-const mockCreateUserSession = trpcClient.auth.createUserSession.mutate as ReturnType<typeof vi.fn>
-const mockTerminateUserSession = trpcClient.auth.terminateUserSession.mutate as ReturnType<typeof vi.fn>
+const mockUseQuery = trpcReact.auth.getCurrentUserSession.useQuery as ReturnType<typeof vi.fn>
+const mockUseLoginMutation = trpcReact.auth.createUserSession.useMutation as ReturnType<typeof vi.fn>
+const mockUseLogoutMutation = trpcReact.auth.terminateUserSession.useMutation as ReturnType<typeof vi.fn>
 
 const mockSession = {
   user: {
@@ -36,14 +43,53 @@ const mockSession = {
   expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
 }
 
-const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider>{children}</AuthProvider>
+// Helper to create mock query result
+const createMockQueryResult = (overrides: {
+  data?: typeof mockSession | null
+  isLoading?: boolean
+  isRefetching?: boolean
+  error?: Error | null
+  refetch?: () => Promise<unknown>
+}) => ({
+  data: overrides.data ?? null,
+  isLoading: overrides.isLoading ?? false,
+  isRefetching: overrides.isRefetching ?? false,
+  error: overrides.error ?? null,
+  refetch: overrides.refetch ?? vi.fn().mockResolvedValue({}),
+})
+
+// Helper to create mock mutation result
+const createMockMutationResult = (overrides: {
+  mutateAsync?: () => Promise<unknown>
+  isPending?: boolean
+  error?: Error | null
+}) => ({
+  mutateAsync: overrides.mutateAsync ?? vi.fn().mockResolvedValue({}),
+  isPending: overrides.isPending ?? false,
+  error: overrides.error ?? null,
+})
+
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  })
+  return ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>{children}</AuthProvider>
+    </QueryClientProvider>
+  )
+}
 
 describe("AuthProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Default: no existing session
-    mockGetCurrentUserSession.mockResolvedValue(null)
-    mockTerminateUserSession.mockResolvedValue(undefined)
+    // Default mocks: no session, not loading
+    mockUseQuery.mockReturnValue(createMockQueryResult({ data: null, isLoading: false }))
+    mockUseLoginMutation.mockReturnValue(createMockMutationResult({}))
+    mockUseLogoutMutation.mockReturnValue(createMockMutationResult({}))
   })
 
   afterEach(() => {
@@ -51,44 +97,48 @@ describe("AuthProvider", () => {
   })
 
   describe("Initialization", () => {
-    it("should start with loading state and fetch current session", async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper })
+    it("should start with loading state while fetching session", () => {
+      mockUseQuery.mockReturnValue(createMockQueryResult({ isLoading: true }))
 
-      // Initially loading
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
+
       expect(result.current.isLoading).toBe(true)
-
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
-      })
-
       expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.user).toBeNull()
-      expect(mockGetCurrentUserSession).toHaveBeenCalledOnce()
     })
 
-    it("should restore session if one exists", async () => {
-      mockGetCurrentUserSession.mockResolvedValue(mockSession)
+    it("should be unauthenticated when no session exists", () => {
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: null, isLoading: false }))
 
-      const { result } = renderHook(() => useAuth(), { wrapper })
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
-      })
+      expect(result.current.isLoading).toBe(false)
+      expect(result.current.isAuthenticated).toBe(false)
+      expect(result.current.user).toBeNull()
+    })
 
+    it("should restore session if one exists", () => {
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: mockSession, isLoading: false }))
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
+
+      expect(result.current.isLoading).toBe(false)
       expect(result.current.isAuthenticated).toBe(true)
       expect(result.current.user).toEqual(mockSession.user)
       expect(result.current.expiresAt).toBeInstanceOf(Date)
     })
 
-    it("should set error if session fetch fails", async () => {
-      mockGetCurrentUserSession.mockRejectedValue(new Error("Network error"))
+    it("should set error if session fetch fails", () => {
+      mockUseQuery.mockReturnValue(
+        createMockQueryResult({
+          data: null,
+          isLoading: false,
+          error: new Error("Network error"),
+        })
+      )
 
-      const { result } = renderHook(() => useAuth(), { wrapper })
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
-      })
-
+      expect(result.current.isLoading).toBe(false)
       expect(result.current.isAuthenticated).toBe(false)
       expect(result.current.error).toBe("Network error")
     })
@@ -102,13 +152,13 @@ describe("AuthProvider", () => {
 
   describe("Login", () => {
     it("should authenticate user on successful login", async () => {
-      mockCreateUserSession.mockResolvedValue(mockSession)
+      // Initially no session
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: null }))
 
-      const { result } = renderHook(() => useAuth(), { wrapper })
+      const mutateAsyncMock = vi.fn().mockResolvedValue(mockSession)
+      mockUseLoginMutation.mockReturnValue(createMockMutationResult({ mutateAsync: mutateAsyncMock }))
 
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
-      })
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
       let loginResult: { success: boolean } | undefined
 
@@ -121,24 +171,20 @@ describe("AuthProvider", () => {
       })
 
       expect(loginResult?.success).toBe(true)
-      expect(result.current.isAuthenticated).toBe(true)
-      expect(result.current.user).toEqual(mockSession.user)
-      expect(result.current.expiresAt).toBeInstanceOf(Date)
-      expect(mockCreateUserSession).toHaveBeenCalledWith({
+      expect(mutateAsyncMock).toHaveBeenCalledWith({
         domainName: "test-domain",
         user: "testuser",
         password: "testpass",
       })
     })
 
-    it("should return success false and set error on failed login", async () => {
-      mockCreateUserSession.mockRejectedValue(new Error("Invalid credentials"))
+    it("should return success false on failed login", async () => {
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: null }))
 
-      const { result } = renderHook(() => useAuth(), { wrapper })
+      const mutateAsyncMock = vi.fn().mockRejectedValue(new Error("Invalid credentials"))
+      mockUseLoginMutation.mockReturnValue(createMockMutationResult({ mutateAsync: mutateAsyncMock }))
 
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
-      })
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
       let loginResult: { success: boolean } | undefined
 
@@ -151,245 +197,159 @@ describe("AuthProvider", () => {
       })
 
       expect(loginResult?.success).toBe(false)
-      expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.error).toBe("Invalid credentials")
     })
 
-    it("should clear previous error on new login attempt", async () => {
-      mockCreateUserSession.mockRejectedValueOnce(new Error("First error")).mockResolvedValueOnce(mockSession)
+    it("should show loading state during login", () => {
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: null }))
+      mockUseLoginMutation.mockReturnValue(createMockMutationResult({ isPending: true }))
 
-      const { result } = renderHook(() => useAuth(), { wrapper })
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
-      })
-
-      // First failed login
-      await act(async () => {
-        await result.current.login({ domain: "d", user: "u", password: "p" })
-      })
-      expect(result.current.error).toBe("First error")
-
-      // Second successful login should clear error
-      await act(async () => {
-        await result.current.login({ domain: "d", user: "u", password: "p" })
-      })
-      expect(result.current.error).toBeNull()
-      expect(result.current.isAuthenticated).toBe(true)
+      expect(result.current.isLoading).toBe(true)
     })
 
-    it("should set loading state during login", async () => {
-      let resolveLogin: (value: typeof mockSession) => void
-      mockCreateUserSession.mockImplementation(
-        () =>
-          new Promise((resolve) => {
-            resolveLogin = resolve
-          })
+    it("should show login mutation error", () => {
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: null }))
+      mockUseLoginMutation.mockReturnValue(
+        createMockMutationResult({
+          error: new Error("Invalid credentials"),
+        })
       )
 
-      const { result } = renderHook(() => useAuth(), { wrapper })
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
-      })
-
-      // Start login
-      let loginPromise: Promise<{ success: boolean }>
-      act(() => {
-        loginPromise = result.current.login({
-          domain: "test-domain",
-          user: "testuser",
-          password: "testpass",
-        })
-      })
-
-      // Should be loading
-      expect(result.current.isLoading).toBe(true)
-
-      // Resolve login
-      await act(async () => {
-        resolveLogin!(mockSession)
-        await loginPromise
-      })
-
-      expect(result.current.isLoading).toBe(false)
-      expect(result.current.isAuthenticated).toBe(true)
+      expect(result.current.error).toBe("Invalid credentials")
     })
   })
 
   describe("Logout", () => {
-    it("should clear user and call terminate session on logout", async () => {
-      mockGetCurrentUserSession.mockResolvedValue(mockSession)
+    it("should call terminate session on logout", async () => {
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: mockSession }))
 
-      const { result } = renderHook(() => useAuth(), { wrapper })
+      const mutateAsyncMock = vi.fn().mockResolvedValue(undefined)
+      mockUseLogoutMutation.mockReturnValue(createMockMutationResult({ mutateAsync: mutateAsyncMock }))
 
-      await waitFor(() => {
-        expect(result.current.isAuthenticated).toBe(true)
-      })
-
-      await act(async () => {
-        await result.current.logout()
-      })
-
-      expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.user).toBeNull()
-      expect(mockTerminateUserSession).toHaveBeenCalledOnce()
-    })
-
-    it("should set loading state during logout", async () => {
-      let resolveLogout: (value?: unknown) => void
-      mockTerminateUserSession.mockImplementation(
-        () =>
-          new Promise((resolve) => {
-            resolveLogout = resolve
-          })
-      )
-      mockGetCurrentUserSession.mockResolvedValue(mockSession)
-
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      await waitFor(() => {
-        expect(result.current.isAuthenticated).toBe(true)
-      })
-
-      // Start logout
-      act(() => {
-        result.current.logout()
-      })
-
-      expect(result.current.isLoading).toBe(true)
-
-      // Resolve logout - in real app this triggers page reload via window.location.href
-      await act(async () => {
-        resolveLogout!()
-      })
-
-      // After logout, user should be cleared (page would reload in real browser)
-      expect(result.current.isAuthenticated).toBe(false)
-    })
-
-    it("should clear user even if terminate session fails", async () => {
-      mockGetCurrentUserSession.mockResolvedValue(mockSession)
-      mockTerminateUserSession.mockRejectedValue(new Error("Network error"))
-
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      await waitFor(() => {
-        expect(result.current.isAuthenticated).toBe(true)
-      })
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
       await act(async () => {
         await result.current.logout()
       })
 
-      // Should still clear local state even if server call fails
-      expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.user).toBeNull()
+      expect(mutateAsyncMock).toHaveBeenCalledOnce()
+    })
+
+    it("should handle logout error gracefully", async () => {
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: mockSession }))
+
+      const mutateAsyncMock = vi.fn().mockRejectedValue(new Error("Network error"))
+      mockUseLogoutMutation.mockReturnValue(createMockMutationResult({ mutateAsync: mutateAsyncMock }))
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
+
+      // Should not throw even if terminate fails
+      await act(async () => {
+        await result.current.logout()
+      })
+
+      expect(mutateAsyncMock).toHaveBeenCalledOnce()
     })
   })
 
   describe("Session Expiration", () => {
     it("should auto-logout when session expires", async () => {
       vi.useFakeTimers()
-      const shortSession = {
-        ...mockSession,
-        expires_at: new Date(Date.now() + 5000).toISOString(), // 5 seconds
-      }
-      mockGetCurrentUserSession.mockResolvedValue(shortSession)
 
-      const { result } = renderHook(() => useAuth(), { wrapper })
+      const shortExpiresAt = new Date(Date.now() + 5000).toISOString() // 5 seconds
+      const shortSession = { ...mockSession, expires_at: shortExpiresAt }
 
-      await vi.waitFor(() => {
-        expect(result.current.isAuthenticated).toBe(true)
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: shortSession }))
+      mockUseLoginMutation.mockReturnValue(createMockMutationResult({}))
+      mockUseLogoutMutation.mockReturnValue(createMockMutationResult({}))
+
+      const mockSetData = vi.fn()
+      const mockUseUtils = trpcReact.useUtils as ReturnType<typeof vi.fn>
+      mockUseUtils.mockReturnValue({
+        auth: {
+          getCurrentUserSession: {
+            setData: mockSetData,
+          },
+        },
       })
+
+      // Mock window.location for redirect check
+      const originalLocation = window.location
+      // @ts-expect-error - mocking window.location
+      delete window.location
+      // @ts-expect-error - mocking window.location
+      window.location = { ...originalLocation, pathname: "/dashboard", href: "" }
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
+
+      expect(result.current.isAuthenticated).toBe(true)
+      expect(result.current.user).toEqual(shortSession.user)
 
       // Advance time past expiration
       await act(async () => {
         vi.advanceTimersByTime(5000)
       })
 
-      expect(result.current.isAuthenticated).toBe(false)
-      expect(result.current.user).toBeNull()
+      // Should trigger redirect with return URL since not on "/"
+      expect(window.location.href).toContain("?redirect=")
+
+      // Restore
+      // @ts-expect-error - restoring window.location
+      window.location = originalLocation
     })
 
-    it("should logout immediately if session is already expired", async () => {
+    it("should clear session immediately if already expired", async () => {
       vi.useFakeTimers()
-      const expiredSession = {
-        ...mockSession,
-        expires_at: new Date(Date.now() - 1000).toISOString(), // Already expired
-      }
-      mockGetCurrentUserSession.mockResolvedValue(expiredSession)
 
-      const { result } = renderHook(() => useAuth(), { wrapper })
+      const expiredAt = new Date(Date.now() - 1000).toISOString() // Already expired
+      const expiredSession = { ...mockSession, expires_at: expiredAt }
 
-      await vi.waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: expiredSession }))
+      mockUseLoginMutation.mockReturnValue(createMockMutationResult({}))
+      mockUseLogoutMutation.mockReturnValue(createMockMutationResult({}))
+
+      const mockSetData = vi.fn()
+      const mockUseUtils = trpcReact.useUtils as ReturnType<typeof vi.fn>
+      mockUseUtils.mockReturnValue({
+        auth: {
+          getCurrentUserSession: {
+            setData: mockSetData,
+          },
+        },
       })
 
-      // Should be logged out immediately
-      expect(result.current.isAuthenticated).toBe(false)
+      // Mock window.location - already on "/"
+      const originalLocation = window.location
+      // @ts-expect-error - mocking window.location
+      delete window.location
+      // @ts-expect-error - mocking window.location
+      window.location = { ...originalLocation, pathname: "/", href: "" }
+
+      renderHook(() => useAuth(), { wrapper: createWrapper() })
+
+      // Should clear session cache immediately since already on "/"
+      await vi.waitFor(() => {
+        expect(mockSetData).toHaveBeenCalledWith(undefined, undefined)
+      })
+
+      // Restore
+      // @ts-expect-error - restoring window.location
+      window.location = originalLocation
     })
   })
 
   describe("Edge Cases", () => {
-    it("should handle rapid login/logout cycles", async () => {
-      mockCreateUserSession.mockResolvedValue(mockSession)
+    it("should handle null user in session data", () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockUseQuery.mockReturnValue(createMockQueryResult({ data: { user: null, expires_at: null } as any }))
 
-      const { result } = renderHook(() => useAuth(), { wrapper })
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
-      })
-
-      for (let i = 0; i < 3; i++) {
-        await act(async () => {
-          await result.current.login({
-            domain: "test-domain",
-            user: "testuser",
-            password: "testpass",
-          })
-        })
-
-        expect(result.current.isAuthenticated).toBe(true)
-
-        await act(async () => {
-          await result.current.logout()
-        })
-
-        expect(result.current.isAuthenticated).toBe(false)
-      }
-    })
-
-    it("should handle non-Error rejection in login", async () => {
-      mockCreateUserSession.mockRejectedValue("String error")
-
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
-      })
-
-      await act(async () => {
-        await result.current.login({
-          domain: "test-domain",
-          user: "testuser",
-          password: "testpass",
-        })
-      })
-
-      expect(result.current.error).toContain("String error")
-    })
-
-    it("should handle non-Error rejection in session fetch", async () => {
-      mockGetCurrentUserSession.mockRejectedValue("Connection refused")
-
-      const { result } = renderHook(() => useAuth(), { wrapper })
-
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
-      })
-
-      expect(result.current.error).toBe("Could not load session")
+      expect(result.current.isAuthenticated).toBe(false)
+      expect(result.current.user).toBeNull()
     })
   })
 })

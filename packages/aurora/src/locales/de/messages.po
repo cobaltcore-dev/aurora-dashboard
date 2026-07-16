@@ -1024,9 +1024,6 @@ msgstr "DNS-Name"
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 
-msgid "Domain"
-msgstr "Domain"
-
 msgid "Download"
 msgstr "Herunterladen"
 
@@ -1194,12 +1191,6 @@ msgstr "Value eingeben"
 
 msgid "Enter your credentials to access your account"
 msgstr "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen."
-
-msgid "Enter your domain"
-msgstr "Geben Sie den Domain ein"
-
-msgid "Enter your username"
-msgstr "Geben Sie Ihren Benutzernamen ein"
 
 msgid "Entries in ACLs are comma-separated. Examples:"
 msgstr "Einträge in ACLs werden durch Kommas getrennt. Beispiele:"
@@ -2401,9 +2392,6 @@ msgstr "Teilweise erfolgreich deaktiviert"
 msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
 
-msgid "Password"
-msgstr "Passwort"
-
 msgid "Paste CSR code"
 msgstr "Paste CSR code"
 
@@ -3474,9 +3462,6 @@ msgstr "Benutzer {userId} (beliebiges Projekt)"
 
 msgid "User {userId} from project {projectId}"
 msgstr "Benutzer {userId} aus Projekt {projectId}"
-
-msgid "User C/D/I"
-msgstr "Benutzer C/D/I"
 
 msgid "valid token required: false"
 msgstr "gültiges Token erforderlich: false"

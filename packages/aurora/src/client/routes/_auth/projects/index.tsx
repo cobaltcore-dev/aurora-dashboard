@@ -82,7 +82,7 @@ export function ProjectsOverview() {
         >
           <Suspense
             fallback={
-              <Stack distribution="center" alignment="center" direction="vertical" className="py-12">
+              <Stack className="fixed inset-0" distribution="center" alignment="center">
                 <Spinner variant="primary" size="large" />
               </Stack>
             }

@@ -6,6 +6,7 @@ import { FC, ReactNode } from "react"
 import { MainNavigation } from "./MainNavigation"
 import { AuthProvider } from "../../store/AuthProvider"
 import type { SlotProps } from "../../AuroraApp"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 import {
   createRootRoute,
@@ -16,14 +17,40 @@ import {
   createMemoryHistory,
 } from "@tanstack/react-router"
 
-// Mock trpcClient
+// Mock trpcClient (trpcReact for AuthProvider)
 vi.mock("../../trpcClient", () => ({
-  trpcClient: {
+  trpcReact: {
     auth: {
-      getCurrentUserSession: { query: vi.fn().mockResolvedValue(null) },
-      createUserSession: { mutate: vi.fn().mockResolvedValue({ user: null, expires_at: null }) },
-      terminateUserSession: { mutate: vi.fn().mockResolvedValue(undefined) },
+      getCurrentUserSession: {
+        useQuery: vi.fn().mockReturnValue({
+          data: null,
+          isLoading: false,
+          error: null,
+          refetch: vi.fn(),
+        }),
+      },
+      createUserSession: {
+        useMutation: vi.fn().mockReturnValue({
+          mutateAsync: vi.fn().mockResolvedValue({}),
+          isPending: false,
+          error: null,
+        }),
+      },
+      terminateUserSession: {
+        useMutation: vi.fn().mockReturnValue({
+          mutateAsync: vi.fn().mockResolvedValue(undefined),
+          isPending: false,
+          error: null,
+        }),
+      },
     },
+    useUtils: vi.fn(() => ({
+      auth: {
+        getCurrentUserSession: {
+          setData: vi.fn(),
+        },
+      },
+    })),
   },
 }))
 
@@ -33,11 +60,22 @@ beforeAll(() => {
   }
 })
 
-const TestingProvider = ({ children }: { children: ReactNode }) => (
-  <AuthProvider>
-    <I18nProvider i18n={i18n}>{children}</I18nProvider>
-  </AuthProvider>
-)
+const TestingProvider = ({ children }: { children: ReactNode }) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  })
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <I18nProvider i18n={i18n}>{children}</I18nProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  )
+}
 
 describe("MainNavigation", () => {
   const createTestRouter = (Component: React.JSX.Element) => {
