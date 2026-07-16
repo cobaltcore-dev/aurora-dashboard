@@ -22,6 +22,13 @@ vi.mock("../../trpcClient", () => ({
         useMutation: vi.fn(),
       },
     },
+    useUtils: vi.fn(() => ({
+      auth: {
+        getCurrentUserSession: {
+          setData: vi.fn(),
+        },
+      },
+    })),
   },
 }))
 

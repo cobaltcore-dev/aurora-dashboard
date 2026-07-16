@@ -19,6 +19,13 @@ vi.mock("../trpcClient", () => ({
         useMutation: vi.fn(),
       },
     },
+    useUtils: vi.fn(() => ({
+      auth: {
+        getCurrentUserSession: {
+          setData: vi.fn(),
+        },
+      },
+    })),
   },
 }))
 
@@ -259,19 +266,39 @@ describe("AuthProvider", () => {
       mockUseLoginMutation.mockReturnValue(createMockMutationResult({}))
       mockUseLogoutMutation.mockReturnValue(createMockMutationResult({}))
 
+      const mockSetData = vi.fn()
+      const mockUseUtils = trpcReact.useUtils as ReturnType<typeof vi.fn>
+      mockUseUtils.mockReturnValue({
+        auth: {
+          getCurrentUserSession: {
+            setData: mockSetData,
+          },
+        },
+      })
+
+      // Mock window.location for redirect check
+      const originalLocation = window.location
+      // @ts-expect-error - mocking window.location
+      delete window.location
+      // @ts-expect-error - mocking window.location
+      window.location = { ...originalLocation, pathname: "/dashboard", href: "" }
+
       const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
 
       expect(result.current.isAuthenticated).toBe(true)
       expect(result.current.user).toEqual(shortSession.user)
 
-      // Advance time past expiration - this triggers redirectToLogin
-      // which changes window.location.href (mocked in jsdom as no-op)
+      // Advance time past expiration
       await act(async () => {
         vi.advanceTimersByTime(5000)
       })
 
-      // Session expiry triggers redirect, not local state change
-      // The redirect clears state via page reload
+      // Should trigger redirect with return URL since not on "/"
+      expect(window.location.href).toContain("?redirect=")
+
+      // Restore
+      // @ts-expect-error - restoring window.location
+      window.location = originalLocation
     })
 
     it("should clear session immediately if already expired", async () => {
@@ -284,11 +311,33 @@ describe("AuthProvider", () => {
       mockUseLoginMutation.mockReturnValue(createMockMutationResult({}))
       mockUseLogoutMutation.mockReturnValue(createMockMutationResult({}))
 
-      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() })
+      const mockSetData = vi.fn()
+      const mockUseUtils = trpcReact.useUtils as ReturnType<typeof vi.fn>
+      mockUseUtils.mockReturnValue({
+        auth: {
+          getCurrentUserSession: {
+            setData: mockSetData,
+          },
+        },
+      })
 
-      // Even with expired session data, isAuthenticated reflects the query data
-      // The useEffect immediately triggers redirectToLogin for expired sessions
-      expect(result.current.user).toEqual(expiredSession.user)
+      // Mock window.location - already on "/"
+      const originalLocation = window.location
+      // @ts-expect-error - mocking window.location
+      delete window.location
+      // @ts-expect-error - mocking window.location
+      window.location = { ...originalLocation, pathname: "/", href: "" }
+
+      renderHook(() => useAuth(), { wrapper: createWrapper() })
+
+      // Should clear session cache immediately since already on "/"
+      await vi.waitFor(() => {
+        expect(mockSetData).toHaveBeenCalledWith(undefined, undefined)
+      })
+
+      // Restore
+      // @ts-expect-error - restoring window.location
+      window.location = originalLocation
     })
   })
 
