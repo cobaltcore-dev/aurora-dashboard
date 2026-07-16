@@ -19,6 +19,7 @@ const AuthContext = React.createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient()
+  const trpcUtils = trpcReact.useUtils()
 
   // Session query with React Query
   const sessionQuery = trpcReact.auth.getCurrentUserSession.useQuery(undefined, {
@@ -71,8 +72,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async ({ domain, user, password }: { domain: string; user: string; password: string }) => {
     try {
-      await loginMutation.mutateAsync({ domainName: domain, user, password })
-      await sessionQuery.refetch()
+      const tokenData = await loginMutation.mutateAsync({ domainName: domain, user, password })
+      // Populate the session query cache from mutation result instead of refetching
+      trpcUtils.auth.getCurrentUserSession.setData(undefined, tokenData)
       return { success: true }
     } catch {
       return { success: false }
