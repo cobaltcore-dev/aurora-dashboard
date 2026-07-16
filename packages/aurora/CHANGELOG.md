@@ -1,5 +1,19 @@
 # @cobaltcore-dev/aurora
 
+## 0.21.0
+
+### Minor Changes
+
+- 0021456: Simplify auth flow and improve session handling
+  - Move tRPC auth calls into AuthProvider for centralized session management
+  - Add auto-logout on session expiry with return URL saved for redirect after re-login
+  - Use uncontrolled form inputs in LoginForm for simpler code
+  - Remove unnecessary useCallback wrappers (React 19 optimizes automatically)
+
+### Patch Changes
+
+- 566338f: Remove application-level rate limiting configuration from the Aurora server.
+
 ## 0.20.3
 
 ### Patch Changes
