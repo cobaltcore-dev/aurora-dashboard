@@ -3,6 +3,7 @@ import { Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { z } from "zod"
 import { useEffect } from "react"
 import { LoginForm } from "../components/Auth/LoginForm"
+import { Slot } from "../components/Slot"
 import { useAuth } from "../store/AuthProvider"
 
 function isSafeRedirect(path: unknown): path is string {
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   const { isLoading, isAuthenticated } = useAuth()
+  const { slots } = Route.useRouteContext()
   const { redirect: searchRedirect } = Route.useSearch()
   const navigate = useNavigate()
 
@@ -35,6 +37,14 @@ function LandingPage() {
         <div className="absolute inset-0 backdrop-blur-sm" />
         <Spinner variant="primary" size="large" />
       </Stack>
+    )
+  }
+
+  if (slots?.login && !isAuthenticated) {
+    return (
+      <div className="mt-8 flex justify-center">
+        <Slot component={slots.login} useShadowDOM={false} />
+      </div>
     )
   }
 
