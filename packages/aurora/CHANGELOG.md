@@ -1,5 +1,11 @@
 # @cobaltcore-dev/aurora
 
+## 0.22.0
+
+### Minor Changes
+
+- 72d58f7: Add slot support for custom login component. Allows injecting a custom login UI via `slots.login` instead of using the default LoginForm.
+
 ## 0.21.0
 
 ### Minor Changes
