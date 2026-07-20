@@ -23,6 +23,49 @@ export type CreateTypedTrpcReact<TRouter extends AuroraRouter> = CreateTRPCReact
 /** Generic type for creating a typed vanilla tRPC client with a custom router */
 export type CreateTypedTrpcClient<TRouter extends AuroraRouter> = TRPCClient<TRouter>
 
+// BFF endpoint - set once by App before any tRPC calls are made
+const config = {
+  bffEndpoint: "/polaris-bff",
+}
+
+export function setBffEndpoint(endpoint: string) {
+  config.bffEndpoint = endpoint
+}
+
+/**
+ * Read the endpoint App configured. Needed by code that has to hand the value to
+ * a separate JS context — a Web Worker gets its own instance of this module and
+ * never sees App's setBffEndpoint() call, so it would otherwise fall back to the
+ * default and break any non-default deployment. Read-only: does not affect link
+ * routing.
+ */
+export function getBffEndpoint() {
+  return config.bffEndpoint
+}
+
+// The CSRF token route is mounted at the server root by AuroraFastifyCsrfProtection,
+// not under the BFF prefix.
+const CSRF_TOKEN_PATH = "/csrf-token"
+
+// Origin to resolve CSRF_TOKEN_PATH against.
+//
+// A bare fetch("/csrf-token") is fine on the main thread but throws inside the
+// object-download worker: it is inlined (?worker&inline) and therefore runs from
+// a blob: URL, whose location has an opaque path — a root-relative URL has
+// nothing to resolve against ("Failed to parse URL"). getHeaders()'s catch
+// swallowed that throw and returned {}, so the request went out with no
+// x-csrf-token and the BFF answered "Invalid csrf token".
+//
+// The worker is handed an already-absolute bffEndpoint (see objectDownloadStore),
+// so its origin is a base that holds in either context. A relative endpoint means
+// we're on the main thread, where location is a real document URL.
+const csrfTokenUrl = () => {
+  const base = /^https?:\/\//i.test(config.bffEndpoint)
+    ? new URL(config.bffEndpoint).origin
+    : globalThis.location.origin
+  return new URL(CSRF_TOKEN_PATH, base).href
+}
+
 // CSRF token cache with request deduplication
 const csrfCache = {
   token: null as string | null,
@@ -35,7 +78,7 @@ const csrfCache = {
 
     // Dedupe concurrent fetches - only one request in flight at a time
     if (!this.pending) {
-      this.pending = fetch("/csrf-token")
+      this.pending = fetch(csrfTokenUrl())
         .then((res) => res.json())
         .then(({ csrfToken }) => {
           this.token = csrfToken
@@ -64,19 +107,28 @@ const csrfCache = {
  */
 export const invalidateCsrfToken = () => csrfCache.invalidate()
 
+/**
+ * Read the cached CSRF token so it can be handed to a separate JS context.
+ * Synchronous by design — callers that hand it to a worker are on a sync path.
+ * Null means nothing has needed a token yet, in which case the other context
+ * fetches one itself. Read-only.
+ */
+export const getCsrfToken = () => csrfCache.token
+
+/**
+ * Seed the CSRF token from another JS context. Mirrors setBffEndpoint(): a Web
+ * Worker gets its own instance of this module, so its cache starts empty and it
+ * would otherwise spend a round-trip fetching a token the main thread already has.
+ * A null token is ignored — the cache then resolves one on first use.
+ */
+export const setCsrfToken = (token: string | null) => {
+  if (token) csrfCache.token = token
+}
+
 // Procedures that return async iterables (chunked streaming responses).
 // These are routed through httpBatchStreamLink instead of httpBatchLink.
 // Add any new streaming procedure paths here.
 const STREAMING_PROCEDURES = new Set<string>(["storage.swift.downloadObject", "storage.ceph.objects.downloadObject"])
-
-// BFF endpoint - set once by App before any tRPC calls are made
-const config = {
-  bffEndpoint: "/polaris-bff",
-}
-
-export function setBffEndpoint(endpoint: string) {
-  config.bffEndpoint = endpoint
-}
 
 const getLinks = () => [
   splitLink({

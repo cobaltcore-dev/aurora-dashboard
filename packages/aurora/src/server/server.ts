@@ -176,7 +176,18 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
   // Do not use vite plugin in production
   // Register security headers for all environments; CSP disabled in dev to allow Vite HMR
   server.register(FastifyHelmet, {
-    contentSecurityPolicy: isProduction ? undefined : false,
+    contentSecurityPolicy: isProduction
+      ? {
+          directives: {
+            ...FastifyHelmet.contentSecurityPolicy.getDefaultDirectives(),
+            // The object-download worker is bundled inline (Vite's ?worker&inline)
+            // and so is started from a blob: URL. Helmet's defaults don't set
+            // worker-src at all, which makes the browser fall back to
+            // script-src 'self' — blocking blob: and the worker with it.
+            "worker-src": ["'self'", "blob:"],
+          },
+        }
+      : false,
   })
 
   if (isProduction) {
