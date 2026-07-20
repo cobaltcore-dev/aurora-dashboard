@@ -1,95 +1,116 @@
-import React, { useEffect, useRef, useCallback } from "react"
+import React, { useEffect, useState } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
+import { trpcClient } from "../trpcClient"
 
 export type User = TokenData["user"] | null
 
 export interface AuthContext {
   isAuthenticated: boolean
-  login: (user: User, expires_at?: string) => Promise<void>
+  isLoading: boolean
+  error: string | null
+  login: (credentials: { domain: string; user: string; password: string }) => Promise<{ success: boolean }>
   logout: () => Promise<void>
   user?: User
   expiresAt?: Date
 }
 
-interface RouterNavigation {
-  navigate: (options: { to: string; search?: Record<string, unknown> }) => void
-  invalidate: () => void
-}
-
 const AuthContext = React.createContext<AuthContext | null>(null)
 
-export function AuthProvider({ children, router }: { children: React.ReactNode; router: RouterNavigation }) {
-  const [user, setUser] = React.useState<User | null>(null)
-  const [expiresAt, setExpiresAt] = React.useState<Date | undefined>(undefined)
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [expiresAt, setExpiresAt] = useState<string | null>(null)
 
-  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null)
-
-  const isAuthenticated = !!user
-
-  const clearLogoutTimer = useCallback(() => {
-    if (logoutTimerRef.current) {
-      clearTimeout(logoutTimerRef.current)
-      logoutTimerRef.current = null
+  // Redirect to login, optionally with return URL
+  const redirectToLogin = (saveReturnUrl: boolean = false) => {
+    if (window.location.pathname !== "/") {
+      const returnUrl = saveReturnUrl
+        ? `/?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
+        : "/"
+      window.location.href = returnUrl
     }
-  }, [])
+  }
 
-  const logout = useCallback(async () => {
-    clearLogoutTimer()
-
+  // Clear local session state
+  const clearLocalSession = () => {
     setUser(null)
-    setExpiresAt(undefined)
+    setExpiresAt(null)
+  }
 
-    // Navigate to login page; include a redirect back to the current path when not already on "/"
-    const currentPath = window.location.pathname !== "/" ? window.location.pathname + window.location.search : null
-
-    router.navigate({
-      to: "/",
-      search: currentPath ? { redirect: currentPath } : undefined,
-    })
-
-    router.invalidate()
-  }, [router, clearLogoutTimer])
-
-  const login = useCallback(async (user: User, expires_at?: string) => {
-    setUser(user)
-
-    if (expires_at) {
-      const expiration = new Date(expires_at)
-      setExpiresAt(expiration)
-    } else {
-      setExpiresAt(undefined)
-    }
+  // Get current session on mount
+  useEffect(() => {
+    trpcClient.auth.getCurrentUserSession
+      .query()
+      .then((session) => {
+        if (session) {
+          setUser(session.user)
+          setExpiresAt(session.expires_at)
+        }
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Could not load session")
+      })
+      .finally(() => setIsLoading(false))
   }, [])
 
+  // Auto-logout when session expires
   useEffect(() => {
-    clearLogoutTimer()
+    if (!user || !expiresAt) return
 
-    if (user && expiresAt) {
-      const timeUntilExpiry = expiresAt.getTime() - Date.now()
+    const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
 
-      if (timeUntilExpiry <= 0) {
-        logout()
-        return
-      }
-
-      logoutTimerRef.current = setTimeout(() => {
-        logout()
-      }, timeUntilExpiry)
+    const handleExpiry = () => {
+      clearLocalSession()
+      redirectToLogin(true)
     }
 
-    return () => {
-      clearLogoutTimer()
+    if (timeUntilExpiry <= 0) {
+      handleExpiry()
+      return
     }
-  }, [user, expiresAt, logout, clearLogoutTimer])
+
+    const timer = setTimeout(handleExpiry, timeUntilExpiry)
+    return () => clearTimeout(timer)
+  }, [user, expiresAt])
+
+  const login = async ({ domain, user, password }: { domain: string; user: string; password: string }) => {
+    setError(null)
+    setIsLoading(true)
+    try {
+      const session = await trpcClient.auth.createUserSession.mutate({ domainName: domain, user, password })
+      setUser(session.user)
+      setExpiresAt(session.expires_at)
+      return { success: true }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Could not create session: ${err}`)
+      return { success: false }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const logout = async () => {
+    setIsLoading(true)
+    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
+    clearLocalSession()
+    redirectToLogin(false) // Don't save return URL on manual logout
+    // If already on login page, no redirect happens - reset loading state
+    if (window.location.pathname === "/") {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <AuthContext.Provider
       value={{
-        isAuthenticated,
         user,
+        isAuthenticated: !!user,
+        isLoading,
+        error,
         login,
         logout,
-        expiresAt,
+        expiresAt: expiresAt ? new Date(expiresAt) : undefined,
       }}
     >
       {children}

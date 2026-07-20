@@ -16,20 +16,25 @@ import {
   createMemoryHistory,
 } from "@tanstack/react-router"
 
+// Mock trpcClient
+vi.mock("../../trpcClient", () => ({
+  trpcClient: {
+    auth: {
+      getCurrentUserSession: { query: vi.fn().mockResolvedValue(null) },
+      createUserSession: { mutate: vi.fn().mockResolvedValue({ user: null, expires_at: null }) },
+      terminateUserSession: { mutate: vi.fn().mockResolvedValue(undefined) },
+    },
+  },
+}))
+
 beforeAll(() => {
   if (!i18n.locale) {
     i18n.activate("en")
   }
 })
 
-// Mock router for AuthProvider
-const mockRouter = {
-  navigate: vi.fn(),
-  invalidate: vi.fn(),
-}
-
 const TestingProvider = ({ children }: { children: ReactNode }) => (
-  <AuthProvider router={mockRouter}>
+  <AuthProvider>
     <I18nProvider i18n={i18n}>{children}</I18nProvider>
   </AuthProvider>
 )
