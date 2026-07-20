@@ -166,8 +166,9 @@ describe("ObjectToastNotifications", () => {
       renderNotification(getObjectDownloadStartedToast())
       expect(screen.getByText("Downloading...")).toBeInTheDocument()
       expect(screen.getByText(/Downloading larger files may take a while/)).toBeInTheDocument()
-      expect(screen.getByText(/the download\(s\) will be interrupted/)).toBeInTheDocument()
-      expect(screen.getByText(/We are working to improve the user experience/)).toBeInTheDocument()
+      // Downloads run in a worker owned by a module store, so they survive
+      // navigation — the copy must not tell users to stay on the view.
+      expect(screen.getByText(/downloads continue in the background/)).toBeInTheDocument()
     })
   })
 
