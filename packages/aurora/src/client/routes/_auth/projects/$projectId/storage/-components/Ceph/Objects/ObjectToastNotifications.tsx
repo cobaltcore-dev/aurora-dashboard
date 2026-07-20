@@ -146,17 +146,21 @@ export const getObjectMetadataUpdateErrorToast = (
 
 // ── Object download ────────────────────────────────────────────────────────────
 
-// Shown as soon as a download/preview transfer starts. Large objects stream
-// through the BFF before anything happens client-side (no native browser
-// download progress until the whole file has arrived), so this sets
-// expectations up front. It also warns that navigating away aborts the
-// in-flight transfer — the unmount cleanup aborts every active controller.
+// Shown while at least one download/preview transfer is in flight. Large objects
+// stream through the BFF before anything happens client-side (no native browser
+// download progress until the whole file has arrived), so this sets expectations
+// up front.
+//
+// This is a single, persistent toast — not one per file: the download store
+// raises it when the first transfer starts and dismisses it when the last one
+// finishes, so several concurrent downloads never stack up notifications. It is
+// rendered with a fixed id and `duration: Infinity` (see objectDownloadStore).
 export const getObjectDownloadStartedToast = (): { message: ReactNode } & NotificationOptions => ({
   message: <Trans>Downloading...</Trans>,
   description: (
     <Trans>
-      Downloading larger files may take a while. Do not leave this view, otherwise the download(s) will be interrupted.
-      We are working to improve the user experience in the future.
+      Downloading larger files may take a while. You can keep browsing buckets and folders — downloads continue in the
+      background, and this message disappears once they finish.
     </Trans>
   ),
 })
