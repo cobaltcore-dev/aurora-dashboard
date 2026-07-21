@@ -4,7 +4,13 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "ES2022",
-    "allowImportingTsExtensions": false
+    "allowImportingTsExtensions": false,
+    "paths": {
+      "@cobaltcore-dev/aurora/server": ["../../packages/aurora/src/server/index.ts"],
+      "@cobaltcore-dev/policy-engine": ["../../packages/policy-engine/src/index.ts"],
+      "@cobaltcore-dev/signal-openstack": ["../../packages/signal-openstack/src/index.ts"],
+      "@/*": ["../../packages/aurora/src/*"]
+    }
   },
   "include": ["src/server/**/*"]
 }
