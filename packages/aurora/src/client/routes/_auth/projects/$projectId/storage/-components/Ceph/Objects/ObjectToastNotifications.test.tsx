@@ -13,6 +13,9 @@ import {
   getObjectMoveErrorToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
+  getObjectUploadedToast,
+  getObjectUploadCancelledToast,
+  getObjectUploadErrorToast,
   getObjectDownloadStartedToast,
   getObjectDownloadCancelledToast,
   getObjectDownloadErrorToast,
@@ -159,6 +162,46 @@ describe("ObjectToastNotifications", () => {
     })
   })
 
+  // ── Object upload ────────────────────────────────────────────────────────────
+
+  describe("getObjectUploadedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getObjectUploadedToast("report.pdf"))
+      expect(screen.getByText("Object Uploaded")).toBeInTheDocument()
+      expect(screen.getByText('"report.pdf" was successfully uploaded.')).toBeInTheDocument()
+    })
+
+    it("shows the name as-is (upload passes a bare file name, not a key)", () => {
+      // Unlike the key-based toasts, upload helpers receive the bare file name
+      // and must not strip anything.
+      renderNotification(getObjectUploadedToast("my.report.final.pdf"))
+      expect(screen.getByText('"my.report.final.pdf" was successfully uploaded.')).toBeInTheDocument()
+    })
+  })
+
+  describe("getObjectUploadCancelledToast", () => {
+    it("returns notification with correct structure", () => {
+      const toast = getObjectUploadCancelledToast("report.pdf")
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
+    })
+
+    it("renders correct message content", () => {
+      renderNotification(getObjectUploadCancelledToast("report.pdf"))
+      expect(screen.getByText("Upload Cancelled")).toBeInTheDocument()
+      expect(screen.getByText('Upload of "report.pdf" was cancelled.')).toBeInTheDocument()
+    })
+  })
+
+  describe("getObjectUploadErrorToast", () => {
+    it("renders correct error content", () => {
+      renderNotification(getObjectUploadErrorToast("report.pdf", "Quota exceeded"))
+      expect(screen.getByText("Failed to Upload Object")).toBeInTheDocument()
+      expect(screen.getByText(/Could not upload/)).toBeInTheDocument()
+      expect(screen.getByText(/Quota exceeded/)).toBeInTheDocument()
+    })
+  })
+
   // ── Object download ──────────────────────────────────────────────────────────
 
   describe("getObjectDownloadStartedToast", () => {
@@ -221,6 +264,9 @@ describe("ObjectToastNotifications", () => {
         getObjectMoveErrorToast("a.txt", "err"),
         getObjectMetadataUpdatedToast("a.txt"),
         getObjectMetadataUpdateErrorToast("a.txt", "err"),
+        getObjectUploadedToast("a.txt"),
+        getObjectUploadCancelledToast("a.txt"),
+        getObjectUploadErrorToast("a.txt", "err"),
         getObjectDownloadStartedToast(),
         getObjectDownloadCancelledToast("a.txt"),
         getObjectDownloadErrorToast("a.txt", "err"),

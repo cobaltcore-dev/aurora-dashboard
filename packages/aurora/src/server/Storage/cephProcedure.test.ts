@@ -2,8 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
 import type { S3Client } from "@aws-sdk/client-s3"
 import { AuroraPortalContext } from "../context"
-import { cephProcedure, cephProtectedProcedure, NO_CEPH_CREDENTIALS } from "./cephProcedure"
+import { cephProcedure, cephProtectedProcedure, cephUploadProcedure, NO_CEPH_CREDENTIALS } from "./cephProcedure"
 import { createCallerFactory, auroraRouter } from "../trpc"
+import { octetInputParser } from "@trpc/server/http"
 import { z } from "zod"
 
 // ============================================================================
@@ -145,6 +146,13 @@ const testRouter = {
   }),
 
   getClient: cephProcedure.input(z.object({ project_id: z.string() })).query(async ({ ctx }) => {
+    const client = ctx.getCephClient()
+    return { clientCreated: !!client }
+  }),
+
+  // Octet-stream upload procedure — mirrors objectRouter.uploadObject's use of
+  // cephUploadProcedure, which rescopes from the x-upload-project-id header.
+  uploadClient: cephUploadProcedure.input(octetInputParser).mutation(async ({ ctx }) => {
     const client = ctx.getCephClient()
     return { clientCreated: !!client }
   }),
@@ -338,6 +346,79 @@ describe("cephProcedure", () => {
       const result = await caller.test.requireCredentials({ project_id: TEST_PROJECT_ID })
 
       expect(result.hasCredentials).toBe(true)
+    })
+  })
+
+  describe("cephUploadProcedure", () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+      process.env.CEPH_REGION = "ceph-objectstore-ec-st1-qa-de-1"
+      mockResolveEC2Credential.mockResolvedValue({ credentialId: "cred-id", access: TEST_ACCESS, secret: TEST_SECRET })
+      mockCreateS3Client.mockReturnValue({ send: vi.fn() } as MockS3Client as S3Client)
+    })
+
+    // octetInputParser never runs under createCaller (no HTTP transport), so we
+    // pass a ReadableStream directly, cast to satisfy the runtime type.
+    const callUpload = (caller: ReturnType<typeof createCaller>) =>
+      caller.test.uploadClient(new ReadableStream() as never)
+
+    const setUploadProjectId = (ctx: AuroraPortalContext, projectId: string) => {
+      ;(ctx.req.headers as Record<string, string>)["x-upload-project-id"] = projectId
+    }
+
+    it("throws BAD_REQUEST when the x-upload-project-id header is missing", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx)
+
+      await expect(callUpload(caller)).rejects.toThrow(
+        new TRPCError({ code: "BAD_REQUEST", message: "x-upload-project-id header is required for uploads" })
+      )
+    })
+
+    it("rescopes the session to the project id from the header", async () => {
+      const ctx = createMockContext()
+      setUploadProjectId(ctx, TEST_PROJECT_ID)
+      const caller = createCaller(ctx)
+
+      await callUpload(caller)
+
+      expect(ctx.rescopeSession).toHaveBeenCalledWith({ projectId: TEST_PROJECT_ID })
+    })
+
+    it("resolves credentials and exposes a getCephClient factory", async () => {
+      const ctx = createMockContext()
+      setUploadProjectId(ctx, TEST_PROJECT_ID)
+      const caller = createCaller(ctx)
+
+      const result = await callUpload(caller)
+
+      expect(result.clientCreated).toBe(true)
+      expect(mockCreateS3Client).toHaveBeenCalledWith(TEST_ACCESS, TEST_SECRET, expect.any(String), expect.any(String))
+    })
+
+    it("throws UNAUTHORIZED when the session cannot be scoped to the project", async () => {
+      const ctx = createMockContext()
+      setUploadProjectId(ctx, TEST_PROJECT_ID)
+      vi.mocked(ctx.rescopeSession).mockResolvedValue(null as never)
+      const caller = createCaller(ctx)
+
+      await expect(callUpload(caller)).rejects.toThrow(
+        new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Failed to scope session to project. User may not have access to this project.",
+        })
+      )
+    })
+
+    it("throws FORBIDDEN when the project has no EC2 credentials", async () => {
+      mockResolveEC2Credential.mockResolvedValue(null)
+      const ctx = createMockContext()
+      setUploadProjectId(ctx, TEST_PROJECT_ID)
+      const caller = createCaller(ctx)
+
+      await expect(callUpload(caller)).rejects.toThrow(
+        new TRPCError({ code: "FORBIDDEN", message: NO_CEPH_CREDENTIALS })
+      )
     })
   })
 })
