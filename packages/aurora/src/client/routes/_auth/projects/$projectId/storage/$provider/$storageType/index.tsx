@@ -1,106 +1,13 @@
-import { createFileRoute, redirect, useParams } from "@tanstack/react-router"
+import { createFileRoute, useParams } from "@tanstack/react-router"
 import { z } from "zod"
-import { getServiceIndex } from "@/server/Authentication/helpers"
 import { ErrorBoundary } from "react-error-boundary"
 import { SwiftContainers } from "../../-components/Swift/Containers"
 import { CephBuckets } from "../../-components/Ceph/Buckets"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
-
-/**
- * Validates that the requested storage provider is available for the given project,
- * and redirects to an appropriate fallback route when it is not.
- *
- * Redirect rules (in priority order):
- * 1. No `object-store` service at all → redirect to the project overview.
- * 2. Unknown provider (neither "swift" nor "ceph") → redirect to the first
- *    available provider, or to the project overview if none exist.
- * 3. Requested provider unavailable → redirect to the other provider,
- *    or to the project overview if no alternative exists.
- *
- * Ceph has a temporary fallback flag (`cephFallbackEnabled`) that treats it as
- * available even when absent from the OpenStack service catalog.
- *
- * @throws {redirect} - Always throws a TanStack Router redirect; never returns normally
- *   when the requested provider/project combination is unavailable.
- */
-export const checkServiceAvailability = (
-  availableServices: {
-    type: string
-    name: string
-  }[],
-  params: {
-    projectId: string
-    provider: string
-  }
-) => {
-  const { provider, projectId } = params
-
-  const serviceIndex = getServiceIndex(availableServices)
-
-  // Redirect to the "Projects Overview" page if no storage services available
-  if (!serviceIndex["object-store"]) {
-    throw redirect({
-      to: "/projects/$projectId",
-      params: { projectId },
-    })
-  }
-
-  // Check provider availability
-  const hasSwift = Boolean(serviceIndex["object-store"]["swift"])
-  const hasCeph = Boolean(serviceIndex["object-store"]["ceph"])
-
-  // TEMPORARY: Allow Ceph access even if not in catalog (relies on env config)
-  // TODO: Properly register Ceph in OpenStack service catalog
-  const cephFallbackEnabled = true // Set to false once Ceph is in catalog
-
-  // Effective availability includes fallback flag for Ceph
-  const hasEffectiveCeph = hasCeph || cephFallbackEnabled
-  const fallbackProvider = hasSwift ? "swift" : hasEffectiveCeph ? "ceph" : null
-  const fallbackStorageType = hasSwift ? "containers" : hasEffectiveCeph ? "buckets" : null
-
-  if (provider !== "swift" && provider !== "ceph") {
-    if (!fallbackProvider || !fallbackStorageType) {
-      throw redirect({
-        to: "/projects/$projectId",
-        params: { projectId },
-      })
-    }
-    throw redirect({
-      to: "/projects/$projectId/storage/$provider/$storageType",
-      params: { ...params, provider: fallbackProvider, storageType: fallbackStorageType },
-    })
-  }
-
-  if (provider === "swift" && !hasSwift) {
-    if (!hasEffectiveCeph) {
-      throw redirect({
-        to: "/projects/$projectId",
-        params: { projectId },
-      })
-    }
-
-    throw redirect({
-      to: "/projects/$projectId/storage/$provider/$storageType",
-      params: { ...params, provider: "ceph", storageType: "buckets" },
-    })
-  }
-
-  if (provider === "ceph" && !hasEffectiveCeph) {
-    if (!hasSwift) {
-      throw redirect({
-        to: "/projects/$projectId",
-        params: { projectId },
-      })
-    }
-
-    throw redirect({
-      to: "/projects/$projectId/storage/$provider/$storageType",
-      params: { ...params, provider: "swift", storageType: "containers" },
-    })
-  }
-}
+import { checkServiceAvailability } from "../../-components/utils/serviceAvailability"
+import { StorageNotFound } from "../../-components/StorageNotFound"
 
 // Search params schema
 // - sortBy: active sort column — persisted for deep links and back navigation
@@ -139,7 +46,8 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
     return <StorageDashboard />
   },
   notFoundComponent: () => {
-    return <p>Storage service not found</p>
+    const { projectId } = Route.useParams()
+    return <StorageNotFound projectId={projectId} />
   },
   loader: async ({ context }) => {
     const { trpcClient } = context

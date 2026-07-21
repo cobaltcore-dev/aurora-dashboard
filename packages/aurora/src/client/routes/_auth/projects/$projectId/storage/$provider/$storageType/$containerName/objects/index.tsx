@@ -7,6 +7,7 @@ import { CephObjects } from "../../../../-components/Ceph/Objects"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
+import { StorageNotFound } from "../../../../-components/StorageNotFound"
 
 // Search params schema
 // - prefix: base64-encoded current folder path, safe to carry "/" chars in the URL
@@ -42,11 +43,8 @@ export const Route = createFileRoute(
     return <ObjectsDashboard />
   },
   notFoundComponent: () => {
-    return (
-      <p>
-        <Trans>Storage container not found</Trans>
-      </p>
-    )
+    const { projectId } = Route.useParams()
+    return <StorageNotFound projectId={projectId} />
   },
   loader: async ({ context }) => {
     const { trpcClient } = context
