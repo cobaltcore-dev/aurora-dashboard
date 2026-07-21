@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { redirect } from "@tanstack/react-router"
+import { redirect, notFound } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { checkServiceAvailability } from "../../../../-components/utils/serviceAvailability"
 
@@ -20,6 +20,9 @@ vi.mock("@tanstack/react-router", async () => {
         }
       }
       throw new Error(`Redirect to: ${resolvedPath}`)
+    }),
+    notFound: vi.fn(() => {
+      throw new Error("Not found")
     }),
   }
 })
@@ -274,6 +277,70 @@ describe("Objects Route - checkServiceAvailability", () => {
           storageType: "containers",
         })
       }).not.toThrow()
+    })
+  })
+
+  describe("Invalid provider handling (notFound)", () => {
+    beforeEach(() => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+    })
+
+    it("throws notFound when provider is invalid", () => {
+      expect(() => {
+        checkServiceAvailability(defaultServices, {
+          projectId: "proj-1",
+          provider: "invalid",
+          storageType: "containers",
+          containerName: "my-container",
+        })
+      }).toThrow("Not found")
+
+      expect(notFound).toHaveBeenCalled()
+    })
+
+    it("throws notFound when provider is neither swift nor ceph", () => {
+      expect(() => {
+        checkServiceAvailability(defaultServices, {
+          projectId: "proj-1",
+          provider: "s3",
+          storageType: "buckets",
+          containerName: "my-container",
+        })
+      }).toThrow("Not found")
+    })
+  })
+
+  describe("Invalid storageType handling (notFound)", () => {
+    beforeEach(() => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+    })
+
+    it("throws notFound when storageType is not 'containers' or 'buckets'", () => {
+      expect(() => {
+        checkServiceAvailability(defaultServices, {
+          projectId: "proj-1",
+          provider: "swift",
+          storageType: "invalid",
+          containerName: "my-container",
+        })
+      }).toThrow("Not found")
+
+      expect(notFound).toHaveBeenCalled()
+    })
+
+    it("throws notFound for random storageType values", () => {
+      expect(() => {
+        checkServiceAvailability(defaultServices, {
+          projectId: "proj-1",
+          provider: "ceph",
+          storageType: "objects",
+          containerName: "my-container",
+        })
+      }).toThrow("Not found")
     })
   })
 })

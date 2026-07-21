@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
-import { redirect } from "@tanstack/react-router"
+import { redirect, notFound } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { checkServiceAvailability } from "./index"
+import { checkServiceAvailability } from "../../-components/utils/serviceAvailability"
 
 // Mock the dependencies
 vi.mock("@tanstack/react-router", async () => {
@@ -23,6 +23,9 @@ vi.mock("@tanstack/react-router", async () => {
       }
       throw new Error(`Redirect to: ${resolvedPath}`)
     }),
+    notFound: vi.fn(() => {
+      throw new Error("Not found")
+    }),
   }
 })
 
@@ -34,6 +37,7 @@ describe("Storage Route - checkServiceAvailability", () => {
   const defaultParams = {
     projectId: "proj-1",
     provider: "swift",
+    storageType: "containers",
   }
 
   const defaultServices = [
@@ -95,7 +99,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
+        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift", storageType: "containers" })
       }).not.toThrow()
     })
 
@@ -107,7 +111,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
+        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift", storageType: "containers" })
       }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets")
     })
 
@@ -120,7 +124,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       // cephFallbackEnabled is hardcoded to true, so Ceph is always available
       expect(() => {
-        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
+        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph", storageType: "buckets" })
       }).not.toThrow()
     })
   })
@@ -142,6 +146,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       const params = {
         projectId: "test-proj",
         provider: "swift",
+        storageType: "containers",
       }
 
       try {
@@ -181,7 +186,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
+        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift", storageType: "containers" })
       }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets")
     })
   })
@@ -305,6 +310,88 @@ describe("Storage Route - checkServiceAvailability", () => {
     })
   })
 
+  describe("Invalid provider handling (notFound)", () => {
+    it("throws notFound when provider is invalid", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+
+      expect(() => {
+        checkServiceAvailability(defaultServices, {
+          projectId: "proj-1",
+          provider: "invalid",
+          storageType: "containers",
+        })
+      }).toThrow("Not found")
+
+      expect(notFound).toHaveBeenCalled()
+    })
+
+    it("throws notFound when provider is neither swift nor ceph", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+
+      expect(() => {
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "s3", storageType: "buckets" })
+      }).toThrow("Not found")
+    })
+  })
+
+  describe("Invalid storageType handling (notFound)", () => {
+    it("throws notFound when storageType is not 'containers' or 'buckets'", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+
+      expect(() => {
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "swift", storageType: "invalid" })
+      }).toThrow("Not found")
+
+      expect(notFound).toHaveBeenCalled()
+    })
+
+    it("throws notFound for random storageType values", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+
+      expect(() => {
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "ceph", storageType: "objects" })
+      }).toThrow("Not found")
+    })
+  })
+
+  describe("StorageType canonicalization", () => {
+    beforeEach(() => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+    })
+
+    it("redirects swift + buckets to swift + containers", () => {
+      expect(() => {
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "swift", storageType: "buckets" })
+      }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers")
+    })
+
+    it("redirects ceph + containers to ceph + buckets", () => {
+      expect(() => {
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "ceph", storageType: "containers" })
+      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets")
+    })
+
+    it("does not redirect when storageType matches provider", () => {
+      expect(() => {
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "swift", storageType: "containers" })
+      }).not.toThrow()
+
+      expect(() => {
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "ceph", storageType: "buckets" })
+      }).not.toThrow()
+    })
+  })
+
   describe("Provider switching (bug #875 — error disables navigation)", () => {
     it("does not throw when provider is swift and swift is available", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
@@ -312,7 +399,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "swift" })
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "swift", storageType: "containers" })
       }).not.toThrow()
     })
 
@@ -323,7 +410,7 @@ describe("Storage Route - checkServiceAvailability", () => {
 
       // cephFallbackEnabled is true, so navigating to /ceph should work even without Ceph in catalog
       expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "ceph" })
+        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "ceph", storageType: "buckets" })
       }).not.toThrow()
     })
 
@@ -331,7 +418,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       vi.mocked(getServiceIndex).mockReturnValue({})
 
       expect(() => {
-        checkServiceAvailability([], { projectId: "proj-2", provider: "swift" })
+        checkServiceAvailability([], { projectId: "proj-2", provider: "swift", storageType: "containers" })
       }).toThrow("Redirect to: /projects/proj-2")
     })
 
@@ -341,7 +428,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-3", provider: "swift" })
+        checkServiceAvailability(defaultServices, { projectId: "proj-3", provider: "swift", storageType: "containers" })
       }).toThrow("Redirect to: /projects/proj-3/storage/ceph/buckets")
     })
   })
