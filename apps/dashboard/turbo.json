@@ -2,7 +2,7 @@
   "extends": ["//"],
   "tasks": {
     "dev": {
-      "dependsOn": ["@cobaltcore-dev/aurora#build"]
+      "dependsOn": []
     },
     "build": {
       "dependsOn": ["@cobaltcore-dev/aurora#build"]
