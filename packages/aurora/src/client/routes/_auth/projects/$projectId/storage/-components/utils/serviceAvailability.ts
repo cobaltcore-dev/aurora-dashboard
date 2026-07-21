@@ -1,4 +1,4 @@
-import { redirect } from "@tanstack/react-router"
+import { notFound, redirect } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 
 interface ServiceInfo {
@@ -10,19 +10,31 @@ interface RouteParams {
   projectId: string
   provider: string
   storageType: string
-  containerName: string
+  containerName?: string
 }
+
+const KNOWN_STORAGE_TYPES = ["containers", "buckets"] as const
+
+const buildTarget = (containerName: string | undefined) =>
+  `/projects/$projectId/storage/$provider/$storageType${containerName ? "/$containerName/objects" : ""}` as const
+
+const buildParams = (
+  base: { projectId: string; provider: string; storageType: string },
+  containerName: string | undefined
+) => (containerName ? { ...base, containerName } : base)
 
 /**
  * Validates storage service availability and redirects to appropriate provider/storage type.
  *
  * Redirect logic:
  * 1. If no object-store services available → redirect to project overview
- * 2. If provider is invalid → redirect to fallback provider (swift → ceph)
+ * 2. If provider is not a recognized noun at all ("swift"/"ceph")  notFound()
  * 3. If provider unavailable → redirect to available alternative
- * 4. If storageType doesn't match provider → canonicalize URL
+ * 4. If storageType is not a recognized noun at all ("containers"/"buckets")  notFound()
+ * 5. If storageType doesn't match provider (but is a recognized noun)  canonicalize URL
  *
  * @throws redirect - TanStack Router redirect on validation failure
+ * @throws notFound - TanStack Router not-found on an unrecognized provider or storageType
  */
 export const checkServiceAvailability = (availableServices: ServiceInfo[], params: RouteParams) => {
   const { provider, projectId, storageType, containerName } = params
@@ -47,22 +59,13 @@ export const checkServiceAvailability = (availableServices: ServiceInfo[], param
 
   // Effective availability includes fallback flag for Ceph
   const hasEffectiveCeph = hasCeph || cephFallbackEnabled
-  const fallbackProvider = hasSwift ? "swift" : hasEffectiveCeph ? "ceph" : null
-  const fallbackStorageType = hasSwift ? "containers" : hasEffectiveCeph ? "buckets" : null
 
   if (provider !== "swift" && provider !== "ceph") {
-    if (!fallbackProvider || !fallbackStorageType) {
-      throw redirect({
-        to: "/projects/$projectId",
-        params: { projectId },
-      })
-    }
-    throw redirect({
-      to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
-      params: { projectId, provider: fallbackProvider, storageType: fallbackStorageType, containerName },
-    })
+    throw notFound()
   }
 
+  // provider is user-controllable and part of the URL structure itself (not just a
+  // catalog-availability question)  anything other than the two known nouns is garbage.)
   if (provider === "swift" && !hasSwift) {
     if (!hasEffectiveCeph) {
       throw redirect({
@@ -72,8 +75,8 @@ export const checkServiceAvailability = (availableServices: ServiceInfo[], param
     }
 
     throw redirect({
-      to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
-      params: { projectId, provider: "ceph", storageType: "buckets", containerName },
+      to: buildTarget(containerName),
+      params: buildParams({ projectId, provider: "ceph", storageType: "buckets" }, containerName),
     })
   }
 
@@ -86,23 +89,25 @@ export const checkServiceAvailability = (availableServices: ServiceInfo[], param
     }
 
     throw redirect({
-      to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
-      params: { projectId, provider: "swift", storageType: "containers", containerName },
+      to: buildTarget(containerName),
+      params: buildParams({ projectId, provider: "swift", storageType: "containers" }, containerName),
     })
   }
 
-  // Canonicalize the URL terminology for the resolved provider. Availability is
-  // already settled above, so by this point provider is a valid, available
-  // swift|ceph. The storageType segment is user-controllable and the router never
-  // validates it, so a mismatched noun (e.g. ceph + "containers", swift + "buckets")
-  // must redirect to the canonical path to keep URLs normalized.
-  if (provider === "swift" || provider === "ceph") {
-    const expectedStorageType = provider === "swift" ? "containers" : "buckets"
-    if (storageType !== expectedStorageType) {
-      throw redirect({
-        to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
-        params: { projectId, provider, storageType: expectedStorageType, containerName },
-      })
+  // By this point provider is a valid, available swift|ceph. The storageType segment
+  // is user-controllable and was never validated: a value outside the known noun set
+  // ("containers"/"buckets") is garbage and must 404, while a recognized-but-mismatched
+  // noun (e.g. ceph + "containers", swift + "buckets") is just canonicalized via redirect.
+  const expectedStorageType = provider === "swift" ? "containers" : "buckets"
+
+  if (storageType !== expectedStorageType) {
+    if (!KNOWN_STORAGE_TYPES.includes(storageType as (typeof KNOWN_STORAGE_TYPES)[number])) {
+      throw notFound()
     }
+
+    throw redirect({
+      to: buildTarget(containerName),
+      params: buildParams({ projectId, provider, storageType: expectedStorageType }, containerName),
+    })
   }
 }
