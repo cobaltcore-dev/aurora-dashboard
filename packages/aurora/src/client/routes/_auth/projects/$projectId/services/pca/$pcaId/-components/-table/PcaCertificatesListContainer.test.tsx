@@ -13,6 +13,15 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
     ...actual,
     trpcReact: {
       ...actual.trpcReact,
+      useUtils: vi.fn(() => ({
+        services: {
+          pca: {
+            listCertificates: {
+              invalidate: vi.fn(),
+            },
+          },
+        },
+      })),
       services: {
         ...actual.trpcReact.services,
         pca: {
@@ -33,15 +42,16 @@ vi.mock("@/client/hooks", () => ({
 
 vi.mock("./-table/PcaCertificatesTableRow", () => ({
   PcaCertificatesTableRow: ({ certificate }: { certificate: Certificate }) => (
-    <tr data-testid={`certificate-row-${certificate.id}`}>
-      <td>{certificate.certificate_authority_id}</td>
-      <td>{certificate.id}</td>
-    </tr>
+    <div data-testid={`pca-certificate-row-${certificate.id}`}>
+      <div>{certificate.certificate_authority_id}</div>
+      <div>{certificate.id}</div>
+    </div>
   ),
 }))
 
-vi.mock("./-modals/IssueEndEntityCertificateModal", () => ({
-  IssueEndEntityCertificateModal: ({ open }: { open: boolean }) => (open ? <div>Issue End-Entity Modal</div> : null),
+vi.mock("../-modals/IssueEndEntityCertificateModal", () => ({
+  IssueEndEntityCertificateModal: ({ open }: { open: boolean; onClose?: () => void }) =>
+    open ? <div data-testid="issue-end-entity-modal">Issue End-Entity Modal</div> : null,
 }))
 
 const makeCertificates = (count: number): Certificate[] =>
@@ -161,8 +171,8 @@ describe("PcaCertificatesListContainer", () => {
 
     renderComponent()
 
-    expect(screen.getByTestId("certificate-row-cert-1")).toBeInTheDocument()
-    expect(screen.getByTestId("certificate-row-cert-2")).toBeInTheDocument()
+    expect(screen.getByTestId("pca-certificate-row-cert-1")).toBeInTheDocument()
+    expect(screen.getByTestId("pca-certificate-row-cert-2")).toBeInTheDocument()
   })
 
   it("shows issue certificate action for READY state and opens modal", async () => {
@@ -178,7 +188,7 @@ describe("PcaCertificatesListContainer", () => {
     expect(button).toBeInTheDocument()
 
     await user.click(button)
-    expect(screen.getByText("Issue End-Entity Modal")).toBeInTheDocument()
+    expect(screen.getByTestId("issue-end-entity-modal")).toBeInTheDocument()
   })
 
   it("does not show issue certificate action when state is not READY", () => {
@@ -202,7 +212,7 @@ describe("PcaCertificatesListContainer", () => {
     expect(button).toBeInTheDocument()
 
     await user.click(button)
-    expect(screen.getByText("Issue End-Entity Modal")).toBeInTheDocument()
+    expect(screen.getByTestId("issue-end-entity-modal")).toBeInTheDocument()
   })
 
   it("does not show issue certificate action in empty state when state is not READY", () => {
@@ -233,9 +243,9 @@ describe("PcaCertificatesListContainer", () => {
 
     renderComponent()
 
-    expect(screen.getByTestId("certificate-row-cert-1")).toBeInTheDocument()
-    expect(screen.getByTestId("certificate-row-cert-2")).toBeInTheDocument()
-    expect(screen.getByTestId("certificate-row-cert-3")).toBeInTheDocument()
+    expect(screen.getByTestId("pca-certificate-row-cert-1")).toBeInTheDocument()
+    expect(screen.getByTestId("pca-certificate-row-cert-2")).toBeInTheDocument()
+    expect(screen.getByTestId("pca-certificate-row-cert-3")).toBeInTheDocument()
   })
 
   it("does not render pagination when there is only one page", () => {
@@ -260,8 +270,8 @@ describe("PcaCertificatesListContainer", () => {
 
     expect(screen.getByRole("button", { name: /previous/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /next/i })).toBeInTheDocument()
-    expect(screen.getByTestId("certificate-row-cert-1")).toBeInTheDocument()
-    expect(screen.getByTestId("certificate-row-cert-50")).toBeInTheDocument()
+    expect(screen.getByTestId("pca-certificate-row-cert-1")).toBeInTheDocument()
+    expect(screen.getByTestId("pca-certificate-row-cert-50")).toBeInTheDocument()
   })
 
   it("moves to the next page when next is clicked", () => {
@@ -287,8 +297,8 @@ describe("PcaCertificatesListContainer", () => {
       limit: 50,
       next_page_marker: "marker-page-2",
     })
-    expect(screen.queryByTestId("certificate-row-cert-1")).not.toBeInTheDocument()
-    expect(screen.getByTestId("certificate-row-cert-51")).toBeInTheDocument()
+    expect(screen.queryByTestId("pca-certificate-row-cert-1")).not.toBeInTheDocument()
+    expect(screen.getByTestId("pca-certificate-row-cert-51")).toBeInTheDocument()
   })
 
   it("uses default empty array when data is undefined", () => {

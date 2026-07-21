@@ -16,12 +16,25 @@ vi.mock("./-table/PcaTableRow", () => ({
   PcaTableRow: ({ pca }: { pca: CertificateAuthority }) => <div data-testid={`pca-row-${pca.id}`}>{pca.id}</div>,
 }))
 
+vi.mock("../-modals/CreatePcaModal", () => ({
+  CreatePcaModal: ({ open }: { open: boolean }) => (open ? <div data-testid="create-pca-modal" /> : null),
+}))
+
 vi.mock("@/client/trpcClient", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/client/trpcClient")>()
   return {
     ...actual,
     trpcReact: {
       ...actual.trpcReact,
+      useUtils: vi.fn(() => ({
+        services: {
+          pca: {
+            list: {
+              invalidate: vi.fn(),
+            },
+          },
+        },
+      })),
       services: {
         ...actual.trpcReact.services,
         pca: {
@@ -29,6 +42,14 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
           list: {
             ...actual.trpcReact.services.pca.list,
             useQuery: vi.fn(),
+          },
+          create: {
+            useMutation: vi.fn(() => ({
+              isPending: false,
+              mutateAsync: vi.fn().mockResolvedValue({ id: "pca-123" }),
+              reset: vi.fn(),
+              error: null,
+            })),
           },
         },
       },
@@ -103,7 +124,7 @@ describe("PcaListContainer", () => {
     expect(screen.getByText("Request failed")).toBeInTheDocument()
   })
 
-  it("renders empty state", () => {
+  it("renders empty state with create button", () => {
     vi.mocked(trpcReact.services.pca.list.useQuery).mockReturnValue(
       createMockListQueryResult({ data: makeListResponse([]) })
     )
@@ -112,6 +133,7 @@ describe("PcaListContainer", () => {
 
     expect(screen.getByText("No PCAs found")).toBeInTheDocument()
     expect(screen.getByText("There are no PCAs available for this project.")).toBeInTheDocument()
+    expect(screen.getByText("Create Certificate Authority")).toBeInTheDocument()
   })
 
   it("renders rows when data exists and queries with project id", () => {
@@ -128,6 +150,7 @@ describe("PcaListContainer", () => {
 
     expect(screen.getByTestId("pca-row-pca-1")).toBeInTheDocument()
     expect(screen.getByTestId("pca-row-pca-2")).toBeInTheDocument()
+    expect(screen.getByText("Create Certificate Authority")).toBeInTheDocument()
     expect(vi.mocked(trpcReact.services.pca.list.useQuery)).toHaveBeenCalledWith({
       project_id: mockProjectId,
       limit: 50,
@@ -161,6 +184,18 @@ describe("PcaListContainer", () => {
     expect(screen.getByRole("button", { name: /next/i })).toBeInTheDocument()
     expect(screen.getByTestId("pca-row-pca-1")).toBeInTheDocument()
     expect(screen.getByTestId("pca-row-pca-10")).toBeInTheDocument()
+  })
+
+  it("opens create modal when create button is clicked", () => {
+    vi.mocked(trpcReact.services.pca.list.useQuery).mockReturnValue(
+      createMockListQueryResult({ data: makeListResponse([]) })
+    )
+
+    renderComponent()
+
+    expect(screen.queryByTestId("create-pca-modal")).not.toBeInTheDocument()
+    fireEvent.click(screen.getByText("Create Certificate Authority"))
+    expect(screen.getByTestId("create-pca-modal")).toBeInTheDocument()
   })
 
   it("moves to the next page when next is clicked", () => {

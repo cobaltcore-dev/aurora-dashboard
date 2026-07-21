@@ -1,122 +1,116 @@
-import React, { useEffect, useRef, useCallback, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { TokenData } from "../../server/Authentication/types/models"
-import { useRouter } from "@tanstack/react-router"
+import { trpcClient } from "../trpcClient"
 
 export type User = TokenData["user"] | null
 
 export interface AuthContext {
   isAuthenticated: boolean
-  login: (user: User, expires_at?: string) => Promise<void>
-  logout: (reason?: "inactive" | "expired" | "manual") => Promise<void>
+  isLoading: boolean
+  error: string | null
+  login: (credentials: { domain: string; user: string; password: string }) => Promise<{ success: boolean }>
+  logout: () => Promise<void>
   user?: User
   expiresAt?: Date
-  logoutReason?: "inactive" | "expired" | "manual"
-  showInactivityModal: boolean
-  closeInactivityModal: () => void
-  redirectAfterModal?: string
 }
 
 const AuthContext = React.createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const [user, setUser] = React.useState<User | null>(null)
-  const [expiresAt, setExpiresAt] = React.useState<Date | undefined>(undefined)
-  const [logoutReason, setLogoutReason] = React.useState<"inactive" | "expired" | "manual" | undefined>(undefined)
-  const [showInactivityModal, setShowInactivityModal] = useState(false)
-  const [redirectAfterModal, setRedirectAfterModal] = useState<string | undefined>(undefined)
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [expiresAt, setExpiresAt] = useState<string | null>(null)
 
-  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null)
-
-  const isAuthenticated = !!user
-
-  const clearLogoutTimer = useCallback(() => {
-    if (logoutTimerRef.current) {
-      clearTimeout(logoutTimerRef.current)
-      logoutTimerRef.current = null
+  // Redirect to login, optionally with return URL
+  const redirectToLogin = (saveReturnUrl: boolean = false) => {
+    if (window.location.pathname !== "/") {
+      const returnUrl = saveReturnUrl
+        ? `/?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
+        : "/"
+      window.location.href = returnUrl
     }
-  }, [])
+  }
 
-  const closeInactivityModal = useCallback(() => {
-    setShowInactivityModal(false)
+  // Clear local session state
+  const clearLocalSession = () => {
+    setUser(null)
+    setExpiresAt(null)
+  }
 
-    router.navigate({
-      to: "/",
-      search: redirectAfterModal ? { redirect: redirectAfterModal } : undefined,
-    })
-  }, [router, redirectAfterModal])
-
-  const logout = useCallback(
-    async (reason: "inactive" | "expired" | "manual" = "manual") => {
-      clearLogoutTimer()
-
-      setUser(null)
-      setExpiresAt(undefined)
-      setLogoutReason(reason)
-
-      // For expired: Show modal instead of direct navigation
-      if (reason === "expired") {
-        const currentPath = window.location.pathname + window.location.search
-        if (currentPath && currentPath.startsWith("/")) {
-          setRedirectAfterModal(currentPath)
-        }
-
-        setShowInactivityModal(true)
-      } else {
-        // Manual logout: direct navigation
-        router.invalidate()
-      }
-    },
-    [router, clearLogoutTimer]
-  )
-
-  const login = useCallback(async (user: User, expires_at?: string) => {
-    setUser(user)
-    setLogoutReason(undefined)
-    setShowInactivityModal(false)
-    setRedirectAfterModal(undefined)
-
-    if (expires_at) {
-      const expiration = new Date(expires_at)
-      setExpiresAt(expiration)
-    } else {
-      setExpiresAt(undefined)
-    }
-  }, [])
-
+  // Get current session on mount
   useEffect(() => {
-    clearLogoutTimer()
+    trpcClient.auth.getCurrentUserSession
+      .query()
+      .then((session) => {
+        if (session) {
+          setUser(session.user)
+          setExpiresAt(session.expires_at)
+        }
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Could not load session")
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
 
-    if (user && expiresAt) {
-      const timeUntilExpiry = expiresAt.getTime() - Date.now()
+  // Auto-logout when session expires
+  useEffect(() => {
+    if (!user || !expiresAt) return
 
-      if (timeUntilExpiry <= 0) {
-        logout("expired")
-        return
-      }
+    const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
 
-      logoutTimerRef.current = setTimeout(() => {
-        logout("expired")
-      }, timeUntilExpiry)
+    const handleExpiry = () => {
+      clearLocalSession()
+      redirectToLogin(true)
     }
 
-    return () => {
-      clearLogoutTimer()
+    if (timeUntilExpiry <= 0) {
+      handleExpiry()
+      return
     }
-  }, [user, expiresAt, logout, clearLogoutTimer])
+
+    const timer = setTimeout(handleExpiry, timeUntilExpiry)
+    return () => clearTimeout(timer)
+  }, [user, expiresAt])
+
+  const login = async ({ domain, user, password }: { domain: string; user: string; password: string }) => {
+    setError(null)
+    setIsLoading(true)
+    try {
+      const session = await trpcClient.auth.createUserSession.mutate({ domainName: domain, user, password })
+      setUser(session.user)
+      setExpiresAt(session.expires_at)
+      return { success: true }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Could not create session: ${err}`)
+      return { success: false }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const logout = async () => {
+    setIsLoading(true)
+    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
+    clearLocalSession()
+    redirectToLogin(false) // Don't save return URL on manual logout
+    // If already on login page, no redirect happens - reset loading state
+    if (window.location.pathname === "/") {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <AuthContext.Provider
       value={{
-        isAuthenticated,
         user,
+        isAuthenticated: !!user,
+        isLoading,
+        error,
         login,
         logout,
-        expiresAt,
-        logoutReason,
-        showInactivityModal,
-        closeInactivityModal,
-        redirectAfterModal,
+        expiresAt: expiresAt ? new Date(expiresAt) : undefined,
       }}
     >
       {children}

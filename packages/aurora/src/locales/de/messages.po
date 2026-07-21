@@ -368,6 +368,9 @@ msgstr "Anhängen"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
+msgid "Awaiting Certificate"
+msgstr ""
+
 msgid "Back"
 msgstr "Zurück"
 
@@ -486,9 +489,6 @@ msgid "Capabilities"
 msgstr "Capabilities"
 
 msgid "Certificate {certificateIdValue}"
-msgstr ""
-
-msgid "Certificate {subjectCommonName}"
 msgstr ""
 
 msgid "Certificate Authority not found"
@@ -806,6 +806,9 @@ msgstr "Erstellt"
 msgid "Created At"
 msgstr "Erstellt am"
 
+msgid "Creating"
+msgstr ""
+
 msgid "Creating Certificate Authority..."
 msgstr "Creating Certificate Authority..."
 
@@ -880,9 +883,6 @@ msgstr ""
 
 msgid "Delete CA"
 msgstr "Delete CA"
-
-msgid "Delete certificate authority"
-msgstr "Delete certificate authority"
 
 msgid "Delete Certificate Authority"
 msgstr "Delete Certificate Authority"
@@ -1031,14 +1031,20 @@ msgstr "DNS-Name"
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 
-msgid "Domain"
-msgstr "Domain"
-
 msgid "Download"
 msgstr "Herunterladen"
 
 msgid "Download {rowDisplayName}"
 msgstr "{rowDisplayName} herunterladen"
+
+msgid "Download Cancelled"
+msgstr "Download abgebrochen"
+
+msgid "Download of \"{displayName}\" was cancelled."
+msgstr "Download von \"{displayName}\" wurde abgebrochen."
+
+msgid "Downloading larger files may take a while. You can keep browsing buckets and folders — downloads continue in the background, and this message disappears once they finish."
+msgstr "Das Herunterladen größerer Dateien kann eine Weile dauern. Sie können weiterhin Buckets und Ordner durchsuchen — Downloads werden im Hintergrund fortgesetzt, und diese Meldung verschwindet, sobald sie abgeschlossen sind."
 
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."
@@ -1193,12 +1199,6 @@ msgstr "Value eingeben"
 msgid "Enter your credentials to access your account"
 msgstr "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen."
 
-msgid "Enter your domain"
-msgstr "Geben Sie den Domain ein"
-
-msgid "Enter your username"
-msgstr "Geben Sie Ihren Benutzernamen ein"
-
 msgid "Entries in ACLs are comma-separated. Examples:"
 msgstr "Einträge in ACLs werden durch Kommas getrennt. Beispiele:"
 
@@ -1270,6 +1270,9 @@ msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
 
 msgid "Extra Specs"
 msgstr "Zusätzliche Spezifikationen"
+
+msgid "Failed"
+msgstr ""
 
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
 msgstr "{failedCount} von {totalCount} Image(s) konnten nicht aktiviert werden. Einige Images sind möglicherweise bereits aktiv oder in einem ungültigen Zustand."
@@ -1574,7 +1577,7 @@ msgstr "Floating Network"
 msgid "Floating Network ID"
 msgstr "Floating Network-ID"
 
-msgid "Folder \"{folderName}\" and {deletedCount} object was permanently deleted."
+msgid "Folder \"{folderName}\" and {deletedCount} object were permanently deleted."
 msgstr "Ordner \"{folderName}\" und {deletedCount} Objekt wurden dauerhaft gelöscht."
 
 msgid "Folder \"{folderName}\" and {deletedCount} objects were permanently deleted."
@@ -1784,17 +1787,11 @@ msgstr "Import Signed Certificate"
 msgid "Importing Certificate..."
 msgstr "Importing Certificate..."
 
-msgid "Inactivity Timeout"
-msgstr "Inaktivitäts-Timeout"
-
 msgid "Ingress"
 msgstr "Ingress"
 
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
-
-msgid "Invalid credentials. Please check your domain, username, and password."
-msgstr "Ungültige Anmeldedaten. Bitte überprüfen Sie Ihre Domain, Ihren Benutzernamen und Ihr Passwort."
 
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
@@ -1990,9 +1987,6 @@ msgstr ""
 
 msgid "Loading..."
 msgstr "Lädt..."
-
-msgid "Login failed. Please check your credentials and try again."
-msgstr "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen und versuchen Sie es erneut."
 
 msgid "Login to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
@@ -2357,9 +2351,6 @@ msgstr "Zu löschende Objekte ({totalCount})"
 msgid "Objects: {containerName}"
 msgstr ""
 
-msgid "OK"
-msgstr "OK"
-
 msgid "Older"
 msgstr ""
 
@@ -2408,9 +2399,6 @@ msgstr "Teilweise erfolgreich deaktiviert"
 msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
 
-msgid "Password"
-msgstr "Passwort"
-
 msgid "Paste CSR code"
 msgstr "Paste CSR code"
 
@@ -2434,9 +2422,6 @@ msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
 msgid "Please fix the validation errors below."
 msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
-
-msgid "Please log in again to continue."
-msgstr "Bitte melden Sie sich erneut an, um fortzufahren."
 
 msgid "Please select a file to upload"
 msgstr "Bitte wählen Sie eine Datei zum Hochladen aus"
@@ -2509,6 +2494,9 @@ msgstr "Projekt-ID"
 
 msgid "Project ID"
 msgstr "Projekt-ID"
+
+msgid "Project Not Found"
+msgstr ""
 
 msgid "Projects"
 msgstr "Projekte"
@@ -2590,6 +2578,9 @@ msgstr "Lese-ACLs"
 
 msgid "Read ACLs — Preview"
 msgstr "Lese-ACLs — Vorschau"
+
+msgid "Ready"
+msgstr ""
 
 msgid "Reject"
 msgstr "Ablehnen"
@@ -2833,9 +2824,6 @@ msgstr "Serverrolle:"
 
 msgid "Services"
 msgstr "Services"
-
-msgid "Session Expired"
-msgstr "Sitzung abgelaufen"
 
 msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
@@ -3125,6 +3113,9 @@ msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die
 
 msgid "The page you are looking for does not exist."
 msgstr "Die gesuchte Seite existiert nicht."
+
+msgid "The project you are looking for doesn't exist or you don't have access to it."
+msgstr ""
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
@@ -3423,6 +3414,12 @@ msgstr "Image-Datei kann nicht hochgeladen werden"
 msgid "Unable to verify bucket versioning status. Please try again."
 msgstr ""
 
+msgid "Unexpected"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
 msgid "Unknown domain"
 msgstr ""
 
@@ -3485,9 +3482,6 @@ msgstr "Benutzer {userId} (beliebiges Projekt)"
 
 msgid "User {userId} from project {projectId}"
 msgstr "Benutzer {userId} aus Projekt {projectId}"
-
-msgid "User C/D/I"
-msgstr "Benutzer C/D/I"
 
 msgid "valid token required: false"
 msgstr "gültiges Token erforderlich: false"
@@ -3663,12 +3657,6 @@ msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 msgid "You don't have permission to view this flavor's details."
 msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
 
-msgid "You have been logged out due to inactivity."
-msgstr "Sie wurden aufgrund von Inaktivität abgemeldet."
-
-msgid "You need to login to access this page."
-msgstr "Sie müssen sich anmelden, um auf diese Seite zuzugreifen."
-
 msgid "Your action is required"
 msgstr "Ihre Aktion ist erforderlich"
 
@@ -3677,12 +3665,6 @@ msgstr ""
 
 msgid "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
 msgstr ""
-
-msgid "Your session expired. Please login again."
-msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
-
-msgid "Your session has expired."
-msgstr "Ihre Sitzung ist abgelaufen."
 
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."

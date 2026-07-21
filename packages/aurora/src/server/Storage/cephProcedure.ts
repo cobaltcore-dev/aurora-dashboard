@@ -20,46 +20,39 @@ export const CEPH_SERVICE_NOT_AVAILABLE = "CEPH_SERVICE_NOT_AVAILABLE" as const
  * @throws Error if OpenStack token, service catalog, Ceph service, or region is not available
  */
 function resolveS3Config(ctx: AuroraPortalContext): { endpoint: string; region: string } {
-  try {
-    const service = ctx.openstack?.service("ceph")
+  const service = ctx.openstack?.service("ceph")
 
-    if (!service) {
-      throw new Error("Ceph service not found in OpenStack service catalog")
-    }
-
-    const endpoint = service.getEndpoint?.()
-
-    if (!endpoint) {
-      throw new Error("Ceph service endpoint not found in catalog. Ensure the Ceph service is registered in OpenStack.")
-    }
-
-    // Extract base URL by removing Swift path suffix.
-    // Ceph RGW serves both Swift and S3 APIs on the same host but different paths:
-    //   Swift: https://rgw.st1.qa-de-1.cloud.sap/swift/v1/AUTH_xxx
-    //   S3:    https://rgw.st1.qa-de-1.cloud.sap
-    const swiftIndex = endpoint.indexOf("/swift/")
-    const baseEndpoint = swiftIndex !== -1 ? endpoint.substring(0, swiftIndex) : endpoint
-
-    const endpoints = service.availableEndpoints?.()
-    const openstackRegion = endpoints?.[0]?.region
-
-    if (!openstackRegion) {
-      throw new Error("Region not found in Ceph service endpoints")
-    }
-
-    if (!ctx.cephRegion) {
-      throw new Error("cephRegion is required. Pass it via createServer({ cephRegion: '...' }).")
-    }
-
-    const region = ctx.cephRegion
-
-    return { endpoint: baseEndpoint, region }
-  } catch (error) {
-    console.error("[ceph] Failed to resolve Ceph service from catalog:", error)
-    throw new Error("Ceph service not found in catalog. Ensure the Ceph service is registered in OpenStack.", {
-      cause: error,
-    })
+  if (!service) {
+    throw new Error("Ceph service not found in OpenStack service catalog")
   }
+
+  const endpoint = service.getEndpoint?.()
+
+  if (!endpoint) {
+    throw new Error("Ceph service endpoint not found in catalog. Ensure the Ceph service is registered in OpenStack.")
+  }
+
+  // Extract base URL by removing Swift path suffix.
+  // Ceph RGW serves both Swift and S3 APIs on the same host but different paths:
+  //   Swift: https://rgw.st1.qa-de-1.cloud.sap/swift/v1/AUTH_xxx
+  //   S3:    https://rgw.st1.qa-de-1.cloud.sap
+  const swiftIndex = endpoint.indexOf("/swift/")
+  const baseEndpoint = swiftIndex !== -1 ? endpoint.substring(0, swiftIndex) : endpoint
+
+  const endpoints = service.availableEndpoints?.()
+  const openstackRegion = endpoints?.[0]?.region
+
+  if (!openstackRegion) {
+    throw new Error("Region not found in Ceph service endpoints")
+  }
+
+  if (!ctx.cephRegion) {
+    throw new Error("Ceph region not configured")
+  }
+
+  const region = ctx.cephRegion
+
+  return { endpoint: baseEndpoint, region }
 }
 
 /**

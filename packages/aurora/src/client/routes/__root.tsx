@@ -6,7 +6,6 @@ import { AuthContext } from "../store/AuthProvider"
 import { NavigationItem } from "../components/navigation/types"
 import type { Slots, OnTrackEventCallback } from "../AuroraApp"
 import styles from "../index.css?inline"
-import { InactivityModal } from "../components/Auth/InactivityModal"
 import { RouteError } from "../components/Error/RouteError"
 import { useLingui } from "@lingui/react/macro"
 import { StatusError } from "../components/Error/StatusError"
@@ -46,7 +45,6 @@ function AuroraLayout({ children }: { children: React.ReactNode }) {
         pageFooter={slots?.pageFooter ? <Slot component={slots.pageFooter} useShadowDOM={false} /> : undefined}
         fullWidthContent
       >
-        <InactivityModal />
         {children}
       </AppShell>
     </>

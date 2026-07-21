@@ -15,8 +15,8 @@ import { CertificateAuthority } from "@/server/Services/types/pca"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import { useModal } from "@/client/utils/useModal"
-import { PcaCertificatesTableRow } from "./-table/PcaCertificatesTableRow"
-import { IssueEndEntityCertificateModal } from "./-modals/IssueEndEntityCertificateModal"
+import { IssueEndEntityCertificateModal } from "../-modals/IssueEndEntityCertificateModal"
+import { PcaCertificatesTableRow } from "./PcaCertificatesTableRow"
 
 const ITEMS_PER_PAGE = 50
 
@@ -31,15 +31,6 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
   const [createIssueEndEntityOpen, toggleIssueEndEntity] = useModal(false)
   const [pageMarkers, setPageMarkers] = useState<(string | undefined)[]>([undefined])
   const [currentPage, setCurrentPage] = useState(1)
-
-  const columns = () =>
-    [
-      t`CA ID`,
-      t`ID`,
-      "", // empty column for item-action with context menu containing "Delete CA" button
-    ] as const
-  const columnsLength = columns().length
-
   const currentMarker = pageMarkers[currentPage - 1]
 
   const { data, isLoading, isError, error } = trpcReact.services.pca.listCertificates.useQuery({
@@ -84,6 +75,13 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
     )
   }
 
+  const TABLE_COLUMNS = [
+    t`CA ID`,
+    t`ID`,
+    "", // empty column for item-action with context menu containing "Delete CA" button
+  ] as const
+  const columnsLength = TABLE_COLUMNS.length
+
   return (
     <div className="relative">
       {pcaState === "READY" && (
@@ -115,28 +113,30 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
           </DataGridRow>
         </DataGrid>
       ) : (
-        <DataGrid columns={columnsLength}>
-          <DataGridRow>
-            {columns().map((label) => (
-              <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
+        <>
+          <DataGrid columns={columnsLength}>
+            <DataGridRow>
+              {TABLE_COLUMNS.map((label) => (
+                <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
+              ))}
+            </DataGridRow>
+            {certificates.map((certificate) => (
+              <PcaCertificatesTableRow key={certificate.id} certificate={certificate} />
             ))}
-          </DataGridRow>
-          {certificates.map((certificate) => (
-            <PcaCertificatesTableRow key={certificate.id} certificate={certificate} />
-          ))}
-        </DataGrid>
-      )}
+          </DataGrid>
 
-      {totalPages > 1 && (
-        <div className="flex justify-center py-4">
-          <Pagination
-            variant="input"
-            currentPage={currentPage}
-            pages={totalPages}
-            onPressPrevious={() => goToPage(currentPage - 1)}
-            onPressNext={() => goToPage(currentPage + 1)}
-          />
-        </div>
+          {totalPages > 1 && (
+            <div className="flex justify-center py-4">
+              <Pagination
+                variant="input"
+                currentPage={currentPage}
+                pages={totalPages}
+                onPressPrevious={() => goToPage(currentPage - 1)}
+                onPressNext={() => goToPage(currentPage + 1)}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   )

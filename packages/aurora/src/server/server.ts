@@ -4,7 +4,6 @@ import FastifyStatic from "@fastify/static"
 import FastifyVite from "@fastify/vite"
 import FastifyCookie from "@fastify/cookie"
 import FastifyHelmet from "@fastify/helmet"
-import FastifyRateLimit from "@fastify/rate-limit"
 import FastifyMultipart, { MultipartFields, MultipartValue } from "@fastify/multipart"
 import { CreateFastifyContextOptions, FastifyTRPCPluginOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify"
 import { buildAppRouter, AuroraRouter } from "./routers" // tRPC router
@@ -51,9 +50,6 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
     secret: undefined,
   })
 
-  // Global rate limit: 200 req/min per IP. Upload route gets a tighter limit via config below.
-  await server.register(FastifyRateLimit, { max: 200, timeWindow: "1 minute" })
-
   // Register multipart/form-data support
   await server.register(FastifyMultipart, {
     limits: {
@@ -78,7 +74,7 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
   // Use this if you need a fallback or alternative upload method
   server.post(
     `${bffEndpoint}/upload-image-direct`,
-    { config: { rawBody: false, rateLimit: { max: 10, timeWindow: "1 minute" } }, bodyLimit: 5 * 1024 * 1024 * 1024 },
+    { config: { rawBody: false }, bodyLimit: 5 * 1024 * 1024 * 1024 },
     async (request, reply) => {
       // Override the 30s global timeout — uploads can take minutes for large files
       request.raw.setTimeout(0)
@@ -180,7 +176,18 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
   // Do not use vite plugin in production
   // Register security headers for all environments; CSP disabled in dev to allow Vite HMR
   server.register(FastifyHelmet, {
-    contentSecurityPolicy: isProduction ? undefined : false,
+    contentSecurityPolicy: isProduction
+      ? {
+          directives: {
+            ...FastifyHelmet.contentSecurityPolicy.getDefaultDirectives(),
+            // The object-download worker is bundled inline (Vite's ?worker&inline)
+            // and so is started from a blob: URL. Helmet's defaults don't set
+            // worker-src at all, which makes the browser fall back to
+            // script-src 'self' — blocking blob: and the worker with it.
+            "worker-src": ["'self'", "blob:"],
+          },
+        }
+      : false,
   })
 
   if (isProduction) {

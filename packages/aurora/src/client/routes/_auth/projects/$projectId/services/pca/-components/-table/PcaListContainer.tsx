@@ -14,21 +14,17 @@ import {
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import { useModal } from "@/client/utils/useModal"
-import { TABLE_COLUMNS } from "./-table/constants"
-import { PcaTableRow } from "./-table/PcaTableRow"
-import { CreatePcaModal } from "./-modals/CreatePcaModal"
+import { PcaTableRow } from "./PcaTableRow"
+import { CreatePcaModal } from "../-modals/CreatePcaModal"
 
 const ITEMS_PER_PAGE = 50
 
 export const PcaListContainer = () => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const columns = TABLE_COLUMNS()
-  const columnsLength = columns.length
   const [createCaOpen, toggleCreateCa] = useModal(false)
   const [pageMarkers, setPageMarkers] = useState<(string | undefined)[]>([undefined])
   const [currentPage, setCurrentPage] = useState(1)
-
   const currentMarker = pageMarkers[currentPage - 1]
 
   const { data, isLoading, isError, error } = trpcReact.services.pca.list.useQuery({
@@ -71,49 +67,58 @@ export const PcaListContainer = () => {
     )
   }
 
-  if (pcas.length === 0 && currentPage === 1) {
-    return (
-      <DataGrid columns={columnsLength} className="pca" data-testid="no-pcas">
-        <DataGridRow>
-          <DataGridCell colSpan={columnsLength}>
-            <ContentHeading>
-              <Trans>No PCAs found</Trans>
-            </ContentHeading>
-            <p>
-              <Trans>There are no PCAs available for this project.</Trans>
-            </p>
-          </DataGridCell>
-        </DataGridRow>
-      </DataGrid>
-    )
-  }
+  const TABLE_COLUMNS = [
+    t`State`,
+    t`ID`,
+    t`Subject information`,
+    "", // empty column for item-action with context menu containing "Delete CA" button
+  ] as const
+  const columnsLength = TABLE_COLUMNS.length
 
   return (
     <div className="relative">
       <Stack className="pt-3 pb-2" distribution="end">
         <Button variant="primary" label={t`Create Certificate Authority`} onClick={toggleCreateCa} />
       </Stack>
-      <DataGrid columns={columnsLength}>
-        <DataGridRow>
-          {columns.map((label) => (
-            <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
-          ))}
-        </DataGridRow>
-        {pcas.map((pca) => (
-          <PcaTableRow key={pca.id} pca={pca} />
-        ))}
-      </DataGrid>
 
-      {totalPages > 1 && (
-        <div className="flex justify-center py-4">
-          <Pagination
-            variant="input"
-            currentPage={currentPage}
-            pages={totalPages}
-            onPressPrevious={() => goToPage(currentPage - 1)}
-            onPressNext={() => goToPage(currentPage + 1)}
-          />
-        </div>
+      {pcas.length === 0 && currentPage === 1 ? (
+        <DataGrid columns={columnsLength} className="pca" data-testid="no-pcas">
+          <DataGridRow>
+            <DataGridCell colSpan={columnsLength}>
+              <ContentHeading>
+                <Trans>No PCAs found</Trans>
+              </ContentHeading>
+              <p>
+                <Trans>There are no PCAs available for this project.</Trans>
+              </p>
+            </DataGridCell>
+          </DataGridRow>
+        </DataGrid>
+      ) : (
+        <>
+          <DataGrid columns={columnsLength}>
+            <DataGridRow>
+              {TABLE_COLUMNS.map((label) => (
+                <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
+              ))}
+            </DataGridRow>
+            {pcas.map((pca) => (
+              <PcaTableRow key={pca.id} pca={pca} />
+            ))}
+          </DataGrid>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center py-4">
+              <Pagination
+                variant="input"
+                currentPage={currentPage}
+                pages={totalPages}
+                onPressPrevious={() => goToPage(currentPage - 1)}
+                onPressNext={() => goToPage(currentPage + 1)}
+              />
+            </div>
+          )}
+        </>
       )}
 
       {createCaOpen && <CreatePcaModal open={createCaOpen} onClose={toggleCreateCa} />}

@@ -9,3 +9,4 @@ export {
   projectScopedInputSchema,
   domainScopedInputSchema,
 } from "./trpc"
+export type { AuroraRouter, AuroraRouterWithCustom } from "./routers"

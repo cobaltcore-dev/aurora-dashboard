@@ -82,7 +82,7 @@ describe("DeletePcaModal", () => {
   it("renders and keeps delete action disabled by default", () => {
     renderModal()
 
-    expect(screen.getByText("Delete certificate authority")).toBeInTheDocument()
+    expect(screen.getByText("Delete Certificate Authority")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Delete" })).toBeDisabled()
   })
 

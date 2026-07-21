@@ -1,5 +1,101 @@
 # @cobaltcore-dev/dashboard
 
+## 1.2.7
+
+### Patch Changes
+
+- Updated dependencies [72d58f7]
+  - @cobaltcore-dev/aurora@0.22.0
+
+## 1.2.6
+
+### Patch Changes
+
+- Updated dependencies [0021456]
+- Updated dependencies [566338f]
+  - @cobaltcore-dev/aurora@0.21.0
+
+## 1.2.5
+
+### Patch Changes
+
+- Updated dependencies [45e8c43]
+  - @cobaltcore-dev/aurora@0.20.3
+
+## 1.2.4
+
+### Patch Changes
+
+- Updated dependencies [6dd15fd]
+  - @cobaltcore-dev/aurora@0.20.2
+
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies [7549dec]
+- Updated dependencies [04cc26d]
+  - @cobaltcore-dev/aurora@0.20.1
+
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies [c55b535]
+- Updated dependencies [8679d8a]
+  - @cobaltcore-dev/aurora@0.20.0
+
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [622ad68]
+  - @cobaltcore-dev/aurora@0.19.1
+
+## 1.2.0
+
+### Minor Changes
+
+- 16440c1: Add CSR parsing and certificate details enhancements for Clavis PCA workflows.
+
+### Patch Changes
+
+- Updated dependencies [194a480]
+- Updated dependencies [4518889]
+  - @cobaltcore-dev/aurora@0.19.0
+
+## 1.1.18
+
+### Patch Changes
+
+- Updated dependencies [d2cc53d]
+- Updated dependencies [2f8cca6]
+- Updated dependencies [914411a]
+  - @cobaltcore-dev/aurora@0.18.0
+
+## 1.1.17
+
+### Patch Changes
+
+- Updated dependencies [21584e0]
+  - @cobaltcore-dev/aurora@0.17.1
+
+## 1.1.16
+
+### Patch Changes
+
+- Updated dependencies [2e9d83f]
+- Updated dependencies [1376e9f]
+  - @cobaltcore-dev/aurora@0.17.0
+
+## 1.1.15
+
+### Patch Changes
+
+- Updated dependencies [df25d7c]
+- Updated dependencies [4291071]
+  - @cobaltcore-dev/aurora@0.16.0
+
 ## 1.1.14
 
 ### Patch Changes

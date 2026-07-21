@@ -1,5 +1,170 @@
 # @cobaltcore-dev/aurora
 
+## 0.22.0
+
+### Minor Changes
+
+- 72d58f7: Add slot support for custom login component. Allows injecting a custom login UI via `slots.login` instead of using the default LoginForm.
+
+## 0.21.0
+
+### Minor Changes
+
+- 0021456: Simplify auth flow and improve session handling
+  - Move tRPC auth calls into AuthProvider for centralized session management
+  - Add auto-logout on session expiry with return URL saved for redirect after re-login
+  - Use uncontrolled form inputs in LoginForm for simpler code
+  - Remove unnecessary useCallback wrappers (React 19 optimizes automatically)
+
+### Patch Changes
+
+- 566338f: Remove application-level rate limiting configuration from the Aurora server.
+
+## 0.20.3
+
+### Patch Changes
+
+- 45e8c43: fix(aurora): fix CreateBucketModal not rendering when bucket list is empty
+
+  Restructured BucketTableView to conditionally render empty state or table
+  content, ensuring CreateBucketModal can be displayed regardless of bucket
+  list state. Added test coverage for modal rendering with empty bucket list.
+
+## 0.20.2
+
+### Patch Changes
+
+- 6dd15fd: Optimistically render projects page static content while project cards load via Suspense and useSuspenseQuery
+
+## 0.20.1
+
+### Patch Changes
+
+- 7549dec: Fix project detail page slowdown by fetching single project instead of all projects
+- 04cc26d: fix error message when ceph region is not set
+
+## 0.20.0
+
+### Minor Changes
+
+- c55b535: Add `useScope` hook that returns `userDomainId` (from auth context) and `projectId` (from URL params) for convenient scope access
+
+### Patch Changes
+
+- 8679d8a: Consolidate session expiration logic and fix session handling edge cases.
+  - Both immediate-expiry and timeout branches now call `logout()` for consistent logout handling
+  - Remove redundant `getCurrentUserSession` fetch in the `/_auth` route guard (session is still probed in the "/" route loader on refresh)
+  - Use `location.searchStr` in \_auth route to preserve exact redirect URL including hash fragments and avoid URLSearchParams re-serialization edge cases
+  - Add comprehensive tests for AuthProvider and \_auth route redirect
+
+## 0.19.1
+
+### Patch Changes
+
+- 622ad68: Fix missing type declarations for exported hooks and auth provider by using glob patterns in vite-plugin-dts configuration.
+
+## 0.19.0
+
+### Minor Changes
+
+- 194a480: Ceph object storage: object downloads and previews can now be cancelled while
+  in flight. The abort signal is propagated from the frontend through the BFF, so
+  cancelling tears down the request instead of letting it run in the background.
+  A toast is shown when a download starts, and a warning toast confirms when one
+  is cancelled.
+
+### Patch Changes
+
+- 4518889: Add CSRF token caching to tRPC client to reduce redundant /csrf-token fetches. Concurrent requests now share a single token fetch, and a new `invalidateCsrfToken()` export allows cache invalidation on 403 responses.
+
+## 0.18.0
+
+### Minor Changes
+
+- d2cc53d: Add support for custom tRPC routers with full type safety
+
+  **New exports from `@cobaltcore-dev/aurora/server`:**
+  - `AuroraRouterWithCustom<T>` - Type helper to merge custom routers with base Aurora router
+
+  **New exports from `@cobaltcore-dev/aurora/client`:**
+  - `CreateTypedTrpcReact<T>` - Generic type for typed React tRPC client
+  - `CreateTypedTrpcClient<T>` - Generic type for typed vanilla tRPC client
+  - `TrpcReact` - Type alias for the React tRPC client
+
+  **Usage:**
+  1. Define custom routers using `auroraRouter` and `protectedProcedure`:
+
+  ```typescript
+  import { auroraRouter, protectedProcedure } from "@cobaltcore-dev/aurora/server"
+
+  export const customRouters = auroraRouter({
+    feedback: auroraRouter({
+      submit: protectedProcedure
+        .input(z.object({ message: z.string() }))
+        .mutation(async ({ input }) => ({ success: true })),
+    }),
+  })
+  ```
+
+  2. Register with `createServer`:
+
+  ```typescript
+  createServer({ routers: [customRouters], ... })
+  ```
+
+  3. Create typed client exports:
+
+  ```typescript
+  import type { AuroraRouterWithCustom } from "@cobaltcore-dev/aurora/server"
+  import { trpcReact, CreateTypedTrpcReact } from "@cobaltcore-dev/aurora/client"
+
+  type AppRouter = AuroraRouterWithCustom<typeof customRouters>
+  export const trpc = trpcReact as unknown as CreateTypedTrpcReact<AppRouter>
+  ```
+
+  4. Use with full type safety:
+
+  ```typescript
+  const mutation = trpc.feedback.submit.useMutation() // ✅ Type-safe!
+  ```
+
+- 2f8cca6: Remove InactivityModal and redirect directly to login on session expiration
+
+### Patch Changes
+
+- 914411a: Simplify logout type - remove logoutReason tracking
+
+## 0.17.1
+
+### Patch Changes
+
+- 21584e0: fix: resolve merge conflict in client index exports
+
+## 0.17.0
+
+### Minor Changes
+
+- 2e9d83f: fix(aurora): improve project not found error handling with better UX
+  - Add proper 404 error page when project doesn't exist or user lacks access
+  - Extract scope resolution logic into reusable resolveProjectScope utility
+  - Differentiate between "project not found" vs "scope operation failed" states
+  - Catch NOT_FOUND errors from setCurrentScope instead of letting them bubble up
+  - Display user-friendly error message with navigation options (back/home)
+
+### Patch Changes
+
+- 1376e9f: Fix useRouter warning by passing router as prop to AuthProvider instead of calling useRouter() hook internally
+
+## 0.16.0
+
+### Minor Changes
+
+- df25d7c: Integrate Juno NotificationManager and replace legacy `<Toast>` notifications across the Swift object-storage UI. Container and object notifications (create, delete, empty, ACL/metadata, upload, download, copy, move, folder operations, temporary URL, and bulk actions) now fire through the centralized NotificationManager (`toast.success` / `toast.error` / `toast.warning`) for consistent placement, lifetime, and dismissal. Notification builders return `{ message, description }` instead of the legacy `{ variant, children }` toast props; the container bulk-empty builder additionally returns a `severity` so the caller dispatches the correct toast style from a single source of truth.
+
+### Patch Changes
+
+- 4291071: Add user ID and domain labels
+
 ## 0.15.0
 
 ### Minor Changes

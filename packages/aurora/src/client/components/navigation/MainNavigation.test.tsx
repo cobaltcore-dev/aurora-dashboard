@@ -16,6 +16,17 @@ import {
   createMemoryHistory,
 } from "@tanstack/react-router"
 
+// Mock trpcClient
+vi.mock("../../trpcClient", () => ({
+  trpcClient: {
+    auth: {
+      getCurrentUserSession: { query: vi.fn().mockResolvedValue(null) },
+      createUserSession: { mutate: vi.fn().mockResolvedValue({ user: null, expires_at: null }) },
+      terminateUserSession: { mutate: vi.fn().mockResolvedValue(undefined) },
+    },
+  },
+}))
+
 beforeAll(() => {
   if (!i18n.locale) {
     i18n.activate("en")

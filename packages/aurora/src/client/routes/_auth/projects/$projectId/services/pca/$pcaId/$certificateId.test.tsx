@@ -89,6 +89,10 @@ describe("$certificateId page", () => {
         id: "cert-1",
         certificate_authority_id: "ca-1",
         project_id: "project-1",
+        certificate: {
+          pem: "-----BEGIN CERTIFICATE-----\nABC\n-----END CERTIFICATE-----",
+          validity: { not_before: 0, not_after: 86400 },
+        },
         csr: "-----BEGIN CERTIFICATE REQUEST-----\nABC\n-----END CERTIFICATE REQUEST-----",
         configuration: { validity: { not_before: 0, not_after: 86400 } },
       },
