@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Button, Stack, DataGridToolbar, SearchInput } from "@cloudoperators/juno-ui-components"
@@ -65,6 +65,19 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
   const [updateError, setUpdateError] = useState<string | null>(null)
 
   const utils = trpcReact.useUtils()
+
+  useEffect(() => {
+    setSortSettings((prev) => ({
+      ...prev,
+      sortBy: searchParams.sortBy || "name",
+      sortDirection: searchParams.sortDirection || "asc",
+    }))
+    setFilterSettings((prev) => ({
+      ...prev,
+      selectedFilters: parseFiltersFromUrl(searchParams),
+    }))
+    setSearchTerm(searchParams.search || "")
+  }, [searchParams.sortBy, searchParams.sortDirection, searchParams.search, searchParams.shared])
 
   const urlFilters = parseFiltersFromUrl(searchParams)
   const urlSortBy = (searchParams.sortBy || "name") as SecurityGroupSortKey
@@ -305,9 +318,12 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
 
       <CreateSecurityGroupModal
         isOpen={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
+        onClose={() => {
+          setCreateError(null)
+          setCreateModalOpen(false)
+        }}
         onCreate={handleCreateSecurityGroup}
-        isLoading={false}
+        isLoading={createSecurityGroupMutation.isPending}
         error={createError}
       />
     </>
