@@ -9,7 +9,10 @@ import {
   GetObjectCommand,
 } from "@aws-sdk/client-s3"
 import { TRPCError } from "@trpc/server"
-import { cephProtectedProcedure } from "../../cephProcedure"
+import { octetInputParser } from "@trpc/server/http"
+import { Readable, Transform } from "node:stream"
+import type { ReadableStream as WebReadableStream } from "node:stream/web"
+import { cephProtectedProcedure, cephUploadProcedure } from "../../cephProcedure"
 import { mapS3ErrorToTRPCError } from "../../helpers/s3ErrorMapper"
 import {
   listObjectsInputSchema,
@@ -44,6 +47,24 @@ downloadProgressEmitter.setMaxListeners(0) // 0 = unlimited; shared across all c
 
 type DownloadProgress = { downloaded: number; total: number; percent: number }
 const downloadProgressMap = new Map<string, DownloadProgress>()
+
+// ============================================================================
+// UPLOAD PROGRESS TRACKING
+// ============================================================================
+
+const uploadProgressEmitter = new EventEmitter()
+uploadProgressEmitter.setMaxListeners(0) // 0 = unlimited; shared across all concurrent uploads
+
+type UploadProgress = { uploaded: number; total: number; percent: number }
+const uploadProgressMap = new Map<string, UploadProgress>()
+
+// Mirrors watchDownloadProgressInputSchema (types/ceph). Kept inline for now
+// alongside deleteAllObjectsInputSchema; move to types/ceph if the schema is
+// needed elsewhere.
+const watchUploadProgressInputSchema = z.object({
+  project_id: z.string(),
+  uploadId: z.string(),
+})
 
 const deleteAllObjectsInputSchema = z.object({
   project_id: z.string(),
@@ -1028,6 +1049,260 @@ export const objectRouter = {
       downloadProgressEmitter.off(`progress:${scopedDownloadId}`, onProgress)
       downloadProgressEmitter.off(`progress:${scopedDownloadId}:complete`, onComplete)
       downloadProgressEmitter.off(`progress:${scopedDownloadId}:error`, onError)
+    }
+  }),
+
+  // ============================================================================
+  // UPLOAD OPERATIONS
+  // ============================================================================
+
+  /**
+   * Upload a file to a Ceph (S3) bucket via octet-stream.
+   *
+   * Mirrors the Swift `uploadObject` implementation (see swiftRouter.ts) so the
+   * client-side UploadObjectModal / watch-progress logic can be reused
+   * unchanged, but targets S3 `PutObjectCommand` instead of a raw Swift PUT.
+   *
+   * Uses `octetInputParser` so tRPC hands us the request body as a true
+   * ReadableStream — never buffered — enabling per-chunk progress tracking via
+   * a Node.js Transform, identical to swiftRouter.uploadObject.
+   *
+   * Metadata travels as custom request headers (the tRPC input is the raw file):
+   *   - x-upload-project-id (string, required) — project id, used to scope the
+   *                                              progress key so cross-tenant
+   *                                              observation is impossible
+   *   - x-upload-container  (string, required) — target bucket name
+   *   - x-upload-object     (string, required) — full object key, e.g. "folder/file.txt"
+   *   - x-upload-type       (string, optional) — MIME type detected client-side
+   *   - x-upload-size       (string, required) — file size in bytes; S3 PutObject
+   *                                              with a streaming Body needs a
+   *                                              ContentLength
+   *   - x-upload-id         (string, required) — client-computed id for watchUploadProgress
+   *
+   * The client computes `uploadId` as "<bucket>:<objectKey>:<uuid>" before
+   * calling this mutation so the subscription can be opened in advance. The
+   * UUID suffix keeps concurrent uploads of the same key from colliding in the
+   * progress map; the id is further scoped with the project id on the BFF.
+   *
+   * Uses `cephUploadProcedure` (not `cephProtectedProcedure`): octetInputParser
+   * can't chain onto the project-scoped procedure's bundled input, so uploads
+   * run on a base procedure that rescopes from `x-upload-project-id` and still
+   * provides `getCephClient`. See cephProcedure.ts.
+   */
+  uploadObject: cephUploadProcedure
+    .input(octetInputParser)
+    .mutation(async ({ input, ctx }): Promise<{ success: boolean }> => {
+      const s3 = ctx.getCephClient!()
+
+      // Metadata arrives as headers — the tRPC input is the raw body stream.
+      const headers = ctx.req.headers
+      const projectId = (headers["x-upload-project-id"] as string | undefined)?.trim()
+      const bucket = (headers["x-upload-container"] as string | undefined)?.trim()
+      const objectKey = (headers["x-upload-object"] as string | undefined)?.trim()
+      const contentType = headers["x-upload-type"] as string | undefined
+      const fileSizeHeader = headers["x-upload-size"] as string | undefined
+      const uploadId = (headers["x-upload-id"] as string | undefined)?.trim()
+
+      if (!projectId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "x-upload-project-id header is required" })
+      }
+      if (!bucket) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "x-upload-container header is required" })
+      }
+      if (!objectKey) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "x-upload-object header is required" })
+      }
+      if (!uploadId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "x-upload-id header is required" })
+      }
+
+      const fileSize = Number(fileSizeHeader)
+      if (!Number.isFinite(fileSize) || fileSize < 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "x-upload-size header must be a non-negative number" })
+      }
+
+      // Scope the progress key to the project so a user can only observe their
+      // own transfers, matching downloadObject.
+      const scopedUploadId = `${projectId}:${uploadId}`
+
+      uploadProgressMap.set(scopedUploadId, { uploaded: 0, total: fileSize, percent: 0 })
+
+      try {
+        const progress = uploadProgressMap.get(scopedUploadId)!
+
+        // input is a Web ReadableStream — convert to a Node Readable for piping.
+        // octetInputParser types it as the DOM ReadableStream, which doesn't
+        // overlap with node:stream/web's; go through `unknown` to bridge them.
+        const fileStream = Readable.fromWeb(input as unknown as WebReadableStream)
+
+        // Count bytes as they flow through to S3. No buffering — chunks pass
+        // through unmodified; we only tally and emit progress between them.
+        // True streaming because octetInputParser passes the raw HTTP body.
+        const progressTracker = new Transform({
+          async transform(chunk: Buffer, _encoding, callback) {
+            progress.uploaded += chunk.length
+            progress.percent = progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0
+
+            uploadProgressEmitter.emit(`progress:${scopedUploadId}`, { ...progress })
+
+            // Yield to the event loop so subscriptions can flush between chunks.
+            await new Promise((resolve) => setTimeout(resolve, 0))
+
+            callback(null, chunk)
+          },
+        })
+
+        // Suppress abort-driven ECONNRESET/ECONNABORTED 'error' events. When the
+        // client cancels mid-upload, Node emits these on the underlying Readable;
+        // without a listener they bubble up as uncaught exceptions and crash the
+        // process. The abort is already handled via ctx.req.signal → the SDK's
+        // abortSignal below. Non-abort errors are re-emitted so they surface
+        // through PutObject and the catch block.
+        const isAbortLike = (err: unknown) => {
+          const code = (err as NodeJS.ErrnoException | undefined)?.code
+          return code === "ECONNRESET" || code === "ECONNABORTED" || !!ctx.req.signal?.aborted
+        }
+        fileStream.on("error", (err) => {
+          if (isAbortLike(err)) return
+          progressTracker.destroy(err as Error)
+        })
+
+        const trackedStream = fileStream.pipe(progressTracker)
+
+        // { abortSignal } is AWS SDK v3's per-call cancellation — the same option
+        // downloadObject passes to GetObject. ctx.req.signal aborts when the
+        // client disconnects (tab close/navigate) or hits the modal's Cancel
+        // button. The signal is optional: callers built via createCallerFactory
+        // (tests, server-side calls) have no HTTP request behind them.
+        //
+        // ContentLength is required for a streaming Body so S3/Ceph knows the
+        // object size up front rather than buffering to measure it.
+        await s3.send(
+          new PutObjectCommand({
+            Bucket: bucket,
+            Key: objectKey,
+            Body: trackedStream,
+            ContentLength: fileSize,
+            ContentType: contentType || "application/octet-stream",
+          }),
+          { abortSignal: ctx.req.signal }
+        )
+
+        uploadProgressEmitter.emit(`progress:${scopedUploadId}:complete`)
+
+        return { success: true }
+      } catch (error) {
+        // mapS3ErrorToTRPCError throws a mapped TRPCError; capture it so a
+        // concurrent watchUploadProgress subscriber is notified immediately
+        // instead of waiting out its 30s timeout. A user-initiated abort is not
+        // surfaced to the watcher (the modal reports "cancelled" from the
+        // mutation rejection), but is still re-thrown to the caller.
+        try {
+          mapS3ErrorToTRPCError(error, { operation: "upload object", bucket, key: objectKey })
+        } catch (mappedError) {
+          if (!ctx.req.signal?.aborted) {
+            uploadProgressEmitter.emit(`progress:${scopedUploadId}:error`, mappedError)
+          }
+          throw mappedError
+        }
+        // mapS3ErrorToTRPCError always throws; this keeps control flow provably
+        // exhaustive for the Promise<{ success: boolean }> return type.
+        throw error
+      } finally {
+        uploadProgressMap.delete(scopedUploadId)
+      }
+    }),
+
+  /**
+   * Subscribe to real-time upload progress for a given `uploadId`.
+   *
+   * Mirrors `watchDownloadProgress`. The `uploadId` is computed client-side as
+   * "<bucket>:<objectKey>:<uuid>" and passed to `uploadObject` before the
+   * mutation starts, so this subscription can be opened in advance. Yields
+   * `{ uploaded, total, percent }` as bytes flow through the server; completes
+   * when the upload finishes or throws on a non-abort error.
+   */
+  watchUploadProgress: cephProtectedProcedure.input(watchUploadProgressInputSchema).subscription(async function* ({
+    input,
+  }) {
+    const { project_id, uploadId } = input
+    const scopedUploadId = `${project_id}:${uploadId}`
+
+    // Yield current snapshot immediately for late subscribers.
+    const current = uploadProgressMap.get(scopedUploadId)
+    if (current) {
+      yield { ...current }
+    }
+
+    const queue: Array<UploadProgress> = []
+    let isComplete = false
+    let isError = false
+    let caughtError: Error | undefined
+    let waitResolver: ((value?: unknown) => void) | null = null
+
+    const onProgress = (data: UploadProgress) => {
+      queue.push(data)
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onComplete = () => {
+      isComplete = true
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    const onError = (err: unknown) => {
+      isError = true
+      caughtError = err instanceof Error ? err : new Error(String(err))
+      waitResolver?.()
+      waitResolver = null
+    }
+
+    uploadProgressEmitter.on(`progress:${scopedUploadId}`, onProgress)
+    uploadProgressEmitter.on(`progress:${scopedUploadId}:complete`, onComplete)
+    uploadProgressEmitter.on(`progress:${scopedUploadId}:error`, onError)
+
+    try {
+      while (!isComplete && !isError) {
+        while (queue.length > 0) {
+          yield { ...queue.shift()! }
+        }
+
+        if (!isComplete && !isError) {
+          // Bounded wait: if no events arrive within 30 s the upload has likely
+          // already completed and the map entry was deleted before we
+          // subscribed. Break rather than hanging forever.
+          let timeoutId: ReturnType<typeof setTimeout> | undefined
+          const timeout = new Promise((resolve) => {
+            timeoutId = setTimeout(resolve, 30_000)
+          })
+          try {
+            await Promise.race([
+              new Promise((resolve) => {
+                waitResolver = resolve
+              }),
+              timeout,
+            ])
+          } finally {
+            if (timeoutId) clearTimeout(timeoutId)
+          }
+          if (!isComplete && !isError && queue.length === 0) break
+        }
+      }
+
+      // Drain any final events that arrived while we were awaiting.
+      while (queue.length > 0) {
+        yield { ...queue.shift()! }
+      }
+
+      if (isError && caughtError) {
+        throw caughtError
+      }
+    } finally {
+      uploadProgressEmitter.off(`progress:${scopedUploadId}`, onProgress)
+      uploadProgressEmitter.off(`progress:${scopedUploadId}:complete`, onComplete)
+      uploadProgressEmitter.off(`progress:${scopedUploadId}:error`, onError)
     }
   }),
 }
