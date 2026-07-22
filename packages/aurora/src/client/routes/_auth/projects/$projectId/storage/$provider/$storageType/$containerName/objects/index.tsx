@@ -1,5 +1,5 @@
 import { createFileRoute, useParams } from "@tanstack/react-router"
-import { checkServiceAvailability } from "../../../../-components/utils/serviceAvailability"
+import { checkServiceAvailability, validateStorageRouteShape } from "../../../../-components/utils/serviceAvailability"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { SwiftObjects } from "../../../../-components/Swift/Objects"
@@ -8,6 +8,7 @@ import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
 import { StorageNotFound } from "../../../../-components/StorageNotFound"
+import { Stack, Spinner } from "@cloudoperators/juno-ui-components"
 
 // Search params schema
 // - prefix: base64-encoded current folder path, safe to carry "/" chars in the URL
@@ -46,16 +47,14 @@ export const Route = createFileRoute(
     const { projectId } = Route.useParams()
     return <StorageNotFound projectId={projectId} />
   },
-  loader: async ({ context }) => {
-    const { trpcClient } = context
-    const availableServices = await trpcClient?.auth.getAvailableServices.query()
+  pendingComponent: () => (
+    <Stack className="p-4" distribution="center" alignment="center">
+      <Spinner variant="primary" size="large" />
+    </Stack>
+  ),
 
-    return {
-      client: trpcClient,
-      availableServices,
-    }
-  },
   beforeLoad: async ({ context, params }) => {
+    validateStorageRouteShape(params)
     const { trpcClient } = context
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
     checkServiceAvailability(availableServices!, params)

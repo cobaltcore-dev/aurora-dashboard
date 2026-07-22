@@ -6,8 +6,9 @@ import { CephBuckets } from "../../-components/Ceph/Buckets"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
-import { checkServiceAvailability } from "../../-components/utils/serviceAvailability"
+import { checkServiceAvailability, validateStorageRouteShape } from "../../-components/utils/serviceAvailability"
 import { StorageNotFound } from "../../-components/StorageNotFound"
+import { Stack, Spinner } from "@cloudoperators/juno-ui-components"
 
 // Search params schema
 // - sortBy: active sort column — persisted for deep links and back navigation
@@ -49,16 +50,13 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
     const { projectId } = Route.useParams()
     return <StorageNotFound projectId={projectId} />
   },
-  loader: async ({ context }) => {
-    const { trpcClient } = context
-    const availableServices = await trpcClient?.auth.getAvailableServices.query()
-
-    return {
-      client: trpcClient,
-      availableServices,
-    }
-  },
+  pendingComponent: () => (
+    <Stack className="p-4" distribution="center" alignment="center">
+      <Spinner variant="primary" size="large" />
+    </Stack>
+  ),
   beforeLoad: async ({ context, params }) => {
+    validateStorageRouteShape(params)
     const { trpcClient } = context
     const availableServices = await trpcClient?.auth.getAvailableServices.query()
     checkServiceAvailability(availableServices!, params)
