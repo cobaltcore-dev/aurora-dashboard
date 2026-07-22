@@ -2914,8 +2914,8 @@ msgstr "Status"
 msgid "Storage"
 msgstr "Storage"
 
-msgid "Storage container not found"
-msgstr "Storage container not found"
+msgid "Storage Not Found"
+msgstr "Storage Not Found"
 
 msgid "Storage Overview"
 msgstr "Storage Overview"
@@ -3108,6 +3108,9 @@ msgstr "The specified project does not exist or you don't have permission to sha
 
 msgid "The specified user has access. A token for the user (scoped to any project) must be included in the request."
 msgstr "The specified user has access. A token for the user (scoped to any project) must be included in the request."
+
+msgid "The storage type you're looking for doesn't exist."
+msgstr "The storage type you're looking for doesn't exist."
 
 msgid "The tenant ID provided is invalid. Please check your input."
 msgstr "The tenant ID provided is invalid. Please check your input."
