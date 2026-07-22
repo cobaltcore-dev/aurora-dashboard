@@ -1146,7 +1146,9 @@ export const objectRouter = {
             uploadProgressEmitter.emit(`progress:${scopedUploadId}`, { ...progress })
 
             // Yield to the event loop so subscriptions can flush between chunks.
-            await new Promise((resolve) => setTimeout(resolve, 0))
+            // setImmediate (not setTimeout(…, 0)) avoids the per-chunk timer
+            // floor, which would add up to real latency on large uploads.
+            await new Promise((resolve) => setImmediate(resolve))
 
             callback(null, chunk)
           },
