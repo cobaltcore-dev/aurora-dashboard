@@ -43,10 +43,6 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
-#. placeholder {0}: rules.length
-msgid "{0} rules"
-msgstr ""
-
 msgid "{certificateIdValue} Certificate Details"
 msgstr ""
 
@@ -82,6 +78,9 @@ msgstr "{percent}%"
 
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
+
+msgid "{rulesLength} rules"
+msgstr ""
 
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{selectedCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
@@ -2864,14 +2863,13 @@ msgstr "ACLs-Vorschau anzeigen"
 msgid "Show Details"
 msgstr "Details anzeigen"
 
-#. placeholder {0}: rules.length
-msgid "Showing {0} of {totalRulesCount} rules"
-msgstr ""
-
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 
 msgid "Showing {filteredCount} of {totalCount} projects"
+msgstr ""
+
+msgid "Showing {rulesLength} of {totalCount} rules"
 msgstr ""
 
 msgid "Showing first {actualObjectCount} of {total} objects"

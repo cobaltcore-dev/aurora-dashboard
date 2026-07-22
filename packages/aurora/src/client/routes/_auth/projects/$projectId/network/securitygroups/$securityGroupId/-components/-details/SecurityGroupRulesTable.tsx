@@ -117,6 +117,9 @@ export function SecurityGroupRulesTable({
     return `${rule.port_range_min}-${rule.port_range_max}`
   }
 
+  const rulesLength = rules.length
+  const totalCount = totalRulesCount
+
   return (
     <>
       <Stack direction="vertical" gap="4">
@@ -124,12 +127,12 @@ export function SecurityGroupRulesTable({
         <Stack distribution="between" alignment="center" gap="2" className="pb-2">
           {/* Count display */}
           <span className="theme-color-text-light text-sm">
-            {totalRulesCount !== undefined && rules.length !== totalRulesCount ? (
+            {totalCount !== undefined && rulesLength !== totalCount ? (
               <Trans>
-                Showing {rules.length} of {totalRulesCount} rules
+                Showing {rulesLength} of {totalCount} rules
               </Trans>
             ) : (
-              <Trans>{rules.length} rules</Trans>
+              <Trans>{rulesLength} rules</Trans>
             )}
           </span>
 
