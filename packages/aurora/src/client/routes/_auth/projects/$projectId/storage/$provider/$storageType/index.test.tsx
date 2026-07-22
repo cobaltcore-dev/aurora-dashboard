@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react"
 import { redirect, notFound } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { checkServiceAvailability } from "../../-components/utils/serviceAvailability"
+import { checkServiceAvailability, validateStorageRouteShape } from "../../-components/utils/serviceAvailability"
 
 // Mock the dependencies
 vi.mock("@tanstack/react-router", async () => {
@@ -310,85 +310,116 @@ describe("Storage Route - checkServiceAvailability", () => {
     })
   })
 
-  describe("Invalid provider handling (notFound)", () => {
-    it("throws notFound when provider is invalid", () => {
-      vi.mocked(getServiceIndex).mockReturnValue({
-        "object-store": { swift: true },
+  // ─── Route Shape Validation (validateStorageRouteShape) ─────────────────────
+  //
+  // These tests verify the pure, synchronous validation that happens BEFORE
+  // fetching availableServices. This function checks provider/storageType are
+  // recognized nouns and match each other, throwing notFound() for garbage or
+  // redirect() for recognized-but-mismatched values.
+  // ─────────────────────────────────────────────────────────────────────────────
+  describe("Route Shape Validation - validateStorageRouteShape", () => {
+    describe("Invalid provider handling (notFound)", () => {
+      it("throws notFound when provider is invalid", () => {
+        expect(() => {
+          validateStorageRouteShape({
+            projectId: "proj-1",
+            provider: "invalid",
+            storageType: "containers",
+          })
+        }).toThrow("Not found")
+
+        expect(notFound).toHaveBeenCalled()
       })
 
-      expect(() => {
-        checkServiceAvailability(defaultServices, {
-          projectId: "proj-1",
-          provider: "invalid",
-          storageType: "containers",
-        })
-      }).toThrow("Not found")
-
-      expect(notFound).toHaveBeenCalled()
-    })
-
-    it("throws notFound when provider is neither swift nor ceph", () => {
-      vi.mocked(getServiceIndex).mockReturnValue({
-        "object-store": { swift: true },
-      })
-
-      expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "s3", storageType: "buckets" })
-      }).toThrow("Not found")
-    })
-  })
-
-  describe("Invalid storageType handling (notFound)", () => {
-    it("throws notFound when storageType is not 'containers' or 'buckets'", () => {
-      vi.mocked(getServiceIndex).mockReturnValue({
-        "object-store": { swift: true },
-      })
-
-      expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "swift", storageType: "invalid" })
-      }).toThrow("Not found")
-
-      expect(notFound).toHaveBeenCalled()
-    })
-
-    it("throws notFound for random storageType values", () => {
-      vi.mocked(getServiceIndex).mockReturnValue({
-        "object-store": { swift: true },
-      })
-
-      expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "ceph", storageType: "objects" })
-      }).toThrow("Not found")
-    })
-  })
-
-  describe("StorageType canonicalization", () => {
-    beforeEach(() => {
-      vi.mocked(getServiceIndex).mockReturnValue({
-        "object-store": { swift: true },
+      it("throws notFound when provider is neither swift nor ceph", () => {
+        expect(() => {
+          validateStorageRouteShape({ projectId: "proj-1", provider: "s3", storageType: "buckets" })
+        }).toThrow("Not found")
       })
     })
 
-    it("redirects swift + buckets to swift + containers", () => {
-      expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "swift", storageType: "buckets" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers")
+    describe("Invalid storageType handling (notFound)", () => {
+      it("throws notFound when storageType is not 'containers' or 'buckets'", () => {
+        expect(() => {
+          validateStorageRouteShape({ projectId: "proj-1", provider: "swift", storageType: "invalid" })
+        }).toThrow("Not found")
+
+        expect(notFound).toHaveBeenCalled()
+      })
+
+      it("throws notFound for random storageType values", () => {
+        expect(() => {
+          validateStorageRouteShape({ projectId: "proj-1", provider: "ceph", storageType: "objects" })
+        }).toThrow("Not found")
+      })
     })
 
-    it("redirects ceph + containers to ceph + buckets", () => {
-      expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "ceph", storageType: "containers" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets")
+    describe("StorageType canonicalization", () => {
+      it("redirects swift + buckets to swift + containers", () => {
+        expect(() => {
+          validateStorageRouteShape({ projectId: "proj-1", provider: "swift", storageType: "buckets" })
+        }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers")
+      })
+
+      it("redirects ceph + containers to ceph + buckets", () => {
+        expect(() => {
+          validateStorageRouteShape({ projectId: "proj-1", provider: "ceph", storageType: "containers" })
+        }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets")
+      })
+
+      it("does not redirect when storageType matches provider", () => {
+        expect(() => {
+          validateStorageRouteShape({ projectId: "proj-1", provider: "swift", storageType: "containers" })
+        }).not.toThrow()
+
+        expect(() => {
+          validateStorageRouteShape({ projectId: "proj-1", provider: "ceph", storageType: "buckets" })
+        }).not.toThrow()
+      })
     })
 
-    it("does not redirect when storageType matches provider", () => {
-      expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "swift", storageType: "containers" })
-      }).not.toThrow()
+    describe("containerName parameter (bucket/container detail routes)", () => {
+      it("redirects with containerName when provided for swift + buckets", () => {
+        expect(() => {
+          validateStorageRouteShape({
+            projectId: "proj-1",
+            provider: "swift",
+            storageType: "buckets",
+            containerName: "my-container",
+          })
+        }).toThrow("Redirect to: /projects/proj-1/storage/swift/containers/my-container/objects")
+      })
 
-      expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "ceph", storageType: "buckets" })
-      }).not.toThrow()
+      it("redirects with containerName when provided for ceph + containers", () => {
+        expect(() => {
+          validateStorageRouteShape({
+            projectId: "proj-1",
+            provider: "ceph",
+            storageType: "containers",
+            containerName: "my-bucket",
+          })
+        }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets/my-bucket/objects")
+      })
+
+      it("does not redirect when storageType matches provider with containerName", () => {
+        expect(() => {
+          validateStorageRouteShape({
+            projectId: "proj-1",
+            provider: "swift",
+            storageType: "containers",
+            containerName: "my-container",
+          })
+        }).not.toThrow()
+
+        expect(() => {
+          validateStorageRouteShape({
+            projectId: "proj-1",
+            provider: "ceph",
+            storageType: "buckets",
+            containerName: "my-bucket",
+          })
+        }).not.toThrow()
+      })
     })
   })
 
