@@ -181,3 +181,39 @@ export const getVersionsDeleteErrorToast = (
     </Trans>
   ),
 })
+
+// ── CORS configuration operations ──────────────────────────────────────────
+
+export const getCorsSavedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>CORS Configuration Saved</Trans>,
+  description: <Trans>CORS configuration was successfully saved for bucket "{bucketName}".</Trans>,
+})
+
+export const getCorsSaveErrorToast = (
+  bucketName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Save CORS Configuration</Trans>,
+  description: (
+    <Trans>
+      Could not save CORS configuration for bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getCorsDeletedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>CORS Configuration Deleted</Trans>,
+  description: <Trans>CORS configuration was successfully deleted from bucket "{bucketName}".</Trans>,
+})
+
+export const getCorsDeleteErrorToast = (
+  bucketName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete CORS Configuration</Trans>,
+  description: (
+    <Trans>
+      Could not delete CORS configuration from bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})

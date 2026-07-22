@@ -475,3 +475,113 @@ export const deleteBucketPolicyInputSchema = projectScopedInputSchema.extend({
 export type BucketPolicyStatement = z.infer<typeof bucketPolicyStatementSchema>
 export type BucketPolicyDocument = z.infer<typeof bucketPolicyDocumentSchema>
 export type GetBucketPolicyOutput = z.infer<typeof getBucketPolicyOutputSchema>
+
+// ============================================================================
+// CORS CONFIGURATION SCHEMAS
+// ============================================================================
+
+/**
+ * CORS (Cross-Origin Resource Sharing) configuration for S3 buckets.
+ *
+ * CORS controls which browser origins can access bucket content via JavaScript.
+ * This is essential for:
+ *   - Single-page applications accessing S3 directly
+ *   - Web-based file uploads
+ *   - Cross-domain asset hosting
+ *
+ * Each rule defines:
+ *   - AllowedOrigins: Which origins can access (e.g., "https://example.com" or "*")
+ *   - AllowedMethods: Which HTTP methods are permitted (GET, PUT, POST, DELETE, HEAD)
+ *   - AllowedHeaders: Which headers can be used in requests (optional)
+ *   - ExposeHeaders: Which headers to expose to the browser (optional)
+ *   - MaxAgeSeconds: How long browsers can cache preflight responses (optional, 0-86400)
+ *   - ID: Optional identifier for the rule (max 255 chars)
+ *
+ * @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/cors.html
+ * @see https://docs.ceph.com/en/latest/radosgw/s3/bucketops/#put-bucket-cors
+ */
+
+/**
+ * Allowed HTTP methods for CORS rules.
+ * Must include at least one method per rule.
+ */
+export const corsAllowedMethodSchema = z.enum(["GET", "PUT", "POST", "DELETE", "HEAD"])
+
+/**
+ * Single CORS rule configuration.
+ *
+ * Validation rules:
+ * - AllowedMethods: Required, at least 1, maximum 5
+ * - AllowedOrigins: Required, at least 1
+ * - MaxAgeSeconds: 0-86400 (24 hours)
+ * - ID: max 255 characters
+ */
+export const corsRuleSchema = z.object({
+  ID: z.string().max(255, "CORS rule ID must be at most 255 characters").optional(),
+  AllowedHeaders: z.array(z.string()).optional(), // Can include "*" to allow all headers
+  AllowedMethods: z
+    .array(corsAllowedMethodSchema)
+    .min(1, "At least one AllowedMethod is required")
+    .max(5, "Maximum 5 AllowedMethods per rule"),
+  AllowedOrigins: z.array(z.string()).min(1, "At least one AllowedOrigin is required"),
+  ExposeHeaders: z.array(z.string()).optional(), // Headers exposed to browser
+  MaxAgeSeconds: z
+    .number()
+    .int()
+    .min(0, "MaxAgeSeconds must be at least 0")
+    .max(86400, "MaxAgeSeconds must be at most 86400 (24 hours)")
+    .optional(),
+})
+
+/**
+ * Full CORS configuration for a bucket.
+ *
+ * AWS S3 limits:
+ * - Maximum 100 rules per bucket
+ * - At least 1 rule if CORS is configured
+ */
+export const corsConfigurationSchema = z.object({
+  CORSRules: z
+    .array(corsRuleSchema)
+    .min(1, "At least one CORS rule is required")
+    .max(100, "Maximum 100 CORS rules per bucket"),
+})
+
+/**
+ * Input schema for getting CORS configuration
+ */
+export const getCorsInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+})
+
+/**
+ * Output schema for getting CORS configuration
+ * Returns null if no CORS configuration is set
+ */
+export const getCorsOutputSchema = z.object({
+  corsRules: z.array(corsRuleSchema).nullable(), // null if no CORS config
+})
+
+/**
+ * Input schema for setting CORS configuration
+ */
+export const setCorsInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+  corsConfiguration: corsConfigurationSchema,
+})
+
+/**
+ * Input schema for deleting CORS configuration
+ */
+export const deleteCorsInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+})
+
+// ============================================================================
+// CORS CONFIGURATION TYPES
+// ============================================================================
+
+export type CorsAllowedMethod = z.infer<typeof corsAllowedMethodSchema>
+export type CorsRule = z.infer<typeof corsRuleSchema>
+export type CorsConfiguration = z.infer<typeof corsConfigurationSchema>
+export type GetCorsOutput = z.infer<typeof getCorsOutputSchema>
