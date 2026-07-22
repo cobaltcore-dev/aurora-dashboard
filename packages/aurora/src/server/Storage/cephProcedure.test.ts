@@ -152,9 +152,11 @@ const testRouter = {
 
   // Octet-stream upload procedure — mirrors objectRouter.uploadObject's use of
   // cephUploadProcedure, which rescopes from the x-upload-project-id header.
+  // Also surfaces the downstream ctx.openstack tag so a test can assert the
+  // rescoped session (not the pre-rescope one) is handed on.
   uploadClient: cephUploadProcedure.input(octetInputParser).mutation(async ({ ctx }) => {
     const client = ctx.getCephClient()
-    return { clientCreated: !!client }
+    return { clientCreated: !!client, openstackTag: (ctx.openstack as { __tag?: string }).__tag }
   }),
 }
 
@@ -394,6 +396,25 @@ describe("cephProcedure", () => {
 
       expect(result.clientCreated).toBe(true)
       expect(mockCreateS3Client).toHaveBeenCalledWith(TEST_ACCESS, TEST_SECRET, expect.any(String), expect.any(String))
+    })
+
+    it("hands the rescoped session (not the request default) to downstream resolvers", async () => {
+      const ctx = createMockContext()
+      setUploadProjectId(ctx, TEST_PROJECT_ID)
+      // Return a distinct, tagged session from rescopeSession so we can tell it
+      // apart from the pre-rescope ctx.openstack. It still needs service()/
+      // getToken() for resolveS3Config.
+      const rescoped = {
+        service: ctx.openstack!.service,
+        getToken: ctx.openstack!.getToken,
+        __tag: "rescoped",
+      }
+      vi.mocked(ctx.rescopeSession).mockResolvedValue(rescoped as never)
+      const caller = createCaller(ctx)
+
+      const result = await callUpload(caller)
+
+      expect(result.openstackTag).toBe("rescoped")
     })
 
     it("throws UNAUTHORIZED when the session cannot be scoped to the project", async () => {

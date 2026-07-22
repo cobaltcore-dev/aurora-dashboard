@@ -162,9 +162,14 @@ export const cephUploadProcedure = protectedProcedure.use(async function resolve
   }
   const { endpoint, region } = resolveS3Config(scopedCtx)
 
+  // Spread scopedCtx (not ctx) so downstream resolvers see the *rescoped*
+  // openstack session — otherwise ctx.openstack would still be the pre-rescope
+  // session, making auth/scoping inconsistent with the S3 client we just built
+  // and preventing anything downstream from reading the upload's project id off
+  // the token.
   return next({
     ctx: {
-      ...ctx,
+      ...scopedCtx,
       cephCredentials: credentials,
       cephRegion: region,
       getCephClient: (): S3Client => createS3Client(credentials.access, credentials.secret, endpoint, region),
