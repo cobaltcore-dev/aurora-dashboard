@@ -1,8 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
-import { getServiceIndex } from "@/server/Authentication/helpers"
 import { z } from "zod"
+import { getServiceIndex } from "@/server/Authentication/helpers"
 import type { RouteInfo } from "@/client/routes/routeInfo"
-import { RouteError } from "@/client/components/Error/RouteError"
 
 const multiValueEnum = (allowedValues: string[]) => {
   return z.string().refine((val) => {
@@ -53,7 +52,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images"
     sectionCrumb: { labelKey: "Compute" },
     crumb: { labelKey: "Images" },
   } satisfies RouteInfo,
-  errorComponent: ({ error }) => <RouteError error={error} />,
   validateSearch: (search) => {
     const result = imagesSearchSchema.safeParse(search)
     if (result.success) return result.data
