@@ -1704,7 +1704,9 @@ describe("objects.watchUploadProgress", () => {
     ])
 
     expect(result).toBe("timeout")
-    void nextPromise // allow the pending promise to settle without blocking
+    // Close the iterator so the generator's cleanup runs (clearing its 30s
+    // timer) instead of leaving a live handle for the rest of the test run.
+    await iterator.return?.()
   })
 
   it("returns an async iterable", async () => {
