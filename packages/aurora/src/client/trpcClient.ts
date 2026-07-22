@@ -102,12 +102,6 @@ const csrfCache = {
 }
 
 /**
- * Invalidate the cached CSRF token.
- * Call this when receiving a 403 response to trigger a fresh token fetch on the next request.
- */
-export const invalidateCsrfToken = () => csrfCache.invalidate()
-
-/**
  * Read the cached CSRF token so it can be handed to a separate JS context.
  * Synchronous by design — callers that hand it to a worker are on a sync path.
  * Null means nothing has needed a token yet, in which case the other context
