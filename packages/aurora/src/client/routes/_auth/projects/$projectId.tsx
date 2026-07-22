@@ -133,5 +133,5 @@ function ProjectErrorComponent({ error }: { error: Error & { statusCode?: number
   }
 
   // For all other errors, use the default RouteError component
-  return <RouteError error={error} />
+  return <RouteError error={error} safeErrorMessage={error instanceof TRPCClientError ? error.message : undefined} />
 }
