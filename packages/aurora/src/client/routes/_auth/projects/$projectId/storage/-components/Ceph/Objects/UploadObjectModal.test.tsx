@@ -251,14 +251,14 @@ describe("UploadObjectModal", () => {
       })
     })
 
-    test("calls objects.list.invalidate after successful upload", async () => {
+    test("invalidates the object list after successful upload", async () => {
       const user = userEvent.setup()
       renderModal({ bucketName: "test-container" })
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
       await user.click(screen.getByRole("button", { name: /^Upload$/i }))
       await waitFor(() => {
-        expect(mockInvalidate).toHaveBeenCalledWith({ containerName: "test-container" })
+        expect(mockInvalidate).toHaveBeenCalledWith()
       })
     })
 

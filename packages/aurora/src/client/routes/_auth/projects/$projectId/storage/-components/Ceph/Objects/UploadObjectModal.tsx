@@ -143,7 +143,8 @@ export const UploadObjectModal = ({
         signal: controller.signal,
       })
 
-      utils.storage.ceph.objects.list.invalidate({ containerName: bucketName })
+      // Invalidate every list variant (matches the other Ceph object modals).
+      utils.storage.ceph.objects.list.invalidate()
       onSuccess?.(submittedNameRef.current)
       resetAndClose()
     } catch (err) {
