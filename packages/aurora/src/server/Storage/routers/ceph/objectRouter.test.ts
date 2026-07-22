@@ -1688,25 +1688,40 @@ describe("objects.watchUploadProgress", () => {
   })
 
   it("does not yield for an unknown uploadId until an event arrives", async () => {
-    const ctx = createMockContext()
-    const caller = createCaller(ctx)
+    // Fake timers let us both prove next() stays pending without an event AND
+    // drive the generator's internal 30s wait to completion so it cleans up its
+    // own timer — awaiting iterator.return() can't do that here, since .return()
+    // on an async generator waits for the pending `await` (the 30s race) to
+    // settle before running the finally block, which would hang the test.
+    vi.useFakeTimers()
+    try {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx)
 
-    const subscription = await caller.storage.ceph.objects.watchUploadProgress({
-      project_id: TEST_PROJECT_ID,
-      uploadId: "nonexistent:file.txt:uuid",
-    })
-    const iterator = subscription[Symbol.asyncIterator]()
+      const subscription = await caller.storage.ceph.objects.watchUploadProgress({
+        project_id: TEST_PROJECT_ID,
+        uploadId: "nonexistent:file.txt:uuid",
+      })
+      const iterator = subscription[Symbol.asyncIterator]()
 
-    const nextPromise = iterator.next().then(() => "yielded" as const)
-    const result = await Promise.race([
-      nextPromise,
-      new Promise<"timeout">((resolve) => setTimeout(() => resolve("timeout"), 200)),
-    ])
+      const nextPromise = iterator.next()
+      let settled = false
+      void nextPromise.then(() => {
+        settled = true
+      })
 
-    expect(result).toBe("timeout")
-    // Close the iterator so the generator's cleanup runs (clearing its 30s
-    // timer) instead of leaving a live handle for the rest of the test run.
-    await iterator.return?.()
+      // No progress event and no snapshot for this id → next() stays pending.
+      await vi.advanceTimersByTimeAsync(1_000)
+      expect(settled).toBe(false)
+
+      // Advance past the 30s bounded wait: the generator breaks out, clears its
+      // timer, and completes.
+      await vi.advanceTimersByTimeAsync(30_000)
+      const result = await nextPromise
+      expect(result.done).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it("returns an async iterable", async () => {
