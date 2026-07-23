@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useSyncExternalStore } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   DataGrid,
@@ -18,6 +18,7 @@ import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useAvailableViewportHeight } from "@/client/hooks/useAvailableViewportHeight"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
 import { getObjectDownloadCancelledToast } from "./ObjectToastNotifications"
 import {
@@ -156,7 +157,10 @@ export function ObjectsTableView({
 }: ObjectsTableViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const parentRef = useRef<HTMLDivElement>(null)
+  // Measured instead of hard-coded: everything above the table (page banner
+  // slot, breadcrumbs, toolbar) can change height, so a fixed offset leaves the
+  // body taller than the viewport → two scrollbars.
+  const { ref: tableBodyRef, elementRef: parentRef, height: bodyHeight } = useAvailableViewportHeight<HTMLDivElement>()
   // In-flight transfers are owned by the module store (outside React) so they
   // survive this component unmounting during folder navigation. We only read
   // them here for rendering.
@@ -278,7 +282,7 @@ export function ObjectsTableView({
       const width = parentRef.current.offsetWidth - parentRef.current.clientWidth
       setScrollbarWidth(width)
     }
-  }, [rows.length])
+  }, [rows.length, bodyHeight])
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
@@ -286,6 +290,14 @@ export function ObjectsTableView({
     estimateSize: () => 48,
     overscan: 10,
   })
+
+  // Hold the rows back until the height is known. An unsized scroll container
+  // measures as tall as its content, so the virtualizer would size its range to
+  // the whole list and render every row once, before the real height lands —
+  // cheap for a short list, very visible for a long one.
+  const isMeasured = bodyHeight !== undefined
+  const virtualItems = isMeasured ? rowVirtualizer.getVirtualItems() : []
+  const totalSize = isMeasured ? rowVirtualizer.getTotalSize() : 0
 
   if (rows.length === 0) {
     return (
@@ -349,21 +361,23 @@ export function ObjectsTableView({
           </DataGrid>
         </div>
 
-        {/* Virtualized Table Body with dynamic height */}
+        {/* Virtualized Table Body — sized to the space actually left below the
+            table, so banners above it shrink the table instead of growing the
+            page. */}
         <div
-          ref={parentRef}
+          ref={tableBodyRef}
           className="overflow-auto"
-          style={{ height: "calc(100vh - 500px)" }}
+          style={{ height: `${bodyHeight ?? 0}px` }}
           data-testid="objects-table-body"
         >
           <div
             style={{
-              height: `${rowVirtualizer.getTotalSize()}px`,
+              height: `${totalSize}px`,
               width: "100%",
               position: "relative",
             }}
           >
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            {virtualItems.map((virtualRow) => {
               const row = rows[virtualRow.index]
               const isFolder = row.kind === "folder"
               const isVersion = row.kind === "version"

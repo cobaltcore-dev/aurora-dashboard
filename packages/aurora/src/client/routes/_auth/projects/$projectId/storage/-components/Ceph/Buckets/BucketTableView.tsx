@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import {
@@ -14,6 +14,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { useAvailableViewportHeight } from "@/client/hooks/useAvailableViewportHeight"
 import { CreateBucketModal } from "./CreateBucketModal"
 import { EmptyBucketModal } from "./EmptyBucketModal"
 import { DeleteBucketModal } from "./DeleteBucketModal"
@@ -52,7 +53,10 @@ export const BucketTableView = ({
   const { t } = useLingui()
   const navigate = useNavigate()
 
-  const parentRef = useRef<HTMLDivElement>(null)
+  // Measured instead of hard-coded: everything above the table (page banner
+  // slot, breadcrumbs, toolbar) can change height, so a fixed offset leaves the
+  // body taller than the viewport → two scrollbars.
+  const { ref: tableBodyRef, elementRef: parentRef, height: bodyHeight } = useAvailableViewportHeight<HTMLDivElement>()
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [emptyModalBucket, setEmptyModalBucket] = useState<Bucket | null>(null)
   const [deleteModalBucket, setDeleteModalBucket] = useState<Bucket | null>(null)
@@ -63,7 +67,7 @@ export const BucketTableView = ({
       const width = parentRef.current.offsetWidth - parentRef.current.clientWidth
       setScrollbarWidth(width)
     }
-  }, [buckets.length])
+  }, [buckets.length, bodyHeight])
 
   // Format date to localized string
   const formatDate = (dateString: string): string => {
@@ -81,6 +85,14 @@ export const BucketTableView = ({
     estimateSize: () => 48, // Estimated row height
     overscan: 10,
   })
+
+  // Hold the rows back until the height is known. An unsized scroll container
+  // measures as tall as its content, so the virtualizer would size its range to
+  // the whole list and render every row once, before the real height lands —
+  // cheap for a short list, very visible for a long one.
+  const isMeasured = bodyHeight !== undefined
+  const virtualItems = isMeasured ? rowVirtualizer.getVirtualItems() : []
+  const totalSize = isMeasured ? rowVirtualizer.getTotalSize() : 0
 
   const handleSelectBucket = (bucketName: string) => {
     if (selectedBuckets.includes(bucketName)) {
@@ -147,23 +159,23 @@ export const BucketTableView = ({
             </DataGrid>
           </div>
 
-          {/* Virtualized Table Body with dynamic height */}
+          {/* Virtualized Table Body — sized to the space actually left below the
+              table, so banners above it shrink the table instead of growing the
+              page. */}
           <div
-            ref={parentRef}
+            ref={tableBodyRef}
             className="overflow-auto"
-            style={{
-              height: "calc(100vh - 490px)", // Dynamic height based on viewport
-            }}
+            style={{ height: `${bodyHeight ?? 0}px` }}
             data-testid="buckets-table-body"
           >
             <div
               style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
+                height: `${totalSize}px`,
                 width: "100%",
                 position: "relative",
               }}
             >
-              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              {virtualItems.map((virtualRow) => {
                 const bucket = buckets[virtualRow.index]
                 const isSelected = selectedBuckets.includes(bucket.name)
 
