@@ -95,7 +95,9 @@ describe("useAvailableViewportHeight", () => {
     expect(measuredHeight()).toBe(String(VIEWPORT_HEIGHT - 240 - 120))
   })
 
-  test("never falls below the minimum height", () => {
+  test("clamps to the minimum height, letting the page scroll instead", () => {
+    // The floor takes precedence over fitting the viewport: a container a row
+    // and a half tall is worse than a page scrollbar.
     setElementTop(VIEWPORT_HEIGHT - 10)
     render(<Probe />)
 
