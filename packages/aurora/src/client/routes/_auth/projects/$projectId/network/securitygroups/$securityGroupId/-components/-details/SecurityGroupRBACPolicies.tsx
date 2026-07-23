@@ -1,13 +1,15 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   DataGrid,
   DataGridRow,
   DataGridHeadCell,
+  DataGridToolbar,
   Stack,
   Spinner,
   Button,
   Message,
+  SearchInput,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
@@ -15,14 +17,14 @@ import type { RBACPolicy } from "@/server/Network/types/rbacPolicy"
 import { RBACPolicyRow } from "./RBACPolicyRow"
 import { AddRBACPolicyModal } from "../../-modals/AddRBACPolicyModal"
 import { DeleteRBACPolicyDialog } from "../../-modals/DeleteRBACPolicyDialog"
-import { ListToolbar } from "@/client/components/ListToolbar"
 import { useModal } from "@/client/utils/useModal"
 
 interface SecurityGroupRBACPoliciesProps {
   securityGroupId: string
+  canManageAccess: boolean
 }
 
-export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBACPoliciesProps) {
+export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: SecurityGroupRBACPoliciesProps) {
   const utils = trpcReact.useUtils()
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -30,6 +32,10 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
   const [isAddModalOpen, toggleAddModal] = useModal()
   const [policyToDelete, setPolicyToDelete] = useState<RBACPolicy | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const [localSearchTerm, setLocalSearchTerm] = useState("")
+  const debounceTimer = useRef<number | undefined>(undefined)
+
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   // Query RBAC policies
   const {
@@ -88,11 +94,6 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
     )
   }, [policies, searchTerm])
 
-  const handleSearchChange = (value: string | number | string[] | undefined) => {
-    const searchValue = typeof value === "string" ? value : ""
-    setSearchTerm(searchValue)
-  }
-
   if (isPending) {
     return (
       <Stack distribution="center" alignment="center" className="py-8">
@@ -115,19 +116,51 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
   return (
     <>
       <Stack direction="vertical" gap="4">
-        {/* Toolbar with Share button and search - same pattern as Rules */}
-        <ListToolbar
-          totalCount={totalCount}
-          filteredCount={filteredCount}
-          itemName={t`projects`}
-          searchTerm={searchTerm}
-          onSearch={handleSearchChange}
-          actions={
-            <Button variant="primary" icon="addCircle" onClick={toggleAddModal}>
+        {/* Zone 1 — count + Share button */}
+        <Stack distribution="between" alignment="center" gap="2" className="pb-2">
+          {/* Count display */}
+          <span className="theme-color-text-light text-sm">
+            {totalCount !== filteredCount ? (
+              <Trans>
+                Showing {filteredCount} of {totalCount} projects
+              </Trans>
+            ) : (
+              <Trans>{totalCount} projects</Trans>
+            )}
+          </span>
+
+          {canManageAccess && (
+            <Button variant="primary" icon="addCircle" onClick={toggleAddModal} className="whitespace-nowrap">
               <Trans>Share Security Group</Trans>
             </Button>
-          }
-        />
+          )}
+        </Stack>
+
+        {/* Zone 2 — search only (no filters needed) */}
+        <DataGridToolbar>
+          <Stack distribution="between" alignment="center">
+            <SearchInput
+              placeholder={t`Search policies...`}
+              data-testid="searchbar"
+              value={localSearchTerm}
+              onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                const v = e.currentTarget.value
+                setLocalSearchTerm(v)
+                clearTimeout(debounceTimer.current)
+                debounceTimer.current = window.setTimeout(() => setSearchTerm(v), 500)
+              }}
+              onSearch={(v) => {
+                clearTimeout(debounceTimer.current)
+                setSearchTerm(typeof v === "string" ? v : "")
+              }}
+              onClear={() => {
+                clearTimeout(debounceTimer.current)
+                setLocalSearchTerm("")
+                setSearchTerm("")
+              }}
+            />
+          </Stack>
+        </DataGridToolbar>
 
         {/* RBAC Policies Table */}
         {filteredCount === 0 ? (
@@ -151,7 +184,12 @@ export function SecurityGroupRBACPolicies({ securityGroupId }: SecurityGroupRBAC
             </DataGridRow>
 
             {filteredPolicies.map((policy) => (
-              <RBACPolicyRow key={policy.id} policy={policy} onDelete={() => handleDeleteClick(policy)} />
+              <RBACPolicyRow
+                key={policy.id}
+                policy={policy}
+                onDelete={() => handleDeleteClick(policy)}
+                canDelete={canManageAccess}
+              />
             ))}
           </DataGrid>
         )}

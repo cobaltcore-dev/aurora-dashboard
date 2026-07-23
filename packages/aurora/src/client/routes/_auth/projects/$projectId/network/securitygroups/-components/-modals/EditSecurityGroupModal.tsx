@@ -6,7 +6,6 @@ import {
   FormRow,
   FormSection,
   TextInput,
-  Checkbox,
   Button,
   ButtonRow,
   Spinner,
@@ -32,7 +31,6 @@ interface EditSecurityGroupModalProps {
 interface SecurityGroupProperties {
   name: string
   description: string
-  stateful: boolean
 }
 
 export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
@@ -48,7 +46,6 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
   const [properties, setProperties] = useState<SecurityGroupProperties>({
     name: securityGroup.name || "",
     description: securityGroup.description || "",
-    stateful: securityGroup.stateful ?? true,
   })
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
@@ -57,7 +54,6 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
     setProperties({
       name: securityGroup.name || "",
       description: securityGroup.description || "",
-      stateful: securityGroup.stateful ?? true,
     })
   }, [securityGroup])
 
@@ -98,11 +94,15 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
     }
 
     if (onUpdate) {
+      // Prepare base update data without stateful
       const updateData: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id"> = {
         name: properties.name.trim(),
         description: properties.description.trim() || undefined,
-        stateful: properties.stateful,
       }
+
+      // Note: We deliberately do NOT include 'stateful' field here
+      // because it requires special 'update_security_group:stateful' permission
+      // which needs cloud admin role. Regular users can only update name/description.
 
       await onUpdate(securityGroup.id, updateData)
     }
@@ -146,14 +146,6 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
         </Message>
       )}
 
-      {/* Info message about stateful changes */}
-      <Message dismissible={false} variant="info" className="mb-4">
-        <Trans>
-          Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more
-          ports.
-        </Trans>
-      </Message>
-
       {isLoading && (
         <div className="mb-4 flex items-center justify-center gap-2">
           <Spinner variant="primary" />
@@ -192,17 +184,7 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
                 rows={3}
               />
             </FormRow>
-
-            <FormRow className="mb-0">
-              <Checkbox
-                id="stateful"
-                name="stateful"
-                label={t`Stateful`}
-                checked={properties.stateful}
-                onChange={handleInputChange}
-                disabled={isLoading}
-              />
-            </FormRow>
+            {/* Note: Stateful checkbox is not shown here because it requires 'update_security_group:stateful' permission (cloud admin only) */}
           </FormSection>
         </Form>
       )}
