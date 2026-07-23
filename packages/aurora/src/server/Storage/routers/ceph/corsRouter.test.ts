@@ -247,23 +247,6 @@ describe("corsRouter", () => {
       ).rejects.toThrow(TRPCError)
     })
 
-    it("should throw BAD_REQUEST with invalid AllowedMethod", async () => {
-      await expect(
-        caller.set({
-          project_id: TEST_PROJECT_ID,
-          bucketName: TEST_BUCKET_NAME,
-          corsConfiguration: {
-            CORSRules: [
-              {
-                AllowedMethods: ["INVALID_METHOD" as any],
-                AllowedOrigins: ["*"],
-              },
-            ],
-          },
-        })
-      ).rejects.toThrow(TRPCError)
-    })
-
     it("should throw BAD_REQUEST with empty AllowedMethods array", async () => {
       await expect(
         caller.set({

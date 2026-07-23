@@ -43,6 +43,11 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
+#. placeholder {0}: rules.length
+#. placeholder {1}: rules.length === 1 ? "rule" : "rules"
+msgid "{0} {1} configured"
+msgstr ""
+
 msgid "{certificateIdValue} Certificate Details"
 msgstr ""
 
@@ -232,6 +237,18 @@ msgstr "Hinzufügen"
 msgid "Add a Signed Certificate to your CA to activate it"
 msgstr "Add a Signed Certificate to your CA to activate it"
 
+msgid "Add Another Rule"
+msgstr ""
+
+msgid "Add CORS"
+msgstr ""
+
+msgid "Add CORS Rule"
+msgstr ""
+
+msgid "Add First Rule"
+msgstr ""
+
 msgid "Add Member"
 msgstr "Mitglied hinzufügen"
 
@@ -298,6 +315,24 @@ msgstr "Floating IP zuweisen"
 msgid "Allocating Floating IP..."
 msgstr "Floating IP wird zugewiesen..."
 
+msgid "Allowed Headers"
+msgstr ""
+
+msgid "Allowed Headers (Optional)"
+msgstr ""
+
+msgid "Allowed Methods"
+msgstr ""
+
+msgid "Allowed Methods (Required)"
+msgstr ""
+
+msgid "Allowed Origins"
+msgstr ""
+
+msgid "Allowed Origins (Required)"
+msgstr ""
+
 msgid "Already active (will be skipped)"
 msgstr "Bereits aktiv (wird übersprungen)"
 
@@ -337,6 +372,9 @@ msgstr "Jeder Benutzer kann eine HEAD- oder GET-Operation auf dem Container ausf
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anfrage erforderlich."
 
+msgid "Are you sure you want to delete the CORS configuration for bucket <0>{bucketName}</0>?"
+msgstr ""
+
 msgid "Are you sure you want to delete the policy for bucket <0>{bucketName}</0>?"
 msgstr ""
 
@@ -360,6 +398,9 @@ msgstr "Anhängen"
 
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
+
+msgid "Authorization, Content-Type, or *"
+msgstr ""
 
 msgid "Awaiting Certificate"
 msgstr ""
@@ -471,6 +512,9 @@ msgstr ""
 
 msgid "Cancel"
 msgstr "Abbrechen"
+
+msgid "Cancel Edit"
+msgstr ""
 
 msgid "Cancel upload"
 msgstr "Upload abbrechen"
@@ -664,6 +708,27 @@ msgstr "Objekt wird kopiert..."
 msgid "Copying..."
 msgstr "Wird kopiert..."
 
+msgid "CORS (Cross-Origin Resource Sharing) controls which browser origins can access bucket content via JavaScript."
+msgstr ""
+
+msgid "CORS Configuration"
+msgstr ""
+
+msgid "CORS Configuration Deleted"
+msgstr ""
+
+msgid "CORS Configuration Saved"
+msgstr ""
+
+msgid "CORS configuration was successfully deleted from bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "CORS configuration was successfully saved for bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "CORS Enabled"
+msgstr ""
+
 msgid "Could not copy \"{displayName}\": {errorMessage}"
 msgstr ""
 
@@ -697,6 +762,9 @@ msgstr ""
 msgid "Could not delete container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht gelöscht werden: {errorMessage}"
 
+msgid "Could not delete CORS configuration from bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht gelöscht werden: {errorMessage}"
 
@@ -728,6 +796,9 @@ msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
 
 msgid "Could not restore \"{displayName}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not save CORS configuration for bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
 msgid "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
@@ -820,6 +891,14 @@ msgstr "Sicherheitsgruppe wird erstellt..."
 msgid "Creating..."
 msgstr ""
 
+msgid "Current Configuration"
+msgstr ""
+
+#. placeholder {0}: corsData.corsRules.length
+#. placeholder {1}: corsData.corsRules.length === 1 ? "rule" : "rules"
+msgid "Current configuration has {0} CORS {1}."
+msgstr ""
+
 msgid "Current location:"
 msgstr ""
 
@@ -865,6 +944,9 @@ msgstr "Löschen"
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
+msgid "Delete All Rules"
+msgstr ""
+
 msgid "Delete all versions and delete markers"
 msgstr ""
 
@@ -882,6 +964,12 @@ msgstr "Delete Certificate Authority"
 
 msgid "Delete container:"
 msgstr "Container löschen:"
+
+msgid "Delete CORS"
+msgstr ""
+
+msgid "Delete CORS Configuration"
+msgstr ""
 
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
@@ -945,6 +1033,9 @@ msgstr "Deleting certificate authority..."
 
 msgid "Deleting folder and all its contents..."
 msgstr "Ordner und alle Inhalte werden gelöscht..."
+
+msgid "Deleting the CORS configuration will remove all cross-origin access rules. Browser-based applications will no longer be able to access this bucket from different origins. This action cannot be undone."
+msgstr ""
 
 msgid "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
 msgstr ""
@@ -1060,6 +1151,9 @@ msgstr "z. B. .r:*,.rlistings"
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
 
+msgid "e.g., AllowWebsiteAccess"
+msgstr ""
+
 msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
 
@@ -1068,6 +1162,9 @@ msgstr "z. B. production, linux, ubuntu"
 
 msgid "Edit"
 msgstr "Bearbeiten"
+
+msgid "Edit CORS Rule"
+msgstr ""
 
 msgid "Edit Description"
 msgstr "Beschreibung bearbeiten"
@@ -1087,10 +1184,16 @@ msgstr "Image-Metadaten bearbeiten"
 msgid "Edit Metadata"
 msgstr "Metadaten bearbeiten"
 
+msgid "Edit Rule"
+msgstr ""
+
 msgid "Edit Security Group"
 msgstr "Security Group bearbeiten"
 
 msgid "Edit/View Bucket Policy"
+msgstr ""
+
+msgid "Edit/View CORS"
 msgstr ""
 
 msgid "Edit/View Policy"
@@ -1147,6 +1250,12 @@ msgstr "Floating IP eingeben"
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Floating IP eingeben oder leer lassen für automatische Zuweisung"
 
+msgid "Enter a header name and press Enter. These headers will be exposed to the browser."
+msgstr ""
+
+msgid "Enter a header name and press Enter. Use * to allow all headers."
+msgstr ""
+
 msgid "Enter a name for the new folder."
 msgstr ""
 
@@ -1164,6 +1273,9 @@ msgstr "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
 
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
+
+msgid "Enter an origin URL and press Enter. Use * to allow all origins (not recommended for sensitive data)."
+msgstr ""
 
 msgid "Enter bucket policy JSON..."
 msgstr ""
@@ -1243,7 +1355,13 @@ msgstr "Fehler beim Laden der Security Group"
 msgid "Error:"
 msgstr ""
 
+msgid "Essential for single-page applications, web-based uploads, and cross-domain hosting."
+msgstr ""
+
 msgid "ETag"
+msgstr ""
+
+msgid "ETag, Content-Length"
 msgstr ""
 
 msgid "Ethertype"
@@ -1263,6 +1381,12 @@ msgstr "Läuft ab in"
 
 msgid "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 msgstr "Läuft ab in {selectedPresetLabel} — um {expiresAtFormatted}"
+
+msgid "Expose Headers"
+msgstr ""
+
+msgid "Expose Headers (Optional)"
+msgstr ""
 
 msgid "External Network"
 msgstr "Externes Netzwerk"
@@ -1344,6 +1468,12 @@ msgstr ""
 
 msgid "Failed to Delete Container"
 msgstr "Fehler beim Löschen des Containers"
+
+msgid "Failed to delete CORS configuration"
+msgstr ""
+
+msgid "Failed to Delete CORS Configuration"
+msgstr ""
 
 msgid "Failed to delete flavor. Please try again."
 msgstr "Fehler beim Löschen des Flavors. Bitte versuchen Sie es erneut."
@@ -1432,6 +1562,9 @@ msgstr "Fehler beim Laden der Container-Objekte: {errorMessage}"
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Eigenschaften: {errorMessage}"
 
+msgid "Failed to load CORS configuration"
+msgstr ""
+
 msgid "Failed to load extra specs. Please try again."
 msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
 
@@ -1481,6 +1614,12 @@ msgid "Failed to Restore Version"
 msgstr ""
 
 msgid "Failed to restore version: {errorMessage}"
+msgstr ""
+
+msgid "Failed to save CORS configuration"
+msgstr ""
+
+msgid "Failed to Save CORS Configuration"
 msgstr ""
 
 msgid "Failed to save policy"
@@ -1680,6 +1819,12 @@ msgstr "ACLs-Vorschau ausblenden"
 
 msgid "Home"
 msgstr "Startseite"
+
+msgid "How long browsers can cache preflight responses (0-86400 seconds / 24 hours)"
+msgstr ""
+
+msgid "https://example.com or *"
+msgstr ""
 
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "Ich bestätige, dass alle vorhandenen Versionen ebenfalls gelöscht werden"
@@ -2014,6 +2159,12 @@ msgstr "Manage your Certificate"
 msgid "Manage your Private Certificate Authority infrastructure"
 msgstr "Manage your Private Certificate Authority infrastructure"
 
+msgid "Max Age"
+msgstr ""
+
+msgid "Max Age Seconds (Optional)"
+msgstr ""
+
 msgid "Max container name length"
 msgstr "Maximale Container-Namenslänge"
 
@@ -2187,6 +2338,12 @@ msgstr "No Certificates issued by this Certificate Authority found"
 
 msgid "No containers found"
 msgstr "Keine Container gefunden"
+
+msgid "No CORS configuration found"
+msgstr ""
+
+msgid "No CORS rules configured on this bucket"
+msgstr ""
 
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "Keine benutzerdefinierten Metadaten-Eigenschaften gefunden. Klicken Sie auf \"Eigenschaft hinzufügen\", um eine zu erstellen."
@@ -2371,6 +2528,9 @@ msgstr "Ein oder mehrere Container konnten nicht geleert werden: {errorMessage}"
 msgid "One or more objects could not be deleted:"
 msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
 
+msgid "One or more rules use wildcard (*) for AllowedOrigins, which allows any website to access your bucket. Only use this for truly public resources."
+msgstr ""
+
 msgid "Open {displayName}"
 msgstr "{displayName} öffnen"
 
@@ -2379,6 +2539,9 @@ msgstr "In neuem Tab öffnen"
 
 msgid "Optional description"
 msgstr "Optionale Beschreibung"
+
+msgid "Optional identifier for this rule (max 255 characters)"
+msgstr ""
 
 msgid "or drag and drop"
 msgstr "oder per Drag & Drop"
@@ -2680,8 +2843,15 @@ msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 msgid "Router ID"
 msgstr "Router-ID"
 
+#. placeholder {0}: index + 1
+msgid "Rule {0}"
+msgstr ""
+
 msgid "Rule Details:"
 msgstr "Regeldetails:"
+
+msgid "Rule ID (Optional)"
+msgstr ""
 
 msgid "Rule Type"
 msgstr "Regeltyp"
@@ -2691,6 +2861,9 @@ msgstr "Regeln"
 
 msgid "Rules"
 msgstr "Regeln"
+
+msgid "Rules Details"
+msgstr ""
 
 msgid "RX/TX Factor"
 msgstr "RX/TX Factor"
@@ -2709,6 +2882,9 @@ msgstr "Speichern"
 
 msgid "Save Changes"
 msgstr "Änderungen speichern"
+
+msgid "Save Configuration"
+msgstr ""
 
 msgid "Save Metadata"
 msgstr "Metadata speichern"
@@ -2749,6 +2925,9 @@ msgstr "Security Group nicht gefunden"
 msgid "Security Groups"
 msgstr "Security Groups"
 
+msgid "Security Warning"
+msgstr ""
+
 msgid "Select"
 msgstr "Auswählen"
 
@@ -2778,6 +2957,9 @@ msgstr ""
 
 msgid "Select disk format first"
 msgstr "Wählen Sie zuerst das Festplattenformat"
+
+msgid "Select HTTP methods allowed for cross-origin requests"
+msgstr ""
 
 msgid "Select port to associate"
 msgstr "Port zur Zuordnung auswählen"
@@ -3220,6 +3402,9 @@ msgstr ""
 msgid "This bucket does not have a policy attached."
 msgstr ""
 
+msgid "This bucket does not have CORS rules configured."
+msgstr ""
+
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
 msgstr "Dieser Container scheint leer zu sein — die Objekt-Anzahl ist möglicherweise aufgrund einer kürzlichen Operation noch nicht synchronisiert."
 
@@ -3427,6 +3612,9 @@ msgstr "Unbenannt"
 msgid "Update object"
 msgstr "Objekt aktualisieren"
 
+msgid "Update Rule"
+msgstr ""
+
 msgid "Update Security Group"
 msgstr "Security Group aktualisieren"
 
@@ -3483,6 +3671,9 @@ msgstr "Benutzer {userId} aus Projekt {projectId}"
 
 msgid "User C/D/I"
 msgstr "Benutzer C/D/I"
+
+msgid "Using wildcard (*) for AllowedOrigins allows any website to access your bucket. Only use this for truly public resources."
+msgstr ""
 
 msgid "valid token required: false"
 msgstr "gültiges Token erforderlich: false"
@@ -3549,6 +3740,9 @@ msgstr ""
 
 msgid "View Details"
 msgstr "Details ansehen"
+
+msgid "View Rules"
+msgstr ""
 
 msgid "View Versions"
 msgstr ""
