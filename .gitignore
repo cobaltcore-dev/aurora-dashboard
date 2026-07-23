@@ -8,9 +8,7 @@ dist-ssr
 .env
 .cache
 server/dist
-public/dist
-.claude
-CLAUDE*
+public/distgit 
 .out-of-code-insights
 
 .releaserc.js.bak
