@@ -79,6 +79,9 @@ msgstr "{percent}%"
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
 
+msgid "{rulesLength} rules"
+msgstr ""
+
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{selectedCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
 
@@ -105,6 +108,9 @@ msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{totalCount, plural, one {Container leeren} other {# Container leeren}}"
+
+msgid "{totalCount} projects"
+msgstr ""
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"
@@ -1963,6 +1969,9 @@ msgstr "Objekte werden geladen..."
 msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
+msgid "Loading Permissions..."
+msgstr ""
+
 msgid "Loading preview..."
 msgstr "Vorschau wird geladen..."
 
@@ -2260,9 +2269,6 @@ msgstr "Keine"
 msgid "Note: for <0>static and dynamic large objects</0> only the manifests are deleted — their segments outside this folder prefix are not affected."
 msgstr "Hinweis: Für <0>statische und dynamische große Objekte</0> werden nur die Manifeste gelöscht — ihre Segmente außerhalb dieses Ordnerpräfixes sind nicht betroffen."
 
-msgid "Note: The 'stateful' attribute cannot be changed if this security group is currently in use by one or more ports."
-msgstr "Hinweis: Das Attribut 'stateful' kann nicht geändert werden, wenn diese Security Group derzeit von einem oder mehreren Ports verwendet wird."
-
 msgid "Object \"{displayName}\" was permanently deleted."
 msgstr ""
 
@@ -2491,9 +2497,6 @@ msgstr "Projekt-ID"
 msgid "Project Not Found"
 msgstr ""
 
-msgid "projects"
-msgstr "Projekte"
-
 msgid "Projects"
 msgstr "Projekte"
 
@@ -2668,9 +2671,6 @@ msgstr "Regeldetails:"
 msgid "Rule Type"
 msgstr "Regeltyp"
 
-msgid "rules"
-msgstr "Regeln"
-
 msgid "Rules"
 msgstr "Regeln"
 
@@ -2712,6 +2712,15 @@ msgstr "Images suchen..."
 
 msgid "Search objects..."
 msgstr "Objekte suchen..."
+
+msgid "Search policies..."
+msgstr ""
+
+msgid "Search rules..."
+msgstr ""
+
+msgid "Search security groups..."
+msgstr ""
 
 msgid "Search..."
 msgstr "Suchen..."
@@ -2857,6 +2866,12 @@ msgstr "Details anzeigen"
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
 
+msgid "Showing {filteredCount} of {totalCount} projects"
+msgstr ""
+
+msgid "Showing {rulesLength} of {totalCount} rules"
+msgstr ""
+
 msgid "Showing first {actualObjectCount} of {total} objects"
 msgstr "Erste {actualObjectCount} von {total} Objekten werden angezeigt"
 
@@ -2901,6 +2916,9 @@ msgstr "State"
 
 msgid "Stateful"
 msgstr "Stateful"
+
+msgid "Stateful security groups track connection state. This setting cannot be changed after creation."
+msgstr ""
 
 msgid "Static large object support"
 msgstr "Unterstützung für statische große Objekte"
@@ -3600,6 +3618,9 @@ msgstr ""
 
 msgid "You can rename the object by changing the name here."
 msgstr "Sie können das Objekt umbenennen, indem Sie den Namen hier ändern."
+
+msgid "You do not have permission to view security groups"
+msgstr ""
 
 msgid "You don't have permission to access flavor access information for this flavor."
 msgstr "Sie haben keine Berechtigung, auf die Zugriffsinformationen für diesen Flavor zuzugreifen."

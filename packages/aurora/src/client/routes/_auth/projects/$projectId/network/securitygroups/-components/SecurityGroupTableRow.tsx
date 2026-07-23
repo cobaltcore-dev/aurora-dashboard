@@ -4,15 +4,20 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  Checkbox,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui, Trans } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
 
 export interface SecurityGroupPermissions {
+  canView: boolean
   canCreate: boolean
   canUpdate: boolean
   canDelete: boolean
+  canCreateRule: boolean
+  canDeleteRule: boolean
   canManageAccess: boolean
+  canViewRBAC: boolean
 }
 
 interface SecurityGroupTableRowProps {
@@ -22,6 +27,9 @@ interface SecurityGroupTableRowProps {
   onDelete: (sg: SecurityGroup) => void
   onViewDetails?: (sg: SecurityGroup) => void
   isReadOnly?: boolean
+  showSelectColumn?: boolean
+  isSelected?: boolean
+  onSelect?: (sg: SecurityGroup) => void
 }
 
 export function SecurityGroupTableRow({
@@ -31,6 +39,9 @@ export function SecurityGroupTableRow({
   onDelete,
   onViewDetails,
   isReadOnly = false,
+  showSelectColumn = false,
+  isSelected = false,
+  onSelect,
 }: SecurityGroupTableRowProps) {
   const { t } = useLingui()
 
@@ -49,6 +60,11 @@ export function SecurityGroupTableRow({
       onClick={handleShowDetails}
       className="hover:bg-theme-background-lvl-2 cursor-pointer"
     >
+      {showSelectColumn && (
+        <DataGridCell onClick={(e) => e.stopPropagation()}>
+          <Checkbox checked={isSelected} onChange={() => onSelect?.(sg)} />
+        </DataGridCell>
+      )}
       <DataGridCell>
         <div>
           <p className="text-md">{sg.name}</p>

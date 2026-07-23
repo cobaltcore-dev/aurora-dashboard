@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   DataGrid,
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
+  DataGridToolbar,
   Button,
   Stack,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  SearchInput,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroupRule, CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
@@ -16,7 +18,9 @@ import type { FilterSettings, SortSettings } from "@/client/components/ListToolb
 import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
 import { DeleteRuleDialog } from "../../-modals/DeleteRuleDialog"
 import { AddRuleModal } from "../../-modals/AddRuleModal/AddRuleModal"
-import { ListToolbar } from "@/client/components/ListToolbar"
+import { SortInput } from "@/client/components/ListToolbar/SortInput"
+import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
+import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { useModal } from "@/client/utils/useModal"
 
 interface SecurityGroupRulesTableProps {
@@ -38,7 +42,8 @@ interface SecurityGroupRulesTableProps {
   isCreatingRule?: boolean
   createRuleError?: string | null
   availableSecurityGroups?: Array<{ id: string; name: string | null }>
-  readOnly?: boolean // Hide actions column and add rule button for shared security groups
+  canCreateRule: boolean
+  canDeleteRule: boolean
 }
 
 export function SecurityGroupRulesTable({
@@ -58,11 +63,16 @@ export function SecurityGroupRulesTable({
   isCreatingRule = false,
   createRuleError = null,
   availableSecurityGroups = [],
-  readOnly = false,
+  canCreateRule,
+  canDeleteRule,
 }: SecurityGroupRulesTableProps) {
   const { t } = useLingui()
   const [ruleToDelete, setRuleToDelete] = useState<SecurityGroupRule | null>(null)
   const [isAddRuleModalOpen, toggleAddRuleModal] = useModal()
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
+  const debounceTimer = useRef<number | undefined>(undefined)
+
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   const handleDeleteClick = (rule: SecurityGroupRule) => {
     setRuleToDelete(rule)
@@ -107,41 +117,122 @@ export function SecurityGroupRulesTable({
     return `${rule.port_range_min}-${rule.port_range_max}`
   }
 
+  const rulesLength = rules.length
+  const totalCount = totalRulesCount
+
   return (
     <>
       <Stack direction="vertical" gap="4">
-        <ListToolbar
-          totalCount={totalRulesCount ?? rules.length}
-          filteredCount={rules.length}
-          itemName={t`rules`}
-          filterSettings={filterSettings}
-          onFilter={onFilterChange}
-          sortSettings={sortSettings}
-          onSort={onSortChange}
-          searchTerm={searchTerm}
-          onSearch={onSearchChange}
-          actions={
-            !readOnly &&
-            onCreateRule && (
-              <Button variant="primary" icon="addCircle" onClick={toggleAddRuleModal}>
+        {/* Zone 1 — sort + add rule button + count, no background */}
+        <Stack distribution="between" alignment="center" gap="2" className="pb-2">
+          {/* Count display */}
+          <span className="theme-color-text-light text-sm">
+            {totalCount !== undefined && rulesLength !== totalCount ? (
+              <Trans>
+                Showing {rulesLength} of {totalCount} rules
+              </Trans>
+            ) : (
+              <Trans>{rulesLength} rules</Trans>
+            )}
+          </span>
+
+          <Stack gap="2">
+            {sortSettings && onSortChange && (
+              <SortInput
+                options={sortSettings.options}
+                sortBy={sortSettings.sortBy}
+                sortDirection={sortSettings.sortDirection ?? "asc"}
+                onSortByChange={(v) =>
+                  onSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
+                }
+                onSortDirectionChange={(dir) => onSortChange({ ...sortSettings, sortDirection: dir })}
+              />
+            )}
+            {canCreateRule && onCreateRule && (
+              <Button variant="primary" icon="addCircle" onClick={toggleAddRuleModal} className="whitespace-nowrap">
                 <Trans>Add rule</Trans>
               </Button>
-            )
-          }
-        />
+            )}
+          </Stack>
+        </Stack>
+
+        {/* Zone 2 — filter + search + active filter pills */}
+        {(filterSettings || onSearchChange) && (
+          <DataGridToolbar>
+            <Stack direction="vertical" gap="2">
+              <Stack distribution="between" alignment="center">
+                {filterSettings && onFilterChange && (
+                  <FiltersInput
+                    filters={filterSettings.filters}
+                    onChange={(selected) => {
+                      const alreadySelected = (filterSettings.selectedFilters || []).some(
+                        (f) => f.name === selected.name && f.value === selected.value
+                      )
+                      if (alreadySelected) return
+
+                      const supportsMulti = filterSettings.filters.find(
+                        (f) => f.filterName === selected.name
+                      )?.supportsMultiValue
+                      const newSelected = supportsMulti
+                        ? [...(filterSettings.selectedFilters || []), selected]
+                        : [...(filterSettings.selectedFilters || []).filter((f) => f.name !== selected.name), selected]
+                      onFilterChange({ ...filterSettings, selectedFilters: newSelected })
+                    }}
+                  />
+                )}
+                {onSearchChange && (
+                  <SearchInput
+                    placeholder={t`Search rules...`}
+                    data-testid="searchbar"
+                    value={localSearchTerm}
+                    onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                      const v = e.currentTarget.value
+                      setLocalSearchTerm(v)
+                      clearTimeout(debounceTimer.current)
+                      debounceTimer.current = window.setTimeout(() => onSearchChange(v), 500)
+                    }}
+                    onSearch={(v) => {
+                      clearTimeout(debounceTimer.current)
+                      onSearchChange(typeof v === "string" ? v : "")
+                    }}
+                    onClear={() => {
+                      clearTimeout(debounceTimer.current)
+                      setLocalSearchTerm("")
+                      onSearchChange("")
+                    }}
+                  />
+                )}
+              </Stack>
+              {filterSettings?.selectedFilters && filterSettings.selectedFilters.length > 0 && (
+                <SelectedFilters
+                  selectedFilters={filterSettings.selectedFilters}
+                  onDelete={(filterToRemove) =>
+                    onFilterChange?.({
+                      ...filterSettings,
+                      selectedFilters: (filterSettings.selectedFilters || []).filter(
+                        (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
+                      ),
+                    })
+                  }
+                  onClear={() => onFilterChange?.({ ...filterSettings, selectedFilters: [] })}
+                />
+              )}
+            </Stack>
+          </DataGridToolbar>
+        )}
 
         {/* Rules Table */}
         {rules.length === 0 ? (
           <Trans>There are no rules for this security group</Trans>
         ) : (
-          <DataGrid columns={readOnly ? 5 : 6} className="security-group-rules-table">
+          <DataGrid columns={canDeleteRule ? 6 : 5} className="security-group-rules-table">
             <DataGridRow>
               <DataGridHeadCell>{t`Direction`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Ethertype`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Protocol`}</DataGridHeadCell>
               <DataGridHeadCell>{t`Range`}</DataGridHeadCell>
-              {!readOnly && <DataGridHeadCell>{t`Actions`}</DataGridHeadCell>}
+              {canDeleteRule && <DataGridHeadCell>{t`Actions`}</DataGridHeadCell>}
             </DataGridRow>
             {rules.map((rule) => (
               <DataGridRow key={rule.id} data-testid={`rule-row-${rule.id}`}>
@@ -150,7 +241,7 @@ export function SecurityGroupRulesTable({
                 <DataGridCell>{rule.ethertype}</DataGridCell>
                 <DataGridCell>{rule.protocol || t`-`}</DataGridCell>
                 <DataGridCell>{formatPortRange(rule)}</DataGridCell>
-                {!readOnly && (
+                {canDeleteRule && (
                   <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end justify-end pr-0">
                     <PopupMenu>
                       <PopupMenuOptions>
@@ -166,7 +257,7 @@ export function SecurityGroupRulesTable({
       </Stack>
 
       {/* Delete Confirmation Dialog */}
-      {!readOnly && (
+      {canDeleteRule && (
         <DeleteRuleDialog
           rule={ruleToDelete}
           open={!!ruleToDelete}
@@ -178,7 +269,7 @@ export function SecurityGroupRulesTable({
       )}
 
       {/* Add Rule Modal */}
-      {!readOnly && securityGroupId && onCreateRule && isAddRuleModalOpen && (
+      {canCreateRule && securityGroupId && onCreateRule && isAddRuleModalOpen && (
         <AddRuleModal
           securityGroupId={securityGroupId}
           open={isAddRuleModalOpen}

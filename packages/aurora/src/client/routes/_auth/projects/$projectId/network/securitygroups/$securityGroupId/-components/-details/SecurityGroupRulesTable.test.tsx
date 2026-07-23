@@ -100,9 +100,19 @@ describe("SecurityGroupRulesTable", () => {
 
   describe("Rendering", () => {
     it("renders empty state when no rules provided", () => {
-      render(<SecurityGroupRulesTable rules={[]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />, {
-        wrapper: createWrapper(),
-      })
+      render(
+        <SecurityGroupRulesTable
+          rules={[]}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
+        {
+          wrapper: createWrapper(),
+        }
+      )
 
       expect(screen.getByText("There are no rules for this security group")).toBeInTheDocument()
     })
@@ -115,6 +125,8 @@ describe("SecurityGroupRulesTable", () => {
           isDeletingRule={false}
           deleteError={null}
           searchTerm="nonexistent"
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -124,7 +136,14 @@ describe("SecurityGroupRulesTable", () => {
 
     it("renders table with rules when provided", () => {
       render(
-        <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
         { wrapper: createWrapper() }
       )
 
@@ -136,7 +155,14 @@ describe("SecurityGroupRulesTable", () => {
 
     it("renders all column headers correctly", () => {
       render(
-        <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
         { wrapper: createWrapper() }
       )
 
@@ -160,6 +186,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           securityGroupId="sg-123"
           onCreateRule={onCreateRule}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -169,7 +197,14 @@ describe("SecurityGroupRulesTable", () => {
 
     it("does not render Add rule button when onCreateRule not provided", () => {
       render(
-        <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
         { wrapper: createWrapper() }
       )
 
@@ -187,6 +222,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           filterSettings={defaultFilterSettings}
           onFilterChange={vi.fn()}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -206,6 +243,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           filterSettings={defaultFilterSettings}
           onFilterChange={onFilterChange}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -243,11 +282,13 @@ describe("SecurityGroupRulesTable", () => {
           isDeletingRule={false}
           deleteError={null}
           onSearchChange={vi.fn()}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
 
-      expect(screen.getByPlaceholderText("Search...")).toBeInTheDocument()
+      expect(screen.getByPlaceholderText("Search rules...")).toBeInTheDocument()
     })
 
     it("calls onSearchChange when search input changes", async () => {
@@ -259,11 +300,13 @@ describe("SecurityGroupRulesTable", () => {
           isDeletingRule={false}
           deleteError={null}
           onSearchChange={onSearchChange}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
 
-      const searchInput = screen.getByPlaceholderText("Search...")
+      const searchInput = screen.getByPlaceholderText("Search rules...")
       const user = userEvent.setup()
       await user.type(searchInput, "HTTP")
 
@@ -288,6 +331,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           filterSettings={filterSettingsWithIngress}
           onFilterChange={vi.fn()}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -315,6 +360,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           filterSettings={filterSettingsWithFilter}
           onFilterChange={onFilterChange}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -340,6 +387,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           sortSettings={defaultSortSettings}
           onSortChange={vi.fn()}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -358,6 +407,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           sortSettings={defaultSortSettings}
           onSortChange={onSortChange}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -389,6 +440,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           sortSettings={defaultSortSettings}
           onSortChange={vi.fn()}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -407,6 +460,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           sortSettings={defaultSortSettings}
           onSortChange={onSortChange}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -430,6 +485,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           sortSettings={{ ...defaultSortSettings, sortDirection: "asc" }}
           onSortChange={vi.fn()}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -449,6 +506,8 @@ describe("SecurityGroupRulesTable", () => {
           deleteError={null}
           sortSettings={{ ...defaultSortSettings, sortDirection: "desc" }}
           onSortChange={vi.fn()}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
@@ -463,7 +522,14 @@ describe("SecurityGroupRulesTable", () => {
     it("formats single port correctly", () => {
       const rule = mockRules[0] // port 80
       render(
-        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        <SecurityGroupRulesTable
+          rules={[rule]}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
         { wrapper: createWrapper() }
       )
 
@@ -477,7 +543,14 @@ describe("SecurityGroupRulesTable", () => {
         port_range_max: 443,
       }
       render(
-        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        <SecurityGroupRulesTable
+          rules={[rule]}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
         { wrapper: createWrapper() }
       )
 
@@ -487,7 +560,14 @@ describe("SecurityGroupRulesTable", () => {
     it("formats ICMP type and code correctly", () => {
       const rule = mockRules[2] // ICMP with type 8, code 0
       render(
-        <SecurityGroupRulesTable rules={[rule]} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        <SecurityGroupRulesTable
+          rules={[rule]}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
         { wrapper: createWrapper() }
       )
 
@@ -498,7 +578,14 @@ describe("SecurityGroupRulesTable", () => {
   describe("Delete Functionality", () => {
     it("renders delete menu items for each rule", () => {
       render(
-        <SecurityGroupRulesTable rules={mockRules} onDeleteRule={vi.fn()} isDeletingRule={false} deleteError={null} />,
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
         { wrapper: createWrapper() }
       )
 
@@ -515,6 +602,8 @@ describe("SecurityGroupRulesTable", () => {
           onDeleteRule={onDeleteRule}
           isDeletingRule={false}
           deleteError={null}
+          canCreateRule={true}
+          canDeleteRule={true}
         />,
         { wrapper: createWrapper() }
       )
