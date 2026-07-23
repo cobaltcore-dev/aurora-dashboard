@@ -306,7 +306,7 @@ function EditImageMetadataModalInner({
                       errortext={errors[`edit-${index}`]}
                     />
                   ) : (
-                    <span className="jn:text-theme-high block max-w-xs truncate font-mono" title={entry.key}>
+                    <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
                       {entry.key}
                     </span>
                   )}
