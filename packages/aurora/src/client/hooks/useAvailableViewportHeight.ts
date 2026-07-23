@@ -41,7 +41,7 @@ export function useAvailableViewportHeight<T extends HTMLElement>(bottomGap: num
   }, [])
 
   useLayoutEffect(() => {
-    if (!element || typeof ResizeObserver === "undefined") return
+    if (!element) return
 
     let frame = 0
 
@@ -66,19 +66,24 @@ export function useAvailableViewportHeight<T extends HTMLElement>(bottomGap: num
 
     measure()
 
-    const observer = new ResizeObserver(scheduleMeasure)
-    observer.observe(document.body)
-    // Ancestors too: inside a fixed-height shell the body never changes size,
-    // but the container holding the banner does. The element itself is
-    // deliberately not observed — its height is ours to set.
-    for (let node = element.parentElement; node && node !== document.body; node = node.parentElement) {
-      observer.observe(node)
+    // ResizeObserver is an enhancement, not a requirement: where it is missing
+    // (jsdom, older environments) the initial measurement and window resizes
+    // still work, and the element must never be left unsized.
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleMeasure)
+    if (observer) {
+      observer.observe(document.body)
+      // Ancestors too: inside a fixed-height shell the body never changes size,
+      // but the container holding the banner does. The element itself is
+      // deliberately not observed — its height is ours to set.
+      for (let node = element.parentElement; node && node !== document.body; node = node.parentElement) {
+        observer.observe(node)
+      }
     }
 
     window.addEventListener("resize", scheduleMeasure)
     return () => {
       if (frame !== 0) cancelAnimationFrame(frame)
-      observer.disconnect()
+      observer?.disconnect()
       window.removeEventListener("resize", scheduleMeasure)
     }
   }, [element, bottomGap])
