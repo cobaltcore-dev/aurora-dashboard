@@ -1,5 +1,4 @@
-import { useRef, useEffect, useState } from "react"
-import { useVirtualizer } from "@tanstack/react-virtual"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import {
   Checkbox,
@@ -14,6 +13,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
 import { CreateBucketModal } from "./CreateBucketModal"
 import { EmptyBucketModal } from "./EmptyBucketModal"
 import { DeleteBucketModal } from "./DeleteBucketModal"
@@ -52,10 +52,20 @@ export const BucketTableView = ({
   const { t } = useLingui()
   const navigate = useNavigate()
 
-  const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [emptyModalBucket, setEmptyModalBucket] = useState<Bucket | null>(null)
   const [deleteModalBucket, setDeleteModalBucket] = useState<Bucket | null>(null)
+
+  // Height measured from the space actually left below the table, plus a
+  // virtualizer that stays silent until that height is known.
+  const {
+    ref: tableBodyRef,
+    elementRef: parentRef,
+    height: bodyHeight,
+    virtualItems,
+    totalSize,
+    measureElement,
+  } = useVirtualizedTableBody({ count: buckets.length })
 
   // Calculate scrollbar width
   useEffect(() => {
@@ -63,7 +73,7 @@ export const BucketTableView = ({
       const width = parentRef.current.offsetWidth - parentRef.current.clientWidth
       setScrollbarWidth(width)
     }
-  }, [buckets.length])
+  }, [buckets.length, bodyHeight])
 
   // Format date to localized string
   const formatDate = (dateString: string): string => {
@@ -75,13 +85,6 @@ export const BucketTableView = ({
     }
   }
 
-  const rowVirtualizer = useVirtualizer({
-    count: buckets.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48, // Estimated row height
-    overscan: 10,
-  })
-
   const handleSelectBucket = (bucketName: string) => {
     if (selectedBuckets.includes(bucketName)) {
       setSelectedBuckets(selectedBuckets.filter((name) => name !== bucketName))
@@ -89,7 +92,6 @@ export const BucketTableView = ({
       setSelectedBuckets([...selectedBuckets, bucketName])
     }
   }
-
   const isEmpty = !buckets || buckets.length === 0
 
   // Column template — drops the leading 40px selection track when bulk actions are unavailable.
@@ -147,23 +149,23 @@ export const BucketTableView = ({
             </DataGrid>
           </div>
 
-          {/* Virtualized Table Body with dynamic height */}
+          {/* Virtualized Table Body — sized to the space actually left below the
+              table, so banners above it shrink the table instead of growing the
+              page. */}
           <div
-            ref={parentRef}
+            ref={tableBodyRef}
             className="overflow-auto"
-            style={{
-              height: "calc(100vh - 490px)", // Dynamic height based on viewport
-            }}
+            style={{ height: `${bodyHeight ?? 0}px` }}
             data-testid="buckets-table-body"
           >
             <div
               style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
+                height: `${totalSize}px`,
                 width: "100%",
                 position: "relative",
               }}
             >
-              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              {virtualItems.map((virtualRow) => {
                 const bucket = buckets[virtualRow.index]
                 const isSelected = selectedBuckets.includes(bucket.name)
 
@@ -182,7 +184,7 @@ export const BucketTableView = ({
                   <div
                     key={bucket.name}
                     data-index={virtualRow.index}
-                    ref={rowVirtualizer.measureElement}
+                    ref={measureElement}
                     className="juno-datagrid group hover:bg-theme-background-lvl-1 cursor-pointer"
                     style={{
                       position: "absolute",

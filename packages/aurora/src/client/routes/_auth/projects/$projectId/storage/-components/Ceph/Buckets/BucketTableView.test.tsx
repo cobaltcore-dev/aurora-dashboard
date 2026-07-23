@@ -334,4 +334,29 @@ describe("BucketTableView", () => {
       expect(cells.length).toBeGreaterThan(0)
     })
   })
+
+  describe("Viewport height", () => {
+    test("sizes the table body from the measured viewport space, not a fixed offset", () => {
+      renderTableView()
+
+      const body = screen.getByTestId("buckets-table-body")
+
+      // A pixel value derived at runtime. A hard-coded calc(100vh - Npx) broke
+      // whenever a custom banner changed how much room was left above the table,
+      // leaving the document taller than the viewport (two scrollbars).
+      expect(body.style.height).toMatch(/^\d+px$/)
+      expect(parseInt(body.style.height, 10)).toBeGreaterThan(0)
+      expect(parseInt(body.style.height, 10)).toBeLessThanOrEqual(window.innerHeight)
+    })
+
+    test("renders rows only once the height is known", () => {
+      renderTableView()
+
+      // Rows are held back until the container is sized: an unsized container
+      // measures as tall as its content, and the virtualizer would size its
+      // range to the whole list and render every row once.
+      expect(screen.getByTestId("buckets-table-body").style.height).not.toBe("0px")
+      expect(screen.getByTestId("bucket-row-bucket-1")).toBeInTheDocument()
+    })
+  })
 })

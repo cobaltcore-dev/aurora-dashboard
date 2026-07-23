@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from "react"
-import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   Checkbox,
   DataGrid,
@@ -19,6 +18,7 @@ import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
 import { DeleteObjectModal } from "./DeleteObjectModal"
@@ -126,7 +126,6 @@ export const ObjectsTableView = ({
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const parentRef = useRef<HTMLDivElement>(null)
   const isMounted = useRef(true)
   useEffect(() => {
     isMounted.current = true
@@ -252,6 +251,17 @@ export const ObjectsTableView = ({
     }
   }
 
+  // Height measured from the space actually left below the table, plus a
+  // virtualizer that stays silent until that height is known.
+  const {
+    ref: tableBodyRef,
+    elementRef: parentRef,
+    height: bodyHeight,
+    virtualItems,
+    totalSize,
+    measureElement,
+  } = useVirtualizedTableBody({ count: rows.length })
+
   // Calculate scrollbar width
   // Pad the header right by scrollbar width to keep columns aligned with the body
   useEffect(() => {
@@ -259,21 +269,13 @@ export const ObjectsTableView = ({
       const width = parentRef.current.offsetWidth - parentRef.current.clientWidth
       setScrollbarWidth(width)
     }
-  }, [rows.length])
-
-  const rowVirtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48, // Estimated row height
-    overscan: 10,
-  })
+  }, [rows.length, bodyHeight])
 
   // Format date to localized string
   const formatDate = (dateString: string): string => {
     const d = new Date(dateString)
     return Number.isNaN(d.getTime()) ? t`N/A` : d.toLocaleString()
   }
-
   // Only object rows (not folders) are selectable
   const handleSelectObject = (name: string) => {
     if (selectedObjects.includes(name)) {
@@ -346,21 +348,23 @@ export const ObjectsTableView = ({
           </DataGrid>
         </div>
 
-        {/* Virtualized Table Body with dynamic height */}
+        {/* Virtualized Table Body — sized to the space actually left below the
+            table, so banners above it shrink the table instead of growing the
+            page. */}
         <div
-          ref={parentRef}
+          ref={tableBodyRef}
           className="overflow-auto"
-          style={{ height: "calc(100vh - 470px)" }}
+          style={{ height: `${bodyHeight ?? 0}px` }}
           data-testid="objects-table-body"
         >
           <div
             style={{
-              height: `${rowVirtualizer.getTotalSize()}px`,
+              height: `${totalSize}px`,
               width: "100%",
               position: "relative",
             }}
           >
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            {virtualItems.map((virtualRow) => {
               const row = rows[virtualRow.index]
               const isFolder = row.kind === "folder"
               const isDownloading = !isFolder && downloadingRow?.name === row.name
@@ -371,7 +375,7 @@ export const ObjectsTableView = ({
                 <div
                   key={row.name}
                   data-index={virtualRow.index}
-                  ref={rowVirtualizer.measureElement}
+                  ref={measureElement}
                   className="juno-datagrid"
                   style={{
                     position: "absolute",
