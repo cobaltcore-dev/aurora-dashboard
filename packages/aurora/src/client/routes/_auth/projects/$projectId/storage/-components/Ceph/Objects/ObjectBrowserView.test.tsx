@@ -20,6 +20,11 @@ vi.mock("./CreateFolderModal", () => ({
     isOpen ? <div data-testid="create-folder-modal">Create New Folder</div> : null,
 }))
 
+vi.mock("./UploadObjectModal", () => ({
+  UploadObjectModal: ({ isOpen }: { isOpen: boolean }) =>
+    isOpen ? <div data-testid="upload-object-modal">Upload Object Modal</div> : null,
+}))
+
 vi.mock("./ObjectsTableView", () => ({
   ObjectsTableView: () => <div data-testid="objects-table">Objects Table</div>,
 }))
@@ -262,9 +267,16 @@ describe("ObjectBrowserView", () => {
   it("shows Upload button", () => {
     render(<ObjectBrowserView bucketName="test-bucket" />)
 
-    // The component doesn't have an upload button in the current implementation
-    // It only has a Create Folder button
-    expect(screen.getByRole("button", { name: /create folder/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /upload object/i })).toBeInTheDocument()
+  })
+
+  it("opens upload modal when Upload Object is clicked", async () => {
+    const user = userEvent.setup()
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    await user.click(screen.getByRole("button", { name: /upload object/i }))
+
+    expect(screen.getByTestId("upload-object-modal")).toBeInTheDocument()
   })
 
   it("opens create folder modal when New Folder is clicked", async () => {

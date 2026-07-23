@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server"
-import { projectScopedProcedure } from "../trpc"
+import { protectedProcedure, projectScopedProcedure } from "../trpc"
 import { resolveEC2Credential } from "./middleware/resolveEC2Credential"
 import type { AuroraPortalContext } from "../context"
 import type { S3Client } from "@aws-sdk/client-s3"
@@ -115,4 +115,64 @@ export const cephProtectedProcedure = cephCredentialMiddleware.use(async functio
   }
 
   return next({ ctx })
+})
+
+/**
+ * Ceph procedure for octet-stream uploads.
+ *
+ * `octetInputParser` cannot be chained onto `cephProtectedProcedure`: that
+ * procedure is built on `projectScopedProcedure`, which bundles a `project_id`
+ * object input parser, and tRPC can't merge an object input with a raw-stream
+ * input ("All input parsers did not resolve to an object"). So this builds on
+ * the base `protectedProcedure` and rescopes manually from the
+ * `x-upload-project-id` header — mirroring `swiftRouter.uploadObject` — while
+ * exposing the same `getCephClient` factory as `cephProtectedProcedure`.
+ *
+ * The project id must arrive as a header rather than a tRPC input because the
+ * request body is the file stream. Credentials and S3 config are resolved
+ * against the rescoped session, so the S3 client targets the right project.
+ */
+export const cephUploadProcedure = protectedProcedure.use(async function resolveCephForUpload(opts) {
+  const { ctx, next } = opts
+
+  const uploadProjectId = (ctx.req.headers["x-upload-project-id"] as string | undefined)?.trim()
+  if (!uploadProjectId) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "x-upload-project-id header is required for uploads",
+    })
+  }
+
+  // Rescope the OpenStack session to the target project (projectScopedProcedure
+  // normally does this from the project_id input, which octet uploads lack).
+  const openstackSession = await ctx.rescopeSession({ projectId: uploadProjectId })
+  if (!openstackSession) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Failed to scope session to project. User may not have access to this project.",
+    })
+  }
+
+  // Resolve EC2 credentials and S3 endpoint/region against the rescoped session
+  // so the S3 client is built for the upload's project, not the request default.
+  const scopedCtx = { ...ctx, openstack: openstackSession }
+  const credentials = await resolveEC2Credential(scopedCtx)
+  if (!credentials) {
+    throw new TRPCError({ code: "FORBIDDEN", message: NO_CEPH_CREDENTIALS })
+  }
+  const { endpoint, region } = resolveS3Config(scopedCtx)
+
+  // Spread scopedCtx (not ctx) so downstream resolvers see the *rescoped*
+  // openstack session — otherwise ctx.openstack would still be the pre-rescope
+  // session, making auth/scoping inconsistent with the S3 client we just built
+  // and preventing anything downstream from reading the upload's project id off
+  // the token.
+  return next({
+    ctx: {
+      ...scopedCtx,
+      cephCredentials: credentials,
+      cephRegion: region,
+      getCephClient: (): S3Client => createS3Client(credentials.access, credentials.secret, endpoint, region),
+    },
+  })
 })
