@@ -346,7 +346,7 @@ export const EditMetadataModal = ({
               <span className="text-theme-light text-right">
                 <Trans>Content type</Trans>
               </span>
-              <span className=" ">{objectDetails?.contentType ?? "—"}</span>
+              <span>{objectDetails?.contentType ?? "—"}</span>
 
               <span className="text-theme-light text-right">
                 <Trans>ETag</Trans>
