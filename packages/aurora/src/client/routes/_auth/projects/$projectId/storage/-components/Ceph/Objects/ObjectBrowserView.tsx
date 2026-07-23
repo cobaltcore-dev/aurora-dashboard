@@ -470,11 +470,11 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               }
               onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
             />
-            <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
-              <Trans>Create Folder</Trans>
-            </Button>
             <Button className="whitespace-nowrap" onClick={() => setIsUploadModalOpen(true)}>
               <Trans>Upload Object</Trans>
+            </Button>
+            <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
+              <Trans>Create Folder</Trans>
             </Button>
           </Stack>
         </Stack>
