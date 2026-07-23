@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from "react"
-import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   Checkbox,
   DataGrid,
@@ -19,7 +18,7 @@ import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { useAvailableViewportHeight } from "@/client/hooks/useAvailableViewportHeight"
+import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
 import { DeleteFolderModal } from "./DeleteFolderModal"
 import { DeleteObjectModal } from "./DeleteObjectModal"
@@ -127,10 +126,6 @@ export const ObjectsTableView = ({
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  // Measured instead of hard-coded: everything above the table (page banner
-  // slot, breadcrumbs, toolbar) can change height, so a fixed offset leaves the
-  // body taller than the viewport → two scrollbars.
-  const { ref: tableBodyRef, elementRef: parentRef, height: bodyHeight } = useAvailableViewportHeight<HTMLDivElement>()
   const isMounted = useRef(true)
   useEffect(() => {
     isMounted.current = true
@@ -256,6 +251,17 @@ export const ObjectsTableView = ({
     }
   }
 
+  // Height measured from the space actually left below the table, plus a
+  // virtualizer that stays silent until that height is known.
+  const {
+    ref: tableBodyRef,
+    elementRef: parentRef,
+    height: bodyHeight,
+    virtualItems,
+    totalSize,
+    measureElement,
+  } = useVirtualizedTableBody({ count: rows.length })
+
   // Calculate scrollbar width
   // Pad the header right by scrollbar width to keep columns aligned with the body
   useEffect(() => {
@@ -265,27 +271,11 @@ export const ObjectsTableView = ({
     }
   }, [rows.length, bodyHeight])
 
-  const rowVirtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48, // Estimated row height
-    overscan: 10,
-  })
-
-  // Hold the rows back until the height is known. An unsized scroll container
-  // measures as tall as its content, so the virtualizer would size its range to
-  // the whole list and render every row once, before the real height lands —
-  // cheap for a short list, very visible for a long one.
-  const isMeasured = bodyHeight !== undefined
-  const virtualItems = isMeasured ? rowVirtualizer.getVirtualItems() : []
-  const totalSize = isMeasured ? rowVirtualizer.getTotalSize() : 0
-
   // Format date to localized string
   const formatDate = (dateString: string): string => {
     const d = new Date(dateString)
     return Number.isNaN(d.getTime()) ? t`N/A` : d.toLocaleString()
   }
-
   // Only object rows (not folders) are selectable
   const handleSelectObject = (name: string) => {
     if (selectedObjects.includes(name)) {
@@ -385,7 +375,7 @@ export const ObjectsTableView = ({
                 <div
                   key={row.name}
                   data-index={virtualRow.index}
-                  ref={rowVirtualizer.measureElement}
+                  ref={measureElement}
                   className="juno-datagrid"
                   style={{
                     position: "absolute",

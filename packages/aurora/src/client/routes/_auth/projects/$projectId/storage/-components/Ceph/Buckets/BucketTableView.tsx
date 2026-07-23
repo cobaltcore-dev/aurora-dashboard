@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useVirtualizer } from "@tanstack/react-virtual"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import {
   Checkbox,
@@ -14,7 +13,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { useAvailableViewportHeight } from "@/client/hooks/useAvailableViewportHeight"
+import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
 import { CreateBucketModal } from "./CreateBucketModal"
 import { EmptyBucketModal } from "./EmptyBucketModal"
 import { DeleteBucketModal } from "./DeleteBucketModal"
@@ -53,13 +52,20 @@ export const BucketTableView = ({
   const { t } = useLingui()
   const navigate = useNavigate()
 
-  // Measured instead of hard-coded: everything above the table (page banner
-  // slot, breadcrumbs, toolbar) can change height, so a fixed offset leaves the
-  // body taller than the viewport → two scrollbars.
-  const { ref: tableBodyRef, elementRef: parentRef, height: bodyHeight } = useAvailableViewportHeight<HTMLDivElement>()
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [emptyModalBucket, setEmptyModalBucket] = useState<Bucket | null>(null)
   const [deleteModalBucket, setDeleteModalBucket] = useState<Bucket | null>(null)
+
+  // Height measured from the space actually left below the table, plus a
+  // virtualizer that stays silent until that height is known.
+  const {
+    ref: tableBodyRef,
+    elementRef: parentRef,
+    height: bodyHeight,
+    virtualItems,
+    totalSize,
+    measureElement,
+  } = useVirtualizedTableBody({ count: buckets.length })
 
   // Calculate scrollbar width
   useEffect(() => {
@@ -79,21 +85,6 @@ export const BucketTableView = ({
     }
   }
 
-  const rowVirtualizer = useVirtualizer({
-    count: buckets.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48, // Estimated row height
-    overscan: 10,
-  })
-
-  // Hold the rows back until the height is known. An unsized scroll container
-  // measures as tall as its content, so the virtualizer would size its range to
-  // the whole list and render every row once, before the real height lands —
-  // cheap for a short list, very visible for a long one.
-  const isMeasured = bodyHeight !== undefined
-  const virtualItems = isMeasured ? rowVirtualizer.getVirtualItems() : []
-  const totalSize = isMeasured ? rowVirtualizer.getTotalSize() : 0
-
   const handleSelectBucket = (bucketName: string) => {
     if (selectedBuckets.includes(bucketName)) {
       setSelectedBuckets(selectedBuckets.filter((name) => name !== bucketName))
@@ -101,7 +92,6 @@ export const BucketTableView = ({
       setSelectedBuckets([...selectedBuckets, bucketName])
     }
   }
-
   const isEmpty = !buckets || buckets.length === 0
 
   // Column template — drops the leading 40px selection track when bulk actions are unavailable.
@@ -194,7 +184,7 @@ export const BucketTableView = ({
                   <div
                     key={bucket.name}
                     data-index={virtualRow.index}
-                    ref={rowVirtualizer.measureElement}
+                    ref={measureElement}
                     className="juno-datagrid group hover:bg-theme-background-lvl-1 cursor-pointer"
                     style={{
                       position: "absolute",

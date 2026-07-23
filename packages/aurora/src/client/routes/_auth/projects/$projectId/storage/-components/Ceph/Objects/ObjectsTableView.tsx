@@ -1,5 +1,4 @@
 import { useEffect, useState, useSyncExternalStore } from "react"
-import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   DataGrid,
   DataGridRow,
@@ -18,7 +17,7 @@ import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { useAvailableViewportHeight } from "@/client/hooks/useAvailableViewportHeight"
+import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
 import { getObjectDownloadCancelledToast } from "./ObjectToastNotifications"
 import {
@@ -157,10 +156,6 @@ export function ObjectsTableView({
 }: ObjectsTableViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  // Measured instead of hard-coded: everything above the table (page banner
-  // slot, breadcrumbs, toolbar) can change height, so a fixed offset leaves the
-  // body taller than the viewport → two scrollbars.
-  const { ref: tableBodyRef, elementRef: parentRef, height: bodyHeight } = useAvailableViewportHeight<HTMLDivElement>()
   // In-flight transfers are owned by the module store (outside React) so they
   // survive this component unmounting during folder navigation. We only read
   // them here for rendering.
@@ -276,6 +271,17 @@ export function ObjectsTableView({
           ),
         ]
 
+  // Height measured from the space actually left below the table, plus a
+  // virtualizer that stays silent until that height is known.
+  const {
+    ref: tableBodyRef,
+    elementRef: parentRef,
+    height: bodyHeight,
+    virtualItems,
+    totalSize,
+    measureElement,
+  } = useVirtualizedTableBody({ count: rows.length })
+
   // Calculate scrollbar width to keep the fixed header aligned with the scrollable body
   useEffect(() => {
     if (parentRef.current) {
@@ -283,21 +289,6 @@ export function ObjectsTableView({
       setScrollbarWidth(width)
     }
   }, [rows.length, bodyHeight])
-
-  const rowVirtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48,
-    overscan: 10,
-  })
-
-  // Hold the rows back until the height is known. An unsized scroll container
-  // measures as tall as its content, so the virtualizer would size its range to
-  // the whole list and render every row once, before the real height lands —
-  // cheap for a short list, very visible for a long one.
-  const isMeasured = bodyHeight !== undefined
-  const virtualItems = isMeasured ? rowVirtualizer.getVirtualItems() : []
-  const totalSize = isMeasured ? rowVirtualizer.getTotalSize() : 0
 
   if (rows.length === 0) {
     return (
@@ -339,7 +330,6 @@ export function ObjectsTableView({
       </>
     )
   }
-
   return (
     <>
       <div className="relative">
@@ -393,7 +383,7 @@ export function ObjectsTableView({
                 <div
                   key={isFolder ? row.prefix : isVersion ? `${row.key}-${row.versionId}` : row.key}
                   data-index={virtualRow.index}
-                  ref={rowVirtualizer.measureElement}
+                  ref={measureElement}
                   className="juno-datagrid"
                   style={{
                     position: "absolute",

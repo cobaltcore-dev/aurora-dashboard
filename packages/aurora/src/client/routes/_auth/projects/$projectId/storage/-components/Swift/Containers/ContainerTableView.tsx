@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useVirtualizer } from "@tanstack/react-virtual"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import {
   Checkbox,
@@ -14,7 +13,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { useAvailableViewportHeight } from "@/client/hooks/useAvailableViewportHeight"
+import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
 import { CreateContainerModal } from "./CreateContainerModal"
 import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
@@ -70,15 +69,22 @@ export const ContainerTableView = ({
   const { t } = useLingui()
   const navigate = useNavigate()
 
-  // Measured instead of hard-coded: everything above the table (page banner
-  // slot, breadcrumbs, toolbar) can change height, so a fixed offset leaves the
-  // body taller than the viewport → two scrollbars.
-  const { ref: tableBodyRef, elementRef: parentRef, height: bodyHeight } = useAvailableViewportHeight<HTMLDivElement>()
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [emptyModalContainer, setEmptyModalContainer] = useState<ContainerSummary | null>(null)
   const [deleteModalContainer, setDeleteModalContainer] = useState<ContainerSummary | null>(null)
   const [propertiesModalContainer, setPropertiesModalContainer] = useState<ContainerSummary | null>(null)
   const [accessControlModalContainer, setAccessControlModalContainer] = useState<ContainerSummary | null>(null)
+
+  // Height measured from the space actually left below the table, plus a
+  // virtualizer that stays silent until that height is known.
+  const {
+    ref: tableBodyRef,
+    elementRef: parentRef,
+    height: bodyHeight,
+    virtualItems,
+    totalSize,
+    measureElement,
+  } = useVirtualizedTableBody({ count: containers.length })
 
   // Calculate scrollbar width
   useEffect(() => {
@@ -98,21 +104,6 @@ export const ContainerTableView = ({
     }
   }
 
-  const rowVirtualizer = useVirtualizer({
-    count: containers.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48, // Estimated row height
-    overscan: 10,
-  })
-
-  // Hold the rows back until the height is known. An unsized scroll container
-  // measures as tall as its content, so the virtualizer would size its range to
-  // the whole list and render every row once, before the real height lands —
-  // cheap for a short list, very visible for a long one.
-  const isMeasured = bodyHeight !== undefined
-  const virtualItems = isMeasured ? rowVirtualizer.getVirtualItems() : []
-  const totalSize = isMeasured ? rowVirtualizer.getTotalSize() : 0
-
   const handleSelectContainer = (containerName: string) => {
     if (selectedContainers.includes(containerName)) {
       setSelectedContainers(selectedContainers.filter((name) => name !== containerName))
@@ -120,7 +111,6 @@ export const ContainerTableView = ({
       setSelectedContainers([...selectedContainers, containerName])
     }
   }
-
   if (!containers || containers.length === 0) {
     return (
       <>
@@ -220,7 +210,7 @@ export const ContainerTableView = ({
                 <div
                   key={container.name}
                   data-index={virtualRow.index}
-                  ref={rowVirtualizer.measureElement}
+                  ref={measureElement}
                   className="juno-datagrid group hover:bg-theme-background-lvl-1 cursor-pointer"
                   style={{
                     position: "absolute",
