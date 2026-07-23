@@ -6,7 +6,7 @@
     "build": "vite build --mode=production",
     "clean": "rm -rf dist && rm -rf node_modules && rm -rf .turbo",
     "clean:cache": "rm -rf .turbo",
-    "dev": "sh scripts/dev.sh",
+    "dev": "tsx watch --env-file=.env --tsconfig tsconfig.server.json --watch-kill-signal=SIGKILL --include ../../packages/aurora/src/server --include ../../packages/aurora/src/types --include ../../packages/policy-engine/src --include ../../packages/signal-openstack/src --exclude '**/*.test.ts' src/server/server.ts",
     "preview": "NODE_ENV=production tsx --env-file=.env src/server/server.ts",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
