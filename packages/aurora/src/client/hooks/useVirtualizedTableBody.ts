@@ -44,6 +44,8 @@ export function useVirtualizedTableBody({
     overscan,
   })
 
+  // `undefined` is the only unmeasured state: once measured the height is
+  // clamped to a minimum by useAvailableViewportHeight, so it is never 0.
   const isMeasured = height !== undefined
 
   return {
