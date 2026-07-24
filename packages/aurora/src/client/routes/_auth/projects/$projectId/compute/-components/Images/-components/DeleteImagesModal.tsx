@@ -78,7 +78,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
                 <div className="jn:bg-theme-background-lvl-1 max-h-24 overflow-y-auto rounded p-4">
                   <ul className="space-y-2">
                     {deletableImages.map((imageId) => (
-                      <li key={imageId} className="jn:text-theme-default font-mono">
+                      <li key={imageId} className="jn:text-theme-default">
                         {imageId}
                       </li>
                     ))}
@@ -97,7 +97,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
               <div className="jn:bg-theme-warning/10 max-h-24 overflow-y-auto rounded border border-yellow-500/20 p-4">
                 <ul className="space-y-2">
                   {protectedImages.map((imageId) => (
-                    <li key={imageId} className="jn:text-theme-default font-mono">
+                    <li key={imageId} className="jn:text-theme-default">
                       {imageId}
                     </li>
                   ))}
