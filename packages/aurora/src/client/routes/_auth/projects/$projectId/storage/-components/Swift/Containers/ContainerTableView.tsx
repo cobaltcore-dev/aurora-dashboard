@@ -1,5 +1,4 @@
-import { useRef, useEffect, useState } from "react"
-import { useVirtualizer } from "@tanstack/react-virtual"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import {
   Checkbox,
@@ -14,6 +13,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
 import { CreateContainerModal } from "./CreateContainerModal"
 import { EmptyContainerModal } from "./EmptyContainerModal"
 import { DeleteContainerModal } from "./DeleteContainerModal"
@@ -69,12 +69,22 @@ export const ContainerTableView = ({
   const { t } = useLingui()
   const navigate = useNavigate()
 
-  const parentRef = useRef<HTMLDivElement>(null)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [emptyModalContainer, setEmptyModalContainer] = useState<ContainerSummary | null>(null)
   const [deleteModalContainer, setDeleteModalContainer] = useState<ContainerSummary | null>(null)
   const [propertiesModalContainer, setPropertiesModalContainer] = useState<ContainerSummary | null>(null)
   const [accessControlModalContainer, setAccessControlModalContainer] = useState<ContainerSummary | null>(null)
+
+  // Height measured from the space actually left below the table, plus a
+  // virtualizer that stays silent until that height is known.
+  const {
+    ref: tableBodyRef,
+    elementRef: parentRef,
+    height: bodyHeight,
+    virtualItems,
+    totalSize,
+    measureElement,
+  } = useVirtualizedTableBody({ count: containers.length })
 
   // Calculate scrollbar width
   useEffect(() => {
@@ -82,7 +92,7 @@ export const ContainerTableView = ({
       const width = parentRef.current.offsetWidth - parentRef.current.clientWidth
       setScrollbarWidth(width)
     }
-  }, [containers.length])
+  }, [containers.length, bodyHeight])
 
   // Format date to localized string
   const formatDate = (dateString: string): string => {
@@ -94,13 +104,6 @@ export const ContainerTableView = ({
     }
   }
 
-  const rowVirtualizer = useVirtualizer({
-    count: containers.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 48, // Estimated row height
-    overscan: 10,
-  })
-
   const handleSelectContainer = (containerName: string) => {
     if (selectedContainers.includes(containerName)) {
       setSelectedContainers(selectedContainers.filter((name) => name !== containerName))
@@ -108,7 +111,6 @@ export const ContainerTableView = ({
       setSelectedContainers([...selectedContainers, containerName])
     }
   }
-
   if (!containers || containers.length === 0) {
     return (
       <>
@@ -178,25 +180,23 @@ export const ContainerTableView = ({
           </DataGrid>
         </div>
 
-        {/* Virtualized Table Body with dynamic height */}
+        {/* Virtualized Table Body — sized to the space actually left below the
+            table, so banners above it shrink the table instead of growing the
+            page. */}
         <div
-          ref={parentRef}
+          ref={tableBodyRef}
           className="overflow-auto"
-          style={{
-            height: "calc(100vh - 490px)", // Dynamic height based on viewport
-            // minHeight: "400px", // Minimum height for usability
-            // maxHeight: "800px", // Maximum height to prevent overflow
-          }}
+          style={{ height: `${bodyHeight ?? 0}px` }}
           data-testid="containers-table-body"
         >
           <div
             style={{
-              height: `${rowVirtualizer.getTotalSize()}px`,
+              height: `${totalSize}px`,
               width: "100%",
               position: "relative",
             }}
           >
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            {virtualItems.map((virtualRow) => {
               const container = containers[virtualRow.index]
               const isSelected = selectedContainers.includes(container.name)
 
@@ -210,7 +210,7 @@ export const ContainerTableView = ({
                 <div
                   key={container.name}
                   data-index={virtualRow.index}
-                  ref={rowVirtualizer.measureElement}
+                  ref={measureElement}
                   className="juno-datagrid group hover:bg-theme-background-lvl-1 cursor-pointer"
                   style={{
                     position: "absolute",
