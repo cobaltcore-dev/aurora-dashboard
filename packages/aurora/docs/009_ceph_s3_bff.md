@@ -143,6 +143,16 @@ Extends `cephCredentialMiddleware` with an additional layer that:
 - Throws `TRPCError({ code: "FORBIDDEN", message: NO_CEPH_CREDENTIALS })` if `ctx.cephCredentials` is `null`
 - Used for all actual S3 operations (list buckets, get objects, etc.)
 
+#### `cephUploadProcedure`
+
+A dedicated procedure for octet-stream uploads (`uploadObject`). It exists because `octetInputParser` **cannot** be chained onto `cephProtectedProcedure`: that procedure is built on `projectScopedProcedure`, which bundles a `project_id` object input, and tRPC refuses to merge an object input parser with a raw-stream parser (`"All input parsers did not resolve to an object"`). This is the same reason the Swift BFF's `uploadObject` runs on the base `protectedProcedure`.
+
+Instead of a tRPC input, it takes the project id from the `x-upload-project-id` request header (the body is the file), then:
+
+1. Rescopes the OpenStack session to that project via `ctx.rescopeSession({ projectId })` (throws `UNAUTHORIZED` if the user can't access the project)
+2. Resolves EC2 credentials and S3 endpoint/region against the rescoped session (throws `FORBIDDEN` / `NO_CEPH_CREDENTIALS` if none)
+3. Exposes the same `getCephClient(): S3Client` factory as `cephProtectedProcedure`, so the S3 client targets the upload's project
+
 ## tRPC Router Hierarchy
 
 ```typescript
@@ -853,6 +863,112 @@ await trpc.storage.ceph.objects.updateMetadata.mutate({
 - Metadata keys are automatically prefixed with `x-amz-meta-` by S3
 - This operation does not re-upload the object content
 - Only metadata is changed; ETag remains the same
+
+---
+
+#### `uploadObject`
+
+Uploads a file to a bucket by streaming the request body through the BFF into an S3 `PutObjectCommand`. The body is consumed via `octetInputParser`, so the object is never buffered whole in memory; per-chunk progress is published so a concurrent `watchUploadProgress` subscription can drive a progress bar. Mirrors the Swift BFF `uploadObject`.
+
+Because the request body **is** the raw file, all metadata travels as custom request headers rather than a tRPC input, and the procedure runs on `cephUploadProcedure` (see [Middleware Layers](#3-middleware-layers)) which rescopes from `x-upload-project-id`.
+
+**Request headers:**
+
+| Header                | Required | Description                                                                                     |
+| --------------------- | -------- | ----------------------------------------------------------------------------------------------- |
+| `x-upload-project-id` | yes      | Project id — rescopes the S3 client and scopes progress so tenants can't observe each other     |
+| `x-upload-container`  | yes      | Target bucket name                                                                              |
+| `x-upload-object`     | yes      | Full object key, e.g. `folder/file.txt`                                                         |
+| `x-upload-type`       | no       | MIME type detected client-side (defaults to `application/octet-stream`)                         |
+| `x-upload-size`       | yes      | File size in bytes — used as the S3 `ContentLength` (required for a streaming body)             |
+| `x-upload-id`         | yes      | Client-computed `<bucket>:<objectKey>:<uuid>` correlating the upload with `watchUploadProgress` |
+
+**Input:** the raw file stream (`octetInputParser`); there is no JSON input object.
+
+**Output:**
+
+```typescript
+{
+  success: true
+}
+```
+
+**Example:**
+
+```typescript
+const uploadId = `${bucket}:${objectKey}:${crypto.randomUUID()}`
+
+// Open the progress subscription first (see watchUploadProgress), then:
+await trpcClient.storage.ceph.objects.uploadObject.mutate(file, {
+  context: {
+    headers: {
+      "x-upload-project-id": "abc123",
+      "x-upload-container": "my-bucket",
+      "x-upload-object": "documents/report.pdf",
+      "x-upload-type": file.type || "application/octet-stream",
+      "x-upload-size": String(file.size),
+      "x-upload-id": uploadId,
+    },
+  },
+  signal: abortController.signal, // Cancel button / tab close aborts the PUT
+})
+```
+
+**Notes:**
+
+- `ContentLength` (from `x-upload-size`) is required because S3/Ceph needs the object size up front for a streaming `Body`.
+- Cancellation is wired through `ctx.req.signal` to the AWS SDK's `{ abortSignal }`; a user-initiated abort is surfaced to the caller as a rejection (the modal reports "cancelled") but is **not** pushed to the progress watcher.
+- Progress is scoped by `project_id`, so a user can never observe another tenant's transfer.
+- Multipart upload is **not** used — a single `PutObjectCommand` streams the whole body. See Known Issues for large-file implications.
+
+---
+
+#### `watchUploadProgress`
+
+Subscribes to live progress for an in-flight upload identified by `uploadId`. Open this **before** calling `uploadObject` so no early events are missed; a snapshot of current progress is emitted immediately for late subscribers. Mirrors `watchDownloadProgress`.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  uploadId: string   // Same id passed to uploadObject via x-upload-id
+}
+```
+
+**Output:** an async iterable (subscription) yielding progress:
+
+```typescript
+{
+  uploaded: number,  // cumulative bytes streamed to S3
+  total: number,     // total file size in bytes (from x-upload-size)
+  percent: number    // 0–100 (0 when total is unknown)
+}
+```
+
+**Example:**
+
+```typescript
+const uploadId = `${bucket}:${objectKey}:${crypto.randomUUID()}`
+
+trpc.storage.ceph.objects.watchUploadProgress.subscribe(
+  { project_id: "abc123", uploadId },
+  { onData: ({ percent }) => setProgress(percent) }
+)
+
+await trpcClient.storage.ceph.objects.uploadObject.mutate(file, {
+  context: {
+    headers: {
+      /* x-upload-* headers, including x-upload-id: uploadId */
+    },
+  },
+})
+```
+
+**Notes:**
+
+- The subscription completes when the upload finishes and re-throws if the upload errors (except on abort).
+- If no events arrive within 30 s (e.g. the upload finished before the subscription opened), it ends gracefully rather than hanging.
 
 ---
 
@@ -1662,7 +1778,7 @@ console.log("Old credential deleted")
 | **Object Hierarchy** | `delimiter` + `prefix`                    | `delimiter` + `prefix`                 |
 | **Metadata**         | User metadata via `x-amz-meta-`           | Custom headers via `X-Object-Meta-`    |
 | **Large Objects**    | Multipart uploads                         | Static/Dynamic Large Objects (SLO/DLO) |
-| **Uploads**          | (Not yet implemented)                     | `octetInputParser` streaming           |
+| **Uploads**          | `octetInputParser` streaming (+ progress) | `octetInputParser` streaming           |
 | **Downloads**        | Async iterable base64 chunks (+ progress) | Async iterable base64 chunks           |
 | **Temporary URLs**   | Presigned URLs (not yet impl)             | HMAC-SHA256 signed temp URLs           |
 
@@ -1686,9 +1802,9 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
    - Configure bucket policies, CORS, lifecycle rules
 
 2. **Object Upload/Download**
-   - Upload object (`PutObjectCommand`)
+   - ~~Upload object (`PutObjectCommand`)~~ ✅ Implemented — streamed through the BFF via `octetInputParser`, with a `watchUploadProgress` subscription for progress
    - ~~Download object (`GetObjectCommand`)~~ ✅ Implemented — streamed through the BFF as a tRPC async iterable, with a `watchDownloadProgress` subscription for progress
-   - Streaming upload via tRPC (similar to Swift BFF `uploadObject`)
+   - ~~Streaming upload via tRPC (similar to Swift BFF `uploadObject`)~~ ✅ Implemented
    - Multipart uploads for large files
 
 3. **Object Manipulation**
@@ -1714,7 +1830,7 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
 
 - **No credential caching:** Credentials are fetched from Keystone on every request
 - **No S3 client pooling:** A new client is instantiated per request
-- **No multipart upload support:** Large file uploads may timeout
+- **No multipart upload support:** uploads stream through a single `PutObjectCommand`; very large files may time out
 - **No presigned URL generation:** All operations must go through the BFF
 - **No bulk delete support:** Objects must be deleted one at a time (can be slow for large folders)
 
@@ -1728,7 +1844,10 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
 pnpm test apps/aurora-portal/src/server/Storage/routers/ec2CredentialRouter.test.ts
 pnpm test apps/aurora-portal/src/server/Storage/routers/containerRouter.test.ts
 pnpm test apps/aurora-portal/src/server/Storage/routers/objectRouter.test.ts
+pnpm test apps/aurora-portal/src/server/Storage/cephProcedure.test.ts
 ```
+
+Object upload is covered across `objectRouter.test.ts` (`uploadObject` / `watchUploadProgress`), `cephProcedure.test.ts` (`cephUploadProcedure` header rescoping), and the frontend `UploadObjectModal.test.tsx` / `ObjectBrowserView.test.tsx` / `ObjectToastNotifications.test.tsx`.
 
 ### Integration Testing
 
@@ -1898,6 +2017,16 @@ openstack endpoint list --service ceph
 ```
 
 **Note:** Environment variable fallbacks (e.g., `CEPH_S3_ENDPOINT`) are not supported. All configuration must come from the service catalog.
+
+---
+
+### Problem: `All input parsers did not resolve to an object` when wiring an upload
+
+**Cause:** `octetInputParser` was chained onto `cephProtectedProcedure` (or another `projectScopedProcedure`-based procedure). tRPC can't merge the raw-stream input with the `project_id` object input those procedures bundle.
+
+**Solution:**
+
+Use `cephUploadProcedure` instead — it's built on the base `protectedProcedure` and rescopes from the `x-upload-project-id` header rather than a tRPC input. Send the project id (and other metadata) as `x-upload-*` request headers, not as a JSON input. See [`uploadObject`](#uploadobject) and [Middleware Layers](#3-middleware-layers).
 
 ---
 
