@@ -1,5 +1,11 @@
 # @cobaltcore-dev/aurora
 
+## 0.23.1
+
+### Patch Changes
+
+- fa875c7: Size the object storage tables to the space actually available below them instead of a fixed viewport offset. Custom banners, wrapped toolbars or breadcrumbs above a table no longer push the page past the viewport and produce a second scrollbar.
+
 ## 0.23.0
 
 ### Minor Changes
