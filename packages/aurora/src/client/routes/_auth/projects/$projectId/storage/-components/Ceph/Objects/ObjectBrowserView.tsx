@@ -18,6 +18,7 @@ import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { CreateFolderModal } from "./CreateFolderModal"
+import { UploadObjectModal } from "./UploadObjectModal"
 import { EnableVersioningModal } from "../Buckets/EnableVersioningModal"
 import { SuspendVersioningModal } from "../Buckets/SuspendVersioningModal"
 import { BucketPolicyModal } from "../Buckets/BucketPolicyModal"
@@ -39,6 +40,9 @@ import {
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
   getObjectDownloadErrorToast,
+  getObjectUploadedToast,
+  getObjectUploadCancelledToast,
+  getObjectUploadErrorToast,
 } from "./ObjectToastNotifications"
 import { encodePrefix, decodePrefix } from "../../utils/prefixEncoding"
 
@@ -64,6 +68,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [allVersions, setAllVersions] = useState<S3ObjectVersion[]>([])
   const [hasMore, setHasMore] = useState(false)
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false)
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
   const [isEnableVersioningModalOpen, setIsEnableVersioningModalOpen] = useState(false)
   const [isSuspendVersioningModalOpen, setIsSuspendVersioningModalOpen] = useState(false)
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false)
@@ -465,6 +470,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               }
               onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
             />
+            <Button className="whitespace-nowrap" onClick={() => setIsUploadModalOpen(true)}>
+              <Trans>Upload Object</Trans>
+            </Button>
             <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
               <Trans>Create Folder</Trans>
             </Button>
@@ -598,6 +606,27 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           setIsCreateFolderModalOpen(false)
           const { message, ...options } = getFolderCreatedToast(folderPath)
           toast.success(message, options)
+        }}
+      />
+
+      <UploadObjectModal
+        isOpen={isUploadModalOpen}
+        bucketName={bucketName}
+        projectId={projectId ?? ""}
+        currentPrefix={currentPrefix}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSuccess={(objectName) => {
+          setIsUploadModalOpen(false)
+          const { message, ...options } = getObjectUploadedToast(objectName)
+          toast.success(message, options)
+        }}
+        onError={(objectName, errorMessage) => {
+          const { message, ...options } = getObjectUploadErrorToast(objectName, errorMessage)
+          toast.error(message, options)
+        }}
+        onCancelled={(objectName) => {
+          const { message, ...options } = getObjectUploadCancelledToast(objectName)
+          toast.warning(message, options)
         }}
       />
 

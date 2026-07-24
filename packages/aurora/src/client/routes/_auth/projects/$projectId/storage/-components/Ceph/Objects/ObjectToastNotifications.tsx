@@ -144,6 +144,35 @@ export const getObjectMetadataUpdateErrorToast = (
   }
 }
 
+// ── Object upload ──────────────────────────────────────────────────────────────
+
+// The upload modal passes the bare file name (not a full key), so these show it
+// as-is rather than deriving a basename like the key-based toasts above.
+
+export const getObjectUploadedToast = (objectName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Object Uploaded</Trans>,
+  description: <Trans>"{objectName}" was successfully uploaded.</Trans>,
+})
+
+// A cancelled upload is a user-initiated outcome, not a failure — confirm it so
+// the disappearing progress bar isn't the only feedback.
+export const getObjectUploadCancelledToast = (objectName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Upload Cancelled</Trans>,
+  description: <Trans>Upload of "{objectName}" was cancelled.</Trans>,
+})
+
+export const getObjectUploadErrorToast = (
+  objectName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Upload Object</Trans>,
+  description: (
+    <Trans>
+      Could not upload "{objectName}": {errorMessage}
+    </Trans>
+  ),
+})
+
 // ── Object download ────────────────────────────────────────────────────────────
 
 // Shown while at least one download/preview transfer is in flight. Large objects

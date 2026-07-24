@@ -1516,3 +1516,226 @@ describe("objects.downloadObject", () => {
     expect(snapshots[1].total).toBe(totalBytes)
   })
 })
+
+// ============================================================================
+// objects.uploadObject
+// ============================================================================
+//
+// NOTE: these tests assume the shared `./mockContext` `createMockContext`
+// exposes a mutable `ctx.req.headers` and provides a `rescopeSession` that
+// resolves to a valid OpenStack session (the same shape cephProcedure.test.ts's
+// inline mock uses). uploadObject runs on `cephUploadProcedure`, which rescopes
+// from the `x-upload-project-id` header rather than a tRPC input. If the shared
+// mock lacks `rescopeSession`, add it there.
+
+describe("objects.uploadObject", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockSend.mockResolvedValue({ $metadata: { httpStatusCode: 200 } })
+  })
+
+  // octetInputParser never runs under createCaller (no HTTP transport), so we
+  // pass a ReadableStream directly, cast to satisfy the runtime type.
+  const callUpload = (caller: ReturnType<typeof createCaller>) =>
+    caller.storage.ceph.objects.uploadObject(new ReadableStream() as never)
+
+  const setUploadHeaders = (
+    ctx: ReturnType<typeof createMockContext>,
+    fields: {
+      projectId?: string
+      container?: string
+      object?: string
+      contentType?: string
+      fileSize?: string
+      uploadId?: string
+    }
+  ) => {
+    const h = ctx.req.headers as Record<string, string>
+    if (fields.projectId) h["x-upload-project-id"] = fields.projectId
+    if (fields.container) h["x-upload-container"] = fields.container
+    if (fields.object) h["x-upload-object"] = fields.object
+    if (fields.contentType) h["x-upload-type"] = fields.contentType
+    if (fields.fileSize) h["x-upload-size"] = fields.fileSize
+    if (fields.uploadId) h["x-upload-id"] = fields.uploadId
+  }
+
+  const validHeaders = {
+    projectId: TEST_PROJECT_ID,
+    container: TEST_BUCKET_NAME,
+    object: "folder/sample.txt",
+    fileSize: "1024",
+    uploadId: `${TEST_BUCKET_NAME}:folder/sample.txt:uuid-1`,
+  }
+
+  it("PUTs to the correct bucket and key", async () => {
+    const ctx = createMockContext()
+    setUploadHeaders(ctx, validHeaders)
+    const caller = createCaller(ctx)
+
+    await callUpload(caller)
+
+    const sentCommand = mockSend.mock.calls[0][0]
+    expect(sentCommand.input).toMatchObject({
+      Bucket: TEST_BUCKET_NAME,
+      Key: "folder/sample.txt",
+      ContentLength: 1024,
+    })
+  })
+
+  it("uses the detected content type from the header", async () => {
+    const ctx = createMockContext()
+    setUploadHeaders(ctx, { ...validHeaders, object: "image.png", contentType: "image/png", uploadId: "b:image.png:u" })
+    const caller = createCaller(ctx)
+
+    await callUpload(caller)
+
+    expect(mockSend.mock.calls[0][0].input).toMatchObject({ ContentType: "image/png" })
+  })
+
+  it("falls back to application/octet-stream when the content-type header is absent", async () => {
+    const ctx = createMockContext()
+    setUploadHeaders(ctx, { ...validHeaders, object: "file.bin", uploadId: "b:file.bin:u" })
+    const caller = createCaller(ctx)
+
+    await callUpload(caller)
+
+    expect(mockSend.mock.calls[0][0].input).toMatchObject({ ContentType: "application/octet-stream" })
+  })
+
+  it("returns { success: true } on success", async () => {
+    const ctx = createMockContext()
+    setUploadHeaders(ctx, validHeaders)
+    const caller = createCaller(ctx)
+
+    const result = await callUpload(caller)
+
+    expect(result.success).toBe(true)
+    expect(result).not.toHaveProperty("uploadId")
+  })
+
+  it("throws BAD_REQUEST when x-upload-project-id header is missing", async () => {
+    const ctx = createMockContext()
+    // Everything except the project id (checked by cephUploadProcedure).
+    setUploadHeaders(ctx, { ...validHeaders, projectId: undefined })
+    const caller = createCaller(ctx)
+
+    await expect(callUpload(caller)).rejects.toThrow(
+      new TRPCError({ code: "BAD_REQUEST", message: "x-upload-project-id header is required for uploads" })
+    )
+  })
+
+  it("throws BAD_REQUEST when x-upload-container header is missing", async () => {
+    const ctx = createMockContext()
+    setUploadHeaders(ctx, { ...validHeaders, container: undefined })
+    const caller = createCaller(ctx)
+
+    await expect(callUpload(caller)).rejects.toThrow(
+      new TRPCError({ code: "BAD_REQUEST", message: "x-upload-container header is required" })
+    )
+  })
+
+  it("throws BAD_REQUEST when x-upload-id header is missing", async () => {
+    const ctx = createMockContext()
+    setUploadHeaders(ctx, { ...validHeaders, uploadId: undefined })
+    const caller = createCaller(ctx)
+
+    await expect(callUpload(caller)).rejects.toThrow(
+      new TRPCError({ code: "BAD_REQUEST", message: "x-upload-id header is required" })
+    )
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContext({ shouldFailAuth: true })
+    setUploadHeaders(ctx, validHeaders)
+    const caller = createCaller(ctx)
+
+    await expect(callUpload(caller)).rejects.toThrow(
+      new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
+    )
+  })
+
+  it("surfaces S3 errors when PutObject fails", async () => {
+    const s3Error = Object.assign(new Error("AccessDenied"), { Code: "AccessDenied" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    setUploadHeaders(ctx, validHeaders)
+    const caller = createCaller(ctx)
+
+    await expect(callUpload(caller)).rejects.toThrow()
+  })
+})
+
+// ============================================================================
+// objects.watchUploadProgress
+// ============================================================================
+
+describe("objects.watchUploadProgress", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContext({ shouldFailAuth: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.watchUploadProgress({
+        project_id: TEST_PROJECT_ID,
+        uploadId: `${TEST_BUCKET_NAME}:file.txt:uuid`,
+      })
+    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+  })
+
+  it("does not yield for an unknown uploadId until an event arrives", async () => {
+    // Fake timers let us both prove next() stays pending without an event AND
+    // drive the generator's internal 30s wait to completion so it cleans up its
+    // own timer — awaiting iterator.return() can't do that here, since .return()
+    // on an async generator waits for the pending `await` (the 30s race) to
+    // settle before running the finally block, which would hang the test.
+    vi.useFakeTimers()
+    try {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx)
+
+      const subscription = await caller.storage.ceph.objects.watchUploadProgress({
+        project_id: TEST_PROJECT_ID,
+        uploadId: "nonexistent:file.txt:uuid",
+      })
+      const iterator = subscription[Symbol.asyncIterator]()
+
+      const nextPromise = iterator.next()
+      let settled = false
+      void nextPromise.then(() => {
+        settled = true
+      })
+
+      // No progress event and no snapshot for this id → next() stays pending.
+      await vi.advanceTimersByTimeAsync(1_000)
+      expect(settled).toBe(false)
+
+      // Advance past the 30s bounded wait: the generator breaks out, clears its
+      // timer, and completes.
+      await vi.advanceTimersByTimeAsync(30_000)
+      const result = await nextPromise
+      expect(result.done).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it("returns an async iterable", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    // Live progress events require the module-level emitter, which is not
+    // exported — emitter round-trip coverage lives in integration tests.
+    const subscription = await caller.storage.ceph.objects.watchUploadProgress({
+      project_id: TEST_PROJECT_ID,
+      uploadId: `${TEST_BUCKET_NAME}:file.txt:uuid`,
+    })
+
+    expect(subscription).toBeDefined()
+    expect(typeof subscription[Symbol.asyncIterator]).toBe("function")
+  })
+})
