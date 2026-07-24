@@ -1,5 +1,39 @@
 # @cobaltcore-dev/aurora
 
+## 0.23.0
+
+### Minor Changes
+
+- 1e9ba79: Add object upload for Ceph (S3) buckets. Files can now be uploaded from the
+  object browser via a file picker or drag-and-drop, with upload progress,
+  cancellation, and success/failure notifications — matching the existing Swift
+  upload experience.
+- a7ad5d1: Offload Ceph object downloads to a dedicated Web Worker.
+
+  Downloading or previewing an object no longer blocks the UI. The transfer and its base64 decoding run off the main thread, so the object table stays responsive while a large object streams.
+  Transfers are owned by a module-scope store rather than by the objects table. A download now survives folder navigation, spinner swaps, and leaving the bucket entirely — which is what the "download started" notification already promised the user. Concurrent transfers share a single persistent "Downloading…" notification, dismissed once the last one ends, however it ended: saved, failed, or cancelled.
+  Cancelling is cooperative: the row clears immediately, the worker is asked to abort its request so the BFF stops reading from S3, and it is force-terminated only if it never reports back.
+  Two notes for anyone embedding this package. The worker is bundled inline rather than emitted as a separate asset, so it survives being re-bundled by a consuming app — but an inline worker starts from a blob: URL, so a Content-Security-Policy must allow worker-src 'self' blob:. Aurora's own server now sets this; a consumer serving its own CSP needs the same. The library build also substitutes process.env.NODE_ENV, because the worker's bundled dependencies read it and a worker has no process to read it from.
+
+### Patch Changes
+
+- 8b44234: Fix React-dependent packages incorrectly listed as `dependencies` instead of `peerDependencies`, and improve developer experience so workspace package changes are reflected immediately without rebuilding.
+
+  **Dependency fix:** Packages that use React context or hooks (`@lingui/react`, `@tanstack/react-query`, `@tanstack/react-router`, and others) were installed as private dependencies, causing consuming apps to end up with duplicate React instances. This produced "Invalid hook call" errors and silently disconnected context providers from their hooks. All React-context-using packages are now declared as `peerDependencies`. See `docs/0014_dependency_classification.md` for the classification rules.
+
+  **Developer experience:** `packages/policy-engine` and `packages/signal-openstack` had an `exports` field that caused Node to always resolve them from their compiled `dist/` regardless of tsconfig path mappings. Since both packages are private (never published), the `exports` field has been removed. Node now falls back to `main`, and tsx's tsconfig path mappings route to TypeScript source directly. Combined with an updated `dev` script that watches server-side workspace package source, changes to any workspace package are picked up immediately by the dev server, no rebuild step required. Types are always up to date since the editor reads directly from source.
+
+- cb548a4: Security group refactor
+
+  Fixed permission-related bugs where users without appropriate permissions could see and attempt actions, and where error messages persisted when closing and reopening modals.
+
+- 24a187e: Changed List styling to non-monospace
+- 8944e74: Fix RouteError always showing default error message instead of tRPC messages from the response
+  - \_\_root.tsx / $projectId.tsx — pass safeErrorMessage to RouteError for TRPCClientError to fix generic fallback text
+  - Remove errorComponent at projects/index.tsx and images.tsx, it was catching it instead of letting it bubble to ProjectErrorComponent
+  - expand ErrorBoundary to wrap the search bar too so it's hidden on error instead of orphaned above the error message
+  - remove unused invalidateCsrfToken function
+
 ## 0.22.0
 
 ### Minor Changes
