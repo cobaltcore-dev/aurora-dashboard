@@ -346,12 +346,12 @@ export const EditMetadataModal = ({
               <span className="text-theme-light text-right">
                 <Trans>Content type</Trans>
               </span>
-              <span className="font-mono">{objectDetails?.contentType ?? "—"}</span>
+              <span>{objectDetails?.contentType ?? "—"}</span>
 
               <span className="text-theme-light text-right">
                 <Trans>ETag</Trans>
               </span>
-              <span className="font-mono break-all">{objectDetails?.etag ?? "—"}</span>
+              <span className="break-all">{objectDetails?.etag ?? "—"}</span>
 
               <span className="text-theme-light text-right">
                 <Trans>Size</Trans>
@@ -375,9 +375,7 @@ export const EditMetadataModal = ({
                 <p className="text-theme-light text-xs">
                   <Trans>Stored as x-amz-meta-* headers. Keys are case-insensitive.</Trans>
                 </p>
-                <p
-                  className={`font-mono text-xs ${isSizeExceeded ? "text-theme-danger font-semibold" : "text-theme-light"}`}
-                >
+                <p className={`text-xs ${isSizeExceeded ? "text-theme-danger font-semibold" : "text-theme-light"}`}>
                   {currentMetadataSize} / {MAX_METADATA_BYTES} bytes
                 </p>
               </div>

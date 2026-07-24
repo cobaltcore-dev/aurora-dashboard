@@ -63,7 +63,7 @@ export function KeyPairListView({ keyPairs }: KeyPairListViewProps) {
                 <tr key={keyPair.id || keyPair.name}>
                   <td className="p-3">{keyPair.name}</td>
                   <td className="p-3">{renderKeyType(keyPair.type)}</td>
-                  <td className="p-3 font-mono text-sm">{formatFingerprint(keyPair.fingerprint)}</td>
+                  <td className="p-3 text-sm">{formatFingerprint(keyPair.fingerprint)}</td>
                   <td className="p-3">{formatDate(keyPair.created_at)}</td>
                   <td></td>
                 </tr>
