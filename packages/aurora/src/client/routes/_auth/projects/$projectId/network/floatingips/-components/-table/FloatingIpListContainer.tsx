@@ -8,6 +8,7 @@ import {
   Stack,
   Spinner,
 } from "@cloudoperators/juno-ui-components"
+import { Dispatch, SetStateAction } from "react"
 import { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpTableRow } from "./FloatingIpTableRow"
 import { TABLE_COLUMNS } from "./constants"
@@ -18,7 +19,7 @@ interface FloatingIpListContainerProps {
   isError: boolean
   error: { message?: string } | null
   selectedFloatingIps: string[]
-  setSelectedFloatingIps: (ids: string[]) => void
+  setSelectedFloatingIps: Dispatch<SetStateAction<string[]>>
   hasAnyBulkAction?: boolean
 }
 
@@ -86,11 +87,10 @@ export const FloatingIpListContainer = ({
           floatingIp={ip}
           isSelected={selectedFloatingIps.includes(ip.id)}
           onSelect={(id, checked) => {
-            if (checked) {
-              setSelectedFloatingIps([...selectedFloatingIps, id])
-            } else {
-              setSelectedFloatingIps(selectedFloatingIps.filter((selectedId) => selectedId !== id))
-            }
+            setSelectedFloatingIps((prev) => {
+              if (checked) return prev.includes(id) ? prev : [...prev, id]
+              return prev.filter((selectedId) => selectedId !== id)
+            })
           }}
           showSelectColumn={hasAnyBulkAction}
         />
