@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, use, Suspense } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Button,
@@ -10,12 +11,14 @@ import {
   PopupMenuItem,
   PopupMenuToggle,
   PopupMenuOptions,
+  Message,
+  Spinner,
 } from "@cloudoperators/juno-ui-components"
 import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
-import { trpcReact } from "@/client/trpcClient"
+import { trpcReact, TrpcClient } from "@/client/trpcClient"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { useModal } from "@/client/utils/useModal"
@@ -28,9 +31,31 @@ const DEFAULT_SORT_KEY = "fixed_ip_address"
 const DEFAULT_SORT_DIR = "asc"
 export type FloatingIpsSortKey = NonNullable<FloatingIpQueryParameters["sort_key"]>
 
-export const FloatingIpsList = () => {
+const createPermissionsPromise = (client: TrpcClient, project: string) => {
+  return client.network.canUser
+    .query({
+      project_id: project,
+      permission: ["network:floatingips:create", "network:floatingips:delete", "network:floatingips:update"],
+    })
+    .then(([canCreate, canDelete, canUpdate]) => ({
+      canCreate,
+      canDelete,
+      canUpdate,
+    }))
+}
+
+function FloatingIpsContent({
+  permissionsPromise,
+}: {
+  permissionsPromise: Promise<{
+    canCreate: boolean
+    canDelete: boolean
+    canUpdate: boolean
+  }>
+}) {
   const { t } = useLingui()
   const projectId = useProjectId()
+  const permissions = use(permissionsPromise)
   const [allocateModalOpen, toggleAllocateModal] = useModal(false)
   const [selectedFloatingIps, setSelectedFloatingIps] = useState<Array<string>>([])
   const [localSearchTerm, setLocalSearchTerm] = useState("")
@@ -86,13 +111,6 @@ export const FloatingIpsList = () => {
       placeholderData: (prev) => prev,
     }
   )
-
-  // Permissions check (placeholder - adjust based on actual permissions system)
-  const permissions = {
-    canCreate: true, // TODO: Replace with actual permission check
-    canDelete: false, // TODO: Replace with actual permission check
-    canUpdate: false, // TODO: Replace with actual permission check
-  }
 
   const displayedFloatingIpIds = new Set(floatingIps.map((ip) => ip.id))
   const validSelectedFloatingIps = selectedFloatingIps.filter((id) => displayedFloatingIpIds.has(id))
@@ -255,5 +273,31 @@ export const FloatingIpsList = () => {
 
       {allocateModalOpen && <AllocateFloatingIpModal open={allocateModalOpen} onClose={toggleAllocateModal} />}
     </div>
+  )
+}
+
+export const FloatingIpsList = () => {
+  const projectId = useProjectId()
+  const client = trpcReact.useUtils().client
+  const [permissionsPromise] = useState(() => createPermissionsPromise(client, projectId))
+
+  return (
+    <ErrorBoundary
+      fallback={
+        <Message variant="error">
+          <Trans>Failed to load floating IPs</Trans>
+        </Message>
+      }
+    >
+      <Suspense
+        fallback={
+          <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
+            <Spinner />
+          </Stack>
+        }
+      >
+        <FloatingIpsContent permissionsPromise={permissionsPromise} />
+      </Suspense>
+    </ErrorBoundary>
   )
 }
