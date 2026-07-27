@@ -74,13 +74,18 @@ export const FloatingIpsList = () => {
     isLoading,
     isError,
     error,
-  } = trpcReact.network.floatingIp.list.useQuery({
-    project_id: projectId,
-    sort_key: sortSettings.sortBy,
-    sort_dir: sortSettings.sortDirection,
-    ...buildFilterParams(filterSettings),
-    ...(searchTerm ? { searchTerm } : {}),
-  })
+  } = trpcReact.network.floatingIp.list.useQuery(
+    {
+      project_id: projectId,
+      sort_key: sortSettings.sortBy,
+      sort_dir: sortSettings.sortDirection,
+      ...buildFilterParams(filterSettings),
+      ...(searchTerm ? { searchTerm } : {}),
+    },
+    {
+      placeholderData: (prev) => prev,
+    }
+  )
 
   // Permissions check (placeholder - adjust based on actual permissions system)
   const permissions = {
@@ -92,7 +97,7 @@ export const FloatingIpsList = () => {
   const displayedFloatingIpIds = new Set(floatingIps.map((ip) => ip.id))
   const validSelectedFloatingIps = selectedFloatingIps.filter((id) => displayedFloatingIpIds.has(id))
 
-  if (isLoading) {
+  if (isLoading && !floatingIps.length) {
     return (
       <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
         <Trans>Loading...</Trans>
