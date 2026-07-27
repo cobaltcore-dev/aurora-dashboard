@@ -6,7 +6,6 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
-  Checkbox,
 } from "@cloudoperators/juno-ui-components"
 import { FloatingIp } from "@/server/Network/types/floatingIp"
 import { STATUS_CONFIG } from "./constants"
@@ -15,17 +14,9 @@ import { useProjectId } from "@/client/hooks"
 
 interface FloatingIpTableRowProps {
   floatingIp: FloatingIp
-  isSelected: boolean
-  onSelect: (id: string, checked: boolean) => void
-  showSelectColumn?: boolean
 }
 
-export const FloatingIpTableRow = ({
-  floatingIp,
-  isSelected,
-  onSelect,
-  showSelectColumn = true,
-}: FloatingIpTableRowProps) => {
+export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const projectId = useProjectId()
@@ -39,16 +30,6 @@ export const FloatingIpTableRow = ({
 
   return (
     <DataGridRow key={floatingIp.id} data-testid={`floating-ip-row-${floatingIp.id}`} onClick={navigateToDetailsPage}>
-      {showSelectColumn && (
-        <DataGridCell onClick={(e) => e.stopPropagation()}>
-          <Checkbox
-            checked={isSelected}
-            onChange={(e) => {
-              onSelect(floatingIp.id, e.target.checked)
-            }}
-          />
-        </DataGridCell>
-      )}
       <DataGridCell>
         <div className="flex items-center gap-2">
           {STATUS_CONFIG[floatingIp.status].icon}

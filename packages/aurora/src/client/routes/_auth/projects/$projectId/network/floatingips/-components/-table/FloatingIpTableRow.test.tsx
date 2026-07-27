@@ -60,7 +60,7 @@ describe("FloatingIpTableRow", () => {
     return render(
       <I18nProvider i18n={i18n}>
         <PortalProvider>
-          <FloatingIpTableRow floatingIp={mockFloatingIp} isSelected={false} onSelect={vi.fn()} />
+          <FloatingIpTableRow floatingIp={mockFloatingIp} />
         </PortalProvider>
       </I18nProvider>
     )
@@ -96,7 +96,7 @@ describe("FloatingIpTableRow", () => {
       render(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <FloatingIpTableRow floatingIp={fipWithoutFixedIp} isSelected={false} onSelect={vi.fn()} />
+            <FloatingIpTableRow floatingIp={fipWithoutFixedIp} />
           </PortalProvider>
         </I18nProvider>
       )
@@ -112,7 +112,7 @@ describe("FloatingIpTableRow", () => {
       render(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <FloatingIpTableRow floatingIp={fipWithoutDescription} isSelected={false} onSelect={vi.fn()} />
+            <FloatingIpTableRow floatingIp={fipWithoutDescription} />
           </PortalProvider>
         </I18nProvider>
       )
@@ -142,7 +142,7 @@ describe("FloatingIpTableRow", () => {
         const { unmount } = render(
           <I18nProvider i18n={i18n}>
             <PortalProvider>
-              <FloatingIpTableRow floatingIp={{ ...mockFloatingIp, status }} isSelected={false} onSelect={vi.fn()} />
+              <FloatingIpTableRow floatingIp={{ ...mockFloatingIp, status }} />
             </PortalProvider>
           </I18nProvider>
         )
@@ -211,116 +211,6 @@ describe("FloatingIpTableRow", () => {
         expect(screen.getByText("Detach")).toBeInTheDocument()
         expect(screen.getByText("Release")).toBeInTheDocument()
       })
-    })
-  })
-
-  describe("Selection checkbox", () => {
-    it("renders selection checkbox when showSelectColumn is true", async () => {
-      render(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <FloatingIpTableRow
-              floatingIp={mockFloatingIp}
-              isSelected={false}
-              onSelect={vi.fn()}
-              showSelectColumn={true}
-            />
-          </PortalProvider>
-        </I18nProvider>
-      )
-
-      await waitFor(() => {
-        expect(screen.getByRole("checkbox")).toBeInTheDocument()
-      })
-    })
-
-    it("does not render selection checkbox when showSelectColumn is false", async () => {
-      render(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <FloatingIpTableRow
-              floatingIp={mockFloatingIp}
-              isSelected={false}
-              onSelect={vi.fn()}
-              showSelectColumn={false}
-            />
-          </PortalProvider>
-        </I18nProvider>
-      )
-
-      await waitFor(() => {
-        expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
-      })
-
-      expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
-    })
-
-    it("calls onSelect with correct parameters when checkbox is clicked", async () => {
-      const mockOnSelect = vi.fn()
-      const user = userEvent.setup()
-
-      render(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <FloatingIpTableRow
-              floatingIp={mockFloatingIp}
-              isSelected={false}
-              onSelect={mockOnSelect}
-              showSelectColumn={true}
-            />
-          </PortalProvider>
-        </I18nProvider>
-      )
-
-      const checkbox = await screen.findByRole("checkbox")
-      await user.click(checkbox)
-
-      expect(mockOnSelect).toHaveBeenCalledWith("fip-123", true)
-    })
-
-    it("calls onSelect with false when unchecking", async () => {
-      const mockOnSelect = vi.fn()
-      const user = userEvent.setup()
-
-      render(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <FloatingIpTableRow
-              floatingIp={mockFloatingIp}
-              isSelected={true}
-              onSelect={mockOnSelect}
-              showSelectColumn={true}
-            />
-          </PortalProvider>
-        </I18nProvider>
-      )
-
-      const checkbox = await screen.findByRole("checkbox")
-      await user.click(checkbox)
-
-      expect(mockOnSelect).toHaveBeenCalledWith("fip-123", false)
-    })
-
-    it("does not trigger row navigation when checkbox is clicked", async () => {
-      const user = userEvent.setup()
-
-      render(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <FloatingIpTableRow
-              floatingIp={mockFloatingIp}
-              isSelected={false}
-              onSelect={vi.fn()}
-              showSelectColumn={true}
-            />
-          </PortalProvider>
-        </I18nProvider>
-      )
-
-      const checkbox = await screen.findByRole("checkbox")
-      await user.click(checkbox)
-
-      expect(mockNavigate).not.toHaveBeenCalled()
     })
   })
 })

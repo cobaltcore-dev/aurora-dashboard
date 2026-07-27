@@ -69,13 +69,7 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
         ))}
       </DataGridRow>
       {floatingIps.map((ip) => (
-        <FloatingIpTableRow
-          key={ip.id}
-          floatingIp={ip}
-          isSelected={false}
-          onSelect={() => {}}
-          showSelectColumn={false}
-        />
+        <FloatingIpTableRow key={ip.id} floatingIp={ip} />
       ))}
     </DataGrid>
   )
