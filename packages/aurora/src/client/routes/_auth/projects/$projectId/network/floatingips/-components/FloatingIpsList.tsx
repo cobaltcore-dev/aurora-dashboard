@@ -1,7 +1,20 @@
-import { useLingui } from "@lingui/react/macro"
-import { Button } from "@cloudoperators/juno-ui-components"
+import { useState, useRef, useEffect } from "react"
+import { Trans, useLingui } from "@lingui/react/macro"
+import {
+  Button,
+  Stack,
+  DataGridToolbar,
+  SearchInput,
+  Checkbox,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuToggle,
+  PopupMenuOptions,
+} from "@cloudoperators/juno-ui-components"
 import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
-import { ListToolbar } from "@/client/components/ListToolbar"
+import { SortInput } from "@/client/components/ListToolbar/SortInput"
+import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
+import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { trpcReact } from "@/client/trpcClient"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
@@ -9,6 +22,7 @@ import { useModal } from "@/client/utils/useModal"
 import { useProjectId } from "@/client/hooks"
 import { FloatingIpListContainer } from "./-table/FloatingIpListContainer"
 import { AllocateFloatingIpModal } from "./-modals/AllocateFloatingIpModal"
+import { applyFilterSelection } from "../urlHelpers"
 
 const DEFAULT_SORT_KEY = "fixed_ip_address"
 const DEFAULT_SORT_DIR = "asc"
@@ -18,6 +32,11 @@ export const FloatingIpsList = () => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [allocateModalOpen, toggleAllocateModal] = useModal(false)
+  const [selectedFloatingIps, setSelectedFloatingIps] = useState<Array<string>>([])
+  const [localSearchTerm, setLocalSearchTerm] = useState("")
+  const debounceTimer = useRef<number | undefined>(undefined)
+
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   const { searchTerm, handleSearchChange, sortSettings, handleSortChange, filterSettings, handleFilterChange } =
     useListWithFiltering<FloatingIpsSortKey>({
@@ -46,6 +65,10 @@ export const FloatingIpsList = () => {
       },
     })
 
+  useEffect(() => {
+    setLocalSearchTerm(searchTerm)
+  }, [searchTerm])
+
   const {
     data: floatingIps = [],
     isLoading,
@@ -59,19 +82,171 @@ export const FloatingIpsList = () => {
     ...(searchTerm ? { searchTerm } : {}),
   })
 
+  // Permissions check (placeholder - adjust based on actual permissions system)
+  const permissions = {
+    canCreate: true, // TODO: Replace with actual permission check
+    canDelete: false, // TODO: Replace with actual permission check
+    canUpdate: false, // TODO: Replace with actual permission check
+  }
+
+  const displayedFloatingIpIds = new Set(floatingIps.map((ip) => ip.id))
+  const validSelectedFloatingIps = selectedFloatingIps.filter((id) => displayedFloatingIpIds.has(id))
+
+  if (isLoading) {
+    return (
+      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
+        <Trans>Loading...</Trans>
+      </Stack>
+    )
+  }
+
+  if (isError && !floatingIps.length) {
+    return (
+      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
+        {error?.message ?? t`Failed to load Floating IPs`}
+      </Stack>
+    )
+  }
+
   return (
     <div className="relative">
-      <ListToolbar
-        searchTerm={searchTerm}
-        onSearch={handleSearchChange}
-        sortSettings={sortSettings}
-        onSort={handleSortChange}
-        filterSettings={filterSettings}
-        onFilter={handleFilterChange}
-        actions={<Button variant="primary" label={t`Allocate Floating IP`} onClick={toggleAllocateModal} />}
-      />
+      {/* Zone 1 — sort + create button, no background */}
+      <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+        <Stack gap="2">
+          <SortInput
+            options={sortSettings.options}
+            sortBy={sortSettings.sortBy}
+            sortDirection={sortSettings.sortDirection ?? "asc"}
+            onSortByChange={(v) =>
+              handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
+            }
+            onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
+          />
+          {permissions.canCreate && (
+            <Button onClick={toggleAllocateModal} variant="primary" className="whitespace-nowrap">
+              <Trans>Allocate Floating IP</Trans>
+            </Button>
+          )}
+        </Stack>
+      </Stack>
 
-      <FloatingIpListContainer floatingIps={floatingIps} isLoading={isLoading} isError={isError} error={error} />
+      {/* Zone 2 — filter + search + active filter pills */}
+      <DataGridToolbar>
+        <Stack direction="vertical" gap="2">
+          <Stack distribution="between" alignment="center">
+            <FiltersInput
+              filters={filterSettings.filters}
+              onChange={(selected) => {
+                const newSelected = applyFilterSelection(
+                  filterSettings.selectedFilters || [],
+                  selected,
+                  filterSettings.filters
+                )
+                if (newSelected === (filterSettings.selectedFilters || [])) return
+                handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
+              }}
+            />
+            <SearchInput
+              placeholder={t`Search floating IPs...`}
+              data-testid="searchbar"
+              value={localSearchTerm}
+              onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                const v = e.currentTarget.value
+                setLocalSearchTerm(v)
+                clearTimeout(debounceTimer.current)
+                debounceTimer.current = window.setTimeout(() => handleSearchChange(v), 500)
+              }}
+              onSearch={(v) => {
+                clearTimeout(debounceTimer.current)
+                handleSearchChange(typeof v === "string" ? v : "")
+              }}
+              onClear={() => {
+                clearTimeout(debounceTimer.current)
+                setLocalSearchTerm("")
+                handleSearchChange("")
+              }}
+            />
+          </Stack>
+          {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
+            <SelectedFilters
+              selectedFilters={filterSettings.selectedFilters}
+              onDelete={(filterToRemove) =>
+                handleFilterChange({
+                  ...filterSettings,
+                  selectedFilters: (filterSettings.selectedFilters || []).filter(
+                    (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
+                  ),
+                })
+              }
+              onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
+            />
+          )}
+        </Stack>
+      </DataGridToolbar>
+
+      {/* Zone 3 — select all + bulk actions (only when at least one bulk action is available) */}
+      {(permissions.canDelete || permissions.canUpdate) && (
+        <DataGridToolbar>
+          <Stack distribution="between" alignment="center">
+            <Stack gap="2" alignment="center">
+              <Checkbox
+                checked={
+                  validSelectedFloatingIps.length > 0 &&
+                  floatingIps.every((ip) => validSelectedFloatingIps.includes(ip.id))
+                }
+                indeterminate={
+                  validSelectedFloatingIps.length > 0 &&
+                  !floatingIps.every((ip) => validSelectedFloatingIps.includes(ip.id))
+                }
+                onChange={() => {
+                  const allIds = floatingIps.map((ip) => ip.id)
+                  const allSelected = allIds.every((id) => validSelectedFloatingIps.includes(id))
+                  if (allSelected) {
+                    setSelectedFloatingIps(validSelectedFloatingIps.filter((id) => !allIds.includes(id)))
+                  } else {
+                    setSelectedFloatingIps([...new Set([...validSelectedFloatingIps, ...allIds])])
+                  }
+                }}
+              />
+              <PopupMenu>
+                <PopupMenuToggle as="div">
+                  <Button size="small" icon="moreVert" label={t`Actions`} />
+                </PopupMenuToggle>
+                <PopupMenuOptions>
+                  {permissions.canDelete && (
+                    <PopupMenuItem
+                      disabled={validSelectedFloatingIps.length === 0}
+                      label={t`Delete Selected`}
+                      onClick={() => {
+                        // TODO: Implement bulk delete
+                      }}
+                    />
+                  )}
+                  {permissions.canUpdate && (
+                    <PopupMenuItem
+                      disabled={validSelectedFloatingIps.length === 0}
+                      label={t`Update Selected`}
+                      onClick={() => {
+                        // TODO: Implement bulk update
+                      }}
+                    />
+                  )}
+                </PopupMenuOptions>
+              </PopupMenu>
+            </Stack>
+          </Stack>
+        </DataGridToolbar>
+      )}
+
+      <FloatingIpListContainer
+        floatingIps={floatingIps}
+        isLoading={false}
+        isError={false}
+        error={null}
+        selectedFloatingIps={selectedFloatingIps}
+        setSelectedFloatingIps={setSelectedFloatingIps}
+        hasAnyBulkAction={permissions.canDelete || permissions.canUpdate}
+      />
 
       {allocateModalOpen && <AllocateFloatingIpModal open={allocateModalOpen} onClose={toggleAllocateModal} />}
     </div>

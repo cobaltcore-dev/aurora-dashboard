@@ -17,11 +17,23 @@ interface FloatingIpListContainerProps {
   isLoading: boolean
   isError: boolean
   error: { message?: string } | null
+  selectedFloatingIps: string[]
+  setSelectedFloatingIps: (ids: string[]) => void
+  hasAnyBulkAction?: boolean
 }
 
-export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error }: FloatingIpListContainerProps) => {
+export const FloatingIpListContainer = ({
+  floatingIps,
+  isLoading,
+  isError,
+  error,
+  selectedFloatingIps,
+  setSelectedFloatingIps,
+  hasAnyBulkAction = true,
+}: FloatingIpListContainerProps) => {
   const { t } = useLingui()
   const columns = TABLE_COLUMNS()
+  const columnCount = hasAnyBulkAction ? columns.length + 1 : columns.length
 
   if (isLoading) {
     return (
@@ -42,9 +54,9 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
 
   if (floatingIps.length === 0) {
     return (
-      <DataGrid columns={columns.length} className="floating-ips" data-testid="no-floating-ips">
+      <DataGrid columns={columnCount} className="floating-ips" data-testid="no-floating-ips">
         <DataGridRow>
-          <DataGridCell colSpan={columns.length}>
+          <DataGridCell colSpan={columnCount}>
             <ContentHeading>
               <Trans>No Floating IPs found</Trans>
             </ContentHeading>
@@ -61,14 +73,27 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
   }
 
   return (
-    <DataGrid columns={columns.length}>
+    <DataGrid columns={columnCount}>
       <DataGridRow>
+        {hasAnyBulkAction && <DataGridHeadCell />}
         {columns.map((label) => (
           <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
         ))}
       </DataGridRow>
       {floatingIps.map((ip) => (
-        <FloatingIpTableRow key={ip.id} floatingIp={ip} />
+        <FloatingIpTableRow
+          key={ip.id}
+          floatingIp={ip}
+          isSelected={selectedFloatingIps.includes(ip.id)}
+          onSelect={(id, checked) => {
+            if (checked) {
+              setSelectedFloatingIps([...selectedFloatingIps, id])
+            } else {
+              setSelectedFloatingIps(selectedFloatingIps.filter((selectedId) => selectedId !== id))
+            }
+          }}
+          showSelectColumn={hasAnyBulkAction}
+        />
       ))}
     </DataGrid>
   )

@@ -2707,6 +2707,9 @@ msgstr "Container suchen..."
 msgid "Search flavors..."
 msgstr "Flavors suchen..."
 
+msgid "Search floating IPs..."
+msgstr ""
+
 msgid "Search images..."
 msgstr "Images suchen..."
 
@@ -3429,6 +3432,9 @@ msgstr "Objekt aktualisieren"
 
 msgid "Update Security Group"
 msgstr "Security Group aktualisieren"
+
+msgid "Update Selected"
+msgstr ""
 
 msgid "Updated At"
 msgstr "Aktualisiert am"

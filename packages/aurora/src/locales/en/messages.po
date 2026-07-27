@@ -2707,6 +2707,9 @@ msgstr "Search containers..."
 msgid "Search flavors..."
 msgstr "Search flavors..."
 
+msgid "Search floating IPs..."
+msgstr "Search floating IPs..."
+
 msgid "Search images..."
 msgstr "Search images..."
 
@@ -3429,6 +3432,9 @@ msgstr "Update object"
 
 msgid "Update Security Group"
 msgstr "Update Security Group"
+
+msgid "Update Selected"
+msgstr "Update Selected"
 
 msgid "Updated At"
 msgstr "Updated At"

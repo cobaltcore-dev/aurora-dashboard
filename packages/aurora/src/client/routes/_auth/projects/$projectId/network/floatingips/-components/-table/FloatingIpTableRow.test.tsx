@@ -60,7 +60,7 @@ describe("FloatingIpTableRow", () => {
     return render(
       <I18nProvider i18n={i18n}>
         <PortalProvider>
-          <FloatingIpTableRow floatingIp={mockFloatingIp} />
+          <FloatingIpTableRow floatingIp={mockFloatingIp} isSelected={false} onSelect={vi.fn()} />
         </PortalProvider>
       </I18nProvider>
     )
@@ -96,7 +96,7 @@ describe("FloatingIpTableRow", () => {
       render(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <FloatingIpTableRow floatingIp={fipWithoutFixedIp} />
+            <FloatingIpTableRow floatingIp={fipWithoutFixedIp} isSelected={false} onSelect={vi.fn()} />
           </PortalProvider>
         </I18nProvider>
       )
@@ -112,7 +112,7 @@ describe("FloatingIpTableRow", () => {
       render(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <FloatingIpTableRow floatingIp={fipWithoutDescription} />
+            <FloatingIpTableRow floatingIp={fipWithoutDescription} isSelected={false} onSelect={vi.fn()} />
           </PortalProvider>
         </I18nProvider>
       )
@@ -142,7 +142,7 @@ describe("FloatingIpTableRow", () => {
         const { unmount } = render(
           <I18nProvider i18n={i18n}>
             <PortalProvider>
-              <FloatingIpTableRow floatingIp={{ ...mockFloatingIp, status }} />
+              <FloatingIpTableRow floatingIp={{ ...mockFloatingIp, status }} isSelected={false} onSelect={vi.fn()} />
             </PortalProvider>
           </I18nProvider>
         )
