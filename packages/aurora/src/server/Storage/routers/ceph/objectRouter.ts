@@ -23,6 +23,8 @@ import {
   s3ObjectVersionSchema,
   s3FolderPrefixSchema,
   deleteObjectInputSchema,
+  deleteObjectsBulkInputSchema,
+  deleteObjectsBulkOutputSchema,
   createFolderInputSchema,
   copyObjectInputSchema,
   copyObjectOutputSchema,
@@ -33,6 +35,9 @@ import {
   type ListObjectsOutput,
   type S3ObjectDetails,
   type CopyObjectOutput,
+  type DeleteObjectsBulkOutput,
+  type DeletedObject,
+  type DeleteObjectError,
 } from "../../types/ceph"
 import { S3_MAX_KEYS_PER_REQUEST } from "../../constants"
 import { z } from "zod"
@@ -588,6 +593,83 @@ export const objectRouter = {
       })
     }
   }),
+
+  /**
+   * Delete multiple objects from a bucket in one operation.
+   *
+   * Uses S3's DeleteObjects API, which accepts up to 1000 keys per request. Larger
+   * selections are automatically chunked server-side. Returns a *mixed* result:
+   * `Deleted[]` for successful deletions and `Errors[]` for failures, because S3
+   * reports both arrays in a single HTTP 200 response.
+   *
+   * Folder keys (trailing "/") are rejected by the schema: DeleteObjects removes only
+   * the zero-byte marker, orphaning everything under the prefix. Use `objects.delete`
+   * instead for folder deletion — it deletes recursively.
+   *
+   * Missing keys are reported by S3 as successes (idempotent). Duplicate keys in the
+   * input are de-duplicated before sending.
+   *
+   * @throws TRPCError NOT_FOUND - bucket does not exist (first-chunk failure only)
+   * @throws TRPCError FORBIDDEN - no credentials or access denied (first-chunk failure only)
+   */
+  deleteBulk: cephProtectedProcedure
+    .input(deleteObjectsBulkInputSchema)
+    .mutation(async ({ ctx, input }): Promise<DeleteObjectsBulkOutput> => {
+      const s3 = ctx.getCephClient!()
+      const { containerName, objectKeys } = input
+
+      // De-duplicate: S3 tolerates repeats but would report the same key twice,
+      // inflating deletedCount and confusing the UI summary.
+      const uniqueKeys = [...new Set(objectKeys)]
+
+      const deleted: DeletedObject[] = []
+      const errors: DeleteObjectError[] = []
+
+      for (let offset = 0; offset < uniqueKeys.length; offset += S3_MAX_KEYS_PER_REQUEST) {
+        if (ctx.req.signal?.aborted) break // client navigated away / cancelled
+        const chunk = uniqueKeys.slice(offset, offset + S3_MAX_KEYS_PER_REQUEST)
+
+        try {
+          const response = await s3.send(
+            new DeleteObjectsCommand({
+              Bucket: containerName,
+              Delete: { Objects: chunk.map((Key) => ({ Key })), Quiet: false },
+            }),
+            { abortSignal: ctx.req.signal }
+          )
+
+          for (const d of response.Deleted ?? []) {
+            deleted.push({
+              key: d.Key ?? "",
+              versionId: d.VersionId,
+              deleteMarker: d.DeleteMarker,
+              deleteMarkerVersionId: d.DeleteMarkerVersionId,
+            })
+          }
+          for (const e of response.Errors ?? []) {
+            errors.push({ key: e.Key ?? "", versionId: e.VersionId, code: e.Code, message: e.Message })
+          }
+        } catch (error) {
+          // Nothing deleted yet → the failure is systemic (bad bucket, denied
+          // credentials). Surface it as a normal tRPC error rather than as 1000
+          // identical per-key errors.
+          if (deleted.length === 0 && errors.length === 0) {
+            throw mapS3ErrorToTRPCError(error, { operation: "delete objects", bucket: containerName })
+          }
+          // Otherwise degrade: earlier chunks really were deleted, so keep the
+          // partial result and report this chunk's keys as failures.
+          const message = error instanceof Error ? error.message : String(error)
+          for (const key of chunk) errors.push({ key, code: "RequestFailed", message })
+        }
+      }
+
+      return deleteObjectsBulkOutputSchema.parse({
+        deleted,
+        errors,
+        deletedCount: deleted.length,
+        errorCount: errors.length,
+      })
+    }),
 
   /**
    * Create a folder (zero-byte object with key ending in "/").
@@ -1207,9 +1289,6 @@ export const objectRouter = {
           }
           throw mappedError
         }
-        // mapS3ErrorToTRPCError always throws; this keeps control flow provably
-        // exhaustive for the Promise<{ success: boolean }> return type.
-        throw error
       } finally {
         uploadProgressMap.delete(scopedUploadId)
       }

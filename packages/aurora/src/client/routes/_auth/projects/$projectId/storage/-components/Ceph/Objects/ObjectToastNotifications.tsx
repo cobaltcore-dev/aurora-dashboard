@@ -1,6 +1,6 @@
 import { ReactNode } from "react"
 import { NotificationOptions } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
+import { Trans, Plural } from "@lingui/react/macro"
 
 // ── Folder operations ──────────────────────────────────────────────────────────
 
@@ -45,6 +45,30 @@ export const getObjectDeleteErrorToast = (
     ),
   }
 }
+
+// ── Bulk object delete ─────────────────────────────────────────────────────────
+
+export const getObjectsBulkDeletedToast = (deletedCount: number): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Objects Deleted</Trans>,
+  description: <Plural value={deletedCount} one="# object was deleted." other="# objects were deleted." />,
+})
+
+export const getObjectsBulkDeletePartialToast = (
+  deletedCount: number,
+  errorCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Some Objects Could Not Be Deleted</Trans>,
+  description: (
+    <Trans>
+      {deletedCount} deleted, {errorCount} failed. See the details in the dialog.
+    </Trans>
+  ),
+})
+
+export const getObjectsBulkDeleteErrorToast = (errorMessage: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete Objects</Trans>,
+  description: <Trans>No objects were deleted: {errorMessage}</Trans>,
+})
 
 // ── Object copy ────────────────────────────────────────────────────────────────
 

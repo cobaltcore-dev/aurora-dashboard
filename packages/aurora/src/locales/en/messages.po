@@ -22,6 +22,12 @@ msgstr "—"
 msgid "... and {hiddenCount} more"
 msgstr "... and {hiddenCount} more"
 
+msgid "… and {hiddenCount} more"
+msgstr "… and {hiddenCount} more"
+
+msgid "… and {hiddenErrorCount} more failures"
+msgstr "… and {hiddenErrorCount} more failures"
+
 msgid "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
 msgstr "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
 
@@ -49,8 +55,20 @@ msgstr "{certificateIdValue} Certificate Details"
 msgid "{count, plural, one {# object} other {# objects}}"
 msgstr "{count, plural, one {# object} other {# objects}}"
 
+msgid "{count, plural, one {Delete # Object} other {Delete # Objects}}"
+msgstr "{count, plural, one {Delete # Object} other {Delete # Objects}}"
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
+
+msgid "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
+msgstr "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
+
+msgid "{deletedCount} deleted, {errorCount} failed."
+msgstr "{deletedCount} deleted, {errorCount} failed."
+
+msgid "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
+msgstr "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
 
 msgid "{displayName} was successfully restored"
 msgstr "{displayName} was successfully restored"
@@ -919,6 +937,9 @@ msgstr "Delete Policy"
 msgid "Delete Recursively"
 msgstr "Delete Recursively"
 
+msgid "Delete Results"
+msgstr "Delete Results"
+
 msgid "Delete Rule"
 msgstr "Delete Rule"
 
@@ -1029,6 +1050,9 @@ msgstr "DNS Name"
 
 msgid "DNS name must be at most 63 characters."
 msgstr "DNS name must be at most 63 characters."
+
+msgid "Done"
+msgstr "Done"
 
 msgid "Download"
 msgstr "Download"
@@ -1272,6 +1296,9 @@ msgstr "Extra Specs"
 
 msgid "Failed"
 msgstr "Failed"
+
+msgid "Failed deletions:"
+msgstr "Failed deletions:"
 
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
 msgstr "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
@@ -2224,6 +2251,9 @@ msgstr "No objects found."
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "No objects match your search. Try adjusting your search term."
 
+msgid "No objects were deleted: {errorMessage}"
+msgstr "No objects were deleted: {errorMessage}"
+
 msgid "No PCAs found"
 msgstr "No PCAs found"
 
@@ -2346,6 +2376,9 @@ msgstr "Objects Deleted"
 
 msgid "Objects to be deleted ({totalCount})"
 msgstr "Objects to be deleted ({totalCount})"
+
+msgid "Objects to delete:"
+msgstr "Objects to delete:"
 
 msgid "Objects: {containerName}"
 msgstr "Objects: {containerName}"
@@ -2743,6 +2776,9 @@ msgstr "Security Groups"
 msgid "Select"
 msgstr "Select"
 
+msgid "Select {displayName}"
+msgstr "Select {displayName}"
+
 msgid "Select a DNS domain."
 msgstr "Select a DNS domain."
 
@@ -2757,6 +2793,9 @@ msgstr "Select a security group..."
 
 msgid "Select a template..."
 msgstr "Select a template..."
+
+msgid "Select all objects"
+msgstr "Select all objects"
 
 msgid "Select an external network"
 msgstr "Select an external network"
@@ -2892,6 +2931,9 @@ msgstr "Size:"
 
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
+
+msgid "Some Objects Could Not Be Deleted"
+msgstr "Some Objects Could Not Be Deleted"
 
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
@@ -3109,6 +3151,9 @@ msgstr "The object will be copied to this path. Navigate folders above to change
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "The object will be moved to this path. Navigate folders above to change the destination."
 
+msgid "The objects can be restored from version history."
+msgstr "The objects can be restored from version history."
+
 msgid "The page you are looking for does not exist."
 msgstr "The page you are looking for does not exist."
 
@@ -3117,6 +3162,9 @@ msgstr "The project you are looking for doesn't exist or you don't have access t
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
+
+msgid "The selected objects will be marked as deleted and can be restored from version history."
+msgstr "The selected objects will be marked as deleted and can be restored from version history."
 
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "The selected objects will be permanently deleted. This cannot be undone."

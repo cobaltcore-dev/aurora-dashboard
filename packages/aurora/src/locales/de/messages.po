@@ -22,6 +22,12 @@ msgstr "—"
 msgid "... and {hiddenCount} more"
 msgstr "... und {hiddenCount} weitere"
 
+msgid "… and {hiddenCount} more"
+msgstr ""
+
+msgid "… and {hiddenErrorCount} more failures"
+msgstr ""
+
 msgid "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
 msgstr ""
 
@@ -49,8 +55,20 @@ msgstr ""
 msgid "{count, plural, one {# object} other {# objects}}"
 msgstr "{count, plural, one {# Objekt} other {# Objekte}}"
 
+msgid "{count, plural, one {Delete # Object} other {Delete # Objects}}"
+msgstr ""
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
+
+msgid "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
+msgstr ""
+
+msgid "{deletedCount} deleted, {errorCount} failed."
+msgstr ""
+
+msgid "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
+msgstr ""
 
 msgid "{displayName} was successfully restored"
 msgstr ""
@@ -919,6 +937,9 @@ msgstr ""
 msgid "Delete Recursively"
 msgstr "Rekursiv löschen"
 
+msgid "Delete Results"
+msgstr ""
+
 msgid "Delete Rule"
 msgstr "Regel löschen"
 
@@ -1029,6 +1050,9 @@ msgstr "DNS-Name"
 
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
+
+msgid "Done"
+msgstr ""
 
 msgid "Download"
 msgstr "Herunterladen"
@@ -1271,6 +1295,9 @@ msgid "Extra Specs"
 msgstr "Zusätzliche Spezifikationen"
 
 msgid "Failed"
+msgstr ""
+
+msgid "Failed deletions:"
 msgstr ""
 
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
@@ -2224,6 +2251,9 @@ msgstr ""
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
+msgid "No objects were deleted: {errorMessage}"
+msgstr ""
+
 msgid "No PCAs found"
 msgstr "No PCAs found"
 
@@ -2346,6 +2376,9 @@ msgstr "Objekte gelöscht"
 
 msgid "Objects to be deleted ({totalCount})"
 msgstr "Zu löschende Objekte ({totalCount})"
+
+msgid "Objects to delete:"
+msgstr ""
 
 msgid "Objects: {containerName}"
 msgstr ""
@@ -2743,6 +2776,9 @@ msgstr "Security Groups"
 msgid "Select"
 msgstr "Auswählen"
 
+msgid "Select {displayName}"
+msgstr ""
+
 msgid "Select a DNS domain."
 msgstr "DNS-Domain auswählen."
 
@@ -2756,6 +2792,9 @@ msgid "Select a security group..."
 msgstr "Security Group auswählen..."
 
 msgid "Select a template..."
+msgstr ""
+
+msgid "Select all objects"
 msgstr ""
 
 msgid "Select an external network"
@@ -2891,6 +2930,9 @@ msgid "Size:"
 msgstr ""
 
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
+msgstr ""
+
+msgid "Some Objects Could Not Be Deleted"
 msgstr ""
 
 msgid "Something went wrong:"
@@ -3109,6 +3151,9 @@ msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Or
 msgid "The object will be moved to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
 
+msgid "The objects can be restored from version history."
+msgstr ""
+
 msgid "The page you are looking for does not exist."
 msgstr "Die gesuchte Seite existiert nicht."
 
@@ -3117,6 +3162,9 @@ msgstr ""
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
+
+msgid "The selected objects will be marked as deleted and can be restored from version history."
+msgstr ""
 
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."

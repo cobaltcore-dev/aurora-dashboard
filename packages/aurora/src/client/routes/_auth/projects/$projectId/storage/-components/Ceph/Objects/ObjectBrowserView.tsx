@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, startTransition } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
+import { plural } from "@lingui/core/macro"
 import {
   Spinner,
   Stack,
@@ -10,6 +11,11 @@ import {
   SearchInput,
   TabNavigation,
   TabNavigationItem,
+  Checkbox,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuToggle,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -19,6 +25,7 @@ import { ObjectsTableView } from "./ObjectsTableView"
 import { ObjectsFileNavigation } from "./ObjectsFileNavigation"
 import { CreateFolderModal } from "./CreateFolderModal"
 import { UploadObjectModal } from "./UploadObjectModal"
+import { DeleteObjectsModal } from "./DeleteObjectsModal"
 import { EnableVersioningModal } from "../Buckets/EnableVersioningModal"
 import { SuspendVersioningModal } from "../Buckets/SuspendVersioningModal"
 import { BucketPolicyModal } from "../Buckets/BucketPolicyModal"
@@ -33,6 +40,9 @@ import {
   getFolderCreatedToast,
   getObjectDeletedToast,
   getObjectDeleteErrorToast,
+  getObjectsBulkDeletedToast,
+  getObjectsBulkDeletePartialToast,
+  getObjectsBulkDeleteErrorToast,
   getObjectCopiedToast,
   getObjectCopyErrorToast,
   getObjectMovedToast,
@@ -76,6 +86,12 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [isEmptyBucketModalOpen, setIsEmptyBucketModalOpen] = useState(false)
   const [isDeleteBucketModalOpen, setIsDeleteBucketModalOpen] = useState(false)
   const [isDeleteVersionsModalOpen, setIsDeleteVersionsModalOpen] = useState(false)
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+  const [isDeleteObjectsModalOpen, setIsDeleteObjectsModalOpen] = useState(false)
+
+  // TODO(perms): wire to storage.canUser({ permission: "storage:objects:delete" })
+  // instead of hardcoding — mirrors the Swift objects list.
+  const hasAnyBulkAction = true
 
   // Local mirror of the committed search term so typing stays responsive while
   // the URL commit is debounced (see Zone 2 SearchInput below).
@@ -100,6 +116,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setAllObjects([])
     setAllFolders([])
     setAllVersions([])
+    setSelectedKeys([])
   }, [tab])
 
   // Query versioning status for current bucket
@@ -189,6 +206,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setAllFolders([])
     setAllVersions([])
     setHasMore(false)
+    setSelectedKeys([])
     navigate({
       search: (prev) => ({
         ...prev,
@@ -206,6 +224,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setAllFolders([])
     setAllVersions([])
     setHasMore(false)
+    setSelectedKeys([])
 
     navigate({
       to: "/projects/$projectId/storage/$provider/$storageType",
@@ -381,6 +400,50 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     sortDirection: sortDirection ?? "asc",
   }
 
+  // Bulk selection derived values
+  const { i18n } = useLingui()
+  const showSelection = hasAnyBulkAction && tab !== "deleted"
+  const selectableKeys = sortedObjects.map((o) => o.key)
+  const allSelected = selectableKeys.length > 0 && selectableKeys.every((k) => selectedKeys.includes(k))
+  const someSelected = selectableKeys.some((k) => selectedKeys.includes(k))
+  const selectedCount = selectedKeys.length
+
+  const handleToggleSelectKey = (key: string) =>
+    setSelectedKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]))
+
+  const handleToggleSelectAll = () =>
+    setSelectedKeys((prev) =>
+      allSelected ? prev.filter((k) => !selectableKeys.includes(k)) : [...new Set([...prev, ...selectableKeys])]
+    )
+
+  const resetAccumulatedObjects = () => {
+    setContinuationToken(undefined)
+    setKeyMarker(undefined)
+    setVersionIdMarker(undefined)
+    setAllObjects([])
+    setAllFolders([])
+    setHasMore(false)
+  }
+
+  const handleBulkDeleted = (deletedKeys: string[], errorCount: number) => {
+    // The list accumulates pages; a plain invalidate would refetch only the last
+    // page and append it. Drop the accumulator so the refetch rebuilds page 1.
+    resetAccumulatedObjects()
+    setSelectedKeys((prev) => prev.filter((k) => !deletedKeys.includes(k)))
+    if (errorCount === 0) {
+      const { message, ...options } = getObjectsBulkDeletedToast(deletedKeys.length)
+      toast.success(message, options)
+    } else {
+      const { message, ...options } = getObjectsBulkDeletePartialToast(deletedKeys.length, errorCount)
+      toast.warning(message, options)
+    }
+  }
+
+  const handleBulkDeleteError = (errorMessage: string) => {
+    const { message, ...options } = getObjectsBulkDeleteErrorToast(errorMessage)
+    toast.error(message, options)
+  }
+
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const value = typeof term === "string" ? term : ""
     startTransition(() => {
@@ -520,6 +583,33 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         {/* Zone 4 — item count. */}
         <DataGridToolbar>
           <Stack distribution="between" gap="2" alignment="center" className="text-sm">
+            {showSelection ? (
+              <Stack gap="2" alignment="center">
+                <Checkbox
+                  checked={allSelected}
+                  indeterminate={someSelected && !allSelected}
+                  onChange={handleToggleSelectAll}
+                  aria-label={t`Select all objects`}
+                  data-testid="select-all-objects"
+                />
+                <PopupMenu className="flex items-center">
+                  <PopupMenuToggle as="div">
+                    <Button disabled={selectedCount === 0} size="small" icon="moreVert" label={t`Actions`} />
+                  </PopupMenuToggle>
+                  {selectedCount > 0 && (
+                    <PopupMenuOptions>
+                      <PopupMenuItem
+                        label={i18n._(plural(selectedCount, { one: "Delete # Object", other: "Delete # Objects" }))}
+                        onClick={() => setIsDeleteObjectsModalOpen(true)}
+                        data-testid="bulk-delete-action"
+                      />
+                    </PopupMenuOptions>
+                  )}
+                </PopupMenu>
+              </Stack>
+            ) : (
+              <span />
+            )}
             <div className="text-theme-light flex items-center gap-1" data-testid="objects-info-block">
               {searchParam.trim() ? (
                 <Plural
@@ -549,6 +639,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           showingVersions={tab === "deleted"}
           currentPrefix={currentPrefix}
           versioningEnabled={versioningStatus?.status === "Enabled"}
+          selectable={showSelection}
+          selectedKeys={selectedKeys}
+          onToggleSelectKey={handleToggleSelectKey}
           onFolderClick={navigateToPrefix}
           onDeleteObjectSuccess={(objectKey) => {
             const { message, ...options } = getObjectDeletedToast(objectKey)
@@ -628,6 +721,17 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           const { message, ...options } = getObjectUploadCancelledToast(objectName)
           toast.warning(message, options)
         }}
+      />
+
+      <DeleteObjectsModal
+        bucketName={bucketName}
+        objectKeys={selectedKeys}
+        currentPrefix={currentPrefix}
+        versioningEnabled={versioningStatus?.status === "Enabled"}
+        isOpen={isDeleteObjectsModalOpen}
+        onClose={() => setIsDeleteObjectsModalOpen(false)}
+        onDeleted={handleBulkDeleted}
+        onError={handleBulkDeleteError}
       />
 
       <EnableVersioningModal

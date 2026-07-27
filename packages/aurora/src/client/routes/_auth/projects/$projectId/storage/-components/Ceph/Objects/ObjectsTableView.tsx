@@ -11,6 +11,10 @@ import {
   Spinner,
   Icon,
   toast,
+  Checkbox,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
@@ -108,8 +112,9 @@ type VersionRow = {
 }
 type CephRow = FolderRow | ObjectRow | VersionRow
 
-// Define column template — 4 columns: name | size | last modified | actions
-const GRID_COLUMN_TEMPLATE = "minmax(200px, 3fr) minmax(100px, 1fr) minmax(180px, 2fr) 60px"
+// Define column templates — with and without selection column
+const GRID_COLUMN_TEMPLATE_WITH_SELECT = "40px minmax(200px, 3fr) minmax(100px, 1fr) minmax(180px, 2fr) 60px"
+const GRID_COLUMN_TEMPLATE_NO_SELECT = "minmax(200px, 3fr) minmax(100px, 1fr) minmax(180px, 2fr) 60px"
 
 interface ObjectsTableViewProps {
   bucketName: string
@@ -119,6 +124,9 @@ interface ObjectsTableViewProps {
   currentPrefix: string
   versioningEnabled?: boolean
   showingVersions?: boolean // Flag to indicate we're in versions view mode
+  selectable?: boolean
+  selectedKeys?: string[]
+  onToggleSelectKey?: (objectKey: string) => void
   onFolderClick: (prefix: string) => void
   onDeleteObjectSuccess: (objectKey: string) => void
   onDeleteObjectError: (objectKey: string, errorMessage: string) => void
@@ -141,6 +149,9 @@ export function ObjectsTableView({
   currentPrefix,
   versioningEnabled = false,
   showingVersions = false,
+  selectable = false,
+  selectedKeys = [],
+  onToggleSelectKey,
   onFolderClick,
   onDeleteObjectSuccess,
   onDeleteObjectError,
@@ -271,6 +282,11 @@ export function ObjectsTableView({
           ),
         ]
 
+  // Derived selection values
+  const showSelection = selectable && !showingVersions
+  const gridColumnTemplate = showSelection ? GRID_COLUMN_TEMPLATE_WITH_SELECT : GRID_COLUMN_TEMPLATE_NO_SELECT
+  const columnCount = showSelection ? 5 : 4
+
   // Height measured from the space actually left below the table, plus a
   // virtualizer that stays silent until that height is known.
   const {
@@ -293,8 +309,15 @@ export function ObjectsTableView({
   if (rows.length === 0) {
     return (
       <>
-        <DataGrid columns={4}>
+        <DataGrid columns={columnCount}>
           <DataGridRow>
+            {showSelection && (
+              <DataGridHeadCell>
+                <span className="sr-only">
+                  <Trans>Select</Trans>
+                </span>
+              </DataGridHeadCell>
+            )}
             <DataGridHeadCell>
               <Trans>Name</Trans>
             </DataGridHeadCell>
@@ -307,7 +330,7 @@ export function ObjectsTableView({
             <DataGridHeadCell />
           </DataGridRow>
           <DataGridRow>
-            <DataGridCell colSpan={4}>
+            <DataGridCell colSpan={columnCount}>
               <div className="py-8 text-center">
                 <p className="text-theme-light">
                   <Trans>No objects found.</Trans>
@@ -335,8 +358,15 @@ export function ObjectsTableView({
       <div className="relative">
         {/* Table Header with scrollbar padding */}
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
-          <DataGrid columns={4} gridColumnTemplate={GRID_COLUMN_TEMPLATE} data-testid="objects-table-header">
+          <DataGrid columns={columnCount} gridColumnTemplate={gridColumnTemplate} data-testid="objects-table-header">
             <DataGridRow>
+              {showSelection && (
+                <DataGridHeadCell>
+                  <span className="sr-only">
+                    <Trans>Select</Trans>
+                  </span>
+                </DataGridHeadCell>
+              )}
               <DataGridHeadCell>
                 <Trans>Name</Trans>
               </DataGridHeadCell>
@@ -392,11 +422,43 @@ export function ObjectsTableView({
                     width: "100%",
                     transform: `translateY(${virtualRow.start}px)`,
                     display: "grid",
-                    gridTemplateColumns: GRID_COLUMN_TEMPLATE,
+                    gridTemplateColumns: gridColumnTemplate,
                     alignItems: "stretch",
                   }}
                   data-testid={isFolder ? `folder-row-${row.prefix}` : `object-row-${row.key}`}
                 >
+                  {/* Selection column */}
+                  {showSelection && (
+                    <DataGridCell onClick={(e) => e.stopPropagation()}>
+                      {row.kind === "object" ? (
+                        (() => {
+                          const displayName = row.displayName
+                          return (
+                            <Checkbox
+                              checked={selectedKeys.includes(row.key)}
+                              disabled={isStreaming}
+                              onChange={() => onToggleSelectKey?.(row.key)}
+                              aria-label={t`Select ${displayName}`}
+                              data-testid={`select-object-${row.key}`}
+                            />
+                          )
+                        })()
+                      ) : (
+                        <Tooltip triggerEvent="hover" placement="right">
+                          <TooltipTrigger>
+                            <Checkbox
+                              disabled
+                              aria-label={t`Folders cannot be bulk-deleted. Use the row menu to delete a folder.`}
+                              data-testid={`select-folder-disabled-${row.kind === "folder" ? row.prefix : row.key}`}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <Trans>Folders cannot be bulk-deleted. Use the row menu to delete a folder.</Trans>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </DataGridCell>
+                  )}
                   {/* Name */}
                   <DataGridCell>
                     {isFolder ? (

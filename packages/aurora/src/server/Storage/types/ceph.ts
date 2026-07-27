@@ -200,6 +200,53 @@ export const deleteObjectInputSchema = projectScopedInputSchema.extend({
 })
 
 /**
+ * Delete multiple objects from a bucket in one operation.
+ *
+ * S3's DeleteObjects accepts at most 1000 keys per request; larger selections are
+ * chunked server-side (see objectRouter.deleteBulk). Folder markers (trailing "/")
+ * are rejected: DeleteObjects removes only the zero-byte marker and would orphan
+ * everything under the prefix. Folders go through objects.delete, which recurses.
+ */
+export const deleteObjectsBulkInputSchema = projectScopedInputSchema.extend({
+  containerName: z.string().min(1),
+  objectKeys: z
+    .array(z.string().min(1).max(1024)) // 1024 = S3 max key length
+    .min(1)
+    .max(10000)
+    .refine((keys) => keys.every((key) => !key.endsWith("/")), {
+      message: 'Folder keys (ending with "/") cannot be bulk-deleted. Use objects.delete, which deletes recursively.',
+    }),
+})
+
+/** One key S3 reported as deleted. Mirrors the SDK's DeletedObject shape. */
+export const deletedObjectSchema = z.object({
+  key: z.string(),
+  versionId: z.string().optional(),
+  deleteMarker: z.boolean().optional(),
+  deleteMarkerVersionId: z.string().optional(),
+})
+
+/** One key S3 refused to delete. Mirrors the SDK's Error shape. */
+export const deleteObjectErrorSchema = z.object({
+  key: z.string(),
+  versionId: z.string().optional(),
+  code: z.string().optional(), // e.g. "AccessDenied", "InternalError"
+  message: z.string().optional(),
+})
+
+/**
+ * DeleteObjects returns a *mixed* result on an otherwise-successful (HTTP 200)
+ * response: some keys land in Deleted, others in Errors. Both are surfaced so the
+ * UI can render a per-key summary instead of a single success/failure flag.
+ */
+export const deleteObjectsBulkOutputSchema = z.object({
+  deleted: z.array(deletedObjectSchema),
+  errors: z.array(deleteObjectErrorSchema),
+  deletedCount: z.number().int().nonnegative(),
+  errorCount: z.number().int().nonnegative(),
+})
+
+/**
  * Create a folder (zero-byte object with trailing "/")
  */
 export const createFolderInputSchema = projectScopedInputSchema.extend({
@@ -272,6 +319,10 @@ export type S3FolderPrefix = z.infer<typeof s3FolderPrefixSchema>
 export type ListObjectsOutput = z.infer<typeof listObjectsOutputSchema>
 export type S3ObjectDetails = z.infer<typeof s3ObjectDetailsSchema>
 export type CopyObjectOutput = z.infer<typeof copyObjectOutputSchema>
+export type DeleteObjectsBulkInput = z.infer<typeof deleteObjectsBulkInputSchema>
+export type DeletedObject = z.infer<typeof deletedObjectSchema>
+export type DeleteObjectError = z.infer<typeof deleteObjectErrorSchema>
+export type DeleteObjectsBulkOutput = z.infer<typeof deleteObjectsBulkOutputSchema>
 
 // ============================================================================
 // SERVICE INFO SCHEMAS (CLUSTER LIMITS & CAPABILITIES)
