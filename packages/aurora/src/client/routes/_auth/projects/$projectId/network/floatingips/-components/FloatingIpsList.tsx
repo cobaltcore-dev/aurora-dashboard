@@ -1,17 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import {
-  Button,
-  Stack,
-  DataGridToolbar,
-  SearchInput,
-  Checkbox,
-  PopupMenu,
-  PopupMenuItem,
-  PopupMenuToggle,
-  PopupMenuOptions,
-  Message,
-} from "@cloudoperators/juno-ui-components"
+import { Button, Stack, DataGridToolbar, SearchInput, Message } from "@cloudoperators/juno-ui-components"
 import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
@@ -33,7 +22,6 @@ export const FloatingIpsList = () => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [allocateModalOpen, toggleAllocateModal] = useModal(false)
-  const [selectedFloatingIps, setSelectedFloatingIps] = useState<Array<string>>([])
   const [localSearchTerm, setLocalSearchTerm] = useState("")
   const debounceTimer = useRef<number | undefined>(undefined)
 
@@ -42,13 +30,11 @@ export const FloatingIpsList = () => {
   const { data: permissions } = trpcReact.network.canUser.useQuery(
     {
       project_id: projectId,
-      permission: ["network:floatingips:create", "network:floatingips:delete", "network:floatingips:update"],
+      permission: ["network:floatingips:create"],
     },
     {
-      select: ([canCreate, canDelete, canUpdate]) => ({
+      select: ([canCreate]) => ({
         canCreate,
-        canDelete,
-        canUpdate,
       }),
     }
   )
@@ -101,9 +87,6 @@ export const FloatingIpsList = () => {
       placeholderData: (prev) => prev,
     }
   )
-
-  const displayedFloatingIpIds = new Set(floatingIps.map((ip) => ip.id))
-  const validSelectedFloatingIps = selectedFloatingIps.filter((id) => displayedFloatingIpIds.has(id))
 
   if (isLoading && !floatingIps.length) {
     return (
@@ -204,68 +187,11 @@ export const FloatingIpsList = () => {
         </Stack>
       </DataGridToolbar>
 
-      {/* Zone 3 — select all + bulk actions (only when at least one bulk action is available) */}
-      {(permissions?.canDelete || permissions?.canUpdate) && (
-        <DataGridToolbar>
-          <Stack distribution="between" alignment="center">
-            <Stack gap="2" alignment="center">
-              <Checkbox
-                checked={
-                  validSelectedFloatingIps.length > 0 &&
-                  floatingIps.every((ip) => validSelectedFloatingIps.includes(ip.id))
-                }
-                indeterminate={
-                  validSelectedFloatingIps.length > 0 &&
-                  !floatingIps.every((ip) => validSelectedFloatingIps.includes(ip.id))
-                }
-                onChange={() => {
-                  const allIds = floatingIps.map((ip) => ip.id)
-                  const allSelected = allIds.every((id) => validSelectedFloatingIps.includes(id))
-                  if (allSelected) {
-                    setSelectedFloatingIps(validSelectedFloatingIps.filter((id) => !allIds.includes(id)))
-                  } else {
-                    setSelectedFloatingIps([...new Set([...validSelectedFloatingIps, ...allIds])])
-                  }
-                }}
-              />
-              <PopupMenu>
-                <PopupMenuToggle as="div">
-                  <Button size="small" icon="moreVert" label={t`Actions`} />
-                </PopupMenuToggle>
-                <PopupMenuOptions>
-                  {permissions?.canDelete && (
-                    <PopupMenuItem
-                      disabled={validSelectedFloatingIps.length === 0}
-                      label={t`Delete Selected`}
-                      onClick={() => {
-                        // TODO: Implement bulk delete
-                      }}
-                    />
-                  )}
-                  {permissions?.canUpdate && (
-                    <PopupMenuItem
-                      disabled={validSelectedFloatingIps.length === 0}
-                      label={t`Update Selected`}
-                      onClick={() => {
-                        // TODO: Implement bulk update
-                      }}
-                    />
-                  )}
-                </PopupMenuOptions>
-              </PopupMenu>
-            </Stack>
-          </Stack>
-        </DataGridToolbar>
-      )}
-
       <FloatingIpListContainer
         floatingIps={floatingIps}
         isLoading={isLoading}
         isError={isError && !floatingIps.length}
         error={error}
-        selectedFloatingIps={selectedFloatingIps}
-        setSelectedFloatingIps={setSelectedFloatingIps}
-        hasAnyBulkAction={permissions?.canDelete || permissions?.canUpdate}
       />
 
       {allocateModalOpen && <AllocateFloatingIpModal open={allocateModalOpen} onClose={toggleAllocateModal} />}

@@ -3436,9 +3436,6 @@ msgstr "Update object"
 msgid "Update Security Group"
 msgstr "Update Security Group"
 
-msgid "Update Selected"
-msgstr "Update Selected"
-
 msgid "Updated At"
 msgstr "Updated At"
 

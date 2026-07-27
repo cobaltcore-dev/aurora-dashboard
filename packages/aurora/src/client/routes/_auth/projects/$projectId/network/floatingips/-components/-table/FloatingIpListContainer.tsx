@@ -8,7 +8,6 @@ import {
   Stack,
   Spinner,
 } from "@cloudoperators/juno-ui-components"
-import { Dispatch, SetStateAction } from "react"
 import { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpTableRow } from "./FloatingIpTableRow"
 import { TABLE_COLUMNS } from "./constants"
@@ -18,23 +17,12 @@ interface FloatingIpListContainerProps {
   isLoading: boolean
   isError: boolean
   error: { message?: string } | null
-  selectedFloatingIps: string[]
-  setSelectedFloatingIps: Dispatch<SetStateAction<string[]>>
-  hasAnyBulkAction?: boolean
 }
 
-export const FloatingIpListContainer = ({
-  floatingIps,
-  isLoading,
-  isError,
-  error,
-  selectedFloatingIps,
-  setSelectedFloatingIps,
-  hasAnyBulkAction = true,
-}: FloatingIpListContainerProps) => {
+export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error }: FloatingIpListContainerProps) => {
   const { t } = useLingui()
   const columns = TABLE_COLUMNS()
-  const columnCount = hasAnyBulkAction ? columns.length + 1 : columns.length
+  const columnCount = columns.length
 
   if (isLoading) {
     return (
@@ -76,7 +64,6 @@ export const FloatingIpListContainer = ({
   return (
     <DataGrid columns={columnCount}>
       <DataGridRow>
-        {hasAnyBulkAction && <DataGridHeadCell />}
         {columns.map((label) => (
           <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
         ))}
@@ -85,14 +72,9 @@ export const FloatingIpListContainer = ({
         <FloatingIpTableRow
           key={ip.id}
           floatingIp={ip}
-          isSelected={selectedFloatingIps.includes(ip.id)}
-          onSelect={(id, checked) => {
-            setSelectedFloatingIps((prev) => {
-              if (checked) return prev.includes(id) ? prev : [...prev, id]
-              return prev.filter((selectedId) => selectedId !== id)
-            })
-          }}
-          showSelectColumn={hasAnyBulkAction}
+          isSelected={false}
+          onSelect={() => {}}
+          showSelectColumn={false}
         />
       ))}
     </DataGrid>
