@@ -133,6 +133,13 @@ function FloatingIpsContent({
 
   return (
     <div className="relative">
+      {/* Non-blocking error banner for refetch failures with cached data */}
+      {isError && floatingIps.length > 0 && (
+        <Message variant="error" className="mb-4">
+          {error?.message ?? t`Failed to refresh Floating IPs. Showing cached data.`}
+        </Message>
+      )}
+
       {/* Zone 1 — sort + create button, no background */}
       <Stack distribution="end" alignment="center" gap="2" className="pb-2">
         <Stack gap="2">
@@ -263,9 +270,9 @@ function FloatingIpsContent({
 
       <FloatingIpListContainer
         floatingIps={floatingIps}
-        isLoading={false}
-        isError={false}
-        error={null}
+        isLoading={isLoading}
+        isError={isError && !floatingIps.length}
+        error={error}
         selectedFloatingIps={selectedFloatingIps}
         setSelectedFloatingIps={setSelectedFloatingIps}
         hasAnyBulkAction={permissions.canDelete || permissions.canUpdate}

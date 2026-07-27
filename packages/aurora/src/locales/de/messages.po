@@ -1468,6 +1468,9 @@ msgstr "Fehler beim Verschieben des Objekts"
 msgid "Failed to move object: {copyErrorMessage}"
 msgstr "Fehler beim Verschieben des Objekts: {copyErrorMessage}"
 
+msgid "Failed to refresh Floating IPs. Showing cached data."
+msgstr ""
+
 msgid "Failed to remove member"
 msgstr "Fehler beim Entfernen des Mitglieds"
 
