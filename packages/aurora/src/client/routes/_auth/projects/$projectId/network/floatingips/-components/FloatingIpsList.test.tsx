@@ -185,7 +185,7 @@ describe("FloatingIps List", () => {
     vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(createMockMutationResult())
     vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
       data: { canCreate: true, canDelete: true, canUpdate: true },
-    } as any)
+    } as ReturnType<typeof trpcReact.network.canUser.useQuery>)
     vi.mocked(trpcReact.useUtils).mockReturnValue({
       network: {
         floatingIp: {

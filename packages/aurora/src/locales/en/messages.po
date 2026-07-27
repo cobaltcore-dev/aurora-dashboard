@@ -1435,9 +1435,6 @@ msgstr "Failed to load extra specs. Please try again."
 msgid "Failed to load flavor details. Please try again."
 msgstr "Failed to load flavor details. Please try again."
 
-msgid "Failed to load floating IPs"
-msgstr "Failed to load floating IPs"
-
 msgid "Failed to load Floating IPs"
 msgstr "Failed to load Floating IPs"
 
