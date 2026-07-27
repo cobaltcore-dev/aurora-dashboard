@@ -68,6 +68,7 @@ export const floatingIpRouter = {
           "description",
           "floating_ip_address",
           "fixed_ip_address",
+          "floating_network_id",
         ])
       }, "list floating IPs")
     }),
