@@ -367,7 +367,7 @@ describe("FloatingIpListContainer", () => {
   })
 
   describe("hasAnyBulkAction column rendering", () => {
-    it("renders correctly when hasAnyBulkAction is true", () => {
+    it("renders correctly when hasAnyBulkAction is true", async () => {
       const mockFloatingIps: FloatingIp[] = [
         {
           id: "fip-1",
@@ -399,11 +399,14 @@ describe("FloatingIpListContainer", () => {
         />
       )
 
-      // Should render without crashing
-      expect(() => render(<RouterProvider router={router} />)).not.toThrow()
+      render(<RouterProvider router={router} />)
+      await waitFor(() => {
+        expect(screen.getByText("Status")).toBeInTheDocument()
+        expect(screen.getAllByRole("columnheader")).toHaveLength(6) // includes select column
+      })
     })
 
-    it("renders correctly when hasAnyBulkAction is false", () => {
+    it("renders correctly when hasAnyBulkAction is false", async () => {
       const mockFloatingIps: FloatingIp[] = [
         {
           id: "fip-1",
@@ -435,8 +438,11 @@ describe("FloatingIpListContainer", () => {
         />
       )
 
-      // Should render without crashing
-      expect(() => render(<RouterProvider router={router} />)).not.toThrow()
+      render(<RouterProvider router={router} />)
+      await waitFor(() => {
+        expect(screen.getByText("Status")).toBeInTheDocument()
+        expect(screen.getAllByRole("columnheader")).toHaveLength(5) // no select column
+      })
     })
   })
 })
