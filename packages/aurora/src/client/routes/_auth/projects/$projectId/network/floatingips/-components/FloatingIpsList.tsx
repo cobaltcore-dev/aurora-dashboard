@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect, use, Suspense } from "react"
-import { ErrorBoundary } from "react-error-boundary"
+import { useState, useRef, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Button,
@@ -12,13 +11,12 @@ import {
   PopupMenuToggle,
   PopupMenuOptions,
   Message,
-  Spinner,
 } from "@cloudoperators/juno-ui-components"
 import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
-import { trpcReact, TrpcClient } from "@/client/trpcClient"
+import { trpcReact } from "@/client/trpcClient"
 import { buildFilterParams } from "@/client/utils/buildFilterParams"
 import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { useModal } from "@/client/utils/useModal"
@@ -31,37 +29,29 @@ const DEFAULT_SORT_KEY = "fixed_ip_address"
 const DEFAULT_SORT_DIR = "asc"
 export type FloatingIpsSortKey = NonNullable<FloatingIpQueryParameters["sort_key"]>
 
-const createPermissionsPromise = (client: TrpcClient, project: string) => {
-  return client.network.canUser
-    .query({
-      project_id: project,
-      permission: ["network:floatingips:create", "network:floatingips:delete", "network:floatingips:update"],
-    })
-    .then(([canCreate, canDelete, canUpdate]) => ({
-      canCreate,
-      canDelete,
-      canUpdate,
-    }))
-}
-
-function FloatingIpsContent({
-  permissionsPromise,
-}: {
-  permissionsPromise: Promise<{
-    canCreate: boolean
-    canDelete: boolean
-    canUpdate: boolean
-  }>
-}) {
+export const FloatingIpsList = () => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const permissions = use(permissionsPromise)
   const [allocateModalOpen, toggleAllocateModal] = useModal(false)
   const [selectedFloatingIps, setSelectedFloatingIps] = useState<Array<string>>([])
   const [localSearchTerm, setLocalSearchTerm] = useState("")
   const debounceTimer = useRef<number | undefined>(undefined)
 
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
+
+  const { data: permissions } = trpcReact.network.canUser.useQuery(
+    {
+      project_id: projectId,
+      permission: ["network:floatingips:create", "network:floatingips:delete", "network:floatingips:update"],
+    },
+    {
+      select: ([canCreate, canDelete, canUpdate]) => ({
+        canCreate,
+        canDelete,
+        canUpdate,
+      }),
+    }
+  )
 
   const { searchTerm, handleSearchChange, sortSettings, handleSortChange, filterSettings, handleFilterChange } =
     useListWithFiltering<FloatingIpsSortKey>({
@@ -152,7 +142,7 @@ function FloatingIpsContent({
             }
             onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
           />
-          {permissions.canCreate && (
+          {permissions?.canCreate && (
             <Button onClick={toggleAllocateModal} variant="primary" className="whitespace-nowrap">
               <Trans>Allocate Floating IP</Trans>
             </Button>
@@ -215,7 +205,7 @@ function FloatingIpsContent({
       </DataGridToolbar>
 
       {/* Zone 3 — select all + bulk actions (only when at least one bulk action is available) */}
-      {(permissions.canDelete || permissions.canUpdate) && (
+      {(permissions?.canDelete || permissions?.canUpdate) && (
         <DataGridToolbar>
           <Stack distribution="between" alignment="center">
             <Stack gap="2" alignment="center">
@@ -243,7 +233,7 @@ function FloatingIpsContent({
                   <Button size="small" icon="moreVert" label={t`Actions`} />
                 </PopupMenuToggle>
                 <PopupMenuOptions>
-                  {permissions.canDelete && (
+                  {permissions?.canDelete && (
                     <PopupMenuItem
                       disabled={validSelectedFloatingIps.length === 0}
                       label={t`Delete Selected`}
@@ -252,7 +242,7 @@ function FloatingIpsContent({
                       }}
                     />
                   )}
-                  {permissions.canUpdate && (
+                  {permissions?.canUpdate && (
                     <PopupMenuItem
                       disabled={validSelectedFloatingIps.length === 0}
                       label={t`Update Selected`}
@@ -275,36 +265,10 @@ function FloatingIpsContent({
         error={error}
         selectedFloatingIps={selectedFloatingIps}
         setSelectedFloatingIps={setSelectedFloatingIps}
-        hasAnyBulkAction={permissions.canDelete || permissions.canUpdate}
+        hasAnyBulkAction={permissions?.canDelete || permissions?.canUpdate}
       />
 
       {allocateModalOpen && <AllocateFloatingIpModal open={allocateModalOpen} onClose={toggleAllocateModal} />}
     </div>
-  )
-}
-
-export const FloatingIpsList = () => {
-  const projectId = useProjectId()
-  const client = trpcReact.useUtils().client
-  const [permissionsPromise] = useState(() => createPermissionsPromise(client, projectId))
-
-  return (
-    <ErrorBoundary
-      fallback={
-        <Message variant="error">
-          <Trans>Failed to load floating IPs</Trans>
-        </Message>
-      }
-    >
-      <Suspense
-        fallback={
-          <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-            <Spinner />
-          </Stack>
-        }
-      >
-        <FloatingIpsContent permissionsPromise={permissionsPromise} />
-      </Suspense>
-    </ErrorBoundary>
   )
 }

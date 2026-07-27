@@ -70,6 +70,9 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
             useMutation: vi.fn(),
           },
         },
+        canUser: {
+          useQuery: vi.fn(),
+        },
       },
     },
   }
@@ -180,6 +183,9 @@ describe("FloatingIps List", () => {
   beforeEach(() => {
     i18n.activate("en")
     vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(createMockMutationResult())
+    vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
+      data: { canCreate: true, canDelete: true, canUpdate: true },
+    } as any)
     vi.mocked(trpcReact.useUtils).mockReturnValue({
       network: {
         floatingIp: {
@@ -206,17 +212,22 @@ describe("FloatingIps List", () => {
   })
 
   describe("tRPC query", () => {
-    it("calls tRPC with default sort parameters", () => {
+    it("calls tRPC with default sort parameters and placeholderData option", () => {
       const mockUseQuery = vi.mocked(trpcReact.network.floatingIp.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: [] }))
 
       render(<FloatingIpsList />, { wrapper: createWrapper() })
 
-      expect(mockUseQuery).toHaveBeenCalledWith({
-        project_id: "test-project",
-        sort_key: "fixed_ip_address",
-        sort_dir: "asc",
-      })
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        {
+          project_id: "test-project",
+          sort_key: "fixed_ip_address",
+          sort_dir: "asc",
+        },
+        {
+          placeholderData: expect.any(Function),
+        }
+      )
     })
 
     it("passes loading state", () => {
@@ -231,7 +242,7 @@ describe("FloatingIps List", () => {
       expect(screen.getByText("Loading...")).toBeInTheDocument()
     })
 
-    it("passes error state", () => {
+    it("shows error when data fetch fails with no cached data", () => {
       vi.mocked(trpcReact.network.floatingIp.list.useQuery).mockReturnValue(
         createMockQueryResult<FloatingIp[]>({
           isError: true,
@@ -241,7 +252,7 @@ describe("FloatingIps List", () => {
 
       render(<FloatingIpsList />, { wrapper: createWrapper() })
 
-      expect(screen.getByTestId("error")).toHaveTextContent("Failed to fetch floating IPs")
+      expect(screen.getByText("Failed to fetch floating IPs")).toBeInTheDocument()
     })
 
     it("passes floating IPs data", () => {

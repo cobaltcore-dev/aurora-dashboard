@@ -365,4 +365,78 @@ describe("FloatingIpListContainer", () => {
       expect(screen.getByText("Failed to load Floating IPs")).toBeInTheDocument()
     })
   })
+
+  describe("hasAnyBulkAction column rendering", () => {
+    it("renders correctly when hasAnyBulkAction is true", () => {
+      const mockFloatingIps: FloatingIp[] = [
+        {
+          id: "fip-1",
+          floating_ip_address: "203.0.113.10",
+          fixed_ip_address: "10.0.0.5",
+          floating_network_id: "net-1",
+          port_id: "port-1",
+          router_id: "router-1",
+          project_id: "proj-1",
+          tenant_id: "proj-1",
+          status: "ACTIVE",
+          dns_domain: "",
+          dns_name: "",
+          description: "Test IP",
+          revision_number: 1,
+          tags: [],
+        },
+      ]
+
+      const router = createRouterWrapper(
+        <FloatingIpListContainer
+          floatingIps={mockFloatingIps}
+          isLoading={false}
+          isError={false}
+          error={null}
+          selectedFloatingIps={[]}
+          setSelectedFloatingIps={vi.fn()}
+          hasAnyBulkAction={true}
+        />
+      )
+
+      // Should render without crashing
+      expect(() => render(<RouterProvider router={router} />)).not.toThrow()
+    })
+
+    it("renders correctly when hasAnyBulkAction is false", () => {
+      const mockFloatingIps: FloatingIp[] = [
+        {
+          id: "fip-1",
+          floating_ip_address: "203.0.113.10",
+          fixed_ip_address: "10.0.0.5",
+          floating_network_id: "net-1",
+          port_id: "port-1",
+          router_id: "router-1",
+          project_id: "proj-1",
+          tenant_id: "proj-1",
+          status: "ACTIVE",
+          dns_domain: "",
+          dns_name: "",
+          description: "Test IP",
+          revision_number: 1,
+          tags: [],
+        },
+      ]
+
+      const router = createRouterWrapper(
+        <FloatingIpListContainer
+          floatingIps={mockFloatingIps}
+          isLoading={false}
+          isError={false}
+          error={null}
+          selectedFloatingIps={[]}
+          setSelectedFloatingIps={vi.fn()}
+          hasAnyBulkAction={false}
+        />
+      )
+
+      // Should render without crashing
+      expect(() => render(<RouterProvider router={router} />)).not.toThrow()
+    })
+  })
 })
