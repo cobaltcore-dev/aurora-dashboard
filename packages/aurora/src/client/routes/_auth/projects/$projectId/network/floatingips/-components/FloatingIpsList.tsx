@@ -66,10 +66,6 @@ export const FloatingIpsList = () => {
       },
     })
 
-  useEffect(() => {
-    setLocalSearchTerm(searchTerm)
-  }, [searchTerm])
-
   const {
     data: floatingIps = [],
     isLoading,
