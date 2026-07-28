@@ -295,4 +295,37 @@ describe("FloatingIpListContainer", () => {
       expect(screen.getByText("Failed to load Floating IPs")).toBeInTheDocument()
     })
   })
+
+  describe("Column rendering", () => {
+    it("renders all columns including actions column", async () => {
+      const mockFloatingIps: FloatingIp[] = [
+        {
+          id: "fip-1",
+          floating_ip_address: "203.0.113.10",
+          fixed_ip_address: "10.0.0.5",
+          floating_network_id: "net-1",
+          port_id: "port-1",
+          router_id: "router-1",
+          project_id: "proj-1",
+          tenant_id: "proj-1",
+          status: "ACTIVE",
+          dns_domain: "",
+          dns_name: "",
+          description: "Test IP",
+          revision_number: 1,
+          tags: [],
+        },
+      ]
+
+      const router = createRouterWrapper(
+        <FloatingIpListContainer floatingIps={mockFloatingIps} isLoading={false} isError={false} error={null} />
+      )
+
+      render(<RouterProvider router={router} />)
+      await waitFor(() => {
+        expect(screen.getByText("Status")).toBeInTheDocument()
+        expect(screen.getAllByRole("columnheader")).toHaveLength(6) // 5 data columns + 1 actions column
+      })
+    })
+  })
 })

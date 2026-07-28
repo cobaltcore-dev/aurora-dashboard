@@ -22,6 +22,7 @@ interface FloatingIpListContainerProps {
 export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error }: FloatingIpListContainerProps) => {
   const { t } = useLingui()
   const columns = TABLE_COLUMNS()
+  const columnCount = columns.length
 
   if (isLoading) {
     return (
@@ -42,9 +43,9 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
 
   if (floatingIps.length === 0) {
     return (
-      <DataGrid columns={columns.length} className="floating-ips" data-testid="no-floating-ips">
+      <DataGrid columns={columnCount} className="floating-ips" data-testid="no-floating-ips">
         <DataGridRow>
-          <DataGridCell colSpan={columns.length}>
+          <DataGridCell colSpan={columnCount}>
             <ContentHeading>
               <Trans>No Floating IPs found</Trans>
             </ContentHeading>
@@ -61,7 +62,7 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
   }
 
   return (
-    <DataGrid columns={columns.length}>
+    <DataGrid columns={columnCount}>
       <DataGridRow>
         {columns.map((label) => (
           <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
