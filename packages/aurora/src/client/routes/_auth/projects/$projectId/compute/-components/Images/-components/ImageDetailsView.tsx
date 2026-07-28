@@ -17,6 +17,7 @@ import { SizeDisplay } from "./SizeDisplay"
 import { trpcReact } from "@/client/trpcClient"
 import { MEMBER_STATUSES } from "../../../-constants/filters"
 import ClipboardText from "@/client/components/ClipboardText"
+import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
 import { ImageMembersTable } from "./ImageMembersTable"
 
 interface ImageDetailsViewProps {
@@ -101,53 +102,29 @@ const SharedImageBox: React.FC<{
 
 export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) => {
   const { t } = useLingui()
+  const items = [
+    { label: t`ID`, value: <ClipboardText text={image.id} /> },
+    { label: t`Name`, value: image.name },
+    { label: t`Status`, value: image.status },
+    { label: t`Size`, value: <SizeDisplay size={image.size} /> },
+    { label: t`Min. Disk`, value: `${image.min_disk} GB` },
+    { label: t`Min. RAM`, value: `${image.min_ram} MB` },
+    { label: t`Disk Format`, value: <span className="uppercase">{image.disk_format}</span> },
+    { label: t`Container Format`, value: <span className="uppercase">{image.container_format}</span> },
+    {
+      label: t`Created At`,
+      value: image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`,
+    },
+    {
+      label: t`Updated At`,
+      value: image.updated_at ? new Date(image.updated_at).toLocaleDateString() : t`N/A`,
+    },
+  ]
 
   return (
     <Container px={false} py>
       <ContentHeading>{t`General Image Data`}</ContentHeading>
-      <DescriptionList alignTerms="right">
-        <DescriptionTerm>{t`ID`}</DescriptionTerm>
-        <DescriptionDefinition>
-          <ClipboardText text={image.id} />
-        </DescriptionDefinition>
-
-        <DescriptionTerm>{t`Name`}</DescriptionTerm>
-        <DescriptionDefinition>{image.name}</DescriptionDefinition>
-
-        <DescriptionTerm>{t`Status`}</DescriptionTerm>
-        <DescriptionDefinition>{image.status}</DescriptionDefinition>
-
-        <DescriptionTerm>{t`Size`}</DescriptionTerm>
-        <DescriptionDefinition>
-          <SizeDisplay size={image.size} />
-        </DescriptionDefinition>
-
-        <DescriptionTerm>{t`Min. Disk`}</DescriptionTerm>
-        <DescriptionDefinition>{image.min_disk} GB</DescriptionDefinition>
-
-        <DescriptionTerm>{t`Min. RAM`}</DescriptionTerm>
-        <DescriptionDefinition>{image.min_ram} MB</DescriptionDefinition>
-
-        <DescriptionTerm>{t`Disk Format`}</DescriptionTerm>
-        <DescriptionDefinition>
-          <span className="uppercase">{image.disk_format}</span>
-        </DescriptionDefinition>
-
-        <DescriptionTerm>{t`Container Format`}</DescriptionTerm>
-        <DescriptionDefinition>
-          <span className="uppercase">{image.container_format}</span>
-        </DescriptionDefinition>
-
-        <DescriptionTerm>{t`Created At`}</DescriptionTerm>
-        <DescriptionDefinition>
-          {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
-        </DescriptionDefinition>
-
-        <DescriptionTerm>{t`Updated At`}</DescriptionTerm>
-        <DescriptionDefinition>
-          {image.updated_at ? new Date(image.updated_at).toLocaleDateString() : t`N/A`}
-        </DescriptionDefinition>
-      </DescriptionList>
+      <TwoColumnDescriptionList items={items} />
     </Container>
   )
 }
@@ -159,23 +136,20 @@ export const SecuritySection: React.FC<{ image: GlanceImage; currentProjectId?: 
   const { t } = useLingui()
 
   const isSharedWithMe = image.visibility === "shared" && image.owner !== undefined && image.owner !== currentProjectId
+  const items = [
+    {
+      label: isSharedWithMe ? t`Shared by Project` : t`Owner Project ID`,
+      value: image.owner ? <ClipboardText text={image.owner} /> : "",
+    },
+    { label: t`Visibility`, value: image.visibility },
+    { label: t`Protected`, value: image.protected ? t`Yes` : t`No` },
+    { label: t`Checksum`, value: image?.checksum ? image.checksum : "" },
+  ]
 
   return (
     <Container px={false} py>
       <ContentHeading>{t`Security`}</ContentHeading>
-      <DescriptionList alignTerms="right">
-        <DescriptionTerm>{isSharedWithMe ? t`Shared by Project` : t`Owner Project ID`}</DescriptionTerm>
-        <DescriptionDefinition>{image.owner ? <ClipboardText text={image.owner} /> : ""}</DescriptionDefinition>
-
-        <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
-        <DescriptionDefinition>{image.visibility}</DescriptionDefinition>
-
-        <DescriptionTerm>{t`Protected`}</DescriptionTerm>
-        <DescriptionDefinition>{image.protected ? t`Yes` : t`No`}</DescriptionDefinition>
-
-        <DescriptionTerm>{t`Checksum`}</DescriptionTerm>
-        <DescriptionDefinition>{image?.checksum ? image.checksum : ""}</DescriptionDefinition>
-      </DescriptionList>
+      <TwoColumnDescriptionList items={items} />
     </Container>
   )
 }

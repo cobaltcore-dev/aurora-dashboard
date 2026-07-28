@@ -6,13 +6,12 @@ import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import {
   Modal,
   Message,
-  DataGrid,
-  DataGridRow,
-  DataGridHeadCell,
-  DataGridCell,
+  DescriptionList,
   Stack,
   Button,
   Spinner,
+  DescriptionTerm,
+  DescriptionDefinition,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { SpecFormRow } from "./SpecFormRow"
@@ -45,13 +44,9 @@ const createExtraSpecsPromise = (client: TrpcClient, project: string, flavorId: 
 
 function SpecsLoading() {
   return (
-    <DataGridRow>
-      <DataGridCell colSpan={3}>
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
-      </DataGridCell>
-    </DataGridRow>
+    <Stack distribution="center" alignment="center" className="py-4">
+      <Spinner variant="primary" />
+    </Stack>
   )
 }
 
@@ -198,7 +193,7 @@ function EditSpecContent({
   return (
     <>
       {permissions.canCreate && (
-        <Stack direction="horizontal" className="bg-theme-background-lvl-1 justify-end p-2">
+        <Stack direction="horizontal" className="bg-theme-background-lvl-1 mb-4 justify-end p-2">
           <Button
             label={t`Add Metadata`}
             data-testid="addExtraButton"
@@ -209,49 +204,46 @@ function EditSpecContent({
         </Stack>
       )}
 
-      <DataGrid columns={3}>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Key`}</DataGridHeadCell>
-          <DataGridHeadCell>{t`Value`}</DataGridHeadCell>
-          <DataGridHeadCell></DataGridHeadCell>
-        </DataGridRow>
+      {isAddingSpec && (
+        <SpecFormRow
+          specKey={key}
+          value={value}
+          errors={errors}
+          isLoading={false}
+          onKeyChange={handleKeyChange}
+          onValueChange={handleValueChange}
+          onSave={handleSave}
+          onCancel={() => {
+            resetForm()
+            setIsAddingSpec(false)
+            setMessage(null)
+          }}
+        />
+      )}
 
-        {isAddingSpec && (
-          <SpecFormRow
-            specKey={key}
-            value={value}
-            errors={errors}
-            isLoading={false}
-            onKeyChange={handleKeyChange}
-            onValueChange={handleValueChange}
-            onSave={handleSave}
-            onCancel={() => {
-              resetForm()
-              setIsAddingSpec(false)
-              setMessage(null)
-            }}
-          />
-        )}
+      {shouldShowEmptyState ? (
+        <p className="text-theme-default py-4 text-center">
+          {t`No extra specs found. Click "Add Metadata" to create one.`}
+        </p>
+      ) : (
+        <DescriptionList>
+          <DescriptionTerm>Key</DescriptionTerm>
+          <DescriptionDefinition>Value</DescriptionDefinition>
 
-        {Object.entries(extraSpecs).map(([specKey, specValue]) => (
-          <SpecRow
-            key={specKey}
-            specKey={specKey}
-            value={specValue}
-            isDeleting={isDeleting === specKey}
-            onDelete={() => handleDelete(specKey)}
-            canDelete={permissions.canDelete}
-          />
-        ))}
-
-        {shouldShowEmptyState && (
-          <DataGridRow>
-            <DataGridCell colSpan={3} className="text-theme-default py-4 text-center">
-              {t`No extra specs found. Click "Add Metadata" to create one.`}
-            </DataGridCell>
-          </DataGridRow>
-        )}
-      </DataGrid>
+          <>
+            {Object.entries(extraSpecs).map(([specKey, specValue]) => (
+              <SpecRow
+                key={specKey}
+                specKey={specKey}
+                value={specValue}
+                isDeleting={isDeleting === specKey}
+                onDelete={() => handleDelete(specKey)}
+                canDelete={permissions.canDelete}
+              />
+            ))}
+          </>
+        </DescriptionList>
+      )}
     </>
   )
 }

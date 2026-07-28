@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react"
+import React, { Fragment, useState, useEffect } from "react"
 import { useLingui } from "@lingui/react/macro"
-import { DataGridRow, DataGridCell, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { DescriptionTerm, DescriptionDefinition, Button, Spinner } from "@cloudoperators/juno-ui-components"
 
 interface SpecRowProps {
   specKey: string
@@ -28,9 +28,10 @@ export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, on
     onDelete()
   }
 
-  const button = () => {
-    if (!canDelete) {
-      return <></>
+  const deleteButton = () => {
+    if (!canDelete) return null
+    if (isDeleting) {
+      return <Spinner variant="primary" size="small" />
     }
     if (confirm) {
       return (
@@ -40,40 +41,31 @@ export const SpecRow: React.FC<SpecRowProps> = ({ specKey, value, isDeleting, on
           title={t`Delete`}
           aria-label={t`Delete`}
           data-testid="confirm-deletion"
-          disabled={isDeleting}
+          size="small"
         >
           {t`Delete`}
         </Button>
       )
-    } else {
-      return (
-        <Button
-          icon="deleteForever"
-          onClick={() => setConfirm(true)}
-          title={t`Delete ${specKey}`}
-          aria-label={t`Delete ${specKey}`}
-          data-testid={`delete-${specKey}`}
-          disabled={isDeleting}
-        />
-      )
     }
+    return (
+      <Button
+        icon="deleteForever"
+        onClick={() => setConfirm(true)}
+        title={t`Delete ${specKey}`}
+        aria-label={t`Delete ${specKey}`}
+        data-testid={`delete-${specKey}`}
+        size="small"
+      />
+    )
   }
 
   return (
-    <DataGridRow>
-      <DataGridCell>{specKey}</DataGridCell>
-      <DataGridCell className="break-all">{value}</DataGridCell>
-      <DataGridCell>
-        {isDeleting ? (
-          <Stack distribution="center" alignment="center">
-            <Spinner variant="primary" />
-          </Stack>
-        ) : (
-          <Stack distribution="end" alignment="end">
-            {button()}
-          </Stack>
-        )}
-      </DataGridCell>
-    </DataGridRow>
+    <Fragment>
+      <DescriptionTerm>{specKey}</DescriptionTerm>
+      <DescriptionDefinition className="flex justify-between">
+        <span className="break-all">{value}</span>
+        {deleteButton()}
+      </DescriptionDefinition>
+    </Fragment>
   )
 }

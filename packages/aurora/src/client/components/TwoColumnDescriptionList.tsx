@@ -1,9 +1,10 @@
-import { Fragment } from "react"
+import { Fragment, type ReactNode } from "react"
 import { DescriptionDefinition, DescriptionList, DescriptionTerm, Stack } from "@cloudoperators/juno-ui-components"
 
 export type DetailListItem = {
-  label: string
-  value: string
+  id?: string
+  label: string | ReactNode
+  value: string | number | ReactNode | undefined
 }
 
 interface TwoColumnDescriptionListProps {
@@ -18,8 +19,8 @@ export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProp
   return (
     <Stack gap="6" className="grid grid-cols-2">
       <DescriptionList alignTerms="right">
-        {firstColumn.map(({ label, value }) => (
-          <Fragment key={label}>
+        {firstColumn.map(({ id, label, value }, index) => (
+          <Fragment key={id ?? `left-${index}`}>
             <DescriptionTerm>{label}</DescriptionTerm>
             <DescriptionDefinition>{value}</DescriptionDefinition>
           </Fragment>
@@ -27,8 +28,8 @@ export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProp
       </DescriptionList>
 
       <DescriptionList alignTerms="right">
-        {secondColumn.map(({ label, value }) => (
-          <Fragment key={label}>
+        {secondColumn.map(({ id, label, value }, index) => (
+          <Fragment key={id ?? `right-${index}`}>
             <DescriptionTerm>{label}</DescriptionTerm>
             <DescriptionDefinition>{value}</DescriptionDefinition>
           </Fragment>

@@ -1,6 +1,7 @@
-import { DataGrid, DataGridRow, DataGridCell, DataGridHeadCell, Button } from "@cloudoperators/juno-ui-components"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
+import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
 
 interface SecurityGroupBasicInfoProps {
   securityGroup: SecurityGroup
@@ -11,10 +12,18 @@ interface SecurityGroupBasicInfoProps {
 export function SecurityGroupBasicInfo({ securityGroup, onEdit, canUpdate }: SecurityGroupBasicInfoProps) {
   const { t } = useLingui()
 
-  const BooleanValue = ({ value }: { value: boolean | undefined }) => <span>{value ? t`Yes` : t`No`}</span>
+  const securityGroupItems = [
+    { label: t`Description`, value: securityGroup.description || t`—` },
+    { label: t`ID`, value: securityGroup.id },
+    { label: t`Tags`, value: securityGroup.tags?.join(", ") || t`—` },
+    { label: t`Name`, value: securityGroup.name || t`—` },
+    { label: t`Stateful`, value: securityGroup.stateful ? t`Yes` : t`No` },
+    { label: t`Owning Project ID`, value: securityGroup.project_id || t`—` },
+    { label: t`Shared`, value: securityGroup.shared ? t`Yes` : t`No` },
+  ]
 
   return (
-    <div>
+    <>
       <div className="mb-4 flex flex-row-reverse">
         {onEdit && canUpdate && (
           <Button variant="primary" onClick={onEdit} disabled={!canUpdate}>
@@ -23,63 +32,7 @@ export function SecurityGroupBasicInfo({ securityGroup, onEdit, canUpdate }: Sec
         )}
       </div>
 
-      <DataGrid columns={4} gridColumnTemplate="15% 35% 15% 35%">
-        <DataGridRow>
-          <DataGridHeadCell>{t`Description`}</DataGridHeadCell>
-          <DataGridCell colSpan={3}>
-            <div
-              className="overflow-hidden text-ellipsis whitespace-nowrap"
-              title={securityGroup.description || undefined}
-            >
-              {securityGroup.description || t`—`}
-            </div>
-          </DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`ID`}</DataGridHeadCell>
-          <DataGridCell>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={securityGroup.id}>
-              {securityGroup.id}
-            </div>
-          </DataGridCell>
-          <DataGridHeadCell>{t`Tags`}</DataGridHeadCell>
-          <DataGridCell>
-            <div
-              className="overflow-hidden text-ellipsis whitespace-nowrap"
-              title={securityGroup.tags?.join(", ") || undefined}
-            >
-              {securityGroup.tags?.join(", ") || t`—`}
-            </div>
-          </DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
-          <DataGridCell>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={securityGroup.name || undefined}>
-              {securityGroup.name}
-            </div>
-          </DataGridCell>
-          <DataGridHeadCell>{t`Stateful`}</DataGridHeadCell>
-          <DataGridCell>
-            <BooleanValue value={securityGroup.stateful} />
-          </DataGridCell>
-        </DataGridRow>
-        <DataGridRow>
-          <DataGridHeadCell>{t`Owning Project ID`}</DataGridHeadCell>
-          <DataGridCell>
-            <div
-              className="overflow-hidden text-ellipsis whitespace-nowrap"
-              title={securityGroup.project_id || undefined}
-            >
-              {securityGroup.project_id || t`—`}
-            </div>
-          </DataGridCell>
-          <DataGridHeadCell>{t`Shared`}</DataGridHeadCell>
-          <DataGridCell>
-            <BooleanValue value={securityGroup.shared} />
-          </DataGridCell>
-        </DataGridRow>
-      </DataGrid>
-    </div>
+      <TwoColumnDescriptionList items={securityGroupItems} />
+    </>
   )
 }
