@@ -54,9 +54,7 @@ export const DeactivateImageModal: React.FC<DeactivateImageModalProps> = ({
       ) : (
         <>
           <Message
-            text={t`
-              Deactivating this image will prevent it from being used to launch new instances. Existing instances will
-              not be affected.`}
+            text={t`Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected.`}
             variant="danger"
             className="mb-4"
           />

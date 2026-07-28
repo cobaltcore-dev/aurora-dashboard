@@ -13,15 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-msgid ""
-"\n"
-"              Deactivating this image will prevent it from being used to launch new instances. Existing instances will\n"
-"              not be affected."
-msgstr ""
-"\n"
-"              Deactivating this image will prevent it from being used to launch new instances. Existing instances will\n"
-"              not be affected."
-
 msgid "-"
 msgstr "-"
 
@@ -864,6 +855,9 @@ msgstr "Deactivate Selected"
 
 msgid "Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated."
 msgstr "Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated."
+
+msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
+msgstr "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 
 msgid "Define permissions for this bucket. You may use one of the predefined templates."
 msgstr "Define permissions for this bucket. You may use one of the predefined templates."
