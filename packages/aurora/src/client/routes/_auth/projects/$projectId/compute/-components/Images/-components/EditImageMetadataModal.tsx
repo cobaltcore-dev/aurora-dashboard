@@ -239,154 +239,153 @@ function EditImageMetadataModalInner({
               icon="addCircle"
             />
           </Stack>
-          <DescriptionList className="mb-6">
-            <DescriptionTerm>{t`Property Key`}</DescriptionTerm>
-            <DescriptionDefinition>{t`Value`}</DescriptionDefinition>
+          {metadata.length === 0 && !isAddingNew ? (
+            <p className="jn:text-theme-light py-8 text-center">
+              {t`No custom metadata properties found. Click "Add Property" to create one.`}
+            </p>
+          ) : (
+            <DescriptionList className="mb-6">
+              <DescriptionTerm>{t`Property Key`}</DescriptionTerm>
+              <DescriptionDefinition>{t`Value`}</DescriptionDefinition>
 
-            <>
-              {isAddingNew && (
-                <>
-                  <DescriptionTerm>
-                    <TextInput
-                      value={newKey}
-                      onChange={(e) => {
-                        setNewKey(e.target.value)
-                        if (errors.newKey) {
-                          setErrors((prev) => {
-                            const next = { ...prev }
-                            delete next.newKey
-                            return next
-                          })
-                        }
-                      }}
-                      placeholder={t`property_key`}
-                      errortext={errors.newKey}
-                      autoFocus
-                    />
-                  </DescriptionTerm>
-                  <DescriptionDefinition>
-                    <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+              <>
+                {isAddingNew && (
+                  <>
+                    <DescriptionTerm>
                       <TextInput
-                        value={newValue}
+                        value={newKey}
                         onChange={(e) => {
-                          setNewValue(e.target.value)
-                          if (errors.newValue) {
+                          setNewKey(e.target.value)
+                          if (errors.newKey) {
                             setErrors((prev) => {
                               const next = { ...prev }
-                              delete next.newValue
+                              delete next.newKey
                               return next
                             })
                           }
                         }}
-                        placeholder={t`Value`}
-                        errortext={errors.newValue}
+                        placeholder={t`property_key`}
+                        errortext={errors.newKey}
+                        autoFocus
                       />
-                      <Stack direction="horizontal" gap="2">
-                        <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
-                        <Button
-                          size="small"
-                          variant="subdued"
-                          onClick={handleCancelAdd}
-                          icon="close"
-                          title={t`Discard`}
+                    </DescriptionTerm>
+                    <DescriptionDefinition>
+                      <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+                        <TextInput
+                          value={newValue}
+                          onChange={(e) => {
+                            setNewValue(e.target.value)
+                            if (errors.newValue) {
+                              setErrors((prev) => {
+                                const next = { ...prev }
+                                delete next.newValue
+                                return next
+                              })
+                            }
+                          }}
+                          placeholder={t`Value`}
+                          errortext={errors.newValue}
                         />
-                      </Stack>
-                    </Stack>
-                  </DescriptionDefinition>
-                </>
-              )}
-            </>
-
-            <>
-              {metadata.map((entry, index) => (
-                <React.Fragment key={`${entry.originalKey}-${index}`}>
-                  <DescriptionTerm>
-                    {entry.isEditing ? (
-                      <TextInput
-                        value={entry.key}
-                        onChange={(e) => handleKeyChange(index, e.target.value)}
-                        errortext={errors[`edit-${index}`]}
-                      />
-                    ) : (
-                      <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
-                        {entry.key}
-                      </span>
-                    )}
-                  </DescriptionTerm>
-                  <DescriptionDefinition className="flex items-center justify-between gap-2">
-                    {entry.isEditing ? (
-                      <>
-                        <TextInput value={entry.value} onChange={(e) => handleValueChange(index, e.target.value)} />
                         <Stack direction="horizontal" gap="2">
-                          <Button
-                            size="small"
-                            variant="primary"
-                            onClick={() => handleSaveEdit(index)}
-                            icon="check"
-                            title={t`Save`}
-                          />
+                          <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
                           <Button
                             size="small"
                             variant="subdued"
-                            onClick={() => handleCancelEdit(index)}
+                            onClick={handleCancelAdd}
                             icon="close"
                             title={t`Discard`}
                           />
                         </Stack>
-                      </>
-                    ) : (
-                      <>
-                        <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
-                          {entry.value}
+                      </Stack>
+                    </DescriptionDefinition>
+                  </>
+                )}
+              </>
+
+              <>
+                {metadata.map((entry, index) => (
+                  <React.Fragment key={`${entry.originalKey}-${index}`}>
+                    <DescriptionTerm>
+                      {entry.isEditing ? (
+                        <TextInput
+                          value={entry.key}
+                          onChange={(e) => handleKeyChange(index, e.target.value)}
+                          errortext={errors[`edit-${index}`]}
+                        />
+                      ) : (
+                        <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
+                          {entry.key}
                         </span>
-                        <Stack direction="horizontal" gap="2">
-                          {confirmDeleteIndex !== index && (
+                      )}
+                    </DescriptionTerm>
+                    <DescriptionDefinition className="flex items-center justify-between gap-2">
+                      {entry.isEditing ? (
+                        <>
+                          <TextInput value={entry.value} onChange={(e) => handleValueChange(index, e.target.value)} />
+                          <Stack direction="horizontal" gap="2">
+                            <Button
+                              size="small"
+                              variant="primary"
+                              onClick={() => handleSaveEdit(index)}
+                              icon="check"
+                              title={t`Save`}
+                            />
                             <Button
                               size="small"
                               variant="subdued"
-                              onClick={() => handleEdit(index)}
-                              icon="edit"
-                              data-testid={`edit-${entry.key}`}
-                              title={t`Edit`}
-                              disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                              onClick={() => handleCancelEdit(index)}
+                              icon="close"
+                              title={t`Discard`}
                             />
-                          )}
-                          {confirmDeleteIndex === index ? (
-                            <Button
-                              size="small"
-                              variant="primary-danger"
-                              onClick={() => handleDelete(index)}
-                              data-testid={`confirm-delete-${entry.key}`}
-                              title={t`Delete`}
-                              disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                            >
-                              {t`Delete`}
-                            </Button>
-                          ) : (
-                            <Button
-                              size="small"
-                              onClick={() => setConfirmDeleteIndex(index)}
-                              icon="deleteForever"
-                              data-testid={`delete-${entry.key}`}
-                              title={t`Delete`}
-                              disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                            />
-                          )}
-                        </Stack>
-                      </>
-                    )}
-                  </DescriptionDefinition>
-                </React.Fragment>
-              ))}
-            </>
-            <>
-              {metadata.length === 0 && !isAddingNew && (
-                <p className="jn:text-theme-light py-8 text-center">
-                  {t`No custom metadata properties found. Click "Add Property" to create one.`}
-                </p>
-              )}
-            </>
-          </DescriptionList>
+                          </Stack>
+                        </>
+                      ) : (
+                        <>
+                          <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
+                            {entry.value}
+                          </span>
+                          <Stack direction="horizontal" gap="2">
+                            {confirmDeleteIndex !== index && (
+                              <Button
+                                size="small"
+                                variant="subdued"
+                                onClick={() => handleEdit(index)}
+                                icon="edit"
+                                data-testid={`edit-${entry.key}`}
+                                title={t`Edit`}
+                                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                              />
+                            )}
+                            {confirmDeleteIndex === index ? (
+                              <Button
+                                size="small"
+                                variant="primary-danger"
+                                onClick={() => handleDelete(index)}
+                                data-testid={`confirm-delete-${entry.key}`}
+                                title={t`Delete`}
+                                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                              >
+                                {t`Delete`}
+                              </Button>
+                            ) : (
+                              <Button
+                                size="small"
+                                onClick={() => setConfirmDeleteIndex(index)}
+                                icon="deleteForever"
+                                data-testid={`delete-${entry.key}`}
+                                title={t`Delete`}
+                                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                              />
+                            )}
+                          </Stack>
+                        </>
+                      )}
+                    </DescriptionDefinition>
+                  </React.Fragment>
+                ))}
+              </>
+            </DescriptionList>
+          )}
         </div>
       )}
     </Modal>

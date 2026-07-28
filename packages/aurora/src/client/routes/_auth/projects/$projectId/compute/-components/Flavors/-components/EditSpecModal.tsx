@@ -90,6 +90,7 @@ function EditSpecContent({
   const [value, setValue] = useState("")
   const [errors, setErrors] = useState<{ key?: string; value?: string }>({})
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
+  const [isSavingSpec, setIsSavingSpec] = useState(false)
 
   const validateForm = () => {
     const trimmedKey = key.trim()
@@ -117,12 +118,15 @@ function EditSpecContent({
   }
 
   const handleSave = async () => {
+    if (isSavingSpec) return
+
     if (!validateForm()) {
       setMessage({ text: t`Please fix the validation errors below.`, type: "error" })
       return
     }
 
     try {
+      setIsSavingSpec(true)
       const trimmedKey = key.trim()
       const trimmedValue = value.trim()
 
@@ -147,6 +151,8 @@ function EditSpecContent({
         text: translateError(error instanceof Error ? error.message : "Failed to create extra spec"),
         type: "error",
       })
+    } finally {
+      setIsSavingSpec(false)
     }
   }
 
@@ -209,7 +215,7 @@ function EditSpecContent({
           specKey={key}
           value={value}
           errors={errors}
-          isLoading={false}
+          isLoading={isSavingSpec}
           onKeyChange={handleKeyChange}
           onValueChange={handleValueChange}
           onSave={handleSave}
@@ -227,8 +233,8 @@ function EditSpecContent({
         </p>
       ) : (
         <DescriptionList>
-          <DescriptionTerm>Key</DescriptionTerm>
-          <DescriptionDefinition>Value</DescriptionDefinition>
+          <DescriptionTerm>{t`Key`}</DescriptionTerm>
+          <DescriptionDefinition>{t`Value`}</DescriptionDefinition>
 
           <>
             {Object.entries(extraSpecs).map(([specKey, specValue]) => (
