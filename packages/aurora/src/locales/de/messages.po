@@ -160,6 +160,12 @@ msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verw
 msgid "A folder with this name already exists"
 msgstr "Ein Ordner mit diesem Namen existiert bereits"
 
+msgid "A pre-signed URL can be valid for at most 7 days ({MAX_EXPIRY_MINUTES} minutes)"
+msgstr ""
+
+msgid "A pre-signed URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
+msgstr ""
+
 msgid "A property with this key already exists"
 msgstr "Eine Eigenschaft mit diesem Schlüssel existiert bereits"
 
@@ -1294,6 +1300,9 @@ msgstr "Fehler beim Kopieren des Objekts"
 msgid "Failed to copy object: {errorMessage}"
 msgstr "Fehler beim Kopieren des Objekts: {errorMessage}"
 
+msgid "Failed to copy the pre-signed URL to the clipboard"
+msgstr ""
+
 msgid "Failed to copy the temporary URL to the clipboard"
 msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
 
@@ -1410,6 +1419,9 @@ msgstr "Fehler beim Abrufen der Flavor-Zugriffsinformationen. Bitte versuchen Si
 
 msgid "Failed to fetch flavors from server."
 msgstr "Fehler beim Abrufen der Flavors vom Server."
+
+msgid "Failed to generate pre-signed URL: {generalError}"
+msgstr ""
 
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
@@ -1650,6 +1662,9 @@ msgstr "Allgemeine Image-Daten"
 
 msgid "Generate URL"
 msgstr "URL generieren"
+
+msgid "Generating pre-signed URL..."
+msgstr ""
 
 msgid "Generating temporary URL..."
 msgstr "Temporäre URL wird generiert..."
@@ -2460,6 +2475,12 @@ msgstr "Port-Name"
 
 msgid "Port Range"
 msgstr "Port-Bereich"
+
+msgid "Pre-signed URL"
+msgstr ""
+
+msgid "Pre-signed URL for \"{displayName}\" was copied to clipboard."
+msgstr ""
 
 msgid "Press Enter to add"
 msgstr "Enter drücken zum Hinzufügen"

@@ -160,6 +160,12 @@ msgstr "A flavor with this ID or name already exists. Please use different value
 msgid "A folder with this name already exists"
 msgstr "A folder with this name already exists"
 
+msgid "A pre-signed URL can be valid for at most 7 days ({MAX_EXPIRY_MINUTES} minutes)"
+msgstr "A pre-signed URL can be valid for at most 7 days ({MAX_EXPIRY_MINUTES} minutes)"
+
+msgid "A pre-signed URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
+msgstr "A pre-signed URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
+
 msgid "A property with this key already exists"
 msgstr "A property with this key already exists"
 
@@ -1294,6 +1300,9 @@ msgstr "Failed to Copy Object"
 msgid "Failed to copy object: {errorMessage}"
 msgstr "Failed to copy object: {errorMessage}"
 
+msgid "Failed to copy the pre-signed URL to the clipboard"
+msgstr "Failed to copy the pre-signed URL to the clipboard"
+
 msgid "Failed to copy the temporary URL to the clipboard"
 msgstr "Failed to copy the temporary URL to the clipboard"
 
@@ -1410,6 +1419,9 @@ msgstr "Failed to fetch flavor access information. Please try again."
 
 msgid "Failed to fetch flavors from server."
 msgstr "Failed to fetch flavors from server."
+
+msgid "Failed to generate pre-signed URL: {generalError}"
+msgstr "Failed to generate pre-signed URL: {generalError}"
 
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Failed to generate temporary URL: {generalError}"
@@ -1650,6 +1662,9 @@ msgstr "General Image Data"
 
 msgid "Generate URL"
 msgstr "Generate URL"
+
+msgid "Generating pre-signed URL..."
+msgstr "Generating pre-signed URL..."
 
 msgid "Generating temporary URL..."
 msgstr "Generating temporary URL..."
@@ -2460,6 +2475,12 @@ msgstr "Port Name"
 
 msgid "Port Range"
 msgstr "Port Range"
+
+msgid "Pre-signed URL"
+msgstr "Pre-signed URL"
+
+msgid "Pre-signed URL for \"{displayName}\" was copied to clipboard."
+msgstr "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 
 msgid "Press Enter to add"
 msgstr "Press Enter to add"
