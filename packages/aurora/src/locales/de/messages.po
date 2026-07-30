@@ -161,10 +161,10 @@ msgid "A folder with this name already exists"
 msgstr "Ein Ordner mit diesem Namen existiert bereits"
 
 msgid "A pre-signed URL can be valid for at most 7 days ({MAX_EXPIRY_MINUTES} minutes)"
-msgstr ""
+msgstr "Eine vorsignierte URL kann höchstens 7 Tage ({MAX_EXPIRY_MINUTES} Minuten) gültig sein"
 
 msgid "A pre-signed URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
-msgstr ""
+msgstr "Eine vorsignierte URL gewährt zeitlich begrenzten Lesezugriff auf dieses Objekt ohne Authentifizierung. Jeder mit dem Link kann es herunterladen, bis es abläuft."
 
 msgid "A property with this key already exists"
 msgstr "Eine Eigenschaft mit diesem Schlüssel existiert bereits"
@@ -1304,7 +1304,7 @@ msgid "Failed to copy object: {errorMessage}"
 msgstr "Fehler beim Kopieren des Objekts: {errorMessage}"
 
 msgid "Failed to copy the pre-signed URL to the clipboard"
-msgstr ""
+msgstr "Fehler beim Kopieren der vorsignierten URL in die Zwischenablage"
 
 msgid "Failed to copy the temporary URL to the clipboard"
 msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
@@ -1424,7 +1424,7 @@ msgid "Failed to fetch flavors from server."
 msgstr "Fehler beim Abrufen der Flavors vom Server."
 
 msgid "Failed to generate pre-signed URL: {generalError}"
-msgstr ""
+msgstr "Fehler beim Generieren der vorsignierten URL: {generalError}"
 
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
@@ -1667,7 +1667,7 @@ msgid "Generate URL"
 msgstr "URL generieren"
 
 msgid "Generating pre-signed URL..."
-msgstr ""
+msgstr "Vorsignierte URL wird generiert..."
 
 msgid "Generating temporary URL..."
 msgstr "Temporäre URL wird generiert..."
@@ -2480,10 +2480,10 @@ msgid "Port Range"
 msgstr "Port-Bereich"
 
 msgid "Pre-signed URL"
-msgstr ""
+msgstr "Vorsignierte URL"
 
 msgid "Pre-signed URL for \"{displayName}\" was copied to clipboard."
-msgstr ""
+msgstr "Vorsignierte URL für \"{displayName}\" wurde in die Zwischenablage kopiert."
 
 msgid "Press Enter to add"
 msgstr "Enter drücken zum Hinzufügen"
