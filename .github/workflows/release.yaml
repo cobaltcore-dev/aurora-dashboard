@@ -12,7 +12,7 @@ on:
 env:
   HUSKY: 0
   NODE_VERSION: "24"
-  PNPM_VERSION: "10.33.0"
+  PNPM_VERSION: "11.18.0"
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 

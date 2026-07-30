@@ -83,6 +83,9 @@ test.describe("Project Detail View", () => {
   test("project name breadcrumb becomes clickable on sub-routes", async ({ page }) => {
     await navigateToProject(page)
 
+    // Capture the project overview URL before navigation
+    const overviewURL = page.url()
+
     // Navigate into a sub-route via the service card
     const imagesCard = page.locator('[data-testid="service-card-label"]', { hasText: "Images" })
     await imagesCard.click()
@@ -96,9 +99,10 @@ test.describe("Project Detail View", () => {
     const projectBreadcrumb = page.locator("button.juno-breadcrumb-item", { hasText: testProject })
     await expect(projectBreadcrumb).toBeVisible({ timeout: 10000 })
 
-    // Verify it has pointer cursor (clickable) on sub-route
-    const cursor = await projectBreadcrumb.evaluate((el) => window.getComputedStyle(el).cursor)
-    expect(cursor).toBe("pointer")
+    // Click the breadcrumb and verify it navigates back to overview URL
+    await projectBreadcrumb.click()
+    await expectPageLoaded(page)
+    expect(page.url()).toBe(overviewURL)
   })
 
   test("domain/project breadcrumb format", async ({ page }) => {
