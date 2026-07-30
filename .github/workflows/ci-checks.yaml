@@ -16,7 +16,6 @@ permissions:
 env:
   HUSKY: 0
   NODE_VERSION: "24"
-  PNPM_VERSION: "11.18.0" # match with the set in packageManager within package.json
 
 jobs:
   install-deps:
@@ -28,7 +27,7 @@ jobs:
         uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+          
 
   allowed-licenses:
     needs: install-deps
@@ -40,7 +39,7 @@ jobs:
         uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+          
 
       - name: Run Linter for Licenses
         run: pnpm run licenses:check
@@ -55,7 +54,7 @@ jobs:
         uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+          
 
       - name: Run Linter
         run: pnpm run lint
@@ -70,7 +69,7 @@ jobs:
         uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+          
 
       - name: Run
         run: pnpm run check-i18n
@@ -85,7 +84,7 @@ jobs:
         uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+          
 
       - name: Run Typecheck
         run: pnpm run typecheck
@@ -100,7 +99,7 @@ jobs:
         uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+          
 
       - name: Run Prettier
         run: pnpm i && pnpm format:check
@@ -115,7 +114,7 @@ jobs:
         uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+          
       - name: Run Tests
         run: pnpm i && pnpm test
 
@@ -129,7 +128,7 @@ jobs:
         uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+          
       - name: Run Build
         run: pnpm i && pnpm build
 
@@ -143,7 +142,7 @@ jobs:
   #       uses: ./.github/actions/setup-pnpm
   #       with:
   #         node-version: ${{ env.NODE_VERSION }}
-  #         pnpm-version: ${{ env.PNPM_VERSION }}
+  #         
   #
   #     - name: Run Audit
   #       run: pnpm run audit
