@@ -112,7 +112,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   const showEmptyInfo = isTrulyEmpty || isConsistencyDelay
 
   const modalTitle = (
-    <span className="flex max-w-[400px] items-center gap-2">
+    <span className="flex max-w-100 items-center gap-2">
       <span className="shrink-0">
         <Trans>Empty:</Trans>
       </span>
@@ -229,7 +229,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
               <DataGrid columns={3} className="text-sm">
                 {(objects as ObjectSummary[]).map((obj) => (
                   <DataGridRow key={obj.name}>
-                    <DataGridCell className="max-w-[200px] truncate" title={obj.name}>
+                    <DataGridCell className="max-w-50 truncate" title={obj.name}>
                       {obj.name}
                     </DataGridCell>
                     <DataGridCell>{formatBytesBinary(obj.bytes)}</DataGridCell>

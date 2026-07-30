@@ -64,7 +64,12 @@ export const floatingIpRouter = {
         const data = await response.json()
         const { floatingips } = parseOrThrow(FloatingIpListResponseSchema, data, "floatingIpRouter.list")
 
-        return filterBySearchParams(floatingips, searchTerm, ["description"])
+        return filterBySearchParams(floatingips, searchTerm, [
+          "description",
+          "floating_ip_address",
+          "fixed_ip_address",
+          "floating_network_id",
+        ])
       }, "list floating IPs")
     }),
   create: projectScopedProcedure

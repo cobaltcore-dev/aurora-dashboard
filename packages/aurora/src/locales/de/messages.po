@@ -878,7 +878,7 @@ msgid "Deactivated {successCount} image(s), but {failedCount} image(s) could not
 msgstr "{successCount} Image(s) deaktiviert, aber {failedCount} Image(s) konnten nicht deaktiviert werden."
 
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
-msgstr "Durch die Deaktivierung dieses Images kann es nicht mehr zum Starten neuer Instances verwendet werden. Bestehende Instances sind nicht betroffen."
+msgstr ""
 
 msgid "Define permissions for this bucket. You may use one of the predefined templates."
 msgstr ""
@@ -921,6 +921,9 @@ msgstr ""
 
 msgid "Delete folder:"
 msgstr "Ordner löschen:"
+
+msgid "Delete Image"
+msgstr ""
 
 msgid "Delete Images"
 msgstr "Images löschen"
@@ -1491,6 +1494,9 @@ msgstr "Fehler beim Verschieben des Objekts"
 
 msgid "Failed to move object: {copyErrorMessage}"
 msgstr "Fehler beim Verschieben des Objekts: {copyErrorMessage}"
+
+msgid "Failed to refresh Floating IPs. Showing cached data."
+msgstr ""
 
 msgid "Failed to remove member"
 msgstr "Fehler beim Entfernen des Mitglieds"
@@ -2751,6 +2757,9 @@ msgstr "Container suchen..."
 
 msgid "Search flavors..."
 msgstr "Flavors suchen..."
+
+msgid "Search floating IPs..."
+msgstr ""
 
 msgid "Search images..."
 msgstr "Images suchen..."

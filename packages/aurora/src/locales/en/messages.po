@@ -922,6 +922,9 @@ msgstr "Delete Folder \"{displayName}\""
 msgid "Delete folder:"
 msgstr "Delete folder:"
 
+msgid "Delete Image"
+msgstr "Delete Image"
+
 msgid "Delete Images"
 msgstr "Delete Images"
 
@@ -1491,6 +1494,9 @@ msgstr "Failed to Move Object"
 
 msgid "Failed to move object: {copyErrorMessage}"
 msgstr "Failed to move object: {copyErrorMessage}"
+
+msgid "Failed to refresh Floating IPs. Showing cached data."
+msgstr "Failed to refresh Floating IPs. Showing cached data."
 
 msgid "Failed to remove member"
 msgstr "Failed to remove member"
@@ -2751,6 +2757,9 @@ msgstr "Search containers..."
 
 msgid "Search flavors..."
 msgstr "Search flavors..."
+
+msgid "Search floating IPs..."
+msgstr "Search floating IPs..."
 
 msgid "Search images..."
 msgstr "Search images..."
