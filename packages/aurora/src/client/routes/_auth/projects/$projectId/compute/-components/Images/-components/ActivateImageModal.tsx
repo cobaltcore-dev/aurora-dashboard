@@ -1,11 +1,11 @@
 import React from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
 import {
-  DataGrid,
-  DataGridCell,
-  DataGridHeadCell,
-  DataGridRow,
+  DescriptionDefinition,
+  DescriptionList,
+  DescriptionTerm,
+  Message,
   Modal,
   Spinner,
   Stack,
@@ -54,47 +54,36 @@ export const ActivateImageModal: React.FC<ActivateImageModalProps> = ({
       )}
       {!isLoading && (
         <div>
-          <p className="mb-6">
-            <Trans>Activating this image will allow it to be used to launch new instances again.</Trans>
-          </p>
+          <Message
+            text={t`Activating this image will allow it to be used to launch new instances again.`}
+            variant="info"
+            className="mb-4"
+          />
 
-          <DataGrid columns={2}>
-            <DataGridRow>
-              <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
-              <DataGridCell>{image.name || t`Unnamed`}</DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>{t`Id`}</DataGridHeadCell>
-              <DataGridCell>{image.id}</DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
-              <DataGridCell>{image.status}</DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>{t`Visibility`}</DataGridHeadCell>
-              <DataGridCell>{image.visibility}</DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>{t`Size`}</DataGridHeadCell>
-              <DataGridCell>
-                <SizeDisplay size={image.size} />
-              </DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>{t`Disk Format`}</DataGridHeadCell>
-              <DataGridCell>{image.disk_format || t`N/A`}</DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>{t`Created`}</DataGridHeadCell>
-              <DataGridCell>
-                {(() => {
-                  const dt = new Date(image.created_at ?? "")
-                  return !isNaN(dt.getTime()) ? dt.toLocaleDateString() : t`N/A`
-                })()}
-              </DataGridCell>
-            </DataGridRow>
-          </DataGrid>
+          <DescriptionList>
+            <DescriptionTerm>{t`Name`}</DescriptionTerm>
+            <DescriptionDefinition>{image.name || t`Unnamed`}</DescriptionDefinition>
+
+            <DescriptionTerm>{t`Id`}</DescriptionTerm>
+            <DescriptionDefinition>{image.id}</DescriptionDefinition>
+            <DescriptionTerm>{t`Status`}</DescriptionTerm>
+            <DescriptionDefinition>{image.status}</DescriptionDefinition>
+            <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
+            <DescriptionDefinition>{image.visibility}</DescriptionDefinition>
+            <DescriptionTerm>{t`Size`}</DescriptionTerm>
+            <DescriptionDefinition>
+              <SizeDisplay size={image.size} />
+            </DescriptionDefinition>
+            <DescriptionTerm>{t`Disk Format`}</DescriptionTerm>
+            <DescriptionDefinition>{image.disk_format || t`N/A`}</DescriptionDefinition>
+            <DescriptionTerm>{t`Created`}</DescriptionTerm>
+            <DescriptionDefinition>
+              {(() => {
+                const dt = new Date(image.created_at ?? "")
+                return !isNaN(dt.getTime()) ? dt.toLocaleDateString() : t`N/A`
+              })()}
+            </DescriptionDefinition>
+          </DescriptionList>
         </div>
       )}
     </Modal>

@@ -4,10 +4,9 @@ import { GlanceImage } from "@/server/Compute/types/image"
 import {
   Button,
   ButtonRow,
-  DataGrid,
-  DataGridCell,
-  DataGridHeadCell,
-  DataGridRow,
+  DescriptionDefinition,
+  DescriptionList,
+  DescriptionTerm,
   Message,
   Modal,
   ModalFooter,
@@ -15,6 +14,7 @@ import {
   Stack,
 } from "@cloudoperators/juno-ui-components"
 import { SizeDisplay } from "./SizeDisplay"
+
 interface DeleteImageModalProps {
   image: GlanceImage
   isOpen: boolean
@@ -45,7 +45,7 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
     <Modal
       onCancel={onClose}
       size="small"
-      title="Delete Image"
+      title={t`Delete Image`}
       open={isOpen}
       modalFooter={
         <ModalFooter className="flex justify-end">
@@ -82,40 +82,27 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
           />
 
           {image && (
-            <DataGrid columns={2}>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
-                <DataGridCell>{image.name || t`Unnamed`}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Id`}</DataGridHeadCell>
-                <DataGridCell>{image.id}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
-                <DataGridCell>{image.status}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Visibility`}</DataGridHeadCell>
-                <DataGridCell>{image.visibility}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Size`}</DataGridHeadCell>
-                <DataGridCell>
-                  <SizeDisplay size={image.size} />
-                </DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Disk Format`}</DataGridHeadCell>
-                <DataGridCell>{image.disk_format || t`N/A`}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Created`}</DataGridHeadCell>
-                <DataGridCell>
-                  {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
-                </DataGridCell>
-              </DataGridRow>
-            </DataGrid>
+            <DescriptionList>
+              <DescriptionTerm>{t`Name`}</DescriptionTerm>
+              <DescriptionDefinition>{image.name || t`Unnamed`}</DescriptionDefinition>
+
+              <DescriptionTerm>{t`Id`}</DescriptionTerm>
+              <DescriptionDefinition>{image.id}</DescriptionDefinition>
+              <DescriptionTerm>{t`Status`}</DescriptionTerm>
+              <DescriptionDefinition>{image.status}</DescriptionDefinition>
+              <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
+              <DescriptionDefinition>{image.visibility}</DescriptionDefinition>
+              <DescriptionTerm>{t`Size`}</DescriptionTerm>
+              <DescriptionDefinition>
+                <SizeDisplay size={image.size} />
+              </DescriptionDefinition>
+              <DescriptionTerm>{t`Disk Format`}</DescriptionTerm>
+              <DescriptionDefinition>{image.disk_format || t`N/A`}</DescriptionDefinition>
+              <DescriptionTerm>{t`Created`}</DescriptionTerm>
+              <DescriptionDefinition>
+                {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
+              </DescriptionDefinition>
+            </DescriptionList>
           )}
         </div>
       )}

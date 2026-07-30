@@ -1,6 +1,6 @@
 import React from "react"
 import { useLingui } from "@lingui/react/macro"
-import { DataGridRow, DataGridCell, TextInput, ButtonRow, Button } from "@cloudoperators/juno-ui-components"
+import { TextInput, ButtonRow, Button, Stack } from "@cloudoperators/juno-ui-components"
 
 interface SpecFormRowProps {
   specKey: string
@@ -26,31 +26,27 @@ export const SpecFormRow: React.FC<SpecFormRowProps> = ({
   const { t } = useLingui()
 
   return (
-    <DataGridRow>
-      <DataGridCell className="pl-0">
-        <TextInput
-          value={specKey}
-          onChange={(e) => onKeyChange(e.target.value)}
-          placeholder={t`Enter key`}
-          errortext={errors.key}
-          required
-        />
-      </DataGridCell>
-      <DataGridCell className="pl-0">
-        <TextInput
-          value={value}
-          onChange={(e) => onValueChange(e.target.value)}
-          placeholder={t`Enter value`}
-          errortext={errors.value}
-          required
-        />
-      </DataGridCell>
-      <DataGridCell>
-        <ButtonRow>
-          <Button icon="check" onClick={onSave} variant="primary" title={t`Save Metadata`} disabled={isLoading} />
-          <Button icon="cancel" onClick={onCancel} title={t`Cancel`} disabled={isLoading} />
-        </ButtonRow>
-      </DataGridCell>
-    </DataGridRow>
+    <Stack gap="4" direction="horizontal" alignment="start" className="border-theme-background-lvl-3 border-b p-4">
+      <TextInput
+        value={specKey}
+        onChange={(e) => onKeyChange(e.target.value)}
+        placeholder={t`Enter key`}
+        errortext={errors.key}
+        label={t`Key`}
+        required
+      />
+      <TextInput
+        value={value}
+        onChange={(e) => onValueChange(e.target.value)}
+        placeholder={t`Enter value`}
+        errortext={errors.value}
+        label={t`Value`}
+        required
+      />
+      <ButtonRow className="mt-6">
+        <Button icon="check" onClick={onSave} variant="primary" title={t`Save Metadata`} disabled={isLoading} />
+        <Button icon="cancel" onClick={onCancel} title={t`Cancel`} disabled={isLoading} />
+      </ButtonRow>
+    </Stack>
   )
 }
