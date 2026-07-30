@@ -1,4 +1,7 @@
 ---
+"@cobaltcore-dev/signal-openstack": patch
+"@cobaltcore-dev/aurora": patch
+"@cobaltcore-dev/dashboard": patch
 ---
 
 - Update eslint 10.2.0 → 10.7.0
