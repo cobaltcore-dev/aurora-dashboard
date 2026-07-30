@@ -103,6 +103,14 @@ vi.mock("./DeleteObjectModal", () => ({
   DeleteObjectModal: () => <div data-testid="delete-modal">Delete Modal</div>,
 }))
 
+vi.mock("./DeleteVersionModal", () => ({
+  DeleteVersionModal: () => <div data-testid="delete-version-modal">Delete Version Modal</div>,
+}))
+
+vi.mock("./RestoreVersionModal", () => ({
+  RestoreVersionModal: () => <div data-testid="restore-version-modal">Restore Version Modal</div>,
+}))
+
 vi.mock("./CopyObjectModal", () => ({
   CopyObjectModal: () => <div data-testid="copy-modal">Copy Modal</div>,
 }))

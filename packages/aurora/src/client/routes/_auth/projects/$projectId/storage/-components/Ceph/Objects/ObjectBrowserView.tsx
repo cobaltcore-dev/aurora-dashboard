@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, startTransition } from "react"
+import { useState, useEffect, useRef, startTransition, useMemo } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { plural } from "@lingui/core/macro"
 import {
@@ -43,6 +43,9 @@ import {
   getObjectsBulkDeletedToast,
   getObjectsBulkDeletePartialToast,
   getObjectsBulkDeleteErrorToast,
+  getVersionsBulkDeletedToast,
+  getVersionsBulkDeletePartialToast,
+  getVersionsBulkDeleteErrorToast,
   getObjectCopiedToast,
   getObjectCopyErrorToast,
   getObjectMovedToast,
@@ -86,7 +89,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [isEmptyBucketModalOpen, setIsEmptyBucketModalOpen] = useState(false)
   const [isDeleteBucketModalOpen, setIsDeleteBucketModalOpen] = useState(false)
   const [isDeleteVersionsModalOpen, setIsDeleteVersionsModalOpen] = useState(false)
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+
+  const [selectedItems, setSelectedItems] = useState<{ key: string; versionId?: string }[]>([])
   const [isDeleteObjectsModalOpen, setIsDeleteObjectsModalOpen] = useState(false)
 
   // TODO(perms): wire to storage.canUser({ permission: "storage:objects:delete" })
@@ -116,7 +120,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setAllObjects([])
     setAllFolders([])
     setAllVersions([])
-    setSelectedKeys([])
+    setSelectedItems([])
   }, [tab])
 
   // Query versioning status for current bucket
@@ -131,7 +135,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     }
   )
 
-  // Query to check which folders contain deleted content (only in deleted tab)
+  // Query to check which folders contain deleted content
+  // Need this in both tabs: "deleted" to show deleted folders, "all" to hide deleted folders
   const { data: folderDeletedStatus } = trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery(
     {
       project_id: projectId ?? "",
@@ -139,7 +144,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       folders: allFolders.map((f) => f.prefix),
     },
     {
-      enabled: !!projectId && tab === "deleted" && allFolders.length > 0,
+      enabled: !!projectId && versioningStatus?.status === "Enabled" && allFolders.length > 0,
       staleTime: 30 * 1000, // Cache for 30 seconds
     }
   )
@@ -171,7 +176,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           return stripped !== "" && stripped !== "/"
         })
 
-        if (continuationToken) {
+        // For deleted tab, check keyMarker for pagination (not continuationToken)
+        if (keyMarker) {
           setAllVersions((prev) => [...prev, ...actualVersions])
           setAllFolders((prev) => [...prev, ...data.folders])
         } else {
@@ -195,7 +201,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       }
       setHasMore(data.isTruncated ?? false)
     }
-  }, [data, continuationToken, currentPrefix, tab])
+  }, [data, continuationToken, keyMarker, currentPrefix, tab])
 
   const navigateToPrefix = (prefix: string) => {
     // Reset pagination when navigating
@@ -206,7 +212,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setAllFolders([])
     setAllVersions([])
     setHasMore(false)
-    setSelectedKeys([])
+    setSelectedItems([])
     navigate({
       search: (prev) => ({
         ...prev,
@@ -224,7 +230,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setAllFolders([])
     setAllVersions([])
     setHasMore(false)
-    setSelectedKeys([])
+    setSelectedItems([])
 
     navigate({
       to: "/projects/$projectId/storage/$provider/$storageType",
@@ -265,7 +271,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       return acc
     }, {})
 
-    const deletedFiles: Array<S3ObjectVersion & { isDeleted?: boolean }> = []
+    const deletedFiles: Array<
+      S3ObjectVersion & { isDeleted?: boolean; deleteMarkerVersionId?: string; allVersionIds?: string[] }
+    > = []
     Object.entries(versionsByKey).forEach(([, versions]: [string, S3ObjectVersion[]]) => {
       // Sort by lastModified descending to find latest version
       const sorted = [...versions].sort((a, b) => {
@@ -279,9 +287,13 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         const previousVersion = sorted.find((v) => !v.isDeleteMarker)
         if (previousVersion) {
           // Add a flag to indicate this is a restorable deleted file
+          // Store all versionIds for permanent delete (to delete all versions + delete markers)
+          const allVersionIds = sorted.map((v) => v.versionId)
           deletedFiles.push({
             ...previousVersion,
             isDeleted: true, // Custom flag to show "Deleted" badge
+            deleteMarkerVersionId: latestVersion.versionId, // Store delete marker versionId
+            allVersionIds, // Store all version IDs for complete deletion
           })
         }
       }
@@ -292,11 +304,29 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   // Filter folders based on deleted content check from BFF
   // Also add isDeleted flag to folders whose marker is deleted
-  const deletedFoldersList: Array<S3FolderPrefix & { isDeleted?: boolean }> = (() => {
-    if (tab !== "deleted") return allFolders
-    if (!folderDeletedStatus) return allFolders // Show all while loading
+  const deletedFoldersList: Array<
+    S3FolderPrefix & { isDeleted?: boolean; deleteMarkerVersionId?: string; folderMarkerVersionId?: string }
+  > = (() => {
+    if (tab !== "deleted") {
+      // In "All" tab, exclude folders that are deleted (have delete marker as latest version)
+      // or have no versions at all (permanently deleted)
+      if (!folderDeletedStatus || !Array.isArray(folderDeletedStatus)) return allFolders // Show all while loading or if no data
 
-    // Filter folders that have deleted content or are themselves deleted
+      const filtered = allFolders.filter((folder) => {
+        const status = folderDeletedStatus.find((s) => s.prefix === folder.prefix)
+        // No status? Show folder (we don't know if it's deleted)
+        if (!status) return true
+        // Has status? Show only if not deleted AND has versions
+        // If folderMarkerVersionId is undefined, the folder has no versions (was permanently deleted)
+        return !status.isFolderDeleted && status.folderMarkerVersionId !== undefined
+      })
+
+      return filtered
+    }
+
+    if (!folderDeletedStatus || !Array.isArray(folderDeletedStatus)) return allFolders // Show all while loading or if no data
+
+    // In "Deleted" tab: Filter folders that have deleted content or are themselves deleted
     const foldersWithDeleted = allFolders
       .filter((folder) => {
         const status = folderDeletedStatus.find((s) => s.prefix === folder.prefix)
@@ -307,6 +337,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         return {
           ...folder,
           isDeleted: status?.isFolderDeleted ?? false, // Add isDeleted flag for badge
+          deleteMarkerVersionId: status?.folderDeleteMarkerVersionId, // Add delete marker versionId for restore
+          folderMarkerVersionId: status?.folderMarkerVersionId, // Add folder marker versionId for permanent delete
         }
       })
 
@@ -402,19 +434,76 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   // Bulk selection derived values
   const { i18n } = useLingui()
-  const showSelection = hasAnyBulkAction && tab !== "deleted"
-  const selectableKeys = sortedObjects.map((o) => o.key)
-  const allSelected = selectableKeys.length > 0 && selectableKeys.every((k) => selectedKeys.includes(k))
-  const someSelected = selectableKeys.some((k) => selectedKeys.includes(k))
-  const selectedCount = selectedKeys.length
+  const showSelection = hasAnyBulkAction
 
-  const handleToggleSelectKey = (key: string) =>
-    setSelectedKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]))
+  // Helper to build a unique identifier for selected items
+  const makeItemKey = (key: string, versionId?: string) => `${key}|${versionId ?? ""}`
 
-  const handleToggleSelectAll = () =>
-    setSelectedKeys((prev) =>
-      allSelected ? prev.filter((k) => !selectableKeys.includes(k)) : [...new Set([...prev, ...selectableKeys])]
-    )
+  // Performance optimization: Build a Map for O(1) version lookup instead of O(n) find()
+  const versionIdByKey = useMemo(() => {
+    if (tab !== "deleted") return new Map<string, string>()
+    return new Map(sortedDeletedFiles.map((v) => [v.key, v.versionId]))
+  }, [tab, sortedDeletedFiles])
+
+  // Tab-specific selection logic
+  const selectableKeys = tab === "deleted" ? sortedDeletedFiles.map((v) => v.key) : sortedObjects.map((o) => o.key)
+
+  const isItemSelected = (key: string, versionId?: string) =>
+    selectedItems.some((item) => item.key === key && item.versionId === versionId)
+
+  const allSelected =
+    selectableKeys.length > 0 &&
+    selectableKeys.every((k) => {
+      const versionId = tab === "deleted" ? versionIdByKey.get(k) : undefined
+      return isItemSelected(k, versionId)
+    })
+
+  const someSelected = selectableKeys.some((k) => {
+    const versionId = tab === "deleted" ? versionIdByKey.get(k) : undefined
+    return isItemSelected(k, versionId)
+  })
+
+  const selectedCount = selectedItems.length
+
+  const handleToggleSelectKey = (key: string, versionId?: string) => {
+    setSelectedItems((prev) => {
+      const exists = prev.some((item) => item.key === key && item.versionId === versionId)
+      return exists
+        ? prev.filter((item) => !(item.key === key && item.versionId === versionId))
+        : [...prev, { key, versionId }]
+    })
+  }
+
+  const handleToggleSelectAll = () => {
+    setSelectedItems((prev) => {
+      if (tab === "deleted") {
+        const visibleItemKeys = new Set(sortedDeletedFiles.map((v) => makeItemKey(v.key, v.versionId)))
+        if (allSelected) {
+          // Deselect all visible versions
+          return prev.filter((item) => !visibleItemKeys.has(makeItemKey(item.key, item.versionId)))
+        } else {
+          // Select all visible versions
+          const newItems = sortedDeletedFiles.map((v) => ({ key: v.key, versionId: v.versionId }))
+          const existingKeys = new Set(prev.map((item) => makeItemKey(item.key, item.versionId)))
+          const toAdd = newItems.filter((item) => !existingKeys.has(makeItemKey(item.key, item.versionId)))
+          return [...prev, ...toAdd]
+        }
+      } else {
+        // Objects tab: select/deselect without versionId
+        if (allSelected) {
+          // Deselect all visible objects
+          return prev.filter((item) => !selectableKeys.includes(item.key) || item.versionId !== undefined)
+        } else {
+          // Select all visible objects
+          const existingKeys = new Set(prev.filter((item) => !item.versionId).map((item) => item.key))
+          const toAdd = selectableKeys
+            .filter((key) => !existingKeys.has(key))
+            .map((key) => ({ key, versionId: undefined }))
+          return [...prev, ...toAdd]
+        }
+      }
+    })
+  }
 
   const resetAccumulatedObjects = () => {
     setContinuationToken(undefined)
@@ -429,19 +518,37 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     // The list accumulates pages; a plain invalidate would refetch only the last
     // page and append it. Drop the accumulator so the refetch rebuilds page 1.
     resetAccumulatedObjects()
-    setSelectedKeys((prev) => prev.filter((k) => !deletedKeys.includes(k)))
-    if (errorCount === 0) {
-      const { message, ...options } = getObjectsBulkDeletedToast(deletedKeys.length)
-      toast.success(message, options)
+    setSelectedItems((prev) => prev.filter((item) => !deletedKeys.includes(item.key)))
+
+    if (tab === "deleted") {
+      // Version deletion toasts
+      if (errorCount === 0) {
+        const { message, ...options } = getVersionsBulkDeletedToast(deletedKeys.length)
+        toast.success(message, options)
+      } else {
+        const { message, ...options } = getVersionsBulkDeletePartialToast(deletedKeys.length, errorCount)
+        toast.warning(message, options)
+      }
     } else {
-      const { message, ...options } = getObjectsBulkDeletePartialToast(deletedKeys.length, errorCount)
-      toast.warning(message, options)
+      // Object deletion toasts
+      if (errorCount === 0) {
+        const { message, ...options } = getObjectsBulkDeletedToast(deletedKeys.length)
+        toast.success(message, options)
+      } else {
+        const { message, ...options } = getObjectsBulkDeletePartialToast(deletedKeys.length, errorCount)
+        toast.warning(message, options)
+      }
     }
   }
 
   const handleBulkDeleteError = (errorMessage: string) => {
-    const { message, ...options } = getObjectsBulkDeleteErrorToast(errorMessage)
-    toast.error(message, options)
+    if (tab === "deleted") {
+      const { message, ...options } = getVersionsBulkDeleteErrorToast(errorMessage)
+      toast.error(message, options)
+    } else {
+      const { message, ...options } = getObjectsBulkDeleteErrorToast(errorMessage)
+      toast.error(message, options)
+    }
   }
 
   const handleSearchChange = (term: string | number | string[] | undefined) => {
@@ -598,11 +705,19 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
                   </PopupMenuToggle>
                   {selectedCount > 0 && (
                     <PopupMenuOptions>
-                      <PopupMenuItem
-                        label={i18n._(plural(selectedCount, { one: "Delete # Object", other: "Delete # Objects" }))}
-                        onClick={() => setIsDeleteObjectsModalOpen(true)}
-                        data-testid="bulk-delete-action"
-                      />
+                      {tab === "deleted" ? (
+                        <PopupMenuItem
+                          label={i18n._(plural(selectedCount, { one: "Delete # Version", other: "Delete # Versions" }))}
+                          onClick={() => setIsDeleteObjectsModalOpen(true)}
+                          data-testid="bulk-delete-versions-action"
+                        />
+                      ) : (
+                        <PopupMenuItem
+                          label={i18n._(plural(selectedCount, { one: "Delete # Object", other: "Delete # Objects" }))}
+                          onClick={() => setIsDeleteObjectsModalOpen(true)}
+                          data-testid="bulk-delete-action"
+                        />
+                      )}
                     </PopupMenuOptions>
                   )}
                 </PopupMenu>
@@ -640,7 +755,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           currentPrefix={currentPrefix}
           versioningEnabled={versioningStatus?.status === "Enabled"}
           selectable={showSelection}
-          selectedKeys={selectedKeys}
+          selectedItems={selectedItems}
           onToggleSelectKey={handleToggleSelectKey}
           onFolderClick={navigateToPrefix}
           onDeleteObjectSuccess={(objectKey) => {
@@ -725,9 +840,17 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
       <DeleteObjectsModal
         bucketName={bucketName}
-        objectKeys={selectedKeys}
+        objectKeys={tab === "deleted" ? [] : selectedItems.filter((item) => !item.versionId).map((item) => item.key)}
+        versions={
+          tab === "deleted"
+            ? selectedItems
+                .filter((item) => item.versionId)
+                .map((item) => ({ key: item.key, versionId: item.versionId! }))
+            : []
+        }
         currentPrefix={currentPrefix}
         versioningEnabled={versioningStatus?.status === "Enabled"}
+        isVersionMode={tab === "deleted"}
         isOpen={isDeleteObjectsModalOpen}
         onClose={() => setIsDeleteObjectsModalOpen(false)}
         onDeleted={handleBulkDeleted}

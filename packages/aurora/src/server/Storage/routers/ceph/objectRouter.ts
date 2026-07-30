@@ -7,6 +7,7 @@ import {
   PutObjectCommand,
   CopyObjectCommand,
   GetObjectCommand,
+  S3Client,
 } from "@aws-sdk/client-s3"
 import { TRPCError } from "@trpc/server"
 import { octetInputParser } from "@trpc/server/http"
@@ -25,6 +26,7 @@ import {
   deleteObjectInputSchema,
   deleteObjectsBulkInputSchema,
   deleteObjectsBulkOutputSchema,
+  deleteVersionsBulkInputSchema,
   createFolderInputSchema,
   copyObjectInputSchema,
   copyObjectOutputSchema,
@@ -119,6 +121,87 @@ function resolveMimeFromKey(key: string): string {
     htm: "text/html",
   }
   return map[ext] ?? "application/octet-stream"
+}
+
+// ============================================================================
+// BULK DELETE HELPER
+// ============================================================================
+
+/**
+ * Common logic for bulk deletion operations.
+ * Handles chunking, abort signals, partial failures, and response aggregation.
+ *
+ * @param s3 - S3 client instance
+ * @param containerName - Bucket name
+ * @param items - Items to delete (with optional versionId for version-specific deletion)
+ * @param abortSignal - Request abort signal for cancellation
+ * @param operation - Operation description for error messages
+ * @returns Aggregated delete results with both successes and failures
+ */
+type DeleteItem = { key: string; versionId?: string }
+
+async function bulkDeleteItems(
+  s3: S3Client,
+  containerName: string,
+  items: DeleteItem[],
+  abortSignal: AbortSignal | undefined,
+  operation: string
+): Promise<DeleteObjectsBulkOutput> {
+  const deleted: DeletedObject[] = []
+  const errors: DeleteObjectError[] = []
+
+  for (let offset = 0; offset < items.length; offset += S3_MAX_KEYS_PER_REQUEST) {
+    if (abortSignal?.aborted) break // client navigated away / cancelled
+    const chunk = items.slice(offset, offset + S3_MAX_KEYS_PER_REQUEST)
+
+    try {
+      const response = await s3.send(
+        new DeleteObjectsCommand({
+          Bucket: containerName,
+          Delete: {
+            Objects: chunk.map((item) => ({
+              Key: item.key,
+              ...(item.versionId && { VersionId: item.versionId }),
+            })),
+            Quiet: false,
+          },
+        }),
+        { abortSignal }
+      )
+
+      for (const d of response.Deleted ?? []) {
+        deleted.push({
+          key: d.Key ?? "",
+          versionId: d.VersionId,
+          deleteMarker: d.DeleteMarker,
+          deleteMarkerVersionId: d.DeleteMarkerVersionId,
+        })
+      }
+      for (const e of response.Errors ?? []) {
+        errors.push({ key: e.Key ?? "", versionId: e.VersionId, code: e.Code, message: e.Message })
+      }
+    } catch (error) {
+      // Nothing deleted yet → the failure is systemic (bad bucket, denied
+      // credentials). Surface it as a normal tRPC error rather than as 1000
+      // identical per-key errors.
+      if (deleted.length === 0 && errors.length === 0) {
+        throw mapS3ErrorToTRPCError(error, { operation, bucket: containerName })
+      }
+      // Otherwise degrade: earlier chunks really were deleted, so keep the
+      // partial result and report this chunk's items as failures.
+      const message = error instanceof Error ? error.message : String(error)
+      for (const item of chunk) {
+        errors.push({ key: item.key, versionId: item.versionId, code: "RequestFailed", message })
+      }
+    }
+  }
+
+  return deleteObjectsBulkOutputSchema.parse({
+    deleted,
+    errors,
+    deletedCount: deleted.length,
+    errorCount: errors.length,
+  })
 }
 
 export const objectRouter = {
@@ -621,54 +704,41 @@ export const objectRouter = {
       // De-duplicate: S3 tolerates repeats but would report the same key twice,
       // inflating deletedCount and confusing the UI summary.
       const uniqueKeys = [...new Set(objectKeys)]
+      const items = uniqueKeys.map((key) => ({ key }))
 
-      const deleted: DeletedObject[] = []
-      const errors: DeleteObjectError[] = []
+      return bulkDeleteItems(s3, containerName, items, ctx.req.signal, "delete objects")
+    }),
 
-      for (let offset = 0; offset < uniqueKeys.length; offset += S3_MAX_KEYS_PER_REQUEST) {
-        if (ctx.req.signal?.aborted) break // client navigated away / cancelled
-        const chunk = uniqueKeys.slice(offset, offset + S3_MAX_KEYS_PER_REQUEST)
+  /**
+   * Delete multiple specific object versions from a bucket in one operation.
+   *
+   * Semantically separate from `deleteBulk` (which deletes current versions):
+   * this procedure permanently removes restorable versions displayed in the
+   * "Deleted" tab. Uses S3's DeleteObjects API with both Key and VersionId,
+   * which accepts up to 1000 items per request. Larger selections are
+   * automatically chunked server-side.
+   *
+   * Returns a *mixed* result: `Deleted[]` for successful deletions and
+   * `Errors[]` for failures, because S3 reports both arrays in a single HTTP
+   * 200 response.
+   *
+   * Duplicate version pairs (same key + versionId) are de-duplicated before
+   * sending. Missing versions are typically reported by S3 as successes
+   * (idempotent).
+   *
+   * @throws TRPCError NOT_FOUND - bucket does not exist (first-chunk failure only)
+   * @throws TRPCError FORBIDDEN - no credentials or access denied (first-chunk failure only)
+   */
+  deleteVersionsBulk: cephProtectedProcedure
+    .input(deleteVersionsBulkInputSchema)
+    .mutation(async ({ ctx, input }): Promise<DeleteObjectsBulkOutput> => {
+      const s3 = ctx.getCephClient!()
+      const { containerName, versions } = input
 
-        try {
-          const response = await s3.send(
-            new DeleteObjectsCommand({
-              Bucket: containerName,
-              Delete: { Objects: chunk.map((Key) => ({ Key })), Quiet: false },
-            }),
-            { abortSignal: ctx.req.signal }
-          )
+      // De-duplicate: combine key + versionId as unique identifier.
+      const uniqueVersions = Array.from(new Map(versions.map((v) => [`${v.key}|${v.versionId}`, v])).values())
 
-          for (const d of response.Deleted ?? []) {
-            deleted.push({
-              key: d.Key ?? "",
-              versionId: d.VersionId,
-              deleteMarker: d.DeleteMarker,
-              deleteMarkerVersionId: d.DeleteMarkerVersionId,
-            })
-          }
-          for (const e of response.Errors ?? []) {
-            errors.push({ key: e.Key ?? "", versionId: e.VersionId, code: e.Code, message: e.Message })
-          }
-        } catch (error) {
-          // Nothing deleted yet → the failure is systemic (bad bucket, denied
-          // credentials). Surface it as a normal tRPC error rather than as 1000
-          // identical per-key errors.
-          if (deleted.length === 0 && errors.length === 0) {
-            throw mapS3ErrorToTRPCError(error, { operation: "delete objects", bucket: containerName })
-          }
-          // Otherwise degrade: earlier chunks really were deleted, so keep the
-          // partial result and report this chunk's keys as failures.
-          const message = error instanceof Error ? error.message : String(error)
-          for (const key of chunk) errors.push({ key, code: "RequestFailed", message })
-        }
-      }
-
-      return deleteObjectsBulkOutputSchema.parse({
-        deleted,
-        errors,
-        deletedCount: deleted.length,
-        errorCount: errors.length,
-      })
+      return bulkDeleteItems(s3, containerName, uniqueVersions, ctx.req.signal, "delete versions")
     }),
 
   /**

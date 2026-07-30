@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from "react"
+import { useEffect, useState, useSyncExternalStore, useMemo } from "react"
 import {
   DataGrid,
   DataGridRow,
@@ -35,8 +35,11 @@ import {
 // Extended version type for frontend use (includes isDeleted flag)
 type S3ObjectVersionExtended = S3ObjectVersion & {
   isDeleted?: boolean // Flag for showing "Deleted" badge (file that can be restored)
+  deleteMarkerVersionId?: string // VersionId of the delete marker (for permanent delete)
+  allVersionIds?: string[] // All version IDs of this object (for complete deletion)
 }
 import { DeleteObjectModal } from "./DeleteObjectModal"
+import { DeleteVersionModal } from "./DeleteVersionModal"
 import { RestoreVersionModal } from "./RestoreVersionModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveObjectModal } from "./MoveObjectModal"
@@ -91,7 +94,14 @@ function RowTransferProgress({
   )
 }
 
-type FolderRow = { kind: "folder"; prefix: string; displayName: string; isDeleted?: boolean }
+type FolderRow = {
+  kind: "folder"
+  prefix: string
+  displayName: string
+  isDeleted?: boolean
+  deleteMarkerVersionId?: string
+  folderMarkerVersionId?: string
+}
 type ObjectRow = {
   kind: "object"
   key: string
@@ -106,6 +116,8 @@ type VersionRow = {
   isLatest: boolean
   isDeleteMarker: boolean
   isDeleted?: boolean // Flag for showing "Deleted" badge (file that can be restored)
+  deleteMarkerVersionId?: string // VersionId of the delete marker (for permanent delete)
+  allVersionIds?: string[] // All version IDs of this object (for complete deletion)
   size: number
   lastModified: string | undefined
   displayName: string
@@ -116,17 +128,22 @@ type CephRow = FolderRow | ObjectRow | VersionRow
 const GRID_COLUMN_TEMPLATE_WITH_SELECT = "40px minmax(200px, 3fr) minmax(100px, 1fr) minmax(180px, 2fr) 60px"
 const GRID_COLUMN_TEMPLATE_NO_SELECT = "minmax(200px, 3fr) minmax(100px, 1fr) minmax(180px, 2fr) 60px"
 
+// Selection item type
+type SelectedItem = { key: string; versionId?: string }
+
 interface ObjectsTableViewProps {
   bucketName: string
   objects: S3Object[]
-  folders: Array<S3FolderPrefix & { isDeleted?: boolean }>
+  folders: Array<
+    S3FolderPrefix & { isDeleted?: boolean; deleteMarkerVersionId?: string; folderMarkerVersionId?: string }
+  >
   versions?: S3ObjectVersionExtended[] // When showing all versions (extended with isDeleted flag)
   currentPrefix: string
   versioningEnabled?: boolean
   showingVersions?: boolean // Flag to indicate we're in versions view mode
   selectable?: boolean
-  selectedKeys?: string[]
-  onToggleSelectKey?: (objectKey: string) => void
+  selectedItems?: SelectedItem[]
+  onToggleSelectKey?: (objectKey: string, versionId?: string) => void
   onFolderClick: (prefix: string) => void
   onDeleteObjectSuccess: (objectKey: string) => void
   onDeleteObjectError: (objectKey: string, errorMessage: string) => void
@@ -150,7 +167,7 @@ export function ObjectsTableView({
   versioningEnabled = false,
   showingVersions = false,
   selectable = false,
-  selectedKeys = [],
+  selectedItems = [],
   onToggleSelectKey,
   onFolderClick,
   onDeleteObjectSuccess,
@@ -182,6 +199,15 @@ export function ObjectsTableView({
     versionId: string
     size?: number
     lastModified?: string
+  } | null>(null)
+  const [deleteVersionTarget, setDeleteVersionTarget] = useState<{
+    key: string
+    versionId: string
+    size?: number
+    lastModified?: string
+    isDeleteMarker?: boolean
+    folderMarkerVersionId?: string
+    allVersionIds?: string[]
   } | null>(null)
   const [copyTarget, setCopyTarget] = useState<{
     key: string
@@ -246,6 +272,8 @@ export function ObjectsTableView({
               prefix: f.prefix,
               displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
               isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
+              deleteMarkerVersionId: f.deleteMarkerVersionId, // Carry over delete marker versionId for restore
+              folderMarkerVersionId: f.folderMarkerVersionId, // Carry over folder marker versionId for permanent delete
             })
           ),
           ...versions.map(
@@ -256,6 +284,8 @@ export function ObjectsTableView({
               isLatest: v.isLatest,
               isDeleteMarker: v.isDeleteMarker,
               isDeleted: v.isDeleted, // Carry over the isDeleted flag
+              deleteMarkerVersionId: v.deleteMarkerVersionId, // Carry over delete marker versionId for permanent delete
+              allVersionIds: v.allVersionIds, // Carry over all version IDs for complete deletion
               size: v.size,
               lastModified: v.lastModified,
               displayName: stripPrefix(v.key),
@@ -269,6 +299,8 @@ export function ObjectsTableView({
               prefix: f.prefix,
               displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
               isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
+              deleteMarkerVersionId: f.deleteMarkerVersionId, // Carry over delete marker versionId for restore
+              folderMarkerVersionId: f.folderMarkerVersionId, // Carry over folder marker versionId for permanent delete
             })
           ),
           ...objects.map(
@@ -282,8 +314,12 @@ export function ObjectsTableView({
           ),
         ]
 
+  const selectedItemsSet = useMemo(() => {
+    return new Set(selectedItems.map((item) => `${item.key}|${item.versionId ?? ""}`))
+  }, [selectedItems])
+
   // Derived selection values
-  const showSelection = selectable && !showingVersions
+  const showSelection = selectable // Show selection for all tabs, including versions/deleted
   const gridColumnTemplate = showSelection ? GRID_COLUMN_TEMPLATE_WITH_SELECT : GRID_COLUMN_TEMPLATE_NO_SELECT
   const columnCount = showSelection ? 5 : 4
 
@@ -433,9 +469,10 @@ export function ObjectsTableView({
                       {row.kind === "object" ? (
                         (() => {
                           const displayName = row.displayName
+                          const isSelected = selectedItemsSet.has(`${row.key}|`)
                           return (
                             <Checkbox
-                              checked={selectedKeys.includes(row.key)}
+                              checked={isSelected}
                               disabled={isStreaming}
                               onChange={() => onToggleSelectKey?.(row.key)}
                               aria-label={t`Select ${displayName}`}
@@ -443,20 +480,33 @@ export function ObjectsTableView({
                             />
                           )
                         })()
-                      ) : (
+                      ) : row.kind === "version" ? (
+                        (() => {
+                          const displayName = row.displayName
+                          const isSelected = selectedItemsSet.has(`${row.key}|${row.versionId}`)
+                          return (
+                            <Checkbox
+                              checked={isSelected}
+                              onChange={() => onToggleSelectKey?.(row.key, row.versionId)}
+                              aria-label={t`Select ${displayName}`}
+                              data-testid={`select-version-${row.key}-${row.versionId}`}
+                            />
+                          )
+                        })()
+                      ) : row.kind === "folder" ? (
                         <Tooltip triggerEvent="hover" placement="right">
                           <TooltipTrigger>
                             <Checkbox
                               disabled
                               aria-label={t`Folders cannot be bulk-deleted. Use the row menu to delete a folder.`}
-                              data-testid={`select-folder-disabled-${row.kind === "folder" ? row.prefix : row.key}`}
+                              data-testid={`select-folder-disabled-${row.prefix}`}
                             />
                           </TooltipTrigger>
                           <TooltipContent>
                             <Trans>Folders cannot be bulk-deleted. Use the row menu to delete a folder.</Trans>
                           </TooltipContent>
                         </Tooltip>
-                      )}
+                      ) : null}
                     </DataGridCell>
                   )}
                   {/* Name */}
@@ -544,73 +594,135 @@ export function ObjectsTableView({
                   {/* Actions */}
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end">
-                      {/* Don't show actions menu for folders in versions view mode */}
-                      {!(isFolder && showingVersions) && (
-                        <PopupMenu>
-                          <PopupMenuOptions>
-                            {isFolder ? (
-                              <PopupMenuItem label={t`Delete`} onClick={() => setDeleteTarget({ key: row.prefix })} />
-                            ) : isDeletedFile ? (
-                              // For deleted files, only show "Restore" action
-                              <PopupMenuItem
-                                label={t`Restore`}
-                                onClick={() => {
-                                  if (row.kind === "version") {
-                                    setRestoreTarget({
-                                      key: row.key,
-                                      versionId: row.versionId,
-                                      size: row.size,
-                                      lastModified: row.lastModified,
-                                    })
-                                  }
-                                }}
-                              />
-                            ) : (
-                              <>
-                                <PopupMenuItem
-                                  label={isDownloading ? t`Downloading...` : t`Download`}
-                                  disabled={row.kind !== "object" || isStreaming}
-                                  onClick={row.kind === "object" ? () => handleDownload(row) : undefined}
-                                  data-testid={`download-action-${row.key}`}
-                                />
-                                {versioningEnabled && !isVersion && (
+                      {/* Show menu for: non-folders, non-version-view, or deleted folders in version view */}
+                      {(() => {
+                        const shouldShowFolderMenu = !isFolder || !showingVersions || row.isDeleted
+                        return shouldShowFolderMenu ? (
+                          <PopupMenu>
+                            <PopupMenuOptions>
+                              {isFolder ? (
+                                row.isDeleted ? (
+                                  // Deleted folder (has delete marker) - show Restore and Delete options
+                                  <>
+                                    <PopupMenuItem
+                                      label={t`Restore`}
+                                      onClick={() => {
+                                        // For folders, restoring means deleting the delete marker
+                                        if (row.deleteMarkerVersionId) {
+                                          setRestoreTarget({
+                                            key: row.prefix,
+                                            versionId: row.deleteMarkerVersionId,
+                                            size: undefined,
+                                            lastModified: undefined,
+                                          })
+                                        }
+                                      }}
+                                    />
+                                    <PopupMenuItem
+                                      label={t`Delete`}
+                                      onClick={() => {
+                                        // Permanently delete the folder's delete marker and folder marker
+                                        if (row.deleteMarkerVersionId) {
+                                          setDeleteVersionTarget({
+                                            key: row.prefix,
+                                            versionId: row.deleteMarkerVersionId,
+                                            size: undefined,
+                                            lastModified: undefined,
+                                            isDeleteMarker: true, // This version IS a delete marker
+                                            folderMarkerVersionId: row.folderMarkerVersionId,
+                                          })
+                                        }
+                                      }}
+                                    />
+                                  </>
+                                ) : (
+                                  // Regular folder - show Delete option
                                   <PopupMenuItem
-                                    label={t`View Versions`}
-                                    disabled={isStreaming}
-                                    onClick={() => setVersionHistoryTarget(row.key)}
+                                    label={t`Delete`}
+                                    onClick={() => setDeleteTarget({ key: row.prefix })}
                                   />
-                                )}
-                                <PopupMenuItem
-                                  label={t`Copy`}
-                                  disabled={isStreaming}
-                                  onClick={() => setCopyTarget({ key: row.key, size: row.size })}
-                                />
-                                <PopupMenuItem
-                                  label={t`Move/Rename`}
-                                  disabled={isStreaming}
-                                  onClick={() => setMoveTarget({ key: row.key, size: row.size })}
-                                />
-                                <PopupMenuItem
-                                  label={t`Edit Metadata`}
-                                  disabled={isStreaming}
-                                  onClick={() => setEditMetadataTarget(row.key)}
-                                />
-                                <PopupMenuItem
-                                  label={t`Delete`}
-                                  disabled={isStreaming}
-                                  onClick={() =>
-                                    setDeleteTarget({
-                                      key: row.key,
-                                      size: row.size,
-                                      lastModified: row.lastModified,
-                                    })
-                                  }
-                                />
-                              </>
-                            )}
-                          </PopupMenuOptions>
-                        </PopupMenu>
-                      )}
+                                )
+                              ) : isDeletedFile ? (
+                                // For deleted files, show "Restore" and "Delete" actions
+                                <>
+                                  <PopupMenuItem
+                                    label={t`Restore`}
+                                    onClick={() => {
+                                      if (row.kind === "version") {
+                                        setRestoreTarget({
+                                          key: row.key,
+                                          versionId: row.versionId,
+                                          size: row.size,
+                                          lastModified: row.lastModified,
+                                        })
+                                      }
+                                    }}
+                                  />
+                                  <PopupMenuItem
+                                    label={t`Delete`}
+                                    onClick={() => {
+                                      if (row.kind === "version") {
+                                        // For deleted files, delete all versions completely
+                                        const versionIdToDelete = row.deleteMarkerVersionId ?? row.versionId
+                                        setDeleteVersionTarget({
+                                          key: row.key,
+                                          versionId: versionIdToDelete,
+                                          size: row.size,
+                                          lastModified: row.lastModified,
+                                          isDeleteMarker: !!row.deleteMarkerVersionId,
+                                          allVersionIds: row.allVersionIds, // Pass all version IDs for complete deletion
+                                        })
+                                      }
+                                    }}
+                                  />
+                                </>
+                              ) : (
+                                <>
+                                  <PopupMenuItem
+                                    label={isDownloading ? t`Downloading...` : t`Download`}
+                                    disabled={row.kind !== "object" || isStreaming}
+                                    onClick={row.kind === "object" ? () => handleDownload(row) : undefined}
+                                    data-testid={`download-action-${row.key}`}
+                                  />
+                                  {versioningEnabled && !isVersion && (
+                                    <PopupMenuItem
+                                      label={t`View Versions`}
+                                      disabled={isStreaming}
+                                      onClick={() => setVersionHistoryTarget(row.key)}
+                                    />
+                                  )}
+                                  <PopupMenuItem
+                                    label={t`Copy`}
+                                    disabled={isStreaming}
+                                    onClick={() => setCopyTarget({ key: row.key, size: row.size })}
+                                  />
+                                  <PopupMenuItem
+                                    label={t`Move/Rename`}
+                                    disabled={isStreaming}
+                                    onClick={() => setMoveTarget({ key: row.key, size: row.size })}
+                                  />
+                                  <PopupMenuItem
+                                    label={t`Edit Metadata`}
+                                    disabled={isStreaming}
+                                    onClick={() => setEditMetadataTarget(row.key)}
+                                  />
+                                  <PopupMenuItem
+                                    label={t`Delete`}
+                                    disabled={isStreaming}
+                                    onClick={() =>
+                                      setDeleteTarget({
+                                        key: row.key,
+                                        size: row.size,
+                                        lastModified: row.lastModified,
+                                      })
+                                    }
+                                  />
+                                </>
+                              )}
+                            </PopupMenuOptions>
+                          </PopupMenu>
+                        ) : null
+                      })()}
                     </div>
                   </DataGridCell>
                 </div>
@@ -646,6 +758,27 @@ export function ObjectsTableView({
         }}
         onError={() => {
           setRestoreTarget(null)
+          // Error is shown in the modal itself via mutation error state
+        }}
+      />
+
+      <DeleteVersionModal
+        bucketName={bucketName}
+        objectKey={deleteVersionTarget?.key ?? ""}
+        versionId={deleteVersionTarget?.versionId ?? ""}
+        versionSize={deleteVersionTarget?.size}
+        versionDate={deleteVersionTarget?.lastModified}
+        isDeleteMarker={deleteVersionTarget?.isDeleteMarker ?? false}
+        folderMarkerVersionId={deleteVersionTarget?.folderMarkerVersionId}
+        allVersionIds={deleteVersionTarget?.allVersionIds}
+        isOpen={deleteVersionTarget !== null}
+        onClose={() => setDeleteVersionTarget(null)}
+        onSuccess={(key, versionId) => {
+          setDeleteVersionTarget(null)
+          onDeleteVersion?.(key, versionId)
+        }}
+        onError={() => {
+          setDeleteVersionTarget(null)
           // Error is shown in the modal itself via mutation error state
         }}
       />

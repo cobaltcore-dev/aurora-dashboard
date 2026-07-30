@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Trans, Plural, useLingui } from "@lingui/react/macro"
-import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -9,8 +9,10 @@ import type { DeleteObjectsBulkOutput } from "@/server/Storage/types/ceph"
 interface DeleteObjectsModalProps {
   bucketName: string
   objectKeys: string[]
+  versions: Array<{ key: string; versionId: string }>
   currentPrefix: string
   versioningEnabled?: boolean
+  isVersionMode?: boolean
   isOpen: boolean
   onClose: () => void
   onDeleted: (deletedKeys: string[], errorCount: number) => void
@@ -23,8 +25,10 @@ const MAX_ERROR_VISIBLE = 100
 export function DeleteObjectsModal({
   bucketName,
   objectKeys,
+  versions,
   currentPrefix,
   versioningEnabled = false,
+  isVersionMode = false,
   isOpen,
   onClose,
   onDeleted,
@@ -38,13 +42,32 @@ export function DeleteObjectsModal({
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
-    actionPrefix: "storage.ceph.objects.delete_bulk",
+    actionPrefix: isVersionMode ? "storage.ceph.versions.delete_bulk" : "storage.ceph.objects.delete_bulk",
   })
 
   const deleteBulkMutation = trpcReact.storage.ceph.objects.deleteBulk.useMutation({
     onSuccess: (res) => {
       utils.storage.ceph.objects.list.invalidate()
       utils.storage.ceph.containers.list.invalidate()
+      utils.storage.ceph.versioning.checkDeletedContent.invalidate()
+      onDeleted(
+        res.deleted.map((d) => d.key),
+        res.errorCount
+      )
+      if (res.errorCount === 0) {
+        handleClose()
+      } else {
+        setResult(res)
+      }
+    },
+    onError: (error) => onError(error.message),
+  })
+
+  const deleteVersionsBulkMutation = trpcReact.storage.ceph.objects.deleteVersionsBulk.useMutation({
+    onSuccess: (res) => {
+      utils.storage.ceph.objects.list.invalidate()
+      utils.storage.ceph.containers.list.invalidate()
+      utils.storage.ceph.versioning.checkDeletedContent.invalidate()
       onDeleted(
         res.deleted.map((d) => d.key),
         res.errorCount
@@ -62,6 +85,7 @@ export function DeleteObjectsModal({
     setConfirmText("")
     setResult(null)
     deleteBulkMutation.reset()
+    deleteVersionsBulkMutation.reset()
     resetTracking()
     onClose()
   }
@@ -72,22 +96,30 @@ export function DeleteObjectsModal({
     if (result === null) {
       // Step A: Confirm
       markSubmitted()
-      deleteBulkMutation.mutate({
-        project_id: projectId,
-        containerName: bucketName,
-        objectKeys,
-      })
+      if (isVersionMode) {
+        deleteVersionsBulkMutation.mutate({
+          project_id: projectId,
+          containerName: bucketName,
+          versions,
+        })
+      } else {
+        deleteBulkMutation.mutate({
+          project_id: projectId,
+          containerName: bucketName,
+          objectKeys,
+        })
+      }
     } else {
       // Step B: Close results view
       handleClose()
     }
   }
 
-  if (!isOpen || objectKeys.length === 0) return null
+  if (!isOpen || (objectKeys.length === 0 && versions.length === 0)) return null
 
-  const count = objectKeys.length
-  const isConfirmValid = confirmText === "DELETE"
-  const isPending = deleteBulkMutation.isPending
+  const count = isVersionMode ? versions.length : objectKeys.length
+  const isConfirmValid = confirmText === "delete"
+  const isPending = isVersionMode ? deleteVersionsBulkMutation.isPending : deleteBulkMutation.isPending
 
   // Step B: Results view
   if (result !== null) {
@@ -153,7 +185,10 @@ export function DeleteObjectsModal({
   }
 
   // Step A: Confirm view
-  const visibleNames = objectKeys.slice(0, MAX_VISIBLE).map((key) => key.replace(currentPrefix, "") || key)
+  const itemsToDisplay = isVersionMode
+    ? versions.map((v) => v.key.replace(currentPrefix, "") || v.key)
+    : objectKeys.map((key) => key.replace(currentPrefix, "") || key)
+  const visibleNames = itemsToDisplay.slice(0, MAX_VISIBLE)
   const hiddenCount = count - visibleNames.length
 
   return (
@@ -163,7 +198,13 @@ export function DeleteObjectsModal({
         trackClose()
         handleClose()
       }}
-      title={<Plural value={count} one="Delete # Object" other="Delete # Objects" />}
+      title={
+        isVersionMode ? (
+          <Plural value={count} one="Delete # Version" other="Delete # Versions" />
+        ) : (
+          <Plural value={count} one="Delete # Object" other="Delete # Objects" />
+        )
+      }
       size="large"
       confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
       confirmButtonVariant="primary-danger"
@@ -174,17 +215,19 @@ export function DeleteObjectsModal({
       disableCloseButton={isPending}
     >
       <Stack direction="vertical" gap="4">
-        <Message variant="danger">
-          {versioningEnabled ? (
-            <Trans>The selected objects will be marked as deleted and can be restored from version history.</Trans>
+        <p className="text-theme-default overflow-x-hidden [overflow-wrap:anywhere]">
+          {isVersionMode ? (
+            <Trans>These versions will be permanently deleted and cannot be restored.</Trans>
+          ) : versioningEnabled ? (
+            <Trans>The selected objects will be marked as deleted but can be restored from version history.</Trans>
           ) : (
-            <Trans>The selected objects will be permanently deleted. This cannot be undone.</Trans>
+            <Trans>The selected objects will be permanently deleted. This action cannot be undone.</Trans>
           )}
-        </Message>
+        </p>
 
         <div>
           <p className="text-theme-light mb-2 text-sm">
-            <Trans>Objects to delete:</Trans>
+            {isVersionMode ? <Trans>Versions to delete:</Trans> : <Trans>Objects to delete:</Trans>}
           </p>
           <div className="bg-theme-background-lvl-2 max-h-48 overflow-y-auto rounded p-4">
             <Stack direction="vertical" gap="1">
@@ -204,22 +247,17 @@ export function DeleteObjectsModal({
 
         <div>
           <TextInput
-            label={t`Type DELETE to confirm`}
+            label={t`Type "delete" to confirm`}
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="DELETE"
+            placeholder="delete"
             autoFocus
-            helptext={
-              versioningEnabled
-                ? t`The objects can be restored from version history.`
-                : t`This action cannot be undone.`
-            }
           />
         </div>
 
-        {deleteBulkMutation.error && (
+        {(deleteBulkMutation.error || deleteVersionsBulkMutation.error) && (
           <p className="text-juno-red text-sm">
-            <Trans>Error:</Trans> {deleteBulkMutation.error.message}
+            <Trans>Error:</Trans> {(deleteBulkMutation.error || deleteVersionsBulkMutation.error)?.message}
           </p>
         )}
       </Stack>

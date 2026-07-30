@@ -27,14 +27,6 @@ vi.mock("@/client/trpcClient", () => ({
     storage: {
       ceph: {
         versioning: {
-          deleteVersion: {
-            useMutation: vi.fn(() => ({
-              mutate: mockMutate,
-              reset: mockReset,
-              isPending: false,
-              error: null,
-            })),
-          },
           listObjectVersions: {
             useQuery: vi.fn(() => ({
               data: [],
@@ -43,6 +35,14 @@ vi.mock("@/client/trpcClient", () => ({
           },
         },
         objects: {
+          deleteVersionsBulk: {
+            useMutation: vi.fn(() => ({
+              mutate: mockMutate,
+              reset: mockReset,
+              isPending: false,
+              error: null,
+            })),
+          },
           list: {
             useQuery: vi.fn(() => ({
               data: { objects: [], folders: [] },
@@ -65,6 +65,9 @@ vi.mock("@/client/trpcClient", () => ({
         ceph: {
           versioning: {
             listObjectVersions: {
+              invalidate: mockInvalidate,
+            },
+            checkDeletedContent: {
               invalidate: mockInvalidate,
             },
           },
@@ -116,7 +119,7 @@ describe("DeleteVersionModal", () => {
   it("renders modal with title", () => {
     renderModal()
 
-    expect(screen.getByText("Delete Version Permanently")).toBeInTheDocument()
+    expect(screen.getByText("Delete Version")).toBeInTheDocument()
   })
 
   it("displays version information", () => {
@@ -144,24 +147,31 @@ describe("DeleteVersionModal", () => {
   it("shows confirmation input", () => {
     renderModal()
 
-    expect(screen.getByPlaceholderText("DELETE")).toBeInTheDocument()
+    expect(screen.getByLabelText('Type "delete" to confirm')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText("delete")).toBeInTheDocument()
+  })
+
+  it("shows warning description", () => {
+    renderModal()
+
+    expect(screen.getByText("This version will be permanently deleted and cannot be restored.")).toBeInTheDocument()
   })
 
   it("disables delete button when confirmation text is incorrect", () => {
     renderModal()
 
-    const deleteButton = screen.getByRole("button", { name: "Delete Permanently" })
+    const deleteButton = screen.getByRole("button", { name: "Delete" })
     expect(deleteButton).toBeDisabled()
   })
 
-  it("enables delete button when DELETE is typed", async () => {
+  it("enables delete button when delete is typed", async () => {
     const user = userEvent.setup()
     renderModal()
 
-    const input = screen.getByPlaceholderText("DELETE")
-    await user.type(input, "DELETE")
+    const input = screen.getByLabelText('Type "delete" to confirm')
+    await user.type(input, "delete")
 
-    const deleteButton = screen.getByRole("button", { name: "Delete Permanently" })
+    const deleteButton = screen.getByRole("button", { name: "Delete" })
     expect(deleteButton).not.toBeDisabled()
   })
 
@@ -179,24 +189,23 @@ describe("DeleteVersionModal", () => {
   it("does not render when isOpen is false", () => {
     renderModal({ isOpen: false })
 
-    expect(screen.queryByText("Delete Version Permanently")).not.toBeInTheDocument()
+    expect(screen.queryByText("Delete Version")).not.toBeInTheDocument()
   })
 
   it("calls mutation when delete is confirmed", async () => {
     const user = userEvent.setup()
     renderModal()
 
-    const input = screen.getByPlaceholderText("DELETE")
-    await user.type(input, "DELETE")
+    const input = screen.getByLabelText('Type "delete" to confirm')
+    await user.type(input, "delete")
 
-    const deleteButton = screen.getByRole("button", { name: "Delete Permanently" })
+    const deleteButton = screen.getByRole("button", { name: "Delete" })
     await user.click(deleteButton)
 
     expect(mockMutate).toHaveBeenCalledWith({
       project_id: "test-project-id",
-      bucket: "test-bucket",
-      key: "test-file.txt",
-      versionId: "abc123def456",
+      containerName: "test-bucket",
+      versions: [{ key: "test-file.txt", versionId: "abc123def456" }],
     })
   })
 
@@ -248,18 +257,88 @@ describe("DeleteVersionModal", () => {
 
       mockOnTrackEvent.mockClear()
 
-      // Type DELETE to enable the button
-      const input = screen.getByPlaceholderText("DELETE")
-      await user.type(input, "DELETE")
+      // Type delete to enable the button
+      const input = screen.getByLabelText('Type "delete" to confirm')
+      await user.type(input, "delete")
 
       // Click delete
-      const deleteButton = screen.getByRole("button", { name: "Delete Permanently" })
+      const deleteButton = screen.getByRole("button", { name: "Delete" })
       await user.click(deleteButton)
 
       // .close should NOT have been tracked since user submitted
       expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
         expect.objectContaining({ action: "storage.ceph.object.version.delete.close" })
       )
+    })
+  })
+
+  describe("Folder deletion with versioning", () => {
+    it("uses bulk delete with both versions for deleted folders", async () => {
+      const user = userEvent.setup()
+      renderModal({
+        objectKey: "my-folder/",
+        isDeleteMarker: true,
+        folderMarkerVersionId: "folder-version-123",
+        versionId: "delete-marker-version-456",
+      })
+
+      const input = screen.getByLabelText('Type "delete" to confirm')
+      await user.type(input, "delete")
+
+      const deleteButton = screen.getByRole("button", { name: "Delete" })
+      await user.click(deleteButton)
+
+      expect(mockMutate).toHaveBeenCalledWith({
+        project_id: "test-project-id",
+        containerName: "test-bucket",
+        versions: [
+          { key: "my-folder/", versionId: "delete-marker-version-456" },
+          { key: "my-folder/", versionId: "folder-version-123" },
+        ],
+      })
+    })
+
+    it("uses bulk delete with single version for regular files", async () => {
+      const user = userEvent.setup()
+      renderModal({
+        objectKey: "regular-file.txt",
+        isDeleteMarker: false,
+        versionId: "version-123",
+      })
+
+      const input = screen.getByLabelText('Type "delete" to confirm')
+      await user.type(input, "delete")
+
+      const deleteButton = screen.getByRole("button", { name: "Delete" })
+      await user.click(deleteButton)
+
+      expect(mockMutate).toHaveBeenCalledWith({
+        project_id: "test-project-id",
+        containerName: "test-bucket",
+        versions: [{ key: "regular-file.txt", versionId: "version-123" }],
+      })
+    })
+
+    it("uses bulk delete with single version for folders without folderMarkerVersionId", async () => {
+      const user = userEvent.setup()
+      renderModal({
+        objectKey: "my-folder/",
+        isDeleteMarker: true,
+        versionId: "delete-marker-version-456",
+        // no folderMarkerVersionId
+      })
+
+      const input = screen.getByLabelText('Type "delete" to confirm')
+      await user.type(input, "delete")
+
+      const deleteButton = screen.getByRole("button", { name: "Delete" })
+      await user.click(deleteButton)
+
+      expect(mockMutate).toHaveBeenCalledWith({
+        project_id: "test-project-id",
+        containerName: "test-bucket",
+        versions: [{ key: "my-folder/", versionId: "delete-marker-version-456" }],
+      })
     })
   })
 })

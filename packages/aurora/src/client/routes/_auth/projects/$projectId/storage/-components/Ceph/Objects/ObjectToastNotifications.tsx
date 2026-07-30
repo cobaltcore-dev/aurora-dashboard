@@ -46,29 +46,57 @@ export const getObjectDeleteErrorToast = (
   }
 }
 
+// ── Bulk delete (generic factory) ─────────────────────────────────────────────
+
+type EntityType = "object" | "version"
+
+const createBulkDeleteToasts = (entityType: EntityType) => {
+  const isVersion = entityType === "version"
+
+  return {
+    success: (deletedCount: number): { message: ReactNode } & NotificationOptions => ({
+      message: isVersion ? <Trans>Versions Deleted Permanently</Trans> : <Trans>Objects Deleted</Trans>,
+      description: isVersion ? (
+        <Plural
+          value={deletedCount}
+          one="# version was permanently deleted."
+          other="# versions were permanently deleted."
+        />
+      ) : (
+        <Plural value={deletedCount} one="# object was deleted." other="# objects were deleted." />
+      ),
+    }),
+
+    partial: (deletedCount: number, errorCount: number): { message: ReactNode } & NotificationOptions => ({
+      message: isVersion ? (
+        <Trans>Some Versions Could Not Be Deleted</Trans>
+      ) : (
+        <Trans>Some Objects Could Not Be Deleted</Trans>
+      ),
+      description: (
+        <Trans>
+          {deletedCount} deleted, {errorCount} failed. See the details in the dialog.
+        </Trans>
+      ),
+    }),
+
+    error: (errorMessage: string): { message: ReactNode } & NotificationOptions => ({
+      message: isVersion ? <Trans>Failed to Delete Versions</Trans> : <Trans>Failed to Delete Objects</Trans>,
+      description: isVersion ? (
+        <Trans>No versions were deleted: {errorMessage}</Trans>
+      ) : (
+        <Trans>No objects were deleted: {errorMessage}</Trans>
+      ),
+    }),
+  }
+}
+
 // ── Bulk object delete ─────────────────────────────────────────────────────────
 
-export const getObjectsBulkDeletedToast = (deletedCount: number): { message: ReactNode } & NotificationOptions => ({
-  message: <Trans>Objects Deleted</Trans>,
-  description: <Plural value={deletedCount} one="# object was deleted." other="# objects were deleted." />,
-})
-
-export const getObjectsBulkDeletePartialToast = (
-  deletedCount: number,
-  errorCount: number
-): { message: ReactNode } & NotificationOptions => ({
-  message: <Trans>Some Objects Could Not Be Deleted</Trans>,
-  description: (
-    <Trans>
-      {deletedCount} deleted, {errorCount} failed. See the details in the dialog.
-    </Trans>
-  ),
-})
-
-export const getObjectsBulkDeleteErrorToast = (errorMessage: string): { message: ReactNode } & NotificationOptions => ({
-  message: <Trans>Failed to Delete Objects</Trans>,
-  description: <Trans>No objects were deleted: {errorMessage}</Trans>,
-})
+const objectBulkDelete = createBulkDeleteToasts("object")
+export const getObjectsBulkDeletedToast = objectBulkDelete.success
+export const getObjectsBulkDeletePartialToast = objectBulkDelete.partial
+export const getObjectsBulkDeleteErrorToast = objectBulkDelete.error
 
 // ── Object copy ────────────────────────────────────────────────────────────────
 
@@ -292,3 +320,10 @@ export const getVersionDeleteErrorToast = (
     ),
   }
 }
+
+// ── Bulk version delete ────────────────────────────────────────────────────────
+
+const versionBulkDelete = createBulkDeleteToasts("version")
+export const getVersionsBulkDeletedToast = versionBulkDelete.success
+export const getVersionsBulkDeletePartialToast = versionBulkDelete.partial
+export const getVersionsBulkDeleteErrorToast = versionBulkDelete.error

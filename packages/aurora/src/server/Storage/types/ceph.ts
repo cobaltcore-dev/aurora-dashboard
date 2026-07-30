@@ -218,6 +218,27 @@ export const deleteObjectsBulkInputSchema = projectScopedInputSchema.extend({
     }),
 })
 
+/**
+ * Input schema for bulk deletion of specific object versions.
+ * Used in "Deleted" tab for permanent deletion of restorable versions.
+ *
+ * S3's DeleteObjects accepts at most 1000 keys per request; larger selections are
+ * chunked server-side. Each version requires both key and versionId to target
+ * specific versions (including delete markers) for permanent removal.
+ */
+export const deleteVersionsBulkInputSchema = projectScopedInputSchema.extend({
+  containerName: z.string().min(1),
+  versions: z
+    .array(
+      z.object({
+        key: z.string().min(1).max(1024), // S3 max key length
+        versionId: z.string().min(1), // Required - always delete specific version
+      })
+    )
+    .min(1)
+    .max(10000), // UI limit before server-side chunking (S3 limit is 1000 per request)
+})
+
 /** One key S3 reported as deleted. Mirrors the SDK's DeletedObject shape. */
 export const deletedObjectSchema = z.object({
   key: z.string(),
@@ -320,6 +341,7 @@ export type ListObjectsOutput = z.infer<typeof listObjectsOutputSchema>
 export type S3ObjectDetails = z.infer<typeof s3ObjectDetailsSchema>
 export type CopyObjectOutput = z.infer<typeof copyObjectOutputSchema>
 export type DeleteObjectsBulkInput = z.infer<typeof deleteObjectsBulkInputSchema>
+export type DeleteVersionsBulkInput = z.infer<typeof deleteVersionsBulkInputSchema>
 export type DeletedObject = z.infer<typeof deletedObjectSchema>
 export type DeleteObjectError = z.infer<typeof deleteObjectErrorSchema>
 export type DeleteObjectsBulkOutput = z.infer<typeof deleteObjectsBulkOutputSchema>

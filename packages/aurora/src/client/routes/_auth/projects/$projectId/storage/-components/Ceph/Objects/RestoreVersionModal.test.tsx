@@ -12,7 +12,9 @@ vi.mock("@/client/hooks/useProjectId", () => ({
 }))
 
 const mockMutate = vi.fn()
+const mockDeleteMutate = vi.fn()
 const mockReset = vi.fn()
+const mockDeleteReset = vi.fn()
 const mockInvalidate = vi.fn()
 const mockOnTrackEvent = vi.fn()
 
@@ -43,6 +45,14 @@ vi.mock("@/client/trpcClient", () => ({
           },
         },
         objects: {
+          deleteVersionsBulk: {
+            useMutation: vi.fn(() => ({
+              mutate: mockDeleteMutate,
+              reset: mockDeleteReset,
+              isPending: false,
+              error: null,
+            })),
+          },
           list: {
             useQuery: vi.fn(() => ({
               data: { objects: [], folders: [] },
@@ -65,6 +75,9 @@ vi.mock("@/client/trpcClient", () => ({
         ceph: {
           versioning: {
             listObjectVersions: {
+              invalidate: mockInvalidate,
+            },
+            checkDeletedContent: {
               invalidate: mockInvalidate,
             },
           },

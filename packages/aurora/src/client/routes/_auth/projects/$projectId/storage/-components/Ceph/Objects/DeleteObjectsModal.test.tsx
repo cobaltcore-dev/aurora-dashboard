@@ -23,7 +23,9 @@ vi.mock("@/client/hooks/useModalTracking", () => ({
 
 // Mock tRPC
 const mockMutate = vi.fn()
+const mockVersionsMutate = vi.fn()
 const mockReset = vi.fn()
+const mockVersionsReset = vi.fn()
 const mockInvalidate = vi.fn()
 
 vi.mock("@/client/trpcClient", () => ({
@@ -32,6 +34,9 @@ vi.mock("@/client/trpcClient", () => ({
       ceph: {
         objects: {
           deleteBulk: {
+            useMutation: vi.fn(),
+          },
+          deleteVersionsBulk: {
             useMutation: vi.fn(),
           },
         },
@@ -47,6 +52,11 @@ vi.mock("@/client/trpcClient", () => ({
           },
           containers: {
             list: {
+              invalidate: mockInvalidate,
+            },
+          },
+          versioning: {
+            checkDeletedContent: {
               invalidate: mockInvalidate,
             },
           },
@@ -71,12 +81,21 @@ describe("DeleteObjectsModal", () => {
       i18n.activate("en")
     })
 
-    // Default mock implementation
+    // Default mock implementation for object deletion
     vi.mocked(trpcReact.storage.ceph.objects.deleteBulk.useMutation).mockReturnValue({
       mutate: mockMutate,
       isPending: false,
       error: null,
       reset: mockReset,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)
+
+    // Default mock implementation for version deletion
+    vi.mocked(trpcReact.storage.ceph.objects.deleteVersionsBulk.useMutation).mockReturnValue({
+      mutate: mockVersionsMutate,
+      isPending: false,
+      error: null,
+      reset: mockVersionsReset,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
   })
@@ -87,6 +106,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={["file1.txt", "file2.txt", "file3.txt"]}
+          versions={[]}
           currentPrefix=""
           isOpen={true}
           onClose={vi.fn()}
@@ -105,6 +125,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={["file1.txt"]}
+          versions={[]}
           currentPrefix=""
           isOpen={true}
           onClose={vi.fn()}
@@ -123,6 +144,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={["prefix/file1.txt", "prefix/file2.txt"]}
+          versions={[]}
           currentPrefix="prefix/"
           isOpen={true}
           onClose={vi.fn()}
@@ -144,6 +166,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={keys}
+          versions={[]}
           currentPrefix=""
           isOpen={true}
           onClose={vi.fn()}
@@ -167,6 +190,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={["file1.txt"]}
+          versions={[]}
           currentPrefix=""
           isOpen={true}
           onClose={vi.fn()}
@@ -179,8 +203,8 @@ describe("DeleteObjectsModal", () => {
     const confirmButton = screen.getByRole("button", { name: /Delete/i })
     expect(confirmButton).toBeDisabled()
 
-    const input = screen.getByLabelText(/Type DELETE to confirm/i)
-    await user.type(input, "DELETE")
+    const input = screen.getByLabelText(/Type "delete" to confirm/i)
+    await user.type(input, "delete")
 
     expect(confirmButton).not.toBeDisabled()
   })
@@ -193,6 +217,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={["file1.txt", "file2.txt"]}
+          versions={[]}
           currentPrefix=""
           isOpen={true}
           onClose={vi.fn()}
@@ -202,8 +227,8 @@ describe("DeleteObjectsModal", () => {
       </TestWrapper>
     )
 
-    const input = screen.getByLabelText(/Type DELETE to confirm/i)
-    await user.type(input, "DELETE")
+    const input = screen.getByLabelText(/Type "delete" to confirm/i)
+    await user.type(input, "delete")
 
     const confirmButton = screen.getByRole("button", { name: /Delete/i })
     await user.click(confirmButton)
@@ -249,6 +274,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={["file1.txt", "file2.txt"]}
+          versions={[]}
           currentPrefix=""
           isOpen={true}
           onClose={onClose}
@@ -258,8 +284,8 @@ describe("DeleteObjectsModal", () => {
       </TestWrapper>
     )
 
-    const confirmInput = screen.getByLabelText(/Type DELETE to confirm/i)
-    await user.type(confirmInput, "DELETE")
+    const confirmInput = screen.getByLabelText(/Type "delete" to confirm/i)
+    await user.type(confirmInput, "delete")
 
     const confirmButton = screen.getByRole("button", { name: /Delete/i })
     await user.click(confirmButton)
@@ -302,6 +328,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={["file1.txt", "file2.txt"]}
+          versions={[]}
           currentPrefix=""
           isOpen={true}
           onClose={vi.fn()}
@@ -311,8 +338,8 @@ describe("DeleteObjectsModal", () => {
       </TestWrapper>
     )
 
-    const confirmInput = screen.getByLabelText(/Type DELETE to confirm/i)
-    await user.type(confirmInput, "DELETE")
+    const confirmInput = screen.getByLabelText(/Type "delete" to confirm/i)
+    await user.type(confirmInput, "delete")
 
     const confirmButton = screen.getByRole("button", { name: /Delete/i })
     await user.click(confirmButton)
@@ -349,6 +376,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={["file1.txt"]}
+          versions={[]}
           currentPrefix=""
           isOpen={true}
           onClose={vi.fn()}
@@ -358,8 +386,8 @@ describe("DeleteObjectsModal", () => {
       </TestWrapper>
     )
 
-    const confirmInput = screen.getByLabelText(/Type DELETE to confirm/i)
-    await user.type(confirmInput, "DELETE")
+    const confirmInput = screen.getByLabelText(/Type "delete" to confirm/i)
+    await user.type(confirmInput, "delete")
 
     const confirmButton = screen.getByRole("button", { name: /Delete/i })
     await user.click(confirmButton)
@@ -375,6 +403,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={["file1.txt"]}
+          versions={[]}
           currentPrefix=""
           versioningEnabled={true}
           isOpen={true}
@@ -386,7 +415,7 @@ describe("DeleteObjectsModal", () => {
     )
 
     expect(
-      screen.getByText(/The selected objects will be marked as deleted and can be restored from version history/)
+      screen.getByText(/The selected objects will be marked as deleted but can be restored from version history/)
     ).toBeInTheDocument()
   })
 
@@ -396,6 +425,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={["file1.txt"]}
+          versions={[]}
           currentPrefix=""
           isOpen={false}
           onClose={vi.fn()}
@@ -416,6 +446,7 @@ describe("DeleteObjectsModal", () => {
         <DeleteObjectsModal
           bucketName="test-bucket"
           objectKeys={[]}
+          versions={[]}
           currentPrefix=""
           isOpen={true}
           onClose={vi.fn()}
@@ -428,5 +459,225 @@ describe("DeleteObjectsModal", () => {
     // Modal should not render when objectKeys is empty
     expect(screen.queryByText(/Delete.*Object/i)).not.toBeInTheDocument()
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+  })
+
+  // ============================================================================
+  // VERSION MODE TESTS
+  // ============================================================================
+
+  it("renders with correct title for multiple versions in version mode", () => {
+    render(
+      <TestWrapper>
+        <DeleteObjectsModal
+          bucketName="test-bucket"
+          objectKeys={[]}
+          versions={[
+            { key: "file1.txt", versionId: "v1" },
+            { key: "file2.txt", versionId: "v2" },
+            { key: "file3.txt", versionId: "v3" },
+          ]}
+          currentPrefix=""
+          isVersionMode={true}
+          isOpen={true}
+          onClose={vi.fn()}
+          onDeleted={vi.fn()}
+          onError={vi.fn()}
+        />
+      </TestWrapper>
+    )
+
+    expect(screen.getByText("Delete 3 Versions")).toBeInTheDocument()
+  })
+
+  it("renders with correct title for one version in version mode", () => {
+    render(
+      <TestWrapper>
+        <DeleteObjectsModal
+          bucketName="test-bucket"
+          objectKeys={[]}
+          versions={[{ key: "file1.txt", versionId: "v1" }]}
+          currentPrefix=""
+          isVersionMode={true}
+          isOpen={true}
+          onClose={vi.fn()}
+          onDeleted={vi.fn()}
+          onError={vi.fn()}
+        />
+      </TestWrapper>
+    )
+
+    expect(screen.getByText("Delete 1 Version")).toBeInTheDocument()
+  })
+
+  it("requires 'delete' confirmation text in version mode", () => {
+    render(
+      <TestWrapper>
+        <DeleteObjectsModal
+          bucketName="test-bucket"
+          objectKeys={[]}
+          versions={[{ key: "file1.txt", versionId: "v1" }]}
+          currentPrefix=""
+          isVersionMode={true}
+          isOpen={true}
+          onClose={vi.fn()}
+          onDeleted={vi.fn()}
+          onError={vi.fn()}
+        />
+      </TestWrapper>
+    )
+
+    const deleteButton = screen.getByRole("button", { name: /Delete/i })
+    expect(deleteButton).toBeDisabled()
+
+    const input = screen.getByPlaceholderText("delete")
+    expect(input).toBeInTheDocument()
+  })
+
+  it("shows permanent deletion warning in version mode", () => {
+    render(
+      <TestWrapper>
+        <DeleteObjectsModal
+          bucketName="test-bucket"
+          objectKeys={[]}
+          versions={[{ key: "file1.txt", versionId: "v1" }]}
+          currentPrefix=""
+          isVersionMode={true}
+          isOpen={true}
+          onClose={vi.fn()}
+          onDeleted={vi.fn()}
+          onError={vi.fn()}
+        />
+      </TestWrapper>
+    )
+
+    expect(screen.getByText(/These versions will be permanently deleted and cannot be restored/)).toBeInTheDocument()
+  })
+
+  it("calls deleteVersionsBulk mutation in version mode", async () => {
+    const user = userEvent.setup()
+    const onDeleted = vi.fn()
+    const onClose = vi.fn()
+
+    // Mock successful deletion
+    vi.mocked(trpcReact.storage.ceph.objects.deleteVersionsBulk.useMutation).mockImplementation((options) => {
+      return {
+        mutate: vi.fn((input) => {
+          // Immediately invoke onSuccess with mock result
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(options?.onSuccess as any)?.(
+            {
+              deleted: [
+                { key: "file1.txt", versionId: "v1" },
+                { key: "file2.txt", versionId: "v2" },
+              ],
+              errors: [],
+              deletedCount: 2,
+              errorCount: 0,
+            },
+            input,
+            undefined
+          )
+        }),
+        isPending: false,
+        error: null,
+        reset: mockVersionsReset,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any
+    })
+
+    render(
+      <TestWrapper>
+        <DeleteObjectsModal
+          bucketName="test-bucket"
+          objectKeys={[]}
+          versions={[
+            { key: "file1.txt", versionId: "v1" },
+            { key: "file2.txt", versionId: "v2" },
+          ]}
+          currentPrefix=""
+          isVersionMode={true}
+          isOpen={true}
+          onClose={onClose}
+          onDeleted={onDeleted}
+          onError={vi.fn()}
+        />
+      </TestWrapper>
+    )
+
+    const input = screen.getByPlaceholderText("delete")
+    await act(async () => {
+      await user.type(input, "delete")
+    })
+
+    const deleteButton = screen.getByRole("button", { name: /Delete/i })
+    await act(async () => {
+      await user.click(deleteButton)
+    })
+
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalledWith(["file1.txt", "file2.txt"], 0)
+    })
+  })
+
+  it("does NOT call deleteBulk mutation in version mode", async () => {
+    const user = userEvent.setup()
+
+    // Mock successful deletion
+    vi.mocked(trpcReact.storage.ceph.objects.deleteVersionsBulk.useMutation).mockImplementation((options) => {
+      return {
+        mutate: vi.fn((input) => {
+          // Immediately invoke onSuccess with mock result
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(options?.onSuccess as any)?.(
+            {
+              deleted: [{ key: "file1.txt", versionId: "v1" }],
+              errors: [],
+              deletedCount: 1,
+              errorCount: 0,
+            },
+            input,
+            undefined
+          )
+        }),
+        isPending: false,
+        error: null,
+        reset: mockVersionsReset,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any
+    })
+
+    render(
+      <TestWrapper>
+        <DeleteObjectsModal
+          bucketName="test-bucket"
+          objectKeys={[]}
+          versions={[{ key: "file1.txt", versionId: "v1" }]}
+          currentPrefix=""
+          isVersionMode={true}
+          isOpen={true}
+          onClose={vi.fn()}
+          onDeleted={vi.fn()}
+          onError={vi.fn()}
+        />
+      </TestWrapper>
+    )
+
+    const input = screen.getByPlaceholderText("delete")
+    await act(async () => {
+      await user.type(input, "delete")
+    })
+
+    const deleteButton = screen.getByRole("button", { name: /Delete/i })
+    await act(async () => {
+      await user.click(deleteButton)
+    })
+
+    await waitFor(() => {
+      // Verify version deletion was called (happens in mockImplementation)
+      expect(screen.queryByText(/Deleting.../i)).not.toBeInTheDocument()
+    })
+
+    // Verify object deletion was NOT called
+    expect(mockMutate).not.toHaveBeenCalled()
   })
 })
