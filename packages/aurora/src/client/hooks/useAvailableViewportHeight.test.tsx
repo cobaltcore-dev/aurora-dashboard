@@ -2,25 +2,28 @@ import { describe, test, expect, vi, beforeEach, afterEach } from "vitest"
 import { render, screen, act } from "@testing-library/react"
 import { useAvailableViewportHeight } from "./useAvailableViewportHeight"
 
-// Mirrors the hook's own constants. Kept local so a change to either one shows
-// up as a failing expectation rather than a test that silently follows along.
+// Mirrors the hook's own constants. Kept local so a change to either shows up
+// as a failing expectation rather than a test that silently follows along.
 const DEFAULT_BOTTOM_GAP = 52
-const MIN_HEIGHT = 200
+const GAP = 8
+const MIN_HEIGHT = 150
 
 const VIEWPORT_HEIGHT = 900
 
 // Probe mirrors how the storage table views consume the hook: the scroll
 // container can mount later than the component, because an empty state renders
 // no container at all. That makes the callback ref — not a ref object — the
-// thing that starts the measurement.
-function Probe({ mounted = true, bottomGap }: { mounted?: boolean; bottomGap?: number }) {
-  const { ref, height } = useAvailableViewportHeight<HTMLDivElement>(bottomGap)
+// thing that starts the measurement. The `.app-page-footer` wrapper is the
+// app-owned footer element the hook anchors its bottom edge to.
+function Probe({ mounted = true, withFooter = true }: { mounted?: boolean; withFooter?: boolean }) {
+  const { ref, height } = useAvailableViewportHeight<HTMLDivElement>()
 
   return (
-    <>
+    <div>
       <span data-testid="height">{height === undefined ? "unmeasured" : height}</span>
       {mounted && <div data-testid="body" ref={ref} style={{ height: `${height ?? 0}px` }} />}
-    </>
+      {withFooter && <div className="app-page-footer" data-testid="footer" role="contentinfo" />}
+    </div>
   )
 }
 
@@ -30,23 +33,27 @@ const setViewportHeight = (height: number) => {
   Object.defineProperty(window, "innerHeight", { value: height, configurable: true, writable: true })
 }
 
-// jsdom has no layout engine, so every rect is zeroed — stub the one number the
-// hook actually reads.
-const setElementTop = (top: number) =>
-  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
-    top,
-    bottom: top,
-    left: 0,
-    right: 0,
-    width: 0,
-    height: 0,
-    x: 0,
-    y: top,
-    toJSON: () => ({}),
-  } as DOMRect)
+// jsdom has no layout engine, so rects are zeroed. Stub per-testid: the element
+// top and the footer top are the two numbers the hook reads.
+const stubRects = (rects: Record<string, Partial<DOMRect>>) => {
+  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+    const id = this.getAttribute("data-testid") ?? ""
+    const r = rects[id] ?? {}
+    return {
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+      ...r,
+    } as DOMRect
+  })
+}
 
-// The observers coalesce measurements into an animation frame, so tests that
-// trigger one have to let that frame run.
 const flushFrame = () =>
   act(async () => {
     await new Promise((resolve) => requestAnimationFrame(() => resolve(null)))
@@ -61,51 +68,64 @@ describe("useAvailableViewportHeight", () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
-    vi.unstubAllGlobals()
     setViewportHeight(originalInnerHeight)
   })
 
-  test("measures the space left below the element's position in the document", () => {
-    setElementTop(240)
+  test("measures the gap between the element top and the footer top", () => {
+    stubRects({ body: { top: 240 }, footer: { top: 848 } })
     render(<Probe />)
+
+    expect(measuredHeight()).toBe(String(848 - 240 - GAP))
+  })
+
+  test("shrinks when the footer is taller (footer top moves up)", () => {
+    // A custom footer with more content pushes its top edge up the column; the
+    // table gives up exactly that space rather than overlapping the footer.
+    stubRects({ body: { top: 240 }, footer: { top: 848 } })
+    const { unmount } = render(<Probe />)
+    const shortFooter = Number(measuredHeight())
+    unmount()
+
+    vi.restoreAllMocks()
+    stubRects({ body: { top: 240 }, footer: { top: 700 } })
+    render(<Probe />)
+
+    expect(Number(measuredHeight())).toBe(shortFooter - (848 - 700))
+  })
+
+  test("shrinks when the element sits lower on the page", () => {
+    // A banner in the page banner slot pushes the element down; it gives up that
+    // space instead of growing the document past the footer.
+    stubRects({ body: { top: 240 }, footer: { top: 848 } })
+    const { unmount } = render(<Probe />)
+    const higher = Number(measuredHeight())
+    unmount()
+
+    vi.restoreAllMocks()
+    stubRects({ body: { top: 340 }, footer: { top: 848 } })
+    render(<Probe />)
+
+    expect(Number(measuredHeight())).toBe(higher - 100)
+  })
+
+  test("falls back to the viewport bottom when there is no footer", () => {
+    stubRects({ body: { top: 240 } })
+    render(<Probe withFooter={false} />)
 
     expect(measuredHeight()).toBe(String(VIEWPORT_HEIGHT - 240 - DEFAULT_BOTTOM_GAP))
   })
 
-  test("shrinks when the element sits lower on the page", () => {
-    // Everything above the element — a banner in the page banner slot, wrapped
-    // breadcrumbs — pushes it down, and the element gives up that space rather
-    // than growing the document past the viewport.
-    setElementTop(240)
-    const { unmount } = render(<Probe />)
-    const withoutBanner = Number(measuredHeight())
-    unmount()
-
-    vi.restoreAllMocks()
-    setElementTop(340)
-    render(<Probe />)
-
-    expect(Number(measuredHeight())).toBe(withoutBanner - 100)
-  })
-
-  test("subtracts a custom bottom gap", () => {
-    setElementTop(240)
-    render(<Probe bottomGap={120} />)
-
-    expect(measuredHeight()).toBe(String(VIEWPORT_HEIGHT - 240 - 120))
-  })
-
-  test("clamps to the minimum height, letting the page scroll instead", () => {
+  test("never falls below the minimum height, letting the page scroll instead", () => {
     // The floor takes precedence over fitting the viewport: a container a row
     // and a half tall is worse than a page scrollbar.
-    setElementTop(VIEWPORT_HEIGHT - 10)
+    stubRects({ body: { top: 240 }, footer: { top: 260 } })
     render(<Probe />)
 
     expect(measuredHeight()).toBe(String(MIN_HEIGHT))
   })
 
   test("measures when the element mounts after the first render", () => {
-    setElementTop(240)
+    stubRects({ body: { top: 240 }, footer: { top: 848 } })
     const { rerender } = render(<Probe mounted={false} />)
 
     expect(measuredHeight()).toBe("unmeasured")
@@ -115,37 +135,38 @@ describe("useAvailableViewportHeight", () => {
     // looked at again — leaving the element unsized for the rest of its life.
     rerender(<Probe mounted />)
 
-    expect(measuredHeight()).toBe(String(VIEWPORT_HEIGHT - 240 - DEFAULT_BOTTOM_GAP))
+    expect(measuredHeight()).toBe(String(848 - 240 - GAP))
   })
 
   test("re-measures when the window is resized", async () => {
-    setElementTop(240)
+    stubRects({ body: { top: 240 }, footer: { top: 848 } })
     render(<Probe />)
 
-    setViewportHeight(700)
+    stubRects({ body: { top: 240 }, footer: { top: 600 } })
     await act(async () => {
       window.dispatchEvent(new Event("resize"))
     })
     await flushFrame()
 
-    expect(measuredHeight()).toBe(String(700 - 240 - DEFAULT_BOTTOM_GAP))
+    expect(measuredHeight()).toBe(String(600 - 240 - GAP))
   })
 
   test("measures without a ResizeObserver", () => {
     // Without this the hook used to bail out entirely, which left every row of
     // every table unrendered under jsdom.
     vi.stubGlobal("ResizeObserver", undefined)
-    setElementTop(240)
+    stubRects({ body: { top: 240 }, footer: { top: 848 } })
 
     render(<Probe />)
 
-    expect(measuredHeight()).toBe(String(VIEWPORT_HEIGHT - 240 - DEFAULT_BOTTOM_GAP))
+    expect(measuredHeight()).toBe(String(848 - 240 - GAP))
+    vi.unstubAllGlobals()
   })
 
   test("applies the measured height to the element", () => {
-    setElementTop(240)
+    stubRects({ body: { top: 240 }, footer: { top: 848 } })
     render(<Probe />)
 
-    expect(screen.getByTestId("body").style.height).toBe(`${VIEWPORT_HEIGHT - 240 - DEFAULT_BOTTOM_GAP}px`)
+    expect(screen.getByTestId("body").style.height).toBe(`${848 - 240 - GAP}px`)
   })
 })
