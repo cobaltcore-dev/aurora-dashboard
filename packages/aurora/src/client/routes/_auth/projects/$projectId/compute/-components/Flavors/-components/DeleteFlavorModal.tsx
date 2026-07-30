@@ -1,22 +1,11 @@
 import React, { useState } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
-import {
-  Modal,
-  Message,
-  Spinner,
-  ModalFooter,
-  Button,
-  ButtonRow,
-  DataGrid,
-  DataGridRow,
-  DataGridHeadCell,
-  DataGridCell,
-  Stack,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Message, Spinner, ModalFooter, Button, ButtonRow, Stack } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { Trans } from "@lingui/react/macro"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
+import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
 
 interface DeleteFlavorModalProps {
   client: TrpcClient
@@ -76,6 +65,15 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
     setGeneralError(null)
   }
 
+  const flavorItems = [
+    { label: t`Name`, value: flavor?.name },
+    { label: t`ID`, value: flavor?.id },
+    { label: t`VCPUs`, value: flavor?.vcpus },
+    { label: t`RAM`, value: `${flavor?.ram} MiB` },
+    { label: t`Disk`, value: `${flavor?.disk} GiB` },
+    ...(flavor?.swap ? [{ label: t`Swap`, value: `${flavor.swap} MiB` }] : []),
+  ]
+
   return (
     <Modal
       onCancel={handleClose}
@@ -110,36 +108,7 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
             className="mb-4"
           />
 
-          {flavor && (
-            <DataGrid columns={2}>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Name`}</DataGridHeadCell>
-                <DataGridCell>{flavor.name}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`ID`}</DataGridHeadCell>
-                <DataGridCell>{flavor.id}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`VCPUs`}</DataGridHeadCell>
-                <DataGridCell>{flavor.vcpus}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`RAM`}</DataGridHeadCell>
-                <DataGridCell>{flavor.ram} MiB</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>{t`Disk`}</DataGridHeadCell>
-                <DataGridCell>{flavor.disk} GiB</DataGridCell>
-              </DataGridRow>
-              {flavor.swap && (
-                <DataGridRow>
-                  <DataGridHeadCell>{t`Swap`}</DataGridHeadCell>
-                  <DataGridCell>{flavor.swap} MiB</DataGridCell>
-                </DataGridRow>
-              )}
-            </DataGrid>
-          )}
+          {flavor && <TwoColumnDescriptionList items={flavorItems} />}
         </div>
       )}
     </Modal>

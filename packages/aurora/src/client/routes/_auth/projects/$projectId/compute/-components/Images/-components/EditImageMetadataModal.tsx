@@ -6,10 +6,9 @@ import {
   Button,
   Spinner,
   Stack,
-  DataGrid,
-  DataGridRow,
-  DataGridHeadCell,
-  DataGridCell,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
   TextInput,
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
@@ -225,13 +224,11 @@ function EditImageMetadataModalInner({
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isLoading || isAddingNew || metadata.some((e) => e.isEditing) || isSubmitDisabled}
     >
-      {isLoading && (
+      {isLoading ? (
         <Stack distribution="center" alignment="center">
           <Spinner variant="primary" />
         </Stack>
-      )}
-
-      {!isLoading && (
+      ) : (
         <div>
           <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
             <Button
@@ -242,152 +239,153 @@ function EditImageMetadataModalInner({
               icon="addCircle"
             />
           </Stack>
+          {metadata.length === 0 && !isAddingNew ? (
+            <p className="jn:text-theme-light py-8 text-center">
+              {t`No custom metadata properties found. Click "Add Property" to create one.`}
+            </p>
+          ) : (
+            <DescriptionList className="mb-6">
+              <DescriptionTerm>{t`Property Key`}</DescriptionTerm>
+              <DescriptionDefinition>{t`Value`}</DescriptionDefinition>
 
-          <DataGrid columns={3} minContentColumns={[2]} className="mb-6">
-            <DataGridRow>
-              <DataGridHeadCell>{t`Property Key`}</DataGridHeadCell>
-              <DataGridHeadCell>{t`Value`}</DataGridHeadCell>
-              <DataGridHeadCell></DataGridHeadCell>
-            </DataGridRow>
-
-            {isAddingNew && (
-              <DataGridRow>
-                <DataGridCell>
-                  <TextInput
-                    value={newKey}
-                    onChange={(e) => {
-                      setNewKey(e.target.value)
-                      if (errors.newKey) {
-                        setErrors((prev) => {
-                          const next = { ...prev }
-                          delete next.newKey
-                          return next
-                        })
-                      }
-                    }}
-                    placeholder={t`property_key`}
-                    errortext={errors.newKey}
-                    autoFocus
-                  />
-                </DataGridCell>
-                <DataGridCell>
-                  <TextInput
-                    value={newValue}
-                    onChange={(e) => {
-                      setNewValue(e.target.value)
-                      if (errors.newValue) {
-                        setErrors((prev) => {
-                          const next = { ...prev }
-                          delete next.newValue
-                          return next
-                        })
-                      }
-                    }}
-                    placeholder={t`Value`}
-                    errortext={errors.newValue}
-                  />
-                </DataGridCell>
-                <DataGridCell>
-                  <Stack direction="horizontal" gap="2">
-                    <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
-                    <Button size="small" variant="subdued" onClick={handleCancelAdd} icon="close" title={t`Discard`} />
-                  </Stack>
-                </DataGridCell>
-              </DataGridRow>
-            )}
-
-            {metadata.map((entry, index) => (
-              <DataGridRow key={`${entry.originalKey}-${index}`}>
-                <DataGridCell>
-                  {entry.isEditing ? (
-                    <TextInput
-                      value={entry.key}
-                      onChange={(e) => handleKeyChange(index, e.target.value)}
-                      errortext={errors[`edit-${index}`]}
-                    />
-                  ) : (
-                    <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
-                      {entry.key}
-                    </span>
-                  )}
-                </DataGridCell>
-                <DataGridCell>
-                  {entry.isEditing ? (
-                    <TextInput value={entry.value} onChange={(e) => handleValueChange(index, e.target.value)} />
-                  ) : (
-                    <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
-                      {entry.value}
-                    </span>
-                  )}
-                </DataGridCell>
-                <DataGridCell>
-                  {entry.isEditing ? (
-                    <Stack direction="horizontal" gap="2">
-                      <Button
-                        size="small"
-                        variant="primary"
-                        onClick={() => handleSaveEdit(index)}
-                        icon="check"
-                        title={t`Save`}
+              <>
+                {isAddingNew && (
+                  <>
+                    <DescriptionTerm>
+                      <TextInput
+                        value={newKey}
+                        onChange={(e) => {
+                          setNewKey(e.target.value)
+                          if (errors.newKey) {
+                            setErrors((prev) => {
+                              const next = { ...prev }
+                              delete next.newKey
+                              return next
+                            })
+                          }
+                        }}
+                        placeholder={t`property_key`}
+                        errortext={errors.newKey}
+                        autoFocus
                       />
-                      <Button
-                        size="small"
-                        variant="subdued"
-                        onClick={() => handleCancelEdit(index)}
-                        icon="close"
-                        title={t`Discard`}
-                      />
-                    </Stack>
-                  ) : (
-                    <Stack direction="horizontal" gap="2">
-                      {confirmDeleteIndex !== index && (
-                        <Button
-                          size="small"
-                          variant="subdued"
-                          onClick={() => handleEdit(index)}
-                          icon="edit"
-                          data-testid={`edit-${entry.key}`}
-                          title={t`Edit`}
-                          disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                    </DescriptionTerm>
+                    <DescriptionDefinition>
+                      <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+                        <TextInput
+                          value={newValue}
+                          onChange={(e) => {
+                            setNewValue(e.target.value)
+                            if (errors.newValue) {
+                              setErrors((prev) => {
+                                const next = { ...prev }
+                                delete next.newValue
+                                return next
+                              })
+                            }
+                          }}
+                          placeholder={t`Value`}
+                          errortext={errors.newValue}
                         />
-                      )}
-                      {confirmDeleteIndex === index ? (
-                        <Button
-                          size="small"
-                          variant="primary-danger"
-                          onClick={() => handleDelete(index)}
-                          data-testid={`confirm-delete-${entry.key}`}
-                          title={t`Delete`}
-                          disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                        >
-                          {t`Delete`}
-                        </Button>
+                        <Stack direction="horizontal" gap="2">
+                          <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
+                          <Button
+                            size="small"
+                            variant="subdued"
+                            onClick={handleCancelAdd}
+                            icon="close"
+                            title={t`Discard`}
+                          />
+                        </Stack>
+                      </Stack>
+                    </DescriptionDefinition>
+                  </>
+                )}
+              </>
+
+              <>
+                {metadata.map((entry, index) => (
+                  <React.Fragment key={`${entry.originalKey}-${index}`}>
+                    <DescriptionTerm>
+                      {entry.isEditing ? (
+                        <TextInput
+                          value={entry.key}
+                          onChange={(e) => handleKeyChange(index, e.target.value)}
+                          errortext={errors[`edit-${index}`]}
+                        />
                       ) : (
-                        <Button
-                          size="small"
-                          onClick={() => setConfirmDeleteIndex(index)}
-                          icon="deleteForever"
-                          data-testid={`delete-${entry.key}`}
-                          title={t`Delete`}
-                          disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                        />
+                        <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
+                          {entry.key}
+                        </span>
                       )}
-                    </Stack>
-                  )}
-                </DataGridCell>
-              </DataGridRow>
-            ))}
-
-            {metadata.length === 0 && !isAddingNew && (
-              <DataGridRow>
-                <DataGridCell colSpan={3} className="jn:text-theme-light py-8 text-center">
-                  <Stack alignment="center">
-                    <span>{t`No custom metadata properties found. Click "Add Property" to create one.`}</span>
-                  </Stack>
-                </DataGridCell>
-              </DataGridRow>
-            )}
-          </DataGrid>
+                    </DescriptionTerm>
+                    <DescriptionDefinition className="flex items-center justify-between gap-2">
+                      {entry.isEditing ? (
+                        <>
+                          <TextInput value={entry.value} onChange={(e) => handleValueChange(index, e.target.value)} />
+                          <Stack direction="horizontal" gap="2">
+                            <Button
+                              size="small"
+                              variant="primary"
+                              onClick={() => handleSaveEdit(index)}
+                              icon="check"
+                              title={t`Save`}
+                            />
+                            <Button
+                              size="small"
+                              variant="subdued"
+                              onClick={() => handleCancelEdit(index)}
+                              icon="close"
+                              title={t`Discard`}
+                            />
+                          </Stack>
+                        </>
+                      ) : (
+                        <>
+                          <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
+                            {entry.value}
+                          </span>
+                          <Stack direction="horizontal" gap="2">
+                            {confirmDeleteIndex !== index && (
+                              <Button
+                                size="small"
+                                variant="subdued"
+                                onClick={() => handleEdit(index)}
+                                icon="edit"
+                                data-testid={`edit-${entry.key}`}
+                                title={t`Edit`}
+                                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                              />
+                            )}
+                            {confirmDeleteIndex === index ? (
+                              <Button
+                                size="small"
+                                variant="primary-danger"
+                                onClick={() => handleDelete(index)}
+                                data-testid={`confirm-delete-${entry.key}`}
+                                title={t`Delete`}
+                                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                              >
+                                {t`Delete`}
+                              </Button>
+                            ) : (
+                              <Button
+                                size="small"
+                                onClick={() => setConfirmDeleteIndex(index)}
+                                icon="deleteForever"
+                                data-testid={`delete-${entry.key}`}
+                                title={t`Delete`}
+                                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                              />
+                            )}
+                          </Stack>
+                        </>
+                      )}
+                    </DescriptionDefinition>
+                  </React.Fragment>
+                ))}
+              </>
+            </DescriptionList>
+          )}
         </div>
       )}
     </Modal>

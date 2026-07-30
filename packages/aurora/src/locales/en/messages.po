@@ -898,6 +898,9 @@ msgstr "Delete Folder \"{displayName}\""
 msgid "Delete folder:"
 msgstr "Delete folder:"
 
+msgid "Delete Image"
+msgstr "Delete Image"
+
 msgid "Delete Images"
 msgstr "Delete Images"
 
