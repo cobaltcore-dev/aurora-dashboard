@@ -20,10 +20,10 @@ msgid "—"
 msgstr "—"
 
 msgid "... and {hiddenCount} more"
-msgstr "... und {hiddenCount} weitere"
+msgstr ""
 
 msgid "… and {hiddenCount} more"
-msgstr ""
+msgstr "... und {hiddenCount} weitere"
 
 msgid "… and {hiddenErrorCount} more failures"
 msgstr ""

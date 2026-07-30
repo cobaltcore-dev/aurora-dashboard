@@ -61,16 +61,18 @@ export const DeleteVersionModal = ({
     onError: (error) => {
       onError?.(objectKey, error.message)
     },
-    onSettled: () => {
-      deleteMutation.reset()
-    },
   })
 
   const handleClose = () => {
     setConfirmText("")
     resetTracking()
+    deleteMutation.reset()
     onClose()
   }
+
+  // Show "all versions" UI if array has multiple versions
+  // Must be computed before handleDelete to ensure consistent behavior
+  const isDeletingAllVersions = allVersionIds && allVersionIds.length > 0
 
   const handleDelete = () => {
     if (confirmText !== "delete") return
@@ -87,7 +89,7 @@ export const DeleteVersionModal = ({
             { key: objectKey, versionId }, // Delete marker of the folder
             { key: objectKey, versionId: folderMarkerVersionId }, // Folder marker itself
           ]
-        : allVersionIds && allVersionIds.length > 0
+        : isDeletingAllVersions
           ? allVersionIds.map((vid) => ({ key: objectKey, versionId: vid })) // Delete ALL versions
           : [{ key: objectKey, versionId }] // Single version
 
@@ -99,10 +101,6 @@ export const DeleteVersionModal = ({
   }
 
   if (!isOpen) return null
-
-  // Show "all versions" UI if array has multiple versions
-  // Align with line 91 check to ensure consistent behavior
-  const isDeletingAllVersions = allVersionIds && allVersionIds.length > 1
 
   return (
     <Modal

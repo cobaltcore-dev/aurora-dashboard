@@ -181,6 +181,10 @@ async function bulkDeleteItems(
         errors.push({ key: e.Key ?? "", versionId: e.VersionId, code: e.Code, message: e.Message })
       }
     } catch (error) {
+      // If aborted, stop processing without recording errors
+      if (abortSignal?.aborted) {
+        break
+      }
       // Nothing deleted yet → the failure is systemic (bad bucket, denied
       // credentials). Surface it as a normal tRPC error rather than as 1000
       // identical per-key errors.

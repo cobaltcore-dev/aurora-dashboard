@@ -630,6 +630,10 @@ export function ObjectsTableView({
                                             lastModified: undefined,
                                             isDeleteMarker: true, // This version IS a delete marker
                                             folderMarkerVersionId: row.folderMarkerVersionId,
+                                            // Show both IDs in the confirmation dialog
+                                            allVersionIds: row.folderMarkerVersionId
+                                              ? [row.deleteMarkerVersionId, row.folderMarkerVersionId]
+                                              : undefined,
                                           })
                                         }
                                       }}

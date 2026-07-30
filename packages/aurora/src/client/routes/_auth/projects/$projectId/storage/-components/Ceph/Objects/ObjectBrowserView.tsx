@@ -442,14 +442,18 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   // Performance optimization: Build a Map for O(1) version lookup instead of O(n) find()
   const versionIdByKey = useMemo(() => {
     if (tab !== "deleted") return new Map<string, string>()
-    return new Map(sortedDeletedFiles.map((v) => [v.key, v.versionId]))
-  }, [tab, sortedDeletedFiles])
+    return new Map(filteredDeletedFiles.map((v) => [v.key, v.versionId]))
+  }, [tab, filteredDeletedFiles])
+
+  // Performance optimization: Build a Set for O(1) membership checks instead of O(m) some()
+  const selectedItemsSet = useMemo(() => {
+    return new Set(selectedItems.map((item) => makeItemKey(item.key, item.versionId)))
+  }, [selectedItems])
 
   // Tab-specific selection logic
-  const selectableKeys = tab === "deleted" ? sortedDeletedFiles.map((v) => v.key) : sortedObjects.map((o) => o.key)
+  const selectableKeys = tab === "deleted" ? filteredDeletedFiles.map((v) => v.key) : sortedObjects.map((o) => o.key)
 
-  const isItemSelected = (key: string, versionId?: string) =>
-    selectedItems.some((item) => item.key === key && item.versionId === versionId)
+  const isItemSelected = (key: string, versionId?: string) => selectedItemsSet.has(makeItemKey(key, versionId))
 
   const allSelected =
     selectableKeys.length > 0 &&
@@ -477,13 +481,13 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const handleToggleSelectAll = () => {
     setSelectedItems((prev) => {
       if (tab === "deleted") {
-        const visibleItemKeys = new Set(sortedDeletedFiles.map((v) => makeItemKey(v.key, v.versionId)))
+        const visibleItemKeys = new Set(filteredDeletedFiles.map((v) => makeItemKey(v.key, v.versionId)))
         if (allSelected) {
           // Deselect all visible versions
           return prev.filter((item) => !visibleItemKeys.has(makeItemKey(item.key, item.versionId)))
         } else {
           // Select all visible versions
-          const newItems = sortedDeletedFiles.map((v) => ({ key: v.key, versionId: v.versionId }))
+          const newItems = filteredDeletedFiles.map((v) => ({ key: v.key, versionId: v.versionId }))
           const existingKeys = new Set(prev.map((item) => makeItemKey(item.key, item.versionId)))
           const toAdd = newItems.filter((item) => !existingKeys.has(makeItemKey(item.key, item.versionId)))
           return [...prev, ...toAdd]
@@ -511,6 +515,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     setVersionIdMarker(undefined)
     setAllObjects([])
     setAllFolders([])
+    setAllVersions([])
     setHasMore(false)
   }
 
@@ -518,7 +523,14 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     // The list accumulates pages; a plain invalidate would refetch only the last
     // page and append it. Drop the accumulator so the refetch rebuilds page 1.
     resetAccumulatedObjects()
-    setSelectedItems((prev) => prev.filter((item) => !deletedKeys.includes(item.key)))
+
+    // In Deleted tab, clear all selection after bulk delete (list is being refetched anyway)
+    // In All tab, only clear successfully deleted items
+    if (tab === "deleted") {
+      setSelectedItems([])
+    } else {
+      setSelectedItems((prev) => prev.filter((item) => !deletedKeys.includes(item.key)))
+    }
 
     if (tab === "deleted") {
       // Version deletion toasts

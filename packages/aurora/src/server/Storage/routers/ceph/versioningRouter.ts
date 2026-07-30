@@ -447,8 +447,8 @@ export const versioningRouter = {
                     break
                   }
 
-                  // Continue to next page if truncated
-                  if (!response.IsTruncated) {
+                  // Continue to next page if truncated and has next marker
+                  if (!response.IsTruncated || !response.NextKeyMarker) {
                     break
                   }
 
