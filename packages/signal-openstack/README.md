@@ -88,9 +88,7 @@ import { SignalOpenstackSession } from "@cobaltcore-dev/signal-openstack"
 import { S3Client } from "@aws-sdk/client-s3"
 
 const session = SignalOpenstackSession("http://identity", {
-  auth: {
-    /* ... */
-  },
+  auth: {/* ... */},
 })
 
 // Get the S3 endpoint URL
@@ -218,9 +216,7 @@ Enable debug logging by setting `debug: true` in your session or service options
 const session = SignalOpenstackSession(
   "http://identity",
   {
-    auth: {
-      /* ... */
-    },
+    auth: {/* ... */},
   },
   {
     debug: true, // Enable debug logging
@@ -263,9 +259,7 @@ Signal-Openstack supports proxy debugging for inspecting OpenStack API traffic:
 const session = SignalOpenstackSession(
   "http://identity",
   {
-    auth: {
-      /* ... */
-    },
+    auth: {/* ... */},
   },
   {
     debug: true,

@@ -25,8 +25,7 @@ let listObjectsData: ObjectSummary[] = []
 let listObjectsLoading = false
 let listObjectsError: { message: string } | null = null
 let mockContainerMetadata:
-  | { versionsEnabled?: boolean; versionsLocation?: string; historyLocation?: string }
-  | undefined = undefined
+  { versionsEnabled?: boolean; versionsLocation?: string; historyLocation?: string } | undefined = undefined
 let mockContainerMetadataError: { message: string } | null = null
 
 let capturedMutationOptions: {
