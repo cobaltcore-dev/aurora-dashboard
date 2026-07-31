@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { i18n } from "@lingui/core"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { S3_PRESIGN_MAX_EXPIRY_SECONDS } from "@/server/Storage/types/ceph"
 import { Modal, Stack, Spinner, TextInput, Icon, Select, SelectOption } from "@cloudoperators/juno-ui-components"
 
 // ── Expiry presets ────────────────────────────────────────────────────────────
@@ -14,10 +15,10 @@ interface ExpiryPreset {
 
 const CUSTOM_VALUE = "custom"
 
-// S3 SigV4 pre-signed URLs are valid for at most 7 days. Mirror the BFF cap
-// (S3_PRESIGN_MAX_EXPIRY_SECONDS) here so the custom input can be rejected
-// inline instead of round-tripping to a 400.
-const MAX_EXPIRY_SECONDS = 604800
+// S3 SigV4 pre-signed URLs are valid for at most 7 days. Reuse the BFF cap
+// (S3_PRESIGN_MAX_EXPIRY_SECONDS) so the UI and schema can't drift, and reject
+// the custom input inline instead of round-tripping to a 400.
+const MAX_EXPIRY_SECONDS = S3_PRESIGN_MAX_EXPIRY_SECONDS
 const MAX_EXPIRY_MINUTES = MAX_EXPIRY_SECONDS / 60
 
 // ── Props ─────────────────────────────────────────────────────────────────────
