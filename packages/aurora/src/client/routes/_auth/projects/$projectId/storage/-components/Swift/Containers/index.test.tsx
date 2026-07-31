@@ -34,8 +34,7 @@ let trpcState = {
   isLoading: false,
   error: null as { message: string } | null,
   accountInfo: undefined as
-    | { bytesUsed: number; quotaBytes?: number; containerCount: number; objectCount: number }
-    | undefined,
+    { bytesUsed: number; quotaBytes?: number; containerCount: number; objectCount: number } | undefined,
   serviceInfo: undefined as { swift?: { max_container_name_length?: number } } | undefined,
 }
 

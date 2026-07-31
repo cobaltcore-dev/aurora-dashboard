@@ -93,9 +93,7 @@ const engines: PolicyEngines = {
   image: loadPolicyEngine("image.yaml", policyDir),
 }
 
-const POLICY_MAPPINGS = {
-  /* 53 hardcoded mappings */
-} as const
+const POLICY_MAPPINGS = {/* 53 hardcoded mappings */} as const
 
 // ... 80 more lines of boilerplate
 ```
@@ -110,9 +108,7 @@ const POLICY_MAPPINGS = {
 
 ```typescript
 // ~60 lines per service (mappings only)
-const STORAGE_MAPPINGS = {
-  /* your mappings */
-} as const
+const STORAGE_MAPPINGS = {/* your mappings */} as const
 
 export const buildStoragePermissionRouter = (policyDir: string) =>
   createPermissionRouter({
