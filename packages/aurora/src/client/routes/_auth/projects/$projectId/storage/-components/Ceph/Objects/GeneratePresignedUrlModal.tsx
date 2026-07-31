@@ -67,7 +67,6 @@ export const GeneratePresignedUrlModal = ({
   const [generalError, setGeneralError] = useState<string | null>(null)
   const [copyError, setCopyError] = useState<string | null>(null)
 
-  const displayNameRef = useRef("")
   const objectKeyRef = useRef("")
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Incremented on every generate call and on modal close/reopen.
@@ -150,7 +149,6 @@ export const GeneratePresignedUrlModal = ({
     }
     const expiresIn = resolveExpiresIn()
     if (expiresIn === null) return
-    displayNameRef.current = displayName
     objectKeyRef.current = objectKey
     setPresignedUrl(null)
     setExpiresAt(null)
