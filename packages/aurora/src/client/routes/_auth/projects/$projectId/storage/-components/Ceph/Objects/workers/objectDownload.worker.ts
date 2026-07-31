@@ -49,8 +49,7 @@ export type DownloadWorkerRequest =
   | { type: "cancel" }
 
 export type DownloadWorkerResponse =
-  | { ok: true; blob: Blob; filename: string; contentType: string }
-  | { ok: false; cancelled: boolean; message: string }
+  { ok: true; blob: Blob; filename: string; contentType: string } | { ok: false; cancelled: boolean; message: string }
 
 let abortController: AbortController | null = null
 

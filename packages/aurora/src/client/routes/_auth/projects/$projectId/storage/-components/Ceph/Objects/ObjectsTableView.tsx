@@ -231,46 +231,38 @@ export function ObjectsTableView({
   const rows: CephRow[] =
     showingVersions && versions
       ? [
-          ...folders.map(
-            (f): FolderRow => ({
-              kind: "folder",
-              prefix: f.prefix,
-              displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
-              isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
-            })
-          ),
-          ...versions.map(
-            (v): VersionRow => ({
-              kind: "version",
-              key: v.key,
-              versionId: v.versionId,
-              isLatest: v.isLatest,
-              isDeleteMarker: v.isDeleteMarker,
-              isDeleted: v.isDeleted, // Carry over the isDeleted flag
-              size: v.size,
-              lastModified: v.lastModified,
-              displayName: stripPrefix(v.key),
-            })
-          ),
+          ...folders.map((f): FolderRow => ({
+            kind: "folder",
+            prefix: f.prefix,
+            displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
+            isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
+          })),
+          ...versions.map((v): VersionRow => ({
+            kind: "version",
+            key: v.key,
+            versionId: v.versionId,
+            isLatest: v.isLatest,
+            isDeleteMarker: v.isDeleteMarker,
+            isDeleted: v.isDeleted, // Carry over the isDeleted flag
+            size: v.size,
+            lastModified: v.lastModified,
+            displayName: stripPrefix(v.key),
+          })),
         ]
       : [
-          ...folders.map(
-            (f): FolderRow => ({
-              kind: "folder",
-              prefix: f.prefix,
-              displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
-              isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
-            })
-          ),
-          ...objects.map(
-            (o): ObjectRow => ({
-              kind: "object",
-              key: o.key,
-              size: o.size,
-              lastModified: o.lastModified,
-              displayName: stripPrefix(o.key),
-            })
-          ),
+          ...folders.map((f): FolderRow => ({
+            kind: "folder",
+            prefix: f.prefix,
+            displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
+            isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
+          })),
+          ...objects.map((o): ObjectRow => ({
+            kind: "object",
+            key: o.key,
+            size: o.size,
+            lastModified: o.lastModified,
+            displayName: stripPrefix(o.key),
+          })),
         ]
 
   // Height measured from the space actually left below the table, plus a
