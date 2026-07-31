@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { Modal, Stack, Spinner, TextInput, Icon, Select, SelectOption } from "@cloudoperators/juno-ui-components"
@@ -235,8 +236,9 @@ export const GeneratePresignedUrlModal = ({
   const isPending = generateMutation.isPending
   const isCustom = selectedPreset === CUSTOM_VALUE
 
-  // Absolute expiry timestamp formatted for current locale
-  const expiresAtFormatted = expiresAt ? new Date(expiresAt * 1000).toLocaleString() : null
+  // Absolute expiry timestamp formatted for the active Lingui locale (not the
+  // browser's OS locale) so it matches the rest of the modal's localization.
+  const expiresAtFormatted = expiresAt ? new Date(expiresAt * 1000).toLocaleString(i18n.locale) : null
   // Human-readable relative label for the selected preset — used as a plain
   // string inside the "Expires in {label} — at {timestamp}" interpolation.
   const selectedPresetLabel =
