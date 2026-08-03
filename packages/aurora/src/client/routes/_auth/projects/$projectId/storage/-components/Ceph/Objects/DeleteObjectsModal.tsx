@@ -196,6 +196,9 @@ export function DeleteObjectsModal({
   const visibleNames = itemsToDisplay.slice(0, MAX_VISIBLE)
   const hiddenCount = count - visibleNames.length
 
+  // For version mode: calculate hidden versions count
+  const hiddenVersionsCount = versions.length - MAX_VISIBLE
+
   return (
     <Modal
       open={isOpen}
@@ -272,7 +275,7 @@ export function DeleteObjectsModal({
                     ))}
                     {versions.length > MAX_VISIBLE && (
                       <div className="text-theme-light pt-2 text-sm">
-                        <Trans>… and {versions.length - MAX_VISIBLE} more</Trans>
+                        <Trans>… and {hiddenVersionsCount} more</Trans>
                       </div>
                     )}
                   </Stack>

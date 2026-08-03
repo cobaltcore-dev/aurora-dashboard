@@ -19,10 +19,6 @@ msgstr "-"
 msgid "—"
 msgstr "—"
 
-#. placeholder {0}: versions.length - MAX_VISIBLE
-msgid "… and {0} more"
-msgstr "… and {0} more"
-
 msgid "... and {hiddenCount} more"
 msgstr "... and {hiddenCount} more"
 
@@ -34,6 +30,9 @@ msgstr "… and {hiddenErrorCount} more failures"
 
 msgid "… and {hiddenObjectCount} more"
 msgstr "… and {hiddenObjectCount} more"
+
+msgid "… and {hiddenVersionsCount} more"
+msgstr "… and {hiddenVersionsCount} more"
 
 msgid "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
 msgstr "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
