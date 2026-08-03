@@ -64,6 +64,26 @@ beforeAll(() => {
     disconnect = vi.fn()
   }
 
+  // Mock localStorage
+  const localStorageMock = {
+    getItem: vi.fn((key: string) => localStorageMock.store[key] ?? null),
+    setItem: vi.fn((key: string, value: string) => {
+      localStorageMock.store[key] = value
+    }),
+    removeItem: vi.fn((key: string) => {
+      delete localStorageMock.store[key]
+    }),
+    clear: vi.fn(() => {
+      localStorageMock.store = {}
+    }),
+    store: {} as Record<string, string>,
+  }
+
+  Object.defineProperty(global, "localStorage", {
+    value: localStorageMock,
+    writable: true,
+  })
+
   i18n.load({
     en: messages,
     de: deMessages,

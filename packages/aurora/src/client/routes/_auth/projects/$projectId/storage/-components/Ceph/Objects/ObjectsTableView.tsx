@@ -266,52 +266,44 @@ export function ObjectsTableView({
   const rows: CephRow[] =
     showingVersions && versions
       ? [
-          ...folders.map(
-            (f): FolderRow => ({
-              kind: "folder",
-              prefix: f.prefix,
-              displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
-              isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
-              deleteMarkerVersionId: f.deleteMarkerVersionId, // Carry over delete marker versionId for restore
-              folderMarkerVersionId: f.folderMarkerVersionId, // Carry over folder marker versionId for permanent delete
-            })
-          ),
-          ...versions.map(
-            (v): VersionRow => ({
-              kind: "version",
-              key: v.key,
-              versionId: v.versionId,
-              isLatest: v.isLatest,
-              isDeleteMarker: v.isDeleteMarker,
-              isDeleted: v.isDeleted, // Carry over the isDeleted flag
-              deleteMarkerVersionId: v.deleteMarkerVersionId, // Carry over delete marker versionId for permanent delete
-              allVersionIds: v.allVersionIds, // Carry over all version IDs for complete deletion
-              size: v.size,
-              lastModified: v.lastModified,
-              displayName: stripPrefix(v.key),
-            })
-          ),
+          ...folders.map((f): FolderRow => ({
+            kind: "folder",
+            prefix: f.prefix,
+            displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
+            isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
+            deleteMarkerVersionId: f.deleteMarkerVersionId, // Carry over delete marker versionId for restore
+            folderMarkerVersionId: f.folderMarkerVersionId, // Carry over folder marker versionId for permanent delete
+          })),
+          ...versions.map((v): VersionRow => ({
+            kind: "version",
+            key: v.key,
+            versionId: v.versionId,
+            isLatest: v.isLatest,
+            isDeleteMarker: v.isDeleteMarker,
+            isDeleted: v.isDeleted, // Carry over the isDeleted flag
+            deleteMarkerVersionId: v.deleteMarkerVersionId, // Carry over delete marker versionId for permanent delete
+            allVersionIds: v.allVersionIds, // Carry over all version IDs for complete deletion
+            size: v.size,
+            lastModified: v.lastModified,
+            displayName: stripPrefix(v.key),
+          })),
         ]
       : [
-          ...folders.map(
-            (f): FolderRow => ({
-              kind: "folder",
-              prefix: f.prefix,
-              displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
-              isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
-              deleteMarkerVersionId: f.deleteMarkerVersionId, // Carry over delete marker versionId for restore
-              folderMarkerVersionId: f.folderMarkerVersionId, // Carry over folder marker versionId for permanent delete
-            })
-          ),
-          ...objects.map(
-            (o): ObjectRow => ({
-              kind: "object",
-              key: o.key,
-              size: o.size,
-              lastModified: o.lastModified,
-              displayName: stripPrefix(o.key),
-            })
-          ),
+          ...folders.map((f): FolderRow => ({
+            kind: "folder",
+            prefix: f.prefix,
+            displayName: stripPrefix(f.prefix).replace(/\/$/, ""),
+            isDeleted: f.isDeleted, // Carry over the isDeleted flag for deleted folder markers
+            deleteMarkerVersionId: f.deleteMarkerVersionId, // Carry over delete marker versionId for restore
+            folderMarkerVersionId: f.folderMarkerVersionId, // Carry over folder marker versionId for permanent delete
+          })),
+          ...objects.map((o): ObjectRow => ({
+            kind: "object",
+            key: o.key,
+            size: o.size,
+            lastModified: o.lastModified,
+            displayName: stripPrefix(o.key),
+          })),
         ]
 
   const selectedItemsSet = useMemo(() => {
