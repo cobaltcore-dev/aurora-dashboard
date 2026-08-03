@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor, act } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
@@ -18,6 +18,11 @@ const mockDeleteReset = vi.fn()
 const mockInvalidate = vi.fn()
 const mockOnTrackEvent = vi.fn()
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let capturedRestoreOptions: any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let capturedBulkOptions: any
+
 vi.mock("@tanstack/react-router", () => ({
   useRouteContext: () => ({
     onTrackEvent: mockOnTrackEvent,
@@ -30,12 +35,15 @@ vi.mock("@/client/trpcClient", () => ({
       ceph: {
         versioning: {
           restoreVersion: {
-            useMutation: vi.fn(() => ({
-              mutate: mockMutate,
-              reset: mockReset,
-              isPending: false,
-              error: null,
-            })),
+            useMutation: vi.fn((options) => {
+              capturedRestoreOptions = options
+              return {
+                mutate: mockMutate,
+                reset: mockReset,
+                isPending: false,
+                error: null,
+              }
+            }),
           },
           listObjectVersions: {
             useQuery: vi.fn(() => ({
@@ -46,12 +54,15 @@ vi.mock("@/client/trpcClient", () => ({
         },
         objects: {
           deleteVersionsBulk: {
-            useMutation: vi.fn(() => ({
-              mutate: mockDeleteMutate,
-              reset: mockDeleteReset,
-              isPending: false,
-              error: null,
-            })),
+            useMutation: vi.fn((options) => {
+              capturedBulkOptions = options
+              return {
+                mutate: mockDeleteMutate,
+                reset: mockDeleteReset,
+                isPending: false,
+                error: null,
+              }
+            }),
           },
           list: {
             useQuery: vi.fn(() => ({
@@ -123,6 +134,8 @@ const defaultProps = {
 describe("RestoreVersionModal", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    capturedRestoreOptions = undefined
+    capturedBulkOptions = undefined
   })
 
   it("renders modal with title", () => {
@@ -256,6 +269,77 @@ describe("RestoreVersionModal", () => {
       expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
         expect.objectContaining({ action: "storage.ceph.object.version.restore.close" })
       )
+    })
+  })
+
+  describe("Bulk delete result handling", () => {
+    it("calls onSuccess and closes when restoring a file succeeds", async () => {
+      const user = userEvent.setup()
+      const onSuccess = vi.fn()
+      const onClose = vi.fn()
+      renderModal({ onSuccess, onClose })
+
+      const restoreButton = screen.getByRole("button", { name: "Restore Version" })
+      await user.click(restoreButton)
+
+      act(() => {
+        capturedRestoreOptions.onSuccess()
+      })
+
+      expect(onSuccess).toHaveBeenCalledWith("test-file.txt", "abc123def456")
+      expect(onClose).toHaveBeenCalled()
+    })
+
+    it("calls onSuccess and closes when the folder delete-marker removal reports no errors", async () => {
+      const user = userEvent.setup()
+      const onSuccess = vi.fn()
+      const onClose = vi.fn()
+      renderModal({ objectKey: "my-folder/", versionId: "dm-1", onSuccess, onClose })
+
+      const restoreButton = screen.getByRole("button", { name: "Restore Folder" })
+      await user.click(restoreButton)
+
+      expect(mockDeleteMutate).toHaveBeenCalledWith({
+        project_id: "test-project-id",
+        containerName: "test-bucket",
+        versions: [{ key: "my-folder/", versionId: "dm-1" }],
+      })
+
+      act(() => {
+        capturedBulkOptions.onSuccess({
+          deleted: [{ key: "my-folder/", versionId: "dm-1" }],
+          errors: [],
+          deletedCount: 1,
+          errorCount: 0,
+        })
+      })
+
+      expect(onSuccess).toHaveBeenCalledWith("my-folder/", "dm-1")
+      expect(onClose).toHaveBeenCalled()
+    })
+
+    it("does not report success and shows the S3 error when the delete marker removal fails", async () => {
+      const user = userEvent.setup()
+      const onSuccess = vi.fn()
+      const onClose = vi.fn()
+      renderModal({ objectKey: "my-folder/", versionId: "dm-1", onSuccess, onClose })
+
+      const restoreButton = screen.getByRole("button", { name: "Restore Folder" })
+      await user.click(restoreButton)
+
+      act(() => {
+        capturedBulkOptions.onSuccess({
+          deleted: [],
+          errors: [{ key: "my-folder/", versionId: "dm-1", code: "AccessDenied", message: "Access Denied" }],
+          deletedCount: 0,
+          errorCount: 1,
+        })
+      })
+
+      expect(onSuccess).not.toHaveBeenCalled()
+      expect(onClose).not.toHaveBeenCalled()
+      expect(screen.getByText(/my-folder\/ \(dm-1\): AccessDenied: Access Denied/)).toBeInTheDocument()
+      expect(screen.getByRole("heading", { name: "Restore Folder" })).toBeInTheDocument()
     })
   })
 })

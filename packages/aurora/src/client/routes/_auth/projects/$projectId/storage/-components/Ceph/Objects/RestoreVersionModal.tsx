@@ -1,9 +1,12 @@
+import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import type { DeleteObjectsBulkOutput } from "@/server/Storage/types/ceph"
+import { formatBulkDeleteErrors } from "./utils/bulkDeleteErrors"
 
 interface RestoreVersionModalProps {
   isOpen: boolean
@@ -30,6 +33,7 @@ export const RestoreVersionModal = ({
 }: RestoreVersionModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
+  const [failureMessage, setFailureMessage] = useState<string | null>(null)
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
@@ -41,12 +45,28 @@ export const RestoreVersionModal = ({
   // For folders (keys ending with "/"), we delete the delete marker instead of copying
   const isFolder = objectKey.endsWith("/")
 
-  // Shared success handler for both restore mutations
-  const handleRestoreSuccess = () => {
+  const invalidateAfterRestore = () => {
     utils.storage.ceph.versioning.listObjectVersions.invalidate()
     utils.storage.ceph.versioning.checkDeletedContent.invalidate()
     utils.storage.ceph.objects.list.invalidate()
     utils.storage.ceph.containers.list.invalidate()
+  }
+
+  // versioning.restoreVersion either succeeds or rejects — no per-item results.
+  const handleRestoreSuccess = () => {
+    invalidateAfterRestore()
+    onSuccess?.(objectKey, versionId)
+    handleClose()
+  }
+
+  // deleteVersionsBulk resolves even when S3 refused the delete marker: a per-item
+  // failure comes back in `errors`, not as a thrown error. Treat it as a failure.
+  const handleDeleteMarkerSuccess = (result: DeleteObjectsBulkOutput) => {
+    invalidateAfterRestore()
+    if (result.errorCount > 0) {
+      setFailureMessage(formatBulkDeleteErrors(result.errors))
+      return
+    }
     onSuccess?.(objectKey, versionId)
     handleClose()
   }
@@ -63,7 +83,7 @@ export const RestoreVersionModal = ({
   })
 
   const deleteVersionMutation = trpcReact.storage.ceph.objects.deleteVersionsBulk.useMutation({
-    onSuccess: handleRestoreSuccess,
+    onSuccess: handleDeleteMarkerSuccess,
     onError: (error) => {
       onError?.(objectKey, error.message)
       handleClose()
@@ -74,11 +94,13 @@ export const RestoreVersionModal = ({
   })
 
   const handleClose = () => {
+    setFailureMessage(null)
     resetTracking()
     onClose()
   }
 
   const handleRestore = () => {
+    setFailureMessage(null)
     markSubmitted()
     if (isFolder) {
       // For folders, delete the delete marker instead of copying
@@ -171,6 +193,11 @@ export const RestoreVersionModal = ({
               <Trans>After restoring, this version's content will become the new latest version.</Trans>
             </p>
           </>
+        )}
+        {failureMessage && (
+          <p className="text-juno-red text-sm">
+            <Trans>Error:</Trans> {failureMessage}
+          </p>
         )}
       </Stack>
     </Modal>

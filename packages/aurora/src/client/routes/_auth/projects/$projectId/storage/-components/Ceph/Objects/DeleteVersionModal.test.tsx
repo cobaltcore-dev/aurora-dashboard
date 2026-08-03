@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor, act } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
@@ -15,6 +15,9 @@ const mockMutate = vi.fn()
 const mockReset = vi.fn()
 const mockInvalidate = vi.fn()
 const mockOnTrackEvent = vi.fn()
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let capturedBulkOptions: any
 
 vi.mock("@tanstack/react-router", () => ({
   useRouteContext: () => ({
@@ -36,12 +39,15 @@ vi.mock("@/client/trpcClient", () => ({
         },
         objects: {
           deleteVersionsBulk: {
-            useMutation: vi.fn(() => ({
-              mutate: mockMutate,
-              reset: mockReset,
-              isPending: false,
-              error: null,
-            })),
+            useMutation: vi.fn((options) => {
+              capturedBulkOptions = options
+              return {
+                mutate: mockMutate,
+                reset: mockReset,
+                isPending: false,
+                error: null,
+              }
+            }),
           },
           list: {
             useQuery: vi.fn(() => ({
@@ -114,6 +120,7 @@ const defaultProps = {
 describe("DeleteVersionModal", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    capturedBulkOptions = undefined
   })
 
   it("renders modal with title", () => {
@@ -339,6 +346,93 @@ describe("DeleteVersionModal", () => {
         containerName: "test-bucket",
         versions: [{ key: "my-folder/", versionId: "delete-marker-version-456" }],
       })
+    })
+  })
+
+  describe("Bulk delete result handling", () => {
+    const typeDeleteAndSubmit = async (user: ReturnType<typeof userEvent.setup>) => {
+      const input = screen.getByLabelText('Type "delete" to confirm')
+      await user.type(input, "delete")
+      const deleteButton = screen.getByRole("button", { name: "Delete" })
+      await user.click(deleteButton)
+    }
+
+    it("calls onSuccess and closes when no versions failed", async () => {
+      const user = userEvent.setup()
+      const onSuccess = vi.fn()
+      const onClose = vi.fn()
+      renderModal({ onSuccess, onClose })
+
+      await typeDeleteAndSubmit(user)
+
+      act(() => {
+        capturedBulkOptions.onSuccess({
+          deleted: [{ key: "test-file.txt", versionId: "abc123def456" }],
+          errors: [],
+          deletedCount: 1,
+          errorCount: 0,
+        })
+      })
+
+      expect(onSuccess).toHaveBeenCalledWith("test-file.txt", "abc123def456")
+      expect(onClose).toHaveBeenCalled()
+    })
+
+    it("does not report success and shows the S3 error when the single version fails", async () => {
+      const user = userEvent.setup()
+      const onSuccess = vi.fn()
+      const onClose = vi.fn()
+      renderModal({ onSuccess, onClose })
+
+      await typeDeleteAndSubmit(user)
+
+      act(() => {
+        capturedBulkOptions.onSuccess({
+          deleted: [],
+          errors: [{ key: "test-file.txt", versionId: "abc123def456", code: "AccessDenied", message: "Access Denied" }],
+          deletedCount: 0,
+          errorCount: 1,
+        })
+      })
+
+      expect(onSuccess).not.toHaveBeenCalled()
+      expect(onClose).not.toHaveBeenCalled()
+      expect(screen.getByText(/test-file\.txt \(abc123def456\): AccessDenied: Access Denied/)).toBeInTheDocument()
+      expect(screen.getByText("Delete Version")).toBeInTheDocument()
+    })
+
+    it("does not report success on a partial failure when deleting all versions", async () => {
+      const user = userEvent.setup()
+      const onSuccess = vi.fn()
+      const onClose = vi.fn()
+      renderModal({ allVersionIds: ["v1", "v2"], onSuccess, onClose })
+
+      await typeDeleteAndSubmit(user)
+
+      expect(mockMutate).toHaveBeenCalledWith({
+        project_id: "test-project-id",
+        containerName: "test-bucket",
+        versions: [
+          { key: "test-file.txt", versionId: "v1" },
+          { key: "test-file.txt", versionId: "v2" },
+        ],
+      })
+
+      act(() => {
+        capturedBulkOptions.onSuccess({
+          deleted: [{ key: "test-file.txt", versionId: "v1" }],
+          errors: [
+            { key: "test-file.txt", versionId: "v2", code: "ObjectLocked", message: "Object is WORM protected" },
+          ],
+          deletedCount: 1,
+          errorCount: 1,
+        })
+      })
+
+      expect(onSuccess).not.toHaveBeenCalled()
+      expect(onClose).not.toHaveBeenCalled()
+      expect(screen.getByText(/test-file\.txt \(v2\): ObjectLocked: Object is WORM protected/)).toBeInTheDocument()
+      expect(mockInvalidate).toHaveBeenCalled()
     })
   })
 })

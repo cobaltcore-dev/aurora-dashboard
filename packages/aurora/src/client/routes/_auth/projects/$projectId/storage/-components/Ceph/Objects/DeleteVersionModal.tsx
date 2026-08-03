@@ -5,6 +5,8 @@ import { Modal, Stack, TextInput } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import type { DeleteObjectsBulkOutput } from "@/server/Storage/types/ceph"
+import { formatBulkDeleteErrors } from "./utils/bulkDeleteErrors"
 
 interface DeleteVersionModalProps {
   isOpen: boolean
@@ -38,6 +40,7 @@ export const DeleteVersionModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const [confirmText, setConfirmText] = useState("")
+  const [failureMessage, setFailureMessage] = useState<string | null>(null)
   const isFolder = objectKey.endsWith("/")
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
@@ -50,11 +53,19 @@ export const DeleteVersionModal = ({
   // Use bulk delete endpoint for all cases (single or multiple versions)
   // This simplifies logic and handles atomic folder deletion
   const deleteMutation = trpcReact.storage.ceph.objects.deleteVersionsBulk.useMutation({
-    onSuccess: () => {
+    onSuccess: (result: DeleteObjectsBulkOutput) => {
+      // Invalidate regardless of outcome: on a partial failure some versions really
+      // were deleted, so the cached lists are stale either way.
       utils.storage.ceph.versioning.listObjectVersions.invalidate()
       utils.storage.ceph.versioning.checkDeletedContent.invalidate()
       utils.storage.ceph.objects.list.invalidate()
       utils.storage.ceph.containers.list.invalidate()
+      // deleteVersionsBulk resolves even when S3 refused individual versions: those
+      // come back in `errors` on an HTTP 200, not as a thrown error.
+      if (result.errorCount > 0) {
+        setFailureMessage(formatBulkDeleteErrors(result.errors))
+        return
+      }
       onSuccess?.(objectKey, versionId)
       handleClose()
     },
@@ -65,6 +76,7 @@ export const DeleteVersionModal = ({
 
   const handleClose = () => {
     setConfirmText("")
+    setFailureMessage(null)
     resetTracking()
     deleteMutation.reset()
     onClose()
@@ -77,6 +89,7 @@ export const DeleteVersionModal = ({
   const handleDelete = () => {
     if (confirmText !== "delete") return
 
+    setFailureMessage(null)
     markSubmitted()
 
     // Build versions array:
@@ -192,6 +205,11 @@ export const DeleteVersionModal = ({
         {deleteMutation.error && (
           <p className="text-juno-red text-sm">
             <Trans>Error:</Trans> {deleteMutation.error.message}
+          </p>
+        )}
+        {failureMessage && (
+          <p className="text-juno-red text-sm">
+            <Trans>Error:</Trans> {failureMessage}
           </p>
         )}
       </Stack>
