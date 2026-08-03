@@ -54,6 +54,9 @@ const stubRects = (rects: Record<string, Partial<DOMRect>>) => {
   })
 }
 
+const setScrollY = (y: number) =>
+  Object.defineProperty(window, "scrollY", { value: y, configurable: true, writable: true })
+
 const flushFrame = () =>
   act(async () => {
     await new Promise((resolve) => requestAnimationFrame(() => resolve(null)))
@@ -69,6 +72,7 @@ describe("useAvailableViewportHeight", () => {
   afterEach(() => {
     vi.restoreAllMocks()
     setViewportHeight(originalInnerHeight)
+    setScrollY(0)
   })
 
   test("measures the gap between the element top and the footer top", () => {
@@ -149,6 +153,20 @@ describe("useAvailableViewportHeight", () => {
     await flushFrame()
 
     expect(measuredHeight()).toBe(String(600 - 240 - GAP))
+  })
+
+  test("is unaffected by scroll position", () => {
+    // getBoundingClientRect is viewport-relative, so both edges shift by the
+    // same scrollY when the page is scrolled. Adding scrollY to each keeps the
+    // difference — and therefore the height — stable. Without it, a re-measure
+    // mid-scroll (e.g. a resize on a scrolled page) would change the height.
+    setScrollY(300)
+    // Rects are reported relative to the scrolled viewport: both edges are 300
+    // higher than in the unscrolled case above.
+    stubRects({ body: { top: 240 - 300 }, footer: { top: 848 - 300 } })
+    render(<Probe />)
+
+    expect(measuredHeight()).toBe(String(848 - 240 - GAP))
   })
 
   test("measures without a ResizeObserver", () => {

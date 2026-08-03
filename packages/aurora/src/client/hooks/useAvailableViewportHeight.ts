@@ -39,13 +39,16 @@ const MIN_HEIGHT = 150
  *
  * Falls back to the viewport bottom minus a constant when no footer is present
  * (embedded mode, or a layout without a footer slot).
+ *
+ * Returned in document coordinates (with `scrollY` added), so the measurement
+ * in `useAvailableViewportHeight` is stable regardless of scroll position.
  */
 function findBottomBoundary(): number {
   const footer = document.querySelector<HTMLElement>(FOOTER_SELECTOR)
   if (footer) {
-    return footer.getBoundingClientRect().top - GAP
+    return footer.getBoundingClientRect().top + window.scrollY - GAP
   }
-  return window.innerHeight - DEFAULT_BOTTOM_GAP
+  return window.scrollY + window.innerHeight - DEFAULT_BOTTOM_GAP
 }
 
 /**
@@ -94,10 +97,11 @@ export function useAvailableViewportHeight<T extends HTMLElement>() {
     let frame = 0
 
     const measure = () => {
-      // Viewport coordinates for both edges: the element's top and the top of
-      // whatever bounds it from below (the page footer, or the viewport). Both
-      // move together with scroll, so the difference is scroll-independent.
-      const top = element.getBoundingClientRect().top
+      // Document coordinates for both edges (getBoundingClientRect is
+      // viewport-relative, so add scrollY): the element's top and the top of
+      // whatever bounds it from below (the page footer, or the viewport). Using
+      // document coordinates keeps the difference stable regardless of scroll.
+      const top = element.getBoundingClientRect().top + window.scrollY
       const bottom = findBottomBoundary()
       const available = Math.floor(bottom - top)
       // Clamping here can leave the element taller than the space available,
