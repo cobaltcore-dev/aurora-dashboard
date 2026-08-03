@@ -120,8 +120,8 @@ describe("useAvailableViewportHeight", () => {
   })
 
   test("never falls below the minimum height, letting the page scroll instead", () => {
-    // The floor takes precedence over fitting the viewport: a container a row
-    // and a half tall is worse than a page scrollbar.
+    // The floor takes precedence over fitting the viewport: a container only a
+    // couple of rows tall is worse than a page scrollbar.
     stubRects({ body: { top: 240 }, footer: { top: 260 } })
     render(<Probe />)
 

@@ -17,9 +17,9 @@ const GAP = 8
 const FOOTER_SELECTOR = ".app-page-footer"
 
 /**
- * Below this the element is too short to be worth showing — roughly four rows
- * of a table. It deliberately wins over fitting the viewport: see the note on
- * the hook.
+ * Floor for the measured height: below a few table rows the element is too
+ * short to be worth showing. It deliberately wins over fitting the viewport —
+ * see the note on the hook.
  */
 const MIN_HEIGHT = 150
 
