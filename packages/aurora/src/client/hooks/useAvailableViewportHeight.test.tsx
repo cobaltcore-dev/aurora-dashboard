@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from "vitest"
+import { describe, test, expect, vi, beforeAll, afterAll, beforeEach, afterEach } from "vitest"
 import { render, screen, act } from "@testing-library/react"
 import { useAvailableViewportHeight } from "./useAvailableViewportHeight"
 
@@ -33,12 +33,15 @@ const setViewportHeight = (height: number) => {
   Object.defineProperty(window, "innerHeight", { value: height, configurable: true, writable: true })
 }
 
-// jsdom has no layout engine, so rects are zeroed. Stub per-testid: the element
-// top and the footer top are the two numbers the hook reads.
-const stubRects = (rects: Record<string, Partial<DOMRect>>) => {
+// jsdom has no layout engine, so rects are zeroed. A single spy reads from a
+// mutable map, so restubbing within a test just swaps the data — it never
+// installs a second spy over the first (which Vitest can reject).
+let currentRects: Record<string, Partial<DOMRect>> = {}
+
+beforeAll(() => {
   vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
     const id = this.getAttribute("data-testid") ?? ""
-    const r = rects[id] ?? {}
+    const r = currentRects[id] ?? {}
     return {
       top: 0,
       bottom: 0,
@@ -52,6 +55,15 @@ const stubRects = (rects: Record<string, Partial<DOMRect>>) => {
       ...r,
     } as DOMRect
   })
+})
+
+afterAll(() => {
+  vi.restoreAllMocks()
+})
+
+// The element top and the footer top are the two numbers the hook reads.
+const stubRects = (rects: Record<string, Partial<DOMRect>>) => {
+  currentRects = rects
 }
 
 const setScrollY = (y: number) =>
@@ -70,7 +82,8 @@ describe("useAvailableViewportHeight", () => {
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+    currentRects = {}
     setViewportHeight(originalInnerHeight)
     setScrollY(0)
   })
@@ -90,7 +103,6 @@ describe("useAvailableViewportHeight", () => {
     const shortFooter = Number(measuredHeight())
     unmount()
 
-    vi.restoreAllMocks()
     stubRects({ body: { top: 240 }, footer: { top: 700 } })
     render(<Probe />)
 
@@ -105,7 +117,6 @@ describe("useAvailableViewportHeight", () => {
     const higher = Number(measuredHeight())
     unmount()
 
-    vi.restoreAllMocks()
     stubRects({ body: { top: 340 }, footer: { top: 848 } })
     render(<Probe />)
 
