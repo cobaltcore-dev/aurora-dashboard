@@ -34,7 +34,6 @@ import {
   downloadObjectInputSchema,
   watchDownloadProgressInputSchema,
   generatePresignedUrlInputSchema,
-  S3_PRESIGN_MAX_EXPIRY_SECONDS,
   // Service info schemas
   s3ServiceInfoSchema,
   getServiceInfoInputSchema,
@@ -46,6 +45,7 @@ import {
   setBucketPolicyInputSchema,
   deleteBucketPolicyInputSchema,
 } from "./ceph"
+import { S3_PRESIGN_MAX_EXPIRY_SECONDS } from "../constants"
 
 describe("Ceph Object Storage Schema Validation", () => {
   // Common test data

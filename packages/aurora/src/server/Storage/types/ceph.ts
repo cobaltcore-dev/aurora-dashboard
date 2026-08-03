@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { projectScopedInputSchema } from "../../trpc"
+import { S3_PRESIGN_MAX_EXPIRY_SECONDS } from "../constants"
 
 // ============================================================================
 // EC2 CREDENTIAL SCHEMAS
@@ -263,16 +264,8 @@ export const watchDownloadProgressInputSchema = projectScopedInputSchema.extend(
 })
 
 /**
- * S3 SigV4 pre-signed URLs are valid for at most 7 days (604800s); the signer
- * rejects anything larger. Capping it in the input schema makes an out-of-range
- * expiry fail as a 400 (BAD_REQUEST via Zod) rather than surfacing later as an
- * opaque signing error. Exported so the frontend can share the same bound.
- */
-export const S3_PRESIGN_MAX_EXPIRY_SECONDS = 604800
-
-/**
  * Generate a time-limited pre-signed GET URL for a single object. `expiresIn`
- * is in seconds, capped at the SigV4 maximum above.
+ * is in seconds, capped at S3_PRESIGN_MAX_EXPIRY_SECONDS (see ../constants).
  */
 export const generatePresignedUrlInputSchema = projectScopedInputSchema.extend({
   containerName: z.string().min(1),

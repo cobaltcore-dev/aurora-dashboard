@@ -3,7 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { i18n } from "@lingui/core"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { S3_PRESIGN_MAX_EXPIRY_SECONDS } from "@/server/Storage/types/ceph"
+import { S3_PRESIGN_MAX_EXPIRY_SECONDS } from "@/server/Storage/constants"
 import { Modal, Stack, Spinner, TextInput, Icon, Select, SelectOption } from "@cloudoperators/juno-ui-components"
 
 // ── Expiry presets ────────────────────────────────────────────────────────────
