@@ -550,7 +550,9 @@ describe("DeleteObjectsModal", () => {
       </TestWrapper>
     )
 
-    expect(screen.getByText(/These versions will be permanently deleted and cannot be restored/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/These objects and all their versions will be permanently deleted and cannot be restored/)
+    ).toBeInTheDocument()
   })
 
   it("calls deleteVersionsBulk mutation in version mode", async () => {

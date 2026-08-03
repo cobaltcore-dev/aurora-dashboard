@@ -19,6 +19,10 @@ msgstr "-"
 msgid "—"
 msgstr "—"
 
+#. placeholder {0}: versions.length - MAX_VISIBLE
+msgid "… and {0} more"
+msgstr "… and {0} more"
+
 msgid "... and {hiddenCount} more"
 msgstr "... and {hiddenCount} more"
 
@@ -27,6 +31,9 @@ msgstr "… and {hiddenCount} more"
 
 msgid "… and {hiddenErrorCount} more failures"
 msgstr "… and {hiddenErrorCount} more failures"
+
+msgid "… and {hiddenObjectCount} more"
+msgstr "… and {hiddenObjectCount} more"
 
 msgid "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
 msgstr "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
@@ -48,6 +55,10 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
+
+#. placeholder {0}: displayObjectNames.length
+msgid "{0, plural, one {Object:} other {Objects to delete:}}"
+msgstr "{0, plural, one {Object:} other {Objects to delete:}}"
 
 msgid "{certificateIdValue} Certificate Details"
 msgstr "{certificateIdValue} Certificate Details"
@@ -3244,8 +3255,8 @@ msgstr "There are no RBAC policies for this security group"
 msgid "There are no rules for this security group"
 msgstr "There are no rules for this security group"
 
-msgid "These versions will be permanently deleted and cannot be restored."
-msgstr "These versions will be permanently deleted and cannot be restored."
+msgid "These objects and all their versions will be permanently deleted and cannot be restored."
+msgstr "These objects and all their versions will be permanently deleted and cannot be restored."
 
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "This action cannot be undone. The flavor will be permanently deleted."

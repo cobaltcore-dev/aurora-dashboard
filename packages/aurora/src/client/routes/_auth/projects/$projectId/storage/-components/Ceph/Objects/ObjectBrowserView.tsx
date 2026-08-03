@@ -857,7 +857,16 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           tab === "deleted"
             ? selectedItems
                 .filter((item) => item.versionId)
-                .map((item) => ({ key: item.key, versionId: item.versionId! }))
+                .flatMap((item) => {
+                  // Find the deleted file entry to get all version IDs (including delete marker)
+                  const deletedFile = filteredDeletedFiles.find((f) => f.key === item.key)
+                  if (deletedFile?.allVersionIds) {
+                    // Delete ALL versions including delete markers for complete removal
+                    return deletedFile.allVersionIds.map((vid) => ({ key: item.key, versionId: vid }))
+                  }
+                  // Fallback: if allVersionIds not found, delete just the selected version
+                  return [{ key: item.key, versionId: item.versionId! }]
+                })
             : []
         }
         currentPrefix={currentPrefix}

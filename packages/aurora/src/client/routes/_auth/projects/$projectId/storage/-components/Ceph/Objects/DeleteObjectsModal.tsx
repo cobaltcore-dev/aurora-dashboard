@@ -185,9 +185,14 @@ export function DeleteObjectsModal({
   }
 
   // Step A: Confirm view
-  const itemsToDisplay = isVersionMode
-    ? versions.map((v) => v.key.replace(currentPrefix, "") || v.key)
-    : objectKeys.map((key) => key.replace(currentPrefix, "") || key)
+  // For version mode: group by object key to show "Objects" and "Versions" separately
+  const uniqueObjectKeys = isVersionMode ? Array.from(new Set(versions.map((v) => v.key))) : objectKeys
+  const displayObjectNames = uniqueObjectKeys.map((key) => key.replace(currentPrefix, "") || key)
+  const visibleObjectNames = displayObjectNames.slice(0, MAX_VISIBLE)
+  const hiddenObjectCount = displayObjectNames.length - visibleObjectNames.length
+
+  // For non-version mode (regular objects)
+  const itemsToDisplay = objectKeys.map((key) => key.replace(currentPrefix, "") || key)
   const visibleNames = itemsToDisplay.slice(0, MAX_VISIBLE)
   const hiddenCount = count - visibleNames.length
 
@@ -217,7 +222,7 @@ export function DeleteObjectsModal({
       <Stack direction="vertical" gap="4">
         <p className="text-theme-default overflow-x-hidden [overflow-wrap:anywhere]">
           {isVersionMode ? (
-            <Trans>These versions will be permanently deleted and cannot be restored.</Trans>
+            <Trans>These objects and all their versions will be permanently deleted and cannot be restored.</Trans>
           ) : versioningEnabled ? (
             <Trans>The selected objects will be marked as deleted but can be restored from version history.</Trans>
           ) : (
@@ -225,24 +230,76 @@ export function DeleteObjectsModal({
           )}
         </p>
 
-        <div>
-          <p className="text-theme-light mb-2 text-sm">
-            {isVersionMode ? <Trans>Versions to delete:</Trans> : <Trans>Objects to delete:</Trans>}
-          </p>
-          <div className="bg-theme-background-lvl-2 max-h-48 overflow-y-auto rounded p-4">
-            <Stack direction="vertical" gap="1">
-              {visibleNames.map((name, idx) => (
-                <div key={idx} className="text-theme-default overflow-x-hidden [overflow-wrap:anywhere]">
-                  {name}
+        <div className="space-y-3">
+          {isVersionMode ? (
+            <>
+              <div>
+                <label className="text-sm font-semibold">
+                  <Plural value={displayObjectNames.length} one="Object:" other="Objects to delete:" />
+                </label>
+                {displayObjectNames.length === 1 ? (
+                  <p className="mt-1 overflow-x-hidden text-sm [overflow-wrap:anywhere]">{displayObjectNames[0]}</p>
+                ) : (
+                  <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+                    <Stack direction="vertical" gap="1">
+                      {visibleObjectNames.map((name, idx) => (
+                        <div
+                          key={idx}
+                          className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]"
+                        >
+                          {name}
+                        </div>
+                      ))}
+                      {hiddenObjectCount > 0 && (
+                        <div className="text-theme-light pt-2 text-sm">
+                          <Trans>… and {hiddenObjectCount} more</Trans>
+                        </div>
+                      )}
+                    </Stack>
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="text-sm font-semibold">
+                  <Trans>Versions to delete:</Trans>
+                </label>
+                <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+                  <Stack direction="vertical" gap="1">
+                    {versions.slice(0, MAX_VISIBLE).map((v, idx) => (
+                      <code key={idx} className="block overflow-x-hidden text-xs [overflow-wrap:anywhere]">
+                        {v.versionId}
+                      </code>
+                    ))}
+                    {versions.length > MAX_VISIBLE && (
+                      <div className="text-theme-light pt-2 text-sm">
+                        <Trans>… and {versions.length - MAX_VISIBLE} more</Trans>
+                      </div>
+                    )}
+                  </Stack>
                 </div>
-              ))}
-              {hiddenCount > 0 && (
-                <div className="text-theme-light pt-2 text-sm">
-                  <Trans>… and {hiddenCount} more</Trans>
-                </div>
-              )}
-            </Stack>
-          </div>
+              </div>
+            </>
+          ) : (
+            <div>
+              <label className="text-sm font-semibold">
+                <Trans>Objects to delete:</Trans>
+              </label>
+              <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+                <Stack direction="vertical" gap="1">
+                  {visibleNames.map((name, idx) => (
+                    <div key={idx} className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]">
+                      {name}
+                    </div>
+                  ))}
+                  {hiddenCount > 0 && (
+                    <div className="text-theme-light pt-2 text-sm">
+                      <Trans>… and {hiddenCount} more</Trans>
+                    </div>
+                  )}
+                </Stack>
+              </div>
+            </div>
+          )}
         </div>
 
         <div>
