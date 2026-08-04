@@ -10,13 +10,24 @@ import { trpcReact } from "@/client/trpcClient"
 import type { AllocateFloatingIpModalProps } from "./-modals/AllocateFloatingIpModal"
 import { FloatingIpsList } from "./FloatingIpsList"
 
-// Mock useParams
+// Mock useParams, useSearch, useNavigate
+let mockSearchParams: Record<string, unknown> = {}
+
+const mockNavigate = vi.fn(
+  (opts: { search: (prev: Record<string, unknown>) => Record<string, unknown>; replace?: boolean }) => {
+    if (typeof opts.search === "function") {
+      mockSearchParams = opts.search(mockSearchParams)
+    }
+  }
+)
+
 vi.mock("@tanstack/react-router", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-router")>()
   return {
     ...actual,
     useParams: vi.fn(() => ({ projectId: "test-project" })),
-    useNavigate: vi.fn(() => vi.fn()),
+    useSearch: vi.fn(() => mockSearchParams),
+    useNavigate: vi.fn(() => mockNavigate),
   }
 })
 
@@ -181,6 +192,8 @@ describe("FloatingIps List", () => {
   })
 
   beforeEach(() => {
+    mockSearchParams = {}
+    mockNavigate.mockClear()
     i18n.activate("en")
     vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(createMockMutationResult())
     vi.mocked(trpcReact.network.canUser.useQuery).mockReturnValue({
@@ -368,8 +381,17 @@ describe("FloatingIps List", () => {
       await user.click(searchButton)
 
       await waitFor(() => {
-        const lastCall = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1][0]
-        expect(lastCall).toMatchObject({ searchTerm: "203.0.113" })
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            search: expect.any(Function),
+            replace: true,
+          })
+        )
+        // Verify the search updater function sets search correctly
+        const lastCall = mockNavigate.mock.calls[mockNavigate.mock.calls.length - 1][0]
+        const searchUpdater = lastCall.search as (prev: Record<string, unknown>) => Record<string, unknown>
+        const result = searchUpdater({})
+        expect(result).toMatchObject({ search: "203.0.113" })
       })
     })
 
@@ -467,14 +489,90 @@ describe("FloatingIps List", () => {
       await user.type(searchbox, "203{Enter}")
 
       await waitFor(() => {
-        const lastCall = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1][0]
-        expect(lastCall).toMatchObject({
-          sort_key: "floating_ip_address",
-          sort_dir: "asc",
+        // Verify all navigation calls happened with correct params
+        const calls = mockNavigate.mock.calls
+        expect(calls.length).toBeGreaterThan(0)
+
+        // Check final state by calling all updaters in sequence
+        let finalParams = {}
+        calls.forEach((call) => {
+          if (call[0].search && typeof call[0].search === "function") {
+            finalParams = call[0].search(finalParams)
+          }
+        })
+
+        expect(finalParams).toMatchObject({
+          sortBy: "floating_ip_address",
+          sortDirection: "asc",
           status: "ACTIVE",
-          searchTerm: "203",
+          search: "203",
         })
       })
+    })
+  })
+
+  describe("URL parameter initialization", () => {
+    it("loads filter state from URL params", () => {
+      mockSearchParams = {
+        status: "DOWN",
+        search: "192.168",
+        sortBy: "floating_ip_address",
+        sortDirection: "desc",
+      }
+
+      const mockUseQuery = vi.mocked(trpcReact.network.floatingIp.list.useQuery)
+      mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
+
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
+
+      // Verify the component uses URL params in the query
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sort_key: "floating_ip_address",
+          sort_dir: "desc",
+          status: "DOWN",
+          searchTerm: "192.168",
+        }),
+        expect.any(Object)
+      )
+    })
+
+    it("uses defaults when URL params are empty", () => {
+      mockSearchParams = {}
+
+      const mockUseQuery = vi.mocked(trpcReact.network.floatingIp.list.useQuery)
+      mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
+
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
+
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        {
+          project_id: "test-project",
+          sort_key: "fixed_ip_address",
+          sort_dir: "asc",
+        },
+        expect.any(Object)
+      )
+    })
+
+    it("handles partial URL params with defaults for missing values", () => {
+      mockSearchParams = {
+        search: "10.0.0",
+      }
+
+      const mockUseQuery = vi.mocked(trpcReact.network.floatingIp.list.useQuery)
+      mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
+
+      render(<FloatingIpsList />, { wrapper: createWrapper() })
+
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sort_key: "fixed_ip_address",
+          sort_dir: "asc",
+          searchTerm: "10.0.0",
+        }),
+        expect.any(Object)
+      )
     })
   })
 })
