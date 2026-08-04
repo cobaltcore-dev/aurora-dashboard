@@ -12,7 +12,6 @@ on:
 env:
   HUSKY: 0
   NODE_VERSION: "24"
-  PNPM_VERSION: "10.33.0"
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -52,7 +51,7 @@ jobs:
         uses: ./.github/actions/setup-pnpm
         with:
           node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
+          
 
       - name: Build
         run: pnpm build
