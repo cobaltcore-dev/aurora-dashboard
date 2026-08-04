@@ -1516,14 +1516,14 @@ msgstr "Fehler beim Aktualisieren des Objekts: {mutationErrorMessage}"
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
 
-msgid "Failed to update visibility for \"{imageName}\": "
-msgstr "Fehler beim Aktualisieren der Sichtbarkeit für \"{imageName}\":"
+msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
+msgstr ""
 
 msgid "Failed to update visibility to {newVisibility}"
 msgstr "Fehler beim Aktualisieren der Sichtbarkeit auf {newVisibility}"
 
-msgid "Failed to upload file \"{fileName}\": "
-msgstr "Fehler beim Hochladen der Datei \"{fileName}\": "
+msgid "Failed to upload file \"{fileName}\": {errorMessage}"
+msgstr ""
 
 msgid "Failed to Upload Object"
 msgstr "Fehler beim Hochladen des Objekts"
@@ -3094,20 +3094,20 @@ msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Bitte überpr�
 msgid "The ID of the network associated with the floating IP."
 msgstr "Die ID des Netzwerks, das der Floating IP zugeordnet ist."
 
-msgid "The image \"{imageId}\" could not be deactivated: {message}"
-msgstr "Das Image \"{imageId}\" konnte nicht deaktiviert werden: {message}"
+msgid "The image \"{imageId}\" could not be deactivated: {errorMessage}"
+msgstr ""
 
-msgid "The image \"{imageId}\" could not be deleted: {message}"
-msgstr "Das Image \"{imageId}\" konnte nicht gelöscht werden: {message}"
+msgid "The image \"{imageId}\" could not be deleted: {errorMessage}"
+msgstr ""
 
-msgid "The image \"{imageId}\" could not be re-activated: {message}"
-msgstr "Das Image \"{imageId}\" konnte nicht reaktiviert werden: {message}"
+msgid "The image \"{imageId}\" could not be re-activated: {errorMessage}"
+msgstr ""
 
-msgid "The image \"{imageName}\" could not be created: "
-msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: "
+msgid "The image \"{imageName}\" could not be created: {errorMessage}"
+msgstr ""
 
-msgid "The image \"{imageName}\" could not be updated: "
-msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: "
+msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
+msgstr ""
 
 msgid "The object can be restored from version history."
 msgstr ""
