@@ -384,7 +384,7 @@ describe("FloatingIps List", () => {
         expect(mockNavigate).toHaveBeenCalledWith(
           expect.objectContaining({
             search: expect.any(Function),
-            replace: true,
+            replace: false,
           })
         )
         // Verify the search updater function sets search correctly
