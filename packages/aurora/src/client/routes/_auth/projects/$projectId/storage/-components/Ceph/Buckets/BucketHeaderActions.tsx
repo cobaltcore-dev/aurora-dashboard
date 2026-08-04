@@ -7,6 +7,7 @@ interface BucketHeaderActionsProps {
     status: "Enabled" | "Suspended" | "Unversioned"
   }
   hasPolicy: boolean
+  hasCors: boolean
   hasOldVersionsOrDeleteMarkers: boolean
   isBucketEmpty: boolean
   onOpenModal: (modal: ModalType) => void
@@ -17,11 +18,13 @@ interface BucketHeaderActionsProps {
  *
  * Displays:
  * - Policy button (primary or subdued based on whether policy exists)
- * - Actions dropdown with versioning, policy, and bucket management options
+ * - CORS button (primary or subdued based on whether CORS exists)
+ * - Actions dropdown with versioning, policy, CORS, and bucket management options
  */
 export const BucketHeaderActions = ({
   versioningStatus,
   hasPolicy,
+  hasCors,
   hasOldVersionsOrDeleteMarkers,
   isBucketEmpty,
   onOpenModal,
@@ -32,6 +35,9 @@ export const BucketHeaderActions = ({
     <>
       <Button variant="subdued" className="whitespace-nowrap" onClick={() => onOpenModal("policy")}>
         {hasPolicy ? <Trans>Edit/View Policy</Trans> : <Trans>Add Policy</Trans>}
+      </Button>
+      <Button variant="subdued" className="whitespace-nowrap" onClick={() => onOpenModal("cors")}>
+        {hasCors ? <Trans>Edit/View CORS</Trans> : <Trans>Add CORS</Trans>}
       </Button>
       <PopupMenu>
         <PopupMenuToggle as="div">
@@ -46,6 +52,7 @@ export const BucketHeaderActions = ({
             <PopupMenuItem label={t`Suspend Versioning`} onClick={() => onOpenModal("suspendVersioning")} />
           )}
           {hasPolicy && <PopupMenuItem label={t`Delete Policy`} onClick={() => onOpenModal("deletePolicy")} />}
+          {hasCors && <PopupMenuItem label={t`Delete CORS`} onClick={() => onOpenModal("deleteCors")} />}
           {!isBucketEmpty && <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />}
           {hasOldVersionsOrDeleteMarkers && (
             <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />

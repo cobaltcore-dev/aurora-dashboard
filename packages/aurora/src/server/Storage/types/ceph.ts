@@ -475,3 +475,187 @@ export const deleteBucketPolicyInputSchema = projectScopedInputSchema.extend({
 export type BucketPolicyStatement = z.infer<typeof bucketPolicyStatementSchema>
 export type BucketPolicyDocument = z.infer<typeof bucketPolicyDocumentSchema>
 export type GetBucketPolicyOutput = z.infer<typeof getBucketPolicyOutputSchema>
+
+// ============================================================================
+// CORS CONFIGURATION SCHEMAS
+// ============================================================================
+
+/**
+ * CORS (Cross-Origin Resource Sharing) configuration for S3 buckets.
+ *
+ * CORS controls which browser origins can access bucket content via JavaScript.
+ * This is essential for:
+ *   - Single-page applications accessing S3 directly
+ *   - Web-based file uploads
+ *   - Cross-domain asset hosting
+ *
+ * Each rule defines:
+ *   - AllowedOrigins: Which origins can access (e.g., "https://example.com" or "*")
+ *   - AllowedMethods: Which HTTP methods are permitted (GET, PUT, POST, DELETE, HEAD)
+ *   - AllowedHeaders: Which headers can be used in requests (optional)
+ *   - ExposeHeaders: Which headers to expose to the browser (optional)
+ *   - MaxAgeSeconds: How long browsers can cache preflight responses (optional, 0-86400)
+ *   - ID: Optional identifier for the rule (max 255 chars)
+ *
+ * @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/cors.html
+ * @see https://docs.ceph.com/en/latest/radosgw/s3/bucketops/#put-bucket-cors
+ */
+
+/**
+ * Allowed HTTP methods for CORS rules.
+ * Must include at least one method per rule.
+ */
+export const corsAllowedMethodSchema = z.enum(["GET", "PUT", "POST", "DELETE", "HEAD"])
+
+/**
+ * Single CORS rule configuration for WRITE operations (strict validation).
+ *
+ * Validation rules:
+ * - AllowedMethods: Required, at least 1, maximum 5, no duplicates
+ * - AllowedOrigins: Required, at least 1, valid HTTP/HTTPS URLs or "*"
+ * - AllowedHeaders/ExposeHeaders: max 256 characters each
+ * - MaxAgeSeconds: minimum 0 (no maximum per AWS S3 specification)
+ * - ID: max 255 characters
+ */
+export const corsRuleSchema = z.object({
+  ID: z.string().max(255, "CORS rule ID must be at most 255 characters").optional(),
+  AllowedHeaders: z.array(z.string().max(256, "Header name must be at most 256 characters")).optional(), // Can include "*" to allow all headers
+  AllowedMethods: z
+    .array(corsAllowedMethodSchema)
+    .min(1, "At least one AllowedMethod is required")
+    .max(5, "Maximum 5 AllowedMethods per rule")
+    .refine((methods) => new Set(methods).size === methods.length, {
+      message: "AllowedMethods must not contain duplicates",
+    }),
+  AllowedOrigins: z
+    .array(z.string().max(2048, "Origin URL must be at most 2048 characters"))
+    .min(1, "At least one AllowedOrigin is required")
+    .refine(
+      (origins) =>
+        origins.every((o) => {
+          if (o === "*") return true
+
+          // AWS S3 spec: origin can contain only one * wildcard character
+          const wildcardCount = (o.match(/\*/g) || []).length
+          if (wildcardCount > 1) return false
+
+          // If it has a wildcard, validate the pattern (e.g., https://*.example.com)
+          if (wildcardCount === 1) {
+            // Must match pattern: protocol://*.domain
+            if (!/^https?:\/\/\*\..+\..+$/.test(o)) return false
+            // Validate by replacing * with placeholder
+            try {
+              const testUrl = o.replace("*", "placeholder")
+              const url = new URL(testUrl)
+              if (!["http:", "https:"].includes(url.protocol)) return false
+              return true
+            } catch {
+              return false
+            }
+          }
+
+          // No wildcard - standard URL validation
+          try {
+            const url = new URL(o)
+            // Must use http or https protocol
+            if (!["http:", "https:"].includes(url.protocol)) return false
+            return true
+          } catch {
+            return false
+          }
+        }),
+      {
+        message:
+          "AllowedOrigins must be valid http:// or https:// URLs, '*', or wildcard patterns like 'https://*.example.com' (only one * allowed per origin)",
+      }
+    ),
+  ExposeHeaders: z.array(z.string().max(256, "Header name must be at most 256 characters")).optional(), // Headers exposed to browser
+  MaxAgeSeconds: z.number().int().min(0, "MaxAgeSeconds must be at least 0").optional(),
+})
+
+/**
+ * Lenient CORS rule schema for READ operations.
+ *
+ * Accepts valid S3/Ceph CORS rules that may have been created outside this application
+ * or with relaxed constraints:
+ * - AllowedMethods: No maximum limit (S3 SDK allows more than 5)
+ * - MaxAgeSeconds: No maximum limit (some configurations may exceed 24 hours)
+ * - Basic structural validation only, no strict bounds checking
+ */
+export const corsRuleReadSchema = z.object({
+  ID: z.string().optional(),
+  AllowedHeaders: z.array(z.string()).optional(),
+  AllowedMethods: z.array(z.string()).min(1, "At least one AllowedMethod is required"),
+  AllowedOrigins: z.array(z.string()).min(1, "At least one AllowedOrigin is required"),
+  ExposeHeaders: z.array(z.string()).optional(),
+  MaxAgeSeconds: z.number().int().min(0).optional(),
+})
+
+/**
+ * Full CORS configuration for a bucket.
+ *
+ * AWS S3 limits:
+ * - Maximum 100 rules per bucket
+ * - At least 1 rule if CORS is configured
+ * - Total XML document size: 64 KB limit
+ */
+export const corsConfigurationSchema = z
+  .object({
+    CORSRules: z
+      .array(corsRuleSchema)
+      .min(1, "At least one CORS rule is required")
+      .max(100, "Maximum 100 CORS rules per bucket"),
+  })
+  .refine(
+    (config) => {
+      // Estimate XML size: AWS S3 limits the entire CORS configuration to 64 KB
+      // We'll serialize to JSON and check size (XML is typically larger, so this is conservative)
+      const jsonSize = JSON.stringify(config).length
+      return jsonSize <= 65536 // 64 KB
+    },
+    {
+      message:
+        "CORS configuration exceeds AWS S3 limit of 64 KB. Reduce the number of rules or simplify rule definitions.",
+    }
+  )
+
+/**
+ * Input schema for getting CORS configuration
+ */
+export const getCorsInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+})
+
+/**
+ * Output schema for getting CORS configuration
+ * Returns null if no CORS configuration is set
+ * Uses the lenient read schema to accept any valid S3/Ceph CORS rules
+ */
+export const getCorsOutputSchema = z.object({
+  corsRules: z.array(corsRuleReadSchema).nullable(), // null if no CORS config
+})
+
+/**
+ * Input schema for setting CORS configuration
+ */
+export const setCorsInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+  corsConfiguration: corsConfigurationSchema,
+})
+
+/**
+ * Input schema for deleting CORS configuration
+ */
+export const deleteCorsInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+})
+
+// ============================================================================
+// CORS CONFIGURATION TYPES
+// ============================================================================
+
+export type CorsAllowedMethod = z.infer<typeof corsAllowedMethodSchema>
+export type CorsRule = z.infer<typeof corsRuleSchema>
+export type CorsRuleRead = z.infer<typeof corsRuleReadSchema>
+export type CorsConfiguration = z.infer<typeof corsConfigurationSchema>
+export type GetCorsOutput = z.infer<typeof getCorsOutputSchema>
