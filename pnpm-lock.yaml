@@ -28,10 +28,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      pnpm:
-        specifier: ^11.16.0
-        version: 11.16.0
     devDependencies:
       '@changesets/cli':
         specifier: ^2.31.1
@@ -4782,11 +4778,6 @@ packages:
   plimit-lit@1.6.1:
     resolution: {integrity: sha512-B7+VDyb8Tl6oMJT9oSO2CW8XC/T4UcJGrwOVoNGwOQsQYhlpfajmrMj5xeejqaASq3V/EqThyOeATEOMuSEXiA==}
     engines: {node: '>=12'}
-
-  pnpm@11.16.0:
-    resolution: {integrity: sha512-t2fpqY/IeuwPQtrvzQ6ElBws20XXPE4eaIYPsr39vgMqtZIQVHnl4Fwjf3QMil/9u7UjhXl93CKWdFobu4g+jQ==}
-    engines: {node: '>=22.13'}
-    hasBin: true
 
   pofile@1.1.4:
     resolution: {integrity: sha512-r6Q21sKsY1AjTVVjOuU02VYKVNQGJNQHjTIvs4dEbeuuYfxgYk/DGD2mqqq4RDaVkwdSq0VEtmQUOPe/wH8X3g==}
@@ -10891,8 +10882,6 @@ snapshots:
   plimit-lit@1.6.1:
     dependencies:
       queue-lit: 1.5.2
-
-  pnpm@11.16.0: {}
 
   pofile@1.1.4: {}
 
