@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from "vitest"
-import { render, screen, act } from "@testing-library/react"
+import { render, screen, act, fireEvent } from "@testing-library/react"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -97,11 +97,23 @@ describe("ContainerLimitsTooltip", () => {
 
     test("icon has correct data-state when closed", () => {
       renderTooltip()
-      expect(screen.getByRole("img", { name: /info/i })).toHaveAttribute("data-state", "closed")
+      const button = screen.getByRole("img", { name: /info/i }).closest("button")!
+      expect(button).toHaveAttribute("data-state", "closed")
     })
 
     test("tooltip content is visible when open", () => {
       renderOpenTooltip(mockServiceInfo)
+      expect(screen.getByText("Limits")).toBeInTheDocument()
+    })
+
+    test("tooltip appears on hover", async () => {
+      renderTooltip(mockServiceInfo, mockAccountInfo)
+      const trigger = screen.getByRole("img", { name: /info/i }).closest("button")!
+      await act(async () => {
+        fireEvent.mouseEnter(trigger)
+      })
+      expect(screen.getByRole("tooltip")).toBeInTheDocument()
+      expect(screen.getByText("Account")).toBeInTheDocument()
       expect(screen.getByText("Limits")).toBeInTheDocument()
     })
   })
