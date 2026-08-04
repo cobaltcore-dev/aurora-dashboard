@@ -107,7 +107,7 @@ export const FloatingIpsList = () => {
         sortBy: settings.sortBy,
         sortDirection: settings.sortDirection,
       })) as unknown as true,
-      replace: true,
+      replace: false,
     })
   }
 
@@ -120,17 +120,17 @@ export const FloatingIpsList = () => {
           sortBy: prev.sortBy,
           sortDirection: prev.sortDirection,
         })) as unknown as true,
-      replace: true,
+      replace: false,
     })
   }
 
-  const handleSearchChange = (term: string) => {
+  const handleSearchChange = (term: string, replace = false) => {
     navigate({
       search: ((prev: FloatingIpsSearchParams) => ({
         ...prev,
         search: term || undefined,
       })) as unknown as true,
-      replace: true,
+      replace,
     })
   }
 
@@ -221,16 +221,16 @@ export const FloatingIpsList = () => {
                 const v = e.currentTarget.value
                 setLocalSearchTerm(v)
                 clearTimeout(debounceTimer.current)
-                debounceTimer.current = window.setTimeout(() => handleSearchChange(v), 500)
+                debounceTimer.current = window.setTimeout(() => handleSearchChange(v, true), 500)
               }}
               onSearch={(v) => {
                 clearTimeout(debounceTimer.current)
-                handleSearchChange(typeof v === "string" ? v : "")
+                handleSearchChange(typeof v === "string" ? v : "", false)
               }}
               onClear={() => {
                 clearTimeout(debounceTimer.current)
                 setLocalSearchTerm("")
-                handleSearchChange("")
+                handleSearchChange("", false)
               }}
             />
           </Stack>
