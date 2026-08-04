@@ -22,7 +22,16 @@ interface MockContextOptions {
   region?: string
 }
 
-export const createMockContext = (options: MockContextOptions = {}) => {
+export const createMockContext = (
+  options: MockContextOptions = {}
+): AuroraPortalContext & {
+  mockIdentity: {
+    get: ReturnType<typeof vi.fn>
+    post: ReturnType<typeof vi.fn>
+    del: ReturnType<typeof vi.fn>
+    availableEndpoints: ReturnType<typeof vi.fn>
+  }
+} => {
   const {
     shouldFailAuth = false,
     hasCredentials = true,
