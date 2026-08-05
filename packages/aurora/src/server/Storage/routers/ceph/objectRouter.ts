@@ -9,6 +9,7 @@ import {
   GetObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3"
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { TRPCError } from "@trpc/server"
 import { octetInputParser } from "@trpc/server/http"
 import { Readable, Transform } from "node:stream"
@@ -34,6 +35,7 @@ import {
   updateMetadataInputSchema,
   downloadObjectInputSchema,
   watchDownloadProgressInputSchema,
+  generatePresignedUrlInputSchema,
   type ListObjectsOutput,
   type S3ObjectDetails,
   type CopyObjectOutput,
@@ -373,6 +375,40 @@ export const objectRouter = {
       } catch (error) {
         throw mapS3ErrorToTRPCError(error, {
           operation: "get object details",
+          bucket: containerName,
+          key: objectKey,
+        })
+      }
+    }),
+
+  /**
+   * Generate a time-limited pre-signed GET URL for a single object.
+   *
+   * The S3/Ceph equivalent of Swift's temporary URLs: anyone holding the link
+   * can download the object until it expires, without needing credentials.
+   * Unlike Swift temp URLs there is no key to configure — the signature is
+   * derived from the request's EC2 credentials via the shared Ceph client, so
+   * this is purely a local signing operation with no round-trip to Ceph.
+   *
+   * `expiresIn` is in seconds and capped at the SigV4 maximum (7 days) by the
+   * input schema. Returns the URL plus an absolute `expiresAt` (unix seconds)
+   * so the frontend can display a real expiry timestamp.
+   */
+  generatePresignedUrl: cephProtectedProcedure
+    .input(generatePresignedUrlInputSchema)
+    .mutation(async ({ ctx, input }): Promise<{ url: string; expiresAt: number }> => {
+      const s3 = ctx.getCephClient!()
+      const { containerName, objectKey, expiresIn } = input
+
+      try {
+        const url = await getSignedUrl(s3, new GetObjectCommand({ Bucket: containerName, Key: objectKey }), {
+          expiresIn,
+        })
+        const expiresAt = Math.floor(Date.now() / 1000) + expiresIn
+        return { url, expiresAt }
+      } catch (error) {
+        throw mapS3ErrorToTRPCError(error, {
+          operation: "generate presigned URL",
           bucket: containerName,
           key: objectKey,
         })

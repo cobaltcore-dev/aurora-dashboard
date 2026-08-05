@@ -131,6 +131,29 @@ vi.mock("./RestoreVersionModal", () => ({
   RestoreVersionModal: () => <div data-testid="restore-version-modal">Restore Version Modal</div>,
 }))
 
+// Rendered conditionally on isOpen (unlike the always-on stubs above) so tests
+// can assert the modal opens, and expose a button that fires onCopySuccess to
+// exercise the in-table toast wiring.
+vi.mock("./GeneratePresignedUrlModal", () => ({
+  GeneratePresignedUrlModal: ({
+    isOpen,
+    objectKey,
+    onCopySuccess,
+  }: {
+    isOpen: boolean
+    objectKey: string | null
+    onCopySuccess?: (objectKey: string) => void
+  }) =>
+    isOpen ? (
+      <div data-testid="presigned-url-modal">
+        <span data-testid="presigned-url-target">{objectKey}</span>
+        <button data-testid="presigned-url-copy" onClick={() => onCopySuccess?.(objectKey ?? "")}>
+          copy
+        </button>
+      </div>
+    ) : null,
+}))
+
 describe("ObjectsTableView", () => {
   // vitest.config.ts doesn't enable global mock restoration, so spies created
   // with vi.spyOn (URL.createObjectURL/revokeObjectURL, HTMLAnchorElement's
@@ -679,6 +702,51 @@ describe("ObjectsTableView", () => {
       // range to the whole list and render every row once.
       expect(screen.getByTestId("objects-table-body").style.height).not.toBe("0px")
       expect(screen.getByTestId("object-row-file1.txt")).toBeInTheDocument()
+    })
+  })
+
+  describe("Share URL (presigned URL)", () => {
+    beforeEach(() => {
+      vi.mocked(toast.success).mockClear()
+    })
+
+    it("renders a Share URL menu item in the object row actions", async () => {
+      const user = userEvent.setup()
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+
+      expect(screen.getByTestId("share-url-action-file1.txt")).toBeInTheDocument()
+    })
+
+    it("does not render the presigned URL modal until Share URL is clicked", () => {
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+      expect(screen.queryByTestId("presigned-url-modal")).not.toBeInTheDocument()
+    })
+
+    it("opens the presigned URL modal for the object when Share URL is clicked", async () => {
+      const user = userEvent.setup()
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+      await user.click(screen.getByTestId("share-url-action-file1.txt"))
+
+      expect(screen.getByTestId("presigned-url-modal")).toBeInTheDocument()
+      expect(screen.getByTestId("presigned-url-target")).toHaveTextContent("file1.txt")
+    })
+
+    it("dispatches a success toast when the modal reports a copy", async () => {
+      const user = userEvent.setup()
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} />)
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+      await user.click(screen.getByTestId("share-url-action-file1.txt"))
+      await user.click(screen.getByTestId("presigned-url-copy"))
+
+      expect(toast.success).toHaveBeenCalled()
     })
   })
 })

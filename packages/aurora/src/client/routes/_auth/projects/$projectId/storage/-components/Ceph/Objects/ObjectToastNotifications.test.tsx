@@ -14,6 +14,7 @@ import {
   getObjectCopyErrorToast,
   getObjectMovedToast,
   getObjectMoveErrorToast,
+  getPresignedUrlCopiedToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
   getObjectUploadedToast,
@@ -184,6 +185,21 @@ describe("ObjectToastNotifications", () => {
     })
   })
 
+  // ── Pre-signed URL ──────────────────────────────────────────────────────────
+
+  describe("getPresignedUrlCopiedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getPresignedUrlCopiedToast("documents/report.pdf"))
+      expect(screen.getByText("URL Copied")).toBeInTheDocument()
+      expect(screen.getByText(/was copied to clipboard/)).toBeInTheDocument()
+    })
+
+    it("derives the basename from a full object key", () => {
+      renderNotification(getPresignedUrlCopiedToast("documents/report.pdf"))
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+    })
+  })
+
   // ── Object metadata update ──────────────────────────────────────────────────
 
   describe("getObjectMetadataUpdatedToast", () => {
@@ -305,6 +321,7 @@ describe("ObjectToastNotifications", () => {
         getObjectCopyErrorToast("a.txt", "err"),
         getObjectMovedToast("a.txt", "bucket", "a.txt"),
         getObjectMoveErrorToast("a.txt", "err"),
+        getPresignedUrlCopiedToast("a.txt"),
         getObjectMetadataUpdatedToast("a.txt"),
         getObjectMetadataUpdateErrorToast("a.txt", "err"),
         getObjectUploadedToast("a.txt"),

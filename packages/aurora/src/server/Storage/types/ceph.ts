@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { projectScopedInputSchema } from "../../trpc"
+import { S3_PRESIGN_MAX_EXPIRY_SECONDS } from "../constants"
 
 // ============================================================================
 // EC2 CREDENTIAL SCHEMAS
@@ -328,6 +329,16 @@ export const downloadObjectInputSchema = projectScopedInputSchema.extend({
  */
 export const watchDownloadProgressInputSchema = projectScopedInputSchema.extend({
   downloadId: z.string().min(1),
+})
+
+/**
+ * Generate a time-limited pre-signed GET URL for a single object. `expiresIn`
+ * is in seconds, capped at S3_PRESIGN_MAX_EXPIRY_SECONDS (see ../constants).
+ */
+export const generatePresignedUrlInputSchema = projectScopedInputSchema.extend({
+  containerName: z.string().min(1),
+  objectKey: z.string().min(1),
+  expiresIn: z.number().int().positive().max(S3_PRESIGN_MAX_EXPIRY_SECONDS),
 })
 
 // ============================================================================
