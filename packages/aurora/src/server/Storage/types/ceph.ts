@@ -543,9 +543,9 @@ export const corsRuleSchema = z.object({
           if (wildcardCount === 1) {
             // Must match pattern: protocol://*.domain
             if (!/^https?:\/\/\*\..+\..+$/.test(o)) return false
-            // Validate by replacing * with placeholder
+            // Validate by replacing wildcard(s) with placeholder
             try {
-              const testUrl = o.replace("*", "placeholder")
+              const testUrl = o.replace(/\*/g, "placeholder")
               const url = new URL(testUrl)
               if (!["http:", "https:"].includes(url.protocol)) return false
               return true
