@@ -4,6 +4,6 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     environment:
-      - PORT=4005
-      - APP_PORT=4005
+      - PORT=3000
+      - APP_PORT=3000
       - NODE_ENV=production
