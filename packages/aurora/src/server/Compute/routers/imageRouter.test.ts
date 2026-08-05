@@ -629,6 +629,10 @@ describe("imageRouter", () => {
           "https://attacker.com/steal-token",
           "HTTP://attacker.com",
           "HTTPS://evil.com",
+          "//attacker.com/path", // Scheme-relative URL
+          "  https://attacker.com", // Leading whitespace
+          "\thttps://evil.com", // Tab prefix
+          "   //attacker.com", // Whitespace + scheme-relative
         ]
 
         for (const url of maliciousUrls) {

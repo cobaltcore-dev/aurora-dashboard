@@ -221,13 +221,19 @@ export const imageRouter = {
         validateGlanceService(glance)
 
         // Security: Reject absolute URLs to prevent SSRF attacks
-        if (first && first.match(/^https?:\/\//i)) {
+        // Check for: http://, https://, //, and whitespace-prefixed variants
+        const isAbsoluteUrl = (url: string) => {
+          const trimmed = url.trim()
+          return trimmed.match(/^(https?:)?\/\//i) !== null
+        }
+
+        if (first && isAbsoluteUrl(first)) {
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: "Invalid pagination URL: absolute URLs are not allowed for security reasons",
           })
         }
-        if (next && next.match(/^https?:\/\//i)) {
+        if (next && isAbsoluteUrl(next)) {
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: "Invalid pagination URL: absolute URLs are not allowed for security reasons",
