@@ -977,7 +977,7 @@ await trpcClient.storage.ceph.objects.uploadObject.mutate(file, {
 
 #### `downloadObject`
 
-Downloads an object by streaming its content through the BFF as base64-encoded chunks via a tRPC async iterable (S3 `GetObjectCommand`). The server never buffers the whole object in memory, and per-chunk progress is published so a concurrent `watchDownloadProgress` subscription can drive a progress bar. This is a **direct stream** — no presigned/temporary URLs are issued.
+Downloads an object by streaming its content through the BFF as base64-encoded chunks via a tRPC async iterable (S3 `GetObjectCommand`). The server never buffers the whole object in memory, and per-chunk progress is published so a concurrent `watchDownloadProgress` subscription can drive a progress bar. This is a **direct stream** — no presigned/temporary URLs are issued. For a shareable, time-limited link instead, see [`generatePresignedUrl`](#generatepresignedurl).
 
 **Input:**
 
@@ -1093,6 +1093,53 @@ await trpc.storage.ceph.objects.downloadObject.mutate({
 
 - The subscription completes when the download finishes and re-throws if the download errors.
 - If no events arrive within 30 s (e.g. the download finished before the subscription opened), it ends gracefully rather than hanging.
+
+---
+
+#### `generatePresignedUrl`
+
+Generates a time-limited pre-signed **GET** URL for a single object using `getSignedUrl` from `@aws-sdk/s3-request-presigner` (S3 `GetObjectCommand`). Anyone holding the link can download the object until it expires, without Aurora credentials — the S3/Ceph equivalent of Swift's HMAC-SHA256 temporary URLs.
+
+Unlike Swift temp URLs there is **no key to configure**: the signature is derived from the request's EC2 credentials via the shared `getCephClient()`. Signing is a purely local operation — no round-trip to Ceph — so the call is fast and does not stream the object.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  containerName: string,
+  objectKey: string,
+  expiresIn: number    // Lifetime in seconds; 1..604800 (SigV4 maximum of 7 days)
+}
+```
+
+**Output:**
+
+```typescript
+{
+  url: string,        // Pre-signed GET URL
+  expiresAt: number   // Absolute expiry as a Unix timestamp (seconds)
+}
+```
+
+**Example:**
+
+```typescript
+const { url, expiresAt } = await trpc.storage.ceph.objects.generatePresignedUrl.mutate({
+  project_id: "abc123",
+  containerName: "my-bucket",
+  objectKey: "documents/report.pdf",
+  expiresIn: 3600, // 1 hour
+})
+// → share `url`; it stops working at `expiresAt`
+```
+
+**Notes:**
+
+- `expiresIn` is validated by `generatePresignedUrlInputSchema` (`types/ceph.ts`) and capped at the exported `S3_PRESIGN_MAX_EXPIRY_SECONDS` (604800 = 7 days); a larger value is rejected as `BAD_REQUEST` before signing. Exporting the constant lets the frontend share the same bound.
+- `expiresAt` is returned so the UI can show an absolute expiry, not just a duration.
+- **GET only.** Presigned `PUT`/upload URLs (upload-by-link) are not issued — uploads stream through [`uploadObject`](#uploadobject).
+- Because signing is local, the call succeeds even for a key that does not exist; the URL then returns `NoSuchKey` from Ceph when opened.
 
 ---
 
@@ -1932,7 +1979,7 @@ console.log("Old credential deleted")
 
 ### 4. Object Operations
 
-- For uploads/downloads, consider using **presigned URLs** (not yet implemented) to allow direct client → Ceph transfers without proxying through the BFF
+- Presigned GET URLs are available via `generatePresignedUrl` for **sharing** download links, but the app's own upload/download paths still proxy through the BFF. Serving those transfers over presigned URLs (direct client ↔ Ceph, no BFF proxy) — including presigned `PUT` for uploads — is not yet implemented
 - For very large files, use multipart uploads (not yet implemented)
 
 ---
@@ -1949,7 +1996,7 @@ console.log("Old credential deleted")
 | **Large Objects**    | Multipart uploads                         | Static/Dynamic Large Objects (SLO/DLO) |
 | **Uploads**          | `octetInputParser` streaming (+ progress) | `octetInputParser` streaming           |
 | **Downloads**        | Async iterable base64 chunks (+ progress) | Async iterable base64 chunks           |
-| **Temporary URLs**   | Presigned URLs (not yet impl)             | HMAC-SHA256 signed temp URLs           |
+| **Temporary URLs**   | Presigned GET URLs (`getSignedUrl`)       | HMAC-SHA256 signed temp URLs           |
 
 **When to use which?**
 
@@ -1986,8 +2033,8 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
    - Bulk delete operations
 
 4. **Presigned URLs**
-   - Generate time-limited signed URLs for direct client access
-   - Use `@aws-sdk/s3-request-presigner`
+   - ~~Generate time-limited signed URLs for direct client access~~ ✅ Implemented — `generatePresignedUrl` issues GET (download/share) URLs via `@aws-sdk/s3-request-presigner`, capped at 7 days
+   - Presigned `PUT`/upload URLs (upload-by-link)
 
 5. **Advanced Features**
    - ~~Bucket versioning~~ ✅ Implemented
@@ -2001,7 +2048,7 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
 - **No credential caching:** Credentials are fetched from Keystone on every request
 - **No S3 client pooling:** A new client is instantiated per request
 - **No multipart upload support:** uploads stream through a single `PutObjectCommand`; very large files may time out
-- **No presigned URL generation:** All operations must go through the BFF
+- **Presigned URLs are GET-only:** shareable download links are issued via `generatePresignedUrl`; uploads still stream through the BFF (no presigned `PUT`)
 - **No bulk delete support:** Objects must be deleted one at a time (can be slow for large folders)
 
 ---
@@ -2213,7 +2260,7 @@ Use `cephUploadProcedure` instead — it's built on the base `protectedProcedure
 ## Next Steps
 
 1. **Implement object upload** — streaming via `octetInputParser` (download already implemented via async-iterable streaming with progress tracking)
-2. **Add presigned URL generation** — allow direct client → Ceph transfers for large files
+2. ~~**Add presigned URL generation**~~ ✅ Completed — `generatePresignedUrl` issues time-limited GET URLs for sharing/download (see [`generatePresignedUrl`](#generatepresignedurl)); presigned `PUT` for direct client → Ceph uploads is still open
 3. ~~**Implement bucket management**~~ ✅ Completed — create, delete, empty buckets
 4. **Add credential caching** — reduce Keystone API calls
 5. **Implement multipart uploads** — for large files (>100 MB)

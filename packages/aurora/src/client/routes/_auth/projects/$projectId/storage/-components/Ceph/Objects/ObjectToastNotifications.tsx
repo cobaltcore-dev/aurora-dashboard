@@ -119,6 +119,19 @@ export const getObjectMoveErrorToast = (
   }
 }
 
+// ── Pre-signed URL ─────────────────────────────────────────────────────────────
+
+// Raised after a generated pre-signed URL is copied to the clipboard. Takes the
+// full object key and derives a basename display name, consistent with the
+// key-based toasts above.
+export const getPresignedUrlCopiedToast = (objectKey: string): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>URL Copied</Trans>,
+    description: <Trans>Pre-signed URL for "{displayName}" was copied to clipboard.</Trans>,
+  }
+}
+
 // ── Object metadata update ─────────────────────────────────────────────────────
 
 export const getObjectMetadataUpdatedToast = (objectKey: string): { message: ReactNode } & NotificationOptions => {
