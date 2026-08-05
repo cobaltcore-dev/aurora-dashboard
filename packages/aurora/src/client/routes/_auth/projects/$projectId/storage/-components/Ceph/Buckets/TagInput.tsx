@@ -1,5 +1,5 @@
 import { useState, KeyboardEvent } from "react"
-import { TextInput, Pill, Stack } from "@cloudoperators/juno-ui-components"
+import { TextInput, Pill, Stack, Button } from "@cloudoperators/juno-ui-components"
 
 interface TagInputProps {
   label: string
@@ -11,6 +11,7 @@ interface TagInputProps {
   validate?: (value: string) => { valid: boolean; error?: string }
   id?: string
   name?: string
+  required?: boolean
 }
 
 export const TagInput = ({
@@ -23,6 +24,7 @@ export const TagInput = ({
   validate,
   id,
   name,
+  required = false,
 }: TagInputProps) => {
   const [inputValue, setInputValue] = useState("")
   const [error, setError] = useState<string | undefined>()
@@ -61,27 +63,38 @@ export const TagInput = ({
 
   return (
     <div>
-      <TextInput
-        label={label}
-        id={id}
-        name={name}
-        value={inputValue}
-        onChange={(e) => {
-          setInputValue(e.target.value)
-          setError(undefined)
-        }}
-        onKeyDown={handleKeyDown}
-        onBlur={() => {
-          if (inputValue.trim()) {
-            addTag(inputValue.trim())
-          }
-        }}
-        disabled={disabled}
-        placeholder={placeholder}
-        helptext={helptext}
-        invalid={!!error}
-        errortext={error}
-      />
+      <div className="flex items-start gap-2">
+        <div className="flex-1">
+          <TextInput
+            label={label}
+            id={id}
+            name={name}
+            value={inputValue}
+            onChange={(e) => {
+              setInputValue(e.target.value)
+              setError(undefined)
+            }}
+            onKeyDown={handleKeyDown}
+            disabled={disabled}
+            placeholder={placeholder}
+            helptext={helptext}
+            invalid={!!error}
+            errortext={error}
+            required={required}
+          />
+        </div>
+        <Button
+          variant="primary"
+          onClick={() => {
+            if (inputValue.trim()) {
+              addTag(inputValue.trim())
+            }
+          }}
+          disabled={disabled || !inputValue.trim()}
+        >
+          Add
+        </Button>
+      </div>
 
       {value.length > 0 && (
         <Stack gap="2" wrap={true} alignment="start" distribution="start" className="mt-2">

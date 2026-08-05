@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Spinner, Message, Button } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, Message, Button, ModalFooter, ButtonRow } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import type { CorsRuleRead, CorsRule } from "@/server/Storage/types/ceph"
@@ -181,9 +181,9 @@ export const CorsModal = ({ isOpen, bucketName, onClose, onSuccess, onError }: C
   }, [currentRules, corsData])
 
   const isSaving = setMutation.isPending || deleteMutation.isPending
-  const canSaveConfiguration = !isSaving && hasChanges
+  const canSaveConfiguration = !isSaving && hasChanges && viewState !== ViewState.FORM
   const hasWildcardOrigin = currentRules.some((rule) => rule.AllowedOrigins.includes("*"))
-  const shouldShowSaveButton = viewState === ViewState.LIST || viewState === ViewState.EMPTY
+  const shouldShowSaveButton = true // Always show save button
 
   if (!isOpen) return null
 
@@ -193,11 +193,21 @@ export const CorsModal = ({ isOpen, bucketName, onClose, onSuccess, onError }: C
       title={t`CORS Rules`}
       open={isOpen}
       onCancel={handleRequestClose}
-      confirmButtonLabel={shouldShowSaveButton ? t`Save` : undefined}
-      onConfirm={shouldShowSaveButton ? handleSaveConfiguration : undefined}
-      cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!canSaveConfiguration}
       size="xl"
+      modalFooter={
+        <ModalFooter className="bg-theme-background-lvl-0 sticky bottom-0 z-10 flex justify-end">
+          <ButtonRow>
+            <Button variant="subdued" onClick={handleRequestClose}>
+              <Trans>Cancel</Trans>
+            </Button>
+            {shouldShowSaveButton && (
+              <Button variant="primary" onClick={handleSaveConfiguration} disabled={!canSaveConfiguration}>
+                <Trans>Save</Trans>
+              </Button>
+            )}
+          </ButtonRow>
+        </ModalFooter>
+      }
     >
       <Stack direction="vertical" gap="4">
         {isCorsLoading && (

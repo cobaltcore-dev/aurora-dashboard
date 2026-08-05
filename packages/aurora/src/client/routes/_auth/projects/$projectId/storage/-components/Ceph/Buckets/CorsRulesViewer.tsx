@@ -124,7 +124,7 @@ const RuleCard = ({ rule, onEdit, onDelete }: RuleCardProps) => {
 
         {/* Expose Headers */}
         <div className="border-theme-default grid grid-cols-[240px_1fr] border-t">
-          <div className="bg-theme-background-lvl-2 text-theme-high px-4 py-2 text-right text-sm font-bold">
+          <div className="bg-theme-background-lvl-1 text-theme-high px-4 py-2 text-right text-sm font-bold">
             <Trans>Expose Headers</Trans>
           </div>
           <div className="text-theme-default px-4 py-2 text-sm">
@@ -134,7 +134,7 @@ const RuleCard = ({ rule, onEdit, onDelete }: RuleCardProps) => {
 
         {/* Max Age */}
         <div className="border-theme-default grid grid-cols-[240px_1fr] border-t">
-          <div className="bg-theme-background-lvl-2 text-theme-high px-4 py-2 text-right text-sm font-bold">
+          <div className="bg-theme-background-lvl-1 text-theme-high px-4 py-2 text-right text-sm font-bold">
             <Trans>Max Age</Trans>
           </div>
           <div className="text-theme-default px-4 py-2 text-sm">

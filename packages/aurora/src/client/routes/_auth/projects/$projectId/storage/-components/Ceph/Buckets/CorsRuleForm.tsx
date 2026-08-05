@@ -38,8 +38,8 @@ export const CorsRuleForm = ({ editingRule, onSubmit, onCancel }: CorsRuleFormPr
     },
   })
 
-  const allowedOriginsValue = useStore(form.store, (state) => state.values.AllowedOrigins)
-  const allowedMethodsValue = useStore(form.store, (state) => state.values.AllowedMethods)
+  const allowedOriginsValue = useStore(form.store, (state: typeof form.store.state) => state.values.AllowedOrigins)
+  const allowedMethodsValue = useStore(form.store, (state: typeof form.store.state) => state.values.AllowedMethods)
 
   const canSubmit = allowedOriginsValue.length > 0 && allowedMethodsValue.length > 0
 
@@ -73,14 +73,15 @@ export const CorsRuleForm = ({ editingRule, onSubmit, onCancel }: CorsRuleFormPr
           <form.Field name="AllowedOrigins">
             {(field) => (
               <TagInput
-                label={t`Allowed Origins*`}
+                label={t`Allowed Origins`}
                 id={field.name}
                 name={field.name}
                 value={field.state.value}
                 onChange={(value) => field.handleChange(value)}
-                placeholder={t`https://example.comor*`}
-                helptext={t`Confirm that the Project ID is accurate.`}
+                placeholder={t`https://example.comor`}
+                helptext={t`Enter a URL and press Enter. Use * to allow all origins.`}
                 validate={urlValidator}
+                required={true}
               />
             )}
           </form.Field>
@@ -88,8 +89,9 @@ export const CorsRuleForm = ({ editingRule, onSubmit, onCancel }: CorsRuleFormPr
           <form.Field name="AllowedMethods">
             {(field) => (
               <CheckboxGroup
-                label={t`Allowed Methods*`}
+                label={t`Allowed Methods`}
                 helptext={t`Select HTTP methods allowed for cross-origin requests`}
+                required={true}
               >
                 {ALLOWED_METHODS.map((method) => (
                   <Checkbox
@@ -161,10 +163,10 @@ export const CorsRuleForm = ({ editingRule, onSubmit, onCancel }: CorsRuleFormPr
 
           <div className="border-theme-default flex justify-end gap-2 border-t pt-4">
             <Button type="button" variant="subdued" onClick={onCancel}>
-              <Trans>Cancel</Trans>
+              <Trans>Cancel Configuration</Trans>
             </Button>
             <Button type="submit" variant="primary" disabled={!canSubmit}>
-              <Trans>Save Rule</Trans>
+              <Trans>Save Configuration</Trans>
             </Button>
           </div>
         </Stack>

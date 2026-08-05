@@ -319,14 +319,8 @@ msgstr "Allowed Headers"
 msgid "Allowed Methods"
 msgstr "Allowed Methods"
 
-msgid "Allowed Methods*"
-msgstr "Allowed Methods*"
-
 msgid "Allowed Origins"
 msgstr "Allowed Origins"
-
-msgid "Allowed Origins*"
-msgstr "Allowed Origins*"
 
 msgid "Already active (will be skipped)"
 msgstr "Already active (will be skipped)"
@@ -507,6 +501,9 @@ msgstr "CA ID"
 
 msgid "Cancel"
 msgstr "Cancel"
+
+msgid "Cancel Configuration"
+msgstr "Cancel Configuration"
 
 msgid "Cancel upload"
 msgstr "Cancel upload"
@@ -1253,6 +1250,9 @@ msgstr "Enter a tag and press Enter or click Add"
 msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion."
 msgstr "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion."
 
+msgid "Enter a URL and press Enter. Use * to allow all origins."
+msgstr "Enter a URL and press Enter. Use * to allow all origins."
+
 msgid "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
 msgstr "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
 
@@ -1796,8 +1796,8 @@ msgstr "Home"
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 msgstr "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 
-msgid "https://example.comor*"
-msgstr "https://example.comor*"
+msgid "https://example.comor"
+msgstr "https://example.comor"
 
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "I confirm that all existing versions will also be deleted"
@@ -2831,11 +2831,11 @@ msgstr "Save"
 msgid "Save Changes"
 msgstr "Save Changes"
 
+msgid "Save Configuration"
+msgstr "Save Configuration"
+
 msgid "Save Metadata"
 msgstr "Save Metadata"
-
-msgid "Save Rule"
-msgstr "Save Rule"
 
 msgid "Saving..."
 msgstr "Saving..."

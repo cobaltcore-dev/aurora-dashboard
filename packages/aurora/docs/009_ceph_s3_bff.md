@@ -963,9 +963,7 @@ trpc.storage.ceph.objects.watchUploadProgress.subscribe(
 
 await trpcClient.storage.ceph.objects.uploadObject.mutate(file, {
   context: {
-    headers: {
-      /* x-upload-* headers, including x-upload-id: uploadId */
-    },
+    headers: {/* x-upload-* headers, including x-upload-id: uploadId */},
   },
 })
 ```
