@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      - PORT=4005
+      - APP_PORT=4005
+      - NODE_ENV=production
