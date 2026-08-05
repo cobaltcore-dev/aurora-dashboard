@@ -618,6 +618,73 @@ describe("imageRouter", () => {
       expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(5)
       expect(result.images).toHaveLength(5)
     })
+
+    describe("SSRF Protection", () => {
+      it("should reject absolute URLs in first/next parameters", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        const maliciousUrls = [
+          "http://attacker.com/steal-token",
+          "https://attacker.com/steal-token",
+          "HTTP://attacker.com",
+          "HTTPS://evil.com",
+        ]
+
+        for (const url of maliciousUrls) {
+          await expect(
+            caller.image.listImagesWithPagination({
+              project_id: TEST_PROJECT_ID,
+              first: url,
+            })
+          ).rejects.toThrow(
+            expect.objectContaining({
+              code: "BAD_REQUEST",
+              message: expect.stringContaining("absolute URLs are not allowed"),
+            })
+          )
+
+          await expect(
+            caller.image.listImagesWithPagination({
+              project_id: TEST_PROJECT_ID,
+              next: url,
+            })
+          ).rejects.toThrow(
+            expect.objectContaining({
+              code: "BAD_REQUEST",
+            })
+          )
+        }
+
+        expect(mockCtx.mockGlance.get).not.toHaveBeenCalled()
+      })
+
+      it("should allow relative URLs", async () => {
+        const mockCtx = createMockContext()
+        const caller = createCaller(mockCtx)
+
+        mockCtx.mockGlance.get.mockResolvedValue({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: [mockGlanceImage],
+            schema: "/v2/schemas/images",
+          }),
+        })
+
+        await caller.image.listImagesWithPagination({
+          project_id: TEST_PROJECT_ID,
+          first: "/v2/images?sort=name:asc",
+        })
+
+        await caller.image.listImagesWithPagination({
+          project_id: TEST_PROJECT_ID,
+          next: "v2/images?marker=abc-123",
+        })
+
+        expect(mockCtx.mockGlance.get).toHaveBeenCalledWith("/v2/images?sort=name:asc")
+        expect(mockCtx.mockGlance.get).toHaveBeenCalledWith("v2/images?marker=abc-123")
+      })
+    })
   })
 
   describe("getImageById", () => {

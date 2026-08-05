@@ -220,6 +220,20 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
+        // Security: Reject absolute URLs to prevent SSRF attacks
+        if (first && first.match(/^https?:\/\//i)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid pagination URL: absolute URLs are not allowed for security reasons",
+          })
+        }
+        if (next && next.match(/^https?:\/\//i)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid pagination URL: absolute URLs are not allowed for security reasons",
+          })
+        }
+
         // Always fetch ALL images from OpenStack (no pagination)
         const allImages: GlanceImage[] = []
 
