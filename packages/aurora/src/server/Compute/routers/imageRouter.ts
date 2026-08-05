@@ -220,11 +220,11 @@ export const imageRouter = {
 
         validateGlanceService(glance)
 
-        // Security: Reject absolute URLs to prevent SSRF attacks
-        // Check for: http://, https://, //, and whitespace-prefixed variants
+        // Security: Reject absolute (or scheme-relative) URLs to prevent SSRF attacks
+        // Reject: http:, https:, //, and whitespace-prefixed variants
         const isAbsoluteUrl = (url: string) => {
           const trimmed = url.trim()
-          return trimmed.match(/^(https?:)?\/\//i) !== null
+          return /^(?:https?:|\/\/)/i.test(trimmed)
         }
 
         if (first && isAbsoluteUrl(first)) {
