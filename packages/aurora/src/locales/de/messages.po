@@ -1517,13 +1517,13 @@ msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
 
 msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
-msgstr ""
+msgstr "Fehler beim Aktualisieren der Sichtbarkeit für \"{imageName}\": {errorMessage}"
 
 msgid "Failed to update visibility to {newVisibility}"
 msgstr "Fehler beim Aktualisieren der Sichtbarkeit auf {newVisibility}"
 
 msgid "Failed to upload file \"{fileName}\": {errorMessage}"
-msgstr ""
+msgstr "Fehler beim Hochladen der Datei \"{fileName}\": {errorMessage}"
 
 msgid "Failed to Upload Object"
 msgstr "Fehler beim Hochladen des Objekts"
@@ -3095,19 +3095,19 @@ msgid "The ID of the network associated with the floating IP."
 msgstr "Die ID des Netzwerks, das der Floating IP zugeordnet ist."
 
 msgid "The image \"{imageId}\" could not be deactivated: {errorMessage}"
-msgstr ""
+msgstr "Das Image \"{imageId}\" konnte nicht deaktiviert werden: {errorMessage}"
 
 msgid "The image \"{imageId}\" could not be deleted: {errorMessage}"
-msgstr ""
+msgstr "Das Image \"{imageId}\" konnte nicht gelöscht werden: {errorMessage}"
 
 msgid "The image \"{imageId}\" could not be re-activated: {errorMessage}"
-msgstr ""
+msgstr "Das Image \"{imageId}\" konnte nicht reaktiviert werden: {errorMessage}"
 
 msgid "The image \"{imageName}\" could not be created: {errorMessage}"
-msgstr ""
+msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {errorMessage}"
 
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
-msgstr ""
+msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
 msgid "The object can be restored from version history."
 msgstr ""
