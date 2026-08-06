@@ -1528,14 +1528,14 @@ msgstr "Failed to update object: {mutationErrorMessage}"
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
 
-msgid "Failed to update visibility for \"{imageName}\": "
-msgstr "Failed to update visibility for \"{imageName}\": "
+msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
+msgstr "Failed to update visibility for \"{imageName}\": {errorMessage}"
 
 msgid "Failed to update visibility to {newVisibility}"
 msgstr "Failed to update visibility to {newVisibility}"
 
-msgid "Failed to upload file \"{fileName}\": "
-msgstr "Failed to upload file \"{fileName}\": "
+msgid "Failed to upload file \"{fileName}\": {errorMessage}"
+msgstr "Failed to upload file \"{fileName}\": {errorMessage}"
 
 msgid "Failed to Upload Object"
 msgstr "Failed to Upload Object"
@@ -3115,20 +3115,20 @@ msgstr "The flavor or tenant could not be found. Please verify they exist."
 msgid "The ID of the network associated with the floating IP."
 msgstr "The ID of the network associated with the floating IP."
 
-msgid "The image \"{imageId}\" could not be deactivated: {message}"
-msgstr "The image \"{imageId}\" could not be deactivated: {message}"
+msgid "The image \"{imageId}\" could not be deactivated: {errorMessage}"
+msgstr "The image \"{imageId}\" could not be deactivated: {errorMessage}"
 
-msgid "The image \"{imageId}\" could not be deleted: {message}"
-msgstr "The image \"{imageId}\" could not be deleted: {message}"
+msgid "The image \"{imageId}\" could not be deleted: {errorMessage}"
+msgstr "The image \"{imageId}\" could not be deleted: {errorMessage}"
 
-msgid "The image \"{imageId}\" could not be re-activated: {message}"
-msgstr "The image \"{imageId}\" could not be re-activated: {message}"
+msgid "The image \"{imageId}\" could not be re-activated: {errorMessage}"
+msgstr "The image \"{imageId}\" could not be re-activated: {errorMessage}"
 
-msgid "The image \"{imageName}\" could not be created: "
-msgstr "The image \"{imageName}\" could not be created: "
+msgid "The image \"{imageName}\" could not be created: {errorMessage}"
+msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 
-msgid "The image \"{imageName}\" could not be updated: "
-msgstr "The image \"{imageName}\" could not be updated: "
+msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
+msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
 
 msgid "The object can be restored from version history."
 msgstr "The object can be restored from version history."
