@@ -32,4 +32,3 @@ jobs:
         if: github.event.action != 'closed'
         run: |
           echo "::notice::🚀 https://pr-${{ github.event.pull_request.number }}.aurora-previews.d.c.eu-nl-1.cloud.sap"
-       
