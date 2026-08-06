@@ -16,8 +16,6 @@ jobs:
     runs-on: [self-hosted, pr-preview]
     steps:
       - name: Handle PR event
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           /opt/scripts/handle-pr.sh \
             "${{ github.event.action }}" \
@@ -26,6 +24,7 @@ jobs:
             "${{ github.event.pull_request.head.sha }}" \
             "${{ github.event.pull_request.head.repo.clone_url }}"
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PREVIEW_DOMAIN: aurora-previews.d.c.eu-nl-1.cloud.sap
 
       - name: Preview URL
