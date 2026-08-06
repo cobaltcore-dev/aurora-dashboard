@@ -68,7 +68,7 @@ instructions: |
   - Use React Query for caching and mutating asynchronous server state not managed by tRPC hooks
   - Ensure query keys are consistent and well-structured
   - Verify proper use of `useMutation` for data modifications
-  - Check for appropriate `staleTime`, `cacheTime`, and refetch strategies
+  - Check for appropriate `staleTime`, `gcTime`, and refetch strategies
 
   ## 4. Design System: @cloudoperators/juno-ui-components
 
