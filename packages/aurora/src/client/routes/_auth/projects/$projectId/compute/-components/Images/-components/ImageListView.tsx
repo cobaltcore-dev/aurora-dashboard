@@ -288,7 +288,7 @@ export function ImageListView({
       onImageUpdated(updatedImage)
       return true
     } catch (error) {
-      const { message: errorMessage } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
       const { message, ...options } = getImageUpdateErrorToast(imageName, errorMessage)
       toast.error(message, options)
       setSelectedImage(null)
@@ -329,12 +329,12 @@ export function ImageListView({
       utils.compute.listImagesWithPagination.invalidate()
     } catch (error) {
       // Show error notification based on failure point
-      if (error instanceof TRPCClientError && error.data.path === "compute.createImage") {
+      if (error instanceof TRPCClientError && error.data?.path === "compute.createImage") {
         const { message, ...options } = getImageCreateErrorToast(imageName, error.message)
         toast.error(message, options)
       } else {
         // File upload failed
-        const { message: uploadErrorMessage } = error as FastifyError
+        const uploadErrorMessage = (error as FastifyError)?.message ?? ""
 
         const { message, ...options } = getImageFileUploadErrorToast(file.name, uploadErrorMessage)
         toast.error(message, options)
@@ -362,7 +362,7 @@ export function ImageListView({
       toast.success(message, options)
       onImageDeleted(imageId)
     } catch (error) {
-      const { message: errorMessage } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
 
       const { message, ...options } = getImageDeleteErrorToast(imageId, errorMessage)
       toast.error(message, options)
@@ -394,7 +394,7 @@ export function ImageListView({
       const { message, ...options } = getImageActivatedToast(imageName)
       toast.success(message, options)
     } catch (error) {
-      const { message: errorMessage } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
       const { message, ...options } = getImageActivationErrorToast(imageId, errorMessage)
       toast.error(message, options)
     }
@@ -411,7 +411,7 @@ export function ImageListView({
       const { message, ...options } = getImageDeactivatedToast(imageName)
       toast.success(message, options)
     } catch (error) {
-      const { message: errorMessage } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
       const { message, ...options } = getImageDeactivationErrorToast(imageId, errorMessage)
       toast.error(message, options)
     }
@@ -490,7 +490,7 @@ export function ImageListView({
 
       if (result.successful.length > 0) onImageDeleted(result.successful)
     } catch (error) {
-      const { message: errorMessage } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
 
       console.log("Bulk delete error: ", errorMessage)
 
@@ -520,7 +520,7 @@ export function ImageListView({
         toast.warning(message, options)
       }
     } catch (error) {
-      const { message: errorMessage } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
 
       console.log("Bulk activate error: ", errorMessage)
 
@@ -550,7 +550,7 @@ export function ImageListView({
         toast.warning(message, options)
       }
     } catch (error) {
-      const { message: errorMessage } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
 
       console.log("Bulk deactivate error: ", errorMessage)
 
