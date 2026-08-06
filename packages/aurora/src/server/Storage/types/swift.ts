@@ -91,8 +91,11 @@ const baseAccountInputSchema = z.object({
     .optional()
     .refine(
       (val) => {
-        // Empty/undefined is valid (defaults to authenticated account)
-        if (!val) return true
+        // undefined is valid (defaults to authenticated account)
+        if (val === undefined) return true
+
+        // Empty string is invalid - if you provide a value, it must be valid
+        if (val === "") return false
 
         // Must match Swift account naming convention
         if (!SWIFT_ACCOUNT_PATTERN.test(val)) return false

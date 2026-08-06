@@ -308,6 +308,11 @@ describe("Swift Object Storage Schema Validation", () => {
         })
       })
 
+      it("should reject empty string", () => {
+        const result = listContainersInputSchema.safeParse({ account: "" })
+        expect(result.success).toBe(false)
+      })
+
       it("should accept empty/undefined account (defaults to authenticated)", () => {
         const result1 = listContainersInputSchema.safeParse({})
         const result2 = listContainersInputSchema.safeParse({ account: undefined })
