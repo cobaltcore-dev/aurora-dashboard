@@ -1,31 +1,75 @@
 import { useState, useRef, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Button, Stack, DataGridToolbar, SearchInput, Message } from "@cloudoperators/juno-ui-components"
 import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
+import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { trpcReact } from "@/client/trpcClient"
-import { buildFilterParams } from "@/client/utils/buildFilterParams"
-import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { useModal } from "@/client/utils/useModal"
 import { useProjectId } from "@/client/hooks"
 import { FloatingIpListContainer } from "./-table/FloatingIpListContainer"
 import { AllocateFloatingIpModal } from "./-modals/AllocateFloatingIpModal"
-import { applyFilterSelection } from "../urlHelpers"
+import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
 
 const DEFAULT_SORT_KEY = "fixed_ip_address"
 const DEFAULT_SORT_DIR = "asc"
 export type FloatingIpsSortKey = NonNullable<FloatingIpQueryParameters["sort_key"]>
 
+type FloatingIpsSearchParams = {
+  status?: string
+  search?: string
+  sortBy?: string
+  sortDirection?: "asc" | "desc"
+}
+
+type RequiredSortSettings = {
+  options: SortSettings["options"]
+  sortBy: string
+  sortDirection: "asc" | "desc"
+}
+
 export const FloatingIpsList = () => {
   const { t } = useLingui()
+  const navigate = useNavigate()
+  const searchParams = useSearch({ strict: false }) as FloatingIpsSearchParams
   const projectId = useProjectId()
   const [allocateModalOpen, toggleAllocateModal] = useModal(false)
-  const [localSearchTerm, setLocalSearchTerm] = useState("")
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchParams.search || "")
   const debounceTimer = useRef<number | undefined>(undefined)
 
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
+
+  const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
+    options: [
+      { label: t`Fixed IP Address`, value: "fixed_ip_address" },
+      { label: t`Floating IP Address`, value: "floating_ip_address" },
+      { label: t`Floating Network ID`, value: "floating_network_id" },
+      { label: t`ID`, value: "id" },
+      { label: t`Router ID`, value: "router_id" },
+      { label: t`Status`, value: "status" },
+      { label: t`Tenant ID`, value: "tenant_id" },
+      { label: t`Project ID`, value: "project_id" },
+    ],
+    sortBy: searchParams.sortBy || DEFAULT_SORT_KEY,
+    sortDirection: searchParams.sortDirection || DEFAULT_SORT_DIR,
+  })
+
+  const [filterSettings, setFilterSettings] = useState<FilterSettings>({
+    filters: [
+      {
+        displayName: t`Status`,
+        filterName: "status",
+        values: ["ACTIVE", "DOWN", "ERROR"],
+        supportsMultiValue: false,
+      },
+    ],
+    selectedFilters: parseFiltersFromUrl(searchParams),
+  })
+
+  const searchTerm = searchParams.search || ""
 
   const { data: permissions } = trpcReact.network.canUser.useQuery(
     {
@@ -39,32 +83,56 @@ export const FloatingIpsList = () => {
     }
   )
 
-  const { searchTerm, handleSearchChange, sortSettings, handleSortChange, filterSettings, handleFilterChange } =
-    useListWithFiltering<FloatingIpsSortKey>({
-      defaultSortKey: DEFAULT_SORT_KEY,
-      defaultSortDir: DEFAULT_SORT_DIR,
-      sortOptions: [
-        { label: t`Fixed IP Address`, value: "fixed_ip_address" },
-        { label: t`Floating IP Address`, value: "floating_ip_address" },
-        { label: t`Floating Network ID`, value: "floating_network_id" },
-        { label: t`ID`, value: "id" },
-        { label: t`Router ID`, value: "router_id" },
-        { label: t`Status`, value: "status" },
-        // Tenant_id was kept for backward compatibility in case the deprecated tenant ID was used to sort instead of the project ID.
-        { label: t`Tenant ID`, value: "tenant_id" },
-        { label: t`Project ID`, value: "project_id" },
-      ],
-      filterSettings: {
-        filters: [
-          {
-            displayName: t`Status`,
-            filterName: "status",
-            values: ["ACTIVE", "DOWN", "ERROR"],
-            supportsMultiValue: false,
-          },
-        ],
-      },
+  useEffect(() => {
+    const urlFilters = parseFiltersFromUrl(searchParams)
+    const urlSortBy = searchParams.sortBy || DEFAULT_SORT_KEY
+    const urlSortDirection = searchParams.sortDirection || DEFAULT_SORT_DIR
+    const urlSearchTerm = searchParams.search || ""
+
+    setFilterSettings((prev) => ({ ...prev, selectedFilters: urlFilters }))
+    setSortSettings((prev) => ({ ...prev, sortBy: urlSortBy, sortDirection: urlSortDirection }))
+    setLocalSearchTerm(urlSearchTerm)
+  }, [searchParams.status, searchParams.sortBy, searchParams.sortDirection, searchParams.search])
+
+  const handleSortChange = (newSortSettings: SortSettings) => {
+    const settings: RequiredSortSettings = {
+      options: newSortSettings.options,
+      sortBy: newSortSettings.sortBy?.toString() || DEFAULT_SORT_KEY,
+      sortDirection: newSortSettings.sortDirection || DEFAULT_SORT_DIR,
+    }
+    setSortSettings(settings)
+    navigate({
+      search: ((prev: FloatingIpsSearchParams) => ({
+        ...prev,
+        sortBy: settings.sortBy,
+        sortDirection: settings.sortDirection,
+      })) as unknown as true,
+      replace: false,
     })
+  }
+
+  const handleFilterChange = (newFilterSettings: FilterSettings) => {
+    setFilterSettings(newFilterSettings)
+    navigate({
+      search: ((prev: FloatingIpsSearchParams) =>
+        buildUrlSearchParams(newFilterSettings.selectedFilters || [], newFilterSettings.filters, {
+          search: prev.search,
+          sortBy: prev.sortBy,
+          sortDirection: prev.sortDirection,
+        })) as unknown as true,
+      replace: false,
+    })
+  }
+
+  const handleSearchChange = (term: string, replace = false) => {
+    navigate({
+      search: ((prev: FloatingIpsSearchParams) => ({
+        ...prev,
+        search: term || undefined,
+      })) as unknown as true,
+      replace,
+    })
+  }
 
   const {
     data: floatingIps = [],
@@ -74,9 +142,9 @@ export const FloatingIpsList = () => {
   } = trpcReact.network.floatingIp.list.useQuery(
     {
       project_id: projectId,
-      sort_key: sortSettings.sortBy,
+      sort_key: sortSettings.sortBy as FloatingIpsSortKey,
       sort_dir: sortSettings.sortDirection,
-      ...buildFilterParams(filterSettings),
+      ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
       ...(searchTerm ? { searchTerm } : {}),
     },
     {
@@ -153,16 +221,16 @@ export const FloatingIpsList = () => {
                 const v = e.currentTarget.value
                 setLocalSearchTerm(v)
                 clearTimeout(debounceTimer.current)
-                debounceTimer.current = window.setTimeout(() => handleSearchChange(v), 500)
+                debounceTimer.current = window.setTimeout(() => handleSearchChange(v, true), 500)
               }}
               onSearch={(v) => {
                 clearTimeout(debounceTimer.current)
-                handleSearchChange(typeof v === "string" ? v : "")
+                handleSearchChange(typeof v === "string" ? v : "", false)
               }}
               onClear={() => {
                 clearTimeout(debounceTimer.current)
                 setLocalSearchTerm("")
-                handleSearchChange("")
+                handleSearchChange("", false)
               }}
             />
           </Stack>

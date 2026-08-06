@@ -19,7 +19,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
-import { getObjectDownloadCancelledToast } from "./ObjectToastNotifications"
+import { getObjectDownloadCancelledToast, getPresignedUrlCopiedToast } from "./ObjectToastNotifications"
 import {
   startObjectDownload,
   cancelObjectDownload,
@@ -36,6 +36,7 @@ import { DeleteObjectModal } from "./DeleteObjectModal"
 import { RestoreVersionModal } from "./RestoreVersionModal"
 import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveObjectModal } from "./MoveObjectModal"
+import { GeneratePresignedUrlModal } from "./GeneratePresignedUrlModal"
 import { EditMetadataModal } from "./EditMetadataModal"
 import { ObjectVersionHistoryModal } from "./ObjectVersionHistoryModal"
 
@@ -182,6 +183,7 @@ export function ObjectsTableView({
   } | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<string | null>(null)
   const [versionHistoryTarget, setVersionHistoryTarget] = useState<string | null>(null)
+  const [presignedUrlTarget, setPresignedUrlTarget] = useState<{ key: string } | null>(null)
 
   // The "Downloading..." notification is raised by the store (one toast for all
   // in-flight transfers, dismissed when the last finishes), so starting a
@@ -526,6 +528,14 @@ export function ObjectsTableView({
                                   onClick={() => setEditMetadataTarget(row.key)}
                                 />
                                 <PopupMenuItem
+                                  label={t`Share URL`}
+                                  disabled={row.kind !== "object" || isStreaming}
+                                  onClick={
+                                    row.kind === "object" ? () => setPresignedUrlTarget({ key: row.key }) : undefined
+                                  }
+                                  data-testid={`share-url-action-${row.key}`}
+                                />
+                                <PopupMenuItem
                                   label={t`Delete`}
                                   disabled={isStreaming}
                                   onClick={() =>
@@ -607,6 +617,17 @@ export function ObjectsTableView({
         onClose={() => setEditMetadataTarget(null)}
         onSuccess={onEditMetadataSuccess}
         onError={onEditMetadataError}
+      />
+
+      <GeneratePresignedUrlModal
+        bucketName={bucketName}
+        objectKey={presignedUrlTarget?.key ?? null}
+        isOpen={presignedUrlTarget !== null}
+        onClose={() => setPresignedUrlTarget(null)}
+        onCopySuccess={(objectKey) => {
+          const { message, ...options } = getPresignedUrlCopiedToast(objectKey)
+          toast.success(message, options)
+        }}
       />
 
       <ObjectVersionHistoryModal

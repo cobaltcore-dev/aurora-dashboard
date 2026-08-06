@@ -15,6 +15,15 @@ vi.mock("../../clients/s3Client", () => ({
   createS3Client: vi.fn(() => ({ send: mockSend })),
 }))
 
+// generatePresignedUrl signs locally via @aws-sdk/s3-request-presigner rather
+// than calling s3.send, so getSignedUrl is mocked independently of mockSend.
+// `mock`-prefixed so Vitest allows it inside the hoisted factory.
+const mockGetSignedUrl = vi.fn()
+
+vi.mock("@aws-sdk/s3-request-presigner", () => ({
+  getSignedUrl: (...args: unknown[]) => mockGetSignedUrl(...args),
+}))
+
 // ============================================================================
 // MOCK DATA
 // ============================================================================
@@ -355,6 +364,118 @@ describe("objects.getDetails", () => {
         objectKey: TEST_OBJECT_KEY,
       })
     ).rejects.toThrow(TRPCError)
+  })
+})
+
+// ============================================================================
+// TESTS: generatePresignedUrl
+// ============================================================================
+
+describe("objects.generatePresignedUrl", () => {
+  const PRESIGNED_URL =
+    "https://ceph.example.com/my-test-bucket/photos/2024/image.jpg?X-Amz-Signature=abc&X-Amz-Expires=3600"
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("returns the signed URL plus an absolute expiry", async () => {
+    mockGetSignedUrl.mockResolvedValue(PRESIGNED_URL)
+    const before = Math.floor(Date.now() / 1000)
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.generatePresignedUrl({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: TEST_OBJECT_KEY,
+      expiresIn: 3600,
+    })
+    const after = Math.floor(Date.now() / 1000)
+
+    expect(result.url).toBe(PRESIGNED_URL)
+    // expiresAt is now + expiresIn (unix seconds), within the call window
+    expect(result.expiresAt).toBeGreaterThanOrEqual(before + 3600)
+    expect(result.expiresAt).toBeLessThanOrEqual(after + 3600)
+  })
+
+  it("signs a GetObject command for the requested bucket/key with the given expiry", async () => {
+    mockGetSignedUrl.mockResolvedValue(PRESIGNED_URL)
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.storage.ceph.objects.generatePresignedUrl({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: TEST_OBJECT_KEY,
+      expiresIn: 900,
+    })
+
+    expect(mockGetSignedUrl).toHaveBeenCalledTimes(1)
+    const [, command, options] = mockGetSignedUrl.mock.calls[0]
+    // Real GetObjectCommand — its input carries the bucket/key
+    expect(command.input).toMatchObject({ Bucket: TEST_BUCKET_NAME, Key: TEST_OBJECT_KEY })
+    expect(options).toEqual({ expiresIn: 900 })
+  })
+
+  it("signs locally without streaming the object (no S3 send call)", async () => {
+    mockGetSignedUrl.mockResolvedValue(PRESIGNED_URL)
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.storage.ceph.objects.generatePresignedUrl({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: TEST_OBJECT_KEY,
+      expiresIn: 3600,
+    })
+
+    expect(mockSend).not.toHaveBeenCalled()
+  })
+
+  it("rejects an expiry beyond the 7-day maximum before signing", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.generatePresignedUrl({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKey: TEST_OBJECT_KEY,
+        expiresIn: 604800 + 1,
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" })
+    expect(mockGetSignedUrl).not.toHaveBeenCalled()
+  })
+
+  it("maps signer failures to a TRPCError", async () => {
+    const s3Error = Object.assign(new Error("Access denied"), { Code: "AccessDenied" })
+    mockGetSignedUrl.mockRejectedValue(s3Error)
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.generatePresignedUrl({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKey: TEST_OBJECT_KEY,
+        expiresIn: 3600,
+      })
+    ).rejects.toThrow(TRPCError)
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContext({ shouldFailAuth: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.generatePresignedUrl({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKey: TEST_OBJECT_KEY,
+        expiresIn: 3600,
+      })
+    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
   })
 })
 
