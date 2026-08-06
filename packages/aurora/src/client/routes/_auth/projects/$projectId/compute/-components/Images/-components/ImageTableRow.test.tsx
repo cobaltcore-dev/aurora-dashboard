@@ -90,7 +90,7 @@ const openRowMenu = () => fireEvent.click(screen.getByRole("button"))
 describe("ImageTableRow", () => {
   beforeAll(() => {
     // jsdom gaps that Headless UI (PopupMenu) and Sonner (NotificationManager) rely on.
-    Element.prototype.scrollIntoView = vi.fn()
+    if (!Element.prototype.scrollIntoView) Element.prototype.scrollIntoView = vi.fn()
     if (!window.matchMedia) {
       window.matchMedia = (query: string) =>
         ({

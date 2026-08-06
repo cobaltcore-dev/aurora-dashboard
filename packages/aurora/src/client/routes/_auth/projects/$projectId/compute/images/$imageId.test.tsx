@@ -99,7 +99,7 @@ const successImage = {
 describe("RouteComponent (image detail)", () => {
   beforeAll(() => {
     // jsdom gaps that Sonner (NotificationManager) relies on.
-    Element.prototype.scrollIntoView = vi.fn()
+    if (!Element.prototype.scrollIntoView) Element.prototype.scrollIntoView = vi.fn()
     if (!window.matchMedia) {
       window.matchMedia = (query: string) =>
         ({
