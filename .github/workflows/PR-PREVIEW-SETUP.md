@@ -11,6 +11,7 @@ This PR preview workflow runs on a self-hosted runner and has access to `GITHUB_
 3. Select: **"Require approval for first-time contributors"**
 
 This ensures that:
+
 - PRs from organization members run automatically
 - PRs from external forks require manual approval before workflows execute
 - Workflow changes can be tested in PRs before merging
@@ -18,6 +19,7 @@ This ensures that:
 ### Why Not `pull_request_target`?
 
 While `pull_request_target` would prevent fork-controlled workflow code execution, it's incompatible with PR previews because:
+
 - The workflow runs from the base branch (main), not the PR branch
 - Workflow changes cannot be tested in PRs
 - This breaks the iterative development of the preview infrastructure itself
@@ -25,6 +27,7 @@ While `pull_request_target` would prevent fork-controlled workflow code executio
 ### Alternative: Restrict PR Creation
 
 If you want stronger security, consider restricting who can create PRs via:
+
 - Branch protection rules
 - Repository collaborator permissions
 - CODEOWNERS review requirements
