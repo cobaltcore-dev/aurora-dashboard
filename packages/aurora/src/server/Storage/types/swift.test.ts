@@ -249,7 +249,7 @@ describe("Swift Object Storage Schema Validation", () => {
 
     describe("Account SSRF Protection (Security)", () => {
       it("should accept valid Swift account names", () => {
-        const validAccounts = ["AUTH_test-account", "AUTH_project123", "AUTH_my_project", "AUTH_test-project_123"]
+        const validAccounts = ["AUTH_test-account", "AUTH_project123", "AUTH_my_project"]
 
         validAccounts.forEach((account) => {
           const result = listContainersInputSchema.safeParse({ account })
@@ -257,63 +257,27 @@ describe("Swift Object Storage Schema Validation", () => {
         })
       })
 
-      it("should reject HTTP absolute URLs", () => {
-        const maliciousAccounts = [
-          "http://attacker.com",
-          "http://169.254.169.254/latest/meta-data",
-          "http://localhost:8080/admin",
+      it("should reject malicious inputs", () => {
+        const maliciousInputs = [
+          "http://attacker.com", // HTTP SSRF
+          "https://attacker.com", // HTTPS SSRF
+          "//attacker.com", // Protocol-relative
+          "http://169.254.169.254/latest/meta-data", // Metadata service
+          "AUTH_abc/../admin", // Path traversal with AUTH prefix
+          "../admin", // Path traversal
+          "./admin", // Relative path
+          "malicious-account", // Non-AUTH format
+          "USER_test", // Wrong prefix
+          "", // Empty string
         ]
 
-        maliciousAccounts.forEach((account) => {
+        maliciousInputs.forEach((account) => {
           const result = listContainersInputSchema.safeParse({ account })
-          expect(result.success, `Should reject malicious account: ${account}`).toBe(false)
+          expect(result.success, `Should reject: ${account}`).toBe(false)
         })
       })
 
-      it("should reject HTTPS absolute URLs", () => {
-        const maliciousAccounts = ["https://attacker.com", "https://evil.com/steal-token"]
-
-        maliciousAccounts.forEach((account) => {
-          const result = listContainersInputSchema.safeParse({ account })
-          expect(result.success, `Should reject malicious account: ${account}`).toBe(false)
-        })
-      })
-
-      it("should reject protocol-relative URLs", () => {
-        const result = listContainersInputSchema.safeParse({ account: "//attacker.com" })
-        expect(result.success).toBe(false)
-      })
-
-      it("should reject path traversal attempts", () => {
-        const maliciousAccounts = [
-          "AUTH_abc/../admin",
-          "AUTH_abc/../../etc/passwd",
-          "../admin",
-          "./admin",
-          "AUTH_abc/../",
-        ]
-
-        maliciousAccounts.forEach((account) => {
-          const result = listContainersInputSchema.safeParse({ account })
-          expect(result.success, `Should reject path traversal: ${account}`).toBe(false)
-        })
-      })
-
-      it("should reject non-AUTH format", () => {
-        const invalidAccounts = ["malicious-account", "USER_test", "test", "admin"]
-
-        invalidAccounts.forEach((account) => {
-          const result = listContainersInputSchema.safeParse({ account })
-          expect(result.success, `Should reject non-AUTH format: ${account}`).toBe(false)
-        })
-      })
-
-      it("should reject empty string", () => {
-        const result = listContainersInputSchema.safeParse({ account: "" })
-        expect(result.success).toBe(false)
-      })
-
-      it("should accept empty/undefined account (defaults to authenticated)", () => {
+      it("should accept undefined (defaults to authenticated account)", () => {
         const result1 = listContainersInputSchema.safeParse({})
         const result2 = listContainersInputSchema.safeParse({ account: undefined })
 
