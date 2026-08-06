@@ -5,6 +5,7 @@ on:
     types: [opened, reopened, synchronize, closed]
 
 permissions:
+  pull-requests: write
   contents: read
 
 concurrency:
