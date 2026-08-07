@@ -43,7 +43,16 @@ function AuroraLayout({ children }: { children: React.ReactNode }) {
         pageHeader={
           <MainNavigation items={navItems} handleThemeToggle={handleThemeToggle} appName={appName} slots={slots} />
         }
-        pageFooter={slots?.pageFooter ? <Slot component={slots.pageFooter} useShadowDOM={false} /> : undefined}
+        pageFooter={
+          // Wrapped in an app-owned element so the table-height measurement can
+          // anchor its bottom edge to the footer without depending on the
+          // shell's internal markup. See useAvailableViewportHeight.
+          slots?.pageFooter ? (
+            <div className="app-page-footer">
+              <Slot component={slots.pageFooter} useShadowDOM={false} />
+            </div>
+          ) : undefined
+        }
         fullWidthContent
       >
         {children}

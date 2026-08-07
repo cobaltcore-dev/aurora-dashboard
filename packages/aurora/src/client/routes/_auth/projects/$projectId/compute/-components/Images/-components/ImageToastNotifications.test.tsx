@@ -1,7 +1,9 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
+import { NotificationOptions } from "@cloudoperators/juno-ui-components"
+import { ReactNode } from "react"
 import {
   getImageUpdatedToast,
   getImageUpdateErrorToast,
@@ -29,30 +31,40 @@ import {
   getImageVisibilityUpdateErrorToast,
 } from "./ImageToastNotifications"
 
-describe("ImageToastNotifications", () => {
-  const mockOnDismiss = vi.fn()
-  const defaultConfig = { onDismiss: mockOnDismiss }
+type Notification = { message: ReactNode } & NotificationOptions
 
+// The builders now return `{ message, description }` for the NotificationManager
+// `toast` API instead of a `ToastProps` object. Render both parts in separate
+// wrappers so `getByText` resolves the title and body independently, the way the
+// old NotificationText structure did.
+const renderNotification = (notification: Notification) => {
+  const description =
+    typeof notification.description === "function" ? notification.description() : notification.description
+  return render(
+    <I18nProvider i18n={i18n}>
+      <>
+        <div>{notification.message}</div>
+        <div>{description}</div>
+      </>
+    </I18nProvider>
+  )
+}
+
+describe("ImageToastNotifications", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
     i18n.activate("en")
   })
 
   describe("getImageUpdatedToast", () => {
-    it("should return success toast with correct structure", () => {
-      const imageName = "test-image"
-      const toast = getImageUpdatedToast(imageName, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageUpdatedToast("test-image")
 
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct message content", () => {
-      const imageName = "test-image"
-      const toast = getImageUpdatedToast(imageName, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageUpdatedToast("test-image"))
 
       expect(screen.getByText("Image Instance")).toBeInTheDocument()
       expect(screen.getByText(/test-image/)).toBeInTheDocument()
@@ -61,22 +73,15 @@ describe("ImageToastNotifications", () => {
   })
 
   describe("getImageUpdateErrorToast", () => {
-    it("should return error toast with correct structure", () => {
-      const imageName = "failed-image"
-      const message = "Invalid metadata format"
-      const toast = getImageUpdateErrorToast(imageName, message, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageUpdateErrorToast("failed-image", "Invalid metadata format")
 
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct error message content", () => {
-      const imageName = "failed-image"
-      const message = "Invalid metadata format"
-      const toast = getImageUpdateErrorToast(imageName, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageUpdateErrorToast("failed-image", "Invalid metadata format"))
 
       expect(screen.getByText("Unable to Update Image")).toBeInTheDocument()
       expect(screen.getByText(/failed-image/)).toBeInTheDocument()
@@ -85,22 +90,15 @@ describe("ImageToastNotifications", () => {
     })
 
     it("should handle different error messages", () => {
-      const imageName = "test-image"
-      const message = "Network timeout occurred"
-      const toast = getImageUpdateErrorToast(imageName, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageUpdateErrorToast("test-image", "Network timeout occurred"))
 
       expect(screen.getByText(/Network timeout occurred/)).toBeInTheDocument()
     })
 
     it("should handle long error messages", () => {
-      const imageName = "test-image"
       const longMessage =
         "Failed to update image: The request media type application/json is not supported by this server"
-      const toast = getImageUpdateErrorToast(imageName, longMessage, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageUpdateErrorToast("test-image", longMessage))
 
       expect(screen.getByText(/Failed to update image/)).toBeInTheDocument()
       expect(screen.getByText(/application\/json is not supported/)).toBeInTheDocument()
@@ -108,20 +106,15 @@ describe("ImageToastNotifications", () => {
   })
 
   describe("getImageCreatedToast", () => {
-    it("should return success toast with correct structure", () => {
-      const imageName = "new-image"
-      const toast = getImageCreatedToast(imageName, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageCreatedToast("new-image")
 
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct message content", () => {
-      const imageName = "new-image"
-      const toast = getImageCreatedToast(imageName, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageCreatedToast("new-image"))
 
       expect(screen.getByText("Image Instance")).toBeInTheDocument()
       expect(screen.getByText(/new-image/)).toBeInTheDocument()
@@ -130,22 +123,15 @@ describe("ImageToastNotifications", () => {
   })
 
   describe("getImageCreateErrorToast", () => {
-    it("should return error toast with correct structure", () => {
-      const imageName = "failed-image"
-      const message = "Invalid file format"
-      const toast = getImageCreateErrorToast(imageName, message, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageCreateErrorToast("failed-image", "Invalid file format")
 
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct error message content", () => {
-      const imageName = "failed-image"
-      const message = "Invalid file format"
-      const toast = getImageCreateErrorToast(imageName, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageCreateErrorToast("failed-image", "Invalid file format"))
 
       expect(screen.getByText("Unable to Create Image")).toBeInTheDocument()
       expect(screen.getByText(/failed-image/)).toBeInTheDocument()
@@ -154,21 +140,14 @@ describe("ImageToastNotifications", () => {
     })
 
     it("should handle different error messages", () => {
-      const imageName = "test-image"
-      const message = "Storage quota exceeded"
-      const toast = getImageCreateErrorToast(imageName, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageCreateErrorToast("test-image", "Storage quota exceeded"))
 
       expect(screen.getByText(/Storage quota exceeded/)).toBeInTheDocument()
     })
 
     it("should handle long error messages", () => {
-      const imageName = "test-image"
       const longMessage = "Failed to create image: The file exceeds the maximum allowed size of 10GB"
-      const toast = getImageCreateErrorToast(imageName, longMessage, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageCreateErrorToast("test-image", longMessage))
 
       expect(screen.getByText(/Failed to create image/)).toBeInTheDocument()
       expect(screen.getByText(/exceeds the maximum allowed size/)).toBeInTheDocument()
@@ -176,22 +155,15 @@ describe("ImageToastNotifications", () => {
   })
 
   describe("getImageFileUploadErrorToast", () => {
-    it("should return error toast with correct structure", () => {
-      const fileName = "large-image.qcow2"
-      const message = "Network timeout"
-      const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageFileUploadErrorToast("large-image.qcow2", "Network timeout")
 
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct error message content", () => {
-      const fileName = "image.qcow2"
-      const message = "Connection lost"
-      const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageFileUploadErrorToast("image.qcow2", "Connection lost"))
 
       expect(screen.getByText("Unable to Upload Image File")).toBeInTheDocument()
       expect(screen.getByText(/image\.qcow2/)).toBeInTheDocument()
@@ -200,43 +172,28 @@ describe("ImageToastNotifications", () => {
     })
 
     it("should handle different error messages", () => {
-      const fileName = "test-image.img"
-      const message = "Insufficient disk space"
-      const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageFileUploadErrorToast("test-image.img", "Insufficient disk space"))
 
       expect(screen.getByText(/Insufficient disk space/)).toBeInTheDocument()
     })
 
     it("should handle file names with special characters", () => {
-      const fileName = "my-image_v2.1.qcow2"
-      const message = "Upload failed"
-      const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageFileUploadErrorToast("my-image_v2.1.qcow2", "Upload failed"))
 
       expect(screen.getByText(/my-image_v2\.1\.qcow2/)).toBeInTheDocument()
     })
 
     it("should handle long error messages", () => {
-      const fileName = "large-image.qcow2"
       const longMessage =
         "Failed to upload file: Request entity too large. The file size exceeds the maximum allowed limit of 50GB per upload"
-      const toast = getImageFileUploadErrorToast(fileName, longMessage, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageFileUploadErrorToast("large-image.qcow2", longMessage))
 
       expect(screen.getByText(/Failed to upload file/)).toBeInTheDocument()
       expect(screen.getByText(/exceeds the maximum allowed limit/)).toBeInTheDocument()
     })
 
     it("should handle empty error message", () => {
-      const fileName = "image.qcow2"
-      const message = ""
-      const toast = getImageFileUploadErrorToast(fileName, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageFileUploadErrorToast("image.qcow2", ""))
 
       expect(screen.getByText(/image\.qcow2/)).toBeInTheDocument()
       // Should still render title even with empty message
@@ -245,20 +202,15 @@ describe("ImageToastNotifications", () => {
   })
 
   describe("getImageDeletedToast", () => {
-    it("should return success toast with correct structure", () => {
-      const imageName = "deleted-image"
-      const toast = getImageDeletedToast(imageName, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageDeletedToast("deleted-image")
 
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct message content", () => {
-      const imageName = "deleted-image"
-      const toast = getImageDeletedToast(imageName, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageDeletedToast("deleted-image"))
 
       expect(screen.getByText("Image Instance")).toBeInTheDocument()
       expect(screen.getByText(/deleted-image/)).toBeInTheDocument()
@@ -267,22 +219,15 @@ describe("ImageToastNotifications", () => {
   })
 
   describe("getImageDeleteErrorToast", () => {
-    it("should return error toast with correct structure", () => {
-      const imageId = "error-image-id"
-      const message = "Permission denied"
-      const toast = getImageDeleteErrorToast(imageId, message, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageDeleteErrorToast("error-image-id", "Permission denied")
 
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct error message content", () => {
-      const imageId = "error-image-id"
-      const message = "Permission denied"
-      const toast = getImageDeleteErrorToast(imageId, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageDeleteErrorToast("error-image-id", "Permission denied"))
 
       expect(screen.getByText("Unable to Delete Image")).toBeInTheDocument()
       expect(screen.getByText(/error-image-id/)).toBeInTheDocument()
@@ -291,31 +236,22 @@ describe("ImageToastNotifications", () => {
     })
 
     it("should handle different error messages", () => {
-      const imageId = "test-id"
-      const message = "Network error occurred"
-      const toast = getImageDeleteErrorToast(imageId, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageDeleteErrorToast("test-id", "Network error occurred"))
 
       expect(screen.getByText(/Network error occurred/)).toBeInTheDocument()
     })
   })
 
   describe("getImageActivatedToast", () => {
-    it("should return success toast with correct structure", () => {
-      const imageName = "activated-image"
-      const toast = getImageActivatedToast(imageName, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageActivatedToast("activated-image")
 
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct message content", () => {
-      const imageName = "activated-image"
-      const toast = getImageActivatedToast(imageName, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageActivatedToast("activated-image"))
 
       expect(screen.getByText("Image Instance")).toBeInTheDocument()
       expect(screen.getByText(/activated-image/)).toBeInTheDocument()
@@ -324,20 +260,15 @@ describe("ImageToastNotifications", () => {
   })
 
   describe("getImageDeactivatedToast", () => {
-    it("should return success toast with correct structure", () => {
-      const imageName = "deactivated-image"
-      const toast = getImageDeactivatedToast(imageName, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageDeactivatedToast("deactivated-image")
 
-      expect(toast.variant).toBe("success")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct message content", () => {
-      const imageName = "deactivated-image"
-      const toast = getImageDeactivatedToast(imageName, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageDeactivatedToast("deactivated-image"))
 
       expect(screen.getByText("Image Instance")).toBeInTheDocument()
       expect(screen.getByText(/deactivated-image/)).toBeInTheDocument()
@@ -346,22 +277,15 @@ describe("ImageToastNotifications", () => {
   })
 
   describe("getImageActivationErrorToast", () => {
-    it("should return error toast with correct structure", () => {
-      const imageId = "activation-error-id"
-      const message = "Service unavailable"
-      const toast = getImageActivationErrorToast(imageId, message, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageActivationErrorToast("activation-error-id", "Service unavailable")
 
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct error message content", () => {
-      const imageId = "activation-error-id"
-      const message = "Service unavailable"
-      const toast = getImageActivationErrorToast(imageId, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageActivationErrorToast("activation-error-id", "Service unavailable"))
 
       expect(screen.getByText("Unable to Re-activate Image")).toBeInTheDocument()
       expect(screen.getByText(/activation-error-id/)).toBeInTheDocument()
@@ -371,22 +295,15 @@ describe("ImageToastNotifications", () => {
   })
 
   describe("getImageDeactivationErrorToast", () => {
-    it("should return error toast with correct structure", () => {
-      const imageId = "deactivation-error-id"
-      const message = "Image is in use"
-      const toast = getImageDeactivationErrorToast(imageId, message, defaultConfig)
+    it("should return a notification with message and description", () => {
+      const toast = getImageDeactivationErrorToast("deactivation-error-id", "Image is in use")
 
-      expect(toast.variant).toBe("error")
-      expect(toast.onDismiss).toBe(mockOnDismiss)
-      expect(toast.children).toBeDefined()
+      expect(toast.message).toBeDefined()
+      expect(toast.description).toBeDefined()
     })
 
     it("should render correct error message content", () => {
-      const imageId = "deactivation-error-id"
-      const message = "Image is in use"
-      const toast = getImageDeactivationErrorToast(imageId, message, defaultConfig)
-
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageDeactivationErrorToast("deactivation-error-id", "Image is in use"))
 
       expect(screen.getByText("Unable to Deactivate Image")).toBeInTheDocument()
       expect(screen.getByText(/deactivation-error-id/)).toBeInTheDocument()
@@ -395,139 +312,120 @@ describe("ImageToastNotifications", () => {
     })
   })
 
-  describe("Toast Configuration", () => {
-    it("all success toasts should have the same default configuration", () => {
-      const successToasts = [
-        getImageUpdatedToast("test", defaultConfig),
-        getImageCreatedToast("test", defaultConfig),
-        getImageDeletedToast("test", defaultConfig),
-        getImageActivatedToast("test", defaultConfig),
-        getImageDeactivatedToast("test", defaultConfig),
+  describe("Notification structure", () => {
+    it("all success notifications expose a message and a description", () => {
+      const notifications = [
+        getImageUpdatedToast("test"),
+        getImageCreatedToast("test"),
+        getImageDeletedToast("test"),
+        getImageActivatedToast("test"),
+        getImageDeactivatedToast("test"),
       ]
 
-      successToasts.forEach((toast) => {
-        expect(toast.variant).toBe("success")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
+      notifications.forEach((toast) => {
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
     })
 
-    it("all error toasts should have the same default configuration", () => {
-      const errorToasts = [
-        getImageDeleteErrorToast("test", "error", defaultConfig),
-        getImageActivationErrorToast("test", "error", defaultConfig),
-        getImageDeactivationErrorToast("test", "error", defaultConfig),
+    it("all error notifications expose a message and a description", () => {
+      const notifications = [
+        getImageDeleteErrorToast("test", "error"),
+        getImageActivationErrorToast("test", "error"),
+        getImageDeactivationErrorToast("test", "error"),
       ]
 
-      errorToasts.forEach((toast) => {
-        expect(toast.variant).toBe("error")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
+      notifications.forEach((toast) => {
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
-    })
-
-    it("should call onDismiss callback when provided", () => {
-      const customOnDismiss = vi.fn()
-      const toast = getImageUpdatedToast("test", { onDismiss: customOnDismiss })
-
-      expect(toast.onDismiss).toBe(customOnDismiss)
-      toast.onDismiss?.()
-      expect(customOnDismiss).toHaveBeenCalledTimes(1)
     })
   })
 
   describe("Edge Cases", () => {
     it("should handle empty string image names", () => {
-      const toast = getImageUpdatedToast("", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageUpdatedToast(""))
 
       expect(screen.getByText("Image Instance")).toBeInTheDocument()
     })
 
     it("should handle special characters in image names", () => {
       const specialName = "test-image_v1.2.3@latest"
-      const toast = getImageCreatedToast(specialName, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageCreatedToast(specialName))
 
       expect(screen.getByText(/test-image_v1.2.3@latest/)).toBeInTheDocument()
     })
 
     it("should handle long image names", () => {
       const longName = "a".repeat(100)
-      const toast = getImageDeletedToast(longName, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageDeletedToast(longName))
 
       expect(screen.getByText(new RegExp(longName))).toBeInTheDocument()
     })
 
     it("should handle empty error messages", () => {
-      const toast = getImageDeleteErrorToast("test-id", "", defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageDeleteErrorToast("test-id", ""))
 
       expect(screen.getByText("Unable to Delete Image")).toBeInTheDocument()
     })
 
     it("should handle long error messages", () => {
       const longMessage = "Error: " + "x".repeat(200)
-      const toast = getImageActivationErrorToast("test-id", longMessage, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getImageActivationErrorToast("test-id", longMessage))
 
       expect(screen.getByText(new RegExp(longMessage))).toBeInTheDocument()
     })
   })
 
-  describe("Return Type Validation", () => {
-    it("should return ToastProps with all required properties", () => {
-      const toast = getImageUpdatedToast("test", defaultConfig)
+  describe("Return shape", () => {
+    it("should return an object with message and description", () => {
+      const toast = getImageUpdatedToast("test")
 
-      expect(toast).toHaveProperty("variant")
-      expect(toast).toHaveProperty("children")
-      expect(toast).toHaveProperty("onDismiss")
+      expect(toast).toHaveProperty("message")
+      expect(toast).toHaveProperty("description")
     })
 
-    it("should return ReactNode as children", () => {
-      const toast = getImageCreatedToast("test", defaultConfig)
+    it("should return renderable nodes for message and description", () => {
+      const toast = getImageCreatedToast("test")
 
-      expect(toast.children).toBeTruthy()
-      expect(typeof toast.children).toBe("object")
+      expect(toast.message).toBeTruthy()
+      expect(toast.description).toBeTruthy()
     })
   })
 
   describe("Bulk Delete Operations", () => {
     describe("getBulkDeleteSuccessToast", () => {
-      it("should return success toast with correct structure", () => {
-        const toast = getBulkDeleteSuccessToast(3, 3, defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getBulkDeleteSuccessToast(3, 3)
 
-        expect(toast.variant).toBe("success")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
-        expect(toast.children).toBeDefined()
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct message for full success", () => {
-        const toast = getBulkDeleteSuccessToast(5, 5, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkDeleteSuccessToast(5, 5))
 
         expect(screen.getByText("Images Deleted")).toBeInTheDocument()
         expect(screen.getByText(/Successfully deleted 5 of 5 image\(s\)/)).toBeInTheDocument()
       })
 
       it("should handle single image deletion", () => {
-        const toast = getBulkDeleteSuccessToast(1, 1, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkDeleteSuccessToast(1, 1))
 
         expect(screen.getByText(/Successfully deleted 1 of 1 image\(s\)/)).toBeInTheDocument()
       })
     })
 
     describe("getBulkDeleteErrorToast", () => {
-      it("should return error toast with correct structure", () => {
-        const toast = getBulkDeleteErrorToast(2, 2, defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getBulkDeleteErrorToast(2, 2)
 
-        expect(toast.variant).toBe("error")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct error message", () => {
-        const toast = getBulkDeleteErrorToast(3, 3, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkDeleteErrorToast(3, 3))
 
         expect(screen.getByText("Failed to Delete Images")).toBeInTheDocument()
         expect(screen.getByText(/Failed to delete 3 of 3 image\(s\)/)).toBeInTheDocument()
@@ -536,24 +434,22 @@ describe("ImageToastNotifications", () => {
     })
 
     describe("getBulkDeletePartialToast", () => {
-      it("should return warning toast with correct structure", () => {
-        const toast = getBulkDeletePartialToast(2, 1, defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getBulkDeletePartialToast(2, 1)
 
-        expect(toast.variant).toBe("warning")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct partial success message", () => {
-        const toast = getBulkDeletePartialToast(7, 3, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkDeletePartialToast(7, 3))
 
         expect(screen.getByText("Partial Delete Success")).toBeInTheDocument()
         expect(screen.getByText(/Deleted 7 image\(s\), but 3 image\(s\) could not be deleted/)).toBeInTheDocument()
       })
 
       it("should handle edge case of 1 success 1 failure", () => {
-        const toast = getBulkDeletePartialToast(1, 1, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkDeletePartialToast(1, 1))
 
         expect(screen.getByText(/Deleted 1 image\(s\), but 1 image\(s\) could not be deleted/)).toBeInTheDocument()
       })
@@ -562,16 +458,15 @@ describe("ImageToastNotifications", () => {
 
   describe("Bulk Activate Operations", () => {
     describe("getBulkActivateSuccessToast", () => {
-      it("should return success toast with correct structure", () => {
-        const toast = getBulkActivateSuccessToast(4, 4, defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getBulkActivateSuccessToast(4, 4)
 
-        expect(toast.variant).toBe("success")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct success message", () => {
-        const toast = getBulkActivateSuccessToast(3, 3, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkActivateSuccessToast(3, 3))
 
         expect(screen.getByText("Images Activated")).toBeInTheDocument()
         expect(screen.getByText(/Successfully activated 3 of 3 image\(s\)/)).toBeInTheDocument()
@@ -579,15 +474,15 @@ describe("ImageToastNotifications", () => {
     })
 
     describe("getBulkActivateErrorToast", () => {
-      it("should return error toast with correct structure", () => {
-        const toast = getBulkActivateErrorToast(2, 2, defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getBulkActivateErrorToast(2, 2)
 
-        expect(toast.variant).toBe("error")
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct error message", () => {
-        const toast = getBulkActivateErrorToast(4, 4, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkActivateErrorToast(4, 4))
 
         expect(screen.getByText("Failed to Activate Images")).toBeInTheDocument()
         expect(screen.getByText(/Failed to activate 4 of 4 image\(s\)/)).toBeInTheDocument()
@@ -596,15 +491,15 @@ describe("ImageToastNotifications", () => {
     })
 
     describe("getBulkActivatePartialToast", () => {
-      it("should return warning toast with correct structure", () => {
-        const toast = getBulkActivatePartialToast(5, 2, defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getBulkActivatePartialToast(5, 2)
 
-        expect(toast.variant).toBe("warning")
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct partial success message", () => {
-        const toast = getBulkActivatePartialToast(6, 2, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkActivatePartialToast(6, 2))
 
         expect(screen.getByText("Partial Activation Success")).toBeInTheDocument()
         expect(screen.getByText(/Activated 6 image\(s\), but 2 image\(s\) could not be activated/)).toBeInTheDocument()
@@ -614,16 +509,15 @@ describe("ImageToastNotifications", () => {
 
   describe("Bulk Deactivate Operations", () => {
     describe("getBulkDeactivateSuccessToast", () => {
-      it("should return success toast with correct structure", () => {
-        const toast = getBulkDeactivateSuccessToast(3, 3, defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getBulkDeactivateSuccessToast(3, 3)
 
-        expect(toast.variant).toBe("success")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct success message", () => {
-        const toast = getBulkDeactivateSuccessToast(8, 8, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkDeactivateSuccessToast(8, 8))
 
         expect(screen.getByText("Images Deactivated")).toBeInTheDocument()
         expect(screen.getByText(/Successfully deactivated 8 of 8 image\(s\)/)).toBeInTheDocument()
@@ -631,15 +525,15 @@ describe("ImageToastNotifications", () => {
     })
 
     describe("getBulkDeactivateErrorToast", () => {
-      it("should return error toast with correct structure", () => {
-        const toast = getBulkDeactivateErrorToast(3, 3, defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getBulkDeactivateErrorToast(3, 3)
 
-        expect(toast.variant).toBe("error")
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct error message", () => {
-        const toast = getBulkDeactivateErrorToast(5, 5, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkDeactivateErrorToast(5, 5))
 
         expect(screen.getByText("Failed to Deactivate Images")).toBeInTheDocument()
         expect(screen.getByText(/Failed to deactivate 5 of 5 image\(s\)/)).toBeInTheDocument()
@@ -648,15 +542,15 @@ describe("ImageToastNotifications", () => {
     })
 
     describe("getBulkDeactivatePartialToast", () => {
-      it("should return warning toast with correct structure", () => {
-        const toast = getBulkDeactivatePartialToast(4, 1, defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getBulkDeactivatePartialToast(4, 1)
 
-        expect(toast.variant).toBe("warning")
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct partial success message", () => {
-        const toast = getBulkDeactivatePartialToast(9, 1, defaultConfig)
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getBulkDeactivatePartialToast(9, 1))
 
         expect(screen.getByText("Partial Deactivation Success")).toBeInTheDocument()
         expect(
@@ -668,103 +562,35 @@ describe("ImageToastNotifications", () => {
 
   describe("Bulk Operations - Edge Cases", () => {
     it("should handle zero counts gracefully", () => {
-      const toast = getBulkDeleteSuccessToast(0, 0, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getBulkDeleteSuccessToast(0, 0))
 
       expect(screen.getByText(/Successfully deleted 0 of 0 image\(s\)/)).toBeInTheDocument()
     })
 
     it("should handle large numbers", () => {
-      const toast = getBulkActivateSuccessToast(9999, 10000, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getBulkActivateSuccessToast(9999, 10000))
 
       expect(screen.getByText(/Successfully activated 9999 of 10000 image\(s\)/)).toBeInTheDocument()
     })
 
-    it("should handle all toasts having onDismiss callback", () => {
-      const customOnDismiss = vi.fn()
-
-      const toasts = [
-        getBulkDeleteSuccessToast(1, 1, { onDismiss: customOnDismiss }),
-        getBulkDeleteErrorToast(1, 1, { onDismiss: customOnDismiss }),
-        getBulkDeletePartialToast(1, 1, { onDismiss: customOnDismiss }),
-        getBulkActivateSuccessToast(1, 1, { onDismiss: customOnDismiss }),
-        getBulkActivateErrorToast(1, 1, { onDismiss: customOnDismiss }),
-        getBulkActivatePartialToast(1, 1, { onDismiss: customOnDismiss }),
-        getBulkDeactivateSuccessToast(1, 1, { onDismiss: customOnDismiss }),
-        getBulkDeactivateErrorToast(1, 1, { onDismiss: customOnDismiss }),
-        getBulkDeactivatePartialToast(1, 1, { onDismiss: customOnDismiss }),
-      ]
-
-      toasts.forEach((toast) => {
-        expect(toast.onDismiss).toBe(customOnDismiss)
-        toast.onDismiss?.()
-      })
-
-      expect(customOnDismiss).toHaveBeenCalledTimes(9)
-    })
-
     it("should handle mismatched success and failure counts", () => {
-      const toast = getBulkDeletePartialToast(100, 1, defaultConfig)
-      render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+      renderNotification(getBulkDeletePartialToast(100, 1))
 
       expect(screen.getByText(/Deleted 100 image\(s\), but 1 image\(s\) could not be deleted/)).toBeInTheDocument()
     })
   })
 
-  describe("Bulk Operations - Variant Types", () => {
-    it("should use success variant for complete success operations", () => {
-      const successToasts = [
-        getBulkDeleteSuccessToast(5, 5, defaultConfig),
-        getBulkActivateSuccessToast(5, 5, defaultConfig),
-        getBulkDeactivateSuccessToast(5, 5, defaultConfig),
-      ]
-
-      successToasts.forEach((toast) => {
-        expect(toast.variant).toBe("success")
-      })
-    })
-
-    it("should use error variant for complete failure operations", () => {
-      const errorToasts = [
-        getBulkDeleteErrorToast(5, 5, defaultConfig),
-        getBulkActivateErrorToast(5, 5, defaultConfig),
-        getBulkDeactivateErrorToast(5, 5, defaultConfig),
-      ]
-
-      errorToasts.forEach((toast) => {
-        expect(toast.variant).toBe("error")
-      })
-    })
-
-    it("should use warning variant for partial success operations", () => {
-      const warningToasts = [
-        getBulkDeletePartialToast(3, 2, defaultConfig),
-        getBulkActivatePartialToast(3, 2, defaultConfig),
-        getBulkDeactivatePartialToast(3, 2, defaultConfig),
-      ]
-
-      warningToasts.forEach((toast) => {
-        expect(toast.variant).toBe("warning")
-      })
-    })
-  })
-
   describe("Image Access Status Toasts", () => {
     describe("getImageAccessStatusUpdatedToast", () => {
-      it("should return info toast with correct structure", () => {
-        const toast = getImageAccessStatusUpdatedToast("accepted", defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getImageAccessStatusUpdatedToast("accepted")
 
-        expect(toast.variant).toBe("info")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
-        expect(toast.children).toBeDefined()
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct message content", () => {
-        const status = "accepted"
-        const toast = getImageAccessStatusUpdatedToast(status, defaultConfig)
-
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getImageAccessStatusUpdatedToast("accepted"))
 
         expect(screen.getByText("Access Status")).toBeInTheDocument()
         expect(screen.getByText(/Access status updated to "accepted"/)).toBeInTheDocument()
@@ -774,9 +600,7 @@ describe("ImageToastNotifications", () => {
         const statuses = ["accepted", "rejected", "pending"]
 
         statuses.forEach((status) => {
-          const { unmount } = render(
-            <I18nProvider i18n={i18n}>{getImageAccessStatusUpdatedToast(status, defaultConfig).children}</I18nProvider>
-          )
+          const { unmount } = renderNotification(getImageAccessStatusUpdatedToast(status))
 
           expect(screen.getByText(new RegExp(status))).toBeInTheDocument()
           unmount()
@@ -785,19 +609,16 @@ describe("ImageToastNotifications", () => {
     })
 
     describe("getImageAccessStatusErrorToast", () => {
-      it("should return error toast with correct structure", () => {
-        const toast = getImageAccessStatusErrorToast("Network error occurred", defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getImageAccessStatusErrorToast("Network error occurred")
 
-        expect(toast.variant).toBe("error")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
-        expect(toast.children).toBeDefined()
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct error message content", () => {
         const errorMessage = "Failed to update access status"
-        const toast = getImageAccessStatusErrorToast(errorMessage, defaultConfig)
-
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getImageAccessStatusErrorToast(errorMessage))
 
         expect(screen.getByText("Access Status")).toBeInTheDocument()
         expect(screen.getByText(errorMessage)).toBeInTheDocument()
@@ -807,11 +628,7 @@ describe("ImageToastNotifications", () => {
         const errorMessages = ["Permission denied", "Image not found", "Network timeout occurred"]
 
         errorMessages.forEach((errorMessage) => {
-          const { unmount } = render(
-            <I18nProvider i18n={i18n}>
-              {getImageAccessStatusErrorToast(errorMessage, defaultConfig).children}
-            </I18nProvider>
-          )
+          const { unmount } = renderNotification(getImageAccessStatusErrorToast(errorMessage))
 
           expect(screen.getByText(errorMessage)).toBeInTheDocument()
           unmount()
@@ -821,9 +638,7 @@ describe("ImageToastNotifications", () => {
       it("should handle long error messages", () => {
         const longErrorMessage =
           "Failed to update access status: The server returned an unexpected response. Please try again later."
-        const toast = getImageAccessStatusErrorToast(longErrorMessage, defaultConfig)
-
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getImageAccessStatusErrorToast(longErrorMessage))
 
         expect(screen.getByText(longErrorMessage)).toBeInTheDocument()
       })
@@ -832,20 +647,15 @@ describe("ImageToastNotifications", () => {
 
   describe("Image Visibility Toasts", () => {
     describe("getImageVisibilityUpdatedToast", () => {
-      it("should return success toast with correct structure", () => {
-        const toast = getImageVisibilityUpdatedToast("test-image", "public", defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getImageVisibilityUpdatedToast("test-image", "public")
 
-        expect(toast.variant).toBe("success")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
-        expect(toast.children).toBeDefined()
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct message content", () => {
-        const imageName = "test-image"
-        const visibility = "public"
-        const toast = getImageVisibilityUpdatedToast(imageName, visibility, defaultConfig)
-
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getImageVisibilityUpdatedToast("test-image", "public"))
 
         expect(screen.getByText("Image Visibility")).toBeInTheDocument()
         expect(screen.getByText(/test-image/)).toBeInTheDocument()
@@ -857,11 +667,7 @@ describe("ImageToastNotifications", () => {
         const imageName = "test-image"
 
         visibilities.forEach((visibility) => {
-          const { unmount } = render(
-            <I18nProvider i18n={i18n}>
-              {getImageVisibilityUpdatedToast(imageName, visibility, defaultConfig).children}
-            </I18nProvider>
-          )
+          const { unmount } = renderNotification(getImageVisibilityUpdatedToast(imageName, visibility))
 
           expect(screen.getByText(new RegExp(visibility))).toBeInTheDocument()
           unmount()
@@ -870,20 +676,15 @@ describe("ImageToastNotifications", () => {
     })
 
     describe("getImageVisibilityUpdateErrorToast", () => {
-      it("should return error toast with correct structure", () => {
-        const toast = getImageVisibilityUpdateErrorToast("test-image", "Permission denied", defaultConfig)
+      it("should return a notification with message and description", () => {
+        const toast = getImageVisibilityUpdateErrorToast("test-image", "Permission denied")
 
-        expect(toast.variant).toBe("error")
-        expect(toast.onDismiss).toBe(mockOnDismiss)
-        expect(toast.children).toBeDefined()
+        expect(toast.message).toBeDefined()
+        expect(toast.description).toBeDefined()
       })
 
       it("should render correct error message content", () => {
-        const imageName = "test-image"
-        const errorMessage = "Permission denied"
-        const toast = getImageVisibilityUpdateErrorToast(imageName, errorMessage, defaultConfig)
-
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
+        renderNotification(getImageVisibilityUpdateErrorToast("test-image", "Permission denied"))
 
         expect(screen.getByText("Unable to Update Image Visibility")).toBeInTheDocument()
         expect(screen.getByText(/test-image/)).toBeInTheDocument()
@@ -895,11 +696,7 @@ describe("ImageToastNotifications", () => {
         const errorMessages = ["Permission denied", "Image not found", "Server error"]
 
         errorMessages.forEach((errorMessage) => {
-          const { unmount } = render(
-            <I18nProvider i18n={i18n}>
-              {getImageVisibilityUpdateErrorToast(imageName, errorMessage, defaultConfig).children}
-            </I18nProvider>
-          )
+          const { unmount } = renderNotification(getImageVisibilityUpdateErrorToast(imageName, errorMessage))
 
           expect(
             screen.getByText(`Failed to update visibility for "${imageName}": ${errorMessage}`)
@@ -911,13 +708,12 @@ describe("ImageToastNotifications", () => {
       it("should handle long error messages", () => {
         const imageName = "test-image"
         const longErrorMessage = `Failed to update visibility for "${imageName}": The server returned an unexpected response. Please try again later.`
-        const toast = getImageVisibilityUpdateErrorToast(
-          imageName,
-          "The server returned an unexpected response. Please try again later.",
-          defaultConfig
+        renderNotification(
+          getImageVisibilityUpdateErrorToast(
+            imageName,
+            "The server returned an unexpected response. Please try again later."
+          )
         )
-
-        render(<I18nProvider i18n={i18n}>{toast.children}</I18nProvider>)
 
         expect(screen.getByText(longErrorMessage)).toBeInTheDocument()
       })

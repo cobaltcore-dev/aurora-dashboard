@@ -11,8 +11,7 @@ import {
   Pagination,
   Spinner,
   Stack,
-  Toast,
-  ToastProps,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
@@ -124,7 +123,6 @@ export function ImageListView({
   hasAnyBulkAction,
 }: ImagePageProps) {
   const projectId = useProjectId()
-  const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const [editDetailsModalOpen, setEditDetailsModalOpen] = useState(false)
   const [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false)
@@ -220,8 +218,6 @@ export function ImageListView({
     deactivateImagesMutation.isPending ||
     updateImageMutation.isPending
 
-  const handleToastDismiss = () => setToastData(null)
-
   const handleUpdateImageVisibility = async (imageId: string, newVisibility: ImageVisibility, imageName: string) => {
     try {
       await updateImageVisibilityMutation.mutateAsync({
@@ -230,20 +226,14 @@ export function ImageListView({
         visibility: newVisibility,
       })
 
-      setToastData(
-        getImageVisibilityUpdatedToast(imageName, newVisibility, {
-          onDismiss: handleToastDismiss,
-        })
-      )
+      const { message, ...options } = getImageVisibilityUpdatedToast(imageName, newVisibility)
+      toast.success(message, options)
     } catch (error) {
       const errorMessage =
         (error as TRPCClientError<InferrableClientTypes>)?.message || t`Failed to update visibility to ${newVisibility}`
 
-      setToastData(
-        getImageVisibilityUpdateErrorToast(imageName, errorMessage, {
-          onDismiss: handleToastDismiss,
-        })
-      )
+      const { message, ...options } = getImageVisibilityUpdateErrorToast(imageName, errorMessage)
+      toast.error(message, options)
     }
   }
 
@@ -292,13 +282,15 @@ export function ImageListView({
       const operations = convertToJsonPatchOperations(updatedProperties, selectedImage)
       const updatedImage = await updateImageMutation.mutateAsync({ project_id: projectId, imageId, operations })
       setEditDetailsModalOpen(false)
-      setToastData(getImageUpdatedToast(imageName, { onDismiss: handleToastDismiss }))
+      const { message, ...options } = getImageUpdatedToast(imageName)
+      toast.success(message, options)
       setSelectedImage(updatedImage)
       onImageUpdated(updatedImage)
       return true
     } catch (error) {
-      const { message } = error as TRPCClientError<InferrableClientTypes>
-      setToastData(getImageUpdateErrorToast(imageName, message, { onDismiss: handleToastDismiss }))
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
+      const { message, ...options } = getImageUpdateErrorToast(imageName, errorMessage)
+      toast.error(message, options)
       setSelectedImage(null)
       return false
     }
@@ -332,17 +324,20 @@ export function ImageListView({
       })
 
       // Show success notification and re-fetch image list
-      setToastData(getImageCreatedToast(imageName, { onDismiss: handleToastDismiss }))
+      const { message, ...options } = getImageCreatedToast(imageName)
+      toast.success(message, options)
       utils.compute.listImagesWithPagination.invalidate()
     } catch (error) {
       // Show error notification based on failure point
-      if (error instanceof TRPCClientError && error.data.path === "compute.createImage") {
-        setToastData(getImageCreateErrorToast(imageName, error.message, { onDismiss: handleToastDismiss }))
+      if (error instanceof TRPCClientError && error.data?.path === "compute.createImage") {
+        const { message, ...options } = getImageCreateErrorToast(imageName, error.message)
+        toast.error(message, options)
       } else {
         // File upload failed
-        const { message } = error as FastifyError
+        const uploadErrorMessage = (error as FastifyError)?.message ?? ""
 
-        setToastData(getImageFileUploadErrorToast(file.name, message, { onDismiss: handleToastDismiss }))
+        const { message, ...options } = getImageFileUploadErrorToast(file.name, uploadErrorMessage)
+        toast.error(message, options)
       }
     } finally {
       // Complete creation and close modal
@@ -363,12 +358,14 @@ export function ImageListView({
     try {
       await deleteImageMutation.mutateAsync({ project_id: projectId, imageId })
 
-      setToastData(getImageDeletedToast(imageName, { onDismiss: handleToastDismiss }))
+      const { message, ...options } = getImageDeletedToast(imageName)
+      toast.success(message, options)
       onImageDeleted(imageId)
     } catch (error) {
-      const { message } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
 
-      setToastData(getImageDeleteErrorToast(imageId, message, { onDismiss: handleToastDismiss }))
+      const { message, ...options } = getImageDeleteErrorToast(imageId, errorMessage)
+      toast.error(message, options)
     }
 
     setSelectedImage(null)
@@ -394,10 +391,12 @@ export function ImageListView({
       await reactivateImageMutation.mutateAsync({ project_id: projectId, imageId })
       setActivateModalOpen(false)
       setSelectedImage(null)
-      setToastData(getImageActivatedToast(imageName, { onDismiss: handleToastDismiss }))
+      const { message, ...options } = getImageActivatedToast(imageName)
+      toast.success(message, options)
     } catch (error) {
-      const { message } = error as TRPCClientError<InferrableClientTypes>
-      setToastData(getImageActivationErrorToast(imageId, message, { onDismiss: handleToastDismiss }))
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
+      const { message, ...options } = getImageActivationErrorToast(imageId, errorMessage)
+      toast.error(message, options)
     }
   }
 
@@ -409,10 +408,12 @@ export function ImageListView({
       await deactivateImageMutation.mutateAsync({ project_id: projectId, imageId })
       setDeactivateModalOpen(false)
       setSelectedImage(null)
-      setToastData(getImageDeactivatedToast(imageName, { onDismiss: handleToastDismiss }))
+      const { message, ...options } = getImageDeactivatedToast(imageName)
+      toast.success(message, options)
     } catch (error) {
-      const { message } = error as TRPCClientError<InferrableClientTypes>
-      setToastData(getImageDeactivationErrorToast(imageId, message, { onDismiss: handleToastDismiss }))
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
+      const { message, ...options } = getImageDeactivationErrorToast(imageId, errorMessage)
+      toast.error(message, options)
     }
   }
 
@@ -477,24 +478,24 @@ export function ImageListView({
       const totalCount = imageIds.length
 
       if (failedCount === 0) {
-        setToastData(getBulkDeleteSuccessToast(successCount, totalCount, { onDismiss: handleToastDismiss }))
+        const { message, ...options } = getBulkDeleteSuccessToast(successCount, totalCount)
+        toast.success(message, options)
       } else if (successCount === 0) {
-        setToastData(getBulkDeleteErrorToast(failedCount, totalCount, { onDismiss: handleToastDismiss }))
+        const { message, ...options } = getBulkDeleteErrorToast(failedCount, totalCount)
+        toast.error(message, options)
       } else {
-        setToastData(getBulkDeletePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
+        const { message, ...options } = getBulkDeletePartialToast(successCount, failedCount)
+        toast.warning(message, options)
       }
 
       if (result.successful.length > 0) onImageDeleted(result.successful)
     } catch (error) {
-      const { message } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
 
-      console.log("Bulk delete error: ", message)
+      console.log("Bulk delete error: ", errorMessage)
 
-      setToastData(
-        getBulkDeleteErrorToast(imageIds.length, imageIds.length, {
-          onDismiss: handleToastDismiss,
-        })
-      )
+      const { message, ...options } = getBulkDeleteErrorToast(imageIds.length, imageIds.length)
+      toast.error(message, options)
     }
   }
 
@@ -509,22 +510,22 @@ export function ImageListView({
       const totalCount = imageIds.length
 
       if (failedCount === 0) {
-        setToastData(getBulkActivateSuccessToast(successCount, totalCount, { onDismiss: handleToastDismiss }))
+        const { message, ...options } = getBulkActivateSuccessToast(successCount, totalCount)
+        toast.success(message, options)
       } else if (successCount === 0) {
-        setToastData(getBulkActivateErrorToast(failedCount, totalCount, { onDismiss: handleToastDismiss }))
+        const { message, ...options } = getBulkActivateErrorToast(failedCount, totalCount)
+        toast.error(message, options)
       } else {
-        setToastData(getBulkActivatePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
+        const { message, ...options } = getBulkActivatePartialToast(successCount, failedCount)
+        toast.warning(message, options)
       }
     } catch (error) {
-      const { message } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
 
-      console.log("Bulk activate error: ", message)
+      console.log("Bulk activate error: ", errorMessage)
 
-      setToastData(
-        getBulkActivateErrorToast(imageIds.length, imageIds.length, {
-          onDismiss: handleToastDismiss,
-        })
-      )
+      const { message, ...options } = getBulkActivateErrorToast(imageIds.length, imageIds.length)
+      toast.error(message, options)
     }
   }
 
@@ -539,22 +540,22 @@ export function ImageListView({
       const totalCount = imageIds.length
 
       if (failedCount === 0) {
-        setToastData(getBulkDeactivateSuccessToast(successCount, totalCount, { onDismiss: handleToastDismiss }))
+        const { message, ...options } = getBulkDeactivateSuccessToast(successCount, totalCount)
+        toast.success(message, options)
       } else if (successCount === 0) {
-        setToastData(getBulkDeactivateErrorToast(failedCount, totalCount, { onDismiss: handleToastDismiss }))
+        const { message, ...options } = getBulkDeactivateErrorToast(failedCount, totalCount)
+        toast.error(message, options)
       } else {
-        setToastData(getBulkDeactivatePartialToast(successCount, failedCount, { onDismiss: handleToastDismiss }))
+        const { message, ...options } = getBulkDeactivatePartialToast(successCount, failedCount)
+        toast.warning(message, options)
       }
     } catch (error) {
-      const { message } = error as TRPCClientError<InferrableClientTypes>
+      const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message ?? ""
 
-      console.log("Bulk deactivate error: ", message)
+      console.log("Bulk deactivate error: ", errorMessage)
 
-      setToastData(
-        getBulkDeactivateErrorToast(imageIds.length, imageIds.length, {
-          onDismiss: handleToastDismiss,
-        })
-      )
+      const { message, ...options } = getBulkDeactivateErrorToast(imageIds.length, imageIds.length)
+      toast.error(message, options)
     }
   }
 
@@ -675,7 +676,6 @@ export function ImageListView({
                   }}
                   onActivationStatusChange={handleActivationStatusChange}
                   onUpdateVisibility={handleUpdateImageVisibility}
-                  setToastData={setToastData}
                   uploadId={uploadId}
                   uploadProgressPercent={data?.percent}
                   onMemberStatusChanged={onMemberStatusChanged}
@@ -813,10 +813,6 @@ export function ImageListView({
           uploadProgressPercent={data?.percent}
         />
       </div>
-
-      {toastData && (
-        <Toast {...toastData} className="border-theme-light fixed top-5 right-5 z-50 rounded-lg border shadow-lg" />
-      )}
     </>
   )
 }
