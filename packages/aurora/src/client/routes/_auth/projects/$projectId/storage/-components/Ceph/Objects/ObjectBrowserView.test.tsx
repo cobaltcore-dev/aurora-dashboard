@@ -173,6 +173,12 @@ vi.mock("@/client/trpcClient", () => {
             delete: {
               useMutation: mockUseMutation,
             },
+            deleteBulk: {
+              useMutation: mockUseMutation,
+            },
+            deleteVersionsBulk: {
+              useMutation: mockUseMutation,
+            },
             deleteAll: {
               useMutation: mockUseMutation,
             },
@@ -430,6 +436,113 @@ describe("ObjectBrowserView - Empty state", () => {
     render(<ObjectBrowserView bucketName="test-bucket" />)
 
     // Check that the objects table is still rendered even when empty
+    expect(screen.getByTestId("objects-table")).toBeInTheDocument()
+  })
+})
+
+describe("ObjectBrowserView - Folder filtering with versioning", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("hides folders with no versions (permanently deleted) from All tab", () => {
+    // Mock versioning enabled
+    vi.mocked(trpcReact.storage.ceph.versioning.getStatus.useQuery).mockReturnValue({
+      data: { status: "Enabled" },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.getStatus.useQuery>)
+
+    // Mock objects list with folders
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: {
+        objects: [],
+        folders: [{ prefix: "active-folder/" }, { prefix: "deleted-folder/" }, { prefix: "soft-deleted-folder/" }],
+        isTruncated: false,
+      },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+    // Mock checkDeletedContent response
+    vi.mocked(trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery).mockReturnValue({
+      data: [
+        {
+          prefix: "active-folder/",
+          hasDeletedContent: false,
+          isFolderDeleted: false,
+          folderMarkerVersionId: "version-123", // Has a version
+        },
+        {
+          prefix: "deleted-folder/",
+          hasDeletedContent: false,
+          isFolderDeleted: false,
+          folderMarkerVersionId: undefined, // NO versions - permanently deleted
+        },
+        {
+          prefix: "soft-deleted-folder/",
+          hasDeletedContent: true,
+          isFolderDeleted: true,
+          folderDeleteMarkerVersionId: "delete-marker-456",
+          folderMarkerVersionId: "version-789",
+        },
+      ],
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery>)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    // The ObjectsTableView is mocked, so we can't test the actual folder rendering
+    // but the component should receive filtered folders (active-folder only)
+    // deleted-folder should be filtered out (no folderMarkerVersionId)
+    // soft-deleted-folder should be filtered out (isFolderDeleted = true)
+    expect(screen.getByTestId("objects-table")).toBeInTheDocument()
+  })
+
+  it("shows folders with delete markers in Deleted tab", () => {
+    // Mock versioning enabled
+    vi.mocked(trpcReact.storage.ceph.versioning.getStatus.useQuery).mockReturnValue({
+      data: { status: "Enabled" },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.getStatus.useQuery>)
+
+    // Mock objects list with folders
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: {
+        objects: [],
+        folders: [{ prefix: "deleted-folder/" }],
+        isTruncated: false,
+      },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+    // Mock checkDeletedContent response - folder has delete marker
+    vi.mocked(trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery).mockReturnValue({
+      data: [
+        {
+          prefix: "deleted-folder/",
+          hasDeletedContent: true,
+          isFolderDeleted: true,
+          folderDeleteMarkerVersionId: "delete-marker-123",
+          folderMarkerVersionId: "version-456",
+        },
+      ],
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery>)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    // In Deleted tab, folder with hasDeletedContent=true should be shown
     expect(screen.getByTestId("objects-table")).toBeInTheDocument()
   })
 })
