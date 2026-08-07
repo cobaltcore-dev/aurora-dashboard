@@ -7,3 +7,9 @@ export type { SignalOpenstackOptions, ProxyConfig } from "./shared-types"
 export type { SignalOpenstackTokenType } from "./token"
 export type { SignalOpenstackError, SignalOpenstackApiError } from "./error"
 export { logger, loggerConfig, redactSensitiveData } from "./logger"
+export {
+  encodeOpenstackPathSegment,
+  encodeOpenstackPath,
+  validateUUID,
+  validateAndEncodeResourceId,
+} from "./pathHelpers"

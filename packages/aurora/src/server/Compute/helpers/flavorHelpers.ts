@@ -1,7 +1,11 @@
 import { TRPCError } from "@trpc/server"
 import { flavorResponseSchema, Flavor, CreateFlavorInput } from "../types/flavor"
 import { ERROR_CODES } from "../../errorCodes"
-import { SignalOpenstackServiceType } from "@cobaltcore-dev/signal-openstack"
+import {
+  SignalOpenstackServiceType,
+  validateAndEncodeResourceId,
+  encodeOpenstackPathSegment,
+} from "@cobaltcore-dev/signal-openstack"
 
 interface CreateFlavorResponse {
   flavor: Flavor
@@ -197,10 +201,11 @@ export async function getFlavorById(compute: SignalOpenstackServiceType, flavorI
     })
   }
 
+  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
   let response
 
   try {
-    response = await compute.get(`flavors/${flavorId}`)
+    response = await compute.get(`flavors/${encodedId}`)
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
@@ -315,10 +320,11 @@ export async function deleteFlavor(compute: SignalOpenstackServiceType, flavorId
     })
   }
 
+  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
   let response
 
   try {
-    response = await compute.del(`flavors/${flavorId}`)
+    response = await compute.del(`flavors/${encodedId}`)
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
@@ -340,10 +346,11 @@ export async function createExtraSpecs(
   flavorId: string,
   extra_specs: Record<string, string>
 ): Promise<Record<string, string>> {
+  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
   let response
 
   try {
-    response = await compute.post(`flavors/${flavorId}/os-extra_specs`, {
+    response = await compute.post(`flavors/${encodedId}/os-extra_specs`, {
       extra_specs: extra_specs,
     })
   } catch (error) {
@@ -374,10 +381,11 @@ export async function getExtraSpecs(
   compute: SignalOpenstackServiceType,
   flavorId: string
 ): Promise<Record<string, string>> {
+  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
   let response
 
   try {
-    response = await compute.get(`flavors/${flavorId}/os-extra_specs`)
+    response = await compute.get(`flavors/${encodedId}/os-extra_specs`)
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
@@ -407,10 +415,12 @@ export async function deleteExtraSpec(
   flavorId: string,
   key: string
 ): Promise<void> {
+  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  const encodedKey = encodeOpenstackPathSegment(key, "Extra spec key")
   let response
 
   try {
-    response = await compute.del(`flavors/${flavorId}/os-extra_specs/${key}`)
+    response = await compute.del(`flavors/${encodedId}/os-extra_specs/${encodedKey}`)
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
@@ -424,10 +434,11 @@ export async function deleteExtraSpec(
 }
 
 export async function getFlavorAccess(compute: SignalOpenstackServiceType, flavorId: string): Promise<FlavorAccess[]> {
+  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
   let response
 
   try {
-    response = await compute.get(`flavors/${flavorId}/os-flavor-access`)
+    response = await compute.get(`flavors/${encodedId}/os-flavor-access`)
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
@@ -457,6 +468,7 @@ export async function addTenantAccess(
   flavorId: string,
   tenantId: string
 ): Promise<FlavorAccess[]> {
+  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
   let response
 
   try {
@@ -465,7 +477,7 @@ export async function addTenantAccess(
         tenant: tenantId,
       },
     }
-    response = await compute.post(`flavors/${flavorId}/action`, requestBody)
+    response = await compute.post(`flavors/${encodedId}/action`, requestBody)
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
@@ -495,6 +507,7 @@ export async function removeTenantAccess(
   flavorId: string,
   tenantId: string
 ): Promise<FlavorAccess[]> {
+  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
   let response
 
   try {
@@ -503,7 +516,7 @@ export async function removeTenantAccess(
         tenant: tenantId,
       },
     }
-    response = await compute.post(`flavors/${flavorId}/action`, requestBody)
+    response = await compute.post(`flavors/${encodedId}/action`, requestBody)
   } catch (error) {
     if (error instanceof TRPCError) throw error
 

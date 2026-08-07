@@ -16,6 +16,7 @@ import {
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
 import { ERROR_CODES } from "../../errorCodes"
+import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
 
 export const flavorRouter = {
   getFlavorById: projectScopedProcedure
@@ -325,8 +326,10 @@ export const flavorRouter = {
           })
         }
 
+        const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+
         // First, get the flavor details to check if it's public
-        const flavorResponse = await compute.get(`flavors/${flavorId}`)
+        const flavorResponse = await compute.get(`flavors/${encodedId}`)
         if (!flavorResponse.ok) {
           throw new TRPCError({
             code: "NOT_FOUND",
