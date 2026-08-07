@@ -378,11 +378,7 @@ importers:
         version: 6.1.1(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1))
       vitest:
         specifier: ^4.1.2
-<<<<<<< HEAD
-        version: 4.1.4(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(jsdom@30.0.1)(vite@8.0.16(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.21.0))
-=======
-        version: 4.1.10(@types/node@24.13.3)(jsdom@29.1.1)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1))
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
+        version: 4.1.10(@types/node@24.13.3)(jsdom@30.0.1)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1))
 
   packages/config:
     dependencies:
@@ -418,23 +414,14 @@ importers:
         specifier: ^24.0.0
         version: 24.13.3
       jsdom:
-<<<<<<< HEAD
         specifier: 30.0.1
         version: 30.0.1
-=======
-        specifier: ^29.0.0
-        version: 29.1.1
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
       typescript:
         specifier: ^6.0.2
         version: 6.0.3
       vitest:
         specifier: ^4.1.2
-<<<<<<< HEAD
-        version: 4.1.4(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(jsdom@30.0.1)(vite@8.0.16(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.21.0))
-=======
-        version: 4.1.10(@types/node@24.13.3)(jsdom@29.1.1)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1))
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
+        version: 4.1.10(@types/node@24.13.3)(jsdom@30.0.1)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1))
       zod:
         specifier: ^4.0.5
         version: 4.4.3
@@ -442,11 +429,7 @@ importers:
   packages/signal-openstack:
     dependencies:
       undici:
-<<<<<<< HEAD
         specifier: ^7.29.0
-=======
-        specifier: ^7.28.0
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
         version: 7.29.0
       zod:
         specifier: ^4.0.0
@@ -459,30 +442,20 @@ importers:
         specifier: ^24.0.0
         version: 24.13.3
       jsdom:
-<<<<<<< HEAD
         specifier: 30.0.1
         version: 30.0.1
-=======
-        specifier: ^29.0.0
-        version: 29.1.1
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
       typescript:
         specifier: ^6.0.2
         version: 6.0.3
       vitest:
         specifier: ^4.1.2
-<<<<<<< HEAD
-        version: 4.1.4(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(jsdom@30.0.1)(vite@8.0.16(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.21.0))
-=======
-        version: 4.1.10(@types/node@24.13.3)(jsdom@29.1.1)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1))
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
+        version: 4.1.10(@types/node@24.13.3)(jsdom@30.0.1)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1))
 
 packages:
 
   '@adobe/css-tools@4.5.0':
     resolution: {integrity: sha512-6OzddxPio9UiWTCemp4N8cYLV2ZN1ncRnV1cVGtve7dhPOtRkleRyx32GQCYSwDYgaHU3USMm84tNsvKzRCa1Q==}
 
-<<<<<<< HEAD
   '@asamuzakjp/css-color@6.0.5':
     resolution: {integrity: sha512-mbhpPMmnw/kwW19aRNmSUl1QzLbdGo1SCuE49BT98MNwqF6zaHb3o2owssFc/PEO/4t2UjqtCNwocuDtJornzA==}
     engines: {node: ^22.13.0 || >=24.0.0}
@@ -490,22 +463,6 @@ packages:
   '@asamuzakjp/dom-selector@8.3.0':
     resolution: {integrity: sha512-UJLfKXBhrc8i1vH2eJXuYQMwlsLKWFw3O+CPqXSuVEiikeAim3UgrfWX0k4tA/X8cRFM8iZ7OaqBokFGbYusdg==}
     engines: {node: ^22.13.0 || >=24.0.0}
-=======
-  '@asamuzakjp/css-color@5.1.11':
-    resolution: {integrity: sha512-KVw6qIiCTUQhByfTd78h2yD1/00waTmm9uy/R7Ck/ctUyAPj+AEDLkQIdJW0T8+qGgj3j5bpNKK7Q3G+LedJWg==}
-    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
-
-  '@asamuzakjp/dom-selector@7.1.1':
-    resolution: {integrity: sha512-67RZDnYRc8H/8MLDgQCDE//zoqVFwajkepHZgmXrbwybzXOEwOWGPYGmALYl9J2DOLfFPPs6kKCqmbzV895hTQ==}
-    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
-
-  '@asamuzakjp/generational-cache@1.0.1':
-    resolution: {integrity: sha512-wajfB8KqzMCN2KGNFdLkReeHncd0AslUSrvHVvvYWuU8ghncRJoA50kT3zP9MVL0+9g4/67H+cdvBskj9THPzg==}
-    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
-
-  '@asamuzakjp/nwsapi@2.3.9':
-    resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
 
   '@aws-sdk/checksums@3.1000.24':
     resolution: {integrity: sha512-7TWLjypP8kk3savsDBRuhZJx7mBuFFA2136BQhwwLllsAnO4Tmq/p+SXZaNxbuulkzUFz3BZzj0bb4YzexZcNQ==}
@@ -1226,15 +1183,6 @@ packages:
   '@eslint/plugin-kit@0.7.2':
     resolution: {integrity: sha512-+CNAzxglkrpNf/kKywqQfk74QjtceuOE7Qm+AF8miRvPF/wmmK5+OJOgVh3AVTT3RP2mH3+FOaxlE5v72owk0A==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
-
-  '@exodus/bytes@1.15.1':
-    resolution: {integrity: sha512-S6mL0yNB/Abt9Ei4tq8gDhcczc4S3+vQ4ra7vxnAf+YHC02srtqxKKZghx2Dq6p0e66THKwR6r8N6P95wEty7Q==}
-    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
-    peerDependencies:
-      '@noble/hashes': ^1.8.0 || ^2.0.0
-    peerDependenciesMeta:
-      '@noble/hashes':
-        optional: true
 
   '@exodus/bytes@1.15.1':
     resolution: {integrity: sha512-S6mL0yNB/Abt9Ei4tq8gDhcczc4S3+vQ4ra7vxnAf+YHC02srtqxKKZghx2Dq6p0e66THKwR6r8N6P95wEty7Q==}
@@ -3896,15 +3844,9 @@ packages:
     resolution: {integrity: sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==}
     hasBin: true
 
-<<<<<<< HEAD
   jsdom@30.0.1:
     resolution: {integrity: sha512-52v7mUVUfNQVYYqE1lcdaymWL0njO7lTLUog6ZvW2U5KsbiLk/GnZlVJ+qx0xfNJZ6Gn+KSpPNE52vurbxZwrA==}
     engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
-=======
-  jsdom@29.1.1:
-    resolution: {integrity: sha512-ECi4Fi2f7BdJtUKTflYRTiaMxIB0O6zfR1fX0GXpUrf6flp8QIYn1UT20YQqdSOfk2dfkCwS8LAFoJDEppNK5Q==}
-    engines: {node: ^20.19.0 || ^22.13.0 || >=24.0.0}
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
     peerDependencies:
       canvas: ^3.2.3
     peerDependenciesMeta:
@@ -4164,10 +4106,6 @@ packages:
 
   lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
-
-  lru-cache@11.5.2:
-    resolution: {integrity: sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==}
-    engines: {node: 20 || >=22}
 
   lru-cache@11.5.2:
     resolution: {integrity: sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==}
@@ -5628,40 +5566,20 @@ snapshots:
 
   '@adobe/css-tools@4.5.0': {}
 
-<<<<<<< HEAD
   '@asamuzakjp/css-color@6.0.5':
     dependencies:
-=======
-  '@asamuzakjp/css-color@5.1.11':
-    dependencies:
-      '@asamuzakjp/generational-cache': 1.0.1
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
       '@csstools/css-calc': 3.3.0(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-color-parser': 4.1.10(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-tokenizer': 4.0.0
       lru-cache: 11.5.2
 
-<<<<<<< HEAD
   '@asamuzakjp/dom-selector@8.3.0':
     dependencies:
       bidi-js: 1.0.3
       css-tree: 3.2.1
       is-potential-custom-element-name: 1.0.1
       lru-cache: 11.5.2
-=======
-  '@asamuzakjp/dom-selector@7.1.1':
-    dependencies:
-      '@asamuzakjp/generational-cache': 1.0.1
-      '@asamuzakjp/nwsapi': 2.3.9
-      bidi-js: 1.0.3
-      css-tree: 3.2.1
-      is-potential-custom-element-name: 1.0.1
-
-  '@asamuzakjp/generational-cache@1.0.1': {}
-
-  '@asamuzakjp/nwsapi@2.3.9': {}
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
 
   '@aws-sdk/checksums@3.1000.24':
     dependencies:
@@ -6489,8 +6407,6 @@ snapshots:
     dependencies:
       '@eslint/core': 1.2.1
       levn: 0.4.1
-
-  '@exodus/bytes@1.15.1': {}
 
   '@exodus/bytes@1.15.1': {}
 
@@ -8783,8 +8699,6 @@ snapshots:
       ajv: 8.20.0
       ajv-formats: 3.0.1(ajv@8.20.0)
       fast-uri: 3.1.5
-<<<<<<< HEAD
-=======
       json-schema-ref-resolver: 3.0.0
       rfdc: 1.4.1
 
@@ -8794,7 +8708,6 @@ snapshots:
       ajv: 8.20.0
       ajv-formats: 3.0.1(ajv@8.20.0)
       fast-uri: 4.1.2
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
       json-schema-ref-resolver: 3.0.0
       rfdc: 1.4.1
 
@@ -9428,17 +9341,10 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-<<<<<<< HEAD
   jsdom@30.0.1:
     dependencies:
       '@asamuzakjp/css-color': 6.0.5
       '@asamuzakjp/dom-selector': 8.3.0
-=======
-  jsdom@29.1.1:
-    dependencies:
-      '@asamuzakjp/css-color': 5.1.11
-      '@asamuzakjp/dom-selector': 7.1.1
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
       '@bramus/specificity': 2.4.2
       '@csstools/css-syntax-patches-for-csstree': 1.1.7(css-tree@3.2.1)
       '@exodus/bytes': 1.15.1
@@ -9452,11 +9358,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.2
-<<<<<<< HEAD
       undici: 8.9.0
-=======
-      undici: 7.29.0
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -9659,8 +9561,6 @@ snapshots:
   lower-case@2.0.2:
     dependencies:
       tslib: 2.8.1
-
-  lru-cache@11.5.2: {}
 
   lru-cache@11.5.2: {}
 
@@ -10769,11 +10669,8 @@ snapshots:
   undici-types@7.18.2: {}
 
   undici@7.29.0: {}
-<<<<<<< HEAD
 
   undici@8.9.0: {}
-=======
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
 
   universalify@0.1.2: {}
 
@@ -10894,11 +10791,7 @@ snapshots:
       jiti: 2.7.0
       tsx: 4.23.1
 
-<<<<<<< HEAD
-  vitest@4.1.4(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(jsdom@30.0.1)(vite@8.0.16(@types/node@24.12.2)(esbuild@0.28.1)(jiti@2.6.1)(tsx@4.21.0)):
-=======
-  vitest@4.1.10(@types/node@24.13.3)(jsdom@29.1.1)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)):
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
+  vitest@4.1.10(@types/node@24.13.3)(jsdom@30.0.1)(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)):
     dependencies:
       '@vitest/expect': 4.1.10
       '@vitest/mocker': 4.1.10(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1))
@@ -10921,14 +10814,8 @@ snapshots:
       vite: 8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
-<<<<<<< HEAD
-      '@opentelemetry/api': 1.9.1
-      '@types/node': 24.12.2
-      jsdom: 30.0.1
-=======
       '@types/node': 24.13.3
-      jsdom: 29.1.1
->>>>>>> 5937dda1 (fix(deps): override fast-uri to >=3.1.5 to address SSRF vulnerability)
+      jsdom: 30.0.1
     transitivePeerDependencies:
       - msw
 
