@@ -1,4 +1,4 @@
-FROM node:24-alpine
+FROM node:24.15.0-alpine
 LABEL source_repository="https://github.com/cobaltcore-dev/aurora-dashboard"
 
 RUN apk upgrade --no-cache --no-progress && apk add --no-cache ca-certificates curl

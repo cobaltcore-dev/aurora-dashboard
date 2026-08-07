@@ -1,0 +1,132 @@
+# CodeRabbit AI Configuration
+# https://docs.coderabbit.ai/guides/configure-coderabbit
+
+language: en-US
+early_access: false
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+  tools:
+    biome:
+      enabled: true
+    eslint:
+      enabled: true
+
+# Custom instructions for this project
+instructions: |
+  This is a modern React 19 application using tRPC, TanStack Router/Query, and Juno UI components.
+
+  ## 1. React 19 Best Practices
+
+  ### Minimize useEffect
+  - Critically evaluate every `useEffect` hook
+  - Flag synchronizations, computed states, or event-driven triggers that can be handled during rendering or inside event handlers
+  - Suggest alternatives: derived state, event handlers, or React 19's `use()` hook
+
+  ### React Server Components (RSC) & Actions
+  - Ensure proper boundaries between Server and Client Components (`"use client"`)
+  - Prefer native React 19 Actions (Form Actions) and hooks like `useActionState` for form submissions
+  - Verify that server actions are not called directly in client components without proper wrapping
+
+  ### The use() Hook
+  - Ensure the new `use()` hook is utilized for resolving Promises or Context conditionally or inside loops
+  - Flag traditional hooks (useEffect, useState) when `use()` would be more appropriate
+
+  ## 2. tRPC (API Layer)
+
+  ### Type-Safety
+  - All API requests must be fully type-safe and routed via generated tRPC routers
+  - **Flag any manual `fetch` or Axios calls** used for internal API communication
+  - Ensure proper TypeScript types are inferred from tRPC procedures
+
+  ### Error Handling
+  - Verify that tRPC errors (validation, server errors) are gracefully caught and handled in the UI
+  - Check for proper error boundaries and user feedback
+
+  ### Procedures
+  - Ensure new API endpoints use the correct tRPC procedure types
+  - Verify `protectedProcedure` is used for authenticated routes
+  - Check that input validation uses Zod schemas
+
+  ## 3. TanStack Routing & State Management
+
+  ### TanStack React Router
+  - **Strictly enforce file-based routing**
+  - Data critical for rendering must be fetched via the route's `loader` function, not inside component body
+  - Enforce use of `useNavigate` or `<Link>` component for type-safe navigation
+  - Verify route parameters are properly typed
+  - Check that route error handling is implemented
+
+  ### TanStack React Query
+  - Use React Query for caching and mutating asynchronous server state not managed by tRPC hooks
+  - Ensure query keys are consistent and well-structured
+  - Verify proper use of `useMutation` for data modifications
+  - Check for appropriate `staleTime`, `gcTime`, and refetch strategies
+
+  ## 4. Design System: @cloudoperators/juno-ui-components
+
+  ### Component Usage
+  - **Prefer Juno UI components** for layouts, buttons, forms, and overlays when they provide needed functionality
+  - **Custom CSS classes are allowed** when needed for specific design requirements
+  - Do not flag custom CSS, styled-components, or inline styles as violations
+
+  ### Layout & Grid
+  - Recommend Juno's layout utilities (`<AppShell>`, `<Container>`, `<Grid>`) for consistency
+  - Suggest Juno components when appropriate, but don't enforce them strictly
+
+  ### Accessibility & Props
+  - Check that semantic props provided by Juno components are used correctly (`variant`, `disabled`, `required`)
+  - Verify accessibility attributes are present (aria-labels, roles, etc.)
+  - Ensure keyboard navigation works properly
+
+  ## 5. Code Quality & Performance
+
+  ### Performance
+  - Flag unnecessary re-renders (missing memoization when needed)
+  - Check for heavy computations that should be memoized
+  - Verify lazy loading for routes and components where appropriate
+
+  ### TypeScript
+  - Ensure strict TypeScript types (no `any` without justification)
+  - Verify proper typing of event handlers, props, and state
+  - Check for proper use of generics and type inference
+
+  ### Testing
+  - Suggest tests for critical business logic
+  - Verify that new features have corresponding test coverage
+  - Check that tests are meaningful and not just for coverage numbers
+
+  ## 6. Security & Best Practices
+
+  ### Authentication & Authorization
+  - Verify proper use of `protectedProcedure` in tRPC
+  - Check that sensitive data is not exposed in client components
+  - Ensure proper session/token handling
+
+  ### Input Validation
+  - Verify all user inputs are validated (Zod schemas in tRPC)
+  - Check for XSS vulnerabilities in dynamic content
+  - Ensure proper sanitization of user-generated content
+
+  ### Environment Variables
+  - Check that sensitive data uses environment variables
+  - Verify no hardcoded secrets or API keys
+  - Ensure proper use of `import.meta.env` or `process.env`
+
+  ## Review Style
+
+  - Provide **constructive, concise, and highly actionable** feedback
+  - When a guideline is violated, provide a **brief code snippet** demonstrating the correct implementation
+  - Focus on high-impact issues first
+  - Don't nitpick formatting (let Biome/ESLint handle that)
+  - Celebrate good patterns when you see them
+
+chat:
+  auto_reply: true

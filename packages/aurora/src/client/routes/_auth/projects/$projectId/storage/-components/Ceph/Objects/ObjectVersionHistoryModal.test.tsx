@@ -60,15 +60,15 @@ vi.mock("@/client/trpcClient", () => ({
               isPending: false,
             })),
           },
-          deleteVersion: {
+        },
+        objects: {
+          deleteVersionsBulk: {
             useMutation: vi.fn(() => ({
               mutate: vi.fn(),
               reset: vi.fn(),
               isPending: false,
             })),
           },
-        },
-        objects: {
           list: {
             useQuery: vi.fn(() => ({
               data: { objects: [], folders: [] },
@@ -91,6 +91,9 @@ vi.mock("@/client/trpcClient", () => ({
         ceph: {
           versioning: {
             listObjectVersions: {
+              invalidate: mockInvalidate,
+            },
+            checkDeletedContent: {
               invalidate: mockInvalidate,
             },
           },
