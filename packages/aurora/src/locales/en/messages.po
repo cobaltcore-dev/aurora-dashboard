@@ -22,6 +22,18 @@ msgstr "—"
 msgid "... and {hiddenCount} more"
 msgstr "... and {hiddenCount} more"
 
+msgid "… and {hiddenCount} more"
+msgstr "… and {hiddenCount} more"
+
+msgid "… and {hiddenErrorCount} more failures"
+msgstr "… and {hiddenErrorCount} more failures"
+
+msgid "… and {hiddenObjectCount} more"
+msgstr "… and {hiddenObjectCount} more"
+
+msgid "… and {hiddenVersionsCount} more"
+msgstr "… and {hiddenVersionsCount} more"
+
 msgid "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
 msgstr "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
 
@@ -43,14 +55,36 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
+#. placeholder {0}: displayObjectNames.length
+msgid "{0, plural, one {Object:} other {Objects to delete:}}"
+msgstr "{0, plural, one {Object:} other {Objects to delete:}}"
+
 msgid "{certificateIdValue} Certificate Details"
 msgstr "{certificateIdValue} Certificate Details"
 
 msgid "{count, plural, one {# object} other {# objects}}"
 msgstr "{count, plural, one {# object} other {# objects}}"
 
+msgid "{count, plural, one {Delete # Object} other {Delete # Objects}}"
+msgstr "{count, plural, one {Delete # Object} other {Delete # Objects}}"
+
+msgid "{count, plural, one {Delete # Version} other {Delete # Versions}}"
+msgstr "{count, plural, one {Delete # Version} other {Delete # Versions}}"
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
+
+msgid "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
+msgstr "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
+
+msgid "{deletedCount, plural, one {# version was permanently deleted.} other {# versions were permanently deleted.}}"
+msgstr "{deletedCount, plural, one {# version was permanently deleted.} other {# versions were permanently deleted.}}"
+
+msgid "{deletedCount} deleted, {errorCount} failed."
+msgstr "{deletedCount} deleted, {errorCount} failed."
+
+msgid "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
+msgstr "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
 
 msgid "{displayName} was successfully restored"
 msgstr "{displayName} was successfully restored"
@@ -84,6 +118,9 @@ msgstr "{rulesLength} rules"
 
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
+
+msgid "{selectedCount, plural, one {Delete # Version} other {Delete # Versions}}"
+msgstr "{selectedCount, plural, one {Delete # Version} other {Delete # Versions}}"
 
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
@@ -288,12 +325,6 @@ msgstr "All containers"
 
 msgid "All Images"
 msgstr "All Images"
-
-msgid "All objects in the folder can be restored from version history."
-msgstr "All objects in the folder can be restored from version history."
-
-msgid "All objects in the folder will be permanently deleted."
-msgstr "All objects in the folder will be permanently deleted."
 
 msgid "All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "All objects in the selected containers will be permanently deleted. This cannot be undone."
@@ -553,14 +584,14 @@ msgstr "Configure the ingress and egress rules that control which traffic is all
 msgid "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 msgstr "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 
-msgid "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted."
-msgstr "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted."
+msgid "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted. This action cannot be undone."
+msgstr "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted. This action cannot be undone."
 
 msgid "Confirm deletion of {displayName}. The object will be marked as deleted but can be restored from version history."
 msgstr "Confirm deletion of {displayName}. The object will be marked as deleted but can be restored from version history."
 
-msgid "Confirm deletion of {displayName}. This action cannot be undone."
-msgstr "Confirm deletion of {displayName}. This action cannot be undone."
+msgid "Confirm deletion of {displayName}. The object will be permanently deleted. This action cannot be undone."
+msgstr "Confirm deletion of {displayName}. The object will be permanently deleted. This action cannot be undone."
 
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Container \"{containerName}\" properties were successfully updated."
@@ -877,6 +908,9 @@ msgstr "Delete"
 msgid "Delete {specKey}"
 msgstr "Delete {specKey}"
 
+msgid "Delete All Versions"
+msgstr "Delete All Versions"
+
 msgid "Delete all versions and delete markers"
 msgstr "Delete all versions and delete markers"
 
@@ -919,14 +953,14 @@ msgstr "Delete Object"
 msgid "Delete object:"
 msgstr "Delete object:"
 
-msgid "Delete Permanently"
-msgstr "Delete Permanently"
-
 msgid "Delete Policy"
 msgstr "Delete Policy"
 
 msgid "Delete Recursively"
 msgstr "Delete Recursively"
+
+msgid "Delete Results"
+msgstr "Delete Results"
 
 msgid "Delete Rule"
 msgstr "Delete Rule"
@@ -942,9 +976,6 @@ msgstr "Delete Selected"
 
 msgid "Delete Version"
 msgstr "Delete Version"
-
-msgid "Delete Version Permanently"
-msgstr "Delete Version Permanently"
 
 msgid "Delete Versions"
 msgstr "Delete Versions"
@@ -1038,6 +1069,9 @@ msgstr "DNS Name"
 
 msgid "DNS name must be at most 63 characters."
 msgstr "DNS name must be at most 63 characters."
+
+msgid "Done"
+msgstr "Done"
 
 msgid "Download"
 msgstr "Download"
@@ -1281,6 +1315,9 @@ msgstr "Extra Specs"
 
 msgid "Failed"
 msgstr "Failed"
+
+msgid "Failed deletions:"
+msgstr "Failed deletions:"
 
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
 msgstr "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
@@ -1635,6 +1672,9 @@ msgstr "Folder name is required"
 
 msgid "Folder name is too long (max 255 characters)"
 msgstr "Folder name is too long (max 255 characters)"
+
+msgid "Folder name:"
+msgstr "Folder name:"
 
 msgid "folder-name"
 msgstr "folder-name"
@@ -2245,6 +2285,9 @@ msgstr "No objects found."
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "No objects match your search. Try adjusting your search term."
 
+msgid "No objects were deleted: {errorMessage}"
+msgstr "No objects were deleted: {errorMessage}"
+
 msgid "No PCAs found"
 msgstr "No PCAs found"
 
@@ -2283,6 +2326,9 @@ msgstr "No versions found for this object."
 
 msgid "No versions to delete in bucket \"{bucketName}\"."
 msgstr "No versions to delete in bucket \"{bucketName}\"."
+
+msgid "No versions were deleted: {errorMessage}"
+msgstr "No versions were deleted: {errorMessage}"
 
 msgid "None"
 msgstr "None"
@@ -2368,6 +2414,9 @@ msgstr "Objects Deleted"
 msgid "Objects to be deleted ({totalCount})"
 msgstr "Objects to be deleted ({totalCount})"
 
+msgid "Objects to delete:"
+msgstr "Objects to delete:"
+
 msgid "Objects: {containerName}"
 msgstr "Objects: {containerName}"
 
@@ -2382,6 +2431,9 @@ msgstr "One or more containers could not be emptied: {errorMessage}"
 
 msgid "One or more objects could not be deleted:"
 msgstr "One or more objects could not be deleted:"
+
+msgid "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
+msgstr "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
 
 msgid "Open {displayName}"
 msgstr "Open {displayName}"
@@ -2674,6 +2726,9 @@ msgstr "Restart"
 msgid "Restore"
 msgstr "Restore"
 
+msgid "Restore Folder"
+msgstr "Restore Folder"
+
 msgid "Restore Version"
 msgstr "Restore Version"
 
@@ -2773,6 +2828,9 @@ msgstr "Security Groups"
 msgid "Select"
 msgstr "Select"
 
+msgid "Select {displayName}"
+msgstr "Select {displayName}"
+
 msgid "Select a DNS domain."
 msgstr "Select a DNS domain."
 
@@ -2787,6 +2845,9 @@ msgstr "Select a security group..."
 
 msgid "Select a template..."
 msgstr "Select a template..."
+
+msgid "Select all objects"
+msgstr "Select all objects"
 
 msgid "Select an external network"
 msgstr "Select an external network"
@@ -2922,6 +2983,12 @@ msgstr "Size:"
 
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
+
+msgid "Some Objects Could Not Be Deleted"
+msgstr "Some Objects Could Not Be Deleted"
+
+msgid "Some Versions Could Not Be Deleted"
+msgstr "Some Versions Could Not Be Deleted"
 
 msgid "Something went wrong:"
 msgstr "Something went wrong:"
@@ -3130,9 +3197,6 @@ msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
 
-msgid "The object can be restored from version history."
-msgstr "The object can be restored from version history."
-
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "The object will be copied to this path. Navigate folders above to change the destination."
 
@@ -3147,6 +3211,12 @@ msgstr "The project you are looking for doesn't exist or you don't have access t
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
+
+msgid "The selected objects will be marked as deleted but can be restored from version history."
+msgstr "The selected objects will be marked as deleted but can be restored from version history."
+
+msgid "The selected objects will be permanently deleted. This action cannot be undone."
+msgstr "The selected objects will be permanently deleted. This action cannot be undone."
 
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "The selected objects will be permanently deleted. This cannot be undone."
@@ -3205,8 +3275,8 @@ msgstr "There are no RBAC policies for this security group"
 msgid "There are no rules for this security group"
 msgstr "There are no rules for this security group"
 
-msgid "This action cannot be undone."
-msgstr "This action cannot be undone."
+msgid "These objects and all their versions will be permanently deleted and cannot be restored."
+msgstr "These objects and all their versions will be permanently deleted and cannot be restored."
 
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "This action cannot be undone. The flavor will be permanently deleted."
@@ -3298,6 +3368,9 @@ msgstr "This key is reserved and managed separately"
 msgid "This member already has access to this image."
 msgstr "This member already has access to this image."
 
+msgid "This object and all its versions will be permanently deleted and cannot be restored."
+msgstr "This object and all its versions will be permanently deleted and cannot be restored."
+
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
 
@@ -3309,6 +3382,9 @@ msgstr "This tenant already has access to the flavor."
 
 msgid "This tenant does not have access to the flavor."
 msgstr "This tenant does not have access to the flavor."
+
+msgid "This version will be permanently deleted and cannot be restored."
+msgstr "This version will be permanently deleted and cannot be restored."
 
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
@@ -3385,17 +3461,11 @@ msgstr "Type <0>{deleteWord}</0> to confirm:"
 msgid "Type <0>delete</0> to confirm:"
 msgstr "Type <0>delete</0> to confirm:"
 
-msgid "Type <0>DELETE</0> to confirm:"
-msgstr "Type <0>DELETE</0> to confirm:"
-
 msgid "Type <0>remove</0> to confirm:"
 msgstr "Type <0>remove</0> to confirm:"
 
 msgid "Type container name to confirm"
 msgstr "Type container name to confirm"
-
-msgid "Type DELETE to confirm"
-msgstr "Type DELETE to confirm"
 
 msgid "Type name"
 msgstr "Type name"
@@ -3573,6 +3643,12 @@ msgstr "Versioning was successfully suspended for bucket \"{bucketName}\"."
 
 msgid "Versions Deleted"
 msgstr "Versions Deleted"
+
+msgid "Versions Deleted Permanently"
+msgstr "Versions Deleted Permanently"
+
+msgid "Versions to delete:"
+msgstr "Versions to delete:"
 
 msgid "View Details"
 msgstr "View Details"

@@ -43,6 +43,8 @@ export function DeleteObjectModal({
     onSuccess: () => {
       utils.storage.ceph.objects.list.invalidate()
       utils.storage.ceph.containers.list.invalidate()
+
+      utils.storage.ceph.versioning.checkDeletedContent.invalidate()
       onSuccess(objectKey)
       handleClose()
     },
@@ -71,7 +73,7 @@ export function DeleteObjectModal({
 
   const isFolder = objectKey.endsWith("/")
   const displayName = objectKey.split("/").filter(Boolean).pop() || objectKey
-  const isConfirmValid = confirmText === "DELETE"
+  const isConfirmValid = confirmText === "delete"
 
   return (
     <Modal
@@ -100,7 +102,8 @@ export function DeleteObjectModal({
               </Trans>
             ) : (
               <Trans>
-                Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted.
+                Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted. This
+                action cannot be undone.
               </Trans>
             )
           ) : versioningEnabled ? (
@@ -109,7 +112,9 @@ export function DeleteObjectModal({
               history.
             </Trans>
           ) : (
-            <Trans>Confirm deletion of {displayName}. This action cannot be undone.</Trans>
+            <Trans>
+              Confirm deletion of {displayName}. The object will be permanently deleted. This action cannot be undone.
+            </Trans>
           )}
         </p>
 
@@ -151,20 +156,11 @@ export function DeleteObjectModal({
 
         <div>
           <TextInput
-            label={t`Type DELETE to confirm`}
+            label={t`Type "delete" to confirm`}
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="DELETE"
+            placeholder="delete"
             autoFocus
-            helptext={
-              isFolder
-                ? versioningEnabled
-                  ? t`All objects in the folder can be restored from version history.`
-                  : t`All objects in the folder will be permanently deleted.`
-                : versioningEnabled && !isFolder
-                  ? t`The object can be restored from version history.`
-                  : t`This action cannot be undone.`
-            }
           />
         </div>
 

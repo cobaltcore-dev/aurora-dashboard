@@ -46,6 +46,16 @@ vi.mock("@/client/trpcClient", () => ({
               invalidate: mockInvalidate,
             },
           },
+          containers: {
+            list: {
+              invalidate: mockInvalidate,
+            },
+          },
+          versioning: {
+            checkDeletedContent: {
+              invalidate: mockInvalidate,
+            },
+          },
         },
       },
     }),
@@ -119,14 +129,16 @@ describe("DeleteObjectModal", () => {
   it("shows confirmation input field", () => {
     renderModal(defaultProps)
 
-    expect(screen.getByLabelText("Type DELETE to confirm")).toBeInTheDocument()
-    expect(screen.getByPlaceholderText("DELETE")).toBeInTheDocument()
+    expect(screen.getByLabelText('Type "delete" to confirm')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText("delete")).toBeInTheDocument()
   })
 
   it("shows warning message", () => {
     renderModal(defaultProps)
 
-    expect(screen.getByText("This action cannot be undone.")).toBeInTheDocument()
+    expect(
+      screen.getByText(/Confirm deletion of.*The object will be permanently deleted.*This action cannot be undone\./)
+    ).toBeInTheDocument()
   })
 
   it("disables delete button when confirmation is empty", () => {
@@ -140,8 +152,8 @@ describe("DeleteObjectModal", () => {
     const user = userEvent.setup()
     renderModal(defaultProps)
 
-    const input = screen.getByLabelText("Type DELETE to confirm")
-    await user.type(input, "delete")
+    const input = screen.getByLabelText('Type "delete" to confirm')
+    await user.type(input, "wrong")
 
     const deleteButton = screen.getByRole("button", { name: "Delete" })
     expect(deleteButton).toBeDisabled()
@@ -151,8 +163,8 @@ describe("DeleteObjectModal", () => {
     const user = userEvent.setup()
     renderModal(defaultProps)
 
-    const input = screen.getByLabelText("Type DELETE to confirm")
-    await user.type(input, "DELETE")
+    const input = screen.getByLabelText('Type "delete" to confirm')
+    await user.type(input, "delete")
 
     const deleteButton = screen.getByRole("button", { name: "Delete" })
     expect(deleteButton).not.toBeDisabled()
@@ -162,8 +174,8 @@ describe("DeleteObjectModal", () => {
     const user = userEvent.setup()
     renderModal(defaultProps)
 
-    const input = screen.getByLabelText("Type DELETE to confirm")
-    await user.type(input, "DELETE")
+    const input = screen.getByLabelText('Type "delete" to confirm')
+    await user.type(input, "delete")
 
     const deleteButton = screen.getByRole("button", { name: "Delete" })
     await user.click(deleteButton)
@@ -191,8 +203,8 @@ describe("DeleteObjectModal", () => {
     const onClose = vi.fn()
     renderModal({ ...defaultProps, onClose })
 
-    const input = screen.getByLabelText("Type DELETE to confirm")
-    await user.type(input, "DELETE")
+    const input = screen.getByLabelText('Type "delete" to confirm')
+    await user.type(input, "delete")
 
     const cancelButton = screen.getByRole("button", { name: "Cancel" })
     await user.click(cancelButton)
@@ -204,12 +216,12 @@ describe("DeleteObjectModal", () => {
     const user = userEvent.setup()
     renderModal(defaultProps)
 
-    const input = screen.getByLabelText("Type DELETE to confirm")
-    await user.type(input, "DELETE")
-    expect(input).toHaveValue("DELETE")
+    const input = screen.getByLabelText('Type "delete" to confirm')
+    await user.type(input, "delete")
+    expect(input).toHaveValue("delete")
 
     // Close and reopen - just verify modal behavior
-    expect(input).toHaveValue("DELETE")
+    expect(input).toHaveValue("delete")
   })
 
   it("does not render when isOpen is false", () => {
@@ -230,8 +242,8 @@ describe("DeleteObjectModal", () => {
     expect(screen.queryByText("Size:")).not.toBeInTheDocument()
     expect(screen.queryByText("Last Modified:")).not.toBeInTheDocument()
 
-    const input = screen.getByLabelText("Type DELETE to confirm")
-    await user.type(input, "DELETE")
+    const input = screen.getByLabelText('Type "delete" to confirm')
+    await user.type(input, "delete")
 
     const deleteButton = screen.getByRole("button", { name: "Delete" })
     await user.click(deleteButton)
@@ -287,8 +299,8 @@ describe("DeleteObjectModal", () => {
 
       mockOnTrackEvent.mockClear()
 
-      const input = screen.getByLabelText("Type DELETE to confirm")
-      await user.type(input, "DELETE")
+      const input = screen.getByLabelText('Type "delete" to confirm')
+      await user.type(input, "delete")
 
       const deleteButton = screen.getByRole("button", { name: "Delete" })
       await user.click(deleteButton)

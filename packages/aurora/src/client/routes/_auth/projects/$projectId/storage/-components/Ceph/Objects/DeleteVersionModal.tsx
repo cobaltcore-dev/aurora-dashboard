@@ -5,6 +5,8 @@ import { Modal, Stack, TextInput } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import type { DeleteObjectsBulkOutput } from "@/server/Storage/types/ceph"
+import { formatBulkDeleteErrors } from "./utils/bulkDeleteErrors"
 
 interface DeleteVersionModalProps {
   isOpen: boolean
@@ -14,6 +16,8 @@ interface DeleteVersionModalProps {
   versionDate?: string
   versionSize?: number
   isDeleteMarker?: boolean
+  folderMarkerVersionId?: string
+  allVersionIds?: string[]
   onClose: () => void
   onSuccess?: (objectKey: string, versionId: string) => void
   onError?: (objectKey: string, errorMessage: string) => void
@@ -27,6 +31,8 @@ export const DeleteVersionModal = ({
   versionDate,
   versionSize,
   isDeleteMarker = false,
+  folderMarkerVersionId,
+  allVersionIds,
   onClose,
   onSuccess,
   onError,
@@ -34,6 +40,8 @@ export const DeleteVersionModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const [confirmText, setConfirmText] = useState("")
+  const [failureMessage, setFailureMessage] = useState<string | null>(null)
+  const isFolder = objectKey.endsWith("/")
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
@@ -42,38 +50,66 @@ export const DeleteVersionModal = ({
 
   const utils = trpcReact.useUtils()
 
-  const deleteMutation = trpcReact.storage.ceph.versioning.deleteVersion.useMutation({
-    onSuccess: () => {
+  // Use bulk delete endpoint for all cases (single or multiple versions)
+  // This simplifies logic and handles atomic folder deletion
+  const deleteMutation = trpcReact.storage.ceph.objects.deleteVersionsBulk.useMutation({
+    onSuccess: (result: DeleteObjectsBulkOutput) => {
+      // Invalidate regardless of outcome: on a partial failure some versions really
+      // were deleted, so the cached lists are stale either way.
       utils.storage.ceph.versioning.listObjectVersions.invalidate()
+      utils.storage.ceph.versioning.checkDeletedContent.invalidate()
       utils.storage.ceph.objects.list.invalidate()
       utils.storage.ceph.containers.list.invalidate()
+      // deleteVersionsBulk resolves even when S3 refused individual versions: those
+      // come back in `errors` on an HTTP 200, not as a thrown error.
+      if (result.errorCount > 0) {
+        setFailureMessage(formatBulkDeleteErrors(result.errors))
+        return
+      }
       onSuccess?.(objectKey, versionId)
       handleClose()
     },
     onError: (error) => {
       onError?.(objectKey, error.message)
-      handleClose()
-    },
-    onSettled: () => {
-      deleteMutation.reset()
     },
   })
 
   const handleClose = () => {
     setConfirmText("")
+    setFailureMessage(null)
     resetTracking()
+    deleteMutation.reset()
     onClose()
   }
 
-  const handleDelete = () => {
-    if (confirmText !== "DELETE") return
+  // Show "all versions" UI if array has multiple versions
+  // Must be computed before handleDelete to ensure consistent behavior
+  const isDeletingAllVersions = allVersionIds && allVersionIds.length > 0
 
+  const handleDelete = () => {
+    if (confirmText !== "delete") return
+
+    setFailureMessage(null)
     markSubmitted()
+
+    // Build versions array:
+    // - For deleted folders: include both delete marker and folder marker
+    // - For deleted files (with delete marker): include ALL versions (complete deletion)
+    // - For regular versions: include only the version itself
+    const versions =
+      isFolder && isDeleteMarker && folderMarkerVersionId
+        ? [
+            { key: objectKey, versionId }, // Delete marker of the folder
+            { key: objectKey, versionId: folderMarkerVersionId }, // Folder marker itself
+          ]
+        : isDeletingAllVersions
+          ? allVersionIds.map((vid) => ({ key: objectKey, versionId: vid })) // Delete ALL versions
+          : [{ key: objectKey, versionId }] // Single version
+
     deleteMutation.mutate({
       project_id: projectId,
-      bucket: bucketName,
-      key: objectKey,
-      versionId,
+      containerName: bucketName,
+      versions,
     })
   }
 
@@ -81,19 +117,27 @@ export const DeleteVersionModal = ({
 
   return (
     <Modal
-      title={t`Delete Version Permanently`}
+      title={isDeletingAllVersions ? t`Delete All Versions` : t`Delete Version`}
       open={isOpen}
       onCancel={() => {
         trackClose()
         handleClose()
       }}
-      confirmButtonLabel={t`Delete Permanently`}
+      confirmButtonLabel={t`Delete`}
       onConfirm={handleDelete}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={confirmText !== "DELETE" || deleteMutation.isPending}
+      disableConfirmButton={confirmText !== "delete" || deleteMutation.isPending}
       confirmButtonVariant="primary-danger"
     >
       <Stack direction="vertical" gap="4">
+        <p className="text-theme-default overflow-x-hidden [overflow-wrap:anywhere]">
+          {isDeletingAllVersions ? (
+            <Trans>This object and all its versions will be permanently deleted and cannot be restored.</Trans>
+          ) : (
+            <Trans>This version will be permanently deleted and cannot be restored.</Trans>
+          )}
+        </p>
+
         <div className="space-y-3">
           <div>
             <label className="text-sm font-semibold">
@@ -102,14 +146,31 @@ export const DeleteVersionModal = ({
             <p className="mt-1 overflow-x-hidden text-sm [overflow-wrap:anywhere]">{objectKey}</p>
           </div>
 
-          <div>
-            <label className="text-sm font-semibold">
-              <Trans>Version ID:</Trans>
-            </label>
-            <p className="mt-1 overflow-x-hidden [overflow-wrap:anywhere]">
-              <code className="text-sm">{versionId}</code>
-            </p>
-          </div>
+          {isDeletingAllVersions ? (
+            <div>
+              <label className="text-sm font-semibold">
+                <Trans>Versions to delete:</Trans>
+              </label>
+              <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+                <Stack direction="vertical" gap="1">
+                  {allVersionIds!.map((vid, idx) => (
+                    <code key={idx} className="block overflow-x-hidden text-xs [overflow-wrap:anywhere]">
+                      {vid}
+                    </code>
+                  ))}
+                </Stack>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <label className="text-sm font-semibold">
+                <Trans>Version ID:</Trans>
+              </label>
+              <p className="mt-1 overflow-x-hidden [overflow-wrap:anywhere]">
+                <code className="text-sm">{versionId}</code>
+              </p>
+            </div>
+          )}
 
           {!isDeleteMarker && versionDate && (
             <div>
@@ -131,19 +192,26 @@ export const DeleteVersionModal = ({
         </div>
 
         <div>
-          <label className="text-sm font-semibold">
-            <Trans>
-              Type <code>DELETE</code> to confirm:
-            </Trans>
-          </label>
           <TextInput
+            label={t`Type "delete" to confirm`}
             value={confirmText}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmText(e.target.value)}
-            placeholder="DELETE"
-            className="mt-2"
+            placeholder="delete"
+            autoFocus
             disabled={deleteMutation.isPending}
           />
         </div>
+
+        {deleteMutation.error && (
+          <p className="text-juno-red text-sm">
+            <Trans>Error:</Trans> {deleteMutation.error.message}
+          </p>
+        )}
+        {failureMessage && (
+          <p className="text-juno-red text-sm">
+            <Trans>Error:</Trans> {failureMessage}
+          </p>
+        )}
       </Stack>
     </Modal>
   )
