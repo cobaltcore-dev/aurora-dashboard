@@ -11,8 +11,6 @@ interface UseVirtualizedTableBodyOptions {
   rowHeight?: number
   /** Rows to render beyond the visible range. */
   overscan?: number
-  /** Space the page shell keeps below the table; see useAvailableViewportHeight. */
-  bottomGap?: number
 }
 
 /**
@@ -33,9 +31,8 @@ export function useVirtualizedTableBody({
   count,
   rowHeight = ROW_HEIGHT,
   overscan = OVERSCAN,
-  bottomGap,
 }: UseVirtualizedTableBodyOptions) {
-  const { ref, elementRef, height } = useAvailableViewportHeight<HTMLDivElement>(bottomGap)
+  const { ref, elementRef, height } = useAvailableViewportHeight<HTMLDivElement>()
 
   const virtualizer = useVirtualizer({
     count,
