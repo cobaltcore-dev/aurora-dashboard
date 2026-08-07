@@ -246,6 +246,45 @@ describe("Swift Object Storage Schema Validation", () => {
         expect(result.success).toBe(true)
       })
     })
+
+    describe("Account SSRF Protection (Security)", () => {
+      it("should accept valid Swift account names", () => {
+        const validAccounts = ["AUTH_test-account", "AUTH_project123", "AUTH_my_project"]
+
+        validAccounts.forEach((account) => {
+          const result = listContainersInputSchema.safeParse({ account })
+          expect(result.success, `Should accept valid account: ${account}`).toBe(true)
+        })
+      })
+
+      it("should reject malicious inputs", () => {
+        const maliciousInputs = [
+          "http://attacker.com", // HTTP SSRF
+          "https://attacker.com", // HTTPS SSRF
+          "//attacker.com", // Protocol-relative
+          "http://169.254.169.254/latest/meta-data", // Metadata service
+          "AUTH_abc/../admin", // Path traversal with AUTH prefix
+          "../admin", // Path traversal
+          "./admin", // Relative path
+          "malicious-account", // Non-AUTH format
+          "USER_test", // Wrong prefix
+          "", // Empty string
+        ]
+
+        maliciousInputs.forEach((account) => {
+          const result = listContainersInputSchema.safeParse({ account })
+          expect(result.success, `Should reject: ${account}`).toBe(false)
+        })
+      })
+
+      it("should accept undefined (defaults to authenticated account)", () => {
+        const result1 = listContainersInputSchema.safeParse({})
+        const result2 = listContainersInputSchema.safeParse({ account: undefined })
+
+        expect(result1.success).toBe(true)
+        expect(result2.success).toBe(true)
+      })
+    })
   })
 
   describe("Container Schemas", () => {
