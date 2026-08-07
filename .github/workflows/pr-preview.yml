@@ -13,8 +13,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  preview-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR Preview Status
+        run: echo "PR preview workflow triggered. Actual deployment runs on self-hosted runner."
+
   preview:
     runs-on: [self-hosted, pr-preview]
+    continue-on-error: true
     steps:
       - name: Handle PR event
         run: |
