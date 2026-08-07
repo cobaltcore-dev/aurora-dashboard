@@ -7,8 +7,7 @@ import {
   PopupMenuToggle,
   PopupMenuOptions,
   PopupMenuItem,
-  Toast,
-  ToastProps,
+  toast,
 } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { z } from "zod"
@@ -131,7 +130,6 @@ function RouteComponent() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [activateModalOpen, setActivateModalOpen] = useState(false)
   const [deactivateModalOpen, setDeactivateModalOpen] = useState(false)
-  const [toastData, setToastData] = useState<ToastProps | null>(null)
 
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
     onSuccess: (updatedImage) => {
@@ -184,10 +182,12 @@ function RouteComponent() {
   const handleMemberStatusChange = async (newStatus: MemberStatus) => {
     try {
       await updateMemberMutation.mutateAsync({ project_id: projectId, imageId, memberId: projectId, status: newStatus })
-      setToastData(getImageAccessStatusUpdatedToast(newStatus, { onDismiss: () => setToastData(null) }))
+      const { message, ...options } = getImageAccessStatusUpdatedToast(newStatus)
+      toast.info(message, options)
     } catch (error) {
       const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message
-      setToastData(getImageAccessStatusErrorToast(errorMessage, { onDismiss: () => setToastData(null) }))
+      const { message, ...options } = getImageAccessStatusErrorToast(errorMessage)
+      toast.error(message, options)
     }
   }
 
@@ -414,8 +414,6 @@ function RouteComponent() {
           isMemberStatusChanging={updateMemberMutation.isPending}
         />
       </div>
-
-      {toastData && <Toast {...toastData} />}
 
       {editDetailsModalOpen && (
         <EditImageDetailsModal

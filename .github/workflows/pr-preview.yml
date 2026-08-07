@@ -1,0 +1,41 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR Preview Status
+        run: echo "PR preview workflow triggered. Actual deployment runs on self-hosted runner."
+
+  preview:
+    runs-on: [self-hosted, pr-preview]
+    continue-on-error: true
+    steps:
+      - name: Handle PR event
+        run: |
+          /opt/scripts/handle-pr.sh \
+            "${{ github.event.action }}" \
+            "${{ github.event.pull_request.number }}" \
+            "${{ github.event.pull_request.head.ref }}" \
+            "${{ github.event.pull_request.head.sha }}" \
+            "${{ github.event.pull_request.head.repo.clone_url }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIEW_DOMAIN: aurora-previews.d.c.eu-nl-1.cloud.sap
+
+      - name: Preview URL
+        if: github.event.action != 'closed'
+        run: |
+          echo "::notice::🚀 https://pr-${{ github.event.pull_request.number }}.aurora-previews.d.c.eu-nl-1.cloud.sap"

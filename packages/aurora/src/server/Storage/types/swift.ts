@@ -80,8 +80,39 @@ export const serviceInfoSchema = z.object({
 // COMMON SCHEMAS
 // ============================================================================
 
+// Swift account name validation
+// Format: AUTH_<project_id> where project_id can contain alphanumeric, underscore, hyphen
+// This prevents SSRF via absolute URLs (http://attacker.com) and path traversal (../)
+const SWIFT_ACCOUNT_PATTERN = /^AUTH_[a-zA-Z0-9_-]+$/
+
 const baseAccountInputSchema = z.object({
-  account: z.string().optional(), // Optional account name, defaults to authenticated account
+  account: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        // undefined is valid (defaults to authenticated account)
+        if (val === undefined) return true
+
+        // Empty string is invalid - if you provide a value, it must be valid
+        if (val === "") return false
+
+        // Must match Swift account naming convention
+        if (!SWIFT_ACCOUNT_PATTERN.test(val)) return false
+
+        // Additional safety: reject absolute URLs
+        if (val.startsWith("http://") || val.startsWith("https://") || val.startsWith("//")) return false
+
+        // Reject path traversal attempts
+        if (val.includes("..") || val.includes("./")) return false
+
+        return true
+      },
+      {
+        message:
+          "Invalid Swift account format. Must be AUTH_<identifier> with alphanumeric, underscore, or hyphen characters only.",
+      }
+    ),
 })
 
 const baseContainerInputSchema = baseAccountInputSchema.extend({

@@ -20,7 +20,19 @@ msgid "—"
 msgstr "—"
 
 msgid "... and {hiddenCount} more"
+msgstr ""
+
+msgid "… and {hiddenCount} more"
 msgstr "... und {hiddenCount} weitere"
+
+msgid "… and {hiddenErrorCount} more failures"
+msgstr ""
+
+msgid "… and {hiddenObjectCount} more"
+msgstr ""
+
+msgid "… and {hiddenVersionsCount} more"
+msgstr ""
 
 msgid "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
 msgstr ""
@@ -43,14 +55,36 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
+#. placeholder {0}: displayObjectNames.length
+msgid "{0, plural, one {Object:} other {Objects to delete:}}"
+msgstr ""
+
 msgid "{certificateIdValue} Certificate Details"
 msgstr ""
 
 msgid "{count, plural, one {# object} other {# objects}}"
 msgstr "{count, plural, one {# Objekt} other {# Objekte}}"
 
+msgid "{count, plural, one {Delete # Object} other {Delete # Objects}}"
+msgstr ""
+
+msgid "{count, plural, one {Delete # Version} other {Delete # Versions}}"
+msgstr ""
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
+
+msgid "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
+msgstr ""
+
+msgid "{deletedCount, plural, one {# version was permanently deleted.} other {# versions were permanently deleted.}}"
+msgstr ""
+
+msgid "{deletedCount} deleted, {errorCount} failed."
+msgstr ""
+
+msgid "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
+msgstr ""
 
 msgid "{displayName} was successfully restored"
 msgstr ""
@@ -84,6 +118,9 @@ msgstr ""
 
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{selectedCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
+
+msgid "{selectedCount, plural, one {Delete # Version} other {Delete # Versions}}"
+msgstr ""
 
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{selectedCount, plural, one {Bucket leeren} other {Buckets leeren}}"
@@ -297,12 +334,6 @@ msgstr "Alle Container"
 
 msgid "All Images"
 msgstr "Alle Images"
-
-msgid "All objects in the folder can be restored from version history."
-msgstr ""
-
-msgid "All objects in the folder will be permanently deleted."
-msgstr ""
 
 msgid "All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "Alle Objekte in den ausgewählten Containern werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
@@ -583,13 +614,13 @@ msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher
 msgid "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 msgstr ""
 
-msgid "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted."
+msgid "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted. This action cannot be undone."
 msgstr ""
 
 msgid "Confirm deletion of {displayName}. The object will be marked as deleted but can be restored from version history."
 msgstr ""
 
-msgid "Confirm deletion of {displayName}. This action cannot be undone."
+msgid "Confirm deletion of {displayName}. The object will be permanently deleted. This action cannot be undone."
 msgstr ""
 
 msgid "Confirm that the Project ID is accurate."
@@ -941,6 +972,9 @@ msgstr "Löschen"
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
+msgid "Delete All Versions"
+msgstr ""
+
 msgid "Delete all versions and delete markers"
 msgstr ""
 
@@ -989,14 +1023,14 @@ msgstr ""
 msgid "Delete object:"
 msgstr "Objekt löschen:"
 
-msgid "Delete Permanently"
-msgstr ""
-
 msgid "Delete Policy"
 msgstr ""
 
 msgid "Delete Recursively"
 msgstr "Rekursiv löschen"
+
+msgid "Delete Results"
+msgstr ""
 
 msgid "Delete Rule"
 msgstr "Regel löschen"
@@ -1011,9 +1045,6 @@ msgid "Delete Selected"
 msgstr "Ausgewählte löschen"
 
 msgid "Delete Version"
-msgstr ""
-
-msgid "Delete Version Permanently"
 msgstr ""
 
 msgid "Delete Versions"
@@ -1111,6 +1142,9 @@ msgstr "DNS-Name"
 
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
+
+msgid "Done"
+msgstr ""
 
 msgid "Download"
 msgstr "Herunterladen"
@@ -1376,6 +1410,9 @@ msgstr "Zusätzliche Spezifikationen"
 msgid "Failed"
 msgstr ""
 
+msgid "Failed deletions:"
+msgstr ""
+
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
 msgstr "{failedCount} von {totalCount} Image(s) konnten nicht aktiviert werden. Einige Images sind möglicherweise bereits aktiv oder in einem ungültigen Zustand."
 
@@ -1637,14 +1674,14 @@ msgstr "Fehler beim Aktualisieren des Objekts: {mutationErrorMessage}"
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
 
-msgid "Failed to update visibility for \"{imageName}\": "
-msgstr "Fehler beim Aktualisieren der Sichtbarkeit für \"{imageName}\":"
+msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
+msgstr "Fehler beim Aktualisieren der Sichtbarkeit für \"{imageName}\": {errorMessage}"
 
 msgid "Failed to update visibility to {newVisibility}"
 msgstr "Fehler beim Aktualisieren der Sichtbarkeit auf {newVisibility}"
 
-msgid "Failed to upload file \"{fileName}\": "
-msgstr "Fehler beim Hochladen der Datei \"{fileName}\": "
+msgid "Failed to upload file \"{fileName}\": {errorMessage}"
+msgstr "Fehler beim Hochladen der Datei \"{fileName}\": {errorMessage}"
 
 msgid "Failed to Upload Object"
 msgstr "Fehler beim Hochladen des Objekts"
@@ -1743,6 +1780,9 @@ msgid "Folder name is required"
 msgstr "Ordnername ist erforderlich"
 
 msgid "Folder name is too long (max 255 characters)"
+msgstr ""
+
+msgid "Folder name:"
 msgstr ""
 
 msgid "folder-name"
@@ -2369,6 +2409,9 @@ msgstr ""
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
+msgid "No objects were deleted: {errorMessage}"
+msgstr ""
+
 msgid "No PCAs found"
 msgstr "No PCAs found"
 
@@ -2409,6 +2452,9 @@ msgid "No versions found for this object."
 msgstr ""
 
 msgid "No versions to delete in bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "No versions were deleted: {errorMessage}"
 msgstr ""
 
 msgid "None"
@@ -2495,6 +2541,9 @@ msgstr "Objekte gelöscht"
 msgid "Objects to be deleted ({totalCount})"
 msgstr "Zu löschende Objekte ({totalCount})"
 
+msgid "Objects to delete:"
+msgstr ""
+
 msgid "Objects: {containerName}"
 msgstr ""
 
@@ -2511,6 +2560,9 @@ msgid "One or more objects could not be deleted:"
 msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
 
 msgid "One or more rules use wildcard (*) for AllowedOrigins, which allows any website to access your bucket. Only use this for truly public resources."
+msgstr ""
+
+msgid "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
 msgstr ""
 
 msgid "Open {displayName}"
@@ -2804,6 +2856,9 @@ msgstr "Neustart"
 msgid "Restore"
 msgstr ""
 
+msgid "Restore Folder"
+msgstr ""
+
 msgid "Restore Version"
 msgstr ""
 
@@ -2909,6 +2964,9 @@ msgstr "Security Groups"
 msgid "Select"
 msgstr "Auswählen"
 
+msgid "Select {displayName}"
+msgstr ""
+
 msgid "Select a DNS domain."
 msgstr "DNS-Domain auswählen."
 
@@ -2922,6 +2980,9 @@ msgid "Select a security group..."
 msgstr "Security Group auswählen..."
 
 msgid "Select a template..."
+msgstr ""
+
+msgid "Select all objects"
 msgstr ""
 
 msgid "Select an external network"
@@ -3060,6 +3121,12 @@ msgid "Size:"
 msgstr ""
 
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
+msgstr ""
+
+msgid "Some Objects Could Not Be Deleted"
+msgstr ""
+
+msgid "Some Versions Could Not Be Deleted"
 msgstr ""
 
 msgid "Something went wrong:"
@@ -3254,23 +3321,20 @@ msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Bitte überpr�
 msgid "The ID of the network associated with the floating IP."
 msgstr "Die ID des Netzwerks, das der Floating IP zugeordnet ist."
 
-msgid "The image \"{imageId}\" could not be deactivated: {message}"
-msgstr "Das Image \"{imageId}\" konnte nicht deaktiviert werden: {message}"
+msgid "The image \"{imageId}\" could not be deactivated: {errorMessage}"
+msgstr "Das Image \"{imageId}\" konnte nicht deaktiviert werden: {errorMessage}"
 
-msgid "The image \"{imageId}\" could not be deleted: {message}"
-msgstr "Das Image \"{imageId}\" konnte nicht gelöscht werden: {message}"
+msgid "The image \"{imageId}\" could not be deleted: {errorMessage}"
+msgstr "Das Image \"{imageId}\" konnte nicht gelöscht werden: {errorMessage}"
 
-msgid "The image \"{imageId}\" could not be re-activated: {message}"
-msgstr "Das Image \"{imageId}\" konnte nicht reaktiviert werden: {message}"
+msgid "The image \"{imageId}\" could not be re-activated: {errorMessage}"
+msgstr "Das Image \"{imageId}\" konnte nicht reaktiviert werden: {errorMessage}"
 
-msgid "The image \"{imageName}\" could not be created: "
-msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: "
+msgid "The image \"{imageName}\" could not be created: {errorMessage}"
+msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {errorMessage}"
 
-msgid "The image \"{imageName}\" could not be updated: "
-msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: "
-
-msgid "The object can be restored from version history."
-msgstr ""
+msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
+msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
@@ -3286,6 +3350,12 @@ msgstr ""
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
+
+msgid "The selected objects will be marked as deleted but can be restored from version history."
+msgstr ""
+
+msgid "The selected objects will be permanently deleted. This action cannot be undone."
+msgstr ""
 
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
@@ -3347,7 +3417,7 @@ msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
 msgid "There are no rules to display. Add New Rule using button above"
 msgstr ""
 
-msgid "This action cannot be undone."
+msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr ""
 
 msgid "This action cannot be undone. The flavor will be permanently deleted."
@@ -3443,6 +3513,9 @@ msgstr "Dieser Schlüssel ist reserviert und wird separat verwaltet"
 msgid "This member already has access to this image."
 msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 
+msgid "This object and all its versions will be permanently deleted and cannot be restored."
+msgstr ""
+
 msgid "This property is reserved and cannot be modified"
 msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 
@@ -3454,6 +3527,9 @@ msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."
 
 msgid "This tenant does not have access to the flavor."
 msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
+
+msgid "This version will be permanently deleted and cannot be restored."
+msgstr ""
 
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr ""
@@ -3530,17 +3606,11 @@ msgstr "<0>{deleteWord}</0> zur Bestätigung eingeben:"
 msgid "Type <0>delete</0> to confirm:"
 msgstr "<0>delete</0> zur Bestätigung eingeben:"
 
-msgid "Type <0>DELETE</0> to confirm:"
-msgstr ""
-
 msgid "Type <0>remove</0> to confirm:"
 msgstr "Geben Sie <0>entfernen</0> zur Bestätigung ein:"
 
 msgid "Type container name to confirm"
 msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
-
-msgid "Type DELETE to confirm"
-msgstr ""
 
 msgid "Type name"
 msgstr "Name eingeben"
@@ -3717,6 +3787,12 @@ msgid "Versioning was successfully suspended for bucket \"{bucketName}\"."
 msgstr ""
 
 msgid "Versions Deleted"
+msgstr ""
+
+msgid "Versions Deleted Permanently"
+msgstr ""
+
+msgid "Versions to delete:"
 msgstr ""
 
 msgid "View Details"
