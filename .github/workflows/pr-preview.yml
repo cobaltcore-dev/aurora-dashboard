@@ -15,6 +15,7 @@ concurrency:
 jobs:
   preview:
     runs-on: [self-hosted, pr-preview]
+    continue-on-error: true
     steps:
       - name: Handle PR event
         run: |
