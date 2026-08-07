@@ -373,6 +373,8 @@ export const versioningRouter = {
           prefix: string
           hasDeletedContent: boolean
           isFolderDeleted: boolean
+          folderDeleteMarkerVersionId?: string
+          folderMarkerVersionId?: string
         }>
       > => {
         const s3 = ctx.getCephClient()
@@ -384,13 +386,15 @@ export const versioningRouter = {
               try {
                 // Query without delimiter to get all nested objects
                 // Paginate through all versions to find if ANY delete marker exists
-                let hasDeleteMarkers = false
+                let hasDeletedNestedObjects = false
                 let isFolderMarkerDeleted = false
+                let folderDeleteMarkerVersionId: string | undefined
+                let folderMarkerVersionId: string | undefined
                 let keyMarker: string | undefined
                 let versionIdMarker: string | undefined
 
-                // Keep paginating until we find a delete marker or reach the end
-                while (!hasDeleteMarkers) {
+                // Paginate through all versions
+                do {
                   const response = await s3.send(
                     new ListObjectVersionsCommand({
                       Bucket: input.bucket,
@@ -401,6 +405,22 @@ export const versioningRouter = {
                     })
                   )
 
+                  // Check if the folder marker itself has versions
+                  if (!folderMarkerVersionId && response.Versions) {
+                    const folderMarkerVersions = response.Versions.filter((v) => v.Key === folderPrefix)
+                    if (folderMarkerVersions.length > 0) {
+                      // Get the most recent version of the folder marker (by timestamp, regardless of IsLatest status)
+                      const latestVersion = folderMarkerVersions.sort((a, b) => {
+                        const aTime = a.LastModified?.getTime() ?? 0
+                        const bTime = b.LastModified?.getTime() ?? 0
+                        return bTime - aTime // Sort descending by time
+                      })[0]
+                      if (latestVersion) {
+                        folderMarkerVersionId = latestVersion.VersionId
+                      }
+                    }
+                  }
+
                   // Check if the folder marker itself is deleted (latest version is a delete marker)
                   if (!isFolderMarkerDeleted && response.DeleteMarkers) {
                     const folderMarkerDeleteMarkers = response.DeleteMarkers.filter((dm) => dm.Key === folderPrefix)
@@ -409,31 +429,45 @@ export const versioningRouter = {
                       const latestFolderMarker = folderMarkerDeleteMarkers.find((dm) => dm.IsLatest)
                       if (latestFolderMarker) {
                         isFolderMarkerDeleted = true
+                        folderDeleteMarkerVersionId = latestFolderMarker.VersionId
                       }
                     }
                   }
 
-                  // Check if there are any delete markers in this page
-                  hasDeleteMarkers = (response.DeleteMarkers?.length ?? 0) > 0
+                  // Check if there are any IsLatest=true delete markers (excluding the folder marker itself)
+                  // We only care about IsLatest=true because restored objects have IsLatest=false markers in history
+                  if (!hasDeletedNestedObjects) {
+                    const deleteMarkersExcludingFolder =
+                      response.DeleteMarkers?.filter((dm) => dm.Key !== folderPrefix && dm.IsLatest === true) ?? []
+                    hasDeletedNestedObjects = deleteMarkersExcludingFolder.length > 0
+                  }
 
-                  // If no more results or found a delete marker, stop
-                  if (!response.IsTruncated || hasDeleteMarkers) {
+                  // Early exit optimization: stop if we have all the information we need
+                  if (hasDeletedNestedObjects && isFolderMarkerDeleted && folderMarkerVersionId) {
                     break
                   }
 
-                  // Continue to next page
+                  // Continue to next page if truncated and has next marker
+                  if (!response.IsTruncated || !response.NextKeyMarker) {
+                    break
+                  }
+
                   keyMarker = response.NextKeyMarker
                   versionIdMarker = response.NextVersionIdMarker
-                }
+                } while (true) // eslint-disable-line no-constant-condition
 
+                // hasDeletedContent is true if:
+                // 1. The folder marker itself is deleted (isFolderMarkerDeleted)
+                // 2. OR there are deleted objects inside the folder (hasDeletedNestedObjects)
                 return {
                   prefix: folderPrefix,
-                  hasDeletedContent: hasDeleteMarkers,
+                  hasDeletedContent: isFolderMarkerDeleted || hasDeletedNestedObjects,
                   isFolderDeleted: isFolderMarkerDeleted,
+                  folderDeleteMarkerVersionId,
+                  folderMarkerVersionId,
                 }
-              } catch (error) {
+              } catch {
                 // If query fails for this folder, assume no deleted content
-                console.error(`Failed to check deleted content for folder ${folderPrefix}:`, error)
                 return {
                   prefix: folderPrefix,
                   hasDeletedContent: false,
