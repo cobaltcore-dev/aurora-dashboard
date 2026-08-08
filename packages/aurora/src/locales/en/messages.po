@@ -284,17 +284,14 @@ msgstr "Add"
 msgid "Add a Signed Certificate to your CA to activate it"
 msgstr "Add a Signed Certificate to your CA to activate it"
 
-msgid "Add CORS"
-msgstr "Add CORS"
+msgid "Add CORS Rule"
+msgstr "Add CORS Rule"
 
 msgid "Add Member"
 msgstr "Add Member"
 
 msgid "Add Metadata"
 msgstr "Add Metadata"
-
-msgid "Add New Rule"
-msgstr "Add New Rule"
 
 msgid "Add Policy"
 msgstr "Add Policy"
@@ -548,6 +545,9 @@ msgstr "Cancel upload"
 msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
 msgstr "Cannot move to the same location. Please select a different bucket, folder, or change the name."
 
+msgid "Cannot save CORS configuration: {validationError}"
+msgstr "Cannot save CORS configuration: {validationError}"
+
 msgid "Capabilities"
 msgstr "Capabilities"
 
@@ -740,9 +740,6 @@ msgstr "Copying object..."
 msgid "Copying..."
 msgstr "Copying..."
 
-msgid "CORS (Cross-Origin Resource Sharing) controls which browser origins can access bucket content via JavaScript. Essential for single-page applications, web-based uploads, and cross-domain hosting."
-msgstr "CORS (Cross-Origin Resource Sharing) controls which browser origins can access bucket content via JavaScript. Essential for single-page applications, web-based uploads, and cross-domain hosting."
-
 msgid "CORS Configuration Deleted"
 msgstr "CORS Configuration Deleted"
 
@@ -758,8 +755,8 @@ msgstr "CORS configuration was successfully saved for bucket \"{bucketName}\"."
 msgid "CORS Enabled"
 msgstr "CORS Enabled"
 
-msgid "CORS Rules"
-msgstr "CORS Rules"
+msgid "Cors Rules"
+msgstr "Cors Rules"
 
 msgid "Could not copy \"{displayName}\": {errorMessage}"
 msgstr "Could not copy \"{displayName}\": {errorMessage}"
@@ -971,6 +968,9 @@ msgstr "Delete"
 
 msgid "Delete {specKey}"
 msgstr "Delete {specKey}"
+
+msgid "Delete All Rules"
+msgstr "Delete All Rules"
 
 msgid "Delete All Versions"
 msgstr "Delete All Versions"
@@ -1191,6 +1191,9 @@ msgstr "e.g., production, linux, ubuntu"
 msgid "Edit"
 msgstr "Edit"
 
+msgid "Edit CORS Rule"
+msgstr "Edit CORS Rule"
+
 msgid "Edit Description"
 msgstr "Edit Description"
 
@@ -1214,9 +1217,6 @@ msgstr "Edit Security Group"
 
 msgid "Edit/View Bucket Policy"
 msgstr "Edit/View Bucket Policy"
-
-msgid "Edit/View CORS"
-msgstr "Edit/View CORS"
 
 msgid "Edit/View Policy"
 msgstr "Edit/View Policy"
@@ -1637,9 +1637,6 @@ msgstr "Failed to Restore Version"
 
 msgid "Failed to restore version: {errorMessage}"
 msgstr "Failed to restore version: {errorMessage}"
-
-msgid "Failed to save CORS configuration"
-msgstr "Failed to save CORS configuration"
 
 msgid "Failed to Save CORS Configuration"
 msgstr "Failed to Save CORS Configuration"
@@ -2430,9 +2427,6 @@ msgstr "No projects available."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 
-msgid "No rules"
-msgstr "No rules"
-
 msgid "No server groups available."
 msgstr "No server groups available."
 
@@ -2579,6 +2573,9 @@ msgstr "or drag and drop"
 
 msgid "Our Mission"
 msgstr "Our Mission"
+
+msgid "Overview"
+msgstr "Overview"
 
 msgid "Owner"
 msgstr "Owner"
@@ -2885,6 +2882,9 @@ msgstr "Rule ID"
 
 msgid "Rule Type"
 msgstr "Rule Type"
+
+msgid "rules"
+msgstr "rules"
 
 msgid "Rules"
 msgstr "Rules"
@@ -3393,6 +3393,9 @@ msgstr "There are no Certificates available for this Certificate Authority."
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "There are no containers available with the current search criteria. Try adjusting your search term."
 
+msgid "There are no CORS rules for this bucket"
+msgstr "There are no CORS rules for this bucket"
+
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 msgstr "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 
@@ -3413,9 +3416,6 @@ msgstr "There are no RBAC policies for this security group"
 
 msgid "There are no rules for this security group"
 msgstr "There are no rules for this security group"
-
-msgid "There are no rules to display. Add New Rule using button above"
-msgstr "There are no rules to display. Add New Rule using button above"
 
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr "These objects and all their versions will be permanently deleted and cannot be restored."
@@ -3669,6 +3669,9 @@ msgstr "Unknown domain"
 msgid "Unnamed"
 msgstr "Unnamed"
 
+msgid "Unsaved Changes"
+msgstr "Unsaved Changes"
+
 msgid "Update object"
 msgstr "Update object"
 
@@ -3731,6 +3734,9 @@ msgstr "valid token required: false"
 
 msgid "valid token required: true"
 msgstr "valid token required: true"
+
+msgid "Validation Error"
+msgstr "Validation Error"
 
 msgid "Value"
 msgstr "Value"
@@ -3908,6 +3914,9 @@ msgstr "You don't have permission to view extra specs for this flavor."
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
+
+msgid "You have unsaved changes to the CORS configuration."
+msgstr "You have unsaved changes to the CORS configuration."
 
 msgid "Your action is required"
 msgstr "Your action is required"

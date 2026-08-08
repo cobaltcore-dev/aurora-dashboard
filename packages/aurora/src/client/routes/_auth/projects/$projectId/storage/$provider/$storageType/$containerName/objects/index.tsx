@@ -4,6 +4,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { SwiftObjects } from "../../../../-components/Swift/Objects"
 import { CephObjects } from "../../../../-components/Ceph/Objects"
+import { CephCorsRules } from "../../../../-components/Ceph/Buckets"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
@@ -13,12 +14,14 @@ import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
 // - sortBy: active sort column key — persisted so deep links and back navigation restore sort state
 //   Accepts both Swift keys (last_modified, bytes) and Ceph keys (lastModified, size) for compatibility
 // - sortDirection: "asc" | "desc" — persisted alongside sortBy
+// - view: tab selection for Ceph bucket details page (overview shows objects, cors-rules shows CORS config)
 const objectsSearchSchema = z.object({
   prefix: z.string().optional(),
   sortBy: z.enum(["name", "last_modified", "bytes", "lastModified", "size"]).optional().default("name"),
   sortDirection: z.enum(["asc", "desc"]).optional().default("asc"),
   search: z.string().optional(),
   tab: z.enum(["all", "deleted"]).optional().default("all"),
+  view: z.enum(["overview", "cors-rules"]).optional().default("overview"),
 })
 
 export const Route = createFileRoute(
@@ -74,7 +77,7 @@ function ObjectsDashboard() {
     }),
   })
 
-  const { prefix, sortBy, sortDirection, search } = Route.useSearch()
+  const { prefix, sortBy, sortDirection, search, view } = Route.useSearch()
 
   // For Ceph buckets, we show ContentHeader with badges and actions
   // For Swift containers, the component handles its own header
@@ -86,7 +89,7 @@ function ObjectsDashboard() {
       <div>
         {projectId ? (
           <ErrorBoundary
-            resetKeys={[projectId, provider, containerName, prefix, sortBy, sortDirection, search]}
+            resetKeys={[projectId, provider, containerName, prefix, sortBy, sortDirection, search, view]}
             fallback={
               <div className="p-4 text-center">
                 <Trans>Error loading component</Trans>
@@ -98,6 +101,9 @@ function ObjectsDashboard() {
                 case "swift":
                   return <SwiftObjects provider={provider} containerName={containerName} />
                 case "ceph":
+                  if (view === "cors-rules") {
+                    return <CephCorsRules bucketName={containerName} />
+                  }
                   return <CephObjects bucketName={containerName} />
                 default:
                   return (

@@ -284,7 +284,7 @@ msgstr "Hinzufügen"
 msgid "Add a Signed Certificate to your CA to activate it"
 msgstr "Add a Signed Certificate to your CA to activate it"
 
-msgid "Add CORS"
+msgid "Add CORS Rule"
 msgstr ""
 
 msgid "Add Member"
@@ -292,9 +292,6 @@ msgstr "Mitglied hinzufügen"
 
 msgid "Add Metadata"
 msgstr "Metadata hinzufügen"
-
-msgid "Add New Rule"
-msgstr ""
 
 msgid "Add Policy"
 msgstr ""
@@ -548,6 +545,9 @@ msgstr "Upload abbrechen"
 msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
 msgstr "Cannot move to the same location. Please select a different bucket, folder, or change the name."
 
+msgid "Cannot save CORS configuration: {validationError}"
+msgstr ""
+
 msgid "Capabilities"
 msgstr "Capabilities"
 
@@ -740,9 +740,6 @@ msgstr "Objekt wird kopiert..."
 msgid "Copying..."
 msgstr "Wird kopiert..."
 
-msgid "CORS (Cross-Origin Resource Sharing) controls which browser origins can access bucket content via JavaScript. Essential for single-page applications, web-based uploads, and cross-domain hosting."
-msgstr ""
-
 msgid "CORS Configuration Deleted"
 msgstr ""
 
@@ -758,7 +755,7 @@ msgstr ""
 msgid "CORS Enabled"
 msgstr ""
 
-msgid "CORS Rules"
+msgid "Cors Rules"
 msgstr ""
 
 msgid "Could not copy \"{displayName}\": {errorMessage}"
@@ -971,6 +968,9 @@ msgstr "Löschen"
 
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
+
+msgid "Delete All Rules"
+msgstr ""
 
 msgid "Delete All Versions"
 msgstr ""
@@ -1191,6 +1191,9 @@ msgstr "z. B. production, linux, ubuntu"
 msgid "Edit"
 msgstr "Bearbeiten"
 
+msgid "Edit CORS Rule"
+msgstr ""
+
 msgid "Edit Description"
 msgstr "Beschreibung bearbeiten"
 
@@ -1213,9 +1216,6 @@ msgid "Edit Security Group"
 msgstr "Security Group bearbeiten"
 
 msgid "Edit/View Bucket Policy"
-msgstr ""
-
-msgid "Edit/View CORS"
 msgstr ""
 
 msgid "Edit/View Policy"
@@ -1636,9 +1636,6 @@ msgid "Failed to Restore Version"
 msgstr ""
 
 msgid "Failed to restore version: {errorMessage}"
-msgstr ""
-
-msgid "Failed to save CORS configuration"
 msgstr ""
 
 msgid "Failed to Save CORS Configuration"
@@ -2430,9 +2427,6 @@ msgstr "Keine Projekte verfügbar."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
-msgid "No rules"
-msgstr ""
-
 msgid "No server groups available."
 msgstr "Keine Servergruppen verfügbar"
 
@@ -2579,6 +2573,9 @@ msgstr "oder per Drag & Drop"
 
 msgid "Our Mission"
 msgstr "Unsere Mission"
+
+msgid "Overview"
+msgstr ""
 
 msgid "Owner"
 msgstr "Eigentümer"
@@ -2885,6 +2882,9 @@ msgstr ""
 
 msgid "Rule Type"
 msgstr "Regeltyp"
+
+msgid "rules"
+msgstr ""
 
 msgid "Rules"
 msgstr "Regeln"
@@ -3393,6 +3393,9 @@ msgstr "There are no Certificates available for this Certificate Authority."
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
+msgid "There are no CORS rules for this bucket"
+msgstr ""
+
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 msgstr "Keine Flavors verfügbar. Filtern Sie neu oder erstellen Sie einen neuen Flavor."
 
@@ -3413,9 +3416,6 @@ msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
 
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
-
-msgid "There are no rules to display. Add New Rule using button above"
-msgstr ""
 
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr ""
@@ -3669,6 +3669,9 @@ msgstr ""
 msgid "Unnamed"
 msgstr "Unbenannt"
 
+msgid "Unsaved Changes"
+msgstr ""
+
 msgid "Update object"
 msgstr "Objekt aktualisieren"
 
@@ -3731,6 +3734,9 @@ msgstr "gültiges Token erforderlich: false"
 
 msgid "valid token required: true"
 msgstr "gültiges Token erforderlich: true"
+
+msgid "Validation Error"
+msgstr ""
 
 msgid "Value"
 msgstr "Value"
@@ -3908,6 +3914,9 @@ msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor anzusehen."
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "Sie haben keine Berechtigung, die Details dieses Flavors anzuzeigen."
+
+msgid "You have unsaved changes to the CORS configuration."
+msgstr ""
 
 msgid "Your action is required"
 msgstr "Ihre Aktion ist erforderlich"

@@ -114,7 +114,7 @@ export const corsRouter = {
    * - ID: max 255 characters
    * - Total rules: 1-100 per bucket
    *
-   * @returns { success: boolean }
+   * @returns true
    * @throws TRPCError BAD_REQUEST - invalid CORS configuration structure
    * @throws TRPCError NOT_FOUND - bucket does not exist
    * @throws TRPCError FORBIDDEN - no credentials or access denied
@@ -149,7 +149,7 @@ export const corsRouter = {
    * Removes all CORS rules from the bucket. The bucket reverts to having no CORS config.
    * Not an error if no CORS configuration was set (idempotent).
    *
-   * @returns { success: boolean }
+   * @returns true
    * @throws TRPCError NOT_FOUND - bucket does not exist
    * @throws TRPCError FORBIDDEN - no credentials or access denied
    */

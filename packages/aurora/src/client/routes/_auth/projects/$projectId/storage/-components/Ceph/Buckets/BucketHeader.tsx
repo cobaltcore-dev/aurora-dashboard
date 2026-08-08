@@ -6,6 +6,7 @@ import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { useBucketInfo } from "../hooks/useBucketInfo"
 import { BucketHeaderActions } from "./BucketHeaderActions"
 import { BucketModals, type ModalType } from "./BucketModals"
+import { BucketDetailTabs } from "./BucketDetailTabs"
 
 interface BucketHeaderProps {
   bucketName: string
@@ -67,7 +68,6 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
     <BucketHeaderActions
       versioningStatus={versioningStatus}
       hasPolicy={Boolean(policyData?.policy)}
-      hasCors={Boolean(corsData?.corsRules && corsData.corsRules.length > 0)}
       hasOldVersionsOrDeleteMarkers={hasOldVersionsOrDeleteMarkers}
       isBucketEmpty={isBucketEmpty}
       onOpenModal={openModal}
@@ -77,6 +77,10 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
   return (
     <>
       <ContentHeader title={bucketName} projectId={projectId} badges={badges} actions={actions} />
+
+      <div className="-mt-4 mb-4">
+        <BucketDetailTabs />
+      </div>
 
       <BucketModals
         bucketName={bucketName}

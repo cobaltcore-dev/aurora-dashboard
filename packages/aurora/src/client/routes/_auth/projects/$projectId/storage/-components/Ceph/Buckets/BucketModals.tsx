@@ -6,8 +6,6 @@ import { EnableVersioningModal } from "./EnableVersioningModal"
 import { SuspendVersioningModal } from "./SuspendVersioningModal"
 import { BucketPolicyModal } from "./BucketPolicyModal"
 import { DeleteBucketPolicyModal } from "./DeleteBucketPolicyModal"
-import { CorsModal } from "./CorsModal"
-import { DeleteCorsModal } from "./DeleteCorsModal"
 import { EmptyBucketModal } from "./EmptyBucketModal"
 import { DeleteBucketModal } from "./DeleteBucketModal"
 import { DeleteVersionsModal } from "./DeleteVersionsModal"
@@ -18,10 +16,6 @@ import {
   getVersioningSuspendErrorToast,
   getBucketPolicyDeletedToast,
   getBucketPolicyDeleteErrorToast,
-  getCorsSavedToast,
-  getCorsSaveErrorToast,
-  getCorsDeletedToast,
-  getCorsDeleteErrorToast,
   getVersionsDeletedToast,
   getVersionsDeleteErrorToast,
   getBucketEmptiedToast,
@@ -35,8 +29,6 @@ export type ModalType =
   | "suspendVersioning"
   | "policy"
   | "deletePolicy"
-  | "cors"
-  | "deleteCors"
   | "emptyBucket"
   | "deleteBucket"
   | "deleteVersions"
@@ -129,42 +121,6 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         }}
         onError={(bucketName, errorMessage) => {
           const { message, ...options } = getBucketPolicyDeleteErrorToast(bucketName, errorMessage)
-          toast.error(message, options)
-          onClose()
-        }}
-      />
-
-      <CorsModal
-        isOpen={activeModal === "cors"}
-        bucketName={bucketName}
-        onClose={onClose}
-        onSuccess={(bucketName, operation) => {
-          const { message, ...options } =
-            operation === "delete" ? getCorsDeletedToast(bucketName) : getCorsSavedToast(bucketName)
-          toast.success(message, options)
-          onClose()
-        }}
-        onError={(bucketName, errorMessage, operation) => {
-          const { message, ...options } =
-            operation === "delete"
-              ? getCorsDeleteErrorToast(bucketName, errorMessage)
-              : getCorsSaveErrorToast(bucketName, errorMessage)
-          toast.error(message, options)
-          onClose()
-        }}
-      />
-
-      <DeleteCorsModal
-        isOpen={activeModal === "deleteCors"}
-        bucketName={bucketName}
-        onClose={onClose}
-        onSuccess={(bucketName) => {
-          const { message, ...options } = getCorsDeletedToast(bucketName)
-          toast.success(message, options)
-          onClose()
-        }}
-        onError={(bucketName, errorMessage) => {
-          const { message, ...options } = getCorsDeleteErrorToast(bucketName, errorMessage)
           toast.error(message, options)
           onClose()
         }}
