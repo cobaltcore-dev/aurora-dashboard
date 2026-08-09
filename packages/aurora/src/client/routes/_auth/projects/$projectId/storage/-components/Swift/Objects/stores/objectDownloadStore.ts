@@ -62,6 +62,15 @@ const emit = () => {
   listeners.forEach((listener) => listener())
 }
 
+// How long a cancelled worker gets to report back before it is forced down.
+//
+// Normally it replies almost immediately — the abort rejects its `for await`,
+// and the reply path terminates it. But that reply isn't guaranteed: if the
+// abort ever fails to unwind the stream, the worker would keep downloading and
+// buffering a file nobody wants, with no entry left in `transfers` to clean it
+// up. This bounds that window.
+const CANCEL_TERMINATE_GRACE_MS = 5000
+
 export const transferKey = (container: string, objectKey: string) => `${container}:${objectKey}`
 
 export const subscribeTransfers = (listener: () => void) => {
@@ -226,19 +235,11 @@ export function cancelObjectDownload(container: string, objectKey: string): Acti
   const transfer = transfers.get(key)
   if (!transfer) return undefined
 
-  // Post the cancel first so the worker aborts its tRPC fetch (tearing down the
-  // request → the BFF's ctx.req.signal fires → its reader loop breaks and stops
-  // pulling from Swift), then terminate immediately.
-  //
-  // We terminate outright rather than waiting out a grace period: the entry is
-  // already dropped below and any late worker reply is ignored (onmessage checks
-  // it's still the row's worker), so there is nothing to wait for — and on a fast
-  // connection every extra moment a discarded worker keeps buffering is memory we
-  // don't want held. terminate() also frees whatever bytes it had already
-  // decoded. It is idempotent, so the finish()/onmessage paths terminating again
-  // are harmless.
   transfer.worker.postMessage({ type: "cancel" } satisfies DownloadWorkerRequest)
-  transfer.worker.terminate()
+  // Safety net for a worker that never reports back (see
+  // CANCEL_TERMINATE_GRACE_MS). terminate() is idempotent, so this is a no-op in
+  // the normal case where the worker already replied and was terminated.
+  setTimeout(() => transfer.worker.terminate(), CANCEL_TERMINATE_GRACE_MS)
   transfers.delete(key)
   emit()
   return transfer
