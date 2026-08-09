@@ -1684,9 +1684,24 @@ export const swiftRouter = {
       const reader = response.body.getReader()
       let isFirst = true
       let downloaded = 0
+      let aborted = false
 
       try {
         while (true) {
+          // The download worker aborts its tRPC fetch on cancel, which surfaces
+          // here as ctx.req.signal. Check before each read so a cancelled transfer
+          // stops pulling from Swift promptly, instead of streaming the whole
+          // object into a worker the client has already discarded — on a fast
+          // connection that unbounded buffering is what OOMs the renderer.
+          //
+          // The signal is optional: callers created via createCallerFactory
+          // (tests, server-side calls) have no HTTP request behind them, so there
+          // is nothing to abort.
+          if (ctx.req?.signal?.aborted) {
+            aborted = true
+            break
+          }
+
           const { done, value } = await reader.read()
           if (done) break
 
@@ -1710,7 +1725,12 @@ export const swiftRouter = {
           isFirst = false
         }
 
-        downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
+        // Only signal completion for a stream that actually ran to the end — an
+        // aborted transfer stopped at a partial byte count, and emitting
+        // `complete` would make watchDownloadProgress report it as finished.
+        if (!aborted) {
+          downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
+        }
       } catch (error) {
         downloadProgressEmitter.emit(`progress:${scopedDownloadId}:error`, error)
         throw mapErrorResponseToTRPCError(error as Parameters<typeof mapErrorResponseToTRPCError>[0], {

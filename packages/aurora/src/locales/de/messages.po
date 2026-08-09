@@ -110,9 +110,6 @@ msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
 msgid "{percent}%"
 msgstr "{percent}%"
 
-msgid "{progressPct}%"
-msgstr "{progressPct}%"
-
 msgid "{rulesLength} rules"
 msgstr ""
 
@@ -752,9 +749,6 @@ msgstr ""
 msgid "Could not download \"{displayName}\": {errorMessage}"
 msgstr "\"{displayName}\" konnte nicht heruntergeladen werden: {errorMessage}"
 
-msgid "Could not download \"{objectName}\": {errorMessage}"
-msgstr "\"{objectName}\" konnte nicht heruntergeladen werden: {errorMessage}"
-
 msgid "Could not empty bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
@@ -1087,6 +1081,9 @@ msgstr "Download von \"{displayName}\" wurde abgebrochen."
 
 msgid "Downloading larger files may take a while. You can keep browsing buckets and folders — downloads continue in the background, and this message disappears once they finish."
 msgstr "Das Herunterladen größerer Dateien kann eine Weile dauern. Sie können weiterhin Buckets und Ordner durchsuchen — Downloads werden im Hintergrund fortgesetzt, und diese Meldung verschwindet, sobald sie abgeschlossen sind."
+
+msgid "Downloading larger files may take a while. You can keep browsing containers and folders — downloads continue in the background, and this message disappears once they finish."
+msgstr ""
 
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."
