@@ -1848,6 +1848,67 @@ describe("swiftRouter", () => {
         }
       }).rejects.toThrow("Swift response has no body")
     })
+
+    // The download worker aborts its tRPC fetch on cancel; the BFF sees the
+    // client disconnect as ctx.req.signal and must stop pulling from Swift
+    // instead of streaming a whole object into a worker that's already gone.
+    // Without this, a fast connection buffers the full file post-cancel and OOMs
+    // the renderer. createMockContext wires ctx.req.signal to a fresh
+    // AbortController; we swap in one we can trigger.
+    it("stops streaming once the request is aborted mid-download", async () => {
+      const mockCtx = createMockContext()
+      const ac = new AbortController()
+      ;(mockCtx.req as unknown as { signal: AbortSignal }).signal = ac.signal
+      const caller = createCaller(mockCtx)
+
+      const chunks = [new TextEncoder().encode("aaa"), new TextEncoder().encode("bbb"), new TextEncoder().encode("ccc")]
+      mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse(chunks, "text/plain", 9))
+
+      const iterable = await caller.storage.swift.downloadObject({
+        project_id: TEST_PROJECT_ID,
+        container: "test-container",
+        object: "big.bin",
+        filename: "big.bin",
+        downloadId: "test-container:big.bin",
+      })
+
+      const received: string[] = []
+      for await (const item of iterable) {
+        received.push(item.chunk)
+        // Cancel right after the first chunk. The loop re-checks the signal at
+        // the top of the next iteration and breaks before reading again.
+        ac.abort()
+      }
+
+      expect(received).toHaveLength(1)
+    })
+
+    it("yields nothing when the request is already aborted before the first read", async () => {
+      const mockCtx = createMockContext()
+      const ac = new AbortController()
+      ac.abort()
+      ;(mockCtx.req as unknown as { signal: AbortSignal }).signal = ac.signal
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockSwift.get.mockResolvedValue(
+        makeStreamResponse([new TextEncoder().encode("aaa"), new TextEncoder().encode("bbb")], "text/plain", 6)
+      )
+
+      const iterable = await caller.storage.swift.downloadObject({
+        project_id: TEST_PROJECT_ID,
+        container: "test-container",
+        object: "big.bin",
+        filename: "big.bin",
+        downloadId: "test-container:big.bin",
+      })
+
+      const received: unknown[] = []
+      for await (const item of iterable) {
+        received.push(item)
+      }
+
+      expect(received).toHaveLength(0)
+    })
   })
 
   // ============================================================================
