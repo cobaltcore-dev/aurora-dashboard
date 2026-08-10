@@ -3,6 +3,7 @@ import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import { TRPCError } from "@trpc/server"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import { omit } from "@/server/helpers/object"
+import { validateRelativeUrl } from "@/server/helpers/urlValidation"
 import EventEmitter from "node:events"
 import { Readable, Transform } from "node:stream"
 import { pipeline } from "node:stream/promises"
@@ -221,24 +222,8 @@ export const imageRouter = {
         validateGlanceService(glance)
 
         // Security: Reject absolute (or scheme-relative) URLs to prevent SSRF attacks
-        // Reject: http:, https:, //, and whitespace-prefixed variants
-        const isAbsoluteUrl = (url: string) => {
-          const trimmed = url.trim()
-          return /^(?:https?:|\/\/)/i.test(trimmed)
-        }
-
-        if (first && isAbsoluteUrl(first)) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Invalid pagination URL: absolute URLs are not allowed for security reasons",
-          })
-        }
-        if (next && isAbsoluteUrl(next)) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Invalid pagination URL: absolute URLs are not allowed for security reasons",
-          })
-        }
+        validateRelativeUrl(first, "pagination URL")
+        validateRelativeUrl(next, "pagination URL")
 
         // Always fetch ALL images from OpenStack (no pagination)
         const allImages: GlanceImage[] = []
