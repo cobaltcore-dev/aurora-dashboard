@@ -8,7 +8,8 @@ import { TRPCError } from "@trpc/server"
  * @returns true if the URL is absolute (and should be rejected), false if relative (safe)
  */
 export function isAbsoluteUrl(url: string): boolean {
-  const trimmed = url.trim()
+  // eslint-disable-next-line no-control-regex -- intentionally removing control characters U+0000–U+0020
+  const trimmed = url.replace(/^[\x00-\x20]+/, "")
   return /^(?:https?:|\/\/)/i.test(trimmed)
 }
 

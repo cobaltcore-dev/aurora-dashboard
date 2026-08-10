@@ -50,11 +50,5 @@
     "commitizen": {
       "path": "./node_modules/cz-customizable"
     }
-  },
-  "pnpm": {
-    "overrides": {
-      "fast-uri": ">=3.1.5",
-      "js-yaml": ">=4.3.0"
-    }
   }
 }
