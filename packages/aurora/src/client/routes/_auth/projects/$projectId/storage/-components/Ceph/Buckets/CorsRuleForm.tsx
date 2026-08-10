@@ -10,7 +10,7 @@ interface CorsRuleFormProps {
   onCancel: () => void
 }
 
-const ALLOWED_METHODS = ["GET", "PUT", "POST", "DELETE", "HEAD"] as const
+export const ALLOWED_METHODS = ["GET", "PUT", "POST", "DELETE", "HEAD"] as const
 
 export const CorsRuleForm = ({ editingRule, onSubmit, onCancel }: CorsRuleFormProps) => {
   const { t } = useLingui()

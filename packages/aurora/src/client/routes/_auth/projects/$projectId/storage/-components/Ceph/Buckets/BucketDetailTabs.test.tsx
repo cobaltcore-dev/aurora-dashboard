@@ -56,4 +56,47 @@ describe("BucketDetailTabs", () => {
     const corsTab = screen.getByText("Cors Rules").closest("button")
     expect(corsTab).toHaveClass("juno-navigation-item-active")
   })
+
+  it("calls navigate with merged search params when clicking inactive tab", async () => {
+    const { default: userEvent } = await import("@testing-library/user-event")
+    const user = userEvent.setup()
+
+    // Start with overview active, with some existing search params
+    vi.mocked(Route.useSearch).mockReturnValue({
+      view: "overview",
+      prefix: "folder/",
+      sortBy: "name",
+      search: "test",
+      tab: "all",
+    } as never)
+
+    render(<BucketDetailTabs />, { wrapper: Wrapper })
+
+    // Click on Cors Rules tab
+    const corsTab = screen.getByText("Cors Rules")
+    await user.click(corsTab)
+
+    // Should call navigate with view changed but other params preserved
+    expect(mockNavigate).toHaveBeenCalledWith({
+      search: expect.any(Function),
+    })
+
+    // Verify the search function preserves other params
+    const searchFn = mockNavigate.mock.calls[0][0].search
+    const result = searchFn({
+      view: "overview",
+      prefix: "folder/",
+      sortBy: "name",
+      search: "test",
+      tab: "all",
+    })
+
+    expect(result).toEqual({
+      view: "cors-rules",
+      prefix: "folder/",
+      sortBy: "name",
+      search: "test",
+      tab: "all",
+    })
+  })
 })

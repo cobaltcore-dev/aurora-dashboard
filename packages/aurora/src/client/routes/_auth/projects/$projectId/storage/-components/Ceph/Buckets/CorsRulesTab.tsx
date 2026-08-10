@@ -13,6 +13,8 @@ import {
   getCorsDeleteErrorToast,
 } from "./BucketToastNotifications"
 import type { CorsRuleRead } from "@/server/Storage/types/ceph"
+import { ALLOWED_METHODS } from "./CorsRuleForm"
+import { validateCorsRules } from "./corsValidation"
 
 interface CorsRulesTabProps {
   bucketName: string
@@ -73,8 +75,8 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
       toast.success(message, options)
     },
     onError: (error) => {
-      // Check if it's a validation error from the server
-      if (error.message.includes("validation") || error.message.includes("Invalid")) {
+      // Check if it's a validation error from the server by tRPC error code
+      if (error.data?.code === "BAD_REQUEST") {
         setValidationError(error.message)
       }
       const { message, ...options } = getCorsSaveErrorToast(bucketName, error.message)
@@ -101,7 +103,21 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   // Check if draft differs from server state (key-order-insensitive)
   useEffect(() => {
     const serverRules = corsData?.corsRules ?? []
-    const hasChanges = JSON.stringify(draftRules) !== JSON.stringify(serverRules)
+
+    // Normalize rules for comparison: sort object keys to avoid false positives
+    const normalizeRule = (rule: CorsRuleRead) => {
+      const sortedKeys = Object.keys(rule).sort()
+      const normalized: Record<string, unknown> = {}
+      sortedKeys.forEach((key) => {
+        normalized[key] = rule[key as keyof CorsRuleRead]
+      })
+      return normalized
+    }
+
+    const normalizedDraft = draftRules.map(normalizeRule)
+    const normalizedServer = serverRules.map(normalizeRule)
+
+    const hasChanges = JSON.stringify(normalizedDraft) !== JSON.stringify(normalizedServer)
     setHasUnsavedChanges(hasChanges)
   }, [draftRules, corsData])
 
@@ -114,14 +130,18 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
       return
     }
 
-    // Server will validate with strict schema via tRPC input schema (corsConfigurationSchema)
-    // Type assertion is safe because server performs full validation and converts lenient
-    // CorsRuleRead[] (AllowedMethods: string[]) to strict CorsRule[] (AllowedMethods: enum[])
+    // Client-side validation before calling the server
+    const validationResult = validateCorsRules(draftRules, ALLOWED_METHODS)
+    if (!validationResult.isValid) {
+      setValidationError(validationResult.errors.join("; "))
+      return
+    }
+
+    // Server will also validate, but we've already narrowed the types correctly
     setMutation.mutate({
       project_id: projectId,
       bucketName,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      corsConfiguration: { CORSRules: draftRules as any },
+      corsConfiguration: { CORSRules: validationResult.validatedRules },
     })
   }
 

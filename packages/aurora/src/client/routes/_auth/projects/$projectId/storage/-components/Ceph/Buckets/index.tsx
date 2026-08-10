@@ -334,7 +334,7 @@ export const CephBuckets = () => {
                 placeholder={t`Search buckets...`}
                 data-testid="searchbar"
                 value={localSearchTerm}
-                onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                onInput={(e) => {
                   const v = e.currentTarget.value
                   setLocalSearchTerm(v)
                   clearTimeout(debounceTimer.current)
