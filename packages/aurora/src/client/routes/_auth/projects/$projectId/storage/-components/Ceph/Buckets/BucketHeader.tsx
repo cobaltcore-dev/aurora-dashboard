@@ -68,6 +68,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
     <BucketHeaderActions
       versioningStatus={versioningStatus}
       hasPolicy={Boolean(policyData?.policy)}
+      hasCors={Boolean(corsData?.corsRules && corsData.corsRules.length > 0)}
       hasOldVersionsOrDeleteMarkers={hasOldVersionsOrDeleteMarkers}
       isBucketEmpty={isBucketEmpty}
       onOpenModal={openModal}
