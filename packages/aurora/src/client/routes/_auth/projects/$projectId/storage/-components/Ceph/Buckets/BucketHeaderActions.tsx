@@ -1,4 +1,4 @@
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import { Button, PopupMenu, PopupMenuItem, PopupMenuOptions, PopupMenuToggle } from "@cloudoperators/juno-ui-components"
 import type { ModalType } from "./BucketModals"
 
@@ -42,6 +42,7 @@ export const BucketHeaderActions = ({
           {versioningStatus && versioningStatus.status === "Enabled" && (
             <PopupMenuItem label={t`Suspend Versioning`} onClick={() => onOpenModal("suspendVersioning")} />
           )}
+          <PopupMenuItem label={hasPolicy ? t`Edit Policy` : t`Add Policy`} onClick={() => onOpenModal("policy")} />
           {hasPolicy && <PopupMenuItem label={t`Delete Policy`} onClick={() => onOpenModal("deletePolicy")} />}
           {!isBucketEmpty && <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />}
           {hasOldVersionsOrDeleteMarkers && (
@@ -50,9 +51,6 @@ export const BucketHeaderActions = ({
           <PopupMenuItem label={t`Delete Bucket`} onClick={() => onOpenModal("deleteBucket")} />
         </PopupMenuOptions>
       </PopupMenu>
-      <Button variant="subdued" className="whitespace-nowrap" onClick={() => onOpenModal("policy")}>
-        {hasPolicy ? <Trans>Edit Policy</Trans> : <Trans>Add Policy</Trans>}
-      </Button>
     </>
   )
 }
