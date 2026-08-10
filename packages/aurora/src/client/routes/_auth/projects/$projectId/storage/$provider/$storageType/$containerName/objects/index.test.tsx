@@ -1,7 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { redirect } from "@tanstack/react-router"
+import { render, screen } from "@testing-library/react"
+import { redirect, useParams } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { checkServiceAvailability } from "../../../../-components/utils/serviceAvailability"
+import { ObjectsDashboard, Route } from "./index"
+import { I18nProvider } from "@lingui/react"
+import { i18n } from "@lingui/core"
+import { messages as enMessages } from "@/locales/en/messages"
+
+// Initialize i18n
+i18n.load("en", enMessages)
+i18n.activate("en")
 
 // Mock the dependencies
 vi.mock("@tanstack/react-router", async () => {
@@ -21,11 +30,29 @@ vi.mock("@tanstack/react-router", async () => {
       }
       throw new Error(`Redirect to: ${resolvedPath}`)
     }),
+    useParams: vi.fn(),
   }
 })
 
 vi.mock("@/server/Authentication/helpers", () => ({
   getServiceIndex: vi.fn(),
+}))
+
+// Mock the content components to return simple test IDs
+vi.mock("../../../../-components/Swift/Objects", () => ({
+  SwiftObjects: () => <div data-testid="swift-objects">Swift Objects</div>,
+}))
+
+vi.mock("../../../../-components/Ceph/Objects", () => ({
+  CephObjects: () => <div data-testid="ceph-objects">Ceph Objects</div>,
+}))
+
+vi.mock("../../../../-components/Ceph/Buckets", () => ({
+  CephCorsRules: () => <div data-testid="ceph-cors-rules">CORS Rules</div>,
+}))
+
+vi.mock("../../../../-components/Ceph/Buckets/BucketHeader", () => ({
+  BucketHeader: () => null,
 }))
 
 describe("Objects Route - checkServiceAvailability", () => {
@@ -279,19 +306,72 @@ describe("Objects Route - checkServiceAvailability", () => {
 })
 
 describe("Objects Route - View Parameter Handling", () => {
-  // These tests verify that the view search param is accepted by the route.
-  // The schema accepts 'overview' (default) and 'cors-rules'.
-  // Component-level logic that branches on view is better tested in ObjectsDashboard
-  // or E2E tests, not here where we test route guards and search validation.
+  // These tests verify the view parameter correctly branches the rendered component:
+  // - Ceph + cors-rules → CephCorsRules
+  // - Ceph + overview → CephObjects
+  // - Swift + cors-rules → SwiftObjects (regression guard: Swift ignores view param)
 
-  it("validates search params schema including view parameter", async () => {
-    // The route's validateSearch accepts view, but we can't import the schema directly.
-    // We verify the route accepts these params by checking the Route export exists
-    const { Route } = await import("./index")
-    expect(Route).toBeDefined()
+  const Wrapper = ({ children }: { children: React.ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
-    // The objectsSearchSchema defined in the route handles view with a default of "overview"
-    // and accepts "overview" | "cors-rules". This is verified implicitly by the route
-    // rendering correctly with those search params in the app.
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("renders CephCorsRules when provider is ceph and view is cors-rules", () => {
+    vi.mocked(useParams).mockReturnValue({
+      projectId: "proj-1",
+      provider: "ceph",
+      containerName: "bucket-1",
+    })
+    vi.spyOn(Route, "useSearch").mockReturnValue({
+      view: "cors-rules",
+      sortBy: "name",
+      sortDirection: "asc",
+      tab: "all",
+    })
+
+    render(<ObjectsDashboard />, { wrapper: Wrapper })
+
+    expect(screen.getByTestId("ceph-cors-rules")).toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-objects")).not.toBeInTheDocument()
+  })
+
+  it("renders CephObjects when provider is ceph and view is overview", () => {
+    vi.mocked(useParams).mockReturnValue({
+      projectId: "proj-1",
+      provider: "ceph",
+      containerName: "bucket-1",
+    })
+    vi.spyOn(Route, "useSearch").mockReturnValue({
+      view: "overview",
+      sortBy: "name",
+      sortDirection: "asc",
+      tab: "all",
+    })
+
+    render(<ObjectsDashboard />, { wrapper: Wrapper })
+
+    expect(screen.getByTestId("ceph-objects")).toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-cors-rules")).not.toBeInTheDocument()
+  })
+
+  it("renders SwiftObjects when provider is swift, ignoring view parameter", () => {
+    vi.mocked(useParams).mockReturnValue({
+      projectId: "proj-1",
+      provider: "swift",
+      containerName: "container-1",
+    })
+    vi.spyOn(Route, "useSearch").mockReturnValue({
+      view: "cors-rules", // Swift should ignore this
+      sortBy: "name",
+      sortDirection: "asc",
+      tab: "all",
+    })
+
+    render(<ObjectsDashboard />, { wrapper: Wrapper })
+
+    expect(screen.getByTestId("swift-objects")).toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-objects")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-cors-rules")).not.toBeInTheDocument()
   })
 })

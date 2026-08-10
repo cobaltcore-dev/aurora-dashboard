@@ -67,7 +67,7 @@ export const Route = createFileRoute(
   },
 })
 
-function ObjectsDashboard() {
+export function ObjectsDashboard() {
   const { projectId, provider, containerName } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
     select: (params) => ({
