@@ -30,9 +30,6 @@ export const BucketHeaderActions = ({
 
   return (
     <>
-      <Button variant="subdued" className="whitespace-nowrap" onClick={() => onOpenModal("policy")}>
-        {hasPolicy ? <Trans>Edit/View Policy</Trans> : <Trans>Add Policy</Trans>}
-      </Button>
       <PopupMenu>
         <PopupMenuToggle as="div">
           <Button icon="moreVert" />
@@ -53,6 +50,9 @@ export const BucketHeaderActions = ({
           <PopupMenuItem label={t`Delete Bucket`} onClick={() => onOpenModal("deleteBucket")} />
         </PopupMenuOptions>
       </PopupMenu>
+      <Button variant="subdued" className="whitespace-nowrap" onClick={() => onOpenModal("policy")}>
+        {hasPolicy ? <Trans>Edit Policy</Trans> : <Trans>Add Policy</Trans>}
+      </Button>
     </>
   )
 }

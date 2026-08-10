@@ -1212,14 +1212,14 @@ msgstr "Edit Image Metadata"
 msgid "Edit Metadata"
 msgstr "Edit Metadata"
 
+msgid "Edit Policy"
+msgstr "Edit Policy"
+
 msgid "Edit Security Group"
 msgstr "Edit Security Group"
 
 msgid "Edit/View Bucket Policy"
 msgstr "Edit/View Bucket Policy"
-
-msgid "Edit/View Policy"
-msgstr "Edit/View Policy"
 
 msgid "Efficient bulk deletion"
 msgstr "Efficient bulk deletion"
