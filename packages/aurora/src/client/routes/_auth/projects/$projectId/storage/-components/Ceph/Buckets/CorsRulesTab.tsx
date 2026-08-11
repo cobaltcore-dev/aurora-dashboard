@@ -25,12 +25,10 @@ import { SortSettings } from "@/client/components/ListToolbar/types"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
 import { CorsRulesTable } from "./CorsRulesTable"
 import { CorsRuleModal } from "./CorsRuleModal"
-import { DeleteCorsModal } from "./DeleteCorsModal"
 import { DeleteCorsRulesModal } from "./DeleteCorsRulesModal"
 import {
   getCorsSavedToast,
   getCorsSaveErrorToast,
-  getCorsDeleteErrorToast,
   getCorsRulesDeletedToast,
   getCorsRulesDeleteErrorToast,
 } from "./BucketToastNotifications"
@@ -49,7 +47,6 @@ interface CorsRulesTabProps {
 export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const utils = trpcReact.useUtils()
   const navigate = useNavigate({ from: Route.fullPath })
 
   // Sort and search state are persisted in the URL
@@ -75,7 +72,6 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   // Modal state
   const [isRuleModalOpen, setIsRuleModalOpen] = useState(false)
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false)
 
   // Mutation state for modals (to disable row actions during mutations)
@@ -301,21 +297,6 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
         onDeleteRule={handleDeleteRule}
         isMutating={isRuleModalMutating || isBulkDeleteMutating}
         isFiltered={!!corsSearch}
-      />
-
-      {/* Delete all CORS modal */}
-      <DeleteCorsModal
-        isOpen={isDeleteModalOpen}
-        bucketName={bucketName}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onSuccess={() => {
-          setIsDeleteModalOpen(false)
-          utils.storage.ceph.cors.get.invalidate()
-        }}
-        onError={(_, errorMessage) => {
-          const { message, ...options } = getCorsDeleteErrorToast(bucketName, errorMessage)
-          toast.error(message, options)
-        }}
       />
 
       {/* Bulk delete rules modal */}

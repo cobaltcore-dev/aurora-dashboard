@@ -69,10 +69,6 @@ vi.mock("@cloudoperators/juno-ui-components", async () => {
   }
 })
 
-vi.mock("./DeleteCorsModal", () => ({
-  DeleteCorsModal: () => null,
-}))
-
 vi.mock("./CorsRuleModal", () => ({
   CorsRuleModal: ({ isOpen }: { isOpen: boolean }) => {
     if (!isOpen) return null
