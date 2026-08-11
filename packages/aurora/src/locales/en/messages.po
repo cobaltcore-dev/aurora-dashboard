@@ -55,6 +55,10 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
+#. placeholder {0}: selectedIndices.length
+msgid "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
+msgstr "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
+
 #. placeholder {0}: displayObjectNames.length
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr "{0, plural, one {Object:} other {Objects to delete:}}"
@@ -65,11 +69,17 @@ msgstr "{certificateIdValue} Certificate Details"
 msgid "{count, plural, one {# object} other {# objects}}"
 msgstr "{count, plural, one {# object} other {# objects}}"
 
+msgid "{count, plural, one {CORS Rule Deleted} other {CORS Rules Deleted}}"
+msgstr "{count, plural, one {CORS Rule Deleted} other {CORS Rules Deleted}}"
+
 msgid "{count, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{count, plural, one {Delete # Object} other {Delete # Objects}}"
 
 msgid "{count, plural, one {Delete # Version} other {Delete # Versions}}"
 msgstr "{count, plural, one {Delete # Version} other {Delete # Versions}}"
+
+msgid "{count, plural, one {Failed to Delete CORS Rule} other {Failed to Delete CORS Rules}}"
+msgstr "{count, plural, one {Failed to Delete CORS Rule} other {Failed to Delete CORS Rules}}"
 
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
@@ -112,6 +122,9 @@ msgstr "{percent}%"
 
 msgid "{progressPct}%"
 msgstr "{progressPct}%"
+
+msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
+msgstr "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 
 msgid "{rulesLength} rules"
 msgstr "{rulesLength} rules"
@@ -395,6 +408,12 @@ msgstr "Any user can perform a HEAD or GET operation on the container provided t
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Any user has read access to objects. No token is required in the request."
 
+msgid "Are you sure you want to delete {ruleCount, plural, one {# CORS rule} other {# CORS rules}} from bucket <0>{bucketName}</0>?"
+msgstr "Are you sure you want to delete {ruleCount, plural, one {# CORS rule} other {# CORS rules}} from bucket <0>{bucketName}</0>?"
+
+msgid "Are you sure you want to delete <0>{ruleDisplayName}</0> from bucket <1>{bucketName}</1>?"
+msgstr "Are you sure you want to delete <0>{ruleDisplayName}</0> from bucket <1>{bucketName}</1>?"
+
 msgid "Are you sure you want to delete the CORS configuration for bucket <0>{bucketName}</0>?"
 msgstr "Are you sure you want to delete the CORS configuration for bucket <0>{bucketName}</0>?"
 
@@ -536,17 +555,11 @@ msgstr "CA ID"
 msgid "Cancel"
 msgstr "Cancel"
 
-msgid "Cancel Configuration"
-msgstr "Cancel Configuration"
-
 msgid "Cancel upload"
 msgstr "Cancel upload"
 
 msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
 msgstr "Cannot move to the same location. Please select a different bucket, folder, or change the name."
-
-msgid "Cannot save CORS configuration: {validationError}"
-msgstr "Cannot save CORS configuration: {validationError}"
 
 msgid "Capabilities"
 msgstr "Capabilities"
@@ -604,9 +617,6 @@ msgstr "Community"
 
 msgid "Compute"
 msgstr "Compute"
-
-msgid "Configure New Rule"
-msgstr "Configure New Rule"
 
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Configure the ingress and egress rules that control which traffic is allowed for this security group."
@@ -755,6 +765,12 @@ msgstr "CORS configuration was successfully saved for bucket \"{bucketName}\"."
 msgid "CORS Enabled"
 msgstr "CORS Enabled"
 
+msgid "CORS Rule Deleted"
+msgstr "CORS Rule Deleted"
+
+msgid "CORS rule was successfully deleted from bucket \"{bucketName}\"."
+msgstr "CORS rule was successfully deleted from bucket \"{bucketName}\"."
+
 msgid "Cors Rules"
 msgstr "Cors Rules"
 
@@ -782,6 +798,12 @@ msgstr "Could not delete \"{displayName}\": {errorMessage}"
 msgid "Could not delete \"{objectName}\": {errorMessage}"
 msgstr "Could not delete \"{objectName}\": {errorMessage}"
 
+msgid "Could not delete {count} CORS rule from bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not delete {count} CORS rule from bucket \"{bucketName}\": {errorMessage}"
+
+msgid "Could not delete {count} CORS rules from bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not delete {count} CORS rules from bucket \"{bucketName}\": {errorMessage}"
+
 msgid "Could not delete bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete bucket \"{bucketName}\": {errorMessage}"
 
@@ -794,8 +816,14 @@ msgstr "Could not delete container \"{containerName}\": {errorMessage}"
 msgid "Could not delete CORS configuration from bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete CORS configuration from bucket \"{bucketName}\": {errorMessage}"
 
+msgid "Could not delete CORS rule from bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not delete CORS rule from bucket \"{bucketName}\": {errorMessage}"
+
 msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Could not delete folder \"{folderName}\": {errorMessage}"
+
+msgid "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Could not delete version of \"{displayName}\": {errorMessage}"
 msgstr "Could not delete version of \"{displayName}\": {errorMessage}"
@@ -887,6 +915,12 @@ msgstr "Create new folder here"
 msgid "Create New Image"
 msgstr "Create New Image"
 
+msgid "Create rule"
+msgstr "Create rule"
+
+msgid "Create Rule"
+msgstr "Create Rule"
+
 msgid "Create S3 Credentials"
 msgstr "Create S3 Credentials"
 
@@ -969,9 +1003,6 @@ msgstr "Delete"
 msgid "Delete {specKey}"
 msgstr "Delete {specKey}"
 
-msgid "Delete All Rules"
-msgstr "Delete All Rules"
-
 msgid "Delete All Versions"
 msgstr "Delete All Versions"
 
@@ -998,6 +1029,12 @@ msgstr "Delete CORS"
 
 msgid "Delete CORS Configuration"
 msgstr "Delete CORS Configuration"
+
+msgid "Delete CORS Rule"
+msgstr "Delete CORS Rule"
+
+msgid "Delete CORS Rules"
+msgstr "Delete CORS Rules"
 
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
@@ -1034,6 +1071,9 @@ msgstr "Delete Results"
 
 msgid "Delete Rule"
 msgstr "Delete Rule"
+
+msgid "Delete Rules"
+msgstr "Delete Rules"
 
 msgid "Delete Security Group \"{securityGroupName}\""
 msgstr "Delete Security Group \"{securityGroupName}\""
@@ -1491,6 +1531,12 @@ msgstr "Failed to delete CORS configuration"
 msgid "Failed to Delete CORS Configuration"
 msgstr "Failed to Delete CORS Configuration"
 
+msgid "Failed to Delete CORS Rule"
+msgstr "Failed to Delete CORS Rule"
+
+msgid "Failed to delete CORS rules"
+msgstr "Failed to delete CORS rules"
+
 msgid "Failed to delete flavor. Please try again."
 msgstr "Failed to delete flavor. Please try again."
 
@@ -1511,6 +1557,9 @@ msgstr "Failed to delete policy"
 
 msgid "Failed to Delete Policy"
 msgstr "Failed to Delete Policy"
+
+msgid "Failed to delete rule"
+msgstr "Failed to delete rule"
 
 msgid "Failed to delete security group"
 msgstr "Failed to delete security group"
@@ -1584,6 +1633,9 @@ msgstr "Failed to load container properties: {errorMessage}"
 msgid "Failed to load CORS configuration"
 msgstr "Failed to load CORS configuration"
 
+msgid "Failed to load CORS rules"
+msgstr "Failed to load CORS rules"
+
 msgid "Failed to load extra specs. Please try again."
 msgstr "Failed to load extra specs. Please try again."
 
@@ -1640,6 +1692,9 @@ msgstr "Failed to restore version: {errorMessage}"
 
 msgid "Failed to Save CORS Configuration"
 msgstr "Failed to Save CORS Configuration"
+
+msgid "Failed to save CORS rule"
+msgstr "Failed to save CORS rule"
 
 msgid "Failed to save policy"
 msgstr "Failed to save policy"
@@ -1848,8 +1903,8 @@ msgstr "Home"
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 msgstr "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 
-msgid "https://example.comor"
-msgstr "https://example.comor"
+msgid "https://example.com or *"
+msgstr "https://example.com or *"
 
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "I confirm that all existing versions will also be deleted"
@@ -2364,6 +2419,9 @@ msgstr "No containers found"
 msgid "No CORS configuration found"
 msgstr "No CORS configuration found"
 
+msgid "No CORS rules matching the current search criteria."
+msgstr "No CORS rules matching the current search criteria."
+
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "No custom metadata properties found. Click \"Add Property\" to create one."
 
@@ -2426,6 +2484,9 @@ msgstr "No projects available."
 
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
+
+msgid "No rules found"
+msgstr "No rules found"
 
 msgid "No server groups available."
 msgstr "No server groups available."
@@ -2552,9 +2613,6 @@ msgstr "One or more containers could not be emptied: {errorMessage}"
 
 msgid "One or more objects could not be deleted:"
 msgstr "One or more objects could not be deleted:"
-
-msgid "One or more rules use wildcard (*) for AllowedOrigins, which allows any website to access your bucket. Only use this for truly public resources."
-msgstr "One or more rules use wildcard (*) for AllowedOrigins, which allows any website to access your bucket. Only use this for truly public resources."
 
 msgid "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
 msgstr "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
@@ -2874,6 +2932,12 @@ msgstr "Root Disk must be an integer ≥ 0."
 msgid "Router ID"
 msgstr "Router ID"
 
+msgid "rule"
+msgstr "rule"
+
+msgid "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
+msgstr "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
+
 msgid "Rule Details:"
 msgstr "Rule Details:"
 
@@ -2888,6 +2952,9 @@ msgstr "rules"
 
 msgid "Rules"
 msgstr "Rules"
+
+msgid "Rules to delete:"
+msgstr "Rules to delete:"
 
 msgid "RX/TX Factor"
 msgstr "RX/TX Factor"
@@ -2907,9 +2974,6 @@ msgstr "Save"
 msgid "Save Changes"
 msgstr "Save Changes"
 
-msgid "Save Configuration"
-msgstr "Save Configuration"
-
 msgid "Save Metadata"
 msgstr "Save Metadata"
 
@@ -2918,6 +2982,9 @@ msgstr "Saving..."
 
 msgid "Search buckets..."
 msgstr "Search buckets..."
+
+msgid "Search by Rule ID..."
+msgstr "Search by Rule ID..."
 
 msgid "Search containers..."
 msgstr "Search containers..."
@@ -2985,6 +3052,9 @@ msgstr "Select a template..."
 msgid "Select all objects"
 msgstr "Select all objects"
 
+msgid "Select all rules"
+msgstr "Select all rules"
+
 msgid "Select an external network"
 msgstr "Select an external network"
 
@@ -3002,6 +3072,9 @@ msgstr "Select HTTP methods allowed for cross-origin requests"
 
 msgid "Select port to associate"
 msgstr "Select port to associate"
+
+msgid "Select rule {originalIndex}"
+msgstr "Select rule {originalIndex}"
 
 msgid "Serve objects as index when file name is:"
 msgstr "Serve objects as index when file name is:"
@@ -3200,6 +3273,12 @@ msgstr "Successfully activated {successCount} of {totalCount} image(s)"
 
 msgid "Successfully deactivated {successCount} of {totalCount} image(s)"
 msgstr "Successfully deactivated {successCount} of {totalCount} image(s)"
+
+msgid "Successfully deleted {count} CORS rule from bucket \"{bucketName}\"."
+msgstr "Successfully deleted {count} CORS rule from bucket \"{bucketName}\"."
+
+msgid "Successfully deleted {count} CORS rules from bucket \"{bucketName}\"."
+msgstr "Successfully deleted {count} CORS rules from bucket \"{bucketName}\"."
 
 msgid "Successfully deleted {deletedCount} version from bucket \"{bucketName}\"."
 msgstr "Successfully deleted {deletedCount} version from bucket \"{bucketName}\"."
@@ -3420,6 +3499,9 @@ msgstr "There are no rules for this security group"
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr "These objects and all their versions will be permanently deleted and cannot be restored."
 
+msgid "This action cannot be undone."
+msgstr "This action cannot be undone."
+
 msgid "This action cannot be undone. The flavor will be permanently deleted."
 msgstr "This action cannot be undone. The flavor will be permanently deleted."
 
@@ -3461,6 +3543,9 @@ msgstr "This bucket cannot be deleted yet. Do the following to be able to delete
 
 msgid "This bucket does not have a policy attached."
 msgstr "This bucket does not have a policy attached."
+
+msgid "This bucket does not have any CORS rules."
+msgstr "This bucket does not have any CORS rules."
 
 msgid "This bucket does not have CORS rules configured."
 msgstr "This bucket does not have CORS rules configured."
@@ -3669,9 +3754,6 @@ msgstr "Unknown domain"
 msgid "Unnamed"
 msgstr "Unnamed"
 
-msgid "Unsaved Changes"
-msgstr "Unsaved Changes"
-
 msgid "Update object"
 msgstr "Update object"
 
@@ -3734,9 +3816,6 @@ msgstr "valid token required: false"
 
 msgid "valid token required: true"
 msgstr "valid token required: true"
-
-msgid "Validation Error"
-msgstr "Validation Error"
 
 msgid "Value"
 msgstr "Value"
@@ -3821,9 +3900,6 @@ msgstr "What happens when suspended:"
 
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"
-
-msgid "Wildcard Warning"
-msgstr "Wildcard Warning"
 
 msgid "Write ACLs"
 msgstr "Write ACLs"
@@ -3914,9 +3990,6 @@ msgstr "You don't have permission to view extra specs for this flavor."
 
 msgid "You don't have permission to view this flavor's details."
 msgstr "You don't have permission to view this flavor's details."
-
-msgid "You have unsaved changes to the CORS configuration."
-msgstr "You have unsaved changes to the CORS configuration."
 
 msgid "Your action is required"
 msgstr "Your action is required"

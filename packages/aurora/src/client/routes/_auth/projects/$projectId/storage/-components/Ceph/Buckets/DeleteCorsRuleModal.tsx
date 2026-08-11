@@ -1,0 +1,188 @@
+import { useEffect } from "react"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { trpcReact } from "@/client/trpcClient"
+import { Modal, Stack, Spinner, Message } from "@cloudoperators/juno-ui-components"
+import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
+
+interface DeleteCorsRuleModalProps {
+  isOpen: boolean
+  bucketName: string
+  ruleIndex: number
+  ruleId?: string
+  onClose: () => void
+  onSuccess?: (ruleIndex: number) => void
+  onError?: (ruleIndex: number, errorMessage: string) => void
+}
+
+export const DeleteCorsRuleModal = ({
+  isOpen,
+  bucketName,
+  ruleIndex,
+  ruleId,
+  onClose,
+  onSuccess,
+  onError,
+}: DeleteCorsRuleModalProps) => {
+  const { t } = useLingui()
+  const projectId = useProjectId()
+  const utils = trpcReact.useUtils()
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.ceph.cors.rule.delete",
+  })
+
+  // Query to get current CORS rules
+  const {
+    data: corsData,
+    isLoading: isCorsLoading,
+    error: corsError,
+  } = trpcReact.storage.ceph.cors.get.useQuery(
+    {
+      project_id: projectId,
+      bucketName,
+    },
+    {
+      enabled: isOpen && !!projectId,
+      retry: false,
+    }
+  )
+
+  // Set mutation (for updating with remaining rules)
+  const setMutation = trpcReact.storage.ceph.cors.set.useMutation({
+    onSuccess: () => {
+      utils.storage.ceph.cors.get.invalidate()
+      onSuccess?.(ruleIndex)
+      handleClose()
+    },
+    onError: (error) => {
+      onError?.(ruleIndex, error.message)
+    },
+  })
+
+  // Delete mutation (for removing all CORS config when last rule is deleted)
+  const deleteMutation = trpcReact.storage.ceph.cors.delete.useMutation({
+    onSuccess: () => {
+      utils.storage.ceph.cors.get.invalidate()
+      onSuccess?.(ruleIndex)
+      handleClose()
+    },
+    onError: (error) => {
+      onError?.(ruleIndex, error.message)
+    },
+  })
+
+  useEffect(() => {
+    if (!isOpen) {
+      setMutation.reset()
+      deleteMutation.reset()
+      resetTracking()
+    }
+  }, [isOpen, ruleIndex])
+
+  const handleClose = () => {
+    setMutation.reset()
+    deleteMutation.reset()
+    resetTracking()
+    onClose()
+  }
+
+  const handleDelete = () => {
+    markSubmitted()
+
+    const currentRules = corsData?.corsRules ?? []
+
+    // Filter out the rule at the specified index
+    const updatedRules = currentRules.filter((_, index) => index !== ruleIndex)
+
+    if (updatedRules.length === 0) {
+      // If no rules left, delete the entire CORS configuration
+      deleteMutation.mutate({
+        project_id: projectId,
+        bucketName,
+      })
+    } else {
+      // Otherwise, update with the remaining rules
+      // Type assertion needed because CorsRuleRead has string[] for AllowedMethods
+      // but the mutation expects the narrower type from the schema
+      setMutation.mutate({
+        project_id: projectId,
+        bucketName,
+        corsConfiguration: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          CORSRules: updatedRules as any,
+        },
+      })
+    }
+  }
+
+  if (!isOpen) return null
+
+  const ruleDisplayName = ruleId || `Rule #${ruleIndex + 1}`
+  const hasRules = (corsData?.corsRules ?? []).length > 0
+  const isDeleting = setMutation.isPending || deleteMutation.isPending
+
+  return (
+    <Modal
+      title={t`Delete CORS Rule`}
+      open={isOpen}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
+      confirmButtonLabel={t`Delete Rule`}
+      confirmButtonVariant="primary-danger"
+      onConfirm={handleDelete}
+      cancelButtonLabel={t`Cancel`}
+      size="small"
+      disableConfirmButton={isDeleting || isCorsLoading || !hasRules || !!corsError}
+    >
+      <Stack direction="vertical" gap="4">
+        {isCorsLoading && (
+          <div className="flex items-center justify-center py-4">
+            <Spinner variant="primary" size="large" />
+          </div>
+        )}
+
+        {corsError && (
+          <Message variant="error" title={t`Failed to load CORS rules`}>
+            {corsError.message}
+          </Message>
+        )}
+
+        {!isCorsLoading && !corsError && !hasRules && (
+          <Message variant="warning" title={t`No rules found`}>
+            <Trans>This bucket does not have any CORS rules.</Trans>
+          </Message>
+        )}
+
+        {!isCorsLoading && !corsError && hasRules && (
+          <>
+            <p className="text-theme-default">
+              <Trans>
+                Are you sure you want to delete <strong>{ruleDisplayName}</strong> from bucket{" "}
+                <strong>{bucketName}</strong>?
+              </Trans>
+            </p>
+            <p className="text-theme-default">
+              <Trans>This action cannot be undone.</Trans>
+            </p>
+          </>
+        )}
+
+        {setMutation.isError && (
+          <Message variant="error" title={t`Failed to delete rule`}>
+            {setMutation.error?.message}
+          </Message>
+        )}
+
+        {deleteMutation.isError && (
+          <Message variant="error" title={t`Failed to delete rule`}>
+            {deleteMutation.error?.message}
+          </Message>
+        )}
+      </Stack>
+    </Modal>
+  )
+}

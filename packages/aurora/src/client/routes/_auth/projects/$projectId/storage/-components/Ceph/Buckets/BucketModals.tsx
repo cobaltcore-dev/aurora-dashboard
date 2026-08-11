@@ -133,11 +133,11 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         bucketName={bucketName}
         onClose={onClose}
         onSuccess={() => {
-          toast.success(`CORS configuration deleted from bucket "${bucketName}"`)
+          toast.success(`CORS rules deleted from bucket "${bucketName}"`)
           onClose()
         }}
         onError={(_, errorMessage) => {
-          toast.error(`Failed to delete CORS configuration: ${errorMessage}`)
+          toast.error(`Failed to delete CORS rules: ${errorMessage}`)
           onClose()
         }}
       />

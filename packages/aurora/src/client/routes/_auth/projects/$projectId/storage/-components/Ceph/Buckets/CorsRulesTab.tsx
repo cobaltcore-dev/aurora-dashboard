@@ -1,20 +1,35 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { plural } from "@lingui/core/macro"
+import { i18n } from "@lingui/core"
 import { trpcReact } from "@/client/trpcClient"
-import { Spinner, Message, Button, Stack, toast } from "@cloudoperators/juno-ui-components"
+import {
+  Spinner,
+  Message,
+  Button,
+  Stack,
+  toast,
+  Checkbox,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuToggle,
+  DataGridToolbar,
+  SearchInput,
+  Divider,
+} from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { CorsRulesTable } from "./CorsRulesTable"
 import { CorsRuleModal } from "./CorsRuleModal"
 import { DeleteCorsModal } from "./DeleteCorsModal"
+import { DeleteCorsRulesModal } from "./DeleteCorsRulesModal"
 import {
   getCorsSavedToast,
   getCorsSaveErrorToast,
-  getCorsDeletedToast,
   getCorsDeleteErrorToast,
+  getCorsRulesDeletedToast,
+  getCorsRulesDeleteErrorToast,
 } from "./BucketToastNotifications"
-import type { CorsRuleRead } from "@/server/Storage/types/ceph"
-import { ALLOWED_METHODS } from "./CorsRuleForm"
-import { validateCorsRules } from "./corsValidation"
 
 interface CorsRulesTabProps {
   bucketName: string
@@ -24,7 +39,7 @@ interface CorsRulesTabProps {
  * CORS Rules tab container
  *
  * Manages CORS configuration for a Ceph bucket with full CRUD operations.
- * Uses draft-state-then-explicit-Save pattern to avoid hitting the 10/min rate limit.
+ * Each operation (add/edit/delete) immediately updates the server configuration.
  */
 export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   const { t } = useLingui()
@@ -48,108 +63,17 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
     }
   )
 
-  // Draft state (local edits before saving)
-  const [draftRules, setDraftRules] = useState<CorsRuleRead[]>([])
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  const [validationError, setValidationError] = useState<string | null>(null)
-
   // Modal state
   const [isRuleModalOpen, setIsRuleModalOpen] = useState(false)
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false)
 
-  // Initialize draft from server data
-  useEffect(() => {
-    if (corsData && !hasUnsavedChanges) {
-      setDraftRules(corsData.corsRules ?? [])
-    }
-  }, [corsData, hasUnsavedChanges])
+  // Selection state for bulk actions
+  const [selectedIndices, setSelectedIndices] = useState<number[]>([])
 
-  // Mutations
-  const setMutation = trpcReact.storage.ceph.cors.set.useMutation({
-    onSuccess: () => {
-      utils.storage.ceph.cors.get.invalidate()
-      setHasUnsavedChanges(false)
-      setValidationError(null)
-      const { message, ...options } = getCorsSavedToast(bucketName)
-      toast.success(message, options)
-    },
-    onError: (error) => {
-      // Check if it's a validation error from the server by tRPC error code
-      if (error.data?.code === "BAD_REQUEST") {
-        setValidationError(error.message)
-      }
-      const { message, ...options } = getCorsSaveErrorToast(bucketName, error.message)
-      toast.error(message, options)
-    },
-  })
-
-  const deleteMutation = trpcReact.storage.ceph.cors.delete.useMutation({
-    onSuccess: () => {
-      utils.storage.ceph.cors.get.invalidate()
-      setHasUnsavedChanges(false)
-      setValidationError(null)
-      const { message, ...options } = getCorsDeletedToast(bucketName)
-      toast.success(message, options)
-    },
-    onError: (error) => {
-      const { message, ...options } = getCorsDeleteErrorToast(bucketName, error.message)
-      toast.error(message, options)
-    },
-  })
-
-  const isMutating = setMutation.isPending || deleteMutation.isPending
-
-  // Check if draft differs from server state (key-order-insensitive)
-  useEffect(() => {
-    const serverRules = corsData?.corsRules ?? []
-
-    // Normalize rules for comparison: sort object keys to avoid false positives
-    const normalizeRule = (rule: CorsRuleRead) => {
-      const sortedKeys = Object.keys(rule).sort()
-      const normalized: Record<string, unknown> = {}
-      sortedKeys.forEach((key) => {
-        normalized[key] = rule[key as keyof CorsRuleRead]
-      })
-      return normalized
-    }
-
-    const normalizedDraft = draftRules.map(normalizeRule)
-    const normalizedServer = serverRules.map(normalizeRule)
-
-    const hasChanges = JSON.stringify(normalizedDraft) !== JSON.stringify(normalizedServer)
-    setHasUnsavedChanges(hasChanges)
-  }, [draftRules, corsData])
-
-  const handleSave = () => {
-    setValidationError(null)
-
-    // If no rules, call delete instead of set
-    if (draftRules.length === 0) {
-      deleteMutation.mutate({ project_id: projectId, bucketName })
-      return
-    }
-
-    // Client-side validation before calling the server
-    const validationResult = validateCorsRules(draftRules, ALLOWED_METHODS)
-    if (!validationResult.isValid) {
-      setValidationError(validationResult.errors.join("; "))
-      return
-    }
-
-    // Server will also validate, but we've already narrowed the types correctly
-    setMutation.mutate({
-      project_id: projectId,
-      bucketName,
-      corsConfiguration: { CORSRules: validationResult.validatedRules },
-    })
-  }
-
-  const handleDiscard = () => {
-    setDraftRules(corsData?.corsRules ?? [])
-    setHasUnsavedChanges(false)
-    setValidationError(null)
-  }
+  // Search state
+  const [searchTerm, setSearchTerm] = useState("")
 
   const handleAddRule = () => {
     setEditingRuleIndex(null)
@@ -161,28 +85,41 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
     setIsRuleModalOpen(true)
   }
 
-  const handleRuleModalSubmit = (rule: CorsRuleRead) => {
-    if (editingRuleIndex === null) {
-      // Adding new rule
-      setDraftRules([...draftRules, rule])
+  const handleToggleSelectRule = (index: number) => {
+    setSelectedIndices((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]))
+  }
+
+  const handleToggleSelectAll = () => {
+    if (allFilteredSelected) {
+      // Deselect all filtered rules
+      setSelectedIndices((prev) => prev.filter((i) => !filteredIndices.includes(i)))
     } else {
-      // Editing existing rule
-      const newRules = [...draftRules]
-      newRules[editingRuleIndex] = rule
-      setDraftRules(newRules)
+      // Select all filtered rules
+      setSelectedIndices((prev) => [...new Set([...prev, ...filteredIndices])])
     }
-    setIsRuleModalOpen(false)
-    setEditingRuleIndex(null)
   }
 
-  const handleDeleteRule = (index: number) => {
-    const newRules = draftRules.filter((_, i) => i !== index)
-    setDraftRules(newRules)
+  const handleBulkDelete = () => {
+    setIsBulkDeleteModalOpen(true)
   }
 
-  const handleDeleteAll = () => {
-    setIsDeleteModalOpen(true)
-  }
+  // Current rules from server
+  const rules = corsData?.corsRules ?? []
+
+  // Filter rules based on search term (by Rule ID)
+  const filteredRulesWithIndices = rules
+    .map((rule, index) => ({ rule, originalIndex: index }))
+    .filter(({ rule }) => {
+      if (!searchTerm) return true
+      const ruleId = rule.ID || ""
+      return ruleId.toLowerCase().includes(searchTerm.toLowerCase())
+    })
+
+  // Get indices of filtered rules for select-all logic
+  const filteredIndices = filteredRulesWithIndices.map(({ originalIndex }) => originalIndex)
+
+  const allFilteredSelected = filteredIndices.length > 0 && filteredIndices.every((i) => selectedIndices.includes(i))
+  const someFilteredSelected = filteredIndices.some((i) => selectedIndices.includes(i)) && !allFilteredSelected
 
   if (isLoading) {
     return (
@@ -202,49 +139,71 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
 
   return (
     <Stack direction="vertical" gap="4">
-      {/* Validation error */}
-      {validationError && (
-        <Message variant="error" title={t`Validation Error`}>
-          <Trans>Cannot save CORS configuration: {validationError}</Trans>
-        </Message>
-      )}
+      {/* Zone 1 — Create rule button (outside DataGridToolbar) */}
+      <Stack distribution="end" alignment="center" gap="2">
+        <Button variant="primary" onClick={handleAddRule}>
+          <Trans>Create rule</Trans>
+        </Button>
+      </Stack>
 
-      {/* Save/Discard bar */}
-      {hasUnsavedChanges && !isMutating && (
-        <Message variant="info" title={t`Unsaved Changes`}>
-          <Stack direction="horizontal" gap="2" alignment="center">
-            <span>
-              <Trans>You have unsaved changes to the CORS configuration.</Trans>
-            </span>
-            <Button variant="primary" onClick={handleSave} size="small">
-              <Trans>Save</Trans>
-            </Button>
-            <Button variant="subdued" onClick={handleDiscard} size="small">
-              <Trans>Discard</Trans>
-            </Button>
+      {/* Zone 2 — Bulk actions toolbar (inside DataGridToolbar) */}
+      <DataGridToolbar>
+        <Stack direction="vertical" gap="2">
+          <Stack distribution="end" alignment="center">
+            <SearchInput
+              placeholder={t`Search by Rule ID...`}
+              data-testid="cors-rules-searchbar"
+              value={searchTerm}
+              onInput={(e) => setSearchTerm(e.currentTarget.value)}
+              onSearch={(v) => setSearchTerm(typeof v === "string" ? v : "")}
+              onClear={() => setSearchTerm("")}
+            />
           </Stack>
-        </Message>
-      )}
+          <Divider />
+          <Stack distribution="between" gap="2" alignment="center" className="text-sm">
+            <Stack gap="2" alignment="center">
+              <Checkbox
+                checked={allFilteredSelected}
+                indeterminate={someFilteredSelected}
+                onChange={handleToggleSelectAll}
+                aria-label={t`Select all rules`}
+                data-testid="select-all-rules"
+                disabled={filteredRulesWithIndices.length === 0}
+              />
+              <PopupMenu className="flex items-center">
+                <PopupMenuToggle as="div">
+                  <Button disabled={selectedIndices.length === 0} size="small" icon="moreVert" label={t`Actions`} />
+                </PopupMenuToggle>
+                {selectedIndices.length > 0 && (
+                  <PopupMenuOptions>
+                    <PopupMenuItem
+                      label={i18n._(plural(selectedIndices.length, { one: "Delete # Rule", other: "Delete # Rules" }))}
+                      onClick={handleBulkDelete}
+                      data-testid="bulk-delete-rules-action"
+                    />
+                  </PopupMenuOptions>
+                )}
+              </PopupMenu>
+            </Stack>
+            <span className="theme-color-text-light">
+              {filteredRulesWithIndices.length} {filteredRulesWithIndices.length === 1 ? t`rule` : t`rules`}
+            </span>
+          </Stack>
+        </Stack>
+      </DataGridToolbar>
 
       {/* Table */}
       <CorsRulesTable
-        rules={draftRules}
-        onAddRule={handleAddRule}
+        bucketName={bucketName}
+        rulesWithIndices={filteredRulesWithIndices}
+        selectedIndices={selectedIndices}
+        onToggleSelectRule={handleToggleSelectRule}
         onEditRule={handleEditRule}
-        onDeleteRule={handleDeleteRule}
-        isMutating={isMutating}
+        isMutating={false}
+        isFiltered={!!searchTerm}
       />
 
-      {/* Delete all button (only if rules exist) */}
-      {draftRules.length > 0 && (
-        <div className="flex justify-end">
-          <Button variant="subdued" onClick={handleDeleteAll} disabled={isMutating}>
-            <Trans>Delete All Rules</Trans>
-          </Button>
-        </div>
-      )}
-
-      {/* Delete modal */}
+      {/* Delete all CORS modal */}
       <DeleteCorsModal
         isOpen={isDeleteModalOpen}
         bucketName={bucketName}
@@ -259,15 +218,43 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
         }}
       />
 
+      {/* Bulk delete rules modal */}
+      <DeleteCorsRulesModal
+        isOpen={isBulkDeleteModalOpen}
+        bucketName={bucketName}
+        ruleIndices={selectedIndices}
+        rules={rules}
+        onClose={() => setIsBulkDeleteModalOpen(false)}
+        onSuccess={(bucketName, count) => {
+          setIsBulkDeleteModalOpen(false)
+          setSelectedIndices([])
+          const { message, ...options } = getCorsRulesDeletedToast(bucketName, count)
+          toast.success(message, options)
+        }}
+        onError={(bucketName, errorMessage, count) => {
+          const { message, ...options } = getCorsRulesDeleteErrorToast(bucketName, count, errorMessage)
+          toast.error(message, options)
+        }}
+      />
+
       {/* Add/Edit rule modal */}
       <CorsRuleModal
         isOpen={isRuleModalOpen}
-        editingRule={editingRuleIndex !== null ? draftRules[editingRuleIndex] : null}
+        bucketName={bucketName}
         editingIndex={editingRuleIndex}
-        onSubmit={handleRuleModalSubmit}
         onClose={() => {
           setIsRuleModalOpen(false)
           setEditingRuleIndex(null)
+        }}
+        onSuccess={(bucketName) => {
+          setIsRuleModalOpen(false)
+          setEditingRuleIndex(null)
+          const { message, ...options } = getCorsSavedToast(bucketName)
+          toast.success(message, options)
+        }}
+        onError={(bucketName, errorMessage) => {
+          const { message, ...options } = getCorsSaveErrorToast(bucketName, errorMessage)
+          toast.error(message, options)
         }}
       />
     </Stack>

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans } from "@lingui/react/macro"
 import { useParams } from "@tanstack/react-router"
-import { Badge } from "@cloudoperators/juno-ui-components"
+import { Badge, Divider } from "@cloudoperators/juno-ui-components"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { useBucketInfo } from "../hooks/useBucketInfo"
 import { BucketHeaderActions } from "./BucketHeaderActions"
@@ -79,8 +79,9 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
     <>
       <ContentHeader title={bucketName} projectId={projectId} badges={badges} actions={actions} />
 
-      <div className="-mt-4 mb-4">
+      <div className="-mt-4 mb-8">
         <BucketDetailTabs />
+        <Divider />
       </div>
 
       <BucketModals

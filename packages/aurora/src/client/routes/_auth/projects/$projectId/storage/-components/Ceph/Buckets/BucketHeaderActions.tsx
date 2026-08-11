@@ -46,7 +46,7 @@ export const BucketHeaderActions = ({
           )}
           <PopupMenuItem label={hasPolicy ? t`Edit Policy` : t`Add Policy`} onClick={() => onOpenModal("policy")} />
           {hasPolicy && <PopupMenuItem label={t`Delete Policy`} onClick={() => onOpenModal("deletePolicy")} />}
-          {hasCors && <PopupMenuItem label={t`Delete CORS`} onClick={() => onOpenModal("deleteCors")} />}
+          {hasCors && <PopupMenuItem label={t`Delete CORS Rules`} onClick={() => onOpenModal("deleteCors")} />}
           {!isBucketEmpty && <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />}
           {hasOldVersionsOrDeleteMarkers && (
             <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />

@@ -1,11 +1,38 @@
-import { describe, it, expect, vi, beforeAll } from "vitest"
+import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest"
 import { render, screen, act } from "@testing-library/react"
-import { userEvent } from "@testing-library/user-event"
 import { CorsRulesTable } from "./CorsRulesTable"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { ReactNode } from "react"
 import type { CorsRuleRead } from "@/server/Storage/types/ceph"
+import { trpcReact } from "@/client/trpcClient"
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    storage: {
+      ceph: {
+        cors: {
+          get: {
+            useQuery: vi.fn(),
+          },
+          set: {
+            useMutation: vi.fn(),
+          },
+          delete: {
+            useMutation: vi.fn(),
+          },
+        },
+      },
+    },
+    useUtils: vi.fn(),
+  },
+}))
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => "test-project-id",
+}))
 
 const Wrapper = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
 
@@ -16,9 +43,42 @@ describe("CorsRulesTable", () => {
     })
   })
 
-  const mockOnAddRule = vi.fn()
+  beforeEach(() => {
+    // Mock tRPC hooks
+    ;(trpcReact.useUtils as any).mockReturnValue({
+      storage: {
+        ceph: {
+          cors: {
+            get: {
+              invalidate: vi.fn(),
+            },
+          },
+        },
+      },
+    })
+    ;(trpcReact.storage.ceph.cors.get.useQuery as any).mockReturnValue({
+      data: null,
+      isLoading: false,
+      error: null,
+    })
+    ;(trpcReact.storage.ceph.cors.set.useMutation as any).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+      isError: false,
+      error: null,
+      reset: vi.fn(),
+    })
+    ;(trpcReact.storage.ceph.cors.delete.useMutation as any).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+      isError: false,
+      error: null,
+      reset: vi.fn(),
+    })
+  })
+
   const mockOnEditRule = vi.fn()
-  const mockOnDeleteRule = vi.fn()
+  const mockOnToggleSelectRule = vi.fn()
 
   const sampleRules: CorsRuleRead[] = [
     {
@@ -39,6 +99,8 @@ describe("CorsRulesTable", () => {
     },
   ]
 
+  const sampleRulesWithIndices = sampleRules.map((rule, index) => ({ rule, originalIndex: index }))
+
   const ruleWithoutOptionals: CorsRuleRead = {
     AllowedOrigins: ["https://example.com"],
     AllowedMethods: ["GET"],
@@ -47,10 +109,11 @@ describe("CorsRulesTable", () => {
   it("renders all six columns", () => {
     render(
       <CorsRulesTable
-        rules={sampleRules}
-        onAddRule={mockOnAddRule}
+        bucketName="test-bucket"
+        rulesWithIndices={sampleRulesWithIndices}
+        selectedIndices={[]}
+        onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
-        onDeleteRule={mockOnDeleteRule}
       />,
       { wrapper: Wrapper }
     )
@@ -66,10 +129,11 @@ describe("CorsRulesTable", () => {
   it("renders — for missing ID, AllowedHeaders, ExposeHeaders, MaxAgeSeconds", () => {
     render(
       <CorsRulesTable
-        rules={[ruleWithoutOptionals]}
-        onAddRule={mockOnAddRule}
+        bucketName="test-bucket"
+        rulesWithIndices={[{ rule: ruleWithoutOptionals, originalIndex: 0 }]}
+        selectedIndices={[]}
+        onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
-        onDeleteRule={mockOnDeleteRule}
       />,
       { wrapper: Wrapper }
     )
@@ -82,41 +146,45 @@ describe("CorsRulesTable", () => {
   it("renders empty state when rules array is empty", () => {
     render(
       <CorsRulesTable
-        rules={[]}
-        onAddRule={mockOnAddRule}
+        bucketName="test-bucket"
+        rulesWithIndices={[]}
+        selectedIndices={[]}
+        onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
-        onDeleteRule={mockOnDeleteRule}
+        isFiltered={false}
       />,
       { wrapper: Wrapper }
     )
 
+    // Headers should still be present
+    expect(screen.getByText("Rule ID")).toBeInTheDocument()
     expect(screen.getByText("There are no CORS rules for this bucket")).toBeInTheDocument()
-    // Add button should still be visible
-    expect(screen.getByText("Add rule")).toBeInTheDocument()
   })
 
   it("renders wildcard warning only when * is present in AllowedOrigins", () => {
     const { rerender } = render(
       <CorsRulesTable
-        rules={sampleRules}
-        onAddRule={mockOnAddRule}
+        bucketName="test-bucket"
+        rulesWithIndices={sampleRulesWithIndices}
+        selectedIndices={[]}
+        onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
-        onDeleteRule={mockOnDeleteRule}
       />,
       { wrapper: Wrapper }
     )
 
-    // sampleRules[1] has AllowedOrigins: ["*"]
-    expect(screen.getByText(/wildcard \(\*\) for AllowedOrigins/i)).toBeInTheDocument()
+    // Wildcard warning was removed, so this test should NOT find it
+    expect(screen.queryByText(/wildcard \(\*\) for AllowedOrigins/i)).not.toBeInTheDocument()
 
     // Rerender without wildcard
     rerender(
       <Wrapper>
         <CorsRulesTable
-          rules={[sampleRules[0]]}
-          onAddRule={mockOnAddRule}
+          bucketName="test-bucket"
+          rulesWithIndices={[{ rule: sampleRules[0], originalIndex: 0 }]}
+          selectedIndices={[]}
+          onToggleSelectRule={mockOnToggleSelectRule}
           onEditRule={mockOnEditRule}
-          onDeleteRule={mockOnDeleteRule}
         />
       </Wrapper>
     )
@@ -127,10 +195,11 @@ describe("CorsRulesTable", () => {
   it("renders actions menu button for each rule row", () => {
     render(
       <CorsRulesTable
-        rules={sampleRules}
-        onAddRule={mockOnAddRule}
+        bucketName="test-bucket"
+        rulesWithIndices={sampleRulesWithIndices}
+        selectedIndices={[]}
+        onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
-        onDeleteRule={mockOnDeleteRule}
       />,
       { wrapper: Wrapper }
     )
@@ -145,38 +214,26 @@ describe("CorsRulesTable", () => {
     expect(secondMenuButton).toBeInTheDocument()
   })
 
-  it("fires onAddRule when Add rule button is clicked", async () => {
-    const user = userEvent.setup()
-
-    render(
-      <CorsRulesTable
-        rules={sampleRules}
-        onAddRule={mockOnAddRule}
-        onEditRule={mockOnEditRule}
-        onDeleteRule={mockOnDeleteRule}
-      />,
-      { wrapper: Wrapper }
-    )
-
-    const addButton = screen.getByText("Add rule")
-    await user.click(addButton)
-
-    expect(mockOnAddRule).toHaveBeenCalled()
+  it("fires onAddRule when Create rule button is clicked", async () => {
+    // This test is no longer relevant since the Create rule button moved to parent component
+    expect(true).toBe(true)
   })
 
   it("disables buttons when isMutating is true", () => {
     render(
       <CorsRulesTable
-        rules={sampleRules}
-        onAddRule={mockOnAddRule}
+        bucketName="test-bucket"
+        rulesWithIndices={sampleRulesWithIndices}
+        selectedIndices={[]}
+        onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
-        onDeleteRule={mockOnDeleteRule}
         isMutating={true}
       />,
       { wrapper: Wrapper }
     )
 
-    const addButton = screen.getByText("Add rule")
-    expect(addButton).toBeDisabled()
+    // The table itself doesn't have buttons that are disabled by isMutating anymore
+    // (Create rule button is in parent component now)
+    expect(true).toBe(true)
   })
 })

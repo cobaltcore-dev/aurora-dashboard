@@ -1,18 +1,19 @@
 import { useForm, useStore } from "@tanstack/react-form"
-import { Trans, useLingui } from "@lingui/react/macro"
-import { Form, Stack, TextInput, Button, CheckboxGroup, Checkbox } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
+import { Form, Stack, TextInput, CheckboxGroup, Checkbox } from "@cloudoperators/juno-ui-components"
 import type { CorsRuleRead } from "@/server/Storage/types/ceph"
 import { TagInput, urlValidator, headerValidator } from "./TagInput"
 
 interface CorsRuleFormProps {
   editingRule: CorsRuleRead | null
   onSubmit: (rule: CorsRuleRead) => void
-  onCancel: () => void
+  formId: string
+  onValidationChange?: (isValid: boolean) => void
 }
 
 export const ALLOWED_METHODS = ["GET", "PUT", "POST", "DELETE", "HEAD"] as const
 
-export const CorsRuleForm = ({ editingRule, onSubmit, onCancel }: CorsRuleFormProps) => {
+export const CorsRuleForm = ({ editingRule, onSubmit, formId, onValidationChange }: CorsRuleFormProps) => {
   const { t } = useLingui()
 
   const form = useForm({
@@ -43,12 +44,15 @@ export const CorsRuleForm = ({ editingRule, onSubmit, onCancel }: CorsRuleFormPr
 
   const canSubmit = allowedOriginsValue.length > 0 && allowedMethodsValue.length > 0
 
+  // Notify parent about validation state changes
+  if (onValidationChange) {
+    onValidationChange(canSubmit)
+  }
+
   return (
     <div>
-      <h3 className="text-theme-high mb-6 text-base font-semibold">
-        <Trans>Configure New Rule</Trans>
-      </h3>
       <Form
+        id={formId}
         onSubmit={(e) => {
           e.preventDefault()
           form.handleSubmit()
@@ -78,7 +82,7 @@ export const CorsRuleForm = ({ editingRule, onSubmit, onCancel }: CorsRuleFormPr
                 name={field.name}
                 value={field.state.value}
                 onChange={(value) => field.handleChange(value)}
-                placeholder={t`https://example.comor`}
+                placeholder={t`https://example.com or *`}
                 helptext={t`Enter a URL and press Enter. Use * to allow all origins.`}
                 validate={urlValidator}
                 required={true}
@@ -160,15 +164,6 @@ export const CorsRuleForm = ({ editingRule, onSubmit, onCancel }: CorsRuleFormPr
               />
             )}
           </form.Field>
-
-          <div className="border-theme-default flex justify-end gap-2 border-t pt-4">
-            <Button type="button" variant="subdued" onClick={onCancel}>
-              <Trans>Cancel Configuration</Trans>
-            </Button>
-            <Button type="submit" variant="primary" disabled={!canSubmit}>
-              <Trans>Save Configuration</Trans>
-            </Button>
-          </div>
         </Stack>
       </Form>
     </div>

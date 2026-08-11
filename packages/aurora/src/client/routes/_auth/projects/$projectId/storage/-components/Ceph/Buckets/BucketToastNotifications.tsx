@@ -217,3 +217,69 @@ export const getCorsDeleteErrorToast = (
     </Trans>
   ),
 })
+
+export const getCorsRuleDeletedToast = (
+  bucketName: string,
+  ruleId?: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>CORS Rule Deleted</Trans>,
+  description: ruleId ? (
+    <Trans>
+      Rule "{ruleId}" was successfully deleted from bucket "{bucketName}".
+    </Trans>
+  ) : (
+    <Trans>CORS rule was successfully deleted from bucket "{bucketName}".</Trans>
+  ),
+})
+
+export const getCorsRuleDeleteErrorToast = (
+  bucketName: string,
+  errorMessage: string,
+  ruleId?: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete CORS Rule</Trans>,
+  description: ruleId ? (
+    <Trans>
+      Could not delete rule "{ruleId}" from bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ) : (
+    <Trans>
+      Could not delete CORS rule from bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getCorsRulesDeletedToast = (
+  bucketName: string,
+  count: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Plural value={count} one="CORS Rule Deleted" other="CORS Rules Deleted" />,
+  description:
+    count === 1 ? (
+      <Trans>
+        Successfully deleted {count} CORS rule from bucket "{bucketName}".
+      </Trans>
+    ) : (
+      <Trans>
+        Successfully deleted {count} CORS rules from bucket "{bucketName}".
+      </Trans>
+    ),
+})
+
+export const getCorsRulesDeleteErrorToast = (
+  bucketName: string,
+  count: number,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Plural value={count} one="Failed to Delete CORS Rule" other="Failed to Delete CORS Rules" />,
+  description:
+    count === 1 ? (
+      <Trans>
+        Could not delete {count} CORS rule from bucket "{bucketName}": {errorMessage}
+      </Trans>
+    ) : (
+      <Trans>
+        Could not delete {count} CORS rules from bucket "{bucketName}": {errorMessage}
+      </Trans>
+    ),
+})

@@ -358,7 +358,7 @@ export const CephBuckets = () => {
             count info, which must always be visible, so it always renders; only the
             bulk controls are gated. */}
         <DataGridToolbar>
-          <Stack distribution="start" gap="2" alignment="center" className="text-sm">
+          <Stack distribution="between" gap="2" alignment="center" className="text-sm">
             {hasAnyBulkAction ? (
               <Stack gap="2" alignment="center">
                 <Checkbox

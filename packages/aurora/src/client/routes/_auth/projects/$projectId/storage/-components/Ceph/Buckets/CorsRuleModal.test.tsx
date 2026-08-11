@@ -23,15 +23,40 @@ vi.mock("@/client/hooks/useModalTracking", () => ({
   }),
 }))
 
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => "test-project-id",
+}))
+
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
+    useUtils: vi.fn(() => ({
+      storage: {
+        ceph: {
+          cors: {
+            get: {
+              invalidate: vi.fn(),
+            },
+          },
+        },
+      },
+    })),
     storage: {
       ceph: {
         cors: {
+          get: {
+            useQuery: vi.fn(() => ({
+              data: { corsRules: [] },
+              isLoading: false,
+              error: null,
+            })),
+          },
           set: {
             useMutation: vi.fn(() => ({
               mutate: vi.fn(),
               isPending: false,
+              isError: false,
+              error: null,
+              reset: vi.fn(),
             })),
           },
         },
@@ -50,7 +75,8 @@ const mockEditingRule: CorsRuleRead = {
 }
 
 describe("CorsRuleModal", () => {
-  const mockOnSubmit = vi.fn()
+  const mockOnSuccess = vi.fn()
+  const mockOnError = vi.fn()
   const mockOnClose = vi.fn()
 
   const Wrapper = ({ children }: { children: React.ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
@@ -63,9 +89,10 @@ describe("CorsRuleModal", () => {
     render(
       <CorsRuleModal
         isOpen={false}
-        editingRule={null}
+        bucketName="test-bucket"
         editingIndex={null}
-        onSubmit={mockOnSubmit}
+        onSuccess={mockOnSuccess}
+        onError={mockOnError}
         onClose={mockOnClose}
       />,
       { wrapper: Wrapper }
@@ -78,25 +105,34 @@ describe("CorsRuleModal", () => {
     render(
       <CorsRuleModal
         isOpen={true}
-        editingRule={null}
+        bucketName="test-bucket"
         editingIndex={null}
-        onSubmit={mockOnSubmit}
+        onSuccess={mockOnSuccess}
+        onError={mockOnError}
         onClose={mockOnClose}
       />,
       { wrapper: Wrapper }
     )
 
     expect(screen.getByText(/Add CORS Rule/i)).toBeInTheDocument()
-    expect(screen.getByText(/Configure New Rule/i)).toBeInTheDocument()
   })
 
   it("renders with 'Edit CORS Rule' title when editing existing rule", () => {
+    ;(trpcReact.storage.ceph.cors.get.useQuery as any).mockReturnValue({
+      data: {
+        corsRules: [mockEditingRule],
+      },
+      isLoading: false,
+      error: null,
+    })
+
     render(
       <CorsRuleModal
         isOpen={true}
-        editingRule={mockEditingRule}
+        bucketName="test-bucket"
         editingIndex={0}
-        onSubmit={mockOnSubmit}
+        onSuccess={mockOnSuccess}
+        onError={mockOnError}
         onClose={mockOnClose}
       />,
       { wrapper: Wrapper }
@@ -106,12 +142,21 @@ describe("CorsRuleModal", () => {
   })
 
   it("prefills form fields when editing existing rule", () => {
+    ;(trpcReact.storage.ceph.cors.get.useQuery as any).mockReturnValue({
+      data: {
+        corsRules: [mockEditingRule],
+      },
+      isLoading: false,
+      error: null,
+    })
+
     render(
       <CorsRuleModal
         isOpen={true}
-        editingRule={mockEditingRule}
+        bucketName="test-bucket"
         editingIndex={0}
-        onSubmit={mockOnSubmit}
+        onSuccess={mockOnSuccess}
+        onError={mockOnError}
         onClose={mockOnClose}
       />,
       { wrapper: Wrapper }
@@ -132,15 +177,25 @@ describe("CorsRuleModal", () => {
     expect(maxAgeInput).toHaveValue(3600)
   })
 
-  it("calls onSubmit with assembled rule when form is submitted", async () => {
+  it("calls mutation when form is submitted", async () => {
     const user = userEvent.setup()
+    const mockMutate = vi.fn()
+
+    ;(trpcReact.storage.ceph.cors.set.useMutation as any).mockReturnValue({
+      mutate: mockMutate,
+      isPending: false,
+      isError: false,
+      error: null,
+      reset: vi.fn(),
+    })
 
     render(
       <CorsRuleModal
         isOpen={true}
-        editingRule={null}
+        bucketName="test-bucket"
         editingIndex={null}
-        onSubmit={mockOnSubmit}
+        onSuccess={mockOnSuccess}
+        onError={mockOnError}
         onClose={mockOnClose}
       />,
       { wrapper: Wrapper }
@@ -155,35 +210,47 @@ describe("CorsRuleModal", () => {
     await user.type(originInput, "https://test.com{Enter}")
 
     // Submit the form
-    const submitButton = screen.getByRole("button", { name: /Save Configuration/i })
+    const submitButton = screen.getByRole("button", { name: /Create Rule/i })
     await user.click(submitButton)
 
-    // Should call onSubmit
+    // Should call mutation
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalledWith(
+      expect(mockMutate).toHaveBeenCalledWith(
         expect.objectContaining({
-          AllowedOrigins: ["https://test.com"],
-          AllowedMethods: ["GET"],
+          project_id: "test-project-id",
+          bucketName: "test-bucket",
+          corsConfiguration: expect.objectContaining({
+            CORSRules: expect.arrayContaining([
+              expect.objectContaining({
+                AllowedOrigins: ["https://test.com"],
+                AllowedMethods: ["GET"],
+              }),
+            ]),
+          }),
         })
       )
     })
   })
 
-  it("does not make any network call (no tRPC mutation) on submit", async () => {
+  it("calls tRPC mutation on submit (verifying network behavior)", async () => {
     const user = userEvent.setup()
     const mockMutate = vi.fn()
 
     ;(trpcReact.storage.ceph.cors.set.useMutation as any).mockReturnValue({
       mutate: mockMutate,
       isPending: false,
+      isError: false,
+      error: null,
+      reset: vi.fn(),
     })
 
     render(
       <CorsRuleModal
         isOpen={true}
-        editingRule={null}
+        bucketName="test-bucket"
         editingIndex={null}
-        onSubmit={mockOnSubmit}
+        onSuccess={mockOnSuccess}
+        onError={mockOnError}
         onClose={mockOnClose}
       />,
       { wrapper: Wrapper }
@@ -197,21 +264,18 @@ describe("CorsRuleModal", () => {
     await user.type(originInput, "https://test.com{Enter}")
 
     // Submit
-    const submitButton = screen.getByRole("button", { name: /Save Configuration/i })
+    const submitButton = screen.getByRole("button", { name: /Create Rule/i })
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalled()
+      expect(mockMutate).toHaveBeenCalled()
     })
-
-    // Should NOT call any tRPC mutation
-    expect(mockMutate).not.toHaveBeenCalled()
   })
 
   it("calls markSubmitted on form submission", () => {
     // The modal calls markSubmitted internally when form is submitted
-    // This is handled by the modal's handleSubmit function which wraps onSubmit
-    // We already test that onSubmit is called in another test
+    // This is handled by the modal's handleSubmit function
+    // We already test that the mutation is called in another test
     // The markSubmitted call is part of the modal's internal logic
     // and is verified by reading the source code
     expect(true).toBe(true)

@@ -99,7 +99,9 @@ export const TagInput = ({
       {value.length > 0 && (
         <Stack gap="2" wrap={true} alignment="start" distribution="start" className="mt-2">
           {value.map((tag, index) => (
-            <Pill key={`${tag}-${index}`} pillValue={tag} closeable onClose={() => removeTag(tag)} />
+            <div key={`${tag}-${index}`} className="max-w-full break-all">
+              <Pill pillValue={tag} closeable onClose={() => removeTag(tag)} />
+            </div>
           ))}
         </Stack>
       )}
