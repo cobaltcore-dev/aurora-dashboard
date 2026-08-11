@@ -249,9 +249,6 @@ msgstr " Zugriffsstatus auf \"{newStatus}\" aktualisiert."
 msgid "Access Status:"
 msgstr "Zugriffsstatus:"
 
-msgid "Access to admin area"
-msgstr ""
-
 msgid "Access Type"
 msgstr "Zugriffstyp"
 
@@ -631,9 +628,6 @@ msgid "Confirm deletion of {displayName}. The object will be marked as deleted b
 msgstr ""
 
 msgid "Confirm deletion of {displayName}. The object will be permanently deleted. This action cannot be undone."
-msgstr ""
-
-msgid "Confirm that the Project ID is accurate."
 msgstr ""
 
 msgid "Container \"{containerName}\" properties were successfully updated."
@@ -1212,6 +1206,9 @@ msgstr "Duration/validity"
 
 msgid "e.g. .r:*,.rlistings"
 msgstr "z. B. .r:*,.rlistings"
+
+msgid "e.g. allow-frontend-app"
+msgstr ""
 
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
@@ -2628,6 +2625,9 @@ msgstr "In neuem Tab öffnen"
 
 msgid "Optional description"
 msgstr "Optionale Beschreibung"
+
+msgid "Optional identifier for this rule (max 255 characters)."
+msgstr ""
 
 msgid "or drag and drop"
 msgstr "oder per Drag & Drop"

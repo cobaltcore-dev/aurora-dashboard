@@ -69,8 +69,8 @@ export const CorsRuleForm = ({ editingRule, onSubmit, formId, onValidationChange
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
-                placeholder={t`Access to admin area`}
-                helptext={t`Confirm that the Project ID is accurate.`}
+                placeholder={t`e.g. allow-frontend-app`}
+                helptext={t`Optional identifier for this rule (max 255 characters).`}
               />
             )}
           </form.Field>

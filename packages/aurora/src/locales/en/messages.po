@@ -249,9 +249,6 @@ msgstr "Access status updated to \"{newStatus}\"."
 msgid "Access Status:"
 msgstr "Access Status:"
 
-msgid "Access to admin area"
-msgstr "Access to admin area"
-
 msgid "Access Type"
 msgstr "Access Type"
 
@@ -632,9 +629,6 @@ msgstr "Confirm deletion of {displayName}. The object will be marked as deleted 
 
 msgid "Confirm deletion of {displayName}. The object will be permanently deleted. This action cannot be undone."
 msgstr "Confirm deletion of {displayName}. The object will be permanently deleted. This action cannot be undone."
-
-msgid "Confirm that the Project ID is accurate."
-msgstr "Confirm that the Project ID is accurate."
 
 msgid "Container \"{containerName}\" properties were successfully updated."
 msgstr "Container \"{containerName}\" properties were successfully updated."
@@ -1212,6 +1206,9 @@ msgstr "Duration/validity"
 
 msgid "e.g. .r:*,.rlistings"
 msgstr "e.g. .r:*,.rlistings"
+
+msgid "e.g. allow-frontend-app"
+msgstr "e.g. allow-frontend-app"
 
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "e.g. PROJECT_ID:USER_ID"
@@ -2628,6 +2625,9 @@ msgstr "Open in new tab"
 
 msgid "Optional description"
 msgstr "Optional description"
+
+msgid "Optional identifier for this rule (max 255 characters)."
+msgstr "Optional identifier for this rule (max 255 characters)."
 
 msgid "or drag and drop"
 msgstr "or drag and drop"
