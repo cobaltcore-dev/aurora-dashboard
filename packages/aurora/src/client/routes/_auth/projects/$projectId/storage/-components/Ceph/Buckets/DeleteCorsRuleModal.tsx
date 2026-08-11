@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Stack, Spinner, Message } from "@cloudoperators/juno-ui-components"
@@ -28,6 +28,7 @@ export const DeleteCorsRuleModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
+  const [isVerifying, setIsVerifying] = useState(false)
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
@@ -78,6 +79,7 @@ export const DeleteCorsRuleModal = ({
     if (!isOpen) {
       setMutation.reset()
       deleteMutation.reset()
+      setIsVerifying(false)
       resetTracking()
     }
   }, [isOpen, ruleIndex])
@@ -85,12 +87,16 @@ export const DeleteCorsRuleModal = ({
   const handleClose = () => {
     setMutation.reset()
     deleteMutation.reset()
+    setIsVerifying(false)
     resetTracking()
     onClose()
   }
 
   const handleDelete = async () => {
+    if (isVerifying) return
+
     markSubmitted()
+    setIsVerifying(true)
 
     try {
       // Refetch to get fresh data
@@ -130,6 +136,8 @@ export const DeleteCorsRuleModal = ({
       }
     } catch {
       onError?.(ruleIndex, t`Failed to verify CORS configuration`)
+    } finally {
+      setIsVerifying(false)
     }
   }
 
@@ -152,7 +160,7 @@ export const DeleteCorsRuleModal = ({
       onConfirm={handleDelete}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={isDeleting || isCorsLoading || !hasRules || !!corsError}
+      disableConfirmButton={isDeleting || isCorsLoading || !hasRules || !!corsError || isVerifying}
     >
       <Stack direction="vertical" gap="4">
         {isCorsLoading && (
