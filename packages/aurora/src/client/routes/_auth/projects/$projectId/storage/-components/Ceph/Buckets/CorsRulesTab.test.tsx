@@ -14,6 +14,24 @@ import { messages as enMessages } from "@/locales/en/messages"
 i18n.load("en", enMessages)
 i18n.activate("en")
 
+// Mock Route.useSearch
+vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects", () => ({
+  Route: {
+    useSearch: vi.fn(() => ({
+      corsSortBy: "ID",
+      corsSortDirection: "asc",
+      corsSearch: "",
+    })),
+    fullPath: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
+  },
+}))
+
+// Mock useNavigate and useRouteContext
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: vi.fn(() => vi.fn()),
+  useRouteContext: vi.fn(() => ({ onTrackEvent: undefined })),
+}))
+
 // Mock dependencies
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {

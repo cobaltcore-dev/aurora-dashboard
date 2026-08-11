@@ -1,7 +1,8 @@
-import { useState } from "react"
+import { useState, startTransition } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { plural } from "@lingui/core/macro"
 import { i18n } from "@lingui/core"
+import { useNavigate } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import {
   Spinner,
@@ -19,6 +20,9 @@ import {
   Divider,
 } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { SortInput } from "@/client/components/ListToolbar/SortInput"
+import { SortSettings } from "@/client/components/ListToolbar/types"
+import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
 import { CorsRulesTable } from "./CorsRulesTable"
 import { CorsRuleModal } from "./CorsRuleModal"
 import { DeleteCorsModal } from "./DeleteCorsModal"
@@ -30,6 +34,7 @@ import {
   getCorsRulesDeletedToast,
   getCorsRulesDeleteErrorToast,
 } from "./BucketToastNotifications"
+import type { CorsRuleRead } from "@/server/Storage/types/ceph"
 
 interface CorsRulesTabProps {
   bucketName: string
@@ -45,6 +50,10 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
+  const navigate = useNavigate({ from: Route.fullPath })
+
+  // Sort and search state are persisted in the URL
+  const { corsSortBy, corsSortDirection, corsSearch = "" } = Route.useSearch()
 
   // Server state
   const {
@@ -72,8 +81,42 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   // Selection state for bulk actions
   const [selectedIndices, setSelectedIndices] = useState<number[]>([])
 
-  // Search state
-  const [searchTerm, setSearchTerm] = useState("")
+  const sortSettings: SortSettings = {
+    options: [
+      { label: t`Rule ID`, value: "ID" },
+      { label: t`Allowed Origins`, value: "AllowedOrigins" },
+      { label: t`Allowed Methods`, value: "AllowedMethods" },
+      { label: t`Allowed Headers`, value: "AllowedHeaders" },
+      { label: t`Expose Headers`, value: "ExposeHeaders" },
+      { label: t`Max Age`, value: "MaxAgeSeconds" },
+    ],
+    sortBy: corsSortBy ?? "ID",
+    sortDirection: corsSortDirection ?? "asc",
+  }
+
+  const handleSearchChange = (term: string | number | string[] | undefined) => {
+    const value = typeof term === "string" ? term : ""
+    startTransition(() => {
+      navigate({
+        search: (prev) => ({ ...prev, corsSearch: value || undefined }),
+      })
+    })
+  }
+
+  const handleSortChange = (newSortSettings: SortSettings) => {
+    const resolvedSortBy = (newSortSettings.sortBy?.toString() || "ID") as
+      "ID" | "AllowedOrigins" | "AllowedMethods" | "AllowedHeaders" | "ExposeHeaders" | "MaxAgeSeconds"
+    const resolvedDirection = (newSortSettings.sortDirection || "asc") as "asc" | "desc"
+    startTransition(() => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          corsSortBy: resolvedSortBy,
+          corsSortDirection: resolvedDirection,
+        }),
+      })
+    })
+  }
 
   const handleAddRule = () => {
     setEditingRuleIndex(null)
@@ -106,13 +149,45 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   // Current rules from server
   const rules = corsData?.corsRules ?? []
 
+  // Sort rules based on sort settings
+  const sortRules = (rules: CorsRuleRead[]): CorsRuleRead[] => {
+    return [...rules].sort((a, b) => {
+      let comparison: number
+
+      switch (corsSortBy ?? "ID") {
+        case "ID":
+          comparison = (a.ID || "").localeCompare(b.ID || "")
+          break
+        case "AllowedOrigins":
+          comparison = a.AllowedOrigins.join(", ").localeCompare(b.AllowedOrigins.join(", "))
+          break
+        case "AllowedMethods":
+          comparison = a.AllowedMethods.join(", ").localeCompare(b.AllowedMethods.join(", "))
+          break
+        case "AllowedHeaders":
+          comparison = (a.AllowedHeaders || []).join(", ").localeCompare((b.AllowedHeaders || []).join(", "))
+          break
+        case "ExposeHeaders":
+          comparison = (a.ExposeHeaders || []).join(", ").localeCompare((b.ExposeHeaders || []).join(", "))
+          break
+        case "MaxAgeSeconds":
+          comparison = (a.MaxAgeSeconds ?? -1) - (b.MaxAgeSeconds ?? -1)
+          break
+        default:
+          comparison = (a.ID || "").localeCompare(b.ID || "")
+      }
+
+      return (corsSortDirection ?? "asc") === "desc" ? -comparison : comparison
+    })
+  }
+
   // Filter rules based on search term (by Rule ID)
-  const filteredRulesWithIndices = rules
-    .map((rule, index) => ({ rule, originalIndex: index }))
+  const filteredRulesWithIndices = sortRules(rules)
+    .map((rule) => ({ rule, originalIndex: rules.indexOf(rule) }))
     .filter(({ rule }) => {
-      if (!searchTerm) return true
+      if (!corsSearch) return true
       const ruleId = rule.ID || ""
-      return ruleId.toLowerCase().includes(searchTerm.toLowerCase())
+      return ruleId.toLowerCase().includes(corsSearch.toLowerCase())
     })
 
   // Get indices of filtered rules for select-all logic
@@ -139,8 +214,20 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
 
   return (
     <Stack direction="vertical" gap="4">
-      {/* Zone 1 — Create rule button (outside DataGridToolbar) */}
+      {/* Zone 1 — Sort controls and Create rule button (outside DataGridToolbar) */}
       <Stack distribution="end" alignment="center" gap="2">
+        <Stack gap="0.5" alignment="center">
+          <SortInput
+            options={sortSettings.options}
+            sortBy={sortSettings.sortBy}
+            sortDirection={sortSettings.sortDirection ?? "asc"}
+            selectClassName="w-40"
+            onSortByChange={(value) =>
+              handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
+            }
+            onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
+          />
+        </Stack>
         <Button variant="primary" onClick={handleAddRule}>
           <Trans>Create rule</Trans>
         </Button>
@@ -153,10 +240,13 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
             <SearchInput
               placeholder={t`Search CORS rules...`}
               data-testid="cors-rules-searchbar"
-              value={searchTerm}
-              onInput={(e) => setSearchTerm(e.currentTarget.value)}
-              onSearch={(v) => setSearchTerm(typeof v === "string" ? v : "")}
-              onClear={() => setSearchTerm("")}
+              value={corsSearch}
+              onInput={(e) => {
+                const v = e.currentTarget.value
+                handleSearchChange(v)
+              }}
+              onSearch={(v) => handleSearchChange(typeof v === "string" ? v : "")}
+              onClear={() => handleSearchChange("")}
             />
           </Stack>
           <Divider />
@@ -200,7 +290,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
         onToggleSelectRule={handleToggleSelectRule}
         onEditRule={handleEditRule}
         isMutating={false}
-        isFiltered={!!searchTerm}
+        isFiltered={!!corsSearch}
       />
 
       {/* Delete all CORS modal */}

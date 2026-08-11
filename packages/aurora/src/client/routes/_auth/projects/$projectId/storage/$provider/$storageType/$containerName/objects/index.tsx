@@ -15,6 +15,9 @@ import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
 //   Accepts both Swift keys (last_modified, bytes) and Ceph keys (lastModified, size) for compatibility
 // - sortDirection: "asc" | "desc" — persisted alongside sortBy
 // - view: tab selection for Ceph bucket details page (overview shows objects, cors-rules shows CORS config)
+// - corsSortBy: active sort column for CORS rules tab (ID, AllowedOrigins, etc.) — separate from objects sortBy
+// - corsSortDirection: "asc" | "desc" for CORS rules — separate from objects sortDirection
+// - corsSearch: search term for filtering CORS rules by Rule ID — separate from objects search
 const objectsSearchSchema = z.object({
   prefix: z.string().optional(),
   sortBy: z.enum(["name", "last_modified", "bytes", "lastModified", "size"]).optional().default("name"),
@@ -22,6 +25,12 @@ const objectsSearchSchema = z.object({
   search: z.string().optional(),
   tab: z.enum(["all", "deleted"]).optional().default("all"),
   view: z.enum(["overview", "cors-rules"]).optional().default("overview"),
+  corsSortBy: z
+    .enum(["ID", "AllowedOrigins", "AllowedMethods", "AllowedHeaders", "ExposeHeaders", "MaxAgeSeconds"])
+    .optional()
+    .default("ID"),
+  corsSortDirection: z.enum(["asc", "desc"]).optional().default("asc"),
+  corsSearch: z.string().optional(),
 })
 
 export const Route = createFileRoute(
