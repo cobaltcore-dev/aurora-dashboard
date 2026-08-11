@@ -15,11 +15,15 @@ i18n.load("en", enMessages)
 i18n.activate("en")
 
 // Mock dependencies
+const mockMarkSubmitted = vi.fn()
+const mockTrackClose = vi.fn()
+const mockResetTracking = vi.fn()
+
 vi.mock("@/client/hooks/useModalTracking", () => ({
   useModalTracking: () => ({
-    trackClose: vi.fn(),
-    markSubmitted: vi.fn(),
-    resetTracking: vi.fn(),
+    trackClose: mockTrackClose,
+    markSubmitted: mockMarkSubmitted,
+    resetTracking: mockResetTracking,
   }),
 }))
 
@@ -272,12 +276,44 @@ describe("CorsRuleModal", () => {
     })
   })
 
-  it("calls markSubmitted on form submission", () => {
-    // The modal calls markSubmitted internally when form is submitted
-    // This is handled by the modal's handleSubmit function
-    // We already test that the mutation is called in another test
-    // The markSubmitted call is part of the modal's internal logic
-    // and is verified by reading the source code
-    expect(true).toBe(true)
+  it("calls markSubmitted on form submission", async () => {
+    const user = userEvent.setup()
+    const mockMutate = vi.fn()
+
+    ;(trpcReact.storage.ceph.cors.set.useMutation as any).mockReturnValue({
+      mutate: mockMutate,
+      isPending: false,
+      isError: false,
+      error: null,
+      reset: vi.fn(),
+    })
+
+    render(
+      <CorsRuleModal
+        isOpen={true}
+        bucketName="test-bucket"
+        editingIndex={null}
+        onSuccess={mockOnSuccess}
+        onError={mockOnError}
+        onClose={mockOnClose}
+      />,
+      { wrapper: Wrapper }
+    )
+
+    // Fill in minimal required fields
+    const getCheckbox = screen.getByRole("checkbox", { name: "GET" })
+    await user.click(getCheckbox)
+
+    const originInput = screen.getByPlaceholderText(/https:\/\/example.com or/i)
+    await user.type(originInput, "https://test.com{Enter}")
+
+    // Submit the form
+    const submitButton = screen.getByRole("button", { name: /Create Rule/i })
+    await user.click(submitButton)
+
+    // Verify markSubmitted was called
+    await waitFor(() => {
+      expect(mockMarkSubmitted).toHaveBeenCalled()
+    })
   })
 })

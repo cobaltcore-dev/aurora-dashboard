@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { Modal, Stack, Spinner, Message } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
+import { toCorsRule } from "./utils/corsUtils"
 
 interface DeleteCorsRuleModalProps {
   isOpen: boolean
@@ -88,32 +89,47 @@ export const DeleteCorsRuleModal = ({
     onClose()
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     markSubmitted()
 
-    const currentRules = corsData?.corsRules ?? []
-
-    // Filter out the rule at the specified index
-    const updatedRules = currentRules.filter((_, index) => index !== ruleIndex)
-
-    if (updatedRules.length === 0) {
-      // If no rules left, delete the entire CORS configuration
-      deleteMutation.mutate({
+    try {
+      // Refetch to get fresh data
+      const freshData = await utils.storage.ceph.cors.get.fetch({
         project_id: projectId,
         bucketName,
       })
-    } else {
-      // Otherwise, update with the remaining rules
-      // Type assertion needed because CorsRuleRead has string[] for AllowedMethods
-      // but the mutation expects the narrower type from the schema
-      setMutation.mutate({
-        project_id: projectId,
-        bucketName,
-        corsConfiguration: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          CORSRules: updatedRules as any,
-        },
-      })
+
+      const freshRules = freshData?.corsRules ?? []
+      const cachedRule = corsData?.corsRules?.[ruleIndex]
+      const freshRule = freshRules[ruleIndex]
+
+      // Freshness check
+      if (!freshRule || JSON.stringify(freshRule) !== JSON.stringify(cachedRule)) {
+        onError?.(ruleIndex, t`The CORS configuration has changed. Please refresh and try again.`)
+        return
+      }
+
+      // Proceed with deletion using fresh data
+      const updatedRules = freshRules.filter((_, index) => index !== ruleIndex)
+
+      if (updatedRules.length === 0) {
+        // If no rules left, delete the entire CORS configuration
+        deleteMutation.mutate({
+          project_id: projectId,
+          bucketName,
+        })
+      } else {
+        // Otherwise, update with the remaining rules
+        setMutation.mutate({
+          project_id: projectId,
+          bucketName,
+          corsConfiguration: {
+            CORSRules: updatedRules.map(toCorsRule),
+          },
+        })
+      }
+    } catch {
+      onError?.(ruleIndex, t`Failed to verify CORS configuration`)
     }
   }
 

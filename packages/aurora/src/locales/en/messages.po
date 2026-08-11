@@ -768,8 +768,8 @@ msgstr "CORS Rule Deleted"
 msgid "CORS rule was successfully deleted from bucket \"{bucketName}\"."
 msgstr "CORS rule was successfully deleted from bucket \"{bucketName}\"."
 
-msgid "Cors Rules"
-msgstr "Cors Rules"
+msgid "CORS Rules"
+msgstr "CORS Rules"
 
 msgid "Could not copy \"{displayName}\": {errorMessage}"
 msgstr "Could not copy \"{displayName}\": {errorMessage}"
@@ -1735,6 +1735,9 @@ msgstr "Failed to upload file \"{fileName}\": {errorMessage}"
 msgid "Failed to Upload Object"
 msgstr "Failed to Upload Object"
 
+msgid "Failed to verify CORS configuration"
+msgstr "Failed to verify CORS configuration"
+
 msgid "Failed: {errorDetails}"
 msgstr "Failed: {errorDetails}"
 
@@ -2415,6 +2418,9 @@ msgstr "No containers found"
 
 msgid "No CORS configuration found"
 msgstr "No CORS configuration found"
+
+msgid "No CORS rules found"
+msgstr "No CORS rules found"
 
 msgid "No CORS rules matching the current search criteria."
 msgstr "No CORS rules matching the current search criteria."
@@ -3369,6 +3375,9 @@ msgstr "The container metadata reports objects but none were listed. This may be
 
 msgid "The container will be deleted. This action is permanent and cannot be undone."
 msgstr "The container will be deleted. This action is permanent and cannot be undone."
+
+msgid "The CORS configuration has changed. Please refresh and try again."
+msgstr "The CORS configuration has changed. Please refresh and try again."
 
 msgid "The extra spec could not be found. It may have already been deleted."
 msgstr "The extra spec could not be found. It may have already been deleted."

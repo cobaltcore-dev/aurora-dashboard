@@ -146,6 +146,11 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
     setIsBulkDeleteModalOpen(true)
   }
 
+  const handleDeleteRule = () => {
+    // Clear selections after single-rule deletion to avoid stale indices
+    setSelectedIndices([])
+  }
+
   // Current rules from server
   const rules = corsData?.corsRules ?? []
 
@@ -289,6 +294,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
         selectedIndices={selectedIndices}
         onToggleSelectRule={handleToggleSelectRule}
         onEditRule={handleEditRule}
+        onDeleteRule={handleDeleteRule}
         isMutating={false}
         isFiltered={!!corsSearch}
       />

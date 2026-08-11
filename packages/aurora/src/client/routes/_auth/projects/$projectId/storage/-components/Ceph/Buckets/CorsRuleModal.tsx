@@ -7,6 +7,7 @@ import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { CorsRuleForm } from "./CorsRuleForm"
 import type { CorsRuleRead } from "@/server/Storage/types/ceph"
+import { toCorsRule } from "./utils/corsUtils"
 
 interface CorsRuleModalProps {
   isOpen: boolean
@@ -85,31 +86,50 @@ export const CorsRuleModal = ({
     onClose()
   }
 
-  const handleSubmit = (rule: CorsRuleRead) => {
+  const handleSubmit = async (rule: CorsRuleRead) => {
     markSubmitted()
 
-    const currentRules = corsData?.corsRules ?? []
-    let updatedRules: CorsRuleRead[]
+    try {
+      const currentRules = corsData?.corsRules ?? []
+      let updatedRules: CorsRuleRead[]
 
-    if (editingIndex === null) {
-      // Adding new rule
-      updatedRules = [...currentRules, rule]
-    } else {
-      // Editing existing rule
-      updatedRules = [...currentRules]
-      updatedRules[editingIndex] = rule
+      if (editingIndex === null) {
+        // Adding new rule - no freshness check needed (appending is safe)
+        updatedRules = [...currentRules, rule]
+      } else {
+        // Editing existing rule - perform freshness check
+        const freshData = await utils.storage.ceph.cors.get.fetch({
+          project_id: projectId,
+          bucketName,
+        })
+
+        const freshRules = freshData?.corsRules ?? []
+        const editingRule = corsData?.corsRules?.[editingIndex]
+        const freshRule = freshRules[editingIndex]
+
+        // Freshness check
+        if (!freshRule || JSON.stringify(freshRule) !== JSON.stringify(editingRule)) {
+          onError?.(bucketName, t`The CORS configuration has changed. Please refresh and try again.`)
+          return
+        }
+
+        // Proceed with edit using fresh data
+        updatedRules = [...freshRules]
+        updatedRules[editingIndex] = rule
+      }
+
+      // Type assertion needed because CorsRuleRead has string[] for AllowedMethods
+      // but the mutation expects the narrower type from the schema
+      setMutation.mutate({
+        project_id: projectId,
+        bucketName,
+        corsConfiguration: {
+          CORSRules: updatedRules.map(toCorsRule),
+        },
+      })
+    } catch {
+      onError?.(bucketName, t`Failed to verify CORS configuration`)
     }
-
-    // Type assertion needed because CorsRuleRead has string[] for AllowedMethods
-    // but the mutation expects the narrower type from the schema
-    setMutation.mutate({
-      project_id: projectId,
-      bucketName,
-      corsConfiguration: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        CORSRules: updatedRules as any,
-      },
-    })
   }
 
   if (!isOpen) return null

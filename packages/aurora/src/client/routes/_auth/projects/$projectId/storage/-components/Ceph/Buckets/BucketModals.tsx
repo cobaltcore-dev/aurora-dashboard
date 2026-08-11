@@ -17,6 +17,8 @@ import {
   getVersioningSuspendErrorToast,
   getBucketPolicyDeletedToast,
   getBucketPolicyDeleteErrorToast,
+  getCorsDeletedToast,
+  getCorsDeleteErrorToast,
   getVersionsDeletedToast,
   getVersionsDeleteErrorToast,
   getBucketEmptiedToast,
@@ -132,12 +134,14 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         isOpen={activeModal === "deleteCors"}
         bucketName={bucketName}
         onClose={onClose}
-        onSuccess={() => {
-          toast.success(`CORS rules deleted from bucket "${bucketName}"`)
+        onSuccess={(bucketName) => {
+          const { message, ...options } = getCorsDeletedToast(bucketName)
+          toast.success(message, options)
           onClose()
         }}
-        onError={(_, errorMessage) => {
-          toast.error(`Failed to delete CORS rules: ${errorMessage}`)
+        onError={(bucketName, errorMessage) => {
+          const { message, ...options } = getCorsDeleteErrorToast(bucketName, errorMessage)
+          toast.error(message, options)
           onClose()
         }}
       />

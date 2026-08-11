@@ -213,27 +213,4 @@ describe("CorsRulesTable", () => {
     expect(firstMenuButton).toBeInTheDocument()
     expect(secondMenuButton).toBeInTheDocument()
   })
-
-  it("fires onAddRule when Create rule button is clicked", async () => {
-    // This test is no longer relevant since the Create rule button moved to parent component
-    expect(true).toBe(true)
-  })
-
-  it("disables buttons when isMutating is true", () => {
-    render(
-      <CorsRulesTable
-        bucketName="test-bucket"
-        rulesWithIndices={sampleRulesWithIndices}
-        selectedIndices={[]}
-        onToggleSelectRule={mockOnToggleSelectRule}
-        onEditRule={mockOnEditRule}
-        isMutating={true}
-      />,
-      { wrapper: Wrapper }
-    )
-
-    // The table itself doesn't have buttons that are disabled by isMutating anymore
-    // (Create rule button is in parent component now)
-    expect(true).toBe(true)
-  })
 })

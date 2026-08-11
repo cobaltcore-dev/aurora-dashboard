@@ -7,7 +7,7 @@ import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provid
  *
  * Provides two tabs:
  * - Overview: object browser (default)
- * - Cors Rules: CORS configuration management
+ * - CORS Rules: CORS configuration management
  *
  * Tab state is persisted in the URL via the `view` search param.
  */
@@ -31,7 +31,7 @@ export const BucketDetailTabs = () => {
         }}
       />
       <TabNavigationItem
-        label={t`Cors Rules`}
+        label={t`CORS Rules`}
         active={view === "cors-rules"}
         onClick={() => {
           navigate({

@@ -36,7 +36,7 @@ describe("BucketDetailTabs", () => {
     render(<BucketDetailTabs />, { wrapper: Wrapper })
 
     expect(screen.getByText("Overview")).toBeInTheDocument()
-    expect(screen.getByText("Cors Rules")).toBeInTheDocument()
+    expect(screen.getByText("CORS Rules")).toBeInTheDocument()
   })
 
   it("marks Overview as active by default", () => {
@@ -48,12 +48,12 @@ describe("BucketDetailTabs", () => {
     expect(overviewTab).toHaveClass("juno-navigation-item-active")
   })
 
-  it("marks Cors Rules as active when view=cors-rules", () => {
+  it("marks CORS Rules as active when view=cors-rules", () => {
     vi.mocked(Route.useSearch).mockReturnValue({ view: "cors-rules" } as never)
 
     render(<BucketDetailTabs />, { wrapper: Wrapper })
 
-    const corsTab = screen.getByText("Cors Rules").closest("button")
+    const corsTab = screen.getByText("CORS Rules").closest("button")
     expect(corsTab).toHaveClass("juno-navigation-item-active")
   })
 
@@ -72,8 +72,8 @@ describe("BucketDetailTabs", () => {
 
     render(<BucketDetailTabs />, { wrapper: Wrapper })
 
-    // Click on Cors Rules tab
-    const corsTab = screen.getByText("Cors Rules")
+    // Click on CORS Rules tab
+    const corsTab = screen.getByText("CORS Rules")
     await user.click(corsTab)
 
     // Should call navigate with view changed but other params preserved

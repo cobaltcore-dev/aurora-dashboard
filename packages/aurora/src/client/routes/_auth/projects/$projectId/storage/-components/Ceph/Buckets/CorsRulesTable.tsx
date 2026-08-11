@@ -128,7 +128,7 @@ export function CorsRulesTable({
             // Rules are keyed by array index - they have no stable server-side id.
             // ID field is optional and may be absent or duplicated.
             // originalIndex is the contract with parent's onEditRule(index) / onDeleteRule(index).
-            const key = rule.ID ?? originalIndex
+            const key = originalIndex
 
             return (
               <DataGridRow key={key} data-testid={`cors-rule-row-${originalIndex}`}>

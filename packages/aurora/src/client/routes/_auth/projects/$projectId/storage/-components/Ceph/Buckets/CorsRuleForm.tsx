@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useForm, useStore } from "@tanstack/react-form"
 import { useLingui } from "@lingui/react/macro"
 import { Form, Stack, TextInput, CheckboxGroup, Checkbox } from "@cloudoperators/juno-ui-components"
@@ -45,9 +46,9 @@ export const CorsRuleForm = ({ editingRule, onSubmit, formId, onValidationChange
   const canSubmit = allowedOriginsValue.length > 0 && allowedMethodsValue.length > 0
 
   // Notify parent about validation state changes
-  if (onValidationChange) {
-    onValidationChange(canSubmit)
-  }
+  useEffect(() => {
+    onValidationChange?.(canSubmit)
+  }, [canSubmit, onValidationChange])
 
   return (
     <div>
