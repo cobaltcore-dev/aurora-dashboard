@@ -206,7 +206,7 @@ describe("CorsRuleModal", () => {
     await user.click(getCheckbox)
 
     // Add an allowed origin (TagInput - we need to type and press Enter)
-    const originInput = screen.getByPlaceholderText(/https:\/\/example.comor/i)
+    const originInput = screen.getByPlaceholderText(/https:\/\/example.com or/i)
     await user.type(originInput, "https://test.com{Enter}")
 
     // Submit the form
@@ -260,7 +260,7 @@ describe("CorsRuleModal", () => {
     const getCheckbox = screen.getByRole("checkbox", { name: "GET" })
     await user.click(getCheckbox)
 
-    const originInput = screen.getByPlaceholderText(/https:\/\/example.comor/i)
+    const originInput = screen.getByPlaceholderText(/https:\/\/example.com or/i)
     await user.type(originInput, "https://test.com{Enter}")
 
     // Submit
