@@ -55,11 +55,6 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
           <Trans>Bucket Policy</Trans>
         </Badge>
       )}
-      {corsData?.corsRules && corsData.corsRules.length > 0 && (
-        <Badge variant="info">
-          <Trans>CORS Enabled</Trans>
-        </Badge>
-      )}
     </>
   )
 

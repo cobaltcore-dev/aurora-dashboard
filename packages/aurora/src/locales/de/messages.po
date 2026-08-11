@@ -762,9 +762,6 @@ msgstr ""
 msgid "CORS configuration was successfully saved for bucket \"{bucketName}\"."
 msgstr ""
 
-msgid "CORS Enabled"
-msgstr ""
-
 msgid "CORS Rule Deleted"
 msgstr ""
 

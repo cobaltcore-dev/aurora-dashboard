@@ -150,17 +150,23 @@ export function CorsRulesTable({
                   {rule.ExposeHeaders && rule.ExposeHeaders.length > 0 ? rule.ExposeHeaders.join(", ") : t`—`}
                 </DataGridCell>
                 <DataGridCell>{rule.MaxAgeSeconds !== undefined ? rule.MaxAgeSeconds : t`—`}</DataGridCell>
-                <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end justify-end pr-0">
-                  <PopupMenu>
-                    <PopupMenuOptions>
-                      <PopupMenuItem label={t`Edit`} onClick={() => onEditRule(originalIndex)} disabled={isMutating} />
-                      <PopupMenuItem
-                        label={t`Delete`}
-                        onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
-                        disabled={isMutating}
-                      />
-                    </PopupMenuOptions>
-                  </PopupMenu>
+                <DataGridCell onClick={(e) => e.stopPropagation()} className="justify-end pr-0">
+                  <div className="flex h-full items-center justify-end">
+                    <PopupMenu>
+                      <PopupMenuOptions>
+                        <PopupMenuItem
+                          label={t`Edit`}
+                          onClick={() => onEditRule(originalIndex)}
+                          disabled={isMutating}
+                        />
+                        <PopupMenuItem
+                          label={t`Delete`}
+                          onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
+                          disabled={isMutating}
+                        />
+                      </PopupMenuOptions>
+                    </PopupMenu>
+                  </div>
                 </DataGridCell>
               </DataGridRow>
             )

@@ -762,9 +762,6 @@ msgstr "CORS configuration was successfully deleted from bucket \"{bucketName}\"
 msgid "CORS configuration was successfully saved for bucket \"{bucketName}\"."
 msgstr "CORS configuration was successfully saved for bucket \"{bucketName}\"."
 
-msgid "CORS Enabled"
-msgstr "CORS Enabled"
-
 msgid "CORS Rule Deleted"
 msgstr "CORS Rule Deleted"
 
