@@ -2980,11 +2980,11 @@ msgstr "Saving..."
 msgid "Search buckets..."
 msgstr "Search buckets..."
 
-msgid "Search by Rule ID..."
-msgstr "Search by Rule ID..."
-
 msgid "Search containers..."
 msgstr "Search containers..."
+
+msgid "Search CORS rules..."
+msgstr "Search CORS rules..."
 
 msgid "Search flavors..."
 msgstr "Search flavors..."
