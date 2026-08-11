@@ -16,6 +16,7 @@ interface CorsRuleModalProps {
   onClose: () => void
   onSuccess?: (bucketName: string) => void
   onError?: (bucketName: string, errorMessage: string) => void
+  onMutatingChange?: (isMutating: boolean) => void
 }
 
 /**
@@ -31,6 +32,7 @@ export const CorsRuleModal = ({
   onClose,
   onSuccess,
   onError,
+  onMutatingChange,
 }: CorsRuleModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -70,6 +72,10 @@ export const CorsRuleModal = ({
       onError?.(bucketName, error.message)
     },
   })
+
+  useEffect(() => {
+    onMutatingChange?.(setMutation.isPending)
+  }, [setMutation.isPending, onMutatingChange])
 
   useEffect(() => {
     if (!isOpen) {

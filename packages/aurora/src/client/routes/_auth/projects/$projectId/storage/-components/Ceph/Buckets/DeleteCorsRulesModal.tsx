@@ -17,6 +17,7 @@ interface DeleteCorsRulesModalProps {
   onClose: () => void
   onSuccess?: (bucketName: string, count: number) => void
   onError?: (bucketName: string, errorMessage: string, count: number) => void
+  onMutatingChange?: (isMutating: boolean) => void
 }
 
 /**
@@ -34,6 +35,7 @@ export const DeleteCorsRulesModal = ({
   onClose,
   onSuccess,
   onError,
+  onMutatingChange,
 }: DeleteCorsRulesModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -81,6 +83,10 @@ export const DeleteCorsRulesModal = ({
       onError?.(bucketName, error.message, ruleIndices.length)
     },
   })
+
+  useEffect(() => {
+    onMutatingChange?.(setMutation.isPending || deleteMutation.isPending)
+  }, [setMutation.isPending, deleteMutation.isPending, onMutatingChange])
 
   useEffect(() => {
     if (!isOpen) {

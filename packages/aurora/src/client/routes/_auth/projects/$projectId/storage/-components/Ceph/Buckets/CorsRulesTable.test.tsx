@@ -213,4 +213,28 @@ describe("CorsRulesTable", () => {
     expect(firstMenuButton).toBeInTheDocument()
     expect(secondMenuButton).toBeInTheDocument()
   })
+
+  it("renders without errors when isMutating is true", () => {
+    render(
+      <CorsRulesTable
+        bucketName="test-bucket"
+        rulesWithIndices={sampleRulesWithIndices}
+        selectedIndices={[]}
+        onToggleSelectRule={mockOnToggleSelectRule}
+        onEditRule={mockOnEditRule}
+        isMutating={true}
+      />,
+      { wrapper: Wrapper }
+    )
+
+    // Component should render successfully with isMutating=true
+    expect(screen.getByText("Rule ID")).toBeInTheDocument()
+    expect(screen.getByText("rule-1")).toBeInTheDocument()
+    expect(screen.getByText("rule-2")).toBeInTheDocument()
+
+    // Menu buttons should still be present
+    const firstRow = screen.getByTestId("cors-rule-row-0")
+    const menuButton = firstRow.querySelector("button[aria-haspopup='menu']")
+    expect(menuButton).toBeInTheDocument()
+  })
 })

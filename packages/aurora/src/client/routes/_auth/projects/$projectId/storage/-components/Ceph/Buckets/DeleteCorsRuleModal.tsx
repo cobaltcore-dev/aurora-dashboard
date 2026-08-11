@@ -14,6 +14,7 @@ interface DeleteCorsRuleModalProps {
   onClose: () => void
   onSuccess?: (ruleIndex: number) => void
   onError?: (ruleIndex: number, errorMessage: string) => void
+  onMutatingChange?: (isMutating: boolean) => void
 }
 
 export const DeleteCorsRuleModal = ({
@@ -24,6 +25,7 @@ export const DeleteCorsRuleModal = ({
   onClose,
   onSuccess,
   onError,
+  onMutatingChange,
 }: DeleteCorsRuleModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -74,6 +76,10 @@ export const DeleteCorsRuleModal = ({
       onError?.(ruleIndex, error.message)
     },
   })
+
+  useEffect(() => {
+    onMutatingChange?.(setMutation.isPending || deleteMutation.isPending)
+  }, [setMutation.isPending, deleteMutation.isPending, onMutatingChange])
 
   useEffect(() => {
     if (!isOpen) {

@@ -50,6 +50,8 @@ export function CorsRulesTable({
 }: CorsRulesTableProps) {
   const { t } = useLingui()
 
+  const [isRowDeleteMutating, setIsRowDeleteMutating] = useState(false)
+
   const [deleteModalState, setDeleteModalState] = useState<{
     isOpen: boolean
     ruleIndex: number
@@ -87,6 +89,8 @@ export function CorsRulesTable({
     const { message, ...options } = getCorsRuleDeleteErrorToast(bucketName, errorMessage, deleteModalState.ruleId)
     toast.error(message, options)
   }
+
+  const effectiveIsMutating = isMutating || isRowDeleteMutating
 
   const gridColumnTemplate =
     "40px minmax(100px, 1fr) minmax(150px, 2fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(80px, 1fr) 60px"
@@ -157,12 +161,12 @@ export function CorsRulesTable({
                         <PopupMenuItem
                           label={t`Edit`}
                           onClick={() => onEditRule(originalIndex)}
-                          disabled={isMutating}
+                          disabled={effectiveIsMutating}
                         />
                         <PopupMenuItem
                           label={t`Delete`}
                           onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
-                          disabled={isMutating}
+                          disabled={effectiveIsMutating}
                         />
                       </PopupMenuOptions>
                     </PopupMenu>
@@ -183,6 +187,7 @@ export function CorsRulesTable({
         onClose={handleCloseDeleteModal}
         onSuccess={handleDeleteSuccess}
         onError={handleDeleteError}
+        onMutatingChange={setIsRowDeleteMutating}
       />
     </Stack>
   )

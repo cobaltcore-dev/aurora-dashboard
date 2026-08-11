@@ -78,6 +78,10 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false)
 
+  // Mutation state for modals (to disable row actions during mutations)
+  const [isRuleModalMutating, setIsRuleModalMutating] = useState(false)
+  const [isBulkDeleteMutating, setIsBulkDeleteMutating] = useState(false)
+
   // Selection state for bulk actions
   const [selectedIndices, setSelectedIndices] = useState<number[]>([])
 
@@ -295,7 +299,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
         onToggleSelectRule={handleToggleSelectRule}
         onEditRule={handleEditRule}
         onDeleteRule={handleDeleteRule}
-        isMutating={false}
+        isMutating={isRuleModalMutating || isBulkDeleteMutating}
         isFiltered={!!corsSearch}
       />
 
@@ -331,6 +335,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
           const { message, ...options } = getCorsRulesDeleteErrorToast(bucketName, count, errorMessage)
           toast.error(message, options)
         }}
+        onMutatingChange={setIsBulkDeleteMutating}
       />
 
       {/* Add/Edit rule modal */}
@@ -352,6 +357,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
           const { message, ...options } = getCorsSaveErrorToast(bucketName, errorMessage)
           toast.error(message, options)
         }}
+        onMutatingChange={setIsRuleModalMutating}
       />
     </Stack>
   )
