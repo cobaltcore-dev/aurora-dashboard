@@ -202,7 +202,13 @@ export const projectRouter = {
         })
       }
 
-      const encodedId = validateAndEncodeResourceId(input.projectId, "Project")
+      let encodedId: string
+      try {
+        encodedId = validateAndEncodeResourceId(input.projectId, "Project")
+      } catch {
+        return null
+      }
+
       const response = await callIdentityAPI(ctx.identityEndpoint, token.authToken, `projects/${encodedId}`).catch(
         () => null
       )

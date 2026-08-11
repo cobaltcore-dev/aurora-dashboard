@@ -19,6 +19,11 @@ describe("encodeOpenstackPathSegment", () => {
     expect(() => encodeOpenstackPathSegment("./admin")).toThrow("path traversal")
     expect(() => encodeOpenstackPathSegment("admin/secrets")).toThrow("must not contain slashes")
   })
+
+  it("should reject URL special characters", () => {
+    expect(() => encodeOpenstackPathSegment("id?x=1")).toThrow("URL special")
+    expect(() => encodeOpenstackPathSegment("id#frag")).toThrow("URL special")
+  })
 })
 
 describe("encodeOpenstackPath", () => {

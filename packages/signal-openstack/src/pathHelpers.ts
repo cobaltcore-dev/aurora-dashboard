@@ -62,7 +62,7 @@ export function validateUUID(id: string, label = "ID"): void {
 
 /**
  * Validate and encode an OpenStack resource ID.
- * ONLY validates format (no path traversal), does NOT require UUID.
+ * Validates against path traversal/path-syntax and URL-encodes the segment; does NOT require UUID.
  *
  * Use this for resource IDs that may be custom strings (e.g., flavor IDs like "m1.small").
  * For resources that MUST be UUIDs, call validateUUID() first.

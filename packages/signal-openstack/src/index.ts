@@ -1,11 +1,12 @@
 export { SignalOpenstackSession } from "./session"
+export { SignalOpenstackError } from "./error"
 export type { CancellableRequest } from "./client"
 export type { SignalOpenstackServiceType, ServiceActionOptions } from "./service"
 export type { SignalOpenstackSessionType } from "./session"
 export type { AuthConfig, AuthSchema } from "./auth-config"
 export type { SignalOpenstackOptions, ProxyConfig } from "./shared-types"
 export type { SignalOpenstackTokenType } from "./token"
-export type { SignalOpenstackError, SignalOpenstackApiError } from "./error"
+export type { SignalOpenstackApiError } from "./error"
 export { logger, loggerConfig, redactSensitiveData } from "./logger"
 export {
   encodeOpenstackPathSegment,
