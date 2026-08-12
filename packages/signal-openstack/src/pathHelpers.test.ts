@@ -10,6 +10,7 @@ describe("encodeOpenstackPathSegment", () => {
 
   // Critical edge cases - security vulnerabilities
   it("should reject path traversal", () => {
+    expect(() => encodeOpenstackPathSegment(".")).toThrow("path traversal")
     expect(() => encodeOpenstackPathSegment("../admin")).toThrow("path traversal")
     expect(() => encodeOpenstackPathSegment("./admin")).toThrow("path traversal")
     expect(() => encodeOpenstackPathSegment("admin/secrets")).toThrow("must not contain slashes")

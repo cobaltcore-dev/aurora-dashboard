@@ -19,7 +19,7 @@ export function encodeOpenstackPathSegment(segment: string, label = "Path segmen
   }
 
   // Reject path traversal attempts
-  if (segment.includes("..") || segment.includes("./")) {
+  if (segment === "." || segment.includes("..") || segment.includes("./")) {
     throw new SignalOpenstackError(`${label} contains path traversal characters`)
   }
 

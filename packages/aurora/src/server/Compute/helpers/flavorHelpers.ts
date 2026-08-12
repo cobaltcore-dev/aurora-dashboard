@@ -5,6 +5,7 @@ import {
   SignalOpenstackServiceType,
   validateAndEncodeResourceId,
   encodeOpenstackPathSegment,
+  SignalOpenstackError,
 } from "@cobaltcore-dev/signal-openstack"
 
 interface CreateFlavorResponse {
@@ -201,7 +202,20 @@ export async function getFlavorById(compute: SignalOpenstackServiceType, flavorI
     })
   }
 
-  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  let encodedId
+  try {
+    encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  } catch (error) {
+    if (error instanceof SignalOpenstackError) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.GET_FLAVOR_DETAILS_INVALID_ID,
+        cause: error,
+      })
+    }
+    throw error
+  }
+
   let response
 
   try {
@@ -320,7 +334,20 @@ export async function deleteFlavor(compute: SignalOpenstackServiceType, flavorId
     })
   }
 
-  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  let encodedId
+  try {
+    encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  } catch (error) {
+    if (error instanceof SignalOpenstackError) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.DELETE_FLAVOR_INVALID_ID,
+        cause: error,
+      })
+    }
+    throw error
+  }
+
   let response
 
   try {
@@ -346,7 +373,20 @@ export async function createExtraSpecs(
   flavorId: string,
   extra_specs: Record<string, string>
 ): Promise<Record<string, string>> {
-  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  let encodedId
+  try {
+    encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  } catch (error) {
+    if (error instanceof SignalOpenstackError) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.CREATE_EXTRA_SPECS_FAILED,
+        cause: error,
+      })
+    }
+    throw error
+  }
+
   let response
 
   try {
@@ -381,7 +421,20 @@ export async function getExtraSpecs(
   compute: SignalOpenstackServiceType,
   flavorId: string
 ): Promise<Record<string, string>> {
-  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  let encodedId
+  try {
+    encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  } catch (error) {
+    if (error instanceof SignalOpenstackError) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.GET_EXTRA_SPECS_FAILED,
+        cause: error,
+      })
+    }
+    throw error
+  }
+
   let response
 
   try {
@@ -415,8 +468,21 @@ export async function deleteExtraSpec(
   flavorId: string,
   key: string
 ): Promise<void> {
-  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
-  const encodedKey = encodeOpenstackPathSegment(key, "Extra spec key")
+  let encodedId, encodedKey
+  try {
+    encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+    encodedKey = encodeOpenstackPathSegment(key, "Extra spec key")
+  } catch (error) {
+    if (error instanceof SignalOpenstackError) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.DELETE_EXTRA_SPEC_FAILED,
+        cause: error,
+      })
+    }
+    throw error
+  }
+
   let response
 
   try {
@@ -434,7 +500,20 @@ export async function deleteExtraSpec(
 }
 
 export async function getFlavorAccess(compute: SignalOpenstackServiceType, flavorId: string): Promise<FlavorAccess[]> {
-  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  let encodedId
+  try {
+    encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  } catch (error) {
+    if (error instanceof SignalOpenstackError) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.GET_FLAVOR_ACCESS_FAILED,
+        cause: error,
+      })
+    }
+    throw error
+  }
+
   let response
 
   try {
@@ -468,7 +547,20 @@ export async function addTenantAccess(
   flavorId: string,
   tenantId: string
 ): Promise<FlavorAccess[]> {
-  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  let encodedId
+  try {
+    encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  } catch (error) {
+    if (error instanceof SignalOpenstackError) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.ADD_TENANT_ACCESS_FAILED,
+        cause: error,
+      })
+    }
+    throw error
+  }
+
   let response
 
   try {
@@ -507,7 +599,20 @@ export async function removeTenantAccess(
   flavorId: string,
   tenantId: string
 ): Promise<FlavorAccess[]> {
-  const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  let encodedId
+  try {
+    encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+  } catch (error) {
+    if (error instanceof SignalOpenstackError) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ERROR_CODES.REMOVE_TENANT_ACCESS_FAILED,
+        cause: error,
+      })
+    }
+    throw error
+  }
+
   let response
 
   try {

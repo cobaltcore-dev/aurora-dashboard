@@ -16,7 +16,7 @@ import {
 import { Flavor } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
 import { ERROR_CODES } from "../../errorCodes"
-import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
+import { validateAndEncodeResourceId, SignalOpenstackError } from "@cobaltcore-dev/signal-openstack"
 
 export const flavorRouter = {
   getFlavorById: projectScopedProcedure
@@ -326,7 +326,19 @@ export const flavorRouter = {
           })
         }
 
-        const encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+        let encodedId
+        try {
+          encodedId = validateAndEncodeResourceId(flavorId, "Flavor")
+        } catch (error) {
+          if (error instanceof SignalOpenstackError) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: ERROR_CODES.GET_FLAVOR_ACCESS_FAILED,
+              cause: error,
+            })
+          }
+          throw error
+        }
 
         // First, get the flavor details to check if it's public
         const flavorResponse = await compute.get(`flavors/${encodedId}`)
