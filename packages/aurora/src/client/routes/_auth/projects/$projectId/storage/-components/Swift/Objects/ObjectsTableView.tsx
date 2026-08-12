@@ -389,7 +389,7 @@ export const ObjectsTableView = ({
                         }
                       >
                         {isStreaming && isPreviewing ? (
-                          <Spinner size="small" className="shrink-0" />
+                          <Spinner size="small" className="shrink-0" data-testid={`preview-spinner-${row.name}`} />
                         ) : (
                           <MdDescription size={18} className="text-theme-light shrink-0" />
                         )}

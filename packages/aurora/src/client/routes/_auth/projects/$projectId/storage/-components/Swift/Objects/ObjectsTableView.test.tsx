@@ -471,7 +471,17 @@ describe("ObjectsTableView", () => {
     test("shows a spinner on the file name while a preview transfer is in flight", () => {
       seedTransfer("test-container", "readme.txt", { kind: "preview" })
       renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
-      expect(screen.getByTestId("preview-readme.txt").querySelector("svg, [class*=spinner]")).toBeTruthy()
+      // The button renders an <svg> in both states (the doc icon when idle, the
+      // spinner when previewing), so a bare `svg` query can't tell them apart —
+      // assert on the spinner's own testid.
+      expect(screen.getByTestId("preview-spinner-readme.txt")).toBeInTheDocument()
+    })
+
+    test("shows no spinner on the file name when the row is idle", () => {
+      // Falsifiability check for the test above: without an active transfer the
+      // idle doc icon renders and the spinner must be absent.
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      expect(screen.queryByTestId("preview-spinner-readme.txt")).not.toBeInTheDocument()
     })
 
     test("disables the file name button for a row that is transferring", () => {
