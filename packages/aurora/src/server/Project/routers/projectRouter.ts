@@ -2,6 +2,7 @@ import { z } from "zod"
 import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
 import { Project, projectResponseSchema, projectsResponseSchema } from "../types/models"
+import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
 
 /**
  * Helper function to call Identity API endpoints directly
@@ -201,11 +202,16 @@ export const projectRouter = {
         })
       }
 
-      const response = await callIdentityAPI(
-        ctx.identityEndpoint,
-        token.authToken,
-        `projects/${input.projectId}`
-      ).catch(() => null)
+      let encodedId: string
+      try {
+        encodedId = validateAndEncodeResourceId(input.projectId, "Project")
+      } catch {
+        return null
+      }
+
+      const response = await callIdentityAPI(ctx.identityEndpoint, token.authToken, `projects/${encodedId}`).catch(
+        () => null
+      )
 
       if (!response) return null
 

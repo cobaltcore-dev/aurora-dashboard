@@ -60,7 +60,8 @@ packages/aurora/src/server/Storage/
 │   │   ├── ec2CredentialRouter.ts    # Credential CRUD operations
 │   │   ├── containerRouter.ts        # Bucket operations
 │   │   ├── objectRouter.ts           # Object operations
-│   │   └── versioningRouter.ts       # Versioning operations
+│   │   ├── versioningRouter.ts       # Versioning operations
+│   │   └── corsRouter.ts             # CORS configuration operations
 ├── helpers/
 │   └── s3ErrorMapper.ts          # S3 → tRPC error mapping
 └── types/
@@ -177,15 +178,18 @@ storage.ceph
   │   ├── move()            → { success: boolean, etag?: string }
   │   ├── updateMetadata()  → { success: boolean }
   │   ├── downloadObject()       → AsyncIterable<{ chunk, downloaded, total, contentType?, filename? }>
-  │   ├── watchDownloadProgress() → AsyncIterable<{ downloaded, total, percent }>  (subscription)
-  │   └── generatePresignedUrl() → { url, expiresAt }
-  └── versioning
-      ├── getStatus()         → { status: 'Enabled' | 'Suspended' | 'Unversioned' }
-      ├── setStatus()         → { success: boolean }
-      ├── listVersions()      → { versions, deleteMarkers, isTruncated, nextKeyMarker?, nextVersionIdMarker? }
-      ├── listObjectVersions() → ObjectVersion[]
-      ├── deleteVersion()     → { success: boolean }
-      └── restoreVersion()    → { success: boolean, versionId: string }
+  │   └── watchDownloadProgress() → AsyncIterable<{ downloaded, total, percent }>  (subscription)
+  ├── versioning
+  │   ├── getStatus()         → { status: 'Enabled' | 'Suspended' | 'Unversioned' }
+  │   ├── setStatus()         → { success: boolean }
+  │   ├── listVersions()      → { versions, deleteMarkers, isTruncated, nextKeyMarker?, nextVersionIdMarker? }
+  │   ├── listObjectVersions() → ObjectVersion[]
+  │   ├── deleteVersion()     → { success: boolean }
+  │   └── restoreVersion()    → { success: boolean, versionId: string }
+  └── cors
+      ├── get()               → { corsRules: CorsRule[] | null }
+      ├── set()               → boolean
+      └── delete()            → boolean
 ```
 
 ## Available Procedures
@@ -1522,6 +1526,170 @@ Versioned Bucket:
 
 ---
 
+### CORS Configuration (`storage.ceph.cors`)
+
+Bucket CORS (Cross-Origin Resource Sharing) configuration allows web applications loaded from one domain to access objects in your Ceph buckets from JavaScript. Without CORS rules, browser Same-Origin Policy blocks cross-domain requests.
+
+#### `get`
+
+Retrieves the current CORS configuration for a bucket. Returns `null` if no CORS configuration is set (not an error).
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucketName: string
+}
+```
+
+**Output:**
+
+```typescript
+GetCorsOutput
+
+interface GetCorsOutput {
+  corsRules: CorsRule[] | null // null if no CORS config
+}
+
+interface CorsRule {
+  AllowedOrigins: string[] // e.g., ["https://example.com", "*"]
+  AllowedMethods: CorsAllowedMethod[] // ["GET", "POST", "PUT", "DELETE", "HEAD"]
+  AllowedHeaders?: string[] // e.g., ["*", "Content-Type"]
+  ExposeHeaders?: string[] // Headers clients can access
+  MaxAgeSeconds?: number // Preflight cache time (0-86400)
+  ID?: string // Rule identifier (max 255 chars)
+}
+
+type CorsAllowedMethod = "GET" | "POST" | "PUT" | "DELETE" | "HEAD"
+```
+
+**Example:**
+
+```typescript
+const { corsRules } = await trpc.storage.ceph.cors.get.query({
+  project_id: "abc123",
+  bucketName: "my-bucket",
+})
+
+if (corsRules === null) {
+  console.log("No CORS configuration")
+} else {
+  console.log(`${corsRules.length} CORS rule(s) configured`)
+}
+```
+
+**Important:** `NoSuchCORSConfiguration` from RGW is treated as normal state (returns `null`, not an error).
+
+---
+
+#### `set`
+
+Creates or replaces the entire CORS configuration for a bucket. Validates rules before sending to RGW.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucketName: string,
+  corsConfiguration: {
+    CORSRules: CorsRule[]  // 1-100 rules
+  }
+}
+```
+
+**Output:**
+
+```typescript
+boolean // true on success
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.cors.set.mutate({
+  project_id: "abc123",
+  bucketName: "my-bucket",
+  corsConfiguration: {
+    CORSRules: [
+      {
+        AllowedOrigins: ["https://example.com", "http://localhost:8000"],
+        AllowedMethods: ["GET", "PUT", "POST"],
+        AllowedHeaders: ["*"],
+        MaxAgeSeconds: 3600,
+        ID: "example-rule",
+      },
+    ],
+  },
+})
+```
+
+**Validation:**
+
+- **AllowedMethods:** 1-5 methods required
+- **AllowedOrigins:** At least 1 origin required (supports wildcards: `*`, `https://*.example.com`)
+- **MaxAgeSeconds:** 0-86400 (24 hours), optional
+- **ID:** Max 255 characters, optional
+- **Total rules:** 1-100 per bucket
+
+**Note:** This operation **replaces** the entire CORS configuration. To add a rule, fetch existing rules with `get`, modify the array, and call `set` with the updated list.
+
+---
+
+#### `delete`
+
+Removes the entire CORS configuration from a bucket. Idempotent — not an error if no CORS configuration exists.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucketName: string
+}
+```
+
+**Output:**
+
+```typescript
+boolean // true on success
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.cors.delete.mutate({
+  project_id: "abc123",
+  bucketName: "my-bucket",
+})
+
+// Bucket now has no CORS rules
+```
+
+---
+
+### CORS Testing Notes
+
+**Important:** Ceph RGW does **not** add CORS headers to HEAD requests. Only GET/POST/PUT/DELETE/OPTIONS requests receive `Access-Control-*` headers. When testing CORS with curl, use GET instead of HEAD:
+
+```bash
+# ✅ Correct — shows CORS headers
+curl -s -H "Origin: https://example.com" \
+  "https://rgw.example.com/bucket/object" \
+  -o /dev/null -D -
+
+# ❌ Incorrect — no CORS headers (even if rule is configured)
+curl -sI -H "Origin: https://example.com" \
+  "https://rgw.example.com/bucket/object"
+```
+
+**Browser behavior:** Real browsers correctly enforce CORS on all cross-origin fetch/XHR requests regardless of method.
+
+**Recommended testing:** Use a local HTML page with `fetch()` to verify CORS works in actual browsers. See the manual testing plan for details: `DOCS/plans/2026-07-25-cors-manual-testing-scenarios.md`.
+
+---
+
 ## Error Handling
 
 ### S3 Error Mapper
@@ -1536,11 +1704,13 @@ The `mapS3ErrorToTRPCError` helper maps AWS SDK S3 error codes to tRPC error cod
 | `NoSuchKey`               | `NOT_FOUND`           | Object does not exist              |
 | `NoSuchUpload`            | `NOT_FOUND`           | Multipart upload ID not found      |
 | `NoSuchVersion`           | `NOT_FOUND`           | Object version does not exist      |
+| `NoSuchCORSConfiguration` | `NOT_FOUND`           | CORS configuration does not exist  |
 | `BucketAlreadyExists`     | `CONFLICT`            | Bucket name already taken          |
 | `BucketAlreadyOwnedByYou` | `CONFLICT`            | Bucket already owned by you        |
 | `BucketNotEmpty`          | `PRECONDITION_FAILED` | Cannot delete non-empty bucket     |
 | `InvalidBucketState`      | `BAD_REQUEST`         | Invalid bucket state for operation |
 | `VersioningNotEnabled`    | `PRECONDITION_FAILED` | Versioning not enabled on bucket   |
+| `MalformedXML`            | `BAD_REQUEST`         | Invalid XML in request body        |
 | `AccessDenied`            | `FORBIDDEN`           | Insufficient permissions           |
 | `AllAccessDisabled`       | `FORBIDDEN`           | All access disabled                |
 | `InvalidAccessKeyId`      | `UNAUTHORIZED`        | Invalid access key                 |
@@ -1845,7 +2015,8 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
    - ~~Create bucket (`CreateBucketCommand`)~~ ✅ Implemented
    - ~~Delete bucket (`DeleteBucketCommand`)~~ ✅ Implemented
    - ~~Empty bucket (bulk delete all objects)~~ ✅ Implemented
-   - Configure bucket policies, CORS, lifecycle rules
+   - ~~CORS configuration (`GetBucketCorsCommand`, `PutBucketCorsCommand`, `DeleteBucketCorsCommand`)~~ ✅ Implemented
+   - Configure bucket policies, lifecycle rules
 
 2. **Object Upload/Download**
    - ~~Upload object (`PutObjectCommand`)~~ ✅ Implemented — streamed through the BFF via `octetInputParser`, with a `watchUploadProgress` subscription for progress

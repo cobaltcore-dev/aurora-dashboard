@@ -3,6 +3,7 @@ import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
 import { omit } from "@/server/helpers/object"
 import { parseOrThrow } from "@/server/Network/helpers"
+import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
 import {
   CertificateAuthoritiesListInputSchema,
   CertificateAuthoritiesList,
@@ -69,7 +70,8 @@ export const pcaRouter = {
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
 
-        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}`
+        const encodedId = validateAndEncodeResourceId(input.certificate_authority_id, "Certificate authority")
+        const url = `${PCA_BASE_URL}/${encodedId}`
         const response = await pca.get(url)
         const data = await response.json()
 
@@ -84,7 +86,8 @@ export const pcaRouter = {
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
 
-        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}`
+        const encodedId = validateAndEncodeResourceId(input.certificate_authority_id, "Certificate authority")
+        const url = `${PCA_BASE_URL}/${encodedId}`
         // 204 Certificate Authority deleted successfully
         await pca.del(url)
       }, "delete certificate authority")
@@ -101,7 +104,8 @@ export const pcaRouter = {
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
 
-        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}:importCertificate`
+        const encodedId = validateAndEncodeResourceId(input.certificate_authority_id, "Certificate authority")
+        const url = `${PCA_BASE_URL}/${encodedId}:importCertificate`
         const response = await pca.post(url, {
           imported_certificate_chain: input.imported_certificate_chain,
         })
@@ -121,7 +125,8 @@ export const pcaRouter = {
         if (input.limit !== undefined) queryParams.set("limit", String(input.limit))
         if (input.next_page_marker !== undefined) queryParams.set("next_page_marker", input.next_page_marker)
         const queryString = queryParams.toString()
-        const baseUrl = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates`
+        const encodedId = validateAndEncodeResourceId(input.certificate_authority_id, "Certificate authority")
+        const baseUrl = `${PCA_BASE_URL}/${encodedId}/certificates`
         const url = queryString ? `${baseUrl}?${queryString}` : baseUrl
         const response = await pca.get(url)
         const data = await response.json()
@@ -136,7 +141,8 @@ export const pcaRouter = {
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
 
-        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates`
+        const encodedId = validateAndEncodeResourceId(input.certificate_authority_id, "Certificate authority")
+        const url = `${PCA_BASE_URL}/${encodedId}/certificates`
         const response = await pca.post(url, omit(input, "project_id", "certificate_authority_id"))
         const data = await response.json()
 
@@ -150,7 +156,9 @@ export const pcaRouter = {
         const pca = ctx.openstack?.service("pca")
         validateOpenstackService(pca, "pca")
 
-        const url = `${PCA_BASE_URL}/${input.certificate_authority_id}/certificates/${input.certificate_id}`
+        const encodedAuthorityId = validateAndEncodeResourceId(input.certificate_authority_id, "Certificate authority")
+        const encodedCertId = validateAndEncodeResourceId(input.certificate_id, "Certificate")
+        const url = `${PCA_BASE_URL}/${encodedAuthorityId}/certificates/${encodedCertId}`
         const response = await pca.get(url)
         const data = await response.json()
 
