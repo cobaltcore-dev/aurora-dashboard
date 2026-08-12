@@ -48,24 +48,10 @@ export function encodeOpenstackPath(...segments: string[]): string {
 }
 
 /**
- * Validate UUID format (common OpenStack identifier).
- *
- * @throws {SignalOpenstackError} If not a valid UUID
- */
-export function validateUUID(id: string, label = "ID"): void {
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-  if (!UUID_RE.test(id)) {
-    throw new SignalOpenstackError(`Invalid ${label}: must be a UUID (e.g., 550e8400-e29b-41d4-a716-446655440000)`)
-  }
-}
-
-/**
  * Validate and encode an OpenStack resource ID.
  * Validates against path traversal/path-syntax and URL-encodes the segment; does NOT require UUID.
  *
  * Use this for resource IDs that may be custom strings (e.g., flavor IDs like "m1.small").
- * For resources that MUST be UUIDs, call validateUUID() first.
  */
 export function validateAndEncodeResourceId(id: string, resourceType = "Resource"): string {
   return encodeOpenstackPathSegment(id, `${resourceType} ID`)

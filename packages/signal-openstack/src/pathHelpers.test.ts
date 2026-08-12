@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest"
-import {
-  encodeOpenstackPathSegment,
-  encodeOpenstackPath,
-  validateUUID,
-  validateAndEncodeResourceId,
-} from "./pathHelpers"
+import { encodeOpenstackPathSegment, encodeOpenstackPath, validateAndEncodeResourceId } from "./pathHelpers"
 
 describe("encodeOpenstackPathSegment", () => {
   // Happy path
@@ -35,19 +30,6 @@ describe("encodeOpenstackPath", () => {
   // Critical edge case
   it("should reject traversal in any segment", () => {
     expect(() => encodeOpenstackPath("flavors", "../admin")).toThrow("path traversal")
-  })
-})
-
-describe("validateUUID", () => {
-  // Happy path
-  it("should accept valid UUIDs", () => {
-    expect(() => validateUUID("550e8400-e29b-41d4-a716-446655440000")).not.toThrow()
-  })
-
-  // Critical edge case
-  it("should reject non-UUIDs", () => {
-    expect(() => validateUUID("not-a-uuid")).toThrow("must be a UUID")
-    expect(() => validateUUID("../admin")).toThrow("must be a UUID")
   })
 })
 
