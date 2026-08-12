@@ -147,7 +147,7 @@ export const CorsRuleModal = ({
 
   return (
     <Modal
-      title={editingRule ? t`Edit CORS Rule` : t`Add CORS Rule`}
+      title={editingRule ? t`Edit CORS Rule` : t`Create CORS Rule`}
       open={isOpen}
       onCancel={() => {
         trackClose()
@@ -184,7 +184,7 @@ export const CorsRuleModal = ({
               ) : editingRule ? (
                 <Trans>Save Changes</Trans>
               ) : (
-                <Trans>Create Rule</Trans>
+                <Trans>Create CORS Rule</Trans>
               )}
             </Button>
           </ButtonRow>

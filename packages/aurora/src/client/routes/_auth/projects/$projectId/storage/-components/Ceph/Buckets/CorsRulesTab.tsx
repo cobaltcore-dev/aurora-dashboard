@@ -218,7 +218,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   }
 
   return (
-    <Stack direction="vertical" gap="4">
+    <Stack direction="vertical" gap="0">
       {/* Zone 1 — Sort controls and Create rule button (outside DataGridToolbar) */}
       <Stack distribution="end" alignment="center" gap="2">
         <Stack gap="0.5" alignment="center">
@@ -234,7 +234,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
           />
         </Stack>
         <Button variant="primary" onClick={handleAddRule}>
-          <Trans>Create rule</Trans>
+          <Trans>Create CORS Rule</Trans>
         </Button>
       </Stack>
 
