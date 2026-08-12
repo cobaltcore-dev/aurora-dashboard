@@ -1,4 +1,5 @@
 import { vi } from "vitest"
+import type { FastifyReply } from "fastify"
 import type { AuroraPortalContext } from "../../../context"
 
 // ============================================================================
@@ -22,16 +23,16 @@ interface MockContextOptions {
   region?: string
 }
 
-export const createMockContext = (
-  options: MockContextOptions = {}
-): AuroraPortalContext & {
-  mockIdentity: {
-    get: ReturnType<typeof vi.fn>
-    post: ReturnType<typeof vi.fn>
-    del: ReturnType<typeof vi.fn>
-    availableEndpoints: ReturnType<typeof vi.fn>
-  }
-} => {
+type MockIdentity = {
+  get: ReturnType<typeof vi.fn>
+  post: ReturnType<typeof vi.fn>
+  del: ReturnType<typeof vi.fn>
+  availableEndpoints: ReturnType<typeof vi.fn>
+}
+
+type MockContext = AuroraPortalContext & { mockIdentity: MockIdentity }
+
+export const createMockContext = (options: MockContextOptions = {}): MockContext => {
   const {
     shouldFailAuth = false,
     hasCredentials = true,
@@ -41,7 +42,7 @@ export const createMockContext = (
 
   const credBlob = JSON.stringify({ access: TEST_ACCESS, secret: TEST_SECRET })
 
-  const mockIdentity = {
+  const mockIdentity: MockIdentity = {
     get: vi.fn().mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({
@@ -112,6 +113,8 @@ export const createMockContext = (
 
   return {
     req: { headers: {} },
+    res: {} as Partial<FastifyReply>,
+    signal: new AbortController().signal,
     validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
     identityEndpoint: "http://identity.example.com/",
     cephRegion: TEST_CEPH_REGION,
@@ -121,5 +124,5 @@ export const createMockContext = (
     openstack: mockOpenstack,
     rescopeSession: vi.fn().mockResolvedValue(mockOpenstack),
     mockIdentity,
-  } as unknown as AuroraPortalContext & { mockIdentity: typeof mockIdentity }
+  } as unknown as MockContext
 }

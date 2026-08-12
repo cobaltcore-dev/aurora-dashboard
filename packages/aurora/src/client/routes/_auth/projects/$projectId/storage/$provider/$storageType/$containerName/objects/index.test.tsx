@@ -1,7 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { redirect } from "@tanstack/react-router"
+import { render, screen } from "@testing-library/react"
+import { redirect, useParams } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { checkServiceAvailability } from "../../../../-components/utils/serviceAvailability"
+import { ObjectsDashboard, Route } from "./index"
+import { I18nProvider } from "@lingui/react"
+import { i18n } from "@lingui/core"
+import { messages as enMessages } from "@/locales/en/messages"
+
+// Initialize i18n
+i18n.load("en", enMessages)
+i18n.activate("en")
 
 // Mock the dependencies
 vi.mock("@tanstack/react-router", async () => {
@@ -21,11 +30,29 @@ vi.mock("@tanstack/react-router", async () => {
       }
       throw new Error(`Redirect to: ${resolvedPath}`)
     }),
+    useParams: vi.fn(),
   }
 })
 
 vi.mock("@/server/Authentication/helpers", () => ({
   getServiceIndex: vi.fn(),
+}))
+
+// Mock the content components to return simple test IDs
+vi.mock("../../../../-components/Swift/Objects", () => ({
+  SwiftObjects: () => <div data-testid="swift-objects">Swift Objects</div>,
+}))
+
+vi.mock("../../../../-components/Ceph/Objects", () => ({
+  CephObjects: () => <div data-testid="ceph-objects">Ceph Objects</div>,
+}))
+
+vi.mock("../../../../-components/Ceph/Buckets", () => ({
+  CephCorsRules: () => <div data-testid="ceph-cors-rules">CORS Rules</div>,
+}))
+
+vi.mock("../../../../-components/Ceph/Buckets/BucketHeader", () => ({
+  BucketHeader: () => null,
 }))
 
 describe("Objects Route - checkServiceAvailability", () => {
@@ -275,5 +302,76 @@ describe("Objects Route - checkServiceAvailability", () => {
         })
       }).not.toThrow()
     })
+  })
+})
+
+describe("Objects Route - View Parameter Handling", () => {
+  // These tests verify the view parameter correctly branches the rendered component:
+  // - Ceph + cors-rules → CephCorsRules
+  // - Ceph + overview → CephObjects
+  // - Swift + cors-rules → SwiftObjects (regression guard: Swift ignores view param)
+
+  const Wrapper = ({ children }: { children: React.ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("renders CephCorsRules when provider is ceph and view is cors-rules", () => {
+    vi.mocked(useParams).mockReturnValue({
+      projectId: "proj-1",
+      provider: "ceph",
+      containerName: "bucket-1",
+    })
+    vi.spyOn(Route, "useSearch").mockReturnValue({
+      view: "cors-rules",
+      sortBy: "name",
+      sortDirection: "asc",
+      tab: "all",
+    })
+
+    render(<ObjectsDashboard />, { wrapper: Wrapper })
+
+    expect(screen.getByTestId("ceph-cors-rules")).toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-objects")).not.toBeInTheDocument()
+  })
+
+  it("renders CephObjects when provider is ceph and view is overview", () => {
+    vi.mocked(useParams).mockReturnValue({
+      projectId: "proj-1",
+      provider: "ceph",
+      containerName: "bucket-1",
+    })
+    vi.spyOn(Route, "useSearch").mockReturnValue({
+      view: "overview",
+      sortBy: "name",
+      sortDirection: "asc",
+      tab: "all",
+    })
+
+    render(<ObjectsDashboard />, { wrapper: Wrapper })
+
+    expect(screen.getByTestId("ceph-objects")).toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-cors-rules")).not.toBeInTheDocument()
+  })
+
+  it("renders SwiftObjects when provider is swift, ignoring view parameter", () => {
+    vi.mocked(useParams).mockReturnValue({
+      projectId: "proj-1",
+      provider: "swift",
+      containerName: "container-1",
+    })
+    vi.spyOn(Route, "useSearch").mockReturnValue({
+      view: "cors-rules", // Swift should ignore this
+      sortBy: "name",
+      sortDirection: "asc",
+      tab: "all",
+    })
+
+    render(<ObjectsDashboard />, { wrapper: Wrapper })
+
+    expect(screen.getByTestId("swift-objects")).toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-objects")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-cors-rules")).not.toBeInTheDocument()
   })
 })

@@ -41,6 +41,7 @@ export { DeleteBucketPolicyModal } from "./DeleteBucketPolicyModal"
 export { EmptyBucketModal } from "./EmptyBucketModal"
 export { EmptyBucketsModal } from "./EmptyBucketsModal"
 export { DeleteVersionsModal } from "./DeleteVersionsModal"
+export { CorsRulesTab as CephCorsRules } from "./CorsRulesTab"
 export * from "./BucketToastNotifications"
 
 export const CephBuckets = () => {
@@ -333,7 +334,7 @@ export const CephBuckets = () => {
                 placeholder={t`Search buckets...`}
                 data-testid="searchbar"
                 value={localSearchTerm}
-                onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                onInput={(e) => {
                   const v = e.currentTarget.value
                   setLocalSearchTerm(v)
                   clearTimeout(debounceTimer.current)
@@ -357,7 +358,7 @@ export const CephBuckets = () => {
             count info, which must always be visible, so it always renders; only the
             bulk controls are gated. */}
         <DataGridToolbar>
-          <Stack distribution="start" gap="2" alignment="center" className="text-sm">
+          <Stack distribution="between" gap="2" alignment="center" className="text-sm">
             {hasAnyBulkAction ? (
               <Stack gap="2" alignment="center">
                 <Checkbox

@@ -181,3 +181,105 @@ export const getVersionsDeleteErrorToast = (
     </Trans>
   ),
 })
+
+// ── CORS configuration operations ──────────────────────────────────────────
+
+export const getCorsSavedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>CORS Configuration Saved</Trans>,
+  description: <Trans>CORS configuration was successfully saved for bucket "{bucketName}".</Trans>,
+})
+
+export const getCorsSaveErrorToast = (
+  bucketName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Save CORS Configuration</Trans>,
+  description: (
+    <Trans>
+      Could not save CORS configuration for bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getCorsDeletedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>CORS Configuration Deleted</Trans>,
+  description: <Trans>CORS configuration was successfully deleted from bucket "{bucketName}".</Trans>,
+})
+
+export const getCorsDeleteErrorToast = (
+  bucketName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete CORS Configuration</Trans>,
+  description: (
+    <Trans>
+      Could not delete CORS configuration from bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getCorsRuleDeletedToast = (
+  bucketName: string,
+  ruleId?: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>CORS Rule Deleted</Trans>,
+  description: ruleId ? (
+    <Trans>
+      Rule "{ruleId}" was successfully deleted from bucket "{bucketName}".
+    </Trans>
+  ) : (
+    <Trans>CORS rule was successfully deleted from bucket "{bucketName}".</Trans>
+  ),
+})
+
+export const getCorsRuleDeleteErrorToast = (
+  bucketName: string,
+  errorMessage: string,
+  ruleId?: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete CORS Rule</Trans>,
+  description: ruleId ? (
+    <Trans>
+      Could not delete rule "{ruleId}" from bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ) : (
+    <Trans>
+      Could not delete CORS rule from bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getCorsRulesDeletedToast = (
+  bucketName: string,
+  count: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Plural value={count} one="CORS Rule Deleted" other="CORS Rules Deleted" />,
+  description:
+    count === 1 ? (
+      <Trans>
+        Successfully deleted {count} CORS rule from bucket "{bucketName}".
+      </Trans>
+    ) : (
+      <Trans>
+        Successfully deleted {count} CORS rules from bucket "{bucketName}".
+      </Trans>
+    ),
+})
+
+export const getCorsRulesDeleteErrorToast = (
+  bucketName: string,
+  count: number,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Plural value={count} one="Failed to Delete CORS Rule" other="Failed to Delete CORS Rules" />,
+  description:
+    count === 1 ? (
+      <Trans>
+        Could not delete {count} CORS rule from bucket "{bucketName}": {errorMessage}
+      </Trans>
+    ) : (
+      <Trans>
+        Could not delete {count} CORS rules from bucket "{bucketName}": {errorMessage}
+      </Trans>
+    ),
+})

@@ -1,11 +1,12 @@
 import { useState } from "react"
 import { Trans } from "@lingui/react/macro"
 import { useParams } from "@tanstack/react-router"
-import { Badge } from "@cloudoperators/juno-ui-components"
+import { Badge, Divider } from "@cloudoperators/juno-ui-components"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { useBucketInfo } from "../hooks/useBucketInfo"
 import { BucketHeaderActions } from "./BucketHeaderActions"
 import { BucketModals, type ModalType } from "./BucketModals"
+import { BucketDetailTabs } from "./BucketDetailTabs"
 
 interface BucketHeaderProps {
   bucketName: string
@@ -28,7 +29,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
   const [activeModal, setActiveModal] = useState<ModalType | null>(null)
 
   // Fetch bucket information
-  const { versioningStatus, policyData, hasOldVersionsOrDeleteMarkers, isBucketEmpty } = useBucketInfo({
+  const { versioningStatus, policyData, corsData, hasOldVersionsOrDeleteMarkers, isBucketEmpty } = useBucketInfo({
     bucketName,
     enabled: true,
   })
@@ -62,6 +63,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
     <BucketHeaderActions
       versioningStatus={versioningStatus}
       hasPolicy={Boolean(policyData?.policy)}
+      hasCors={Boolean(corsData?.corsRules && corsData.corsRules.length > 0)}
       hasOldVersionsOrDeleteMarkers={hasOldVersionsOrDeleteMarkers}
       isBucketEmpty={isBucketEmpty}
       onOpenModal={openModal}
@@ -71,6 +73,11 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
   return (
     <>
       <ContentHeader title={bucketName} projectId={projectId} badges={badges} actions={actions} />
+
+      <div className="-mt-4 mb-8">
+        <BucketDetailTabs />
+        <Divider />
+      </div>
 
       <BucketModals
         bucketName={bucketName}
