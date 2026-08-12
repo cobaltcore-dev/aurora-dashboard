@@ -1725,9 +1725,13 @@ export const swiftRouter = {
           isFirst = false
         }
 
-        // Only signal completion for a stream that actually ran to the end — an
-        // aborted transfer stopped at a partial byte count, and emitting
-        // `complete` would make watchDownloadProgress report it as finished.
+        // Re-check the signal one last time before signalling completion: an
+        // abort that lands while the final read() is in flight can let the loop
+        // exit on `done` with the cached `aborted` still false. Only signal
+        // completion for a stream that truly ran to the end — emitting `complete`
+        // for a cancelled transfer would make watchDownloadProgress report it as
+        // finished.
+        aborted ||= ctx.req?.signal?.aborted ?? false
         if (!aborted) {
           downloadProgressEmitter.emit(`progress:${scopedDownloadId}:complete`)
         }
