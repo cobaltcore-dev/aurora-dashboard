@@ -546,6 +546,16 @@ describe("ObjectsTableView", () => {
       expect(screen.getByTestId("cancel-transfer-readme.txt")).toBeInTheDocument()
     })
 
+    test("the cancel control is a keyboard-focusable button with an accessible name", () => {
+      // Regression guard: it was a clickable <Icon> (bare SVG) — not focusable
+      // and unlabelled for assistive tech. It must be a real, named button.
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
+      renderView({ rows: [makeObject("readme.txt")] })
+      const cancel = screen.getByTestId("cancel-transfer-readme.txt")
+      expect(cancel.tagName).toBe("BUTTON")
+      expect(cancel).toHaveAccessibleName("Cancel")
+    })
+
     test("clicking cancel calls cancelObjectDownload and shows a cancelled toast", () => {
       storeState.cancelObjectDownload.mockReturnValue({ kind: "download", downloadId: "d", worker: {} })
       seedTransfer("test-container", "readme.txt", { kind: "download" })

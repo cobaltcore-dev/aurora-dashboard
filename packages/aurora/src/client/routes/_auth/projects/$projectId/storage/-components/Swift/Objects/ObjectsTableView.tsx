@@ -404,14 +404,16 @@ export const ObjectsTableView = ({
                     {isStreaming && activeTransfer && !isFolder ? (
                       <div className="flex items-center gap-2">
                         <RowTransferProgress downloadId={activeTransfer.downloadId} isPreviewing={isPreviewing} />
-                        <Icon
-                          icon="cancel"
-                          size={18}
+                        <button
+                          type="button"
                           onClick={() => handleCancelTransfer(row.name)}
+                          aria-label={t`Cancel`}
                           title={t`Cancel`}
-                          className="text-theme-light hover:text-theme-danger shrink-0 cursor-pointer"
+                          className="focus-visible:outline-theme-focus text-theme-light hover:text-theme-danger shrink-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2"
                           data-testid={`cancel-transfer-${row.name}`}
-                        />
+                        >
+                          <Icon icon="cancel" size={18} />
+                        </button>
                       </div>
                     ) : !isFolder && row.last_modified ? (
                       formatDate(row.last_modified)
