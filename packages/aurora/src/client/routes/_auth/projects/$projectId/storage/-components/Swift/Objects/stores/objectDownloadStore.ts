@@ -99,7 +99,7 @@ const openBlobInNewTab = (url: string) => {
   const anchor = document.createElement("a")
   anchor.href = url
   anchor.target = "_blank"
-  anchor.rel = "noopener,noreferrer"
+  anchor.rel = "noopener noreferrer"
   document.body.appendChild(anchor)
   anchor.click()
   document.body.removeChild(anchor)

@@ -68,7 +68,7 @@ vi.mock("../workers/objectDownload.worker?worker&inline", () => ({ default: Mock
 type StoreModule = typeof import("./objectDownloadStore")
 let store: StoreModule
 
-const clicked: Array<{ href: string; target: string; download: string }> = []
+const clicked: Array<{ href: string; target: string; download: string; rel: string }> = []
 
 beforeEach(async () => {
   MockWorker.instances = []
@@ -81,7 +81,7 @@ beforeEach(async () => {
   vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock")
   vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {})
   vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
-    clicked.push({ href: this.href, target: this.target, download: this.download })
+    clicked.push({ href: this.href, target: this.target, download: this.download, rel: this.rel })
   })
 
   vi.resetModules()
@@ -199,7 +199,9 @@ describe("objectDownloadStore (swift)", () => {
     worker.emitMessage({ ok: true, blob: new Blob(["x"]), filename: "doc.pdf", contentType: "application/pdf" })
 
     expect(clicked).toHaveLength(1)
-    expect(clicked[0]).toMatchObject({ href: "blob:mock", target: "_blank" })
+    // Space-separated tokens: "noopener,noreferrer" would parse as one unknown
+    // token and leave window.opener reachable from the same-origin blob tab.
+    expect(clicked[0]).toMatchObject({ href: "blob:mock", target: "_blank", rel: "noopener noreferrer" })
   })
 
   it("downloads a 'preview' transfer when the type is not previewable", () => {
