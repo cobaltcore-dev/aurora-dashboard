@@ -4,6 +4,7 @@ import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import { appendQueryParamsFromObject } from "@/server/helpers/queryParams"
 import { omit } from "@/server/helpers/object"
 import { validateOpenstackService } from "@/server/helpers/validateOpenstackService"
+import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
 import {
   FloatingIpQueryParametersSchema,
   FloatingIp,
@@ -108,7 +109,8 @@ export const floatingIpRouter = {
       const { floatingip_id } = input
       const network = getNetworkService(ctx)
 
-      const response = await network.get(`${FLOATING_IPS_BASE_URL}/${floatingip_id}`)
+      const encodedId = validateAndEncodeResourceId(floatingip_id, "Floating IP")
+      const response = await network.get(`${FLOATING_IPS_BASE_URL}/${encodedId}`)
       if (!response.ok) {
         throw FloatingIpErrorHandlers.get(response, floatingip_id)
       }
@@ -132,7 +134,8 @@ export const floatingIpRouter = {
             ...(updateFields.distributed !== undefined && { distributed: updateFields.distributed }),
           },
         }
-        const response = await network.put(`${FLOATING_IPS_BASE_URL}/${floatingip_id}`, requestBody)
+        const encodedId = validateAndEncodeResourceId(floatingip_id, "Floating IP")
+        const response = await network.put(`${FLOATING_IPS_BASE_URL}/${encodedId}`, requestBody)
         if (!response.ok) {
           throw FloatingIpErrorHandlers.update(response, floatingip_id)
         }
@@ -147,7 +150,8 @@ export const floatingIpRouter = {
       const network = getNetworkService(ctx)
 
       // OpenStack DELETE returns 204 No Content on success
-      const response = await network.del(`${FLOATING_IPS_BASE_URL}/${floatingip_id}`)
+      const encodedId = validateAndEncodeResourceId(floatingip_id, "Floating IP")
+      const response = await network.del(`${FLOATING_IPS_BASE_URL}/${encodedId}`)
       if (!response.ok) {
         throw FloatingIpErrorHandlers.delete(response, floatingip_id)
       }

@@ -18,6 +18,7 @@ import {
 } from "../helpers/securityGroupHelpers"
 import { getNetworkService } from "../helpers/index"
 import { appendQueryParamsFromObject } from "../../helpers/queryParams"
+import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
 import type { SignalOpenstackServiceType } from "@cobaltcore-dev/signal-openstack"
 
 const SECURITY_GROUPS_BASE_URL = "v2.0/security-groups"
@@ -121,7 +122,8 @@ export const securityGroupRouter = {
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
-        const response = await network.get(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
+        const encodedId = validateAndEncodeResourceId(securityGroupId, "Security group")
+        const response = await network.get(`${SECURITY_GROUPS_BASE_URL}/${encodedId}`)
 
         // Check for error responses before parsing
         if (!response.ok) {
@@ -170,7 +172,8 @@ export const securityGroupRouter = {
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
-        const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`)
+        const encodedId = validateAndEncodeResourceId(securityGroupId, "Security group")
+        const response = await network.del(`${SECURITY_GROUPS_BASE_URL}/${encodedId}`)
 
         if (!response?.ok) {
           throw SecurityGroupErrorHandlers.delete(response, securityGroupId)
@@ -193,7 +196,8 @@ export const securityGroupRouter = {
           },
         }
 
-        const response = await network.put(`${SECURITY_GROUPS_BASE_URL}/${securityGroupId}`, requestBody)
+        const encodedId = validateAndEncodeResourceId(securityGroupId, "Security group")
+        const response = await network.put(`${SECURITY_GROUPS_BASE_URL}/${encodedId}`, requestBody)
 
         if (!response.ok) {
           throw SecurityGroupErrorHandlers.update(response, securityGroupId)
