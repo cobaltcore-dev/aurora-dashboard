@@ -91,7 +91,12 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
           </Stack>
         )}
 
-        <DetailsInfo basicInfo={BASIC_INFO} heading={`Certificate ${pcaName}`} content={pca?.csr ?? ""} />
+        <DetailsInfo
+          basicInfo={BASIC_INFO}
+          heading={`Certificate ${pcaName}`}
+          content={pca?.csr ?? ""}
+          fileName={`${pcaName}.pem`}
+        />
       </Stack>
 
       {importExternallySignedModalOpen && (
