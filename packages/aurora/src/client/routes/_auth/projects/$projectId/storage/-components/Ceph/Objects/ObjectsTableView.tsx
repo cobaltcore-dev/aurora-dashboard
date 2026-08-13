@@ -677,7 +677,7 @@ export function ObjectsTableView({
                               ) : (
                                 <>
                                   <PopupMenuItem
-                                    label={isDownloading ? t`Downloading...` : t`Download`}
+                                    label={isDownloading ? t`Downloading...` : t`Download Object`}
                                     disabled={row.kind !== "object" || isStreaming}
                                     onClick={row.kind === "object" ? () => handleDownload(row) : undefined}
                                     data-testid={`download-action-${row.key}`}
@@ -690,22 +690,22 @@ export function ObjectsTableView({
                                     />
                                   )}
                                   <PopupMenuItem
-                                    label={t`Copy`}
+                                    label={t`Copy Object`}
                                     disabled={isStreaming}
                                     onClick={() => setCopyTarget({ key: row.key, size: row.size })}
                                   />
                                   <PopupMenuItem
-                                    label={t`Move/Rename`}
+                                    label={t`Move/Rename Object`}
                                     disabled={isStreaming}
                                     onClick={() => setMoveTarget({ key: row.key, size: row.size })}
                                   />
                                   <PopupMenuItem
-                                    label={t`Edit Metadata`}
+                                    label={t`Edit Object Metadata`}
                                     disabled={isStreaming}
                                     onClick={() => setEditMetadataTarget(row.key)}
                                   />
                                   <PopupMenuItem
-                                    label={t`Share URL`}
+                                    label={t`Share Object URL`}
                                     disabled={row.kind !== "object" || isStreaming}
                                     onClick={
                                       row.kind === "object" ? () => setPresignedUrlTarget({ key: row.key }) : undefined

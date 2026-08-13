@@ -166,7 +166,7 @@ describe("CopyObjectModal", () => {
   it("disables Copy button when destination is unchanged", () => {
     renderModal(defaultProps)
 
-    const copyButton = screen.getByRole("button", { name: "Copy" })
+    const copyButton = screen.getByRole("button", { name: "Copy Object" })
     expect(copyButton).toBeDisabled()
   })
 
@@ -248,7 +248,7 @@ describe("CopyObjectModal", () => {
       const bucket2Option = screen.getByRole("option", { name: "bucket-2" })
       await user.click(bucket2Option)
 
-      const copyButton = screen.getByRole("button", { name: "Copy" })
+      const copyButton = screen.getByRole("button", { name: "Copy Object" })
       await user.click(copyButton)
 
       expect(mockOnTrackEvent).not.toHaveBeenCalledWith(

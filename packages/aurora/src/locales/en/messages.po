@@ -720,6 +720,9 @@ msgstr "Copy container name"
 msgid "Copy metadata"
 msgstr "Copy metadata"
 
+msgid "Copy Object"
+msgstr "Copy Object"
+
 msgid "Copy object:"
 msgstr "Copy object:"
 
@@ -1152,6 +1155,9 @@ msgstr "Download {rowDisplayName}"
 msgid "Download Cancelled"
 msgstr "Download Cancelled"
 
+msgid "Download Object"
+msgstr "Download Object"
+
 msgid "Download of \"{displayName}\" was cancelled."
 msgstr "Download of \"{displayName}\" was cancelled."
 
@@ -1214,6 +1220,9 @@ msgstr "Edit Image Metadata"
 
 msgid "Edit Metadata"
 msgstr "Edit Metadata"
+
+msgid "Edit Object Metadata"
+msgstr "Edit Object Metadata"
 
 msgid "Edit Policy"
 msgstr "Edit Policy"
@@ -2307,6 +2316,9 @@ msgstr "Move"
 msgid "Move/Rename"
 msgstr "Move/Rename"
 
+msgid "Move/Rename Object"
+msgstr "Move/Rename Object"
+
 msgid "Move/Rename object:"
 msgstr "Move/Rename object:"
 
@@ -3101,6 +3113,9 @@ msgstr "Set to \"Shared\""
 
 msgid "Share"
 msgstr "Share"
+
+msgid "Share Object URL"
+msgstr "Share Object URL"
 
 msgid "Share Security Group"
 msgstr "Share Security Group"
