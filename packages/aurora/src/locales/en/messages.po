@@ -2017,6 +2017,9 @@ msgstr "Ingress"
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 
+msgid "Invalid CSR format."
+msgstr "Invalid CSR format."
+
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
 
@@ -2613,6 +2616,9 @@ msgstr "One or more containers could not be emptied: {errorMessage}"
 
 msgid "One or more objects could not be deleted:"
 msgstr "One or more objects could not be deleted:"
+
+msgid "Only JSON certificate files are supported."
+msgstr "Only JSON certificate files are supported."
 
 msgid "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
 msgstr "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
@@ -3364,6 +3370,9 @@ msgstr "Tenant access for \"{trimmedTenantId}\" has been added successfully."
 msgid "Tenant ID"
 msgstr "Tenant ID"
 
+msgid "The certificate file could not be read."
+msgstr "The certificate file could not be read."
+
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
 
@@ -3420,6 +3429,12 @@ msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
+
+msgid "The imported certificate chain is not valid PEM."
+msgstr "The imported certificate chain is not valid PEM."
+
+msgid "The JSON file must contain imported_certificate_chain."
+msgstr "The JSON file must contain imported_certificate_chain."
 
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "The object will be copied to this path. Navigate folders above to change the destination."

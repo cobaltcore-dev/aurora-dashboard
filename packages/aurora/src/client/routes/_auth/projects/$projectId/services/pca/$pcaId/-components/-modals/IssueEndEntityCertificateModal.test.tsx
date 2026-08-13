@@ -56,6 +56,10 @@ vi.mock("./ParsedCertificateInfo", () => ({
   ),
 }))
 
+vi.mock("./parseCsrInfo", () => ({
+  isValidPem: vi.fn(() => true),
+}))
+
 const renderModal = (onClose = vi.fn()) =>
   render(
     <I18nProvider i18n={i18n}>

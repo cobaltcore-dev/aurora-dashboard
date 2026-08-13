@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import { Pkcs10CertificateRequest, SubjectAlternativeNameExtension } from "@peculiar/x509"
+import { Extension, Pkcs10CertificateRequest, SubjectAlternativeNameExtension, X509Certificate } from "@peculiar/x509"
 
 export interface PemFieldInfo {
   label: string
@@ -15,6 +15,17 @@ const cleanPem = (pem: string) => {
       .replace("-----END CERTIFICATE REQUEST-----", "\n-----END CERTIFICATE REQUEST-----")
   }
   return clean
+}
+
+const certificateBlockPattern = /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g
+
+const parseCertificateChain = (pem: string) => {
+  const certificateBlocks = pem.match(certificateBlockPattern)
+  if (!certificateBlocks || certificateBlocks.join("").replace(/\s/g, "") !== pem.replace(/\s/g, "")) {
+    throw new Error("Invalid PEM certificate chain")
+  }
+
+  return certificateBlocks.map((certificate) => new X509Certificate(certificate))
 }
 
 const formatAlgorithmLabel = (algorithm: KeyAlgorithm) => {
@@ -37,10 +48,25 @@ const formatSignatureAlgorithm = (alg: { name: string; hash?: { name: string } }
   return `${alg.name}${hash}`
 }
 
-export const parseCsrInfo = async (pem: string): Promise<PemFieldInfo[]> => {
+export const parseCsrInfo = (pem: string): PemFieldInfo[] => {
   const sanitizedPem = cleanPem(pem)
-  const csr = new Pkcs10CertificateRequest(sanitizedPem)
   const fields: PemFieldInfo[] = []
+
+  if (sanitizedPem.includes("-----BEGIN CERTIFICATE-----")) {
+    const [certificate] = parseCertificateChain(sanitizedPem)
+
+    fields.push({ label: "Subject", value: certificate.subject || "—" })
+    fields.push({ label: "Public Key Algorithm", value: formatAlgorithmLabel(certificate.publicKey.algorithm) })
+    fields.push({ label: "Signature Algorithm", value: formatSignatureAlgorithm(certificate.signatureAlgorithm) })
+    fields.push({ label: "Subject Alternative Names (SAN)", value: getSanValue(certificate.extensions) })
+    fields.push({
+      label: "Certificate Chain Size",
+      value: `${new TextEncoder().encode(sanitizedPem).byteLength} bytes`,
+    })
+    return fields
+  }
+
+  const csr = new Pkcs10CertificateRequest(sanitizedPem)
 
   // 1. Subject Identity
   fields.push({ label: "Subject", value: csr.subject || "—" })
@@ -54,13 +80,38 @@ export const parseCsrInfo = async (pem: string): Promise<PemFieldInfo[]> => {
   fields.push({ label: "Signature Algorithm", value: formatSignatureAlgorithm(csr.signatureAlgorithm) })
 
   // 4. SAN / Extension Mapping
-  const sanRaw = csr.extensions.find((ext) => ext.type === "2.5.29.17")
-  let sanValue = "—"
-  if (sanRaw) {
-    const sanExt = new SubjectAlternativeNameExtension(sanRaw.rawData)
-    sanValue = sanExt.names.items.map((n) => `${n.type}: ${n.value}`).join(", ") || "—"
-  }
-  fields.push({ label: "Subject Alternative Names (SAN)", value: sanValue })
+  fields.push({ label: "Subject Alternative Names (SAN)", value: getSanValue(csr.extensions) })
 
   return fields
+}
+
+const getSanValue = (extensions: Extension[]) => {
+  const sanRaw = extensions.find((ext) => ext.type === "2.5.29.17")
+  if (!sanRaw) return "—"
+
+  const sanExt = new SubjectAlternativeNameExtension(sanRaw.rawData)
+  return sanExt.names.items.map((n) => `${n.type}: ${n.value}`).join(", ") || "—"
+}
+
+export const isValidPem = (pem: string) => {
+  try {
+    const sanitizedPem = cleanPem(pem)
+    if (sanitizedPem.includes("-----BEGIN CERTIFICATE-----")) {
+      parseCertificateChain(sanitizedPem)
+    } else {
+      new Pkcs10CertificateRequest(sanitizedPem)
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
+export const isValidCertificateChain = (pem: string) => {
+  try {
+    parseCertificateChain(cleanPem(pem))
+    return true
+  } catch {
+    return false
+  }
 }

@@ -2017,6 +2017,9 @@ msgstr "Ingress"
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
 
+msgid "Invalid CSR format."
+msgstr ""
+
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
 
@@ -2613,6 +2616,9 @@ msgstr "Ein oder mehrere Container konnten nicht geleert werden: {errorMessage}"
 
 msgid "One or more objects could not be deleted:"
 msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
+
+msgid "Only JSON certificate files are supported."
+msgstr ""
 
 msgid "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
 msgstr ""
@@ -3364,6 +3370,9 @@ msgstr "Der Projektzugriff für \"{trimmedTenantId}\" wurde erfolgreich hinzugef
 msgid "Tenant ID"
 msgstr "Projekt ID"
 
+msgid "The certificate file could not be read."
+msgstr ""
+
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
 
@@ -3420,6 +3429,12 @@ msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {errorMessage}"
 
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: {errorMessage}"
+
+msgid "The imported certificate chain is not valid PEM."
+msgstr ""
+
+msgid "The JSON file must contain imported_certificate_chain."
+msgstr ""
 
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
