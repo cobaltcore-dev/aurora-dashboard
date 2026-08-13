@@ -996,8 +996,14 @@ msgstr "Container löschen:"
 msgid "Delete CORS Rule"
 msgstr ""
 
+msgid "Delete CORS Rules"
+msgstr ""
+
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
+
+msgid "Delete Folder"
+msgstr ""
 
 msgid "Delete Folder \"{displayName}\""
 msgstr ""
@@ -1020,6 +1026,9 @@ msgstr ""
 msgid "Delete object:"
 msgstr "Objekt löschen:"
 
+msgid "Delete Objects"
+msgstr ""
+
 msgid "Delete Policy"
 msgstr ""
 
@@ -1031,9 +1040,6 @@ msgstr ""
 
 msgid "Delete Rule"
 msgstr "Regel löschen"
-
-msgid "Delete Rules"
-msgstr ""
 
 msgid "Delete Security Group \"{securityGroupName}\""
 msgstr "Security Group \"{securityGroupName}\" löschen"
@@ -1234,6 +1240,9 @@ msgid "Empty All Completed with Errors"
 msgstr ""
 
 msgid "Empty Bucket"
+msgstr ""
+
+msgid "Empty Buckets"
 msgstr ""
 
 msgid "Empty the bucket"

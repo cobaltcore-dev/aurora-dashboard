@@ -507,7 +507,7 @@ describe("ObjectsTableView", () => {
       }
 
       expectDisabled(screen.getByTestId("download-action-file1.txt"))
-      for (const label of ["Copy", "Move/Rename", "Edit Metadata", "Delete"]) {
+      for (const label of ["Copy", "Move/Rename", "Edit Metadata", "Delete Object"]) {
         expectDisabled(screen.getByText(label))
       }
     })

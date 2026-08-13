@@ -161,7 +161,7 @@ export function CorsRulesTable({
                           disabled={effectiveIsMutating}
                         />
                         <PopupMenuItem
-                          label={t`Delete`}
+                          label={t`Delete CORS Rule`}
                           onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
                           disabled={effectiveIsMutating}
                         />

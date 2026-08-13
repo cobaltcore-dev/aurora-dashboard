@@ -126,7 +126,7 @@ describe("DeleteVersionModal", () => {
   it("renders modal with title", () => {
     renderModal()
 
-    expect(screen.getByText("Delete Version")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 4, name: "Delete Version" })).toBeInTheDocument()
   })
 
   it("displays version information", () => {
@@ -167,7 +167,7 @@ describe("DeleteVersionModal", () => {
   it("disables delete button when confirmation text is incorrect", () => {
     renderModal()
 
-    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    const deleteButton = screen.getByRole("button", { name: "Delete Version" })
     expect(deleteButton).toBeDisabled()
   })
 
@@ -178,7 +178,7 @@ describe("DeleteVersionModal", () => {
     const input = screen.getByLabelText('Type "delete" to confirm')
     await user.type(input, "delete")
 
-    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    const deleteButton = screen.getByRole("button", { name: "Delete Version" })
     expect(deleteButton).not.toBeDisabled()
   })
 
@@ -196,7 +196,7 @@ describe("DeleteVersionModal", () => {
   it("does not render when isOpen is false", () => {
     renderModal({ isOpen: false })
 
-    expect(screen.queryByText("Delete Version")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { level: 4, name: "Delete Version" })).not.toBeInTheDocument()
   })
 
   it("calls mutation when delete is confirmed", async () => {
@@ -206,7 +206,7 @@ describe("DeleteVersionModal", () => {
     const input = screen.getByLabelText('Type "delete" to confirm')
     await user.type(input, "delete")
 
-    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    const deleteButton = screen.getByRole("button", { name: "Delete Version" })
     await user.click(deleteButton)
 
     expect(mockMutate).toHaveBeenCalledWith({
@@ -269,7 +269,7 @@ describe("DeleteVersionModal", () => {
       await user.type(input, "delete")
 
       // Click delete
-      const deleteButton = screen.getByRole("button", { name: "Delete" })
+      const deleteButton = screen.getByRole("button", { name: "Delete Version" })
       await user.click(deleteButton)
 
       // .close should NOT have been tracked since user submitted
@@ -292,7 +292,7 @@ describe("DeleteVersionModal", () => {
       const input = screen.getByLabelText('Type "delete" to confirm')
       await user.type(input, "delete")
 
-      const deleteButton = screen.getByRole("button", { name: "Delete" })
+      const deleteButton = screen.getByRole("button", { name: "Delete Version" })
       await user.click(deleteButton)
 
       expect(mockMutate).toHaveBeenCalledWith({
@@ -316,7 +316,7 @@ describe("DeleteVersionModal", () => {
       const input = screen.getByLabelText('Type "delete" to confirm')
       await user.type(input, "delete")
 
-      const deleteButton = screen.getByRole("button", { name: "Delete" })
+      const deleteButton = screen.getByRole("button", { name: "Delete Version" })
       await user.click(deleteButton)
 
       expect(mockMutate).toHaveBeenCalledWith({
@@ -338,7 +338,7 @@ describe("DeleteVersionModal", () => {
       const input = screen.getByLabelText('Type "delete" to confirm')
       await user.type(input, "delete")
 
-      const deleteButton = screen.getByRole("button", { name: "Delete" })
+      const deleteButton = screen.getByRole("button", { name: "Delete Version" })
       await user.click(deleteButton)
 
       expect(mockMutate).toHaveBeenCalledWith({
@@ -353,7 +353,7 @@ describe("DeleteVersionModal", () => {
     const typeDeleteAndSubmit = async (user: ReturnType<typeof userEvent.setup>) => {
       const input = screen.getByLabelText('Type "delete" to confirm')
       await user.type(input, "delete")
-      const deleteButton = screen.getByRole("button", { name: "Delete" })
+      const deleteButton = screen.getByRole("button", { name: /^Delete/ })
       await user.click(deleteButton)
     }
 
@@ -398,7 +398,7 @@ describe("DeleteVersionModal", () => {
       expect(onSuccess).not.toHaveBeenCalled()
       expect(onClose).not.toHaveBeenCalled()
       expect(screen.getByText(/test-file\.txt \(abc123def456\): AccessDenied: Access Denied/)).toBeInTheDocument()
-      expect(screen.getByText("Delete Version")).toBeInTheDocument()
+      expect(screen.getByRole("heading", { level: 4, name: "Delete Version" })).toBeInTheDocument()
     })
 
     it("does not report success on a partial failure when deleting all versions", async () => {

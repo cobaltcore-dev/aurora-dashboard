@@ -996,8 +996,14 @@ msgstr "Delete container:"
 msgid "Delete CORS Rule"
 msgstr "Delete CORS Rule"
 
+msgid "Delete CORS Rules"
+msgstr "Delete CORS Rules"
+
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
+
+msgid "Delete Folder"
+msgstr "Delete Folder"
 
 msgid "Delete Folder \"{displayName}\""
 msgstr "Delete Folder \"{displayName}\""
@@ -1020,6 +1026,9 @@ msgstr "Delete Object"
 msgid "Delete object:"
 msgstr "Delete object:"
 
+msgid "Delete Objects"
+msgstr "Delete Objects"
+
 msgid "Delete Policy"
 msgstr "Delete Policy"
 
@@ -1031,9 +1040,6 @@ msgstr "Delete Results"
 
 msgid "Delete Rule"
 msgstr "Delete Rule"
-
-msgid "Delete Rules"
-msgstr "Delete Rules"
 
 msgid "Delete Security Group \"{securityGroupName}\""
 msgstr "Delete Security Group \"{securityGroupName}\""
@@ -1235,6 +1241,9 @@ msgstr "Empty All Completed with Errors"
 
 msgid "Empty Bucket"
 msgstr "Empty Bucket"
+
+msgid "Empty Buckets"
+msgstr "Empty Buckets"
 
 msgid "Empty the bucket"
 msgstr "Empty the bucket"

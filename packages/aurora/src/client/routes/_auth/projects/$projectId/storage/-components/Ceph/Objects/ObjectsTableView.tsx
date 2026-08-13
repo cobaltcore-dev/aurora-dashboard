@@ -613,7 +613,7 @@ export function ObjectsTableView({
                                       }}
                                     />
                                     <PopupMenuItem
-                                      label={t`Delete`}
+                                      label={t`Delete Folder`}
                                       onClick={() => {
                                         // Permanently delete the folder's delete marker and folder marker
                                         if (row.deleteMarkerVersionId) {
@@ -636,7 +636,7 @@ export function ObjectsTableView({
                                 ) : (
                                   // Regular folder - show Delete option
                                   <PopupMenuItem
-                                    label={t`Delete`}
+                                    label={t`Delete Folder`}
                                     onClick={() => setDeleteTarget({ key: row.prefix })}
                                   />
                                 )
@@ -657,7 +657,7 @@ export function ObjectsTableView({
                                     }}
                                   />
                                   <PopupMenuItem
-                                    label={t`Delete`}
+                                    label={t`Delete Object`}
                                     onClick={() => {
                                       if (row.kind === "version") {
                                         // For deleted files, delete all versions completely
@@ -713,7 +713,7 @@ export function ObjectsTableView({
                                     data-testid={`share-url-action-${row.key}`}
                                   />
                                   <PopupMenuItem
-                                    label={t`Delete`}
+                                    label={t`Delete Object`}
                                     disabled={isStreaming}
                                     onClick={() =>
                                       setDeleteTarget({
