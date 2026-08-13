@@ -43,6 +43,10 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
+#. placeholder {0}: wholeBucketExpirationRules.length === 1 ? "One rule will delete all objects in this bucket." : `${wholeBucketExpirationRules.length} rules will delete all objects in this bucket.`
+msgid "{0} Make sure this is intended before saving."
+msgstr ""
+
 msgid "{certificateIdValue} Certificate Details"
 msgstr ""
 
@@ -151,8 +155,17 @@ msgstr "1 Minute"
 msgid "24 hours"
 msgstr "24 Stunden"
 
+msgid "30"
+msgstr ""
+
+msgid "7"
+msgstr ""
+
 msgid "7 days"
 msgstr "7 Tage"
+
+msgid "90"
+msgstr ""
 
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verwenden Sie andere Werte."
@@ -165,6 +178,21 @@ msgstr "Eine Eigenschaft mit diesem Schlüssel existiert bereits"
 
 msgid "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
 msgstr "Eine temporäre URL gewährt zeitlich begrenzten Lesezugriff auf dieses Objekt ohne Authentifizierung. Jeder mit dem Link kann es herunterladen, bis es abläuft."
+
+msgid "A unique identifier for this rule (optional, max 255 characters)"
+msgstr ""
+
+msgid "Abort After Days"
+msgstr ""
+
+msgid "Abort Incomplete Multipart Uploads"
+msgstr ""
+
+msgid "Abort incomplete multipart uploads after this many days"
+msgstr ""
+
+msgid "Abort Incomplete Uploads"
+msgstr ""
 
 msgid "About Aurora Dashboard"
 msgstr "Über das Aurora-Dashboard"
@@ -238,11 +266,20 @@ msgstr "Hinzufügen"
 msgid "Add a Signed Certificate to your CA to activate it"
 msgstr "Add a Signed Certificate to your CA to activate it"
 
+msgid "Add Lifecycle Rules"
+msgstr ""
+
 msgid "Add Member"
 msgstr "Mitglied hinzufügen"
 
 msgid "Add Metadata"
 msgstr "Metadata hinzufügen"
+
+msgid "Add New Lifecycle Rule"
+msgstr ""
+
+msgid "Add New Rule"
+msgstr ""
 
 msgid "Add Policy"
 msgstr ""
@@ -261,6 +298,9 @@ msgstr "Regel hinzufügen"
 
 msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
+
+msgid "Add Tag"
+msgstr ""
 
 msgid "Add Tenant Access"
 msgstr "Projektzugriff hinzufügen"
@@ -342,6 +382,15 @@ msgstr "Jeder Benutzer kann eine HEAD- oder GET-Operation auf dem Container ausf
 
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anfrage erforderlich."
+
+msgid "Apply this rule only to objects with specific tags"
+msgstr ""
+
+msgid "Apply this rule only to objects with this key prefix (e.g., \"logs/\" or \"archive/\")"
+msgstr ""
+
+msgid "Are you sure you want to delete the lifecycle configuration for bucket <0>{bucketName}</0>?"
+msgstr ""
 
 msgid "Are you sure you want to delete the policy for bucket <0>{bucketName}</0>?"
 msgstr ""
@@ -517,6 +566,9 @@ msgstr "Choose Certificate to Import"
 msgid "CIDR"
 msgstr "CIDR"
 
+msgid "Clean up abandoned multipart uploads"
+msgstr ""
+
 msgid "Clear all"
 msgstr "Alle Filter löschen"
 
@@ -540,6 +592,9 @@ msgstr "Community"
 
 msgid "Compute"
 msgstr "Compute"
+
+msgid "Configuration Changed"
+msgstr ""
 
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher Datenverkehr für diese Sicherheitsgruppe erlaubt ist."
@@ -670,6 +725,10 @@ msgstr "Objekt wird kopiert..."
 msgid "Copying..."
 msgstr "Wird kopiert..."
 
+#. placeholder {0}: operation === "save" ? "save" : "delete"
+msgid "Could not {0} lifecycle configuration for bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not copy \"{displayName}\": {errorMessage}"
 msgstr ""
 
@@ -705,6 +764,9 @@ msgstr "Container \"{containerName}\" konnte nicht gelöscht werden: {errorMessa
 
 msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht gelöscht werden: {errorMessage}"
+
+msgid "Could not delete lifecycle configuration from \"{bucketName}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not delete version of \"{displayName}\": {errorMessage}"
 msgstr ""
@@ -826,6 +888,10 @@ msgstr "Sicherheitsgruppe wird erstellt..."
 msgid "Creating..."
 msgstr ""
 
+#. placeholder {0}: lifecycleData.rules.length
+msgid "Current configuration has {0, plural, one {# lifecycle rule} other {# lifecycle rules}}."
+msgstr ""
+
 msgid "Current location:"
 msgstr ""
 
@@ -904,7 +970,16 @@ msgstr ""
 msgid "Delete Images"
 msgstr "Images löschen"
 
+msgid "Delete Lifecycle"
+msgstr ""
+
+msgid "Delete Lifecycle Configuration"
+msgstr ""
+
 msgid "Delete Marker"
+msgstr ""
+
+msgid "Delete noncurrent versions after this many days (requires versioning enabled)"
 msgstr ""
 
 msgid "Delete Object"
@@ -912,6 +987,15 @@ msgstr ""
 
 msgid "Delete object:"
 msgstr "Objekt löschen:"
+
+msgid "Delete objects after a certain number of days"
+msgstr ""
+
+msgid "Delete objects after this many days from creation"
+msgstr ""
+
+msgid "Delete old versions in versioned buckets"
+msgstr ""
 
 msgid "Delete Permanently"
 msgstr ""
@@ -943,6 +1027,9 @@ msgstr ""
 msgid "Delete Versions"
 msgstr ""
 
+msgid "delete-old-logs"
+msgstr ""
+
 msgid "Deleted"
 msgstr ""
 
@@ -954,6 +1041,9 @@ msgstr "Deleting certificate authority..."
 
 msgid "Deleting folder and all its contents..."
 msgstr "Ordner und alle Inhalte werden gelöscht..."
+
+msgid "Deleting the lifecycle configuration will remove all automated lifecycle management rules. Objects will no longer be automatically expired, transitioned, or have their old versions cleaned up. This action cannot be undone."
+msgstr ""
 
 msgid "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
 msgstr ""
@@ -1090,6 +1180,9 @@ msgstr "Image-Details bearbeiten"
 msgid "Edit Image Metadata"
 msgstr "Image-Metadaten bearbeiten"
 
+msgid "Edit Lifecycle Rule"
+msgstr ""
+
 msgid "Edit Metadata"
 msgstr "Metadaten bearbeiten"
 
@@ -1097,6 +1190,9 @@ msgid "Edit Security Group"
 msgstr "Security Group bearbeiten"
 
 msgid "Edit/View Bucket Policy"
+msgstr ""
+
+msgid "Edit/View Lifecycle Rules"
 msgstr ""
 
 msgid "Edit/View Policy"
@@ -1204,6 +1300,9 @@ msgstr "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen."
 msgid "Entries in ACLs are comma-separated. Examples:"
 msgstr "Einträge in ACLs werden durch Kommas getrennt. Beispiele:"
 
+msgid "Environment"
+msgstr ""
+
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
@@ -1254,6 +1353,18 @@ msgstr ""
 
 msgid "Expected format: YYYY-MM-DD HH:mm:ss"
 msgstr "Erwartetes Format: JJJJ-MM-TT HH:mm:ss"
+
+msgid "Expiration"
+msgstr ""
+
+msgid "Expiration Days"
+msgstr ""
+
+msgid "Expire Noncurrent Versions"
+msgstr ""
+
+msgid "Expire Objects"
+msgstr ""
 
 msgid "Expires at (UTC)"
 msgstr "Läuft ab um (UTC)"
@@ -1354,6 +1465,12 @@ msgstr "Fehler beim Löschen des Ordners"
 msgid "Failed to Delete Images"
 msgstr "Fehler beim Löschen der Images"
 
+msgid "Failed to delete lifecycle configuration"
+msgstr ""
+
+msgid "Failed to Delete Lifecycle Configuration"
+msgstr ""
+
 msgid "Failed to Delete Object"
 msgstr "Fehler beim Löschen des Objekts"
 
@@ -1441,6 +1558,9 @@ msgstr "Flavor-Details konnten nicht geladen werden. Bitte versuchen Sie es erne
 msgid "Failed to load Floating IPs"
 msgstr "Floating IPs konnten nicht geladen werden"
 
+msgid "Failed to load lifecycle configuration"
+msgstr ""
+
 msgid "Failed to load metadata configuration."
 msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 
@@ -1484,6 +1604,12 @@ msgid "Failed to Restore Version"
 msgstr ""
 
 msgid "Failed to restore version: {errorMessage}"
+msgstr ""
+
+msgid "Failed to save lifecycle configuration"
+msgstr ""
+
+msgid "Failed to Save Lifecycle Configuration"
 msgstr ""
 
 msgid "Failed to save policy"
@@ -1533,6 +1659,9 @@ msgstr "Fehlgeschlagen: {errorDetails}"
 
 msgid "False"
 msgstr "False"
+
+msgid "Filter"
+msgstr ""
 
 msgid "Filter by"
 msgstr "Filtern nach"
@@ -1900,6 +2029,27 @@ msgstr ""
 msgid "Lifecycle action"
 msgstr ""
 
+msgid "Lifecycle Configuration Deleted"
+msgstr ""
+
+msgid "Lifecycle Configuration Saved"
+msgstr ""
+
+msgid "Lifecycle configuration was successfully deleted from \"{bucketName}\"."
+msgstr ""
+
+msgid "Lifecycle configuration was successfully deleted from bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "Lifecycle configuration was successfully saved for bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "Lifecycle Rules"
+msgstr ""
+
+msgid "Lifecycle rules automate object management: expire (delete) objects after N days, transition to different storage classes, clean up old versions, and abort incomplete multipart uploads."
+msgstr ""
+
 msgid "Limits"
 msgstr "Limits"
 
@@ -1995,6 +2145,9 @@ msgstr "Lädt..."
 
 msgid "Login to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
+
+msgid "logs/"
+msgstr ""
 
 msgid "MAC Address"
 msgstr "MAC-Adresse"
@@ -2215,6 +2368,9 @@ msgstr "Keine Images gefunden"
 msgid "No key pairs available."
 msgstr "Keine Keypaare verfügbar"
 
+msgid "No lifecycle configuration found"
+msgstr ""
+
 msgid "No limit"
 msgstr "Kein Limit"
 
@@ -2248,6 +2404,9 @@ msgstr "Keine Projekte verfügbar."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
+msgid "No rules"
+msgstr ""
+
 msgid "No server groups available."
 msgstr "Keine Servergruppen verfügbar"
 
@@ -2267,6 +2426,15 @@ msgid "No versions found for this object."
 msgstr ""
 
 msgid "No versions to delete in bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "Noncurrent Days"
+msgstr ""
+
+msgid "Noncurrent Version Expiration"
+msgstr ""
+
+msgid "Noncurrent Version Transitions"
 msgstr ""
 
 msgid "None"
@@ -2464,6 +2632,9 @@ msgstr "Port-Name"
 msgid "Port Range"
 msgstr "Port-Bereich"
 
+msgid "Prefix Filter (optional)"
+msgstr ""
+
 msgid "Press Enter to add"
 msgstr "Enter drücken zum Hinzufügen"
 
@@ -2487,6 +2658,9 @@ msgstr "Privat"
 
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist möglicherweise unvollständig."
+
+msgid "production"
+msgstr ""
 
 msgid "production, linux"
 msgstr "production, linux"
@@ -2674,6 +2848,12 @@ msgstr "Router-ID"
 msgid "Rule Details:"
 msgstr "Regeldetails:"
 
+msgid "Rule ID"
+msgstr ""
+
+msgid "Rule ID (optional)"
+msgstr ""
+
 msgid "Rule Type"
 msgstr "Regeltyp"
 
@@ -2700,6 +2880,9 @@ msgstr "Änderungen speichern"
 
 msgid "Save Metadata"
 msgstr "Metadata speichern"
+
+msgid "Save Rule"
+msgstr ""
 
 msgid "Saving..."
 msgstr "Wird gespeichert..."
@@ -2778,6 +2961,9 @@ msgstr ""
 
 msgid "Select disk format first"
 msgstr "Wählen Sie zuerst das Festplattenformat"
+
+msgid "Select one or more actions for this rule"
+msgstr ""
 
 msgid "Select port to associate"
 msgstr "Port zur Zuordnung auswählen"
@@ -2941,6 +3127,9 @@ msgstr "Status"
 msgid "Storage"
 msgstr "Storage"
 
+msgid "Storage Class Transitions (read-only)"
+msgstr ""
+
 msgid "Storage container not found"
 msgstr "Storage-Container nicht gefunden"
 
@@ -3015,6 +3204,9 @@ msgstr "Swap-Disk muss eine ganze Zahl ≥ 0 sein."
 
 msgid "Symlinks"
 msgstr "Symlinks"
+
+msgid "Tag Filters (optional)"
+msgstr ""
 
 msgid "Tags"
 msgstr "Tags"
@@ -3109,6 +3301,9 @@ msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: "
 msgid "The image \"{imageName}\" could not be updated: "
 msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: "
 
+msgid "The lifecycle configuration changed since you opened this dialog. Close and reopen to reload."
+msgstr ""
+
 msgid "The object can be restored from version history."
 msgstr ""
 
@@ -3184,6 +3379,9 @@ msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
 
+msgid "There are no rules to display. Add New Rule using button above"
+msgstr ""
+
 msgid "This action cannot be undone."
 msgstr ""
 
@@ -3227,6 +3425,9 @@ msgid "This bucket cannot be deleted yet. Do the following to be able to delete 
 msgstr ""
 
 msgid "This bucket does not have a policy attached."
+msgstr ""
+
+msgid "This bucket does not have lifecycle rules configured."
 msgstr ""
 
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
@@ -3280,6 +3481,9 @@ msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 msgid "This property is reserved and cannot be modified"
 msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 
+msgid "This rule has storage-class transitions that were configured outside Aurora. They are preserved unchanged when you save this rule."
+msgstr ""
+
 msgid "This security group is already shared with the specified project."
 msgstr "Diese Sicherheitsgruppe ist bereits mit dem angegebenen Projekt geteilt."
 
@@ -3318,6 +3522,9 @@ msgstr "Gesamtspeicher"
 
 msgid "Total size quota"
 msgstr "Gesamtspeicher-Quota"
+
+msgid "Transitions"
+msgstr ""
 
 msgid "True"
 msgstr "True"
@@ -3419,6 +3626,9 @@ msgid "Unable to Upload Image File"
 msgstr "Image-Datei kann nicht hochgeladen werden"
 
 msgid "Unable to verify bucket versioning status. Please try again."
+msgstr ""
+
+msgid "Unable to verify configuration state. Please try again."
 msgstr ""
 
 msgid "Unexpected"
@@ -3569,6 +3779,12 @@ msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management
 msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung der nächsten Generation. Wir sind bestrebt, die Art und Weise, wie Sie mit Ihrer Cloud-Infrastruktur interagieren und diese verwalten, zu vereinfachen. Mit Effizienz, Skalierbarkeit und Benutzerfreundlichkeit im Kern konzipiert, ermöglicht Aurora Ihnen, Prozesse zu optimieren und das volle Potenzial Ihrer Cloud-Ressourcen auszuschöpfen."
 
 msgid "What happens when suspended:"
+msgstr ""
+
+msgid "Whether this rule is active"
+msgstr ""
+
+msgid "Whole-Bucket Expiration Warning"
 msgstr ""
 
 msgid "Why Choose Aurora?"
