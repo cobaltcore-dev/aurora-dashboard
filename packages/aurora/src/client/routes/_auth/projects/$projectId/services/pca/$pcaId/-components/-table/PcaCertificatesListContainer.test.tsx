@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
-import type { Certificate, CertificatesList } from "@/server/Services/types/pca"
+import type { Certificate, CertificateAuthority, CertificatesList } from "@/server/Services/types/pca"
 import { trpcReact } from "@/client/trpcClient"
 import { PcaCertificatesListContainer } from "./PcaCertificatesListContainer"
 
@@ -54,6 +54,18 @@ vi.mock("../-modals/IssueEndEntityCertificateModal", () => ({
     open ? <div data-testid="issue-end-entity-modal">Issue End-Entity Modal</div> : null,
 }))
 
+vi.mock("../-modals/IssueSelfSignedCertificateModal", () => ({
+  IssueSelfSignedCertificateModal: ({ open }: { open: boolean; onClose?: () => void }) =>
+    open ? <div data-testid="issue-self-signed-modal">Issue Self-Signed Modal</div> : null,
+}))
+
+const makePca = (overrides: Partial<CertificateAuthority> = {}): CertificateAuthority => ({
+  id: "ca-1",
+  project_id: "project-1",
+  state: "READY",
+  ...overrides,
+})
+
 const makeCertificates = (count: number): Certificate[] =>
   Array.from({ length: count }, (_, index) => ({
     id: `cert-${index + 1}`,
@@ -103,10 +115,10 @@ describe("PcaCertificatesListContainer", () => {
     vi.clearAllMocks()
   })
 
-  const renderComponent = (pcaState: "READY" | "AWAITING_CERTIFICATE" = "READY") =>
+  const renderComponent = (pca = makePca()) =>
     render(
       <I18nProvider i18n={i18n}>
-        <PcaCertificatesListContainer pcaId="ca-1" pcaState={pcaState} />
+        <PcaCertificatesListContainer pca={pca} />
       </I18nProvider>
     )
 
@@ -196,7 +208,7 @@ describe("PcaCertificatesListContainer", () => {
       createMockQueryResult({ data: makeListResponse([validCertificate]) })
     )
 
-    renderComponent("AWAITING_CERTIFICATE")
+    renderComponent(makePca({ state: "AWAITING_CERTIFICATE" }))
 
     expect(screen.queryByRole("button", { name: "Issue End-Entity Certificate" })).not.toBeInTheDocument()
   })
@@ -218,9 +230,22 @@ describe("PcaCertificatesListContainer", () => {
   it("does not show issue certificate action in empty state when state is not READY", () => {
     vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(createMockQueryResult())
 
-    renderComponent("AWAITING_CERTIFICATE")
+    renderComponent(makePca({ state: "AWAITING_CERTIFICATE" }))
 
     expect(screen.queryByRole("button", { name: "Issue End-Entity Certificate" })).not.toBeInTheDocument()
+  })
+
+  it("shows issue self-signed certificate action for AWAITING_CERTIFICATE state and opens modal", async () => {
+    const user = userEvent.setup()
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(createMockQueryResult())
+
+    renderComponent(makePca({ state: "AWAITING_CERTIFICATE" }))
+
+    const button = screen.getByRole("button", { name: "Issue Self-Signed Certificate" })
+    expect(button).toBeInTheDocument()
+
+    await user.click(button)
+    expect(screen.getByTestId("issue-self-signed-modal")).toBeInTheDocument()
   })
 
   it("renders correct column headers", () => {
@@ -311,12 +336,12 @@ describe("PcaCertificatesListContainer", () => {
     expect(screen.getByText("No Certificates issued by this Certificate Authority found")).toBeInTheDocument()
   })
 
-  it("renders with different pcaId prop", () => {
+  it("renders with different pca id", () => {
     vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(createMockQueryResult())
 
     const { rerender } = render(
       <I18nProvider i18n={i18n}>
-        <PcaCertificatesListContainer pcaId="ca-1" pcaState="READY" />
+        <PcaCertificatesListContainer pca={makePca({ id: "ca-1" })} />
       </I18nProvider>
     )
 
@@ -329,7 +354,7 @@ describe("PcaCertificatesListContainer", () => {
 
     rerender(
       <I18nProvider i18n={i18n}>
-        <PcaCertificatesListContainer pcaId="ca-2" pcaState="READY" />
+        <PcaCertificatesListContainer pca={makePca({ id: "ca-2" })} />
       </I18nProvider>
     )
 

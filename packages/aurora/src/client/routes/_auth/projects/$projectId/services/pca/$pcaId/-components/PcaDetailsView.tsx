@@ -5,7 +5,6 @@ import { CertificateAuthority } from "@/server/Services/types/pca"
 import { useProjectId } from "@/client/hooks"
 import { useModal } from "@/client/utils/useModal"
 import { DeletePcaModal } from "../../-components/-modals/DeletePcaModal"
-import { IssueSelfSignedCertificateModal } from "./-modals/IssueSelfSignedCertificateModal"
 import { ImportExternallySignedCertificateModal } from "./-modals/ImportExternallySignedCertificateModal"
 import { PcaCertificatesListContainer } from "./-table/PcaCertificatesListContainer"
 import { DetailsInfo } from "./DetailsInfo"
@@ -18,7 +17,6 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const projectId = useProjectId()
-  const [issueSelfSignedModalOpen, toggleIssueSelfSignedModal] = useModal(false)
   const [importExternallySignedModalOpen, toggleImportExternallySignedModal] = useModal(false)
   const [deletePcaModalOpen, toggleDeletePcaModal] = useModal(false)
   const pcaName = pca.configuration?.subject?.named_attributes?.cn ?? t`Unknown`
@@ -81,9 +79,6 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
               </div>
             </Stack>
             <Stack direction="horizontal" gap="2" distribution="end">
-              <Button onClick={toggleIssueSelfSignedModal}>
-                <Trans>Issue Self-Signed Certificate</Trans>
-              </Button>
               <Button onClick={toggleImportExternallySignedModal}>
                 <Trans>Import Signed Certificate</Trans>
               </Button>
@@ -94,7 +89,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         <DetailsInfo
           basicInfo={BASIC_INFO}
           heading={`Certificate ${pcaName}`}
-          content={pca?.csr ?? ""}
+          content={pca.csr ?? ""}
           fileName={`${pcaName}.pem`}
         />
       </Stack>
@@ -107,14 +102,6 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         />
       )}
 
-      {issueSelfSignedModalOpen && (
-        <IssueSelfSignedCertificateModal
-          pca={pca}
-          open={issueSelfSignedModalOpen}
-          onClose={toggleIssueSelfSignedModal}
-        />
-      )}
-
       {deletePcaModalOpen && (
         <DeletePcaModal
           pca={pca}
@@ -124,7 +111,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         />
       )}
 
-      <PcaCertificatesListContainer pcaId={pca.id} pcaState={pca.state} />
+      <PcaCertificatesListContainer pca={pca} />
     </>
   )
 }

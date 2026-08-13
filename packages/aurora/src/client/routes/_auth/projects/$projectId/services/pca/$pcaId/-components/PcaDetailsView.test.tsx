@@ -27,15 +27,11 @@ vi.mock("../../-components/-modals/DeletePcaModal", () => ({
 }))
 
 vi.mock("./-table/PcaCertificatesListContainer", () => ({
-  PcaCertificatesListContainer: ({ pcaId, pcaState }: { pcaId: string; pcaState: string }) => (
+  PcaCertificatesListContainer: ({ pca }: { pca: { id: string; state: string } }) => (
     <div data-testid="pca-certificates-list">
-      Certificates list for {pcaId} ({pcaState})
+      Certificates list for {pca.id} ({pca.state})
     </div>
   ),
-}))
-
-vi.mock("./-modals/IssueSelfSignedCertificateModal", () => ({
-  IssueSelfSignedCertificateModal: ({ open }: { open: boolean }) => (open ? <div>Issue Self-Signed Modal</div> : null),
 }))
 
 vi.mock("./-modals/ImportExternallySignedCertificateModal", () => ({
@@ -91,8 +87,7 @@ describe("PcaDetailsView", () => {
     expect(screen.getByText("Certificates list for ca-1 (READY)")).toBeInTheDocument()
   })
 
-  it("shows lifecycle action and opens self-signed modal for AWAITING_CERTIFICATE state", async () => {
-    const user = userEvent.setup()
+  it("shows lifecycle action box for AWAITING_CERTIFICATE state", () => {
     renderView({
       ...basePca,
       state: "AWAITING_CERTIFICATE",
@@ -100,9 +95,6 @@ describe("PcaDetailsView", () => {
 
     expect(screen.getByText("Lifecycle action")).toBeInTheDocument()
     expect(screen.getByText("Add a Signed Certificate to your CA to activate it")).toBeInTheDocument()
-
-    await user.click(screen.getByRole("button", { name: "Issue Self-Signed Certificate" }))
-    expect(screen.getByText("Issue Self-Signed Modal")).toBeInTheDocument()
     expect(screen.getByText("Certificates list for ca-1 (AWAITING_CERTIFICATE)")).toBeInTheDocument()
   })
 
