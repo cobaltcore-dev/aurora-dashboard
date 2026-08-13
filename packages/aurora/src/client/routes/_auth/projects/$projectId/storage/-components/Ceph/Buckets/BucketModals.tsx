@@ -6,6 +6,8 @@ import { EnableVersioningModal } from "./EnableVersioningModal"
 import { SuspendVersioningModal } from "./SuspendVersioningModal"
 import { BucketPolicyModal } from "./BucketPolicyModal"
 import { DeleteBucketPolicyModal } from "./DeleteBucketPolicyModal"
+import { LifecycleModal } from "./LifecycleModal"
+import { DeleteLifecycleModal } from "./DeleteLifecycleModal"
 import { EmptyBucketModal } from "./EmptyBucketModal"
 import { DeleteBucketModal } from "./DeleteBucketModal"
 import { DeleteVersionsModal } from "./DeleteVersionsModal"
@@ -16,6 +18,10 @@ import {
   getVersioningSuspendErrorToast,
   getBucketPolicyDeletedToast,
   getBucketPolicyDeleteErrorToast,
+  getLifecycleConfigSavedToast,
+  getLifecycleConfigSaveErrorToast,
+  getLifecycleConfigDeletedToast,
+  getLifecycleConfigDeleteErrorToast,
   getVersionsDeletedToast,
   getVersionsDeleteErrorToast,
   getBucketEmptiedToast,
@@ -29,6 +35,8 @@ export type ModalType =
   | "suspendVersioning"
   | "policy"
   | "deletePolicy"
+  | "lifecycle"
+  | "deleteLifecycle"
   | "emptyBucket"
   | "deleteBucket"
   | "deleteVersions"
@@ -121,6 +129,38 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         }}
         onError={(bucketName, errorMessage) => {
           const { message, ...options } = getBucketPolicyDeleteErrorToast(bucketName, errorMessage)
+          toast.error(message, options)
+          onClose()
+        }}
+      />
+
+      <LifecycleModal
+        isOpen={activeModal === "lifecycle"}
+        bucketName={bucketName}
+        onClose={onClose}
+        onSuccess={(bucketName, operation) => {
+          const { message, ...options } = getLifecycleConfigSavedToast(bucketName, operation)
+          toast.success(message, options)
+          onClose()
+        }}
+        onError={(bucketName, errorMessage, operation) => {
+          const { message, ...options } = getLifecycleConfigSaveErrorToast(bucketName, errorMessage, operation)
+          toast.error(message, options)
+          onClose()
+        }}
+      />
+
+      <DeleteLifecycleModal
+        isOpen={activeModal === "deleteLifecycle"}
+        bucketName={bucketName}
+        onClose={onClose}
+        onSuccess={(bucketName) => {
+          const { message, ...options } = getLifecycleConfigDeletedToast(bucketName)
+          toast.success(message, options)
+          onClose()
+        }}
+        onError={(bucketName, errorMessage) => {
+          const { message, ...options } = getLifecycleConfigDeleteErrorToast(bucketName, errorMessage)
           toast.error(message, options)
           onClose()
         }}

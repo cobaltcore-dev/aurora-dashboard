@@ -18,6 +18,11 @@ interface BucketInfo {
         policy: unknown
       }
     | undefined
+  lifecycleData:
+    | {
+        rules: unknown[] | null
+      }
+    | undefined
   hasVersionsOrDeleteMarkers: boolean
   hasOldVersionsOrDeleteMarkers: boolean
   isBucketEmptyWithVersions: boolean
@@ -85,6 +90,19 @@ export const useBucketInfo = ({ bucketName, enabled = true }: UseBucketInfoProps
     }
   )
 
+  // Query lifecycle configuration status
+  const { data: lifecycleData, isLoading: isLoadingLifecycle } = trpcReact.storage.ceph.lifecycle.get.useQuery(
+    {
+      project_id: projectId ?? "",
+      bucketName: bucketName,
+    },
+    {
+      enabled: !!projectId && enabled,
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      retry: false,
+    }
+  )
+
   // Query to check if bucket has objects/versions/delete markers
   // Use showVersions=true to detect all content types
   // This query works for both versioned and unversioned buckets:
@@ -122,10 +140,12 @@ export const useBucketInfo = ({ bucketName, enabled = true }: UseBucketInfoProps
   return {
     versioningStatus,
     policyData,
+    lifecycleData,
     hasVersionsOrDeleteMarkers: allVersions.length > 0,
     hasOldVersionsOrDeleteMarkers,
     isBucketEmptyWithVersions,
     isBucketEmpty,
-    isLoading: isLoadingBuckets || isLoadingVersioning || isLoadingPolicy || isLoadingVersionCheck,
+    isLoading:
+      isLoadingBuckets || isLoadingVersioning || isLoadingPolicy || isLoadingLifecycle || isLoadingVersionCheck,
   }
 }

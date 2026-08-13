@@ -7,6 +7,7 @@ interface BucketHeaderActionsProps {
     status: "Enabled" | "Suspended" | "Unversioned"
   }
   hasPolicy: boolean
+  hasLifecycle: boolean
   hasOldVersionsOrDeleteMarkers: boolean
   isBucketEmpty: boolean
   onOpenModal: (modal: ModalType) => void
@@ -17,11 +18,13 @@ interface BucketHeaderActionsProps {
  *
  * Displays:
  * - Policy button (primary or subdued based on whether policy exists)
- * - Actions dropdown with versioning, policy, and bucket management options
+ * - Lifecycle button (primary or subdued based on whether lifecycle rules exist)
+ * - Actions dropdown with versioning, policy, lifecycle, and bucket management options
  */
 export const BucketHeaderActions = ({
   versioningStatus,
   hasPolicy,
+  hasLifecycle,
   hasOldVersionsOrDeleteMarkers,
   isBucketEmpty,
   onOpenModal,
@@ -32,6 +35,9 @@ export const BucketHeaderActions = ({
     <>
       <Button variant="subdued" className="whitespace-nowrap" onClick={() => onOpenModal("policy")}>
         {hasPolicy ? <Trans>Edit/View Policy</Trans> : <Trans>Add Policy</Trans>}
+      </Button>
+      <Button variant="subdued" className="whitespace-nowrap" onClick={() => onOpenModal("lifecycle")}>
+        {hasLifecycle ? <Trans>Edit/View Lifecycle Rules</Trans> : <Trans>Add Lifecycle Rules</Trans>}
       </Button>
       <PopupMenu>
         <PopupMenuToggle as="div">
@@ -46,6 +52,7 @@ export const BucketHeaderActions = ({
             <PopupMenuItem label={t`Suspend Versioning`} onClick={() => onOpenModal("suspendVersioning")} />
           )}
           {hasPolicy && <PopupMenuItem label={t`Delete Policy`} onClick={() => onOpenModal("deletePolicy")} />}
+          {hasLifecycle && <PopupMenuItem label={t`Delete Lifecycle`} onClick={() => onOpenModal("deleteLifecycle")} />}
           {!isBucketEmpty && <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />}
           {hasOldVersionsOrDeleteMarkers && (
             <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />

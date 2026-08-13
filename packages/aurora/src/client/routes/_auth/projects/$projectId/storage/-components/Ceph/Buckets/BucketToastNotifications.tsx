@@ -149,6 +149,62 @@ export const getBucketPolicyDeleteErrorToast = (
   ),
 })
 
+// ── Lifecycle configuration operations ─────────────────────────────────────
+
+export const getLifecycleConfigSavedToast = (
+  bucketName: string,
+  operation: "save" | "delete"
+): { message: ReactNode } & NotificationOptions => ({
+  message:
+    operation === "save" ? (
+      <Trans>Lifecycle Configuration Saved</Trans>
+    ) : (
+      <Trans>Lifecycle Configuration Deleted</Trans>
+    ),
+  description:
+    operation === "save" ? (
+      <Trans>Lifecycle configuration was successfully saved for bucket "{bucketName}".</Trans>
+    ) : (
+      <Trans>Lifecycle configuration was successfully deleted from bucket "{bucketName}".</Trans>
+    ),
+})
+
+export const getLifecycleConfigSaveErrorToast = (
+  bucketName: string,
+  errorMessage: string,
+  operation: "save" | "delete"
+): { message: ReactNode } & NotificationOptions => ({
+  message:
+    operation === "save" ? (
+      <Trans>Failed to Save Lifecycle Configuration</Trans>
+    ) : (
+      <Trans>Failed to Delete Lifecycle Configuration</Trans>
+    ),
+  description: (
+    <Trans>
+      Could not {operation === "save" ? "save" : "delete"} lifecycle configuration for bucket "{bucketName}":{" "}
+      {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getLifecycleConfigDeletedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Lifecycle Configuration Deleted</Trans>,
+  description: <Trans>Lifecycle configuration was successfully deleted from "{bucketName}".</Trans>,
+})
+
+export const getLifecycleConfigDeleteErrorToast = (
+  bucketName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete Lifecycle Configuration</Trans>,
+  description: (
+    <Trans>
+      Could not delete lifecycle configuration from "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
 // ── Delete versions operation ──────────────────────────────────────────────
 
 export const getVersionsDeletedToast = (
