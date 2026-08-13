@@ -1,5 +1,12 @@
 import { swiftRouter } from "./swift"
-import { ec2CredentialRouter, containerRouter, objectRouter, versioningRouter, bucketPolicyRouter } from "./ceph"
+import {
+  ec2CredentialRouter,
+  containerRouter,
+  objectRouter,
+  versioningRouter,
+  bucketPolicyRouter,
+  lifecycleRouter,
+} from "./ceph"
 import { buildStoragePermissionRouter } from "./permissionRouter"
 import { auroraRouter } from "../../trpc"
 
@@ -23,6 +30,9 @@ export const buildObjectStorageRouters = (policyDir: string) => ({
       }),
       bucketPolicy: auroraRouter({
         ...bucketPolicyRouter,
+      }),
+      lifecycle: auroraRouter({
+        ...lifecycleRouter,
       }),
     }),
     ...buildStoragePermissionRouter(policyDir),
