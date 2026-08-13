@@ -393,16 +393,17 @@ export const deleteFolderInputSchema = baseContainerInputSchema.extend({
 // ============================================================================
 
 // TempURL lifetime constraints for security
-export const MAX_TEMP_URL_LIFETIME = 3600 // 1 hour (in seconds)
-export const DEFAULT_TEMP_URL_LIFETIME = 900 // 15 minutes
+// GET-only URLs can have longer lifetime for file sharing with colleagues
+export const MAX_TEMP_URL_LIFETIME = 604800 // 7 days (in seconds)
+export const DEFAULT_TEMP_URL_LIFETIME = 86400 // 24 hours
 
 // Generate temporary URL input schema
 export const generateTempUrlInputSchema = baseObjectInputSchema.extend({
-  method: z.enum(["GET"]), // Default to read-only for security
+  method: z.enum(["GET"]), // Read-only for security
   expiresIn: z
     .number()
     .min(60) // Minimum 1 minute
-    .max(MAX_TEMP_URL_LIFETIME) // Maximum 1 hour for security
+    .max(MAX_TEMP_URL_LIFETIME) // Maximum 7 days
     .default(DEFAULT_TEMP_URL_LIFETIME),
   filename: z.string().optional(), // Optional Content-Disposition filename
 })
