@@ -49,7 +49,6 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
     AWAITING_CERTIFICATE: <Badge icon="accessTime" variant="warning" text={t`Awaiting Certificate`} />,
     READY: <Badge icon="checkCircle" variant="success" text={t`Ready`} />,
     FAILED: <Badge icon="error" variant="error" text={t`Failed`} />,
-    UNEXPECTED: <Badge icon="severityUnknown" variant="default" text={t`Unexpected`} />,
   } as const
 
   return (

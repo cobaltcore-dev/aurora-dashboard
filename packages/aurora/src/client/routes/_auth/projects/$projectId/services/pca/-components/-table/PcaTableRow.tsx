@@ -1,4 +1,4 @@
-import { MdAutorenew, MdCheckCircle, MdHelpOutline, MdHourglassEmpty, MdReportProblem } from "react-icons/md"
+import { MdAutorenew, MdCheckCircle, MdHourglassEmpty, MdReportProblem } from "react-icons/md"
 import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
@@ -45,10 +45,6 @@ export const PcaTableRow = ({ pca }: PcaTableRowProps) => {
     FAILED: {
       text: t`Failed`,
       icon: <MdReportProblem size={20} color="white" fill="#D32F2F" />,
-    },
-    UNEXPECTED: {
-      text: t`Unexpected`,
-      icon: <MdHelpOutline size={20} color="white" fill="#757575" />,
     },
   } as const
 

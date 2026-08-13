@@ -3748,9 +3748,6 @@ msgstr "Unable to Upload Image File"
 msgid "Unable to verify bucket versioning status. Please try again."
 msgstr "Unable to verify bucket versioning status. Please try again."
 
-msgid "Unexpected"
-msgstr "Unexpected"
-
 msgid "Unknown"
 msgstr "Unknown"
 
