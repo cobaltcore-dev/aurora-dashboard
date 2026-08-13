@@ -54,17 +54,51 @@ export const getFolderDeleteErrorToast = (
 
 // ── Object download ────────────────────────────────────────────────────────────
 
-export const getObjectDownloadErrorToast = (
-  objectName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
-  message: <Trans>Failed to Download</Trans>,
+// Shown while at least one download/preview transfer is in flight. Large objects
+// stream through the BFF before anything happens client-side (no native browser
+// download progress until the whole file has arrived), so this sets expectations
+// up front.
+//
+// This is a single, persistent toast — not one per file: the download store
+// raises it when the first transfer starts and dismisses it when the last one
+// finishes, so several concurrent downloads never stack up notifications. It is
+// rendered with a fixed id and `duration: Infinity` (see objectDownloadStore).
+export const getObjectDownloadStartedToast = (): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Downloading...</Trans>,
   description: (
     <Trans>
-      Could not download "{objectName}": {errorMessage}
+      Downloading larger files may take a while. You can keep browsing containers and folders — downloads continue in
+      the background, and this message disappears once they finish.
     </Trans>
   ),
 })
+
+// A cancelled transfer is a user-initiated outcome, not a failure — confirm it
+// so the disappearing progress spinner isn't the only feedback. Takes the full
+// object key and derives a basename display name, consistent with the store,
+// which passes the full key.
+export const getObjectDownloadCancelledToast = (objectKey: string): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Download Cancelled</Trans>,
+    description: <Trans>Download of "{displayName}" was cancelled.</Trans>,
+  }
+}
+
+export const getObjectDownloadErrorToast = (
+  objectKey: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => {
+  const displayName = objectKey.split("/").filter(Boolean).pop() ?? objectKey
+  return {
+    message: <Trans>Failed to Download</Trans>,
+    description: (
+      <Trans>
+        Could not download "{displayName}": {errorMessage}
+      </Trans>
+    ),
+  }
+}
 
 // ── Object delete ──────────────────────────────────────────────────────────────
 
