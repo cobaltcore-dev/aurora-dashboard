@@ -1,14 +1,16 @@
-import { useRef, useEffect, useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import {
   Checkbox,
   DataGrid,
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
+  Icon,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
   Spinner,
+  toast,
   Tooltip,
   TooltipTrigger,
   TooltipContent,
@@ -16,7 +18,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
-import { trpcClient, trpcReact } from "@/client/trpcClient"
+import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
 import { BrowserRow, FolderRow, ObjectRow } from "./"
@@ -26,49 +28,55 @@ import { CopyObjectModal } from "./CopyObjectModal"
 import { MoveRenameObjectModal } from "./MoveRenameObjectModal"
 import { GenerateTempUrlModal } from "./GenerateTempUrlModal"
 import { EditObjectMetadataModal } from "./EditObjectMetadataModal"
+import { getObjectDownloadCancelledToast } from "./ObjectToastNotifications"
+import {
+  startObjectDownload,
+  cancelObjectDownload,
+  subscribeTransfers,
+  getTransfersSnapshot,
+  transferKey,
+  isPreviewableContentType,
+} from "./stores/objectDownloadStore"
 
-// MIME types natively previewable by all modern browsers.
-// Excludes types that require plugins or have inconsistent support.
-const BROWSER_PREVIEWABLE_TYPES = new Set([
-  // Images
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-  "image/webp",
-  "image/avif",
-  "image/bmp",
-  "image/x-icon",
-  "image/vnd.microsoft.icon",
-  // Video
-  "video/mp4",
-  "video/webm",
-  "video/ogg",
-  // Audio
-  "audio/mpeg",
-  "audio/mp3",
-  "audio/ogg",
-  "audio/wav",
-  "audio/webm",
-  "audio/flac",
-  // Documents
-  "application/pdf",
-  // Safe text — plain content only, no script-executing types
-  "text/plain",
-])
+// The transfer lifecycle (worker, streaming, decode, Blob, DOM save) lives in
+// ./stores/objectDownloadStore so downloads survive this component unmounting
+// (ObjectBrowserView swaps in a <Spinner> while a folder loads). This component
+// only reads the store for UI and drives start/cancel.
 
-const isBrowserPreviewable = (contentType: string | undefined): boolean => {
-  if (!contentType) return false
-  // Strip parameters like charset (e.g. "text/plain; charset=utf-8" → "text/plain")
-  const base = contentType.split(";")[0].trim().toLowerCase()
-  if (BROWSER_PREVIEWABLE_TYPES.has(base)) return true
-  // Allow image/*, video/*, audio/* subtypes broadly — these are passive media
-  // that cannot execute scripts. Excluded: text/html, text/javascript, text/css,
-  // application/json, application/xml and any other active/scriptable types.
-  // image/svg+xml is also excluded — SVG can contain embedded <script> tags and
-  // executes JavaScript when opened as a same-origin blob URL.
-  if (base === "image/svg+xml") return false
-  if (base.startsWith("image/") || base.startsWith("video/") || base.startsWith("audio/")) return true
-  return false
+// Subscribes to live progress for a single in-flight transfer. Each active row
+// renders its own instance (keyed by downloadId), so concurrent transfers each
+// get an independent subscription rather than sharing one — starting a second
+// transfer never disrupts the first's progress. Swift's watchDownloadProgress
+// scopes to the project via the token server-side, so only downloadId is passed.
+function RowTransferProgress({ downloadId, isPreviewing }: { downloadId: string; isPreviewing: boolean }) {
+  const { data: progress } = trpcReact.storage.swift.watchDownloadProgress.useSubscription(
+    { downloadId },
+    { enabled: !!downloadId }
+  )
+  const percent = progress?.percent
+
+  return (
+    <span className="flex w-full flex-1 flex-col gap-1">
+      <span className="text-theme-light flex items-center gap-2 text-sm">
+        <Spinner size="small" />
+        {percent != null ? (
+          <Trans>{percent}%</Trans>
+        ) : isPreviewing ? (
+          <Trans>Loading preview...</Trans>
+        ) : (
+          <Trans>Downloading...</Trans>
+        )}
+      </span>
+      {percent != null && (
+        <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
+          <div
+            className="bg-theme-accent h-1 rounded-full transition-all duration-150"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+      )}
+    </span>
+  )
 }
 
 // Column templates — 5 columns with the selection checkbox, 4 without it:
@@ -126,13 +134,10 @@ export const ObjectsTableView = ({
 }: ObjectsTableViewProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const isMounted = useRef(true)
-  useEffect(() => {
-    isMounted.current = true
-    return () => {
-      isMounted.current = false
-    }
-  }, [])
+  // In-flight transfers are owned by the module store (outside React) so they
+  // survive this component unmounting during folder navigation. We only read
+  // them here for rendering.
+  const activeTransfers = useSyncExternalStore(subscribeTransfers, getTransfersSnapshot)
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [deleteFolderTarget, setDeleteFolderTarget] = useState<FolderRow | null>(null)
   const [deleteObjectTarget, setDeleteObjectTarget] = useState<ObjectRow | null>(null)
@@ -140,115 +145,46 @@ export const ObjectsTableView = ({
   const [moveRenameObjectTarget, setMoveRenameObjectTarget] = useState<ObjectRow | null>(null)
   const [tempUrlTarget, setTempUrlTarget] = useState<ObjectRow | null>(null)
   const [editMetadataTarget, setEditMetadataTarget] = useState<ObjectRow | null>(null)
-  const [downloadingRow, setDownloadingRow] = useState<ObjectRow | null>(null)
-  const [downloadId, setDownloadId] = useState<string | null>(null)
-  const [previewingRow, setPreviewingRow] = useState<ObjectRow | null>(null)
 
-  const { data: downloadProgress } = trpcReact.storage.swift.watchDownloadProgress.useSubscription(
-    { downloadId: downloadId ?? "" },
-    { enabled: !!downloadId && downloadingRow !== null }
-  )
-
-  // Shared streaming helper — fetches the object from the BFF and assembles a Blob.
-  // downloadId is set before the mutation starts so the watchDownloadProgress
-  // subscription is active from the very first byte.
-  const streamObjectToBlob = async (
-    row: ObjectRow,
-    activeDownloadId: string
-  ): Promise<{ blob: Blob; filename: string }> => {
-    let contentType = row.content_type ?? "application/octet-stream"
-    let filename = row.displayName
-
-    const iterable = await trpcClient.storage.swift.downloadObject.mutate({
-      project_id: projectId,
+  // The "Downloading..." notification is raised by the store (one toast for all
+  // in-flight transfers, dismissed when the last finishes), so starting a
+  // transfer here is just the call.
+  //
+  // Context-menu Download: always forces a file save, regardless of type.
+  const handleDownload = (row: ObjectRow) => {
+    startObjectDownload({
+      kind: "download",
+      projectId,
       container,
-      object: row.name,
+      objectKey: row.name,
       filename: row.displayName,
-      downloadId: activeDownloadId,
-      ...(account ? { account } : {}),
+      account,
+      onError: onDownloadError,
     })
-
-    const chunks: Uint8Array<ArrayBuffer>[] = []
-    for await (const { chunk, contentType: ct, filename: fn } of iterable) {
-      if (ct) contentType = ct
-      if (fn) filename = fn
-      chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
-    }
-
-    return { blob: new Blob(chunks, { type: contentType }), filename }
   }
 
-  // Triggers a browser file-save for the given blob URL then revokes it after a
-  // short delay to avoid racing the browser starting the download.
-  const triggerAnchorDownload = (url: string, filename: string) => {
-    const anchor = document.createElement("a")
-    anchor.href = url
-    anchor.download = filename
-    document.body.appendChild(anchor)
-    anchor.click()
-    document.body.removeChild(anchor)
-    setTimeout(() => URL.revokeObjectURL(url), 10000)
+  // Row-click: preview previewable types in a new tab, download everything else.
+  const handlePreviewOrDownload = (row: ObjectRow) => {
+    startObjectDownload({
+      kind: "preview",
+      projectId,
+      container,
+      objectKey: row.name,
+      filename: row.displayName,
+      account,
+      onError: onDownloadError,
+    })
   }
 
-  const handleDownload = async (row: ObjectRow) => {
-    const activeDownloadId = `${container}:${row.name}:${crypto.randomUUID()}`
-    setDownloadingRow(row)
-    setDownloadId(activeDownloadId)
-    try {
-      const { blob, filename } = await streamObjectToBlob(row, activeDownloadId)
-      triggerAnchorDownload(URL.createObjectURL(blob), filename)
-    } catch (err) {
-      onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
-    } finally {
-      if (isMounted.current) {
-        setDownloadingRow(null)
-        setDownloadId(null)
-      }
-    }
-  }
-
-  const handlePreviewOrDownload = async (row: ObjectRow) => {
-    const activeDownloadId = `${container}:${row.name}:${crypto.randomUUID()}`
-    const previewing = isBrowserPreviewable(row.content_type)
-    if (previewing) {
-      setPreviewingRow(row)
-    } else {
-      setDownloadingRow(row)
-      setDownloadId(activeDownloadId)
-    }
-
-    // Open a blank tab synchronously while still inside the click handler so
-    // The popup is considered user-initiated and won't be blocked. Clear the
-    // opener relationship immediately so previewed content cannot access the
-    // current window, while still keeping the window reference for navigation
-    // after streaming completes.
-    const previewTab = previewing ? window.open("", "_blank") : null
-    if (previewTab) {
-      previewTab.opener = null
-    }
-
-    try {
-      const { blob, filename } = await streamObjectToBlob(row, activeDownloadId)
-      const url = URL.createObjectURL(blob)
-      if (previewing) {
-        if (previewTab) {
-          previewTab.location.href = url
-        }
-        // Revoke after a short delay to give the new tab time to load the blob
-        setTimeout(() => URL.revokeObjectURL(url), 10000)
-      } else {
-        triggerAnchorDownload(url, filename)
-      }
-    } catch (err) {
-      previewTab?.close()
-      onDownloadError(row.displayName, err instanceof Error ? err.message : String(err))
-    } finally {
-      if (isMounted.current) {
-        setPreviewingRow(null)
-        setDownloadingRow(null)
-        setDownloadId(null)
-      }
-    }
+  // Cancel the in-flight transfer for a row. The store drops the entry right away
+  // (UI clears on the next render, no worker round-trip) and tells the worker to
+  // abort its tRPC call, which tears down the fetch so the BFF stops reading.
+  // Cancellation is a user action, so confirm it with a toast, not an error.
+  const handleCancelTransfer = (objectName: string) => {
+    const transfer = cancelObjectDownload(container, objectName)
+    if (!transfer) return
+    const { message, ...options } = getObjectDownloadCancelledToast(objectName)
+    toast.warning(message, options)
   }
 
   // Height measured from the space actually left below the table, plus a
@@ -308,8 +244,6 @@ export const ObjectsTableView = ({
     )
   }
 
-  const isAnyDownloading = downloadingRow !== null || previewingRow !== null
-
   // Selection column is gated by hasAnyBulkAction — drop the leading checkbox
   // track (and one column) when no bulk action is available.
   const gridColumnTemplate = hasAnyBulkAction ? GRID_COLUMN_TEMPLATE_WITH_SELECT : GRID_COLUMN_TEMPLATE_NO_SELECT
@@ -367,7 +301,10 @@ export const ObjectsTableView = ({
             {virtualItems.map((virtualRow) => {
               const row = rows[virtualRow.index]
               const isFolder = row.kind === "folder"
-              const isDownloading = !isFolder && downloadingRow?.name === row.name
+              const activeTransfer = !isFolder ? activeTransfers.get(transferKey(container, row.name)) : undefined
+              const isDownloading = activeTransfer?.kind === "download"
+              const isPreviewing = activeTransfer?.kind === "preview"
+              const isStreaming = activeTransfer !== undefined
               const rowDisplayName = row.displayName
               const isSelected = !isFolder && selectedObjects.includes(row.name)
 
@@ -413,6 +350,7 @@ export const ObjectsTableView = ({
                       ) : (
                         <Checkbox
                           checked={isSelected}
+                          disabled={isStreaming}
                           onChange={() => handleSelectObject(row.name)}
                           data-testid={`select-object-${row.name}`}
                         />
@@ -438,16 +376,20 @@ export const ObjectsTableView = ({
                         type="button"
                         className="focus-visible:outline-theme-focus flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2 disabled:cursor-wait disabled:opacity-60"
                         onClick={() => handlePreviewOrDownload(row as ObjectRow)}
-                        disabled={isAnyDownloading}
+                        disabled={isStreaming}
                         data-testid={`preview-${row.name}`}
                         title={
-                          isBrowserPreviewable((row as ObjectRow).content_type)
-                            ? t`Preview ${rowDisplayName}`
-                            : t`Download ${rowDisplayName}`
+                          isStreaming
+                            ? isPreviewing
+                              ? t`Loading preview...`
+                              : t`Downloading...`
+                            : isPreviewableContentType((row as ObjectRow).content_type ?? "")
+                              ? t`Preview ${rowDisplayName}`
+                              : t`Download ${rowDisplayName}`
                         }
                       >
-                        {previewingRow?.name === row.name ? (
-                          <Spinner size="small" className="shrink-0" />
+                        {isStreaming && isPreviewing ? (
+                          <Spinner size="small" className="shrink-0" data-testid={`preview-spinner-${row.name}`} />
                         ) : (
                           <MdDescription size={18} className="text-theme-light shrink-0" />
                         )}
@@ -456,30 +398,23 @@ export const ObjectsTableView = ({
                     )}
                   </DataGridCell>
 
-                  {/* Last Modified */}
-                  <DataGridCell>
-                    {isDownloading ? (
-                      <span className="flex min-w-0 flex-col gap-1">
-                        {(() => {
-                          const progressPct = downloadProgress?.percent ?? null
-                          return (
-                            <>
-                              <span className="text-theme-light flex items-center gap-2 text-sm">
-                                <Spinner size="small" />
-                                {progressPct !== null ? <Trans>{progressPct}%</Trans> : <Trans>Downloading...</Trans>}
-                              </span>
-                              {progressPct !== null && (
-                                <div className="bg-theme-background-lvl-2 h-1 w-full overflow-hidden rounded-full">
-                                  <div
-                                    className="bg-theme-accent h-1 rounded-full transition-all duration-150"
-                                    style={{ width: `${progressPct}%` }}
-                                  />
-                                </div>
-                              )}
-                            </>
-                          )
-                        })()}
-                      </span>
+                  {/* Last Modified — doubles as the transfer progress + cancel cell
+                      while a download/preview is in flight. */}
+                  <DataGridCell onClick={(e) => e.stopPropagation()}>
+                    {isStreaming && activeTransfer && !isFolder ? (
+                      <div className="flex items-center gap-2">
+                        <RowTransferProgress downloadId={activeTransfer.downloadId} isPreviewing={isPreviewing} />
+                        <button
+                          type="button"
+                          onClick={() => handleCancelTransfer(row.name)}
+                          aria-label={t`Cancel`}
+                          title={t`Cancel`}
+                          className="focus-visible:outline-theme-focus text-theme-light hover:text-theme-danger shrink-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2"
+                          data-testid={`cancel-transfer-${row.name}`}
+                        >
+                          <Icon icon="cancel" size={18} />
+                        </button>
+                      </div>
                     ) : !isFolder && row.last_modified ? (
                       formatDate(row.last_modified)
                     ) : (
@@ -492,7 +427,7 @@ export const ObjectsTableView = ({
 
                   {/* Actions */}
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
-                    <PopupMenu disabled={isAnyDownloading}>
+                    <PopupMenu>
                       <PopupMenuOptions>
                         {isFolder ? (
                           // Folder actions
@@ -506,32 +441,37 @@ export const ObjectsTableView = ({
                           <>
                             <PopupMenuItem
                               label={isDownloading ? t`Downloading...` : t`Download`}
-                              disabled={isDownloading}
+                              disabled={isStreaming}
                               onClick={() => handleDownload(row as ObjectRow)}
                               data-testid={`download-action-${row.name}`}
                             />
                             <PopupMenuItem
                               label={t`Edit Metadata`}
+                              disabled={isStreaming}
                               onClick={() => setEditMetadataTarget(row as ObjectRow)}
                               data-testid={`edit-metadata-action-${row.name}`}
                             />
                             <PopupMenuItem
                               label={t`Copy`}
+                              disabled={isStreaming}
                               onClick={() => setCopyObjectTarget(row as ObjectRow)}
                               data-testid={`copy-action-${row.name}`}
                             />
                             <PopupMenuItem
                               label={t`Move/Rename`}
+                              disabled={isStreaming}
                               onClick={() => setMoveRenameObjectTarget(row as ObjectRow)}
                               data-testid={`move-rename-action-${row.name}`}
                             />
                             <PopupMenuItem
                               label={t`Share URL`}
+                              disabled={isStreaming}
                               onClick={() => setTempUrlTarget(row as ObjectRow)}
                               data-testid={`temp-url-action-${row.name}`}
                             />
                             <PopupMenuItem
                               label={t`Delete`}
+                              disabled={isStreaming}
                               onClick={() => setDeleteObjectTarget(row as ObjectRow)}
                               data-testid={`delete-action-${row.name}`}
                             />
