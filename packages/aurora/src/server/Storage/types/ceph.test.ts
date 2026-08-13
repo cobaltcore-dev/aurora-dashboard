@@ -33,6 +33,7 @@ import {
   updateMetadataInputSchema,
   downloadObjectInputSchema,
   watchDownloadProgressInputSchema,
+  generatePresignedUrlInputSchema,
   // Service info schemas
   s3ServiceInfoSchema,
   getServiceInfoInputSchema,
@@ -60,6 +61,7 @@ import {
   setLifecycleInputSchema,
   deleteLifecycleInputSchema,
 } from "./ceph"
+import { S3_PRESIGN_MAX_EXPIRY_SECONDS } from "../constants"
 
 describe("Ceph Object Storage Schema Validation", () => {
   // Common test data
@@ -741,6 +743,77 @@ describe("Ceph Object Storage Schema Validation", () => {
       it("should reject missing project_id", () => {
         const input = { downloadId: "d1" }
         expect(watchDownloadProgressInputSchema.safeParse(input).success).toBe(false)
+      })
+    })
+
+    describe("generatePresignedUrlInputSchema", () => {
+      it("should validate valid input with all required fields", () => {
+        const input = { project_id: projectId, containerName: bucketName, objectKey, expiresIn: 3600 }
+        expect(generatePresignedUrlInputSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept the maximum expiry (7 days)", () => {
+        const input = {
+          project_id: projectId,
+          containerName: bucketName,
+          objectKey,
+          expiresIn: S3_PRESIGN_MAX_EXPIRY_SECONDS,
+        }
+        expect(generatePresignedUrlInputSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject an expiry beyond the 7-day maximum", () => {
+        const input = {
+          project_id: projectId,
+          containerName: bucketName,
+          objectKey,
+          expiresIn: S3_PRESIGN_MAX_EXPIRY_SECONDS + 1,
+        }
+        expect(generatePresignedUrlInputSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject a zero or negative expiry", () => {
+        expect(
+          generatePresignedUrlInputSchema.safeParse({
+            project_id: projectId,
+            containerName: bucketName,
+            objectKey,
+            expiresIn: 0,
+          }).success
+        ).toBe(false)
+        expect(
+          generatePresignedUrlInputSchema.safeParse({
+            project_id: projectId,
+            containerName: bucketName,
+            objectKey,
+            expiresIn: -60,
+          }).success
+        ).toBe(false)
+      })
+
+      it("should reject a non-integer expiry", () => {
+        const input = { project_id: projectId, containerName: bucketName, objectKey, expiresIn: 1.5 }
+        expect(generatePresignedUrlInputSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject missing project_id", () => {
+        const input = { containerName: bucketName, objectKey, expiresIn: 3600 }
+        expect(generatePresignedUrlInputSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject missing containerName", () => {
+        const input = { project_id: projectId, objectKey, expiresIn: 3600 }
+        expect(generatePresignedUrlInputSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject an empty objectKey", () => {
+        const input = { project_id: projectId, containerName: bucketName, objectKey: "", expiresIn: 3600 }
+        expect(generatePresignedUrlInputSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject missing expiresIn", () => {
+        const input = { project_id: projectId, containerName: bucketName, objectKey }
+        expect(generatePresignedUrlInputSchema.safeParse(input).success).toBe(false)
       })
     })
   })

@@ -13,8 +13,8 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
   NoSuchUpload: "NOT_FOUND",
   NoSuchVersion: "NOT_FOUND",
   NoSuchBucketPolicy: "NOT_FOUND",
-  NoSuchLifecycleConfiguration: "NOT_FOUND",
   NoSuchCORSConfiguration: "NOT_FOUND",
+  NoSuchLifecycleConfiguration: "NOT_FOUND",
   BucketAlreadyExists: "CONFLICT",
   BucketAlreadyOwnedByYou: "CONFLICT",
   BucketNotEmpty: "PRECONDITION_FAILED",
@@ -30,7 +30,6 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
   KeyTooLongError: "BAD_REQUEST",
   MalformedPolicy: "BAD_REQUEST",
   MalformedXML: "BAD_REQUEST",
-  InvalidArgument: "BAD_REQUEST",
   EntityTooLarge: "PAYLOAD_TOO_LARGE",
   EntityTooSmall: "BAD_REQUEST",
   // Generic errors that might be unmapped

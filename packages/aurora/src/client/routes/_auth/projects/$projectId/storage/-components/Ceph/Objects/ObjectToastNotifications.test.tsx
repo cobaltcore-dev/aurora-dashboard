@@ -7,10 +7,14 @@ import {
   getFolderCreateErrorToast,
   getObjectDeletedToast,
   getObjectDeleteErrorToast,
+  getObjectsBulkDeletedToast,
+  getObjectsBulkDeletePartialToast,
+  getObjectsBulkDeleteErrorToast,
   getObjectCopiedToast,
   getObjectCopyErrorToast,
   getObjectMovedToast,
   getObjectMoveErrorToast,
+  getPresignedUrlCopiedToast,
   getObjectMetadataUpdatedToast,
   getObjectMetadataUpdateErrorToast,
   getObjectUploadedToast,
@@ -103,6 +107,43 @@ describe("ObjectToastNotifications", () => {
     })
   })
 
+  // ── Bulk object delete ─────────────────────────────────────────────────────
+
+  describe("getObjectsBulkDeletedToast", () => {
+    it("renders plural form for multiple objects", () => {
+      renderNotification(getObjectsBulkDeletedToast(5))
+      expect(screen.getByText("Objects Deleted")).toBeInTheDocument()
+      expect(screen.getByText("5 objects were deleted.")).toBeInTheDocument()
+    })
+
+    it("renders singular form for one object", () => {
+      renderNotification(getObjectsBulkDeletedToast(1))
+      expect(screen.getByText("Objects Deleted")).toBeInTheDocument()
+      expect(screen.getByText("1 object was deleted.")).toBeInTheDocument()
+    })
+  })
+
+  describe("getObjectsBulkDeletePartialToast", () => {
+    it("renders correct content with both deleted and failed counts", () => {
+      renderNotification(getObjectsBulkDeletePartialToast(8, 2))
+      expect(screen.getByText("Some Objects Could Not Be Deleted")).toBeInTheDocument()
+      expect(screen.getByText("8 deleted, 2 failed. See the details in the dialog.")).toBeInTheDocument()
+    })
+
+    it("handles single deleted and single failed", () => {
+      renderNotification(getObjectsBulkDeletePartialToast(1, 1))
+      expect(screen.getByText("1 deleted, 1 failed. See the details in the dialog.")).toBeInTheDocument()
+    })
+  })
+
+  describe("getObjectsBulkDeleteErrorToast", () => {
+    it("renders correct error content", () => {
+      renderNotification(getObjectsBulkDeleteErrorToast("Bucket not found"))
+      expect(screen.getByText("Failed to Delete Objects")).toBeInTheDocument()
+      expect(screen.getByText("No objects were deleted: Bucket not found")).toBeInTheDocument()
+    })
+  })
+
   // ── Object copy ────────────────────────────────────────────────────────────
 
   describe("getObjectCopiedToast", () => {
@@ -141,6 +182,21 @@ describe("ObjectToastNotifications", () => {
       renderNotification(getObjectMoveErrorToast("old/file.txt", "Insufficient permissions"))
       expect(screen.getByText("Failed to Move Object")).toBeInTheDocument()
       expect(screen.getByText(/Insufficient permissions/)).toBeInTheDocument()
+    })
+  })
+
+  // ── Pre-signed URL ──────────────────────────────────────────────────────────
+
+  describe("getPresignedUrlCopiedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getPresignedUrlCopiedToast("documents/report.pdf"))
+      expect(screen.getByText("URL Copied")).toBeInTheDocument()
+      expect(screen.getByText(/was copied to clipboard/)).toBeInTheDocument()
+    })
+
+    it("derives the basename from a full object key", () => {
+      renderNotification(getPresignedUrlCopiedToast("documents/report.pdf"))
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
     })
   })
 
@@ -258,10 +314,14 @@ describe("ObjectToastNotifications", () => {
         getFolderCreateErrorToast("folder/", "err"),
         getObjectDeletedToast("a/b.txt"),
         getObjectDeleteErrorToast("a/b.txt", "err"),
+        getObjectsBulkDeletedToast(5),
+        getObjectsBulkDeletePartialToast(3, 2),
+        getObjectsBulkDeleteErrorToast("err"),
         getObjectCopiedToast("a.txt", "bucket", "a.txt"),
         getObjectCopyErrorToast("a.txt", "err"),
         getObjectMovedToast("a.txt", "bucket", "a.txt"),
         getObjectMoveErrorToast("a.txt", "err"),
+        getPresignedUrlCopiedToast("a.txt"),
         getObjectMetadataUpdatedToast("a.txt"),
         getObjectMetadataUpdateErrorToast("a.txt", "err"),
         getObjectUploadedToast("a.txt"),

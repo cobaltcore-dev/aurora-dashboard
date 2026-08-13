@@ -20,7 +20,19 @@ msgid "—"
 msgstr "—"
 
 msgid "... and {hiddenCount} more"
+msgstr ""
+
+msgid "… and {hiddenCount} more"
 msgstr "... und {hiddenCount} weitere"
+
+msgid "… and {hiddenErrorCount} more failures"
+msgstr ""
+
+msgid "… and {hiddenObjectCount} more"
+msgstr ""
+
+msgid "… and {hiddenVersionsCount} more"
+msgstr ""
 
 msgid "\"{displayName}\" was successfully copied to {destination} (existing object was replaced)."
 msgstr ""
@@ -43,6 +55,14 @@ msgstr "\"{objectName}\" wurde erfolgreich nach {destination} verschoben."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" wurde erfolgreich hochgeladen."
 
+#. placeholder {0}: selectedIndices.length
+msgid "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
+msgstr ""
+
+#. placeholder {0}: displayObjectNames.length
+msgid "{0, plural, one {Object:} other {Objects to delete:}}"
+msgstr ""
+
 #. placeholder {0}: wholeBucketExpirationRules.length === 1 ? "One rule will delete all objects in this bucket." : `${wholeBucketExpirationRules.length} rules will delete all objects in this bucket.`
 msgid "{0} Make sure this is intended before saving."
 msgstr ""
@@ -53,8 +73,32 @@ msgstr ""
 msgid "{count, plural, one {# object} other {# objects}}"
 msgstr "{count, plural, one {# Objekt} other {# Objekte}}"
 
+msgid "{count, plural, one {CORS Rule Deleted} other {CORS Rules Deleted}}"
+msgstr ""
+
+msgid "{count, plural, one {Delete # Object} other {Delete # Objects}}"
+msgstr ""
+
+msgid "{count, plural, one {Delete # Version} other {Delete # Versions}}"
+msgstr ""
+
+msgid "{count, plural, one {Failed to Delete CORS Rule} other {Failed to Delete CORS Rules}}"
+msgstr ""
+
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
+
+msgid "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
+msgstr ""
+
+msgid "{deletedCount, plural, one {# version was permanently deleted.} other {# versions were permanently deleted.}}"
+msgstr ""
+
+msgid "{deletedCount} deleted, {errorCount} failed."
+msgstr ""
+
+msgid "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
+msgstr ""
 
 msgid "{displayName} was successfully restored"
 msgstr ""
@@ -80,14 +124,17 @@ msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
 msgid "{percent}%"
 msgstr "{percent}%"
 
-msgid "{progressPct}%"
-msgstr "{progressPct}%"
+msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
+msgstr ""
 
 msgid "{rulesLength} rules"
 msgstr ""
 
 msgid "{selectedCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{selectedCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
+
+msgid "{selectedCount, plural, one {Delete # Version} other {Delete # Versions}}"
+msgstr ""
 
 msgid "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{selectedCount, plural, one {Bucket leeren} other {Buckets leeren}}"
@@ -172,6 +219,12 @@ msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verw
 
 msgid "A folder with this name already exists"
 msgstr "Ein Ordner mit diesem Namen existiert bereits"
+
+msgid "A pre-signed URL can be valid for at most 7 days ({MAX_EXPIRY_MINUTES} minutes)"
+msgstr "Eine vorsignierte URL kann höchstens 7 Tage ({MAX_EXPIRY_MINUTES} Minuten) gültig sein"
+
+msgid "A pre-signed URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
+msgstr "Eine vorsignierte URL gewährt zeitlich begrenzten Lesezugriff auf dieses Objekt ohne Authentifizierung. Jeder mit dem Link kann es herunterladen, bis es abläuft."
 
 msgid "A property with this key already exists"
 msgstr "Eine Eigenschaft mit diesem Schlüssel existiert bereits"
@@ -266,6 +319,9 @@ msgstr "Hinzufügen"
 msgid "Add a Signed Certificate to your CA to activate it"
 msgstr "Add a Signed Certificate to your CA to activate it"
 
+msgid "Add CORS Rule"
+msgstr ""
+
 msgid "Add Lifecycle Rules"
 msgstr ""
 
@@ -323,12 +379,6 @@ msgstr "Alle Container"
 msgid "All Images"
 msgstr "Alle Images"
 
-msgid "All objects in the folder can be restored from version history."
-msgstr ""
-
-msgid "All objects in the folder will be permanently deleted."
-msgstr ""
-
 msgid "All objects in the selected containers will be permanently deleted. This cannot be undone."
 msgstr "Alle Objekte in den ausgewählten Containern werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
@@ -343,6 +393,15 @@ msgstr "Floating IP zuweisen"
 
 msgid "Allocating Floating IP..."
 msgstr "Floating IP wird zugewiesen..."
+
+msgid "Allowed Headers"
+msgstr ""
+
+msgid "Allowed Methods"
+msgstr ""
+
+msgid "Allowed Origins"
+msgstr ""
 
 msgid "Already active (will be skipped)"
 msgstr "Bereits aktiv (wird übersprungen)"
@@ -389,6 +448,15 @@ msgstr ""
 msgid "Apply this rule only to objects with this key prefix (e.g., \"logs/\" or \"archive/\")"
 msgstr ""
 
+msgid "Are you sure you want to delete {ruleCount, plural, one {# CORS rule} other {# CORS rules}} from bucket <0>{bucketName}</0>?"
+msgstr ""
+
+msgid "Are you sure you want to delete <0>{ruleDisplayName}</0> from bucket <1>{bucketName}</1>?"
+msgstr ""
+
+msgid "Are you sure you want to delete the CORS configuration for bucket <0>{bucketName}</0>?"
+msgstr ""
+
 msgid "Are you sure you want to delete the lifecycle configuration for bucket <0>{bucketName}</0>?"
 msgstr ""
 
@@ -415,6 +483,9 @@ msgstr "Anhängen"
 
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
+
+msgid "Authorization, Content-Type, or *"
+msgstr ""
 
 msgid "Awaiting Certificate"
 msgstr ""
@@ -602,13 +673,13 @@ msgstr "Konfigurieren Sie die Eingangs- und Ausgangsregeln, die steuern, welcher
 msgid "Confirm deletion of {displayName}. All objects inside this folder will be marked as deleted but can be restored from version history."
 msgstr ""
 
-msgid "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted."
+msgid "Confirm deletion of {displayName}. All objects inside this folder will be permanently deleted. This action cannot be undone."
 msgstr ""
 
 msgid "Confirm deletion of {displayName}. The object will be marked as deleted but can be restored from version history."
 msgstr ""
 
-msgid "Confirm deletion of {displayName}. This action cannot be undone."
+msgid "Confirm deletion of {displayName}. The object will be permanently deleted. This action cannot be undone."
 msgstr ""
 
 msgid "Container \"{containerName}\" properties were successfully updated."
@@ -725,6 +796,27 @@ msgstr "Objekt wird kopiert..."
 msgid "Copying..."
 msgstr "Wird kopiert..."
 
+msgid "CORS Configuration Deleted"
+msgstr ""
+
+msgid "CORS Configuration Saved"
+msgstr ""
+
+msgid "CORS configuration was successfully deleted from bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "CORS configuration was successfully saved for bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "CORS Rule Deleted"
+msgstr ""
+
+msgid "CORS rule was successfully deleted from bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "CORS Rules"
+msgstr ""
+
 #. placeholder {0}: operation === "save" ? "save" : "delete"
 msgid "Could not {0} lifecycle configuration for bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
@@ -753,6 +845,12 @@ msgstr ""
 msgid "Could not delete \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht gelöscht werden: {errorMessage}"
 
+msgid "Could not delete {count} CORS rule from bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not delete {count} CORS rules from bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not delete bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
@@ -762,10 +860,19 @@ msgstr ""
 msgid "Could not delete container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht gelöscht werden: {errorMessage}"
 
+msgid "Could not delete CORS configuration from bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not delete CORS rule from bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht gelöscht werden: {errorMessage}"
 
 msgid "Could not delete lifecycle configuration from \"{bucketName}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
 msgid "Could not delete version of \"{displayName}\": {errorMessage}"
@@ -776,9 +883,6 @@ msgstr ""
 
 msgid "Could not download \"{displayName}\": {errorMessage}"
 msgstr "\"{displayName}\" konnte nicht heruntergeladen werden: {errorMessage}"
-
-msgid "Could not download \"{objectName}\": {errorMessage}"
-msgstr "\"{objectName}\" konnte nicht heruntergeladen werden: {errorMessage}"
 
 msgid "Could not empty bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
@@ -796,6 +900,9 @@ msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
 
 msgid "Could not restore \"{displayName}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not save CORS configuration for bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
 msgid "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
@@ -855,6 +962,12 @@ msgstr "Neuen Ordner hier erstellen"
 msgid "Create New Image"
 msgstr "Neues Image erstellen"
 
+msgid "Create rule"
+msgstr ""
+
+msgid "Create Rule"
+msgstr ""
+
 msgid "Create S3 Credentials"
 msgstr ""
 
@@ -886,6 +999,10 @@ msgid "Creating security group..."
 msgstr "Sicherheitsgruppe wird erstellt..."
 
 msgid "Creating..."
+msgstr ""
+
+#. placeholder {0}: corsData.corsRules.length
+msgid "Current configuration has {0, plural, one {# CORS rule} other {# CORS rules}}."
 msgstr ""
 
 #. placeholder {0}: lifecycleData.rules.length
@@ -937,6 +1054,9 @@ msgstr "Löschen"
 msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
+msgid "Delete All Versions"
+msgstr ""
+
 msgid "Delete all versions and delete markers"
 msgstr ""
 
@@ -954,6 +1074,18 @@ msgstr "Delete Certificate Authority"
 
 msgid "Delete container:"
 msgstr "Container löschen:"
+
+msgid "Delete CORS"
+msgstr ""
+
+msgid "Delete CORS Configuration"
+msgstr ""
+
+msgid "Delete CORS Rule"
+msgstr ""
+
+msgid "Delete CORS Rules"
+msgstr ""
 
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
@@ -974,6 +1106,9 @@ msgid "Delete Lifecycle"
 msgstr ""
 
 msgid "Delete Lifecycle Configuration"
+msgstr ""
+
+msgid "Delete Lifecycle Rules"
 msgstr ""
 
 msgid "Delete Marker"
@@ -997,17 +1132,20 @@ msgstr ""
 msgid "Delete old versions in versioned buckets"
 msgstr ""
 
-msgid "Delete Permanently"
-msgstr ""
-
 msgid "Delete Policy"
 msgstr ""
 
 msgid "Delete Recursively"
 msgstr "Rekursiv löschen"
 
+msgid "Delete Results"
+msgstr ""
+
 msgid "Delete Rule"
 msgstr "Regel löschen"
+
+msgid "Delete Rules"
+msgstr ""
 
 msgid "Delete Security Group \"{securityGroupName}\""
 msgstr "Security Group \"{securityGroupName}\" löschen"
@@ -1019,9 +1157,6 @@ msgid "Delete Selected"
 msgstr "Ausgewählte löschen"
 
 msgid "Delete Version"
-msgstr ""
-
-msgid "Delete Version Permanently"
 msgstr ""
 
 msgid "Delete Versions"
@@ -1041,6 +1176,9 @@ msgstr "Deleting certificate authority..."
 
 msgid "Deleting folder and all its contents..."
 msgstr "Ordner und alle Inhalte werden gelöscht..."
+
+msgid "Deleting the CORS configuration will remove all cross-origin access rules. Browser-based applications will no longer be able to access this bucket from different origins. This action cannot be undone."
+msgstr ""
 
 msgid "Deleting the lifecycle configuration will remove all automated lifecycle management rules. Objects will no longer be automatically expired, transitioned, or have their old versions cleaned up. This action cannot be undone."
 msgstr ""
@@ -1123,6 +1261,9 @@ msgstr "DNS-Name"
 msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 
+msgid "Done"
+msgstr ""
+
 msgid "Download"
 msgstr "Herunterladen"
 
@@ -1137,6 +1278,9 @@ msgstr "Download von \"{displayName}\" wurde abgebrochen."
 
 msgid "Downloading larger files may take a while. You can keep browsing buckets and folders — downloads continue in the background, and this message disappears once they finish."
 msgstr "Das Herunterladen größerer Dateien kann eine Weile dauern. Sie können weiterhin Buckets und Ordner durchsuchen — Downloads werden im Hintergrund fortgesetzt, und diese Meldung verschwindet, sobald sie abgeschlossen sind."
+
+msgid "Downloading larger files may take a while. You can keep browsing containers and folders — downloads continue in the background, and this message disappears once they finish."
+msgstr "Das Herunterladen größerer Dateien kann eine Weile dauern. Sie können weiterhin Container und Ordner durchsuchen — Downloads werden im Hintergrund fortgesetzt, und diese Meldung verschwindet, sobald sie abgeschlossen sind."
 
 msgid "Downloading..."
 msgstr "Wird heruntergeladen..."
@@ -1153,8 +1297,14 @@ msgstr "Duration/validity"
 msgid "e.g. .r:*,.rlistings"
 msgstr "z. B. .r:*,.rlistings"
 
+msgid "e.g. allow-frontend-app"
+msgstr ""
+
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
+
+msgid "e.g., 3600 (1 hour) or 604800 (7 days)"
+msgstr ""
 
 msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
@@ -1164,6 +1314,9 @@ msgstr "z. B. production, linux, ubuntu"
 
 msgid "Edit"
 msgstr "Bearbeiten"
+
+msgid "Edit CORS Rule"
+msgstr ""
 
 msgid "Edit Description"
 msgstr "Beschreibung bearbeiten"
@@ -1186,16 +1339,13 @@ msgstr ""
 msgid "Edit Metadata"
 msgstr "Metadaten bearbeiten"
 
+msgid "Edit Policy"
+msgstr ""
+
 msgid "Edit Security Group"
 msgstr "Security Group bearbeiten"
 
 msgid "Edit/View Bucket Policy"
-msgstr ""
-
-msgid "Edit/View Lifecycle Rules"
-msgstr ""
-
-msgid "Edit/View Policy"
 msgstr ""
 
 msgid "Efficient bulk deletion"
@@ -1249,6 +1399,12 @@ msgstr "Floating IP eingeben"
 msgid "Enter a floating IP or leave blank to auto-assign one"
 msgstr "Floating IP eingeben oder leer lassen für automatische Zuweisung"
 
+msgid "Enter a header name and press Enter. These headers will be exposed to the browser."
+msgstr ""
+
+msgid "Enter a header name and press Enter. Use * to allow all headers."
+msgstr ""
+
 msgid "Enter a name for the new folder."
 msgstr ""
 
@@ -1260,6 +1416,9 @@ msgstr "Geben Sie ein Tag ein und drücken Sie Enter oder klicken Sie auf Hinzuf
 
 msgid "Enter a timestamp like \"YYYY-MM-DD HH:mm:ss\" to schedule automatic deletion."
 msgstr "Geben Sie einen Zeitstempel wie \"YYYY-MM-DD HH:mm:ss\" ein, um die automatische Löschung zu planen."
+
+msgid "Enter a URL and press Enter. Use * to allow all origins."
+msgstr ""
 
 msgid "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
 msgstr "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
@@ -1345,6 +1504,9 @@ msgstr ""
 msgid "ETag"
 msgstr ""
 
+msgid "Etag, Content-Length"
+msgstr ""
+
 msgid "Ethertype"
 msgstr "Ethertype"
 
@@ -1375,6 +1537,9 @@ msgstr "Läuft ab in"
 msgid "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 msgstr "Läuft ab in {selectedPresetLabel} — um {expiresAtFormatted}"
 
+msgid "Expose Headers"
+msgstr ""
+
 msgid "External Network"
 msgstr "Externes Netzwerk"
 
@@ -1385,6 +1550,9 @@ msgid "Extra Specs"
 msgstr "Zusätzliche Spezifikationen"
 
 msgid "Failed"
+msgstr ""
+
+msgid "Failed deletions:"
 msgstr ""
 
 msgid "Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid state."
@@ -1407,6 +1575,9 @@ msgstr "Fehler beim Kopieren des Objekts"
 
 msgid "Failed to copy object: {errorMessage}"
 msgstr "Fehler beim Kopieren des Objekts: {errorMessage}"
+
+msgid "Failed to copy the pre-signed URL to the clipboard"
+msgstr "Fehler beim Kopieren der vorsignierten URL in die Zwischenablage"
 
 msgid "Failed to copy the temporary URL to the clipboard"
 msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
@@ -1456,6 +1627,18 @@ msgstr ""
 msgid "Failed to Delete Container"
 msgstr "Fehler beim Löschen des Containers"
 
+msgid "Failed to delete CORS configuration"
+msgstr ""
+
+msgid "Failed to Delete CORS Configuration"
+msgstr ""
+
+msgid "Failed to Delete CORS Rule"
+msgstr ""
+
+msgid "Failed to delete CORS rules"
+msgstr ""
+
 msgid "Failed to delete flavor. Please try again."
 msgstr "Fehler beim Löschen des Flavors. Bitte versuchen Sie es erneut."
 
@@ -1481,6 +1664,9 @@ msgid "Failed to delete policy"
 msgstr ""
 
 msgid "Failed to Delete Policy"
+msgstr ""
+
+msgid "Failed to delete rule"
 msgstr ""
 
 msgid "Failed to delete security group"
@@ -1531,6 +1717,9 @@ msgstr "Fehler beim Abrufen der Flavor-Zugriffsinformationen. Bitte versuchen Si
 msgid "Failed to fetch flavors from server."
 msgstr "Fehler beim Abrufen der Flavors vom Server."
 
+msgid "Failed to generate pre-signed URL: {generalError}"
+msgstr "Fehler beim Generieren der vorsignierten URL: {generalError}"
+
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
@@ -1548,6 +1737,12 @@ msgstr "Fehler beim Laden der Container-Objekte: {errorMessage}"
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Eigenschaften: {errorMessage}"
+
+msgid "Failed to load CORS configuration"
+msgstr ""
+
+msgid "Failed to load CORS rules"
+msgstr ""
 
 msgid "Failed to load extra specs. Please try again."
 msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
@@ -1606,6 +1801,12 @@ msgstr ""
 msgid "Failed to restore version: {errorMessage}"
 msgstr ""
 
+msgid "Failed to Save CORS Configuration"
+msgstr ""
+
+msgid "Failed to save CORS rule"
+msgstr ""
+
 msgid "Failed to save lifecycle configuration"
 msgstr ""
 
@@ -1642,17 +1843,20 @@ msgstr "Fehler beim Aktualisieren des Objekts: {mutationErrorMessage}"
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
 
-msgid "Failed to update visibility for \"{imageName}\": "
-msgstr "Fehler beim Aktualisieren der Sichtbarkeit für \"{imageName}\":"
+msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
+msgstr "Fehler beim Aktualisieren der Sichtbarkeit für \"{imageName}\": {errorMessage}"
 
 msgid "Failed to update visibility to {newVisibility}"
 msgstr "Fehler beim Aktualisieren der Sichtbarkeit auf {newVisibility}"
 
-msgid "Failed to upload file \"{fileName}\": "
-msgstr "Fehler beim Hochladen der Datei \"{fileName}\": "
+msgid "Failed to upload file \"{fileName}\": {errorMessage}"
+msgstr "Fehler beim Hochladen der Datei \"{fileName}\": {errorMessage}"
 
 msgid "Failed to Upload Object"
 msgstr "Fehler beim Hochladen des Objekts"
+
+msgid "Failed to verify CORS configuration"
+msgstr ""
 
 msgid "Failed: {errorDetails}"
 msgstr "Fehlgeschlagen: {errorDetails}"
@@ -1753,6 +1957,9 @@ msgstr "Ordnername ist erforderlich"
 msgid "Folder name is too long (max 255 characters)"
 msgstr ""
 
+msgid "Folder name:"
+msgstr ""
+
 msgid "folder-name"
 msgstr "folder-name"
 
@@ -1783,6 +1990,9 @@ msgstr "Allgemeine Image-Daten"
 msgid "Generate URL"
 msgstr "URL generieren"
 
+msgid "Generating pre-signed URL..."
+msgstr "Vorsignierte URL wird generiert..."
+
 msgid "Generating temporary URL..."
 msgstr "Temporäre URL wird generiert..."
 
@@ -1812,6 +2022,12 @@ msgstr "ACLs-Vorschau ausblenden"
 
 msgid "Home"
 msgstr "Startseite"
+
+msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
+msgstr ""
+
+msgid "https://example.com or *"
+msgstr ""
 
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "Ich bestätige, dass alle vorhandenen Versionen ebenfalls gelöscht werden"
@@ -2167,6 +2383,12 @@ msgstr "Manage your Certificate"
 msgid "Manage your Private Certificate Authority infrastructure"
 msgstr "Manage your Private Certificate Authority infrastructure"
 
+msgid "Max Age"
+msgstr ""
+
+msgid "Max Age in Seconds"
+msgstr ""
+
 msgid "Max container name length"
 msgstr "Maximale Container-Namenslänge"
 
@@ -2341,6 +2563,15 @@ msgstr "No Certificates issued by this Certificate Authority found"
 msgid "No containers found"
 msgstr "Keine Container gefunden"
 
+msgid "No CORS configuration found"
+msgstr ""
+
+msgid "No CORS rules found"
+msgstr ""
+
+msgid "No CORS rules matching the current search criteria."
+msgstr ""
+
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "Keine benutzerdefinierten Metadaten-Eigenschaften gefunden. Klicken Sie auf \"Eigenschaft hinzufügen\", um eine zu erstellen."
 
@@ -2386,6 +2617,9 @@ msgstr ""
 msgid "No objects match your search. Try adjusting your search term."
 msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
+msgid "No objects were deleted: {errorMessage}"
+msgstr ""
+
 msgid "No PCAs found"
 msgstr "No PCAs found"
 
@@ -2407,6 +2641,9 @@ msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projek
 msgid "No rules"
 msgstr ""
 
+msgid "No rules found"
+msgstr ""
+
 msgid "No server groups available."
 msgstr "Keine Servergruppen verfügbar"
 
@@ -2426,6 +2663,9 @@ msgid "No versions found for this object."
 msgstr ""
 
 msgid "No versions to delete in bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "No versions were deleted: {errorMessage}"
 msgstr ""
 
 msgid "Noncurrent Days"
@@ -2521,6 +2761,9 @@ msgstr "Objekte gelöscht"
 msgid "Objects to be deleted ({totalCount})"
 msgstr "Zu löschende Objekte ({totalCount})"
 
+msgid "Objects to delete:"
+msgstr ""
+
 msgid "Objects: {containerName}"
 msgstr ""
 
@@ -2536,6 +2779,9 @@ msgstr "Ein oder mehrere Container konnten nicht geleert werden: {errorMessage}"
 msgid "One or more objects could not be deleted:"
 msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
 
+msgid "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
+msgstr ""
+
 msgid "Open {displayName}"
 msgstr "{displayName} öffnen"
 
@@ -2545,11 +2791,17 @@ msgstr "In neuem Tab öffnen"
 msgid "Optional description"
 msgstr "Optionale Beschreibung"
 
+msgid "Optional identifier for this rule (max 255 characters)."
+msgstr ""
+
 msgid "or drag and drop"
 msgstr "oder per Drag & Drop"
 
 msgid "Our Mission"
 msgstr "Unsere Mission"
+
+msgid "Overview"
+msgstr ""
 
 msgid "Owner"
 msgstr "Eigentümer"
@@ -2631,6 +2883,12 @@ msgstr "Port-Name"
 
 msgid "Port Range"
 msgstr "Port-Bereich"
+
+msgid "Pre-signed URL"
+msgstr "Vorsignierte URL"
+
+msgid "Pre-signed URL for \"{displayName}\" was copied to clipboard."
+msgstr "Vorsignierte URL für \"{displayName}\" wurde in die Zwischenablage kopiert."
 
 msgid "Prefix Filter (optional)"
 msgstr ""
@@ -2827,6 +3085,9 @@ msgstr "Neustart"
 msgid "Restore"
 msgstr ""
 
+msgid "Restore Folder"
+msgstr ""
+
 msgid "Restore Version"
 msgstr ""
 
@@ -2845,6 +3106,12 @@ msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 msgid "Router ID"
 msgstr "Router-ID"
 
+msgid "rule"
+msgstr ""
+
+msgid "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
+msgstr ""
+
 msgid "Rule Details:"
 msgstr "Regeldetails:"
 
@@ -2857,8 +3124,14 @@ msgstr ""
 msgid "Rule Type"
 msgstr "Regeltyp"
 
+msgid "rules"
+msgstr ""
+
 msgid "Rules"
 msgstr "Regeln"
+
+msgid "Rules to delete:"
+msgstr ""
 
 msgid "RX/TX Factor"
 msgstr "RX/TX Factor"
@@ -2892,6 +3165,9 @@ msgstr "Buckets suchen..."
 
 msgid "Search containers..."
 msgstr "Container suchen..."
+
+msgid "Search CORS rules..."
+msgstr ""
 
 msgid "Search flavors..."
 msgstr "Flavors suchen..."
@@ -2935,6 +3211,9 @@ msgstr "Security Groups"
 msgid "Select"
 msgstr "Auswählen"
 
+msgid "Select {displayName}"
+msgstr ""
+
 msgid "Select a DNS domain."
 msgstr "DNS-Domain auswählen."
 
@@ -2950,6 +3229,12 @@ msgstr "Security Group auswählen..."
 msgid "Select a template..."
 msgstr ""
 
+msgid "Select all objects"
+msgstr ""
+
+msgid "Select all rules"
+msgstr ""
+
 msgid "Select an external network"
 msgstr "Externes Netzwerk auswählen"
 
@@ -2962,11 +3247,17 @@ msgstr ""
 msgid "Select disk format first"
 msgstr "Wählen Sie zuerst das Festplattenformat"
 
+msgid "Select HTTP methods allowed for cross-origin requests"
+msgstr ""
+
 msgid "Select one or more actions for this rule"
 msgstr ""
 
 msgid "Select port to associate"
 msgstr "Port zur Zuordnung auswählen"
+
+msgid "Select rule {originalIndex}"
+msgstr ""
 
 msgid "Serve objects as index when file name is:"
 msgstr "Objekte als Index bereitstellen, wenn Dateiname ist:"
@@ -3088,6 +3379,12 @@ msgstr ""
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr ""
 
+msgid "Some Objects Could Not Be Deleted"
+msgstr ""
+
+msgid "Some Versions Could Not Be Deleted"
+msgstr ""
+
 msgid "Something went wrong:"
 msgstr "Etwas ist schiefgelaufen."
 
@@ -3162,6 +3459,12 @@ msgstr "{successCount} von {totalCount} Image(s) erfolgreich aktiviert"
 
 msgid "Successfully deactivated {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich deaktiviert"
+
+msgid "Successfully deleted {count} CORS rule from bucket \"{bucketName}\"."
+msgstr ""
+
+msgid "Successfully deleted {count} CORS rules from bucket \"{bucketName}\"."
+msgstr ""
 
 msgid "Successfully deleted {deletedCount} version from bucket \"{bucketName}\"."
 msgstr ""
@@ -3259,6 +3562,9 @@ msgstr "Die Container-Metadaten melden Objekte, aber keine wurden aufgelistet. D
 msgid "The container will be deleted. This action is permanent and cannot be undone."
 msgstr "Der Container wird gelöscht. Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden."
 
+msgid "The CORS configuration has changed. Please refresh and try again."
+msgstr ""
+
 msgid "The extra spec could not be found. It may have already been deleted."
 msgstr "Das Metadata konnte nicht gefunden werden. Möglicherweise wurde es bereits gelöscht."
 
@@ -3286,25 +3592,22 @@ msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Bitte überpr�
 msgid "The ID of the network associated with the floating IP."
 msgstr "Die ID des Netzwerks, das der Floating IP zugeordnet ist."
 
-msgid "The image \"{imageId}\" could not be deactivated: {message}"
-msgstr "Das Image \"{imageId}\" konnte nicht deaktiviert werden: {message}"
+msgid "The image \"{imageId}\" could not be deactivated: {errorMessage}"
+msgstr "Das Image \"{imageId}\" konnte nicht deaktiviert werden: {errorMessage}"
 
-msgid "The image \"{imageId}\" could not be deleted: {message}"
-msgstr "Das Image \"{imageId}\" konnte nicht gelöscht werden: {message}"
+msgid "The image \"{imageId}\" could not be deleted: {errorMessage}"
+msgstr "Das Image \"{imageId}\" konnte nicht gelöscht werden: {errorMessage}"
 
-msgid "The image \"{imageId}\" could not be re-activated: {message}"
-msgstr "Das Image \"{imageId}\" konnte nicht reaktiviert werden: {message}"
+msgid "The image \"{imageId}\" could not be re-activated: {errorMessage}"
+msgstr "Das Image \"{imageId}\" konnte nicht reaktiviert werden: {errorMessage}"
 
-msgid "The image \"{imageName}\" could not be created: "
-msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: "
+msgid "The image \"{imageName}\" could not be created: {errorMessage}"
+msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {errorMessage}"
 
-msgid "The image \"{imageName}\" could not be updated: "
-msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: "
+msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
+msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
 msgid "The lifecycle configuration changed since you opened this dialog. Close and reopen to reload."
-msgstr ""
-
-msgid "The object can be restored from version history."
 msgstr ""
 
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
@@ -3321,6 +3624,12 @@ msgstr ""
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
+
+msgid "The selected objects will be marked as deleted but can be restored from version history."
+msgstr ""
+
+msgid "The selected objects will be permanently deleted. This action cannot be undone."
+msgstr ""
 
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
@@ -3358,6 +3667,9 @@ msgstr "There are no Certificates available for this Certificate Authority."
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
+msgid "There are no CORS rules for this bucket"
+msgstr ""
+
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 msgstr "Keine Flavors verfügbar. Filtern Sie neu oder erstellen Sie einen neuen Flavor."
 
@@ -3380,6 +3692,9 @@ msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
 
 msgid "There are no rules to display. Add New Rule using button above"
+msgstr ""
+
+msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr ""
 
 msgid "This action cannot be undone."
@@ -3425,6 +3740,12 @@ msgid "This bucket cannot be deleted yet. Do the following to be able to delete 
 msgstr ""
 
 msgid "This bucket does not have a policy attached."
+msgstr ""
+
+msgid "This bucket does not have any CORS rules."
+msgstr ""
+
+msgid "This bucket does not have CORS rules configured."
 msgstr ""
 
 msgid "This bucket does not have lifecycle rules configured."
@@ -3478,6 +3799,9 @@ msgstr "Dieser Schlüssel ist reserviert und wird separat verwaltet"
 msgid "This member already has access to this image."
 msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 
+msgid "This object and all its versions will be permanently deleted and cannot be restored."
+msgstr ""
+
 msgid "This property is reserved and cannot be modified"
 msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 
@@ -3492,6 +3816,9 @@ msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."
 
 msgid "This tenant does not have access to the flavor."
 msgstr "Dieses Projekt hat keinen Zugriff auf den Flavor."
+
+msgid "This version will be permanently deleted and cannot be restored."
+msgstr ""
 
 msgid "This will permanently delete all objects from {totalCount} selected {totalCount, plural, one {bucket} other {buckets}}. This action cannot be undone."
 msgstr ""
@@ -3571,17 +3898,11 @@ msgstr "<0>{deleteWord}</0> zur Bestätigung eingeben:"
 msgid "Type <0>delete</0> to confirm:"
 msgstr "<0>delete</0> zur Bestätigung eingeben:"
 
-msgid "Type <0>DELETE</0> to confirm:"
-msgstr ""
-
 msgid "Type <0>remove</0> to confirm:"
 msgstr "Geben Sie <0>entfernen</0> zur Bestätigung ein:"
 
 msgid "Type container name to confirm"
 msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
-
-msgid "Type DELETE to confirm"
-msgstr ""
 
 msgid "Type name"
 msgstr "Name eingeben"
@@ -3761,6 +4082,12 @@ msgid "Versioning was successfully suspended for bucket \"{bucketName}\"."
 msgstr ""
 
 msgid "Versions Deleted"
+msgstr ""
+
+msgid "Versions Deleted Permanently"
+msgstr ""
+
+msgid "Versions to delete:"
 msgstr ""
 
 msgid "View Details"

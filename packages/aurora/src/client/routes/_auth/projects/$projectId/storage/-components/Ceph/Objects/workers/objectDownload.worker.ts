@@ -93,9 +93,23 @@ self.addEventListener("message", async (event: MessageEvent<DownloadWorkerReques
     )
 
     for await (const { chunk, contentType: ct, filename: fn } of iterable) {
+      // Stop decoding/buffering the moment a cancel lands. Normally the abort
+      // rejects the `for await` and we go straight to the catch, but if a chunk
+      // is already in hand when the signal fires we'd otherwise keep appending —
+      // drop out here so we never grow the buffer past the cancel point.
+      if (abortController.signal.aborted) break
       if (ct) contentType = ct
       if (fn) filename = fn
       chunks.push(Uint8Array.from(atob(chunk), (c) => c.charCodeAt(0)) as Uint8Array<ArrayBuffer>)
+    }
+
+    // A cancel that arrives after the last chunk but before we assemble the Blob
+    // must not still produce a file. Release the buffered bytes and report the
+    // cancellation instead of building a Blob the store would then save.
+    if (abortController.signal.aborted) {
+      chunks.length = 0
+      self.postMessage({ ok: false, cancelled: true, message: "cancelled" } satisfies DownloadWorkerResponse)
+      return
     }
 
     const blob = new Blob(chunks, { type: contentType })

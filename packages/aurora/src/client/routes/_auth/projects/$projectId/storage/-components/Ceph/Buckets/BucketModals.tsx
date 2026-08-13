@@ -6,6 +6,7 @@ import { EnableVersioningModal } from "./EnableVersioningModal"
 import { SuspendVersioningModal } from "./SuspendVersioningModal"
 import { BucketPolicyModal } from "./BucketPolicyModal"
 import { DeleteBucketPolicyModal } from "./DeleteBucketPolicyModal"
+import { DeleteCorsModal } from "./DeleteCorsModal"
 import { LifecycleModal } from "./LifecycleModal"
 import { DeleteLifecycleModal } from "./DeleteLifecycleModal"
 import { EmptyBucketModal } from "./EmptyBucketModal"
@@ -18,8 +19,8 @@ import {
   getVersioningSuspendErrorToast,
   getBucketPolicyDeletedToast,
   getBucketPolicyDeleteErrorToast,
-  getLifecycleConfigSavedToast,
-  getLifecycleConfigSaveErrorToast,
+  getCorsRuleDeletedToast,
+  getCorsRuleDeleteErrorToast,
   getLifecycleConfigDeletedToast,
   getLifecycleConfigDeleteErrorToast,
   getVersionsDeletedToast,
@@ -35,6 +36,7 @@ export type ModalType =
   | "suspendVersioning"
   | "policy"
   | "deletePolicy"
+  | "deleteCors"
   | "lifecycle"
   | "deleteLifecycle"
   | "emptyBucket"
@@ -134,21 +136,23 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         }}
       />
 
-      <LifecycleModal
-        isOpen={activeModal === "lifecycle"}
+      <DeleteCorsModal
+        isOpen={activeModal === "deleteCors"}
         bucketName={bucketName}
         onClose={onClose}
-        onSuccess={(bucketName, operation) => {
-          const { message, ...options } = getLifecycleConfigSavedToast(bucketName, operation)
+        onSuccess={(bucketName) => {
+          const { message, ...options } = getCorsRuleDeletedToast(bucketName)
           toast.success(message, options)
           onClose()
         }}
-        onError={(bucketName, errorMessage, operation) => {
-          const { message, ...options } = getLifecycleConfigSaveErrorToast(bucketName, errorMessage, operation)
+        onError={(bucketName, errorMessage) => {
+          const { message, ...options } = getCorsRuleDeleteErrorToast(bucketName, errorMessage)
           toast.error(message, options)
           onClose()
         }}
       />
+
+      <LifecycleModal isOpen={activeModal === "lifecycle"} bucketName={bucketName} onClose={onClose} />
 
       <DeleteLifecycleModal
         isOpen={activeModal === "deleteLifecycle"}

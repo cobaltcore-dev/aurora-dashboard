@@ -8,3 +8,11 @@
  * See: https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
  */
 export const S3_MAX_KEYS_PER_REQUEST = 1000
+
+/**
+ * S3 SigV4 pre-signed URLs are valid for at most 7 days (604800 seconds); the
+ * signer rejects anything larger. Caps `expiresIn` in the presigned-URL input
+ * schema and rejects over-range custom durations in the UI before they reach
+ * the BFF.
+ */
+export const S3_PRESIGN_MAX_EXPIRY_SECONDS = 604800

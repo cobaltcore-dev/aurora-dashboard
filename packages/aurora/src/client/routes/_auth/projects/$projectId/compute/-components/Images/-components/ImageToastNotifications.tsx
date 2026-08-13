@@ -1,388 +1,260 @@
-import { ToastProps } from "@cloudoperators/juno-ui-components"
+import { ReactNode } from "react"
+import { NotificationOptions } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
-import { NotificationText } from "./NotificationText"
 
-interface ToastConfig {
-  onDismiss: () => void
-}
+// Builder helpers for the NotificationManager (Sonner-based) `toast` API.
+// Each returns `{ message, ...options }`; the caller destructures and dispatches
+// the appropriate severity, e.g.
+//   const { message, ...options } = getImageUpdatedToast(name)
+//   toast.success(message, options)
+// Severity lives at the call site (toast.success / error / warning / info),
+// mirroring the Swift/Ceph notification helpers.
 
-export const getImageUpdatedToast = (imageName: string, config: ToastConfig): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Image Instance</Trans>}
-      description={<Trans>Image instance "{imageName}" has been updated</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+// ── Image lifecycle ─────────────────────────────────────────────────────────
+
+export const getImageUpdatedToast = (imageName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Image Instance</Trans>,
+  description: <Trans>Image instance "{imageName}" has been updated</Trans>,
 })
 
-export const getImageUpdateErrorToast = (imageName: string, message: string, config: ToastConfig): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Unable to Update Image</Trans>}
-      description={
-        <>
-          <Trans>The image "{imageName}" could not be updated: </Trans>
-          {message}
-        </>
-      }
-    />
+export const getImageUpdateErrorToast = (
+  imageName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Unable to Update Image</Trans>,
+  description: (
+    <Trans>
+      The image "{imageName}" could not be updated: {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-export const getImageCreatedToast = (imageName: string, config: ToastConfig): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Image Instance</Trans>}
-      description={<Trans>Image instance "{imageName}" has been created</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+export const getImageCreatedToast = (imageName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Image Instance</Trans>,
+  description: <Trans>Image instance "{imageName}" has been created</Trans>,
 })
 
-export const getImageCreateErrorToast = (imageName: string, message: string, config: ToastConfig): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Unable to Create Image</Trans>}
-      description={
-        <>
-          <Trans>The image "{imageName}" could not be created: </Trans>
-          {message}
-        </>
-      }
-    />
+export const getImageCreateErrorToast = (
+  imageName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Unable to Create Image</Trans>,
+  description: (
+    <Trans>
+      The image "{imageName}" could not be created: {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-export const getImageFileUploadErrorToast = (fileName: string, message: string, config: ToastConfig): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Unable to Upload Image File</Trans>}
-      description={
-        <>
-          <Trans>Failed to upload file "{fileName}": </Trans>
-          {message}
-        </>
-      }
-    />
+export const getImageFileUploadErrorToast = (
+  fileName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Unable to Upload Image File</Trans>,
+  description: (
+    <Trans>
+      Failed to upload file "{fileName}": {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-export const getImageDeletedToast = (imageName: string, config: ToastConfig): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Image Instance</Trans>}
-      description={<Trans>Image instance "{imageName}" has been deleted</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+export const getImageDeletedToast = (imageName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Image Instance</Trans>,
+  description: <Trans>Image instance "{imageName}" has been deleted</Trans>,
 })
 
-export const getImageDeleteErrorToast = (imageId: string, message: string, config: ToastConfig): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Unable to Delete Image</Trans>}
-      description={
-        <Trans>
-          The image "{imageId}" could not be deleted: {message}
-        </Trans>
-      }
-    />
+export const getImageDeleteErrorToast = (
+  imageId: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Unable to Delete Image</Trans>,
+  description: (
+    <Trans>
+      The image "{imageId}" could not be deleted: {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-export const getImageActivatedToast = (imageName: string, config: ToastConfig): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Image Instance</Trans>}
-      description={<Trans>Image instance "{imageName}" has been activated</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+export const getImageActivatedToast = (imageName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Image Instance</Trans>,
+  description: <Trans>Image instance "{imageName}" has been activated</Trans>,
 })
 
-export const getImageDeactivatedToast = (imageName: string, config: ToastConfig): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Image Instance</Trans>}
-      description={<Trans>Image instance "{imageName}" has been deactivated</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+export const getImageDeactivatedToast = (imageName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Image Instance</Trans>,
+  description: <Trans>Image instance "{imageName}" has been deactivated</Trans>,
 })
 
-export const getImageActivationErrorToast = (imageId: string, message: string, config: ToastConfig): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Unable to Re-activate Image</Trans>}
-      description={
-        <Trans>
-          The image "{imageId}" could not be re-activated: {message}
-        </Trans>
-      }
-    />
+export const getImageActivationErrorToast = (
+  imageId: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Unable to Re-activate Image</Trans>,
+  description: (
+    <Trans>
+      The image "{imageId}" could not be re-activated: {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-export const getImageDeactivationErrorToast = (imageId: string, message: string, config: ToastConfig): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Unable to Deactivate Image</Trans>}
-      description={
-        <Trans>
-          The image "{imageId}" could not be deactivated: {message}
-        </Trans>
-      }
-    />
+export const getImageDeactivationErrorToast = (
+  imageId: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Unable to Deactivate Image</Trans>,
+  description: (
+    <Trans>
+      The image "{imageId}" could not be deactivated: {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-// Bulk operation toasts
+// ── Bulk operations ─────────────────────────────────────────────────────────
+
 export const getBulkDeleteSuccessToast = (
   successCount: number,
-  totalCount: number,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Images Deleted</Trans>}
-      description={
-        <Trans>
-          Successfully deleted {successCount} of {totalCount} image(s)
-        </Trans>
-      }
-    />
+  totalCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Images Deleted</Trans>,
+  description: (
+    <Trans>
+      Successfully deleted {successCount} of {totalCount} image(s)
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-export const getBulkDeleteErrorToast = (failedCount: number, totalCount: number, config: ToastConfig): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Failed to Delete Images</Trans>}
-      description={
-        <Trans>
-          Failed to delete {failedCount} of {totalCount} image(s). Some images may be protected or in use.
-        </Trans>
-      }
-    />
+export const getBulkDeleteErrorToast = (
+  failedCount: number,
+  totalCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete Images</Trans>,
+  description: (
+    <Trans>
+      Failed to delete {failedCount} of {totalCount} image(s). Some images may be protected or in use.
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
 export const getBulkDeletePartialToast = (
   successCount: number,
-  failedCount: number,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "warning",
-  children: (
-    <NotificationText
-      title={<Trans>Partial Delete Success</Trans>}
-      description={
-        <Trans>
-          Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted.
-        </Trans>
-      }
-    />
+  failedCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Partial Delete Success</Trans>,
+  description: (
+    <Trans>
+      Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted.
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
 export const getBulkActivateSuccessToast = (
   successCount: number,
-  totalCount: number,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Images Activated</Trans>}
-      description={
-        <Trans>
-          Successfully activated {successCount} of {totalCount} image(s)
-        </Trans>
-      }
-    />
+  totalCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Images Activated</Trans>,
+  description: (
+    <Trans>
+      Successfully activated {successCount} of {totalCount} image(s)
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
 export const getBulkActivateErrorToast = (
   failedCount: number,
-  totalCount: number,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Failed to Activate Images</Trans>}
-      description={
-        <Trans>
-          Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid
-          state.
-        </Trans>
-      }
-    />
+  totalCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Activate Images</Trans>,
+  description: (
+    <Trans>
+      Failed to activate {failedCount} of {totalCount} image(s). Some images may already be active or in an invalid
+      state.
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
 export const getBulkActivatePartialToast = (
   successCount: number,
-  failedCount: number,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "warning",
-  children: (
-    <NotificationText
-      title={<Trans>Partial Activation Success</Trans>}
-      description={
-        <Trans>
-          Activated {successCount} image(s), but {failedCount} image(s) could not be activated.
-        </Trans>
-      }
-    />
+  failedCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Partial Activation Success</Trans>,
+  description: (
+    <Trans>
+      Activated {successCount} image(s), but {failedCount} image(s) could not be activated.
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
 export const getBulkDeactivateSuccessToast = (
   successCount: number,
-  totalCount: number,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Images Deactivated</Trans>}
-      description={
-        <Trans>
-          Successfully deactivated {successCount} of {totalCount} image(s)
-        </Trans>
-      }
-    />
+  totalCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Images Deactivated</Trans>,
+  description: (
+    <Trans>
+      Successfully deactivated {successCount} of {totalCount} image(s)
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
 export const getBulkDeactivateErrorToast = (
   failedCount: number,
-  totalCount: number,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Failed to Deactivate Images</Trans>}
-      description={
-        <Trans>
-          Failed to deactivate {failedCount} of {totalCount} image(s). Some images may already be deactivated or in an
-          invalid state.
-        </Trans>
-      }
-    />
+  totalCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Deactivate Images</Trans>,
+  description: (
+    <Trans>
+      Failed to deactivate {failedCount} of {totalCount} image(s). Some images may already be deactivated or in an
+      invalid state.
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
 export const getBulkDeactivatePartialToast = (
   successCount: number,
-  failedCount: number,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "warning",
-  children: (
-    <NotificationText
-      title={<Trans>Partial Deactivation Success</Trans>}
-      description={
-        <Trans>
-          Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated.
-        </Trans>
-      }
-    />
+  failedCount: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Partial Deactivation Success</Trans>,
+  description: (
+    <Trans>
+      Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated.
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
-// Image access toasts
-export const getImageAccessStatusUpdatedToast = (newStatus: string, config: ToastConfig): ToastProps => ({
-  variant: "info",
-  children: (
-    <NotificationText
-      title={<Trans>Access Status</Trans>}
-      description={<Trans>Access status updated to "{newStatus}".</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+// ── Image access ────────────────────────────────────────────────────────────
+
+export const getImageAccessStatusUpdatedToast = (newStatus: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Access Status</Trans>,
+  description: <Trans>Access status updated to "{newStatus}".</Trans>,
 })
 
-export const getImageAccessStatusErrorToast = (errorMessage: string, config: ToastConfig): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Access Status</Trans>}
-      description={errorMessage || <Trans>Failed to update access status</Trans>}
-    />
-  ),
-  onDismiss: config.onDismiss,
+export const getImageAccessStatusErrorToast = (errorMessage: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Access Status</Trans>,
+  description: errorMessage || <Trans>Failed to update access status</Trans>,
 })
 
-// Image visibility toasts
+// ── Image visibility ────────────────────────────────────────────────────────
+
 export const getImageVisibilityUpdatedToast = (
   imageName: string,
-  visibility: string,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "success",
-  children: (
-    <NotificationText
-      title={<Trans>Image Visibility</Trans>}
-      description={
-        <Trans>
-          Image "{imageName}" visibility updated to {visibility}
-        </Trans>
-      }
-    />
+  visibility: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Image Visibility</Trans>,
+  description: (
+    <Trans>
+      Image "{imageName}" visibility updated to {visibility}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })
 
 export const getImageVisibilityUpdateErrorToast = (
   imageName: string,
-  message: string,
-  config: ToastConfig
-): ToastProps => ({
-  variant: "error",
-  children: (
-    <NotificationText
-      title={<Trans>Unable to Update Image Visibility</Trans>}
-      description={
-        <>
-          <Trans>Failed to update visibility for "{imageName}": </Trans>
-          {message}
-        </>
-      }
-    />
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Unable to Update Image Visibility</Trans>,
+  description: (
+    <Trans>
+      Failed to update visibility for "{imageName}": {errorMessage}
+    </Trans>
   ),
-  onDismiss: config.onDismiss,
 })

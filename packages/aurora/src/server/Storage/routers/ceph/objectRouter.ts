@@ -7,7 +7,9 @@ import {
   PutObjectCommand,
   CopyObjectCommand,
   GetObjectCommand,
+  S3Client,
 } from "@aws-sdk/client-s3"
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import { TRPCError } from "@trpc/server"
 import { octetInputParser } from "@trpc/server/http"
 import { Readable, Transform } from "node:stream"
@@ -23,6 +25,9 @@ import {
   s3ObjectVersionSchema,
   s3FolderPrefixSchema,
   deleteObjectInputSchema,
+  deleteObjectsBulkInputSchema,
+  deleteObjectsBulkOutputSchema,
+  deleteVersionsBulkInputSchema,
   createFolderInputSchema,
   copyObjectInputSchema,
   copyObjectOutputSchema,
@@ -30,9 +35,13 @@ import {
   updateMetadataInputSchema,
   downloadObjectInputSchema,
   watchDownloadProgressInputSchema,
+  generatePresignedUrlInputSchema,
   type ListObjectsOutput,
   type S3ObjectDetails,
   type CopyObjectOutput,
+  type DeleteObjectsBulkOutput,
+  type DeletedObject,
+  type DeleteObjectError,
 } from "../../types/ceph"
 import { S3_MAX_KEYS_PER_REQUEST } from "../../constants"
 import { z } from "zod"
@@ -114,6 +123,91 @@ function resolveMimeFromKey(key: string): string {
     htm: "text/html",
   }
   return map[ext] ?? "application/octet-stream"
+}
+
+// ============================================================================
+// BULK DELETE HELPER
+// ============================================================================
+
+/**
+ * Common logic for bulk deletion operations.
+ * Handles chunking, abort signals, partial failures, and response aggregation.
+ *
+ * @param s3 - S3 client instance
+ * @param containerName - Bucket name
+ * @param items - Items to delete (with optional versionId for version-specific deletion)
+ * @param abortSignal - Request abort signal for cancellation
+ * @param operation - Operation description for error messages
+ * @returns Aggregated delete results with both successes and failures
+ */
+type DeleteItem = { key: string; versionId?: string }
+
+async function bulkDeleteItems(
+  s3: S3Client,
+  containerName: string,
+  items: DeleteItem[],
+  abortSignal: AbortSignal | undefined,
+  operation: string
+): Promise<DeleteObjectsBulkOutput> {
+  const deleted: DeletedObject[] = []
+  const errors: DeleteObjectError[] = []
+
+  for (let offset = 0; offset < items.length; offset += S3_MAX_KEYS_PER_REQUEST) {
+    if (abortSignal?.aborted) break // client navigated away / cancelled
+    const chunk = items.slice(offset, offset + S3_MAX_KEYS_PER_REQUEST)
+
+    try {
+      const response = await s3.send(
+        new DeleteObjectsCommand({
+          Bucket: containerName,
+          Delete: {
+            Objects: chunk.map((item) => ({
+              Key: item.key,
+              ...(item.versionId && { VersionId: item.versionId }),
+            })),
+            Quiet: false,
+          },
+        }),
+        { abortSignal }
+      )
+
+      for (const d of response.Deleted ?? []) {
+        deleted.push({
+          key: d.Key ?? "",
+          versionId: d.VersionId,
+          deleteMarker: d.DeleteMarker,
+          deleteMarkerVersionId: d.DeleteMarkerVersionId,
+        })
+      }
+      for (const e of response.Errors ?? []) {
+        errors.push({ key: e.Key ?? "", versionId: e.VersionId, code: e.Code, message: e.Message })
+      }
+    } catch (error) {
+      // If aborted, stop processing without recording errors
+      if (abortSignal?.aborted) {
+        break
+      }
+      // Nothing deleted yet → the failure is systemic (bad bucket, denied
+      // credentials). Surface it as a normal tRPC error rather than as 1000
+      // identical per-key errors.
+      if (deleted.length === 0 && errors.length === 0) {
+        throw mapS3ErrorToTRPCError(error, { operation, bucket: containerName })
+      }
+      // Otherwise degrade: earlier chunks really were deleted, so keep the
+      // partial result and report this chunk's items as failures.
+      const message = error instanceof Error ? error.message : String(error)
+      for (const item of chunk) {
+        errors.push({ key: item.key, versionId: item.versionId, code: "RequestFailed", message })
+      }
+    }
+  }
+
+  return deleteObjectsBulkOutputSchema.parse({
+    deleted,
+    errors,
+    deletedCount: deleted.length,
+    errorCount: errors.length,
+  })
 }
 
 export const objectRouter = {
@@ -281,6 +375,40 @@ export const objectRouter = {
       } catch (error) {
         throw mapS3ErrorToTRPCError(error, {
           operation: "get object details",
+          bucket: containerName,
+          key: objectKey,
+        })
+      }
+    }),
+
+  /**
+   * Generate a time-limited pre-signed GET URL for a single object.
+   *
+   * The S3/Ceph equivalent of Swift's temporary URLs: anyone holding the link
+   * can download the object until it expires, without needing credentials.
+   * Unlike Swift temp URLs there is no key to configure — the signature is
+   * derived from the request's EC2 credentials via the shared Ceph client, so
+   * this is purely a local signing operation with no round-trip to Ceph.
+   *
+   * `expiresIn` is in seconds and capped at the SigV4 maximum (7 days) by the
+   * input schema. Returns the URL plus an absolute `expiresAt` (unix seconds)
+   * so the frontend can display a real expiry timestamp.
+   */
+  generatePresignedUrl: cephProtectedProcedure
+    .input(generatePresignedUrlInputSchema)
+    .mutation(async ({ ctx, input }): Promise<{ url: string; expiresAt: number }> => {
+      const s3 = ctx.getCephClient!()
+      const { containerName, objectKey, expiresIn } = input
+
+      try {
+        const url = await getSignedUrl(s3, new GetObjectCommand({ Bucket: containerName, Key: objectKey }), {
+          expiresIn,
+        })
+        const expiresAt = Math.floor(Date.now() / 1000) + expiresIn
+        return { url, expiresAt }
+      } catch (error) {
+        throw mapS3ErrorToTRPCError(error, {
+          operation: "generate presigned URL",
           bucket: containerName,
           key: objectKey,
         })
@@ -588,6 +716,70 @@ export const objectRouter = {
       })
     }
   }),
+
+  /**
+   * Delete multiple objects from a bucket in one operation.
+   *
+   * Uses S3's DeleteObjects API, which accepts up to 1000 keys per request. Larger
+   * selections are automatically chunked server-side. Returns a *mixed* result:
+   * `Deleted[]` for successful deletions and `Errors[]` for failures, because S3
+   * reports both arrays in a single HTTP 200 response.
+   *
+   * Folder keys (trailing "/") are rejected by the schema: DeleteObjects removes only
+   * the zero-byte marker, orphaning everything under the prefix. Use `objects.delete`
+   * instead for folder deletion — it deletes recursively.
+   *
+   * Missing keys are reported by S3 as successes (idempotent). Duplicate keys in the
+   * input are de-duplicated before sending.
+   *
+   * @throws TRPCError NOT_FOUND - bucket does not exist (first-chunk failure only)
+   * @throws TRPCError FORBIDDEN - no credentials or access denied (first-chunk failure only)
+   */
+  deleteBulk: cephProtectedProcedure
+    .input(deleteObjectsBulkInputSchema)
+    .mutation(async ({ ctx, input }): Promise<DeleteObjectsBulkOutput> => {
+      const s3 = ctx.getCephClient!()
+      const { containerName, objectKeys } = input
+
+      // De-duplicate: S3 tolerates repeats but would report the same key twice,
+      // inflating deletedCount and confusing the UI summary.
+      const uniqueKeys = [...new Set(objectKeys)]
+      const items = uniqueKeys.map((key) => ({ key }))
+
+      return bulkDeleteItems(s3, containerName, items, ctx.req.signal, "delete objects")
+    }),
+
+  /**
+   * Delete multiple specific object versions from a bucket in one operation.
+   *
+   * Semantically separate from `deleteBulk` (which deletes current versions):
+   * this procedure permanently removes restorable versions displayed in the
+   * "Deleted" tab. Uses S3's DeleteObjects API with both Key and VersionId,
+   * which accepts up to 1000 items per request. Larger selections are
+   * automatically chunked server-side.
+   *
+   * Returns a *mixed* result: `Deleted[]` for successful deletions and
+   * `Errors[]` for failures, because S3 reports both arrays in a single HTTP
+   * 200 response.
+   *
+   * Duplicate version pairs (same key + versionId) are de-duplicated before
+   * sending. Missing versions are typically reported by S3 as successes
+   * (idempotent).
+   *
+   * @throws TRPCError NOT_FOUND - bucket does not exist (first-chunk failure only)
+   * @throws TRPCError FORBIDDEN - no credentials or access denied (first-chunk failure only)
+   */
+  deleteVersionsBulk: cephProtectedProcedure
+    .input(deleteVersionsBulkInputSchema)
+    .mutation(async ({ ctx, input }): Promise<DeleteObjectsBulkOutput> => {
+      const s3 = ctx.getCephClient!()
+      const { containerName, versions } = input
+
+      // De-duplicate: combine key + versionId as unique identifier.
+      const uniqueVersions = Array.from(new Map(versions.map((v) => [`${v.key}|${v.versionId}`, v])).values())
+
+      return bulkDeleteItems(s3, containerName, uniqueVersions, ctx.req.signal, "delete versions")
+    }),
 
   /**
    * Create a folder (zero-byte object with key ending in "/").
@@ -1207,9 +1399,6 @@ export const objectRouter = {
           }
           throw mappedError
         }
-        // mapS3ErrorToTRPCError always throws; this keeps control flow provably
-        // exhaustive for the Promise<{ success: boolean }> return type.
-        throw error
       } finally {
         uploadProgressMap.delete(scopedUploadId)
       }

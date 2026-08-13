@@ -7,7 +7,7 @@ import {
   PopupMenuItem,
   PopupMenuOptions,
   Spinner,
-  ToastProps,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { GlanceImage, ImageVisibility, MemberStatus } from "@/server/Compute/types/image"
@@ -30,7 +30,6 @@ interface ImageTableRowProps {
   onActivationStatusChange: (image: GlanceImage) => void
   onManageAccess: (image: GlanceImage) => void
   onUpdateVisibility: (imageId: string, newVisibility: ImageVisibility, imageName: string) => Promise<void>
-  setToastData: (toast: ToastProps | null) => void
   permissions: {
     canCreate: boolean
     canDelete: boolean
@@ -58,7 +57,6 @@ export function ImageTableRow({
   onActivationStatusChange,
   onManageAccess,
   onUpdateVisibility,
-  setToastData,
   uploadId,
   uploadProgressPercent,
   onMemberStatusChanged,
@@ -89,11 +87,13 @@ export function ImageTableRow({
         memberId: projectId,
         status: newStatus,
       })
-      setToastData(getImageAccessStatusUpdatedToast(newStatus, { onDismiss: () => setToastData(null) }))
+      const { message, ...options } = getImageAccessStatusUpdatedToast(newStatus)
+      toast.info(message, options)
       onMemberStatusChanged?.()
     } catch (error) {
       const errorMessage = (error as TRPCClientError<InferrableClientTypes>)?.message
-      setToastData(getImageAccessStatusErrorToast(errorMessage, { onDismiss: () => setToastData(null) }))
+      const { message, ...options } = getImageAccessStatusErrorToast(errorMessage)
+      toast.error(message, options)
     }
   }
 

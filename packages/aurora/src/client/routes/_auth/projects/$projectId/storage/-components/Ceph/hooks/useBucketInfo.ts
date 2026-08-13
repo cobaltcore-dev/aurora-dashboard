@@ -18,6 +18,11 @@ interface BucketInfo {
         policy: unknown
       }
     | undefined
+  corsData:
+    | {
+        corsRules: unknown[] | null
+      }
+    | undefined
   lifecycleData:
     | {
         rules: unknown[] | null
@@ -37,6 +42,7 @@ interface BucketInfo {
  * - Bucket metadata (count, size, etc.) from containers.list
  * - Versioning status query
  * - Bucket policy query
+ * - CORS configuration query
  * - Version/delete marker check query
  *
  * Uses bucket.count from metadata (same as Buckets page) to determine if bucket is empty.
@@ -79,6 +85,19 @@ export const useBucketInfo = ({ bucketName, enabled = true }: UseBucketInfoProps
 
   // Query bucket policy status
   const { data: policyData, isLoading: isLoadingPolicy } = trpcReact.storage.ceph.bucketPolicy.get.useQuery(
+    {
+      project_id: projectId ?? "",
+      bucketName: bucketName,
+    },
+    {
+      enabled: !!projectId && enabled,
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      retry: false,
+    }
+  )
+
+  // Query CORS configuration
+  const { data: corsData, isLoading: isLoadingCors } = trpcReact.storage.ceph.cors.get.useQuery(
     {
       project_id: projectId ?? "",
       bucketName: bucketName,
@@ -140,12 +159,18 @@ export const useBucketInfo = ({ bucketName, enabled = true }: UseBucketInfoProps
   return {
     versioningStatus,
     policyData,
+    corsData,
     lifecycleData,
     hasVersionsOrDeleteMarkers: allVersions.length > 0,
     hasOldVersionsOrDeleteMarkers,
     isBucketEmptyWithVersions,
     isBucketEmpty,
     isLoading:
-      isLoadingBuckets || isLoadingVersioning || isLoadingPolicy || isLoadingLifecycle || isLoadingVersionCheck,
+      isLoadingBuckets ||
+      isLoadingVersioning ||
+      isLoadingPolicy ||
+      isLoadingCors ||
+      isLoadingLifecycle ||
+      isLoadingVersionCheck,
   }
 }

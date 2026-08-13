@@ -1,0 +1,164 @@
+import { useState, KeyboardEvent } from "react"
+import { TextInput, Pill, Stack, Button } from "@cloudoperators/juno-ui-components"
+
+interface TagInputProps {
+  label: string
+  value: string[]
+  onChange: (value: string[]) => void
+  placeholder?: string
+  helptext?: string
+  disabled?: boolean
+  validate?: (value: string) => { valid: boolean; error?: string }
+  id?: string
+  name?: string
+  required?: boolean
+}
+
+export const TagInput = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+  helptext,
+  disabled = false,
+  validate,
+  id,
+  name,
+  required = false,
+}: TagInputProps) => {
+  const [inputValue, setInputValue] = useState("")
+  const [error, setError] = useState<string | undefined>()
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && inputValue.trim()) {
+      e.preventDefault()
+      addTag(inputValue.trim())
+    }
+  }
+
+  const addTag = (tag: string) => {
+    if (!tag) return
+
+    if (validate) {
+      const result = validate(tag)
+      if (!result.valid) {
+        setError(result.error)
+        return
+      }
+    }
+
+    if (value.includes(tag)) {
+      setError("This value already exists")
+      return
+    }
+
+    onChange([...value, tag])
+    setInputValue("")
+    setError(undefined)
+  }
+
+  const removeTag = (tagToRemove: string) => {
+    onChange(value.filter((tag) => tag !== tagToRemove))
+  }
+
+  return (
+    <div>
+      <div className="flex items-start gap-2">
+        <div className="flex-1">
+          <TextInput
+            label={label}
+            id={id}
+            name={name}
+            value={inputValue}
+            onChange={(e) => {
+              setInputValue(e.target.value)
+              setError(undefined)
+            }}
+            onKeyDown={handleKeyDown}
+            disabled={disabled}
+            placeholder={placeholder}
+            helptext={helptext}
+            invalid={!!error}
+            errortext={error}
+            required={required}
+          />
+        </div>
+        <Button
+          variant="primary"
+          onClick={() => {
+            if (inputValue.trim()) {
+              addTag(inputValue.trim())
+            }
+          }}
+          disabled={disabled || !inputValue.trim()}
+        >
+          Add
+        </Button>
+      </div>
+
+      {value.length > 0 && (
+        <Stack gap="2" wrap={true} alignment="start" distribution="start" className="mt-2">
+          {value.map((tag, index) => (
+            <div key={`${tag}-${index}`} className="max-w-full break-all">
+              <Pill pillValue={tag} closeable onClose={() => removeTag(tag)} />
+            </div>
+          ))}
+        </Stack>
+      )}
+    </div>
+  )
+}
+
+export const urlValidator = (url: string): { valid: boolean; error?: string } => {
+  if (url === "*") {
+    return { valid: true }
+  }
+
+  // AWS S3 spec: origin can contain only one * wildcard character
+  const wildcardCount = (url.match(/\*/g) || []).length
+  if (wildcardCount > 1) {
+    return { valid: false, error: "Only one * wildcard allowed per origin" }
+  }
+
+  // Handle wildcard subdomain patterns like https://*.example.com
+  if (wildcardCount === 1) {
+    const wildcardMatch = url.match(/^(https?):\/\/\*\.(.+\..+)$/)
+    if (!wildcardMatch) {
+      return { valid: false, error: "Invalid wildcard format. Use * alone or https://*.example.com pattern" }
+    }
+    const [, protocol, domain] = wildcardMatch
+    // Validate the domain part by constructing a temporary URL with a placeholder
+    try {
+      new URL(`${protocol}://placeholder.${domain}`)
+      return { valid: true }
+    } catch {
+      return { valid: false, error: "Invalid wildcard origin format. Expected: https://*.example.com" }
+    }
+  }
+
+  // Standard URL validation (no wildcards)
+  try {
+    const urlObj = new URL(url)
+    if (!["http:", "https:"].includes(urlObj.protocol)) {
+      return { valid: false, error: "URL must use http or https protocol" }
+    }
+    return { valid: true }
+  } catch {
+    return { valid: false, error: "Invalid URL format. Expected: https://example.com" }
+  }
+}
+
+export const headerValidator = (header: string): { valid: boolean; error?: string } => {
+  if (header === "*") {
+    return { valid: true }
+  }
+
+  if (!/^[a-zA-Z0-9-_]+$/.test(header)) {
+    return {
+      valid: false,
+      error: "Header name can only contain letters, numbers, hyphens, and underscores",
+    }
+  }
+
+  return { valid: true }
+}

@@ -60,7 +60,8 @@ packages/aurora/src/server/Storage/
 │   │   ├── ec2CredentialRouter.ts    # Credential CRUD operations
 │   │   ├── containerRouter.ts        # Bucket operations
 │   │   ├── objectRouter.ts           # Object operations
-│   │   └── versioningRouter.ts       # Versioning operations
+│   │   ├── versioningRouter.ts       # Versioning operations
+│   │   └── corsRouter.ts             # CORS configuration operations
 ├── helpers/
 │   └── s3ErrorMapper.ts          # S3 → tRPC error mapping
 └── types/
@@ -185,10 +186,10 @@ storage.ceph
   │   ├── listObjectVersions() → ObjectVersion[]
   │   ├── deleteVersion()     → { success: boolean }
   │   └── restoreVersion()    → { success: boolean, versionId: string }
-  └── lifecycle
-      ├── get()               → { rules: LifecycleRule[] | null }
-      ├── set()               → { success: boolean }
-      └── delete()            → { success: boolean }
+  └── cors
+      ├── get()               → { corsRules: CorsRule[] | null }
+      ├── set()               → boolean
+      └── delete()            → boolean
 ```
 
 ## Available Procedures
@@ -976,7 +977,7 @@ await trpcClient.storage.ceph.objects.uploadObject.mutate(file, {
 
 #### `downloadObject`
 
-Downloads an object by streaming its content through the BFF as base64-encoded chunks via a tRPC async iterable (S3 `GetObjectCommand`). The server never buffers the whole object in memory, and per-chunk progress is published so a concurrent `watchDownloadProgress` subscription can drive a progress bar. This is a **direct stream** — no presigned/temporary URLs are issued.
+Downloads an object by streaming its content through the BFF as base64-encoded chunks via a tRPC async iterable (S3 `GetObjectCommand`). The server never buffers the whole object in memory, and per-chunk progress is published so a concurrent `watchDownloadProgress` subscription can drive a progress bar. This is a **direct stream** — no presigned/temporary URLs are issued. For a shareable, time-limited link instead, see [`generatePresignedUrl`](#generatepresignedurl).
 
 **Input:**
 
@@ -1092,6 +1093,53 @@ await trpc.storage.ceph.objects.downloadObject.mutate({
 
 - The subscription completes when the download finishes and re-throws if the download errors.
 - If no events arrive within 30 s (e.g. the download finished before the subscription opened), it ends gracefully rather than hanging.
+
+---
+
+#### `generatePresignedUrl`
+
+Generates a time-limited pre-signed **GET** URL for a single object using `getSignedUrl` from `@aws-sdk/s3-request-presigner` (S3 `GetObjectCommand`). Anyone holding the link can download the object until it expires, without Aurora credentials — the S3/Ceph equivalent of Swift's HMAC-SHA256 temporary URLs.
+
+Unlike Swift temp URLs there is **no key to configure**: the signature is derived from the request's EC2 credentials via the shared `getCephClient()`. Signing is a purely local operation — no round-trip to Ceph — so the call is fast and does not stream the object.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  containerName: string,
+  objectKey: string,
+  expiresIn: number    // Lifetime in seconds; 1..604800 (SigV4 maximum of 7 days)
+}
+```
+
+**Output:**
+
+```typescript
+{
+  url: string,        // Pre-signed GET URL
+  expiresAt: number   // Absolute expiry as a Unix timestamp (seconds)
+}
+```
+
+**Example:**
+
+```typescript
+const { url, expiresAt } = await trpc.storage.ceph.objects.generatePresignedUrl.mutate({
+  project_id: "abc123",
+  containerName: "my-bucket",
+  objectKey: "documents/report.pdf",
+  expiresIn: 3600, // 1 hour
+})
+// → share `url`; it stops working at `expiresAt`
+```
+
+**Notes:**
+
+- `expiresIn` is validated by `generatePresignedUrlInputSchema` (`types/ceph.ts`) and capped at the exported `S3_PRESIGN_MAX_EXPIRY_SECONDS` (604800 = 7 days); a larger value is rejected as `BAD_REQUEST` before signing. Exporting the constant lets the frontend share the same bound.
+- `expiresAt` is returned so the UI can show an absolute expiry, not just a duration.
+- **GET only.** Presigned `PUT`/upload URLs (upload-by-link) are not issued — uploads stream through [`uploadObject`](#uploadobject).
+- Because signing is local, the call succeeds even for a key that does not exist; the URL then returns `NoSuchKey` from Ceph when opened.
 
 ---
 
@@ -1478,13 +1526,13 @@ Versioned Bucket:
 
 ---
 
-### Lifecycle Configuration (`storage.ceph.lifecycle`)
+### CORS Configuration (`storage.ceph.cors`)
 
-Bucket lifecycle rules automate object management tasks like expiring (deleting) old objects, transitioning to different storage classes, cleaning up old versions, and aborting incomplete multipart uploads. Rules are evaluated asynchronously by the Ceph RGW lifecycle processor (not immediately after save).
+Bucket CORS (Cross-Origin Resource Sharing) configuration allows web applications loaded from one domain to access objects in your Ceph buckets from JavaScript. Without CORS rules, browser Same-Origin Policy blocks cross-domain requests.
 
 #### `get`
 
-Retrieves the current lifecycle configuration for a bucket. Returns `null` if no lifecycle rules are configured.
+Retrieves the current CORS configuration for a bucket. Returns `null` if no CORS configuration is set (not an error).
 
 **Input:**
 
@@ -1498,31 +1546,46 @@ Retrieves the current lifecycle configuration for a bucket. Returns `null` if no
 **Output:**
 
 ```typescript
-{
-  rules: LifecycleRule[] | null
+GetCorsOutput
+
+interface GetCorsOutput {
+  corsRules: CorsRule[] | null // null if no CORS config
 }
+
+interface CorsRule {
+  AllowedOrigins: string[] // e.g., ["https://example.com", "*"]
+  AllowedMethods: CorsAllowedMethod[] // ["GET", "POST", "PUT", "DELETE", "HEAD"]
+  AllowedHeaders?: string[] // e.g., ["*", "Content-Type"]
+  ExposeHeaders?: string[] // Headers clients can access
+  MaxAgeSeconds?: number // Preflight cache time (0-86400)
+  ID?: string // Rule identifier (max 255 chars)
+}
+
+type CorsAllowedMethod = "GET" | "POST" | "PUT" | "DELETE" | "HEAD"
 ```
 
 **Example:**
 
 ```typescript
-const lifecycle = await trpc.storage.ceph.lifecycle.get.query({
+const { corsRules } = await trpc.storage.ceph.cors.get.query({
   project_id: "abc123",
   bucketName: "my-bucket",
 })
 
-if (!lifecycle.rules) {
-  console.log("No lifecycle rules configured")
+if (corsRules === null) {
+  console.log("No CORS configuration")
 } else {
-  console.log(`${lifecycle.rules.length} rules configured`)
+  console.log(`${corsRules.length} CORS rule(s) configured`)
 }
 ```
+
+**Important:** `NoSuchCORSConfiguration` from RGW is treated as normal state (returns `null`, not an error).
 
 ---
 
 #### `set`
 
-Creates or replaces the entire lifecycle configuration for a bucket. Validates the configuration before sending to RGW.
+Creates or replaces the entire CORS configuration for a bucket. Validates rules before sending to RGW.
 
 **Input:**
 
@@ -1530,114 +1593,53 @@ Creates or replaces the entire lifecycle configuration for a bucket. Validates t
 {
   project_id: string,
   bucketName: string,
-  lifecycleConfiguration: {
-    Rules: LifecycleRule[]
+  corsConfiguration: {
+    CORSRules: CorsRule[]  // 1-100 rules
   }
 }
 ```
 
-**Rule Structure:**
+**Output:**
 
 ```typescript
-interface LifecycleRule {
-  ID?: string // Optional identifier (max 255 chars)
-  Status: "Enabled" | "Disabled" // Whether the rule is active
-  Filter?: LifecycleFilter // Which objects the rule applies to
-  Expiration?: {
-    // Delete objects
-    Days?: number // After N days from creation
-    Date?: string // On specific date (ISO 8601, midnight UTC)
-    ExpiredObjectDeleteMarker?: boolean // Clean up expired delete markers
-  }
-  NoncurrentVersionExpiration?: {
-    // Expire old versions
-    NoncurrentDays: number // After N days of becoming noncurrent
-    NewerNoncurrentVersions?: number // Keep newest N versions
-  }
-  AbortIncompleteMultipartUpload?: {
-    // Abort incomplete uploads
-    DaysAfterInitiation: number // After N days from initiation
-  }
-  Transitions?: Transition[] // Storage class transitions (preserved, not authored via Aurora)
-  NoncurrentVersionTransitions?: NoncurrentTransition[] // Version transitions (preserved, not authored)
-}
-
-interface LifecycleFilter {
-  Prefix?: string // Match by key prefix
-  Tag?: { Key: string; Value: string } // Match by single tag
-  And?: {
-    // Combine multiple conditions (requires ≥2)
-    Prefix?: string
-    Tags?: { Key: string; Value: string }[]
-    ObjectSizeGreaterThan?: number
-    ObjectSizeLessThan?: number
-  }
-}
+boolean // true on success
 ```
-
-**Validation Rules:**
-
-- Maximum 100 rules per bucket (UI limit; RGW's technical limit is 1000)
-- Each rule must have at least one action (`Expiration`, `NoncurrentVersionExpiration`, `AbortIncompleteMultipartUpload`, or preserved `Transitions`)
-- Rule IDs must be unique and ≤255 characters
-- Cannot specify both `Filter` and legacy top-level `Prefix` (legacy `Prefix` is migrated to `Filter.Prefix` on save)
-- `Expiration` must specify exactly one of `Days`, `Date`, or `ExpiredObjectDeleteMarker`
-- `ExpiredObjectDeleteMarker` cannot be combined with tag-based filters
-- `And` filters require at least 2 predicates
-
-**Rate Limiting:** 10 lifecycle modifications per minute per bucket (per project)
 
 **Example:**
 
 ```typescript
-await trpc.storage.ceph.lifecycle.set.mutate({
+await trpc.storage.ceph.cors.set.mutate({
   project_id: "abc123",
   bucketName: "my-bucket",
-  lifecycleConfiguration: {
-    Rules: [
+  corsConfiguration: {
+    CORSRules: [
       {
-        ID: "delete-old-logs",
-        Status: "Enabled",
-        Filter: { Prefix: "logs/" },
-        Expiration: { Days: 90 },
-      },
-      {
-        ID: "cleanup-old-versions",
-        Status: "Enabled",
-        Filter: { Prefix: "" }, // Whole bucket
-        NoncurrentVersionExpiration: {
-          NoncurrentDays: 60,
-          NewerNoncurrentVersions: 3, // Keep 3 newest versions
-        },
-      },
-      {
-        ID: "abort-stale-uploads",
-        Status: "Enabled",
-        Filter: { Prefix: "" },
-        AbortIncompleteMultipartUpload: {
-          DaysAfterInitiation: 7,
-        },
+        AllowedOrigins: ["https://example.com", "http://localhost:8000"],
+        AllowedMethods: ["GET", "PUT", "POST"],
+        AllowedHeaders: ["*"],
+        MaxAgeSeconds: 3600,
+        ID: "example-rule",
       },
     ],
   },
 })
 ```
 
-**Important Notes:**
+**Validation:**
 
-- **Storage-class transitions** (`Transitions`, `NoncurrentVersionTransitions`): Aurora **preserves** these fields when editing existing rules, but does **not** provide UI for authoring new transitions. This is because RGW can't enumerate available storage classes via the S3 API, so any picker would be guesswork against a specific deployment. Rules carrying transitions authored via `aws-cli` or other tools are displayed read-only and passed through unchanged on save.
+- **AllowedMethods:** 1-5 methods required
+- **AllowedOrigins:** At least 1 origin required (supports wildcards: `*`, `https://*.example.com`)
+- **MaxAgeSeconds:** 0-86400 (24 hours), optional
+- **ID:** Max 255 characters, optional
+- **Total rules:** 1-100 per bucket
 
-- **Midnight-UTC normalization**: `Expiration.Date` is automatically normalized to midnight UTC before sending to RGW (AWS requirement). `Transitions[].Date` is not normalized.
-
-- **Asynchronous processing**: RGW evaluates lifecycle rules on its own schedule (not immediately after save). Changes may take minutes to hours to take effect, depending on the deployment's lifecycle processor configuration.
-
-- **Whole-bucket expiration warning**: Rules with `Status: "Enabled"`, a whole-bucket filter (`Prefix: ""` or no filter), and an `Expiration` action will eventually delete **all** objects in the bucket. Aurora displays a warning for such rules but does not block them.
+**Note:** This operation **replaces** the entire CORS configuration. To add a rule, fetch existing rules with `get`, modify the array, and call `set` with the updated list.
 
 ---
 
 #### `delete`
 
-Removes the entire lifecycle configuration from a bucket. Idempotent (returns success even if no configuration exists).
+Removes the entire CORS configuration from a bucket. Idempotent — not an error if no CORS configuration exists.
 
 **Input:**
 
@@ -1651,19 +1653,40 @@ Removes the entire lifecycle configuration from a bucket. Idempotent (returns su
 **Output:**
 
 ```typescript
-{
-  success: boolean
-}
+boolean // true on success
 ```
 
 **Example:**
 
 ```typescript
-await trpc.storage.ceph.lifecycle.delete.mutate({
+await trpc.storage.ceph.cors.delete.mutate({
   project_id: "abc123",
   bucketName: "my-bucket",
 })
+
+// Bucket now has no CORS rules
 ```
+
+---
+
+### CORS Testing Notes
+
+**Important:** Ceph RGW does **not** add CORS headers to HEAD requests. Only GET/POST/PUT/DELETE/OPTIONS requests receive `Access-Control-*` headers. When testing CORS with curl, use GET instead of HEAD:
+
+```bash
+# ✅ Correct — shows CORS headers
+curl -s -H "Origin: https://example.com" \
+  "https://rgw.example.com/bucket/object" \
+  -o /dev/null -D -
+
+# ❌ Incorrect — no CORS headers (even if rule is configured)
+curl -sI -H "Origin: https://example.com" \
+  "https://rgw.example.com/bucket/object"
+```
+
+**Browser behavior:** Real browsers correctly enforce CORS on all cross-origin fetch/XHR requests regardless of method.
+
+**Recommended testing:** Use a local HTML page with `fetch()` to verify CORS works in actual browsers. See the manual testing plan for details: `DOCS/plans/2026-07-25-cors-manual-testing-scenarios.md`.
 
 ---
 
@@ -1681,11 +1704,13 @@ The `mapS3ErrorToTRPCError` helper maps AWS SDK S3 error codes to tRPC error cod
 | `NoSuchKey`               | `NOT_FOUND`           | Object does not exist              |
 | `NoSuchUpload`            | `NOT_FOUND`           | Multipart upload ID not found      |
 | `NoSuchVersion`           | `NOT_FOUND`           | Object version does not exist      |
+| `NoSuchCORSConfiguration` | `NOT_FOUND`           | CORS configuration does not exist  |
 | `BucketAlreadyExists`     | `CONFLICT`            | Bucket name already taken          |
 | `BucketAlreadyOwnedByYou` | `CONFLICT`            | Bucket already owned by you        |
 | `BucketNotEmpty`          | `PRECONDITION_FAILED` | Cannot delete non-empty bucket     |
 | `InvalidBucketState`      | `BAD_REQUEST`         | Invalid bucket state for operation |
 | `VersioningNotEnabled`    | `PRECONDITION_FAILED` | Versioning not enabled on bucket   |
+| `MalformedXML`            | `BAD_REQUEST`         | Invalid XML in request body        |
 | `AccessDenied`            | `FORBIDDEN`           | Insufficient permissions           |
 | `AllAccessDisabled`       | `FORBIDDEN`           | All access disabled                |
 | `InvalidAccessKeyId`      | `UNAUTHORIZED`        | Invalid access key                 |
@@ -1954,7 +1979,7 @@ console.log("Old credential deleted")
 
 ### 4. Object Operations
 
-- For uploads/downloads, consider using **presigned URLs** (not yet implemented) to allow direct client → Ceph transfers without proxying through the BFF
+- Presigned GET URLs are available via `generatePresignedUrl` for **sharing** download links, but the app's own upload/download paths still proxy through the BFF. Serving those transfers over presigned URLs (direct client ↔ Ceph, no BFF proxy) — including presigned `PUT` for uploads — is not yet implemented
 - For very large files, use multipart uploads (not yet implemented)
 
 ---
@@ -1971,7 +1996,7 @@ console.log("Old credential deleted")
 | **Large Objects**    | Multipart uploads                         | Static/Dynamic Large Objects (SLO/DLO) |
 | **Uploads**          | `octetInputParser` streaming (+ progress) | `octetInputParser` streaming           |
 | **Downloads**        | Async iterable base64 chunks (+ progress) | Async iterable base64 chunks           |
-| **Temporary URLs**   | Presigned URLs (not yet impl)             | HMAC-SHA256 signed temp URLs           |
+| **Temporary URLs**   | Presigned GET URLs (`getSignedUrl`)       | HMAC-SHA256 signed temp URLs           |
 
 **When to use which?**
 
@@ -1990,7 +2015,8 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
    - ~~Create bucket (`CreateBucketCommand`)~~ ✅ Implemented
    - ~~Delete bucket (`DeleteBucketCommand`)~~ ✅ Implemented
    - ~~Empty bucket (bulk delete all objects)~~ ✅ Implemented
-   - Configure bucket policies, CORS, lifecycle rules
+   - ~~CORS configuration (`GetBucketCorsCommand`, `PutBucketCorsCommand`, `DeleteBucketCorsCommand`)~~ ✅ Implemented
+   - Configure bucket policies, lifecycle rules
 
 2. **Object Upload/Download**
    - ~~Upload object (`PutObjectCommand`)~~ ✅ Implemented — streamed through the BFF via `octetInputParser`, with a `watchUploadProgress` subscription for progress
@@ -2007,8 +2033,8 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
    - Bulk delete operations
 
 4. **Presigned URLs**
-   - Generate time-limited signed URLs for direct client access
-   - Use `@aws-sdk/s3-request-presigner`
+   - ~~Generate time-limited signed URLs for direct client access~~ ✅ Implemented — `generatePresignedUrl` issues GET (download/share) URLs via `@aws-sdk/s3-request-presigner`, capped at 7 days
+   - Presigned `PUT`/upload URLs (upload-by-link)
 
 5. **Advanced Features**
    - ~~Bucket versioning~~ ✅ Implemented
@@ -2022,7 +2048,7 @@ Both can coexist — Ceph RGW supports **both Swift and S3 APIs** on the same cl
 - **No credential caching:** Credentials are fetched from Keystone on every request
 - **No S3 client pooling:** A new client is instantiated per request
 - **No multipart upload support:** uploads stream through a single `PutObjectCommand`; very large files may time out
-- **No presigned URL generation:** All operations must go through the BFF
+- **Presigned URLs are GET-only:** shareable download links are issued via `generatePresignedUrl`; uploads still stream through the BFF (no presigned `PUT`)
 - **No bulk delete support:** Objects must be deleted one at a time (can be slow for large folders)
 
 ---
@@ -2213,6 +2239,209 @@ openstack endpoint list --service ceph
 
 ### Problem: `All input parsers did not resolve to an object` when wiring an upload
 
+### Lifecycle Configuration (`storage.ceph.lifecycle`)
+
+Bucket lifecycle rules automate object management tasks like expiring (deleting) old objects, transitioning to different storage classes, cleaning up old versions, and aborting incomplete multipart uploads. Rules are evaluated asynchronously by the Ceph RGW lifecycle processor (not immediately after save).
+
+#### `get`
+
+Retrieves the current lifecycle configuration for a bucket. Returns `null` if no lifecycle rules are configured.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucketName: string
+}
+```
+
+**Output:**
+
+```typescript
+{
+  rules: LifecycleRule[] | null
+}
+```
+
+**Example:**
+
+```typescript
+const lifecycle = await trpc.storage.ceph.lifecycle.get.query({
+  project_id: "abc123",
+  bucketName: "my-bucket",
+})
+
+if (!lifecycle.rules) {
+  console.log("No lifecycle rules configured")
+} else {
+  console.log(`${lifecycle.rules.length} rules configured`)
+}
+```
+
+---
+
+#### `set`
+
+Creates or replaces the entire lifecycle configuration for a bucket. Validates the configuration before sending to RGW.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucketName: string,
+  lifecycleConfiguration: {
+    Rules: LifecycleRule[]
+  }
+}
+```
+
+**Rule Structure:**
+
+```typescript
+interface LifecycleRule {
+  ID?: string // Optional identifier (max 255 chars)
+  Status: "Enabled" | "Disabled" // Whether the rule is active
+  Filter?: LifecycleFilter // Which objects the rule applies to
+  Expiration?: {
+    // Delete objects
+    Days?: number // After N days from creation
+    Date?: string // On specific date (ISO 8601, midnight UTC)
+    ExpiredObjectDeleteMarker?: boolean // Clean up expired delete markers
+  }
+  NoncurrentVersionExpiration?: {
+    // Expire old versions
+    NoncurrentDays: number // After N days of becoming noncurrent
+    NewerNoncurrentVersions?: number // Keep newest N versions
+  }
+  AbortIncompleteMultipartUpload?: {
+    // Abort incomplete uploads
+    DaysAfterInitiation: number // After N days from initiation
+  }
+  Transitions?: Transition[] // Storage class transitions (preserved, not authored via Aurora)
+  NoncurrentVersionTransitions?: NoncurrentTransition[] // Version transitions (preserved, not authored)
+}
+
+interface LifecycleFilter {
+  Prefix?: string // Match by key prefix
+  Tag?: { Key: string; Value: string } // Match by single tag
+  And?: {
+    // Combine multiple conditions (requires ≥2)
+    Prefix?: string
+    Tags?: { Key: string; Value: string }[]
+    ObjectSizeGreaterThan?: number
+    ObjectSizeLessThan?: number
+  }
+}
+```
+
+**Validation Rules:**
+
+- Maximum 100 rules per bucket (UI limit; RGW's technical limit is 1000)
+- Each rule must have at least one action (`Expiration`, `NoncurrentVersionExpiration`, `AbortIncompleteMultipartUpload`, or preserved `Transitions`)
+- Rule IDs must be unique and ≤255 characters
+- Cannot specify both `Filter` and legacy top-level `Prefix` (legacy `Prefix` is migrated to `Filter.Prefix` on save)
+- `Expiration` must specify exactly one of `Days`, `Date`, or `ExpiredObjectDeleteMarker`
+- `ExpiredObjectDeleteMarker` cannot be combined with tag-based filters
+- `And` filters require at least 2 predicates
+
+**Rate Limiting:** 10 lifecycle modifications per minute per bucket (per project)
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.lifecycle.set.mutate({
+  project_id: "abc123",
+  bucketName: "my-bucket",
+  lifecycleConfiguration: {
+    Rules: [
+      {
+        ID: "delete-old-logs",
+        Status: "Enabled",
+        Filter: { Prefix: "logs/" },
+        Expiration: { Days: 90 },
+      },
+      {
+        ID: "cleanup-old-versions",
+        Status: "Enabled",
+        Filter: { Prefix: "" }, // Whole bucket
+        NoncurrentVersionExpiration: {
+          NoncurrentDays: 60,
+          NewerNoncurrentVersions: 3, // Keep 3 newest versions
+        },
+      },
+      {
+        ID: "abort-stale-uploads",
+        Status: "Enabled",
+        Filter: { Prefix: "" },
+        AbortIncompleteMultipartUpload: {
+          DaysAfterInitiation: 7,
+        },
+      },
+    ],
+  },
+})
+```
+
+**Important Notes:**
+
+- **Storage-class transitions** (`Transitions`, `NoncurrentVersionTransitions`): Aurora **preserves** these fields when editing existing rules, but does **not** provide UI for authoring new transitions. This is because RGW can't enumerate available storage classes via the S3 API, so any picker would be guesswork against a specific deployment. Rules carrying transitions authored via `aws-cli` or other tools are displayed read-only and passed through unchanged on save.
+
+- **Midnight-UTC normalization**: `Expiration.Date` is automatically normalized to midnight UTC before sending to RGW (AWS requirement). `Transitions[].Date` is not normalized.
+
+- **Asynchronous processing**: RGW evaluates lifecycle rules on its own schedule (not immediately after save). Changes may take minutes to hours to take effect, depending on the deployment's lifecycle processor configuration.
+
+- **Whole-bucket expiration warning**: Rules with `Status: "Enabled"`, a whole-bucket filter (`Prefix: ""` or no filter), and an `Expiration` action will eventually delete **all** objects in the bucket. Aurora displays a warning for such rules but does not block them.
+
+---
+
+#### `delete`
+
+Removes the entire lifecycle configuration from a bucket. Idempotent (returns success even if no configuration exists).
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucketName: string
+}
+```
+
+**Output:**
+
+```typescript
+{
+  success: boolean
+}
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.lifecycle.delete.mutate({
+  project_id: "abc123",
+  bucketName: "my-bucket",
+})
+```
+
+---
+
+## Error Handling
+
+### S3 Error Mapper
+
+The `mapS3ErrorToTRPCError` helper maps AWS SDK S3 error codes to tRPC error codes with contextual messages.
+
+#### Mapped Error Codes
+
+| S3 Error Code  | tRPC Code   | Description           |
+| -------------- | ----------- | --------------------- |
+| `NoSuchBucket` | `NOT_FOUND` | Bucket does not exist |
+
+### Problem: `All input parsers did not resolve to an object` when wiring an upload
+
 **Cause:** `octetInputParser` was chained onto `cephProtectedProcedure` (or another `projectScopedProcedure`-based procedure). tRPC can't merge the raw-stream input with the `project_id` object input those procedures bundle.
 
 **Solution:**
@@ -2234,7 +2463,7 @@ Use `cephUploadProcedure` instead — it's built on the base `protectedProcedure
 ## Next Steps
 
 1. **Implement object upload** — streaming via `octetInputParser` (download already implemented via async-iterable streaming with progress tracking)
-2. **Add presigned URL generation** — allow direct client → Ceph transfers for large files
+2. ~~**Add presigned URL generation**~~ ✅ Completed — `generatePresignedUrl` issues time-limited GET URLs for sharing/download (see [`generatePresignedUrl`](#generatepresignedurl)); presigned `PUT` for direct client → Ceph uploads is still open
 3. ~~**Implement bucket management**~~ ✅ Completed — create, delete, empty buckets
 4. **Add credential caching** — reduce Keystone API calls
 5. **Implement multipart uploads** — for large files (>100 MB)

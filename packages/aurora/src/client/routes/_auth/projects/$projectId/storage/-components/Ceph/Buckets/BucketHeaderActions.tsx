@@ -1,4 +1,4 @@
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import { Button, PopupMenu, PopupMenuItem, PopupMenuOptions, PopupMenuToggle } from "@cloudoperators/juno-ui-components"
 import type { ModalType } from "./BucketModals"
 
@@ -7,6 +7,7 @@ interface BucketHeaderActionsProps {
     status: "Enabled" | "Suspended" | "Unversioned"
   }
   hasPolicy: boolean
+  hasCors: boolean
   hasLifecycle: boolean
   hasOldVersionsOrDeleteMarkers: boolean
   isBucketEmpty: boolean
@@ -18,12 +19,12 @@ interface BucketHeaderActionsProps {
  *
  * Displays:
  * - Policy button (primary or subdued based on whether policy exists)
- * - Lifecycle button (primary or subdued based on whether lifecycle rules exist)
- * - Actions dropdown with versioning, policy, lifecycle, and bucket management options
+ * - Actions dropdown with versioning, policy, and bucket management options
  */
 export const BucketHeaderActions = ({
   versioningStatus,
   hasPolicy,
+  hasCors,
   hasLifecycle,
   hasOldVersionsOrDeleteMarkers,
   isBucketEmpty,
@@ -33,12 +34,6 @@ export const BucketHeaderActions = ({
 
   return (
     <>
-      <Button variant="subdued" className="whitespace-nowrap" onClick={() => onOpenModal("policy")}>
-        {hasPolicy ? <Trans>Edit/View Policy</Trans> : <Trans>Add Policy</Trans>}
-      </Button>
-      <Button variant="subdued" className="whitespace-nowrap" onClick={() => onOpenModal("lifecycle")}>
-        {hasLifecycle ? <Trans>Edit/View Lifecycle Rules</Trans> : <Trans>Add Lifecycle Rules</Trans>}
-      </Button>
       <PopupMenu>
         <PopupMenuToggle as="div">
           <Button icon="moreVert" />
@@ -51,8 +46,16 @@ export const BucketHeaderActions = ({
           {versioningStatus && versioningStatus.status === "Enabled" && (
             <PopupMenuItem label={t`Suspend Versioning`} onClick={() => onOpenModal("suspendVersioning")} />
           )}
+          <PopupMenuItem label={hasPolicy ? t`Edit Policy` : t`Add Policy`} onClick={() => onOpenModal("policy")} />
           {hasPolicy && <PopupMenuItem label={t`Delete Policy`} onClick={() => onOpenModal("deletePolicy")} />}
-          {hasLifecycle && <PopupMenuItem label={t`Delete Lifecycle`} onClick={() => onOpenModal("deleteLifecycle")} />}
+          {hasCors && <PopupMenuItem label={t`Delete CORS Rules`} onClick={() => onOpenModal("deleteCors")} />}
+          <PopupMenuItem
+            label={hasLifecycle ? t`Lifecycle Rules` : t`Add Lifecycle Rules`}
+            onClick={() => onOpenModal("lifecycle")}
+          />
+          {hasLifecycle && (
+            <PopupMenuItem label={t`Delete Lifecycle Rules`} onClick={() => onOpenModal("deleteLifecycle")} />
+          )}
           {!isBucketEmpty && <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />}
           {hasOldVersionsOrDeleteMarkers && (
             <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />

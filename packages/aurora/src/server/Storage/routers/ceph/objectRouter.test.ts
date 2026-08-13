@@ -15,6 +15,15 @@ vi.mock("../../clients/s3Client", () => ({
   createS3Client: vi.fn(() => ({ send: mockSend })),
 }))
 
+// generatePresignedUrl signs locally via @aws-sdk/s3-request-presigner rather
+// than calling s3.send, so getSignedUrl is mocked independently of mockSend.
+// `mock`-prefixed so Vitest allows it inside the hoisted factory.
+const mockGetSignedUrl = vi.fn()
+
+vi.mock("@aws-sdk/s3-request-presigner", () => ({
+  getSignedUrl: (...args: unknown[]) => mockGetSignedUrl(...args),
+}))
+
 // ============================================================================
 // MOCK DATA
 // ============================================================================
@@ -359,6 +368,118 @@ describe("objects.getDetails", () => {
 })
 
 // ============================================================================
+// TESTS: generatePresignedUrl
+// ============================================================================
+
+describe("objects.generatePresignedUrl", () => {
+  const PRESIGNED_URL =
+    "https://ceph.example.com/my-test-bucket/photos/2024/image.jpg?X-Amz-Signature=abc&X-Amz-Expires=3600"
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("returns the signed URL plus an absolute expiry", async () => {
+    mockGetSignedUrl.mockResolvedValue(PRESIGNED_URL)
+    const before = Math.floor(Date.now() / 1000)
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.generatePresignedUrl({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: TEST_OBJECT_KEY,
+      expiresIn: 3600,
+    })
+    const after = Math.floor(Date.now() / 1000)
+
+    expect(result.url).toBe(PRESIGNED_URL)
+    // expiresAt is now + expiresIn (unix seconds), within the call window
+    expect(result.expiresAt).toBeGreaterThanOrEqual(before + 3600)
+    expect(result.expiresAt).toBeLessThanOrEqual(after + 3600)
+  })
+
+  it("signs a GetObject command for the requested bucket/key with the given expiry", async () => {
+    mockGetSignedUrl.mockResolvedValue(PRESIGNED_URL)
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.storage.ceph.objects.generatePresignedUrl({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: TEST_OBJECT_KEY,
+      expiresIn: 900,
+    })
+
+    expect(mockGetSignedUrl).toHaveBeenCalledTimes(1)
+    const [, command, options] = mockGetSignedUrl.mock.calls[0]
+    // Real GetObjectCommand — its input carries the bucket/key
+    expect(command.input).toMatchObject({ Bucket: TEST_BUCKET_NAME, Key: TEST_OBJECT_KEY })
+    expect(options).toEqual({ expiresIn: 900 })
+  })
+
+  it("signs locally without streaming the object (no S3 send call)", async () => {
+    mockGetSignedUrl.mockResolvedValue(PRESIGNED_URL)
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.storage.ceph.objects.generatePresignedUrl({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKey: TEST_OBJECT_KEY,
+      expiresIn: 3600,
+    })
+
+    expect(mockSend).not.toHaveBeenCalled()
+  })
+
+  it("rejects an expiry beyond the 7-day maximum before signing", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.generatePresignedUrl({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKey: TEST_OBJECT_KEY,
+        expiresIn: 604800 + 1,
+      })
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" })
+    expect(mockGetSignedUrl).not.toHaveBeenCalled()
+  })
+
+  it("maps signer failures to a TRPCError", async () => {
+    const s3Error = Object.assign(new Error("Access denied"), { Code: "AccessDenied" })
+    mockGetSignedUrl.mockRejectedValue(s3Error)
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.generatePresignedUrl({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKey: TEST_OBJECT_KEY,
+        expiresIn: 3600,
+      })
+    ).rejects.toThrow(TRPCError)
+  })
+
+  it("throws UNAUTHORIZED when session is invalid", async () => {
+    const ctx = createMockContext({ shouldFailAuth: true })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.generatePresignedUrl({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKey: TEST_OBJECT_KEY,
+        expiresIn: 3600,
+      })
+    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+  })
+})
+
+// ============================================================================
 // TESTS: deleteAll
 // ============================================================================
 
@@ -680,6 +801,447 @@ describe("objects.delete", () => {
         objectKey: TEST_OBJECT_KEY,
       })
     ).rejects.toMatchObject({ code: "FORBIDDEN" })
+  })
+})
+
+// ============================================================================
+// objects.deleteBulk
+// ============================================================================
+
+describe("objects.deleteBulk", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("successfully deletes all objects", async () => {
+    mockSend.mockResolvedValue({
+      Deleted: [{ Key: "a.txt" }, { Key: "b.txt" }],
+      Errors: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteBulk({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKeys: ["a.txt", "b.txt"],
+    })
+
+    expect(result.deletedCount).toBe(2)
+    expect(result.errorCount).toBe(0)
+    expect(result.deleted).toHaveLength(2)
+    expect(result.errors).toHaveLength(0)
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          Bucket: TEST_BUCKET_NAME,
+          Delete: {
+            Objects: [{ Key: "a.txt" }, { Key: "b.txt" }],
+            Quiet: false,
+          },
+        }),
+      }),
+      expect.anything()
+    )
+  })
+
+  it("handles partial failure in one response", async () => {
+    mockSend.mockResolvedValue({
+      Deleted: [{ Key: "a.txt" }],
+      Errors: [
+        {
+          Key: "b.txt",
+          Code: "AccessDenied",
+          Message: "Access Denied",
+        },
+      ],
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteBulk({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKeys: ["a.txt", "b.txt"],
+    })
+
+    expect(result.deletedCount).toBe(1)
+    expect(result.errorCount).toBe(1)
+    expect(result.deleted[0].key).toBe("a.txt")
+    expect(result.errors[0].key).toBe("b.txt")
+    expect(result.errors[0].code).toBe("AccessDenied")
+    expect(result.errors[0].message).toBe("Access Denied")
+  })
+
+  it("chunks large selections across multiple requests", async () => {
+    // First chunk: 1000 keys
+    mockSend.mockResolvedValueOnce({
+      Deleted: Array.from({ length: 1000 }, (_, i) => ({ Key: `file-${i}.txt` })),
+      Errors: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Second chunk: 500 keys
+    mockSend.mockResolvedValueOnce({
+      Deleted: Array.from({ length: 500 }, (_, i) => ({ Key: `file-${i + 1000}.txt` })),
+      Errors: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const objectKeys = Array.from({ length: 1500 }, (_, i) => `file-${i}.txt`)
+    const result = await caller.storage.ceph.objects.deleteBulk({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKeys,
+    })
+
+    expect(result.deletedCount).toBe(1500)
+    expect(result.errorCount).toBe(0)
+    expect(mockSend).toHaveBeenCalledTimes(2)
+    // First call: 1000 keys
+    expect(mockSend.mock.calls[0][0].input.Delete.Objects).toHaveLength(1000)
+    // Second call: 500 keys
+    expect(mockSend.mock.calls[1][0].input.Delete.Objects).toHaveLength(500)
+  })
+
+  it("throws NOT_FOUND when bucket does not exist (first chunk failure)", async () => {
+    const s3Error = Object.assign(new Error("NoSuchBucket"), { Code: "NoSuchBucket" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.deleteBulk({
+        project_id: TEST_PROJECT_ID,
+        containerName: "nonexistent",
+        objectKeys: ["a.txt", "b.txt"],
+      })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+
+  it("throws FORBIDDEN when access is denied (first chunk failure)", async () => {
+    const s3Error = Object.assign(new Error("Access denied"), { Code: "AccessDenied" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.deleteBulk({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKeys: ["a.txt", "b.txt"],
+      })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" })
+  })
+
+  it("degrades gracefully when later chunk fails", async () => {
+    // First chunk succeeds
+    mockSend.mockResolvedValueOnce({
+      Deleted: Array.from({ length: 1000 }, (_, i) => ({ Key: `file-${i}.txt` })),
+      Errors: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Second chunk fails
+    const s3Error = Object.assign(new Error("Internal error"), { Code: "InternalError" })
+    mockSend.mockRejectedValueOnce(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const objectKeys = Array.from({ length: 1500 }, (_, i) => `file-${i}.txt`)
+    const result = await caller.storage.ceph.objects.deleteBulk({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKeys,
+    })
+
+    // First 1000 were deleted
+    expect(result.deletedCount).toBe(1000)
+    // Second 500 are reported as errors
+    expect(result.errorCount).toBe(500)
+    expect(result.errors.every((e) => e.code === "RequestFailed")).toBe(true)
+  })
+
+  it("de-duplicates keys", async () => {
+    mockSend.mockResolvedValue({
+      Deleted: [{ Key: "a.txt" }],
+      Errors: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteBulk({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      objectKeys: ["a.txt", "a.txt"],
+    })
+
+    expect(result.deletedCount).toBe(1)
+    // Only one key sent to S3
+    expect(mockSend.mock.calls[0][0].input.Delete.Objects).toHaveLength(1)
+    expect(mockSend.mock.calls[0][0].input.Delete.Objects[0].Key).toBe("a.txt")
+  })
+
+  it("rejects empty array", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.deleteBulk({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKeys: [],
+      })
+    ).rejects.toThrow()
+  })
+
+  it("rejects folder keys (trailing slash)", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.deleteBulk({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKeys: ["photos/"],
+      })
+    ).rejects.toThrow(/Folder keys/)
+  })
+
+  it("rejects more than 10000 keys", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const objectKeys = Array.from({ length: 10001 }, (_, i) => `file-${i}.txt`)
+
+    await expect(
+      caller.storage.ceph.objects.deleteBulk({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        objectKeys,
+      })
+    ).rejects.toThrow()
+  })
+})
+
+// ============================================================================
+// objects.deleteVersionsBulk
+// ============================================================================
+
+describe("objects.deleteVersionsBulk", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("successfully deletes all versions", async () => {
+    mockSend.mockResolvedValue({
+      Deleted: [
+        { Key: "a.txt", VersionId: "v1" },
+        { Key: "b.txt", VersionId: "v2" },
+        { Key: "c.txt", VersionId: "v3" },
+      ],
+      Errors: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteVersionsBulk({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      versions: [
+        { key: "a.txt", versionId: "v1" },
+        { key: "b.txt", versionId: "v2" },
+        { key: "c.txt", versionId: "v3" },
+      ],
+    })
+
+    expect(result.deletedCount).toBe(3)
+    expect(result.errorCount).toBe(0)
+    expect(result.deleted).toHaveLength(3)
+    expect(result.errors).toHaveLength(0)
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          Bucket: TEST_BUCKET_NAME,
+          Delete: {
+            Objects: [
+              { Key: "a.txt", VersionId: "v1" },
+              { Key: "b.txt", VersionId: "v2" },
+              { Key: "c.txt", VersionId: "v3" },
+            ],
+            Quiet: false,
+          },
+        }),
+      }),
+      expect.anything()
+    )
+  })
+
+  it("handles partial failure with NoSuchVersion", async () => {
+    mockSend.mockResolvedValue({
+      Deleted: [
+        { Key: "a.txt", VersionId: "v1" },
+        { Key: "b.txt", VersionId: "v2" },
+      ],
+      Errors: [
+        {
+          Key: "c.txt",
+          VersionId: "v3",
+          Code: "NoSuchVersion",
+          Message: "The specified version does not exist",
+        },
+      ],
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteVersionsBulk({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      versions: [
+        { key: "a.txt", versionId: "v1" },
+        { key: "b.txt", versionId: "v2" },
+        { key: "c.txt", versionId: "v3" },
+      ],
+    })
+
+    expect(result.deletedCount).toBe(2)
+    expect(result.errorCount).toBe(1)
+    expect(result.deleted[0].key).toBe("a.txt")
+    expect(result.deleted[1].key).toBe("b.txt")
+    expect(result.errors[0].key).toBe("c.txt")
+    expect(result.errors[0].versionId).toBe("v3")
+    expect(result.errors[0].code).toBe("NoSuchVersion")
+  })
+
+  it("chunks large selections across multiple requests", async () => {
+    // First chunk: 1000 versions
+    mockSend.mockResolvedValueOnce({
+      Deleted: Array.from({ length: 1000 }, (_, i) => ({ Key: `file-${i}.txt`, VersionId: `v${i}` })),
+      Errors: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Second chunk: 500 versions
+    mockSend.mockResolvedValueOnce({
+      Deleted: Array.from({ length: 500 }, (_, i) => ({ Key: `file-${i + 1000}.txt`, VersionId: `v${i + 1000}` })),
+      Errors: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const versions = Array.from({ length: 1500 }, (_, i) => ({ key: `file-${i}.txt`, versionId: `v${i}` }))
+    const result = await caller.storage.ceph.objects.deleteVersionsBulk({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      versions,
+    })
+
+    expect(result.deletedCount).toBe(1500)
+    expect(result.errorCount).toBe(0)
+    expect(mockSend).toHaveBeenCalledTimes(2)
+    // First call: 1000 versions
+    expect(mockSend.mock.calls[0][0].input.Delete.Objects).toHaveLength(1000)
+    // Second call: 500 versions
+    expect(mockSend.mock.calls[1][0].input.Delete.Objects).toHaveLength(500)
+  })
+
+  it("de-duplicates version pairs", async () => {
+    mockSend.mockResolvedValue({
+      Deleted: [{ Key: "a.txt", VersionId: "v1" }],
+      Errors: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteVersionsBulk({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      versions: [
+        { key: "a.txt", versionId: "v1" },
+        { key: "a.txt", versionId: "v1" }, // duplicate
+      ],
+    })
+
+    expect(result.deletedCount).toBe(1)
+    // Only one version sent to S3
+    expect(mockSend.mock.calls[0][0].input.Delete.Objects).toHaveLength(1)
+    expect(mockSend.mock.calls[0][0].input.Delete.Objects[0].Key).toBe("a.txt")
+    expect(mockSend.mock.calls[0][0].input.Delete.Objects[0].VersionId).toBe("v1")
+  })
+
+  it("rejects empty array", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.deleteVersionsBulk({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        versions: [],
+      })
+    ).rejects.toThrow()
+  })
+
+  it("throws NOT_FOUND when bucket does not exist (first chunk failure)", async () => {
+    const s3Error = Object.assign(new Error("NoSuchBucket"), { Code: "NoSuchBucket" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.deleteVersionsBulk({
+        project_id: TEST_PROJECT_ID,
+        containerName: "nonexistent",
+        versions: [{ key: "a.txt", versionId: "v1" }],
+      })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+
+  it("degrades gracefully when later chunk fails", async () => {
+    // First chunk succeeds
+    mockSend.mockResolvedValueOnce({
+      Deleted: Array.from({ length: 1000 }, (_, i) => ({ Key: `file-${i}.txt`, VersionId: `v${i}` })),
+      Errors: [],
+      $metadata: { httpStatusCode: 200 },
+    })
+    // Second chunk fails
+    const s3Error = Object.assign(new Error("Internal error"), { Code: "InternalError" })
+    mockSend.mockRejectedValueOnce(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const versions = Array.from({ length: 1500 }, (_, i) => ({ key: `file-${i}.txt`, versionId: `v${i}` }))
+    const result = await caller.storage.ceph.objects.deleteVersionsBulk({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+      versions,
+    })
+
+    // First 1000 were deleted
+    expect(result.deletedCount).toBe(1000)
+    // Second 500 are reported as errors
+    expect(result.errorCount).toBe(500)
+    expect(result.errors.every((e) => e.code === "RequestFailed")).toBe(true)
   })
 })
 
