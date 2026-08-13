@@ -27,7 +27,84 @@ vi.mock("@tanstack/react-virtual", () => ({
   }),
 }))
 
-// Mock both modals to keep ObjectsTableView tests isolated.
+// ─── Mock the download store ──────────────────────────────────────────────────
+// The component no longer streams downloads itself — it delegates to the module
+// store (start/cancel) and reads in-flight transfers via useSyncExternalStore.
+// A controllable stand-in lets tests drive the transfer map and assert the calls.
+
+const { storeState } = vi.hoisted(() => ({
+  storeState: {
+    map: new Map<string, { kind: "download" | "preview"; downloadId: string; worker: unknown }>(),
+    // useSyncExternalStore needs a stable snapshot reference between changes.
+    snapshot: new Map<string, { kind: "download" | "preview"; downloadId: string; worker: unknown }>(),
+    listeners: new Set<() => void>(),
+    startObjectDownload: vi.fn(),
+    cancelObjectDownload: vi.fn(),
+  },
+}))
+
+vi.mock("./stores/objectDownloadStore", () => ({
+  startObjectDownload: (opts: unknown) => storeState.startObjectDownload(opts),
+  cancelObjectDownload: (container: string, objectKey: string) => storeState.cancelObjectDownload(container, objectKey),
+  subscribeTransfers: (listener: () => void) => {
+    storeState.listeners.add(listener)
+    return () => storeState.listeners.delete(listener)
+  },
+  getTransfersSnapshot: () => storeState.snapshot,
+  transferKey: (container: string, objectKey: string) => `${container}:${objectKey}`,
+  isPreviewableContentType: (contentType: string) => {
+    const base = String(contentType).split(";")[0].trim().toLowerCase()
+    if (["application/pdf", "text/plain"].includes(base)) return true
+    if (base === "image/svg+xml") return false
+    return base.startsWith("image/") || base.startsWith("video/") || base.startsWith("audio/")
+  },
+}))
+
+vi.mock("./ObjectToastNotifications", () => ({
+  getObjectDownloadCancelledToast: (objectKey: string) => ({
+    message: "Download Cancelled",
+    description: `Download of "${objectKey}" was cancelled.`,
+  }),
+}))
+
+// ─── Mock trpcClient ──────────────────────────────────────────────────────────
+// The only tRPC the component still touches is the per-row progress subscription
+// (via RowTransferProgress). Mocked so tests can drive the reported percent.
+
+let mockDownloadProgress: { percent: number; downloaded: number; total: number } | undefined = undefined
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    storage: {
+      swift: {
+        watchDownloadProgress: {
+          useSubscription: vi.fn(() => ({ data: mockDownloadProgress })),
+        },
+      },
+    },
+  },
+}))
+
+vi.mock("@/client/hooks/useProjectId", () => ({
+  useProjectId: () => "test-project",
+}))
+
+// ─── Toast spy (partial-mock: keep real Juno components) ───────────────────────
+
+// Hoisted so the vi.mock factory below (lifted to the top of the file) can
+// reference it — a plain top-level const isn't initialized yet when the hoisted
+// mock runs.
+const { toastWarning } = vi.hoisted(() => ({ toastWarning: vi.fn() }))
+vi.mock("@cloudoperators/juno-ui-components", async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>
+  return {
+    ...actual,
+    toast: Object.assign(vi.fn(), { warning: toastWarning, dismiss: vi.fn(), success: vi.fn(), error: vi.fn() }),
+  }
+})
+
+// ─── Modal mocks — keep ObjectsTableView tests isolated ───────────────────────
+
 vi.mock("./DeleteObjectModal", () => ({
   DeleteObjectModal: vi.fn(({ isOpen, onClose }) =>
     isOpen ? (
@@ -88,50 +165,6 @@ vi.mock("./EditObjectMetadataModal", () => ({
   ),
 }))
 
-// ─── Mock trpcClient ──────────────────────────────────────────────────────────
-// downloadObject is now an async iterable (streaming mutation) called via the
-// vanilla trpcClient — mock it so tests can control chunks and errors without
-// touching the network.
-
-let mockDownloadIterable: AsyncIterable<{
-  chunk: string
-  downloaded: number
-  total: number
-  contentType?: string
-  filename?: string
-}> | null = null
-let mockDownloadReject = false
-let mockDownloadProgress: { percent: number; downloaded: number; total: number } | undefined = undefined
-
-vi.mock("@/client/trpcClient", () => ({
-  trpcClient: {
-    storage: {
-      swift: {
-        downloadObject: {
-          mutate: vi.fn(async () => {
-            if (mockDownloadReject) throw new Error("Network error")
-            return (
-              mockDownloadIterable ??
-              (async function* () {
-                /* empty — no chunks */
-              })()
-            )
-          }),
-        },
-      },
-    },
-  },
-  trpcReact: {
-    storage: {
-      swift: {
-        watchDownloadProgress: {
-          useSubscription: vi.fn(() => ({ data: mockDownloadProgress })),
-        },
-      },
-    },
-  },
-}))
-
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const makeFolder = (name: string): BrowserRow => ({
@@ -156,6 +189,20 @@ const mockRows: BrowserRow[] = [
   makeObject("readme.txt"),
   makeObject("photo.png", { bytes: 204800, content_type: "image/png" }),
 ]
+
+// Seed an in-flight transfer into the store before rendering.
+const seedTransfer = (
+  container: string,
+  objectKey: string,
+  transfer: { kind: "download" | "preview"; downloadId?: string }
+) => {
+  storeState.map.set(`${container}:${objectKey}`, {
+    downloadId: `${container}:${objectKey}:uuid`,
+    worker: {},
+    ...transfer,
+  })
+  storeState.snapshot = new Map(storeState.map)
+}
 
 // ─── Render helper ────────────────────────────────────────────────────────────
 
@@ -236,26 +283,13 @@ const renderView = ({
 describe("ObjectsTableView", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
-    mockDownloadIterable = null
-    mockDownloadReject = false
     mockDownloadProgress = undefined
-    // jsdom doesn't implement URL.createObjectURL — stub it so preview tests
-    // can assert on window.open being called with a blob URL string.
-    URL.createObjectURL = vi.fn(() => "blob:mock-url")
-    URL.revokeObjectURL = vi.fn()
-    const mockTab = { location: { href: "" }, close: vi.fn() }
-    vi.spyOn(window, "open").mockImplementation(() => mockTab as unknown as Window)
-    // Restore default implementation after any vi.mocked() override in previous tests
-    const { trpcClient } = await import("@/client/trpcClient")
-    vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
-      if (mockDownloadReject) throw new Error("Network error")
-      return (
-        mockDownloadIterable ??
-        (async function* () {
-          /* empty */
-        })()
-      )
-    })
+    storeState.map.clear()
+    storeState.snapshot = new Map()
+    storeState.listeners.clear()
+    storeState.startObjectDownload.mockReset()
+    storeState.cancelObjectDownload.mockReset()
+    toastWarning.mockReset()
     await act(async () => {
       i18n.activate("en")
     })
@@ -326,12 +360,10 @@ describe("ObjectsTableView", () => {
     test("renders — for size on folder rows", () => {
       renderView({ rows: [makeFolder("docs")] })
       const row = screen.getByTestId("object-row-docs/")
-      // Both last-modified and size cells show — for folders
       expect(row.textContent?.match(/—/g)?.length).toBeGreaterThanOrEqual(2)
     })
 
     test("renders formatted size for object rows", () => {
-      // 1024 bytes = 1 KiB
       renderView({ rows: [makeObject("file.txt", { bytes: 1024 })] })
       expect(screen.getByText(/1(\s*)KiB/i)).toBeInTheDocument()
     })
@@ -372,7 +404,6 @@ describe("ObjectsTableView", () => {
     test("opens delete folder modal when Delete Recursively is clicked", async () => {
       const user = userEvent.setup()
       renderView({ rows: [makeFolder("documents")] })
-      // The popup menu items are only rendered after the toggle button is opened
       await user.click(screen.getByRole("button", { name: /More/i }))
       await user.click(screen.getByTestId("delete-recursively-action-documents/"))
       expect(screen.getByTestId("delete-folder-modal")).toBeInTheDocument()
@@ -389,93 +420,42 @@ describe("ObjectsTableView", () => {
     })
   })
 
-  describe("File preview", () => {
-    test("clicking a previewable file name opens a new tab", async () => {
+  describe("Preview / download (row click)", () => {
+    test("clicking a previewable file name starts a preview transfer", async () => {
       const user = userEvent.setup()
-      // text/plain is previewable
-      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })], container: "my-bucket" })
       await user.click(screen.getByTestId("preview-readme.txt"))
-      await vi.waitFor(() => {
-        expect(window.open).toHaveBeenCalledWith("", "_blank")
-        const mockTab = vi.mocked(window.open).mock.results[0].value as { location: { href: string } }
-        expect(mockTab.location.href).toBe("blob:mock-url")
-      })
+      expect(storeState.startObjectDownload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          kind: "preview",
+          container: "my-bucket",
+          objectKey: "readme.txt",
+          filename: "readme.txt",
+          projectId: "test-project",
+        })
+      )
     })
 
-    test("clicking a non-previewable file name triggers download instead", async () => {
+    test("clicking a non-previewable file name also starts a preview transfer (store decides save vs open)", async () => {
       const user = userEvent.setup()
-      // application/zip is not previewable — should trigger anchor download, not window.open
       renderView({ rows: [makeObject("archive.zip", { content_type: "application/zip" })] })
       await user.click(screen.getByTestId("preview-archive.zip"))
-      await vi.waitFor(() => {
-        expect(window.open).not.toHaveBeenCalled()
-      })
+      expect(storeState.startObjectDownload).toHaveBeenCalledWith(expect.objectContaining({ kind: "preview" }))
     })
 
-    test("shows spinner on file name while preview is loading", async () => {
-      let unblock!: () => void
-      const blocker = new Promise<void>((resolve) => {
-        unblock = resolve
-      })
-
-      const { trpcClient } = await import("@/client/trpcClient")
-      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
-        await blocker
-        return (async function* () {})()
-      })
-
+    test("forwards account to the transfer when provided", async () => {
       const user = userEvent.setup()
-      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      renderView({ rows: [makeObject("readme.txt")], account: "AUTH_other" })
       await user.click(screen.getByTestId("preview-readme.txt"))
-
-      // Spinner replaces the file icon while loading
-      expect(screen.getByTestId("preview-readme.txt").querySelector("svg, [class*=spinner]")).toBeTruthy()
-
-      unblock()
+      expect(storeState.startObjectDownload).toHaveBeenCalledWith(expect.objectContaining({ account: "AUTH_other" }))
     })
 
-    test("file name button is disabled while any download is in progress", async () => {
-      let unblock!: () => void
-      const blocker = new Promise<void>((resolve) => {
-        unblock = resolve
-      })
-
-      const { trpcClient } = await import("@/client/trpcClient")
-      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
-        await blocker
-        return (async function* () {})()
-      })
-
-      const user = userEvent.setup()
-      // Use a non-previewable file to trigger download path
-      renderView({
-        rows: [
-          makeObject("archive.zip", { content_type: "application/zip" }),
-          makeObject("readme.txt", { content_type: "text/plain" }),
-        ],
-      })
-
-      // Start download on first file via popup menu
-      const [firstMore] = screen.getAllByRole("button", { name: /More/i })
-      await user.click(firstMore)
-      await user.click(screen.getByTestId("download-action-archive.zip"))
-
-      // Both file name buttons should be disabled
-      const previewButtons = screen.getAllByTestId(/^preview-/)
-      previewButtons.forEach((btn) => expect(btn).toBeDisabled())
-
-      unblock()
-    })
-
-    test("calls onDownloadError when preview fetch throws", async () => {
-      mockDownloadReject = true
+    test("passes onDownloadError through as the transfer's onError", async () => {
       const onDownloadError = vi.fn()
       const user = userEvent.setup()
-      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })], onDownloadError })
+      renderView({ rows: [makeObject("readme.txt")], onDownloadError })
       await user.click(screen.getByTestId("preview-readme.txt"))
-      await vi.waitFor(() => {
-        expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
-      })
+      expect(storeState.startObjectDownload).toHaveBeenCalledWith(expect.objectContaining({ onError: onDownloadError }))
     })
 
     test("previewable file name button has Preview title", () => {
@@ -488,26 +468,30 @@ describe("ObjectsTableView", () => {
       expect(screen.getByTestId("preview-archive.zip")).toHaveAttribute("title", expect.stringContaining("Download"))
     })
 
-    test("image/png is treated as previewable", async () => {
-      const user = userEvent.setup()
-      renderView({ rows: [makeObject("photo.png", { content_type: "image/png" })] })
-      await user.click(screen.getByTestId("preview-photo.png"))
-      await vi.waitFor(() => {
-        expect(window.open).toHaveBeenCalled()
-      })
+    test("shows a spinner on the file name while a preview transfer is in flight", () => {
+      seedTransfer("test-container", "readme.txt", { kind: "preview" })
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      // The button renders an <svg> in both states (the doc icon when idle, the
+      // spinner when previewing), so a bare `svg` query can't tell them apart —
+      // assert on the spinner's own testid.
+      expect(screen.getByTestId("preview-spinner-readme.txt")).toBeInTheDocument()
     })
 
-    test("application/pdf is treated as previewable", async () => {
-      const user = userEvent.setup()
-      renderView({ rows: [makeObject("doc.pdf", { content_type: "application/pdf" })] })
-      await user.click(screen.getByTestId("preview-doc.pdf"))
-      await vi.waitFor(() => {
-        expect(window.open).toHaveBeenCalled()
-      })
+    test("shows no spinner on the file name when the row is idle", () => {
+      // Falsifiability check for the test above: without an active transfer the
+      // idle doc icon renders and the spinner must be absent.
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      expect(screen.queryByTestId("preview-spinner-readme.txt")).not.toBeInTheDocument()
+    })
+
+    test("disables the file name button for a row that is transferring", () => {
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.getByTestId("preview-readme.txt")).toBeDisabled()
     })
   })
 
-  describe("Download action", () => {
+  describe("Download (menu action)", () => {
     test("Download menu item is present for object rows", async () => {
       const user = userEvent.setup()
       renderView({ rows: [makeObject("readme.txt")] })
@@ -522,207 +506,90 @@ describe("ObjectsTableView", () => {
       expect(screen.queryByTestId("download-action-docs/")).not.toBeInTheDocument()
     })
 
-    test("clicking Download calls trpcClient.mutate with correct input", async () => {
-      const { trpcClient } = await import("@/client/trpcClient")
-      mockDownloadIterable = (async function* () {})()
+    test("clicking Download starts a download transfer with the swift fields", async () => {
       const user = userEvent.setup()
       renderView({ rows: [makeObject("readme.txt")], container: "my-bucket" })
       await user.click(screen.getByRole("button", { name: /More/i }))
       await user.click(screen.getByTestId("download-action-readme.txt"))
-      expect(trpcClient.storage.swift.downloadObject.mutate).toHaveBeenCalledWith(
-        expect.objectContaining({ container: "my-bucket", object: "readme.txt", filename: "readme.txt" })
+      expect(storeState.startObjectDownload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          kind: "download",
+          container: "my-bucket",
+          objectKey: "readme.txt",
+          filename: "readme.txt",
+        })
       )
     })
 
-    test("Download menu item is disabled while download is in progress", async () => {
-      // Block mutate so the download stays in-flight while we assert
-      let unblock!: () => void
-      const blocker = new Promise<void>((resolve) => {
-        unblock = resolve
-      })
-
-      const { trpcClient } = await import("@/client/trpcClient")
-      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
-        await blocker
-        return (async function* () {})()
-      })
-
+    test("Download menu item reads 'Downloading...' while its row is transferring", async () => {
       const user = userEvent.setup()
-      renderView({ rows: [makeObject("readme.txt")] })
-
-      // First open — click download to start
-      await user.click(screen.getByRole("button", { name: /More/i }))
-      await user.click(screen.getByTestId("download-action-readme.txt"))
-
-      // The More button itself is disabled — menu cannot be opened
-      const moreButton = screen.getByRole("button", { name: /More/i })
-      expect(moreButton).toBeDisabled()
-
-      unblock()
-    })
-
-    test("shows Downloading... in last modified cell while download is in progress", async () => {
-      let unblock!: () => void
-      const blocker = new Promise<void>((resolve) => {
-        unblock = resolve
-      })
-
-      const { trpcClient } = await import("@/client/trpcClient")
-      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
-        await blocker
-        return (async function* () {})()
-      })
-
-      const user = userEvent.setup()
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
       renderView({ rows: [makeObject("readme.txt")] })
       await user.click(screen.getByRole("button", { name: /More/i }))
-      await user.click(screen.getByTestId("download-action-readme.txt"))
-
-      expect(await screen.findByText(/Downloading\.\.\./i)).toBeInTheDocument()
-
-      unblock()
+      expect(screen.getByTestId("download-action-readme.txt")).toHaveTextContent(/Downloading/i)
     })
+  })
 
-    test("actions menu is disabled for the downloading row", async () => {
-      let unblock!: () => void
-      const blocker = new Promise<void>((resolve) => {
-        unblock = resolve
-      })
-
-      const { trpcClient } = await import("@/client/trpcClient")
-      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
-        await blocker
-        return (async function* () {})()
-      })
-
-      const user = userEvent.setup()
+  describe("In-flight transfer UI (progress + cancel)", () => {
+    test("shows Downloading... in the last-modified cell for a download transfer", () => {
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
       renderView({ rows: [makeObject("readme.txt")] })
-      await user.click(screen.getByRole("button", { name: /More/i }))
-      await user.click(screen.getByTestId("download-action-readme.txt"))
-
-      // The More button for the downloading row should be disabled
-      const moreButton = screen.getByRole("button", { name: /More/i })
-      expect(moreButton).toBeDisabled()
-
-      unblock()
+      expect(screen.getByText(/Downloading\.\.\./i)).toBeInTheDocument()
     })
 
-    test("shows percentage when content-length is known", async () => {
-      let unblock!: () => void
-      const blocker = new Promise<void>((resolve) => {
-        unblock = resolve
-      })
+    test("shows Loading preview... for a preview transfer", () => {
+      seedTransfer("test-container", "readme.txt", { kind: "preview" })
+      renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
+      expect(screen.getByText(/Loading preview\.\.\./i)).toBeInTheDocument()
+    })
 
-      // Block the download so the row stays in downloading state
-      const { trpcClient } = await import("@/client/trpcClient")
-      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
-        await blocker
-        return (async function* () {})()
-      })
-
-      const user = userEvent.setup()
-      const { rerender } = renderView({ rows: [makeObject("readme.txt")] })
-      await user.click(screen.getByRole("button", { name: /More/i }))
-      await user.click(screen.getByTestId("download-action-readme.txt"))
-
-      // Simulate watchDownloadProgress subscription emitting 50% progress
+    test("shows the percentage when the progress subscription reports one", () => {
       mockDownloadProgress = { percent: 50, downloaded: 50, total: 100 }
-      rerender(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <ObjectsTableView
-              rows={[makeObject("readme.txt")]}
-              searchTerm=""
-              container="test-container"
-              onFolderClick={vi.fn()}
-              onDeleteFolderSuccess={vi.fn()}
-              onDeleteFolderError={vi.fn()}
-              onDownloadError={vi.fn()}
-              onDeleteObjectSuccess={vi.fn()}
-              onDeleteObjectError={vi.fn()}
-              onCopyObjectSuccess={vi.fn()}
-              onCopyObjectError={vi.fn()}
-              onMoveObjectSuccess={vi.fn()}
-              onMoveObjectError={vi.fn()}
-              onTempUrlCopySuccess={vi.fn()}
-              onEditMetadataSuccess={vi.fn()}
-              onEditMetadataError={vi.fn()}
-              selectedObjects={[]}
-              setSelectedObjects={vi.fn()}
-            />
-          </PortalProvider>
-        </I18nProvider>
-      )
-
-      expect(await screen.findByText("50%")).toBeInTheDocument()
-
-      unblock()
-    })
-
-    test("shows Downloading... when total is unknown (no content-length)", async () => {
-      let unblock!: () => void
-      const blocker = new Promise<void>((resolve) => {
-        unblock = resolve
-      })
-
-      const { trpcClient } = await import("@/client/trpcClient")
-      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
-        await blocker
-        return (async function* () {
-          /* empty */
-        })()
-      })
-
-      const user = userEvent.setup()
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
       renderView({ rows: [makeObject("readme.txt")] })
-      await user.click(screen.getByRole("button", { name: /More/i }))
-      await user.click(screen.getByTestId("download-action-readme.txt"))
-
-      expect(await screen.findByText(/Downloading\.\.\./i)).toBeInTheDocument()
-
-      unblock()
+      expect(screen.getByText("50%")).toBeInTheDocument()
     })
 
-    test("actions menu is disabled on all rows while a download is in progress", async () => {
-      let unblock!: () => void
-      const blocker = new Promise<void>((resolve) => {
-        unblock = resolve
-      })
-
-      const { trpcClient } = await import("@/client/trpcClient")
-      vi.mocked(trpcClient.storage.swift.downloadObject.mutate).mockImplementation(async () => {
-        await blocker
-        return (async function* () {
-          /* empty */
-        })()
-      })
-
-      const user = userEvent.setup()
-      // Render two object rows
-      renderView({ rows: [makeObject("readme.txt"), makeObject("photo.png")] })
-
-      // Start download on the first row
-      const [firstMore] = screen.getAllByRole("button", { name: /More/i })
-      await user.click(firstMore)
-      await user.click(screen.getByTestId("download-action-readme.txt"))
-
-      // Both More buttons should now be disabled
-      const moreButtons = screen.getAllByRole("button", { name: /More/i })
-      moreButtons.forEach((btn) => expect(btn).toBeDisabled())
-
-      unblock()
+    test("renders a cancel control for a transferring row", () => {
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.getByTestId("cancel-transfer-readme.txt")).toBeInTheDocument()
     })
 
-    test("calls onDownloadError when mutate throws", async () => {
-      mockDownloadReject = true
-      const onDownloadError = vi.fn()
-      const user = userEvent.setup()
-      renderView({ rows: [makeObject("readme.txt")], onDownloadError })
-      await user.click(screen.getByRole("button", { name: /More/i }))
-      await user.click(screen.getByTestId("download-action-readme.txt"))
-      await vi.waitFor(() => {
-        expect(onDownloadError).toHaveBeenCalledWith("readme.txt", "Network error")
-      })
+    test("the cancel control is a keyboard-focusable button with an accessible name", () => {
+      // Regression guard: it was a clickable <Icon> (bare SVG) — not focusable
+      // and unlabelled for assistive tech. It must be a real, named button.
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
+      renderView({ rows: [makeObject("readme.txt")] })
+      const cancel = screen.getByTestId("cancel-transfer-readme.txt")
+      expect(cancel.tagName).toBe("BUTTON")
+      expect(cancel).toHaveAccessibleName("Cancel")
+    })
+
+    test("clicking cancel calls cancelObjectDownload and shows a cancelled toast", () => {
+      storeState.cancelObjectDownload.mockReturnValue({ kind: "download", downloadId: "d", worker: {} })
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
+      renderView({ rows: [makeObject("readme.txt")] })
+      fireEvent.click(screen.getByTestId("cancel-transfer-readme.txt"))
+      expect(storeState.cancelObjectDownload).toHaveBeenCalledWith("test-container", "readme.txt")
+      expect(toastWarning).toHaveBeenCalled()
+    })
+
+    test("does not toast when cancel finds no active transfer (no-op)", () => {
+      storeState.cancelObjectDownload.mockReturnValue(undefined)
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
+      renderView({ rows: [makeObject("readme.txt")] })
+      fireEvent.click(screen.getByTestId("cancel-transfer-readme.txt"))
+      expect(toastWarning).not.toHaveBeenCalled()
+    })
+
+    test("leaves other rows interactive while one row transfers (concurrent downloads)", () => {
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
+      renderView({ rows: [makeObject("readme.txt"), makeObject("photo.png", { content_type: "image/png" })] })
+      // The transferring row's name button is disabled…
+      expect(screen.getByTestId("preview-readme.txt")).toBeDisabled()
+      // …but the other row remains clickable.
+      expect(screen.getByTestId("preview-photo.png")).not.toBeDisabled()
     })
   })
 
@@ -909,9 +776,6 @@ describe("ObjectsTableView", () => {
 
     test("folder checkbox tooltip text is present on hover", async () => {
       renderView()
-      // Juno Tooltip only mounts TooltipContent after the trigger is hovered —
-      // find the TooltipTrigger wrapping the first folder's disabled checkbox
-      // and fire mouseEnter to open it, mirroring the ClipboardText tooltip tests.
       const folderName = mockRows.filter((r) => r.kind === "folder")[0].name
       const trigger = screen.getByTestId(`select-folder-disabled-${folderName}`).closest("button")!
       await act(async () => {
@@ -946,6 +810,12 @@ describe("ObjectsTableView", () => {
       await user.click(screen.getByTestId("select-object-readme.txt"))
       expect(setSelectedObjects).toHaveBeenCalledWith(["photo.png"])
     })
+
+    test("row checkbox is disabled while its row is transferring", () => {
+      seedTransfer("test-container", "readme.txt", { kind: "download" })
+      renderView({ rows: [makeObject("readme.txt")] })
+      expect(screen.getByTestId("select-object-readme.txt")).toBeDisabled()
+    })
   })
 
   describe("Selection column gating (hasAnyBulkAction)", () => {
@@ -979,7 +849,6 @@ describe("ObjectsTableView", () => {
 
     test("renders the selection column by default (hasAnyBulkAction defaults to true)", () => {
       renderView()
-      // Per-row checkboxes are the selection affordance; no header select-all
       expect(screen.getByTestId("select-object-readme.txt")).toBeInTheDocument()
     })
   })
@@ -1027,12 +896,7 @@ describe("ObjectsTableView", () => {
   describe("Viewport height", () => {
     test("sizes the table body from the measured viewport space, not a fixed offset", () => {
       renderView()
-
       const body = screen.getByTestId("objects-table-body")
-
-      // A pixel value derived at runtime. A hard-coded calc(100vh - Npx) broke
-      // whenever a custom banner changed how much room was left above the table,
-      // leaving the document taller than the viewport (two scrollbars).
       expect(body.style.height).toMatch(/^\d+px$/)
       expect(parseInt(body.style.height, 10)).toBeGreaterThan(0)
       expect(parseInt(body.style.height, 10)).toBeLessThanOrEqual(window.innerHeight)
@@ -1040,10 +904,6 @@ describe("ObjectsTableView", () => {
 
     test("renders rows only once the height is known", () => {
       renderView()
-
-      // Rows are held back until the container is sized: an unsized container
-      // measures as tall as its content, and the virtualizer would size its
-      // range to the whole list and render every row once.
       expect(screen.getByTestId("objects-table-body").style.height).not.toBe("0px")
       expect(screen.getByTestId("object-row-readme.txt")).toBeInTheDocument()
     })

@@ -120,9 +120,6 @@ msgstr "{numberDeleted} objects were permanently deleted."
 msgid "{percent}%"
 msgstr "{percent}%"
 
-msgid "{progressPct}%"
-msgstr "{progressPct}%"
-
 msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 msgstr "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 
@@ -825,9 +822,6 @@ msgstr "Could not delete versions from bucket \"{bucketName}\": {errorMessage}"
 msgid "Could not download \"{displayName}\": {errorMessage}"
 msgstr "Could not download \"{displayName}\": {errorMessage}"
 
-msgid "Could not download \"{objectName}\": {errorMessage}"
-msgstr "Could not download \"{objectName}\": {errorMessage}"
-
 msgid "Could not empty bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not empty bucket \"{bucketName}\": {errorMessage}"
 
@@ -1191,6 +1185,9 @@ msgstr "Download of \"{displayName}\" was cancelled."
 
 msgid "Downloading larger files may take a while. You can keep browsing buckets and folders — downloads continue in the background, and this message disappears once they finish."
 msgstr "Downloading larger files may take a while. You can keep browsing buckets and folders — downloads continue in the background, and this message disappears once they finish."
+
+msgid "Downloading larger files may take a while. You can keep browsing containers and folders — downloads continue in the background, and this message disappears once they finish."
+msgstr "Downloading larger files may take a while. You can keep browsing containers and folders — downloads continue in the background, and this message disappears once they finish."
 
 msgid "Downloading..."
 msgstr "Downloading..."
