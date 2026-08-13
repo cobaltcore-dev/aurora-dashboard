@@ -101,12 +101,16 @@ export function parseAccountInfo(headers: Headers): AccountInfo {
     bytesUsed: parseInt(headers.get("x-account-bytes-used") || "0", 10),
   }
 
-  // Parse custom metadata
+  // Parse custom metadata (excluding secret keys)
   const metadata: Record<string, string> = {}
   headers.forEach((value, key) => {
-    if (key.toLowerCase().startsWith("x-account-meta-")) {
+    const lowerKey = key.toLowerCase()
+    if (lowerKey.startsWith("x-account-meta-")) {
       const metaKey = key.substring(15) // Remove "x-account-meta-" prefix
-      metadata[metaKey] = value
+      // Exclude TempURL keys from metadata
+      if (metaKey !== "temp-url-key" && metaKey !== "temp-url-key-2") {
+        metadata[metaKey] = value
+      }
     }
   })
 

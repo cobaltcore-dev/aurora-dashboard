@@ -504,6 +504,34 @@ describe("swiftHelpers", () => {
       expect(result.hasTempUrlKey).toBe(true)
     })
 
+    it("should exclude temp URL keys from metadata while preserving other metadata", () => {
+      const headers = new Headers({
+        "X-Account-Object-Count": "100",
+        "X-Account-Container-Count": "5",
+        "X-Account-Bytes-Used": "1024",
+        "X-Account-Meta-Temp-URL-Key": "secret-key-1",
+        "X-Account-Meta-Temp-URL-Key-2": "secret-key-2",
+        "X-Account-Meta-Project": "test-project",
+        "X-Account-Meta-Owner": "john-doe",
+      })
+
+      const result = parseAccountInfo(headers)
+
+      // Security: metadata object should NOT contain temp URL keys
+      expect(result.metadata).toBeDefined()
+      expect(result.metadata).not.toHaveProperty("temp-url-key")
+      expect(result.metadata).not.toHaveProperty("temp-url-key-2")
+
+      // Other metadata should remain
+      expect(result.metadata).toEqual({
+        project: "test-project",
+        owner: "john-doe",
+      })
+
+      // Presence flag should still be set
+      expect(result.hasTempUrlKey).toBe(true)
+    })
+
     it("should return false for hasTempUrlKey when no keys present", () => {
       const headers = new Headers({
         "X-Account-Object-Count": "100",
