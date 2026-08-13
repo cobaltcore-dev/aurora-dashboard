@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server"
 import { ZodError } from "zod"
 import { ListContainersInput, ListObjectsInput, AccountInfo, ContainerInfo, ObjectMetadata } from "../types/swift"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
+import { redactAccountSecrets, redactContainerSecrets } from "../../helpers/secretHelpers"
 
 /**
  * Validates that the OpenStack Swift service is available
@@ -94,7 +95,7 @@ export function applyObjectQueryParams(
  * @returns AccountInfo object
  */
 export function parseAccountInfo(headers: Headers): AccountInfo {
-  const accountInfo: AccountInfo = {
+  const accountInfo: Partial<AccountInfo> = {
     objectCount: parseInt(headers.get("x-account-object-count") || "0", 10),
     containerCount: parseInt(headers.get("x-account-container-count") || "0", 10),
     bytesUsed: parseInt(headers.get("x-account-bytes-used") || "0", 10),
@@ -119,17 +120,13 @@ export function parseAccountInfo(headers: Headers): AccountInfo {
     accountInfo.quotaBytes = parseInt(quotaBytes, 10)
   }
 
-  const tempUrlKey = headers.get("x-account-meta-temp-url-key")
-  if (tempUrlKey) {
-    accountInfo.tempUrlKey = tempUrlKey
-  }
+  // Security: Redact secret keys, return only presence flags
+  const secrets = redactAccountSecrets(headers)
 
-  const tempUrlKey2 = headers.get("x-account-meta-temp-url-key-2")
-  if (tempUrlKey2) {
-    accountInfo.tempUrlKey2 = tempUrlKey2
-  }
-
-  return accountInfo
+  return {
+    ...accountInfo,
+    ...secrets,
+  } as AccountInfo
 }
 
 /**
@@ -138,7 +135,7 @@ export function parseAccountInfo(headers: Headers): AccountInfo {
  * @returns ContainerInfo object
  */
 export function parseContainerInfo(headers: Headers): ContainerInfo {
-  const containerInfo: ContainerInfo = {
+  const containerInfo: Partial<ContainerInfo> = {
     objectCount: parseInt(headers.get("x-container-object-count") || "0", 10),
     bytesUsed: parseInt(headers.get("x-container-bytes-used") || "0", 10),
   }
@@ -204,22 +201,13 @@ export function parseContainerInfo(headers: Headers): ContainerInfo {
     containerInfo.syncTo = syncTo
   }
 
-  const syncKey = headers.get("x-container-sync-key")
-  if (syncKey) {
-    containerInfo.syncKey = syncKey
-  }
+  // Security: Redact secret keys, return only presence flags
+  const secrets = redactContainerSecrets(headers)
 
-  const tempUrlKey = headers.get("x-container-meta-temp-url-key")
-  if (tempUrlKey) {
-    containerInfo.tempUrlKey = tempUrlKey
-  }
-
-  const tempUrlKey2 = headers.get("x-container-meta-temp-url-key-2")
-  if (tempUrlKey2) {
-    containerInfo.tempUrlKey2 = tempUrlKey2
-  }
-
-  return containerInfo
+  return {
+    ...containerInfo,
+    ...secrets,
+  } as ContainerInfo
 }
 
 /**

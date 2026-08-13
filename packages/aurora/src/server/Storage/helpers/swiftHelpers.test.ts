@@ -485,7 +485,7 @@ describe("swiftHelpers", () => {
       expect(result.quotaBytes).toBe(10737418240)
     })
 
-    it("should parse temp URL keys", () => {
+    it("should redact temp URL keys and return presence flag only", () => {
       const headers = new Headers({
         "X-Account-Object-Count": "100",
         "X-Account-Container-Count": "5",
@@ -496,8 +496,24 @@ describe("swiftHelpers", () => {
 
       const result = parseAccountInfo(headers)
 
-      expect(result.tempUrlKey).toBe("secret-key-1")
-      expect(result.tempUrlKey2).toBe("secret-key-2")
+      // Security: Should NOT return raw secret values
+      expect(result).not.toHaveProperty("tempUrlKey")
+      expect(result).not.toHaveProperty("tempUrlKey2")
+
+      // Should return presence flag instead
+      expect(result.hasTempUrlKey).toBe(true)
+    })
+
+    it("should return false for hasTempUrlKey when no keys present", () => {
+      const headers = new Headers({
+        "X-Account-Object-Count": "100",
+        "X-Account-Container-Count": "5",
+        "X-Account-Bytes-Used": "1024",
+      })
+
+      const result = parseAccountInfo(headers)
+
+      expect(result.hasTempUrlKey).toBe(false)
     })
 
     it("should return empty metadata when no metadata headers present", () => {
@@ -624,7 +640,7 @@ describe("swiftHelpers", () => {
       expect(parseContainerInfo(headers).versionsEnabled).toBeUndefined()
     })
 
-    it("should parse sync headers", () => {
+    it("should redact sync and temp URL secrets, return presence flags only", () => {
       const headers = new Headers({
         "X-Container-Object-Count": "10",
         "X-Container-Bytes-Used": "1024",
@@ -635,10 +651,15 @@ describe("swiftHelpers", () => {
       const result = parseContainerInfo(headers)
 
       expect(result.syncTo).toBe("https://remote.swift/container")
-      expect(result.syncKey).toBe("sync-secret")
+
+      // Security: Should NOT return raw secret value
+      expect(result).not.toHaveProperty("syncKey")
+
+      // Should return presence flag instead
+      expect(result.hasSyncKey).toBe(true)
     })
 
-    it("should parse temp URL keys", () => {
+    it("should redact temp URL keys and return presence flag only", () => {
       const headers = new Headers({
         "X-Container-Object-Count": "10",
         "X-Container-Bytes-Used": "1024",
@@ -648,8 +669,24 @@ describe("swiftHelpers", () => {
 
       const result = parseContainerInfo(headers)
 
-      expect(result.tempUrlKey).toBe("container-key")
-      expect(result.tempUrlKey2).toBe("container-key-2")
+      // Security: Should NOT return raw secret values
+      expect(result).not.toHaveProperty("tempUrlKey")
+      expect(result).not.toHaveProperty("tempUrlKey2")
+
+      // Should return presence flag instead
+      expect(result.hasTempUrlKey).toBe(true)
+    })
+
+    it("should return false for secret flags when no secrets present", () => {
+      const headers = new Headers({
+        "X-Container-Object-Count": "10",
+        "X-Container-Bytes-Used": "1024",
+      })
+
+      const result = parseContainerInfo(headers)
+
+      expect(result.hasTempUrlKey).toBe(false)
+      expect(result.hasSyncKey).toBe(false)
     })
   })
 
