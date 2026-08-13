@@ -1278,6 +1278,21 @@ export const swiftRouter = {
         const now = Math.floor(Date.now() / 1000)
         const expiresAt = now + expiresIn
 
+        // Audit logging for TempURL generation (security monitoring)
+        const token = ctx.openstack?.getToken()
+        const userId = token?.tokenData.user?.id
+        const projectId = token?.tokenData.project?.id
+
+        console.info("TempURL generated", {
+          userId,
+          projectId,
+          container,
+          object,
+          method,
+          expiresIn,
+          expiresAt: new Date(expiresAt * 1000).toISOString(),
+        })
+
         // Derive the object path for HMAC signing from the (possibly overridden) base URL.
         // Swift verifies the signature against the decoded URL path, so this string
         // must contain no percent-encoding — plain slash-separated segments only.
