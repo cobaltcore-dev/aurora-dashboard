@@ -602,7 +602,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     <div className="relative">
       <Stack direction="vertical">
         {/* Zone 1 — sort controls and page-level actions */}
-        <Stack distribution="between" alignment="center" gap="2" className="pb-2">
+        <Stack distribution="between" alignment="end" gap="2" className="pb-2">
           {/* Tabs row (shown only when versioning is enabled/suspended) */}
           {versioningStatus && versioningStatus.status !== "Unversioned" ? (
             <TabNavigation>
