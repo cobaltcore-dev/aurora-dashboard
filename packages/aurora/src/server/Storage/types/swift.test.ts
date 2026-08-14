@@ -74,6 +74,7 @@ describe("Swift Object Storage Schema Validation", () => {
         objectCount: 100,
         containerCount: 5,
         bytesUsed: 1073741824, // 1GB
+        hasTempUrlKey: false,
       }
 
       const completeAccountInfo = {
@@ -85,8 +86,7 @@ describe("Swift Object Storage Schema Validation", () => {
           owner: "user",
         },
         quotaBytes: 10737418240, // 10GB
-        tempUrlKey: "secret-key-1",
-        tempUrlKey2: "secret-key-2",
+        hasTempUrlKey: true,
       }
 
       it("should validate minimal account info", () => {
@@ -346,6 +346,8 @@ describe("Swift Object Storage Schema Validation", () => {
       const minimalContainerInfo = {
         objectCount: 10,
         bytesUsed: 1048576,
+        hasTempUrlKey: false,
+        hasSyncKey: false,
       }
 
       const completeContainerInfo = {
@@ -361,9 +363,8 @@ describe("Swift Object Storage Schema Validation", () => {
         read: ".r:*,.rlistings",
         write: "user1:*,user2:*",
         syncTo: "https://remote.swift/container",
-        syncKey: "sync-secret",
-        tempUrlKey: "temp-key",
-        tempUrlKey2: "temp-key-2",
+        hasTempUrlKey: true,
+        hasSyncKey: true,
       }
 
       it("should validate minimal container info", () => {
@@ -859,8 +860,7 @@ describe("Swift Object Storage Schema Validation", () => {
           bytesUsed: 1073741824,
           metadata: { project: "test" },
           quotaBytes: 10737418240,
-          tempUrlKey: "key1",
-          tempUrlKey2: "key2",
+          hasTempUrlKey: true,
         }
         const result = accountInfoResponseSchema.safeParse(response)
         expect(result.success).toBe(true)
@@ -875,6 +875,8 @@ describe("Swift Object Storage Schema Validation", () => {
           metadata: { project: "test" },
           quotaBytes: 10485760,
           storagePolicy: "Policy-0",
+          hasTempUrlKey: false,
+          hasSyncKey: false,
         }
         const result = containerInfoResponseSchema.safeParse(response)
         expect(result.success).toBe(true)
