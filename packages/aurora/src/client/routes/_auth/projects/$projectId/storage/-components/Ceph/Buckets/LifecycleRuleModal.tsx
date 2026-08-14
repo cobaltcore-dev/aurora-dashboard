@@ -159,6 +159,34 @@ export const LifecycleRuleModal = ({
       onCancel={handleClose}
       title={editingRule ? t`Edit Lifecycle Rule` : t`Create Lifecycle Rule`}
       size="large"
+      modalFooter={
+        <ModalFooter className="bg-theme-background-lvl-0 sticky bottom-0 z-50 flex justify-end">
+          <ButtonRow>
+            <Button variant="subdued" onClick={handleClose} disabled={isSaving}>
+              <Trans>Cancel</Trans>
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                document.querySelector<HTMLFormElement>("#lifecycle-rule-form")?.requestSubmit()
+              }}
+              disabled={!isFormValid || isSaving || isLifecycleLoading || !!lifecycleError}
+            >
+              {isSaving ? (
+                editingRule ? (
+                  <Trans>Saving...</Trans>
+                ) : (
+                  <Trans>Creating...</Trans>
+                )
+              ) : editingRule ? (
+                <Trans>Save Changes</Trans>
+              ) : (
+                <Trans>Create Lifecycle Rule</Trans>
+              )}
+            </Button>
+          </ButtonRow>
+        </ModalFooter>
+      }
     >
       {isLifecycleLoading ? (
         <div className="flex items-center justify-center py-8">
@@ -185,32 +213,6 @@ export const LifecycleRuleModal = ({
             onSubmit={handleSubmit}
             onValidationChange={setIsFormValid}
           />
-          <ModalFooter>
-            <ButtonRow>
-              <Button variant="subdued" onClick={handleClose} disabled={isSaving}>
-                <Trans>Cancel</Trans>
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => {
-                  document.querySelector<HTMLFormElement>("#lifecycle-rule-form")?.requestSubmit()
-                }}
-                disabled={!isFormValid || isSaving || isLifecycleLoading || !!lifecycleError}
-              >
-                {isSaving ? (
-                  editingRule ? (
-                    <Trans>Saving...</Trans>
-                  ) : (
-                    <Trans>Creating...</Trans>
-                  )
-                ) : editingRule ? (
-                  <Trans>Save Changes</Trans>
-                ) : (
-                  <Trans>Create Lifecycle Rule</Trans>
-                )}
-              </Button>
-            </ButtonRow>
-          </ModalFooter>
         </>
       )}
     </Modal>

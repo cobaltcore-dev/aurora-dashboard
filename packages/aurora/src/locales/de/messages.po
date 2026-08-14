@@ -349,9 +349,6 @@ msgstr "Regel hinzufügen"
 msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
 
-msgid "Add Tag"
-msgstr ""
-
 msgid "Add Tenant Access"
 msgstr "Projektzugriff hinzufügen"
 
@@ -1459,9 +1456,6 @@ msgstr "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen."
 
 msgid "Entries in ACLs are comma-separated. Examples:"
 msgstr "Einträge in ACLs werden durch Kommas getrennt. Beispiele:"
-
-msgid "Environment"
-msgstr ""
 
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
@@ -2914,9 +2908,6 @@ msgstr "Privat"
 
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist möglicherweise unvollständig."
-
-msgid "production"
-msgstr ""
 
 msgid "production, linux"
 msgstr "production, linux"

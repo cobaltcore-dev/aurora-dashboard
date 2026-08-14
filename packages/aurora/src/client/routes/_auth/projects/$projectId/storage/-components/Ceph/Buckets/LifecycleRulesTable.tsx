@@ -209,7 +209,7 @@ export function LifecycleRulesTable({
                     <PopupMenu>
                       <PopupMenuOptions>
                         <PopupMenuItem
-                          label={t`Edit`}
+                          label={t`Edit Lifecycle Rule`}
                           onClick={() => onEditRule(originalIndex)}
                           disabled={effectiveIsMutating}
                         />

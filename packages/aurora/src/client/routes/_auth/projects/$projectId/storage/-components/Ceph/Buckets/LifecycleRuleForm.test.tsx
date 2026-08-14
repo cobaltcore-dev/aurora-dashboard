@@ -311,7 +311,7 @@ describe("LifecycleRuleForm", () => {
       await user.type(keyInput, "Environment")
       await user.type(valueInput, "production")
 
-      const addButton = screen.getByRole("button", { name: /Add Tag/i })
+      const addButton = screen.getByRole("button", { name: /Add/i })
       await user.click(addButton)
 
       // Tag should appear in the list
@@ -349,7 +349,7 @@ describe("LifecycleRuleForm", () => {
       const valueInput = screen.getByLabelText(/Value/i)
       await user.type(keyInput, "Team")
       await user.type(valueInput, "backend")
-      const addButton = screen.getByRole("button", { name: /Add Tag/i })
+      const addButton = screen.getByRole("button", { name: /Add/i })
       await user.click(addButton)
 
       const form = screen.getByRole("form") || document.querySelector("#lifecycle-rule-form")!
@@ -387,7 +387,7 @@ describe("LifecycleRuleForm", () => {
 
       // After checking expiration without entering days, form should be invalid
       await waitFor(() => {
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false)
+        expect(mockOnValidationChange).toHaveBeenLastCalledWith(false)
       })
     })
 
@@ -403,6 +403,22 @@ describe("LifecycleRuleForm", () => {
       await user.type(daysInput, "30")
 
       // After entering valid days, form should be valid
+      await waitFor(() => {
+        expect(mockOnValidationChange).toHaveBeenCalledWith(true)
+      })
+    })
+
+    test("treats transitions-only rule as valid", async () => {
+      const mockOnValidationChange = vi.fn()
+      const editingRule: LifecycleRuleRead = {
+        ID: "transition-rule",
+        Status: "Enabled",
+        Filter: {},
+        Transitions: [{ Days: 30, StorageClass: "GLACIER" }],
+      }
+      renderForm({ onValidationChange: mockOnValidationChange, editingRule })
+
+      // Form with existing transitions should be valid even without Expiration
       await waitFor(() => {
         expect(mockOnValidationChange).toHaveBeenCalledWith(true)
       })

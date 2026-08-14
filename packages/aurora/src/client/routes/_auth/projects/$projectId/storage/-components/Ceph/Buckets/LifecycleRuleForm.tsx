@@ -10,6 +10,7 @@ import {
   SelectOption,
   Checkbox,
   Message,
+  Pill,
 } from "@cloudoperators/juno-ui-components"
 import type { LifecycleRuleRead, LifecycleTag } from "@/server/Storage/types/ceph"
 import { normalizeFilter } from "./utils/lifecycleUtils"
@@ -276,40 +277,37 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                 <Trans>Tags</Trans>
               </label>
               <div className="mt-2">
-                <Stack direction="vertical" gap="2">
-                  {form.state.values.tags.map((tag, index) => (
-                    <Stack key={index} gap="2" alignment="center">
-                      <span className="text-theme-default text-sm">
-                        {tag.Key}={tag.Value}
-                      </span>
-                      <Button size="small" variant="subdued" onClick={() => handleRemoveTag(index)}>
-                        <Trans>Remove</Trans>
-                      </Button>
-                    </Stack>
-                  ))}
-                  <Stack gap="2" alignment="end">
+                <div className="flex items-start gap-2">
+                  <div className="flex-1">
                     <TextInput
                       label={t`Key`}
-                      placeholder={t`Environment`}
+                      placeholder="Environment"
                       value={newTagKey}
                       onChange={(e) => setNewTagKey(e.target.value)}
                     />
+                  </div>
+                  <div className="flex-1">
                     <TextInput
                       label={t`Value`}
-                      placeholder={t`production`}
+                      placeholder="production"
                       value={newTagValue}
                       onChange={(e) => setNewTagValue(e.target.value)}
                     />
-                    <Button
-                      size="small"
-                      variant="subdued"
-                      onClick={handleAddTag}
-                      disabled={!newTagKey.trim() || !newTagValue.trim()}
-                    >
-                      <Trans>Add Tag</Trans>
-                    </Button>
+                  </div>
+                  <Button variant="primary" onClick={handleAddTag} disabled={!newTagKey.trim() || !newTagValue.trim()}>
+                    <Trans>Add</Trans>
+                  </Button>
+                </div>
+
+                {form.state.values.tags.length > 0 && (
+                  <Stack gap="2" wrap={true} alignment="start" distribution="start" className="mt-2">
+                    {form.state.values.tags.map((tag, index) => (
+                      <div key={index} className="max-w-full break-all">
+                        <Pill pillValue={`${tag.Key}=${tag.Value}`} closeable onClose={() => handleRemoveTag(index)} />
+                      </div>
+                    ))}
                   </Stack>
-                </Stack>
+                )}
               </div>
               <p className="juno-helptext">
                 <Trans>Apply this rule only to objects with specific tags</Trans>

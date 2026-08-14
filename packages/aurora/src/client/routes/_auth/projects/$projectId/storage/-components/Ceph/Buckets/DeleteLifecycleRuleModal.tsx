@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Modal, ModalFooter, ButtonRow, Button, Message, Spinner } from "@cloudoperators/juno-ui-components"
+import { Modal, Message, Spinner } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -166,7 +166,17 @@ export const DeleteLifecycleRuleModal = ({
   const displayName = ruleId || t`Rule #${ruleIndex + 1}`
 
   return (
-    <Modal open={isOpen} onCancel={handleClose} title={t`Delete Lifecycle Rule`} size="small">
+    <Modal
+      open={isOpen}
+      onCancel={handleClose}
+      title={t`Delete Lifecycle Rule`}
+      size="small"
+      confirmButtonLabel={isMutating ? t`Deleting...` : t`Delete Lifecycle Rule`}
+      confirmButtonVariant="primary-danger"
+      onConfirm={handleConfirm}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={isMutating || isVerifying || isLoading || !!queryError}
+    >
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
           <Spinner variant="primary" />
@@ -186,16 +196,6 @@ export const DeleteLifecycleRuleModal = ({
           <p className="mt-2">
             <Trans>This action cannot be undone.</Trans>
           </p>
-          <ModalFooter>
-            <ButtonRow>
-              <Button variant="subdued" onClick={handleClose} disabled={isMutating || isVerifying}>
-                <Trans>Cancel</Trans>
-              </Button>
-              <Button variant="primary-danger" onClick={handleConfirm} disabled={isMutating || isVerifying}>
-                {isMutating ? <Trans>Deleting...</Trans> : <Trans>Delete Lifecycle Rule</Trans>}
-              </Button>
-            </ButtonRow>
-          </ModalFooter>
         </>
       )}
     </Modal>

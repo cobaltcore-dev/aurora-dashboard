@@ -377,7 +377,28 @@ describe("Objects Route - View Parameter Handling", () => {
     expect(screen.queryByTestId("ceph-cors-rules")).not.toBeInTheDocument()
   })
 
-  it("renders SwiftObjects when provider is swift, ignoring view parameter", () => {
+  it("renders SwiftObjects when provider is swift, ignoring view=cors-rules", () => {
+    vi.mocked(useParams).mockReturnValue({
+      projectId: "proj-1",
+      provider: "swift",
+      containerName: "container-1",
+    })
+    vi.spyOn(Route, "useSearch").mockReturnValue({
+      view: "cors-rules", // Swift should ignore this
+      sortBy: "name",
+      sortDirection: "asc",
+      tab: "all",
+    })
+
+    render(<ObjectsDashboard />, { wrapper: Wrapper })
+
+    expect(screen.getByTestId("swift-objects")).toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-objects")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-cors-rules")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-lifecycle-rules")).not.toBeInTheDocument()
+  })
+
+  it("renders SwiftObjects when provider is swift, ignoring view=lifecycle-rules", () => {
     vi.mocked(useParams).mockReturnValue({
       projectId: "proj-1",
       provider: "swift",
