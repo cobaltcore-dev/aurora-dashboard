@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Modal, ModalFooter, ButtonRow, Button, Message, Spinner } from "@cloudoperators/juno-ui-components"
 import { Trans, Plural, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -39,6 +39,7 @@ export const DeleteLifecycleRulesModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
+  const [isVerifying, setIsVerifying] = useState(false)
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
@@ -92,6 +93,7 @@ export const DeleteLifecycleRulesModal = ({
     if (!isOpen) {
       deleteMutation.reset()
       setMutation.reset()
+      setIsVerifying(false)
       resetTracking()
     }
   }, [isOpen])
@@ -100,12 +102,16 @@ export const DeleteLifecycleRulesModal = ({
     trackClose()
     deleteMutation.reset()
     setMutation.reset()
+    setIsVerifying(false)
     resetTracking()
     onClose()
   }
 
   const handleConfirm = async () => {
+    if (isVerifying) return
+
     markSubmitted()
+    setIsVerifying(true)
 
     try {
       // Refetch to get fresh state
@@ -115,6 +121,26 @@ export const DeleteLifecycleRulesModal = ({
       })
 
       const freshRules = freshData?.rules ?? []
+
+      // Freshness check: verify each rule at its index matches what the user selected
+      const mismatches: number[] = []
+      for (const index of ruleIndices) {
+        const cachedRule = rules[index]
+        const freshRule = freshRules[index]
+
+        if (!freshRule || JSON.stringify(freshRule) !== JSON.stringify(cachedRule)) {
+          mismatches.push(index)
+        }
+      }
+
+      if (mismatches.length > 0) {
+        onError?.(
+          bucketName,
+          t`The lifecycle configuration has changed. Please refresh and try again.`,
+          ruleIndices.length
+        )
+        return
+      }
 
       // Remove the selected rules
       const remaining = freshRules.filter((_, i) => !ruleIndices.includes(i))
@@ -143,13 +169,17 @@ export const DeleteLifecycleRulesModal = ({
       }
     } catch (error) {
       onError?.(bucketName, error instanceof Error ? error.message : String(error), ruleIndices.length)
+    } finally {
+      setIsVerifying(false)
     }
   }
 
   const ruleCount = ruleIndices.length
-  const rulesToDelete = ruleIndices.map((i) => rules[i]).filter(Boolean)
-  const visibleRules = rulesToDelete.slice(0, MAX_VISIBLE_RULES)
-  const hiddenCount = rulesToDelete.length - visibleRules.length
+  const rulesToDeleteWithIndices = ruleIndices
+    .map((i) => ({ rule: rules[i], index: i }))
+    .filter(({ rule }) => rule !== undefined)
+  const visibleRules = rulesToDeleteWithIndices.slice(0, MAX_VISIBLE_RULES)
+  const hiddenCount = rulesToDeleteWithIndices.length - visibleRules.length
 
   const confirmLabel = isMutating
     ? t`Deleting...`
@@ -185,10 +215,10 @@ export const DeleteLifecycleRulesModal = ({
               </Trans>
             )}
           </p>
-          {rulesToDelete.length > 0 && (
+          {rulesToDeleteWithIndices.length > 0 && (
             <ul className="mt-2 list-disc pl-5">
-              {visibleRules.map((rule, idx) => (
-                <li key={idx}>{rule.ID || t`Rule #${ruleIndices[idx] + 1}`}</li>
+              {visibleRules.map(({ rule, index }) => (
+                <li key={index}>{rule.ID || t`Rule #${index + 1}`}</li>
               ))}
               {hiddenCount > 0 && (
                 <li className="text-theme-light">
@@ -202,10 +232,10 @@ export const DeleteLifecycleRulesModal = ({
           </p>
           <ModalFooter>
             <ButtonRow>
-              <Button variant="subdued" onClick={handleClose} disabled={isMutating}>
+              <Button variant="subdued" onClick={handleClose} disabled={isMutating || isVerifying}>
                 <Trans>Cancel</Trans>
               </Button>
-              <Button variant="primary-danger" onClick={handleConfirm} disabled={isMutating}>
+              <Button variant="primary-danger" onClick={handleConfirm} disabled={isMutating || isVerifying}>
                 {confirmLabel}
               </Button>
             </ButtonRow>

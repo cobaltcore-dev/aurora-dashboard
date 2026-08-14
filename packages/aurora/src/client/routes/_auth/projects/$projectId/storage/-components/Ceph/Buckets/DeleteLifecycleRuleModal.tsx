@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Modal, ModalFooter, ButtonRow, Button, Message, Spinner } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -36,6 +36,7 @@ export const DeleteLifecycleRuleModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
+  const [isVerifying, setIsVerifying] = useState(false)
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
@@ -43,7 +44,11 @@ export const DeleteLifecycleRuleModal = ({
   })
 
   // Query current lifecycle configuration (for loading/error states only - fresh data fetched in handleConfirm)
-  const { isLoading, error: queryError } = trpcReact.storage.ceph.lifecycle.get.useQuery(
+  const {
+    data: lifecycleData,
+    isLoading,
+    error: queryError,
+  } = trpcReact.storage.ceph.lifecycle.get.useQuery(
     {
       project_id: projectId,
       bucketName,
@@ -89,6 +94,7 @@ export const DeleteLifecycleRuleModal = ({
     if (!isOpen) {
       deleteMutation.reset()
       setMutation.reset()
+      setIsVerifying(false)
       resetTracking()
     }
   }, [isOpen])
@@ -97,12 +103,16 @@ export const DeleteLifecycleRuleModal = ({
     trackClose()
     deleteMutation.reset()
     setMutation.reset()
+    setIsVerifying(false)
     resetTracking()
     onClose()
   }
 
   const handleConfirm = async () => {
+    if (isVerifying) return
+
     markSubmitted()
+    setIsVerifying(true)
 
     try {
       // Refetch to get fresh state
@@ -112,9 +122,11 @@ export const DeleteLifecycleRuleModal = ({
       })
 
       const freshRules = freshData?.rules ?? []
+      const cachedRule = lifecycleData?.rules?.[ruleIndex]
+      const freshRule = freshRules[ruleIndex]
 
-      // Freshness check: ensure the rule we're deleting still exists at that index
-      if (ruleIndex >= freshRules.length) {
+      // Freshness check: verify the rule at this index matches what the user selected
+      if (!freshRule || JSON.stringify(freshRule) !== JSON.stringify(cachedRule)) {
         onError?.(ruleIndex, t`The lifecycle configuration has changed. Please refresh and try again.`)
         return
       }
@@ -146,6 +158,8 @@ export const DeleteLifecycleRuleModal = ({
       }
     } catch (error) {
       onError?.(ruleIndex, error instanceof Error ? error.message : String(error))
+    } finally {
+      setIsVerifying(false)
     }
   }
 
@@ -174,10 +188,10 @@ export const DeleteLifecycleRuleModal = ({
           </p>
           <ModalFooter>
             <ButtonRow>
-              <Button variant="subdued" onClick={handleClose} disabled={isMutating}>
+              <Button variant="subdued" onClick={handleClose} disabled={isMutating || isVerifying}>
                 <Trans>Cancel</Trans>
               </Button>
-              <Button variant="primary-danger" onClick={handleConfirm} disabled={isMutating}>
+              <Button variant="primary-danger" onClick={handleConfirm} disabled={isMutating || isVerifying}>
                 {isMutating ? <Trans>Deleting...</Trans> : <Trans>Delete Lifecycle Rule</Trans>}
               </Button>
             </ButtonRow>

@@ -136,10 +136,18 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
   const hasExpirationValue = useStore(form.store, (state) => state.values.hasExpiration)
   const hasNoncurrentExpirationValue = useStore(form.store, (state) => state.values.hasNoncurrentExpiration)
   const hasAbortUploadValue = useStore(form.store, (state) => state.values.hasAbortUpload)
+  const expirationDaysValue = useStore(form.store, (state) => state.values.expirationDays)
+  const noncurrentDaysValue = useStore(form.store, (state) => state.values.noncurrentDays)
+  const abortDaysValue = useStore(form.store, (state) => state.values.abortDays)
 
   const canSubmit = () => {
     const values = form.state.values
-    const hasAtLeastOneAction = values.hasExpiration || values.hasNoncurrentExpiration || values.hasAbortUpload
+    const hasAtLeastOneAction =
+      values.hasExpiration ||
+      values.hasNoncurrentExpiration ||
+      values.hasAbortUpload ||
+      (editingRule?.Transitions !== undefined && editingRule.Transitions.length > 0) ||
+      (editingRule?.NoncurrentVersionTransitions !== undefined && editingRule.NoncurrentVersionTransitions.length > 0)
 
     if (!hasAtLeastOneAction) return false
 
@@ -162,7 +170,15 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
   // Notify parent about validation state changes
   useEffect(() => {
     onValidationChange?.(canSubmit())
-  }, [canSubmit(), onValidationChange])
+  }, [
+    hasExpirationValue,
+    hasNoncurrentExpirationValue,
+    hasAbortUploadValue,
+    expirationDaysValue,
+    noncurrentDaysValue,
+    abortDaysValue,
+    onValidationChange,
+  ])
 
   // Tag editor state
   const [newTagKey, setNewTagKey] = useState("")
@@ -242,7 +258,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
             <form.Field name="Prefix">
               {(field) => (
                 <TextInput
-                  label={t`Prefix`}
+                  label={t`Prefix Filter (optional)`}
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
@@ -272,9 +288,15 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                     </Stack>
                   ))}
                   <Stack gap="2" alignment="end">
-                    <TextInput placeholder={t`Key`} value={newTagKey} onChange={(e) => setNewTagKey(e.target.value)} />
                     <TextInput
-                      placeholder={t`Value`}
+                      label={t`Key`}
+                      placeholder={t`Environment`}
+                      value={newTagKey}
+                      onChange={(e) => setNewTagKey(e.target.value)}
+                    />
+                    <TextInput
+                      label={t`Value`}
+                      placeholder={t`production`}
                       value={newTagValue}
                       onChange={(e) => setNewTagValue(e.target.value)}
                     />
@@ -304,10 +326,10 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
           <Stack direction="vertical" gap="4">
             {/* Read-only notice for Transitions */}
             {editingRule?.Transitions && editingRule.Transitions.length > 0 && (
-              <Message variant="info" title={t`Transitions (Read-Only)`}>
+              <Message variant="info" title={t`Storage Class Transitions (read-only)`}>
                 <Trans>
-                  This rule has {editingRule.Transitions.length} transition(s) configured. Transitions cannot be edited
-                  in this UI. Changing other fields will preserve the existing transitions.
+                  This rule has storage-class transitions that were configured outside Aurora. They are preserved
+                  unchanged when you save this rule.
                 </Trans>
               </Message>
             )}

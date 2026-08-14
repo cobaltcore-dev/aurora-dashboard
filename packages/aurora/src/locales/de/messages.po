@@ -826,10 +826,6 @@ msgstr ""
 msgid "CORS Rules"
 msgstr ""
 
-#. placeholder {0}: operation === "save" ? "save" : "delete"
-msgid "Could not {0} lifecycle configuration for bucket \"{bucketName}\": {errorMessage}"
-msgstr ""
-
 msgid "Could not copy \"{displayName}\": {errorMessage}"
 msgstr ""
 
@@ -883,9 +879,6 @@ msgstr ""
 
 msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht gelöscht werden: {errorMessage}"
-
-msgid "Could not delete lifecycle configuration from \"{bucketName}\": {errorMessage}"
-msgstr ""
 
 msgid "Could not delete lifecycle rule from bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
@@ -1467,6 +1460,9 @@ msgstr "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen."
 msgid "Entries in ACLs are comma-separated. Examples:"
 msgstr "Einträge in ACLs werden durch Kommas getrennt. Beispiele:"
 
+msgid "Environment"
+msgstr ""
+
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
@@ -1653,9 +1649,6 @@ msgstr "Fehler beim Löschen des Ordners"
 msgid "Failed to Delete Images"
 msgstr "Fehler beim Löschen der Images"
 
-msgid "Failed to Delete Lifecycle Configuration"
-msgstr ""
-
 msgid "Failed to Delete Lifecycle Rule"
 msgstr ""
 
@@ -1810,9 +1803,6 @@ msgid "Failed to Save CORS Configuration"
 msgstr ""
 
 msgid "Failed to save CORS rule"
-msgstr ""
-
-msgid "Failed to Save Lifecycle Configuration"
 msgstr ""
 
 msgid "Failed to Save Lifecycle Rule"
@@ -2245,21 +2235,6 @@ msgid "Leaving the JSON field empty will remove the policy from the bucket."
 msgstr ""
 
 msgid "Lifecycle action"
-msgstr ""
-
-msgid "Lifecycle Configuration Deleted"
-msgstr ""
-
-msgid "Lifecycle Configuration Saved"
-msgstr ""
-
-msgid "Lifecycle configuration was successfully deleted from \"{bucketName}\"."
-msgstr ""
-
-msgid "Lifecycle configuration was successfully deleted from bucket \"{bucketName}\"."
-msgstr ""
-
-msgid "Lifecycle configuration was successfully saved for bucket \"{bucketName}\"."
 msgstr ""
 
 msgid "Lifecycle Rule Deleted"
@@ -2913,7 +2888,7 @@ msgstr "Vorsignierte URL"
 msgid "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 msgstr "Vorsignierte URL für \"{displayName}\" wurde in die Zwischenablage kopiert."
 
-msgid "Prefix"
+msgid "Prefix Filter (optional)"
 msgstr ""
 
 msgid "Press Enter to add"
@@ -2939,6 +2914,9 @@ msgstr "Privat"
 
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist möglicherweise unvollständig."
+
+msgid "production"
+msgstr ""
 
 msgid "production, linux"
 msgstr "production, linux"
@@ -3132,8 +3110,8 @@ msgstr ""
 msgid "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 msgstr ""
 
+#. placeholder {0}: index + 1
 #. placeholder {0}: ruleIndex + 1
-#. placeholder {0}: ruleIndices[idx] + 1
 msgid "Rule #{0}"
 msgstr ""
 
@@ -3445,6 +3423,9 @@ msgstr "Status"
 
 msgid "Storage"
 msgstr "Storage"
+
+msgid "Storage Class Transitions (read-only)"
+msgstr ""
 
 msgid "Storage container not found"
 msgstr "Storage-Container nicht gefunden"
@@ -3828,8 +3809,7 @@ msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 msgid "This rule has {0} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 msgstr ""
 
-#. placeholder {0}: editingRule.Transitions.length
-msgid "This rule has {0} transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
+msgid "This rule has storage-class transitions that were configured outside Aurora. They are preserved unchanged when you save this rule."
 msgstr ""
 
 msgid "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty to preserve it, or enter days to switch to Days expiration."
@@ -3876,9 +3856,6 @@ msgstr "Gesamtspeicher"
 
 msgid "Total size quota"
 msgstr "Gesamtspeicher-Quota"
-
-msgid "Transitions (Read-Only)"
-msgstr ""
 
 msgid "True"
 msgstr "True"

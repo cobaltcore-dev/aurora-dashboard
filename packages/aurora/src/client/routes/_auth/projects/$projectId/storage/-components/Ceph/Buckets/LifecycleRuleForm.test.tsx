@@ -367,24 +367,34 @@ describe("LifecycleRuleForm", () => {
   })
 
   describe("Form validation", () => {
-    test("requires at least one action to be enabled", () => {
-      renderForm()
-      // Form validation test - at least one checkbox must be checked
+    test("requires at least one action to be enabled", async () => {
+      const mockOnValidationChange = vi.fn()
+      renderForm({ onValidationChange: mockOnValidationChange })
+
+      // Initially, no actions enabled - form should be invalid
+      await waitFor(() => {
+        expect(mockOnValidationChange).toHaveBeenCalledWith(false)
+      })
     })
 
     test("requires Days value when Expiration is checked", async () => {
       const user = userEvent.setup({ delay: null })
-      renderForm()
+      const mockOnValidationChange = vi.fn()
+      renderForm({ onValidationChange: mockOnValidationChange })
 
       const expirationCheckbox = screen.getByLabelText(/Expire Objects/i)
       await user.click(expirationCheckbox)
 
-      // Save should be disabled when days is empty - validation handled by onValidationChange
+      // After checking expiration without entering days, form should be invalid
+      await waitFor(() => {
+        expect(mockOnValidationChange).toHaveBeenCalledWith(false)
+      })
     })
 
     test("enables Save when action has valid data", async () => {
       const user = userEvent.setup({ delay: null })
-      renderForm()
+      const mockOnValidationChange = vi.fn()
+      renderForm({ onValidationChange: mockOnValidationChange })
 
       const expirationCheckbox = screen.getByLabelText(/Expire Objects/i)
       await user.click(expirationCheckbox)
@@ -392,7 +402,10 @@ describe("LifecycleRuleForm", () => {
       const daysInput = screen.getByLabelText(/Expiration Days/i)
       await user.type(daysInput, "30")
 
-      // Form should now be valid with Days value
+      // After entering valid days, form should be valid
+      await waitFor(() => {
+        expect(mockOnValidationChange).toHaveBeenCalledWith(true)
+      })
     })
   })
 })

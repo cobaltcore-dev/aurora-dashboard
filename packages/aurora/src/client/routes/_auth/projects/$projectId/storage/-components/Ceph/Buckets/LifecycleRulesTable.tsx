@@ -157,7 +157,7 @@ export function LifecycleRulesTable({
             )
             const noncurrentText =
               noncurrentExpirationText === "–" && noncurrentTransitionsText === "–"
-                ? t`—`
+                ? "–"
                 : [noncurrentExpirationText, noncurrentTransitionsText].filter((t) => t !== "–").join("; ")
 
             // Format other actions column (transitions + abort)
@@ -169,7 +169,7 @@ export function LifecycleRulesTable({
               : "–"
             const otherActionsText =
               transitionsText === "–" && abortText === "–"
-                ? t`—`
+                ? "–"
                 : [transitionsText, abortText].filter((t) => t !== "–").join("; ")
 
             return (

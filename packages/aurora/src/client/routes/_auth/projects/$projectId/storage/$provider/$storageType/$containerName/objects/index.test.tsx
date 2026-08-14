@@ -49,6 +49,7 @@ vi.mock("../../../../-components/Ceph/Objects", () => ({
 
 vi.mock("../../../../-components/Ceph/Buckets", () => ({
   CephCorsRules: () => <div data-testid="ceph-cors-rules">CORS Rules</div>,
+  CephLifecycleRules: () => <div data-testid="ceph-lifecycle-rules">Lifecycle Rules</div>,
 }))
 
 vi.mock("../../../../-components/Ceph/Buckets/BucketHeader", () => ({
@@ -353,6 +354,27 @@ describe("Objects Route - View Parameter Handling", () => {
 
     expect(screen.getByTestId("ceph-objects")).toBeInTheDocument()
     expect(screen.queryByTestId("ceph-cors-rules")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-lifecycle-rules")).not.toBeInTheDocument()
+  })
+
+  it("renders CephLifecycleRules when provider is ceph and view is lifecycle-rules", () => {
+    vi.mocked(useParams).mockReturnValue({
+      projectId: "proj-1",
+      provider: "ceph",
+      containerName: "bucket-1",
+    })
+    vi.spyOn(Route, "useSearch").mockReturnValue({
+      view: "lifecycle-rules",
+      sortBy: "name",
+      sortDirection: "asc",
+      tab: "all",
+    })
+
+    render(<ObjectsDashboard />, { wrapper: Wrapper })
+
+    expect(screen.getByTestId("ceph-lifecycle-rules")).toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-objects")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-cors-rules")).not.toBeInTheDocument()
   })
 
   it("renders SwiftObjects when provider is swift, ignoring view parameter", () => {
@@ -362,7 +384,7 @@ describe("Objects Route - View Parameter Handling", () => {
       containerName: "container-1",
     })
     vi.spyOn(Route, "useSearch").mockReturnValue({
-      view: "cors-rules", // Swift should ignore this
+      view: "lifecycle-rules", // Swift should ignore this
       sortBy: "name",
       sortDirection: "asc",
       tab: "all",
@@ -373,5 +395,6 @@ describe("Objects Route - View Parameter Handling", () => {
     expect(screen.getByTestId("swift-objects")).toBeInTheDocument()
     expect(screen.queryByTestId("ceph-objects")).not.toBeInTheDocument()
     expect(screen.queryByTestId("ceph-cors-rules")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("ceph-lifecycle-rules")).not.toBeInTheDocument()
   })
 })

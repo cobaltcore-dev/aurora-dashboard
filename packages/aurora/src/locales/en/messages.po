@@ -826,10 +826,6 @@ msgstr "CORS rule was successfully deleted from bucket \"{bucketName}\"."
 msgid "CORS Rules"
 msgstr "CORS Rules"
 
-#. placeholder {0}: operation === "save" ? "save" : "delete"
-msgid "Could not {0} lifecycle configuration for bucket \"{bucketName}\": {errorMessage}"
-msgstr "Could not {0} lifecycle configuration for bucket \"{bucketName}\": {errorMessage}"
-
 msgid "Could not copy \"{displayName}\": {errorMessage}"
 msgstr "Could not copy \"{displayName}\": {errorMessage}"
 
@@ -883,9 +879,6 @@ msgstr "Could not delete CORS rule from bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Could not delete folder \"{folderName}\": {errorMessage}"
 msgstr "Could not delete folder \"{folderName}\": {errorMessage}"
-
-msgid "Could not delete lifecycle configuration from \"{bucketName}\": {errorMessage}"
-msgstr "Could not delete lifecycle configuration from \"{bucketName}\": {errorMessage}"
 
 msgid "Could not delete lifecycle rule from bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete lifecycle rule from bucket \"{bucketName}\": {errorMessage}"
@@ -1467,6 +1460,9 @@ msgstr "Enter your credentials to access your account"
 msgid "Entries in ACLs are comma-separated. Examples:"
 msgstr "Entries in ACLs are comma-separated. Examples:"
 
+msgid "Environment"
+msgstr "Environment"
+
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
@@ -1653,9 +1649,6 @@ msgstr "Failed to Delete Folder"
 msgid "Failed to Delete Images"
 msgstr "Failed to Delete Images"
 
-msgid "Failed to Delete Lifecycle Configuration"
-msgstr "Failed to Delete Lifecycle Configuration"
-
 msgid "Failed to Delete Lifecycle Rule"
 msgstr "Failed to Delete Lifecycle Rule"
 
@@ -1811,9 +1804,6 @@ msgstr "Failed to Save CORS Configuration"
 
 msgid "Failed to save CORS rule"
 msgstr "Failed to save CORS rule"
-
-msgid "Failed to Save Lifecycle Configuration"
-msgstr "Failed to Save Lifecycle Configuration"
 
 msgid "Failed to Save Lifecycle Rule"
 msgstr "Failed to Save Lifecycle Rule"
@@ -2246,21 +2236,6 @@ msgstr "Leaving the JSON field empty will remove the policy from the bucket."
 
 msgid "Lifecycle action"
 msgstr "Lifecycle action"
-
-msgid "Lifecycle Configuration Deleted"
-msgstr "Lifecycle Configuration Deleted"
-
-msgid "Lifecycle Configuration Saved"
-msgstr "Lifecycle Configuration Saved"
-
-msgid "Lifecycle configuration was successfully deleted from \"{bucketName}\"."
-msgstr "Lifecycle configuration was successfully deleted from \"{bucketName}\"."
-
-msgid "Lifecycle configuration was successfully deleted from bucket \"{bucketName}\"."
-msgstr "Lifecycle configuration was successfully deleted from bucket \"{bucketName}\"."
-
-msgid "Lifecycle configuration was successfully saved for bucket \"{bucketName}\"."
-msgstr "Lifecycle configuration was successfully saved for bucket \"{bucketName}\"."
 
 msgid "Lifecycle Rule Deleted"
 msgstr "Lifecycle Rule Deleted"
@@ -2913,8 +2888,8 @@ msgstr "Pre-signed URL"
 msgid "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 msgstr "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 
-msgid "Prefix"
-msgstr "Prefix"
+msgid "Prefix Filter (optional)"
+msgstr "Prefix Filter (optional)"
 
 msgid "Press Enter to add"
 msgstr "Press Enter to add"
@@ -2939,6 +2914,9 @@ msgstr "Private"
 
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private flavors could not be loaded. You may be seeing an incomplete list."
+
+msgid "production"
+msgstr "production"
 
 msgid "production, linux"
 msgstr "production, linux"
@@ -3132,8 +3110,8 @@ msgstr "rule"
 msgid "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 msgstr "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 
+#. placeholder {0}: index + 1
 #. placeholder {0}: ruleIndex + 1
-#. placeholder {0}: ruleIndices[idx] + 1
 msgid "Rule #{0}"
 msgstr "Rule #{0}"
 
@@ -3445,6 +3423,9 @@ msgstr "Status"
 
 msgid "Storage"
 msgstr "Storage"
+
+msgid "Storage Class Transitions (read-only)"
+msgstr "Storage Class Transitions (read-only)"
 
 msgid "Storage container not found"
 msgstr "Storage container not found"
@@ -3828,9 +3809,8 @@ msgstr "This property is reserved and cannot be modified"
 msgid "This rule has {0} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 msgstr "This rule has {0} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 
-#. placeholder {0}: editingRule.Transitions.length
-msgid "This rule has {0} transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
-msgstr "This rule has {0} transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
+msgid "This rule has storage-class transitions that were configured outside Aurora. They are preserved unchanged when you save this rule."
+msgstr "This rule has storage-class transitions that were configured outside Aurora. They are preserved unchanged when you save this rule."
 
 msgid "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty to preserve it, or enter days to switch to Days expiration."
 msgstr "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty to preserve it, or enter days to switch to Days expiration."
@@ -3876,9 +3856,6 @@ msgstr "Total Size"
 
 msgid "Total size quota"
 msgstr "Total size quota"
-
-msgid "Transitions (Read-Only)"
-msgstr "Transitions (Read-Only)"
 
 msgid "True"
 msgstr "True"
