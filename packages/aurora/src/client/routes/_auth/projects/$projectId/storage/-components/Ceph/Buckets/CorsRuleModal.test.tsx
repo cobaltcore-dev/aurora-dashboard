@@ -105,7 +105,7 @@ describe("CorsRuleModal", () => {
     expect(screen.queryByText(/Configure New Rule/i)).not.toBeInTheDocument()
   })
 
-  it("renders with 'Add CORS Rule' title when adding new rule", () => {
+  it("renders with 'Create CORS Rule' title when adding new rule", () => {
     render(
       <CorsRuleModal
         isOpen={true}
@@ -118,7 +118,7 @@ describe("CorsRuleModal", () => {
       { wrapper: Wrapper }
     )
 
-    expect(screen.getByText(/Add CORS Rule/i)).toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 4, name: /Create CORS Rule/i })).toBeInTheDocument()
   })
 
   it("renders with 'Edit CORS Rule' title when editing existing rule", () => {
@@ -214,7 +214,7 @@ describe("CorsRuleModal", () => {
     await user.type(originInput, "https://test.com{Enter}")
 
     // Submit the form
-    const submitButton = screen.getByRole("button", { name: /Create Rule/i })
+    const submitButton = screen.getByRole("button", { name: /Create CORS Rule/i })
     await user.click(submitButton)
 
     // Should call mutation
@@ -268,7 +268,7 @@ describe("CorsRuleModal", () => {
     await user.type(originInput, "https://test.com{Enter}")
 
     // Submit
-    const submitButton = screen.getByRole("button", { name: /Create Rule/i })
+    const submitButton = screen.getByRole("button", { name: /Create CORS Rule/i })
     await user.click(submitButton)
 
     await waitFor(() => {
@@ -308,7 +308,7 @@ describe("CorsRuleModal", () => {
     await user.type(originInput, "https://test.com{Enter}")
 
     // Submit the form
-    const submitButton = screen.getByRole("button", { name: /Create Rule/i })
+    const submitButton = screen.getByRole("button", { name: /Create CORS Rule/i })
     await user.click(submitButton)
 
     // Verify markSubmitted was called

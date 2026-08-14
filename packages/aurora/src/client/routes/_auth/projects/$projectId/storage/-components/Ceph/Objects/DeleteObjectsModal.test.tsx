@@ -200,7 +200,7 @@ describe("DeleteObjectsModal", () => {
       </TestWrapper>
     )
 
-    const confirmButton = screen.getByRole("button", { name: /Delete/i })
+    const confirmButton = screen.getByRole("button", { name: /^Delete Objects?$/ })
     expect(confirmButton).toBeDisabled()
 
     const input = screen.getByLabelText(/Type "delete" to confirm/i)
@@ -230,7 +230,7 @@ describe("DeleteObjectsModal", () => {
     const input = screen.getByLabelText(/Type "delete" to confirm/i)
     await user.type(input, "delete")
 
-    const confirmButton = screen.getByRole("button", { name: /Delete/i })
+    const confirmButton = screen.getByRole("button", { name: /^Delete Objects?$/ })
     await user.click(confirmButton)
 
     expect(mockMutate).toHaveBeenCalledWith({
@@ -287,7 +287,7 @@ describe("DeleteObjectsModal", () => {
     const confirmInput = screen.getByLabelText(/Type "delete" to confirm/i)
     await user.type(confirmInput, "delete")
 
-    const confirmButton = screen.getByRole("button", { name: /Delete/i })
+    const confirmButton = screen.getByRole("button", { name: /^Delete Objects?$/ })
     await user.click(confirmButton)
 
     await waitFor(() => {
@@ -341,7 +341,7 @@ describe("DeleteObjectsModal", () => {
     const confirmInput = screen.getByLabelText(/Type "delete" to confirm/i)
     await user.type(confirmInput, "delete")
 
-    const confirmButton = screen.getByRole("button", { name: /Delete/i })
+    const confirmButton = screen.getByRole("button", { name: /^Delete Objects?$/ })
     await user.click(confirmButton)
 
     await waitFor(() => {
@@ -389,7 +389,7 @@ describe("DeleteObjectsModal", () => {
     const confirmInput = screen.getByLabelText(/Type "delete" to confirm/i)
     await user.type(confirmInput, "delete")
 
-    const confirmButton = screen.getByRole("button", { name: /Delete/i })
+    const confirmButton = screen.getByRole("button", { name: /^Delete Objects?$/ })
     await user.click(confirmButton)
 
     await waitFor(() => {
@@ -526,7 +526,7 @@ describe("DeleteObjectsModal", () => {
       </TestWrapper>
     )
 
-    const deleteButton = screen.getByRole("button", { name: /Delete/i })
+    const deleteButton = screen.getByRole("button", { name: /^Delete Versions?$/ })
     expect(deleteButton).toBeDisabled()
 
     const input = screen.getByPlaceholderText("delete")
@@ -611,7 +611,7 @@ describe("DeleteObjectsModal", () => {
       await user.type(input, "delete")
     })
 
-    const deleteButton = screen.getByRole("button", { name: /Delete/i })
+    const deleteButton = screen.getByRole("button", { name: /^Delete Versions?$/ })
     await act(async () => {
       await user.click(deleteButton)
     })
@@ -669,7 +669,7 @@ describe("DeleteObjectsModal", () => {
       await user.type(input, "delete")
     })
 
-    const deleteButton = screen.getByRole("button", { name: /Delete/i })
+    const deleteButton = screen.getByRole("button", { name: /^Delete Versions?$/ })
     await act(async () => {
       await user.click(deleteButton)
     })

@@ -183,7 +183,7 @@ describe("EmptyBucketsModal", () => {
 
     test("renders Empty button", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Empty Buckets$/i })).toBeInTheDocument()
     })
 
     test("renders Cancel button", () => {
@@ -201,7 +201,7 @@ describe("EmptyBucketsModal", () => {
       const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
       await user.type(confirmInput, "empty")
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Buckets$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -235,7 +235,7 @@ describe("EmptyBucketsModal", () => {
       const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
       await user.type(confirmInput, "empty")
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Buckets$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -258,7 +258,7 @@ describe("EmptyBucketsModal", () => {
       const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
       await user.type(confirmInput, "empty")
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Buckets$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -279,7 +279,7 @@ describe("EmptyBucketsModal", () => {
       const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
       await user.type(confirmInput, "empty")
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Buckets$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -302,7 +302,7 @@ describe("EmptyBucketsModal", () => {
       const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
       await user.type(confirmInput, "empty")
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Buckets$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -327,7 +327,7 @@ describe("EmptyBucketsModal", () => {
       const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
       await user.type(confirmInput, "empty")
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Buckets$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -355,7 +355,7 @@ describe("EmptyBucketsModal", () => {
       const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
       await user.type(confirmInput, "empty")
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Buckets$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -376,7 +376,7 @@ describe("EmptyBucketsModal", () => {
       const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
       await user.type(confirmInput, "empty")
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Buckets$/i })
       await user.click(emptyButton)
 
       await waitFor(
@@ -469,7 +469,7 @@ describe("EmptyBucketsModal", () => {
       const confirmInput = screen.getByLabelText(/Type "empty" to confirm/i)
       await user.type(confirmInput, "empty")
 
-      const emptyButton = screen.getByRole("button", { name: /^Empty$/i })
+      const emptyButton = screen.getByRole("button", { name: /^Empty Buckets$/i })
       await user.click(emptyButton)
 
       // Wait for modal to close after completion

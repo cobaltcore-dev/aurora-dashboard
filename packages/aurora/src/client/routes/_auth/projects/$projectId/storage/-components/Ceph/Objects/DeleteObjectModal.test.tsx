@@ -92,7 +92,7 @@ describe("DeleteObjectModal", () => {
   it("renders modal with title for object", () => {
     renderModal(defaultProps)
 
-    expect(screen.getByText("Delete Object")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 4, name: "Delete Object" })).toBeInTheDocument()
     expect(screen.getByText(/Confirm deletion of.*This action cannot be undone\./)).toBeInTheDocument()
   })
 
@@ -101,6 +101,17 @@ describe("DeleteObjectModal", () => {
 
     expect(screen.getByText(/Delete Folder "folder"/)).toBeInTheDocument()
     expect(screen.getByText(/Confirm deletion of/)).toBeInTheDocument()
+  })
+
+  it("renders delete folder button for folders", async () => {
+    const user = userEvent.setup()
+    renderModal({ ...defaultProps, objectKey: "folder/" })
+
+    const input = screen.getByLabelText('Type "delete" to confirm')
+    await user.type(input, "delete")
+
+    const deleteButton = screen.getByRole("button", { name: "Delete Folder" })
+    expect(deleteButton).not.toBeDisabled()
   })
 
   it("displays object information", () => {
@@ -144,7 +155,7 @@ describe("DeleteObjectModal", () => {
   it("disables delete button when confirmation is empty", () => {
     renderModal(defaultProps)
 
-    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    const deleteButton = screen.getByRole("button", { name: "Delete Object" })
     expect(deleteButton).toBeDisabled()
   })
 
@@ -155,7 +166,7 @@ describe("DeleteObjectModal", () => {
     const input = screen.getByLabelText('Type "delete" to confirm')
     await user.type(input, "wrong")
 
-    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    const deleteButton = screen.getByRole("button", { name: "Delete Object" })
     expect(deleteButton).toBeDisabled()
   })
 
@@ -166,7 +177,7 @@ describe("DeleteObjectModal", () => {
     const input = screen.getByLabelText('Type "delete" to confirm')
     await user.type(input, "delete")
 
-    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    const deleteButton = screen.getByRole("button", { name: "Delete Object" })
     expect(deleteButton).not.toBeDisabled()
   })
 
@@ -177,7 +188,7 @@ describe("DeleteObjectModal", () => {
     const input = screen.getByLabelText('Type "delete" to confirm')
     await user.type(input, "delete")
 
-    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    const deleteButton = screen.getByRole("button", { name: "Delete Object" })
     await user.click(deleteButton)
 
     expect(mockMutate).toHaveBeenCalledWith({
@@ -227,7 +238,7 @@ describe("DeleteObjectModal", () => {
   it("does not render when isOpen is false", () => {
     renderModal({ ...defaultProps, isOpen: false })
 
-    expect(screen.queryByText("Delete Object")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { level: 4, name: "Delete Object" })).not.toBeInTheDocument()
   })
 
   it("handles delete without optional props", async () => {
@@ -245,7 +256,7 @@ describe("DeleteObjectModal", () => {
     const input = screen.getByLabelText('Type "delete" to confirm')
     await user.type(input, "delete")
 
-    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    const deleteButton = screen.getByRole("button", { name: "Delete Object" })
     await user.click(deleteButton)
 
     expect(mockMutate).toHaveBeenCalled()
@@ -302,7 +313,7 @@ describe("DeleteObjectModal", () => {
       const input = screen.getByLabelText('Type "delete" to confirm')
       await user.type(input, "delete")
 
-      const deleteButton = screen.getByRole("button", { name: "Delete" })
+      const deleteButton = screen.getByRole("button", { name: "Delete Object" })
       await user.click(deleteButton)
 
       expect(mockOnTrackEvent).not.toHaveBeenCalledWith(

@@ -92,15 +92,12 @@ export function CorsRulesTable({
 
   const effectiveIsMutating = isMutating || isRowDeleteMutating
 
-  const gridColumnTemplate =
-    "40px minmax(100px, 1fr) minmax(150px, 2fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(80px, 1fr) 60px"
-
   const isEmpty = rulesWithIndices.length === 0
 
   return (
     <Stack direction="vertical" gap="4">
       {/* Rules Table */}
-      <DataGrid columns={8} gridColumnTemplate={gridColumnTemplate} className="cors-rules-table">
+      <DataGrid columns={8}>
         <DataGridRow>
           <DataGridHeadCell>
             <span className="sr-only">
@@ -164,7 +161,7 @@ export function CorsRulesTable({
                           disabled={effectiveIsMutating}
                         />
                         <PopupMenuItem
-                          label={t`Delete`}
+                          label={t`Delete CORS Rule`}
                           onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
                           disabled={effectiveIsMutating}
                         />

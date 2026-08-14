@@ -161,7 +161,7 @@ export const DeleteCorsRuleModal = ({
         trackClose()
         handleClose()
       }}
-      confirmButtonLabel={t`Delete Rule`}
+      confirmButtonLabel={t`Delete CORS Rule`}
       confirmButtonVariant="primary-danger"
       onConfirm={handleDelete}
       cancelButtonLabel={t`Cancel`}

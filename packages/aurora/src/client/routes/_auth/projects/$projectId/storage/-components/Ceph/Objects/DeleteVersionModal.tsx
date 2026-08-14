@@ -123,7 +123,7 @@ export const DeleteVersionModal = ({
         trackClose()
         handleClose()
       }}
-      confirmButtonLabel={t`Delete`}
+      confirmButtonLabel={isDeletingAllVersions ? t`Delete All Versions` : t`Delete Version`}
       onConfirm={handleDelete}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={confirmText !== "delete" || deleteMutation.isPending}

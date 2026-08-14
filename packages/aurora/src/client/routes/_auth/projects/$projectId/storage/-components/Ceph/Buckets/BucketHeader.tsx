@@ -29,7 +29,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
   const [activeModal, setActiveModal] = useState<ModalType | null>(null)
 
   // Fetch bucket information
-  const { versioningStatus, policyData, corsData, hasOldVersionsOrDeleteMarkers, isBucketEmpty } = useBucketInfo({
+  const { versioningStatus, policyData, hasOldVersionsOrDeleteMarkers, isBucketEmpty } = useBucketInfo({
     bucketName,
     enabled: true,
   })
@@ -63,7 +63,6 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
     <BucketHeaderActions
       versioningStatus={versioningStatus}
       hasPolicy={Boolean(policyData?.policy)}
-      hasCors={Boolean(corsData?.corsRules && corsData.corsRules.length > 0)}
       hasOldVersionsOrDeleteMarkers={hasOldVersionsOrDeleteMarkers}
       isBucketEmpty={isBucketEmpty}
       onOpenModal={openModal}
@@ -76,7 +75,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
 
       <div className="-mt-4 mb-8">
         <BucketDetailTabs />
-        <Divider />
+        <Divider spacing="0" />
       </div>
 
       <BucketModals

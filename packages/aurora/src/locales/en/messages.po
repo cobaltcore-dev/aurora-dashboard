@@ -291,9 +291,6 @@ msgstr "Add"
 msgid "Add a Signed Certificate to your CA to activate it"
 msgstr "Add a Signed Certificate to your CA to activate it"
 
-msgid "Add CORS Rule"
-msgstr "Add CORS Rule"
-
 msgid "Add Member"
 msgstr "Add Member"
 
@@ -407,9 +404,6 @@ msgstr "Are you sure you want to delete {ruleCount, plural, one {# CORS rule} ot
 
 msgid "Are you sure you want to delete <0>{ruleDisplayName}</0> from bucket <1>{bucketName}</1>?"
 msgstr "Are you sure you want to delete <0>{ruleDisplayName}</0> from bucket <1>{bucketName}</1>?"
-
-msgid "Are you sure you want to delete the CORS configuration for bucket <0>{bucketName}</0>?"
-msgstr "Are you sure you want to delete the CORS configuration for bucket <0>{bucketName}</0>?"
 
 msgid "Are you sure you want to delete the policy for bucket <0>{bucketName}</0>?"
 msgstr "Are you sure you want to delete the policy for bucket <0>{bucketName}</0>?"
@@ -726,6 +720,9 @@ msgstr "Copy container name"
 msgid "Copy metadata"
 msgstr "Copy metadata"
 
+msgid "Copy Object"
+msgstr "Copy Object"
+
 msgid "Copy object:"
 msgstr "Copy object:"
 
@@ -741,14 +738,8 @@ msgstr "Copying object..."
 msgid "Copying..."
 msgstr "Copying..."
 
-msgid "CORS Configuration Deleted"
-msgstr "CORS Configuration Deleted"
-
 msgid "CORS Configuration Saved"
 msgstr "CORS Configuration Saved"
-
-msgid "CORS configuration was successfully deleted from bucket \"{bucketName}\"."
-msgstr "CORS configuration was successfully deleted from bucket \"{bucketName}\"."
 
 msgid "CORS configuration was successfully saved for bucket \"{bucketName}\"."
 msgstr "CORS configuration was successfully saved for bucket \"{bucketName}\"."
@@ -800,9 +791,6 @@ msgstr "Could not delete bucket policy from \"{bucketName}\": {errorMessage}"
 
 msgid "Could not delete container \"{containerName}\": {errorMessage}"
 msgstr "Could not delete container \"{containerName}\": {errorMessage}"
-
-msgid "Could not delete CORS configuration from bucket \"{bucketName}\": {errorMessage}"
-msgstr "Could not delete CORS configuration from bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Could not delete CORS rule from bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete CORS rule from bucket \"{bucketName}\": {errorMessage}"
@@ -876,6 +864,9 @@ msgstr "Create Certificate Authority"
 msgid "Create Container"
 msgstr "Create Container"
 
+msgid "Create CORS Rule"
+msgstr "Create CORS Rule"
+
 msgid "Create Flavor"
 msgstr "Create Flavor"
 
@@ -899,12 +890,6 @@ msgstr "Create new folder here"
 
 msgid "Create New Image"
 msgstr "Create New Image"
-
-msgid "Create rule"
-msgstr "Create rule"
-
-msgid "Create Rule"
-msgstr "Create Rule"
 
 msgid "Create S3 Credentials"
 msgstr "Create S3 Credentials"
@@ -938,10 +923,6 @@ msgstr "Creating security group..."
 
 msgid "Creating..."
 msgstr "Creating..."
-
-#. placeholder {0}: corsData.corsRules.length
-msgid "Current configuration has {0, plural, one {# CORS rule} other {# CORS rules}}."
-msgstr "Current configuration has {0, plural, one {# CORS rule} other {# CORS rules}}."
 
 msgid "Current location:"
 msgstr "Current location:"
@@ -1009,12 +990,6 @@ msgstr "Delete Certificate Authority"
 msgid "Delete container:"
 msgstr "Delete container:"
 
-msgid "Delete CORS"
-msgstr "Delete CORS"
-
-msgid "Delete CORS Configuration"
-msgstr "Delete CORS Configuration"
-
 msgid "Delete CORS Rule"
 msgstr "Delete CORS Rule"
 
@@ -1023,6 +998,9 @@ msgstr "Delete CORS Rules"
 
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
+
+msgid "Delete Folder"
+msgstr "Delete Folder"
 
 msgid "Delete Folder \"{displayName}\""
 msgstr "Delete Folder \"{displayName}\""
@@ -1045,6 +1023,9 @@ msgstr "Delete Object"
 msgid "Delete object:"
 msgstr "Delete object:"
 
+msgid "Delete Objects"
+msgstr "Delete Objects"
+
 msgid "Delete Policy"
 msgstr "Delete Policy"
 
@@ -1056,9 +1037,6 @@ msgstr "Delete Results"
 
 msgid "Delete Rule"
 msgstr "Delete Rule"
-
-msgid "Delete Rules"
-msgstr "Delete Rules"
 
 msgid "Delete Security Group \"{securityGroupName}\""
 msgstr "Delete Security Group \"{securityGroupName}\""
@@ -1086,9 +1064,6 @@ msgstr "Deleting certificate authority..."
 
 msgid "Deleting folder and all its contents..."
 msgstr "Deleting folder and all its contents..."
-
-msgid "Deleting the CORS configuration will remove all cross-origin access rules. Browser-based applications will no longer be able to access this bucket from different origins. This action cannot be undone."
-msgstr "Deleting the CORS configuration will remove all cross-origin access rules. Browser-based applications will no longer be able to access this bucket from different origins. This action cannot be undone."
 
 msgid "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
 msgstr "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
@@ -1180,6 +1155,9 @@ msgstr "Download {rowDisplayName}"
 msgid "Download Cancelled"
 msgstr "Download Cancelled"
 
+msgid "Download Object"
+msgstr "Download Object"
+
 msgid "Download of \"{displayName}\" was cancelled."
 msgstr "Download of \"{displayName}\" was cancelled."
 
@@ -1243,6 +1221,9 @@ msgstr "Edit Image Metadata"
 msgid "Edit Metadata"
 msgstr "Edit Metadata"
 
+msgid "Edit Object Metadata"
+msgstr "Edit Object Metadata"
+
 msgid "Edit Policy"
 msgstr "Edit Policy"
 
@@ -1266,6 +1247,9 @@ msgstr "Empty All Completed with Errors"
 
 msgid "Empty Bucket"
 msgstr "Empty Bucket"
+
+msgid "Empty Buckets"
+msgstr "Empty Buckets"
 
 msgid "Empty the bucket"
 msgstr "Empty the bucket"
@@ -1515,12 +1499,6 @@ msgstr "Failed to delete bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Failed to Delete Container"
 msgstr "Failed to Delete Container"
-
-msgid "Failed to delete CORS configuration"
-msgstr "Failed to delete CORS configuration"
-
-msgid "Failed to Delete CORS Configuration"
-msgstr "Failed to Delete CORS Configuration"
 
 msgid "Failed to Delete CORS Rule"
 msgstr "Failed to Delete CORS Rule"
@@ -2338,6 +2316,9 @@ msgstr "Move"
 msgid "Move/Rename"
 msgstr "Move/Rename"
 
+msgid "Move/Rename Object"
+msgstr "Move/Rename Object"
+
 msgid "Move/Rename object:"
 msgstr "Move/Rename object:"
 
@@ -2409,9 +2390,6 @@ msgstr "No Certificates issued by this Certificate Authority found"
 
 msgid "No containers found"
 msgstr "No containers found"
-
-msgid "No CORS configuration found"
-msgstr "No CORS configuration found"
 
 msgid "No CORS rules found"
 msgstr "No CORS rules found"
@@ -3136,6 +3114,9 @@ msgstr "Set to \"Shared\""
 msgid "Share"
 msgstr "Share"
 
+msgid "Share Object URL"
+msgstr "Share Object URL"
+
 msgid "Share Security Group"
 msgstr "Share Security Group"
 
@@ -3549,9 +3530,6 @@ msgstr "This bucket does not have a policy attached."
 
 msgid "This bucket does not have any CORS rules."
 msgstr "This bucket does not have any CORS rules."
-
-msgid "This bucket does not have CORS rules configured."
-msgstr "This bucket does not have CORS rules configured."
 
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
 msgstr "This container appears empty — the object count may not have synced yet due to a recent operation."

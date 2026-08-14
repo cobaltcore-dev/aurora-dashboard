@@ -84,7 +84,7 @@ export function DeleteObjectModal({
       }}
       title={isFolder ? <Trans>Delete Folder "{displayName}"</Trans> : <Trans>Delete Object</Trans>}
       size="large"
-      confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}
+      confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : isFolder ? t`Delete Folder` : t`Delete Object`}
       confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}

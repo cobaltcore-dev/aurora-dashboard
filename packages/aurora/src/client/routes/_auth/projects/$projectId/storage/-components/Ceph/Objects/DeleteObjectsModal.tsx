@@ -199,6 +199,16 @@ export function DeleteObjectsModal({
   // For version mode: calculate hidden versions count
   const hiddenVersionsCount = versions.length - MAX_VISIBLE
 
+  const confirmLabel = isPending
+    ? t`Deleting...`
+    : isVersionMode
+      ? count === 1
+        ? t`Delete Version`
+        : t`Delete Versions`
+      : count === 1
+        ? t`Delete Object`
+        : t`Delete Objects`
+
   return (
     <Modal
       open={isOpen}
@@ -214,7 +224,7 @@ export function DeleteObjectsModal({
         )
       }
       size="large"
-      confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
+      confirmButtonLabel={confirmLabel}
       confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}

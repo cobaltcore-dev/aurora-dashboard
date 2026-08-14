@@ -18,11 +18,6 @@ interface BucketInfo {
         policy: unknown
       }
     | undefined
-  corsData:
-    | {
-        corsRules: unknown[] | null
-      }
-    | undefined
   hasVersionsOrDeleteMarkers: boolean
   hasOldVersionsOrDeleteMarkers: boolean
   isBucketEmptyWithVersions: boolean
@@ -37,7 +32,7 @@ interface BucketInfo {
  * - Bucket metadata (count, size, etc.) from containers.list
  * - Versioning status query
  * - Bucket policy query
- * - CORS configuration query
+ * - CORS configuration query (prefetch only: warms the cache for CorsRulesTab)
  * - Version/delete marker check query
  *
  * Uses bucket.count from metadata (same as Buckets page) to determine if bucket is empty.
@@ -91,8 +86,8 @@ export const useBucketInfo = ({ bucketName, enabled = true }: UseBucketInfoProps
     }
   )
 
-  // Query CORS configuration
-  const { data: corsData, isLoading: isLoadingCors } = trpcReact.storage.ceph.cors.get.useQuery(
+  // Prefetch only: warms the shared cors.get cache consumed by CorsRulesTab (5 min staleTime).
+  const { isLoading: isLoadingCors } = trpcReact.storage.ceph.cors.get.useQuery(
     {
       project_id: projectId ?? "",
       bucketName: bucketName,
@@ -141,7 +136,6 @@ export const useBucketInfo = ({ bucketName, enabled = true }: UseBucketInfoProps
   return {
     versioningStatus,
     policyData,
-    corsData,
     hasVersionsOrDeleteMarkers: allVersions.length > 0,
     hasOldVersionsOrDeleteMarkers,
     isBucketEmptyWithVersions,
