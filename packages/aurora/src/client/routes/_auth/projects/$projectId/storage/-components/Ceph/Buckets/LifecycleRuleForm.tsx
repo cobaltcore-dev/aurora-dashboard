@@ -309,7 +309,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                   </Stack>
                 )}
               </div>
-              <p className="juno-helptext text-xs">
+              <p className="juno-helptext mt-1 text-xs" style={{ color: "#7a7a7a" }}>
                 <Trans>Apply this rule only to objects with specific tags</Trans>
               </p>
             </div>
