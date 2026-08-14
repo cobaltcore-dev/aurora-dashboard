@@ -294,7 +294,7 @@ export const MoveObjectModal = ({
         trackClose()
         handleClose()
       }}
-      confirmButtonLabel={isPending ? t`Moving...` : t`Move/Rename`}
+      confirmButtonLabel={isPending ? t`Moving...` : t`Move/Rename Object`}
       onConfirm={handleMove}
       cancelButtonLabel={t`Cancel`}
       size="large"

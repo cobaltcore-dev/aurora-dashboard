@@ -222,7 +222,7 @@ describe("CorsRulesTab", () => {
     render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
 
     expect(screen.getByText(/There are no CORS rules for this bucket/i)).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /Create rule/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Create CORS Rule/i })).toBeInTheDocument()
   })
 
   it("renders when corsRules is an empty array", () => {
@@ -255,7 +255,7 @@ describe("CorsRulesTab", () => {
     expect(screen.getByText("There are no CORS rules for this bucket")).toBeInTheDocument()
   })
 
-  it("opens add rule modal when clicking Create rule button", async () => {
+  it("opens add rule modal when clicking Create CORS Rule button", async () => {
     const user = userEvent.setup()
 
     ;(trpcReact.storage.ceph.cors.get.useQuery as any).mockReturnValue({
@@ -280,8 +280,8 @@ describe("CorsRulesTab", () => {
 
     render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
 
-    // Click the Create rule button
-    const createButton = screen.getByRole("button", { name: /Create rule/i })
+    // Click the Create CORS Rule button
+    const createButton = screen.getByRole("button", { name: /Create CORS Rule/i })
     await user.click(createButton)
 
     // The CorsRuleModal should open (we mocked it to show "Configure New Rule")

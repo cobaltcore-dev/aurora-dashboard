@@ -172,7 +172,7 @@ describe("MoveObjectModal", () => {
   it("disables Move button when destination is unchanged", () => {
     renderModal(defaultProps)
 
-    const moveButton = screen.getByRole("button", { name: "Move/Rename" })
+    const moveButton = screen.getByRole("button", { name: "Move/Rename Object" })
     expect(moveButton).toBeDisabled()
   })
 
@@ -272,7 +272,7 @@ describe("MoveObjectModal", () => {
       await user.clear(input)
       await user.type(input, "renamed-file.txt")
 
-      const moveButton = screen.getByRole("button", { name: "Move/Rename" })
+      const moveButton = screen.getByRole("button", { name: "Move/Rename Object" })
       await user.click(moveButton)
 
       expect(mockOnTrackEvent).not.toHaveBeenCalledWith(

@@ -201,23 +201,6 @@ export const getCorsSaveErrorToast = (
   ),
 })
 
-export const getCorsDeletedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
-  message: <Trans>CORS Configuration Deleted</Trans>,
-  description: <Trans>CORS configuration was successfully deleted from bucket "{bucketName}".</Trans>,
-})
-
-export const getCorsDeleteErrorToast = (
-  bucketName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
-  message: <Trans>Failed to Delete CORS Configuration</Trans>,
-  description: (
-    <Trans>
-      Could not delete CORS configuration from bucket "{bucketName}": {errorMessage}
-    </Trans>
-  ),
-})
-
 export const getCorsRuleDeletedToast = (
   bucketName: string,
   ruleId?: string

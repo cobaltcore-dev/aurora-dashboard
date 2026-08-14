@@ -240,12 +240,12 @@ export const BucketTableView = ({
                             data-testid={`show-details-action-${bucket.name}`}
                           />
                           <PopupMenuItem
-                            label={t`Empty`}
+                            label={t`Empty Bucket`}
                             onClick={() => setEmptyModalBucket(bucket)}
                             data-testid={`empty-action-${bucket.name}`}
                           />
                           <PopupMenuItem
-                            label={t`Delete`}
+                            label={t`Delete Bucket`}
                             onClick={() => setDeleteModalBucket(bucket)}
                             data-testid={`delete-action-${bucket.name}`}
                           />
