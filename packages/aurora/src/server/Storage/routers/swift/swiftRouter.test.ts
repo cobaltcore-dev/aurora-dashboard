@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest"
 import { TRPCError } from "@trpc/server"
 import { Readable } from "node:stream"
+import { EventEmitter } from "node:events"
 import { AuroraPortalContext } from "../../../context"
 import { swiftRouter } from "./swiftRouter"
 import * as swiftHelpers from "../../helpers/swiftHelpers"
@@ -1850,6 +1851,128 @@ describe("swiftRouter", () => {
           void item
         }
       }).rejects.toThrow("Swift response has no body")
+    })
+
+    // The download worker aborts its tRPC fetch on cancel; the BFF sees the
+    // client disconnect as ctx.req.signal and must stop pulling from Swift
+    // instead of streaming a whole object into a worker that's already gone.
+    // Without this, a fast connection buffers the full file post-cancel and OOMs
+    // the renderer. createMockContext wires ctx.req.signal to a fresh
+    // AbortController; we swap in one we can trigger.
+    it("stops streaming once the request is aborted mid-download", async () => {
+      const mockCtx = createMockContext()
+      const ac = new AbortController()
+      ;(mockCtx.req as unknown as { signal: AbortSignal }).signal = ac.signal
+      const caller = createCaller(mockCtx)
+
+      const chunks = [new TextEncoder().encode("aaa"), new TextEncoder().encode("bbb"), new TextEncoder().encode("ccc")]
+      mockCtx.mockSwift.get.mockResolvedValue(makeStreamResponse(chunks, "text/plain", 9))
+
+      const iterable = await caller.storage.swift.downloadObject({
+        project_id: TEST_PROJECT_ID,
+        container: "test-container",
+        object: "big.bin",
+        filename: "big.bin",
+        downloadId: "test-container:big.bin",
+      })
+
+      const received: string[] = []
+      for await (const item of iterable) {
+        received.push(item.chunk)
+        // Cancel right after the first chunk. The loop re-checks the signal at
+        // the top of the next iteration and breaks before reading again.
+        ac.abort()
+      }
+
+      expect(received).toHaveLength(1)
+    })
+
+    it("yields nothing when the request is already aborted before the first read", async () => {
+      const mockCtx = createMockContext()
+      const ac = new AbortController()
+      ac.abort()
+      ;(mockCtx.req as unknown as { signal: AbortSignal }).signal = ac.signal
+      const caller = createCaller(mockCtx)
+
+      mockCtx.mockSwift.get.mockResolvedValue(
+        makeStreamResponse([new TextEncoder().encode("aaa"), new TextEncoder().encode("bbb")], "text/plain", 6)
+      )
+
+      const iterable = await caller.storage.swift.downloadObject({
+        project_id: TEST_PROJECT_ID,
+        container: "test-container",
+        object: "big.bin",
+        filename: "big.bin",
+        downloadId: "test-container:big.bin",
+      })
+
+      const received: unknown[] = []
+      for await (const item of iterable) {
+        received.push(item)
+      }
+
+      expect(received).toHaveLength(0)
+    })
+
+    it("does not emit completion when the request aborts during the terminal read", async () => {
+      // The subtle case the top-of-loop check alone misses: every chunk is
+      // consumed, then the abort lands while the final read() (the one that
+      // returns done) is in flight. The loop exits on `done` with the cached
+      // `aborted` still false, so completion is re-checked against the signal
+      // before emitting. Without that re-check this would report a cancelled
+      // transfer as finished.
+      const mockCtx = createMockContext()
+      const ac = new AbortController()
+      ;(mockCtx.req as unknown as { signal: AbortSignal }).signal = ac.signal
+      const caller = createCaller(mockCtx)
+
+      // The closing pull aborts before it closes, so read() resolves
+      // { done: true } with the signal already aborted — and crucially the abort
+      // happens after the top-of-loop check for that iteration, during the read.
+      let pulls = 0
+      const stream = new ReadableStream<Uint8Array>({
+        pull(controller) {
+          pulls += 1
+          if (pulls === 1) {
+            controller.enqueue(new TextEncoder().encode("aaa"))
+          } else {
+            ac.abort()
+            controller.close()
+          }
+        },
+      })
+      mockCtx.mockSwift.get.mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "text/plain", "content-length": "3" }),
+        body: stream,
+      })
+
+      // downloadProgressEmitter is module-private; observe the contract through
+      // EventEmitter.prototype.emit (spyOn calls through, so behaviour is intact).
+      const emitSpy = vi.spyOn(EventEmitter.prototype, "emit")
+
+      const iterable = await caller.storage.swift.downloadObject({
+        project_id: TEST_PROJECT_ID,
+        container: "test-container",
+        object: "big.bin",
+        filename: "big.bin",
+        downloadId: "test-container:big.bin",
+      })
+
+      const received: string[] = []
+      for await (const item of iterable) {
+        received.push(item.chunk)
+      }
+
+      // The one real chunk still comes through…
+      expect(received).toHaveLength(1)
+      // …but the aborted terminal read must not be reported as completion.
+      const completeEmits = emitSpy.mock.calls.filter(
+        ([event]) => typeof event === "string" && event.includes("big.bin") && event.endsWith(":complete")
+      )
+      expect(completeEmits).toHaveLength(0)
+
+      emitSpy.mockRestore()
     })
   })
 

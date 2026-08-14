@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 //
-// Dedicated Web Worker for Ceph object downloads.
+// Dedicated Web Worker for Swift object downloads.
 //
 // Why a worker: for large objects the wire carries a lot of base64 text and
 // `Uint8Array.from(atob(chunk), …)` runs over all of it. Doing that on the main
@@ -20,9 +20,9 @@
 //
 // Cancellation: a "cancel" message aborts the AbortController passed to the tRPC
 // mutation, which aborts the underlying fetch. The BFF sees the client disconnect
-// via `ctx.req.signal` and stops reading the S3 stream on its next chunk. The
-// store drops the transfer from its state right away, so the UI doesn't wait on
-// this unwinding.
+// and stops reading the Swift stream on its next chunk (see swiftRouter's
+// downloadObject). The store drops the transfer from its state right away, so the
+// UI doesn't wait on this unwinding.
 //
 // What stays on the main thread: all DOM work (anchor download / open-in-tab) and
 // the watchDownloadProgress subscription (a React hook keyed by downloadId).
@@ -41,10 +41,13 @@ export type DownloadWorkerRequest =
       bffEndpoint: string
       csrfToken: string | null
       projectId: string
-      bucketName: string
+      container: string
       objectKey: string
       filename: string
       downloadId: string
+      // Optional cross-account override (admin use). Swift's downloadObject
+      // accepts it; omitted for the common same-account case.
+      account?: string
     }
   | { type: "cancel" }
 
@@ -81,13 +84,14 @@ self.addEventListener("message", async (event: MessageEvent<DownloadWorkerReques
   const chunks: Uint8Array<ArrayBuffer>[] = []
 
   try {
-    const iterable = await trpcClient.storage.ceph.objects.downloadObject.mutate(
+    const iterable = await trpcClient.storage.swift.downloadObject.mutate(
       {
         project_id: msg.projectId,
-        containerName: msg.bucketName,
-        objectKey: msg.objectKey,
+        container: msg.container,
+        object: msg.objectKey,
         filename: msg.filename,
         downloadId: msg.downloadId,
+        ...(msg.account ? { account: msg.account } : {}),
       },
       { signal: abortController.signal }
     )

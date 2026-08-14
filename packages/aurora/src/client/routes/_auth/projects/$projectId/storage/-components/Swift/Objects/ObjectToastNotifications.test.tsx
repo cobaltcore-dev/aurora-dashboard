@@ -7,6 +7,8 @@ import {
   getFolderCreateErrorToast,
   getFolderDeletedToast,
   getFolderDeleteErrorToast,
+  getObjectDownloadStartedToast,
+  getObjectDownloadCancelledToast,
   getObjectDownloadErrorToast,
   getObjectDeletedToast,
   getObjectDeleteErrorToast,
@@ -102,6 +104,50 @@ describe("SwiftObjectToastNotifications", () => {
 
   // ── Object download ────────────────────────────────────────────────────────
 
+  describe("getObjectDownloadStartedToast", () => {
+    it("renders the shared 'Downloading...' message", () => {
+      renderNotification(getObjectDownloadStartedToast())
+      expect(screen.getByText("Downloading...")).toBeInTheDocument()
+      expect(screen.getByText(/downloads continue in the background/i)).toBeInTheDocument()
+    })
+
+    it("uses Swift container/folder wording, not buckets", () => {
+      renderNotification(getObjectDownloadStartedToast())
+      expect(screen.getByText(/containers and folders/i)).toBeInTheDocument()
+      expect(screen.queryByText(/bucket/i)).not.toBeInTheDocument()
+    })
+
+    it("takes no argument — one shared toast, not one per file", () => {
+      expect(getObjectDownloadStartedToast).toHaveLength(0)
+    })
+  })
+
+  describe("getObjectDownloadCancelledToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getObjectDownloadCancelledToast("file.txt"))
+      expect(screen.getByText("Download Cancelled")).toBeInTheDocument()
+      expect(screen.getByText(/file\.txt/)).toBeInTheDocument()
+      expect(screen.getByText(/was cancelled/)).toBeInTheDocument()
+    })
+
+    it("derives the basename from a full object key", () => {
+      // The store passes the full key; the helper shows just the file name.
+      renderNotification(getObjectDownloadCancelledToast("folder/sub/report.pdf"))
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.queryByText(/folder\/sub/)).not.toBeInTheDocument()
+    })
+
+    it("tolerates a trailing slash without emptying the name", () => {
+      renderNotification(getObjectDownloadCancelledToast("folder/report.pdf/"))
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+    })
+
+    it("handles object names with special characters", () => {
+      renderNotification(getObjectDownloadCancelledToast("my file (2024).txt"))
+      expect(screen.getByText(/my file \(2024\)\.txt/)).toBeInTheDocument()
+    })
+  })
+
   describe("getObjectDownloadErrorToast", () => {
     it("renders correct error message content", () => {
       renderNotification(getObjectDownloadErrorToast("file.txt", "Connection refused"))
@@ -109,6 +155,13 @@ describe("SwiftObjectToastNotifications", () => {
       expect(screen.getByText(/file\.txt/)).toBeInTheDocument()
       expect(screen.getByText(/Could not download/)).toBeInTheDocument()
       expect(screen.getByText(/Connection refused/)).toBeInTheDocument()
+    })
+
+    it("derives the basename from a full object key", () => {
+      // Now receives the full key from the store, so it shows just the file name.
+      renderNotification(getObjectDownloadErrorToast("folder/sub/report.pdf", "err"))
+      expect(screen.getByText(/report\.pdf/)).toBeInTheDocument()
+      expect(screen.queryByText(/folder\/sub/)).not.toBeInTheDocument()
     })
 
     it("handles object names with special characters", () => {
@@ -294,6 +347,8 @@ describe("SwiftObjectToastNotifications", () => {
         getFolderCreateErrorToast("f", "err"),
         getFolderDeletedToast("f", 2),
         getFolderDeleteErrorToast("f", "err"),
+        getObjectDownloadStartedToast(),
+        getObjectDownloadCancelledToast("f"),
         getObjectDownloadErrorToast("f", "err"),
         getObjectDeletedToast("f"),
         getObjectDeleteErrorToast("f", "err"),
