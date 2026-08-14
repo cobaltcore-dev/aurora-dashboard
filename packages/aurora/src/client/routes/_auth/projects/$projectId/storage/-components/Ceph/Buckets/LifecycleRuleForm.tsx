@@ -294,7 +294,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                       onChange={(e) => setNewTagValue(e.target.value)}
                     />
                   </div>
-                  <Button variant="primary" onClick={handleAddTag} disabled={!newTagKey.trim() || !newTagValue.trim()}>
+                  <Button onClick={handleAddTag} disabled={!newTagKey.trim() || !newTagValue.trim()}>
                     <Trans>Add</Trans>
                   </Button>
                 </div>
@@ -309,7 +309,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                   </Stack>
                 )}
               </div>
-              <p className="juno-helptext">
+              <p className="juno-helptext text-xs">
                 <Trans>Apply this rule only to objects with specific tags</Trans>
               </p>
             </div>
