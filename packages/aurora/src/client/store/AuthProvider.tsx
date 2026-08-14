@@ -60,7 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
 
-    const handleExpiry = () => {
+    const handleExpiry = async () => {
+      // Security: Always invalidate server session, not just client state
+      await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
       clearLocalSession()
       redirectToLogin(true)
     }
