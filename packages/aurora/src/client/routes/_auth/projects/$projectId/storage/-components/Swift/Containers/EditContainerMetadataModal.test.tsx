@@ -103,6 +103,8 @@ const makeContainerInfo = (overrides: Partial<ContainerInfo> = {}): ContainerInf
   objectCount: 10,
   bytesUsed: 1048576,
   metadata: {},
+  hasTempUrlKey: false,
+  hasSyncKey: false,
   ...overrides,
 })
 
