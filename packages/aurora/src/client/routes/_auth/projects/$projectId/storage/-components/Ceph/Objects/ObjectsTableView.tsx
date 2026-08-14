@@ -613,7 +613,7 @@ export function ObjectsTableView({
                                       }}
                                     />
                                     <PopupMenuItem
-                                      label={t`Delete`}
+                                      label={t`Delete Folder`}
                                       onClick={() => {
                                         // Permanently delete the folder's delete marker and folder marker
                                         if (row.deleteMarkerVersionId) {
@@ -636,7 +636,7 @@ export function ObjectsTableView({
                                 ) : (
                                   // Regular folder - show Delete option
                                   <PopupMenuItem
-                                    label={t`Delete`}
+                                    label={t`Delete Folder`}
                                     onClick={() => setDeleteTarget({ key: row.prefix })}
                                   />
                                 )
@@ -657,7 +657,7 @@ export function ObjectsTableView({
                                     }}
                                   />
                                   <PopupMenuItem
-                                    label={t`Delete`}
+                                    label={t`Delete Object`}
                                     onClick={() => {
                                       if (row.kind === "version") {
                                         // For deleted files, delete all versions completely
@@ -677,7 +677,7 @@ export function ObjectsTableView({
                               ) : (
                                 <>
                                   <PopupMenuItem
-                                    label={isDownloading ? t`Downloading...` : t`Download`}
+                                    label={isDownloading ? t`Downloading...` : t`Download Object`}
                                     disabled={row.kind !== "object" || isStreaming}
                                     onClick={row.kind === "object" ? () => handleDownload(row) : undefined}
                                     data-testid={`download-action-${row.key}`}
@@ -690,22 +690,22 @@ export function ObjectsTableView({
                                     />
                                   )}
                                   <PopupMenuItem
-                                    label={t`Copy`}
+                                    label={t`Copy Object`}
                                     disabled={isStreaming}
                                     onClick={() => setCopyTarget({ key: row.key, size: row.size })}
                                   />
                                   <PopupMenuItem
-                                    label={t`Move/Rename`}
+                                    label={t`Move/Rename Object`}
                                     disabled={isStreaming}
                                     onClick={() => setMoveTarget({ key: row.key, size: row.size })}
                                   />
                                   <PopupMenuItem
-                                    label={t`Edit Metadata`}
+                                    label={t`Edit Object Metadata`}
                                     disabled={isStreaming}
                                     onClick={() => setEditMetadataTarget(row.key)}
                                   />
                                   <PopupMenuItem
-                                    label={t`Share URL`}
+                                    label={t`Share Object URL`}
                                     disabled={row.kind !== "object" || isStreaming}
                                     onClick={
                                       row.kind === "object" ? () => setPresignedUrlTarget({ key: row.key }) : undefined
@@ -713,7 +713,7 @@ export function ObjectsTableView({
                                     data-testid={`share-url-action-${row.key}`}
                                   />
                                   <PopupMenuItem
-                                    label={t`Delete`}
+                                    label={t`Delete Object`}
                                     disabled={isStreaming}
                                     onClick={() =>
                                       setDeleteTarget({

@@ -191,7 +191,7 @@ export const UploadObjectModal = ({
       }
       open={isOpen}
       onCancel={isPending ? handleCancelUpload : handleClose}
-      confirmButtonLabel={isPending ? t`Uploading...` : t`Upload`}
+      confirmButtonLabel={isPending ? t`Uploading...` : t`Upload Object`}
       onConfirm={handleSubmit}
       cancelButtonLabel={isPending ? t`Cancel upload` : t`Cancel`}
       size="small"

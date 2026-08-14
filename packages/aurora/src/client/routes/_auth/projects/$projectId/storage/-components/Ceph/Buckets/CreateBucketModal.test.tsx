@@ -123,14 +123,14 @@ describe("CreateBucketModal", () => {
 
     test("renders when isOpen is true", () => {
       renderModal()
-      expect(screen.getByText("Create Bucket")).toBeInTheDocument()
+      expect(screen.getByRole("dialog")).toBeInTheDocument()
     })
   })
 
   describe("UI elements", () => {
     test("renders modal title", () => {
       renderModal()
-      expect(screen.getByText("Create Bucket")).toBeInTheDocument()
+      expect(screen.getByRole("dialog")).toHaveAccessibleName("Create Bucket")
     })
 
     test("renders info message about S3 naming rules", () => {
@@ -149,9 +149,9 @@ describe("CreateBucketModal", () => {
       expect(screen.getByPlaceholderText("my-bucket-name")).toBeInTheDocument()
     })
 
-    test("renders Create button", () => {
+    test("renders Create Bucket button", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Create$/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).toBeInTheDocument()
     })
 
     test("renders Cancel button", () => {
@@ -175,9 +175,9 @@ describe("CreateBucketModal", () => {
       expect(screen.getByRole("checkbox", { name: /Enable versioning/i })).not.toBeChecked()
     })
 
-    test("Create button is disabled when input is empty", () => {
+    test("Create Bucket button is disabled when input is empty", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Create$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).toBeDisabled()
     })
 
     test("input has autofocus", () => {
@@ -194,7 +194,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "mybucket")
 
-      expect(screen.getByRole("button", { name: /^Create$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).not.toBeDisabled()
       expect(input).not.toHaveAttribute("aria-invalid", "true")
     })
 
@@ -205,7 +205,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket-123")
 
-      expect(screen.getByRole("button", { name: /^Create$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).not.toBeDisabled()
     })
 
     test("accepts valid bucket name with periods", async () => {
@@ -215,7 +215,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my.bucket.name")
 
-      expect(screen.getByRole("button", { name: /^Create$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).not.toBeDisabled()
     })
 
     test("accepts valid bucket name with hyphens", async () => {
@@ -225,7 +225,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket-name")
 
-      expect(screen.getByRole("button", { name: /^Create$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).not.toBeDisabled()
     })
 
     test("accepts 3-character bucket name", async () => {
@@ -235,7 +235,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "abc")
 
-      expect(screen.getByRole("button", { name: /^Create$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).not.toBeDisabled()
     })
 
     test("accepts 63-character bucket name", async () => {
@@ -246,7 +246,7 @@ describe("CreateBucketModal", () => {
       const longName = "a".repeat(63)
       await user.type(input, longName)
 
-      expect(screen.getByRole("button", { name: /^Create$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).not.toBeDisabled()
     })
   })
 
@@ -260,13 +260,13 @@ describe("CreateBucketModal", () => {
       await user.type(input, "test")
 
       // Enable the button by having valid input
-      expect(screen.getByRole("button", { name: /^Create$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).not.toBeDisabled()
 
       // Now clear the input
       await user.clear(input)
 
       // Try to submit
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
 
       // Button should be disabled with empty input
       expect(createButton).toBeDisabled()
@@ -279,7 +279,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "ab")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -295,7 +295,7 @@ describe("CreateBucketModal", () => {
       const longName = "a".repeat(64)
       await user.type(input, longName)
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -312,7 +312,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "MyBucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -330,7 +330,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my_bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -348,7 +348,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -366,7 +366,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "-mybucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -381,7 +381,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "mybucket-")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -396,7 +396,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, ".mybucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -411,7 +411,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "mybucket.")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -426,7 +426,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my..bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -443,7 +443,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "192.168.1.1")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -460,7 +460,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "xn--mybucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -475,7 +475,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "sthree-mybucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -490,7 +490,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "amzn-s3-demo-bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -507,7 +507,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "mybucket-s3alias")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -522,7 +522,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "mybucket--ol-s3")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -539,7 +539,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-test-bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -561,7 +561,7 @@ describe("CreateBucketModal", () => {
       const checkbox = screen.getByRole("checkbox", { name: /Enable versioning/i })
       await user.click(checkbox)
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -598,7 +598,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "  my-bucket  ")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -631,7 +631,7 @@ describe("CreateBucketModal", () => {
       renderModal()
 
       expect(screen.getByLabelText(/Bucket name/i)).toBeDisabled()
-      expect(screen.getByRole("button", { name: /^Create$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).toBeDisabled()
       expect(screen.getByRole("checkbox", { name: /Enable versioning/i })).toBeDisabled()
     })
   })
@@ -645,7 +645,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -660,7 +660,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -676,7 +676,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -691,7 +691,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -710,7 +710,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "existing-bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -727,7 +727,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -775,7 +775,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "ab")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -797,7 +797,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "ab")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -818,7 +818,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "ab")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       await waitFor(() => {
@@ -937,7 +937,7 @@ describe("CreateBucketModal", () => {
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket")
 
-      const createButton = screen.getByRole("button", { name: /^Create$/i })
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
       await user.click(createButton)
 
       // The .close event should not be tracked because hasSubmitted is true

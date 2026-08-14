@@ -176,7 +176,7 @@ export const DeleteCorsRulesModal = ({
     .filter(({ index }) => ruleIndices.includes(index))
   const visibleRules = rulesToDeleteWithIndices.slice(0, MAX_VISIBLE_RULES)
   const hiddenCount = rulesToDeleteWithIndices.length - visibleRules.length
-  const confirmLabel = isDeleting ? t`Deleting...` : ruleCount === 1 ? t`Delete Rule` : t`Delete Rules`
+  const confirmLabel = isDeleting ? t`Deleting...` : ruleCount === 1 ? t`Delete CORS Rule` : t`Delete CORS Rules`
 
   return (
     <Modal

@@ -62,12 +62,15 @@ const mockAccountInfo: AccountInfo = {
   containerCount: 5,
   bytesUsed: 1073741824,
   metadata: { project: "test" },
+  hasTempUrlKey: false,
 }
 
 const mockContainerInfo: ContainerInfo = {
   objectCount: 10,
   bytesUsed: 1024,
   metadata: { environment: "dev" },
+  hasTempUrlKey: false,
+  hasSyncKey: false,
 }
 
 const mockObjectMetadata: ObjectMetadata = {

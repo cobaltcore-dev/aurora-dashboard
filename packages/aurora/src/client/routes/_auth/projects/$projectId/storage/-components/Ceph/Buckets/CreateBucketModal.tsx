@@ -148,7 +148,7 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
         trackClose()
         handleClose()
       }}
-      confirmButtonLabel={t`Create`}
+      confirmButtonLabel={t`Create Bucket`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"
