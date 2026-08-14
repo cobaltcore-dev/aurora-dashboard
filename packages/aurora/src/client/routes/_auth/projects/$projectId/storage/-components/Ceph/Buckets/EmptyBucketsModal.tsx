@@ -94,7 +94,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
         trackClose()
         handleClose()
       }}
-      confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}
+      confirmButtonLabel={isPending ? t`Emptying...` : totalCount === 1 ? t`Empty Bucket` : t`Empty Buckets`}
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
       onConfirm={handleConfirm}

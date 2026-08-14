@@ -31,12 +31,14 @@ const mockAccountInfo: AccountInfo = {
   objectCount: 340,
   bytesUsed: 1073741824, // 1 GiB
   quotaBytes: 10737418240, // 10 GiB
+  hasTempUrlKey: false,
 }
 
 const mockAccountInfoNoQuota: AccountInfo = {
   containerCount: 5,
   objectCount: 100,
   bytesUsed: 524288000, // 500 MiB
+  hasTempUrlKey: false,
 }
 
 const mockSwiftBase = {

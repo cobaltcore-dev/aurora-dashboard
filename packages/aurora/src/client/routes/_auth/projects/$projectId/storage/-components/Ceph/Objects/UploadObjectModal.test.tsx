@@ -137,13 +137,13 @@ describe("UploadObjectModal", () => {
 
     test("renders Upload and Cancel buttons", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Upload$/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Upload Object$/i })).toBeInTheDocument()
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
     })
 
     test("Upload button is disabled when no file selected", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Upload$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Upload Object$/i })).toBeDisabled()
     })
 
     test("Upload button is enabled after file is selected", async () => {
@@ -152,7 +152,7 @@ describe("UploadObjectModal", () => {
 
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
-      expect(screen.getByRole("button", { name: /^Upload$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Upload Object$/i })).not.toBeDisabled()
     })
   })
 
@@ -190,7 +190,7 @@ describe("UploadObjectModal", () => {
       await user.upload(fileInput, makeFile("report.pdf"))
       await user.click(screen.getByRole("button", { name: /Remove/i }))
       expect(screen.queryByText(/report\.pdf/)).not.toBeInTheDocument()
-      expect(screen.getByRole("button", { name: /^Upload$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Upload Object$/i })).toBeDisabled()
     })
   })
 
@@ -202,7 +202,7 @@ describe("UploadObjectModal", () => {
       renderModal({ bucketName: "my-bucket", currentPrefix: "docs/" })
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile("report.pdf"))
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(mockMutate).toHaveBeenCalledWith(
           expect.any(File),
@@ -226,7 +226,7 @@ describe("UploadObjectModal", () => {
       renderModal()
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile("photo.png", 512, "image/png"))
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(mockMutate).toHaveBeenCalledWith(
           expect.any(File),
@@ -244,7 +244,7 @@ describe("UploadObjectModal", () => {
       renderModal()
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         const headers = mockMutate.mock.calls[0][1].context.headers
         expect(headers).not.toHaveProperty("x-upload-account")
@@ -256,7 +256,7 @@ describe("UploadObjectModal", () => {
       renderModal({ bucketName: "test-container" })
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(mockInvalidate).toHaveBeenCalledWith()
       })
@@ -268,7 +268,7 @@ describe("UploadObjectModal", () => {
       renderModal({ onSuccess })
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile("report.pdf"))
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(onSuccess).toHaveBeenCalledWith("report.pdf")
       })
@@ -286,7 +286,7 @@ describe("UploadObjectModal", () => {
       renderModal()
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(screen.getByRole("button", { name: /Uploading\.\.\./i })).toBeInTheDocument()
       })
@@ -303,7 +303,7 @@ describe("UploadObjectModal", () => {
       renderModal()
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(screen.getByText(/Quota exceeded/i)).toBeInTheDocument()
       })
@@ -316,7 +316,7 @@ describe("UploadObjectModal", () => {
       renderModal({ onError })
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile("report.pdf"))
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith("report.pdf", "Internal Server Error")
       })
@@ -329,7 +329,7 @@ describe("UploadObjectModal", () => {
       renderModal({ onSuccess })
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(onSuccess).not.toHaveBeenCalled()
       })
@@ -352,7 +352,7 @@ describe("UploadObjectModal", () => {
       renderModal()
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(screen.getByText(/60%/)).toBeInTheDocument()
       })
@@ -372,7 +372,7 @@ describe("UploadObjectModal", () => {
       renderModal()
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         // The progress section shows "Uploading..." as a span (not the button)
         const spinner = document.querySelector("[role=progressbar]")
@@ -406,7 +406,7 @@ describe("UploadObjectModal", () => {
       renderModal()
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile())
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(screen.getByRole("button", { name: /Cancel upload/i })).toBeInTheDocument()
       })
@@ -424,7 +424,7 @@ describe("UploadObjectModal", () => {
       renderModal({ onCancelled })
       const fileInput = document.querySelector("input[type=file]") as HTMLInputElement
       await user.upload(fileInput, makeFile("report.pdf"))
-      await user.click(screen.getByRole("button", { name: /^Upload$/i }))
+      await user.click(screen.getByRole("button", { name: /^Upload Object$/i }))
       await waitFor(() => {
         expect(onCancelled).toHaveBeenCalledWith("report.pdf")
       })

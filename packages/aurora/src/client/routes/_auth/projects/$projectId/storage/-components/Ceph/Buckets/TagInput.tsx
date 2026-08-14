@@ -1,5 +1,6 @@
 import { useState, KeyboardEvent } from "react"
 import { TextInput, Pill, Stack, Button } from "@cloudoperators/juno-ui-components"
+import { Trans } from "@lingui/react/macro"
 
 interface TagInputProps {
   label: string
@@ -84,7 +85,7 @@ export const TagInput = ({
           />
         </div>
         <Button
-          variant="primary"
+          variant="default"
           onClick={() => {
             if (inputValue.trim()) {
               addTag(inputValue.trim())
@@ -92,7 +93,7 @@ export const TagInput = ({
           }}
           disabled={disabled || !inputValue.trim()}
         >
-          Add
+          <Trans>Add</Trans>
         </Button>
       </div>
 

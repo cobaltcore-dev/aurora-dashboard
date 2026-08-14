@@ -139,8 +139,7 @@ export const accountInfoSchema = z.object({
   bytesUsed: z.number(),
   metadata: accountMetadataSchema.optional(),
   quotaBytes: z.number().optional(),
-  tempUrlKey: z.string().optional(),
-  tempUrlKey2: z.string().optional(),
+  hasTempUrlKey: z.boolean(),
 })
 
 // Container summary in account listing
@@ -200,9 +199,9 @@ export const containerInfoSchema = z.object({
   read: z.string().optional(), // Read ACL
   write: z.string().optional(), // Write ACL
   syncTo: z.string().optional(),
-  syncKey: z.string().optional(),
-  tempUrlKey: z.string().optional(),
-  tempUrlKey2: z.string().optional(),
+  // Security: Return only presence flags, not secret values
+  hasTempUrlKey: z.boolean(),
+  hasSyncKey: z.boolean(),
 })
 
 // Object summary in container listing
