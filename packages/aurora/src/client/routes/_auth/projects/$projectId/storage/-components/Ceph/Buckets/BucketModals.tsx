@@ -7,8 +7,6 @@ import { SuspendVersioningModal } from "./SuspendVersioningModal"
 import { BucketPolicyModal } from "./BucketPolicyModal"
 import { DeleteBucketPolicyModal } from "./DeleteBucketPolicyModal"
 import { DeleteCorsModal } from "./DeleteCorsModal"
-import { LifecycleModal } from "./LifecycleModal"
-import { DeleteLifecycleModal } from "./DeleteLifecycleModal"
 import { EmptyBucketModal } from "./EmptyBucketModal"
 import { DeleteBucketModal } from "./DeleteBucketModal"
 import { DeleteVersionsModal } from "./DeleteVersionsModal"
@@ -19,10 +17,8 @@ import {
   getVersioningSuspendErrorToast,
   getBucketPolicyDeletedToast,
   getBucketPolicyDeleteErrorToast,
-  getCorsRuleDeletedToast,
-  getCorsRuleDeleteErrorToast,
-  getLifecycleConfigDeletedToast,
-  getLifecycleConfigDeleteErrorToast,
+  getCorsDeletedToast,
+  getCorsDeleteErrorToast,
   getVersionsDeletedToast,
   getVersionsDeleteErrorToast,
   getBucketEmptiedToast,
@@ -37,8 +33,6 @@ export type ModalType =
   | "policy"
   | "deletePolicy"
   | "deleteCors"
-  | "lifecycle"
-  | "deleteLifecycle"
   | "emptyBucket"
   | "deleteBucket"
   | "deleteVersions"
@@ -141,30 +135,12 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         bucketName={bucketName}
         onClose={onClose}
         onSuccess={(bucketName) => {
-          const { message, ...options } = getCorsRuleDeletedToast(bucketName)
+          const { message, ...options } = getCorsDeletedToast(bucketName)
           toast.success(message, options)
           onClose()
         }}
         onError={(bucketName, errorMessage) => {
-          const { message, ...options } = getCorsRuleDeleteErrorToast(bucketName, errorMessage)
-          toast.error(message, options)
-          onClose()
-        }}
-      />
-
-      <LifecycleModal isOpen={activeModal === "lifecycle"} bucketName={bucketName} onClose={onClose} />
-
-      <DeleteLifecycleModal
-        isOpen={activeModal === "deleteLifecycle"}
-        bucketName={bucketName}
-        onClose={onClose}
-        onSuccess={(bucketName) => {
-          const { message, ...options } = getLifecycleConfigDeletedToast(bucketName)
-          toast.success(message, options)
-          onClose()
-        }}
-        onError={(bucketName, errorMessage) => {
-          const { message, ...options } = getLifecycleConfigDeleteErrorToast(bucketName, errorMessage)
+          const { message, ...options } = getCorsDeleteErrorToast(bucketName, errorMessage)
           toast.error(message, options)
           onClose()
         }}

@@ -1,5 +1,6 @@
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { useEffect } from "react"
 import {
   Form,
   Stack,
@@ -11,18 +12,19 @@ import {
   Message,
 } from "@cloudoperators/juno-ui-components"
 import type { LifecycleRuleRead, LifecycleTag } from "@/server/Storage/types/ceph"
-import { normalizeFilter } from "@/server/Storage/helpers/lifecycleMapper"
+import { normalizeFilter } from "./utils/lifecycleUtils"
 import { useState } from "react"
 
 interface LifecycleRuleFormProps {
   editingRule: LifecycleRuleRead | null
   onSubmit: (rule: LifecycleRuleRead) => void
-  onCancel: () => void
+  formId: string
+  onValidationChange?: (isValid: boolean) => void
 }
 
 const STATUS_OPTIONS = ["Enabled", "Disabled"] as const
 
-export const LifecycleRuleForm = ({ editingRule, onSubmit, onCancel }: LifecycleRuleFormProps) => {
+export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationChange }: LifecycleRuleFormProps) => {
   const { t } = useLingui()
 
   // Extract values from editing rule
@@ -83,57 +85,49 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, onCancel }: Lifecycle
     }
   }
 
-  const [tags, setTags] = useState<LifecycleTag[]>(getInitialValues().tags)
-  const [newTagKey, setNewTagKey] = useState("")
-  const [newTagValue, setNewTagValue] = useState("")
-
   const form = useForm({
     defaultValues: getInitialValues(),
-    onSubmit: async ({ value }) => {
-      // Start from the existing rule if editing (preserves Transitions, NoncurrentVersionTransitions, etc.)
-      const newRule: LifecycleRuleRead = editingRule ? { ...editingRule } : ({} as LifecycleRuleRead)
+    onSubmit: ({ value }) => {
+      const filter = normalizeFilter(value.Prefix || undefined, value.tags.length > 0 ? value.tags : undefined)
 
-      // Update basic fields
-      newRule.ID = value.ID || undefined
-      newRule.Status = value.Status
-
-      // Build filter from prefix + tags using normalizeFilter from lifecycleMapper (item 6 fix)
-      newRule.Filter = normalizeFilter(value.Prefix || undefined, tags.length > 0 ? tags : undefined)
-
-      // Clear legacy Prefix field whenever Filter is set (item 23 fix - one-way migration)
-      newRule.Prefix = undefined
-
-      // Update only the actions that are enabled
-      // Item 24 fix: Only overwrite Expiration if user is actively changing it
-      // (has checkbox checked AND has entered days, OR has unchecked the checkbox)
-      if (value.hasExpiration && value.expirationDays) {
-        // User is setting a Days-based expiration
-        newRule.Expiration = { Days: parseInt(value.expirationDays, 10) }
-      } else if (!value.hasExpiration) {
-        // User unchecked the expiration checkbox - clear it
-        newRule.Expiration = undefined
+      const newRule: LifecycleRuleRead = {
+        ID: value.ID || undefined,
+        Status: value.Status,
+        Filter: filter,
+        Prefix: undefined, // Clear legacy Prefix field (item 23 fix)
       }
-      // else: hasExpiration is true but expirationDays is empty - preserve original
-      // (the rule had Date/ExpiredObjectDeleteMarker, user didn't change it)
+
+      // If editing, preserve the existing Expiration field byte-identical if user didn't change it (item 24 fix)
+      if (value.hasExpiration) {
+        if (value.expirationDays) {
+          newRule.Expiration = { Days: parseInt(value.expirationDays, 10) }
+        } else if (editingRule?.Expiration) {
+          // Preserve the original Expiration (Date or ExpiredObjectDeleteMarker) unchanged
+          newRule.Expiration = editingRule.Expiration
+        }
+      }
+
+      // Preserve Transitions byte-identical (item 1 fix)
+      if (editingRule?.Transitions) {
+        newRule.Transitions = editingRule.Transitions
+      }
 
       if (value.hasNoncurrentExpiration && value.noncurrentDays) {
         newRule.NoncurrentVersionExpiration = {
           NoncurrentDays: parseInt(value.noncurrentDays, 10),
         }
-      } else if (!value.hasNoncurrentExpiration) {
-        newRule.NoncurrentVersionExpiration = undefined
+      }
+
+      // Preserve NoncurrentVersionTransitions if present (read-only)
+      if (editingRule?.NoncurrentVersionTransitions) {
+        newRule.NoncurrentVersionTransitions = editingRule.NoncurrentVersionTransitions
       }
 
       if (value.hasAbortUpload && value.abortDays) {
         newRule.AbortIncompleteMultipartUpload = {
           DaysAfterInitiation: parseInt(value.abortDays, 10),
         }
-      } else if (!value.hasAbortUpload) {
-        newRule.AbortIncompleteMultipartUpload = undefined
       }
-
-      // Transitions and NoncurrentVersionTransitions are preserved from editingRule
-      // (never authored in the UI, only preserved)
 
       onSubmit(newRule)
     },
@@ -142,103 +136,83 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, onCancel }: Lifecycle
   const hasExpirationValue = useStore(form.store, (state) => state.values.hasExpiration)
   const hasNoncurrentExpirationValue = useStore(form.store, (state) => state.values.hasNoncurrentExpiration)
   const hasAbortUploadValue = useStore(form.store, (state) => state.values.hasAbortUpload)
-  const expirationDaysValue = useStore(form.store, (state) => state.values.expirationDays)
-  const noncurrentDaysValue = useStore(form.store, (state) => state.values.noncurrentDays)
-  const abortDaysValue = useStore(form.store, (state) => state.values.abortDays)
 
-  // Validate that at least one action is enabled and has valid data
   const canSubmit = () => {
-    let hasAtLeastOneAction = false
+    const values = form.state.values
+    const hasAtLeastOneAction = values.hasExpiration || values.hasNoncurrentExpiration || values.hasAbortUpload
 
-    if (hasExpirationValue) {
-      // Item 24 fix: Only require expirationDays if user is defining a NEW Days-based expiration
-      // If editing a rule with Date/ExpiredObjectDeleteMarker, allow saving without Days filled
-      const hasExistingNonDaysExpiration =
-        editingRule?.Expiration &&
-        !editingRule.Expiration.Days &&
-        (editingRule.Expiration.Date || editingRule.Expiration.ExpiredObjectDeleteMarker)
+    if (!hasAtLeastOneAction) return false
 
-      if (expirationDaysValue.length > 0) {
-        // User entered days - validate they're positive
-        if (parseInt(expirationDaysValue, 10) <= 0) {
-          return false
-        }
-        hasAtLeastOneAction = true
-      } else if (hasExistingNonDaysExpiration) {
-        // No days entered, but rule has existing Date/ExpiredObjectDeleteMarker - that counts
-        hasAtLeastOneAction = true
-      } else {
-        // No days entered and no existing non-Days expiration - invalid
-        return false
-      }
+    // If expiration is checked, must have days OR we're preserving non-Days expiration from editing
+    if (values.hasExpiration) {
+      const hasExpirationDays = values.expirationDays.trim() !== ""
+      const hasNonDaysExpiration = editingRule?.Expiration && !editingRule.Expiration.Days
+      if (!hasExpirationDays && !hasNonDaysExpiration) return false
     }
 
-    if (hasNoncurrentExpirationValue) {
-      if (noncurrentDaysValue.length === 0 || parseInt(noncurrentDaysValue, 10) <= 0) {
-        return false
-      }
-      hasAtLeastOneAction = true
-    }
+    // If noncurrent expiration is checked, must have days
+    if (values.hasNoncurrentExpiration && values.noncurrentDays.trim() === "") return false
 
-    if (hasAbortUploadValue) {
-      if (abortDaysValue.length === 0 || parseInt(abortDaysValue, 10) <= 0) {
-        return false
-      }
-      hasAtLeastOneAction = true
-    }
+    // If abort is checked, must have days
+    if (values.hasAbortUpload && values.abortDays.trim() === "") return false
 
-    // If editing, preserve existing actions (Transitions, etc.) - they count as actions
-    if (editingRule) {
-      if (editingRule.Transitions || editingRule.NoncurrentVersionTransitions) {
-        hasAtLeastOneAction = true
-      }
-    }
-
-    return hasAtLeastOneAction
+    return true
   }
 
+  // Notify parent about validation state changes
+  useEffect(() => {
+    onValidationChange?.(canSubmit())
+  }, [canSubmit(), onValidationChange])
+
+  // Tag editor state
+  const [newTagKey, setNewTagKey] = useState("")
+  const [newTagValue, setNewTagValue] = useState("")
+
   const handleAddTag = () => {
-    if (newTagKey.trim()) {
-      setTags([...tags, { Key: newTagKey.trim(), Value: newTagValue.trim() }])
-      setNewTagKey("")
-      setNewTagValue("")
-    }
+    if (!newTagKey.trim() || !newTagValue.trim()) return
+    const currentTags = form.state.values.tags
+    form.setFieldValue("tags", [...currentTags, { Key: newTagKey.trim(), Value: newTagValue.trim() }])
+    setNewTagKey("")
+    setNewTagValue("")
   }
 
   const handleRemoveTag = (index: number) => {
-    setTags(tags.filter((_, i) => i !== index))
+    const currentTags = form.state.values.tags
+    form.setFieldValue(
+      "tags",
+      currentTags.filter((_, i) => i !== index)
+    )
   }
 
-  // Render read-only summary of Transitions/NoncurrentVersionTransitions if present
-  const hasTransitions = editingRule && (editingRule.Transitions || editingRule.NoncurrentVersionTransitions)
-
   return (
-    <div>
-      <h3 className="text-theme-high mb-6 text-base font-semibold">
-        {editingRule ? <Trans>Edit Lifecycle Rule</Trans> : <Trans>Add New Lifecycle Rule</Trans>}
-      </h3>
-      <Form
-        onSubmit={(e) => {
-          e.preventDefault()
-          form.handleSubmit()
-        }}
-      >
-        <Stack direction="vertical" gap="4">
+    <Form
+      id={formId}
+      role="form"
+      onSubmit={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        form.handleSubmit()
+      }}
+    >
+      <Stack direction="vertical" gap="6">
+        <div className="grid grid-cols-2 gap-4">
+          {/* Rule ID */}
           <form.Field name="ID">
             {(field) => (
               <TextInput
-                label={t`Rule ID (optional)`}
+                label={t`Rule ID`}
                 id={field.name}
                 name={field.name}
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
-                placeholder={t`delete-old-logs`}
-                helptext={t`A unique identifier for this rule (optional, max 255 characters)`}
+                placeholder={t`my-lifecycle-rule`}
+                helptext={t`Optional unique identifier for the rule (max 255 characters)`}
               />
             )}
           </form.Field>
 
+          {/* Status */}
           <form.Field name="Status">
             {(field) => (
               <Select
@@ -247,223 +221,228 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, onCancel }: Lifecycle
                 name={field.name}
                 value={field.state.value}
                 onChange={(value) => field.handleChange(value as "Enabled" | "Disabled")}
-                helptext={t`Whether this rule is active`}
                 required={true}
               >
                 {STATUS_OPTIONS.map((status) => (
-                  <SelectOption key={status} value={status} label={status} />
+                  <SelectOption key={status} value={status}>
+                    {status}
+                  </SelectOption>
                 ))}
               </Select>
             )}
           </form.Field>
+        </div>
 
-          <form.Field name="Prefix">
-            {(field) => (
-              <TextInput
-                label={t`Prefix Filter (optional)`}
-                id={field.name}
-                name={field.name}
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                placeholder={t`logs/`}
-                helptext={t`Apply this rule only to objects with this key prefix (e.g., "logs/" or "archive/")`}
-              />
-            )}
-          </form.Field>
+        {/* Scope section - Filter by prefix and/or tags */}
+        <div>
+          <h4 className="text-theme-high mb-4 text-sm font-semibold">
+            <Trans>Scope</Trans>
+          </h4>
+          <Stack direction="vertical" gap="4">
+            <form.Field name="Prefix">
+              {(field) => (
+                <TextInput
+                  label={t`Prefix`}
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder={t`logs/`}
+                  helptext={t`Apply this rule only to objects with this prefix (leave empty for all objects)`}
+                />
+              )}
+            </form.Field>
 
-          {/* Tag editor */}
-          <div>
-            <label className="juno-label text-theme-high mb-2 block text-sm font-bold">
-              <Trans>Tag Filters (optional)</Trans>
-            </label>
-            <p className="text-theme-light mb-3 text-sm">
-              <Trans>Apply this rule only to objects with specific tags</Trans>
-            </p>
-
-            {tags.length > 0 && (
-              <div className="mb-3 space-y-2">
-                {tags.map((tag, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <span className="text-theme-default flex-1 text-sm">
-                      {tag.Key}={tag.Value}
-                    </span>
-                    <Button size="small" variant="subdued" onClick={() => handleRemoveTag(index)}>
-                      <Trans>Remove</Trans>
+            {/* Tag editor */}
+            <div>
+              <label className="juno-label juno-label-floating">
+                <Trans>Tags</Trans>
+              </label>
+              <div className="mt-2">
+                <Stack direction="vertical" gap="2">
+                  {form.state.values.tags.map((tag, index) => (
+                    <Stack key={index} gap="2" alignment="center">
+                      <span className="text-theme-default text-sm">
+                        {tag.Key}={tag.Value}
+                      </span>
+                      <Button size="small" variant="subdued" onClick={() => handleRemoveTag(index)}>
+                        <Trans>Remove</Trans>
+                      </Button>
+                    </Stack>
+                  ))}
+                  <Stack gap="2" alignment="end">
+                    <TextInput placeholder={t`Key`} value={newTagKey} onChange={(e) => setNewTagKey(e.target.value)} />
+                    <TextInput
+                      placeholder={t`Value`}
+                      value={newTagValue}
+                      onChange={(e) => setNewTagValue(e.target.value)}
+                    />
+                    <Button
+                      size="small"
+                      variant="subdued"
+                      onClick={handleAddTag}
+                      disabled={!newTagKey.trim() || !newTagValue.trim()}
+                    >
+                      <Trans>Add Tag</Trans>
                     </Button>
-                  </div>
-                ))}
+                  </Stack>
+                </Stack>
               </div>
+              <p className="juno-helptext">
+                <Trans>Apply this rule only to objects with specific tags</Trans>
+              </p>
+            </div>
+          </Stack>
+        </div>
+
+        {/* Actions section */}
+        <div>
+          <h4 className="text-theme-high mb-4 text-sm font-semibold">
+            <Trans>Actions</Trans>
+          </h4>
+          <Stack direction="vertical" gap="4">
+            {/* Read-only notice for Transitions */}
+            {editingRule?.Transitions && editingRule.Transitions.length > 0 && (
+              <Message variant="info" title={t`Transitions (Read-Only)`}>
+                <Trans>
+                  This rule has {editingRule.Transitions.length} transition(s) configured. Transitions cannot be edited
+                  in this UI. Changing other fields will preserve the existing transitions.
+                </Trans>
+              </Message>
             )}
 
-            <div className="flex gap-2">
-              <TextInput
-                label={t`Key`}
-                value={newTagKey}
-                onChange={(e) => setNewTagKey(e.target.value)}
-                placeholder={t`Environment`}
-                className="flex-1"
-              />
-              <TextInput
-                label={t`Value`}
-                value={newTagValue}
-                onChange={(e) => setNewTagValue(e.target.value)}
-                placeholder={t`production`}
-                className="flex-1"
-              />
-              <div className="flex items-end">
-                <Button variant="subdued" onClick={handleAddTag} disabled={!newTagKey.trim()}>
-                  <Trans>Add Tag</Trans>
-                </Button>
-              </div>
+            {/* Read-only notice for NoncurrentVersionTransitions */}
+            {editingRule?.NoncurrentVersionTransitions && editingRule.NoncurrentVersionTransitions.length > 0 && (
+              <Message variant="info" title={t`Noncurrent Version Transitions (Read-Only)`}>
+                <Trans>
+                  This rule has {editingRule.NoncurrentVersionTransitions.length} noncurrent version transition(s)
+                  configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing
+                  transitions.
+                </Trans>
+              </Message>
+            )}
+
+            {/* Expiration action */}
+            <div>
+              <form.Field name="hasExpiration">
+                {(field) => (
+                  <Checkbox
+                    id={field.name}
+                    name={field.name}
+                    checked={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.checked)}
+                    label={t`Expire Objects`}
+                    helptext={t`Permanently delete objects after a specified time`}
+                  />
+                )}
+              </form.Field>
+
+              {hasExpirationValue && (
+                <div className="mt-2 ml-6">
+                  <form.Field name="expirationDays">
+                    {(field) => (
+                      <TextInput
+                        label={t`Expiration Days`}
+                        id={field.name}
+                        name={field.name}
+                        type="number"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        placeholder={t`30`}
+                        min="1"
+                        helptext={
+                          editingRule?.Expiration && !editingRule.Expiration.Days
+                            ? t`This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty to preserve it, or enter days to switch to Days expiration.`
+                            : t`Delete objects after this many days`
+                        }
+                        required={!editingRule?.Expiration || editingRule.Expiration.Days !== undefined}
+                      />
+                    )}
+                  </form.Field>
+                </div>
+              )}
             </div>
-          </div>
 
-          {hasTransitions && (
-            <Message variant="info" title={t`Storage Class Transitions (read-only)`}>
-              <Trans>
-                This rule has storage-class transitions that were configured outside Aurora. They are preserved
-                unchanged when you save this rule.
-              </Trans>
-            </Message>
-          )}
-
-          {/* Actions section - independent toggles */}
-          <div>
-            <label className="juno-label text-theme-high mb-2 block text-sm font-bold">
-              <Trans>Actions</Trans>
-            </label>
-            <p className="text-theme-light mb-3 text-sm">
-              <Trans>Select one or more actions for this rule</Trans>
-            </p>
-
-            <Stack direction="vertical" gap="4">
-              {/* Expiration action */}
-              <div>
-                <form.Field name="hasExpiration">
-                  {(field) => (
-                    <Checkbox
-                      id={field.name}
-                      name={field.name}
-                      checked={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.checked)}
-                      label={t`Expire Objects`}
-                      helptext={t`Delete objects after a certain number of days`}
-                    />
-                  )}
-                </form.Field>
-
-                {hasExpirationValue && (
-                  <div className="mt-2 ml-6">
-                    <form.Field name="expirationDays">
-                      {(field) => (
-                        <TextInput
-                          label={t`Expiration Days`}
-                          id={field.name}
-                          name={field.name}
-                          type="number"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          placeholder={t`30`}
-                          min="1"
-                          helptext={t`Delete objects after this many days from creation`}
-                          required={true}
-                        />
-                      )}
-                    </form.Field>
-                  </div>
+            {/* Noncurrent version expiration action */}
+            <div>
+              <form.Field name="hasNoncurrentExpiration">
+                {(field) => (
+                  <Checkbox
+                    id={field.name}
+                    name={field.name}
+                    checked={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.checked)}
+                    label={t`Expire Noncurrent Versions`}
+                    helptext={t`Delete older versions of objects after they become noncurrent`}
+                  />
                 )}
-              </div>
+              </form.Field>
 
-              {/* Noncurrent version expiration action */}
-              <div>
-                <form.Field name="hasNoncurrentExpiration">
-                  {(field) => (
-                    <Checkbox
-                      id={field.name}
-                      name={field.name}
-                      checked={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.checked)}
-                      label={t`Expire Noncurrent Versions`}
-                      helptext={t`Delete old versions in versioned buckets`}
-                    />
-                  )}
-                </form.Field>
+              {hasNoncurrentExpirationValue && (
+                <div className="mt-2 ml-6">
+                  <form.Field name="noncurrentDays">
+                    {(field) => (
+                      <TextInput
+                        label={t`Noncurrent Days`}
+                        id={field.name}
+                        name={field.name}
+                        type="number"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        placeholder={t`90`}
+                        min="1"
+                        helptext={t`Delete noncurrent versions after this many days (requires versioning enabled)`}
+                        required={true}
+                      />
+                    )}
+                  </form.Field>
+                </div>
+              )}
+            </div>
 
-                {hasNoncurrentExpirationValue && (
-                  <div className="mt-2 ml-6">
-                    <form.Field name="noncurrentDays">
-                      {(field) => (
-                        <TextInput
-                          label={t`Noncurrent Days`}
-                          id={field.name}
-                          name={field.name}
-                          type="number"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          placeholder={t`90`}
-                          min="1"
-                          helptext={t`Delete noncurrent versions after this many days (requires versioning enabled)`}
-                          required={true}
-                        />
-                      )}
-                    </form.Field>
-                  </div>
+            {/* Abort incomplete multipart upload action */}
+            <div>
+              <form.Field name="hasAbortUpload">
+                {(field) => (
+                  <Checkbox
+                    id={field.name}
+                    name={field.name}
+                    checked={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.checked)}
+                    label={t`Abort Incomplete Multipart Uploads`}
+                    helptext={t`Clean up abandoned multipart uploads`}
+                  />
                 )}
-              </div>
+              </form.Field>
 
-              {/* Abort incomplete multipart upload action */}
-              <div>
-                <form.Field name="hasAbortUpload">
-                  {(field) => (
-                    <Checkbox
-                      id={field.name}
-                      name={field.name}
-                      checked={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.checked)}
-                      label={t`Abort Incomplete Multipart Uploads`}
-                      helptext={t`Clean up abandoned multipart uploads`}
-                    />
-                  )}
-                </form.Field>
-
-                {hasAbortUploadValue && (
-                  <div className="mt-2 ml-6">
-                    <form.Field name="abortDays">
-                      {(field) => (
-                        <TextInput
-                          label={t`Abort After Days`}
-                          id={field.name}
-                          name={field.name}
-                          type="number"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          placeholder={t`7`}
-                          min="1"
-                          helptext={t`Abort incomplete multipart uploads after this many days`}
-                          required={true}
-                        />
-                      )}
-                    </form.Field>
-                  </div>
-                )}
-              </div>
-            </Stack>
-          </div>
-
-          <div className="border-theme-default flex justify-end gap-2 border-t pt-4">
-            <Button type="button" variant="subdued" onClick={onCancel}>
-              <Trans>Cancel</Trans>
-            </Button>
-            <Button type="submit" variant="primary" disabled={!canSubmit()}>
-              <Trans>Save Rule</Trans>
-            </Button>
-          </div>
-        </Stack>
-      </Form>
-    </div>
+              {hasAbortUploadValue && (
+                <div className="mt-2 ml-6">
+                  <form.Field name="abortDays">
+                    {(field) => (
+                      <TextInput
+                        label={t`Abort After Days`}
+                        id={field.name}
+                        name={field.name}
+                        type="number"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        placeholder={t`7`}
+                        min="1"
+                        helptext={t`Abort incomplete multipart uploads after this many days`}
+                        required={true}
+                      />
+                    )}
+                  </form.Field>
+                </div>
+              )}
+            </div>
+          </Stack>
+        </div>
+      </Stack>
+    </Form>
   )
 }

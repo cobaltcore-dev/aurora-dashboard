@@ -8,7 +8,6 @@ interface BucketHeaderActionsProps {
   }
   hasPolicy: boolean
   hasCors: boolean
-  hasLifecycle: boolean
   hasOldVersionsOrDeleteMarkers: boolean
   isBucketEmpty: boolean
   onOpenModal: (modal: ModalType) => void
@@ -25,7 +24,6 @@ export const BucketHeaderActions = ({
   versioningStatus,
   hasPolicy,
   hasCors,
-  hasLifecycle,
   hasOldVersionsOrDeleteMarkers,
   isBucketEmpty,
   onOpenModal,
@@ -49,13 +47,6 @@ export const BucketHeaderActions = ({
           <PopupMenuItem label={hasPolicy ? t`Edit Policy` : t`Add Policy`} onClick={() => onOpenModal("policy")} />
           {hasPolicy && <PopupMenuItem label={t`Delete Policy`} onClick={() => onOpenModal("deletePolicy")} />}
           {hasCors && <PopupMenuItem label={t`Delete CORS Rules`} onClick={() => onOpenModal("deleteCors")} />}
-          <PopupMenuItem
-            label={hasLifecycle ? t`Lifecycle Rules` : t`Add Lifecycle Rules`}
-            onClick={() => onOpenModal("lifecycle")}
-          />
-          {hasLifecycle && (
-            <PopupMenuItem label={t`Delete Lifecycle Rules`} onClick={() => onOpenModal("deleteLifecycle")} />
-          )}
           {!isBucketEmpty && <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />}
           {hasOldVersionsOrDeleteMarkers && (
             <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />

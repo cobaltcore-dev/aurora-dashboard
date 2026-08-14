@@ -29,11 +29,10 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
   const [activeModal, setActiveModal] = useState<ModalType | null>(null)
 
   // Fetch bucket information
-  const { versioningStatus, policyData, corsData, lifecycleData, hasOldVersionsOrDeleteMarkers, isBucketEmpty } =
-    useBucketInfo({
-      bucketName,
-      enabled: true,
-    })
+  const { versioningStatus, policyData, corsData, hasOldVersionsOrDeleteMarkers, isBucketEmpty } = useBucketInfo({
+    bucketName,
+    enabled: true,
+  })
 
   const openModal = (modal: ModalType) => setActiveModal(modal)
   const closeModal = () => setActiveModal(null)
@@ -65,7 +64,6 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
       versioningStatus={versioningStatus}
       hasPolicy={Boolean(policyData?.policy)}
       hasCors={Boolean(corsData?.corsRules && corsData.corsRules.length > 0)}
-      hasLifecycle={Boolean(lifecycleData?.rules && lifecycleData.rules.length > 0)}
       hasOldVersionsOrDeleteMarkers={hasOldVersionsOrDeleteMarkers}
       isBucketEmpty={isBucketEmpty}
       onOpenModal={openModal}

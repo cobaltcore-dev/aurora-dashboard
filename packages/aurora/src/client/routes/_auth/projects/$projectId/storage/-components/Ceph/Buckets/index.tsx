@@ -42,6 +42,7 @@ export { EmptyBucketModal } from "./EmptyBucketModal"
 export { EmptyBucketsModal } from "./EmptyBucketsModal"
 export { DeleteVersionsModal } from "./DeleteVersionsModal"
 export { CorsRulesTab as CephCorsRules } from "./CorsRulesTab"
+export { LifecycleRulesTab as CephLifecycleRules } from "./LifecycleRulesTab"
 export * from "./BucketToastNotifications"
 
 export const CephBuckets = () => {

@@ -56,16 +56,16 @@ msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
 #. placeholder {0}: selectedIndices.length
+msgid "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rules}}"
+msgstr "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rules}}"
+
+#. placeholder {0}: selectedIndices.length
 msgid "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
 msgstr "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
 
 #. placeholder {0}: displayObjectNames.length
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr "{0, plural, one {Object:} other {Objects to delete:}}"
-
-#. placeholder {0}: wholeBucketExpirationRules.length === 1 ? "One rule will delete all objects in this bucket." : `${wholeBucketExpirationRules.length} rules will delete all objects in this bucket.`
-msgid "{0} Make sure this is intended before saving."
-msgstr "{0} Make sure this is intended before saving."
 
 msgid "{certificateIdValue} Certificate Details"
 msgstr "{certificateIdValue} Certificate Details"
@@ -84,6 +84,12 @@ msgstr "{count, plural, one {Delete # Version} other {Delete # Versions}}"
 
 msgid "{count, plural, one {Failed to Delete CORS Rule} other {Failed to Delete CORS Rules}}"
 msgstr "{count, plural, one {Failed to Delete CORS Rule} other {Failed to Delete CORS Rules}}"
+
+msgid "{count, plural, one {Failed to Delete Lifecycle Rule} other {Failed to Delete Lifecycle Rules}}"
+msgstr "{count, plural, one {Failed to Delete Lifecycle Rule} other {Failed to Delete Lifecycle Rules}}"
+
+msgid "{count, plural, one {Lifecycle Rule Deleted} other {Lifecycle Rules Deleted}}"
+msgstr "{count, plural, one {Lifecycle Rule Deleted} other {Lifecycle Rules Deleted}}"
 
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
@@ -126,6 +132,9 @@ msgstr "{percent}%"
 
 msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 msgstr "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
+
+msgid "{ruleCount, plural, one {Delete Lifecycle Rule} other {Delete Lifecycle Rules}}"
+msgstr "{ruleCount, plural, one {Delete Lifecycle Rule} other {Delete Lifecycle Rules}}"
 
 msgid "{rulesLength} rules"
 msgstr "{rulesLength} rules"
@@ -232,9 +241,6 @@ msgstr "A property with this key already exists"
 msgid "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
 msgstr "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
 
-msgid "A unique identifier for this rule (optional, max 255 characters)"
-msgstr "A unique identifier for this rule (optional, max 255 characters)"
-
 msgid "Abort After Days"
 msgstr "Abort After Days"
 
@@ -243,9 +249,6 @@ msgstr "Abort Incomplete Multipart Uploads"
 
 msgid "Abort incomplete multipart uploads after this many days"
 msgstr "Abort incomplete multipart uploads after this many days"
-
-msgid "Abort Incomplete Uploads"
-msgstr "Abort Incomplete Uploads"
 
 msgid "About Aurora Dashboard"
 msgstr "About Aurora Dashboard"
@@ -322,20 +325,11 @@ msgstr "Add a Signed Certificate to your CA to activate it"
 msgid "Add CORS Rule"
 msgstr "Add CORS Rule"
 
-msgid "Add Lifecycle Rules"
-msgstr "Add Lifecycle Rules"
-
 msgid "Add Member"
 msgstr "Add Member"
 
 msgid "Add Metadata"
 msgstr "Add Metadata"
-
-msgid "Add New Lifecycle Rule"
-msgstr "Add New Lifecycle Rule"
-
-msgid "Add New Rule"
-msgstr "Add New Rule"
 
 msgid "Add Policy"
 msgstr "Add Policy"
@@ -360,6 +354,10 @@ msgstr "Add Tag"
 
 msgid "Add Tenant Access"
 msgstr "Add Tenant Access"
+
+#. placeholder {0}: rule.AbortIncompleteMultipartUpload.DaysAfterInitiation
+msgid "After {0} days"
+msgstr "After {0} days"
 
 msgid "After restoring, this version's content will become the new latest version."
 msgstr "After restoring, this version's content will become the new latest version."
@@ -445,23 +443,29 @@ msgstr "Any user has read access to objects. No token is required in the request
 msgid "Apply this rule only to objects with specific tags"
 msgstr "Apply this rule only to objects with specific tags"
 
-msgid "Apply this rule only to objects with this key prefix (e.g., \"logs/\" or \"archive/\")"
-msgstr "Apply this rule only to objects with this key prefix (e.g., \"logs/\" or \"archive/\")"
+msgid "Apply this rule only to objects with this prefix (leave empty for all objects)"
+msgstr "Apply this rule only to objects with this prefix (leave empty for all objects)"
 
 msgid "Are you sure you want to delete {ruleCount, plural, one {# CORS rule} other {# CORS rules}} from bucket <0>{bucketName}</0>?"
 msgstr "Are you sure you want to delete {ruleCount, plural, one {# CORS rule} other {# CORS rules}} from bucket <0>{bucketName}</0>?"
 
+msgid "Are you sure you want to delete {ruleCount} lifecycle rules from bucket <0>{bucketName}</0>?"
+msgstr "Are you sure you want to delete {ruleCount} lifecycle rules from bucket <0>{bucketName}</0>?"
+
 msgid "Are you sure you want to delete <0>{ruleDisplayName}</0> from bucket <1>{bucketName}</1>?"
 msgstr "Are you sure you want to delete <0>{ruleDisplayName}</0> from bucket <1>{bucketName}</1>?"
+
+msgid "Are you sure you want to delete lifecycle rule <0>{displayName}</0> from bucket <1>{bucketName}</1>?"
+msgstr "Are you sure you want to delete lifecycle rule <0>{displayName}</0> from bucket <1>{bucketName}</1>?"
 
 msgid "Are you sure you want to delete the CORS configuration for bucket <0>{bucketName}</0>?"
 msgstr "Are you sure you want to delete the CORS configuration for bucket <0>{bucketName}</0>?"
 
-msgid "Are you sure you want to delete the lifecycle configuration for bucket <0>{bucketName}</0>?"
-msgstr "Are you sure you want to delete the lifecycle configuration for bucket <0>{bucketName}</0>?"
-
 msgid "Are you sure you want to delete the policy for bucket <0>{bucketName}</0>?"
 msgstr "Are you sure you want to delete the policy for bucket <0>{bucketName}</0>?"
+
+msgid "Are you sure you want to delete this lifecycle rule from bucket <0>{bucketName}</0>?"
+msgstr "Are you sure you want to delete this lifecycle rule from bucket <0>{bucketName}</0>?"
 
 msgid "Associate"
 msgstr "Associate"
@@ -601,6 +605,14 @@ msgstr "Cancel"
 msgid "Cancel upload"
 msgstr "Cancel upload"
 
+#. placeholder {0}: validation.errors.join("; ")
+msgid "Cannot delete rule: {0}"
+msgstr "Cannot delete rule: {0}"
+
+#. placeholder {0}: validation.errors.join("; ")
+msgid "Cannot delete rules: {0}"
+msgstr "Cannot delete rules: {0}"
+
 msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
 msgstr "Cannot move to the same location. Please select a different bucket, folder, or change the name."
 
@@ -663,9 +675,6 @@ msgstr "Community"
 
 msgid "Compute"
 msgstr "Compute"
-
-msgid "Configuration Changed"
-msgstr "Configuration Changed"
 
 msgid "Configure the ingress and egress rules that control which traffic is allowed for this security group."
 msgstr "Configure the ingress and egress rules that control which traffic is allowed for this security group."
@@ -851,6 +860,12 @@ msgstr "Could not delete {count} CORS rule from bucket \"{bucketName}\": {errorM
 msgid "Could not delete {count} CORS rules from bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete {count} CORS rules from bucket \"{bucketName}\": {errorMessage}"
 
+msgid "Could not delete {count} lifecycle rule from bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not delete {count} lifecycle rule from bucket \"{bucketName}\": {errorMessage}"
+
+msgid "Could not delete {count} lifecycle rules from bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not delete {count} lifecycle rules from bucket \"{bucketName}\": {errorMessage}"
+
 msgid "Could not delete bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete bucket \"{bucketName}\": {errorMessage}"
 
@@ -871,6 +886,9 @@ msgstr "Could not delete folder \"{folderName}\": {errorMessage}"
 
 msgid "Could not delete lifecycle configuration from \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete lifecycle configuration from \"{bucketName}\": {errorMessage}"
+
+msgid "Could not delete lifecycle rule from bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not delete lifecycle rule from bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
@@ -904,6 +922,9 @@ msgstr "Could not restore \"{displayName}\": {errorMessage}"
 
 msgid "Could not save CORS configuration for bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not save CORS configuration for bucket \"{bucketName}\": {errorMessage}"
+
+msgid "Could not save lifecycle rule for bucket \"{bucketName}\": {errorMessage}"
+msgstr "Could not save lifecycle rule for bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
@@ -949,6 +970,9 @@ msgstr "Create folder below:"
 
 msgid "Create Image"
 msgstr "Create Image"
+
+msgid "Create Lifecycle Rule"
+msgstr "Create Lifecycle Rule"
 
 msgid "Create New Flavor"
 msgstr "Create New Flavor"
@@ -1004,10 +1028,6 @@ msgstr "Creating..."
 #. placeholder {0}: corsData.corsRules.length
 msgid "Current configuration has {0, plural, one {# CORS rule} other {# CORS rules}}."
 msgstr "Current configuration has {0, plural, one {# CORS rule} other {# CORS rules}}."
-
-#. placeholder {0}: lifecycleData.rules.length
-msgid "Current configuration has {0, plural, one {# lifecycle rule} other {# lifecycle rules}}."
-msgstr "Current configuration has {0, plural, one {# lifecycle rule} other {# lifecycle rules}}."
 
 msgid "Current location:"
 msgstr "Current location:"
@@ -1102,11 +1122,8 @@ msgstr "Delete Image"
 msgid "Delete Images"
 msgstr "Delete Images"
 
-msgid "Delete Lifecycle"
-msgstr "Delete Lifecycle"
-
-msgid "Delete Lifecycle Configuration"
-msgstr "Delete Lifecycle Configuration"
+msgid "Delete Lifecycle Rule"
+msgstr "Delete Lifecycle Rule"
 
 msgid "Delete Lifecycle Rules"
 msgstr "Delete Lifecycle Rules"
@@ -1123,14 +1140,11 @@ msgstr "Delete Object"
 msgid "Delete object:"
 msgstr "Delete object:"
 
-msgid "Delete objects after a certain number of days"
-msgstr "Delete objects after a certain number of days"
+msgid "Delete objects after this many days"
+msgstr "Delete objects after this many days"
 
-msgid "Delete objects after this many days from creation"
-msgstr "Delete objects after this many days from creation"
-
-msgid "Delete old versions in versioned buckets"
-msgstr "Delete old versions in versioned buckets"
+msgid "Delete older versions of objects after they become noncurrent"
+msgstr "Delete older versions of objects after they become noncurrent"
 
 msgid "Delete Policy"
 msgstr "Delete Policy"
@@ -1162,9 +1176,6 @@ msgstr "Delete Version"
 msgid "Delete Versions"
 msgstr "Delete Versions"
 
-msgid "delete-old-logs"
-msgstr "delete-old-logs"
-
 msgid "Deleted"
 msgstr "Deleted"
 
@@ -1179,9 +1190,6 @@ msgstr "Deleting folder and all its contents..."
 
 msgid "Deleting the CORS configuration will remove all cross-origin access rules. Browser-based applications will no longer be able to access this bucket from different origins. This action cannot be undone."
 msgstr "Deleting the CORS configuration will remove all cross-origin access rules. Browser-based applications will no longer be able to access this bucket from different origins. This action cannot be undone."
-
-msgid "Deleting the lifecycle configuration will remove all automated lifecycle management rules. Objects will no longer be automatically expired, transitioned, or have their old versions cleaned up. This action cannot be undone."
-msgstr "Deleting the lifecycle configuration will remove all automated lifecycle management rules. Objects will no longer be automatically expired, transitioned, or have their old versions cleaned up. This action cannot be undone."
 
 msgid "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
 msgstr "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
@@ -1459,9 +1467,6 @@ msgstr "Enter your credentials to access your account"
 msgid "Entries in ACLs are comma-separated. Examples:"
 msgstr "Entries in ACLs are comma-separated. Examples:"
 
-msgid "Environment"
-msgstr "Environment"
-
 msgid "Ephemeral Disk"
 msgstr "Ephemeral Disk"
 
@@ -1648,11 +1653,11 @@ msgstr "Failed to Delete Folder"
 msgid "Failed to Delete Images"
 msgstr "Failed to Delete Images"
 
-msgid "Failed to delete lifecycle configuration"
-msgstr "Failed to delete lifecycle configuration"
-
 msgid "Failed to Delete Lifecycle Configuration"
 msgstr "Failed to Delete Lifecycle Configuration"
+
+msgid "Failed to Delete Lifecycle Rule"
+msgstr "Failed to Delete Lifecycle Rule"
 
 msgid "Failed to Delete Object"
 msgstr "Failed to Delete Object"
@@ -1807,11 +1812,11 @@ msgstr "Failed to Save CORS Configuration"
 msgid "Failed to save CORS rule"
 msgstr "Failed to save CORS rule"
 
-msgid "Failed to save lifecycle configuration"
-msgstr "Failed to save lifecycle configuration"
-
 msgid "Failed to Save Lifecycle Configuration"
 msgstr "Failed to Save Lifecycle Configuration"
+
+msgid "Failed to Save Lifecycle Rule"
+msgstr "Failed to Save Lifecycle Rule"
 
 msgid "Failed to save policy"
 msgstr "Failed to save policy"
@@ -1863,9 +1868,6 @@ msgstr "Failed: {errorDetails}"
 
 msgid "False"
 msgstr "False"
-
-msgid "Filter"
-msgstr "Filter"
 
 msgid "Filter by"
 msgstr "Filter by"
@@ -2260,11 +2262,20 @@ msgstr "Lifecycle configuration was successfully deleted from bucket \"{bucketNa
 msgid "Lifecycle configuration was successfully saved for bucket \"{bucketName}\"."
 msgstr "Lifecycle configuration was successfully saved for bucket \"{bucketName}\"."
 
+msgid "Lifecycle Rule Deleted"
+msgstr "Lifecycle Rule Deleted"
+
+msgid "Lifecycle Rule Saved"
+msgstr "Lifecycle Rule Saved"
+
+msgid "Lifecycle rule was successfully deleted from bucket \"{bucketName}\"."
+msgstr "Lifecycle rule was successfully deleted from bucket \"{bucketName}\"."
+
+msgid "Lifecycle rule was successfully saved for bucket \"{bucketName}\"."
+msgstr "Lifecycle rule was successfully saved for bucket \"{bucketName}\"."
+
 msgid "Lifecycle Rules"
 msgstr "Lifecycle Rules"
-
-msgid "Lifecycle rules automate object management: expire (delete) objects after N days, transition to different storage classes, clean up old versions, and abort incomplete multipart uploads."
-msgstr "Lifecycle rules automate object management: expire (delete) objects after N days, transition to different storage classes, clean up old versions, and abort incomplete multipart uploads."
 
 msgid "Limits"
 msgstr "Limits"
@@ -2518,6 +2529,9 @@ msgstr "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot star
 msgid "my-bucket-name"
 msgstr "my-bucket-name"
 
+msgid "my-lifecycle-rule"
+msgstr "my-lifecycle-rule"
+
 msgid "N/A"
 msgstr "N/A"
 
@@ -2599,8 +2613,8 @@ msgstr "No images found"
 msgid "No key pairs available."
 msgstr "No key pairs available."
 
-msgid "No lifecycle configuration found"
-msgstr "No lifecycle configuration found"
+msgid "No lifecycle rules matching the current search criteria."
+msgstr "No lifecycle rules matching the current search criteria."
 
 msgid "No limit"
 msgstr "No limit"
@@ -2638,9 +2652,6 @@ msgstr "No projects available."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 
-msgid "No rules"
-msgstr "No rules"
-
 msgid "No rules found"
 msgstr "No rules found"
 
@@ -2671,11 +2682,11 @@ msgstr "No versions were deleted: {errorMessage}"
 msgid "Noncurrent Days"
 msgstr "Noncurrent Days"
 
-msgid "Noncurrent Version Expiration"
-msgstr "Noncurrent Version Expiration"
+msgid "Noncurrent Version Transitions (Read-Only)"
+msgstr "Noncurrent Version Transitions (Read-Only)"
 
-msgid "Noncurrent Version Transitions"
-msgstr "Noncurrent Version Transitions"
+msgid "Noncurrent Versions"
+msgstr "Noncurrent Versions"
 
 msgid "None"
 msgstr "None"
@@ -2776,6 +2787,9 @@ msgstr "Once enabled, versioning cannot be fully disabled, it can only be suspen
 msgid "One or more containers could not be emptied: {errorMessage}"
 msgstr "One or more containers could not be emptied: {errorMessage}"
 
+msgid "One or more lifecycle rules in this bucket will expire all objects. This can result in permanent data loss. Review your rules carefully."
+msgstr "One or more lifecycle rules in this bucket will expire all objects. This can result in permanent data loss. Review your rules carefully."
+
 msgid "One or more objects could not be deleted:"
 msgstr "One or more objects could not be deleted:"
 
@@ -2794,8 +2808,14 @@ msgstr "Optional description"
 msgid "Optional identifier for this rule (max 255 characters)."
 msgstr "Optional identifier for this rule (max 255 characters)."
 
+msgid "Optional unique identifier for the rule (max 255 characters)"
+msgstr "Optional unique identifier for the rule (max 255 characters)"
+
 msgid "or drag and drop"
 msgstr "or drag and drop"
+
+msgid "Other Actions"
+msgstr "Other Actions"
 
 msgid "Our Mission"
 msgstr "Our Mission"
@@ -2841,6 +2861,9 @@ msgstr "Pending"
 
 msgid "Pending file upload..."
 msgstr "Pending file upload..."
+
+msgid "Permanently delete objects after a specified time"
+msgstr "Permanently delete objects after a specified time"
 
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Please enter a valid number of minutes greater than 0"
@@ -2890,8 +2913,8 @@ msgstr "Pre-signed URL"
 msgid "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 msgstr "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 
-msgid "Prefix Filter (optional)"
-msgstr "Prefix Filter (optional)"
+msgid "Prefix"
+msgstr "Prefix"
 
 msgid "Press Enter to add"
 msgstr "Press Enter to add"
@@ -2916,9 +2939,6 @@ msgstr "Private"
 
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private flavors could not be loaded. You may be seeing an incomplete list."
-
-msgid "production"
-msgstr "production"
 
 msgid "production, linux"
 msgstr "production, linux"
@@ -3112,14 +3132,16 @@ msgstr "rule"
 msgid "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 msgstr "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 
+#. placeholder {0}: ruleIndex + 1
+#. placeholder {0}: ruleIndices[idx] + 1
+msgid "Rule #{0}"
+msgstr "Rule #{0}"
+
 msgid "Rule Details:"
 msgstr "Rule Details:"
 
 msgid "Rule ID"
 msgstr "Rule ID"
-
-msgid "Rule ID (optional)"
-msgstr "Rule ID (optional)"
 
 msgid "Rule Type"
 msgstr "Rule Type"
@@ -3154,11 +3176,11 @@ msgstr "Save Changes"
 msgid "Save Metadata"
 msgstr "Save Metadata"
 
-msgid "Save Rule"
-msgstr "Save Rule"
-
 msgid "Saving..."
 msgstr "Saving..."
+
+msgid "Scope"
+msgstr "Scope"
 
 msgid "Search buckets..."
 msgstr "Search buckets..."
@@ -3177,6 +3199,9 @@ msgstr "Search floating IPs..."
 
 msgid "Search images..."
 msgstr "Search images..."
+
+msgid "Search lifecycle rules..."
+msgstr "Search lifecycle rules..."
 
 msgid "Search objects..."
 msgstr "Search objects..."
@@ -3249,9 +3274,6 @@ msgstr "Select disk format first"
 
 msgid "Select HTTP methods allowed for cross-origin requests"
 msgstr "Select HTTP methods allowed for cross-origin requests"
-
-msgid "Select one or more actions for this rule"
-msgstr "Select one or more actions for this rule"
 
 msgid "Select port to associate"
 msgstr "Select port to associate"
@@ -3424,9 +3446,6 @@ msgstr "Status"
 msgid "Storage"
 msgstr "Storage"
 
-msgid "Storage Class Transitions (read-only)"
-msgstr "Storage Class Transitions (read-only)"
-
 msgid "Storage container not found"
 msgstr "Storage container not found"
 
@@ -3465,6 +3484,12 @@ msgstr "Successfully deleted {count} CORS rule from bucket \"{bucketName}\"."
 
 msgid "Successfully deleted {count} CORS rules from bucket \"{bucketName}\"."
 msgstr "Successfully deleted {count} CORS rules from bucket \"{bucketName}\"."
+
+msgid "Successfully deleted {count} lifecycle rule from bucket \"{bucketName}\"."
+msgstr "Successfully deleted {count} lifecycle rule from bucket \"{bucketName}\"."
+
+msgid "Successfully deleted {count} lifecycle rules from bucket \"{bucketName}\"."
+msgstr "Successfully deleted {count} lifecycle rules from bucket \"{bucketName}\"."
 
 msgid "Successfully deleted {deletedCount} version from bucket \"{bucketName}\"."
 msgstr "Successfully deleted {deletedCount} version from bucket \"{bucketName}\"."
@@ -3507,9 +3532,6 @@ msgstr "Swap Disk must be an integer ≥ 0."
 
 msgid "Symlinks"
 msgstr "Symlinks"
-
-msgid "Tag Filters (optional)"
-msgstr "Tag Filters (optional)"
 
 msgid "Tags"
 msgstr "Tags"
@@ -3607,8 +3629,8 @@ msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
 
-msgid "The lifecycle configuration changed since you opened this dialog. Close and reopen to reload."
-msgstr "The lifecycle configuration changed since you opened this dialog. Close and reopen to reload."
+msgid "The lifecycle configuration has changed. Please refresh and try again."
+msgstr "The lifecycle configuration has changed. Please refresh and try again."
 
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "The object will be copied to this path. Navigate folders above to change the destination."
@@ -3682,6 +3704,9 @@ msgstr "There are no groups"
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 msgstr "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 
+msgid "There are no lifecycle rules for this bucket"
+msgstr "There are no lifecycle rules for this bucket"
+
 msgid "There are no PCAs available for this project."
 msgstr "There are no PCAs available for this project."
 
@@ -3690,9 +3715,6 @@ msgstr "There are no RBAC policies for this security group"
 
 msgid "There are no rules for this security group"
 msgstr "There are no rules for this security group"
-
-msgid "There are no rules to display. Add New Rule using button above"
-msgstr "There are no rules to display. Add New Rule using button above"
 
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr "These objects and all their versions will be permanently deleted and cannot be restored."
@@ -3748,9 +3770,6 @@ msgstr "This bucket does not have any CORS rules."
 msgid "This bucket does not have CORS rules configured."
 msgstr "This bucket does not have CORS rules configured."
 
-msgid "This bucket does not have lifecycle rules configured."
-msgstr "This bucket does not have lifecycle rules configured."
-
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
 msgstr "This container appears empty — the object count may not have synced yet due to a recent operation."
 
@@ -3805,8 +3824,16 @@ msgstr "This object and all its versions will be permanently deleted and cannot 
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
 
-msgid "This rule has storage-class transitions that were configured outside Aurora. They are preserved unchanged when you save this rule."
-msgstr "This rule has storage-class transitions that were configured outside Aurora. They are preserved unchanged when you save this rule."
+#. placeholder {0}: editingRule.NoncurrentVersionTransitions.length
+msgid "This rule has {0} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
+msgstr "This rule has {0} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
+
+#. placeholder {0}: editingRule.Transitions.length
+msgid "This rule has {0} transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
+msgstr "This rule has {0} transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
+
+msgid "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty to preserve it, or enter days to switch to Days expiration."
+msgstr "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty to preserve it, or enter days to switch to Days expiration."
 
 msgid "This security group is already shared with the specified project."
 msgstr "This security group is already shared with the specified project."
@@ -3850,8 +3877,8 @@ msgstr "Total Size"
 msgid "Total size quota"
 msgstr "Total size quota"
 
-msgid "Transitions"
-msgstr "Transitions"
+msgid "Transitions (Read-Only)"
+msgstr "Transitions (Read-Only)"
 
 msgid "True"
 msgstr "True"
@@ -3949,9 +3976,6 @@ msgstr "Unable to Upload Image File"
 msgid "Unable to verify bucket versioning status. Please try again."
 msgstr "Unable to verify bucket versioning status. Please try again."
 
-msgid "Unable to verify configuration state. Please try again."
-msgstr "Unable to verify configuration state. Please try again."
-
 msgid "Unexpected"
 msgstr "Unexpected"
 
@@ -4027,6 +4051,9 @@ msgstr "valid token required: false"
 msgid "valid token required: true"
 msgstr "valid token required: true"
 
+msgid "Validation Error"
+msgstr "Validation Error"
+
 msgid "Value"
 msgstr "Value"
 
@@ -4099,6 +4126,9 @@ msgstr "View Versions"
 msgid "Visibility"
 msgstr "Visibility"
 
+msgid "Warning: This rule will expire all objects in the bucket"
+msgstr "Warning: This rule will expire all objects in the bucket"
+
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 
@@ -4107,9 +4137,6 @@ msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud managemen
 
 msgid "What happens when suspended:"
 msgstr "What happens when suspended:"
-
-msgid "Whether this rule is active"
-msgstr "Whether this rule is active"
 
 msgid "Whole-Bucket Expiration Warning"
 msgstr "Whole-Bucket Expiration Warning"

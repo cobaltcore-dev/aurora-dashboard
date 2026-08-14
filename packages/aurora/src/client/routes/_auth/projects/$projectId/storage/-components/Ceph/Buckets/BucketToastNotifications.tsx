@@ -339,3 +339,88 @@ export const getCorsRulesDeleteErrorToast = (
       </Trans>
     ),
 })
+
+// ── Per-rule Lifecycle operations ───────────────────────────────────────────
+
+export const getLifecycleSavedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Lifecycle Rule Saved</Trans>,
+  description: <Trans>Lifecycle rule was successfully saved for bucket "{bucketName}".</Trans>,
+})
+
+export const getLifecycleSaveErrorToast = (
+  bucketName: string,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Save Lifecycle Rule</Trans>,
+  description: (
+    <Trans>
+      Could not save lifecycle rule for bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getLifecycleRuleDeletedToast = (
+  bucketName: string,
+  ruleId?: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Lifecycle Rule Deleted</Trans>,
+  description: ruleId ? (
+    <Trans>
+      Rule "{ruleId}" was successfully deleted from bucket "{bucketName}".
+    </Trans>
+  ) : (
+    <Trans>Lifecycle rule was successfully deleted from bucket "{bucketName}".</Trans>
+  ),
+})
+
+export const getLifecycleRuleDeleteErrorToast = (
+  bucketName: string,
+  errorMessage: string,
+  ruleId?: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Failed to Delete Lifecycle Rule</Trans>,
+  description: ruleId ? (
+    <Trans>
+      Could not delete rule "{ruleId}" from bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ) : (
+    <Trans>
+      Could not delete lifecycle rule from bucket "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getLifecycleRulesDeletedToast = (
+  bucketName: string,
+  count: number
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Plural value={count} one="Lifecycle Rule Deleted" other="Lifecycle Rules Deleted" />,
+  description:
+    count === 1 ? (
+      <Trans>
+        Successfully deleted {count} lifecycle rule from bucket "{bucketName}".
+      </Trans>
+    ) : (
+      <Trans>
+        Successfully deleted {count} lifecycle rules from bucket "{bucketName}".
+      </Trans>
+    ),
+})
+
+export const getLifecycleRulesDeleteErrorToast = (
+  bucketName: string,
+  count: number,
+  errorMessage: string
+): { message: ReactNode } & NotificationOptions => ({
+  message: <Plural value={count} one="Failed to Delete Lifecycle Rule" other="Failed to Delete Lifecycle Rules" />,
+  description:
+    count === 1 ? (
+      <Trans>
+        Could not delete {count} lifecycle rule from bucket "{bucketName}": {errorMessage}
+      </Trans>
+    ) : (
+      <Trans>
+        Could not delete {count} lifecycle rules from bucket "{bucketName}": {errorMessage}
+      </Trans>
+    ),
+})
