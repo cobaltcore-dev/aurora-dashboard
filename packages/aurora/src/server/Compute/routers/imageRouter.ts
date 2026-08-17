@@ -406,7 +406,15 @@ export const imageRouter = {
         // Initialize progress tracking with project scoping
         const token = ctx.openstack?.getToken()
         const tokenProjectId = token?.tokenData.project?.id
-        const scopedUploadId = tokenProjectId ? `${tokenProjectId}:${validatedImageId}` : validatedImageId
+
+        if (!tokenProjectId) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Project scope required for upload progress tracking",
+          })
+        }
+
+        const scopedUploadId = `${tokenProjectId}:${validatedImageId}`
 
         uploadProgress.set(scopedUploadId, {
           uploaded: 0,
@@ -488,10 +496,26 @@ export const imageRouter = {
   }) {
     const uploadId = input.uploadId
 
+    // Security: Reject uploadId containing colons to prevent double-scoping
+    if (uploadId.includes(":")) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Invalid uploadId format",
+      })
+    }
+
     // Security: Verify ownership by scoping to project
     const token = ctx.openstack?.getToken()
     const projectId = token?.tokenData.project?.id
-    const scopedUploadId = projectId ? `${projectId}:${uploadId}` : uploadId
+
+    if (!projectId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Project scope required for upload progress tracking",
+      })
+    }
+
+    const scopedUploadId = `${projectId}:${uploadId}`
 
     // Emit current progress state immediately (no delay)
     const current = uploadProgress.get(scopedUploadId)
