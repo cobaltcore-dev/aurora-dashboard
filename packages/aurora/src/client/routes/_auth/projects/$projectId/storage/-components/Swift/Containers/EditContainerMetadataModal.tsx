@@ -209,13 +209,13 @@ export const EditContainerMetadataModal = ({
   const validateQuotas = (): boolean => {
     let valid = true
     if (quotaBytes !== "" && (isNaN(Number(quotaBytes)) || Number(quotaBytes) < 0)) {
-      setQuotaBytesError(t`Must be a non-negative integer`)
+      setQuotaBytesError(t`Must be a whole number, 0 or greater`)
       valid = false
     } else {
       setQuotaBytesError(null)
     }
     if (quotaCount !== "" && (isNaN(Number(quotaCount)) || Number(quotaCount) < 0)) {
-      setQuotaCountError(t`Must be a non-negative integer`)
+      setQuotaCountError(t`Must be a whole number, 0 or greater`)
       valid = false
     } else {
       setQuotaCountError(null)
