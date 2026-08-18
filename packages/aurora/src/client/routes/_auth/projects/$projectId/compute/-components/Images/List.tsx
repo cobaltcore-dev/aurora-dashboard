@@ -246,8 +246,8 @@ function ImagesContent({
           <Stack distribution="between" alignment="center">
             <FiltersInput
               filters={activeFilterSettings.filters}
-              selectClassName="min-w-40"
-              comboboxClassName="min-w-40"
+              selectClassName="sm:min-w-40"
+              comboboxClassName="sm:min-w-40"
               onChange={(selected) => {
                 const newSelected = applyFilterSelection(
                   activeFilterSettings.selectedFilters || [],
