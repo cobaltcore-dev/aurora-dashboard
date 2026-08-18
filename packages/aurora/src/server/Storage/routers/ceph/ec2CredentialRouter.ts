@@ -159,6 +159,7 @@ export const ec2CredentialRouter = {
 
   /**
    * Deletes an EC2 credential by ID.
+   * Verifies ownership before deletion to prevent IDOR attacks.
    */
   delete: projectScopedProcedure
     .input(
@@ -168,14 +169,56 @@ export const ec2CredentialRouter = {
     )
     .mutation(async ({ ctx, input }): Promise<{ success: true }> => {
       const userId = ctx.openstack.getToken()?.tokenData.user?.id
+      const projectId = ctx.openstack.getToken()?.tokenData.project?.id
+
       if (!userId) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "User ID not found in token" })
       }
 
-      const identityService = ctx.openstack.service("identity")
-      const response = await identityService.del(`credentials/${input.credentialId}`)
+      if (!projectId) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Project ID not found in token" })
+      }
 
-      if (!response.ok && response.status !== 404) {
+      const identityService = ctx.openstack.service("identity")
+
+      // 1. Fetch credential to verify ownership
+      const getResponse = await identityService.get(`credentials/${input.credentialId}`)
+
+      if (!getResponse.ok) {
+        if (getResponse.status === 404) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Credential not found",
+          })
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch credential for verification",
+        })
+      }
+
+      const credentialData: { credential: { user_id: string; project_id: string } } = await getResponse.json()
+      const credential = credentialData.credential
+
+      // 2. Verify ownership
+      if (credential.user_id !== userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Cannot delete credential owned by another user",
+        })
+      }
+
+      if (credential.project_id !== projectId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Cannot delete credential from another project",
+        })
+      }
+
+      // 3. Only then delete
+      const deleteResponse = await identityService.del(`credentials/${input.credentialId}`)
+
+      if (!deleteResponse.ok && deleteResponse.status !== 404) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to delete EC2 credential",

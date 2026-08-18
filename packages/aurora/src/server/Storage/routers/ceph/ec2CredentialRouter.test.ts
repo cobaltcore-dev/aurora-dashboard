@@ -34,9 +34,22 @@ const createMockContext = (shouldFailAuth = false) => {
   const ctx = createBaseMockContext({ shouldFailAuth })
 
   // Override mockIdentity with ec2Credential-specific methods
-  ctx.mockIdentity.get = vi.fn().mockResolvedValue({
-    ok: true,
-    json: vi.fn().mockResolvedValue({ credentials: [rawCredential] }),
+  ctx.mockIdentity.get = vi.fn().mockImplementation((path: string) => {
+    // Handle credential list endpoint
+    if (path === "credentials") {
+      return Promise.resolve({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ credentials: [rawCredential] }),
+      })
+    }
+    // Handle single credential fetch for ownership verification
+    if (path.startsWith("credentials/")) {
+      return Promise.resolve({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ credential: rawCredential }),
+      })
+    }
+    return Promise.resolve({ ok: false, status: 404 })
   })
   ctx.mockIdentity.post = vi.fn().mockResolvedValue({
     ok: true,
@@ -310,5 +323,95 @@ describe("ec2Credentials.delete", () => {
         credentialId: TEST_CREDENTIAL_ID,
       })
     ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+  })
+
+  it("verifies credential ownership before deletion", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.storage.s3.ec2Credentials.delete({
+      project_id: TEST_PROJECT_ID,
+      credentialId: TEST_CREDENTIAL_ID,
+    })
+
+    // Should fetch credential first to verify ownership
+    expect(ctx.mockIdentity.get).toHaveBeenCalledWith(`credentials/${TEST_CREDENTIAL_ID}`)
+  })
+
+  it("throws FORBIDDEN when credential belongs to another user", async () => {
+    const ctx = createMockContext()
+    const otherUserCredential = { ...rawCredential, user_id: "other-user-id" }
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+      if (path === `credentials/${TEST_CREDENTIAL_ID}`) {
+        return Promise.resolve({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ credential: otherUserCredential }),
+        })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({
+        project_id: TEST_PROJECT_ID,
+        credentialId: TEST_CREDENTIAL_ID,
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "FORBIDDEN",
+        message: "Cannot delete credential owned by another user",
+      })
+    )
+  })
+
+  it("throws FORBIDDEN when credential belongs to another project", async () => {
+    const ctx = createMockContext()
+    const otherProjectCredential = { ...rawCredential, project_id: "other-project-id" }
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+      if (path === `credentials/${TEST_CREDENTIAL_ID}`) {
+        return Promise.resolve({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ credential: otherProjectCredential }),
+        })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({
+        project_id: TEST_PROJECT_ID,
+        credentialId: TEST_CREDENTIAL_ID,
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "FORBIDDEN",
+        message: "Cannot delete credential from another project",
+      })
+    )
+  })
+
+  it("throws NOT_FOUND when credential does not exist", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+      if (path === `credentials/${TEST_CREDENTIAL_ID}`) {
+        return Promise.resolve({ ok: false, status: 404 })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({
+        project_id: TEST_PROJECT_ID,
+        credentialId: TEST_CREDENTIAL_ID,
+      })
+    ).rejects.toThrow(
+      new TRPCError({
+        code: "NOT_FOUND",
+        message: "Credential not found",
+      })
+    )
   })
 })
