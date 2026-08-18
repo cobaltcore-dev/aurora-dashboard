@@ -142,6 +142,7 @@ export function SecurityGroupRulesTable({
                 options={sortSettings.options}
                 sortBy={sortSettings.sortBy}
                 sortDirection={sortSettings.sortDirection ?? "asc"}
+                selectClassName="min-w-40"
                 onSortByChange={(v) =>
                   onSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
                 }
@@ -164,6 +165,8 @@ export function SecurityGroupRulesTable({
                 {filterSettings && onFilterChange && (
                   <FiltersInput
                     filters={filterSettings.filters}
+                    selectClassName="min-w-40"
+                    comboboxClassName="min-w-40"
                     onChange={(selected) => {
                       const alreadySelected = (filterSettings.selectedFilters || []).some(
                         (f) => f.name === selected.name && f.value === selected.value

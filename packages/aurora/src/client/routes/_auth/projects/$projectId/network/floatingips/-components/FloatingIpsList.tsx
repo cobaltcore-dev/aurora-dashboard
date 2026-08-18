@@ -184,6 +184,7 @@ export const FloatingIpsList = () => {
             options={sortSettings.options}
             sortBy={sortSettings.sortBy}
             sortDirection={sortSettings.sortDirection ?? "asc"}
+            selectClassName="min-w-40"
             onSortByChange={(v) =>
               handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
             }
@@ -203,6 +204,8 @@ export const FloatingIpsList = () => {
           <Stack distribution="between" alignment="center">
             <FiltersInput
               filters={filterSettings.filters}
+              selectClassName="min-w-40"
+              comboboxClassName="min-w-40"
               onChange={(selected) => {
                 const newSelected = applyFilterSelection(
                   filterSettings.selectedFilters || [],
