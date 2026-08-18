@@ -2341,7 +2341,7 @@ msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start
 msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
 
 msgid "Must be a whole number, 0 or greater"
-msgstr ""
+msgstr "Muss eine ganze Zahl sein, 0 oder größer"
 
 msgid "my-bucket-name"
 msgstr ""
