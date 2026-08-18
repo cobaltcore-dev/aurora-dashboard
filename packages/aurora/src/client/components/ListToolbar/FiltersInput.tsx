@@ -9,6 +9,7 @@ import {
   Select,
   SelectProps,
 } from "@cloudoperators/juno-ui-components"
+import { cn } from "@/client/utils/cn"
 import { Filter, SelectedFilter } from "./types"
 
 export type FiltersInputProps = {
@@ -58,7 +59,7 @@ export const FiltersInput = ({
   )
 
   const getSelectProps = (): SelectProps & { "data-testid"?: string } => ({
-    className: `w-full sm:flex-1 sm:min-w-0 ${selectClassName}`,
+    className: cn("w-full sm:min-w-0 sm:flex-1", selectClassName),
     name: "filter",
     "data-testid": "select-filterValue",
     label: t`Filter by`,
@@ -69,7 +70,7 @@ export const FiltersInput = ({
   })
 
   const getComboBoxProps = (): ComboBoxProps & { "data-testid"?: string } => ({
-    className: `w-full sm:flex-1 sm:min-w-0 ${comboboxClassName}`,
+    className: cn("w-full sm:min-w-0 sm:flex-1", comboboxClassName),
     name: "filterValue",
     "data-testid": "combobox-filterValue",
     value: selectedFilterValue,
