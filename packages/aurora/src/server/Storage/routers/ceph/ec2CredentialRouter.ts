@@ -186,10 +186,14 @@ export const ec2CredentialRouter = {
 
       if (!getResponse.ok) {
         if (getResponse.status === 404) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Credential not found",
-          })
+          // Idempotent delete: already gone is success
+          return { success: true }
+        }
+        if (getResponse.status === 401) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Authentication failed" })
+        }
+        if (getResponse.status === 403) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" })
         }
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -200,18 +204,11 @@ export const ec2CredentialRouter = {
       const credentialData: { credential: { user_id: string; project_id: string } } = await getResponse.json()
       const credential = credentialData.credential
 
-      // 2. Verify ownership
-      if (credential.user_id !== userId) {
+      // 2. Verify ownership - return NOT_FOUND to prevent enumeration
+      if (credential.user_id !== userId || credential.project_id !== projectId) {
         throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Cannot delete credential owned by another user",
-        })
-      }
-
-      if (credential.project_id !== projectId) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Cannot delete credential from another project",
+          code: "NOT_FOUND",
+          message: "Credential not found",
         })
       }
 

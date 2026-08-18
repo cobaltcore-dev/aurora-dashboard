@@ -334,11 +334,12 @@ describe("ec2Credentials.delete", () => {
       credentialId: TEST_CREDENTIAL_ID,
     })
 
-    // Should fetch credential first to verify ownership
+    // Should fetch credential first to verify ownership, then delete
     expect(ctx.mockIdentity.get).toHaveBeenCalledWith(`credentials/${TEST_CREDENTIAL_ID}`)
+    expect(ctx.mockIdentity.del).toHaveBeenCalledWith(`credentials/${TEST_CREDENTIAL_ID}`)
   })
 
-  it("throws FORBIDDEN when credential belongs to another user", async () => {
+  it("throws NOT_FOUND when credential belongs to another user", async () => {
     const ctx = createMockContext()
     const otherUserCredential = { ...rawCredential, user_id: "other-user-id" }
     ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
@@ -359,13 +360,16 @@ describe("ec2Credentials.delete", () => {
       })
     ).rejects.toThrow(
       new TRPCError({
-        code: "FORBIDDEN",
-        message: "Cannot delete credential owned by another user",
+        code: "NOT_FOUND",
+        message: "Credential not found",
       })
     )
+
+    // Should not attempt delete for unauthorized credential
+    expect(ctx.mockIdentity.del).not.toHaveBeenCalled()
   })
 
-  it("throws FORBIDDEN when credential belongs to another project", async () => {
+  it("throws NOT_FOUND when credential belongs to another project", async () => {
     const ctx = createMockContext()
     const otherProjectCredential = { ...rawCredential, project_id: "other-project-id" }
     ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
@@ -386,10 +390,13 @@ describe("ec2Credentials.delete", () => {
       })
     ).rejects.toThrow(
       new TRPCError({
-        code: "FORBIDDEN",
-        message: "Cannot delete credential from another project",
+        code: "NOT_FOUND",
+        message: "Credential not found",
       })
     )
+
+    // Should not attempt delete for unauthorized credential
+    expect(ctx.mockIdentity.del).not.toHaveBeenCalled()
   })
 
   it("throws NOT_FOUND when credential does not exist", async () => {
@@ -402,6 +409,30 @@ describe("ec2Credentials.delete", () => {
     })
     const caller = createCaller(ctx)
 
+    const result = await caller.storage.s3.ec2Credentials.delete({
+      project_id: TEST_PROJECT_ID,
+      credentialId: TEST_CREDENTIAL_ID,
+    })
+
+    // Idempotent: 404 on GET returns success without calling DELETE
+    expect(result).toEqual({ success: true })
+    expect(ctx.mockIdentity.del).not.toHaveBeenCalled()
+  })
+
+  it("throws UNAUTHORIZED when project ID is missing from token", async () => {
+    const ctx = createMockContext()
+    // Mock token without project_id
+    if (ctx.openstack) {
+      ctx.openstack.getToken = vi.fn().mockReturnValue({
+        tokenData: {
+          user: { id: TEST_USER_ID, name: "test-user" },
+          project: undefined,
+        },
+      })
+    }
+
+    const caller = createCaller(ctx)
+
     await expect(
       caller.storage.s3.ec2Credentials.delete({
         project_id: TEST_PROJECT_ID,
@@ -409,8 +440,8 @@ describe("ec2Credentials.delete", () => {
       })
     ).rejects.toThrow(
       new TRPCError({
-        code: "NOT_FOUND",
-        message: "Credential not found",
+        code: "UNAUTHORIZED",
+        message: "Project ID not found in token",
       })
     )
   })
