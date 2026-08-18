@@ -404,7 +404,7 @@ export const imageRouter = {
         )
 
         // Initialize progress tracking with project scoping
-        const token = ctx.openstack?.getToken()
+        const token = openstackSession.getToken()
         const tokenProjectId = token?.tokenData.project?.id
 
         if (!tokenProjectId) {
