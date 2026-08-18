@@ -422,11 +422,11 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
               onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
             />
           </Stack>
-          <Button variant="primary" className="whitespace-nowrap" onClick={() => setCreateFolderModalOpen(true)}>
-            <Trans>Create Folder</Trans>
-          </Button>
           <Button className="whitespace-nowrap" onClick={() => setUploadModalOpen(true)}>
             <Trans>Upload Object</Trans>
+          </Button>
+          <Button variant="primary" className="whitespace-nowrap" onClick={() => setCreateFolderModalOpen(true)}>
+            <Trans>Create Folder</Trans>
           </Button>
         </Stack>
 
