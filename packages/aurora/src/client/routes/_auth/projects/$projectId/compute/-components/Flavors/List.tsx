@@ -147,6 +147,7 @@ function FlavorsContent({
             options={sortSettings.options}
             sortBy={sortSettings.sortBy}
             sortDirection={sortSettings.sortDirection ?? "asc"}
+            selectClassName="min-w-40"
             onSortByChange={(v) =>
               handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
             }
