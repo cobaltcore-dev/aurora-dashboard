@@ -458,9 +458,10 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
           </Stack>
         </DataGridToolbar>
 
-        {/* Zone 3 — bulk actions (gated) plus the item count. */}
+        {/* Zone 3 — bulk actions (gated) plus the item count. Bulk actions sit
+            on the left; the count is right-aligned. */}
         <DataGridToolbar>
-          <Stack distribution="start" gap="2" alignment="center" className="text-sm">
+          <Stack distribution="between" gap="2" alignment="center" className="text-sm">
             {hasAnyBulkAction ? (
               <Stack gap="2" alignment="center">
                 <Checkbox

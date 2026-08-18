@@ -348,9 +348,10 @@ export const SwiftContainers = () => {
             Unlike the Images reference (where Zone 3 carries only bulk actions and is
             omitted entirely without permissions), this bar also hosts the Swift-specific
             count + remaining-quota + limits info, which must always be visible. So the
-            bar always renders; only the bulk controls are gated. */}
+            bar always renders; only the bulk controls are gated. Bulk controls
+            sit on the left; the count + quota are right-aligned. */}
         <DataGridToolbar>
-          <Stack distribution="start" gap="2" alignment="center" className="text-sm">
+          <Stack distribution="between" gap="2" alignment="center" className="text-sm">
             {hasAnyBulkAction ? (
               <Stack gap="2" alignment="center">
                 <Checkbox
