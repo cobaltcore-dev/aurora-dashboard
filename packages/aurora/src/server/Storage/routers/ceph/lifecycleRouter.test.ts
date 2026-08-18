@@ -360,6 +360,26 @@ describe("lifecycleRouter", () => {
 
       expect(result).toBe(true)
     })
+
+    it("schedules per-key cleanup that fires when the window closes", async () => {
+      vi.useFakeTimers()
+      try {
+        mockSend.mockResolvedValue({})
+        const bucket = "rate-limit-cleanup-bucket-unique"
+        await caller.set({
+          project_id: TEST_PROJECT_ID,
+          bucketName: bucket,
+          lifecycleConfiguration: {
+            Rules: [{ Status: "Enabled", Expiration: { Days: 30 } }],
+          },
+        })
+        expect(vi.getTimerCount()).toBeGreaterThan(0) // cleanup timer scheduled
+        vi.advanceTimersByTime(60 * 1000)
+        expect(vi.getTimerCount()).toBe(0) // fired, nothing left pending
+      } finally {
+        vi.useRealTimers()
+      }
+    })
   })
 
   describe("delete", () => {

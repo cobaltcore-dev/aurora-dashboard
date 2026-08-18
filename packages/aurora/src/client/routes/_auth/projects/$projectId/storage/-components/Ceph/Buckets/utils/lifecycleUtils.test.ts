@@ -256,6 +256,67 @@ describe("lifecycleUtils", () => {
       }
     })
 
+    it("should reject And filter with only 1 predicate", () => {
+      const rule: LifecycleRuleRead = {
+        ID: "test",
+        Status: "Enabled",
+        Filter: { And: { Prefix: "x" } },
+        Expiration: { Days: 30 },
+      }
+      const result = validateLifecycleRules([rule])
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.errors.some((e) => e.includes("And filter must contain at least 2 predicates"))).toBe(true)
+      }
+    })
+
+    it("should accept And filter with 2+ tags", () => {
+      const rule: LifecycleRuleRead = {
+        ID: "test",
+        Status: "Enabled",
+        Filter: {
+          And: {
+            Tags: [
+              { Key: "Type", Value: "Archive" },
+              { Key: "Team", Value: "Platform" },
+            ],
+          },
+        },
+        Expiration: { Days: 30 },
+      }
+      const result = validateLifecycleRules([rule])
+      expect(result.ok).toBe(true)
+    })
+
+    it("should reject multiple top-level filter conditions", () => {
+      const rule: LifecycleRuleRead = {
+        ID: "test",
+        Status: "Enabled",
+        Filter: { Prefix: "logs/", Tag: { Key: "env", Value: "prod" } },
+        Expiration: { Days: 30 },
+      }
+      const result = validateLifecycleRules([rule])
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.errors.some((e) => e.includes("must be wrapped in an And clause"))).toBe(true)
+      }
+    })
+
+    it("should reject ExpiredObjectDeleteMarker with Days", () => {
+      const rule: LifecycleRuleRead = {
+        ID: "test",
+        Status: "Enabled",
+        Expiration: { Days: 30, ExpiredObjectDeleteMarker: true },
+      }
+      const result = validateLifecycleRules([rule])
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(
+          result.errors.some((e) => e.includes("ExpiredObjectDeleteMarker cannot be combined with Days or Date"))
+        ).toBe(true)
+      }
+    })
+
     it("should accept valid rules and convert them", () => {
       const rules: LifecycleRuleRead[] = [
         { ID: "rule1", Status: "Enabled", Expiration: { Days: 30 } },
@@ -396,8 +457,9 @@ describe("lifecycleUtils", () => {
     })
 
     it("should format Date from string", () => {
-      const result = formatExpiration({ Date: "2026-12-31T00:00:00.000Z" })
-      expect(result).toContain("12/31/2026")
+      const inputDate = "2026-12-31T00:00:00.000Z"
+      const expected = `On ${new Date(inputDate).toLocaleDateString()}`
+      expect(formatExpiration({ Date: inputDate })).toBe(expected)
     })
 
     it("should format ExpiredObjectDeleteMarker", () => {
@@ -416,9 +478,10 @@ describe("lifecycleUtils", () => {
     })
 
     it("should format transition with Date", () => {
-      const result = formatTransitions([{ Date: "2026-12-31T00:00:00.000Z", StorageClass: "GLACIER" }])
-      expect(result).toContain("GLACIER after")
-      expect(result).toContain("12/31/2026")
+      const inputDate = "2026-12-31T00:00:00.000Z"
+      const expectedDate = new Date(inputDate).toLocaleDateString()
+      const result = formatTransitions([{ Date: inputDate, StorageClass: "GLACIER" }])
+      expect(result).toBe(`GLACIER after ${expectedDate}`)
     })
 
     it("should join multiple transitions with semicolon", () => {

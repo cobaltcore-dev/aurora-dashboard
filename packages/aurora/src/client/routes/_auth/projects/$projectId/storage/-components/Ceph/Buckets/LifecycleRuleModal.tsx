@@ -101,12 +101,16 @@ export const LifecycleRuleModal = ({
     setValidationErrors([])
 
     try {
-      const currentRules = lifecycleData?.rules ?? []
       let updatedRules: LifecycleRuleRead[]
 
       if (editingIndex === null) {
-        // Adding new rule - no freshness check needed (appending is safe)
-        updatedRules = [...currentRules, rule]
+        // lifecycle.set is a full replace, not an append — rebase on fresh server state
+        // so a concurrent writer's rule isn't silently overwritten.
+        const freshData = await utils.storage.ceph.lifecycle.get.fetch({
+          project_id: projectId,
+          bucketName,
+        })
+        updatedRules = [...(freshData?.rules ?? []), rule]
       } else {
         // Editing existing rule - perform freshness check
         const freshData = await utils.storage.ceph.lifecycle.get.fetch({

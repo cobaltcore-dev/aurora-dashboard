@@ -211,17 +211,8 @@ msgstr "1 Minute"
 msgid "24 hours"
 msgstr "24 Stunden"
 
-msgid "30"
-msgstr ""
-
-msgid "7"
-msgstr ""
-
 msgid "7 days"
 msgstr "7 Tage"
-
-msgid "90"
-msgstr ""
 
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "Ein Flavor mit dieser ID oder diesem Namen existiert bereits. Bitte verwenden Sie andere Werte."
@@ -349,8 +340,7 @@ msgstr "Sicherheitsgruppenregel hinzufügen"
 msgid "Add Tenant Access"
 msgstr "Projektzugriff hinzufügen"
 
-#. placeholder {0}: rule.AbortIncompleteMultipartUpload.DaysAfterInitiation
-msgid "After {0} days"
+msgid "After {abortDays} days"
 msgstr ""
 
 msgid "After restoring, this version's content will become the new latest version."
@@ -3225,7 +3215,7 @@ msgstr ""
 msgid "Select port to associate"
 msgstr "Port zur Zuordnung auswählen"
 
-msgid "Select rule {originalIndex}"
+msgid "Select rule {ruleLabel}"
 msgstr ""
 
 msgid "Serve objects as index when file name is:"

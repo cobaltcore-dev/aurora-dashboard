@@ -164,13 +164,14 @@ export function LifecycleRulesTable({
             const transitionsText = formatTransitions(
               rule.Transitions as unknown as { StorageClass: string; Days?: number; Date?: string }[]
             )
-            const abortText = rule.AbortIncompleteMultipartUpload
-              ? t`After ${rule.AbortIncompleteMultipartUpload.DaysAfterInitiation} days`
-              : "–"
+            const abortDays = rule.AbortIncompleteMultipartUpload?.DaysAfterInitiation
+            const abortText = abortDays !== undefined ? t`After ${abortDays} days` : "–"
             const otherActionsText =
               transitionsText === "–" && abortText === "–"
                 ? "–"
                 : [transitionsText, abortText].filter((t) => t !== "–").join("; ")
+
+            const ruleLabel = rule.ID || String(originalIndex + 1)
 
             return (
               <DataGridRow key={key} data-testid={`lifecycle-rule-row-${originalIndex}`}>
@@ -178,7 +179,7 @@ export function LifecycleRulesTable({
                   <Checkbox
                     checked={selectedIndices.includes(originalIndex)}
                     onChange={() => onToggleSelectRule(originalIndex)}
-                    aria-label={t`Select rule ${originalIndex}`}
+                    aria-label={t`Select rule ${ruleLabel}`}
                     data-testid={`select-rule-${originalIndex}`}
                   />
                 </DataGridCell>

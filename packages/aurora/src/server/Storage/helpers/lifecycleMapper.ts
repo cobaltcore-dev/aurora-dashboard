@@ -1,4 +1,5 @@
-import type { LifecycleRule, LifecycleRuleRead, LifecycleFilter, LifecycleTag } from "../types/ceph"
+import type { LifecycleRule as AwsSdkLifecycleRule, TransitionStorageClass } from "@aws-sdk/client-s3"
+import type { LifecycleRuleRead, LifecycleFilter, LifecycleTag } from "../types/ceph"
 
 /**
  * Normalizes a date to midnight UTC.
@@ -68,11 +69,10 @@ export function normalizeFilter(prefix?: string, tags?: LifecycleTag[]): Lifecyc
  * @param wireRules - Rules from S3 SDK (read from S3)
  * @returns Rules with Date objects instead of strings
  */
-export function toSdkLifecycleRules(wireRules: LifecycleRuleRead[]): LifecycleRule[] {
+export function toSdkLifecycleRules(wireRules: LifecycleRuleRead[]): AwsSdkLifecycleRule[] {
   return wireRules.map((rule) => {
-    // Build a LifecycleRule (strict schema) from LifecycleRuleRead (lenient schema)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result: any = {
+    // Build an AwsSdkLifecycleRule from LifecycleRuleRead (lenient schema)
+    const result: AwsSdkLifecycleRule = {
       Status: rule.Status as "Enabled" | "Disabled",
       ID: rule.ID,
       Prefix: rule.Prefix,
@@ -97,7 +97,7 @@ export function toSdkLifecycleRules(wireRules: LifecycleRuleRead[]): LifecycleRu
     if (rule.Transitions) {
       result.Transitions = rule.Transitions.map((t) => ({
         Days: t.Days,
-        StorageClass: t.StorageClass,
+        StorageClass: t.StorageClass as TransitionStorageClass,
         Date: t.Date !== undefined ? (typeof t.Date === "string" ? new Date(t.Date) : t.Date) : undefined,
       }))
     }
@@ -112,7 +112,7 @@ export function toSdkLifecycleRules(wireRules: LifecycleRuleRead[]): LifecycleRu
     if (rule.NoncurrentVersionTransitions) {
       result.NoncurrentVersionTransitions = rule.NoncurrentVersionTransitions.map((t) => ({
         NoncurrentDays: t.NoncurrentDays,
-        StorageClass: t.StorageClass,
+        StorageClass: t.StorageClass as TransitionStorageClass,
         NewerNoncurrentVersions: t.NewerNoncurrentVersions,
       }))
     }
@@ -123,7 +123,7 @@ export function toSdkLifecycleRules(wireRules: LifecycleRuleRead[]): LifecycleRu
       }
     }
 
-    return result as LifecycleRule
+    return result
   })
 }
 
@@ -137,27 +137,23 @@ export function toSdkLifecycleRules(wireRules: LifecycleRuleRead[]): LifecycleRu
  * @param sdkRules - Rules with Date objects
  * @returns Rules with ISO 8601 date strings
  */
-export function toWireLifecycleRules(sdkRules: LifecycleRule[]): LifecycleRuleRead[] {
+export function toWireLifecycleRules(sdkRules: AwsSdkLifecycleRule[]): LifecycleRuleRead[] {
   return sdkRules.map((rule) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result: any = {
-      Status: rule.Status,
-      ID: rule.ID,
-      Prefix: rule.Prefix,
-      Filter: rule.Filter,
+    const result: LifecycleRuleRead = {
+      Status: rule.Status ?? "Enabled",
     }
+
+    if (rule.ID !== undefined) result.ID = rule.ID
+    if (rule.Prefix !== undefined) result.Prefix = rule.Prefix
+    // AWS SDK LifecycleRuleFilter is structurally compatible with our LifecycleFilter
+    if (rule.Filter !== undefined) result.Filter = rule.Filter as LifecycleFilter
 
     if (rule.Expiration) {
       const expirationDate = rule.Expiration.Date
       result.Expiration = {
         Days: rule.Expiration.Days,
         ExpiredObjectDeleteMarker: rule.Expiration.ExpiredObjectDeleteMarker,
-        Date:
-          expirationDate !== undefined
-            ? typeof expirationDate === "string"
-              ? expirationDate
-              : (expirationDate as Date).toISOString()
-            : undefined,
+        Date: expirationDate !== undefined ? expirationDate.toISOString() : undefined,
       }
     }
 
@@ -166,29 +162,33 @@ export function toWireLifecycleRules(sdkRules: LifecycleRule[]): LifecycleRuleRe
         const transitionDate = t.Date
         return {
           Days: t.Days,
-          StorageClass: t.StorageClass,
-          Date:
-            transitionDate !== undefined
-              ? typeof transitionDate === "string"
-                ? transitionDate
-                : (transitionDate as Date).toISOString()
-              : undefined,
+          StorageClass: t.StorageClass!,
+          Date: transitionDate !== undefined ? transitionDate.toISOString() : undefined,
         }
       })
     }
 
     if (rule.NoncurrentVersionExpiration) {
-      result.NoncurrentVersionExpiration = rule.NoncurrentVersionExpiration
+      result.NoncurrentVersionExpiration = {
+        NoncurrentDays: rule.NoncurrentVersionExpiration.NoncurrentDays,
+        NewerNoncurrentVersions: rule.NoncurrentVersionExpiration.NewerNoncurrentVersions,
+      }
     }
 
     if (rule.NoncurrentVersionTransitions) {
-      result.NoncurrentVersionTransitions = rule.NoncurrentVersionTransitions
+      result.NoncurrentVersionTransitions = rule.NoncurrentVersionTransitions.map((t) => ({
+        NoncurrentDays: t.NoncurrentDays,
+        StorageClass: t.StorageClass!,
+        NewerNoncurrentVersions: t.NewerNoncurrentVersions,
+      }))
     }
 
     if (rule.AbortIncompleteMultipartUpload) {
-      result.AbortIncompleteMultipartUpload = rule.AbortIncompleteMultipartUpload
+      result.AbortIncompleteMultipartUpload = {
+        DaysAfterInitiation: rule.AbortIncompleteMultipartUpload.DaysAfterInitiation,
+      }
     }
 
-    return result as LifecycleRuleRead
+    return result
   })
 }

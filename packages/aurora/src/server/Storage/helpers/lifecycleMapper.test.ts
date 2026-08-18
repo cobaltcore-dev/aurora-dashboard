@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { normalizeFilter, toSdkLifecycleRules, toWireLifecycleRules } from "./lifecycleMapper"
-import type { LifecycleRuleRead, LifecycleRule } from "../types/ceph"
+import type { LifecycleRuleRead } from "../types/ceph"
+import type { LifecycleRule as AwsSdkLifecycleRule } from "@aws-sdk/client-s3"
 
 describe("lifecycleMapper", () => {
   describe("normalizeFilter", () => {
@@ -63,14 +64,13 @@ describe("lifecycleMapper", () => {
       const expiration = sdkRules[0].Expiration
       expect(expiration).toBeDefined()
       if (expiration?.Date) {
-        const date = typeof expiration.Date === "string" ? new Date(expiration.Date) : expiration.Date
-        expect(date.getUTCHours()).toBe(0)
-        expect(date.getUTCMinutes()).toBe(0)
-        expect(date.getUTCSeconds()).toBe(0)
-        expect(date.getUTCMilliseconds()).toBe(0)
-        expect(date.getUTCDate()).toBe(31)
-        expect(date.getUTCMonth()).toBe(11) // December
-        expect(date.getUTCFullYear()).toBe(2024)
+        expect(expiration.Date.getUTCHours()).toBe(0)
+        expect(expiration.Date.getUTCMinutes()).toBe(0)
+        expect(expiration.Date.getUTCSeconds()).toBe(0)
+        expect(expiration.Date.getUTCMilliseconds()).toBe(0)
+        expect(expiration.Date.getUTCDate()).toBe(31)
+        expect(expiration.Date.getUTCMonth()).toBe(11) // December
+        expect(expiration.Date.getUTCFullYear()).toBe(2024)
       }
     })
 
@@ -93,9 +93,8 @@ describe("lifecycleMapper", () => {
       const transition = sdkRules[0].Transitions?.[0]
       expect(transition).toBeDefined()
       if (transition?.Date) {
-        const date = typeof transition.Date === "string" ? new Date(transition.Date) : transition.Date
         // Should preserve the original time, not normalize to midnight
-        expect(date.toISOString()).toBe("2024-12-31T15:30:45.000Z")
+        expect(transition.Date.toISOString()).toBe("2024-12-31T15:30:45.000Z")
       }
     })
 
@@ -167,13 +166,12 @@ describe("lifecycleMapper", () => {
     })
 
     it("should convert Date objects to ISO strings on toWireLifecycleRules", () => {
-      const sdkRules: LifecycleRule[] = [
+      const sdkRules: AwsSdkLifecycleRule[] = [
         {
           ID: "date-test",
           Status: "Enabled",
           Expiration: {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            Date: new Date("2025-01-01T00:00:00.000Z") as any, // Type assertion needed for test
+            Date: new Date("2025-01-01T00:00:00.000Z"),
           },
         },
       ]

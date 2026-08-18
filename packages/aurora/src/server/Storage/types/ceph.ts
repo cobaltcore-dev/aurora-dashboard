@@ -794,6 +794,10 @@ export const lifecycleExpirationSchema = z
     // Cannot have both Days and Date
     return !(val.Days !== undefined && val.Date !== undefined)
   }, "Expiration cannot specify both Days and Date")
+  .refine(
+    (val) => !(val.ExpiredObjectDeleteMarker !== undefined && (val.Days !== undefined || val.Date !== undefined)),
+    "ExpiredObjectDeleteMarker cannot be combined with Days or Date"
+  )
 
 /**
  * Transition action - move objects to different storage class.
@@ -877,13 +881,12 @@ export const lifecycleFilterAndSchema = z
   })
   .refine(
     (val) => {
-      // Count predicates inside And
-      const predicateCount = [
-        val.Prefix !== undefined && val.Prefix !== "",
-        val.Tags !== undefined && val.Tags.length > 0,
-        val.ObjectSizeGreaterThan !== undefined,
-        val.ObjectSizeLessThan !== undefined,
-      ].filter(Boolean).length
+      // Count predicates inside And — each tag counts individually
+      const predicateCount =
+        (val.Prefix !== undefined && val.Prefix !== "" ? 1 : 0) +
+        (val.Tags?.length ?? 0) +
+        (val.ObjectSizeGreaterThan !== undefined ? 1 : 0) +
+        (val.ObjectSizeLessThan !== undefined ? 1 : 0)
 
       // And combinator only makes sense for 2+ predicates
       return predicateCount >= 2

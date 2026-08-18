@@ -117,6 +117,9 @@ export function toLifecycleRule(rule: LifecycleRuleRead): LifecycleRule {
  * - Must have at least one action
  * - Cannot have both Filter and legacy Prefix
  * - ExpiredObjectDeleteMarker incompatible with tag filters
+ * - ExpiredObjectDeleteMarker cannot be combined with Days or Date
+ * - And filter must have ≥2 predicates (per-tag counting)
+ * - Top-level filter conditions must be wrapped in And
  * - ID ≤ 255 characters
  * - NoncurrentVersionExpiration must have NoncurrentDays
  * - Transitions must have either Days or Date (XOR)
@@ -187,6 +190,41 @@ export function validateLifecycleRules(
         rule.Filter?.Tag !== undefined || (rule.Filter?.And?.Tags !== undefined && rule.Filter.And.Tags.length > 0)
       if (hasTagFilter) {
         errors.push(`${ruleLabel}: ExpiredObjectDeleteMarker cannot be combined with tag-based filters`)
+      }
+    }
+
+    // ExpiredObjectDeleteMarker is a distinct action — mirrors lifecycleExpirationSchema (server)
+    if (
+      rule.Expiration?.ExpiredObjectDeleteMarker === true &&
+      (rule.Expiration.Days !== undefined || rule.Expiration.Date !== undefined)
+    ) {
+      errors.push(`${ruleLabel}: ExpiredObjectDeleteMarker cannot be combined with Days or Date`)
+    }
+
+    // And filter must have ≥2 predicates — per-tag counting, mirrors lifecycleFilterAndSchema (server)
+    if (rule.Filter?.And) {
+      const predicateCount =
+        (rule.Filter.And.Prefix !== undefined && rule.Filter.And.Prefix !== "" ? 1 : 0) +
+        (rule.Filter.And.Tags?.length ?? 0) +
+        (rule.Filter.And.ObjectSizeGreaterThan !== undefined ? 1 : 0) +
+        (rule.Filter.And.ObjectSizeLessThan !== undefined ? 1 : 0)
+      if (predicateCount < 2) {
+        errors.push(`${ruleLabel}: And filter must contain at least 2 predicates`)
+      }
+    }
+
+    // Top-level conditions must not combine with each other or with And — mirrors lifecycleFilterSchema (server)
+    if (rule.Filter) {
+      const topLevelConditions = [
+        rule.Filter.Prefix !== undefined,
+        rule.Filter.Tag !== undefined,
+        rule.Filter.ObjectSizeGreaterThan !== undefined,
+        rule.Filter.ObjectSizeLessThan !== undefined,
+      ].filter(Boolean).length
+      if (topLevelConditions > 1 || (rule.Filter.And && topLevelConditions > 0)) {
+        errors.push(
+          `${ruleLabel}: Multiple filter conditions (Prefix, Tag, ObjectSize) must be wrapped in an And clause`
+        )
       }
     }
 

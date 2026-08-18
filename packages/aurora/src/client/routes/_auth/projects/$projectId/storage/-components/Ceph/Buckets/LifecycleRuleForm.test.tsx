@@ -224,6 +224,45 @@ describe("LifecycleRuleForm", () => {
       expect(screen.getByText(/storage-class transitions/i)).toBeInTheDocument()
       expect(screen.getByText(/preserved unchanged/i)).toBeInTheDocument()
     })
+
+    test("preserves NewerNoncurrentVersions when editing NoncurrentVersionExpiration", async () => {
+      const user = userEvent.setup({ delay: null })
+      const mockOnSubmit = vi.fn()
+      const ruleWithNewerNoncurrent: LifecycleRuleRead = {
+        ID: "rule-with-newer-noncurrent",
+        Status: "Enabled",
+        Filter: {},
+        Expiration: { Days: 365 },
+        NoncurrentVersionExpiration: {
+          NoncurrentDays: 90,
+          NewerNoncurrentVersions: 3,
+        },
+      }
+      renderForm({ editingRule: ruleWithNewerNoncurrent, onSubmit: mockOnSubmit })
+
+      // NoncurrentVersionExpiration should be pre-checked with days=90
+      const noncurrentCheckbox = screen.getByLabelText(/Expire Noncurrent Versions/i)
+      expect(noncurrentCheckbox).toBeChecked()
+      const noncurrentDaysInput = screen.getByLabelText(/Noncurrent Days/i)
+      expect(noncurrentDaysInput).toHaveValue(90)
+
+      // Change noncurrent days to 120
+      await user.clear(noncurrentDaysInput)
+      await user.type(noncurrentDaysInput, "120")
+
+      const form = screen.getByRole("form") || document.querySelector("#lifecycle-rule-form")!
+      fireEvent.submit(form)
+
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalled()
+      })
+
+      const submittedRule = mockOnSubmit.mock.calls[0][0]
+      expect(submittedRule.NoncurrentVersionExpiration).toEqual({
+        NoncurrentDays: 120,
+        NewerNoncurrentVersions: 3, // Should preserve this field
+      })
+    })
   })
 
   describe("Status field (item 3: Select onChange fix)", () => {

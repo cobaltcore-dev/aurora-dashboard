@@ -130,6 +130,7 @@ export function CorsRulesTable({
             // ID field is optional and may be absent or duplicated.
             // originalIndex is the contract with parent's onEditRule(index) / onDeleteRule(index).
             const key = originalIndex
+            const ruleLabel = rule.ID || String(originalIndex + 1)
 
             return (
               <DataGridRow key={key} data-testid={`cors-rule-row-${originalIndex}`}>
@@ -137,7 +138,7 @@ export function CorsRulesTable({
                   <Checkbox
                     checked={selectedIndices.includes(originalIndex)}
                     onChange={() => onToggleSelectRule(originalIndex)}
-                    aria-label={t`Select rule ${originalIndex}`}
+                    aria-label={t`Select rule ${ruleLabel}`}
                     data-testid={`select-rule-${originalIndex}`}
                   />
                 </DataGridCell>

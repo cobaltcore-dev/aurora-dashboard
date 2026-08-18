@@ -151,37 +151,42 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
   // Current rules from server
   const rules = lifecycleData?.rules ?? []
 
+  interface RuleWithOriginalIndex {
+    rule: LifecycleRuleRead
+    originalIndex: number
+  }
+
   // Sort rules based on sort settings
-  const sortRules = (rules: LifecycleRuleRead[]): LifecycleRuleRead[] => {
-    return [...rules].sort((a, b) => {
+  const sortRules = (items: RuleWithOriginalIndex[]): RuleWithOriginalIndex[] => {
+    return [...items].sort((a, b) => {
       let comparison: number
 
       switch (lifecycleSortBy ?? "ID") {
         case "ID":
-          comparison = (a.ID || "").localeCompare(b.ID || "")
+          comparison = (a.rule.ID || "").localeCompare(b.rule.ID || "")
           break
         case "Status":
-          comparison = a.Status.localeCompare(b.Status)
+          comparison = a.rule.Status.localeCompare(b.rule.Status)
           break
         case "Expiration":
-          comparison = (a.Expiration?.Days ?? -1) - (b.Expiration?.Days ?? -1)
+          comparison = (a.rule.Expiration?.Days ?? -1) - (b.rule.Expiration?.Days ?? -1)
           break
         default:
-          comparison = (a.ID || "").localeCompare(b.ID || "")
+          comparison = (a.rule.ID || "").localeCompare(b.rule.ID || "")
       }
 
       return (lifecycleSortDirection ?? "asc") === "desc" ? -comparison : comparison
     })
   }
 
-  // Filter rules based on search term (by Rule ID)
-  const filteredRulesWithIndices = sortRules(rules)
-    .map((rule) => ({ rule, originalIndex: rules.indexOf(rule) }))
-    .filter(({ rule }) => {
-      if (!lifecycleSearch) return true
-      const ruleId = rule.ID || ""
-      return ruleId.toLowerCase().includes(lifecycleSearch.toLowerCase())
-    })
+  const rulesWithOriginalIndices = rules.map((rule, originalIndex) => ({
+    rule,
+    originalIndex,
+  }))
+  const filteredRulesWithIndices = sortRules(rulesWithOriginalIndices).filter(({ rule }) => {
+    if (!lifecycleSearch) return true
+    return (rule.ID || "").toLowerCase().includes(lifecycleSearch.toLowerCase())
+  })
 
   // Get indices of filtered rules for select-all logic
   const filteredIndices = filteredRulesWithIndices.map(({ originalIndex }) => originalIndex)

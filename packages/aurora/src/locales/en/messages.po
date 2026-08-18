@@ -211,17 +211,8 @@ msgstr "1 minute"
 msgid "24 hours"
 msgstr "24 hours"
 
-msgid "30"
-msgstr "30"
-
-msgid "7"
-msgstr "7"
-
 msgid "7 days"
 msgstr "7 days"
-
-msgid "90"
-msgstr "90"
 
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "A flavor with this ID or name already exists. Please use different values."
@@ -349,9 +340,8 @@ msgstr "Add Security Group Rule"
 msgid "Add Tenant Access"
 msgstr "Add Tenant Access"
 
-#. placeholder {0}: rule.AbortIncompleteMultipartUpload.DaysAfterInitiation
-msgid "After {0} days"
-msgstr "After {0} days"
+msgid "After {abortDays} days"
+msgstr "After {abortDays} days"
 
 msgid "After restoring, this version's content will become the new latest version."
 msgstr "After restoring, this version's content will become the new latest version."
@@ -3225,8 +3215,8 @@ msgstr "Select HTTP methods allowed for cross-origin requests"
 msgid "Select port to associate"
 msgstr "Select port to associate"
 
-msgid "Select rule {originalIndex}"
-msgstr "Select rule {originalIndex}"
+msgid "Select rule {ruleLabel}"
+msgstr "Select rule {ruleLabel}"
 
 msgid "Serve objects as index when file name is:"
 msgstr "Serve objects as index when file name is:"

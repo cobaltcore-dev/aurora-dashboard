@@ -2,7 +2,7 @@ import {
   GetBucketLifecycleConfigurationCommand,
   PutBucketLifecycleConfigurationCommand,
   DeleteBucketLifecycleCommand,
-  type BucketLifecycleConfiguration,
+  type LifecycleRule as AwsSdkLifecycleRule,
 } from "@aws-sdk/client-s3"
 import { TRPCError } from "@trpc/server"
 import { cephProtectedProcedure } from "../../cephProcedure"
@@ -24,17 +24,19 @@ function checkLifecycleSetRateLimit(bucketName: string, projectId: string): void
   const now = Date.now()
   const windowMs = 60 * 1000 // 1 minute
 
-  // Clean up expired entries to prevent unbounded memory growth
-  for (const [k, v] of lifecycleSetRateLimits.entries()) {
-    if (now > v.resetAt) {
-      lifecycleSetRateLimits.delete(k)
-    }
-  }
-
   const limit = lifecycleSetRateLimits.get(key)
 
   if (!limit || now > limit.resetAt) {
     lifecycleSetRateLimits.set(key, { count: 1, resetAt: now + windowMs })
+    // Self-clean this one key after its window closes — O(1) per key, no full-map scan.
+    setTimeout(() => {
+      const current = lifecycleSetRateLimits.get(key)
+      // Only delete if this timer's entry is still the current one (a newer window may have
+      // started for the same key before this stale timer fired).
+      if (current && current.resetAt <= Date.now()) {
+        lifecycleSetRateLimits.delete(key)
+      }
+    }, windowMs).unref()
     return
   }
 
@@ -147,8 +149,7 @@ export const lifecycleRouter = {
     // - Migrates legacy Prefix to Filter.Prefix if needed
     // - Preserves Transitions[].Date as-is (no normalization)
     const transformedRules = toSdkLifecycleRules(lifecycleConfiguration.Rules).map((rule) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const transformed: any = { ...rule }
+      const transformed: AwsSdkLifecycleRule = { ...rule }
 
       // Migrate legacy Prefix to Filter.Prefix if needed (never send both to S3)
       if (transformed.Prefix !== undefined && transformed.Filter === undefined) {
@@ -164,11 +165,9 @@ export const lifecycleRouter = {
       await s3.send(
         new PutBucketLifecycleConfigurationCommand({
           Bucket: bucketName,
-          // Type assertion needed because Zod validates strings but AWS SDK expects specific enum types
-          // We trust our Zod validation to ensure the structure is correct
           LifecycleConfiguration: {
             Rules: transformedRules,
-          } as BucketLifecycleConfiguration,
+          },
         })
       )
 

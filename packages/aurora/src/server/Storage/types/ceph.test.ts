@@ -1227,6 +1227,24 @@ describe("Ceph Object Storage Schema Validation", () => {
         expect(lifecycleExpirationSchema.safeParse(input).success).toBe(false)
       })
 
+      it("should reject Days with ExpiredObjectDeleteMarker", () => {
+        expect(
+          lifecycleExpirationSchema.safeParse({
+            Days: 30,
+            ExpiredObjectDeleteMarker: true,
+          }).success
+        ).toBe(false)
+      })
+
+      it("should reject Date with ExpiredObjectDeleteMarker", () => {
+        expect(
+          lifecycleExpirationSchema.safeParse({
+            Date: "2024-12-31T00:00:00.000Z",
+            ExpiredObjectDeleteMarker: true,
+          }).success
+        ).toBe(false)
+      })
+
       it("should reject empty expiration object", () => {
         const input = {}
         expect(lifecycleExpirationSchema.safeParse(input).success).toBe(false)
@@ -1397,6 +1415,18 @@ describe("Ceph Object Storage Schema Validation", () => {
           },
         }
         expect(lifecycleFilterSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should accept And with 2+ tags and nothing else", () => {
+        const input = {
+          And: {
+            Tags: [
+              { Key: "Type", Value: "Archive" },
+              { Key: "Team", Value: "Platform" },
+            ],
+          },
+        }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(true)
       })
 
       it("should reject And with empty Tags array (counts as 0 predicates)", () => {

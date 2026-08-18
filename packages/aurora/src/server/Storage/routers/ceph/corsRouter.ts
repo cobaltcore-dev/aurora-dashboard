@@ -13,17 +13,19 @@ function checkCorsSetRateLimit(bucketName: string, projectId: string): void {
   const now = Date.now()
   const windowMs = 60 * 1000 // 1 minute
 
-  // Clean up expired entries to prevent unbounded memory growth
-  for (const [k, v] of corsSetRateLimits.entries()) {
-    if (now > v.resetAt) {
-      corsSetRateLimits.delete(k)
-    }
-  }
-
   const limit = corsSetRateLimits.get(key)
 
   if (!limit || now > limit.resetAt) {
     corsSetRateLimits.set(key, { count: 1, resetAt: now + windowMs })
+    // Self-clean this one key after its window closes — O(1) per key, no full-map scan.
+    setTimeout(() => {
+      const current = corsSetRateLimits.get(key)
+      // Only delete if this timer's entry is still the current one (a newer window may have
+      // started for the same key before this stale timer fired).
+      if (current && current.resetAt <= Date.now()) {
+        corsSetRateLimits.delete(key)
+      }
+    }, windowMs).unref()
     return
   }
 

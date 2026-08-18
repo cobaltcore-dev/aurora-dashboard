@@ -116,6 +116,9 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
       if (value.hasNoncurrentExpiration && value.noncurrentDays) {
         newRule.NoncurrentVersionExpiration = {
           NoncurrentDays: parseInt(value.noncurrentDays, 10),
+          ...(editingRule?.NoncurrentVersionExpiration?.NewerNoncurrentVersions !== undefined && {
+            NewerNoncurrentVersions: editingRule.NoncurrentVersionExpiration.NewerNoncurrentVersions,
+          }),
         }
       }
 
@@ -370,7 +373,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
-                        placeholder={t`30`}
+                        placeholder="30"
                         min="1"
                         helptext={
                           editingRule?.Expiration && !editingRule.Expiration.Days
@@ -412,7 +415,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
-                        placeholder={t`90`}
+                        placeholder="90"
                         min="1"
                         helptext={t`Delete noncurrent versions after this many days (requires versioning enabled)`}
                         required={true}
@@ -450,7 +453,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
-                        placeholder={t`7`}
+                        placeholder="7"
                         min="1"
                         helptext={t`Abort incomplete multipart uploads after this many days`}
                         required={true}

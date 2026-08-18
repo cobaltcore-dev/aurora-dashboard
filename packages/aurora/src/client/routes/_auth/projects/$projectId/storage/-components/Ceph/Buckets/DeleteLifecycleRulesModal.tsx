@@ -200,6 +200,7 @@ export const DeleteLifecycleRulesModal = ({
       disableConfirmButton={isMutating || isVerifying || isLoading || !!queryError}
       disableCancelButton={isMutating || isVerifying}
       disableCloseButton={isMutating || isVerifying}
+      closeOnEsc={!(isMutating || isVerifying)}
     >
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
