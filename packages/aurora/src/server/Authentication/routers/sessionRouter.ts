@@ -15,11 +15,6 @@ export const sessionRouter = {
     return token?.tokenData || null
   }),
 
-  getAuthToken: protectedProcedure.query(async ({ ctx }) => {
-    const token = ctx.openstack?.getToken()
-    return token?.authToken || null
-  }),
-
   getCurrentScope: publicProcedure.query(async ({ ctx }) => {
     const token = ctx.openstack?.getToken()
     if (!token) {
