@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Badge, Button, Stack } from "@cloudoperators/juno-ui-components/index"
+import { Badge, Button, Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 import { CertificateAuthority } from "@/server/Services/types/pca"
 import { useProjectId } from "@/client/hooks"
 import { useModal } from "@/client/utils/useModal"
@@ -43,7 +43,13 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   ] as const
 
   const STATE_CONFIG = {
-    CREATING: <Badge icon="bolt" variant="info" text={t`Creating`} />,
+    CREATING: (
+      <Badge variant="info">
+        <Stack direction="horizontal" gap="1" alignment="center">
+          <Spinner size="18" /> Creating
+        </Stack>
+      </Badge>
+    ),
     AWAITING_CERTIFICATE: <Badge icon="accessTime" variant="warning" text={t`Awaiting Certificate`} />,
     READY: <Badge icon="checkCircle" variant="success" text={t`Ready`} />,
     FAILED: <Badge icon="error" variant="error" text={t`Failed`} />,
