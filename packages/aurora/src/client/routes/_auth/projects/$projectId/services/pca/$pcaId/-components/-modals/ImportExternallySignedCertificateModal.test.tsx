@@ -128,6 +128,10 @@ describe("ImportExternallySignedCertificateModal", () => {
     expect(toastSuccess).toHaveBeenCalledTimes(1)
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(mockInvalidate).toHaveBeenCalledTimes(1)
+    expect(mockInvalidate).toHaveBeenCalledWith({
+      project_id: mockProjectId,
+      certificate_authority_id: mockPcaId,
+    })
   })
 
   it("ignores non-JSON file uploads", async () => {

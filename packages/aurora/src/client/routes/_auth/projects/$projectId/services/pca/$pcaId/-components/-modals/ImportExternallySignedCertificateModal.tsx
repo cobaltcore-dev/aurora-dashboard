@@ -34,7 +34,11 @@ export const ImportExternallySignedCertificateModal = ({
   })
 
   const { isPending, ...importMutation } = trpcReact.services.pca.import.useMutation({
-    onSettled: () => utils.services.pca.getById.invalidate(),
+    onSettled: () =>
+      utils.services.pca.getById.invalidate({
+        project_id: projectId,
+        certificate_authority_id: pcaId,
+      }),
   })
 
   const form = useForm({

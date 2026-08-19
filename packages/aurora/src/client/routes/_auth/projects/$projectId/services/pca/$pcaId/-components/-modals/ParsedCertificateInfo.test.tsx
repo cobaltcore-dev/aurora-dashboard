@@ -37,7 +37,7 @@ describe("ParsedCertificateInfo", () => {
   })
 
   it("renders parsed certificate fields", async () => {
-    vi.mocked(parseCsrInfo).mockResolvedValue([
+    vi.mocked(parseCsrInfo).mockReturnValue([
       { label: "Subject Information", value: "CN=test.example.com" },
       { label: "Public Key Algorithm", value: "RSA 2048-bit" },
     ])
@@ -57,7 +57,9 @@ describe("ParsedCertificateInfo", () => {
   })
 
   it("renders nothing when parsing fails", async () => {
-    vi.mocked(parseCsrInfo).mockRejectedValue(new Error("invalid csr"))
+    vi.mocked(parseCsrInfo).mockImplementation(() => {
+      throw new Error("invalid csr")
+    })
 
     renderComponent("invalid")
 
