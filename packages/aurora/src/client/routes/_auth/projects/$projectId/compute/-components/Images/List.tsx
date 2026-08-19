@@ -226,6 +226,7 @@ function ImagesContent({
             options={sortSettings.options}
             sortBy={sortSettings.sortBy}
             sortDirection={sortSettings.sortDirection ?? "desc"}
+            selectClassName="min-w-40"
             onSortByChange={(v) =>
               handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
             }
@@ -245,6 +246,8 @@ function ImagesContent({
           <Stack distribution="between" alignment="center">
             <FiltersInput
               filters={activeFilterSettings.filters}
+              selectClassName="sm:min-w-40"
+              comboboxClassName="sm:min-w-40"
               onChange={(selected) => {
                 const newSelected = applyFilterSelection(
                   activeFilterSettings.selectedFilters || [],
