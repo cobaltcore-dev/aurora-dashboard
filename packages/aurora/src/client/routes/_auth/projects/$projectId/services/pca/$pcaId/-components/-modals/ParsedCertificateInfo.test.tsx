@@ -37,8 +37,8 @@ describe("ParsedCertificateInfo", () => {
   })
 
   it("renders parsed certificate fields", async () => {
-    vi.mocked(parseCsrInfo).mockResolvedValue([
-      { label: "Subject", value: "CN=test.example.com" },
+    vi.mocked(parseCsrInfo).mockReturnValue([
+      { label: "Subject Information", value: "CN=test.example.com" },
       { label: "Public Key Algorithm", value: "RSA 2048-bit" },
     ])
 
@@ -50,14 +50,16 @@ describe("ParsedCertificateInfo", () => {
       )
     })
 
-    expect(await screen.findByText("Subject")).toBeInTheDocument()
+    expect(await screen.findByText("Subject Information")).toBeInTheDocument()
     expect(screen.getByText("CN=test.example.com")).toBeInTheDocument()
     expect(screen.getByText("Public Key Algorithm")).toBeInTheDocument()
     expect(screen.getByText("RSA 2048-bit")).toBeInTheDocument()
   })
 
   it("renders nothing when parsing fails", async () => {
-    vi.mocked(parseCsrInfo).mockRejectedValue(new Error("invalid csr"))
+    vi.mocked(parseCsrInfo).mockImplementation(() => {
+      throw new Error("invalid csr")
+    })
 
     renderComponent("invalid")
 
@@ -66,7 +68,7 @@ describe("ParsedCertificateInfo", () => {
     })
 
     await waitFor(() => {
-      expect(screen.queryByText("Subject")).not.toBeInTheDocument()
+      expect(screen.queryByText("Subject Information")).not.toBeInTheDocument()
     })
   })
 })
