@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .then((session) => {
         if (session) {
           setUser(session.user)
-          setExpiresAt(session.expires_at)
+          setExpiresAt(session.expires_at ?? null)
         }
       })
       .catch((err) => {
