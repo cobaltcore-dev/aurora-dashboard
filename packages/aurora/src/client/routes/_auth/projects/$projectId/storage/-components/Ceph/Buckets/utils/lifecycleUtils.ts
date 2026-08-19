@@ -261,43 +261,6 @@ export function validateLifecycleRules(
 }
 
 /**
- * Detect lifecycle rules that will expire all objects in the bucket
- *
- * Returns true if the rule:
- * - Has Status "Enabled"
- * - Has Expiration configured
- * - Has a filter that matches everything (no prefix, no tags, no size constraints)
- *
- * @param rule - Rule to check
- * @returns true if this is a whole-bucket expiration rule
- */
-export function isWholeBucketExpirationRule(rule: LifecycleRuleRead): boolean {
-  if (rule.Status !== "Enabled") return false
-  if (!rule.Expiration) return false
-
-  // Check if filter matches everything (no prefix, no tags, no size constraints)
-  const filter = rule.Filter
-  if (!filter) return true // No filter = whole bucket
-
-  // Empty prefix or no conditions = whole bucket
-  if (filter.Prefix === "" && !filter.Tag && !filter.And) return true
-  if (!filter.Prefix && !filter.Tag && !filter.ObjectSizeGreaterThan && !filter.ObjectSizeLessThan && !filter.And)
-    return true
-
-  // And with only empty prefix = whole bucket
-  if (
-    filter.And &&
-    (filter.And.Prefix === "" || !filter.And.Prefix) &&
-    (!filter.And.Tags || filter.And.Tags.length === 0) &&
-    !filter.And.ObjectSizeGreaterThan &&
-    !filter.And.ObjectSizeLessThan
-  )
-    return true
-
-  return false
-}
-
-/**
  * Format a lifecycle filter for display
  *
  * Handles legacy top-level Prefix field (item-23) and all Filter variants.

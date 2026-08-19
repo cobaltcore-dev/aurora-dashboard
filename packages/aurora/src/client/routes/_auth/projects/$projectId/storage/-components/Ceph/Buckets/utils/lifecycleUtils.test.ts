@@ -3,7 +3,6 @@ import {
   normalizeFilter,
   toLifecycleRule,
   validateLifecycleRules,
-  isWholeBucketExpirationRule,
   formatFilter,
   formatExpiration,
   formatTransitions,
@@ -329,85 +328,6 @@ describe("lifecycleUtils", () => {
         expect(result.rules[0].ID).toBe("rule1")
         expect(result.rules[1].ID).toBe("rule2")
       }
-    })
-  })
-
-  describe("isWholeBucketExpirationRule", () => {
-    it("should return false if Status is not Enabled", () => {
-      const rule: LifecycleRuleRead = {
-        ID: "test",
-        Status: "Disabled",
-        Expiration: { Days: 30 },
-      }
-      expect(isWholeBucketExpirationRule(rule)).toBe(false)
-    })
-
-    it("should return false if no Expiration", () => {
-      const rule: LifecycleRuleRead = {
-        ID: "test",
-        Status: "Enabled",
-        AbortIncompleteMultipartUpload: { DaysAfterInitiation: 7 },
-      }
-      expect(isWholeBucketExpirationRule(rule)).toBe(false)
-    })
-
-    it("should return true if no Filter", () => {
-      const rule: LifecycleRuleRead = {
-        ID: "test",
-        Status: "Enabled",
-        Expiration: { Days: 30 },
-      }
-      expect(isWholeBucketExpirationRule(rule)).toBe(true)
-    })
-
-    it("should return true if Filter has empty Prefix and no other conditions", () => {
-      const rule: LifecycleRuleRead = {
-        ID: "test",
-        Status: "Enabled",
-        Filter: { Prefix: "" },
-        Expiration: { Days: 30 },
-      }
-      expect(isWholeBucketExpirationRule(rule)).toBe(true)
-    })
-
-    it("should return false if Filter has non-empty Prefix", () => {
-      const rule: LifecycleRuleRead = {
-        ID: "test",
-        Status: "Enabled",
-        Filter: { Prefix: "logs/" },
-        Expiration: { Days: 30 },
-      }
-      expect(isWholeBucketExpirationRule(rule)).toBe(false)
-    })
-
-    it("should return false if Filter has Tag", () => {
-      const rule: LifecycleRuleRead = {
-        ID: "test",
-        Status: "Enabled",
-        Filter: { Tag: { Key: "env", Value: "prod" } },
-        Expiration: { Days: 30 },
-      }
-      expect(isWholeBucketExpirationRule(rule)).toBe(false)
-    })
-
-    it("should return true if Filter.And has empty/no Prefix and no Tags", () => {
-      const rule: LifecycleRuleRead = {
-        ID: "test",
-        Status: "Enabled",
-        Filter: { And: { Prefix: "" } },
-        Expiration: { Days: 30 },
-      }
-      expect(isWholeBucketExpirationRule(rule)).toBe(true)
-    })
-
-    it("should return false if Filter.And has Tags", () => {
-      const rule: LifecycleRuleRead = {
-        ID: "test",
-        Status: "Enabled",
-        Filter: { And: { Tags: [{ Key: "env", Value: "prod" }] } },
-        Expiration: { Days: 30 },
-      }
-      expect(isWholeBucketExpirationRule(rule)).toBe(false)
     })
   })
 

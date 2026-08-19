@@ -229,6 +229,9 @@ msgstr "A pre-signed URL grants time-limited read access to this object without 
 msgid "A property with this key already exists"
 msgstr "A property with this key already exists"
 
+msgid "A tag with this key already exists."
+msgstr "A tag with this key already exists."
+
 msgid "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
 msgstr "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
 
@@ -469,9 +472,6 @@ msgstr "Attach"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
-msgid "Authorization, Content-Type, or *"
-msgstr "Authorization, Content-Type, or *"
-
 msgid "Awaiting Certificate"
 msgstr "Awaiting Certificate"
 
@@ -529,6 +529,9 @@ msgstr "Bucket Deleted"
 msgid "Bucket Emptied"
 msgstr "Bucket Emptied"
 
+msgid "Bucket expiration warning"
+msgstr "Bucket expiration warning"
+
 msgid "Bucket name"
 msgstr "Bucket name"
 
@@ -579,6 +582,12 @@ msgstr "Bulk upload of archive files"
 
 msgid "CA ID"
 msgstr "CA ID"
+
+msgid "Can not be combined with Abort Incomplete Multipart Uploads"
+msgstr "Can not be combined with Abort Incomplete Multipart Uploads"
+
+msgid "Can not be combined with Tag Filters"
+msgstr "Can not be combined with Tag Filters"
 
 msgid "Cancel"
 msgstr "Cancel"
@@ -1260,17 +1269,38 @@ msgstr "Drop your image file here"
 msgid "Duration/validity"
 msgstr "Duration/validity"
 
+msgid "e.g environment"
+msgstr "e.g environment"
+
+msgid "e.g production"
+msgstr "e.g production"
+
 msgid "e.g. .r:*,.rlistings"
 msgstr "e.g. .r:*,.rlistings"
+
+msgid "e.g. 3600 (1 hour) or 604800 (7 days)"
+msgstr "e.g. 3600 (1 hour) or 604800 (7 days)"
 
 msgid "e.g. allow-frontend-app"
 msgstr "e.g. allow-frontend-app"
 
+msgid "e.g. Authorization, Content-Type, or *"
+msgstr "e.g. Authorization, Content-Type, or *"
+
+msgid "e.g. Etag, Content-Length"
+msgstr "e.g. Etag, Content-Length"
+
+msgid "e.g. https://example.com or *"
+msgstr "e.g. https://example.com or *"
+
+msgid "e.g. logs/"
+msgstr "e.g. logs/"
+
+msgid "e.g. my-lifecycle-rule"
+msgstr "e.g. my-lifecycle-rule"
+
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "e.g. PROJECT_ID:USER_ID"
-
-msgid "e.g., 3600 (1 hour) or 604800 (7 days)"
-msgstr "e.g., 3600 (1 hour) or 604800 (7 days)"
 
 msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgstr "e.g., b90f9c4bc76140e18540b2cec1299e2a"
@@ -1352,6 +1382,9 @@ msgstr "Emptying..."
 
 msgid "Enable file listing"
 msgstr "Enable file listing"
+
+msgid "Enable Rule"
+msgstr "Enable Rule"
 
 msgid "Enable versioning"
 msgstr "Enable versioning"
@@ -1472,9 +1505,6 @@ msgstr "Error:"
 
 msgid "ETag"
 msgstr "ETag"
-
-msgid "Etag, Content-Length"
-msgstr "Etag, Content-Length"
 
 msgid "Ethertype"
 msgstr "Ethertype"
@@ -1980,9 +2010,6 @@ msgstr "Home"
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 msgstr "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 
-msgid "https://example.com or *"
-msgstr "https://example.com or *"
-
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "I confirm that all existing versions will also be deleted"
 
@@ -2310,9 +2337,6 @@ msgstr "Loading..."
 msgid "Login to Your Account"
 msgstr "Login to Your Account"
 
-msgid "logs/"
-msgstr "logs/"
-
 msgid "MAC Address"
 msgstr "MAC Address"
 
@@ -2468,9 +2492,6 @@ msgstr "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot star
 
 msgid "my-bucket-name"
 msgstr "my-bucket-name"
-
-msgid "my-lifecycle-rule"
-msgstr "my-lifecycle-rule"
 
 msgid "N/A"
 msgstr "N/A"
@@ -2723,9 +2744,6 @@ msgstr "Once enabled, versioning cannot be fully disabled, it can only be suspen
 
 msgid "One or more containers could not be emptied: {errorMessage}"
 msgstr "One or more containers could not be emptied: {errorMessage}"
-
-msgid "One or more lifecycle rules in this bucket will expire all objects. This can result in permanent data loss. Review your rules carefully."
-msgstr "One or more lifecycle rules in this bucket will expire all objects. This can result in permanent data loss. Review your rules carefully."
 
 msgid "One or more objects could not be deleted:"
 msgstr "One or more objects could not be deleted:"
@@ -3768,6 +3786,9 @@ msgstr "This property is reserved and cannot be modified"
 msgid "This rule has {0} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 msgstr "This rule has {0} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 
+msgid "This rule has no prefix or tag filters, so it will expire all objects in the bucket. This can result in permanent data loss."
+msgstr "This rule has no prefix or tag filters, so it will expire all objects in the bucket. This can result in permanent data loss."
+
 msgid "This rule has storage-class transitions that were configured outside Aurora. They are preserved unchanged when you save this rule."
 msgstr "This rule has storage-class transitions that were configured outside Aurora. They are preserved unchanged when you save this rule."
 
@@ -4062,9 +4083,6 @@ msgstr "View Versions"
 msgid "Visibility"
 msgstr "Visibility"
 
-msgid "Warning: This rule will expire all objects in the bucket"
-msgstr "Warning: This rule will expire all objects in the bucket"
-
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 
@@ -4074,8 +4092,8 @@ msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud managemen
 msgid "What happens when suspended:"
 msgstr "What happens when suspended:"
 
-msgid "Whole-Bucket Expiration Warning"
-msgstr "Whole-Bucket Expiration Warning"
+msgid "When enabled, this rule is actively applied to matching objects. Leave unchecked to save the rule without activating it."
+msgstr "When enabled, this rule is actively applied to matching objects. Leave unchecked to save the rule without activating it."
 
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"

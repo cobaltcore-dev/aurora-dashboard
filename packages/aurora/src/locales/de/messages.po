@@ -229,6 +229,9 @@ msgstr "Eine vorsignierte URL gewährt zeitlich begrenzten Lesezugriff auf diese
 msgid "A property with this key already exists"
 msgstr "Eine Eigenschaft mit diesem Schlüssel existiert bereits"
 
+msgid "A tag with this key already exists."
+msgstr ""
+
 msgid "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
 msgstr "Eine temporäre URL gewährt zeitlich begrenzten Lesezugriff auf dieses Objekt ohne Authentifizierung. Jeder mit dem Link kann es herunterladen, bis es abläuft."
 
@@ -469,9 +472,6 @@ msgstr "Anhängen"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
-msgid "Authorization, Content-Type, or *"
-msgstr ""
-
 msgid "Awaiting Certificate"
 msgstr ""
 
@@ -529,6 +529,9 @@ msgstr ""
 msgid "Bucket Emptied"
 msgstr ""
 
+msgid "Bucket expiration warning"
+msgstr ""
+
 msgid "Bucket name"
 msgstr ""
 
@@ -578,6 +581,12 @@ msgid "Bulk upload of archive files"
 msgstr "Bulk-Upload von Archivdateien"
 
 msgid "CA ID"
+msgstr ""
+
+msgid "Can not be combined with Abort Incomplete Multipart Uploads"
+msgstr ""
+
+msgid "Can not be combined with Tag Filters"
 msgstr ""
 
 msgid "Cancel"
@@ -1260,17 +1269,38 @@ msgstr "Legen Sie Ihre Image-Datei hier ab"
 msgid "Duration/validity"
 msgstr "Duration/validity"
 
+msgid "e.g environment"
+msgstr ""
+
+msgid "e.g production"
+msgstr ""
+
 msgid "e.g. .r:*,.rlistings"
 msgstr "z. B. .r:*,.rlistings"
+
+msgid "e.g. 3600 (1 hour) or 604800 (7 days)"
+msgstr ""
 
 msgid "e.g. allow-frontend-app"
 msgstr ""
 
+msgid "e.g. Authorization, Content-Type, or *"
+msgstr ""
+
+msgid "e.g. Etag, Content-Length"
+msgstr ""
+
+msgid "e.g. https://example.com or *"
+msgstr ""
+
+msgid "e.g. logs/"
+msgstr ""
+
+msgid "e.g. my-lifecycle-rule"
+msgstr ""
+
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
-
-msgid "e.g., 3600 (1 hour) or 604800 (7 days)"
-msgstr ""
 
 msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
@@ -1352,6 +1382,9 @@ msgstr "Wird geleert..."
 
 msgid "Enable file listing"
 msgstr "Dateilisting aktivieren"
+
+msgid "Enable Rule"
+msgstr ""
 
 msgid "Enable versioning"
 msgstr ""
@@ -1471,9 +1504,6 @@ msgid "Error:"
 msgstr ""
 
 msgid "ETag"
-msgstr ""
-
-msgid "Etag, Content-Length"
 msgstr ""
 
 msgid "Ethertype"
@@ -1980,9 +2010,6 @@ msgstr "Startseite"
 msgid "How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week)."
 msgstr ""
 
-msgid "https://example.com or *"
-msgstr ""
-
 msgid "I confirm that all existing versions will also be deleted"
 msgstr "Ich bestätige, dass alle vorhandenen Versionen ebenfalls gelöscht werden"
 
@@ -2310,9 +2337,6 @@ msgstr "Lädt..."
 msgid "Login to Your Account"
 msgstr "Bei Ihrem Konto anmelden"
 
-msgid "logs/"
-msgstr ""
-
 msgid "MAC Address"
 msgstr "MAC-Adresse"
 
@@ -2467,9 +2491,6 @@ msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start
 msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
 
 msgid "my-bucket-name"
-msgstr ""
-
-msgid "my-lifecycle-rule"
 msgstr ""
 
 msgid "N/A"
@@ -2723,9 +2744,6 @@ msgstr ""
 
 msgid "One or more containers could not be emptied: {errorMessage}"
 msgstr "Ein oder mehrere Container konnten nicht geleert werden: {errorMessage}"
-
-msgid "One or more lifecycle rules in this bucket will expire all objects. This can result in permanent data loss. Review your rules carefully."
-msgstr ""
 
 msgid "One or more objects could not be deleted:"
 msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
@@ -3768,6 +3786,9 @@ msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 msgid "This rule has {0} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 msgstr ""
 
+msgid "This rule has no prefix or tag filters, so it will expire all objects in the bucket. This can result in permanent data loss."
+msgstr ""
+
 msgid "This rule has storage-class transitions that were configured outside Aurora. They are preserved unchanged when you save this rule."
 msgstr ""
 
@@ -4062,9 +4083,6 @@ msgstr ""
 msgid "Visibility"
 msgstr "Sichtbarkeit"
 
-msgid "Warning: This rule will expire all objects in the bucket"
-msgstr ""
-
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
 
@@ -4074,7 +4092,7 @@ msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung 
 msgid "What happens when suspended:"
 msgstr ""
 
-msgid "Whole-Bucket Expiration Warning"
+msgid "When enabled, this rule is actively applied to matching objects. Leave unchecked to save the rule without activating it."
 msgstr ""
 
 msgid "Why Choose Aurora?"

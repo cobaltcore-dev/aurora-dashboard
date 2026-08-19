@@ -10,7 +10,6 @@ import {
   PopupMenuOptions,
   Checkbox,
   toast,
-  Icon,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { LifecycleRuleRead } from "@/server/Storage/types/ceph"
@@ -22,7 +21,6 @@ import {
   formatTransitions,
   formatNoncurrentExpiration,
   formatNoncurrentTransitions,
-  isWholeBucketExpirationRule,
 } from "./utils/lifecycleUtils"
 
 interface LifecycleRuleWithIndex {
@@ -106,7 +104,7 @@ export function LifecycleRulesTable({
   return (
     <Stack direction="vertical" gap="4">
       {/* Rules Table */}
-      <DataGrid columns={8}>
+      <DataGrid columns={8} minContentColumns={[0, 7]}>
         <DataGridRow>
           <DataGridHeadCell>
             <span className="sr-only">
@@ -139,7 +137,6 @@ export function LifecycleRulesTable({
             // ID field is optional and may be absent or duplicated.
             // originalIndex is the contract with parent's onEditRule(index) / onDeleteRule(index).
             const key = originalIndex
-            const isWholeBucketRule = isWholeBucketExpirationRule(rule)
 
             // Format noncurrent versions column (merge expiration + transitions)
             const noncurrentExpirationText = formatNoncurrentExpiration(
@@ -184,19 +181,7 @@ export function LifecycleRulesTable({
                   />
                 </DataGridCell>
                 <DataGridCell>{rule.ID || t`—`}</DataGridCell>
-                <DataGridCell>
-                  <Stack gap="1" alignment="center">
-                    {rule.Status}
-                    {isWholeBucketRule && (
-                      <Icon
-                        icon="warning"
-                        size="16"
-                        color="jn-global-text-warning"
-                        title={t`Warning: This rule will expire all objects in the bucket`}
-                      />
-                    )}
-                  </Stack>
-                </DataGridCell>
+                <DataGridCell>{rule.Status}</DataGridCell>
                 <DataGridCell className="break-all">{formatFilter(rule.Filter, rule.Prefix)}</DataGridCell>
                 <DataGridCell>
                   {formatExpiration(

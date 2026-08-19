@@ -32,7 +32,6 @@ import {
   getLifecycleRulesDeletedToast,
   getLifecycleRulesDeleteErrorToast,
 } from "./BucketToastNotifications"
-import { isWholeBucketExpirationRule } from "./utils/lifecycleUtils"
 import type { LifecycleRuleRead } from "@/server/Storage/types/ceph"
 
 interface LifecycleRulesTabProps {
@@ -194,9 +193,6 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
   const allFilteredSelected = filteredIndices.length > 0 && filteredIndices.every((i) => selectedIndices.includes(i))
   const someFilteredSelected = filteredIndices.some((i) => selectedIndices.includes(i)) && !allFilteredSelected
 
-  // Check if any rule will expire whole bucket
-  const hasWholeBucketExpirationRule = rules.some(isWholeBucketExpirationRule)
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -215,16 +211,6 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
 
   return (
     <>
-      {/* Whole-bucket warning banner */}
-      {hasWholeBucketExpirationRule && (
-        <Message variant="warning" title={t`Whole-Bucket Expiration Warning`} className="mb-4">
-          <Trans>
-            One or more lifecycle rules in this bucket will expire all objects. This can result in permanent data loss.
-            Review your rules carefully.
-          </Trans>
-        </Message>
-      )}
-
       {/* Zone 1 — Sort controls and Create rule button (outside DataGridToolbar) */}
       <Stack distribution="end" alignment="center" gap="2" className="pb-2">
         <Stack gap="0.5" alignment="center">

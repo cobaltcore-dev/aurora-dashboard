@@ -76,17 +76,15 @@ describe("LifecycleRuleForm", () => {
     test("renders all form fields", () => {
       renderForm()
       expect(screen.getByLabelText(/Rule ID/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Status/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Prefix/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Enable Rule/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Prefix Filter/i)).toBeInTheDocument()
     })
 
     test("defaults Status to Disabled for new rules", async () => {
       renderForm()
-      // Check that "Disabled" text is visible in the select (allow multiple instances from dropdown)
-      await waitFor(() => {
-        const disabledTexts = screen.getAllByText("Disabled")
-        expect(disabledTexts.length).toBeGreaterThan(0)
-      })
+      // Check that "Enable Rule" checkbox is unchecked (Status="Disabled")
+      const enableCheckbox = screen.getByLabelText(/Enable Rule/i)
+      expect(enableCheckbox).not.toBeChecked()
     })
   })
 
@@ -202,10 +200,10 @@ describe("LifecycleRuleForm", () => {
       const mockOnSubmit = vi.fn()
       renderForm({ editingRule: mockRuleWithTransitions, onSubmit: mockOnSubmit })
 
-      // Change Status
-      const statusSelect = screen.getByLabelText(/Status/i)
-      await user.click(statusSelect)
-      await user.click(screen.getByText("Disabled"))
+      // Change Status by unchecking "Enable Rule" checkbox
+      const enableCheckbox = screen.getByLabelText(/Enable Rule/i)
+      expect(enableCheckbox).toBeChecked() // Should be checked initially since rule is Enabled
+      await user.click(enableCheckbox) // Uncheck to disable
 
       const form = screen.getByRole("form") || document.querySelector("#lifecycle-rule-form")!
       fireEvent.submit(form)
@@ -265,22 +263,20 @@ describe("LifecycleRuleForm", () => {
     })
   })
 
-  describe("Status field (item 3: Select onChange fix)", () => {
+  describe("Status field (item 3: Checkbox onChange)", () => {
     test("allows changing Status from Enabled to Disabled", async () => {
       const user = userEvent.setup({ delay: null })
       const mockOnSubmit = vi.fn()
       const enabledRule = { ...mockRuleWithTransitions, Status: "Enabled" as const }
       renderForm({ editingRule: enabledRule, onSubmit: mockOnSubmit })
 
-      // Should show "Enabled" initially (allow multiple instances from dropdown)
-      await waitFor(() => {
-        const enabledTexts = screen.getAllByText("Enabled")
-        expect(enabledTexts.length).toBeGreaterThan(0)
-      })
+      // "Enable Rule" checkbox should be checked initially since rule is Enabled
+      const enableCheckbox = screen.getByLabelText(/Enable Rule/i)
+      expect(enableCheckbox).toBeChecked()
 
-      const statusSelect = screen.getByLabelText(/Status/i)
-      await user.click(statusSelect)
-      await user.click(screen.getAllByText("Disabled")[0])
+      // Uncheck to disable
+      await user.click(enableCheckbox)
+      expect(enableCheckbox).not.toBeChecked()
 
       const form = screen.getByRole("form") || document.querySelector("#lifecycle-rule-form")!
       fireEvent.submit(form)
@@ -353,8 +349,9 @@ describe("LifecycleRuleForm", () => {
       const addButton = screen.getByRole("button", { name: /Add/i })
       await user.click(addButton)
 
-      // Tag should appear in the list
-      expect(screen.getByText(/Environment=production/i)).toBeInTheDocument()
+      // Tag should appear in the list - Pill component displays key and value separately
+      expect(screen.getByText("Environment")).toBeInTheDocument()
+      expect(screen.getByText("production")).toBeInTheDocument()
 
       // Submit and verify
       const form = screen.getByRole("form") || document.querySelector("#lifecycle-rule-form")!
