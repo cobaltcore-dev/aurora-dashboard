@@ -71,11 +71,11 @@ function RouteComponent() {
   const { availableServices, projectId, crumbProject, crumbDomain } = useLoaderData({
     from: Route.id,
   })
-  const { enabledServices } = useRouteContext({ strict: false })
+  const { enabledServices, additionalProjectServices } = useRouteContext({ strict: false })
 
   const sections = useMemo(
-    () => buildNavSections(projectId, availableServices!, enabledServices),
-    [projectId, availableServices, enabledServices]
+    () => buildNavSections(projectId, availableServices!, enabledServices, additionalProjectServices),
+    [projectId, availableServices, enabledServices, additionalProjectServices]
   )
 
   return (
