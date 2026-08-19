@@ -60,9 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
 
-    const handleExpiry = () => {
+    const handleExpiry = async () => {
       clearLocalSession()
       redirectToLogin(true)
+      // Await server invalidation - but don't block logout on failure
+      await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
     }
 
     if (timeUntilExpiry <= 0) {
@@ -92,9 +94,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     setIsLoading(true)
-    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
     clearLocalSession()
     redirectToLogin(false) // Don't save return URL on manual logout
+    // Await server invalidation - but don't block logout on failure
+    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
     // If already on login page, no redirect happens - reset loading state
     if (window.location.pathname === "/") {
       setIsLoading(false)
