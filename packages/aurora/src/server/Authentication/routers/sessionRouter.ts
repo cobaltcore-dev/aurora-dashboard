@@ -16,11 +16,12 @@ export const sessionRouter = {
     // Return only safe, client-necessary fields to avoid exposing internal metadata
     return {
       user: token.tokenData.user,
-      expires_at: token.tokenData.expires_at,
-      issued_at: token.tokenData.issued_at,
+      ...(token.tokenData.expires_at && { expires_at: token.tokenData.expires_at }),
+      ...(token.tokenData.issued_at && { issued_at: token.tokenData.issued_at }),
       roles: token.tokenData.roles,
       project: token.tokenData.project,
       domain: token.tokenData.domain,
+      catalog: token.tokenData.catalog,
     }
   }),
 
