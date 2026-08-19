@@ -583,17 +583,17 @@ msgstr "Bulk-Upload von Archivdateien"
 msgid "CA ID"
 msgstr ""
 
-msgid "Can not be combined with Abort Incomplete Multipart Uploads"
-msgstr ""
-
-msgid "Can not be combined with Tag Filters"
-msgstr ""
-
 msgid "Cancel"
 msgstr "Abbrechen"
 
 msgid "Cancel upload"
 msgstr "Upload abbrechen"
+
+msgid "Cannot be combined with Abort Incomplete Multipart Uploads"
+msgstr ""
+
+msgid "Cannot be combined with Tag Filters"
+msgstr ""
 
 #. placeholder {0}: validation.errors.join("; ")
 msgid "Cannot delete rule: {0}"

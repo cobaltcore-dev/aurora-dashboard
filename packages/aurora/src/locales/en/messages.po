@@ -583,17 +583,17 @@ msgstr "Bulk upload of archive files"
 msgid "CA ID"
 msgstr "CA ID"
 
-msgid "Can not be combined with Abort Incomplete Multipart Uploads"
-msgstr "Can not be combined with Abort Incomplete Multipart Uploads"
-
-msgid "Can not be combined with Tag Filters"
-msgstr "Can not be combined with Tag Filters"
-
 msgid "Cancel"
 msgstr "Cancel"
 
 msgid "Cancel upload"
 msgstr "Cancel upload"
+
+msgid "Cannot be combined with Abort Incomplete Multipart Uploads"
+msgstr "Cannot be combined with Abort Incomplete Multipart Uploads"
+
+msgid "Cannot be combined with Tag Filters"
+msgstr "Cannot be combined with Tag Filters"
 
 #. placeholder {0}: validation.errors.join("; ")
 msgid "Cannot delete rule: {0}"

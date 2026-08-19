@@ -358,7 +358,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                         disabled={tagsValue.length > 0}
                         helptext={
                           tagsValue.length > 0
-                            ? t`Can not be combined with Tag Filters`
+                            ? t`Cannot be combined with Tag Filters`
                             : t`Clean up abandoned multipart uploads`
                         }
                       />
@@ -470,7 +470,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                     </div>
                     <p className="juno-helptext mt-1 text-xs" style={{ color: "#7a7a7a" }}>
                       {hasAbortUploadValue ? (
-                        <Trans>Can not be combined with Abort Incomplete Multipart Uploads</Trans>
+                        <Trans>Cannot be combined with Abort Incomplete Multipart Uploads</Trans>
                       ) : (
                         <Trans>Apply this rule only to objects with specific tags</Trans>
                       )}
