@@ -11,8 +11,17 @@ const discriminatedSchema = z.discriminatedUnion("type", [
 export const sessionRouter = {
   getCurrentUserSession: publicProcedure.query(async ({ ctx }) => {
     const token = ctx.openstack?.getToken()
+    if (!token) return null
 
-    return token?.tokenData || null
+    // Return only safe, client-necessary fields to avoid exposing internal metadata
+    return {
+      user: token.tokenData.user,
+      expires_at: token.tokenData.expires_at,
+      issued_at: token.tokenData.issued_at,
+      roles: token.tokenData.roles,
+      project: token.tokenData.project,
+      domain: token.tokenData.domain,
+    }
   }),
 
   getCurrentScope: publicProcedure.query(async ({ ctx }) => {
