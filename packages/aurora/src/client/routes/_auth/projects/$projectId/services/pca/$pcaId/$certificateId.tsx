@@ -135,7 +135,12 @@ export function RouteComponent() {
         <Trans>Manage your Certificate</Trans>
       </p>
 
-      <DetailsInfo basicInfo={BASIC_INFO} heading={certificateHeading} content={certificate?.certificate?.pem ?? ""} />
+      <DetailsInfo
+        basicInfo={BASIC_INFO}
+        heading={certificateHeading}
+        content={certificate?.certificate?.pem ?? ""}
+        fileName={`${certificateIdValue}.pem`}
+      />
     </Stack>
   )
 }

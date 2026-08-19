@@ -18,7 +18,10 @@ export const IssueSelfSignedCertificateModal = ({ open, onClose, pca }: IssueSel
   const utils = trpcReact.useUtils()
 
   const { isPending, ...createCertificateMutation } = trpcReact.services.pca.createCertificate.useMutation({
-    onSettled: () => utils.services.pca.listCertificates.invalidate(),
+    onSettled: () => {
+      utils.services.pca.listCertificates.invalidate()
+      utils.services.pca.getById.invalidate({ project_id: projectId, certificate_authority_id: pca.id })
+    },
   })
 
   const handleConfirm = async () => {

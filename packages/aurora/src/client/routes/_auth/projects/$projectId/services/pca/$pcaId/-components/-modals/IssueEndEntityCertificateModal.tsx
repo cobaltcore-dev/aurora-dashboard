@@ -6,6 +6,7 @@ import { Modal, Form, FormSection, Spinner, Message, Textarea } from "@cloudoper
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import { ParsedCertificateInfo } from "./ParsedCertificateInfo"
+import { isValidCsr } from "./parseCsrInfo"
 
 export interface IssueEndEntityCertificateModalProps {
   open: boolean
@@ -24,7 +25,11 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
   })
 
   const formSchema = z.object({
-    csr: z.string().trim().min(1),
+    csr: z
+      .string()
+      .trim()
+      .min(1)
+      .refine(isValidCsr, t`Invalid CSR format.`),
   })
 
   const form = useForm({
@@ -32,11 +37,10 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
       csr: "",
     },
     validators: {
+      onChange: formSchema,
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      if (isPending) return
-
       const createdCertificate = await createCertificateMutation.mutateAsync({
         project_id: projectId,
         certificate_authority_id: pcaId,
@@ -72,11 +76,11 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isPending || !(currentCsr.trim().length > 0)}
+      disableConfirmButton={isPending || !currentCsr.trim() || !form.state.canSubmit}
     >
       {createCertificateMutation.error && (
         <Message dismissible={false} variant="error" className="mb-4">
-          {createCertificateMutation.error?.message}
+          {createCertificateMutation.error.message}
         </Message>
       )}
 

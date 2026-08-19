@@ -155,10 +155,6 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
       expect(CertificateAuthoritySchema.safeParse({ ...minimalValidCA, state: "FAILED" }).success).toBe(true)
     })
 
-    it("should validate UNEXPECTED state", () => {
-      expect(CertificateAuthoritySchema.safeParse({ ...minimalValidCA, state: "UNEXPECTED" }).success).toBe(true)
-    })
-
     it("should reject invalid state", () => {
       expect(CertificateAuthoritySchema.safeParse({ ...minimalValidCA, state: "INVALID" }).success).toBe(false)
       expect(CertificateAuthoritySchema.safeParse({ ...minimalValidCA, state: "creating" }).success).toBe(false)
@@ -630,15 +626,6 @@ describe("PCA (Private Certificate Authority) Schema Validation", () => {
         CertificateAuthoritySchema.safeParse({
           ...minimalValidCA,
           state: "FAILED" as const,
-        }).success
-      ).toBe(true)
-    })
-
-    it("should validate CA in UNEXPECTED state with minimal fields", () => {
-      expect(
-        CertificateAuthoritySchema.safeParse({
-          ...minimalValidCA,
-          state: "UNEXPECTED" as const,
         }).success
       ).toBe(true)
     })

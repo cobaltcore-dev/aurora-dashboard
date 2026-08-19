@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
+import { PortalProvider, toast } from "@cloudoperators/juno-ui-components"
 import { ImportExternallySignedCertificateModal } from "./ImportExternallySignedCertificateModal"
 
 const mockProjectId = "project-123"
@@ -52,6 +52,10 @@ vi.mock("./ParsedCertificateInfo", () => ({
   ),
 }))
 
+vi.mock("./parseCsrInfo", () => ({
+  isValidCertificateChain: vi.fn(() => true),
+}))
+
 const renderModal = (onClose = vi.fn()) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -77,6 +81,7 @@ describe("ImportExternallySignedCertificateModal", () => {
     expect(screen.getByPlaceholderText("Paste the code")).toBeInTheDocument()
     expect(screen.getByTestId("parsed-certificate-info")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument()
+    expect(document.querySelector('input[type="file"]')).toHaveAttribute("accept", ".json")
   })
 
   it("disables save button when certificate chain is empty", () => {
@@ -102,6 +107,7 @@ describe("ImportExternallySignedCertificateModal", () => {
   it("submits import with correct payload", async () => {
     const user = userEvent.setup()
     const onClose = vi.fn()
+    const toastSuccess = vi.spyOn(toast, "success")
 
     renderModal(onClose)
 
@@ -119,24 +125,25 @@ describe("ImportExternallySignedCertificateModal", () => {
       })
     })
 
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(mockInvalidate).toHaveBeenCalledTimes(1)
+    expect(mockInvalidate).toHaveBeenCalledWith({
+      project_id: mockProjectId,
+      certificate_authority_id: mockPcaId,
+    })
   })
 
-  it("handles file upload with text file", async () => {
+  it("ignores non-JSON file uploads", async () => {
     const user = userEvent.setup()
     renderModal()
 
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
-    const certificateContent = "-----BEGIN CERTIFICATE-----\nFROM_FILE\n-----END CERTIFICATE-----"
-
-    const file = new File([certificateContent], "certificate.pem", { type: "text/plain" })
+    const file = new File(["certificate content"], "certificate.pem", { type: "text/plain" })
 
     await user.upload(fileInput, file)
 
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText("Paste the code")).toHaveValue(certificateContent)
-    })
+    expect(screen.getByPlaceholderText("Paste the code")).toHaveValue("")
   })
 
   it("handles file upload with valid JSON file", async () => {
@@ -156,7 +163,24 @@ describe("ImportExternallySignedCertificateModal", () => {
     })
   })
 
-  it("falls back to raw text on malformed JSON", async () => {
+  it("clears file input after successful upload so the same file can be re-uploaded", async () => {
+    const user = userEvent.setup()
+    renderModal()
+
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+    const jsonContent = JSON.stringify({
+      imported_certificate_chain: "-----BEGIN CERTIFICATE-----\nFROM_JSON\n-----END CERTIFICATE-----",
+    })
+    const file = new File([jsonContent], "certificate.json", { type: "application/json" })
+
+    await user.upload(fileInput, file)
+
+    await waitFor(() => {
+      expect(fileInput.value).toBe("")
+    })
+  })
+
+  it("shows an error for malformed JSON", async () => {
     const user = userEvent.setup()
     renderModal()
 
@@ -167,12 +191,12 @@ describe("ImportExternallySignedCertificateModal", () => {
 
     await user.upload(fileInput, file)
 
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText("Paste the code")).toHaveValue(malformedJson)
-    })
+    await waitFor(() => expect(screen.getByText(/JSON/i)).toBeInTheDocument())
+    expect(screen.getByPlaceholderText("Paste the code")).toHaveValue("")
+    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
   })
 
-  it("falls back to raw text when JSON has non-string imported_certificate_chain", async () => {
+  it("shows an error when JSON has no certificate chain string", async () => {
     const user = userEvent.setup()
     renderModal()
 
@@ -183,8 +207,10 @@ describe("ImportExternallySignedCertificateModal", () => {
 
     await user.upload(fileInput, file)
 
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText("Paste the code")).toHaveValue(jsonContent)
-    })
+    await waitFor(() =>
+      expect(screen.getByText("The JSON file must contain imported_certificate_chain.")).toBeInTheDocument()
+    )
+    expect(screen.getByPlaceholderText("Paste the code")).toHaveValue("")
+    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
   })
 })

@@ -9,11 +9,14 @@ import {
   Select,
   SelectProps,
 } from "@cloudoperators/juno-ui-components"
+import { cn } from "@/client/utils/cn"
 import { Filter, SelectedFilter } from "./types"
 
 export type FiltersInputProps = {
   filters: Filter[]
   onChange: (filter: SelectedFilter) => void
+  selectClassName?: string
+  comboboxClassName?: string
 }
 
 function isEmpty(value: unknown) {
@@ -24,7 +27,12 @@ function isEmpty(value: unknown) {
   return false
 }
 
-export const FiltersInput = ({ filters, onChange }: FiltersInputProps) => {
+export const FiltersInput = ({
+  filters,
+  onChange,
+  selectClassName = "",
+  comboboxClassName = "",
+}: FiltersInputProps) => {
   const { t } = useLingui()
 
   const [selectedFilterName, setSelectedFilterName] = useState<string>("")
@@ -51,7 +59,7 @@ export const FiltersInput = ({ filters, onChange }: FiltersInputProps) => {
   )
 
   const getSelectProps = (): SelectProps & { "data-testid"?: string } => ({
-    className: "w-full sm:flex-1 sm:min-w-0",
+    className: cn("w-full sm:min-w-0 sm:flex-1", selectClassName),
     name: "filter",
     "data-testid": "select-filterValue",
     label: t`Filter by`,
@@ -62,7 +70,7 @@ export const FiltersInput = ({ filters, onChange }: FiltersInputProps) => {
   })
 
   const getComboBoxProps = (): ComboBoxProps & { "data-testid"?: string } => ({
-    className: "w-full sm:flex-1 sm:min-w-0",
+    className: cn("w-full sm:min-w-0 sm:flex-1", comboboxClassName),
     name: "filterValue",
     "data-testid": "combobox-filterValue",
     value: selectedFilterValue,
