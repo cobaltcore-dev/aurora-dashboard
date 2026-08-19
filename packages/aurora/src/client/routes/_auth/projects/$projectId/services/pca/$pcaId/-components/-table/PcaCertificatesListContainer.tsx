@@ -16,26 +16,27 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import { useModal } from "@/client/utils/useModal"
 import { IssueEndEntityCertificateModal } from "../-modals/IssueEndEntityCertificateModal"
+import { IssueSelfSignedCertificateModal } from "../-modals/IssueSelfSignedCertificateModal"
 import { PcaCertificatesTableRow } from "./PcaCertificatesTableRow"
 
 const ITEMS_PER_PAGE = 50
 
 interface PcaCertificatesListContainerProps {
-  pcaId: string
-  pcaState: CertificateAuthority["state"]
+  pca: CertificateAuthority
 }
 
-export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificatesListContainerProps) => {
+export const PcaCertificatesListContainer = ({ pca }: PcaCertificatesListContainerProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [createIssueEndEntityOpen, toggleIssueEndEntity] = useModal(false)
+  const [issueSelfSignedModalOpen, toggleIssueSelfSignedModal] = useModal(false)
   const [pageMarkers, setPageMarkers] = useState<(string | undefined)[]>([undefined])
   const [currentPage, setCurrentPage] = useState(1)
   const currentMarker = pageMarkers[currentPage - 1]
 
   const { data, isLoading, isError, error } = trpcReact.services.pca.listCertificates.useQuery({
     project_id: projectId,
-    certificate_authority_id: pcaId,
+    certificate_authority_id: pca.id,
     limit: ITEMS_PER_PAGE,
     next_page_marker: currentMarker,
   })
@@ -84,20 +85,33 @@ export const PcaCertificatesListContainer = ({ pcaId, pcaState }: PcaCertificate
 
   return (
     <div className="relative">
-      {pcaState === "READY" && (
-        <>
-          <Stack className="pt-3 pb-2" distribution="end">
+      <Stack className="pt-3 pb-2" distribution="end">
+        {pca.state === "READY" && (
+          <>
             <Button variant="primary" label={t`Issue End-Entity Certificate`} onClick={toggleIssueEndEntity} />
-          </Stack>
-          {createIssueEndEntityOpen && (
-            <IssueEndEntityCertificateModal
-              open={createIssueEndEntityOpen}
-              onClose={toggleIssueEndEntity}
-              pcaId={pcaId}
-            />
-          )}
-        </>
-      )}
+            {createIssueEndEntityOpen && (
+              <IssueEndEntityCertificateModal
+                open={createIssueEndEntityOpen}
+                onClose={toggleIssueEndEntity}
+                pcaId={pca.id}
+              />
+            )}
+          </>
+        )}
+
+        {pca.state === "AWAITING_CERTIFICATE" && (
+          <>
+            <Button variant="primary" label={t`Issue Self-Signed Certificate`} onClick={toggleIssueSelfSignedModal} />
+            {issueSelfSignedModalOpen && (
+              <IssueSelfSignedCertificateModal
+                pca={pca}
+                open={issueSelfSignedModalOpen}
+                onClose={toggleIssueSelfSignedModal}
+              />
+            )}
+          </>
+        )}
+      </Stack>
 
       {certificates.length === 0 && currentPage === 1 ? (
         <DataGrid columns={columnsLength} className="pca-certificates" data-testid="no-pcas-certificates">

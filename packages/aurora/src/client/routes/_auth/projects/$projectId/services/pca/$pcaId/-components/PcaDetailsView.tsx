@@ -1,11 +1,10 @@
 import { useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Badge, Button, Stack } from "@cloudoperators/juno-ui-components/index"
+import { Badge, Button, Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
 import { CertificateAuthority } from "@/server/Services/types/pca"
 import { useProjectId } from "@/client/hooks"
 import { useModal } from "@/client/utils/useModal"
 import { DeletePcaModal } from "../../-components/-modals/DeletePcaModal"
-import { IssueSelfSignedCertificateModal } from "./-modals/IssueSelfSignedCertificateModal"
 import { ImportExternallySignedCertificateModal } from "./-modals/ImportExternallySignedCertificateModal"
 import { PcaCertificatesListContainer } from "./-table/PcaCertificatesListContainer"
 import { DetailsInfo } from "./DetailsInfo"
@@ -18,7 +17,6 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const projectId = useProjectId()
-  const [issueSelfSignedModalOpen, toggleIssueSelfSignedModal] = useModal(false)
   const [importExternallySignedModalOpen, toggleImportExternallySignedModal] = useModal(false)
   const [deletePcaModalOpen, toggleDeletePcaModal] = useModal(false)
   const pcaName = pca.configuration?.subject?.named_attributes?.cn ?? t`Unknown`
@@ -32,7 +30,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   const BASIC_INFO = [
     { label: t`CA ID`, value: pca.id },
     { label: t`Project ID`, value: pca.project_id },
-    { label: t`Subject`, value: pca.display_subject },
+    { label: t`Subject Information`, value: pca.display_subject },
     {
       label: t`Duration/validity`,
       value:
@@ -45,11 +43,16 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   ] as const
 
   const STATE_CONFIG = {
-    CREATING: <Badge icon="bolt" variant="info" text={t`Creating`} />,
+    CREATING: (
+      <Badge variant="info">
+        <Stack direction="horizontal" gap="1" alignment="center">
+          <Spinner size="18" /> Creating
+        </Stack>
+      </Badge>
+    ),
     AWAITING_CERTIFICATE: <Badge icon="accessTime" variant="warning" text={t`Awaiting Certificate`} />,
     READY: <Badge icon="checkCircle" variant="success" text={t`Ready`} />,
     FAILED: <Badge icon="error" variant="error" text={t`Failed`} />,
-    UNEXPECTED: <Badge icon="severityUnknown" variant="default" text={t`Unexpected`} />,
   } as const
 
   return (
@@ -82,9 +85,6 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
               </div>
             </Stack>
             <Stack direction="horizontal" gap="2" distribution="end">
-              <Button onClick={toggleIssueSelfSignedModal}>
-                <Trans>Issue Self-Signed Certificate</Trans>
-              </Button>
               <Button onClick={toggleImportExternallySignedModal}>
                 <Trans>Import Signed Certificate</Trans>
               </Button>
@@ -92,7 +92,12 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
           </Stack>
         )}
 
-        <DetailsInfo basicInfo={BASIC_INFO} heading={`Certificate ${pcaName}`} content={pca?.csr ?? ""} />
+        <DetailsInfo
+          basicInfo={BASIC_INFO}
+          heading={`Certificate ${pcaName}`}
+          content={pca.certificate?.pem ?? pca.csr ?? ""}
+          fileName={`${pcaName}.pem`}
+        />
       </Stack>
 
       {importExternallySignedModalOpen && (
@@ -100,14 +105,6 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
           pcaId={pca.id}
           open={importExternallySignedModalOpen}
           onClose={toggleImportExternallySignedModal}
-        />
-      )}
-
-      {issueSelfSignedModalOpen && (
-        <IssueSelfSignedCertificateModal
-          pca={pca}
-          open={issueSelfSignedModalOpen}
-          onClose={toggleIssueSelfSignedModal}
         />
       )}
 
@@ -120,7 +117,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         />
       )}
 
-      <PcaCertificatesListContainer pcaId={pca.id} pcaState={pca.state} />
+      <PcaCertificatesListContainer pca={pca} />
     </>
   )
 }

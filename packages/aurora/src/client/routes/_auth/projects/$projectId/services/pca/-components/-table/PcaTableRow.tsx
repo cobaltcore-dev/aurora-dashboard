@@ -1,12 +1,14 @@
-import { MdAutorenew, MdCheckCircle, MdHelpOutline, MdHourglassEmpty, MdReportProblem } from "react-icons/md"
+import { MdCheckCircle, MdReportProblem } from "react-icons/md"
 import { useNavigate } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import {
   DataGridCell,
   DataGridRow,
+  Icon,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  Spinner,
 } from "@cloudoperators/juno-ui-components"
 import { CertificateAuthority } from "@/server/Services/types/pca"
 import { useModal } from "@/client/utils/useModal"
@@ -32,11 +34,11 @@ export const PcaTableRow = ({ pca }: PcaTableRowProps) => {
   const STATE_CONFIG = {
     CREATING: {
       text: t`Creating`,
-      icon: <MdAutorenew size={20} color="white" fill="#1976D2" />,
+      icon: <Spinner size="18" />,
     },
     AWAITING_CERTIFICATE: {
       text: t`Awaiting Certificate`,
-      icon: <MdHourglassEmpty size={20} color="white" fill="#FBC02D" />,
+      icon: <Icon icon="accessTime" size={20} color="#FBC02D" />,
     },
     READY: {
       text: t`Ready`,
@@ -45,10 +47,6 @@ export const PcaTableRow = ({ pca }: PcaTableRowProps) => {
     FAILED: {
       text: t`Failed`,
       icon: <MdReportProblem size={20} color="white" fill="#D32F2F" />,
-    },
-    UNEXPECTED: {
-      text: t`Unexpected`,
-      icon: <MdHelpOutline size={20} color="white" fill="#757575" />,
     },
   } as const
 
