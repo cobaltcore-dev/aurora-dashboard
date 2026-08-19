@@ -3782,9 +3782,8 @@ msgstr "This object and all its versions will be permanently deleted and cannot 
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
 
-#. placeholder {0}: editingRule.NoncurrentVersionTransitions.length
-msgid "This rule has {0} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
-msgstr "This rule has {0} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
+msgid "This rule has {noncurrentTransitionCount} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
+msgstr "This rule has {noncurrentTransitionCount} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 
 msgid "This rule has no prefix or tag filters, so it will expire all objects in the bucket. This can result in permanent data loss."
 msgstr "This rule has no prefix or tag filters, so it will expire all objects in the bucket. This can result in permanent data loss."

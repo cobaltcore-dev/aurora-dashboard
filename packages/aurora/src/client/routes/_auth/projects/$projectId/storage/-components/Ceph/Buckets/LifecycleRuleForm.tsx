@@ -250,15 +250,20 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                 )}
 
                 {/* Read-only notice for NoncurrentVersionTransitions */}
-                {editingRule?.NoncurrentVersionTransitions && editingRule.NoncurrentVersionTransitions.length > 0 && (
-                  <Message variant="info" title={t`Noncurrent Version Transitions (Read-Only)`}>
-                    <Trans>
-                      This rule has {editingRule.NoncurrentVersionTransitions.length} noncurrent version transition(s)
-                      configured. Transitions cannot be edited in this UI. Changing other fields will preserve the
-                      existing transitions.
-                    </Trans>
-                  </Message>
-                )}
+                {editingRule?.NoncurrentVersionTransitions &&
+                  editingRule.NoncurrentVersionTransitions.length > 0 &&
+                  (() => {
+                    const noncurrentTransitionCount = editingRule.NoncurrentVersionTransitions.length
+                    return (
+                      <Message variant="info" title={t`Noncurrent Version Transitions (Read-Only)`}>
+                        <Trans>
+                          This rule has {noncurrentTransitionCount} noncurrent version transition(s) configured.
+                          Transitions cannot be edited in this UI. Changing other fields will preserve the existing
+                          transitions.
+                        </Trans>
+                      </Message>
+                    )
+                  })()}
 
                 {/* Expiration action */}
                 <div>
