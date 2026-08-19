@@ -19,6 +19,9 @@ vi.mock("@/client/trpcClient", async (importOriginal) => {
             listCertificates: {
               invalidate: vi.fn(),
             },
+            getById: {
+              invalidate: vi.fn(),
+            },
           },
         },
       })),
@@ -246,6 +249,30 @@ describe("PcaCertificatesListContainer", () => {
 
     await user.click(button)
     expect(screen.getByTestId("issue-self-signed-modal")).toBeInTheDocument()
+  })
+
+  it("reflects refreshed READY actions once the authority leaves AWAITING_CERTIFICATE", async () => {
+    const user = userEvent.setup()
+
+    vi.mocked(trpcReact.services.pca.listCertificates.useQuery).mockReturnValue(createMockQueryResult())
+
+    const { rerender } = render(
+      <I18nProvider i18n={i18n}>
+        <PcaCertificatesListContainer pca={makePca({ state: "AWAITING_CERTIFICATE" })} />
+      </I18nProvider>
+    )
+
+    await user.click(screen.getByRole("button", { name: "Issue Self-Signed Certificate" }))
+    expect(screen.getByTestId("issue-self-signed-modal")).toBeInTheDocument()
+
+    rerender(
+      <I18nProvider i18n={i18n}>
+        <PcaCertificatesListContainer pca={makePca({ state: "READY" })} />
+      </I18nProvider>
+    )
+
+    expect(screen.queryByRole("button", { name: "Issue Self-Signed Certificate" })).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Issue End-Entity Certificate" })).toBeInTheDocument()
   })
 
   it("renders correct column headers", () => {

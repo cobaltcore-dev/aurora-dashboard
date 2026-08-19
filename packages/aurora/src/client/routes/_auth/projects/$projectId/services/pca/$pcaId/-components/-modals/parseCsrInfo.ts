@@ -55,7 +55,7 @@ export const parseCsrInfo = (pem: string): PemFieldInfo[] => {
   if (sanitizedPem.includes("-----BEGIN CERTIFICATE-----")) {
     const [certificate] = parseCertificateChain(sanitizedPem)
 
-    fields.push({ label: "Subject", value: certificate.subject || "—" })
+    fields.push({ label: "Subject Information", value: certificate.subject || "—" })
     fields.push({ label: "Public Key Algorithm", value: formatAlgorithmLabel(certificate.publicKey.algorithm) })
     fields.push({ label: "Signature Algorithm", value: formatSignatureAlgorithm(certificate.signatureAlgorithm) })
     fields.push({ label: "Subject Alternative Names (SAN)", value: getSanValue(certificate.extensions) })
@@ -69,7 +69,7 @@ export const parseCsrInfo = (pem: string): PemFieldInfo[] => {
   const csr = new Pkcs10CertificateRequest(sanitizedPem)
 
   // 1. Subject Identity
-  fields.push({ label: "Subject", value: csr.subject || "—" })
+  fields.push({ label: "Subject Information", value: csr.subject || "—" })
 
   // 2. Encryption Details
   if (csr.publicKey) {
@@ -101,6 +101,17 @@ export const isValidPem = (pem: string) => {
     } else {
       new Pkcs10CertificateRequest(sanitizedPem)
     }
+    return true
+  } catch {
+    return false
+  }
+}
+
+export const isValidCsr = (pem: string) => {
+  try {
+    const sanitizedPem = cleanPem(pem)
+    if (sanitizedPem.includes("-----BEGIN CERTIFICATE-----")) return false
+    new Pkcs10CertificateRequest(sanitizedPem)
     return true
   } catch {
     return false

@@ -1,6 +1,6 @@
 import "reflect-metadata"
 import { describe, it, expect } from "vitest"
-import { isValidCertificateChain, parseCsrInfo } from "./parseCsrInfo"
+import { isValidCertificateChain, isValidCsr, parseCsrInfo } from "./parseCsrInfo"
 
 // RSA 2048, subject: CN=test.example.com, O=Test Org, C=DE, no SAN
 const CSR_BASIC = `-----BEGIN CERTIFICATE REQUEST-----
@@ -69,7 +69,7 @@ describe("parseCsrInfo", () => {
     const fields = parseCsrInfo(CSR_BASIC)
     expect(fields).toHaveLength(4)
     expect(fields.map((f) => f.label)).toEqual([
-      "Subject",
+      "Subject Information",
       "Public Key Algorithm",
       "Signature Algorithm",
       "Subject Alternative Names (SAN)",
@@ -78,7 +78,7 @@ describe("parseCsrInfo", () => {
 
   it("parses subject correctly", () => {
     const fields = parseCsrInfo(CSR_BASIC)
-    const subject = fields.find((f) => f.label === "Subject")
+    const subject = fields.find((f) => f.label === "Subject Information")
     expect(subject?.value).toContain("CN=test.example.com")
     expect(subject?.value).toContain("O=Test Org")
     expect(subject?.value).toContain("C=DE")
@@ -112,7 +112,7 @@ describe("parseCsrInfo", () => {
   it("handles \\n-escaped PEM (pasted as single line)", () => {
     const escaped = CSR_BASIC.replace(/\n/g, "\\n")
     const fields = parseCsrInfo(escaped)
-    expect(fields.find((f) => f.label === "Subject")?.value).toContain("CN=test.example.com")
+    expect(fields.find((f) => f.label === "Subject Information")?.value).toContain("CN=test.example.com")
   })
 
   it("throws on invalid PEM input", () => {
@@ -122,7 +122,7 @@ describe("parseCsrInfo", () => {
   it("parses certificate metadata and chain size", () => {
     const fields = parseCsrInfo(CERTIFICATE)
 
-    expect(fields.find((f) => f.label === "Subject")?.value).toContain("martademo-ca.test.sci")
+    expect(fields.find((f) => f.label === "Subject Information")?.value).toContain("martademo-ca.test.sci")
     expect(fields.find((f) => f.label === "Public Key Algorithm")?.value).toBe("RSA 2048-bit")
     expect(fields.find((f) => f.label === "Certificate Chain Size")?.value).toMatch(/^\d+ bytes$/)
   })
@@ -131,7 +131,9 @@ describe("parseCsrInfo", () => {
     const escaped = CERTIFICATE.replace(/\n/g, "\\n")
 
     expect(parseCsrInfo(escaped)).toEqual(
-      expect.arrayContaining([{ label: "Subject", value: expect.stringContaining("martademo-ca.test.sci") }])
+      expect.arrayContaining([
+        { label: "Subject Information", value: expect.stringContaining("martademo-ca.test.sci") },
+      ])
     )
   })
 
@@ -139,5 +141,12 @@ describe("parseCsrInfo", () => {
     expect(isValidCertificateChain(CERTIFICATE)).toBe(true)
     expect(isValidCertificateChain(CSR_BASIC)).toBe(false)
     expect(isValidCertificateChain("not a certificate")).toBe(false)
+  })
+
+  it("validates CSRs and rejects certificates", () => {
+    expect(isValidCsr(CSR_BASIC)).toBe(true)
+    expect(isValidCsr(CSR_BASIC.replace(/\n/g, "\\n"))).toBe(true)
+    expect(isValidCsr(CERTIFICATE)).toBe(false)
+    expect(isValidCsr("not a csr")).toBe(false)
   })
 })

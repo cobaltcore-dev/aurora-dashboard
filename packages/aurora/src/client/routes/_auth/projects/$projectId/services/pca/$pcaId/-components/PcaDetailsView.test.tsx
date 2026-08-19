@@ -87,6 +87,19 @@ describe("PcaDetailsView", () => {
     expect(screen.getByText("Certificates list for ca-1 (READY)")).toBeInTheDocument()
   })
 
+  it("prefers the issued certificate PEM over the CSR", () => {
+    const { container } = renderView()
+
+    expect(container.textContent).toContain("-----BEGIN CERTIFICATE-----")
+    expect(container.textContent).not.toContain("-----BEGIN CSR-----")
+  })
+
+  it("falls back to the CSR when no certificate has been issued", () => {
+    const { container } = renderView({ ...basePca, certificate: undefined })
+
+    expect(container.textContent).toContain("-----BEGIN CSR-----")
+  })
+
   it("shows lifecycle action box for AWAITING_CERTIFICATE state", () => {
     renderView({
       ...basePca,

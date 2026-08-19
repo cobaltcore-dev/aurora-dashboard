@@ -5,6 +5,7 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { IssueEndEntityCertificateModal } from "./IssueEndEntityCertificateModal"
+import { isValidCsr } from "./parseCsrInfo"
 
 const mockProjectId = "project-123"
 const mockNavigate = vi.fn()
@@ -57,7 +58,7 @@ vi.mock("./ParsedCertificateInfo", () => ({
 }))
 
 vi.mock("./parseCsrInfo", () => ({
-  isValidPem: vi.fn(() => true),
+  isValidCsr: vi.fn(() => true),
 }))
 
 const renderModal = (onClose = vi.fn()) =>
@@ -72,6 +73,7 @@ const renderModal = (onClose = vi.fn()) =>
 describe("IssueEndEntityCertificateModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    vi.mocked(isValidCsr).mockReturnValue(true)
     await act(async () => {
       i18n.activate("en")
     })
@@ -86,6 +88,21 @@ describe("IssueEndEntityCertificateModal", () => {
 
     renderModal()
     expect(screen.getByTestId("parsed-certificate-info")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Save" }))
+
+    await waitFor(() => {
+      expect(mockMutateAsync).not.toHaveBeenCalled()
+    })
+  })
+
+  it("keeps Save disabled and does not submit when certificate PEM is pasted", async () => {
+    vi.mocked(isValidCsr).mockReturnValue(false)
+    const user = userEvent.setup()
+
+    renderModal()
+    await user.type(screen.getByPlaceholderText("Paste CSR code"), "-----BEGIN CERTIFICATE-----")
+
+    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
     await user.click(screen.getByRole("button", { name: "Save" }))
 
     await waitFor(() => {

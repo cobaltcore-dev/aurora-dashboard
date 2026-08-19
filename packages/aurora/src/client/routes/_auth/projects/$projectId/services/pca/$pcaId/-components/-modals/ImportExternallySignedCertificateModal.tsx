@@ -2,9 +2,10 @@ import { useRef, useState } from "react"
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, Spinner, Message, Textarea, Button } from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, Spinner, Message, Textarea, Button, toast } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import { getCertificateImportedToast } from "../../../-components/PcaToastNotifications"
 import { ParsedCertificateInfo } from "./ParsedCertificateInfo"
 import { isValidCertificateChain } from "./parseCsrInfo"
 
@@ -50,6 +51,10 @@ export const ImportExternallySignedCertificateModal = ({
         certificate_authority_id: pcaId,
         imported_certificate_chain: value.imported_certificate_chain,
       })
+
+      const { message, ...options } = getCertificateImportedToast()
+      toast.success(message, options)
+
       handleClose()
     },
   })

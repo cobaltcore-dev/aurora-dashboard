@@ -30,7 +30,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
   const BASIC_INFO = [
     { label: t`CA ID`, value: pca.id },
     { label: t`Project ID`, value: pca.project_id },
-    { label: t`Subject`, value: pca.display_subject },
+    { label: t`Subject Information`, value: pca.display_subject },
     {
       label: t`Duration/validity`,
       value:
@@ -89,7 +89,7 @@ export const PcaDetailsView = ({ pca }: PcaDetailsViewProps) => {
         <DetailsInfo
           basicInfo={BASIC_INFO}
           heading={`Certificate ${pcaName}`}
-          content={pca.csr ?? ""}
+          content={pca.certificate?.pem ?? pca.csr ?? ""}
           fileName={`${pcaName}.pem`}
         />
       </Stack>

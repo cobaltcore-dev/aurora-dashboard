@@ -555,8 +555,17 @@ msgstr "Capabilities"
 msgid "Certificate {certificateIdValue}"
 msgstr "Certificate {certificateIdValue}"
 
+msgid "Certificate Authority \"{pcaName}\" was successfully deleted."
+msgstr "Certificate Authority \"{pcaName}\" was successfully deleted."
+
+msgid "Certificate Authority Deleted"
+msgstr "Certificate Authority Deleted"
+
 msgid "Certificate Authority not found"
 msgstr "Certificate Authority not found"
+
+msgid "Certificate Imported"
+msgstr "Certificate Imported"
 
 msgid "Certificate not found"
 msgstr "Certificate not found"
@@ -3246,11 +3255,8 @@ msgstr "Stored as x-amz-meta-* headers. Keys are case-insensitive."
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 
-msgid "Subject"
-msgstr "Subject"
-
-msgid "Subject information"
-msgstr "Subject information"
+msgid "Subject Information"
+msgstr "Subject Information"
 
 msgid "Subnet"
 msgstr "Subnet"
@@ -3365,6 +3371,9 @@ msgstr "The container will be deleted. This action is permanent and cannot be un
 
 msgid "The CORS configuration has changed. Please refresh and try again."
 msgstr "The CORS configuration has changed. Please refresh and try again."
+
+msgid "The externally signed certificate was successfully imported."
+msgstr "The externally signed certificate was successfully imported."
 
 msgid "The extra spec could not be found. It may have already been deleted."
 msgstr "The extra spec could not be found. It may have already been deleted."

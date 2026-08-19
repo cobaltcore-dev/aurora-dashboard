@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
+import { PortalProvider, toast } from "@cloudoperators/juno-ui-components"
 import { ImportExternallySignedCertificateModal } from "./ImportExternallySignedCertificateModal"
 
 const mockProjectId = "project-123"
@@ -107,6 +107,7 @@ describe("ImportExternallySignedCertificateModal", () => {
   it("submits import with correct payload", async () => {
     const user = userEvent.setup()
     const onClose = vi.fn()
+    const toastSuccess = vi.spyOn(toast, "success")
 
     renderModal(onClose)
 
@@ -124,6 +125,7 @@ describe("ImportExternallySignedCertificateModal", () => {
       })
     })
 
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
     expect(onClose).toHaveBeenCalledTimes(1)
     expect(mockInvalidate).toHaveBeenCalledTimes(1)
   })

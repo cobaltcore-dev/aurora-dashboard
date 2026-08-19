@@ -6,7 +6,7 @@ import { Modal, Form, FormSection, Spinner, Message, Textarea } from "@cloudoper
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import { ParsedCertificateInfo } from "./ParsedCertificateInfo"
-import { isValidPem } from "./parseCsrInfo"
+import { isValidCsr } from "./parseCsrInfo"
 
 export interface IssueEndEntityCertificateModalProps {
   open: boolean
@@ -29,7 +29,7 @@ export const IssueEndEntityCertificateModal = ({ open, onClose, pcaId }: IssueEn
       .string()
       .trim()
       .min(1)
-      .refine(isValidPem, t`Invalid CSR format.`),
+      .refine(isValidCsr, t`Invalid CSR format.`),
   })
 
   const form = useForm({
