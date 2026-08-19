@@ -1,10 +1,11 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, Spinner, Message, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, Spinner, Message, TextInput, Stack, toast } from "@cloudoperators/juno-ui-components"
 import type { CertificateAuthority } from "@/server/Services/types/pca"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import { getPcaDeletedToast } from "../PcaToastNotifications"
 
 export interface DeletePcaModalProps {
   pca: CertificateAuthority
@@ -17,6 +18,8 @@ export const DeletePcaModal = ({ pca, open, onClose, onSuccess }: DeletePcaModal
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
+
+  const pcaName = pca.configuration?.subject?.named_attributes?.cn ?? pca.id
 
   const { isPending, ...deletePcaMutation } = trpcReact.services.pca.delete.useMutation({
     onSettled: () => utils.services.pca.list.invalidate(),
@@ -42,6 +45,10 @@ export const DeletePcaModal = ({ pca, open, onClose, onSuccess }: DeletePcaModal
         project_id: projectId,
         certificate_authority_id: pca.id,
       })
+
+      const { message, ...options } = getPcaDeletedToast(pcaName)
+      toast.success(message, options)
+
       handleClose()
       onSuccess?.()
     },

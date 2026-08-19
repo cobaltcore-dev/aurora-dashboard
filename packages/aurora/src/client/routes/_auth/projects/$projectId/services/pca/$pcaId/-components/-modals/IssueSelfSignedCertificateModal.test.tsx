@@ -11,6 +11,7 @@ const mockProjectId = "project-123"
 const mockMutateAsync = vi.fn().mockResolvedValue({})
 const mockReset = vi.fn()
 const mockInvalidate = vi.fn()
+const mockGetByIdInvalidate = vi.fn()
 
 vi.mock("@/client/hooks", () => ({
   useProjectId: () => mockProjectId,
@@ -23,6 +24,9 @@ vi.mock("@/client/trpcClient", () => ({
         pca: {
           listCertificates: {
             invalidate: mockInvalidate,
+          },
+          getById: {
+            invalidate: mockGetByIdInvalidate,
           },
         },
       },
@@ -105,6 +109,10 @@ describe("IssueSelfSignedCertificateModal", () => {
     })
 
     expect(mockInvalidate).toHaveBeenCalledTimes(1)
+    expect(mockGetByIdInvalidate).toHaveBeenCalledWith({
+      project_id: "project-123",
+      certificate_authority_id: "ca-1",
+    })
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 })

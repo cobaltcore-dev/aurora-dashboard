@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
+import { PortalProvider, toast } from "@cloudoperators/juno-ui-components"
 import type { ComponentProps } from "react"
 import type { CertificateAuthority } from "@/server/Services/types/pca"
 import { DeletePcaModal } from "./DeletePcaModal"
@@ -104,6 +104,7 @@ describe("DeletePcaModal", () => {
   it("submits delete request with correct ids, invalidates list, and closes modal", async () => {
     const user = userEvent.setup()
     const onClose = vi.fn()
+    const toastSuccess = vi.spyOn(toast, "success")
 
     renderModal({ onClose })
 
@@ -116,6 +117,7 @@ describe("DeletePcaModal", () => {
         certificate_authority_id: mockCa.id,
       })
       expect(mockInvalidate).toHaveBeenCalledTimes(1)
+      expect(toastSuccess).toHaveBeenCalledTimes(1)
       expect(onClose).toHaveBeenCalledTimes(1)
     })
   })

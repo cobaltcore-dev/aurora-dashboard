@@ -70,7 +70,7 @@ export const PcaListContainer = () => {
   const TABLE_COLUMNS = [
     t`State`,
     t`ID`,
-    t`Subject information`,
+    t`Subject Information`,
     "", // empty column for item-action with context menu containing "Delete CA" button
   ] as const
   const columnsLength = TABLE_COLUMNS.length
