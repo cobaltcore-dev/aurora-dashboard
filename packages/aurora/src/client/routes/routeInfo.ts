@@ -9,13 +9,13 @@ export const CRUMB_LABEL_KEYS = [
   "Flavors",
   "Security Groups",
   "Floating IPs",
-  "PCA (Clavis)",
 ] as const
 
 export type CrumbLabelKey = (typeof CRUMB_LABEL_KEYS)[number]
 
 const CrumbSchema = z.object({
   labelKey: z.enum(CRUMB_LABEL_KEYS).optional(),
+  label: z.string().optional(),
   to: z.string().optional(),
   useParamAsLabel: z.string().optional(),
   useParentTitleAsLabel: z.boolean().optional(),

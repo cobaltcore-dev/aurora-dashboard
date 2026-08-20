@@ -37,6 +37,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@fastify/vite": "^8.4.1",
+    "@tanstack/router-plugin": "^1.167.5",
     "@lingui/swc-plugin": "^5.11.0",
     "@playwright/test": "1.59.1",
     "@tailwindcss/vite": "^4.2.2",

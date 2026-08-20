@@ -1,7 +1,7 @@
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { t } from "@lingui/core/macro"
 import type { NavigateFn } from "@tanstack/react-router"
-import { canAccessClavisPca } from "@/client/routes/_auth/projects/$projectId/services/pca/-components/pcaAccess"
+import type { AdditionalProjectService } from "@/client/AuroraApp"
 
 export type NavItem = {
   service: string
@@ -19,7 +19,8 @@ export type NavSection = {
 export function buildNavSections(
   projectId: string,
   availableServices: { type: string; name: string }[],
-  enabledServices?: string[]
+  enabledServices?: string[],
+  additionalProjectServices?: AdditionalProjectService[]
 ): NavSection[] {
   const serviceIndex = getServiceIndex(availableServices)
   const isEnabled = (service: string) => !enabledServices || enabledServices.includes(service)
@@ -105,21 +106,26 @@ export function buildNavSections(
       : []),
   ]
 
-  const clavisServices: NavItem[] = canAccessClavisPca(serviceIndex, enabledServices)
-    ? [
-        {
-          service: "pca",
-          label: t`PCA (Clavis)`,
-          navigate: (nav: NavigateFn) => nav({ to: "/projects/$projectId/services/pca", params: { projectId } }),
-          params: { projectId },
-        },
-      ]
-    : []
+  // Seed the section map with built-in sections
+  const sectionMap = new Map<string, NavSection>([
+    ["compute", { section: "compute", label: t`Compute`, services: computeServices }],
+    ["network", { section: "network", label: t`Network`, services: networkServices }],
+    ["storage", { section: "storage", label: t`Storage`, services: storageServices }],
+    ["services", { section: "services", label: t`Services`, services: [] }],
+  ])
 
-  return [
-    { section: "compute", label: t`Compute`, services: computeServices },
-    { section: "network", label: t`Network`, services: networkServices },
-    { section: "storage", label: t`Storage`, services: storageServices },
-    { section: "services", label: t`Services`, services: clavisServices },
-  ].filter((s) => s.services.length > 0)
+  // Merge additional services: activate when the service exists in the project's catalog
+  for (const module of additionalProjectServices ?? []) {
+    if (!serviceIndex[module.serviceType]?.[module.serviceName]) continue
+    if (enabledServices && !enabledServices.includes(module.serviceType)) continue
+
+    sectionMap.get("services")?.services.push({
+      service: module.serviceType,
+      label: module.label,
+      navigate: (nav: NavigateFn) => nav({ to: module.routes.fullPath as never, params: { projectId } as never }),
+      params: { projectId },
+    })
+  }
+
+  return [...sectionMap.values()].filter((s) => s.services.length > 0)
 }
