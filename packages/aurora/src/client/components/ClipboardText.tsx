@@ -62,12 +62,12 @@ const ClipboardText: React.FC<ClipboardTextProps> = ({
           asChild
           data-testid="clipboard-copy-trigger"
         >
-          <div className="group">
+          <button type="button" className="group border-none bg-transparent p-0 text-inherit">
             <Stack direction="horizontal" gap="1" className="items-center hover:underline">
               <span className="select-none">{displayText}</span>
               <Icon icon={copied ? "check" : "contentCopy"} size="18" />
             </Stack>
-          </div>
+          </button>
         </TooltipTrigger>
         <TooltipContent>{getTooltipContent()}</TooltipContent>
       </Tooltip>
