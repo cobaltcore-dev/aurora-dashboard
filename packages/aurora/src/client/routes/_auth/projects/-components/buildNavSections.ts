@@ -122,11 +122,7 @@ export function buildNavSections(
     sectionMap.get("services")?.services.push({
       service: module.serviceType,
       label: module.label,
-      navigate: (nav: NavigateFn) =>
-        (nav as unknown as (opts: { to: string; params: Record<string, string> }) => void)({
-          to: module.routes.fullPath,
-          params: { projectId },
-        }),
+      navigate: (nav: NavigateFn) => nav({ to: module.routes.fullPath as never, params: { projectId } as never }),
       params: { projectId },
     })
   }
