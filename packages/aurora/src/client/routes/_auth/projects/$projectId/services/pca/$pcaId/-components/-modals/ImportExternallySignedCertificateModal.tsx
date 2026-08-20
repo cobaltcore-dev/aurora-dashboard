@@ -1,11 +1,13 @@
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, Spinner, Message, Textarea, Button } from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, Spinner, Message, Textarea, Button, toast } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import { getCertificateImportedToast } from "../../../-components/PcaToastNotifications"
 import { ParsedCertificateInfo } from "./ParsedCertificateInfo"
+import { isValidCertificateChain } from "./parseCsrInfo"
 
 export interface ImportExternallySignedCertificateModalProps {
   open: boolean
@@ -21,13 +23,22 @@ export const ImportExternallySignedCertificateModal = ({
   const { t } = useLingui()
   const projectId = useProjectId()
   const utils = trpcReact.useUtils()
-
-  const { isPending, ...importMutation } = trpcReact.services.pca.import.useMutation({
-    onSettled: () => utils.services.pca.getById.invalidate(),
-  })
+  const [fileError, setFileError] = useState<string | null>(null)
 
   const formSchema = z.object({
-    imported_certificate_chain: z.string().trim().min(1),
+    imported_certificate_chain: z
+      .string()
+      .trim()
+      .min(1)
+      .refine(isValidCertificateChain, t`The imported certificate chain is not valid PEM.`),
+  })
+
+  const { isPending, ...importMutation } = trpcReact.services.pca.import.useMutation({
+    onSettled: () =>
+      utils.services.pca.getById.invalidate({
+        project_id: projectId,
+        certificate_authority_id: pcaId,
+      }),
   })
 
   const form = useForm({
@@ -35,16 +46,19 @@ export const ImportExternallySignedCertificateModal = ({
       imported_certificate_chain: "",
     },
     validators: {
+      onChange: formSchema,
       onSubmit: formSchema,
     },
-    onSubmit: async () => {
-      if (isPending) return
-
+    onSubmit: async ({ value }) => {
       await importMutation.mutateAsync({
         project_id: projectId,
         certificate_authority_id: pcaId,
-        imported_certificate_chain: form.state.values.imported_certificate_chain,
+        imported_certificate_chain: value.imported_certificate_chain,
       })
+
+      const { message, ...options } = getCertificateImportedToast()
+      toast.success(message, options)
+
       handleClose()
     },
   })
@@ -53,6 +67,7 @@ export const ImportExternallySignedCertificateModal = ({
     if (isPending) return
 
     form.reset()
+    setFileError(null)
     importMutation.reset()
     onClose()
   }
@@ -64,28 +79,28 @@ export const ImportExternallySignedCertificateModal = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setFileError(null)
+    if (!file.name.toLowerCase().endsWith(".json")) {
+      setFileError(t`Only JSON certificate files are supported.`)
+      e.target.value = ""
+      return
+    }
 
     const reader = new FileReader()
     reader.onload = (event) => {
+      const text = event.target?.result as string
       try {
-        const text = event.target?.result as string
-        let chainValue = text
-
-        if (file.name.endsWith(".json")) {
-          try {
-            const parsed = JSON.parse(text)
-            // Validate that imported_certificate_chain is a string, fallback to raw text
-            chainValue =
-              typeof parsed.imported_certificate_chain === "string" ? parsed.imported_certificate_chain : text
-          } catch {
-            // If JSON parsing fails, use raw text
-            chainValue = text
-          }
+        const parsed = JSON.parse(text)
+        if (typeof parsed?.imported_certificate_chain !== "string") {
+          throw new Error(t`The JSON file must contain imported_certificate_chain.`)
         }
 
+        const chainValue = parsed.imported_certificate_chain
         form.setFieldValue("imported_certificate_chain", chainValue)
+        if (fileInputRef.current) fileInputRef.current.value = ""
       } catch (error) {
-        console.error("Failed to read certificate file:", error)
+        setFileError(error instanceof Error ? error.message : t`The certificate file could not be read.`)
+        form.setFieldValue("imported_certificate_chain", "")
       }
     }
     reader.readAsText(file)
@@ -100,11 +115,17 @@ export const ImportExternallySignedCertificateModal = ({
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}
       onConfirm={form.handleSubmit}
-      disableConfirmButton={isPending || !currentChain.trim()}
+      disableConfirmButton={isPending || !currentChain.trim() || !form.state.canSubmit}
     >
       {importMutation.error && (
         <Message dismissible={false} variant="error" className="mb-4">
-          {importMutation.error?.message}
+          {importMutation.error.message}
+        </Message>
+      )}
+
+      {fileError && (
+        <Message dismissible={false} variant="error" className="mb-4">
+          {fileError}
         </Message>
       )}
 
@@ -129,13 +150,7 @@ export const ImportExternallySignedCertificateModal = ({
           <FormSection>
             <div className="mb-2">
               <Button onClick={() => fileInputRef.current?.click()}>{t`Choose Certificate to Import`}</Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pem,.crt,.cer,.json"
-                className="sr-only"
-                onChange={handleFileChange}
-              />
+              <input ref={fileInputRef} type="file" accept=".json" className="sr-only" onChange={handleFileChange} />
             </div>
             <form.Field
               name="imported_certificate_chain"
@@ -145,7 +160,11 @@ export const ImportExternallySignedCertificateModal = ({
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    field.handleChange(value)
+                    setFileError(null)
+                  }}
                   placeholder={t`Paste the code`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                   disabled={isPending}

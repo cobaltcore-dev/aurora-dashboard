@@ -458,7 +458,9 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
           </Stack>
         </DataGridToolbar>
 
-        {/* Zone 3 — bulk actions (gated) plus the item count. */}
+        {/* Zone 3 — bulk actions (gated) plus the item count. Bulk actions sit
+            on the left; the count is pushed right via ml-auto so it stays
+            right-aligned regardless of whether the bulk block renders. */}
         <DataGridToolbar>
           <Stack distribution="start" gap="2" alignment="center" className="text-sm">
             {hasAnyBulkAction ? (
@@ -492,7 +494,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
               <span />
             )}
 
-            <div className="text-theme-light flex items-center gap-1" data-testid="objects-info-block">
+            <div className="text-theme-light ml-auto flex items-center gap-1" data-testid="objects-info-block">
               {searchParam.trim() ? (
                 <Plural
                   value={totalItemCount}
