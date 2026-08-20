@@ -324,7 +324,7 @@ export function formatFilter(filter: LifecycleFilter | undefined, legacyPrefix?:
     if (filter.And.ObjectSizeGreaterThan !== undefined)
       andParts.push(`Size > ${filter.And.ObjectSizeGreaterThan} bytes`)
     if (filter.And.ObjectSizeLessThan !== undefined) andParts.push(`Size < ${filter.And.ObjectSizeLessThan} bytes`)
-    parts.push(`(${andParts.join(" AND ")})`)
+    parts.push(andParts.join(" AND "))
   }
 
   return parts.length > 0 ? parts.join(", ") : "All objects"

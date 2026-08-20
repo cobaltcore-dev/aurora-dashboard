@@ -363,7 +363,7 @@ describe("lifecycleUtils", () => {
           ],
         },
       })
-      expect(result).toBe("(Prefix: logs/ AND Tag: env=prod AND Tag: team=backend)")
+      expect(result).toBe("Prefix: logs/ AND Tag: env=prod AND Tag: team=backend")
     })
   })
 
