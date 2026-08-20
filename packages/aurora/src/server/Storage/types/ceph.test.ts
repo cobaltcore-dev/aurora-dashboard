@@ -1774,12 +1774,12 @@ describe("Ceph Object Storage Schema Validation", () => {
 
     describe("getLifecycleOutputSchema", () => {
       it("should accept null rules", () => {
-        const input = { rules: null }
+        const input = { rules: null, skippedRuleCount: 0 }
         expect(getLifecycleOutputSchema.safeParse(input).success).toBe(true)
       })
 
       it("should accept empty rules array", () => {
-        const input = { rules: [] }
+        const input = { rules: [], skippedRuleCount: 0 }
         expect(getLifecycleOutputSchema.safeParse(input).success).toBe(true)
       })
 
@@ -1792,6 +1792,7 @@ describe("Ceph Object Storage Schema Validation", () => {
               Expiration: { Days: 30 },
             },
           ],
+          skippedRuleCount: 0,
         }
         expect(getLifecycleOutputSchema.safeParse(input).success).toBe(true)
       })

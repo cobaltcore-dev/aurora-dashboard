@@ -128,67 +128,87 @@ export function toSdkLifecycleRules(wireRules: LifecycleRuleRead[]): AwsSdkLifec
 }
 
 /**
- * Converts internal lifecycle rules (Date objects) to wire format (ISO strings).
+ * Converts a Date-or-string value to an ISO 8601 string.
+ *  *
+ * The SDK types promise `Date`, but tolerate a raw string too  in case a differently-behaving
+ *  * RGW build (or a future SDK version) ever hands one back rather than throwing on `.toISOString()`.
+ *  *
+ * @param d - A Date, an already-ISO string, or undefined
+ * @returns The ISO 8601 string, or undefined if the input was undefined
+ *  */
+const toIso = (d: Date | string | undefined) =>
+  d === undefined ? undefined : d instanceof Date ? d.toISOString() : String(d)
+
+/**
+ * Converts a single internal lifecycle rule (Date objects) to wire format (ISO strings).
  *
+ * - Converts Date objects to ISO 8601 strings
+ * - Preserves all fields unchanged
+ * - Used before sending a rule to callers of the `get` procedure
+ *
+ * @param rule -Rule with Date objects (or already-string dates)
+ * @returns Rule with ISO 8601 date strings
+ */
+export function toWireLifecycleRule(rule: AwsSdkLifecycleRule): LifecycleRuleRead {
+  const result: LifecycleRuleRead = {
+    Status: rule.Status ?? "Enabled",
+  }
+
+  if (rule.ID !== undefined) result.ID = rule.ID
+  if (rule.Prefix !== undefined) result.Prefix = rule.Prefix
+  // AWS SDK LifecycleRuleFilter is structurally compatible with our LifecycleFilter
+  if (rule.Filter !== undefined) result.Filter = rule.Filter as LifecycleFilter
+
+  if (rule.Expiration) {
+    result.Expiration = {
+      Days: rule.Expiration.Days,
+      ExpiredObjectDeleteMarker: rule.Expiration.ExpiredObjectDeleteMarker,
+      Date: toIso(rule.Expiration.Date),
+    }
+  }
+
+  if (rule.Transitions) {
+    result.Transitions = rule.Transitions.map((t) => ({
+      Days: t.Days,
+      StorageClass: t.StorageClass!,
+      Date: toIso(t.Date),
+    }))
+  }
+
+  if (rule.NoncurrentVersionExpiration) {
+    result.NoncurrentVersionExpiration = {
+      NoncurrentDays: rule.NoncurrentVersionExpiration.NoncurrentDays,
+      NewerNoncurrentVersions: rule.NoncurrentVersionExpiration.NewerNoncurrentVersions,
+    }
+  }
+
+  if (rule.NoncurrentVersionTransitions) {
+    result.NoncurrentVersionTransitions = rule.NoncurrentVersionTransitions.map((t) => ({
+      NoncurrentDays: t.NoncurrentDays,
+      StorageClass: t.StorageClass!,
+      NewerNoncurrentVersions: t.NewerNoncurrentVersions,
+    }))
+  }
+
+  if (rule.AbortIncompleteMultipartUpload) {
+    result.AbortIncompleteMultipartUpload = {
+      DaysAfterInitiation: rule.AbortIncompleteMultipartUpload.DaysAfterInitiation,
+    }
+  }
+
+  return result
+}
+
+/**
+ *  * Converts internal lifecycle rules (Date objects) to wire format (ISO strings).
+ *  *
  * - Converts Date objects to ISO 8601 strings
  * - Preserves all fields unchanged
  * - Used before sending rules to S3 SDK
  *
  * @param sdkRules - Rules with Date objects
- * @returns Rules with ISO 8601 date strings
- */
+ *  * @returns Rules with ISO 8601 date strings
+ *  */
 export function toWireLifecycleRules(sdkRules: AwsSdkLifecycleRule[]): LifecycleRuleRead[] {
-  return sdkRules.map((rule) => {
-    const result: LifecycleRuleRead = {
-      Status: rule.Status ?? "Enabled",
-    }
-
-    if (rule.ID !== undefined) result.ID = rule.ID
-    if (rule.Prefix !== undefined) result.Prefix = rule.Prefix
-    // AWS SDK LifecycleRuleFilter is structurally compatible with our LifecycleFilter
-    if (rule.Filter !== undefined) result.Filter = rule.Filter as LifecycleFilter
-
-    if (rule.Expiration) {
-      const expirationDate = rule.Expiration.Date
-      result.Expiration = {
-        Days: rule.Expiration.Days,
-        ExpiredObjectDeleteMarker: rule.Expiration.ExpiredObjectDeleteMarker,
-        Date: expirationDate !== undefined ? expirationDate.toISOString() : undefined,
-      }
-    }
-
-    if (rule.Transitions) {
-      result.Transitions = rule.Transitions.map((t) => {
-        const transitionDate = t.Date
-        return {
-          Days: t.Days,
-          StorageClass: t.StorageClass!,
-          Date: transitionDate !== undefined ? transitionDate.toISOString() : undefined,
-        }
-      })
-    }
-
-    if (rule.NoncurrentVersionExpiration) {
-      result.NoncurrentVersionExpiration = {
-        NoncurrentDays: rule.NoncurrentVersionExpiration.NoncurrentDays,
-        NewerNoncurrentVersions: rule.NoncurrentVersionExpiration.NewerNoncurrentVersions,
-      }
-    }
-
-    if (rule.NoncurrentVersionTransitions) {
-      result.NoncurrentVersionTransitions = rule.NoncurrentVersionTransitions.map((t) => ({
-        NoncurrentDays: t.NoncurrentDays,
-        StorageClass: t.StorageClass!,
-        NewerNoncurrentVersions: t.NewerNoncurrentVersions,
-      }))
-    }
-
-    if (rule.AbortIncompleteMultipartUpload) {
-      result.AbortIncompleteMultipartUpload = {
-        DaysAfterInitiation: rule.AbortIncompleteMultipartUpload.DaysAfterInitiation,
-      }
-    }
-
-    return result
-  })
+  return sdkRules.map(toWireLifecycleRule)
 }

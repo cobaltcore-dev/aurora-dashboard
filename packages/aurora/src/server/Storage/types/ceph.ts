@@ -999,6 +999,15 @@ export const lifecycleRuleSchema = z
       message: "ExpiredObjectDeleteMarker cannot be combined with tag-based filters",
     }
   )
+  .refine(
+    (val) => {
+      if (val.AbortIncompleteMultipartUpload === undefined) return true
+      const hasTagFilter =
+        val.Filter?.Tag !== undefined || (val.Filter?.And?.Tags !== undefined && val.Filter.And.Tags.length > 0)
+      return !hasTagFilter
+    },
+    { message: "AbortIncompleteMultipartUpload cannot be combined with tag-based filters" }
+  )
 
 /**
  * Lenient lifecycle rule schema for READ operations.
@@ -1131,6 +1140,7 @@ export const getLifecycleInputSchema = projectScopedInputSchema.extend({
  */
 export const getLifecycleOutputSchema = z.object({
   rules: z.array(lifecycleRuleReadSchema).nullable(), // null if no lifecycle config
+  skippedRuleCount: z.number().int().min(0), // rules that failed to map/validate on read (see lifecycleRouter get)
 })
 
 /**

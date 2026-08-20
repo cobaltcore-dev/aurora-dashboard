@@ -150,6 +150,12 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
   // Current rules from server
   const rules = lifecycleData?.rules ?? []
 
+  // Rules that failed to map/validate on read (see lifecycleRouter's `get`). `set` is a full replace,
+  // so mutating while some rules are unreadable would silently delete them on the next save  block
+  // all mutating actions until they're fixed with an external tool.
+  const skippedRuleCount = lifecycleData?.skippedRuleCount ?? 0
+  const mutationsBlocked = skippedRuleCount > 0
+
   interface RuleWithOriginalIndex {
     rule: LifecycleRuleRead
     originalIndex: number
@@ -259,9 +265,14 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
               />
               <PopupMenu className="flex items-center">
                 <PopupMenuToggle as="div">
-                  <Button disabled={selectedIndices.length === 0} size="small" icon="moreVert" label={t`Actions`} />
+                  <Button
+                    disabled={selectedIndices.length === 0 || mutationsBlocked}
+                    size="small"
+                    icon="moreVert"
+                    label={t`Actions`}
+                  />
                 </PopupMenuToggle>
-                {selectedIndices.length > 0 && (
+                {selectedIndices.length > 0 && !mutationsBlocked && (
                   <PopupMenuOptions>
                     <PopupMenuItem
                       label={i18n._(
@@ -292,7 +303,7 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
         onToggleSelectRule={handleToggleSelectRule}
         onEditRule={handleEditRule}
         onDeleteRule={handleDeleteRule}
-        isMutating={isRuleModalMutating || isBulkDeleteMutating}
+        isMutating={isRuleModalMutating || isBulkDeleteMutating || mutationsBlocked}
         isFiltered={!!lifecycleSearch}
       />
 

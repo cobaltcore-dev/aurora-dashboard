@@ -59,6 +59,27 @@ export function normalizeFilter(prefix?: string, tags?: LifecycleTag[]): Lifecyc
   return { Prefix: "" }
 }
 
+export type DaysParseResult = { ok: true; value: number } | { ok: false; reason: "empty" | "invalid" }
+
+/**
+ * Parses a Days input string into a validated positive integer.
+ *
+ * Mirrors the server's `z.number().int().min(1)` constraint used for lifecycle rule Days fields
+ * (Expiration.Days, NoncurrentVersionExpiration.NoncurrentDays, AbortIncompleteMultipartUpload.DaysAfterInitiation).
+ *  *
+ * @param raw - Raw string value from a Days input field
+ * @returns `{ ok: true, value }` for a valid positive integer, or `{ ok: false, reason }` otherwise
+ *  */
+
+export function parseDaysValue(raw: string): DaysParseResult {
+  const trimmed = raw.trim()
+  if (trimmed === "") return { ok: false, reason: "empty" }
+  if (!/^\d+$/.test(trimmed)) return { ok: false, reason: "invalid" }
+  const value = Number(trimmed)
+  if (!Number.isSafeInteger(value) || value < 1) return { ok: false, reason: "invalid" }
+  return { ok: true, value }
+}
+
 /**
  * Convert LifecycleRuleRead (lenient read schema) to LifecycleRule (strict write schema)
  *
@@ -118,6 +139,7 @@ export function toLifecycleRule(rule: LifecycleRuleRead): LifecycleRule {
  * - Cannot have both Filter and legacy Prefix
  * - ExpiredObjectDeleteMarker incompatible with tag filters
  * - ExpiredObjectDeleteMarker cannot be combined with Days or Date
+ * - AbortIncompleteMultipartUpload incompatible with tag filters
  * - And filter must have ≥2 predicates (per-tag counting)
  * - Top-level filter conditions must be wrapped in And
  * - ID ≤ 255 characters
@@ -190,6 +212,15 @@ export function validateLifecycleRules(
         rule.Filter?.Tag !== undefined || (rule.Filter?.And?.Tags !== undefined && rule.Filter.And.Tags.length > 0)
       if (hasTagFilter) {
         errors.push(`${ruleLabel}: ExpiredObjectDeleteMarker cannot be combined with tag-based filters`)
+      }
+    }
+
+    // AbortIncompleteMultipartUpload cannot be combined with tag-based filters  mirrors lifecycleRuleSchema (server)
+    if (rule.AbortIncompleteMultipartUpload !== undefined) {
+      const hasTagFilter =
+        rule.Filter?.Tag !== undefined || (rule.Filter?.And?.Tags !== undefined && rule.Filter.And.Tags.length > 0)
+      if (hasTagFilter) {
+        errors.push(`${ruleLabel}: AbortIncompleteMultipartUpload cannot be combined with tag-based filters`)
       }
     }
 

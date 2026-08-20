@@ -13,8 +13,8 @@ import {
   deleteLifecycleInputSchema,
   lifecycleRuleReadSchema,
 } from "../../types/ceph"
-import type { GetLifecycleOutput } from "../../types/ceph"
-import { toSdkLifecycleRules } from "../../helpers/lifecycleMapper"
+import type { GetLifecycleOutput, LifecycleRuleRead } from "../../types/ceph"
+import { toSdkLifecycleRules, toWireLifecycleRule } from "../../helpers/lifecycleMapper"
 
 // Rate limiting for lifecycle operations: 10 sets per minute per bucket
 const lifecycleSetRateLimits = new Map<string, { count: number; resetAt: number }>()
@@ -76,7 +76,11 @@ export const lifecycleRouter = {
    * Returns an array of lifecycle rules, or null if no lifecycle configuration is set.
    * Not having a lifecycle configuration is a normal state (not an error).
    *
-   * @returns { rules: LifecycleRule[] | null }
+   * Rules are mapped and validated individually  a rule that fails the lenient read schema
+   * (e.g. authored outside Aurora) is skipped rather than failing the who. eresponse;
+   * `skippedRuleCount` reports how many were skipped so the client can warn and disable mutations.
+   *
+   * @returns { rules: LifecycleRule[] | null; skippedRuleCount: number }
    * @throws TRPCError NOT_FOUND - bucket does not exist
    * @throws TRPCError FORBIDDEN - no credentials or access denied
    */
@@ -97,18 +101,34 @@ export const lifecycleRouter = {
         const rawRules = response.Rules ?? null
 
         if (!rawRules) {
-          return { rules: null }
+          return { rules: null, skippedRuleCount: 0 }
         }
 
-        // Use lenient read schema to accept rules with values outside write-time constraints
-        const rules = rawRules.map((rule) => lifecycleRuleReadSchema.parse(rule))
+        // Map + validate each rule independently: a single rule that fails the lenient read schema
+        // (e.g. an externally-authored rule missing a required field) must not take down the whole
+        // response. Skipped rules are tracked via skippedRuleCount so the client can warn and disable
+        // mutations  set is a full replace, and silently dropping a rule here would delete it on save.
+        const rules: LifecycleRuleRead[] = []
+        let skippedRuleCount = 0
+        for (const rawRule of rawRules) {
+          try {
+            const parsed = lifecycleRuleReadSchema.safeParse(toWireLifecycleRule(rawRule))
+            if (parsed.success) {
+              rules.push(parsed.data)
+              continue
+            }
+            skippedRuleCount++
+          } catch {
+            skippedRuleCount++
+          }
+        }
 
-        return { rules }
+        return { rules, skippedRuleCount }
       } catch (error) {
         // NoSuchLifecycleConfiguration is not an error - it means no lifecycle config set
         const s3Error = error as { name?: string; Code?: string }
         if (s3Error.name === "NoSuchLifecycleConfiguration" || s3Error.Code === "NoSuchLifecycleConfiguration") {
-          return { rules: null }
+          return { rules: null, skippedRuleCount: 0 }
         }
 
         throw mapS3ErrorToTRPCError(error, {

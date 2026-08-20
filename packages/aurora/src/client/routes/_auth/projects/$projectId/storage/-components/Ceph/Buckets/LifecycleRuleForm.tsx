@@ -3,7 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { useEffect, useState } from "react"
 import { Form, Stack, TextInput, Button, Checkbox, Message, Pill } from "@cloudoperators/juno-ui-components"
 import type { LifecycleRuleRead, LifecycleTag } from "@/server/Storage/types/ceph"
-import { normalizeFilter } from "./utils/lifecycleUtils"
+import { normalizeFilter, parseDaysValue } from "./utils/lifecycleUtils"
 
 interface LifecycleRuleFormProps {
   editingRule: LifecycleRuleRead | null
@@ -76,7 +76,10 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
   const form = useForm({
     defaultValues: getInitialValues(),
     onSubmit: ({ value }) => {
-      const filter = normalizeFilter(value.Prefix || undefined, value.tags.length > 0 ? value.tags : undefined)
+      // Trim the Prefix so the submitted filter agrees with the whole-bucket warning shown to the user
+      // (see willExpireWholeBucket below, which also checks the trimmed value).
+      const trimmedPrefix = value.Prefix.trim()
+      const filter = normalizeFilter(trimmedPrefix || undefined, value.tags.length > 0 ? value.tags : undefined)
 
       const newRule: LifecycleRuleRead = {
         ID: value.ID || undefined,
@@ -87,8 +90,9 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
 
       // If editing, preserve the existing Expiration field byte-identical if user didn't change it (item 24 fix)
       if (value.hasExpiration) {
-        if (value.expirationDays) {
-          newRule.Expiration = { Days: parseInt(value.expirationDays, 10) }
+        const exp = parseDaysValue(value.expirationDays)
+        if (exp.ok) {
+          newRule.Expiration = { Days: exp.value }
         } else if (editingRule?.Expiration) {
           // Preserve the original Expiration (Date or ExpiredObjectDeleteMarker) unchanged
           newRule.Expiration = editingRule.Expiration
@@ -100,12 +104,15 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
         newRule.Transitions = editingRule.Transitions
       }
 
-      if (value.hasNoncurrentExpiration && value.noncurrentDays) {
-        newRule.NoncurrentVersionExpiration = {
-          NoncurrentDays: parseInt(value.noncurrentDays, 10),
-          ...(editingRule?.NoncurrentVersionExpiration?.NewerNoncurrentVersions !== undefined && {
-            NewerNoncurrentVersions: editingRule.NoncurrentVersionExpiration.NewerNoncurrentVersions,
-          }),
+      if (value.hasNoncurrentExpiration) {
+        const nc = parseDaysValue(value.noncurrentDays)
+        if (nc.ok) {
+          newRule.NoncurrentVersionExpiration = {
+            NoncurrentDays: nc.value,
+            ...(editingRule?.NoncurrentVersionExpiration?.NewerNoncurrentVersions !== undefined && {
+              NewerNoncurrentVersions: editingRule.NoncurrentVersionExpiration.NewerNoncurrentVersions,
+            }),
+          }
         }
       }
 
@@ -114,9 +121,12 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
         newRule.NoncurrentVersionTransitions = editingRule.NoncurrentVersionTransitions
       }
 
-      if (value.hasAbortUpload && value.abortDays) {
-        newRule.AbortIncompleteMultipartUpload = {
-          DaysAfterInitiation: parseInt(value.abortDays, 10),
+      if (value.hasAbortUpload) {
+        const abort = parseDaysValue(value.abortDays)
+        if (abort.ok) {
+          newRule.AbortIncompleteMultipartUpload = {
+            DaysAfterInitiation: abort.value,
+          }
         }
       }
 
@@ -137,6 +147,16 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
   const willExpireWholeBucket =
     hasExpirationValue && !prefixValue.trim() && tagsValue.length === 0 && statusValue === "Enabled"
 
+  // Only surface "invalid" (not "empty") so a freshly-checked box doesn't flash an error immediately.
+  const daysError = (checked: boolean, raw: string) => {
+    if (!checked) return undefined
+    const result = parseDaysValue(raw)
+    return !result.ok && result.reason === "invalid" ? t`Enter a whole number of days greater than 0` : undefined
+  }
+  const expirationDaysError = daysError(hasExpirationValue, expirationDaysValue)
+  const noncurrentDaysError = daysError(hasNoncurrentExpirationValue, noncurrentDaysValue)
+  const abortDaysError = daysError(hasAbortUploadValue, abortDaysValue)
+
   const canSubmit = () => {
     const values = form.state.values
     const hasAtLeastOneAction =
@@ -148,18 +168,19 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
 
     if (!hasAtLeastOneAction) return false
 
-    // If expiration is checked, must have days OR we're preserving non-Days expiration from editing
+    // If expiration is checked, must have valid days OR we're preserving non-Days expiration from editing
     if (values.hasExpiration) {
-      const hasExpirationDays = values.expirationDays.trim() !== ""
+      const r = parseDaysValue(values.expirationDays)
       const hasNonDaysExpiration = editingRule?.Expiration && !editingRule.Expiration.Days
-      if (!hasExpirationDays && !hasNonDaysExpiration) return false
+      const validExpirationDays = r.ok || (!r.ok && r.reason === "empty" && !!hasNonDaysExpiration)
+      if (!validExpirationDays) return false
     }
 
-    // If noncurrent expiration is checked, must have days
-    if (values.hasNoncurrentExpiration && values.noncurrentDays.trim() === "") return false
+    // If noncurrent expiration is checked, must have valid days
+    if (values.hasNoncurrentExpiration && !parseDaysValue(values.noncurrentDays).ok) return false
 
-    // If abort is checked, must have days
-    if (values.hasAbortUpload && values.abortDays.trim() === "") return false
+    // If abort is checked, must have valid days
+    if (values.hasAbortUpload && !parseDaysValue(values.abortDays).ok) return false
 
     if (values.hasAbortUpload && values.tags.length > 0) return false
 
@@ -226,7 +247,13 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                   name={field.name}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
+                  onBlur={() => {
+                    const trimmed = field.state.value.trim()
+                    if (trimmed !== field.state.value) {
+                      field.handleChange(trimmed)
+                    }
+                    field.handleBlur()
+                  }}
                   placeholder={t`e.g. logs/`}
                   helptext={t`Apply this rule only to objects with this prefix (leave empty for all objects)`}
                 />
@@ -294,6 +321,8 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                             onBlur={field.handleBlur}
                             placeholder="30"
                             min="1"
+                            invalid={!!expirationDaysError}
+                            errortext={expirationDaysError}
                             helptext={
                               editingRule?.Expiration && !editingRule.Expiration.Days
                                 ? t`This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty to preserve it, or enter days to switch to Days expiration.`
@@ -336,6 +365,8 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                             onBlur={field.handleBlur}
                             placeholder="90"
                             min="1"
+                            invalid={!!noncurrentDaysError}
+                            errortext={noncurrentDaysError}
                             helptext={t`Delete noncurrent versions after this many days (requires versioning enabled)`}
                             required={true}
                           />
@@ -379,6 +410,8 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                             onBlur={field.handleBlur}
                             placeholder="7"
                             min="1"
+                            invalid={!!abortDaysError}
+                            errortext={abortDaysError}
                             helptext={t`Abort incomplete multipart uploads after this many days`}
                             required={true}
                           />
