@@ -858,6 +858,12 @@ msgstr "Container \"{containerName}\" konnte nicht aktualisiert werden: {errorMe
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht hochgeladen werden: {errorMessage}"
 
+msgid "Couldn't Open Container"
+msgstr ""
+
+msgid "Couldn't open container \"{containerName}\" — it may not exist, or you may not have access to it."
+msgstr ""
+
 msgid "CPU"
 msgstr "CPU"
 
@@ -1385,9 +1391,6 @@ msgstr "Fehler beim Laden der Floating-IP"
 
 msgid "Error loading image"
 msgstr "Fehler beim Laden des Images"
-
-msgid "Error Loading Objects: {errorMessage}"
-msgstr "Fehler beim Laden der Objekte: {errorMessage}"
 
 msgid "Error loading security group"
 msgstr "Fehler beim Laden der Security Group"
