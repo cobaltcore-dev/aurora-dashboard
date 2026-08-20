@@ -303,6 +303,16 @@ describe("EditContainerMetadataModal", () => {
       })
     })
 
+    test("shows validation error for decimal quota-count", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByLabelText(/Object count quota/i), "1.5")
+      await user.click(screen.getByRole("button", { name: /Save/i }))
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+    })
+
     test("clears quota-bytes error when field changes", async () => {
       const user = userEvent.setup()
       renderModal()
