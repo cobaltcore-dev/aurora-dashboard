@@ -20,7 +20,9 @@ export function createAuroraRouter(
     for (let i = 0; i < extraRoutes.length; i++) {
       const route = extraRoutes[i]
       const parentFn = (route as { options?: { getParentRoute?: () => AnyRoute } }).options?.getParentRoute
-      if (!parentFn) continue
+      if (!parentFn) {
+        throw new Error(`additionalProjectServices[${i}] route is missing options.getParentRoute()`)
+      }
       const parent = parentFn() as unknown as RouteWithChildren
       const existing = parent.children ?? {}
       parent._addFileChildren({ ...existing, [`_extra_${i}`]: route })
