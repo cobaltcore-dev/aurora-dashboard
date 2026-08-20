@@ -51,7 +51,7 @@ const CertificateAuthoritySubjectSchema = z.object({
   }),
 })
 
-const CertificateAuthorityStateSchema = z.enum(["CREATING", "AWAITING_CERTIFICATE", "READY", "FAILED", "UNEXPECTED"])
+const CertificateAuthorityStateSchema = z.enum(["CREATING", "AWAITING_CERTIFICATE", "READY", "FAILED"])
 
 export const CertificateAuthoritySchema = z.object({
   certificate: CertificateAuthorityCertificateSchema.optional(),

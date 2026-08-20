@@ -555,8 +555,17 @@ msgstr "Capabilities"
 msgid "Certificate {certificateIdValue}"
 msgstr ""
 
+msgid "Certificate Authority \"{pcaName}\" was successfully deleted."
+msgstr ""
+
+msgid "Certificate Authority Deleted"
+msgstr ""
+
 msgid "Certificate Authority not found"
 msgstr "Certificate Authority not found"
+
+msgid "Certificate Imported"
+msgstr ""
 
 msgid "Certificate not found"
 msgstr "Certificate not found"
@@ -1992,6 +2001,9 @@ msgstr "Ingress"
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
 
+msgid "Invalid CSR format."
+msgstr ""
+
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
 
@@ -2588,6 +2600,9 @@ msgstr "Ein oder mehrere Container konnten nicht geleert werden: {errorMessage}"
 
 msgid "One or more objects could not be deleted:"
 msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
+
+msgid "Only JSON certificate files are supported."
+msgstr ""
 
 msgid "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
 msgstr ""
@@ -3240,11 +3255,8 @@ msgstr ""
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
 
-msgid "Subject"
+msgid "Subject Information"
 msgstr ""
-
-msgid "Subject information"
-msgstr "Subject information"
 
 msgid "Subnet"
 msgstr "Subnet"
@@ -3342,6 +3354,9 @@ msgstr "Der Projektzugriff für \"{trimmedTenantId}\" wurde erfolgreich hinzugef
 msgid "Tenant ID"
 msgstr "Projekt ID"
 
+msgid "The certificate file could not be read."
+msgstr ""
+
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
 
@@ -3355,6 +3370,9 @@ msgid "The container will be deleted. This action is permanent and cannot be und
 msgstr "Der Container wird gelöscht. Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden."
 
 msgid "The CORS configuration has changed. Please refresh and try again."
+msgstr ""
+
+msgid "The externally signed certificate was successfully imported."
 msgstr ""
 
 msgid "The extra spec could not be found. It may have already been deleted."
@@ -3398,6 +3416,12 @@ msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {errorMessage}"
 
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: {errorMessage}"
+
+msgid "The imported certificate chain is not valid PEM."
+msgstr ""
+
+msgid "The JSON file must contain imported_certificate_chain."
+msgstr ""
 
 msgid "The object will be copied to this path. Navigate folders above to change the destination."
 msgstr "Das Objekt wird zu diesem Pfad kopiert. Navigieren Sie oben durch die Ordner, um das Ziel zu ändern."
@@ -3721,9 +3745,6 @@ msgid "Unable to Upload Image File"
 msgstr "Image-Datei kann nicht hochgeladen werden"
 
 msgid "Unable to verify bucket versioning status. Please try again."
-msgstr ""
-
-msgid "Unexpected"
 msgstr ""
 
 msgid "Unknown"

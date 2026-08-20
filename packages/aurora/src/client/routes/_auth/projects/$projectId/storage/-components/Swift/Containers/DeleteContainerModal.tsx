@@ -214,7 +214,6 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
               label={t`I confirm that all existing versions will also be deleted`}
               checked={versionsConfirmed}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVersionsConfirmed(e.target.checked)}
-              invalid={!versionsConfirmed}
             />
           )}
           <TextInput
