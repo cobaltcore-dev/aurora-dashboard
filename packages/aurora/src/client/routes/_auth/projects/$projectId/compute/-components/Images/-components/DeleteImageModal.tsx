@@ -1,17 +1,13 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
 import {
-  Button,
-  ButtonRow,
   DescriptionDefinition,
   DescriptionList,
   DescriptionTerm,
-  Message,
   Modal,
-  ModalFooter,
-  Spinner,
   Stack,
+  TextInput,
 } from "@cloudoperators/juno-ui-components"
 import { SizeDisplay } from "./SizeDisplay"
 
@@ -35,77 +31,80 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
   if (!image) return null
 
   const { t } = useLingui()
+  const [confirmText, setConfirmText] = useState("")
 
-  const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault()
-    onDelete(image)
+  useEffect(() => {
+    if (!isOpen) {
+      setConfirmText("")
+    }
+  }, [isOpen])
+
+  const handleClose = () => {
+    setConfirmText("")
+    onClose()
   }
+
+  const handleConfirm = () => {
+    onDelete(image)
+    handleClose()
+  }
+
+  const isConfirmValid = confirmText === "delete"
+  const confirmLabel = isLoading ? t`Deleting...` : t`Delete Image`
 
   return (
     <Modal
-      onCancel={onClose}
-      size="small"
-      title={t`Delete Image`}
       open={isOpen}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button variant="default" onClick={onClose}>
-              <Trans>Cancel</Trans>
-            </Button>
-            <Button
-              variant="primary-danger"
-              onClick={(e) => {
-                handleDelete(e)
-                onClose()
-              }}
-              disabled={isLoading || isDisabled}
-              data-testid={`delete-image-button`}
-            >
-              {isLoading ? <Spinner size="small" /> : <Trans>Delete</Trans>}
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      onCancel={handleClose}
+      size="large"
+      title={t`Delete Image`}
+      confirmButtonLabel={confirmLabel}
+      confirmButtonVariant="primary-danger"
+      onConfirm={handleConfirm}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={!isConfirmValid || isLoading || isDisabled}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
-      {isLoading && (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
-      )}
-      {!isLoading && (
+      <Stack direction="vertical" gap="4">
+        <p className="text-theme-default">
+          <Trans>This action cannot be undone. The image will be permanently deleted.</Trans>
+        </p>
+
+        {image && (
+          <DescriptionList>
+            <DescriptionTerm>{t`Name`}</DescriptionTerm>
+            <DescriptionDefinition>{image.name || t`Unnamed`}</DescriptionDefinition>
+
+            <DescriptionTerm>{t`Id`}</DescriptionTerm>
+            <DescriptionDefinition>{image.id}</DescriptionDefinition>
+            <DescriptionTerm>{t`Status`}</DescriptionTerm>
+            <DescriptionDefinition>{image.status}</DescriptionDefinition>
+            <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
+            <DescriptionDefinition>{image.visibility}</DescriptionDefinition>
+            <DescriptionTerm>{t`Size`}</DescriptionTerm>
+            <DescriptionDefinition>
+              <SizeDisplay size={image.size} />
+            </DescriptionDefinition>
+            <DescriptionTerm>{t`Disk Format`}</DescriptionTerm>
+            <DescriptionDefinition>{image.disk_format || t`N/A`}</DescriptionDefinition>
+            <DescriptionTerm>{t`Created`}</DescriptionTerm>
+            <DescriptionDefinition>
+              {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
+            </DescriptionDefinition>
+          </DescriptionList>
+        )}
+
         <div>
-          <Message
-            text={t`This action cannot be undone. The image will be permanently deleted.`}
-            variant="danger"
-            className="mb-4"
+          <TextInput
+            label={t`Type "delete" to confirm`}
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="delete"
+            autoFocus
           />
-
-          {image && (
-            <DescriptionList>
-              <DescriptionTerm>{t`Name`}</DescriptionTerm>
-              <DescriptionDefinition>{image.name || t`Unnamed`}</DescriptionDefinition>
-
-              <DescriptionTerm>{t`Id`}</DescriptionTerm>
-              <DescriptionDefinition>{image.id}</DescriptionDefinition>
-              <DescriptionTerm>{t`Status`}</DescriptionTerm>
-              <DescriptionDefinition>{image.status}</DescriptionDefinition>
-              <DescriptionTerm>{t`Visibility`}</DescriptionTerm>
-              <DescriptionDefinition>{image.visibility}</DescriptionDefinition>
-              <DescriptionTerm>{t`Size`}</DescriptionTerm>
-              <DescriptionDefinition>
-                <SizeDisplay size={image.size} />
-              </DescriptionDefinition>
-              <DescriptionTerm>{t`Disk Format`}</DescriptionTerm>
-              <DescriptionDefinition>{image.disk_format || t`N/A`}</DescriptionDefinition>
-              <DescriptionTerm>{t`Created`}</DescriptionTerm>
-              <DescriptionDefinition>
-                {image.created_at ? new Date(image.created_at).toLocaleDateString() : t`N/A`}
-              </DescriptionDefinition>
-            </DescriptionList>
-          )}
         </div>
-      )}
+      </Stack>
     </Modal>
   )
 }

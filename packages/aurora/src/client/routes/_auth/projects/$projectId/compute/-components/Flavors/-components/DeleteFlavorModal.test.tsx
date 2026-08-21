@@ -6,6 +6,7 @@ import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
 import { Flavor } from "@/server/Compute/types/flavor"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 
 vi.mock("@/hooks/useErrorTranslation", () => ({
   useErrorTranslation: () => ({
@@ -23,7 +24,11 @@ vi.mock("@/hooks/useErrorTranslation", () => ({
   }),
 }))
 
-const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+const TestingProvider = ({ children }: { children: ReactNode }) => (
+  <I18nProvider i18n={i18n}>
+    <PortalProvider>{children}</PortalProvider>
+  </I18nProvider>
+)
 
 describe("DeleteFlavorModal", () => {
   beforeAll(async () => {
@@ -77,9 +82,8 @@ describe("DeleteFlavorModal", () => {
     })
 
     expect(screen.getByText("Delete Flavor")).toBeInTheDocument()
-    expect(
-      screen.getByText("This action cannot be undone. The flavor will be permanently deleted.")
-    ).toBeInTheDocument()
+    expect(screen.getByText(/This action cannot be undone/i)).toBeInTheDocument()
+    expect(screen.getByText(/To confirm type/i)).toBeInTheDocument()
 
     expect(screen.getByText("Test Flavor")).toBeInTheDocument()
     expect(screen.getByText("test-flavor-id")).toBeInTheDocument()
@@ -108,6 +112,9 @@ describe("DeleteFlavorModal", () => {
         }
       )
     })
+
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
 
     const deleteButton = screen.getByText("Delete")
 
@@ -139,6 +146,9 @@ describe("DeleteFlavorModal", () => {
         }
       )
     })
+
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
 
     const deleteButton = screen.getByText("Delete")
 
@@ -176,6 +186,9 @@ describe("DeleteFlavorModal", () => {
       )
     })
 
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+
     const deleteButton = screen.getByText("Delete")
 
     await act(async () => {
@@ -211,6 +224,9 @@ describe("DeleteFlavorModal", () => {
         }
       )
     })
+
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
 
     const deleteButton = screen.getByText("Delete")
 
