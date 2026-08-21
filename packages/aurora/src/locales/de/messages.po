@@ -2349,9 +2349,6 @@ msgstr ""
 msgid "Loading..."
 msgstr "Lädt..."
 
-msgid "Login to Your Account"
-msgstr "Bei Ihrem Konto anmelden"
-
 msgid "MAC Address"
 msgstr "MAC-Adresse"
 
@@ -3367,6 +3364,9 @@ msgstr "Erste {maxOptions} von {totalCount} werden angezeigt — verfeinern Sie 
 
 msgid "Sign In"
 msgstr "Einloggen"
+
+msgid "Sign In to Your Account"
+msgstr "Bei Ihrem Konto anmelden"
 
 msgid "Size"
 msgstr "Größe"
