@@ -1,11 +1,17 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
-import { Modal, Message, Spinner, ModalFooter, Button, ButtonRow, Stack } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Stack,
+  TextInput,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+} from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { Trans } from "@lingui/react/macro"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
-import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
 
 interface DeleteFlavorModalProps {
   client: TrpcClient
@@ -28,8 +34,23 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
   const { translateError } = useErrorTranslation()
   const [isLoading, setIsLoading] = useState(false)
   const [generalError, setGeneralError] = useState<string | null>(null)
+  const [confirmText, setConfirmText] = useState("")
 
-  const handleDelete = async () => {
+  useEffect(() => {
+    if (!isOpen) {
+      setConfirmText("")
+      setGeneralError(null)
+    }
+  }, [isOpen])
+
+  const handleClose = () => {
+    setGeneralError(null)
+    setConfirmText("")
+    setIsLoading(false)
+    onClose()
+  }
+
+  const handleConfirm = async () => {
     if (!flavor?.id) {
       setGeneralError(t`No flavor selected for deletion.`)
       return
@@ -56,61 +77,66 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
     }
   }
 
-  const handleClose = () => {
-    setGeneralError(null)
-    onClose()
-  }
-
-  const dismissError = () => {
-    setGeneralError(null)
-  }
-
-  const flavorItems = [
-    { label: t`Name`, value: flavor?.name },
-    { label: t`ID`, value: flavor?.id },
-    { label: t`VCPUs`, value: flavor?.vcpus },
-    { label: t`RAM`, value: `${flavor?.ram} MiB` },
-    { label: t`Disk`, value: `${flavor?.disk} GiB` },
-    ...(flavor?.swap ? [{ label: t`Swap`, value: `${flavor.swap} MiB` }] : []),
-  ]
+  const isConfirmValid = confirmText === "delete"
+  const confirmLabel = isLoading ? t`Deleting...` : t`Delete Flavor`
 
   return (
     <Modal
+      open={isOpen}
       onCancel={handleClose}
       title={t`Delete Flavor`}
-      open={isOpen}
-      onConfirm={handleDelete}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button variant="primary-danger" onClick={handleDelete} disabled={isLoading}>
-              {isLoading ? <Spinner size="small" /> : <Trans>Delete</Trans>}
-            </Button>
-            <Button variant="default" onClick={handleClose}>
-              <Trans>Cancel</Trans>
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      size="large"
+      confirmButtonLabel={confirmLabel}
+      confirmButtonVariant="primary-danger"
+      onConfirm={handleConfirm}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={!isConfirmValid || isLoading}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
-      {isLoading && (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
-      )}
-      {!isLoading && (
+      <Stack direction="vertical" gap="4">
+        {generalError && (
+          <p className="text-theme-error" role="alert" aria-live="assertive">
+            {generalError}
+          </p>
+        )}
+
+        <p className="text-theme-default">
+          <Trans>This action cannot be undone. The flavor will be permanently deleted.</Trans>
+        </p>
+
+        {flavor && (
+          <DescriptionList>
+            <DescriptionTerm>{t`Name`}</DescriptionTerm>
+            <DescriptionDefinition>{flavor.name}</DescriptionDefinition>
+
+            <DescriptionTerm>{t`ID`}</DescriptionTerm>
+            <DescriptionDefinition>{flavor.id}</DescriptionDefinition>
+
+            <DescriptionTerm>{t`VCPUs`}</DescriptionTerm>
+            <DescriptionDefinition>{flavor.vcpus}</DescriptionDefinition>
+
+            <DescriptionTerm>{t`RAM`}</DescriptionTerm>
+            <DescriptionDefinition>{flavor.ram} MiB</DescriptionDefinition>
+
+            <DescriptionTerm>{t`Disk`}</DescriptionTerm>
+            <DescriptionDefinition>{flavor.disk} GiB</DescriptionDefinition>
+
+            <DescriptionTerm>{t`Swap`}</DescriptionTerm>
+            <DescriptionDefinition>{flavor.swap || 0} MiB</DescriptionDefinition>
+          </DescriptionList>
+        )}
+
         <div>
-          {generalError && <Message onDismiss={dismissError} text={generalError} variant="error" className="mb-4" />}
-
-          <Message
-            text={t`This action cannot be undone. The flavor will be permanently deleted.`}
-            variant="danger"
-            className="mb-4"
+          <TextInput
+            label={t`Type "delete" to confirm`}
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="delete"
+            autoFocus
           />
-
-          {flavor && <TwoColumnDescriptionList items={flavorItems} />}
         </div>
-      )}
+      </Stack>
     </Modal>
   )
 }
