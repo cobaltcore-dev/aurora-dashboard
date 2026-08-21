@@ -1690,6 +1690,193 @@ curl -sI -H "Origin: https://example.com" \
 
 ---
 
+### Lifecycle Configuration (`storage.ceph.lifecycle`)
+
+Bucket lifecycle rules automate object management tasks like expiring (deleting) old objects, transitioning to different storage classes, cleaning up old versions, and aborting incomplete multipart uploads. Rules are evaluated asynchronously by the Ceph RGW lifecycle processor (not immediately after save).
+
+#### `get`
+
+Retrieves the current lifecycle configuration for a bucket. Returns `null` if no lifecycle rules are configured.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucketName: string
+}
+```
+
+**Output:**
+
+```typescript
+{
+  rules: LifecycleRule[] | null
+}
+```
+
+**Example:**
+
+```typescript
+const lifecycle = await trpc.storage.ceph.lifecycle.get.query({
+  project_id: "abc123",
+  bucketName: "my-bucket",
+})
+
+if (!lifecycle.rules) {
+  console.log("No lifecycle rules configured")
+} else {
+  console.log(`${lifecycle.rules.length} rules configured`)
+}
+```
+
+---
+
+#### `set`
+
+Creates or replaces the entire lifecycle configuration for a bucket. Validates the configuration before sending to RGW.
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucketName: string,
+  lifecycleConfiguration: {
+    Rules: LifecycleRule[]
+  }
+}
+```
+
+**Rule Structure:**
+
+```typescript
+interface LifecycleRule {
+  ID?: string // Optional identifier (max 255 chars)
+  Status: "Enabled" | "Disabled" // Whether the rule is active
+  Filter?: LifecycleFilter // Which objects the rule applies to
+  Expiration?: {
+    // Delete objects
+    Days?: number // After N days from creation
+    Date?: string // On specific date (ISO 8601, midnight UTC)
+    ExpiredObjectDeleteMarker?: boolean // Clean up expired delete markers
+  }
+  NoncurrentVersionExpiration?: {
+    // Expire old versions
+    NoncurrentDays: number // After N days of becoming noncurrent
+    NewerNoncurrentVersions?: number // Keep newest N versions
+  }
+  AbortIncompleteMultipartUpload?: {
+    // Abort incomplete uploads
+    DaysAfterInitiation: number // After N days from initiation
+  }
+  Transitions?: Transition[] // Storage class transitions (preserved, not authored via Aurora)
+  NoncurrentVersionTransitions?: NoncurrentTransition[] // Version transitions (preserved, not authored)
+}
+
+interface LifecycleFilter {
+  Prefix?: string // Match by key prefix
+  Tag?: { Key: string; Value: string } // Match by single tag
+  And?: {
+    // Combine multiple conditions (requires ≥2)
+    Prefix?: string
+    Tags?: { Key: string; Value: string }[]
+    ObjectSizeGreaterThan?: number
+    ObjectSizeLessThan?: number
+  }
+}
+```
+
+**Validation Rules:**
+
+- Maximum 100 rules per bucket (UI limit; RGW's technical limit is 1000)
+- Each rule must have at least one action (`Expiration`, `NoncurrentVersionExpiration`, `AbortIncompleteMultipartUpload`, or preserved `Transitions`)
+- Rule IDs must be unique and ≤255 characters
+- Cannot specify both `Filter` and legacy top-level `Prefix` (legacy `Prefix` is migrated to `Filter.Prefix` on save)
+- `Expiration` must specify exactly one of `Days`, `Date`, or `ExpiredObjectDeleteMarker`
+- `ExpiredObjectDeleteMarker` cannot be combined with tag-based filters
+- `And` filters require at least 2 predicates
+
+**Rate Limiting:** 10 lifecycle modifications per minute per bucket (per project)
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.lifecycle.set.mutate({
+  project_id: "abc123",
+  bucketName: "my-bucket",
+  lifecycleConfiguration: {
+    Rules: [
+      {
+        ID: "delete-old-logs",
+        Status: "Enabled",
+        Filter: { Prefix: "logs/" },
+        Expiration: { Days: 90 },
+      },
+      {
+        ID: "cleanup-old-versions",
+        Status: "Enabled",
+        Filter: { Prefix: "" }, // Whole bucket
+        NoncurrentVersionExpiration: {
+          NoncurrentDays: 60,
+          NewerNoncurrentVersions: 3, // Keep 3 newest versions
+        },
+      },
+      {
+        ID: "abort-stale-uploads",
+        Status: "Enabled",
+        Filter: { Prefix: "" },
+        AbortIncompleteMultipartUpload: {
+          DaysAfterInitiation: 7,
+        },
+      },
+    ],
+  },
+})
+```
+
+**Important Notes:**
+
+- **Storage-class transitions** (`Transitions`, `NoncurrentVersionTransitions`): Aurora **preserves** these fields when editing existing rules, but does **not** provide UI for authoring new transitions. This is because RGW can't enumerate available storage classes via the S3 API, so any picker would be guesswork against a specific deployment. Rules carrying transitions authored via `aws-cli` or other tools are displayed read-only and passed through unchanged on save.
+
+- **Midnight-UTC normalization**: `Expiration.Date` is automatically normalized to midnight UTC before sending to RGW (AWS requirement). `Transitions[].Date` is not normalized.
+
+- **Asynchronous processing**: RGW evaluates lifecycle rules on its own schedule (not immediately after save). Changes may take minutes to hours to take effect, depending on the deployment's lifecycle processor configuration.
+
+- **Whole-bucket expiration warning**: Rules with `Status: "Enabled"`, a whole-bucket filter (`Prefix: ""` or no filter), and an `Expiration` action will eventually delete **all** objects in the bucket. Aurora displays a warning for such rules but does not block them.
+
+---
+
+#### `delete`
+
+Removes the entire lifecycle configuration from a bucket. Idempotent (returns success even if no configuration exists).
+
+**Input:**
+
+```typescript
+{
+  project_id: string,
+  bucketName: string
+}
+```
+
+**Output:**
+
+```typescript
+boolean
+```
+
+**Example:**
+
+```typescript
+await trpc.storage.ceph.lifecycle.delete.mutate({
+  project_id: "abc123",
+  bucketName: "my-bucket",
+})
+```
+
+---
+
 ## Error Handling
 
 ### S3 Error Mapper

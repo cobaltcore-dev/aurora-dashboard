@@ -20,17 +20,19 @@ function checkPolicySetRateLimit(bucketName: string, projectId: string): void {
   const now = Date.now()
   const windowMs = 5 * 60 * 1000 // 5 minutes
 
-  // Clean up expired entries to prevent unbounded memory growth
-  for (const [k, v] of policySetRateLimits.entries()) {
-    if (now > v.resetAt) {
-      policySetRateLimits.delete(k)
-    }
-  }
-
   const limit = policySetRateLimits.get(key)
 
   if (!limit || now > limit.resetAt) {
     policySetRateLimits.set(key, { count: 1, resetAt: now + windowMs })
+    // Self-clean this one key after its window closes — O(1) per key, no full-map scan.
+    setTimeout(() => {
+      const current = policySetRateLimits.get(key)
+      // Only delete if this timer's entry is still the current one (a newer window may have
+      // started for the same key before this stale timer fired).
+      if (current && current.resetAt <= Date.now()) {
+        policySetRateLimits.delete(key)
+      }
+    }, windowMs).unref()
     return
   }
 

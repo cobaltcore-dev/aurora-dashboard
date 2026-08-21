@@ -30,13 +30,14 @@ describe("BucketDetailTabs", () => {
     vi.mocked(Route.useNavigate).mockReturnValue(mockNavigate)
   })
 
-  it("renders both tab labels", () => {
+  it("renders all three tab labels", () => {
     vi.mocked(Route.useSearch).mockReturnValue({ view: "overview" } as never)
 
     render(<BucketDetailTabs />, { wrapper: Wrapper })
 
     expect(screen.getByText("Overview")).toBeInTheDocument()
     expect(screen.getByText("CORS Rules")).toBeInTheDocument()
+    expect(screen.getByText("Lifecycle Rules")).toBeInTheDocument()
   })
 
   it("marks Overview as active by default", () => {
@@ -57,6 +58,15 @@ describe("BucketDetailTabs", () => {
     expect(corsTab).toHaveClass("juno-navigation-item-active")
   })
 
+  it("marks Lifecycle Rules as active when view=lifecycle-rules", () => {
+    vi.mocked(Route.useSearch).mockReturnValue({ view: "lifecycle-rules" } as never)
+
+    render(<BucketDetailTabs />, { wrapper: Wrapper })
+
+    const lifecycleTab = screen.getByText("Lifecycle Rules").closest("button")
+    expect(lifecycleTab).toHaveClass("juno-navigation-item-active")
+  })
+
   it("calls navigate with merged search params when clicking inactive tab", async () => {
     const { default: userEvent } = await import("@testing-library/user-event")
     const user = userEvent.setup()
@@ -72,9 +82,9 @@ describe("BucketDetailTabs", () => {
 
     render(<BucketDetailTabs />, { wrapper: Wrapper })
 
-    // Click on CORS Rules tab
-    const corsTab = screen.getByText("CORS Rules")
-    await user.click(corsTab)
+    // Click on Lifecycle Rules tab
+    const lifecycleTab = screen.getByText("Lifecycle Rules")
+    await user.click(lifecycleTab)
 
     // Should call navigate with view changed but other params preserved
     expect(mockNavigate).toHaveBeenCalledWith({
@@ -92,7 +102,7 @@ describe("BucketDetailTabs", () => {
     })
 
     expect(result).toEqual({
-      view: "cors-rules",
+      view: "lifecycle-rules",
       prefix: "folder/",
       sortBy: "name",
       search: "test",
