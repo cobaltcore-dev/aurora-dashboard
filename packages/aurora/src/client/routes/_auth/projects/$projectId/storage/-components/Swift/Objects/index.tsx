@@ -310,14 +310,27 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   // access to it — surface a single friendly toast (no technical error, no
   // not-found/forbidden distinction that would leak existence) and redirect
   // back to the container list. Redirect + toast are side effects, so they run
-  // in an effect rather than during render; keyed on error + containerName so
-  // the toast fires once per failure.
+  // in an effect rather than during render.
+  //
+  // navigate (and the params it captures) are recreated each render, so they're
+  // listed as deps honestly; a ref guards against firing the toast/redirect more
+  // than once per error — it runs once when an error appears and resets when the
+  // error clears.
+  const redirectedRef = useRef(false)
   useEffect(() => {
-    if (!error) return
+    if (!error) {
+      redirectedRef.current = false
+      return
+    }
+    if (redirectedRef.current) return
+    redirectedRef.current = true
     const { message, ...options } = getContainerAccessErrorToast(containerName)
     toast.error(message, options)
-    navigateToContainers()
-  }, [error, containerName])
+    navigate({
+      to: "/projects/$projectId/storage/$provider/$storageType",
+      params: { projectId, provider, storageType },
+    })
+  }, [error, containerName, navigate, projectId, provider, storageType])
 
   const navigateToPrefix = (newPrefix: string) => {
     // Reset selection when navigating into a different prefix level
