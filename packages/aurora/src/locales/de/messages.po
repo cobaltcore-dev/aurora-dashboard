@@ -859,10 +859,10 @@ msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht hochgeladen werden: {errorMessage}"
 
 msgid "Couldn't Open Container"
-msgstr ""
+msgstr "Container konnte nicht geöffnet werden"
 
 msgid "Couldn't open container \"{containerName}\" — it may not exist, or you may not have access to it."
-msgstr ""
+msgstr "Container \"{containerName}\" konnte nicht geöffnet werden — er existiert möglicherweise nicht oder Sie haben keinen Zugriff darauf."
 
 msgid "CPU"
 msgstr "CPU"
