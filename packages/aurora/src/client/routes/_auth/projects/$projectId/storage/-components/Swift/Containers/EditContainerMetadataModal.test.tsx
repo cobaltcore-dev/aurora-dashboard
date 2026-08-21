@@ -895,7 +895,10 @@ describe("EditContainerMetadataModal", () => {
   // ──────────────────────────────────────────────────────────────────────────
 
   describe("Error handling", () => {
-    test("calls onError with container name and error message on mutation failure", async () => {
+    test("shows the error inline in the modal and does not fire onError (toast) on mutation failure", async () => {
+      // #1162: container-update is recoverable, so the failure is surfaced via
+      // the inline banner in the modal body — NOT via a toast. onError must not
+      // be called, so the parent doesn't also raise a toast (no double error).
       mutationError = "Internal Server Error"
       const onError = vi.fn()
       const user = userEvent.setup()
@@ -904,8 +907,10 @@ describe("EditContainerMetadataModal", () => {
       await user.type(screen.getByLabelText(/Total size quota/i), "1000")
       await user.click(screen.getByRole("button", { name: /Save/i }))
       await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith("my-container", "Internal Server Error")
+        expect(screen.getByText(/Failed to update container/i)).toBeInTheDocument()
       })
+      expect(screen.getByText(/Internal Server Error/i)).toBeInTheDocument()
+      expect(onError).not.toHaveBeenCalled()
     })
 
     test("does not close the modal on mutation failure", async () => {
