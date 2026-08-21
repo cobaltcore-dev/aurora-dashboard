@@ -1,1 +1,9 @@
+#!/bin/sh
+
+# Check for Signed-off-by line
+if ! grep -q "^Signed-off-by: " "$1"; then
+  echo "ERROR: Commit must be signed off. Use 'git commit -s'"
+  exit 1
+fi
+
 pnpm dlx commitlint --edit $1
