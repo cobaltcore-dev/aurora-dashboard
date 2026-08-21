@@ -2350,9 +2350,6 @@ msgstr "Objekt wird verschoben..."
 msgid "Moving..."
 msgstr "Wird verschoben..."
 
-msgid "Must be a non-negative integer"
-msgstr "Muss eine nicht-negative Ganzzahl sein"
-
 msgid "Must be a valid common name (FQDN)."
 msgstr "Must be a valid common name (FQDN)."
 
@@ -2361,6 +2358,9 @@ msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 ode
 
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und Bindestriche, darf nicht mit einem Bindestrich beginnen oder enden)."
+
+msgid "Must be a whole number, 0 or greater"
+msgstr "Muss eine ganze Zahl sein, 0 oder größer"
 
 msgid "my-bucket-name"
 msgstr ""
