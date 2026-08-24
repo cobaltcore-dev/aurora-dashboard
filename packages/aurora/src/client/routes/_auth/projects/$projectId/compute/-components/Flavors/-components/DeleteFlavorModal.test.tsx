@@ -83,17 +83,18 @@ describe("DeleteFlavorModal", () => {
 
     expect(screen.getByText("Delete Flavor")).toBeInTheDocument()
     expect(screen.getByText(/This action cannot be undone/i)).toBeInTheDocument()
-    expect(screen.getByText(/To confirm type/i)).toBeInTheDocument()
+
+    expect(screen.getByLabelText(/Type "delete" to confirm/i)).toBeInTheDocument()
 
     expect(screen.getByText("Test Flavor")).toBeInTheDocument()
     expect(screen.getByText("test-flavor-id")).toBeInTheDocument()
     expect(screen.getByText("2")).toBeInTheDocument() // VCPUs
     expect(screen.getByText("1024 MiB")).toBeInTheDocument() // RAM
     expect(screen.getByText("10 GiB")).toBeInTheDocument() // Disk
-    expect(screen.getByText("512 MiB")).toBeInTheDocument() // Swap
+    expect(screen.getByText("0 MiB")).toBeInTheDocument() // Swap
 
-    expect(screen.getByText("Delete")).toBeInTheDocument()
-    expect(screen.getByText("Cancel")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Delete Flavor/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
   })
 
   it("calls deleteFlavor when delete button is clicked", async () => {

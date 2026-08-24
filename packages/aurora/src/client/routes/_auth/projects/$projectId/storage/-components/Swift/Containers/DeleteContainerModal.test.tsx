@@ -242,7 +242,7 @@ describe("DeleteContainerModal", () => {
 
     test("renders Close button instead of Delete", () => {
       renderModal({ container: makeContainer({ count: 1 }) })
-      expect(screen.getByTestId("delete-has-objects-close-button")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /Close/i })).toBeInTheDocument()
       expect(screen.queryByRole("button", { name: /^Delete$/i })).not.toBeInTheDocument()
     })
 
@@ -260,7 +260,7 @@ describe("DeleteContainerModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ container: makeContainer({ count: 1 }), onClose })
-      await user.click(screen.getByTestId("delete-has-objects-close-button"))
+      await user.click(screen.getByRole("button", { name: /Close/i }))
       await waitFor(() => {
         expect(onClose).toHaveBeenCalled()
       })
@@ -277,7 +277,7 @@ describe("DeleteContainerModal", () => {
     test("renders Close button when count > 0 even if listed === 0", () => {
       listObjectsData = []
       renderModal({ container: makeContainer({ count: 5 }) })
-      expect(screen.getByTestId("delete-has-objects-close-button")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /Close/i })).toBeInTheDocument()
     })
 
     test("shows sync delay info message when count > 0 but no objects listed", () => {
