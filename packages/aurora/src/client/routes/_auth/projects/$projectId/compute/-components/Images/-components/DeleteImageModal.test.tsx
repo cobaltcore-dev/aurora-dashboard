@@ -46,13 +46,13 @@ describe("DeleteImageModal", () => {
 
   it("should render the modal when isOpen is true", () => {
     setup(true)
-    expect(screen.getByText("Delete Image")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /Delete Image/i })).toBeInTheDocument()
     expect(screen.getByText(/This action cannot be undone/i)).toBeInTheDocument()
   })
 
   it("should not render the modal when isOpen is false", () => {
     setup(false)
-    expect(screen.queryByText("Delete Image")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: /Delete Image/i })).not.toBeInTheDocument()
   })
 
   it("should display image details in the modal", () => {
