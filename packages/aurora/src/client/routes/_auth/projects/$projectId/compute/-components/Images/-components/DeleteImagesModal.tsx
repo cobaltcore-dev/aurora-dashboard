@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
-import { Button, ButtonRow, Modal, ModalFooter, Stack, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, TextInput } from "@cloudoperators/juno-ui-components"
 
 interface DeleteImagesModalProps {
   deletableImages: Array<string>
@@ -65,15 +65,8 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
         onCancel={handleClose}
         title={<Trans>Delete Results</Trans>}
         size="large"
-        modalFooter={
-          <ModalFooter className="flex justify-end">
-            <ButtonRow>
-              <Button variant="default" onClick={handleConfirm}>
-                <Trans>Done</Trans>
-              </Button>
-            </ButtonRow>
-          </ModalFooter>
-        }
+        confirmButtonLabel={t`Done`}
+        onConfirm={handleConfirm}
       >
         <Stack direction="vertical" gap="4">
           {(() => {
@@ -95,8 +88,11 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
               </p>
               <div className="bg-theme-background-lvl-2 max-h-96 overflow-y-auto rounded p-4">
                 <Stack direction="vertical" gap="2">
-                  {visibleErrors.map((e, idx) => (
-                    <div key={idx} className="border-theme-background-lvl-3 border-b pb-2 last:border-0 last:pb-0">
+                  {visibleErrors.map((e) => (
+                    <div
+                      key={e.imageId}
+                      className="border-theme-background-lvl-3 border-b pb-2 last:border-0 last:pb-0"
+                    >
                       <div className="overflow-x-hidden font-medium [overflow-wrap:anywhere]" title={e.imageId}>
                         {e.imageId}
                       </div>
@@ -148,13 +144,16 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
         <div className="space-y-3">
           {deletableCount > 0 && (
             <div>
-              <label className="text-sm font-semibold">
+              <p className="text-sm font-semibold">
                 <Trans>Images to delete:</Trans>
-              </label>
+              </p>
               <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
                 <Stack direction="vertical" gap="1">
-                  {visibleDeletable.map((imageId, idx) => (
-                    <div key={idx} className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]">
+                  {visibleDeletable.map((imageId) => (
+                    <div
+                      key={imageId}
+                      className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]"
+                    >
                       {imageId}
                     </div>
                   ))}
@@ -170,13 +169,16 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
 
           {protectedCount > 0 && (
             <div>
-              <label className="text-sm font-semibold">
+              <p className="text-sm font-semibold">
                 <Trans>Protected images (cannot be deleted):</Trans>
-              </label>
+              </p>
               <div className="bg-theme-warning/10 mt-2 max-h-48 overflow-y-auto rounded border border-yellow-500/20 p-3">
                 <Stack direction="vertical" gap="1">
-                  {visibleProtected.map((imageId, idx) => (
-                    <div key={idx} className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]">
+                  {visibleProtected.map((imageId) => (
+                    <div
+                      key={imageId}
+                      className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]"
+                    >
                       {imageId}
                     </div>
                   ))}

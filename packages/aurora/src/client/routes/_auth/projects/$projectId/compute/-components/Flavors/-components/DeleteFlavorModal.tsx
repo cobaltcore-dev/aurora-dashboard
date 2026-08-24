@@ -123,7 +123,9 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
             <DescriptionDefinition>{flavor.disk} GiB</DescriptionDefinition>
 
             <DescriptionTerm>{t`Swap`}</DescriptionTerm>
-            <DescriptionDefinition>{flavor.swap || 0} MiB</DescriptionDefinition>
+            <DescriptionDefinition>
+              {flavor.swap === 0 || flavor.swap === "" ? <Trans>None</Trans> : `${Number(flavor.swap)} MiB`}
+            </DescriptionDefinition>
           </DescriptionList>
         )}
 

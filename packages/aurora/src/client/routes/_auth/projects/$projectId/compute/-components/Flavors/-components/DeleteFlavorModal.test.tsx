@@ -51,7 +51,7 @@ describe("DeleteFlavorModal", () => {
     vcpus: 2,
     ram: 1024,
     disk: 10,
-    swap: 512,
+    swap: 0,
     rxtx_factor: 1,
     "OS-FLV-EXT-DATA:ephemeral": 5,
     description: "A test flavor",
@@ -81,7 +81,7 @@ describe("DeleteFlavorModal", () => {
       )
     })
 
-    expect(screen.getByText("Delete Flavor")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /Delete Flavor/i })).toBeInTheDocument()
     expect(screen.getByText(/This action cannot be undone/i)).toBeInTheDocument()
 
     expect(screen.getByLabelText(/Type "delete" to confirm/i)).toBeInTheDocument()
@@ -91,7 +91,7 @@ describe("DeleteFlavorModal", () => {
     expect(screen.getByText("2")).toBeInTheDocument() // VCPUs
     expect(screen.getByText("1024 MiB")).toBeInTheDocument() // RAM
     expect(screen.getByText("10 GiB")).toBeInTheDocument() // Disk
-    expect(screen.getByText("0 MiB")).toBeInTheDocument() // Swap
+    expect(screen.getByText("None")).toBeInTheDocument() // Swap
 
     expect(screen.getByRole("button", { name: /Delete Flavor/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
@@ -117,7 +117,7 @@ describe("DeleteFlavorModal", () => {
     const confirmInput = screen.getByPlaceholderText("delete")
     fireEvent.change(confirmInput, { target: { value: "delete" } })
 
-    const deleteButton = screen.getByText("Delete")
+    const deleteButton = screen.getByRole("button", { name: /Delete Flavor/i })
 
     await act(async () => {
       fireEvent.click(deleteButton)
@@ -151,7 +151,7 @@ describe("DeleteFlavorModal", () => {
     const confirmInput = screen.getByPlaceholderText("delete")
     fireEvent.change(confirmInput, { target: { value: "delete" } })
 
-    const deleteButton = screen.getByText("Delete")
+    const deleteButton = screen.getByRole("button", { name: /Delete Flavor/i })
 
     await act(async () => {
       fireEvent.click(deleteButton)
@@ -190,7 +190,7 @@ describe("DeleteFlavorModal", () => {
     const confirmInput = screen.getByPlaceholderText("delete")
     fireEvent.change(confirmInput, { target: { value: "delete" } })
 
-    const deleteButton = screen.getByText("Delete")
+    const deleteButton = screen.getByRole("button", { name: /Delete Flavor/i })
 
     await act(async () => {
       fireEvent.click(deleteButton)
@@ -229,7 +229,7 @@ describe("DeleteFlavorModal", () => {
     const confirmInput = screen.getByPlaceholderText("delete")
     fireEvent.change(confirmInput, { target: { value: "delete" } })
 
-    const deleteButton = screen.getByText("Delete")
+    const deleteButton = screen.getByRole("button", { name: /Delete Flavor/i })
 
     await act(async () => {
       fireEvent.click(deleteButton)
