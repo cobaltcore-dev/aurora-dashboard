@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const returnUrl = saveReturnUrl
         ? `/?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
         : "/"
-      window.location.href = returnUrl
+      window.location.replace(returnUrl)
     }
   }
 

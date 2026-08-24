@@ -9,7 +9,7 @@ export function LoginForm() {
     <div className="mt-8 flex justify-center">
       <div className="border-theme-light relative w-full max-w-md rounded-lg border p-6 shadow-lg">
         <ContentHeading className="text-center">
-          <Trans>Login to Your Account</Trans>
+          <Trans>Sign In to Your Account</Trans>
         </ContentHeading>
         <p className="mb-6 text-center">
           <Trans>Enter your credentials to access your account</Trans>
