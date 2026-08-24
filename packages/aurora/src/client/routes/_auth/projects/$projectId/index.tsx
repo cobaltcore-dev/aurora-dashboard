@@ -7,7 +7,6 @@ import { useRouteContext } from "@tanstack/react-router"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { Slot } from "@/client/components/Slot"
 import type { RouteInfo } from "@/client/routes/routeInfo"
-import { canAccessClavisPca } from "@/client/routes/_auth/projects/$projectId/services/pca/-components/pcaAccess"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
   staticData: {
@@ -57,7 +56,7 @@ function RouteComponent() {
     from: "/_auth/projects/$projectId",
   })
   const { t } = useLingui()
-  const { enabledServices } = useRouteContext({ strict: false })
+  const { enabledServices, additionalProjectServices } = useRouteContext({ strict: false })
   const isEnabled = (service: string) => !enabledServices || enabledServices.includes(service)
 
   const serviceIndex = getServiceIndex(availableServices ?? [])
@@ -99,8 +98,19 @@ function RouteComponent() {
       to: `${base}/storage/ceph/buckets`,
       service: "ceph-containers",
     })
-  if (canAccessClavisPca(serviceIndex, enabledServices)) {
-    cards.push({ group: t`Services`, label: t`PCA (Clavis)`, to: `${base}/services/pca`, service: "pca" })
+
+  for (const additionalService of additionalProjectServices ?? []) {
+    // if additional service is in the list of services and is enabled display a card for it
+    if (
+      serviceIndex[additionalService.serviceType]?.[additionalService.serviceName] &&
+      (!enabledServices || enabledServices.includes(additionalService.serviceType))
+    )
+      cards.push({
+        group: t`Services`,
+        label: additionalService.label,
+        to: additionalService.routes.fullPath.replace("$projectId", projectId),
+        service: additionalService.serviceType,
+      })
   }
 
   return (

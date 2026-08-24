@@ -52,6 +52,20 @@ export const getFolderDeleteErrorToast = (
   ),
 })
 
+// ── Container access / existence ───────────────────────────────────────────────
+
+// Shown when the object listing for a container can't be loaded — the container
+// doesn't exist or the user has no access to it. Deliberately a single combined
+// message for both cases (#1142): distinguishing "not found" from "forbidden"
+// would leak whether a container exists to someone who can't access it. Raised
+// by SwiftObjects right before it redirects back to the container list.
+export const getContainerAccessErrorToast = (containerName: string): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Couldn't Open Container</Trans>,
+  description: (
+    <Trans>Couldn't open container "{containerName}" — it may not exist, or you may not have access to it.</Trans>
+  ),
+})
+
 // ── Object download ────────────────────────────────────────────────────────────
 
 // Shown while at least one download/preview transfer is in flight. Large objects
