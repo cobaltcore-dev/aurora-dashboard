@@ -44,7 +44,7 @@ describe("LoginForm", () => {
     render(<LoginForm />, { wrapper })
 
     await waitFor(() => {
-      expect(screen.getByText("Login to Your Account")).toBeInTheDocument()
+      expect(screen.getByText("Sign In to Your Account")).toBeInTheDocument()
     })
 
     expect(screen.getByLabelText(/domain/i)).toBeInTheDocument()

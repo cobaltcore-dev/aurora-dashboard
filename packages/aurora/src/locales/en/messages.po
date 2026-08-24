@@ -2199,9 +2199,6 @@ msgstr "Loading versions..."
 msgid "Loading..."
 msgstr "Loading..."
 
-msgid "Login to Your Account"
-msgstr "Login to Your Account"
-
 msgid "MAC Address"
 msgstr "MAC Address"
 
@@ -2343,9 +2340,6 @@ msgstr "Moving object..."
 msgid "Moving..."
 msgstr "Moving..."
 
-msgid "Must be a non-negative integer"
-msgstr "Must be a non-negative integer"
-
 msgid "Must be a valid common name (FQDN)."
 msgstr "Must be a valid common name (FQDN)."
 
@@ -2354,6 +2348,9 @@ msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:
 
 msgid "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
 msgstr "Must be a valid PQDN or FQDN (alphanumeric and hyphens only, cannot start or end with hyphen)."
+
+msgid "Must be a whole number, 0 or greater"
+msgstr "Must be a whole number, 0 or greater"
 
 msgid "my-bucket-name"
 msgstr "my-bucket-name"
@@ -3182,6 +3179,9 @@ msgstr "Showing first {maxOptions} of {totalCount} — refine your search to nar
 
 msgid "Sign In"
 msgstr "Sign In"
+
+msgid "Sign In to Your Account"
+msgstr "Sign In to Your Account"
 
 msgid "Size"
 msgstr "Size"

@@ -348,7 +348,9 @@ export const SwiftContainers = () => {
             Unlike the Images reference (where Zone 3 carries only bulk actions and is
             omitted entirely without permissions), this bar also hosts the Swift-specific
             count + remaining-quota + limits info, which must always be visible. So the
-            bar always renders; only the bulk controls are gated. */}
+            bar always renders; only the bulk controls are gated. Bulk controls
+            sit on the left; the count + quota are pushed right via ml-auto so they
+            stay right-aligned regardless of whether the bulk block renders. */}
         <DataGridToolbar>
           <Stack distribution="start" gap="2" alignment="center" className="text-sm">
             {hasAnyBulkAction ? (
@@ -382,7 +384,7 @@ export const SwiftContainers = () => {
               <span />
             )}
 
-            <div className="text-theme-light flex items-center gap-1" data-testid="containers-info-block">
+            <div className="text-theme-light ml-auto flex items-center gap-1" data-testid="containers-info-block">
               {isFiltered ? (
                 <Plural
                   value={filteredCount}
