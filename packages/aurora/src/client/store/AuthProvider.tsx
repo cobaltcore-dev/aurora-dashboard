@@ -61,10 +61,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
 
     const handleExpiry = async () => {
-      clearLocalSession()
-      redirectToLogin(true)
-      // Await server invalidation - but don't block logout on failure
-      await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
+      setIsLoading(true)
+      try {
+        await trpcClient.auth.terminateUserSession.mutate()
+        clearLocalSession()
+        redirectToLogin(true)
+      } catch (err) {
+        // Server invalidation failed - show error but allow retry
+        setError(err instanceof Error ? err.message : `Session termination failed: ${err}`)
+      } finally {
+        setIsLoading(false)
+      }
     }
 
     if (timeUntilExpiry <= 0) {
@@ -94,13 +101,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     setIsLoading(true)
-    clearLocalSession()
-    redirectToLogin(false) // Don't save return URL on manual logout
-    // Await server invalidation - but don't block logout on failure
-    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
-    // If already on login page, no redirect happens - reset loading state
-    if (window.location.pathname === "/") {
-      setIsLoading(false)
+    setError(null)
+    try {
+      await trpcClient.auth.terminateUserSession.mutate()
+      clearLocalSession()
+      redirectToLogin(false) // Don't save return URL on manual logout
+    } catch (err) {
+      // Server invalidation failed - show error with retry option
+      setError(err instanceof Error ? err.message : `Logout failed: ${err}`)
+    } finally {
+      // If already on login page, no redirect happens - reset loading state
+      if (window.location.pathname === "/") {
+        setIsLoading(false)
+      }
     }
   }
 
