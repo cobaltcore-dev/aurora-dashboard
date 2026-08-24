@@ -1,5 +1,25 @@
 # @cobaltcore-dev/aurora
 
+## 1.1.0
+
+### Minor Changes
+
+- a9c257a: Consumers can now register additional project-scoped services in Aurora. Pass your service definitions via the `additionalProjectServices` prop on `AuroraApp` to plug in client-side routes, and register your BFF router via the existing `routers` config in `createServer`. Additional services are only shown to users when the service is available in the project's OpenStack service catalog and not excluded by the app's `enabledServices` list.
+
+  This replaces the previously hardcoded PCA (Clavis) integration. PCA and any other consumer-specific service should now be registered this way rather than living inside the OSS package.
+
+- 8e99f07: Remove the public `getAuthToken` endpoint that exposed raw OpenStack bearer tokens to JavaScript.
+
+  **Migration:** Clients must stop calling `getAuthToken`. Use the supported server-side authenticated flow instead of requesting raw OpenStack bearer tokens from JavaScript.
+
+### Patch Changes
+
+- 94476a1: - Add ownership verification for EC2 credential deletion to prevent IDOR attacks
+  - Return NOT_FOUND for unauthorized deletion attempts (prevents resource enumeration)
+  - Make DELETE idempotent (404 on GET returns success)
+  - Map 401/403 from identity service to proper error codes
+- 1513d97: Update delete modals to use Modal built-in props and single-column DescriptionList, improve test accessibility using getByRole and getByLabelText queries, fix swap display to show "None" instead of "0 MiB", and replace array index keys with stable IDs
+
 ## 1.0.0
 
 ### Major Changes
