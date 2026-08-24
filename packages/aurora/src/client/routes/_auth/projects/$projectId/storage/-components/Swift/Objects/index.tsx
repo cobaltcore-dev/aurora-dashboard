@@ -157,7 +157,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   const currentPrefix = decodePrefix(encodedPrefix)
 
   // Whether the list exposes any bulk action — drives the selection column in
-  // ObjectsTableView and the Zone 3 bulk-action controls. Hardcoded to true for
+  // ObjectsTableView and the Zone 4 bulk-action controls. Hardcoded to true for
   // now; the only bulk action today is the destructive Delete.
   //
   // TODO(perms): wire this to the real Swift object permission source
@@ -411,7 +411,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   // keys (e.g. "folder/sub/file.txt") but the modal should show "file.txt".
   const selectedDisplayNames = selectedObjects.map((key) => sortedRows.find((r) => r.name === key)?.displayName ?? key)
 
-  // Zone 3 select-all operates on the selectable (object, non-folder) rows in
+  // Zone 4 select-all operates on the selectable (object, non-folder) rows in
   // the currently displayed (filtered + sorted) set.
   const selectableNames = sortedRows.filter((r): r is ObjectRow => r.kind === "object").map((r) => r.name)
   const allSelectableSelected = selectableNames.length > 0 && selectableNames.every((n) => selectedObjects.includes(n))
@@ -427,12 +427,6 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
 
   return (
     <div className="relative">
-      <ObjectsFileNavigation
-        containerName={containerName}
-        currentPrefix={currentPrefix}
-        onContainersClick={navigateToContainers}
-        onPrefixClick={navigateToPrefix}
-      />
       <Stack direction="vertical">
         {/* Zone 1 — sort controls + primary actions (plain Stack, no background) */}
         <Stack distribution="end" alignment="center" gap="2" className="pb-2">
@@ -484,7 +478,17 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
           </Stack>
         </DataGridToolbar>
 
-        {/* Zone 3 — bulk actions (gated) plus the item count. Bulk actions sit
+        {/* Zone 3 — breadcrumb navigation in its own row (matches Ceph). */}
+        <DataGridToolbar>
+          <ObjectsFileNavigation
+            containerName={containerName}
+            currentPrefix={currentPrefix}
+            onContainersClick={navigateToContainers}
+            onPrefixClick={navigateToPrefix}
+          />
+        </DataGridToolbar>
+
+        {/* Zone 4 — bulk actions (gated) plus the item count. Bulk actions sit
             on the left; the count is pushed right via ml-auto so it stays
             right-aligned regardless of whether the bulk block renders. */}
         <DataGridToolbar>
