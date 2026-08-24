@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import {
+  getContainerAccessErrorToast,
   getFolderCreatedToast,
   getFolderCreateErrorToast,
   getFolderDeletedToast,
@@ -46,6 +47,25 @@ const renderNotification = (notification: ObjectNotification) => {
 describe("SwiftObjectToastNotifications", () => {
   beforeEach(() => {
     i18n.activate("en")
+  })
+
+  // ── Container access / existence ───────────────────────────────────────────
+
+  describe("getContainerAccessErrorToast", () => {
+    it("renders a combined not-found / no-access message", () => {
+      renderNotification(getContainerAccessErrorToast("my-container"))
+      expect(screen.getByText("Couldn't Open Container")).toBeInTheDocument()
+      expect(screen.getByText(/my-container/)).toBeInTheDocument()
+      expect(screen.getByText(/may not exist, or you may not have access/)).toBeInTheDocument()
+    })
+
+    it("does not distinguish not-found from forbidden (no existence leak)", () => {
+      // A single message is intentional: revealing whether the container exists
+      // to someone without access would be an information leak (#1142).
+      renderNotification(getContainerAccessErrorToast("secret-container"))
+      expect(screen.queryByText(/not found/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/forbidden/i)).not.toBeInTheDocument()
+    })
   })
 
   // ── Folder operations ──────────────────────────────────────────────────────
