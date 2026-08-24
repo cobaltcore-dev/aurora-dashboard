@@ -782,7 +782,7 @@ export const lifecycleRuleStatusSchema = z.enum(["Enabled", "Disabled"])
  */
 export const lifecycleExpirationSchema = z
   .object({
-    Days: z.number().int().min(1).optional(), // Expire after N days from object creation
+    Days: z.number().int().min(1).max(3650).optional(), // Expire after N days from object creation
     Date: z.string().datetime({ offset: true }).optional(), // Expire on specific date (ISO 8601)
     ExpiredObjectDeleteMarker: z.boolean().optional(), // Remove expired delete markers (versioning)
   })

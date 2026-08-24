@@ -930,6 +930,12 @@ msgstr "Container \"{containerName}\" konnte nicht aktualisiert werden: {errorMe
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht hochgeladen werden: {errorMessage}"
 
+msgid "Couldn't Open Container"
+msgstr "Container konnte nicht geöffnet werden"
+
+msgid "Couldn't open container \"{containerName}\" — it may not exist, or you may not have access to it."
+msgstr "Container \"{containerName}\" konnte nicht geöffnet werden — er existiert möglicherweise nicht oder Sie haben keinen Zugriff darauf."
+
 msgid "CPU"
 msgstr "CPU"
 
@@ -1278,12 +1284,6 @@ msgstr "Legen Sie Ihre Image-Datei hier ab"
 msgid "Duration/validity"
 msgstr "Duration/validity"
 
-msgid "e.g environment"
-msgstr ""
-
-msgid "e.g production"
-msgstr ""
-
 msgid "e.g. .r:*,.rlistings"
 msgstr "z. B. .r:*,.rlistings"
 
@@ -1296,6 +1296,9 @@ msgstr ""
 msgid "e.g. Authorization, Content-Type, or *"
 msgstr ""
 
+msgid "e.g. environment"
+msgstr ""
+
 msgid "e.g. Etag, Content-Length"
 msgstr ""
 
@@ -1306,6 +1309,9 @@ msgid "e.g. logs/"
 msgstr ""
 
 msgid "e.g. my-lifecycle-rule"
+msgstr ""
+
+msgid "e.g. production"
 msgstr ""
 
 msgid "e.g. PROJECT_ID:USER_ID"
@@ -1505,9 +1511,6 @@ msgstr "Fehler beim Laden der Floating-IP"
 
 msgid "Error loading image"
 msgstr "Fehler beim Laden des Images"
-
-msgid "Error Loading Objects: {errorMessage}"
-msgstr "Fehler beim Laden der Objekte: {errorMessage}"
 
 msgid "Error loading security group"
 msgstr "Fehler beim Laden der Security Group"

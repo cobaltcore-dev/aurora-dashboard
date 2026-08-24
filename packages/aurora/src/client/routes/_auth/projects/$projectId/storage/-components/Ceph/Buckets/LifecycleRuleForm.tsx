@@ -464,7 +464,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                               setNewTagKey(e.target.value)
                               setTagError(undefined)
                             }}
-                            placeholder={t`e.g environment`}
+                            placeholder={t`e.g. environment`}
                             invalid={!!tagError}
                             errortext={tagError}
                             disabled={hasAbortUploadValue}
@@ -475,7 +475,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                             label={t`Value`}
                             value={newTagValue}
                             onChange={(e) => setNewTagValue(e.target.value)}
-                            placeholder={t`e.g production`}
+                            placeholder={t`e.g. production`}
                             disabled={hasAbortUploadValue}
                           />
                         </div>

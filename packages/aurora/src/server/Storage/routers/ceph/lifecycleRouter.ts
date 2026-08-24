@@ -77,7 +77,7 @@ export const lifecycleRouter = {
    * Not having a lifecycle configuration is a normal state (not an error).
    *
    * Rules are mapped and validated individually  a rule that fails the lenient read schema
-   * (e.g. authored outside Aurora) is skipped rather than failing the who. eresponse;
+   * (e.g. authored outside Aurora) is skipped rather than failing the whole response;
    * `skippedRuleCount` reports how many were skipped so the client can warn and disable mutations.
    *
    * @returns { rules: LifecycleRule[] | null; skippedRuleCount: number }

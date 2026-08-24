@@ -1712,6 +1712,7 @@ Retrieves the current lifecycle configuration for a bucket. Returns `null` if no
 ```typescript
 {
   rules: LifecycleRule[] | null
+  skippedRuleCount?: number // Number of rules skipped due to validation errors
 }
 ```
 
