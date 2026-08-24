@@ -871,6 +871,12 @@ msgstr "Could not update container \"{containerName}\": {errorMessage}"
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "Could not upload \"{objectName}\": {errorMessage}"
 
+msgid "Couldn't Open Container"
+msgstr "Couldn't Open Container"
+
+msgid "Couldn't open container \"{containerName}\" — it may not exist, or you may not have access to it."
+msgstr "Couldn't open container \"{containerName}\" — it may not exist, or you may not have access to it."
+
 msgid "CPU"
 msgstr "CPU"
 
@@ -1398,9 +1404,6 @@ msgstr "Error loading floating IP"
 
 msgid "Error loading image"
 msgstr "Error loading image"
-
-msgid "Error Loading Objects: {errorMessage}"
-msgstr "Error Loading Objects: {errorMessage}"
 
 msgid "Error loading security group"
 msgstr "Error loading security group"
