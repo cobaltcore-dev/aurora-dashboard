@@ -2227,12 +2227,6 @@ msgstr "Objekt wird verschoben..."
 msgid "Moving..."
 msgstr "Wird verschoben..."
 
-msgid "Must be a non-negative integer"
-msgstr "Muss eine nicht-negative Ganzzahl sein"
-
-msgid "Must be a valid common name (FQDN)."
-msgstr "Must be a valid common name (FQDN)."
-
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
