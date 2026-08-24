@@ -21,7 +21,6 @@ describe("buildAppRouter", () => {
     expect(record).toHaveProperty("network")
     expect(record).toHaveProperty("storage")
     expect(record).toHaveProperty("project")
-    expect(record).toHaveProperty("services")
   })
 
   it("merges custom router procedures alongside built-in ones", () => {

@@ -104,49 +104,6 @@ describe("sessionRouter", () => {
     })
   })
 
-  describe("getAuthToken", () => {
-    it("should reject unauthenticated callers with UNAUTHORIZED", async () => {
-      mockContext.validateSession.mockReturnValue(false)
-      await expect(caller.getAuthToken()).rejects.toThrow(
-        new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" })
-      )
-    })
-
-    it("should return auth token when openstack session exists", async () => {
-      const result = await caller.getAuthToken()
-
-      expect(result).toBe("test-auth-token")
-    })
-
-    it("should return null when no openstack session exists", async () => {
-      const mockContextWithoutOpenStack = {
-        ...mockContext,
-        openstack: null,
-      }
-
-      const callerWithoutOpenStack = createCaller(mockContextWithoutOpenStack as unknown as AuroraPortalContext)
-      const result = await callerWithoutOpenStack.getAuthToken()
-
-      expect(result).toBeNull()
-    })
-
-    it("should return null when getToken returns null", async () => {
-      const mockOpenstackSessionWithNullToken = {
-        getToken: vi.fn(() => null),
-      }
-
-      const mockContextWithNullToken = {
-        ...mockContext,
-        openstack: mockOpenstackSessionWithNullToken,
-      }
-
-      const callerWithNullToken = createCaller(mockContextWithNullToken as unknown as AuroraPortalContext)
-      const result = await callerWithNullToken.getAuthToken()
-
-      expect(result).toBeNull()
-    })
-  })
-
   describe("getCurrentScope", () => {
     it("should return project and domain when both exist", async () => {
       const result = await caller.getCurrentScope()

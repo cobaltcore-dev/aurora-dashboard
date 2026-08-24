@@ -1,4 +1,5 @@
 import type { FC } from "react"
+import type { AnyRoute } from "@tanstack/react-router"
 import type { TrpcClient } from "./trpcClient"
 import App from "./App"
 
@@ -53,6 +54,29 @@ export type TrackEventPayload = {
  */
 export type OnTrackEventCallback = (payload: TrackEventPayload) => void
 
+/**
+ * An additional project-scoped service a consumer wants to register.
+ * Aurora checks `serviceIndex[serviceType][serviceName]` against the project's OpenStack catalog.
+ * When present, the service appears in the "Services" nav section and its routes are activated
+ * under the OSS-owned `/services` layout. Pass the service's entry route (list/overview) as
+ * `routes` — wire its full sub-tree via `addChildren` and set `getParentRoute: () => servicesRoute`.
+ */
+export type AdditionalProjectService = {
+  /** OpenStack catalog service type, e.g. `"pca"`. */
+  serviceType: string
+  /** OpenStack catalog service name, e.g. `"clavis"`. */
+  serviceName: string
+  /** Nav item and service card label. */
+  label: string
+  /**
+   * The pre-assembled entry route for this service (list/overview).
+   * Set `getParentRoute: () => servicesRoute` (from `@cobaltcore-dev/aurora/client`) and wire
+   * the full sub-tree via `addChildren` before passing here.
+   * `routes.fullPath` is used as the nav item navigation target automatically.
+   */
+  routes: AnyRoute
+}
+
 /** Props for the top-level `<AuroraApp />` component. */
 export type AuroraAppProps = {
   /** Initial theme. Defaults to `"theme-light"`. */
@@ -88,6 +112,8 @@ export type AuroraAppProps = {
   onTrackEvent?: OnTrackEventCallback
   /** Whitelist of service keys to show in the side nav and project home page. When omitted, all available services are shown. */
   enabledServices?: string[]
+  /** Additional project-scoped services to register. Each is activated when its OpenStack service appears in the project catalog. */
+  additionalProjectServices?: AdditionalProjectService[]
 }
 
 export const AuroraApp: FC<AuroraAppProps> = App
