@@ -31,7 +31,6 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
       Flavors: t`Flavors`,
       "Security Groups": t`Security Groups`,
       "Floating IPs": t`Floating IPs`,
-      "PCA (Clavis)": t`PCA (Clavis)`,
     }
 
     const resolveProviderLabel = (provider: string | undefined) => {
@@ -66,18 +65,18 @@ export function ProjectInfoBox({ projectInfo }: ProjectInfoBoxProps) {
     const params = deepest.params as Record<string, string>
 
     if (info.sectionCrumb?.to) {
-      const { labelKey, to } = info.sectionCrumb
-      const label = labelKey ? crumbLabels[labelKey] : undefined
+      const { labelKey, label: rawLabel, to } = info.sectionCrumb
+      const label = labelKey ? crumbLabels[labelKey] : rawLabel
       items.push({ label, onClick: () => navigate({ to: to as never, params: params as never }) })
     }
 
     if (info.crumb) {
-      const { labelKey, to, useParamAsLabel } = info.crumb
+      const { labelKey, label, to, useParamAsLabel } = info.crumb
       const resolvedLabel = useParamAsLabel
         ? resolveProviderLabel(params[useParamAsLabel])
         : labelKey
           ? crumbLabels[labelKey]
-          : undefined
+          : label
 
       if (info.isDetail) {
         items.push({ label: resolvedLabel, onClick: () => navigate({ to: to as never, params: params as never }) })
