@@ -27,6 +27,7 @@ import { CreateFolderModal } from "./CreateFolderModal"
 import { UploadObjectModal } from "./UploadObjectModal"
 import { DeleteObjectsModal } from "./DeleteObjectsModal"
 import {
+  getContainerAccessErrorToast,
   getFolderCreatedToast,
   getFolderCreateErrorToast,
   getFolderDeletedToast,
@@ -304,6 +305,33 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
     })
   }
 
+  // #1142: don't render the object browser for a container we can't read.
+  // A failed listing means the container doesn't exist or the user has no
+  // access to it — surface a single friendly toast (no technical error, no
+  // not-found/forbidden distinction that would leak existence) and redirect
+  // back to the container list. Redirect + toast are side effects, so they run
+  // in an effect rather than during render.
+  //
+  // navigate (and the params it captures) are recreated each render, so they're
+  // listed as deps honestly; a ref guards against firing the toast/redirect more
+  // than once per error — it runs once when an error appears and resets when the
+  // error clears.
+  const redirectedRef = useRef(false)
+  useEffect(() => {
+    if (!error) {
+      redirectedRef.current = false
+      return
+    }
+    if (redirectedRef.current) return
+    redirectedRef.current = true
+    const { message, ...options } = getContainerAccessErrorToast(containerName)
+    toast.error(message, options)
+    navigate({
+      to: "/projects/$projectId/storage/$provider/$storageType",
+      params: { projectId, provider, storageType },
+    })
+  }, [error, containerName, navigate, projectId, provider, storageType])
+
   const navigateToPrefix = (newPrefix: string) => {
     // Reset selection when navigating into a different prefix level
     setSelectedObjects([])
@@ -369,13 +397,11 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
     )
   }
 
+  // #1142: on load error we don't render the technical message anymore. The
+  // effect above shows a toast and redirects to the container list; render
+  // nothing while that happens (also covers the brief tick before navigation).
   if (error) {
-    const errorMessage = error.message
-    return (
-      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
-        <Trans>Error Loading Objects: {errorMessage}</Trans>
-      </Stack>
-    )
+    return null
   }
 
   const hasSelection = selectedObjects.length > 0
