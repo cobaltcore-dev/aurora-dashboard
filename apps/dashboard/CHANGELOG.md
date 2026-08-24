@@ -1,5 +1,49 @@
 # @cobaltcore-dev/dashboard
 
+## 1.2.10
+
+### Patch Changes
+
+- f367c07: - Update eslint 10.2.0 → 10.7.0
+  - Update prettier 3.8.3 → 3.9.6
+  - Update turbo 2.9.14 → 2.10.6
+  - Update @changesets/cli 2.31.0 → 2.31.1
+  - Update commitizen 4.3.1 → 4.3.2
+  - Update prettier-plugin-tailwindcss 0.7.2 → 0.8.1
+  - Update pnpm 10.34.4 → 11.16.0
+  - Fix vitest localStorage mock for languageDetection tests
+  - Fix e2e breadcrumb tests for Domain/Project combined format
+- Updated dependencies [163b2d2]
+- Updated dependencies [9e817d0]
+- Updated dependencies [0bfd055]
+- Updated dependencies [f367c07]
+- Updated dependencies [10a497c]
+- Updated dependencies [13e2ae1]
+- Updated dependencies [7d9e6aa]
+- Updated dependencies [2c7bd0e]
+- Updated dependencies [a0407b9]
+- Updated dependencies [03cde79]
+- Updated dependencies [502a1e9]
+- Updated dependencies [e04eed1]
+- Updated dependencies [f66da80]
+- Updated dependencies [2309942]
+- Updated dependencies [46256e9]
+- Updated dependencies [9cdf0ae]
+- Updated dependencies [9645ac6]
+- Updated dependencies [d2c7efe]
+- Updated dependencies [0eb35f0]
+- Updated dependencies [0653da8]
+- Updated dependencies [92bbecd]
+- Updated dependencies [c65b027]
+- Updated dependencies [b7576db]
+- Updated dependencies [c98bccf]
+- Updated dependencies [d00f84a]
+- Updated dependencies [13e2ae1]
+- Updated dependencies [4c34ce8]
+- Updated dependencies [7d9e6aa]
+- Updated dependencies [a7b73a1]
+  - @cobaltcore-dev/aurora@1.0.0
+
 ## 1.2.9
 
 ### Patch Changes

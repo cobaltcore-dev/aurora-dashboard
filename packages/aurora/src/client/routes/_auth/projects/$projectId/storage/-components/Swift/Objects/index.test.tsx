@@ -234,6 +234,7 @@ let trpcState = {
 }
 
 vi.mock("./ObjectToastNotifications", () => ({
+  getContainerAccessErrorToast: vi.fn(() => ({ message: null, description: null })),
   getFolderCreatedToast: vi.fn(() => ({ message: null, description: null })),
   getFolderCreateErrorToast: vi.fn(() => ({ message: null, description: null })),
   getFolderDeletedToast: vi.fn(() => ({ message: null, description: null })),
@@ -330,18 +331,25 @@ describe("SwiftObjects (index)", () => {
   })
 
   describe("Error state", () => {
-    test("shows error message when query fails", () => {
+    test("redirects to the container list and shows a toast when the query fails", async () => {
+      trpcState.error = { message: "Resource not found container: missing" }
+      trpcState.objects = undefined
+      const { getContainerAccessErrorToast } = await import("./ObjectToastNotifications")
+      renderObjects()
+      await waitFor(() => {
+        expect(getContainerAccessErrorToast).toHaveBeenCalledWith("test-container")
+        expect(toast.error).toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalled()
+      })
+    })
+
+    test("does not render the object browser on error", () => {
       trpcState.error = { message: "Network error" }
       trpcState.objects = undefined
       renderObjects()
-      expect(screen.getByText(/Error Loading Objects/i)).toBeInTheDocument()
-      expect(screen.getByText(/Network error/i)).toBeInTheDocument()
-    })
-
-    test("does not render table view on error", () => {
-      trpcState.error = { message: "Network error" }
-      renderObjects()
       expect(screen.queryByTestId("objects-table-view")).not.toBeInTheDocument()
+      // The technical error text is no longer rendered (#1142) — we redirect instead.
+      expect(screen.queryByText(/Error Loading Objects/i)).not.toBeInTheDocument()
     })
   })
 
