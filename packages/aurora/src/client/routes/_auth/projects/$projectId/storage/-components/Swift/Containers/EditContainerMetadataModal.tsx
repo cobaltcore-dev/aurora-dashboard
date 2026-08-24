@@ -52,6 +52,9 @@ interface EditContainerMetadataModalProps {
   container: ContainerSummary | null
   onClose: () => void
   onSuccess?: (containerName: string) => void
+  // Retained for API compatibility with callers, but intentionally NOT wired to
+  // a toast: container-update is recoverable, so failures are shown inline in the
+  // modal (see #1162). Kept optional so existing callers still type-check.
   onError?: (containerName: string, errorMessage: string) => void
 }
 
@@ -60,7 +63,6 @@ export const EditContainerMetadataModal = ({
   container,
   onClose,
   onSuccess,
-  onError,
 }: EditContainerMetadataModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -200,22 +202,31 @@ export const EditContainerMetadataModal = ({
       onSuccess?.(container!.name)
       handleClose()
     },
-    onError: (error) => {
-      onError?.(container!.name, error.message)
+    onError: () => {
+      // #1162: container-metadata update is recoverable, so we surface the
+      // failure via the inline banner in the modal body (updateMutation.isError)
+      // and deliberately do NOT also fire a toast. The modal stays open so the
+      // user can adjust and retry. Showing both was the double-error bug.
     },
   })
 
   // ── Validation ────────────────────────────────────────────────────────────
   const validateQuotas = (): boolean => {
     let valid = true
-    if (quotaBytes !== "" && (isNaN(Number(quotaBytes)) || Number(quotaBytes) < 0)) {
-      setQuotaBytesError(t`Must be a non-negative integer`)
+    if (
+      quotaBytes !== "" &&
+      (isNaN(Number(quotaBytes)) || !Number.isInteger(Number(quotaBytes)) || Number(quotaBytes) < 0)
+    ) {
+      setQuotaBytesError(t`Must be a whole number, 0 or greater`)
       valid = false
     } else {
       setQuotaBytesError(null)
     }
-    if (quotaCount !== "" && (isNaN(Number(quotaCount)) || Number(quotaCount) < 0)) {
-      setQuotaCountError(t`Must be a non-negative integer`)
+    if (
+      quotaCount !== "" &&
+      (isNaN(Number(quotaCount)) || !Number.isInteger(Number(quotaCount)) || Number(quotaCount) < 0)
+    ) {
+      setQuotaCountError(t`Must be a whole number, 0 or greater`)
       valid = false
     } else {
       setQuotaCountError(null)

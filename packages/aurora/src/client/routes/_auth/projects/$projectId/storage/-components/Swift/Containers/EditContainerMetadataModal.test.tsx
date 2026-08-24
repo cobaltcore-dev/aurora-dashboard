@@ -278,7 +278,7 @@ describe("EditContainerMetadataModal", () => {
       await user.type(screen.getByLabelText(/Total size quota/i), "-1")
       await user.click(screen.getByRole("button", { name: /Save/i }))
       await waitFor(() => {
-        expect(screen.getByText(/Must be a non-negative integer/i)).toBeInTheDocument()
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
       })
     })
 
@@ -288,7 +288,28 @@ describe("EditContainerMetadataModal", () => {
       await user.type(screen.getByLabelText(/Object count quota/i), "abc")
       await user.click(screen.getByRole("button", { name: /Save/i }))
       await waitFor(() => {
-        expect(screen.getByText(/Must be a non-negative integer/i)).toBeInTheDocument()
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows validation error for decimal quota-bytes", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.clear(screen.getByLabelText(/Total size quota/i))
+      await user.type(screen.getByLabelText(/Total size quota/i), "1.5")
+      await user.click(screen.getByRole("button", { name: /Save/i }))
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows validation error for decimal quota-count", async () => {
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByLabelText(/Object count quota/i), "1.5")
+      await user.click(screen.getByRole("button", { name: /Save/i }))
+      await waitFor(() => {
+        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
       })
     })
 
@@ -297,11 +318,11 @@ describe("EditContainerMetadataModal", () => {
       renderModal()
       await user.type(screen.getByLabelText(/Total size quota/i), "-5")
       await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => expect(screen.getByText(/Must be a non-negative integer/i)).toBeInTheDocument())
+      await waitFor(() => expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument())
       await user.clear(screen.getByLabelText(/Total size quota/i))
       await user.type(screen.getByLabelText(/Total size quota/i), "100")
       await waitFor(() => {
-        expect(screen.queryByText(/Must be a non-negative integer/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/Must be a whole number, 0 or greater/i)).not.toBeInTheDocument()
       })
     })
 
@@ -895,7 +916,10 @@ describe("EditContainerMetadataModal", () => {
   // ──────────────────────────────────────────────────────────────────────────
 
   describe("Error handling", () => {
-    test("calls onError with container name and error message on mutation failure", async () => {
+    test("shows the error inline in the modal and does not fire onError (toast) on mutation failure", async () => {
+      // #1162: container-update is recoverable, so the failure is surfaced via
+      // the inline banner in the modal body — NOT via a toast. onError must not
+      // be called, so the parent doesn't also raise a toast (no double error).
       mutationError = "Internal Server Error"
       const onError = vi.fn()
       const user = userEvent.setup()
@@ -904,8 +928,10 @@ describe("EditContainerMetadataModal", () => {
       await user.type(screen.getByLabelText(/Total size quota/i), "1000")
       await user.click(screen.getByRole("button", { name: /Save/i }))
       await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith("my-container", "Internal Server Error")
+        expect(screen.getByText(/Failed to update container/i)).toBeInTheDocument()
       })
+      expect(screen.getByText(/Internal Server Error/i)).toBeInTheDocument()
+      expect(onError).not.toHaveBeenCalled()
     })
 
     test("does not close the modal on mutation failure", async () => {
