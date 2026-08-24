@@ -1,16 +1,7 @@
 import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import {
-  Modal,
-  ModalFooter,
-  Button,
-  ButtonRow,
-  TextInput,
-  Stack,
-  Spinner,
-  Checkbox,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Spinner, Checkbox } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
@@ -135,21 +126,10 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       title={modalTitle}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={hasObjects ? undefined : t`Delete`}
-      confirmButtonVariant={hasObjects ? undefined : "primary-danger"}
-      onConfirm={hasObjects ? undefined : handleSubmit}
+      confirmButtonLabel={hasObjects ? t`Close` : t`Delete`}
+      confirmButtonVariant={hasObjects ? "primary" : "primary-danger"}
+      onConfirm={hasObjects ? handleClose : handleSubmit}
       cancelButtonLabel={hasObjects ? undefined : t`Cancel`}
-      modalFooter={
-        hasObjects ? (
-          <ModalFooter className="flex justify-end">
-            <ButtonRow>
-              <Button variant="primary" onClick={handleClose} data-testid="delete-has-objects-close-button">
-                <Trans>Close</Trans>
-              </Button>
-            </ButtonRow>
-          </ModalFooter>
-        ) : undefined
-      }
       size="small"
       disableConfirmButton={
         isLoadingObjects ||

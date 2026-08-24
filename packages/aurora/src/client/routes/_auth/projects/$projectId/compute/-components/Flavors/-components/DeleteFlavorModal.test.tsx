@@ -6,6 +6,7 @@ import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
 import { Flavor } from "@/server/Compute/types/flavor"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 
 vi.mock("@/hooks/useErrorTranslation", () => ({
   useErrorTranslation: () => ({
@@ -23,7 +24,11 @@ vi.mock("@/hooks/useErrorTranslation", () => ({
   }),
 }))
 
-const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+const TestingProvider = ({ children }: { children: ReactNode }) => (
+  <I18nProvider i18n={i18n}>
+    <PortalProvider>{children}</PortalProvider>
+  </I18nProvider>
+)
 
 describe("DeleteFlavorModal", () => {
   beforeAll(async () => {
@@ -46,7 +51,7 @@ describe("DeleteFlavorModal", () => {
     vcpus: 2,
     ram: 1024,
     disk: 10,
-    swap: 512,
+    swap: 0,
     rxtx_factor: 1,
     "OS-FLV-EXT-DATA:ephemeral": 5,
     description: "A test flavor",
@@ -76,20 +81,20 @@ describe("DeleteFlavorModal", () => {
       )
     })
 
-    expect(screen.getByText("Delete Flavor")).toBeInTheDocument()
-    expect(
-      screen.getByText("This action cannot be undone. The flavor will be permanently deleted.")
-    ).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /Delete Flavor/i })).toBeInTheDocument()
+    expect(screen.getByText(/This action cannot be undone/i)).toBeInTheDocument()
+
+    expect(screen.getByLabelText(/Type "delete" to confirm/i)).toBeInTheDocument()
 
     expect(screen.getByText("Test Flavor")).toBeInTheDocument()
     expect(screen.getByText("test-flavor-id")).toBeInTheDocument()
     expect(screen.getByText("2")).toBeInTheDocument() // VCPUs
     expect(screen.getByText("1024 MiB")).toBeInTheDocument() // RAM
     expect(screen.getByText("10 GiB")).toBeInTheDocument() // Disk
-    expect(screen.getByText("512 MiB")).toBeInTheDocument() // Swap
+    expect(screen.getByText("None")).toBeInTheDocument() // Swap
 
-    expect(screen.getByText("Delete")).toBeInTheDocument()
-    expect(screen.getByText("Cancel")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Delete Flavor/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
   })
 
   it("calls deleteFlavor when delete button is clicked", async () => {
@@ -109,7 +114,10 @@ describe("DeleteFlavorModal", () => {
       )
     })
 
-    const deleteButton = screen.getByText("Delete")
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+
+    const deleteButton = screen.getByRole("button", { name: /Delete Flavor/i })
 
     await act(async () => {
       fireEvent.click(deleteButton)
@@ -140,7 +148,10 @@ describe("DeleteFlavorModal", () => {
       )
     })
 
-    const deleteButton = screen.getByText("Delete")
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+
+    const deleteButton = screen.getByRole("button", { name: /Delete Flavor/i })
 
     await act(async () => {
       fireEvent.click(deleteButton)
@@ -176,7 +187,10 @@ describe("DeleteFlavorModal", () => {
       )
     })
 
-    const deleteButton = screen.getByText("Delete")
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+
+    const deleteButton = screen.getByRole("button", { name: /Delete Flavor/i })
 
     await act(async () => {
       fireEvent.click(deleteButton)
@@ -212,7 +226,10 @@ describe("DeleteFlavorModal", () => {
       )
     })
 
-    const deleteButton = screen.getByText("Delete")
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+
+    const deleteButton = screen.getByRole("button", { name: /Delete Flavor/i })
 
     await act(async () => {
       fireEvent.click(deleteButton)

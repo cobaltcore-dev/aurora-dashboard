@@ -25,10 +25,16 @@ msgstr ""
 msgid "… and {hiddenCount} more"
 msgstr "... und {hiddenCount} weitere"
 
+msgid "… and {hiddenDeletableCount} more"
+msgstr ""
+
 msgid "… and {hiddenErrorCount} more failures"
 msgstr ""
 
 msgid "… and {hiddenObjectCount} more"
+msgstr ""
+
+msgid "… and {hiddenProtectedCount} more"
 msgstr ""
 
 msgid "… and {hiddenVersionsCount} more"
@@ -81,6 +87,9 @@ msgstr ""
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
 
+msgid "{deletableCount, plural, one {Delete # Image} other {Delete # Images}}"
+msgstr ""
+
 msgid "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
 msgstr ""
 
@@ -88,6 +97,10 @@ msgid "{deletedCount, plural, one {# version was permanently deleted.} other {# 
 msgstr ""
 
 msgid "{deletedCount} deleted, {errorCount} failed."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "deleteResults.summary"
 msgstr ""
 
 msgid "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
@@ -1899,9 +1912,6 @@ msgstr "Zu aktivierende Images ({deactivatedCount})"
 msgid "Images to be deactivated ({activeCount})"
 msgstr "Zu deaktivierende Images ({activeCount})"
 
-msgid "Images to be deleted ({deletableCount})"
-msgstr "Zu löschende Images ({deletableCount})"
-
 msgid "Images to deactivate:"
 msgstr "Zu deaktivierende Images:"
 
@@ -2634,11 +2644,8 @@ msgstr "Dieses Image vor dem Löschen schützen"
 msgid "Protected"
 msgstr "Geschützt"
 
-msgid "Protected (will be skipped):"
-msgstr "Geschützt (wird übersprungen):"
-
-msgid "Protected images (cannot be deleted)"
-msgstr "Geschützte Images (können nicht gelöscht werden)"
+msgid "Protected images (cannot be deleted):"
+msgstr ""
 
 msgid "Protocol"
 msgstr "Protokoll"
@@ -3279,6 +3286,9 @@ msgstr ""
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
 
+msgid "The selected images will be permanently deleted. This action cannot be undone."
+msgstr ""
+
 msgid "The selected objects will be marked as deleted but can be restored from version history."
 msgstr ""
 
@@ -3737,9 +3747,6 @@ msgstr "Sie sind dabei, <0>{deactivatedCount} Image(s)</0> zu aktivieren. Aktivi
 
 msgid "You are about to deactivate <0>{activeCount} image(s)</0>. Deactivated images cannot be used to launch new instances."
 msgstr "Sie sind dabei, <0>{activeCount} Image(s)</0> zu deaktivieren. Deaktivierte Images können nicht zum Starten neuer Instances verwendet werden."
-
-msgid "You are about to delete {deletableCount} image(s). This action cannot be undone."
-msgstr "Sie sind dabei, {deletableCount} Image(s) zu löschen. Diese Aktion kann nicht rückgängig gemacht werden."
 
 msgid "You are currently on the dashboard route."
 msgstr "Sie befinden sich derzeit auf der Dashboard-Route."

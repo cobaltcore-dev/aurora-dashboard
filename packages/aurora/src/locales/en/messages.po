@@ -25,11 +25,17 @@ msgstr "... and {hiddenCount} more"
 msgid "… and {hiddenCount} more"
 msgstr "… and {hiddenCount} more"
 
+msgid "… and {hiddenDeletableCount} more"
+msgstr "… and {hiddenDeletableCount} more"
+
 msgid "… and {hiddenErrorCount} more failures"
 msgstr "… and {hiddenErrorCount} more failures"
 
 msgid "… and {hiddenObjectCount} more"
 msgstr "… and {hiddenObjectCount} more"
+
+msgid "… and {hiddenProtectedCount} more"
+msgstr "… and {hiddenProtectedCount} more"
 
 msgid "… and {hiddenVersionsCount} more"
 msgstr "… and {hiddenVersionsCount} more"
@@ -81,6 +87,9 @@ msgstr "{count, plural, one {Failed to Delete CORS Rule} other {Failed to Delete
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
 
+msgid "{deletableCount, plural, one {Delete # Image} other {Delete # Images}}"
+msgstr "{deletableCount, plural, one {Delete # Image} other {Delete # Images}}"
+
 msgid "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
 msgstr "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
 
@@ -89,6 +98,10 @@ msgstr "{deletedCount, plural, one {# version was permanently deleted.} other {#
 
 msgid "{deletedCount} deleted, {errorCount} failed."
 msgstr "{deletedCount} deleted, {errorCount} failed."
+
+#. js-lingui-explicit-id
+msgid "deleteResults.summary"
+msgstr "{0} deleted, {1} failed."
 
 msgid "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
 msgstr "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
@@ -1899,9 +1912,6 @@ msgstr "Images to be activated ({deactivatedCount})"
 msgid "Images to be deactivated ({activeCount})"
 msgstr "Images to be deactivated ({activeCount})"
 
-msgid "Images to be deleted ({deletableCount})"
-msgstr "Images to be deleted ({deletableCount})"
-
 msgid "Images to deactivate:"
 msgstr "Images to deactivate:"
 
@@ -2634,11 +2644,8 @@ msgstr "Protect this image from being deleted"
 msgid "Protected"
 msgstr "Protected"
 
-msgid "Protected (will be skipped):"
-msgstr "Protected (will be skipped):"
-
-msgid "Protected images (cannot be deleted)"
-msgstr "Protected images (cannot be deleted)"
+msgid "Protected images (cannot be deleted):"
+msgstr "Protected images (cannot be deleted):"
 
 msgid "Protocol"
 msgstr "Protocol"
@@ -3279,6 +3286,9 @@ msgstr "The project you are looking for doesn't exist or you don't have access t
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 
+msgid "The selected images will be permanently deleted. This action cannot be undone."
+msgstr "The selected images will be permanently deleted. This action cannot be undone."
+
 msgid "The selected objects will be marked as deleted but can be restored from version history."
 msgstr "The selected objects will be marked as deleted but can be restored from version history."
 
@@ -3737,9 +3747,6 @@ msgstr "You are about to activate <0>{deactivatedCount} image(s)</0>. Activated 
 
 msgid "You are about to deactivate <0>{activeCount} image(s)</0>. Deactivated images cannot be used to launch new instances."
 msgstr "You are about to deactivate <0>{activeCount} image(s)</0>. Deactivated images cannot be used to launch new instances."
-
-msgid "You are about to delete {deletableCount} image(s). This action cannot be undone."
-msgstr "You are about to delete {deletableCount} image(s). This action cannot be undone."
 
 msgid "You are currently on the dashboard route."
 msgstr "You are currently on the dashboard route."

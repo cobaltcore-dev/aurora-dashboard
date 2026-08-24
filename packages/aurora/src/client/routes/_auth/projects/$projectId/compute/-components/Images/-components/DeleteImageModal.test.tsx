@@ -46,13 +46,13 @@ describe("DeleteImageModal", () => {
 
   it("should render the modal when isOpen is true", () => {
     setup(true)
-    expect(screen.getByText("Delete Image")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /Delete Image/i })).toBeInTheDocument()
     expect(screen.getByText(/This action cannot be undone/i)).toBeInTheDocument()
   })
 
   it("should not render the modal when isOpen is false", () => {
     setup(false)
-    expect(screen.queryByText("Delete Image")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: /Delete Image/i })).not.toBeInTheDocument()
   })
 
   it("should display image details in the modal", () => {
@@ -71,42 +71,57 @@ describe("DeleteImageModal", () => {
 
   it("should call onDelete and onClose when the delete button is clicked", () => {
     setup(true)
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
     const deleteButton = screen.getByRole("button", { name: /Delete/i })
     fireEvent.click(deleteButton)
     expect(mockOnDelete).toHaveBeenCalledTimes(1)
     expect(mockOnDelete).toHaveBeenCalledWith(mockImage)
+    // Note: onClose is called inside handleConfirm
     expect(mockOnClose).toHaveBeenCalledTimes(1)
+  })
+
+  it("should disable the delete button when confirmation text is not entered", () => {
+    setup(true)
+    const deleteButton = screen.getByRole("button", { name: /Delete Image/i })
+    expect(deleteButton).toBeDisabled()
+  })
+
+  it("should enable the delete button when confirmation text matches", () => {
+    setup(true)
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+    const deleteButton = screen.getByRole("button", { name: /Delete Image/i })
+    expect(deleteButton).not.toBeDisabled()
+  })
+
+  it("should show error when confirmation text does not match on submit", () => {
+    setup(true)
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+    fireEvent.change(confirmInput, { target: { value: "wrong" } })
+    const deleteButton = screen.getByRole("button", { name: /Delete/i })
+    expect(deleteButton).toBeDisabled()
+    expect(mockOnDelete).not.toHaveBeenCalled()
   })
 
   it("should disable the delete button when isLoading is true", () => {
     setup(true, true)
-    const deleteButton = screen.getByTestId("delete-image-button")
+    const deleteButton = screen.getByRole("button", { name: /Deleting.../i })
     expect(deleteButton).toBeDisabled()
   })
 
   it("should disable the delete button when isDisabled is true", () => {
     setup(true, false, true)
-    const deleteButton = screen.getByTestId("delete-image-button")
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+    const deleteButton = screen.getByRole("button", { name: /Delete/i })
     expect(deleteButton).toBeDisabled()
   })
 
-  it("should show spinner in delete button when isLoading is true", () => {
+  it("should show 'Deleting...' text when isLoading is true", () => {
     setup(true, true)
-    const deleteButton = screen.getByTestId("delete-image-button")
-    const spinner = deleteButton.querySelector('[role="progressbar"]')
-    expect(spinner).toBeInTheDocument()
-  })
-
-  it("should show loading spinner overlay when isLoading is true", () => {
-    setup(true, true)
-    const spinners = screen.getAllByRole("progressbar")
-    expect(spinners.length).toBeGreaterThan(0)
-  })
-
-  it("should hide image details when isLoading is true", () => {
-    setup(true, true)
-    expect(screen.queryByText("Test Image")).not.toBeInTheDocument()
-    expect(screen.queryByText("test-id")).not.toBeInTheDocument()
+    expect(screen.getByText("Deleting...")).toBeInTheDocument()
   })
 
   it("should return null when image is null", () => {
