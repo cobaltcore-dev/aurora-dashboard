@@ -2227,12 +2227,6 @@ msgstr "Moving object..."
 msgid "Moving..."
 msgstr "Moving..."
 
-msgid "Must be a non-negative integer"
-msgstr "Must be a non-negative integer"
-
-msgid "Must be a valid common name (FQDN)."
-msgstr "Must be a valid common name (FQDN)."
-
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 
