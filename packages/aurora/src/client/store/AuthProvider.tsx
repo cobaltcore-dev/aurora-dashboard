@@ -104,12 +104,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null)
     try {
       await trpcClient.auth.terminateUserSession.mutate()
-      clearLocalSession()
-      redirectToLogin(false) // Don't save return URL on manual logout
     } catch (err) {
-      // Server invalidation failed - show error with retry option
+      // Server invalidation failed - still clear local state but show error
       setError(err instanceof Error ? err.message : `Logout failed: ${err}`)
     } finally {
+      clearLocalSession()
+      redirectToLogin(false) // Don't save return URL on manual logout
       // If already on login page, no redirect happens - reset loading state
       if (window.location.pathname === "/") {
         setIsLoading(false)
