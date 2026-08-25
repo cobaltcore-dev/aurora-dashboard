@@ -136,7 +136,7 @@ export const FloatingIpIdInputSchema = z.object({
  * session to prevent ownership confusion attacks.
  */
 export const FloatingIpCreateRequestSchema = z.object({
-  project_id: z.string(), // Required for projectScopedProcedure, not forwarded to Neutron
+  project_id: z.string().trim().min(1, "project_id must be a non-empty string"), // Matches projectScopedInputSchema validation
   floating_network_id: z.string(),
   fixed_ip_address: z.string().optional(),
   floating_ip_address: z.string().optional(),
