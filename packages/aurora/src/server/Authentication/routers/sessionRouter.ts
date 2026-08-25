@@ -11,13 +11,18 @@ const discriminatedSchema = z.discriminatedUnion("type", [
 export const sessionRouter = {
   getCurrentUserSession: publicProcedure.query(async ({ ctx }) => {
     const token = ctx.openstack?.getToken()
+    if (!token) return null
 
-    return token?.tokenData || null
-  }),
-
-  getAuthToken: protectedProcedure.query(async ({ ctx }) => {
-    const token = ctx.openstack?.getToken()
-    return token?.authToken || null
+    // Return only safe, client-necessary fields to avoid exposing internal metadata
+    return {
+      user: token.tokenData.user,
+      ...(token.tokenData.expires_at && { expires_at: token.tokenData.expires_at }),
+      ...(token.tokenData.issued_at && { issued_at: token.tokenData.issued_at }),
+      roles: token.tokenData.roles,
+      project: token.tokenData.project,
+      domain: token.tokenData.domain,
+      catalog: token.tokenData.catalog,
+    }
   }),
 
   getCurrentScope: publicProcedure.query(async ({ ctx }) => {

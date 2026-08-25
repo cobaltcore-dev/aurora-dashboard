@@ -25,10 +25,16 @@ msgstr ""
 msgid "… and {hiddenCount} more"
 msgstr "... und {hiddenCount} weitere"
 
+msgid "… and {hiddenDeletableCount} more"
+msgstr ""
+
 msgid "… and {hiddenErrorCount} more failures"
 msgstr ""
 
 msgid "… and {hiddenObjectCount} more"
+msgstr ""
+
+msgid "… and {hiddenProtectedCount} more"
 msgstr ""
 
 msgid "… and {hiddenVersionsCount} more"
@@ -67,9 +73,6 @@ msgstr ""
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr ""
 
-msgid "{certificateIdValue} Certificate Details"
-msgstr ""
-
 msgid "{count, plural, one {# object} other {# objects}}"
 msgstr "{count, plural, one {# Objekt} other {# Objekte}}"
 
@@ -94,6 +97,9 @@ msgstr ""
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
 
+msgid "{deletableCount, plural, one {Delete # Image} other {Delete # Images}}"
+msgstr ""
+
 msgid "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
 msgstr ""
 
@@ -101,6 +107,10 @@ msgid "{deletedCount, plural, one {# version was permanently deleted.} other {# 
 msgstr ""
 
 msgid "{deletedCount} deleted, {errorCount} failed."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "deleteResults.summary"
 msgstr ""
 
 msgid "{deletedCount} deleted, {errorCount} failed. See the details in the dialog."
@@ -313,9 +323,6 @@ msgstr "Durch die Aktivierung dieses Images kann es wieder zum Starten neuer Ins
 msgid "Add"
 msgstr "Hinzufügen"
 
-msgid "Add a Signed Certificate to your CA to activate it"
-msgstr "Add a Signed Certificate to your CA to activate it"
-
 msgid "Add Member"
 msgstr "Mitglied hinzufügen"
 
@@ -472,17 +479,8 @@ msgstr "Anhängen"
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
-msgid "Awaiting Certificate"
-msgstr ""
-
 msgid "Back"
 msgstr "Zurück"
-
-msgid "Back to Certificate Authorities"
-msgstr "Back to Certificate Authorities"
-
-msgid "Back to Certificate Authorities Details page"
-msgstr "Back to Certificate Authorities Details page"
 
 msgid "Back to Floating IPs"
 msgstr "Zurück zu Floating IPs"
@@ -580,9 +578,6 @@ msgstr ""
 msgid "Bulk upload of archive files"
 msgstr "Bulk-Upload von Archivdateien"
 
-msgid "CA ID"
-msgstr ""
-
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -609,23 +604,14 @@ msgstr "Cannot move to the same location. Please select a different bucket, fold
 msgid "Capabilities"
 msgstr "Capabilities"
 
-msgid "Certificate {certificateIdValue}"
-msgstr ""
-
 msgid "Certificate Authority \"{pcaName}\" was successfully deleted."
 msgstr ""
 
 msgid "Certificate Authority Deleted"
 msgstr ""
 
-msgid "Certificate Authority not found"
-msgstr "Certificate Authority not found"
-
 msgid "Certificate Imported"
 msgstr ""
-
-msgid "Certificate not found"
-msgstr "Certificate not found"
 
 msgid "Change the name, destination container, or folder to move this object."
 msgstr "Ändern Sie den Namen, den Ziel-Container oder den Ordner, um dieses Objekt zu verschieben."
@@ -641,9 +627,6 @@ msgstr "Checking if object exists..."
 
 msgid "Checksum"
 msgstr "Prüfsumme"
-
-msgid "Choose Certificate to Import"
-msgstr "Choose Certificate to Import"
 
 msgid "CIDR"
 msgstr "CIDR"
@@ -662,12 +645,6 @@ msgstr "Zum Hochladen klicken"
 
 msgid "Close"
 msgstr "Schließen"
-
-msgid "Common name"
-msgstr "Common name"
-
-msgid "Common name is required."
-msgstr "Common name is required."
 
 msgid "Community"
 msgstr "Community"
@@ -945,9 +922,6 @@ msgstr "Erstellen"
 msgid "Create Bucket"
 msgstr ""
 
-msgid "Create Certificate Authority"
-msgstr "Create Certificate Authority"
-
 msgid "Create Container"
 msgstr "Container erstellen"
 
@@ -992,12 +966,6 @@ msgstr "Erstellt"
 
 msgid "Created At"
 msgstr "Erstellt am"
-
-msgid "Creating"
-msgstr ""
-
-msgid "Creating Certificate Authority..."
-msgstr "Creating Certificate Authority..."
 
 msgid "Creating Credentials..."
 msgstr ""
@@ -1070,12 +1038,6 @@ msgstr ""
 
 msgid "Delete Bucket Policy"
 msgstr ""
-
-msgid "Delete CA"
-msgstr "Delete CA"
-
-msgid "Delete Certificate Authority"
-msgstr "Delete Certificate Authority"
 
 msgid "Delete container:"
 msgstr "Container löschen:"
@@ -1164,17 +1126,11 @@ msgstr ""
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "{successCount} Image(s) gelöscht, aber {failedCount} Image(s) konnten nicht gelöscht werden."
 
-msgid "Deleting certificate authority..."
-msgstr "Deleting certificate authority..."
-
 msgid "Deleting folder and all its contents..."
 msgstr "Ordner und alle Inhalte werden gelöscht..."
 
 msgid "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
 msgstr ""
-
-msgid "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
-msgstr "Deleting this Certificate Authority is permanent, and all the associated certificates will no longer apply to entities."
 
 msgid "Deleting..."
 msgstr "Wird gelöscht..."
@@ -1280,9 +1236,6 @@ msgstr "Legen Sie Ihre Datei hier ab"
 
 msgid "Drop your image file here"
 msgstr "Legen Sie Ihre Image-Datei hier ab"
-
-msgid "Duration/validity"
-msgstr "Duration/validity"
 
 msgid "e.g. .r:*,.rlistings"
 msgstr "z. B. .r:*,.rlistings"
@@ -1440,9 +1393,6 @@ msgstr "Geben Sie einen Zeitstempel wie \"YYYY-MM-DD HH:mm:ss\" ein, um die auto
 msgid "Enter a URL and press Enter. Use * to allow all origins."
 msgstr ""
 
-msgid "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
-msgstr "Enter a valid common name in FQDN format (e.g., demo-ca.test.sci)."
-
 msgid "Enter a valid PQDN or FQDN (max 63 characters) to associate with the floating IP. A and PTR records are created automatically."
 msgstr "Gültige PQDN oder FQDN (max. 63 Zeichen) eingeben, um sie der Floating IP zuzuordnen. A- und PTR-Einträge werden automatisch erstellt."
 
@@ -1451,9 +1401,6 @@ msgstr ""
 
 msgid "Enter bucket policy JSON..."
 msgstr ""
-
-msgid "Enter Common name (e.g., demo-ca.test.sci)"
-msgstr "Enter Common name (e.g., demo-ca.test.sci)"
 
 msgid "Enter container name"
 msgstr "Container-Name eingeben"
@@ -1490,12 +1437,6 @@ msgstr "Ephemeral Disk (GiB)"
 
 msgid "Ephemeral Disk must be an integer ≥ 0."
 msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
-
-msgid "Error loading Certificate"
-msgstr "Error loading Certificate"
-
-msgid "Error loading Certificate Authority"
-msgstr "Error loading Certificate Authority"
 
 msgid "Error loading component"
 msgstr "Fehler beim Laden der Komponente"
@@ -1562,9 +1503,6 @@ msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
 
 msgid "Extra Specs"
 msgstr "Zusätzliche Spezifikationen"
-
-msgid "Failed"
-msgstr ""
 
 msgid "Failed deletions:"
 msgstr ""
@@ -1731,9 +1669,6 @@ msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 msgid "Failed to load buckets: {errorMessage}"
 msgstr "Fehler beim Laden der Buckets: {errorMessage}"
 
-msgid "Failed to load Certificates issued by Certificate Authority."
-msgstr "Failed to load Certificates issued by Certificate Authority."
-
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Fehler beim Laden der Container-ACLs: {errorMessage}"
 
@@ -1769,9 +1704,6 @@ msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 
 msgid "Failed to load objects"
 msgstr ""
-
-msgid "Failed to load PCAs"
-msgstr "Failed to load PCAs"
 
 msgid "Failed to load policy"
 msgstr ""
@@ -2115,32 +2047,17 @@ msgstr "Zu aktivierende Images ({deactivatedCount})"
 msgid "Images to be deactivated ({activeCount})"
 msgstr "Zu deaktivierende Images ({activeCount})"
 
-msgid "Images to be deleted ({deletableCount})"
-msgstr "Zu löschende Images ({deletableCount})"
-
 msgid "Images to deactivate:"
 msgstr "Zu deaktivierende Images:"
 
 msgid "Images to delete:"
 msgstr "Zu löschende Images:"
 
-msgid "Import Externally Signed Certificate"
-msgstr "Import Externally Signed Certificate"
-
-msgid "Import Signed Certificate"
-msgstr "Import Signed Certificate"
-
-msgid "Importing Certificate..."
-msgstr "Importing Certificate..."
-
 msgid "Ingress"
 msgstr "Ingress"
 
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Container sind der Ort, an dem Sie Zugriffsberechtigungen und Quotas definieren."
-
-msgid "Invalid CSR format."
-msgstr ""
 
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
@@ -2168,21 +2085,6 @@ msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
-
-msgid "Issue Certificate"
-msgstr "Issue Certificate"
-
-msgid "Issue End-Entity Certificate"
-msgstr "Issue End-Entity Certificate"
-
-msgid "Issue Self-Signed Certificate"
-msgstr "Issue Self-Signed Certificate"
-
-msgid "Issuing End-Entity Certificate..."
-msgstr "Issuing End-Entity Certificate..."
-
-msgid "Issuing Self-Signed Certificate..."
-msgstr "Issuing Self-Signed Certificate..."
 
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 msgstr ""
@@ -2241,9 +2143,6 @@ msgstr "Leer lassen für alle Typen"
 msgid "Leaving the JSON field empty will remove the policy from the bucket."
 msgstr ""
 
-msgid "Lifecycle action"
-msgstr ""
-
 msgid "Lifecycle Rule Deleted"
 msgstr ""
 
@@ -2276,15 +2175,6 @@ msgstr ""
 
 msgid "Loading Buckets..."
 msgstr ""
-
-msgid "Loading Certificate Authority Details..."
-msgstr "Loading Certificate Authority Details..."
-
-msgid "Loading Certificate Details..."
-msgstr "Loading Certificate Details..."
-
-msgid "Loading Certificates issued by Certificate Authority..."
-msgstr "Loading Certificates issued by Certificate Authority..."
 
 msgid "Loading container properties..."
 msgstr "Container-Eigenschaften werden geladen..."
@@ -2363,12 +2253,6 @@ msgstr "Zugriff verwalten - {flavorName}"
 
 msgid "Manage Access for Image - {imageName}"
 msgstr "Zugriff für Image verwalten - {imageName}"
-
-msgid "Manage your Certificate"
-msgstr "Manage your Certificate"
-
-msgid "Manage your Private Certificate Authority infrastructure"
-msgstr "Manage your Private Certificate Authority infrastructure"
 
 msgid "Max Age"
 msgstr ""
@@ -2493,9 +2377,6 @@ msgstr "Objekt wird verschoben..."
 msgid "Moving..."
 msgstr "Wird verschoben..."
 
-msgid "Must be a valid common name (FQDN)."
-msgstr "Must be a valid common name (FQDN)."
-
 msgid "Must be a valid IPv4 or IPv6 address (for example: 172.24.4.228 or 2001:db8::1)."
 msgstr "Muss eine gültige IPv4- oder IPv6-Adresse sein (z. B.: 172.24.4.228 oder 2001:db8::1)."
 
@@ -2546,9 +2427,6 @@ msgstr "Nein"
 
 msgid "No buckets found"
 msgstr ""
-
-msgid "No Certificates issued by this Certificate Authority found"
-msgstr "No Certificates issued by this Certificate Authority found"
 
 msgid "No containers found"
 msgstr "Keine Container gefunden"
@@ -2606,9 +2484,6 @@ msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff 
 
 msgid "No objects were deleted: {errorMessage}"
 msgstr ""
-
-msgid "No PCAs found"
-msgstr "No PCAs found"
 
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
@@ -2763,9 +2638,6 @@ msgstr "Ein oder mehrere Container konnten nicht geleert werden: {errorMessage}"
 msgid "One or more objects could not be deleted:"
 msgstr "Ein oder mehrere Objekte konnten nicht gelöscht werden:"
 
-msgid "Only JSON certificate files are supported."
-msgstr ""
-
 msgid "Only the folder itself will be restored. Objects inside this folder will remain deleted and must be restored individually."
 msgstr ""
 
@@ -2816,18 +2688,6 @@ msgstr "Teilweise erfolgreich deaktiviert"
 
 msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
-
-msgid "Paste CSR code"
-msgstr "Paste CSR code"
-
-msgid "Paste the code"
-msgstr "Paste the code"
-
-msgid "PCA"
-msgstr "PCA"
-
-msgid "PCA (Clavis)"
-msgstr "PCA (Clavis)"
 
 msgid "Pending"
 msgstr "Ausstehend"
@@ -2952,11 +2812,8 @@ msgstr "Dieses Image vor dem Löschen schützen"
 msgid "Protected"
 msgstr "Geschützt"
 
-msgid "Protected (will be skipped):"
-msgstr "Geschützt (wird übersprungen):"
-
-msgid "Protected images (cannot be deleted)"
-msgstr "Geschützte Images (können nicht gelöscht werden)"
+msgid "Protected images (cannot be deleted):"
+msgstr ""
 
 msgid "Protocol"
 msgstr "Protokoll"
@@ -3008,9 +2865,6 @@ msgstr "Lese-ACLs"
 
 msgid "Read ACLs — Preview"
 msgstr "Lese-ACLs — Vorschau"
-
-msgid "Ready"
-msgstr ""
 
 msgid "Reject"
 msgstr "Ablehnen"
@@ -3404,9 +3258,6 @@ msgstr ""
 msgid "Start typing to search for a container"
 msgstr "Beginnen Sie mit der Eingabe, um nach einem Container zu suchen"
 
-msgid "State"
-msgstr "State"
-
 msgid "Stateful"
 msgstr "Stateful"
 
@@ -3445,9 +3296,6 @@ msgstr ""
 
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
-
-msgid "Subject Information"
-msgstr ""
 
 msgid "Subnet"
 msgstr "Subnet"
@@ -3551,9 +3399,6 @@ msgstr "Der Projektzugriff für \"{trimmedTenantId}\" wurde erfolgreich hinzugef
 msgid "Tenant ID"
 msgstr "Projekt ID"
 
-msgid "The certificate file could not be read."
-msgstr ""
-
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
 
@@ -3614,12 +3459,6 @@ msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {errorMessage}"
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
-msgid "The imported certificate chain is not valid PEM."
-msgstr ""
-
-msgid "The JSON file must contain imported_certificate_chain."
-msgstr ""
-
 msgid "The lifecycle configuration has changed. Please refresh and try again."
 msgstr ""
 
@@ -3637,6 +3476,9 @@ msgstr ""
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
+
+msgid "The selected images will be permanently deleted. This action cannot be undone."
+msgstr ""
 
 msgid "The selected objects will be marked as deleted but can be restored from version history."
 msgstr ""
@@ -3659,9 +3501,6 @@ msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Ein
 msgid "The text must match \"delete\""
 msgstr "Der Text muss \"delete\" entsprechen"
 
-msgid "The text must match “delete” in lowercase."
-msgstr "The text must match “delete” in lowercase."
-
 msgid "The text must match “detach” in lowercase."
 msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
 
@@ -3673,9 +3512,6 @@ msgstr ""
 
 msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
 msgstr ""
-
-msgid "There are no Certificates available for this Certificate Authority."
-msgstr "There are no Certificates available for this Certificate Authority."
 
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuchen Sie, Ihren Suchbegriff anzupassen."
@@ -3697,9 +3533,6 @@ msgstr "Keine Images verfügbar. Filtern Sie neu oder erstellen Sie ein neues Im
 
 msgid "There are no lifecycle rules for this bucket"
 msgstr ""
-
-msgid "There are no PCAs available for this project."
-msgstr "There are no PCAs available for this project."
 
 msgid "There are no RBAC policies for this security group"
 msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
@@ -3736,9 +3569,6 @@ msgstr "Diese Aktion ist dauerhaft. Alle Objekte im Container werden gelöscht u
 
 msgid "This action is permanent. The address will be removed from your project and returned to the public pool. This action cannot be undone."
 msgstr "Diese Aktion ist dauerhaft. Die Adresse wird aus Ihrem Projekt entfernt und dem öffentlichen Pool zurückgegeben. Dies kann nicht rückgängig gemacht werden."
-
-msgid "This action will create a self-signed CA certificate."
-msgstr "This action will create a self-signed CA certificate."
 
 msgid "This action will permanently delete all objects from {bucketName}. This action cannot be undone."
 msgstr ""
@@ -3851,9 +3681,6 @@ msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>\"release\"</0> in
 msgid "To confirm type <0>delete</0> in the field below."
 msgstr "Geben Sie zur Bestätigung <0>delete</0> in das Feld unten ein."
 
-msgid "To confirm, type <0>\"delete\"</0> in the field below."
-msgstr ""
-
 msgid "Together, we can unlock the true potential of your cloud infrastructure."
 msgstr "Gemeinsam können wir das volle Potenzial Ihrer Cloud-Infrastruktur erschließen."
 
@@ -3883,9 +3710,6 @@ msgstr "Geben Sie \"{CONFIRM_WORD}\" zur Bestätigung ein"
 
 msgid "Type \"delete\" to confirm"
 msgstr "Geben Sie \"delete\" zur Bestätigung ein"
-
-msgid "Type “delete” to confirm"
-msgstr ""
 
 msgid "Type \"detach\" to confirm"
 msgstr "\"detach\" zur Bestätigung eingeben"
@@ -3960,9 +3784,6 @@ msgid "Unable to Upload Image File"
 msgstr "Image-Datei kann nicht hochgeladen werden"
 
 msgid "Unable to verify bucket versioning status. Please try again."
-msgstr ""
-
-msgid "Unknown"
 msgstr ""
 
 msgid "Unknown domain"
@@ -4138,9 +3959,6 @@ msgstr "Sie sind dabei, <0>{deactivatedCount} Image(s)</0> zu aktivieren. Aktivi
 
 msgid "You are about to deactivate <0>{activeCount} image(s)</0>. Deactivated images cannot be used to launch new instances."
 msgstr "Sie sind dabei, <0>{activeCount} Image(s)</0> zu deaktivieren. Deaktivierte Images können nicht zum Starten neuer Instances verwendet werden."
-
-msgid "You are about to delete {deletableCount} image(s). This action cannot be undone."
-msgstr "Sie sind dabei, {deletableCount} Image(s) zu löschen. Diese Aktion kann nicht rückgängig gemacht werden."
 
 msgid "You are currently on the dashboard route."
 msgstr "Sie befinden sich derzeit auf der Dashboard-Route."

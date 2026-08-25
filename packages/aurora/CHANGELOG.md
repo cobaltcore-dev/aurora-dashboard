@@ -1,5 +1,92 @@
 # @cobaltcore-dev/aurora
 
+## 1.1.0
+
+### Minor Changes
+
+- a9c257a: Consumers can now register additional project-scoped services in Aurora. Pass your service definitions via the `additionalProjectServices` prop on `AuroraApp` to plug in client-side routes, and register your BFF router via the existing `routers` config in `createServer`. Additional services are only shown to users when the service is available in the project's OpenStack service catalog and not excluded by the app's `enabledServices` list.
+
+  This replaces the previously hardcoded PCA (Clavis) integration. PCA and any other consumer-specific service should now be registered this way rather than living inside the OSS package.
+
+- 8e99f07: Remove the public `getAuthToken` endpoint that exposed raw OpenStack bearer tokens to JavaScript.
+
+  **Migration:** Clients must stop calling `getAuthToken`. Use the supported server-side authenticated flow instead of requesting raw OpenStack bearer tokens from JavaScript.
+
+### Patch Changes
+
+- 94476a1: - Add ownership verification for EC2 credential deletion to prevent IDOR attacks
+  - Return NOT_FOUND for unauthorized deletion attempts (prevents resource enumeration)
+  - Make DELETE idempotent (404 on GET returns success)
+  - Map 401/403 from identity service to proper error codes
+- 1513d97: Update delete modals to use Modal built-in props and single-column DescriptionList, improve test accessibility using getByRole and getByLabelText queries, fix swap display to show "None" instead of "0 MiB", and replace array index keys with stable IDs
+
+## 1.0.0
+
+### Major Changes
+
+- 2c7bd0e: Redact Swift TempURL and sync keys from metadata responses. Container and account metadata now return presence flags (`hasTempUrlKey`, `hasSyncKey`) instead of raw secret values, preventing unauthorized object access.
+
+### Minor Changes
+
+- 502a1e9: Add pre-signed URL sharing for Ceph (S3) objects. Eligible object rows now have a "Share URL" action that opens a modal to generate a time-limited download link — with 1 hour / 24 hour / 7 day presets or a custom duration (capped at the S3 maximum of 7 days). The link can be copied and shared without Aurora credentials, and the modal shows when it expires.
+- b7576db: Add CORS configuration management for Ceph/S3 buckets. The bucket details page now has a "CORS Rules" tab (alongside Overview) with full CRUD for CORS rules — add, edit, delete individual rules, or bulk-delete a selection. The bucket header's actions menu also gained a "Delete CORS Rules" item to clear the entire CORS configuration in one step.
+- d00f84a: Cap Swift TempURL lifetime and restrict to read-only by default
+- 4c34ce8: feat(portal): offload Swift object downloads to a Web Worker
+
+  Swift object downloads and previews now run in a Web Worker instead of decoding on the main thread, matching the Ceph object browser. Multiple downloads can run at once, each with its own progress and a cancel control, and a download keeps running when you navigate into another folder. Cancelling a transfer now stops it on the server too, rather than letting it finish in the background — which previously could exhaust memory and crash the tab when several large downloads were cancelled.
+
+### Patch Changes
+
+- 163b2d2: Swift: the object-browser breadcrumbs now sit in the table header row instead
+  of above the toolbar, matching the Ceph layout.
+- 9e817d0: Anchor the object storage tables' height to the page footer's actual position, so a custom footer of any height is accounted for. Previously a fixed allowance for the footer meant a taller custom footer overlapped the last rows and a shorter one left a gap.
+- 0bfd055: Address design review on Ceph/S3 bucket CORS management: name the create action "Create CORS Rule" consistently across the trigger, modal title and submit button; demote the tag-input "Add" buttons so the modal has a single primary action; drop the redundant bucket-header "Delete CORS Rules" entry (per-rule and batch delete are unchanged); use the default DataGrid column layout; and tighten the spacing between the toolbar zones and between the bucket tabs and their divider.
+- f367c07: - Update eslint 10.2.0 → 10.7.0
+  - Update prettier 3.8.3 → 3.9.6
+  - Update turbo 2.9.14 → 2.10.6
+  - Update @changesets/cli 2.31.0 → 2.31.1
+  - Update commitizen 4.3.1 → 4.3.2
+  - Update prettier-plugin-tailwindcss 0.7.2 → 0.8.1
+  - Update pnpm 10.34.4 → 11.16.0
+  - Fix vitest localStorage mock for languageDetection tests
+  - Fix e2e breadcrumb tests for Domain/Project combined format
+- 10a497c: Rename login form heading from "Login to Your Account" to "Sign In to Your Account" for consistency with the Sign In label used throughout the authentication UI.
+- 13e2ae1: Add explicit return type to createMockContext to fix TypeScript build error
+- 7d9e6aa: Remove conflicting pnpm dependency that caused Docker builds to fail with version mismatch
+- a0407b9: Fix user menu UI inconsistencies: hide the menu entirely when unauthenticated (Sign In button removed until functional), rename "Log Out" to "Sign Out" and remove the exitToApp icon from the sign-out item, apply default text color to User ID and User Domain fields, and replace the browser history entry on logout so the previous authenticated page cannot be reached via the back button.
+- 03cde79: Sync floating IP filters, sort, and search to URL with fallback for invalid params
+- e04eed1: Improve floating IP list search and UX
+  - Unify layout of the datagrid header
+  - Add search by floating IP address, fixed IP address, and network ID
+  - Keep table visible while searching/filtering (no blocking loading screen)
+- f66da80: Add bulk delete functionality for Ceph objects and versions
+- 2309942: Aurora: give the filter and sort selects a consistent min-width so their
+  menus no longer resize based on the selected value.
+- 46256e9: Migrate Glance image notifications from the legacy Juno `<Toast>` component to the app-wide `NotificationManager` (`toast`) API, matching the Swift and Ceph storage views. Toast builders now return `{ message, ...options }` and callers dispatch severity directly (`toast.success` / `error` / `warning` / `info`); the per-screen toast state and `setToastData` plumbing are removed. Also hardens the image create/update/delete handlers against `undefined` error data (optional chaining on `error.data?.path` and null-safe error-message reads) so a failure can no longer throw inside its own `catch`.
+- 9cdf0ae: Swift: reorder the objects toolbar so the primary Create Folder action is the
+  last (rightmost) button, matching the right-aligned primary-button convention.
+- 9645ac6: Add path traversal protection for OpenStack resource IDs via validateAndEncodeResourceId and encodeOpenstackPathSegment helpers
+- d2c7efe: Swift: the delete-container versions-confirmation checkbox no longer shows an
+  error icon before the user interacts with it, matching the other delete
+  modals. Deletion gating is unchanged.
+- 0eb35f0: Swift: opening a container that doesn't exist or that you don't have access to
+  now shows a friendly notification and returns you to the container list,
+  instead of rendering a technical error in the object view.
+- 0653da8: Swift: right-align the container count and remaining quota (and the objects
+  item count) in the list toolbar, matching Ceph, with bulk actions kept on the
+  left.
+- 92bbecd: Swift: a failed container-metadata update no longer shows both an inline error
+  and a toast. The failure is shown inline in the edit modal, which stays open so
+  the user can adjust and retry.
+- c65b027: Reject absolute URLs in image pagination to prevent SSRF attacks
+- c98bccf: Fix Swift account SSRF vulnerability. Add input validation to prevent SSRF attacks via account parameters. Rejects absolute URLs, path traversal, and malicious formats.
+- 13e2ae1: Fix Swift container limits tooltip not appearing on hover
+- 7d9e6aa: Update pnpm to 11.20.0
+- a7b73a1: Swift: reword the container quota validation error to a positive instruction
+  ("Must be a whole number, 0 or greater") instead of the previous
+  double-negative phrasing, and reject non-integer quota values (both object
+  count and total size), so decimals like "1.5" no longer pass validation.
+
 ## 0.23.1
 
 ### Patch Changes

@@ -4,7 +4,7 @@ import { MainNavigation } from "../components/navigation/MainNavigation"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
 import { NavigationItem } from "../components/navigation/types"
-import type { Slots, OnTrackEventCallback } from "../AuroraApp"
+import type { Slots, OnTrackEventCallback, AdditionalProjectService } from "../AuroraApp"
 import styles from "../index.css?inline"
 import { RouteError } from "../components/Error/RouteError"
 import { TRPCClientError } from "@trpc/client"
@@ -22,6 +22,7 @@ export interface RouterContext {
   appName?: string
   onTrackEvent?: OnTrackEventCallback
   enabledServices?: string[]
+  additionalProjectServices: AdditionalProjectService[]
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({

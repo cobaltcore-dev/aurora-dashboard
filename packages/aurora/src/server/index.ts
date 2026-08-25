@@ -10,3 +10,5 @@ export {
   domainScopedInputSchema,
 } from "./trpc"
 export type { AuroraRouter, AuroraRouterWithCustom } from "./routers"
+export { validateOpenstackService } from "./helpers/validateOpenstackService"
+export { parseOrThrow } from "./Network/helpers"

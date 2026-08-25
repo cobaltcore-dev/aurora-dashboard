@@ -42,18 +42,18 @@ describe("DeleteImagesModal", () => {
 
   it("should render the modal when isOpen is true", () => {
     setup(true)
-    expect(screen.getByText("Delete Images")).toBeInTheDocument()
-    expect(screen.getByText(/You are about to delete 3 image\(s\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/Delete \d+ Images?/i)).toBeInTheDocument()
+    expect(screen.getByText(/The selected images will be permanently deleted/i)).toBeInTheDocument()
   })
 
   it("should not render the modal when isOpen is false", () => {
     setup(false)
-    expect(screen.queryByText("Delete Images")).not.toBeInTheDocument()
+    expect(screen.queryByText(/Delete \d+ Images?/i)).not.toBeInTheDocument()
   })
 
-  it("should display the correct number of deletable images", () => {
+  it("should display the correct label for images to delete", () => {
     setup(true)
-    expect(screen.getByText(/Images to be deleted \(3\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/Images to delete:/i)).toBeInTheDocument()
   })
 
   it("should display all deletable image IDs", () => {
@@ -65,7 +65,7 @@ describe("DeleteImagesModal", () => {
 
   it("should display protected images section when protectedImages is not empty", () => {
     setup(true, false, mockDeletableImages, mockProtectedImages)
-    expect(screen.getByText(/Protected images \(cannot be deleted\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/Protected images \(cannot be deleted\):/i)).toBeInTheDocument()
   })
 
   it("should display all protected image IDs in the protected section", () => {
@@ -77,7 +77,7 @@ describe("DeleteImagesModal", () => {
 
   it("should not display protected images section when protectedImages is empty", () => {
     setup(true, false, mockDeletableImages, [])
-    expect(screen.queryByText(/Protected images \(cannot be deleted\)/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Protected images \(cannot be deleted\):/i)).not.toBeInTheDocument()
   })
 
   it("should call onClose when the cancel button is clicked", () => {
@@ -87,71 +87,56 @@ describe("DeleteImagesModal", () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  it("should call onDelete when the delete button is clicked", () => {
+  it("should call onDelete when delete button is clicked with correct confirmation", () => {
     setup(true, false, mockDeletableImages, mockProtectedImages)
-    const deleteButton = screen.getByRole("button", { name: /Delete/i })
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+    const deleteButton = screen.getByRole("button", { name: /Delete Images/i })
     fireEvent.click(deleteButton)
     expect(mockOnDelete).toHaveBeenCalledTimes(1)
     expect(mockOnDelete).toHaveBeenCalledWith(mockDeletableImages)
   })
 
-  it("should disable the delete button when isLoading is true", () => {
-    setup(true, true)
-    const deleteButton = screen.getByTestId("delete-image-button")
+  it("should disable delete button when confirmation text is not entered", () => {
+    setup(true)
+    const deleteButton = screen.getByRole("button", { name: /Delete Images/i })
     expect(deleteButton).toBeDisabled()
   })
 
-  it("should show global loading spinner when isLoading is true", () => {
-    setup(true, true)
-    const spinners = screen.getAllByRole("progressbar")
-    expect(spinners.length).toBeGreaterThan(0)
-  })
-
-  it("should hide image details when isLoading is true", () => {
-    setup(true, true)
-    expect(screen.queryByText(/Images to be deleted/i)).not.toBeInTheDocument()
-    mockDeletableImages.forEach((imageId) => {
-      expect(screen.queryByText(imageId)).not.toBeInTheDocument()
-    })
-  })
-
-  it("should display summary with correct counts", () => {
-    setup(true, false, mockDeletableImages, mockProtectedImages)
-    expect(screen.getByText("Images to delete:")).toBeInTheDocument()
-    expect(screen.getByText("3")).toBeInTheDocument()
-    expect(screen.getByText(/Protected \(will be skipped\):/i)).toBeInTheDocument()
-    expect(screen.getByText("2")).toBeInTheDocument()
-  })
-
-  it("should display only deletable count in summary when no protected images", () => {
-    setup(true, false, mockDeletableImages, [])
-    expect(screen.getByText("Images to delete:")).toBeInTheDocument()
-    expect(screen.getByText("3")).toBeInTheDocument()
-    expect(screen.queryByText(/Protected \(will be skipped\):/i)).not.toBeInTheDocument()
-  })
-
-  it("should display warning message for deletable images", () => {
+  it("should enable delete button when confirmation text matches", () => {
     setup(true)
-    expect(screen.getByText(/You are about to delete 3 image\(s\)\. This action cannot be undone/i)).toBeInTheDocument()
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+    const deleteButton = screen.getByRole("button", { name: /Delete Images/i })
+    expect(deleteButton).not.toBeDisabled()
   })
 
-  it("should handle empty deletableImages array", () => {
-    setup(true, false, [], mockProtectedImages)
-    expect(screen.queryByText(/Images to be deleted/i)).not.toBeInTheDocument()
+  it("should disable the delete button when isLoading is true", () => {
+    setup(true, true)
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+    const deleteButton = screen.getByRole("button", { name: /Deleting.../i })
+    expect(deleteButton).toBeDisabled()
+  })
+
+  it("should show 'Deleting...' text when isLoading is true", () => {
+    setup(true, true)
+    expect(screen.getByText("Deleting...")).toBeInTheDocument()
   })
 
   it("should pass deletableImages to onDelete, not protectedImages", () => {
     const deletableImgs = ["deletable-1", "deletable-2"]
     const protectedImgs = ["protected-1", "protected-2"]
     setup(true, false, deletableImgs, protectedImgs)
-    const deleteButton = screen.getByRole("button", { name: /Delete/i })
+    const confirmInput = screen.getByPlaceholderText("delete")
+    fireEvent.change(confirmInput, { target: { value: "delete" } })
+    const deleteButton = screen.getByRole("button", { name: /Delete Images/i })
     fireEvent.click(deleteButton)
     expect(mockOnDelete).toHaveBeenCalledWith(deletableImgs)
   })
 
   it("should render with single image correctly", () => {
     setup(true, false, ["single-image"], [])
-    expect(screen.getByText(/You are about to delete 1 image\(s\)/i)).toBeInTheDocument()
     expect(screen.getByText("single-image")).toBeInTheDocument()
   })
 
@@ -160,40 +145,11 @@ describe("DeleteImagesModal", () => {
     setup(true, false, manyImages, [])
     const listContainer = screen.getByText("image-0").closest(".overflow-y-auto")
     expect(listContainer).toBeInTheDocument()
-    expect(listContainer).toHaveClass("max-h-24")
+    expect(listContainer).toHaveClass("max-h-48")
   })
 
   it("should mention action cannot be undone in warning message", () => {
     setup(true)
     expect(screen.getByText(/This action cannot be undone/i)).toBeInTheDocument()
-  })
-
-  it("should render button with primary-danger variant", () => {
-    setup(true)
-    const deleteButton = screen.getByTestId("delete-image-button")
-    expect(deleteButton).toBeInTheDocument()
-  })
-
-  it("should handle mixed deletable and protected images", () => {
-    setup(true, false, mockDeletableImages, mockProtectedImages)
-
-    // Check deletable section
-    expect(screen.getByText(/Images to be deleted \(3\)/i)).toBeInTheDocument()
-    mockDeletableImages.forEach((imageId) => {
-      expect(screen.getByText(imageId)).toBeInTheDocument()
-    })
-
-    // Check protected section
-    expect(screen.getByText(/Protected images \(cannot be deleted\)/i)).toBeInTheDocument()
-    mockProtectedImages.forEach((imageId) => {
-      expect(screen.getByText(imageId)).toBeInTheDocument()
-    })
-  })
-
-  it("should show danger variant for main message", () => {
-    setup(true)
-    const dangerMessage = screen.getByText(/You are about to delete 3 image\(s\)/i).closest(".juno-message")
-    expect(dangerMessage).toBeInTheDocument()
-    expect(screen.getByTitle("Danger")).toBeInTheDocument()
   })
 })
