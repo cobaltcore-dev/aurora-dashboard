@@ -2886,8 +2886,8 @@ msgstr "Pre-signed URL"
 msgid "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 msgstr "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 
-msgid "Prefix Filter (optional)"
-msgstr "Prefix Filter (optional)"
+msgid "Prefix Filter"
+msgstr "Prefix Filter"
 
 msgid "Press Enter to add"
 msgstr "Press Enter to add"
