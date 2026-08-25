@@ -3,7 +3,16 @@ import "@fastify/cookie"
 
 export interface SessionProps {
   cookieName?: string
-  /** Explicit cookie domain for cross-subdomain sharing (e.g., ".qa-de-1.cloud.sap"). */
+  /**
+   * Explicit cookie domain for cross-subdomain sharing (e.g., ".qa-de-1.cloud.sap").
+   *
+   * SECURITY WARNING: Setting a parent domain (e.g., ".example.com") shares bearer
+   * session cookies across ALL sibling subdomains. Only enable when all subdomains
+   * are equally trusted (same security posture, admin team, infrastructure).
+   *
+   * Leaving this undefined (default) restricts cookies to the exact host only,
+   * preventing cross-subdomain access even if an attacker compromises a sibling domain.
+   */
   cookieDomain?: string
   insecureCookies?: boolean
   req: FastifyRequest
