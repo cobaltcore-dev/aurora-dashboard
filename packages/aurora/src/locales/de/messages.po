@@ -247,6 +247,9 @@ msgstr "Zugriffskontrolle für Container:"
 msgid "Access Control Updated"
 msgstr "Zugriffskontrolle aktualisiert"
 
+msgid "Access Denied"
+msgstr ""
+
 msgid "Access Status"
 msgstr "Zugriffsstatus"
 
@@ -1795,6 +1798,12 @@ msgstr "Wird generiert..."
 msgid "Get Involved"
 msgstr "Mitmachen"
 
+msgid "Go to Home"
+msgstr ""
+
+msgid "Go to Projects"
+msgstr ""
+
 msgid "Grant access to a user from a different project."
 msgstr "Zugriff für einen Benutzer aus einem anderen Projekt gewähren."
 
@@ -2611,6 +2620,9 @@ msgstr "Projekt-ID"
 msgid "Project ID"
 msgstr "Projekt-ID"
 
+msgid "Project Not Accessible"
+msgstr ""
+
 msgid "Project Not Found"
 msgstr ""
 
@@ -2973,6 +2985,9 @@ msgstr "Serverrolle:"
 
 msgid "Services"
 msgstr "Services"
+
+msgid "Session Changed"
+msgstr ""
 
 msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
@@ -3439,6 +3454,9 @@ msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr ""
 
+msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain.{domainHint}"
+msgstr ""
+
 msgid "This property is reserved and cannot be modified"
 msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 
@@ -3787,6 +3805,9 @@ msgstr "Sie haben keine Berechtigung, auf die Zugriffsinformationen für diesen 
 msgid "You don't have permission to access flavors for this project."
 msgstr "Sie haben keine Berechtigung, auf Flavors für dieses Projekt zuzugreifen."
 
+msgid "You don't have permission to access this project."
+msgstr ""
+
 msgid "You don't have permission to add tenant access to this flavor."
 msgstr "Sie haben keine Berechtigung, diesem Flavor Projektzugriffe hinzuzufügen."
 
@@ -3821,6 +3842,9 @@ msgid "Your credentials are valid but you don't have permission to perform this 
 msgstr ""
 
 msgid "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
+msgstr ""
+
+msgid "Your session context has changed, possibly because you switched domains in another browser tab. Please select a project from your current domain to continue.{domainHint}"
 msgstr ""
 
 msgid "Your session has expired. Please log in again."

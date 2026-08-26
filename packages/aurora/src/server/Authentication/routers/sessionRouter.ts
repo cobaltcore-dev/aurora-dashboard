@@ -38,6 +38,7 @@ export const sessionRouter = {
     }
   }),
 
+  // Errors from rescopeSession are handled by openstackErrorMiddleware
   setCurrentScope: protectedProcedure.input(discriminatedSchema).mutation(async ({ input, ctx }) => {
     switch (input.type) {
       case "domain": {

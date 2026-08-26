@@ -1,13 +1,74 @@
 import type { AuroraPortalContext } from "./context"
 import { initTRPC, TRPCError } from "@trpc/server"
 import { z } from "zod"
+import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 
 const t = initTRPC.context<AuroraPortalContext>().create()
+
+/**
+ * Middleware that converts SignalOpenstackApiError to TRPCError with appropriate codes.
+ * Applied to all procedures so callers don't need individual try/catch blocks.
+ *
+ * Note: In tRPC v11, next() returns a MiddlewareResult object with { ok: boolean, error?: TRPCError }
+ * instead of throwing. We need to check result.ok and inspect result.error.cause for the original error.
+ */
+const openstackErrorMiddleware = t.middleware(async ({ next }) => {
+  const result = await next()
+
+  // In tRPC v11, errors don't throw - they're returned in the result object
+  if (!result.ok) {
+    const cause = result.error.cause
+
+    // Check if the underlying cause is a SignalOpenstackApiError
+    if (cause instanceof SignalOpenstackApiError) {
+      if (cause.statusCode === 401) {
+        return {
+          ...result,
+          error: new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Session expired or invalid. Please log in again.",
+            cause,
+          }),
+        }
+      }
+      if (cause.statusCode === 404 || cause.statusCode === 400) {
+        return {
+          ...result,
+          error: new TRPCError({
+            code: "NOT_FOUND",
+            message: "Resource not found or not accessible. This can happen if you switched domains in another tab.",
+            cause,
+          }),
+        }
+      }
+      if (cause.statusCode === 403) {
+        return {
+          ...result,
+          error: new TRPCError({
+            code: "FORBIDDEN",
+            message: "Access denied. You may not have the required role assignment.",
+            cause,
+          }),
+        }
+      }
+      return {
+        ...result,
+        error: new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: cause.message || "An unexpected OpenStack error occurred",
+          cause,
+        }),
+      }
+    }
+  }
+
+  return result
+})
 
 export const router = t.router
 export const auroraRouter = t.router
 export const mergeRouters = t.mergeRouters
-export const publicProcedure = t.procedure
+export const publicProcedure = t.procedure.use(openstackErrorMiddleware)
 export const createCallerFactory = t.createCallerFactory
 
 export const protectedProcedure = publicProcedure.use(async function isAuthenticated(opts) {
@@ -90,11 +151,10 @@ export const projectScopedProcedure = protectedProcedure
     // Rescope the session to the specified project
     // This calls Keystone to get a new token scoped to the project
     // The token is automatically cached in a cookie by rescopeSession
+    // Errors are handled by openstackErrorMiddleware
     const openstackSession = await ctx.rescopeSession({ projectId: project_id })
 
-    // If rescoping fails, it means either:
-    // 1. The user's token is invalid (should be caught by protectedProcedure)
-    // 2. The user doesn't have access to this project (no role assignment)
+    // If rescoping returns null (no session), throw an error
     if (!openstackSession) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
@@ -203,12 +263,10 @@ export const domainScopedProcedure = protectedProcedure
     // Rescope the session to the specified domain
     // Keystone will enforce permissions based on the user's role assignments in that domain
     // The token is automatically cached in a cookie by rescopeSession
+    // Errors are handled by openstackErrorMiddleware
     const openstackSession = await ctx.rescopeSession({ domainId: domain_id })
 
-    // If rescoping fails, it typically means:
-    // 1. The user's token is invalid (should be caught by protectedProcedure)
-    // 2. Keystone service is unavailable
-    // 3. Internal error during token rescoping
+    // If rescoping returns null (no session), throw an error
     if (!openstackSession) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
