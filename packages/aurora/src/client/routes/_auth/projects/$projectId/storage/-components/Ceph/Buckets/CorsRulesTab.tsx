@@ -260,7 +260,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
           </Stack>
           <Divider />
           <Stack distribution="between" gap="2" alignment="center" className="text-sm">
-            {permissions.canDeleteCors && (
+            {permissions.canDeleteCors ? (
               <Stack gap="2" alignment="center">
                 <Checkbox
                   checked={allFilteredSelected}
@@ -287,6 +287,8 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
                   )}
                 </PopupMenu>
               </Stack>
+            ) : (
+              <span />
             )}
             <span className="theme-color-text-light">
               {filteredRulesWithIndices.length} {filteredRulesWithIndices.length === 1 ? t`rule` : t`rules`}

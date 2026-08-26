@@ -2,7 +2,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useCephPermissions } from "../hooks/useCephPermissions"
-import { Button, Stack, Message, toast } from "@cloudoperators/juno-ui-components"
+import { Button, Stack, Message, Spinner, toast } from "@cloudoperators/juno-ui-components"
 
 interface CredentialPromptProps {
   onSuccess: () => void
@@ -11,7 +11,7 @@ interface CredentialPromptProps {
 export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const { permissions } = useCephPermissions(projectId)
+  const { permissions, isLoading: isLoadingPermissions } = useCephPermissions(projectId)
   const utils = trpcReact.useUtils()
 
   const createMutation = trpcReact.storage.ceph.ec2Credentials.create.useMutation({
@@ -41,7 +41,9 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
           Click the button below to automatically generate credentials for this project. You only need to do this once.
         </Trans>
       </p>
-      {permissions.canCreateCredential ? (
+      {isLoadingPermissions ? (
+        <Spinner variant="primary" size="small" />
+      ) : permissions.canCreateCredential ? (
         <div>
           <Button
             onClick={() => projectId && createMutation.mutate({ project_id: projectId })}

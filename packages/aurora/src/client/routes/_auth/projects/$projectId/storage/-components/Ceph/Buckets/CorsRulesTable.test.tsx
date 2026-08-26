@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest"
 import { render, screen, act } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { CorsRulesTable } from "./CorsRulesTable"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
@@ -35,6 +37,11 @@ vi.mock("@/client/hooks/useProjectId", () => ({
 }))
 
 const Wrapper = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+const PortalWrapper = ({ children }: { children: ReactNode }) => (
+  <I18nProvider i18n={i18n}>
+    <PortalProvider>{children}</PortalProvider>
+  </I18nProvider>
+)
 
 describe("CorsRulesTable", () => {
   beforeAll(async () => {
@@ -250,5 +257,108 @@ describe("CorsRulesTable", () => {
     const firstRow = screen.getByTestId("cors-rule-row-0")
     const menuButton = firstRow.querySelector("button[aria-haspopup='menu']")
     expect(menuButton).toBeInTheDocument()
+  })
+
+  describe("Permission gating - selection column", () => {
+    it("hides the Select column when canDeleteCors is false", () => {
+      render(
+        <CorsRulesTable
+          bucketName="test-bucket"
+          rulesWithIndices={sampleRulesWithIndices}
+          selectedIndices={[]}
+          onToggleSelectRule={mockOnToggleSelectRule}
+          onEditRule={mockOnEditRule}
+          canUpdateCors={true}
+          canDeleteCors={false}
+        />,
+        { wrapper: Wrapper }
+      )
+
+      expect(screen.queryByText("Select")).not.toBeInTheDocument()
+    })
+
+    it("shows the Select column when canDeleteCors is true", () => {
+      render(
+        <CorsRulesTable
+          bucketName="test-bucket"
+          rulesWithIndices={sampleRulesWithIndices}
+          selectedIndices={[]}
+          onToggleSelectRule={mockOnToggleSelectRule}
+          onEditRule={mockOnEditRule}
+          canUpdateCors={true}
+          canDeleteCors={true}
+        />,
+        { wrapper: Wrapper }
+      )
+
+      expect(screen.getByText("Select")).toBeInTheDocument()
+    })
+  })
+
+  describe("Permission gating - row actions", () => {
+    const openRowMenu = async (rowTestId: string) => {
+      const user = userEvent.setup()
+      const row = screen.getByTestId(rowTestId)
+      const menuButton = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      await user.click(menuButton)
+    }
+
+    it("shows Edit but hides Delete CORS Rule when canUpdateCors is true and canDeleteCors is false", async () => {
+      render(
+        <CorsRulesTable
+          bucketName="test-bucket"
+          rulesWithIndices={sampleRulesWithIndices}
+          selectedIndices={[]}
+          onToggleSelectRule={mockOnToggleSelectRule}
+          onEditRule={mockOnEditRule}
+          canUpdateCors={true}
+          canDeleteCors={false}
+        />,
+        { wrapper: PortalWrapper }
+      )
+
+      await openRowMenu("cors-rule-row-0")
+
+      expect(screen.getByText("Edit")).toBeInTheDocument()
+      expect(screen.queryByText("Delete CORS Rule")).not.toBeInTheDocument()
+    })
+
+    it("shows Delete CORS Rule but hides Edit when canUpdateCors is false and canDeleteCors is true", async () => {
+      render(
+        <CorsRulesTable
+          bucketName="test-bucket"
+          rulesWithIndices={sampleRulesWithIndices}
+          selectedIndices={[]}
+          onToggleSelectRule={mockOnToggleSelectRule}
+          onEditRule={mockOnEditRule}
+          canUpdateCors={false}
+          canDeleteCors={true}
+        />,
+        { wrapper: PortalWrapper }
+      )
+
+      await openRowMenu("cors-rule-row-0")
+
+      expect(screen.queryByText("Edit")).not.toBeInTheDocument()
+      expect(screen.getByText("Delete CORS Rule")).toBeInTheDocument()
+    })
+
+    it("renders no row menu button when both canUpdateCors and canDeleteCors are false", () => {
+      render(
+        <CorsRulesTable
+          bucketName="test-bucket"
+          rulesWithIndices={sampleRulesWithIndices}
+          selectedIndices={[]}
+          onToggleSelectRule={mockOnToggleSelectRule}
+          onEditRule={mockOnEditRule}
+          canUpdateCors={false}
+          canDeleteCors={false}
+        />,
+        { wrapper: PortalWrapper }
+      )
+
+      const firstRow = screen.getByTestId("cors-rule-row-0")
+      expect(firstRow.querySelector("button[aria-haspopup='menu']")).not.toBeInTheDocument()
+    })
   })
 })

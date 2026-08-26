@@ -104,17 +104,23 @@ export function LifecycleRulesTable({
   const effectiveIsMutating = isMutating || isRowDeleteMutating
 
   const isEmpty = rulesWithIndices.length === 0
+  const columnCount = canDeleteLifecycle ? 8 : 7
+  // minContentColumns is a zero-based column-index array. Dropping the leading select
+  // column shifts the actions column from index 7 to 6.
+  const minContentColumns = canDeleteLifecycle ? [0, 7] : [6]
 
   return (
     <Stack direction="vertical" gap="4">
       {/* Rules Table */}
-      <DataGrid columns={8} minContentColumns={[0, 7]}>
+      <DataGrid columns={columnCount} minContentColumns={minContentColumns}>
         <DataGridRow>
-          <DataGridHeadCell>
-            <span className="sr-only">
-              <Trans>Select</Trans>
-            </span>
-          </DataGridHeadCell>
+          {canDeleteLifecycle && (
+            <DataGridHeadCell>
+              <span className="sr-only">
+                <Trans>Select</Trans>
+              </span>
+            </DataGridHeadCell>
+          )}
           <DataGridHeadCell>{t`Rule ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Scope`}</DataGridHeadCell>
@@ -125,7 +131,7 @@ export function LifecycleRulesTable({
         </DataGridRow>
         {isEmpty ? (
           <DataGridRow>
-            <DataGridCell colSpan={8}>
+            <DataGridCell colSpan={columnCount}>
               <p className="text-theme-light py-8 text-center">
                 {isFiltered ? (
                   <Trans>No lifecycle rules matching the current search criteria.</Trans>
@@ -178,16 +184,16 @@ export function LifecycleRulesTable({
 
             return (
               <DataGridRow key={key} data-testid={`lifecycle-rule-row-${originalIndex}`}>
-                <DataGridCell onClick={(e) => e.stopPropagation()}>
-                  {canDeleteLifecycle && (
+                {canDeleteLifecycle && (
+                  <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                       checked={selectedIndices.includes(originalIndex)}
                       onChange={() => onToggleSelectRule(originalIndex)}
                       aria-label={t`Select rule ${ruleLabel}`}
                       data-testid={`select-rule-${originalIndex}`}
                     />
-                  )}
-                </DataGridCell>
+                  </DataGridCell>
+                )}
                 <DataGridCell>{rule.ID || t`—`}</DataGridCell>
                 <DataGridCell>{rule.Status}</DataGridCell>
                 <DataGridCell className="break-all">{formatFilter(rule.Filter, rule.Prefix)}</DataGridCell>

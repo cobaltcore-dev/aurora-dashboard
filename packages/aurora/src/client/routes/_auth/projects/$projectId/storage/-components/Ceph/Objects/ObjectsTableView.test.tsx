@@ -435,6 +435,88 @@ describe("ObjectsTableView", () => {
 
       expect(screen.getByText("Delete Folder")).toBeInTheDocument()
     })
+
+    it("on a deleted folder row, shows Restore but hides Delete Folder when canDeleteVersion is false", async () => {
+      const user = userEvent.setup()
+      render(
+        <ObjectsTableView
+          {...defaultProps}
+          objects={[]}
+          folders={[{ prefix: "documents/", isDeleted: true, deleteMarkerVersionId: "dm-1" }]}
+          canDeleteFolder={true}
+          canDeleteVersion={false}
+          canRestoreVersion={true}
+        />
+      )
+
+      const row = screen.getByTestId("folder-row-documents/")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+
+      expect(screen.getByText("Restore")).toBeInTheDocument()
+      expect(screen.queryByText("Delete Folder")).not.toBeInTheDocument()
+    })
+
+    it("on a deleted file row, shows Restore but hides Delete Object when canDeleteVersion is false", async () => {
+      const user = userEvent.setup()
+      const versions = [
+        {
+          key: "file1.txt",
+          versionId: "v-123",
+          isLatest: false,
+          isDeleteMarker: true,
+          isDeleted: true,
+          size: 512,
+          lastModified: "2024-01-10T10:00:00Z",
+        },
+      ]
+
+      render(
+        <ObjectsTableView
+          {...defaultProps}
+          folders={[]}
+          objects={[]}
+          versions={versions}
+          showingVersions={true}
+          canDeleteVersion={false}
+          canRestoreVersion={true}
+        />
+      )
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+
+      expect(screen.getByText("Restore")).toBeInTheDocument()
+      expect(screen.queryByText("Delete Object")).not.toBeInTheDocument()
+    })
+
+    it("shows no row menu on a deleted file row when neither canDeleteVersion nor canRestoreVersion is granted", () => {
+      const versions = [
+        {
+          key: "file1.txt",
+          versionId: "v-123",
+          isLatest: false,
+          isDeleteMarker: true,
+          isDeleted: true,
+          size: 512,
+          lastModified: "2024-01-10T10:00:00Z",
+        },
+      ]
+
+      render(
+        <ObjectsTableView
+          {...defaultProps}
+          folders={[]}
+          objects={[]}
+          versions={versions}
+          showingVersions={true}
+          canDeleteVersion={false}
+          canRestoreVersion={false}
+        />
+      )
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      expect(within(row).queryByRole("button", { name: /more/i })).not.toBeInTheDocument()
+    })
   })
 
   describe("download and preview", () => {

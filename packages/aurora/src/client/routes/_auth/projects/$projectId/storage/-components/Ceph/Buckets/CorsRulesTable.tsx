@@ -97,17 +97,20 @@ export function CorsRulesTable({
   const effectiveIsMutating = isMutating || isRowDeleteMutating
 
   const isEmpty = rulesWithIndices.length === 0
+  const columnCount = canDeleteCors ? 8 : 7
 
   return (
     <Stack direction="vertical" gap="4">
       {/* Rules Table */}
-      <DataGrid columns={8}>
+      <DataGrid columns={columnCount}>
         <DataGridRow>
-          <DataGridHeadCell>
-            <span className="sr-only">
-              <Trans>Select</Trans>
-            </span>
-          </DataGridHeadCell>
+          {canDeleteCors && (
+            <DataGridHeadCell>
+              <span className="sr-only">
+                <Trans>Select</Trans>
+              </span>
+            </DataGridHeadCell>
+          )}
           <DataGridHeadCell>{t`Rule ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Allowed Origins`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Allowed Methods`}</DataGridHeadCell>
@@ -118,7 +121,7 @@ export function CorsRulesTable({
         </DataGridRow>
         {isEmpty ? (
           <DataGridRow>
-            <DataGridCell colSpan={8}>
+            <DataGridCell colSpan={columnCount}>
               <p className="text-theme-light py-8 text-center">
                 {isFiltered ? (
                   <Trans>No CORS rules matching the current search criteria.</Trans>
@@ -139,16 +142,16 @@ export function CorsRulesTable({
 
             return (
               <DataGridRow key={key} data-testid={`cors-rule-row-${originalIndex}`}>
-                <DataGridCell onClick={(e) => e.stopPropagation()}>
-                  {canDeleteCors && (
+                {canDeleteCors && (
+                  <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                       checked={selectedIndices.includes(originalIndex)}
                       onChange={() => onToggleSelectRule(originalIndex)}
                       aria-label={t`Select rule ${ruleLabel}`}
                       data-testid={`select-rule-${originalIndex}`}
                     />
-                  )}
-                </DataGridCell>
+                  </DataGridCell>
+                )}
                 <DataGridCell>{rule.ID || t`—`}</DataGridCell>
                 <DataGridCell className="break-all">{rule.AllowedOrigins.join(", ")}</DataGridCell>
                 <DataGridCell>{rule.AllowedMethods.join(", ")}</DataGridCell>

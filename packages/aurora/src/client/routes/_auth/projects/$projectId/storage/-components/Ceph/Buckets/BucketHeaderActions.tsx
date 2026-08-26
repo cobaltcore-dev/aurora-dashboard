@@ -44,14 +44,10 @@ export const BucketHeaderActions = ({
 }: BucketHeaderActionsProps) => {
   const { t } = useLingui()
 
-  const canToggleVersioning =
-    canUpdateVersioning &&
-    Boolean(
-      versioningStatus &&
-      (versioningStatus.status === "Unversioned" ||
-        versioningStatus.status === "Suspended" ||
-        versioningStatus.status === "Enabled")
-    )
+  const versioningState = canUpdateVersioning ? versioningStatus?.status : undefined
+  const canEnableVersioning = versioningState === "Unversioned" || versioningState === "Suspended"
+  const canSuspendVersioning = versioningState === "Enabled"
+  const canToggleVersioning = canEnableVersioning || canSuspendVersioning
   const canShowDeletePolicy = hasPolicy && canDeletePolicy
   const canShowEmptyBucket = !isBucketEmpty && canEmptyBucket
   const canShowDeleteVersions = hasOldVersionsOrDeleteMarkers && canDeleteVersions
@@ -69,33 +65,27 @@ export const BucketHeaderActions = ({
   }
 
   return (
-    <>
-      <PopupMenu>
-        <PopupMenuToggle as="div">
-          <Button icon="moreVert" />
-        </PopupMenuToggle>
-        <PopupMenuOptions>
-          {canUpdateVersioning &&
-            versioningStatus &&
-            (versioningStatus.status === "Unversioned" || versioningStatus.status === "Suspended") && (
-              <PopupMenuItem label={t`Enable Versioning`} onClick={() => onOpenModal("enableVersioning")} />
-            )}
-          {canUpdateVersioning && versioningStatus && versioningStatus.status === "Enabled" && (
-            <PopupMenuItem label={t`Suspend Versioning`} onClick={() => onOpenModal("suspendVersioning")} />
-          )}
-          {canUpdatePolicy && (
-            <PopupMenuItem label={hasPolicy ? t`Edit Policy` : t`Add Policy`} onClick={() => onOpenModal("policy")} />
-          )}
-          {canShowDeletePolicy && (
-            <PopupMenuItem label={t`Delete Policy`} onClick={() => onOpenModal("deletePolicy")} />
-          )}
-          {canShowEmptyBucket && <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />}
-          {canShowDeleteVersions && (
-            <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />
-          )}
-          {canDeleteBucket && <PopupMenuItem label={t`Delete Bucket`} onClick={() => onOpenModal("deleteBucket")} />}
-        </PopupMenuOptions>
-      </PopupMenu>
-    </>
+    <PopupMenu>
+      <PopupMenuToggle as="div">
+        <Button icon="moreVert" />
+      </PopupMenuToggle>
+      <PopupMenuOptions>
+        {canEnableVersioning && (
+          <PopupMenuItem label={t`Enable Versioning`} onClick={() => onOpenModal("enableVersioning")} />
+        )}
+        {canSuspendVersioning && (
+          <PopupMenuItem label={t`Suspend Versioning`} onClick={() => onOpenModal("suspendVersioning")} />
+        )}
+        {canUpdatePolicy && (
+          <PopupMenuItem label={hasPolicy ? t`Edit Policy` : t`Add Policy`} onClick={() => onOpenModal("policy")} />
+        )}
+        {canShowDeletePolicy && <PopupMenuItem label={t`Delete Policy`} onClick={() => onOpenModal("deletePolicy")} />}
+        {canShowEmptyBucket && <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />}
+        {canShowDeleteVersions && (
+          <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />
+        )}
+        {canDeleteBucket && <PopupMenuItem label={t`Delete Bucket`} onClick={() => onOpenModal("deleteBucket")} />}
+      </PopupMenuOptions>
+    </PopupMenu>
   )
 }

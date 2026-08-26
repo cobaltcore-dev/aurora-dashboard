@@ -648,6 +648,8 @@ export function ObjectsTableView({
                                         }}
                                       />
                                     )}
+                                    {/* Gated on canDeleteVersion, not canDeleteFolder - this permanently purges
+                                        the delete marker/version, it's not a soft delete. */}
                                     {canDeleteVersion && (
                                       <PopupMenuItem
                                         label={t`Delete Folder`}
@@ -698,6 +700,8 @@ export function ObjectsTableView({
                                       }}
                                     />
                                   )}
+                                  {/* Gated on canDeleteVersion, not canDeleteObject - this permanently purges
+                                      the delete marker/version, it's not a soft delete. */}
                                   {canDeleteVersion && (
                                     <PopupMenuItem
                                       label={t`Delete Object`}

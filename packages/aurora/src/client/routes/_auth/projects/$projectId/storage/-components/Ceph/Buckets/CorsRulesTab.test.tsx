@@ -391,6 +391,16 @@ describe("CorsRulesTab", () => {
       expect(screen.queryByTestId("select-all-rules")).not.toBeInTheDocument()
     })
 
+    it("keeps the rule counter right-aligned via a placeholder when canDeleteCors is false", () => {
+      mockCephPermissions = { canUpdateCors: true, canDeleteCors: false }
+      render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
+      const counter = screen.getByText("1 rule")
+      const counterRow = counter.parentElement
+      expect(counterRow?.children).toHaveLength(2)
+      expect(counterRow?.children[0].tagName).toBe("SPAN")
+      expect(counterRow?.children[1]).toBe(counter)
+    })
+
     it("shows the bulk selection/actions toolbar when canDeleteCors is true", () => {
       mockCephPermissions = { canUpdateCors: true, canDeleteCors: true }
       render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })

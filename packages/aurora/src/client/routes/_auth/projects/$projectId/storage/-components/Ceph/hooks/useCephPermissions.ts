@@ -31,29 +31,49 @@ export interface CephPermissions {
   canCreateCredential: boolean
 }
 
-const DEFAULT_PERMISSIONS: CephPermissions = {
-  canCreateBucket: false,
-  canDeleteBucket: false,
-  canEmptyBucket: false,
-  canUpdateVersioning: false,
-  canCreateObject: false,
-  canUpdateObject: false,
-  canDeleteObject: false,
-  canCopyObject: false,
-  canMoveObject: false,
-  canShareObject: false,
-  canCreateFolder: false,
-  canDeleteFolder: false,
-  canDeleteVersion: false,
-  canRestoreVersion: false,
-  canUpdatePolicy: false,
-  canDeletePolicy: false,
-  canUpdateCors: false,
-  canDeleteCors: false,
-  canUpdateLifecycle: false,
-  canDeleteLifecycle: false,
-  canCreateCredential: false,
-}
+/**
+ * Single source of truth mapping each `CephPermissions` key to the `storage:*` permission
+ * string the server checks. The request array and the `select` key order below are both
+ * derived from this map, so a reorder/insert here can't desync them the way two independently
+ * maintained positional lists could - the `satisfies` clause fails to compile if a key is
+ * missing or misspelled.
+ *
+ * Scope note: this only buys `CephPermissions`-key safety. `canUser`'s tRPC input is plain
+ * `string` (not a literal union), so a typo'd permission string on the right-hand side still
+ * only fails at runtime (see the module docblock in `permissionRouter.ts`).
+ */
+const PERMISSION_MAP = {
+  canCreateBucket: "storage:containers:create",
+  canDeleteBucket: "storage:containers:delete",
+  canEmptyBucket: "storage:containers:empty",
+  canUpdateVersioning: "storage:containers:update_versioning",
+  canCreateObject: "storage:objects:create",
+  canUpdateObject: "storage:objects:update",
+  canDeleteObject: "storage:objects:delete",
+  canCopyObject: "storage:objects:copy",
+  canMoveObject: "storage:objects:move",
+  canShareObject: "storage:objects:share",
+  canCreateFolder: "storage:folders:create",
+  canDeleteFolder: "storage:folders:delete",
+  canDeleteVersion: "storage:object_versions:delete",
+  canRestoreVersion: "storage:object_versions:restore",
+  canUpdatePolicy: "storage:container_policies:update",
+  canDeletePolicy: "storage:container_policies:delete",
+  canUpdateCors: "storage:container_cors_rules:update",
+  canDeleteCors: "storage:container_cors_rules:delete",
+  canUpdateLifecycle: "storage:container_lifecycle_rules:update",
+  canDeleteLifecycle: "storage:container_lifecycle_rules:delete",
+  canCreateCredential: "storage:credentials:create",
+} as const satisfies Record<keyof CephPermissions, string>
+
+// Module-level constants, not computed in the hook body: this array is part of the tRPC query
+// key, so a fresh array identity on every render would defeat the `staleTime: Infinity` cache.
+const PERMISSION_KEYS = Object.keys(PERMISSION_MAP) as (keyof CephPermissions)[]
+const PERMISSION_REQUEST = PERMISSION_KEYS.map((key) => PERMISSION_MAP[key])
+
+const DEFAULT_PERMISSIONS: CephPermissions = Object.fromEntries(
+  PERMISSION_KEYS.map((key) => [key, false])
+) as unknown as CephPermissions
 
 /**
  * Hook to fetch Ceph/S3 Object Storage mutation permissions for the current user.
@@ -72,78 +92,14 @@ export function useCephPermissions(projectId: string) {
   } = trpcReact.storage.canUser.useQuery(
     {
       project_id: projectId || "",
-      // Order must match the `select` destructuring below.
-      permission: [
-        "storage:containers:create",
-        "storage:containers:delete",
-        "storage:containers:empty",
-        "storage:containers:update_versioning",
-        "storage:objects:create",
-        "storage:objects:update",
-        "storage:objects:delete",
-        "storage:objects:copy",
-        "storage:objects:move",
-        "storage:objects:share",
-        "storage:folders:create",
-        "storage:folders:delete",
-        "storage:object_versions:delete",
-        "storage:object_versions:restore",
-        "storage:container_policies:update",
-        "storage:container_policies:delete",
-        "storage:container_cors_rules:update",
-        "storage:container_cors_rules:delete",
-        "storage:container_lifecycle_rules:update",
-        "storage:container_lifecycle_rules:delete",
-        "storage:s3_credentials:create",
-      ],
+      permission: PERMISSION_REQUEST,
     },
     {
       enabled: Boolean(projectId), // Only fetch if we have a project ID
-      select: ([
-        canCreateBucket,
-        canDeleteBucket,
-        canEmptyBucket,
-        canUpdateVersioning,
-        canCreateObject,
-        canUpdateObject,
-        canDeleteObject,
-        canCopyObject,
-        canMoveObject,
-        canShareObject,
-        canCreateFolder,
-        canDeleteFolder,
-        canDeleteVersion,
-        canRestoreVersion,
-        canUpdatePolicy,
-        canDeletePolicy,
-        canUpdateCors,
-        canDeleteCors,
-        canUpdateLifecycle,
-        canDeleteLifecycle,
-        canCreateCredential,
-      ]): CephPermissions => ({
-        canCreateBucket,
-        canDeleteBucket,
-        canEmptyBucket,
-        canUpdateVersioning,
-        canCreateObject,
-        canUpdateObject,
-        canDeleteObject,
-        canCopyObject,
-        canMoveObject,
-        canShareObject,
-        canCreateFolder,
-        canDeleteFolder,
-        canDeleteVersion,
-        canRestoreVersion,
-        canUpdatePolicy,
-        canDeletePolicy,
-        canUpdateCors,
-        canDeleteCors,
-        canUpdateLifecycle,
-        canDeleteLifecycle,
-        canCreateCredential,
-      }),
+      select: (results): CephPermissions =>
+        Object.fromEntries(
+          PERMISSION_KEYS.map((key, index) => [key, results[index] ?? false])
+        ) as unknown as CephPermissions,
       staleTime: Infinity, // Permissions don't change during session
       gcTime: Infinity, // Keep in cache forever (previously cacheTime)
     }
