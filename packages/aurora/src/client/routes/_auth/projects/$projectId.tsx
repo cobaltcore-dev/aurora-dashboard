@@ -103,15 +103,19 @@ function RouteComponent() {
   // Handle scope errors with a friendly UI using Juno's Status component
   if (loaderData.scopeError) {
     const { code, message, currentDomain } = loaderData.scopeError
-    const domainHint = currentDomain?.name ? `\n\nCurrent domain: ${currentDomain.name}` : ""
+    const domainName = currentDomain?.name
 
     if (code === "UNAUTHORIZED") {
+      const bodyText = domainName
+        ? t`Your session context has changed, possibly because you switched domains in another browser tab. Your current domain is ${domainName}. Please select a project from your current domain to continue.`
+        : t`Your session context has changed, possibly because you switched domains in another browser tab. Please select a project from your current domain to continue.`
+
       return (
         <Container className="py-8">
           <Status
             status="error"
             title={t`Session Changed`}
-            body={t`Your session context has changed, possibly because you switched domains in another browser tab. Please select a project from your current domain to continue.${domainHint}`}
+            body={bodyText}
             action={
               <Button variant="primary" onClick={() => navigate({ to: "/projects" })}>
                 <Trans>Go to Projects</Trans>
@@ -123,13 +127,17 @@ function RouteComponent() {
     }
 
     if (code === "NOT_FOUND") {
+      const bodyText = domainName
+        ? t`This project doesn't exist or is not accessible from your current domain. Your current domain is ${domainName}. Please select a project from your current domain.`
+        : t`This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain.`
+
       return (
         <Container className="py-8">
           <Status
             status="error"
             code={404}
             title={t`Project Not Accessible`}
-            body={t`This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain.${domainHint}`}
+            body={bodyText}
             action={
               <Button variant="primary" onClick={() => navigate({ to: "/projects" })}>
                 <Trans>Go to Projects</Trans>
