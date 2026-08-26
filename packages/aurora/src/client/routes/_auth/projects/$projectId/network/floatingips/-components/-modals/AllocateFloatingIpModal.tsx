@@ -95,7 +95,6 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
 
       await createFloatingIpMutation.mutateAsync({
         project_id: projectId,
-        tenant_id: projectId,
         floating_network_id: value.floating_network_id,
         ...(value.dns_domain && { dns_domain: value.dns_domain }),
         ...(value.dns_name && { dns_name: value.dns_name }),
