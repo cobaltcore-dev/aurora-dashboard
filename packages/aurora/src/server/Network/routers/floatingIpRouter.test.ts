@@ -171,6 +171,19 @@ const createMockContext = (opts?: {
   })
 
   const mockOpenstackSession = {
+    getToken: vi.fn().mockReturnValue({
+      authToken: "mock-auth-token",
+      tokenData: {
+        project: {
+          id: TEST_PROJECT_ID,
+          name: "test-project",
+        },
+        user: {
+          id: "user-1",
+          name: "test-user",
+        },
+      },
+    }),
     service: vi.fn().mockImplementation((serviceName: string) => {
       if (serviceName === "network") {
         if (noNetworkService) {
@@ -705,13 +718,12 @@ describe("floatingIpRouter.create", () => {
 
     await caller.floatingIp.create({
       project_id: TEST_PROJECT_ID,
-      tenant_id: "tenant-1",
       floating_network_id: "net-external-1",
     })
 
     expect(ctx.__networkPostMock).toHaveBeenCalledWith("v2.0/floatingips", {
       floatingip: {
-        tenant_id: "tenant-1",
+        tenant_id: TEST_PROJECT_ID,
         project_id: TEST_PROJECT_ID,
         floating_network_id: "net-external-1",
       },
@@ -738,7 +750,6 @@ describe("floatingIpRouter.create", () => {
 
     const result = await caller.floatingIp.create({
       project_id: TEST_PROJECT_ID,
-      tenant_id: "tenant-1",
       floating_network_id: "net-external-1",
     })
 
@@ -753,7 +764,6 @@ describe("floatingIpRouter.create", () => {
     await expect(
       caller.floatingIp.create({
         project_id: TEST_PROJECT_ID,
-        tenant_id: "tenant-1",
         floating_network_id: "net-external-1",
       })
     ).rejects.toThrow(
@@ -771,7 +781,6 @@ describe("floatingIpRouter.create", () => {
     await expect(
       caller.floatingIp.create({
         project_id: TEST_PROJECT_ID,
-        tenant_id: "tenant-1",
         floating_network_id: "net-external-1",
       })
     ).rejects.toThrow(TRPCError)
