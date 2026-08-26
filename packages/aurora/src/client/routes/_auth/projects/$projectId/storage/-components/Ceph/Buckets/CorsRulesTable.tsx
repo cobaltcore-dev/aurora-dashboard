@@ -164,16 +164,20 @@ export function CorsRulesTable({
                     <div className="flex h-full items-center justify-end">
                       <PopupMenu>
                         <PopupMenuOptions>
-                          <PopupMenuItem
-                            label={t`Edit`}
-                            onClick={() => onEditRule(originalIndex)}
-                            disabled={effectiveIsMutating}
-                          />
-                          <PopupMenuItem
-                            label={t`Delete CORS Rule`}
-                            onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
-                            disabled={effectiveIsMutating}
-                          />
+                          {canUpdateCors && (
+                            <PopupMenuItem
+                              label={t`Edit`}
+                              onClick={() => onEditRule(originalIndex)}
+                              disabled={effectiveIsMutating}
+                            />
+                          )}
+                          {canDeleteCors && (
+                            <PopupMenuItem
+                              label={t`Delete CORS Rule`}
+                              onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
+                              disabled={effectiveIsMutating}
+                            />
+                          )}
                         </PopupMenuOptions>
                       </PopupMenu>
                     </div>

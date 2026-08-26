@@ -134,17 +134,19 @@ The operation being performed, using **consistent verbs**.
 "storage:object_versions:delete" // Permanently delete an object version/delete marker
 "storage:object_versions:restore" // Restore a previous object version
 
-// Ceph/S3 Bucket Versioning (no Swift analogue  compound action on `containers`, mirrors `update_acls`)
+// Ceph/S3 Bucket Versioning (no Swift analogue — compound action on `containers`, mirrors `update_acls`)
 "storage:containers:update_versioning" // Enable/suspend bucket versioning
 
 // Ceph/S3 Bucket Policy Operations
 "storage:container_policies:update" // Add/edit a bucket policy
 "storage:container_policies:delete" // Delete a bucket policy
 
-// Ceph/S3 CORS Operations"storage:container_cors_rules:update" // Create/edit a CORS rule
+// Ceph/S3 CORS Operations
+"storage:container_cors_rules:update" // Create/edit a CORS rule
 "storage:container_cors_rules:delete" // Delete a CORS rule
 
-// Ceph/S3 Lifecycle Operations"storage:container_lifecycle_rules:update" // Create/edit a lifecycle rule
+// Ceph/S3 Lifecycle Operations
+"storage:container_lifecycle_rules:update" // Create/edit a lifecycle rule
 "storage:container_lifecycle_rules:delete" // Delete a lifecycle rule
 
 // Ceph/S3 Credential Operations
@@ -152,9 +154,9 @@ The operation being performed, using **consistent verbs**.
 ```
 
 > Note: read/list/view actions are deliberately never gated in this domain (or anywhere else in
-> the app) only mutations are. See `useSecurityGroupPermissions`, whose `canView` permission is
+> the app) — only mutations are. See `useSecurityGroupPermissions`, whose `canView` permission is
 > fetched but never consumed for hiding UI; this is the established, if implicit, convention
-> across the whole codebase.)
+> across the whole codebase.
 
 ### Network (`network:*`)
 

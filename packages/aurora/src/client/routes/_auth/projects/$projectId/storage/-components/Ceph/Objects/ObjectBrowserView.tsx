@@ -96,7 +96,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [isDeleteObjectsModalOpen, setIsDeleteObjectsModalOpen] = useState(false)
 
   // The bulk action in the "deleted" tab permanently deletes versions/delete markers; in
-  // "all" it deletes current objects  these are gated by different permissions.
+  // "all" it deletes current objects - these are gated by different permissions.
   const hasAnyBulkAction = tab === "deleted" ? permissions.canDeleteVersion : permissions.canDeleteObject
 
   // Local mirror of the committed search term so typing stays responsive while

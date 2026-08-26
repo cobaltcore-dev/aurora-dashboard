@@ -24,7 +24,7 @@ import { createPermissionRouter } from "../../policies/createPermissionRouter"
  *   bucket policy, so this gating never substitutes for real authorization.
  * - Read/list/view actions are deliberately not gated anywhere in this file (matches the
  *   rest of the app - see `useSecurityGroupPermissions`, whose `canView` is fetched but
- *   never consumed for hiding UI).)
+ *   never consumed for hiding UI).
  */
 const STORAGE_MAPPINGS = {
   // Container Operations (works for both Swift containers and Ceph buckets)

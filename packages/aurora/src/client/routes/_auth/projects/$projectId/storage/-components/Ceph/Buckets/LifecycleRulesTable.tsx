@@ -203,16 +203,20 @@ export function LifecycleRulesTable({
                     <div className="flex h-full items-center justify-end">
                       <PopupMenu>
                         <PopupMenuOptions>
-                          <PopupMenuItem
-                            label={t`Edit Lifecycle Rule`}
-                            onClick={() => onEditRule(originalIndex)}
-                            disabled={effectiveIsMutating}
-                          />
-                          <PopupMenuItem
-                            label={t`Delete Lifecycle Rule`}
-                            onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
-                            disabled={effectiveIsMutating}
-                          />
+                          {canUpdateLifecycle && (
+                            <PopupMenuItem
+                              label={t`Edit Lifecycle Rule`}
+                              onClick={() => onEditRule(originalIndex)}
+                              disabled={effectiveIsMutating}
+                            />
+                          )}
+                          {canDeleteLifecycle && (
+                            <PopupMenuItem
+                              label={t`Delete Lifecycle Rule`}
+                              onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
+                              disabled={effectiveIsMutating}
+                            />
+                          )}
                         </PopupMenuOptions>
                       </PopupMenu>
                     </div>
