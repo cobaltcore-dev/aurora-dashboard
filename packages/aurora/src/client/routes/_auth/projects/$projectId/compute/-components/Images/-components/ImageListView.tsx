@@ -2,7 +2,6 @@ import { useState, ReactNode, useEffect } from "react"
 import { useProjectId } from "@/client/hooks"
 import type { CreateImageInput, GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import {
-  Checkbox,
   ContentHeading,
   DataGrid,
   DataGridCell,
@@ -609,24 +608,7 @@ export function ImageListView({
             >
               {/* Table Header */}
               <DataGridRow>
-                {hasAnyBulkAction && (
-                  <DataGridHeadCell>
-                    <Checkbox
-                      checked={(() => {
-                        const currentPageIds = images.map((image) => image.id)
-                        return currentPageIds.length > 0 && currentPageIds.every((id) => selectedImages.includes(id))
-                      })()}
-                      onChange={() => {
-                        const currentPageIds = images.map((image) => image.id)
-                        const allSelected = currentPageIds.every((id) => selectedImages.includes(id))
-                        if (allSelected) {
-                          return setSelectedImages(selectedImages.filter((id) => !currentPageIds.includes(id)))
-                        }
-                        return setSelectedImages([...new Set([...selectedImages, ...currentPageIds])])
-                      }}
-                    />
-                  </DataGridHeadCell>
-                )}
+                {hasAnyBulkAction && <DataGridHeadCell></DataGridHeadCell>}
                 <DataGridHeadCell>
                   <Trans>Status</Trans>
                 </DataGridHeadCell>

@@ -943,9 +943,6 @@ msgstr ""
 msgid "Define permissions for this bucket. You may use one of the predefined templates."
 msgstr ""
 
-msgid "delete"
-msgstr "delete"
-
 msgid "Delete"
 msgstr "Löschen"
 
@@ -976,6 +973,10 @@ msgstr ""
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
 
+#. placeholder {0}: flavor?.name
+msgid "Delete Flavor \"{0}\""
+msgstr ""
+
 msgid "Delete Folder"
 msgstr ""
 
@@ -986,6 +987,10 @@ msgid "Delete folder:"
 msgstr "Ordner löschen:"
 
 msgid "Delete Image"
+msgstr ""
+
+#. placeholder {0}: image?.name || image?.id
+msgid "Delete Image \"{0}\""
 msgstr ""
 
 msgid "Delete Images"
@@ -1063,14 +1068,14 @@ msgstr "Die Beschreibung muss weniger als 65535 Zeichen haben."
 msgid "Detach"
 msgstr "Trennen"
 
-msgid "Detach Floating IP {floating_ip_address}"
-msgstr "Floating IP {floating_ip_address} trennen"
-
-msgid "Detaching Floating IP..."
-msgstr "Floating IP wird getrennt..."
+msgid "Detach Floating IP \"{floating_ip_address}\""
+msgstr ""
 
 msgid "Detaching this Floating IP will remove its association with the current port. The instance will no longer be reachable through this address."
 msgstr "Das Trennen dieser Floating IP hebt die Zuordnung zum aktuellen Port auf. Die Instance ist über diese Adresse nicht mehr erreichbar."
+
+msgid "Detaching..."
+msgstr ""
 
 msgid "Details"
 msgstr "Details"
@@ -1217,6 +1222,9 @@ msgid "Empty Bucket"
 msgstr ""
 
 msgid "Empty Buckets"
+msgstr ""
+
+msgid "Empty Container"
 msgstr ""
 
 msgid "Empty the bucket"
@@ -1771,10 +1779,10 @@ msgstr "Weitere Details finden Sie in der <0>Dokumentation</0>."
 msgid "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
 msgstr "Vollständiges Lifecycle-Management von Floating IPs, einschließlich Zuweisung, Port-Zuordnung/-Aufhebung, DNS-Einstellungen und Löschung"
 
-msgid "Full path:"
+msgid "Full Path"
 msgstr ""
 
-msgid "Full Path:"
+msgid "Full path:"
 msgstr ""
 
 msgid "General Image Data"
@@ -1989,9 +1997,6 @@ msgstr "Zuletzt geändert"
 
 msgid "Last modified (UTC)"
 msgstr "Zuletzt geändert (UTC)"
-
-msgid "Last Modified:"
-msgstr ""
 
 msgid "Last updated: {formattedDate}"
 msgstr "Zuletzt aktualisiert: {formattedDate}"
@@ -2247,9 +2252,6 @@ msgstr "Name"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
-
-msgid "Name:"
-msgstr ""
 
 msgid "Network"
 msgstr "Netzwerk"
@@ -2701,11 +2703,11 @@ msgstr "Abgelehnt"
 msgid "Release"
 msgstr "Freigeben"
 
-msgid "Release Floating IP {floating_ip_address}"
-msgstr "Floating IP {floating_ip_address} freigeben"
+msgid "Release Floating IP \"{floating_ip_address}\""
+msgstr ""
 
-msgid "Releasing Floating IP..."
-msgstr "Floating IP wird freigegeben..."
+msgid "Releasing..."
+msgstr ""
 
 msgid "Remaining Quota:"
 msgstr "Verfügbare Quota:"
@@ -2721,9 +2723,6 @@ msgstr "Entfernte Sicherheitsgruppe"
 
 msgid "Remote Source"
 msgstr "Entfernte Quelle"
-
-msgid "remove"
-msgstr "entfernen"
 
 msgid "Remove"
 msgstr "Entfernen"
@@ -3025,9 +3024,6 @@ msgstr ""
 msgid "Showing {rulesLength} of {totalCount} rules"
 msgstr ""
 
-msgid "Showing first {actualObjectCount} of {total} objects"
-msgstr "Erste {actualObjectCount} von {total} Objekten werden angezeigt"
-
 msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 msgstr ""
 
@@ -3304,11 +3300,11 @@ msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Ein
 msgid "The text must match \"delete\""
 msgstr "Der Text muss \"delete\" entsprechen"
 
-msgid "The text must match “detach” in lowercase."
-msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
+msgid "The text must match \"detach\" in lowercase."
+msgstr ""
 
-msgid "The text must match “release” in lowercase."
-msgstr "Der Text muss “release” in Kleinbuchstaben entsprechen."
+msgid "The text must match \"release\" in lowercase."
+msgstr ""
 
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr ""
@@ -3460,12 +3456,6 @@ msgstr ""
 msgid "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
 msgstr ""
 
-msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
-msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>“detach”</0> in das Feld unten ein."
-
-msgid "To confirm this action, type the word <0>\"release\"</0> in the field below."
-msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>\"release\"</0> in das Feld unten ein."
-
 msgid "To confirm type <0>delete</0> in the field below."
 msgstr "Geben Sie zur Bestätigung <0>delete</0> in das Feld unten ein."
 
@@ -3502,29 +3492,14 @@ msgstr "Geben Sie \"delete\" zur Bestätigung ein"
 msgid "Type \"detach\" to confirm"
 msgstr "\"detach\" zur Bestätigung eingeben"
 
-msgid "Type “detach” to confirm"
-msgstr "“detach” zur Bestätigung eingeben"
-
 msgid "Type \"empty\" to confirm"
 msgstr ""
 
 msgid "Type \"release\" to confirm"
 msgstr "\"release\" zur Bestätigung eingeben"
 
-msgid "Type “release” to confirm"
-msgstr "“release” zur Bestätigung eingeben"
-
 msgid "Type \"remove\" to confirm"
 msgstr "\"remove\" zur Bestätigung eingeben"
-
-msgid "Type <0>{deleteWord}</0> to confirm:"
-msgstr "<0>{deleteWord}</0> zur Bestätigung eingeben:"
-
-msgid "Type <0>delete</0> to confirm:"
-msgstr "<0>delete</0> zur Bestätigung eingeben:"
-
-msgid "Type <0>remove</0> to confirm:"
-msgstr "Geben Sie <0>entfernen</0> zur Bestätigung ein:"
 
 msgid "Type container name to confirm"
 msgstr "Geben Sie den Container-Namen zur Bestätigung ein"

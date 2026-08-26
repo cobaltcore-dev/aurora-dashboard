@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { Modal, Stack, TextInput } from "@cloudoperators/juno-ui-components"
+import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
 
 interface DeleteImagesModalProps {
   deletableImages: Array<string>
@@ -29,14 +30,19 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
   onDelete,
 }) => {
   const { t } = useLingui()
-  const [confirmText, setConfirmText] = useState("")
   const [result, setResult] = useState<DeleteResult | null>(null)
+
+  const { confirmText, setConfirmText, isConfirmed, trackClose, markSubmitted } = useDeleteConfirmation({
+    isOpen,
+    confirmWord: "delete",
+    trackingPrefix: "compute.images",
+  })
 
   const deletableCount = deletableImages.length
   const protectedCount = protectedImages.length
 
   const handleClose = () => {
-    setConfirmText("")
+    trackClose()
     setResult(null)
     onClose()
   }
@@ -44,6 +50,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
   const handleConfirm = () => {
     if (result === null) {
       // Step A: Confirm
+      markSubmitted()
       onDelete(deletableImages)
       // Note: Parent component should call setResult after getting backend response
     } else {
@@ -51,8 +58,6 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
       handleClose()
     }
   }
-
-  const isConfirmValid = confirmText === "delete"
 
   // Step B: Results view
   if (result !== null) {
@@ -132,7 +137,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
       confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isConfirmValid || isLoading}
+      disableConfirmButton={!isConfirmed || isLoading}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
     >

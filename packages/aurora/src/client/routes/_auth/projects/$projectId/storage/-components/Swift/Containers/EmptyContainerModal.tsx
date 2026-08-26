@@ -10,14 +10,10 @@ import {
   TextInput,
   Stack,
   Spinner,
-  DataGrid,
-  DataGridRow,
-  DataGridHeadCell,
-  DataGridCell,
   Icon,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary, ObjectSummary } from "@/server/Storage/types/swift"
-import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
 
 interface EmptyContainerModalProps {
   isOpen: boolean
@@ -30,10 +26,21 @@ interface EmptyContainerModalProps {
 export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onError }: EmptyContainerModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const [confirmName, setConfirmName] = useState("")
-  const [nameError, setNameError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const containerNameRef = useRef("")
+
+  const {
+    confirmText,
+    setConfirmText,
+    error: confirmError,
+    setError: setConfirmError,
+    trackClose,
+    markSubmitted,
+  } = useDeleteConfirmation({
+    isOpen,
+    confirmWord: "delete",
+    trackingPrefix: "storage.swift.container",
+  })
 
   const handleCopyName = () => {
     if (!container) return
@@ -71,25 +78,20 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   })
 
   const handleClose = () => {
-    setConfirmName("")
-    setNameError(null)
+    trackClose()
     emptyContainerMutation.reset()
     onClose()
   }
 
-  const handleConfirmNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setConfirmName(value)
-    if (nameError) setNameError(null)
-  }
-
   const handleSubmit = () => {
     if (!container) return
-    if (confirmName.trim() !== container.name) {
-      setNameError(t`Container name does not match`)
+    if (confirmText.trim() !== container.name) {
+      setConfirmError(t`Container name does not match`)
       return
     }
+    setConfirmError(null)
     containerNameRef.current = container.name
+    markSubmitted()
     emptyContainerMutation.mutate({ project_id: projectId, container: container.name })
   }
 
@@ -137,7 +139,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       title={modalTitle}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={showEmptyInfo ? undefined : t`Empty`}
+      confirmButtonLabel={showEmptyInfo ? undefined : t`Empty Container`}
       confirmButtonVariant="primary-danger"
       onConfirm={showEmptyInfo ? undefined : handleSubmit}
       cancelButtonLabel={showEmptyInfo ? undefined : t`Cancel`}
@@ -152,12 +154,12 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
           </ModalFooter>
         ) : undefined
       }
-      size="small"
+      size="large"
       disableConfirmButton={
         isLoadingObjects ||
         emptyContainerMutation.isPending ||
-        (!showEmptyInfo && !confirmName.trim()) ||
-        (!showEmptyInfo && confirmName.trim() !== container.name)
+        (!showEmptyInfo && !confirmText.trim()) ||
+        (!showEmptyInfo && confirmText.trim() !== container.name)
       }
     >
       {objectsError && (
@@ -199,57 +201,40 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
           </p>
 
           {/* Object list preview — capped at first 100 */}
-          <div className="border-theme-background-lvl-3 overflow-hidden rounded border">
-            {container.count > actualObjectCount && (
-              <p className="text-theme-light px-3 py-2 text-xs">
-                {(() => {
-                  const total = container.count
-                  return (
-                    <Trans>
-                      Showing first {actualObjectCount} of {total} objects
-                    </Trans>
-                  )
-                })()}
-              </p>
-            )}
-            <DataGrid columns={3} className="text-sm">
-              <DataGridRow>
-                <DataGridHeadCell>
-                  <Trans>Name</Trans>
-                </DataGridHeadCell>
-                <DataGridHeadCell>
-                  <Trans>Size</Trans>
-                </DataGridHeadCell>
-                <DataGridHeadCell>
-                  <Trans>Last Modified</Trans>
-                </DataGridHeadCell>
-              </DataGridRow>
-            </DataGrid>
-            <div className="max-h-48 overflow-y-auto">
-              <DataGrid columns={3} className="text-sm">
+          <div>
+            <p className="text-sm font-semibold">
+              <Trans>Objects to delete:</Trans>
+            </p>
+            <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+              <Stack direction="vertical" gap="1">
                 {(objects as ObjectSummary[]).map((obj) => (
-                  <DataGridRow key={obj.name}>
-                    <DataGridCell className="max-w-50 truncate" title={obj.name}>
-                      {obj.name}
-                    </DataGridCell>
-                    <DataGridCell>{formatBytesBinary(obj.bytes)}</DataGridCell>
-                    <DataGridCell>
-                      {obj.last_modified ? new Date(obj.last_modified).toLocaleString() : t`N/A`}
-                    </DataGridCell>
-                  </DataGridRow>
+                  <div key={obj.name} className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]">
+                    {obj.name}
+                  </div>
                 ))}
-              </DataGrid>
+                {container.count > actualObjectCount && (
+                  <div className="text-theme-light pt-2 text-sm">
+                    {(() => {
+                      const hiddenCount = container.count - actualObjectCount
+                      return <Trans>… and {hiddenCount} more</Trans>
+                    })()}
+                  </div>
+                )}
+              </Stack>
             </div>
           </div>
 
           <TextInput
             label={t`Type container name to confirm`}
             required
-            value={confirmName}
-            onChange={handleConfirmNameChange}
+            value={confirmText}
+            onChange={(e) => {
+              setConfirmText(e.target.value)
+              if (confirmError) setConfirmError(null)
+            }}
             onKeyDown={handleKeyDown}
-            invalid={!!nameError}
-            errortext={nameError || undefined}
+            invalid={!!confirmError}
+            errortext={confirmError || undefined}
             disabled={emptyContainerMutation.isPending}
             autoFocus
             placeholder={container.name}

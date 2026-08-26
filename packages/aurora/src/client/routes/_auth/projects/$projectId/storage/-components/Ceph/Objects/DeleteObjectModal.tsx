@@ -1,6 +1,13 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  TextInput,
+  Stack,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+} from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -118,41 +125,53 @@ export function DeleteObjectModal({
           )}
         </p>
 
-        <div className="bg-theme-background-lvl-2 rounded p-4">
-          <Stack direction="vertical" gap="2">
-            <div>
-              <span className="text-theme-light text-sm">
-                <Trans>Name:</Trans>
-              </span>
-              <div className="mt-1 overflow-x-hidden [overflow-wrap:anywhere]">{displayName}</div>
-            </div>
+        {!isFolder ? (
+          <DescriptionList>
+            <DescriptionTerm>
+              <Trans>Name</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="overflow-x-hidden [overflow-wrap:anywhere]">
+              {displayName}
+            </DescriptionDefinition>
 
-            {!isFolder && objectSize !== undefined && (
-              <div>
-                <span className="text-theme-light text-sm">
-                  <Trans>Size:</Trans>
-                </span>
-                <div className="mt-1">{formatBytesBinary(objectSize)}</div>
-              </div>
-            )}
+            <DescriptionTerm>
+              <Trans>Size</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>
+              {objectSize !== undefined ? formatBytesBinary(objectSize) : "-"}
+            </DescriptionDefinition>
 
-            {!isFolder && lastModified && (
-              <div>
-                <span className="text-theme-light text-sm">
-                  <Trans>Last Modified:</Trans>
-                </span>
-                <div className="mt-1">{new Date(lastModified).toLocaleString()}</div>
-              </div>
-            )}
+            <DescriptionTerm>
+              <Trans>Last Modified</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>
+              {lastModified ? new Date(lastModified).toLocaleString() : "-"}
+            </DescriptionDefinition>
 
-            <div>
-              <span className="text-theme-light text-sm">
-                <Trans>Full Path:</Trans>
-              </span>
-              <div className="mt-1 overflow-x-hidden [overflow-wrap:anywhere]">{objectKey}</div>
-            </div>
-          </Stack>
-        </div>
+            <DescriptionTerm>
+              <Trans>Full Path</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="overflow-x-hidden [overflow-wrap:anywhere]">
+              {objectKey}
+            </DescriptionDefinition>
+          </DescriptionList>
+        ) : (
+          <DescriptionList>
+            <DescriptionTerm>
+              <Trans>Name</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="overflow-x-hidden [overflow-wrap:anywhere]">
+              {displayName}
+            </DescriptionDefinition>
+
+            <DescriptionTerm>
+              <Trans>Full Path</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="overflow-x-hidden [overflow-wrap:anywhere]">
+              {objectKey}
+            </DescriptionDefinition>
+          </DescriptionList>
+        )}
 
         <div>
           <TextInput

@@ -7,6 +7,14 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { ReleaseFloatingIpModal, ReleaseFloatingIpModalProps } from "./ReleaseFloatingIpModal"
 
+vi.mock("@tanstack/react-router", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-router")>()
+  return {
+    ...actual,
+    useRouteContext: vi.fn(() => ({ onTrackEvent: vi.fn() })),
+  }
+})
+
 const mockFloatingIp: FloatingIp = {
   id: "fip-123",
   floating_ip_address: "203.0.113.10",
@@ -68,20 +76,20 @@ describe("ReleaseFloatingIpModal", () => {
     test("renders title with floating IP address", () => {
       renderModal()
 
-      expect(screen.getByText("Release Floating IP 203.0.113.10")).toBeInTheDocument()
+      expect(screen.getByText('Release Floating IP "203.0.113.10"')).toBeInTheDocument()
     })
 
     test("shows confirmation instructions", () => {
       renderModal()
 
       expect(screen.getByText(/This action is permanent/i)).toBeInTheDocument()
-      expect(screen.getByText(/type the word/i)).toBeInTheDocument()
+      expect(screen.getByText(/Type "release" to confirm/i)).toBeInTheDocument()
     })
 
     test("does not render when open is false", () => {
       renderModal({ open: false })
 
-      expect(screen.queryByText("Release Floating IP 203.0.113.10")).not.toBeInTheDocument()
+      expect(screen.queryByText('Release Floating IP "203.0.113.10"')).not.toBeInTheDocument()
     })
   })
 
@@ -91,7 +99,7 @@ describe("ReleaseFloatingIpModal", () => {
       renderModal()
 
       const releaseButton = screen.getByRole("button", { name: "Release" })
-      const input = screen.getByPlaceholderText('Type "release" to confirm')
+      const input = screen.getByPlaceholderText("release")
 
       expect(releaseButton).toBeDisabled()
 
@@ -108,7 +116,7 @@ describe("ReleaseFloatingIpModal", () => {
       const user = userEvent.setup()
       renderModal({ onUpdate })
 
-      const input = screen.getByPlaceholderText('Type "release" to confirm')
+      const input = screen.getByPlaceholderText("release")
       await user.type(input, "release")
       const releaseButton = screen.getByRole("button", { name: "Release" })
 
@@ -129,7 +137,7 @@ describe("ReleaseFloatingIpModal", () => {
       const user = userEvent.setup()
       renderModal({ onUpdate, onClose })
 
-      const input = screen.getByPlaceholderText('Type "release" to confirm')
+      const input = screen.getByPlaceholderText("release")
       await user.type(input, "release")
       const releaseButton = screen.getByRole("button", { name: "Release" })
 
@@ -149,9 +157,9 @@ describe("ReleaseFloatingIpModal", () => {
     test("shows loading state and hides input form when isLoading is true", () => {
       renderModal({ isLoading: true })
 
-      expect(screen.getByText("Releasing Floating IP...")).toBeInTheDocument()
-      expect(screen.queryByPlaceholderText('Type "release" to confirm')).not.toBeInTheDocument()
-      expect(screen.getByRole("button", { name: "Release" })).toBeDisabled()
+      expect(screen.getByText("Releasing...")).toBeInTheDocument()
+      expect(screen.queryByPlaceholderText("release")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Releasing..." })).toBeDisabled()
     })
 
     test("displays error message when error prop is provided", () => {
@@ -184,7 +192,7 @@ describe("ReleaseFloatingIpModal", () => {
       const onUpdate = vi.fn().mockResolvedValue(undefined)
       const { rerender } = renderModal({ onClose, onUpdate, open: true })
 
-      const input = screen.getByPlaceholderText('Type "release" to confirm') as HTMLInputElement
+      const input = screen.getByPlaceholderText("release") as HTMLInputElement
       await user.type(input, "release")
       expect(input.value).toBe("release")
 
@@ -215,7 +223,7 @@ describe("ReleaseFloatingIpModal", () => {
       )
 
       await waitFor(() => {
-        expect((screen.getByPlaceholderText('Type "release" to confirm') as HTMLInputElement).value).toBe("")
+        expect((screen.getByPlaceholderText("release") as HTMLInputElement).value).toBe("")
       })
     })
   })

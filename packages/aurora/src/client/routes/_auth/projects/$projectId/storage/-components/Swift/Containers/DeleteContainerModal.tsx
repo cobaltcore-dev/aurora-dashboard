@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack, Spinner, Checkbox } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
 
 interface DeleteContainerModalProps {
   isOpen: boolean
@@ -16,9 +17,21 @@ interface DeleteContainerModalProps {
 export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, onError }: DeleteContainerModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const [confirmName, setConfirmName] = useState("")
-  const [nameError, setNameError] = useState<string | null>(null)
   const [versionsConfirmed, setVersionsConfirmed] = useState(false)
+
+  const {
+    confirmText,
+    setConfirmText,
+    isConfirmed,
+    error: confirmError,
+    setError: setConfirmError,
+    trackClose,
+    markSubmitted,
+  } = useDeleteConfirmation({
+    isOpen,
+    confirmWord: "delete",
+    trackingPrefix: "storage.swift.container",
+  })
 
   const utils = trpcReact.useUtils()
 
@@ -61,35 +74,27 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
 
   useEffect(() => {
     if (!isOpen) {
-      setConfirmName("")
-      setNameError(null)
       setVersionsConfirmed(false)
       deleteContainerMutation.reset()
     }
   }, [isOpen, container?.name])
 
   const handleClose = () => {
-    setConfirmName("")
-    setNameError(null)
+    trackClose()
     setVersionsConfirmed(false)
     deleteContainerMutation.reset()
     onClose()
   }
 
-  const handleConfirmNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setConfirmName(value)
-    if (nameError) setNameError(null)
-  }
-
   const handleSubmit = () => {
     if (!container) return
     if (objectsError || metaError) return
-    if (confirmName.trim() !== "delete") {
-      setNameError(t`The text must match "delete"`)
+    if (!isConfirmed) {
+      setConfirmError(t`The text must match "delete"`)
       return
     }
     if (isVersioned && !versionsConfirmed) return
+    markSubmitted()
     deleteContainerMutation.mutate({ project_id: projectId, container: container.name })
   }
 
@@ -135,7 +140,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
         isLoadingObjects ||
         hasPreflightError ||
         deleteContainerMutation.isPending ||
-        (!hasObjects && confirmName.trim() !== "delete") ||
+        (!hasObjects && !isConfirmed) ||
         (!hasObjects && isVersioned && !versionsConfirmed)
       }
     >
@@ -199,14 +204,17 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
           <TextInput
             label={t`Type "delete" to confirm`}
             required
-            value={confirmName}
-            onChange={handleConfirmNameChange}
+            value={confirmText}
+            onChange={(e) => {
+              setConfirmText(e.target.value)
+              if (confirmError) setConfirmError(null)
+            }}
             onKeyDown={handleKeyDown}
-            invalid={!!nameError}
-            errortext={nameError || undefined}
+            invalid={!!confirmError}
+            errortext={confirmError || undefined}
             disabled={deleteContainerMutation.isPending}
             autoFocus
-            placeholder={t`delete`}
+            placeholder="delete"
           />
         </Stack>
       )}

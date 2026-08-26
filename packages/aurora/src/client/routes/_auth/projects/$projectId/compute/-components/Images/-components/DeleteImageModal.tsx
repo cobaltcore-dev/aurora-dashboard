@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
 import {
@@ -10,6 +10,7 @@ import {
   TextInput,
 } from "@cloudoperators/juno-ui-components"
 import { SizeDisplay } from "./SizeDisplay"
+import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
 
 interface DeleteImageModalProps {
   image: GlanceImage
@@ -31,16 +32,15 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
   if (!image) return null
 
   const { t } = useLingui()
-  const [confirmText, setConfirmText] = useState("")
 
-  useEffect(() => {
-    if (!isOpen) {
-      setConfirmText("")
-    }
-  }, [isOpen])
+  const { confirmText, setConfirmText, isConfirmed, trackClose } = useDeleteConfirmation({
+    isOpen,
+    confirmWord: "delete",
+    trackingPrefix: "compute.image",
+  })
 
   const handleClose = () => {
-    setConfirmText("")
+    trackClose()
     onClose()
   }
 
@@ -49,20 +49,19 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
     handleClose()
   }
 
-  const isConfirmValid = confirmText === "delete"
   const confirmLabel = isLoading ? t`Deleting...` : t`Delete Image`
 
   return (
     <Modal
       open={isOpen}
       onCancel={handleClose}
-      size="large"
-      title={t`Delete Image`}
+      size="small"
+      title={t`Delete Image "${image?.name || image?.id}"`}
       confirmButtonLabel={confirmLabel}
       confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isConfirmValid || isLoading || isDisabled}
+      disableConfirmButton={!isConfirmed || isLoading || isDisabled}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
     >
@@ -95,15 +94,14 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
           </DescriptionList>
         )}
 
-        <div>
-          <TextInput
-            label={t`Type "delete" to confirm`}
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="delete"
-            autoFocus
-          />
-        </div>
+        <TextInput
+          label={t`Type "delete" to confirm`}
+          value={confirmText}
+          onChange={(e) => setConfirmText(e.target.value)}
+          placeholder="delete"
+          autoFocus
+          disabled={isLoading}
+        />
       </Stack>
     </Modal>
   )

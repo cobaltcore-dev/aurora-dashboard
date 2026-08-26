@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Stack, Spinner, Checkbox } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, Checkbox, TextInput } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
 
@@ -27,6 +27,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
 
   // keepSegments is only relevant for SLOs — toggled by a checkbox in the modal.
   const [keepSegments, setKeepSegments] = useState(false)
+  const [confirmText, setConfirmText] = useState("")
 
   // useRef so the object display name survives re-renders triggered by
   // deleteObjectMutation.reset() inside handleClose() before onSuccess/onError fire.
@@ -67,6 +68,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
     if (!isOpen) {
       deleteObjectMutation.reset()
       setKeepSegments(false)
+      setConfirmText("")
     }
   }, [isOpen])
 
@@ -95,6 +97,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
   const isLoading = isLoadingMetadata
   const isPending = deleteObjectMutation.isPending
   const metadataErrorMessage = metadataError?.message ?? ""
+  const isConfirmValid = confirmText === "delete"
 
   return (
     <Modal
@@ -115,7 +118,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={isLoading || isPending || !!metadataError}
+      disableConfirmButton={isLoading || isPending || !!metadataError || !isConfirmValid}
     >
       {metadataError && (
         <p className="text-theme-error mb-4">
@@ -164,6 +167,13 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
               </Trans>
             </p>
           )}
+          <TextInput
+            label={t`Type "delete" to confirm`}
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="delete"
+            autoFocus
+          />
         </Stack>
       ) : null}
     </Modal>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { TrpcClient } from "@/client/trpcClient"
 import {
@@ -8,10 +8,12 @@ import {
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { Trans } from "@lingui/react/macro"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
+import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
 
 interface DeleteFlavorModalProps {
   client: TrpcClient
@@ -33,30 +35,28 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
   const [isLoading, setIsLoading] = useState(false)
-  const [generalError, setGeneralError] = useState<string | null>(null)
-  const [confirmText, setConfirmText] = useState("")
 
-  useEffect(() => {
-    if (!isOpen) {
-      setConfirmText("")
-      setGeneralError(null)
-    }
-  }, [isOpen])
+  const { confirmText, setConfirmText, isConfirmed, error, setError, trackClose, markSubmitted } =
+    useDeleteConfirmation({
+      isOpen,
+      confirmWord: "delete",
+      trackingPrefix: "compute.flavor",
+    })
 
   const handleClose = () => {
-    setGeneralError(null)
-    setConfirmText("")
+    trackClose()
     setIsLoading(false)
     onClose()
   }
 
   const handleConfirm = async () => {
     if (!flavor?.id) {
-      setGeneralError(t`No flavor selected for deletion.`)
+      setError(t`No flavor selected for deletion.`)
       return
     }
 
-    setGeneralError(null)
+    markSubmitted()
+    setError(null)
 
     try {
       setIsLoading(true)
@@ -71,35 +71,30 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
       const errorMessage = (error as Error)?.message
         ? translateError((error as Error).message)
         : t`Failed to delete flavor. Please try again.`
-      setGeneralError(errorMessage)
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const isConfirmValid = confirmText === "delete"
   const confirmLabel = isLoading ? t`Deleting...` : t`Delete Flavor`
 
   return (
     <Modal
       open={isOpen}
       onCancel={handleClose}
-      title={t`Delete Flavor`}
-      size="large"
+      title={t`Delete Flavor "${flavor?.name}"`}
+      size="small"
       confirmButtonLabel={confirmLabel}
       confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isConfirmValid || isLoading}
+      disableConfirmButton={!isConfirmed || isLoading}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
     >
       <Stack direction="vertical" gap="4">
-        {generalError && (
-          <p className="text-theme-error" role="alert" aria-live="assertive">
-            {generalError}
-          </p>
-        )}
+        {error && <Message variant="error">{error}</Message>}
 
         <p className="text-theme-default">
           <Trans>This action cannot be undone. The flavor will be permanently deleted.</Trans>
@@ -129,15 +124,14 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
           </DescriptionList>
         )}
 
-        <div>
-          <TextInput
-            label={t`Type "delete" to confirm`}
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="delete"
-            autoFocus
-          />
-        </div>
+        <TextInput
+          label={t`Type "delete" to confirm`}
+          value={confirmText}
+          onChange={(e) => setConfirmText(e.target.value)}
+          placeholder="delete"
+          autoFocus
+          disabled={isLoading}
+        />
       </Stack>
     </Modal>
   )

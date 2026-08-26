@@ -1,7 +1,7 @@
-import { useState } from "react"
-import { Modal, Button, ModalFooter, ButtonRow, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Message, TextInput } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroupRule } from "@/server/Network/types/securityGroup"
+import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
 
 interface DeleteRuleDialogProps {
   rule: SecurityGroupRule | null
@@ -14,20 +14,24 @@ interface DeleteRuleDialogProps {
 
 export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, error }: DeleteRuleDialogProps) {
   const { t } = useLingui()
-  const [confirmText, setConfirmText] = useState("")
+
+  const { confirmText, setConfirmText, isConfirmed, trackClose, markSubmitted } = useDeleteConfirmation({
+    isOpen: open,
+    confirmWord: "delete",
+    trackingPrefix: "network.securitygroup.rule",
+  })
 
   const handleConfirm = () => {
-    if (rule && confirmText === "delete") {
+    if (rule && isConfirmed) {
+      markSubmitted()
       onConfirm(rule.id)
     }
   }
 
   const handleClose = () => {
-    setConfirmText("")
+    trackClose()
     onClose()
   }
-
-  const isConfirmDisabled = confirmText !== "delete" || isLoading
 
   if (!rule) return null
 
@@ -37,37 +41,22 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
       onCancel={handleClose}
       size="small"
       title={t`Delete Security Group Rule`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
-            </Button>
-            <Button
-              variant="primary-danger"
-              onClick={handleConfirm}
-              disabled={isConfirmDisabled}
-              data-testid="confirm-delete-rule-button"
-            >
-              {isLoading ? <Trans>Deleting...</Trans> : <Trans>Delete Rule</Trans>}
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      confirmButtonLabel={isLoading ? t`Deleting...` : t`Delete Rule`}
+      confirmButtonVariant="primary-danger"
+      onConfirm={handleConfirm}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={!isConfirmed || isLoading}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
-      <div>
-        {/* Error Message */}
-        {error && (
-          <Message dismissible={false} variant="error" className="mt-4">
-            {error}
-          </Message>
-        )}
+      <Stack direction="vertical" gap="4">
+        {error && <Message variant="error">{error}</Message>}
 
-        {/* Warning */}
-        <Trans>This action cannot be undone. The rule will be permanently deleted.</Trans>
+        <p className="text-theme-default">
+          <Trans>This action cannot be undone. The rule will be permanently deleted.</Trans>
+        </p>
 
-        {/* Rule Details */}
-        <div className="bg-theme-background-lvl-1 mt-4 mb-4 rounded p-4">
+        <div className="bg-theme-background-lvl-1 rounded p-4">
           <p className="mb-2 font-semibold">
             <Trans>Rule Details:</Trans>
           </p>
@@ -109,23 +98,17 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
           </ul>
         </div>
 
-        {/* Confirmation Input */}
-        <div className="mt-4">
-          <p className="mb-2 text-sm">
-            <Trans>
-              Type <strong>delete</strong> to confirm:
-            </Trans>
-          </p>
-          <TextInput
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder={t`delete`}
-            autoComplete="off"
-            disabled={isLoading}
-            data-testid="delete-rule-confirmation-input"
-          />
-        </div>
-      </div>
+        <TextInput
+          label={t`Type "delete" to confirm`}
+          value={confirmText}
+          onChange={(e) => setConfirmText(e.target.value)}
+          placeholder="delete"
+          autoComplete="off"
+          autoFocus
+          disabled={isLoading}
+          data-testid="delete-rule-confirmation-input"
+        />
+      </Stack>
     </Modal>
   )
 }
