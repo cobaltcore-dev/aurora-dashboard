@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server"
 import { projectScopedProcedure } from "@/server/trpc"
 import { withErrorHandling } from "@/server/helpers/errorHandling"
 import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
@@ -79,10 +80,21 @@ export const floatingIpRouter = {
       return withErrorHandling(async () => {
         const network = getNetworkService(ctx)
 
+        // Derive ownership from session, not client input (prevents ownership confusion)
+        const token = ctx.openstack?.getToken()
+        const projectId = token?.tokenData.project?.id
+
+        if (!projectId) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "No project scope in session",
+          })
+        }
+
         const requestBody = {
           floatingip: {
-            tenant_id: input.tenant_id,
-            project_id: input.project_id,
+            tenant_id: projectId,
+            project_id: projectId,
             floating_network_id: input.floating_network_id,
             ...(input.fixed_ip_address !== undefined && { fixed_ip_address: input.fixed_ip_address }),
             ...(input.floating_ip_address !== undefined && { floating_ip_address: input.floating_ip_address }),

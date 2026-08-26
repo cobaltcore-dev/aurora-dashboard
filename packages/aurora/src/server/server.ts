@@ -70,6 +70,15 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
     }
   )
 
+  // CSRF protection must register before routes
+  server.register(AuroraFastifyCsrfProtection, {
+    tokenRoute: "/csrf-token",
+    cookieKey: "aurora-csrf-protection",
+    tokenHeader: "x-csrf-token",
+    excludePaths: ["/extensions"],
+    protectionMethods: ["POST", "PUT", "DELETE"],
+  })
+
   // OPTIONAL: Direct HTTP endpoint for image file uploads (without tRPC)
   // Use this if you need a fallback or alternative upload method
   server.post(
@@ -141,14 +150,6 @@ export async function createServer(config: AuroraServerConfig): Promise<FastifyI
       }
     }
   )
-
-  server.register(AuroraFastifyCsrfProtection, {
-    tokenRoute: "/csrf-token", // Route to get CSRF token
-    cookieKey: "aurora-csrf-protection", // Cookie name for CSRF
-    tokenHeader: "x-csrf-token", // Header name for CSRF token
-    excludePaths: ["/extensions"], // Paths to exclude from CSRF protection
-    protectionMethods: ["POST", "PUT", "DELETE"], // HTTP methods that require CSRF protection
-  })
 
   // Register tRPC plugin to handle API routes
   // Override timeout for the streaming upload procedure — the 30s global would kill large uploads
