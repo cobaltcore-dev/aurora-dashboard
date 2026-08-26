@@ -590,13 +590,11 @@ msgstr "Cannot be combined with Abort Incomplete Multipart Uploads"
 msgid "Cannot be combined with Tag Filters"
 msgstr "Cannot be combined with Tag Filters"
 
-#. placeholder {0}: validation.errors.join("; ")
-msgid "Cannot delete rule: {0}"
-msgstr "Cannot delete rule: {0}"
+msgid "Cannot delete rule: {errorMessage}"
+msgstr "Cannot delete rule: {errorMessage}"
 
-#. placeholder {0}: validation.errors.join("; ")
-msgid "Cannot delete rules: {0}"
-msgstr "Cannot delete rules: {0}"
+msgid "Cannot delete rules: {errorMessage}"
+msgstr "Cannot delete rules: {errorMessage}"
 
 msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
 msgstr "Cannot move to the same location. Please select a different bucket, folder, or change the name."
@@ -2059,6 +2057,9 @@ msgstr "Ingress"
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 
+msgid "Insufficient permissions"
+msgstr "Insufficient permissions"
+
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
 
@@ -2959,10 +2960,8 @@ msgstr "rule"
 msgid "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 msgstr "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 
-#. placeholder {0}: index + 1
-#. placeholder {0}: ruleIndex + 1
-msgid "Rule #{0}"
-msgstr "Rule #{0}"
+msgid "Rule #{ruleNumber}"
+msgstr "Rule #{ruleNumber}"
 
 msgid "Rule Details:"
 msgstr "Rule Details:"
@@ -4013,6 +4012,9 @@ msgstr "You don't have permission to create extra specs for this flavor."
 
 msgid "You don't have permission to create flavors in this project."
 msgstr "You don't have permission to create flavors in this project."
+
+msgid "You don't have permission to create S3 credentials. Please contact your administrator to request access to S3 Object Storage."
+msgstr "You don't have permission to create S3 credentials. Please contact your administrator to request access to S3 Object Storage."
 
 msgid "You don't have permission to delete extra specs for this flavor."
 msgstr "You don't have permission to delete extra specs for this flavor."

@@ -37,6 +37,8 @@ interface LifecycleRulesTableProps {
   onDeleteRule?: (index: number) => void
   isMutating?: boolean
   isFiltered?: boolean
+  canUpdateLifecycle: boolean
+  canDeleteLifecycle: boolean
 }
 
 /**
@@ -54,6 +56,8 @@ export function LifecycleRulesTable({
   onDeleteRule,
   isMutating = false,
   isFiltered = false,
+  canUpdateLifecycle,
+  canDeleteLifecycle,
 }: LifecycleRulesTableProps) {
   const { t } = useLingui()
 
@@ -170,15 +174,19 @@ export function LifecycleRulesTable({
 
             const ruleLabel = rule.ID || String(originalIndex + 1)
 
+            const hasAnyRowAction = canUpdateLifecycle || canDeleteLifecycle
+
             return (
               <DataGridRow key={key} data-testid={`lifecycle-rule-row-${originalIndex}`}>
                 <DataGridCell onClick={(e) => e.stopPropagation()}>
-                  <Checkbox
-                    checked={selectedIndices.includes(originalIndex)}
-                    onChange={() => onToggleSelectRule(originalIndex)}
-                    aria-label={t`Select rule ${ruleLabel}`}
-                    data-testid={`select-rule-${originalIndex}`}
-                  />
+                  {canDeleteLifecycle && (
+                    <Checkbox
+                      checked={selectedIndices.includes(originalIndex)}
+                      onChange={() => onToggleSelectRule(originalIndex)}
+                      aria-label={t`Select rule ${ruleLabel}`}
+                      data-testid={`select-rule-${originalIndex}`}
+                    />
+                  )}
                 </DataGridCell>
                 <DataGridCell>{rule.ID || t`—`}</DataGridCell>
                 <DataGridCell>{rule.Status}</DataGridCell>
@@ -191,22 +199,24 @@ export function LifecycleRulesTable({
                 <DataGridCell>{noncurrentText}</DataGridCell>
                 <DataGridCell>{otherActionsText}</DataGridCell>
                 <DataGridCell onClick={(e) => e.stopPropagation()} className="justify-end pr-0">
-                  <div className="flex h-full items-center justify-end">
-                    <PopupMenu>
-                      <PopupMenuOptions>
-                        <PopupMenuItem
-                          label={t`Edit Lifecycle Rule`}
-                          onClick={() => onEditRule(originalIndex)}
-                          disabled={effectiveIsMutating}
-                        />
-                        <PopupMenuItem
-                          label={t`Delete Lifecycle Rule`}
-                          onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
-                          disabled={effectiveIsMutating}
-                        />
-                      </PopupMenuOptions>
-                    </PopupMenu>
-                  </div>
+                  {hasAnyRowAction && (
+                    <div className="flex h-full items-center justify-end">
+                      <PopupMenu>
+                        <PopupMenuOptions>
+                          <PopupMenuItem
+                            label={t`Edit Lifecycle Rule`}
+                            onClick={() => onEditRule(originalIndex)}
+                            disabled={effectiveIsMutating}
+                          />
+                          <PopupMenuItem
+                            label={t`Delete Lifecycle Rule`}
+                            onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
+                            disabled={effectiveIsMutating}
+                          />
+                        </PopupMenuOptions>
+                      </PopupMenu>
+                    </div>
+                  )}
                 </DataGridCell>
               </DataGridRow>
             )

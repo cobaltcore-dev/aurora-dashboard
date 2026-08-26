@@ -34,6 +34,16 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => mockProjectId,
 }))
 
+let mockCanCreateCredential = true
+
+vi.mock("../hooks/useCephPermissions", () => ({
+  useCephPermissions: () => ({
+    permissions: { canCreateCredential: mockCanCreateCredential },
+    isLoading: false,
+    isError: false,
+  }),
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 type MutationOptions = {
@@ -100,6 +110,7 @@ describe("CredentialPrompt", () => {
     mockState.mutationError = null
     mockState.capturedOptions = {}
     mockState.isPending = false
+    mockCanCreateCredential = true
     await act(async () => {
       i18n.activate("en")
     })

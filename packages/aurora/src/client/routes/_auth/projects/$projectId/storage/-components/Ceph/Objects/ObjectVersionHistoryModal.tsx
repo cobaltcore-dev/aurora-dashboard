@@ -29,6 +29,8 @@ interface ObjectVersionHistoryModalProps {
   onClose: () => void
   onRestoreVersion?: (objectKey: string, versionId: string) => void
   onDeleteVersion?: (objectKey: string, versionId: string) => void
+  canRestoreVersion: boolean
+  canDeleteVersion: boolean
 }
 
 export const ObjectVersionHistoryModal = ({
@@ -38,6 +40,8 @@ export const ObjectVersionHistoryModal = ({
   onClose,
   onRestoreVersion,
   onDeleteVersion,
+  canRestoreVersion,
+  canDeleteVersion,
 }: ObjectVersionHistoryModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -214,33 +218,39 @@ export const ObjectVersionHistoryModal = ({
 
                     <DataGridCell>
                       <div className="flex justify-end">
-                        <PopupMenu>
-                          <PopupMenuOptions>
-                            {!isDeleteMarker && !isLatest && (
-                              <PopupMenuItem
-                                label={t`Restore`}
-                                onClick={() => {
-                                  setRestoreTarget({
-                                    versionId: version.versionId,
-                                    date: version.lastModified,
-                                    size: version.size,
-                                  })
-                                }}
-                              />
-                            )}
-                            <PopupMenuItem
-                              label={isDeleteMarker ? t`Delete Marker` : t`Delete Version`}
-                              onClick={() => {
-                                setDeleteTarget({
-                                  versionId: version.versionId,
-                                  date: version.lastModified,
-                                  size: version.size,
-                                  isDeleteMarker,
-                                })
-                              }}
-                            />
-                          </PopupMenuOptions>
-                        </PopupMenu>
+                        {/* Both items are gated mutations with no always-visible read action in
+                            this menu, so skip it entirely when neither applies. */}
+                        {((!isDeleteMarker && !isLatest && canRestoreVersion) || canDeleteVersion) && (
+                          <PopupMenu>
+                            <PopupMenuOptions>
+                              {!isDeleteMarker && !isLatest && canRestoreVersion && (
+                                <PopupMenuItem
+                                  label={t`Restore`}
+                                  onClick={() => {
+                                    setRestoreTarget({
+                                      versionId: version.versionId,
+                                      date: version.lastModified,
+                                      size: version.size,
+                                    })
+                                  }}
+                                />
+                              )}
+                              {canDeleteVersion && (
+                                <PopupMenuItem
+                                  label={isDeleteMarker ? t`Delete Marker` : t`Delete Version`}
+                                  onClick={() => {
+                                    setDeleteTarget({
+                                      versionId: version.versionId,
+                                      date: version.lastModified,
+                                      size: version.size,
+                                      isDeleteMarker,
+                                    })
+                                  }}
+                                />
+                              )}
+                            </PopupMenuOptions>
+                          </PopupMenu>
+                        )}
                       </div>
                     </DataGridCell>
                   </DataGridRow>

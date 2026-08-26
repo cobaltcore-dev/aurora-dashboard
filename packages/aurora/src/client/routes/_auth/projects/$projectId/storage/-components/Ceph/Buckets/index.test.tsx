@@ -63,27 +63,40 @@ vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/$storageTyp
 let capturedSetSelectedBuckets: ((buckets: string[]) => void) | undefined
 
 vi.mock("./BucketTableView", () => ({
-  BucketTableView: vi.fn(({ buckets, createModalOpen, selectedBuckets, setSelectedBuckets }) => {
-    capturedSetSelectedBuckets = setSelectedBuckets
-    return (
-      <div
-        data-testid="bucket-table-view"
-        data-bucket-count={buckets.length}
-        data-create-modal-open={String(createModalOpen)}
-        data-selected-count={selectedBuckets?.length ?? 0}
-      >
-        <button data-testid="simulate-select-bucket" onClick={() => setSelectedBuckets?.(["bucket-1"])}>
-          SimulateSelectOne
-        </button>
-        <button data-testid="simulate-select-two" onClick={() => setSelectedBuckets?.(["bucket-1", "bucket-2"])}>
-          SimulateSelectTwo
-        </button>
-        <button data-testid="simulate-deselect-all" onClick={() => setSelectedBuckets?.([])}>
-          SimulateDeselectAll
-        </button>
-      </div>
-    )
-  }),
+  BucketTableView: vi.fn(
+    ({
+      buckets,
+      createModalOpen,
+      selectedBuckets,
+      setSelectedBuckets,
+      hasAnyBulkAction,
+      canEmptyBucket,
+      canDeleteBucket,
+    }) => {
+      capturedSetSelectedBuckets = setSelectedBuckets
+      return (
+        <div
+          data-testid="bucket-table-view"
+          data-bucket-count={buckets.length}
+          data-create-modal-open={String(createModalOpen)}
+          data-selected-count={selectedBuckets?.length ?? 0}
+          data-has-any-bulk-action={String(hasAnyBulkAction)}
+          data-can-empty-bucket={String(canEmptyBucket)}
+          data-can-delete-bucket={String(canDeleteBucket)}
+        >
+          <button data-testid="simulate-select-bucket" onClick={() => setSelectedBuckets?.(["bucket-1"])}>
+            SimulateSelectOne
+          </button>
+          <button data-testid="simulate-select-two" onClick={() => setSelectedBuckets?.(["bucket-1", "bucket-2"])}>
+            SimulateSelectTwo
+          </button>
+          <button data-testid="simulate-deselect-all" onClick={() => setSelectedBuckets?.([])}>
+            SimulateDeselectAll
+          </button>
+        </div>
+      )
+    }
+  ),
 }))
 
 vi.mock("./EmptyBucketsModal", () => ({
@@ -164,6 +177,38 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => "test-project-123",
 }))
 
+//  Mock useCephPermissions
+// Default to an all-allow admin so existing behavior/assertions are unaffected;
+// individual tests override this to exercise the gated paths.
+
+let mockPermissions = {
+  canCreateBucket: true,
+  canDeleteBucket: true,
+  canEmptyBucket: true,
+  canUpdateVersioning: true,
+  canCreateObject: true,
+  canUpdateObject: true,
+  canDeleteObject: true,
+  canCopyObject: true,
+  canMoveObject: true,
+  canShareObject: true,
+  canCreateFolder: true,
+  canDeleteFolder: true,
+  canDeleteVersion: true,
+  canRestoreVersion: true,
+  canUpdatePolicy: true,
+  canDeletePolicy: true,
+  canUpdateCors: true,
+  canDeleteCors: true,
+  canUpdateLifecycle: true,
+  canDeleteLifecycle: true,
+  canCreateCredential: true,
+}
+
+vi.mock("../hooks/useCephPermissions", () => ({
+  useCephPermissions: () => ({ permissions: mockPermissions, isLoading: false, isError: false }),
+}))
+
 // ─── Render helper ────────────────────────────────────────────────────────────
 
 const renderBuckets = () =>
@@ -183,6 +228,29 @@ describe("CephBuckets (index)", () => {
     resetSearch()
     trpcState = { buckets: mockBuckets, isLoading: false, error: null }
     capturedSetSelectedBuckets = undefined
+    mockPermissions = {
+      canCreateBucket: true,
+      canDeleteBucket: true,
+      canEmptyBucket: true,
+      canUpdateVersioning: true,
+      canCreateObject: true,
+      canUpdateObject: true,
+      canDeleteObject: true,
+      canCopyObject: true,
+      canMoveObject: true,
+      canShareObject: true,
+      canCreateFolder: true,
+      canDeleteFolder: true,
+      canDeleteVersion: true,
+      canRestoreVersion: true,
+      canUpdatePolicy: true,
+      canDeletePolicy: true,
+      canUpdateCors: true,
+      canDeleteCors: true,
+      canUpdateLifecycle: true,
+      canDeleteLifecycle: true,
+      canCreateCredential: true,
+    }
     await act(async () => {
       i18n.activate("en")
     })
@@ -271,6 +339,27 @@ describe("CephBuckets (index)", () => {
       renderBuckets()
       expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-selected-count", "0")
       expect(typeof capturedSetSelectedBuckets).toBe("function")
+    })
+  })
+
+  describe("Permission gating", () => {
+    test("hides the Create Bucket button when canCreateBucket is false", () => {
+      mockPermissions = { ...mockPermissions, canCreateBucket: false }
+      renderBuckets()
+      expect(screen.queryByRole("button", { name: /Create Bucket/i })).not.toBeInTheDocument()
+    })
+
+    test("drops the selection column (hasAnyBulkAction) when canEmptyBucket is false", () => {
+      mockPermissions = { ...mockPermissions, canEmptyBucket: false }
+      renderBuckets()
+      expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-has-any-bulk-action", "false")
+    })
+
+    test("passes canEmptyBucket and canDeleteBucket through to BucketTableView", () => {
+      mockPermissions = { ...mockPermissions, canEmptyBucket: false, canDeleteBucket: false }
+      renderBuckets()
+      expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-can-empty-bucket", "false")
+      expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-can-delete-bucket", "false")
     })
   })
 

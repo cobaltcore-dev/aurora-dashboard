@@ -27,5 +27,16 @@
   "storage:folder_create_object": "rule:storage_admin",
   "storage:folder_new_folder": "rule:storage_admin",
   "storage:folder_create_folder": "rule:storage_admin",
-  "storage:folder_delete": "rule:storage_admin"
+  "storage:folder_delete": "rule:storage_admin",
+  "storage:object_share": "rule:storage_viewer",
+  "storage:s3_credential_create": "rule:storage_viewer",
+  "storage:object_version_delete": "rule:storage_admin",
+  "storage:object_version_restore": "rule:storage_admin",
+  "storage:container_versioning_update": "rule:storage_admin",
+  "storage:container_policy_update": "rule:storage_admin",
+  "storage:container_policy_delete": "rule:storage_admin",
+  "storage:container_cors_update": "rule:storage_admin",
+  "storage:container_cors_delete": "rule:storage_admin",
+  "storage:container_lifecycle_update": "rule:storage_admin",
+  "storage:container_lifecycle_delete": "rule:storage_admin"
 }

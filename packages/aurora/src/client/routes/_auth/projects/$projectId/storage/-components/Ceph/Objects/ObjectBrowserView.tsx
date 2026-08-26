@@ -19,6 +19,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useCephPermissions } from "../hooks/useCephPermissions"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ObjectsTableView } from "./ObjectsTableView"
@@ -68,6 +69,7 @@ type SortKey = "name" | "lastModified" | "size" | "last_modified" | "bytes"
 export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
+  const { permissions } = useCephPermissions(projectId ?? "")
   const navigate = useNavigate({ from: Route.fullPath })
   const { provider, storageType } = Route.useParams()
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "", tab = "all" } = Route.useSearch()
@@ -93,9 +95,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [selectedItems, setSelectedItems] = useState<{ key: string; versionId?: string }[]>([])
   const [isDeleteObjectsModalOpen, setIsDeleteObjectsModalOpen] = useState(false)
 
-  // TODO(perms): wire to storage.canUser({ permission: "storage:objects:delete" })
-  // instead of hardcoding — mirrors the Swift objects list.
-  const hasAnyBulkAction = true
+  // The bulk action in the "deleted" tab permanently deletes versions/delete markers; in
+  // "all" it deletes current objects  these are gated by different permissions.
+  const hasAnyBulkAction = tab === "deleted" ? permissions.canDeleteVersion : permissions.canDeleteObject
 
   // Local mirror of the committed search term so typing stays responsive while
   // the URL commit is debounced (see Zone 2 SearchInput below).
@@ -652,12 +654,16 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               }
               onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
             />
-            <Button className="whitespace-nowrap" onClick={() => setIsUploadModalOpen(true)}>
-              <Trans>Upload Object</Trans>
-            </Button>
-            <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
-              <Trans>Create Folder</Trans>
-            </Button>
+            {permissions.canCreateObject && (
+              <Button className="whitespace-nowrap" onClick={() => setIsUploadModalOpen(true)}>
+                <Trans>Upload Object</Trans>
+              </Button>
+            )}
+            {permissions.canCreateFolder && (
+              <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
+                <Trans>Create Folder</Trans>
+              </Button>
+            )}
           </Stack>
         </Stack>
 
@@ -770,6 +776,14 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           selectedItems={selectedItems}
           onToggleSelectKey={handleToggleSelectKey}
           onFolderClick={navigateToPrefix}
+          canCopyObject={permissions.canCopyObject}
+          canMoveObject={permissions.canMoveObject}
+          canUpdateObject={permissions.canUpdateObject}
+          canShareObject={permissions.canShareObject}
+          canDeleteObject={permissions.canDeleteObject}
+          canDeleteFolder={permissions.canDeleteFolder}
+          canDeleteVersion={permissions.canDeleteVersion}
+          canRestoreVersion={permissions.canRestoreVersion}
           onDeleteObjectSuccess={(objectKey) => {
             const { message, ...options } = getObjectDeletedToast(objectKey)
             toast.success(message, options)

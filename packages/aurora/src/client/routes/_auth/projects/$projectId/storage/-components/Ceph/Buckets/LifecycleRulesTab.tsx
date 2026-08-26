@@ -20,6 +20,7 @@ import {
   Divider,
 } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useCephPermissions } from "../hooks/useCephPermissions"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
@@ -48,6 +49,7 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
+  const { permissions } = useCephPermissions(projectId)
 
   // Sort and search state are persisted in the URL
   const { lifecycleSortBy, lifecycleSortDirection, lifecycleSearch = "" } = Route.useSearch()
@@ -231,9 +233,11 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
             onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
           />
         </Stack>
-        <Button variant="primary" onClick={handleAddRule}>
-          <Trans>Create Lifecycle Rule</Trans>
-        </Button>
+        {permissions.canUpdateLifecycle && (
+          <Button variant="primary" onClick={handleAddRule}>
+            <Trans>Create Lifecycle Rule</Trans>
+          </Button>
+        )}
       </Stack>
 
       {/* Zone 2 — Bulk actions toolbar (inside DataGridToolbar) */}
@@ -254,40 +258,44 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
           </Stack>
           <Divider />
           <Stack distribution="between" gap="2" alignment="center" className="text-sm">
-            <Stack gap="2" alignment="center">
-              <Checkbox
-                checked={allFilteredSelected}
-                indeterminate={someFilteredSelected}
-                onChange={handleToggleSelectAll}
-                aria-label={t`Select all rules`}
-                data-testid="select-all-rules"
-                disabled={filteredRulesWithIndices.length === 0}
-              />
-              <PopupMenu className="flex items-center">
-                <PopupMenuToggle as="div">
-                  <Button
-                    disabled={selectedIndices.length === 0 || mutationsBlocked}
-                    size="small"
-                    icon="moreVert"
-                    label={t`Actions`}
-                  />
-                </PopupMenuToggle>
-                {selectedIndices.length > 0 && !mutationsBlocked && (
-                  <PopupMenuOptions>
-                    <PopupMenuItem
-                      label={i18n._(
-                        plural(selectedIndices.length, {
-                          one: "Delete # Lifecycle Rule",
-                          other: "Delete # Lifecycle Rules",
-                        })
-                      )}
-                      onClick={handleBulkDelete}
-                      data-testid="bulk-delete-lifecycle-rules-action"
+            {permissions.canDeleteLifecycle ? (
+              <Stack gap="2" alignment="center">
+                <Checkbox
+                  checked={allFilteredSelected}
+                  indeterminate={someFilteredSelected}
+                  onChange={handleToggleSelectAll}
+                  aria-label={t`Select all rules`}
+                  data-testid="select-all-rules"
+                  disabled={filteredRulesWithIndices.length === 0}
+                />
+                <PopupMenu className="flex items-center">
+                  <PopupMenuToggle as="div">
+                    <Button
+                      disabled={selectedIndices.length === 0 || mutationsBlocked}
+                      size="small"
+                      icon="moreVert"
+                      label={t`Actions`}
                     />
-                  </PopupMenuOptions>
-                )}
-              </PopupMenu>
-            </Stack>
+                  </PopupMenuToggle>
+                  {selectedIndices.length > 0 && !mutationsBlocked && (
+                    <PopupMenuOptions>
+                      <PopupMenuItem
+                        label={i18n._(
+                          plural(selectedIndices.length, {
+                            one: "Delete # Lifecycle Rule",
+                            other: "Delete # Lifecycle Rules",
+                          })
+                        )}
+                        onClick={handleBulkDelete}
+                        data-testid="bulk-delete-lifecycle-rules-action"
+                      />
+                    </PopupMenuOptions>
+                  )}
+                </PopupMenu>
+              </Stack>
+            ) : (
+              <span />
+            )}
             <span className="theme-color-text-light">
               {filteredRulesWithIndices.length} {filteredRulesWithIndices.length === 1 ? t`rule` : t`rules`}
             </span>
@@ -305,6 +313,8 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
         onDeleteRule={handleDeleteRule}
         isMutating={isRuleModalMutating || isBulkDeleteMutating || mutationsBlocked}
         isFiltered={!!lifecycleSearch}
+        canUpdateLifecycle={permissions.canUpdateLifecycle}
+        canDeleteLifecycle={permissions.canDeleteLifecycle}
       />
 
       {/* Bulk delete rules modal */}

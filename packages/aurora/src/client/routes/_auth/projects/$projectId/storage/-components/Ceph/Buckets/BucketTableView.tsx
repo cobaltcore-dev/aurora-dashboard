@@ -32,6 +32,8 @@ interface BucketTableViewProps {
   setSelectedBuckets: (buckets: string[]) => void
   // When false, the selection column (header select-all + per-row checkboxes) is dropped.
   hasAnyBulkAction?: boolean
+  canEmptyBucket: boolean
+  canDeleteBucket: boolean
 }
 
 export const BucketTableView = ({
@@ -47,6 +49,8 @@ export const BucketTableView = ({
   selectedBuckets,
   setSelectedBuckets,
   hasAnyBulkAction = true,
+  canEmptyBucket,
+  canDeleteBucket,
 }: BucketTableViewProps) => {
   const { projectId, provider, storageType } = useParams({ strict: false })
   const { t } = useLingui()
@@ -239,16 +243,20 @@ export const BucketTableView = ({
                             onClick={handleRowNavigate}
                             data-testid={`show-details-action-${bucket.name}`}
                           />
-                          <PopupMenuItem
-                            label={t`Empty Bucket`}
-                            onClick={() => setEmptyModalBucket(bucket)}
-                            data-testid={`empty-action-${bucket.name}`}
-                          />
-                          <PopupMenuItem
-                            label={t`Delete Bucket`}
-                            onClick={() => setDeleteModalBucket(bucket)}
-                            data-testid={`delete-action-${bucket.name}`}
-                          />
+                          {canEmptyBucket && (
+                            <PopupMenuItem
+                              label={t`Empty Bucket`}
+                              onClick={() => setEmptyModalBucket(bucket)}
+                              data-testid={`empty-action-${bucket.name}`}
+                            />
+                          )}
+                          {canDeleteBucket && (
+                            <PopupMenuItem
+                              label={t`Delete Bucket`}
+                              onClick={() => setDeleteModalBucket(bucket)}
+                              data-testid={`delete-action-${bucket.name}`}
+                            />
+                          )}
                         </PopupMenuOptions>
                       </PopupMenu>
                     </DataGridCell>

@@ -8,10 +8,23 @@ import { createPermissionRouter } from "../../policies/createPermissionRouter"
  *
  * Design principles:
  * - Scope: "storage" (object storage service)
- * - Resource: Swift terminology (containers, objects, folders)
+ * - Resource: Swift terminology (containers, objects, folders) plus Ceph/S3-specific
+ *   resources kept plural, snake_case, and backend-agnostic (e.g. `container_policies`, not
+ *  `bucket_policies`/`s3_bucket_policies` - "container" is used everywhere, matching the
+ *  Swift-derived `containers` resource, never "bucket")
  * - Action: CRUD verbs (read, create, update, delete, manage)
  *
  * Pattern: `storage:resource:action`
+ *
+ * Ceph/S3-specific notes:
+ * - The bucket-level versioning *toggle* has no Swift analogue, so it stays on the
+ *   `containers` resource with a compound action (`update_versioning`), mirroring the
+ *   existing `update_acls`.
+ * - These checks are UX-only: Ceph independently enforces access via EC2 credentials and
+ *   bucket policy, so this gating never substitutes for real authorization.
+ * - Read/list/view actions are deliberately not gated anywhere in this file (matches the
+ *   rest of the app - see `useSecurityGroupPermissions`, whose `canView` is fetched but
+ *   never consumed for hiding UI).)
  */
 const STORAGE_MAPPINGS = {
   // Container Operations (works for both Swift containers and Ceph buckets)
@@ -39,6 +52,32 @@ const STORAGE_MAPPINGS = {
   "storage:folders:create_object": { engine: "storage", rule: "storage:folder_create_object" },
   "storage:folders:create": { engine: "storage", rule: "storage:folder_create_folder" },
   "storage:folders:delete": { engine: "storage", rule: "storage:folder_delete" },
+
+  // Ceph/S3 Object Version Operations
+  "storage:objects:share": { engine: "storage", rule: "storage:object_share" },
+  "storage:object_versions:delete": { engine: "storage", rule: "storage:object_version_delete" },
+  "storage:object_versions:restore": { engine: "storage", rule: "storage:object_version_restore" },
+
+  // Ceph/S3 Bucket Versioning
+  "storage:containers:update_versioning": {
+    engine: "storage",
+    rule: "storage:container_versioning_update",
+  },
+
+  // Ceph/S3 Bucket Policy Operations
+  "storage:container_policies:update": { engine: "storage", rule: "storage:container_policy_update" },
+  "storage:container_policies:delete": { engine: "storage", rule: "storage:container_policy_delete" },
+
+  // Ceph/S3 CORS Operations
+  "storage:container_cors_rules:update": { engine: "storage", rule: "storage:container_cors_update" },
+  "storage:container_cors_rules:delete": { engine: "storage", rule: "storage:container_cors_delete" },
+
+  // Ceph/S3 Lifecycle Operations
+  "storage:container_lifecycle_rules:update": { engine: "storage", rule: "storage:container_lifecycle_update" },
+  "storage:container_lifecycle_rules:delete": { engine: "storage", rule: "storage:container_lifecycle_delete" },
+
+  // Ceph/S3 Credential Operations
+  "storage:s3_credentials:create": { engine: "storage", rule: "storage:s3_credential_create" },
 } as const
 
 /**

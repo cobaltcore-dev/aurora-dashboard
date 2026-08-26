@@ -26,7 +26,21 @@ vi.mock("./UploadObjectModal", () => ({
 }))
 
 vi.mock("./ObjectsTableView", () => ({
-  ObjectsTableView: () => <div data-testid="objects-table">Objects Table</div>,
+  ObjectsTableView: (props: Record<string, unknown>) => (
+    <div
+      data-testid="objects-table"
+      data-can-copy-object={String(props.canCopyObject)}
+      data-can-move-object={String(props.canMoveObject)}
+      data-can-update-object={String(props.canUpdateObject)}
+      data-can-share-object={String(props.canShareObject)}
+      data-can-delete-object={String(props.canDeleteObject)}
+      data-can-delete-folder={String(props.canDeleteFolder)}
+      data-can-delete-version={String(props.canDeleteVersion)}
+      data-can-restore-version={String(props.canRestoreVersion)}
+    >
+      Objects Table
+    </div>
+  ),
 }))
 
 vi.mock("./ObjectsFileNavigation", () => ({
@@ -44,6 +58,34 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => "test-project-id",
 }))
 
+let mockCephPermissions = {
+  canCreateBucket: true,
+  canDeleteBucket: true,
+  canEmptyBucket: true,
+  canUpdateVersioning: true,
+  canCreateObject: true,
+  canUpdateObject: true,
+  canDeleteObject: true,
+  canCopyObject: true,
+  canMoveObject: true,
+  canShareObject: true,
+  canCreateFolder: true,
+  canDeleteFolder: true,
+  canDeleteVersion: true,
+  canRestoreVersion: true,
+  canUpdatePolicy: true,
+  canDeletePolicy: true,
+  canUpdateCors: true,
+  canDeleteCors: true,
+  canUpdateLifecycle: true,
+  canDeleteLifecycle: true,
+  canCreateCredential: true,
+}
+
+vi.mock("../hooks/useCephPermissions", () => ({
+  useCephPermissions: () => ({ permissions: mockCephPermissions, isLoading: false, isError: false }),
+}))
+
 vi.mock("@tanstack/react-router", async () => {
   const actual = await vi.importActual("@tanstack/react-router")
   return {
@@ -52,6 +94,23 @@ vi.mock("@tanstack/react-router", async () => {
     useRouteContext: () => ({
       onTrackEvent: vi.fn(),
     }),
+  }
+})
+
+const { mockUseSearch, resetMockSearch } = vi.hoisted(() => {
+  const defaultSearch = {
+    prefix: undefined as string | undefined,
+    sortBy: undefined as string | undefined,
+    sortDirection: undefined as string | undefined,
+    search: "",
+    tab: "all" as "all" | "deleted",
+  }
+  let currentSearch = { ...defaultSearch }
+  return {
+    mockUseSearch: () => currentSearch,
+    resetMockSearch: (overrides: Partial<typeof defaultSearch> = {}) => {
+      currentSearch = { ...defaultSearch, ...overrides }
+    },
   }
 })
 
@@ -64,12 +123,7 @@ vi.mock("@/client/routes/_auth/projects/$projectId/storage/$provider/$storageTyp
       storageType: "buckets",
       containerName: "test-bucket",
     }),
-    useSearch: () => ({
-      prefix: undefined,
-      sortBy: undefined,
-      sortDirection: undefined,
-      search: "",
-    }),
+    useSearch: mockUseSearch,
   },
 }))
 
@@ -241,6 +295,30 @@ vi.mock("@/client/trpcClient", () => {
 describe("ObjectBrowserView", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    resetMockSearch()
+    mockCephPermissions = {
+      canCreateBucket: true,
+      canDeleteBucket: true,
+      canEmptyBucket: true,
+      canUpdateVersioning: true,
+      canCreateObject: true,
+      canUpdateObject: true,
+      canDeleteObject: true,
+      canCopyObject: true,
+      canMoveObject: true,
+      canShareObject: true,
+      canCreateFolder: true,
+      canDeleteFolder: true,
+      canDeleteVersion: true,
+      canRestoreVersion: true,
+      canUpdatePolicy: true,
+      canDeletePolicy: true,
+      canUpdateCors: true,
+      canDeleteCors: true,
+      canUpdateLifecycle: true,
+      canDeleteLifecycle: true,
+      canCreateCredential: true,
+    }
     // Restore default return value so any test that calls mockReturnValue doesn't
     // leak into subsequent tests (clearAllMocks resets calls but not implementations)
     vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
@@ -360,6 +438,30 @@ describe("ObjectBrowserView", () => {
 describe("ObjectBrowserView - Loading state", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    resetMockSearch()
+    mockCephPermissions = {
+      canCreateBucket: true,
+      canDeleteBucket: true,
+      canEmptyBucket: true,
+      canUpdateVersioning: true,
+      canCreateObject: true,
+      canUpdateObject: true,
+      canDeleteObject: true,
+      canCopyObject: true,
+      canMoveObject: true,
+      canShareObject: true,
+      canCreateFolder: true,
+      canDeleteFolder: true,
+      canDeleteVersion: true,
+      canRestoreVersion: true,
+      canUpdatePolicy: true,
+      canDeletePolicy: true,
+      canUpdateCors: true,
+      canDeleteCors: true,
+      canUpdateLifecycle: true,
+      canDeleteLifecycle: true,
+      canCreateCredential: true,
+    }
     vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
       data: mockObjectsData,
       isLoading: false,
@@ -385,6 +487,30 @@ describe("ObjectBrowserView - Loading state", () => {
 describe("ObjectBrowserView - Error state", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    resetMockSearch()
+    mockCephPermissions = {
+      canCreateBucket: true,
+      canDeleteBucket: true,
+      canEmptyBucket: true,
+      canUpdateVersioning: true,
+      canCreateObject: true,
+      canUpdateObject: true,
+      canDeleteObject: true,
+      canCopyObject: true,
+      canMoveObject: true,
+      canShareObject: true,
+      canCreateFolder: true,
+      canDeleteFolder: true,
+      canDeleteVersion: true,
+      canRestoreVersion: true,
+      canUpdatePolicy: true,
+      canDeletePolicy: true,
+      canUpdateCors: true,
+      canDeleteCors: true,
+      canUpdateLifecycle: true,
+      canDeleteLifecycle: true,
+      canCreateCredential: true,
+    }
     vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
       data: mockObjectsData,
       isLoading: false,
@@ -412,6 +538,30 @@ describe("ObjectBrowserView - Error state", () => {
 describe("ObjectBrowserView - Empty state", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    resetMockSearch()
+    mockCephPermissions = {
+      canCreateBucket: true,
+      canDeleteBucket: true,
+      canEmptyBucket: true,
+      canUpdateVersioning: true,
+      canCreateObject: true,
+      canUpdateObject: true,
+      canDeleteObject: true,
+      canCopyObject: true,
+      canMoveObject: true,
+      canShareObject: true,
+      canCreateFolder: true,
+      canDeleteFolder: true,
+      canDeleteVersion: true,
+      canRestoreVersion: true,
+      canUpdatePolicy: true,
+      canDeletePolicy: true,
+      canUpdateCors: true,
+      canDeleteCors: true,
+      canUpdateLifecycle: true,
+      canDeleteLifecycle: true,
+      canCreateCredential: true,
+    }
     vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
       data: mockObjectsData,
       isLoading: false,
@@ -443,6 +593,30 @@ describe("ObjectBrowserView - Empty state", () => {
 describe("ObjectBrowserView - Folder filtering with versioning", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    resetMockSearch()
+    mockCephPermissions = {
+      canCreateBucket: true,
+      canDeleteBucket: true,
+      canEmptyBucket: true,
+      canUpdateVersioning: true,
+      canCreateObject: true,
+      canUpdateObject: true,
+      canDeleteObject: true,
+      canCopyObject: true,
+      canMoveObject: true,
+      canShareObject: true,
+      canCreateFolder: true,
+      canDeleteFolder: true,
+      canDeleteVersion: true,
+      canRestoreVersion: true,
+      canUpdatePolicy: true,
+      canDeletePolicy: true,
+      canUpdateCors: true,
+      canDeleteCors: true,
+      canUpdateLifecycle: true,
+      canDeleteLifecycle: true,
+      canCreateCredential: true,
+    }
   })
 
   it("hides folders with no versions (permanently deleted) from All tab", () => {
@@ -544,5 +718,111 @@ describe("ObjectBrowserView - Folder filtering with versioning", () => {
 
     // In Deleted tab, folder with hasDeletedContent=true should be shown
     expect(screen.getByTestId("objects-table")).toBeInTheDocument()
+  })
+})
+
+describe("ObjectBrowserView - Permission gating", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    resetMockSearch()
+    mockCephPermissions = {
+      canCreateBucket: true,
+      canDeleteBucket: true,
+      canEmptyBucket: true,
+      canUpdateVersioning: true,
+      canCreateObject: true,
+      canUpdateObject: true,
+      canDeleteObject: true,
+      canCopyObject: true,
+      canMoveObject: true,
+      canShareObject: true,
+      canCreateFolder: true,
+      canDeleteFolder: true,
+      canDeleteVersion: true,
+      canRestoreVersion: true,
+      canUpdatePolicy: true,
+      canDeletePolicy: true,
+      canUpdateCors: true,
+      canDeleteCors: true,
+      canUpdateLifecycle: true,
+      canDeleteLifecycle: true,
+      canCreateCredential: true,
+    }
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: mockObjectsData,
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+  })
+
+  it("hides the Upload Object button when canCreateObject is false", () => {
+    mockCephPermissions = { ...mockCephPermissions, canCreateObject: false }
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+    expect(screen.queryByRole("button", { name: /upload object/i })).not.toBeInTheDocument()
+  })
+
+  it("hides the Create Folder button when canCreateFolder is false", () => {
+    mockCephPermissions = { ...mockCephPermissions, canCreateFolder: false }
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+    expect(screen.queryByRole("button", { name: /create folder/i })).not.toBeInTheDocument()
+  })
+
+  it("shows both toolbar buttons when permitted", () => {
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+    expect(screen.getByRole("button", { name: /upload object/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /create folder/i })).toBeInTheDocument()
+  })
+
+  it("bulk selection is gated by canDeleteObject in the All tab", () => {
+    resetMockSearch({ tab: "all" })
+    mockCephPermissions = { ...mockCephPermissions, canDeleteObject: false, canDeleteVersion: true }
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+    expect(screen.queryByTestId("select-all-objects")).not.toBeInTheDocument()
+  })
+
+  it("bulk selection is enabled by canDeleteObject in the All tab", () => {
+    resetMockSearch({ tab: "all" })
+    mockCephPermissions = { ...mockCephPermissions, canDeleteObject: true, canDeleteVersion: false }
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+    expect(screen.getByTestId("select-all-objects")).toBeInTheDocument()
+  })
+
+  it("bulk selection is gated by canDeleteVersion (not canDeleteObject) in the Deleted tab", () => {
+    resetMockSearch({ tab: "deleted" })
+    mockCephPermissions = { ...mockCephPermissions, canDeleteObject: true, canDeleteVersion: false }
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+    expect(screen.queryByTestId("select-all-objects")).not.toBeInTheDocument()
+  })
+
+  it("bulk selection is enabled by canDeleteVersion in the Deleted tab", () => {
+    resetMockSearch({ tab: "deleted" })
+    mockCephPermissions = { ...mockCephPermissions, canDeleteObject: false, canDeleteVersion: true }
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+    expect(screen.getByTestId("select-all-objects")).toBeInTheDocument()
+  })
+
+  it("passes the object-level permission booleans through to ObjectsTableView", () => {
+    mockCephPermissions = {
+      ...mockCephPermissions,
+      canCopyObject: false,
+      canMoveObject: false,
+      canUpdateObject: false,
+      canShareObject: false,
+      canDeleteObject: false,
+      canDeleteFolder: false,
+      canDeleteVersion: false,
+      canRestoreVersion: false,
+    }
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+    const table = screen.getByTestId("objects-table")
+    expect(table).toHaveAttribute("data-can-copy-object", "false")
+    expect(table).toHaveAttribute("data-can-move-object", "false")
+    expect(table).toHaveAttribute("data-can-update-object", "false")
+    expect(table).toHaveAttribute("data-can-share-object", "false")
+    expect(table).toHaveAttribute("data-can-delete-object", "false")
+    expect(table).toHaveAttribute("data-can-delete-folder", "false")
+    expect(table).toHaveAttribute("data-can-delete-version", "false")
+    expect(table).toHaveAttribute("data-can-restore-version", "false")
   })
 })

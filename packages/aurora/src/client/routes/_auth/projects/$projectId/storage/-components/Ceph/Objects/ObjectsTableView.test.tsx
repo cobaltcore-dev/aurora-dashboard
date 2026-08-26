@@ -221,6 +221,14 @@ describe("ObjectsTableView", () => {
     onEditMetadataSuccess: vi.fn(),
     onEditMetadataError: vi.fn(),
     onDownloadError: vi.fn(),
+    canCopyObject: true,
+    canMoveObject: true,
+    canUpdateObject: true,
+    canShareObject: true,
+    canDeleteObject: true,
+    canDeleteFolder: true,
+    canDeleteVersion: true,
+    canRestoreVersion: true,
   }
 
   describe("rendering", () => {
@@ -355,6 +363,77 @@ describe("ObjectsTableView", () => {
       // Each folder row is rendered
       expect(screen.getByTestId("folder-row-documents/")).toBeInTheDocument()
       expect(screen.getByTestId("folder-row-images/")).toBeInTheDocument()
+    })
+  })
+
+  describe("permission gating", () => {
+    it("a viewer with no mutation permissions still sees Download Object and View Versions on a normal row", async () => {
+      const user = userEvent.setup()
+      render(
+        <ObjectsTableView
+          {...defaultProps}
+          folders={[]}
+          objects={[mockObjects[0]]}
+          versioningEnabled={true}
+          canCopyObject={false}
+          canMoveObject={false}
+          canUpdateObject={false}
+          canShareObject={false}
+          canDeleteObject={false}
+          canDeleteFolder={false}
+          canDeleteVersion={false}
+          canRestoreVersion={false}
+        />
+      )
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+
+      expect(screen.getByTestId("download-action-file1.txt")).toBeInTheDocument()
+      expect(screen.getByText("View Versions")).toBeInTheDocument()
+      expect(screen.queryByText("Copy Object")).not.toBeInTheDocument()
+      expect(screen.queryByText("Move/Rename Object")).not.toBeInTheDocument()
+      expect(screen.queryByText("Edit Object Metadata")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("share-url-action-file1.txt")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Object")).not.toBeInTheDocument()
+    })
+
+    it("hides Share Object URL when canShareObject is false", async () => {
+      const user = userEvent.setup()
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} canShareObject={false} />)
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+
+      expect(screen.queryByTestId("share-url-action-file1.txt")).not.toBeInTheDocument()
+    })
+
+    it("hides Delete Object but keeps Download Object when canDeleteObject is false", async () => {
+      const user = userEvent.setup()
+      render(<ObjectsTableView {...defaultProps} folders={[]} objects={[mockObjects[0]]} canDeleteObject={false} />)
+
+      const row = screen.getByTestId("object-row-file1.txt")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+
+      expect(screen.queryByText("Delete Object")).not.toBeInTheDocument()
+      expect(screen.getByTestId("download-action-file1.txt")).toBeInTheDocument()
+    })
+
+    it("hides the regular folder row menu entirely when canDeleteFolder is false", async () => {
+      render(<ObjectsTableView {...defaultProps} objects={[]} canDeleteFolder={false} />)
+
+      const row = screen.getByTestId("folder-row-documents/")
+      expect(within(row).queryByRole("button", { name: /more/i })).not.toBeInTheDocument()
+    })
+
+    it("shows Delete Folder in the regular folder row menu when canDeleteFolder is true", async () => {
+      const user = userEvent.setup()
+      render(<ObjectsTableView {...defaultProps} objects={[]} canDeleteFolder={true} />)
+
+      const row = screen.getByTestId("folder-row-documents/")
+      await user.click(within(row).getByRole("button", { name: /more/i }))
+
+      expect(screen.getByText("Delete Folder")).toBeInTheDocument()
     })
   })
 

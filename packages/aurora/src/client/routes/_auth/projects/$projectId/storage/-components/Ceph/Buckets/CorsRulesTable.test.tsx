@@ -114,6 +114,8 @@ describe("CorsRulesTable", () => {
         selectedIndices={[]}
         onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
+        canUpdateCors={true}
+        canDeleteCors={true}
       />,
       { wrapper: Wrapper }
     )
@@ -134,6 +136,8 @@ describe("CorsRulesTable", () => {
         selectedIndices={[]}
         onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
+        canUpdateCors={true}
+        canDeleteCors={true}
       />,
       { wrapper: Wrapper }
     )
@@ -151,6 +155,8 @@ describe("CorsRulesTable", () => {
         selectedIndices={[]}
         onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
+        canUpdateCors={true}
+        canDeleteCors={true}
         isFiltered={false}
       />,
       { wrapper: Wrapper }
@@ -169,6 +175,8 @@ describe("CorsRulesTable", () => {
         selectedIndices={[]}
         onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
+        canUpdateCors={true}
+        canDeleteCors={true}
       />,
       { wrapper: Wrapper }
     )
@@ -185,6 +193,8 @@ describe("CorsRulesTable", () => {
           selectedIndices={[]}
           onToggleSelectRule={mockOnToggleSelectRule}
           onEditRule={mockOnEditRule}
+          canUpdateCors={true}
+          canDeleteCors={true}
         />
       </Wrapper>
     )
@@ -200,6 +210,8 @@ describe("CorsRulesTable", () => {
         selectedIndices={[]}
         onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
+        canUpdateCors={true}
+        canDeleteCors={true}
       />,
       { wrapper: Wrapper }
     )
@@ -222,6 +234,8 @@ describe("CorsRulesTable", () => {
         selectedIndices={[]}
         onToggleSelectRule={mockOnToggleSelectRule}
         onEditRule={mockOnEditRule}
+        canUpdateCors={true}
+        canDeleteCors={true}
         isMutating={true}
       />,
       { wrapper: Wrapper }

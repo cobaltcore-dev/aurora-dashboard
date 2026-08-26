@@ -128,7 +128,33 @@ The operation being performed, using **consistent verbs**.
 "storage:folders:create" // Create folder
 "storage:folders:create_object" // Create object in folder
 "storage:folders:delete" // Delete folder
+
+// Ceph/S3 Object Version Operations
+"storage:objects:share" // Generate a presigned URL for an object
+"storage:object_versions:delete" // Permanently delete an object version/delete marker
+"storage:object_versions:restore" // Restore a previous object version
+
+// Ceph/S3 Bucket Versioning (no Swift analogue  compound action on `containers`, mirrors `update_acls`)
+"storage:containers:update_versioning" // Enable/suspend bucket versioning
+
+// Ceph/S3 Bucket Policy Operations
+"storage:container_policies:update" // Add/edit a bucket policy
+"storage:container_policies:delete" // Delete a bucket policy
+
+// Ceph/S3 CORS Operations"storage:container_cors_rules:update" // Create/edit a CORS rule
+"storage:container_cors_rules:delete" // Delete a CORS rule
+
+// Ceph/S3 Lifecycle Operations"storage:container_lifecycle_rules:update" // Create/edit a lifecycle rule
+"storage:container_lifecycle_rules:delete" // Delete a lifecycle rule
+
+// Ceph/S3 Credential Operations
+"storage:s3_credentials:create" // Create EC2/S3 credentials for the current user
 ```
+
+> Note: read/list/view actions are deliberately never gated in this domain (or anywhere else in
+> the app) only mutations are. See `useSecurityGroupPermissions`, whose `canView` permission is
+> fetched but never consumed for hiding UI; this is the established, if implicit, convention
+> across the whole codebase.)
 
 ### Network (`network:*`)
 

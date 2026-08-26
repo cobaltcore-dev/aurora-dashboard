@@ -20,6 +20,7 @@ import {
   Divider,
 } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useCephPermissions } from "../hooks/useCephPermissions"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
@@ -48,6 +49,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
+  const { permissions } = useCephPermissions(projectId)
 
   // Sort and search state are persisted in the URL
   const { corsSortBy, corsSortDirection, corsSearch = "" } = Route.useSearch()
@@ -233,9 +235,11 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
             onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
           />
         </Stack>
-        <Button variant="primary" onClick={handleAddRule}>
-          <Trans>Create CORS Rule</Trans>
-        </Button>
+        {permissions.canUpdateCors && (
+          <Button variant="primary" onClick={handleAddRule}>
+            <Trans>Create CORS Rule</Trans>
+          </Button>
+        )}
       </Stack>
 
       {/* Zone 2 — Bulk actions toolbar (inside DataGridToolbar) */}
@@ -256,30 +260,34 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
           </Stack>
           <Divider />
           <Stack distribution="between" gap="2" alignment="center" className="text-sm">
-            <Stack gap="2" alignment="center">
-              <Checkbox
-                checked={allFilteredSelected}
-                indeterminate={someFilteredSelected}
-                onChange={handleToggleSelectAll}
-                aria-label={t`Select all rules`}
-                data-testid="select-all-rules"
-                disabled={filteredRulesWithIndices.length === 0}
-              />
-              <PopupMenu className="flex items-center">
-                <PopupMenuToggle as="div">
-                  <Button disabled={selectedIndices.length === 0} size="small" icon="moreVert" label={t`Actions`} />
-                </PopupMenuToggle>
-                {selectedIndices.length > 0 && (
-                  <PopupMenuOptions>
-                    <PopupMenuItem
-                      label={i18n._(plural(selectedIndices.length, { one: "Delete # Rule", other: "Delete # Rules" }))}
-                      onClick={handleBulkDelete}
-                      data-testid="bulk-delete-rules-action"
-                    />
-                  </PopupMenuOptions>
-                )}
-              </PopupMenu>
-            </Stack>
+            {permissions.canDeleteCors && (
+              <Stack gap="2" alignment="center">
+                <Checkbox
+                  checked={allFilteredSelected}
+                  indeterminate={someFilteredSelected}
+                  onChange={handleToggleSelectAll}
+                  aria-label={t`Select all rules`}
+                  data-testid="select-all-rules"
+                  disabled={filteredRulesWithIndices.length === 0}
+                />
+                <PopupMenu className="flex items-center">
+                  <PopupMenuToggle as="div">
+                    <Button disabled={selectedIndices.length === 0} size="small" icon="moreVert" label={t`Actions`} />
+                  </PopupMenuToggle>
+                  {selectedIndices.length > 0 && (
+                    <PopupMenuOptions>
+                      <PopupMenuItem
+                        label={i18n._(
+                          plural(selectedIndices.length, { one: "Delete # Rule", other: "Delete # Rules" })
+                        )}
+                        onClick={handleBulkDelete}
+                        data-testid="bulk-delete-rules-action"
+                      />
+                    </PopupMenuOptions>
+                  )}
+                </PopupMenu>
+              </Stack>
+            )}
             <span className="theme-color-text-light">
               {filteredRulesWithIndices.length} {filteredRulesWithIndices.length === 1 ? t`rule` : t`rules`}
             </span>
@@ -297,6 +305,8 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
         onDeleteRule={handleDeleteRule}
         isMutating={isRuleModalMutating || isBulkDeleteMutating}
         isFiltered={!!corsSearch}
+        canUpdateCors={permissions.canUpdateCors}
+        canDeleteCors={permissions.canDeleteCors}
       />
 
       {/* Bulk delete rules modal */}
