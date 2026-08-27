@@ -95,26 +95,6 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
               </div>
             </div>
           )}
-
-          {/* Summary */}
-          <div className="jn:bg-theme-background-lvl-2 mb-6 rounded p-4">
-            {activeCount > 0 && (
-              <div className="mb-2 flex justify-between">
-                <span className="jn:text-theme-default">
-                  <Trans>Images to deactivate:</Trans>
-                </span>
-                <span className="jn:text-theme-highest font-semibold">{activeCount}</span>
-              </div>
-            )}
-            {deactivatedCount > 0 && (
-              <div className="flex justify-between">
-                <span className="jn:text-theme-default">
-                  <Trans>Already deactivated (will be skipped):</Trans>
-                </span>
-                <span className="jn:text-theme-warning font-semibold">{deactivatedCount}</span>
-              </div>
-            )}
-          </div>
         </div>
       )}
     </Modal>

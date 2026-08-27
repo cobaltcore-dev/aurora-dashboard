@@ -376,9 +376,6 @@ msgstr "Already active (will be skipped):"
 msgid "Already deactivated (will be skipped)"
 msgstr "Already deactivated (will be skipped)"
 
-msgid "Already deactivated (will be skipped):"
-msgstr "Already deactivated (will be skipped):"
-
 msgid "Also delete all versions and all delete markers"
 msgstr "Also delete all versions and all delete markers"
 
@@ -1919,9 +1916,6 @@ msgstr "Images to be activated ({deactivatedCount})"
 
 msgid "Images to be deactivated ({activeCount})"
 msgstr "Images to be deactivated ({activeCount})"
-
-msgid "Images to deactivate:"
-msgstr "Images to deactivate:"
 
 msgid "Images to delete:"
 msgstr "Images to delete:"
