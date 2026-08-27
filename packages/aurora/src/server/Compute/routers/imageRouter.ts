@@ -403,19 +403,31 @@ export const imageRouter = {
           fileStream
         )
 
-        // Initialize progress tracking
-        uploadProgress.set(validatedImageId, {
+        // Initialize progress tracking with project scoping
+        const token = openstackSession.getToken()
+        const tokenProjectId = token?.tokenData.project?.id
+
+        if (!tokenProjectId) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Project scope required for upload progress tracking",
+          })
+        }
+
+        const scopedUploadId = `${tokenProjectId}:${validatedImageId}`
+
+        uploadProgress.set(scopedUploadId, {
           uploaded: 0,
           total: validatedFileSize,
         })
 
         try {
-          const progress = uploadProgress.get(validatedImageId)!
+          const progress = uploadProgress.get(scopedUploadId)!
 
           const progressTracker = new Transform({
             transform(chunk: Buffer, _encoding, callback) {
               progress.uploaded += chunk.length
-              uploadProgressEmitter.emit(`progress:${validatedImageId}`, {
+              uploadProgressEmitter.emit(`progress:${scopedUploadId}`, {
                 uploaded: progress.uploaded,
                 total: progress.total,
                 percent: progress.total > 0 ? Math.round((progress.uploaded / progress.total) * 100) : 0,
@@ -458,14 +470,14 @@ export const imageRouter = {
             )
           }
 
-          uploadProgressEmitter.emit(`progress:${validatedImageId}:complete`)
+          uploadProgressEmitter.emit(`progress:${scopedUploadId}:complete`)
 
           return {
             success: true,
             imageId: validatedImageId,
           }
         } catch (error) {
-          uploadProgressEmitter.emit(`progress:${validatedImageId}:error`, error)
+          uploadProgressEmitter.emit(`progress:${scopedUploadId}:error`, error)
 
           throw ImageErrorHandlers.upload(
             error as SignalOpenstackApiError,
@@ -473,18 +485,40 @@ export const imageRouter = {
             "application/octet-stream"
           )
         } finally {
-          uploadProgress.delete(validatedImageId)
+          uploadProgress.delete(scopedUploadId)
         }
       }, "upload image")
     }),
 
   watchUploadProgress: projectScopedProcedure.input(z.object({ uploadId: z.string() })).subscription(async function* ({
     input,
+    ctx,
   }) {
     const uploadId = input.uploadId
 
+    // Security: Reject uploadId containing colons to prevent double-scoping
+    if (uploadId.includes(":")) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Invalid uploadId format",
+      })
+    }
+
+    // Security: Verify ownership by scoping to project
+    const token = ctx.openstack?.getToken()
+    const projectId = token?.tokenData.project?.id
+
+    if (!projectId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Project scope required for upload progress tracking",
+      })
+    }
+
+    const scopedUploadId = `${projectId}:${uploadId}`
+
     // Emit current progress state immediately (no delay)
-    const current = uploadProgress.get(uploadId)
+    const current = uploadProgress.get(scopedUploadId)
     if (current) {
       yield {
         ...current,
@@ -520,9 +554,9 @@ export const imageRouter = {
     }
 
     // Listen to events from upload chunks (real-time, no polling)
-    uploadProgressEmitter.on(`progress:${uploadId}`, onProgress)
-    uploadProgressEmitter.on(`progress:${uploadId}:complete`, onComplete)
-    uploadProgressEmitter.on(`progress:${uploadId}:error`, onError)
+    uploadProgressEmitter.on(`progress:${scopedUploadId}`, onProgress)
+    uploadProgressEmitter.on(`progress:${scopedUploadId}:complete`, onComplete)
+    uploadProgressEmitter.on(`progress:${scopedUploadId}:error`, onError)
 
     try {
       // Yield queued events as they arrive
@@ -559,9 +593,9 @@ export const imageRouter = {
       }
     } finally {
       // Cleanup listeners
-      uploadProgressEmitter.off(`progress:${uploadId}`, onProgress)
-      uploadProgressEmitter.off(`progress:${uploadId}:complete`, onComplete)
-      uploadProgressEmitter.off(`progress:${uploadId}:error`, onError)
+      uploadProgressEmitter.off(`progress:${scopedUploadId}`, onProgress)
+      uploadProgressEmitter.off(`progress:${scopedUploadId}:complete`, onComplete)
+      uploadProgressEmitter.off(`progress:${scopedUploadId}:error`, onError)
     }
   }),
 
