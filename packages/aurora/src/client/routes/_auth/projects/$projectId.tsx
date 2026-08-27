@@ -167,7 +167,7 @@ function RouteComponent() {
     }
 
     // Fallback for other error codes
-    return <RouteError error={new Error(message)} safeErrorMessage={message} />
+    return <RouteError error={new Error(message)} />
   }
 
   const { availableServices, projectId, crumbProject, crumbDomain } = loaderData

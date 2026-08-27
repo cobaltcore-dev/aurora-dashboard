@@ -55,7 +55,7 @@ const openstackErrorMiddleware = t.middleware(async ({ next }) => {
         ...result,
         error: new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: cause.message || "An unexpected OpenStack error occurred",
+          message: "An unexpected OpenStack error occurred",
           cause,
         }),
       }
