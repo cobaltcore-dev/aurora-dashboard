@@ -247,6 +247,9 @@ msgstr "Access Control for Container:"
 msgid "Access Control Updated"
 msgstr "Access Control Updated"
 
+msgid "Access Denied"
+msgstr "Access Denied"
+
 msgid "Access Status"
 msgstr "Access Status"
 
@@ -1795,6 +1798,12 @@ msgstr "Generating..."
 msgid "Get Involved"
 msgstr "Get Involved"
 
+msgid "Go to Home"
+msgstr "Go to Home"
+
+msgid "Go to Projects"
+msgstr "Go to Projects"
+
 msgid "Grant access to a user from a different project."
 msgstr "Grant access to a user from a different project."
 
@@ -2091,6 +2100,9 @@ msgstr "Loading versions..."
 
 msgid "Loading..."
 msgstr "Loading..."
+
+msgid "Log In"
+msgstr "Log In"
 
 msgid "MAC Address"
 msgstr "MAC Address"
@@ -2611,6 +2623,9 @@ msgstr "Project id"
 msgid "Project ID"
 msgstr "Project ID"
 
+msgid "Project Not Accessible"
+msgstr "Project Not Accessible"
+
 msgid "Project Not Found"
 msgstr "Project Not Found"
 
@@ -2973,6 +2988,9 @@ msgstr "Server Role:"
 
 msgid "Services"
 msgstr "Services"
+
+msgid "Session Expired"
+msgstr "Session Expired"
 
 msgid "Session expires in"
 msgstr "Session expires in"
@@ -3439,6 +3457,12 @@ msgstr "This member already has access to this image."
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr "This object and all its versions will be permanently deleted and cannot be restored."
 
+msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
+msgstr "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
+
+msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Please select a project from your current domain."
+msgstr "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Please select a project from your current domain."
+
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
 
@@ -3787,6 +3811,9 @@ msgstr "You don't have permission to access flavor access information for this f
 msgid "You don't have permission to access flavors for this project."
 msgstr "You don't have permission to access flavors for this project."
 
+msgid "You don't have permission to access this project."
+msgstr "You don't have permission to access this project."
+
 msgid "You don't have permission to add tenant access to this flavor."
 msgstr "You don't have permission to add tenant access to this flavor."
 
@@ -3825,6 +3852,9 @@ msgstr "Your S3 credentials are invalid or expired. Please try creating new cred
 
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
+
+msgid "Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab."
+msgstr "Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab."
 
 msgid "YYYY-MM-DD HH:mm:ss"
 msgstr "YYYY-MM-DD HH:mm:ss"

@@ -247,6 +247,9 @@ msgstr "Zugriffskontrolle für Container:"
 msgid "Access Control Updated"
 msgstr "Zugriffskontrolle aktualisiert"
 
+msgid "Access Denied"
+msgstr ""
+
 msgid "Access Status"
 msgstr "Zugriffsstatus"
 
@@ -1795,6 +1798,12 @@ msgstr "Wird generiert..."
 msgid "Get Involved"
 msgstr "Mitmachen"
 
+msgid "Go to Home"
+msgstr ""
+
+msgid "Go to Projects"
+msgstr ""
+
 msgid "Grant access to a user from a different project."
 msgstr "Zugriff für einen Benutzer aus einem anderen Projekt gewähren."
 
@@ -2091,6 +2100,9 @@ msgstr ""
 
 msgid "Loading..."
 msgstr "Lädt..."
+
+msgid "Log In"
+msgstr ""
 
 msgid "MAC Address"
 msgstr "MAC-Adresse"
@@ -2611,6 +2623,9 @@ msgstr "Projekt-ID"
 msgid "Project ID"
 msgstr "Projekt-ID"
 
+msgid "Project Not Accessible"
+msgstr ""
+
 msgid "Project Not Found"
 msgstr ""
 
@@ -2973,6 +2988,9 @@ msgstr "Serverrolle:"
 
 msgid "Services"
 msgstr "Services"
+
+msgid "Session Expired"
+msgstr ""
 
 msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
@@ -3439,6 +3457,12 @@ msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr ""
 
+msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
+msgstr ""
+
+msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Please select a project from your current domain."
+msgstr ""
+
 msgid "This property is reserved and cannot be modified"
 msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 
@@ -3787,6 +3811,9 @@ msgstr "Sie haben keine Berechtigung, auf die Zugriffsinformationen für diesen 
 msgid "You don't have permission to access flavors for this project."
 msgstr "Sie haben keine Berechtigung, auf Flavors für dieses Projekt zuzugreifen."
 
+msgid "You don't have permission to access this project."
+msgstr ""
+
 msgid "You don't have permission to add tenant access to this flavor."
 msgstr "Sie haben keine Berechtigung, diesem Flavor Projektzugriffe hinzuzufügen."
 
@@ -3825,6 +3852,9 @@ msgstr ""
 
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+
+msgid "Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab."
+msgstr ""
 
 msgid "YYYY-MM-DD HH:mm:ss"
 msgstr "YYYY-MM-DD HH:mm:ss"
