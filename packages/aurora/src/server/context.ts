@@ -326,71 +326,70 @@ export async function createContext(
 
     // Create the rescope promise that returns only the token string (immutable)
     const rescopeTokenPromise = (async (): Promise<string | null> => {
-      try {
-        const newScope: AuthConfig["auth"]["scope"] = newScopeProjectId
-          ? { project: { id: newScopeProjectId } }
-          : newScopeDomainId
-            ? { domain: { id: newScopeDomainId } }
-            : "unscoped"
+      const newScope: AuthConfig["auth"]["scope"] = newScopeProjectId
+        ? { project: { id: newScopeProjectId } }
+        : newScopeDomainId
+          ? { domain: { id: newScopeDomainId } }
+          : "unscoped"
 
-        await openstackSession.rescope(newScope)
+      await openstackSession.rescope(newScope)
 
-        // Get the new token after rescoping
-        const newToken = openstackSession.getToken()
-        const newAuthToken = newToken?.authToken
+      // Get the new token after rescoping
+      const newToken = openstackSession.getToken()
+      const newAuthToken = newToken?.authToken
 
-        // If the auth token changed, we need to migrate the pending rescopes to the new token
-        if (newAuthToken && newAuthToken !== sessionToken) {
-          const oldPendingRescopes = sessionRescopes.get(sessionToken)
-          if (oldPendingRescopes) {
-            // Check if there's already a map under the new token (from concurrent requests)
-            const existingRescopes = sessionRescopes.get(newAuthToken)
-            if (existingRescopes) {
-              // Merge oldPendingRescopes into existing map to avoid overwriting
-              for (const [key, value] of oldPendingRescopes.entries()) {
-                if (!existingRescopes.has(key)) {
-                  existingRescopes.set(key, value)
-                }
+      // If the auth token changed, we need to migrate the pending rescopes to the new token
+      if (newAuthToken && newAuthToken !== sessionToken) {
+        const oldPendingRescopes = sessionRescopes.get(sessionToken)
+        if (oldPendingRescopes) {
+          // Check if there's already a map under the new token (from concurrent requests)
+          const existingRescopes = sessionRescopes.get(newAuthToken)
+          if (existingRescopes) {
+            // Merge oldPendingRescopes into existing map to avoid overwriting
+            for (const [key, value] of oldPendingRescopes.entries()) {
+              if (!existingRescopes.has(key)) {
+                existingRescopes.set(key, value)
               }
-            } else {
-              // No existing map, safe to move the old one
-              sessionRescopes.set(newAuthToken, oldPendingRescopes)
             }
-            sessionRescopes.delete(sessionToken)
+          } else {
+            // No existing map, safe to move the old one
+            sessionRescopes.set(newAuthToken, oldPendingRescopes)
           }
-        }
-
-        // Invalidate user info cache since role assignments may differ with new scope
-        cachedUserId = undefined
-        cachedUserInfo = undefined
-
-        // Return only the token string, not the session object
-        return newAuthToken || null
-      } catch (err) {
-        console.error("Rescope error:", err)
-        // Return null on any rescope error (network failure, invalid scope, insufficient permissions)
-        // The caller (projectScopedProcedure/domainScopedProcedure) will handle this by throwing TRPCError
-        return null
-      } finally {
-        // Clean up the pending rescope entry once complete (success or failure)
-        pendingRescopes.delete(scopeKey)
-
-        // Clean up empty session maps to prevent memory leaks
-        if (pendingRescopes.size === 0) {
           sessionRescopes.delete(sessionToken)
-          // Also check if we moved to a new token
-          const currentToken = openstackSession?.getToken()?.authToken
-          if (currentToken && currentToken !== sessionToken && sessionRescopes.get(currentToken)?.size === 0) {
-            sessionRescopes.delete(currentToken)
-          }
         }
       }
+
+      // Invalidate user info cache since role assignments may differ with new scope
+      cachedUserId = undefined
+      cachedUserInfo = undefined
+
+      // Return only the token string, not the session object
+      return newAuthToken || null
     })()
 
     // Store the promise before awaiting to handle concurrent requests
+    // Store the original promise so concurrent requests see the same success/failure
+    const cleanupPromise = rescopeTokenPromise.finally(() => {
+      // Clean up the pending rescope entry once complete (success or failure)
+      pendingRescopes.delete(scopeKey)
+
+      // Clean up empty session maps to prevent memory leaks
+      if (pendingRescopes.size === 0) {
+        sessionRescopes.delete(sessionToken)
+        // Also check if we moved to a new token
+        const currentToken = openstackSession?.getToken()?.authToken
+        if (currentToken && currentToken !== sessionToken && sessionRescopes.get(currentToken)?.size === 0) {
+          sessionRescopes.delete(currentToken)
+        }
+      }
+    })
+
     pendingRescopes.set(scopeKey, rescopeTokenPromise)
 
-    // Wait for the token
+    // Prevent unhandled rejection on the cleanup promise
+    cleanupPromise.catch(() => {})
+
+    // Wait for the token - let errors propagate to be handled by middleware
     const newAuthToken = await rescopeTokenPromise
 
     if (!newAuthToken) {
