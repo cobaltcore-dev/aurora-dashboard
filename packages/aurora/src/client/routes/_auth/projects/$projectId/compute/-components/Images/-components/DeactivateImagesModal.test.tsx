@@ -114,17 +114,14 @@ describe("DeactivateImagesModal", () => {
 
   it("should display summary with correct counts", () => {
     setup(true, false, mockActiveImages, mockDeactivatedImages)
-    expect(screen.getByText("Images to deactivate:")).toBeInTheDocument()
-    expect(screen.getByText("3")).toBeInTheDocument()
-    expect(screen.getByText(/Already deactivated \(will be skipped\):/i)).toBeInTheDocument()
-    expect(screen.getByText("2")).toBeInTheDocument()
+    expect(screen.getByText(/Images to be deactivated \(3\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/Already deactivated \(will be skipped\)/i)).toBeInTheDocument()
   })
 
   it("should display only active count in summary when no deactivated images", () => {
     setup(true, false, mockActiveImages, [])
-    expect(screen.getByText("Images to deactivate:")).toBeInTheDocument()
-    expect(screen.getByText("3")).toBeInTheDocument()
-    expect(screen.queryByText(/Already deactivated \(will be skipped\):/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/Images to be deactivated \(3\)/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Already deactivated \(will be skipped\)/i)).not.toBeInTheDocument()
   })
 
   it("should display warning message for active images", () => {
