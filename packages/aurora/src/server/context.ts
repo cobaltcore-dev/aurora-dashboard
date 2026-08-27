@@ -368,27 +368,26 @@ export async function createContext(
     })()
 
     // Store the promise before awaiting to handle concurrent requests
-    // Use .catch() to prevent unhandled rejection when the promise fails
-    // The actual error handling is done when we await rescopeTokenPromise below
-    pendingRescopes.set(
-      scopeKey,
-      rescopeTokenPromise
-        .catch(() => null) // Prevent unhandled rejection - actual error is caught below
-        .finally(() => {
-          // Clean up the pending rescope entry once complete (success or failure)
-          pendingRescopes.delete(scopeKey)
+    // Store the original promise so concurrent requests see the same success/failure
+    const cleanupPromise = rescopeTokenPromise.finally(() => {
+      // Clean up the pending rescope entry once complete (success or failure)
+      pendingRescopes.delete(scopeKey)
 
-          // Clean up empty session maps to prevent memory leaks
-          if (pendingRescopes.size === 0) {
-            sessionRescopes.delete(sessionToken)
-            // Also check if we moved to a new token
-            const currentToken = openstackSession?.getToken()?.authToken
-            if (currentToken && currentToken !== sessionToken && sessionRescopes.get(currentToken)?.size === 0) {
-              sessionRescopes.delete(currentToken)
-            }
-          }
-        })
-    )
+      // Clean up empty session maps to prevent memory leaks
+      if (pendingRescopes.size === 0) {
+        sessionRescopes.delete(sessionToken)
+        // Also check if we moved to a new token
+        const currentToken = openstackSession?.getToken()?.authToken
+        if (currentToken && currentToken !== sessionToken && sessionRescopes.get(currentToken)?.size === 0) {
+          sessionRescopes.delete(currentToken)
+        }
+      }
+    })
+
+    pendingRescopes.set(scopeKey, rescopeTokenPromise)
+
+    // Prevent unhandled rejection on the cleanup promise
+    cleanupPromise.catch(() => {})
 
     // Wait for the token - let errors propagate to be handled by middleware
     const newAuthToken = await rescopeTokenPromise
