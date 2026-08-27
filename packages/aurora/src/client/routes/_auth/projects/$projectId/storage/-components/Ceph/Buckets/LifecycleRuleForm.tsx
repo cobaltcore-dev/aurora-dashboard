@@ -1,7 +1,17 @@
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useEffect, useState } from "react"
-import { Form, Stack, TextInput, Button, Checkbox, Message, Pill } from "@cloudoperators/juno-ui-components"
+import {
+  Form,
+  Stack,
+  TextInput,
+  Button,
+  Checkbox,
+  Message,
+  Pill,
+  Label,
+  Divider,
+} from "@cloudoperators/juno-ui-components"
 import type { LifecycleRuleRead, LifecycleTag } from "@/server/Storage/types/ceph"
 import { normalizeFilter, parseDaysValue } from "./utils/lifecycleUtils"
 
@@ -216,7 +226,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
         form.handleSubmit()
       }}
     >
-      <Stack direction="vertical" gap="6">
+      <Stack direction="vertical" gap="5">
         {/* Rule ID */}
         <form.Field name="ID">
           {(field) => (
@@ -233,34 +243,36 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
           )}
         </form.Field>
 
+        <Divider />
+
         {/* Scope section - Filter by prefix and/or tags */}
-        <Stack direction="vertical" gap="2">
-          <label className="juno-label juno-label-floating">
-            <Trans>Scope</Trans>
-          </label>
-          <Stack direction="vertical" gap="4">
-            <form.Field name="Prefix">
-              {(field) => (
-                <TextInput
-                  label={t`Prefix Filter`}
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={() => {
-                    const trimmed = field.state.value.trim()
-                    if (trimmed !== field.state.value) {
-                      field.handleChange(trimmed)
-                    }
-                    field.handleBlur()
-                  }}
-                  placeholder={t`e.g. logs/`}
-                  helptext={t`Apply this rule only to objects with this prefix (leave empty for all objects)`}
-                />
-              )}
-            </form.Field>
-          </Stack>
-        </Stack>
+        <p>
+          <Trans>
+            Prefix and tag filters define which objects a rule applies to. Without them, this rule will be applied to
+            all objects in the bucket.
+          </Trans>
+        </p>
+
+        <form.Field name="Prefix">
+          {(field) => (
+            <TextInput
+              label={t`Scope`}
+              id={field.name}
+              name={field.name}
+              value={field.state.value}
+              onChange={(e) => field.handleChange(e.target.value)}
+              onBlur={() => {
+                const trimmed = field.state.value.trim()
+                if (trimmed !== field.state.value) {
+                  field.handleChange(trimmed)
+                }
+                field.handleBlur()
+              }}
+              placeholder={t`e.g. bucket/folder/subfolder`}
+              helptext={t`Apply this rule only to objects with this prefix (leave empty for all objects)`}
+            />
+          )}
+        </form.Field>
 
         {/* Tag editor */}
         <form.Field name="tags">
@@ -290,9 +302,6 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
 
             return (
               <Stack direction="vertical" gap="2">
-                <label className="juno-label juno-label-floating">
-                  <Trans>Tags</Trans>
-                </label>
                 <div>
                   <div className="flex items-start gap-2">
                     <div className="flex-1">
@@ -302,6 +311,12 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                         onChange={(e) => {
                           setNewTagKey(e.target.value)
                           setTagError(undefined)
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            addTag()
+                          }
                         }}
                         placeholder={t`e.g. environment`}
                         invalid={!!tagError}
@@ -314,6 +329,12 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                         label={t`Value`}
                         value={newTagValue}
                         onChange={(e) => setNewTagValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            addTag()
+                          }
+                        }}
                         placeholder={t`e.g. production`}
                         disabled={hasAbortUploadValue}
                       />
@@ -333,22 +354,21 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                   )}
                 </div>
                 <p className="juno-helptext mt-1 text-xs" style={{ color: "#7a7a7a" }}>
-                  {hasAbortUploadValue ? (
-                    <Trans>Cannot be combined with Abort Incomplete Multipart Uploads</Trans>
-                  ) : (
-                    <Trans>Apply this rule only to objects with specific tags</Trans>
-                  )}
+                  <Trans>
+                    Apply this rule only to objects with specific tags. Cannot be combined with Abort Incomplete
+                    Multipart Uploads.
+                  </Trans>
                 </p>
               </Stack>
             )
           }}
         </form.Field>
 
+        <Divider />
+
         {/* Actions section */}
         <Stack direction="vertical" gap="2">
-          <label className="juno-label juno-label-floating">
-            <Trans>Actions</Trans>
-          </label>
+          <Label text={t`Select at least one lifecycle action`} required />
           <Stack direction="vertical" gap="4">
             {/* Read-only notice for Transitions */}
             {editingRule?.Transitions && editingRule.Transitions.length > 0 && (
@@ -384,18 +404,17 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                     name={field.name}
                     checked={field.state.value}
                     onChange={(e) => field.handleChange(e.target.checked)}
-                    label={t`Expire Objects`}
-                    helptext={t`Permanently delete objects after a specified time`}
+                    label={t`Expire objects`}
                   />
                 )}
               </form.Field>
 
               {hasExpirationValue && (
-                <div className="mt-2 ml-6">
+                <div className="mt-2">
                   <form.Field name="expirationDays">
                     {(field) => (
                       <TextInput
-                        label={t`Expiration Days`}
+                        label={t`Days until deletion`}
                         id={field.name}
                         name={field.name}
                         type="number"
@@ -409,7 +428,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                         helptext={
                           editingRule?.Expiration && !editingRule.Expiration.Days
                             ? t`This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty to preserve it, or enter days to switch to Days expiration.`
-                            : t`Delete objects after this many days`
+                            : undefined
                         }
                         required={!editingRule?.Expiration || editingRule.Expiration.Days !== undefined}
                       />
@@ -428,18 +447,17 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                     name={field.name}
                     checked={field.state.value}
                     onChange={(e) => field.handleChange(e.target.checked)}
-                    label={t`Expire Noncurrent Versions`}
-                    helptext={t`Delete older versions of objects after they become noncurrent`}
+                    label={t`Expire non-current versions`}
                   />
                 )}
               </form.Field>
 
               {hasNoncurrentExpirationValue && (
-                <div className="mt-2 ml-6">
+                <div className="mt-2">
                   <form.Field name="noncurrentDays">
                     {(field) => (
                       <TextInput
-                        label={t`Noncurrent Days`}
+                        label={t`Days after becoming non-current`}
                         id={field.name}
                         name={field.name}
                         type="number"
@@ -450,7 +468,6 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                         min="1"
                         invalid={!!noncurrentDaysError}
                         errortext={noncurrentDaysError}
-                        helptext={t`Delete noncurrent versions after this many days (requires versioning enabled)`}
                         required={true}
                       />
                     )}
@@ -468,23 +485,19 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                     name={field.name}
                     checked={field.state.value}
                     onChange={(e) => field.handleChange(e.target.checked)}
-                    label={t`Abort Incomplete Multipart Uploads`}
+                    label={t`Abort incomplete multipart uploads`}
                     disabled={tagsValue.length > 0}
-                    helptext={
-                      tagsValue.length > 0
-                        ? t`Cannot be combined with Tag Filters`
-                        : t`Clean up abandoned multipart uploads`
-                    }
+                    helptext={tagsValue.length > 0 ? t`Cannot be combined with Tag Filters` : undefined}
                   />
                 )}
               </form.Field>
 
               {hasAbortUploadValue && (
-                <div className="mt-2 ml-6">
+                <div className="mt-2">
                   <form.Field name="abortDays">
                     {(field) => (
                       <TextInput
-                        label={t`Abort After Days`}
+                        label={t`Days until cleanup`}
                         id={field.name}
                         name={field.name}
                         type="number"
@@ -495,7 +508,6 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
                         min="1"
                         invalid={!!abortDaysError}
                         errortext={abortDaysError}
-                        helptext={t`Abort incomplete multipart uploads after this many days`}
                         required={true}
                       />
                     )}
@@ -506,17 +518,23 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
           </Stack>
         </Stack>
 
+        <Divider />
+
         {/* Status */}
         <form.Field name="Status">
           {(field) => (
-            <Checkbox
-              id={field.name}
-              name={field.name}
-              checked={field.state.value === "Enabled"}
-              onChange={(e) => field.handleChange(e.target.checked ? "Enabled" : "Disabled")}
-              label={t`Enable Rule`}
-              helptext={t`When enabled, this rule is actively applied to matching objects. Leave unchecked to save the rule without activating it.`}
-            />
+            <div>
+              <Checkbox
+                id={field.name}
+                name={field.name}
+                checked={field.state.value === "Enabled"}
+                onChange={(e) => field.handleChange(e.target.checked ? "Enabled" : "Disabled")}
+                label={t`Enable rule`}
+              />
+              <p className="juno-helptext mt-1 text-xs" style={{ color: "#7a7a7a" }}>
+                <Trans>Leave unchecked to save without activating.</Trans>
+              </p>
+            </div>
           )}
         </form.Field>
 

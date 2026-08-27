@@ -1,13 +1,6 @@
 import React from "react"
 import { useLingui } from "@lingui/react/macro"
-import {
-  Select,
-  SelectOption,
-  SortButton,
-  InputGroup,
-  SelectProps,
-  ButtonProps,
-} from "@cloudoperators/juno-ui-components"
+import { Select, SelectOption, SortButton, Stack, SelectProps, ButtonProps } from "@cloudoperators/juno-ui-components"
 import { SortOption } from "./types"
 
 export interface SortInputProps {
@@ -17,6 +10,8 @@ export interface SortInputProps {
   onSortDirectionChange: (direction: "asc" | "desc") => void
   options: SortOption[]
   selectClassName?: string
+  /** Passed through to the underlying Select. "auto" sizes the toggle to its content (use with a `min-w-*` selectClassName floor) instead of the default "full" width. */
+  selectWidth?: SelectProps["width"]
 }
 
 export const SortInput: React.FC<SortInputProps> = ({
@@ -26,11 +21,13 @@ export const SortInput: React.FC<SortInputProps> = ({
   onSortDirectionChange,
   options,
   selectClassName,
+  selectWidth,
 }) => {
   const { t } = useLingui()
 
   const getSelectProps = (): SelectProps & { "data-testid"?: string } => ({
     className: selectClassName,
+    width: selectWidth,
     onChange: onSortByChange,
     value: sortBy,
     "data-testid": "sort-select",
@@ -48,7 +45,7 @@ export const SortInput: React.FC<SortInputProps> = ({
   })
 
   return (
-    <InputGroup className="flex w-full items-end sm:w-auto">
+    <Stack gap="0.5" alignment="end" className="w-full sm:w-auto">
       <Select {...getSelectProps()}>
         {options.map((option) => (
           <SelectOption key={option.value} value={option.value}>
@@ -56,7 +53,7 @@ export const SortInput: React.FC<SortInputProps> = ({
           </SelectOption>
         ))}
       </Select>
-      <SortButton {...getSortButtonProps()} className="shadow-none" />
-    </InputGroup>
+      <SortButton {...getSortButtonProps()} />
+    </Stack>
   )
 }

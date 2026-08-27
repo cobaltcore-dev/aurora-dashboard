@@ -76,14 +76,14 @@ describe("LifecycleRuleForm", () => {
     test("renders all form fields", () => {
       renderForm()
       expect(screen.getByLabelText(/Rule ID/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Enable Rule/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Prefix Filter/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Enable rule/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Scope/i)).toBeInTheDocument()
     })
 
     test("defaults Status to Disabled for new rules", async () => {
       renderForm()
-      // Check that "Enable Rule" checkbox is unchecked (Status="Disabled")
-      const enableCheckbox = screen.getByLabelText(/Enable Rule/i)
+      // Check that "Enable rule" checkbox is unchecked (Status="Disabled")
+      const enableCheckbox = screen.getByLabelText(/Enable rule/i)
       expect(enableCheckbox).not.toBeChecked()
     })
   })
@@ -91,7 +91,7 @@ describe("LifecycleRuleForm", () => {
   describe("Item 23: Legacy Prefix handling", () => {
     test("loads legacy Prefix into form when Filter is absent", () => {
       renderForm({ editingRule: mockRuleWithLegacyPrefix })
-      const prefixInput = screen.getByLabelText(/Prefix Filter/i) as HTMLInputElement
+      const prefixInput = screen.getByLabelText(/Scope/i) as HTMLInputElement
       expect(prefixInput.value).toBe("legacy/")
     })
 
@@ -134,11 +134,11 @@ describe("LifecycleRuleForm", () => {
       renderForm({ editingRule: mockRuleWithDateExpiration, onSubmit: mockOnSubmit })
 
       // Expiration checkbox should be checked
-      const expirationCheckbox = screen.getByLabelText(/Expire Objects/i)
+      const expirationCheckbox = screen.getByLabelText(/Expire objects/i)
       expect(expirationCheckbox).toBeChecked()
 
       // Days field should be empty but form should be submittable
-      const daysInput = screen.getByLabelText(/Expiration Days/i) as HTMLInputElement
+      const daysInput = screen.getByLabelText(/Days until deletion/i) as HTMLInputElement
       expect(daysInput.value).toBe("")
 
       // Save button should NOT be disabled (item 24 fix)
@@ -177,7 +177,7 @@ describe("LifecycleRuleForm", () => {
       renderForm({ editingRule: mockRuleWithDateExpiration, onSubmit: mockOnSubmit })
 
       // Enter days value
-      const daysInput = screen.getByLabelText(/Expiration Days/i)
+      const daysInput = screen.getByLabelText(/Days until deletion/i)
       await user.clear(daysInput)
       await user.type(daysInput, "60")
 
@@ -200,8 +200,8 @@ describe("LifecycleRuleForm", () => {
       const mockOnSubmit = vi.fn()
       renderForm({ editingRule: mockRuleWithTransitions, onSubmit: mockOnSubmit })
 
-      // Change Status by unchecking "Enable Rule" checkbox
-      const enableCheckbox = screen.getByLabelText(/Enable Rule/i)
+      // Change Status by unchecking "Enable rule" checkbox
+      const enableCheckbox = screen.getByLabelText(/Enable rule/i)
       expect(enableCheckbox).toBeChecked() // Should be checked initially since rule is Enabled
       await user.click(enableCheckbox) // Uncheck to disable
 
@@ -239,9 +239,9 @@ describe("LifecycleRuleForm", () => {
       renderForm({ editingRule: ruleWithNewerNoncurrent, onSubmit: mockOnSubmit })
 
       // NoncurrentVersionExpiration should be pre-checked with days=90
-      const noncurrentCheckbox = screen.getByLabelText(/Expire Noncurrent Versions/i)
+      const noncurrentCheckbox = screen.getByLabelText(/Expire non-current versions/i)
       expect(noncurrentCheckbox).toBeChecked()
-      const noncurrentDaysInput = screen.getByLabelText(/Noncurrent Days/i)
+      const noncurrentDaysInput = screen.getByLabelText(/Days after becoming non-current/i)
       expect(noncurrentDaysInput).toHaveValue(90)
 
       // Change noncurrent days to 120
@@ -270,8 +270,8 @@ describe("LifecycleRuleForm", () => {
       const enabledRule = { ...mockRuleWithTransitions, Status: "Enabled" as const }
       renderForm({ editingRule: enabledRule, onSubmit: mockOnSubmit })
 
-      // "Enable Rule" checkbox should be checked initially since rule is Enabled
-      const enableCheckbox = screen.getByLabelText(/Enable Rule/i)
+      // "Enable rule" checkbox should be checked initially since rule is Enabled
+      const enableCheckbox = screen.getByLabelText(/Enable rule/i)
       expect(enableCheckbox).toBeChecked()
 
       // Uncheck to disable
@@ -295,35 +295,35 @@ describe("LifecycleRuleForm", () => {
       const user = userEvent.setup({ delay: null })
       renderForm()
 
-      const expirationCheckbox = screen.getByLabelText(/Expire Objects/i)
+      const expirationCheckbox = screen.getByLabelText(/Expire objects/i)
       expect(expirationCheckbox).not.toBeChecked()
 
       await user.click(expirationCheckbox)
 
       expect(expirationCheckbox).toBeChecked()
-      expect(screen.getByLabelText(/Expiration Days/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Days until deletion/i)).toBeInTheDocument()
     })
 
     test("allows toggling Noncurrent Version Expiration action", async () => {
       const user = userEvent.setup({ delay: null })
       renderForm()
 
-      const noncurrentCheckbox = screen.getByLabelText(/Expire Noncurrent Versions/i)
+      const noncurrentCheckbox = screen.getByLabelText(/Expire non-current versions/i)
       await user.click(noncurrentCheckbox)
 
       expect(noncurrentCheckbox).toBeChecked()
-      expect(screen.getByLabelText(/Noncurrent Days/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Days after becoming non-current/i)).toBeInTheDocument()
     })
 
-    test("allows toggling Abort Incomplete Multipart Uploads action", async () => {
+    test("allows toggling Abort incomplete multipart uploads action", async () => {
       const user = userEvent.setup({ delay: null })
       renderForm()
 
-      const abortCheckbox = screen.getByLabelText(/Abort Incomplete Multipart Uploads/i)
+      const abortCheckbox = screen.getByLabelText(/Abort incomplete multipart uploads/i)
       await user.click(abortCheckbox)
 
       expect(abortCheckbox).toBeChecked()
-      expect(screen.getByLabelText(/Abort After Days/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Days until cleanup/i)).toBeInTheDocument()
     })
   })
 
@@ -334,10 +334,10 @@ describe("LifecycleRuleForm", () => {
       renderForm({ onSubmit: mockOnSubmit })
 
       // Enable expiration action first
-      const expirationCheckbox = screen.getByLabelText(/Expire Objects/i)
+      const expirationCheckbox = screen.getByLabelText(/Expire objects/i)
       await user.click(expirationCheckbox)
 
-      const daysInput = screen.getByLabelText(/Expiration Days/i)
+      const daysInput = screen.getByLabelText(/Days until deletion/i)
       await user.type(daysInput, "30")
 
       // Add a tag
@@ -365,19 +365,34 @@ describe("LifecycleRuleForm", () => {
       expect(submittedRule.Filter.Tag).toEqual({ Key: "Environment", Value: "production" })
     })
 
+    test("allows adding a tag filter by pressing Enter", async () => {
+      const user = userEvent.setup({ delay: null })
+      renderForm({ onSubmit: vi.fn() })
+
+      const keyInput = screen.getByLabelText(/Key/i)
+      const valueInput = screen.getByLabelText(/Value/i)
+      await user.type(keyInput, "Environment")
+      await user.type(valueInput, "production{Enter}")
+
+      expect(screen.getByText("Environment")).toBeInTheDocument()
+      expect(screen.getByText("production")).toBeInTheDocument()
+      expect(keyInput).toHaveValue("")
+      expect(valueInput).toHaveValue("")
+    })
+
     test("uses And filter when prefix and tags are both present", async () => {
       const user = userEvent.setup({ delay: null })
       const mockOnSubmit = vi.fn()
       renderForm({ onSubmit: mockOnSubmit })
 
       // Enable expiration action
-      const expirationCheckbox = screen.getByLabelText(/Expire Objects/i)
+      const expirationCheckbox = screen.getByLabelText(/Expire objects/i)
       await user.click(expirationCheckbox)
-      const daysInput = screen.getByLabelText(/Expiration Days/i)
+      const daysInput = screen.getByLabelText(/Days until deletion/i)
       await user.type(daysInput, "30")
 
       // Add prefix
-      const prefixInput = screen.getByLabelText(/Prefix Filter/i)
+      const prefixInput = screen.getByLabelText(/Scope/i)
       await user.type(prefixInput, "logs/")
 
       // Add a tag
@@ -418,7 +433,7 @@ describe("LifecycleRuleForm", () => {
       const mockOnValidationChange = vi.fn()
       renderForm({ onValidationChange: mockOnValidationChange })
 
-      const expirationCheckbox = screen.getByLabelText(/Expire Objects/i)
+      const expirationCheckbox = screen.getByLabelText(/Expire objects/i)
       await user.click(expirationCheckbox)
 
       // After checking expiration without entering days, form should be invalid
@@ -432,10 +447,10 @@ describe("LifecycleRuleForm", () => {
       const mockOnValidationChange = vi.fn()
       renderForm({ onValidationChange: mockOnValidationChange })
 
-      const expirationCheckbox = screen.getByLabelText(/Expire Objects/i)
+      const expirationCheckbox = screen.getByLabelText(/Expire objects/i)
       await user.click(expirationCheckbox)
 
-      const daysInput = screen.getByLabelText(/Expiration Days/i)
+      const daysInput = screen.getByLabelText(/Days until deletion/i)
       await user.type(daysInput, "30")
 
       // After entering valid days, form should be valid

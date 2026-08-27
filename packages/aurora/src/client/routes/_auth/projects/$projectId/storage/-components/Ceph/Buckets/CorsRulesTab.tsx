@@ -226,7 +226,8 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
             options={sortSettings.options}
             sortBy={sortSettings.sortBy}
             sortDirection={sortSettings.sortDirection ?? "asc"}
-            selectClassName="min-w-40"
+            selectClassName="min-w-52"
+            selectWidth="auto"
             onSortByChange={(value) =>
               handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
             }

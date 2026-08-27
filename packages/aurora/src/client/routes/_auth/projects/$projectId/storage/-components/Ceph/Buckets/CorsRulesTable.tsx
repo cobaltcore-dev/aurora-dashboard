@@ -97,7 +97,7 @@ export function CorsRulesTable({
   return (
     <Stack direction="vertical" gap="4">
       {/* Rules Table */}
-      <DataGrid columns={8}>
+      <DataGrid columns={8} minContentColumns={[0, 7]}>
         <DataGridRow>
           <DataGridHeadCell>
             <span className="sr-only">
@@ -157,7 +157,7 @@ export function CorsRulesTable({
                     <PopupMenu>
                       <PopupMenuOptions>
                         <PopupMenuItem
-                          label={t`Edit`}
+                          label={t`Edit CORS Rule`}
                           onClick={() => onEditRule(originalIndex)}
                           disabled={effectiveIsMutating}
                         />
