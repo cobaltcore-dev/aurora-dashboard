@@ -2101,6 +2101,9 @@ msgstr "Loading versions..."
 msgid "Loading..."
 msgstr "Loading..."
 
+msgid "Log In"
+msgstr "Log In"
+
 msgid "MAC Address"
 msgstr "MAC Address"
 
@@ -2986,8 +2989,8 @@ msgstr "Server Role:"
 msgid "Services"
 msgstr "Services"
 
-msgid "Session Changed"
-msgstr "Session Changed"
+msgid "Session Expired"
+msgstr "Session Expired"
 
 msgid "Session expires in"
 msgstr "Session expires in"
@@ -3846,12 +3849,6 @@ msgstr "Your credentials are valid but you don't have permission to perform this
 
 msgid "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
 msgstr "Your S3 credentials are invalid or expired. Please try creating new credentials or contact your administrator."
-
-msgid "Your session context has changed, possibly because you switched domains in another browser tab. Please select a project from your current domain to continue."
-msgstr "Your session context has changed, possibly because you switched domains in another browser tab. Please select a project from your current domain to continue."
-
-msgid "Your session context has changed, possibly because you switched domains in another browser tab. Your current domain is {domainName}. Please select a project from your current domain to continue."
-msgstr "Your session context has changed, possibly because you switched domains in another browser tab. Your current domain is {domainName}. Please select a project from your current domain to continue."
 
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
