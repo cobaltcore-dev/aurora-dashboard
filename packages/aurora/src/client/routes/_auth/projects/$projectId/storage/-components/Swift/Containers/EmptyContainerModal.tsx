@@ -214,10 +214,9 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
                 ))}
                 {container.count > actualObjectCount && (
                   <div className="text-theme-light pt-2 text-sm">
-                    {(() => {
-                      const hiddenCount = container.count - actualObjectCount
-                      return <Trans>… and {hiddenCount} more</Trans>
-                    })()}
+                    <Trans>
+                      Showing first {actualObjectCount} of {container.count} objects
+                    </Trans>
                   </div>
                 )}
               </Stack>

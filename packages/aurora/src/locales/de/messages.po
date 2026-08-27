@@ -3018,6 +3018,10 @@ msgstr ""
 msgid "Showing {rulesLength} of {totalCount} rules"
 msgstr ""
 
+#. placeholder {0}: container.count
+msgid "Showing first {actualObjectCount} of {0} objects"
+msgstr ""
+
 msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 msgstr ""
 
