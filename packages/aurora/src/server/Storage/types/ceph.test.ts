@@ -44,6 +44,22 @@ import {
   getBucketPolicyOutputSchema,
   setBucketPolicyInputSchema,
   deleteBucketPolicyInputSchema,
+  // Lifecycle configuration schemas
+  lifecycleRuleStatusSchema,
+  lifecycleExpirationSchema,
+  lifecycleTransitionSchema,
+  lifecycleNoncurrentVersionExpirationSchema,
+  lifecycleNoncurrentVersionTransitionSchema,
+  lifecycleAbortIncompleteMultipartUploadSchema,
+  lifecycleTagSchema,
+  lifecycleFilterSchema,
+  lifecycleRuleSchema,
+  lifecycleRuleReadSchema,
+  lifecycleConfigurationSchema,
+  getLifecycleInputSchema,
+  getLifecycleOutputSchema,
+  setLifecycleInputSchema,
+  deleteLifecycleInputSchema,
 } from "./ceph"
 import { S3_PRESIGN_MAX_EXPIRY_SECONDS } from "../constants"
 
@@ -1165,6 +1181,656 @@ describe("Ceph Object Storage Schema Validation", () => {
       it("should accept a zero-byte object (e.g. folder marker)", () => {
         const input = { key: "documents/", size: 0 }
         expect(s3ObjectSchema.safeParse(input).success).toBe(true)
+      })
+    })
+  })
+
+  describe("Lifecycle Configuration Schemas", () => {
+    describe("lifecycleRuleStatusSchema", () => {
+      it("should accept Enabled status", () => {
+        expect(lifecycleRuleStatusSchema.safeParse("Enabled").success).toBe(true)
+      })
+
+      it("should accept Disabled status", () => {
+        expect(lifecycleRuleStatusSchema.safeParse("Disabled").success).toBe(true)
+      })
+
+      it("should reject invalid status", () => {
+        expect(lifecycleRuleStatusSchema.safeParse("Active").success).toBe(false)
+        expect(lifecycleRuleStatusSchema.safeParse("").success).toBe(false)
+      })
+    })
+
+    describe("lifecycleExpirationSchema", () => {
+      it("should accept Days expiration", () => {
+        const input = { Days: 30 }
+        expect(lifecycleExpirationSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept Date expiration", () => {
+        const input = { Date: "2024-12-31T00:00:00.000Z" }
+        expect(lifecycleExpirationSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept ExpiredObjectDeleteMarker", () => {
+        const input = { ExpiredObjectDeleteMarker: true }
+        expect(lifecycleExpirationSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject Days less than 1", () => {
+        const input = { Days: 0 }
+        expect(lifecycleExpirationSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject both Days and Date", () => {
+        const input = { Days: 30, Date: "2024-12-31T00:00:00.000Z" }
+        expect(lifecycleExpirationSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject Days with ExpiredObjectDeleteMarker", () => {
+        expect(
+          lifecycleExpirationSchema.safeParse({
+            Days: 30,
+            ExpiredObjectDeleteMarker: true,
+          }).success
+        ).toBe(false)
+      })
+
+      it("should reject Date with ExpiredObjectDeleteMarker", () => {
+        expect(
+          lifecycleExpirationSchema.safeParse({
+            Date: "2024-12-31T00:00:00.000Z",
+            ExpiredObjectDeleteMarker: true,
+          }).success
+        ).toBe(false)
+      })
+
+      it("should reject empty expiration object", () => {
+        const input = {}
+        expect(lifecycleExpirationSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject invalid ISO date", () => {
+        const input = { Date: "2024-12-31" } // Missing time
+        expect(lifecycleExpirationSchema.safeParse(input).success).toBe(false)
+      })
+    })
+
+    describe("lifecycleTransitionSchema", () => {
+      it("should accept Days with StorageClass", () => {
+        const input = { Days: 30, StorageClass: "GLACIER" }
+        expect(lifecycleTransitionSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept Date with StorageClass", () => {
+        const input = { Date: "2024-12-31T00:00:00.000Z", StorageClass: "STANDARD_IA" }
+        expect(lifecycleTransitionSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject transition without StorageClass", () => {
+        const input = { Days: 30 }
+        expect(lifecycleTransitionSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject transition with both Days and Date", () => {
+        const input = { Days: 30, Date: "2024-12-31T00:00:00.000Z", StorageClass: "GLACIER" }
+        expect(lifecycleTransitionSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject transition with neither Days nor Date", () => {
+        const input = { StorageClass: "GLACIER" }
+        expect(lifecycleTransitionSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject empty StorageClass", () => {
+        const input = { Days: 30, StorageClass: "" }
+        expect(lifecycleTransitionSchema.safeParse(input).success).toBe(false)
+      })
+    })
+
+    describe("lifecycleNoncurrentVersionExpirationSchema", () => {
+      it("should accept NoncurrentDays", () => {
+        const input = { NoncurrentDays: 90 }
+        expect(lifecycleNoncurrentVersionExpirationSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept NoncurrentDays with NewerNoncurrentVersions", () => {
+        const input = { NoncurrentDays: 90, NewerNoncurrentVersions: 3 }
+        expect(lifecycleNoncurrentVersionExpirationSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject NoncurrentDays less than 1", () => {
+        const input = { NoncurrentDays: 0 }
+        expect(lifecycleNoncurrentVersionExpirationSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject NewerNoncurrentVersions less than 1", () => {
+        const input = { NoncurrentDays: 90, NewerNoncurrentVersions: 0 }
+        expect(lifecycleNoncurrentVersionExpirationSchema.safeParse(input).success).toBe(false)
+      })
+    })
+
+    describe("lifecycleNoncurrentVersionTransitionSchema", () => {
+      it("should accept valid noncurrent version transition", () => {
+        const input = { NoncurrentDays: 30, StorageClass: "GLACIER" }
+        expect(lifecycleNoncurrentVersionTransitionSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept with NewerNoncurrentVersions", () => {
+        const input = { NoncurrentDays: 30, StorageClass: "GLACIER", NewerNoncurrentVersions: 5 }
+        expect(lifecycleNoncurrentVersionTransitionSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject without StorageClass", () => {
+        const input = { NoncurrentDays: 30 }
+        expect(lifecycleNoncurrentVersionTransitionSchema.safeParse(input).success).toBe(false)
+      })
+    })
+
+    describe("lifecycleAbortIncompleteMultipartUploadSchema", () => {
+      it("should accept DaysAfterInitiation", () => {
+        const input = { DaysAfterInitiation: 7 }
+        expect(lifecycleAbortIncompleteMultipartUploadSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject DaysAfterInitiation less than 1", () => {
+        const input = { DaysAfterInitiation: 0 }
+        expect(lifecycleAbortIncompleteMultipartUploadSchema.safeParse(input).success).toBe(false)
+      })
+    })
+
+    describe("lifecycleTagSchema", () => {
+      it("should accept valid tag", () => {
+        const input = { Key: "Environment", Value: "Production" }
+        expect(lifecycleTagSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject Key over 128 characters", () => {
+        const input = { Key: "a".repeat(129), Value: "test" }
+        expect(lifecycleTagSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject Value over 256 characters", () => {
+        const input = { Key: "test", Value: "a".repeat(257) }
+        expect(lifecycleTagSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject empty Key", () => {
+        const input = { Key: "", Value: "test" }
+        expect(lifecycleTagSchema.safeParse(input).success).toBe(false)
+      })
+    })
+
+    describe("lifecycleFilterSchema", () => {
+      it("should accept empty filter (applies to all objects)", () => {
+        const input = {}
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept Prefix only", () => {
+        const input = { Prefix: "logs/" }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept Tag only", () => {
+        const input = { Tag: { Key: "Environment", Value: "Dev" } }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept ObjectSizeGreaterThan only", () => {
+        const input = { ObjectSizeGreaterThan: 1024 }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept ObjectSizeLessThan only", () => {
+        const input = { ObjectSizeLessThan: 1048576 }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept And with multiple conditions", () => {
+        const input = {
+          And: {
+            Prefix: "logs/",
+            Tags: [{ Key: "Type", Value: "Archive" }],
+            ObjectSizeGreaterThan: 1024,
+          },
+        }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept And with 2 predicates (minimum)", () => {
+        const input = {
+          And: {
+            Prefix: "logs/",
+            Tags: [{ Key: "Type", Value: "Archive" }],
+          },
+        }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject And with only 1 predicate", () => {
+        const input = {
+          And: {
+            Tags: [{ Key: "Type", Value: "Archive" }],
+          },
+        }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should accept And with 2+ tags and nothing else", () => {
+        const input = {
+          And: {
+            Tags: [
+              { Key: "Type", Value: "Archive" },
+              { Key: "Team", Value: "Platform" },
+            ],
+          },
+        }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject And with empty Tags array (counts as 0 predicates)", () => {
+        const input = {
+          And: {
+            Prefix: "logs/",
+            Tags: [],
+          },
+        }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject multiple top-level conditions without And", () => {
+        const input = {
+          Prefix: "logs/",
+          Tag: { Key: "Environment", Value: "Dev" },
+        }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject And with top-level conditions", () => {
+        const input = {
+          Prefix: "logs/",
+          And: {
+            Tags: [{ Key: "Type", Value: "Archive" }],
+          },
+        }
+        expect(lifecycleFilterSchema.safeParse(input).success).toBe(false)
+      })
+    })
+
+    describe("lifecycleRuleSchema", () => {
+      it("should accept rule with Expiration", () => {
+        const input = {
+          ID: "delete-old-logs",
+          Status: "Enabled",
+          Filter: { Prefix: "logs/" },
+          Expiration: { Days: 30 },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept rule with Transition", () => {
+        const input = {
+          ID: "archive-old-data",
+          Status: "Enabled",
+          Transitions: [{ Days: 90, StorageClass: "GLACIER" }],
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept rule with multiple Transitions", () => {
+        const input = {
+          ID: "multi-tier-archive",
+          Status: "Enabled",
+          Transitions: [
+            { Days: 30, StorageClass: "STANDARD_IA" },
+            { Days: 90, StorageClass: "GLACIER" },
+          ],
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept rule with NoncurrentVersionExpiration", () => {
+        const input = {
+          Status: "Enabled",
+          NoncurrentVersionExpiration: { NoncurrentDays: 90 },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept rule with AbortIncompleteMultipartUpload", () => {
+        const input = {
+          Status: "Enabled",
+          AbortIncompleteMultipartUpload: { DaysAfterInitiation: 7 },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept rule with multiple actions", () => {
+        const input = {
+          ID: "comprehensive-lifecycle",
+          Status: "Enabled",
+          Filter: { Prefix: "data/" },
+          Expiration: { Days: 365 },
+          Transitions: [{ Days: 90, StorageClass: "GLACIER" }],
+          NoncurrentVersionExpiration: { NoncurrentDays: 90 },
+          AbortIncompleteMultipartUpload: { DaysAfterInitiation: 7 },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject rule without any actions", () => {
+        const input = {
+          ID: "no-actions",
+          Status: "Enabled",
+          Filter: { Prefix: "logs/" },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject rule with empty Transitions array", () => {
+        const input = {
+          Status: "Enabled",
+          Transitions: [],
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject ID over 255 characters", () => {
+        const input = {
+          ID: "a".repeat(256),
+          Status: "Enabled",
+          Expiration: { Days: 30 },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should accept rule without ID", () => {
+        const input = {
+          Status: "Enabled",
+          Expiration: { Days: 30 },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept rule without Filter (applies to all objects)", () => {
+        const input = {
+          Status: "Enabled",
+          Expiration: { Days: 30 },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept legacy Prefix field", () => {
+        const input = {
+          ID: "legacy-rule",
+          Status: "Enabled",
+          Prefix: "logs/",
+          Expiration: { Days: 30 },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject both Filter and legacy Prefix set", () => {
+        const input = {
+          ID: "conflict",
+          Status: "Enabled",
+          Prefix: "logs/",
+          Filter: { Prefix: "data/" },
+          Expiration: { Days: 30 },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject ExpiredObjectDeleteMarker with tag filter", () => {
+        const input = {
+          Status: "Enabled",
+          Filter: { Tag: { Key: "Type", Value: "log" } },
+          Expiration: { ExpiredObjectDeleteMarker: true },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject ExpiredObjectDeleteMarker with And.Tags", () => {
+        const input = {
+          Status: "Enabled",
+          Filter: {
+            And: {
+              Prefix: "data/",
+              Tags: [{ Key: "Environment", Value: "prod" }],
+            },
+          },
+          Expiration: { ExpiredObjectDeleteMarker: true },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should accept ExpiredObjectDeleteMarker with prefix-only filter", () => {
+        const input = {
+          Status: "Enabled",
+          Filter: { Prefix: "logs/" },
+          Expiration: { ExpiredObjectDeleteMarker: true },
+        }
+        expect(lifecycleRuleSchema.safeParse(input).success).toBe(true)
+      })
+    })
+
+    describe("lifecycleRuleReadSchema", () => {
+      it("should accept any valid structure (lenient)", () => {
+        const input = {
+          ID: "test",
+          Status: "Enabled",
+          Expiration: { Days: 30 },
+        }
+        expect(lifecycleRuleReadSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept rules with unknown status values", () => {
+        const input = {
+          Status: "CustomStatus",
+          Expiration: { Days: 30 },
+        }
+        expect(lifecycleRuleReadSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept rules with any filter structure", () => {
+        const input = {
+          Status: "Enabled",
+          Filter: { CustomField: "value" },
+          Expiration: { Days: 30 },
+        }
+        expect(lifecycleRuleReadSchema.safeParse(input).success).toBe(true)
+      })
+    })
+
+    describe("lifecycleConfigurationSchema", () => {
+      it("should accept configuration with one rule", () => {
+        const input = {
+          Rules: [
+            {
+              ID: "delete-old-logs",
+              Status: "Enabled",
+              Expiration: { Days: 30 },
+            },
+          ],
+        }
+        expect(lifecycleConfigurationSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept configuration with multiple rules", () => {
+        const input = {
+          Rules: [
+            {
+              ID: "delete-logs",
+              Status: "Enabled",
+              Filter: { Prefix: "logs/" },
+              Expiration: { Days: 30 },
+            },
+            {
+              ID: "archive-data",
+              Status: "Enabled",
+              Filter: { Prefix: "archive/" },
+              Transitions: [{ Days: 90, StorageClass: "GLACIER" }],
+            },
+          ],
+        }
+        expect(lifecycleConfigurationSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject configuration with no rules", () => {
+        const input = { Rules: [] }
+        expect(lifecycleConfigurationSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject configuration with over 100 rules", () => {
+        const rules = Array.from({ length: 101 }, (_, i) => ({
+          ID: `rule-${i}`,
+          Status: "Enabled",
+          Expiration: { Days: 30 },
+        }))
+        const input = { Rules: rules }
+        expect(lifecycleConfigurationSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should accept configuration with 100 rules", () => {
+        const rules = Array.from({ length: 100 }, (_, i) => ({
+          ID: `rule-${i}`,
+          Status: "Enabled",
+          Expiration: { Days: 30 },
+        }))
+        const input = { Rules: rules }
+        expect(lifecycleConfigurationSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject configuration with duplicate rule IDs", () => {
+        const input = {
+          Rules: [
+            {
+              ID: "same-id",
+              Status: "Enabled",
+              Expiration: { Days: 30 },
+            },
+            {
+              ID: "same-id",
+              Status: "Enabled",
+              Expiration: { Days: 60 },
+            },
+          ],
+        }
+        expect(lifecycleConfigurationSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should accept configuration with undefined IDs (no conflict)", () => {
+        const input = {
+          Rules: [
+            {
+              Status: "Enabled",
+              Expiration: { Days: 30 },
+            },
+            {
+              Status: "Enabled",
+              Expiration: { Days: 60 },
+            },
+          ],
+        }
+        expect(lifecycleConfigurationSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept configuration with empty string IDs (not counted as duplicate)", () => {
+        const input = {
+          Rules: [
+            {
+              ID: "",
+              Status: "Enabled",
+              Expiration: { Days: 30 },
+            },
+            {
+              ID: "",
+              Status: "Enabled",
+              Expiration: { Days: 60 },
+            },
+          ],
+        }
+        expect(lifecycleConfigurationSchema.safeParse(input).success).toBe(true)
+      })
+    })
+
+    describe("getLifecycleInputSchema", () => {
+      it("should accept valid input", () => {
+        const input = { project_id: projectId, bucketName }
+        expect(getLifecycleInputSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject without project_id", () => {
+        const input = { bucketName }
+        expect(getLifecycleInputSchema.safeParse(input).success).toBe(false)
+      })
+
+      it("should reject without bucketName", () => {
+        const input = { project_id: projectId }
+        expect(getLifecycleInputSchema.safeParse(input).success).toBe(false)
+      })
+    })
+
+    describe("getLifecycleOutputSchema", () => {
+      it("should accept null rules", () => {
+        const input = { rules: null, skippedRuleCount: 0 }
+        expect(getLifecycleOutputSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept empty rules array", () => {
+        const input = { rules: [], skippedRuleCount: 0 }
+        expect(getLifecycleOutputSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should accept rules array", () => {
+        const input = {
+          rules: [
+            {
+              ID: "test",
+              Status: "Enabled",
+              Expiration: { Days: 30 },
+            },
+          ],
+          skippedRuleCount: 0,
+        }
+        expect(getLifecycleOutputSchema.safeParse(input).success).toBe(true)
+      })
+    })
+
+    describe("setLifecycleInputSchema", () => {
+      it("should accept valid input with lifecycle configuration", () => {
+        const input = {
+          project_id: projectId,
+          bucketName,
+          lifecycleConfiguration: {
+            Rules: [
+              {
+                ID: "delete-old-logs",
+                Status: "Enabled",
+                Expiration: { Days: 30 },
+              },
+            ],
+          },
+        }
+        expect(setLifecycleInputSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject without lifecycleConfiguration", () => {
+        const input = { project_id: projectId, bucketName }
+        expect(setLifecycleInputSchema.safeParse(input).success).toBe(false)
+      })
+    })
+
+    describe("deleteLifecycleInputSchema", () => {
+      it("should accept valid input", () => {
+        const input = { project_id: projectId, bucketName }
+        expect(deleteLifecycleInputSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject without bucketName", () => {
+        const input = { project_id: projectId }
+        expect(deleteLifecycleInputSchema.safeParse(input).success).toBe(false)
       })
     })
   })

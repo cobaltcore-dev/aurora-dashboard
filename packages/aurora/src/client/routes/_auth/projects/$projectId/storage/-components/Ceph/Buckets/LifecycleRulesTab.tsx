@@ -23,41 +23,41 @@ import { useProjectId } from "@/client/hooks/useProjectId"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
-import { CorsRulesTable } from "./CorsRulesTable"
-import { CorsRuleModal } from "./CorsRuleModal"
-import { DeleteCorsRulesModal } from "./DeleteCorsRulesModal"
+import { LifecycleRulesTable } from "./LifecycleRulesTable"
+import { LifecycleRuleModal } from "./LifecycleRuleModal"
+import { DeleteLifecycleRulesModal } from "./DeleteLifecycleRulesModal"
 import {
-  getCorsSavedToast,
-  getCorsSaveErrorToast,
-  getCorsRulesDeletedToast,
-  getCorsRulesDeleteErrorToast,
+  getLifecycleSavedToast,
+  getLifecycleSaveErrorToast,
+  getLifecycleRulesDeletedToast,
+  getLifecycleRulesDeleteErrorToast,
 } from "./BucketToastNotifications"
-import type { CorsRuleRead } from "@/server/Storage/types/ceph"
+import type { LifecycleRuleRead } from "@/server/Storage/types/ceph"
 
-interface CorsRulesTabProps {
+interface LifecycleRulesTabProps {
   bucketName: string
 }
 
 /**
- * CORS Rules tab container
+ * Lifecycle Rules tab container
  *
- * Manages CORS configuration for a Ceph bucket with full CRUD operations.
+ * Manages lifecycle configuration for a Ceph bucket with full CRUD operations.
  * Each operation (add/edit/delete) immediately updates the server configuration.
  */
-export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
+export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
   const navigate = useNavigate({ from: Route.fullPath })
 
   // Sort and search state are persisted in the URL
-  const { corsSortBy, corsSortDirection, corsSearch = "" } = Route.useSearch()
+  const { lifecycleSortBy, lifecycleSortDirection, lifecycleSearch = "" } = Route.useSearch()
 
   // Server state
   const {
-    data: corsData,
+    data: lifecycleData,
     isLoading,
     error,
-  } = trpcReact.storage.ceph.cors.get.useQuery(
+  } = trpcReact.storage.ceph.lifecycle.get.useQuery(
     {
       project_id: projectId,
       bucketName,
@@ -84,35 +84,31 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   const sortSettings: SortSettings = {
     options: [
       { label: t`Rule ID`, value: "ID" },
-      { label: t`Allowed Origins`, value: "AllowedOrigins" },
-      { label: t`Allowed Methods`, value: "AllowedMethods" },
-      { label: t`Allowed Headers`, value: "AllowedHeaders" },
-      { label: t`Expose Headers`, value: "ExposeHeaders" },
-      { label: t`Max Age`, value: "MaxAgeSeconds" },
+      { label: t`Status`, value: "Status" },
+      { label: t`Expiration`, value: "Expiration" },
     ],
-    sortBy: corsSortBy ?? "ID",
-    sortDirection: corsSortDirection ?? "asc",
+    sortBy: lifecycleSortBy ?? "ID",
+    sortDirection: lifecycleSortDirection ?? "asc",
   }
 
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const value = typeof term === "string" ? term : ""
     startTransition(() => {
       navigate({
-        search: (prev) => ({ ...prev, corsSearch: value || undefined }),
+        search: (prev) => ({ ...prev, lifecycleSearch: value || undefined }),
       })
     })
   }
 
   const handleSortChange = (newSortSettings: SortSettings) => {
-    const resolvedSortBy = (newSortSettings.sortBy?.toString() || "ID") as
-      "ID" | "AllowedOrigins" | "AllowedMethods" | "AllowedHeaders" | "ExposeHeaders" | "MaxAgeSeconds"
+    const resolvedSortBy = (newSortSettings.sortBy?.toString() || "ID") as "ID" | "Status" | "Expiration"
     const resolvedDirection = (newSortSettings.sortDirection || "asc") as "asc" | "desc"
     startTransition(() => {
       navigate({
         search: (prev) => ({
           ...prev,
-          corsSortBy: resolvedSortBy,
-          corsSortDirection: resolvedDirection,
+          lifecycleSortBy: resolvedSortBy,
+          lifecycleSortDirection: resolvedDirection,
         }),
       })
     })
@@ -152,48 +148,50 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   }
 
   // Current rules from server
-  const rules = corsData?.corsRules ?? []
+  const rules = lifecycleData?.rules ?? []
+
+  // Rules that failed to map/validate on read (see lifecycleRouter's `get`). `set` is a full replace,
+  // so mutating while some rules are unreadable would silently delete them on the next save  block
+  // all mutating actions until they're fixed with an external tool.
+  const skippedRuleCount = lifecycleData?.skippedRuleCount ?? 0
+  const mutationsBlocked = skippedRuleCount > 0
+
+  interface RuleWithOriginalIndex {
+    rule: LifecycleRuleRead
+    originalIndex: number
+  }
 
   // Sort rules based on sort settings
-  const sortRules = (rules: CorsRuleRead[]): CorsRuleRead[] => {
-    return [...rules].sort((a, b) => {
+  const sortRules = (items: RuleWithOriginalIndex[]): RuleWithOriginalIndex[] => {
+    return [...items].sort((a, b) => {
       let comparison: number
 
-      switch (corsSortBy ?? "ID") {
+      switch (lifecycleSortBy ?? "ID") {
         case "ID":
-          comparison = (a.ID || "").localeCompare(b.ID || "")
+          comparison = (a.rule.ID || "").localeCompare(b.rule.ID || "")
           break
-        case "AllowedOrigins":
-          comparison = a.AllowedOrigins.join(", ").localeCompare(b.AllowedOrigins.join(", "))
+        case "Status":
+          comparison = a.rule.Status.localeCompare(b.rule.Status)
           break
-        case "AllowedMethods":
-          comparison = a.AllowedMethods.join(", ").localeCompare(b.AllowedMethods.join(", "))
-          break
-        case "AllowedHeaders":
-          comparison = (a.AllowedHeaders || []).join(", ").localeCompare((b.AllowedHeaders || []).join(", "))
-          break
-        case "ExposeHeaders":
-          comparison = (a.ExposeHeaders || []).join(", ").localeCompare((b.ExposeHeaders || []).join(", "))
-          break
-        case "MaxAgeSeconds":
-          comparison = (a.MaxAgeSeconds ?? -1) - (b.MaxAgeSeconds ?? -1)
+        case "Expiration":
+          comparison = (a.rule.Expiration?.Days ?? -1) - (b.rule.Expiration?.Days ?? -1)
           break
         default:
-          comparison = (a.ID || "").localeCompare(b.ID || "")
+          comparison = (a.rule.ID || "").localeCompare(b.rule.ID || "")
       }
 
-      return (corsSortDirection ?? "asc") === "desc" ? -comparison : comparison
+      return (lifecycleSortDirection ?? "asc") === "desc" ? -comparison : comparison
     })
   }
 
-  // Filter rules based on search term (by Rule ID)
-  const filteredRulesWithIndices = sortRules(rules)
-    .map((rule) => ({ rule, originalIndex: rules.indexOf(rule) }))
-    .filter(({ rule }) => {
-      if (!corsSearch) return true
-      const ruleId = rule.ID || ""
-      return ruleId.toLowerCase().includes(corsSearch.toLowerCase())
-    })
+  const rulesWithOriginalIndices = rules.map((rule, originalIndex) => ({
+    rule,
+    originalIndex,
+  }))
+  const filteredRulesWithIndices = sortRules(rulesWithOriginalIndices).filter(({ rule }) => {
+    if (!lifecycleSearch) return true
+    return (rule.ID || "").toLowerCase().includes(lifecycleSearch.toLowerCase())
+  })
 
   // Get indices of filtered rules for select-all logic
   const filteredIndices = filteredRulesWithIndices.map(({ originalIndex }) => originalIndex)
@@ -211,7 +209,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
 
   if (error) {
     return (
-      <Message variant="error" title={t`Failed to load CORS configuration`}>
+      <Message variant="error" title={t`Failed to load lifecycle configuration`}>
         {error.message}
       </Message>
     )
@@ -226,16 +224,15 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
             options={sortSettings.options}
             sortBy={sortSettings.sortBy}
             sortDirection={sortSettings.sortDirection ?? "asc"}
-            selectClassName="min-w-52"
-            selectWidth="auto"
+            selectClassName="w-40"
             onSortByChange={(value) =>
               handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
             }
             onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
           />
         </Stack>
-        <Button variant="primary" onClick={handleAddRule}>
-          <Trans>Create CORS Rule</Trans>
+        <Button variant="primary" onClick={handleAddRule} disabled={mutationsBlocked}>
+          <Trans>Create Lifecycle Rule</Trans>
         </Button>
       </Stack>
 
@@ -244,9 +241,9 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
         <Stack direction="vertical" gap="2">
           <Stack distribution="end" alignment="center">
             <SearchInput
-              placeholder={t`Search CORS rules...`}
-              data-testid="cors-rules-searchbar"
-              value={corsSearch}
+              placeholder={t`Search lifecycle rules...`}
+              data-testid="lifecycle-rules-searchbar"
+              value={lifecycleSearch}
               onInput={(e) => {
                 const v = e.currentTarget.value
                 handleSearchChange(v)
@@ -268,14 +265,24 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
               />
               <PopupMenu className="flex items-center">
                 <PopupMenuToggle as="div">
-                  <Button disabled={selectedIndices.length === 0} size="small" icon="moreVert" label={t`Actions`} />
+                  <Button
+                    disabled={selectedIndices.length === 0 || mutationsBlocked}
+                    size="small"
+                    icon="moreVert"
+                    label={t`Actions`}
+                  />
                 </PopupMenuToggle>
-                {selectedIndices.length > 0 && (
+                {selectedIndices.length > 0 && !mutationsBlocked && (
                   <PopupMenuOptions>
                     <PopupMenuItem
-                      label={i18n._(plural(selectedIndices.length, { one: "Delete # Rule", other: "Delete # Rules" }))}
+                      label={i18n._(
+                        plural(selectedIndices.length, {
+                          one: "Delete # Lifecycle Rule",
+                          other: "Delete # Lifecycle Rules",
+                        })
+                      )}
                       onClick={handleBulkDelete}
-                      data-testid="bulk-delete-rules-action"
+                      data-testid="bulk-delete-lifecycle-rules-action"
                     />
                   </PopupMenuOptions>
                 )}
@@ -289,19 +296,19 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
       </DataGridToolbar>
 
       {/* Table */}
-      <CorsRulesTable
+      <LifecycleRulesTable
         bucketName={bucketName}
         rulesWithIndices={filteredRulesWithIndices}
         selectedIndices={selectedIndices}
         onToggleSelectRule={handleToggleSelectRule}
         onEditRule={handleEditRule}
         onDeleteRule={handleDeleteRule}
-        isMutating={isRuleModalMutating || isBulkDeleteMutating}
-        isFiltered={!!corsSearch}
+        isMutating={isRuleModalMutating || isBulkDeleteMutating || mutationsBlocked}
+        isFiltered={!!lifecycleSearch}
       />
 
       {/* Bulk delete rules modal */}
-      <DeleteCorsRulesModal
+      <DeleteLifecycleRulesModal
         isOpen={isBulkDeleteModalOpen}
         bucketName={bucketName}
         ruleIndices={selectedIndices}
@@ -310,18 +317,18 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
         onSuccess={(bucketName, count) => {
           setIsBulkDeleteModalOpen(false)
           setSelectedIndices([])
-          const { message, ...options } = getCorsRulesDeletedToast(bucketName, count)
+          const { message, ...options } = getLifecycleRulesDeletedToast(bucketName, count)
           toast.success(message, options)
         }}
         onError={(bucketName, errorMessage, count) => {
-          const { message, ...options } = getCorsRulesDeleteErrorToast(bucketName, count, errorMessage)
+          const { message, ...options } = getLifecycleRulesDeleteErrorToast(bucketName, count, errorMessage)
           toast.error(message, options)
         }}
         onMutatingChange={setIsBulkDeleteMutating}
       />
 
       {/* Add/Edit rule modal */}
-      <CorsRuleModal
+      <LifecycleRuleModal
         isOpen={isRuleModalOpen}
         bucketName={bucketName}
         editingIndex={editingRuleIndex}
@@ -332,11 +339,11 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
         onSuccess={(bucketName) => {
           setIsRuleModalOpen(false)
           setEditingRuleIndex(null)
-          const { message, ...options } = getCorsSavedToast(bucketName)
+          const { message, ...options } = getLifecycleSavedToast(bucketName)
           toast.success(message, options)
         }}
         onError={(bucketName, errorMessage) => {
-          const { message, ...options } = getCorsSaveErrorToast(bucketName, errorMessage)
+          const { message, ...options } = getLifecycleSaveErrorToast(bucketName, errorMessage)
           toast.error(message, options)
         }}
         onMutatingChange={setIsRuleModalMutating}

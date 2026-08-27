@@ -743,3 +743,435 @@ export type CorsRule = z.infer<typeof corsRuleSchema>
 export type CorsRuleRead = z.infer<typeof corsRuleReadSchema>
 export type CorsConfiguration = z.infer<typeof corsConfigurationSchema>
 export type GetCorsOutput = z.infer<typeof getCorsOutputSchema>
+
+// ============================================================================
+// LIFECYCLE CONFIGURATION SCHEMAS
+// ============================================================================
+
+/**
+ * S3 Lifecycle Configuration - automated object lifecycle management.
+ *
+ * Lifecycle rules define:
+ *   - When to expire (delete) objects
+ *   - When to transition objects to different storage classes
+ *   - How to handle noncurrent versions in versioned buckets
+ *   - How to clean up incomplete multipart uploads
+ *
+ * Common use cases:
+ *   - Auto-delete old logs after N days
+ *   - Move infrequently accessed data to cheaper storage
+ *   - Clean up incomplete uploads
+ *   - Expire noncurrent versions in versioned buckets
+ *
+ * @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html
+ * @see https://docs.ceph.com/en/latest/radosgw/s3/bucketops/#put-bucket-lifecycle
+ */
+
+/**
+ * Lifecycle rule status - controls whether the rule is active
+ */
+export const lifecycleRuleStatusSchema = z.enum(["Enabled", "Disabled"])
+
+/**
+ * Expiration action - when/how objects expire (are deleted).
+ *
+ * Only ONE of the following can be set per rule:
+ * - Days: expire after N days from creation
+ * - Date: expire on a specific date
+ * - ExpiredObjectDeleteMarker: clean up expired object delete markers (versioned buckets)
+ */
+export const lifecycleExpirationSchema = z
+  .object({
+    Days: z.number().int().min(1).max(3650).optional(), // Expire after N days from object creation
+    Date: z.string().datetime({ offset: true }).optional(), // Expire on specific date (ISO 8601)
+    ExpiredObjectDeleteMarker: z.boolean().optional(), // Remove expired delete markers (versioning)
+  })
+  .refine((val) => {
+    // Must have at least one field set
+    return val.Days !== undefined || val.Date !== undefined || val.ExpiredObjectDeleteMarker !== undefined
+  }, "Expiration must specify either Days, Date, or ExpiredObjectDeleteMarker")
+  .refine((val) => {
+    // Cannot have both Days and Date
+    return !(val.Days !== undefined && val.Date !== undefined)
+  }, "Expiration cannot specify both Days and Date")
+  .refine(
+    (val) => !(val.ExpiredObjectDeleteMarker !== undefined && (val.Days !== undefined || val.Date !== undefined)),
+    "ExpiredObjectDeleteMarker cannot be combined with Days or Date"
+  )
+
+/**
+ * Transition action - move objects to different storage class.
+ *
+ * Common storage classes:
+ * - STANDARD: default, frequently accessed
+ * - STANDARD_IA: infrequent access, lower cost
+ * - GLACIER: archive, very low cost
+ * - DEEP_ARCHIVE: long-term archive, lowest cost
+ *
+ * Requires either Days or Date (not both).
+ */
+export const lifecycleTransitionSchema = z
+  .object({
+    Days: z.number().int().min(1).optional(), // Transition after N days from creation
+    Date: z.string().datetime({ offset: true }).optional(), // Transition on specific date
+    StorageClass: z.string().min(1), // Target storage class (STANDARD_IA, GLACIER, etc.)
+  })
+  .refine((val) => {
+    // Must have exactly one of Days or Date
+    return (val.Days !== undefined) !== (val.Date !== undefined) // XOR
+  }, "Transition must specify exactly one of Days or Date")
+
+/**
+ * Noncurrent version expiration - delete old versions after N days.
+ *
+ * Only applies to versioned buckets. Used to automatically clean up
+ * old versions to save storage space.
+ */
+export const lifecycleNoncurrentVersionExpirationSchema = z.object({
+  NoncurrentDays: z.number().int().min(1), // Delete noncurrent versions after N days
+  NewerNoncurrentVersions: z.number().int().min(1).optional(), // Keep at most N noncurrent versions
+})
+
+/**
+ * Noncurrent version transition - move old versions to different storage class.
+ *
+ * Only applies to versioned buckets. Move old versions to cheaper storage
+ * classes instead of deleting them immediately.
+ */
+export const lifecycleNoncurrentVersionTransitionSchema = z.object({
+  NoncurrentDays: z.number().int().min(1), // Transition noncurrent versions after N days
+  StorageClass: z.string().min(1), // Target storage class
+  NewerNoncurrentVersions: z.number().int().min(1).optional(), // Keep at most N noncurrent versions
+})
+
+/**
+ * Abort incomplete multipart upload - clean up abandoned uploads.
+ *
+ * Incomplete multipart uploads consume storage and cost money. This action
+ * automatically aborts (deletes) uploads that haven't completed after N days.
+ */
+export const lifecycleAbortIncompleteMultipartUploadSchema = z.object({
+  DaysAfterInitiation: z.number().int().min(1), // Abort uploads after N days
+})
+
+/**
+ * Lifecycle rule filter - scope what objects a rule applies to.
+ *
+ * A filter can specify:
+ * - Prefix: apply to objects with this key prefix (e.g., "logs/")
+ * - Tag: apply to objects with this tag (Key=Value)
+ * - ObjectSizeGreaterThan: apply to objects larger than N bytes
+ * - ObjectSizeLessThan: apply to objects smaller than N bytes
+ * - And: combine multiple conditions (all must match)
+ *
+ * S3 requires that if multiple conditions are present, they must be wrapped in an And.
+ * We enforce this constraint through Zod validation.
+ */
+export const lifecycleTagSchema = z.object({
+  Key: z.string().min(1).max(128),
+  Value: z.string().max(256),
+})
+
+export const lifecycleFilterAndSchema = z
+  .object({
+    Prefix: z.string().optional(),
+    Tags: z.array(lifecycleTagSchema).optional(),
+    ObjectSizeGreaterThan: z.number().int().min(0).optional(),
+    ObjectSizeLessThan: z.number().int().min(0).optional(),
+  })
+  .refine(
+    (val) => {
+      // Count predicates inside And — each tag counts individually
+      const predicateCount =
+        (val.Prefix !== undefined && val.Prefix !== "" ? 1 : 0) +
+        (val.Tags?.length ?? 0) +
+        (val.ObjectSizeGreaterThan !== undefined ? 1 : 0) +
+        (val.ObjectSizeLessThan !== undefined ? 1 : 0)
+
+      // And combinator only makes sense for 2+ predicates
+      return predicateCount >= 2
+    },
+    {
+      message: "And filter must contain at least 2 predicates",
+    }
+  )
+
+export const lifecycleFilterSchema = z
+  .object({
+    Prefix: z.string().optional(),
+    Tag: lifecycleTagSchema.optional(),
+    ObjectSizeGreaterThan: z.number().int().min(0).optional(),
+    ObjectSizeLessThan: z.number().int().min(0).optional(),
+    And: lifecycleFilterAndSchema.optional(),
+  })
+  .refine(
+    (val) => {
+      // Count how many top-level conditions are present (excluding And)
+      const topLevelConditions = [
+        val.Prefix !== undefined,
+        val.Tag !== undefined,
+        val.ObjectSizeGreaterThan !== undefined,
+        val.ObjectSizeLessThan !== undefined,
+      ].filter(Boolean).length
+
+      // If 2+ top-level conditions, must use And
+      if (topLevelConditions > 1) {
+        return false
+      }
+
+      // If And is present, top-level conditions must not be
+      if (val.And && topLevelConditions > 0) {
+        return false
+      }
+
+      return true
+    },
+    {
+      message: "Multiple filter conditions (Prefix, Tag, ObjectSize) must be wrapped in an And clause",
+    }
+  )
+
+/**
+ * Lifecycle rule - defines actions to take on objects over time.
+ *
+ * A rule must have:
+ * - Unique ID (optional but recommended)
+ * - Status: Enabled or Disabled
+ * - Filter: which objects the rule applies to (optional = all objects)
+ * - At least one action (Expiration, Transition, etc.)
+ *
+ * Validation rules:
+ * - ID: max 255 characters
+ * - Must have at least one action
+ * - Transitions must be ordered by increasing days (STANDARD -> IA -> GLACIER)
+ */
+export const lifecycleRuleSchema = z
+  .object({
+    ID: z.string().max(255, "Rule ID must be at most 255 characters").optional(),
+    Status: lifecycleRuleStatusSchema,
+    Prefix: z.string().optional(), // Legacy v1 prefix field (deprecated, use Filter.Prefix instead)
+    Filter: lifecycleFilterSchema.optional(),
+    Expiration: lifecycleExpirationSchema.optional(),
+    Transitions: z.array(lifecycleTransitionSchema).optional(),
+    NoncurrentVersionExpiration: lifecycleNoncurrentVersionExpirationSchema.optional(),
+    NoncurrentVersionTransitions: z.array(lifecycleNoncurrentVersionTransitionSchema).optional(),
+    AbortIncompleteMultipartUpload: lifecycleAbortIncompleteMultipartUploadSchema.optional(),
+  })
+  .refine(
+    (val) => {
+      // Must have at least one action
+      return (
+        val.Expiration !== undefined ||
+        (val.Transitions !== undefined && val.Transitions.length > 0) ||
+        val.NoncurrentVersionExpiration !== undefined ||
+        (val.NoncurrentVersionTransitions !== undefined && val.NoncurrentVersionTransitions.length > 0) ||
+        val.AbortIncompleteMultipartUpload !== undefined
+      )
+    },
+    {
+      message:
+        "Rule must have at least one action (Expiration, Transition, NoncurrentVersion, or AbortIncompleteMultipartUpload)",
+    }
+  )
+  .refine(
+    (val) => {
+      // Cannot have both Filter and legacy Prefix set
+      return !(val.Filter !== undefined && val.Prefix !== undefined)
+    },
+    {
+      message: "Rule cannot have both Filter and legacy Prefix field set (use Filter.Prefix instead)",
+    }
+  )
+  .refine(
+    (val) => {
+      // ExpiredObjectDeleteMarker cannot be combined with tag-based filters
+      if (val.Expiration?.ExpiredObjectDeleteMarker !== true) {
+        return true
+      }
+
+      // Check if Filter contains tags
+      const hasTagFilter =
+        val.Filter?.Tag !== undefined || (val.Filter?.And?.Tags !== undefined && val.Filter.And.Tags.length > 0)
+
+      return !hasTagFilter
+    },
+    {
+      message: "ExpiredObjectDeleteMarker cannot be combined with tag-based filters",
+    }
+  )
+  .refine(
+    (val) => {
+      if (val.AbortIncompleteMultipartUpload === undefined) return true
+      const hasTagFilter =
+        val.Filter?.Tag !== undefined || (val.Filter?.And?.Tags !== undefined && val.Filter.And.Tags.length > 0)
+      return !hasTagFilter
+    },
+    { message: "AbortIncompleteMultipartUpload cannot be combined with tag-based filters" }
+  )
+
+/**
+ * Lenient lifecycle rule schema for READ operations.
+ *
+ * Accepts valid S3 lifecycle rules that may have been created outside this application.
+ * More permissive than the write schema to handle:
+ * - Rules without strict validation (e.g., from AWS console or other tools)
+ * - Rules with additional fields we don't explicitly validate
+ * - Rules that may not pass our write-time constraints
+ *
+ * Uses structured-but-lenient schemas (typed fields, loose constraints) instead of z.any()
+ * to maintain type safety without blocking reads of externally-managed rules.
+ */
+export const lifecycleRuleReadSchema = z.object({
+  ID: z.string().optional(),
+  Status: z.string(), // Accept any status string
+  Prefix: z.string().optional(), // Legacy v1 prefix field
+  Filter: z
+    .object({
+      Prefix: z.string().optional(),
+      Tag: z
+        .object({
+          Key: z.string(),
+          Value: z.string(),
+        })
+        .optional(),
+      ObjectSizeGreaterThan: z.number().optional(),
+      ObjectSizeLessThan: z.number().optional(),
+      And: z
+        .object({
+          Prefix: z.string().optional(),
+          Tags: z
+            .array(
+              z.object({
+                Key: z.string(),
+                Value: z.string(),
+              })
+            )
+            .optional(),
+          ObjectSizeGreaterThan: z.number().optional(),
+          ObjectSizeLessThan: z.number().optional(),
+        })
+        .optional(),
+    })
+    .passthrough() // Allow extra fields
+    .optional(),
+  Expiration: z
+    .object({
+      Days: z.number().optional(),
+      Date: z.union([z.string(), z.date()]).optional(), // Accept string or Date
+      ExpiredObjectDeleteMarker: z.boolean().optional(),
+    })
+    .passthrough()
+    .optional(),
+  Transitions: z
+    .array(
+      z
+        .object({
+          Days: z.number().optional(),
+          Date: z.union([z.string(), z.date()]).optional(),
+          StorageClass: z.string(),
+        })
+        .passthrough()
+    )
+    .optional(),
+  NoncurrentVersionExpiration: z
+    .object({
+      NoncurrentDays: z.number().optional(),
+      NewerNoncurrentVersions: z.number().optional(),
+    })
+    .passthrough()
+    .optional(),
+  NoncurrentVersionTransitions: z
+    .array(
+      z
+        .object({
+          NoncurrentDays: z.number().optional(),
+          StorageClass: z.string(),
+          NewerNoncurrentVersions: z.number().optional(),
+        })
+        .passthrough()
+    )
+    .optional(),
+  AbortIncompleteMultipartUpload: z
+    .object({
+      DaysAfterInitiation: z.number().optional(),
+    })
+    .passthrough()
+    .optional(),
+})
+
+/**
+ * Full lifecycle configuration for a bucket.
+ *
+ * Limits:
+ * - Maximum 100 rules per bucket (UI sanity limit for manual editor)
+ * - At least 1 rule if lifecycle is configured
+ * - RGW's technical limit is 1000, but enforced server-side regardless
+ */
+export const lifecycleConfigurationSchema = z
+  .object({
+    Rules: z
+      .array(lifecycleRuleSchema)
+      .min(1, "At least one lifecycle rule is required")
+      .max(100, "Maximum 100 lifecycle rules per bucket"),
+  })
+  .refine(
+    (val) => {
+      // Collect non-empty IDs and check for duplicates
+      const ids = val.Rules.map((r) => r.ID).filter((id): id is string => id !== undefined && id !== "")
+      const uniqueIds = new Set(ids)
+      return ids.length === uniqueIds.size
+    },
+    {
+      message: "Rule IDs must be unique within a lifecycle configuration",
+    }
+  )
+
+/**
+ * Input schema for getting lifecycle configuration
+ */
+export const getLifecycleInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+})
+
+/**
+ * Output schema for getting lifecycle configuration
+ * Returns null if no lifecycle configuration is set
+ * Uses the lenient read schema to accept any valid S3 lifecycle rules
+ */
+export const getLifecycleOutputSchema = z.object({
+  rules: z.array(lifecycleRuleReadSchema).nullable(), // null if no lifecycle config
+  skippedRuleCount: z.number().int().min(0), // rules that failed to map/validate on read (see lifecycleRouter get)
+})
+
+/**
+ * Input schema for setting lifecycle configuration
+ */
+export const setLifecycleInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+  lifecycleConfiguration: lifecycleConfigurationSchema,
+})
+
+/**
+ * Input schema for deleting lifecycle configuration
+ */
+export const deleteLifecycleInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+})
+
+// ============================================================================
+// LIFECYCLE CONFIGURATION TYPES
+// ============================================================================
+
+export type LifecycleRuleStatus = z.infer<typeof lifecycleRuleStatusSchema>
+export type LifecycleExpiration = z.infer<typeof lifecycleExpirationSchema>
+export type LifecycleTransition = z.infer<typeof lifecycleTransitionSchema>
+export type LifecycleNoncurrentVersionExpiration = z.infer<typeof lifecycleNoncurrentVersionExpirationSchema>
+export type LifecycleNoncurrentVersionTransition = z.infer<typeof lifecycleNoncurrentVersionTransitionSchema>
+export type LifecycleAbortIncompleteMultipartUpload = z.infer<typeof lifecycleAbortIncompleteMultipartUploadSchema>
+export type LifecycleTag = z.infer<typeof lifecycleTagSchema>
+export type LifecycleFilterAnd = z.infer<typeof lifecycleFilterAndSchema>
+export type LifecycleFilter = z.infer<typeof lifecycleFilterSchema>
+export type LifecycleRule = z.infer<typeof lifecycleRuleSchema>
+export type LifecycleRuleRead = z.infer<typeof lifecycleRuleReadSchema>
+export type LifecycleConfiguration = z.infer<typeof lifecycleConfigurationSchema>
+export type GetLifecycleOutput = z.infer<typeof getLifecycleOutputSchema>

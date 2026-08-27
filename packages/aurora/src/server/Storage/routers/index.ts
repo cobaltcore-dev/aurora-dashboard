@@ -6,6 +6,7 @@ import {
   versioningRouter,
   bucketPolicyRouter,
   corsRouter,
+  lifecycleRouter,
 } from "./ceph"
 import { buildStoragePermissionRouter } from "./permissionRouter"
 import { auroraRouter } from "../../trpc"
@@ -33,6 +34,9 @@ export const buildObjectStorageRouters = (policyDir: string) => ({
       }),
       cors: auroraRouter({
         ...corsRouter,
+      }),
+      lifecycle: auroraRouter({
+        ...lifecycleRouter,
       }),
     }),
     ...buildStoragePermissionRouter(policyDir),

@@ -83,7 +83,7 @@ export const CorsRuleForm = ({ editingRule, onSubmit, formId, onValidationChange
                 name={field.name}
                 value={field.state.value}
                 onChange={(value) => field.handleChange(value)}
-                placeholder={t`https://example.com or *`}
+                placeholder={t`e.g. https://example.com or *`}
                 helptext={t`Enter a URL and press Enter. Use * to allow all origins.`}
                 validate={urlValidator}
                 required={true}
@@ -127,7 +127,7 @@ export const CorsRuleForm = ({ editingRule, onSubmit, formId, onValidationChange
                 name={field.name}
                 value={field.state.value}
                 onChange={(value) => field.handleChange(value)}
-                placeholder={t`Authorization, Content-Type, or *`}
+                placeholder={t`e.g. Authorization, Content-Type, or *`}
                 helptext={t`Enter a header name and press Enter. Use * to allow all headers.`}
                 validate={headerValidator}
               />
@@ -142,7 +142,7 @@ export const CorsRuleForm = ({ editingRule, onSubmit, formId, onValidationChange
                 name={field.name}
                 value={field.state.value}
                 onChange={(value) => field.handleChange(value)}
-                placeholder={t`Etag, Content-Length`}
+                placeholder={t`e.g. Etag, Content-Length`}
                 helptext={t`Enter a header name and press Enter. These headers will be exposed to the browser.`}
                 validate={headerValidator}
               />
@@ -159,7 +159,7 @@ export const CorsRuleForm = ({ editingRule, onSubmit, formId, onValidationChange
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
-                placeholder={t`e.g., 3600 (1 hour) or 604800 (7 days)`}
+                placeholder={t`e.g. 3600 (1 hour) or 604800 (7 days)`}
                 min="0"
                 helptext={t`How long browsers can cache preflight responses. Common values: 3600 (1 hour), 86400 (1 day), 604800 (1 week).`}
               />
