@@ -231,7 +231,7 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
             onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
           />
         </Stack>
-        <Button variant="primary" onClick={handleAddRule}>
+        <Button variant="primary" onClick={handleAddRule} disabled={mutationsBlocked}>
           <Trans>Create Lifecycle Rule</Trans>
         </Button>
       </Stack>

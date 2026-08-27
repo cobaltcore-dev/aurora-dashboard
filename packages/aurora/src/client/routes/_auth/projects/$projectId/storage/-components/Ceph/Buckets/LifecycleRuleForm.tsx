@@ -13,7 +13,7 @@ import {
   Divider,
 } from "@cloudoperators/juno-ui-components"
 import type { LifecycleRuleRead, LifecycleTag } from "@/server/Storage/types/ceph"
-import { normalizeFilter, parseDaysValue } from "./utils/lifecycleUtils"
+import { normalizeFilter, parseDaysValue, isValidExpiration } from "./utils/lifecycleUtils"
 
 interface LifecycleRuleFormProps {
   editingRule: LifecycleRuleRead | null
@@ -103,8 +103,10 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
         const exp = parseDaysValue(value.expirationDays)
         if (exp.ok) {
           newRule.Expiration = { Days: exp.value }
-        } else if (editingRule?.Expiration) {
-          // Preserve the original Expiration (Date or ExpiredObjectDeleteMarker) unchanged
+        } else if (editingRule?.Expiration && isValidExpiration(editingRule.Expiration)) {
+          // Preserve the original Expiration (Date or ExpiredObjectDeleteMarker) unchanged.
+          // Guarded by isValidExpiration so a structurally invalid, externally-authored
+          // Expiration (e.g. `{}`) isn't silently resubmitted to fail server validation.
           newRule.Expiration = editingRule.Expiration
         }
       }
@@ -181,8 +183,11 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
     // If expiration is checked, must have valid days OR we're preserving non-Days expiration from editing
     if (values.hasExpiration) {
       const r = parseDaysValue(values.expirationDays)
-      const hasNonDaysExpiration = editingRule?.Expiration && !editingRule.Expiration.Days
-      const validExpirationDays = r.ok || (!r.ok && r.reason === "empty" && !!hasNonDaysExpiration)
+      const hasPreservableNonDaysExpiration =
+        editingRule?.Expiration &&
+        editingRule.Expiration.Days === undefined &&
+        isValidExpiration(editingRule.Expiration)
+      const validExpirationDays = r.ok || (!r.ok && r.reason === "empty" && !!hasPreservableNonDaysExpiration)
       if (!validExpirationDays) return false
     }
 
