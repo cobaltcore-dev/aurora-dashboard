@@ -31,7 +31,17 @@ const openstackErrorMiddleware = t.middleware(async ({ next }) => {
           }),
         }
       }
-      if (cause.statusCode === 404 || cause.statusCode === 400) {
+      if (cause.statusCode === 400) {
+        return {
+          ...result,
+          error: new TRPCError({
+            code: "BAD_REQUEST",
+            message: "The OpenStack request was invalid.",
+            cause,
+          }),
+        }
+      }
+      if (cause.statusCode === 404) {
         return {
           ...result,
           error: new TRPCError({
