@@ -111,7 +111,7 @@ function RouteComponent() {
           <Status
             status="error"
             title={t`Session Expired`}
-            body={t`Your session has expired. Please log in again.`}
+            body={t`Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab.`}
             action={
               <Button variant="primary" onClick={() => navigate({ to: "/" })}>
                 <Trans>Log In</Trans>

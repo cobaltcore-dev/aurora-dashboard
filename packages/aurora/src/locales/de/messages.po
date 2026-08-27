@@ -3853,5 +3853,8 @@ msgstr ""
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
 
+msgid "Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab."
+msgstr ""
+
 msgid "YYYY-MM-DD HH:mm:ss"
 msgstr "YYYY-MM-DD HH:mm:ss"

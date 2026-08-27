@@ -3853,5 +3853,8 @@ msgstr "Your S3 credentials are invalid or expired. Please try creating new cred
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
 
+msgid "Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab."
+msgstr "Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab."
+
 msgid "YYYY-MM-DD HH:mm:ss"
 msgstr "YYYY-MM-DD HH:mm:ss"
