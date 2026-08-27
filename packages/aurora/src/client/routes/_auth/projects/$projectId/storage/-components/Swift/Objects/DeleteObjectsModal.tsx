@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Spinner, Stack, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack, TextInput } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 
 // Max number of object names shown in the list before truncating
@@ -126,9 +126,9 @@ export const DeleteObjectsModal = ({
         </Stack>
       ) : (
         <div className="my-6">
-          <Message variant="danger" className="mb-6">
+          <p className="text-theme-default mb-6">
             <Trans>The selected objects will be permanently deleted. This cannot be undone.</Trans>
-          </Message>
+          </p>
 
           <div className="mb-6">
             <h3 className="jn:text-theme-high mb-3 font-semibold">
