@@ -125,12 +125,12 @@ export const DeleteObjectsModal = ({
           <Spinner variant="primary" />
         </Stack>
       ) : (
-        <div className="my-6">
-          <p className="text-theme-default mb-6">
+        <Stack direction="vertical" gap="4">
+          <p className="text-theme-default overflow-x-hidden [overflow-wrap:anywhere]">
             <Trans>The selected objects will be permanently deleted. This cannot be undone.</Trans>
           </p>
 
-          <div className="mb-6">
+          <div>
             <h3 className="jn:text-theme-high mb-3 font-semibold">
               <Trans>Objects to be deleted ({totalCount})</Trans>
             </h3>
@@ -156,7 +156,7 @@ export const DeleteObjectsModal = ({
             value={confirmValue}
             onChange={(event) => setConfirmValue(event.target.value)}
           />
-        </div>
+        </Stack>
       )}
     </Modal>
   )
