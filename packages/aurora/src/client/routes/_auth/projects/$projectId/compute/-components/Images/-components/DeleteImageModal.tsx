@@ -50,13 +50,14 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
   }
 
   const confirmLabel = isLoading ? t`Deleting...` : t`Delete Image`
+  const imageName = image?.name || image?.id
 
   return (
     <Modal
       open={isOpen}
       onCancel={handleClose}
       size="small"
-      title={t`Delete Image "${image?.name || image?.id}"`}
+      title={t`Delete Image "${imageName}"`}
       confirmButtonLabel={confirmLabel}
       confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}

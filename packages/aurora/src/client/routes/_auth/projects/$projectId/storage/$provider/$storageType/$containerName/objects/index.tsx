@@ -4,7 +4,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { SwiftObjects } from "../../../../-components/Swift/Objects"
 import { CephObjects } from "../../../../-components/Ceph/Objects"
-import { CephCorsRules } from "../../../../-components/Ceph/Buckets"
+import { CephCorsRules, CephLifecycleRules } from "../../../../-components/Ceph/Buckets"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
@@ -14,23 +14,29 @@ import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
 // - sortBy: active sort column key — persisted so deep links and back navigation restore sort state
 //   Accepts both Swift keys (last_modified, bytes) and Ceph keys (lastModified, size) for compatibility
 // - sortDirection: "asc" | "desc" — persisted alongside sortBy
-// - view: tab selection for Ceph bucket details page (overview shows objects, cors-rules shows CORS config)
+// - view: tab selection for Ceph bucket details page (overview shows objects, cors-rules shows CORS config, lifecycle-rules shows lifecycle config)
 // - corsSortBy: active sort column for CORS rules tab (ID, AllowedOrigins, etc.) — separate from objects sortBy
 // - corsSortDirection: "asc" | "desc" for CORS rules — separate from objects sortDirection
 // - corsSearch: search term for filtering CORS rules by Rule ID — separate from objects search
+// - lifecycleSortBy: active sort column for lifecycle rules tab (ID, Status, Expiration) — separate from objects sortBy
+// - lifecycleSortDirection: "asc" | "desc" for lifecycle rules — separate from objects sortDirection
+// - lifecycleSearch: search term for filtering lifecycle rules by Rule ID — separate from objects search
 const objectsSearchSchema = z.object({
   prefix: z.string().optional(),
   sortBy: z.enum(["name", "last_modified", "bytes", "lastModified", "size"]).optional().default("name"),
   sortDirection: z.enum(["asc", "desc"]).optional().default("asc"),
   search: z.string().optional(),
   tab: z.enum(["all", "deleted"]).optional().default("all"),
-  view: z.enum(["overview", "cors-rules"]).optional().default("overview"),
+  view: z.enum(["overview", "cors-rules", "lifecycle-rules"]).optional().default("overview"),
   corsSortBy: z
     .enum(["ID", "AllowedOrigins", "AllowedMethods", "AllowedHeaders", "ExposeHeaders", "MaxAgeSeconds"])
     .optional()
     .default("ID"),
   corsSortDirection: z.enum(["asc", "desc"]).optional().default("asc"),
   corsSearch: z.string().optional(),
+  lifecycleSortBy: z.enum(["ID", "Status", "Expiration"]).optional().default("ID"),
+  lifecycleSortDirection: z.enum(["asc", "desc"]).optional().default("asc"),
+  lifecycleSearch: z.string().optional(),
 })
 
 export const Route = createFileRoute(
@@ -110,6 +116,9 @@ export function ObjectsDashboard() {
                 case "swift":
                   return <SwiftObjects provider={provider} containerName={containerName} />
                 case "ceph":
+                  if (view === "lifecycle-rules") {
+                    return <CephLifecycleRules bucketName={containerName} />
+                  }
                   if (view === "cors-rules") {
                     return <CephCorsRules bucketName={containerName} />
                   }

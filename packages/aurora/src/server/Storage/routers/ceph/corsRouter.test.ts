@@ -443,6 +443,62 @@ describe("corsRouter", () => {
         })
       ).rejects.toThrow(TRPCError)
     })
+
+    it("should enforce rate limiting (10 changes per minute per bucket)", async () => {
+      mockSend.mockResolvedValue({})
+      const rateLimitBucket = "cors-rate-limit-test-bucket-unique"
+
+      // Make 9 successful calls (counter starts at 1, so 9 calls brings us to count=9)
+      for (let i = 0; i < 9; i++) {
+        await caller.set({
+          project_id: TEST_PROJECT_ID,
+          bucketName: rateLimitBucket,
+          corsConfiguration: {
+            CORSRules: [MINIMAL_CORS_RULE],
+          },
+        })
+      }
+
+      // 10th call should succeed (count=10 exactly, which is the limit)
+      await caller.set({
+        project_id: TEST_PROJECT_ID,
+        bucketName: rateLimitBucket,
+        corsConfiguration: {
+          CORSRules: [MINIMAL_CORS_RULE],
+        },
+      })
+
+      // 11th call should be rate limited (count would be 11, which exceeds limit of 10)
+      await expect(
+        caller.set({
+          project_id: TEST_PROJECT_ID,
+          bucketName: rateLimitBucket,
+          corsConfiguration: {
+            CORSRules: [MINIMAL_CORS_RULE],
+          },
+        })
+      ).rejects.toThrow(/rate limit exceeded/i)
+    })
+
+    it("schedules per-key cleanup that fires when the window closes", async () => {
+      vi.useFakeTimers()
+      try {
+        mockSend.mockResolvedValue({})
+        const bucket = "cors-cleanup-bucket-unique"
+        await caller.set({
+          project_id: TEST_PROJECT_ID,
+          bucketName: bucket,
+          corsConfiguration: {
+            CORSRules: [MINIMAL_CORS_RULE],
+          },
+        })
+        expect(vi.getTimerCount()).toBeGreaterThan(0) // cleanup timer scheduled
+        vi.advanceTimersByTime(60 * 1000)
+        expect(vi.getTimerCount()).toBe(0) // fired, nothing left pending
+      } finally {
+        vi.useRealTimers()
+      }
+    })
   })
 
   describe("delete", () => {

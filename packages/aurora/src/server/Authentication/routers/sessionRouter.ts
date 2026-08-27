@@ -38,24 +38,39 @@ export const sessionRouter = {
     }
   }),
 
+  // Errors from rescopeSession are handled by openstackErrorMiddleware
   setCurrentScope: protectedProcedure.input(discriminatedSchema).mutation(async ({ input, ctx }) => {
     switch (input.type) {
       case "domain": {
         const session = await ctx.rescopeSession({ domainId: input.domainId })
         const token = session?.getToken()
 
+        if (!token?.tokenData.domain) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Failed to rescope to the requested domain.",
+          })
+        }
+
         return {
           project: null,
-          domain: token?.tokenData.domain,
+          domain: token.tokenData.domain,
         }
       }
       case "project": {
         const session = await ctx.rescopeSession({ projectId: input.projectId })
         const token = session?.getToken()
 
+        if (!token?.tokenData.project) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Failed to rescope to the requested project.",
+          })
+        }
+
         return {
-          project: token?.tokenData.project,
-          domain: token?.tokenData.project?.domain,
+          project: token.tokenData.project,
+          domain: token.tokenData.project.domain,
         }
       }
       case "unscoped": {

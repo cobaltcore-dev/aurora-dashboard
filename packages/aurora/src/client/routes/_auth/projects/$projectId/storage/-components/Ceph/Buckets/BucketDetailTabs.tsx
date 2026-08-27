@@ -5,9 +5,10 @@ import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provid
 /**
  * Tab navigation for bucket detail page
  *
- * Provides two tabs:
+ * Provides three tabs:
  * - Overview: object browser (default)
  * - CORS Rules: CORS configuration management
+ * - Lifecycle Rules: lifecycle configuration management
  *
  * Tab state is persisted in the URL via the `view` search param.
  */
@@ -38,6 +39,18 @@ export const BucketDetailTabs = () => {
             search: (prev) => ({
               ...prev,
               view: "cors-rules",
+            }),
+          })
+        }}
+      />
+      <TabNavigationItem
+        label={t`Lifecycle Rules`}
+        active={view === "lifecycle-rules"}
+        onClick={() => {
+          navigate({
+            search: (prev) => ({
+              ...prev,
+              view: "lifecycle-rules",
             }),
           })
         }}

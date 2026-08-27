@@ -14,6 +14,7 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
   NoSuchVersion: "NOT_FOUND",
   NoSuchBucketPolicy: "NOT_FOUND",
   NoSuchCORSConfiguration: "NOT_FOUND",
+  NoSuchLifecycleConfiguration: "NOT_FOUND",
   BucketAlreadyExists: "CONFLICT",
   BucketAlreadyOwnedByYou: "CONFLICT",
   BucketNotEmpty: "PRECONDITION_FAILED",

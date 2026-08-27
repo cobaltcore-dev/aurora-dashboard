@@ -207,15 +207,19 @@ describe("sessionRouter", () => {
       it("should handle null session from rescopeSession", async () => {
         mockContext.rescopeSession.mockResolvedValue(null)
 
-        const result = await caller.setCurrentScope({
-          type: "domain",
-          domainId: "test-domain",
-        })
+        await expect(
+          caller.setCurrentScope({
+            type: "domain",
+            domainId: "test-domain",
+          })
+        ).rejects.toThrow(TRPCError)
 
-        expect(result).toEqual({
-          project: null,
-          domain: undefined,
-        })
+        await expect(
+          caller.setCurrentScope({
+            type: "domain",
+            domainId: "test-domain",
+          })
+        ).rejects.toThrow("Failed to rescope to the requested domain.")
       })
     })
 
@@ -255,15 +259,19 @@ describe("sessionRouter", () => {
       it("should handle null session from rescopeSession", async () => {
         mockContext.rescopeSession.mockResolvedValue(null)
 
-        const result = await caller.setCurrentScope({
-          type: "project",
-          projectId: "test-project",
-        })
+        await expect(
+          caller.setCurrentScope({
+            type: "project",
+            projectId: "test-project",
+          })
+        ).rejects.toThrow(TRPCError)
 
-        expect(result).toEqual({
-          project: undefined,
-          domain: undefined,
-        })
+        await expect(
+          caller.setCurrentScope({
+            type: "project",
+            projectId: "test-project",
+          })
+        ).rejects.toThrow("Failed to rescope to the requested project.")
       })
     })
 

@@ -78,12 +78,13 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
   }
 
   const confirmLabel = isLoading ? t`Deleting...` : t`Delete Flavor`
+  const flavorName = flavor?.name
 
   return (
     <Modal
       open={isOpen}
       onCancel={handleClose}
-      title={t`Delete Flavor "${flavor?.name}"`}
+      title={t`Delete Flavor "${flavorName}"`}
       size="small"
       confirmButtonLabel={confirmLabel}
       confirmButtonVariant="primary-danger"

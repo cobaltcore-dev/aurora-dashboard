@@ -33,6 +33,7 @@ interface BucketInfo {
  * - Versioning status query
  * - Bucket policy query
  * - CORS configuration query (prefetch only: warms the cache for CorsRulesTab)
+ * - Lifecycle configuration query (prefetch only: warms the cache for LifecycleRulesTab)
  * - Version/delete marker check query
  *
  * Uses bucket.count from metadata (same as Buckets page) to determine if bucket is empty.
@@ -95,6 +96,19 @@ export const useBucketInfo = ({ bucketName, enabled = true }: UseBucketInfoProps
     {
       enabled: !!projectId && enabled,
       staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+      retry: false,
+    }
+  )
+
+  // Prefetch lifecycle configuration (warms the shared lifecycle.get cache consumed by LifecycleRulesTab)
+  trpcReact.storage.ceph.lifecycle.get.useQuery(
+    {
+      project_id: projectId ?? "",
+      bucketName: bucketName,
+    },
+    {
+      enabled: !!projectId && enabled,
+      staleTime: 5 * 60 * 1000, // 5 minutes, shared with LifecycleRulesTab
       retry: false,
     }
   )
