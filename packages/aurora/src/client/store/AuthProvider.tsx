@@ -60,9 +60,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const timeUntilExpiry = new Date(expiresAt).getTime() - Date.now()
 
-    const handleExpiry = () => {
-      clearLocalSession()
-      redirectToLogin(true)
+    const handleExpiry = async () => {
+      setIsLoading(true)
+      try {
+        await trpcClient.auth.terminateUserSession.mutate()
+      } catch (err) {
+        // Server invalidation failed - show error
+        setError(err instanceof Error ? err.message : `Session termination failed: ${err}`)
+      } finally {
+        clearLocalSession()
+        setIsLoading(false)
+        redirectToLogin(true)
+      }
     }
 
     if (timeUntilExpiry <= 0) {
@@ -92,12 +101,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     setIsLoading(true)
-    await trpcClient.auth.terminateUserSession.mutate().catch(() => {})
-    clearLocalSession()
-    redirectToLogin(false) // Don't save return URL on manual logout
-    // If already on login page, no redirect happens - reset loading state
-    if (window.location.pathname === "/") {
+    setError(null)
+    try {
+      await trpcClient.auth.terminateUserSession.mutate()
+    } catch (err) {
+      // Server invalidation failed - show error
+      setError(err instanceof Error ? err.message : `Logout failed: ${err}`)
+    } finally {
+      clearLocalSession()
       setIsLoading(false)
+      redirectToLogin(false) // Don't save return URL on manual logout
     }
   }
 

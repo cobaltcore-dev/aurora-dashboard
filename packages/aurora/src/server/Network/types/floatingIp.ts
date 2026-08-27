@@ -130,10 +130,13 @@ export const FloatingIpIdInputSchema = z.object({
  * Create floating IP request schema.
  * Used by POST /v2.0/floatingips.
  * See https://docs.openstack.org/api-ref/network/v2/index.html#create-floating-ip
+ *
+ * SECURITY: project_id is required by projectScopedProcedure for session rescoping,
+ * but tenant_id and project_id sent to Neutron are derived from the authenticated
+ * session to prevent ownership confusion attacks.
  */
 export const FloatingIpCreateRequestSchema = z.object({
-  tenant_id: z.string(),
-  project_id: z.string(),
+  project_id: z.string().trim().min(1, "project_id must be a non-empty string"), // Matches projectScopedInputSchema validation
   floating_network_id: z.string(),
   fixed_ip_address: z.string().optional(),
   floating_ip_address: z.string().optional(),
