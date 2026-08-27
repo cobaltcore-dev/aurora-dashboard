@@ -37,12 +37,14 @@ export const useDeleteConfirmation = ({
   const [confirmText, setConfirmText] = useState("")
   const [error, setError] = useState<string | null>(null)
 
+  const trackingAction = confirmWord === "delete" ? "delete" : confirmWord
+
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
-    actionPrefix: `${trackingPrefix}.delete`,
+    actionPrefix: `${trackingPrefix}.${trackingAction}`,
   })
 
-  const isConfirmed = confirmText === confirmWord
+  const isConfirmed = confirmText.trim() === confirmWord
 
   // Reset on close
   useEffect(() => {
