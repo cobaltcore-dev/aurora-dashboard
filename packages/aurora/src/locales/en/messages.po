@@ -1984,9 +1984,6 @@ msgstr "Get Involved"
 msgid "Go to Home"
 msgstr "Go to Home"
 
-msgid "Go To Home"
-msgstr "Go To Home"
-
 msgid "Go to Projects"
 msgstr "Go to Projects"
 

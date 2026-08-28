@@ -41,7 +41,7 @@ export function RouteError({ error, title, helpText, safeErrorMessage }: RouteEr
       body={errorMessage + " " + additionalInfo}
       action={
         <Button variant="primary" onClick={() => navigate({ to: "/" })}>
-          <Trans>Go To Home</Trans>
+          <Trans>Go to Home</Trans>
         </Button>
       }
     />
