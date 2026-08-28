@@ -364,7 +364,7 @@ export const ObjectsTableView = ({
                     {isFolder ? (
                       <button
                         type="button"
-                        className="focus-visible:outline-theme-focus flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2"
+                        className="focus-visible:outline-theme-focus flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline-2"
                         onClick={() => onFolderClick(row.name)}
                         data-testid={`folder-${row.name}`}
                         title={row.displayName}
@@ -375,7 +375,7 @@ export const ObjectsTableView = ({
                     ) : (
                       <button
                         type="button"
-                        className="focus-visible:outline-theme-focus flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2 disabled:cursor-wait disabled:opacity-60"
+                        className="focus-visible:outline-theme-focus flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline-2 disabled:cursor-wait disabled:opacity-60"
                         onClick={() => handlePreviewOrDownload(row as ObjectRow)}
                         disabled={isStreaming}
                         data-testid={`preview-${row.name}`}
@@ -410,7 +410,7 @@ export const ObjectsTableView = ({
                           onClick={() => handleCancelTransfer(row.name)}
                           aria-label={t`Cancel`}
                           title={t`Cancel`}
-                          className="focus-visible:outline-theme-focus text-theme-light hover:text-theme-danger shrink-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2"
+                          className="focus-visible:outline-theme-focus text-theme-light hover:text-theme-danger shrink-0 cursor-pointer rounded focus-visible:outline-2"
                           data-testid={`cancel-transfer-${row.name}`}
                         >
                           <Icon icon="cancel" size={18} />

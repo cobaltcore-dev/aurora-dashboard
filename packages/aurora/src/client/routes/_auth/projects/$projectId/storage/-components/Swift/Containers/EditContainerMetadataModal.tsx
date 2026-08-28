@@ -428,7 +428,7 @@ export const EditContainerMetadataModal = ({
   return (
     <Modal
       title={
-        <span className="flex max-w-[500px] items-center gap-2">
+        <span className="flex max-w-125 items-center gap-2">
           <span className="shrink-0">
             <Trans>Container:</Trans>
           </span>
@@ -572,7 +572,7 @@ export const EditContainerMetadataModal = ({
                       <TooltipTrigger>
                         <Icon icon="help" size="16" className="text-theme-light cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent className="z-10 max-w-[220px]">
+                      <TooltipContent className="z-10 max-w-55">
                         <Trans>If there is no index file, the URL displays a list of objects in the container.</Trans>
                       </TooltipContent>
                     </Tooltip>
