@@ -263,7 +263,7 @@ export const CopyObjectModal = ({
   return (
     <Modal
       title={
-        <span className="flex max-w-[500px] items-center gap-1">
+        <span className="flex max-w-125 items-center gap-1">
           <span className="shrink-0">
             <Trans>Copy object:</Trans>
           </span>

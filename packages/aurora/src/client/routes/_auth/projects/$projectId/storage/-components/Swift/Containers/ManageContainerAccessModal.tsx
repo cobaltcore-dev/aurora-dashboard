@@ -318,7 +318,7 @@ export const ManageContainerAccessModal = ({
   const modalTitle = (
     <span className="flex items-center gap-2">
       <Trans>Access Control for Container:</Trans>
-      <span className="max-w-[250px] truncate" title={container.name}>
+      <span className="max-w-62.5 truncate" title={container.name}>
         {container.name}
       </span>
     </span>
@@ -580,7 +580,7 @@ function AclFieldLabel({ label }: AclFieldLabelProps) {
         <TooltipTrigger>
           <Icon icon="info" size="14" className="text-theme-light cursor-help" />
         </TooltipTrigger>
-        <TooltipContent className="z-10 max-w-[350px]">
+        <TooltipContent className="z-10 max-w-87.5">
           <Trans>
             Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid
             entries may silently grant or deny unintended access.
