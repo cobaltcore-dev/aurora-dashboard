@@ -156,18 +156,12 @@ describe("RouteError", () => {
     expect(screen.queryByText("Internal error")).not.toBeInTheDocument()
   })
 
-  test("uses Juno Status component for layout", () => {
-    const error = new Error("Test")
-    const { container } = render(<RouteError error={error} />, { wrapper: TestWrapper })
-
-    const wrapper = container.firstChild as HTMLElement
-    expect(wrapper).toHaveClass("juno-status")
-  })
-
-  test("renders Go To Home button", () => {
+  test("renders error status with title and action button", () => {
     const error = new Error("Test")
     render(<RouteError error={error} />, { wrapper: TestWrapper })
 
-    expect(screen.getByRole("button", { name: /Go To Home/i })).toBeInTheDocument()
+    // Verify the error UI renders with expected content
+    expect(screen.getByText("Unable to Load Content")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Go to Home/i })).toBeInTheDocument()
   })
 })

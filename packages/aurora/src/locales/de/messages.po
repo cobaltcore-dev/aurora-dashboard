@@ -2248,7 +2248,7 @@ msgstr "Container werden geladen..."
 msgid "Loading Containers..."
 msgstr "Container werden geladen..."
 
-msgid "Loading Flavors Details..."
+msgid "Loading Flavor Details..."
 msgstr ""
 
 msgid "Loading Flavors..."

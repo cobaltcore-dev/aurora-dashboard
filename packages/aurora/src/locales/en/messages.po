@@ -2248,8 +2248,8 @@ msgstr "Loading containers..."
 msgid "Loading Containers..."
 msgstr "Loading Containers..."
 
-msgid "Loading Flavors Details..."
-msgstr "Loading Flavors Details..."
+msgid "Loading Flavor Details..."
+msgstr "Loading Flavor Details..."
 
 msgid "Loading Flavors..."
 msgstr "Loading Flavors..."
