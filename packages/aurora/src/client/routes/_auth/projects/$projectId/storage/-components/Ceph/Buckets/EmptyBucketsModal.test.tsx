@@ -178,7 +178,7 @@ describe("EmptyBucketsModal", () => {
       expect(screen.getByText("bucket-1")).toBeInTheDocument()
       expect(screen.getByText("bucket-20")).toBeInTheDocument()
       expect(screen.queryByText("bucket-21")).not.toBeInTheDocument()
-      expect(screen.getByText(/...and 5 more/)).toBeInTheDocument()
+      expect(screen.getByText(/[.…] and 5 more/)).toBeInTheDocument()
     })
 
     test("renders Empty button", () => {
