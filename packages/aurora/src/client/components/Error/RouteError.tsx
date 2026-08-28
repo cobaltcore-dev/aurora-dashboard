@@ -1,5 +1,6 @@
-import { ContentHeading } from "@cloudoperators/juno-ui-components"
-import { useLingui } from "@lingui/react/macro"
+import { Status, Button } from "@cloudoperators/juno-ui-components"
+import { useLingui, Trans } from "@lingui/react/macro"
+import { useNavigate } from "@tanstack/react-router"
 
 interface RouteErrorProps {
   error: unknown
@@ -11,10 +12,11 @@ interface RouteErrorProps {
 
 export function RouteError({ error, title, helpText, safeErrorMessage }: RouteErrorProps) {
   const { t } = useLingui()
+  const navigate = useNavigate()
 
   const defaultTitle = t`Unable to Load Content`
   const defaultHelpText = t`This could be due to insufficient permissions or a temporary service issue. Please check your access rights or try refreshing the page.`
-  const defaultErrorMessage = t`An unexpected error occurred`
+  const defaultErrorMessage = t`An unexpected error occurred.`
 
   // Security: Do not expose raw Error.message by default as it may contain sensitive information.
   // Only display:
@@ -30,11 +32,18 @@ export function RouteError({ error, title, helpText, safeErrorMessage }: RouteEr
       : null) ||
     defaultErrorMessage
 
+  const additionalInfo = helpText || defaultHelpText
+
   return (
-    <div className="flex min-h-100 flex-col space-y-2 p-8">
-      <ContentHeading className="text-theme-info">{title || defaultTitle}</ContentHeading>
-      <p>{errorMessage}</p>
-      <p className="text-theme-light text-sm">{helpText || defaultHelpText}</p>
-    </div>
+    <Status
+      status="error"
+      title={title || defaultTitle}
+      body={errorMessage + " " + additionalInfo}
+      action={
+        <Button variant="primary" onClick={() => navigate({ to: "/" })}>
+          <Trans>Go To Home</Trans>
+        </Button>
+      }
+    />
   )
 }

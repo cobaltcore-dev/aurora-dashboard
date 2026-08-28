@@ -1,5 +1,5 @@
 import { createRootRouteWithContext, Outlet, HeadContent } from "@tanstack/react-router"
-import { AppShell, Button, Container, Spinner, Stack, Status } from "@cloudoperators/juno-ui-components"
+import { AppShell, Button, Container, Status } from "@cloudoperators/juno-ui-components"
 import { MainNavigation } from "../components/navigation/MainNavigation"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
@@ -101,10 +101,7 @@ function PageNotFound() {
 function PendingComponent() {
   return (
     <AuroraLayout>
-      <Stack className="fixed inset-0" distribution="center" alignment="center">
-        <div className="absolute inset-0 backdrop-blur-sm" />
-        <Spinner variant="primary" size="large" />
-      </Stack>
+      <Status status="progress" title={""} />
     </AuroraLayout>
   )
 }

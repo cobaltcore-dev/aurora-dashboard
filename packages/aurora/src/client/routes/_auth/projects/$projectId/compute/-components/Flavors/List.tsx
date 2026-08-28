@@ -1,11 +1,11 @@
 import { use, Suspense, useState, useRef, startTransition, useEffect, useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import { useSearch, useNavigate } from "@tanstack/react-router"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { TRPCClientError } from "@trpc/client"
-import { Message, Button, Stack, Spinner, DataGridToolbar, SearchInput } from "@cloudoperators/juno-ui-components"
+import { Message, Button, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { FlavorListContainer } from "./-components/FlavorListContainer"
@@ -325,14 +325,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
           <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
         )}
       >
-        <Suspense
-          fallback={
-            <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-              <Spinner variant="primary" size="large" className="mb-2" />
-              <Trans>Loading Flavors...</Trans>
-            </Stack>
-          }
-        >
+        <Suspense fallback={<Status status="progress" title={""} body={t`Loading Flavors...`} />}>
           <FlavorsContent
             flavorsPromise={flavorsPromise}
             permissionsPromise={permissionsPromise}

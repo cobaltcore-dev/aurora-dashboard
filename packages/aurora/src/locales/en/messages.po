@@ -419,9 +419,6 @@ msgstr "Also delete all versions and all delete markers"
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr "An object with this name already exists at the destination and will be overwritten."
 
-msgid "An unexpected error occurred"
-msgstr "An unexpected error occurred"
-
 msgid "An unexpected error occurred."
 msgstr "An unexpected error occurred."
 
@@ -1987,6 +1984,9 @@ msgstr "Get Involved"
 msgid "Go to Home"
 msgstr "Go to Home"
 
+msgid "Go To Home"
+msgstr "Go To Home"
+
 msgid "Go to Projects"
 msgstr "Go to Projects"
 
@@ -2251,8 +2251,8 @@ msgstr "Loading containers..."
 msgid "Loading Containers..."
 msgstr "Loading Containers..."
 
-msgid "Loading Flavor Details..."
-msgstr "Loading Flavor Details..."
+msgid "Loading Flavors Details..."
+msgstr "Loading Flavors Details..."
 
 msgid "Loading Flavors..."
 msgstr "Loading Flavors..."

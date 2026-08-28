@@ -419,9 +419,6 @@ msgstr ""
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr ""
 
-msgid "An unexpected error occurred"
-msgstr "Ein unerwarteter Fehler ist aufgetreten"
-
 msgid "An unexpected error occurred."
 msgstr ""
 
@@ -1987,6 +1984,9 @@ msgstr "Mitmachen"
 msgid "Go to Home"
 msgstr ""
 
+msgid "Go To Home"
+msgstr ""
+
 msgid "Go to Projects"
 msgstr ""
 
@@ -2251,8 +2251,8 @@ msgstr "Container werden geladen..."
 msgid "Loading Containers..."
 msgstr "Container werden geladen..."
 
-msgid "Loading Flavor Details..."
-msgstr "Flavor-Details werden geladen..."
+msgid "Loading Flavors Details..."
+msgstr ""
 
 msgid "Loading Flavors..."
 msgstr "Lädt Flavors..."

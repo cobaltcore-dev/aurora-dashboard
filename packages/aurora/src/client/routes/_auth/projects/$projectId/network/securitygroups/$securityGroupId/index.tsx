@@ -4,7 +4,7 @@ import {
   Button,
   ContentHeading,
   Stack,
-  Spinner,
+  Status,
 } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
 import type { RouteInfo } from "@/client/routes/routeInfo"
@@ -177,12 +177,7 @@ function RouteComponent() {
 
   // Handle loading permissions
   if (isLoadingPermissions) {
-    return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Permissions...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={""} body={t`Loading Permissions...`} />
   }
 
   // Handle permissions error - default to no permissions
@@ -201,12 +196,7 @@ function RouteComponent() {
 
   // Handle loading state
   if (isLoading) {
-    return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Security Group Details...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={""} body={t`Loading Security Group Details...`} />
   }
 
   // Handle error state

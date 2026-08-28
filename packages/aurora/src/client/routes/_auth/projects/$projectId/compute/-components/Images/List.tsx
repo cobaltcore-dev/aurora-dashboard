@@ -8,7 +8,7 @@ import {
   Button,
   Message,
   Stack,
-  Spinner,
+  Status,
   PopupMenu,
   PopupMenuItem,
   PopupMenuToggle,
@@ -609,14 +609,7 @@ export const Images = ({ client, project }: ImagesProps) => {
           <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
         )}
       >
-        <Suspense
-          fallback={
-            <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-              <Spinner variant="primary" size="large" className="mb-2" />
-              <Trans>Loading Images...</Trans>
-            </Stack>
-          }
-        >
+        <Suspense fallback={<Status status="progress" title={""} body={t`Loading Images...`} />}>
           <ImagesContent
             imagesPromise={imagesPromise}
             imageOverrides={imageOverrides}
