@@ -5,6 +5,7 @@ import { useEffect } from "react"
 import { LoginForm } from "../components/Auth/LoginForm"
 import { Slot } from "../components/Slot"
 import { useAuth } from "../store/AuthProvider"
+import { useLingui } from "@lingui/react/macro"
 
 function isSafeRedirect(path: unknown): path is string {
   return typeof path === "string" && path.startsWith("/") && !path.startsWith("//")
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/")({
 })
 
 function LandingPage() {
+  const { t } = useLingui()
   const { isLoading, isAuthenticated } = useAuth()
   const { slots } = Route.useRouteContext()
   const { redirect: searchRedirect } = Route.useSearch()
@@ -32,7 +34,7 @@ function LandingPage() {
   }, [isAuthenticated, isLoading, navigate, searchRedirect])
 
   if (isLoading) {
-    return <Status status="progress" title={""} />
+    return <Status status="progress" title={t`Loading...`} />
   }
 
   if (slots?.login && !isAuthenticated) {
