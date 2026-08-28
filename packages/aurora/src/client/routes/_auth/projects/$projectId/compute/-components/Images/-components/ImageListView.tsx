@@ -608,7 +608,7 @@ export function ImageListView({
             >
               {/* Table Header */}
               <DataGridRow>
-                <DataGridHeadCell></DataGridHeadCell>
+                {hasAnyBulkAction && <DataGridHeadCell></DataGridHeadCell>}
                 <DataGridHeadCell>
                   <Trans>Status</Trans>
                 </DataGridHeadCell>
