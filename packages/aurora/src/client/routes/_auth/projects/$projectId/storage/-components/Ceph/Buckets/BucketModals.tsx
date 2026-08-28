@@ -118,10 +118,12 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
           const { message, ...options } =
             action === "deleted" ? getBucketPolicyDeletedToast(bucketName) : getBucketPolicySavedToast(bucketName)
           toast.success(message, options)
-          onClose()
         }}
-        onError={(bucketName, errorMessage) => {
-          const { message, ...options } = getBucketPolicySaveErrorToast(bucketName, errorMessage)
+        onError={(bucketName, errorMessage, action) => {
+          const { message, ...options } =
+            action === "deleted"
+              ? getBucketPolicyDeleteErrorToast(bucketName, errorMessage)
+              : getBucketPolicySaveErrorToast(bucketName, errorMessage)
           toast.error(message, options)
         }}
       />

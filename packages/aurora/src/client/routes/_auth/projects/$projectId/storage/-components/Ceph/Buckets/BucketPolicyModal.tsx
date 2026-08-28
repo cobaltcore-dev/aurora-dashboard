@@ -13,7 +13,7 @@ interface BucketPolicyModalProps {
   bucketName: string
   onClose: () => void
   onSuccess?: (bucketName: string, action: "saved" | "deleted") => void
-  onError?: (bucketName: string, errorMessage: string) => void
+  onError?: (bucketName: string, errorMessage: string, action: "saved" | "deleted") => void
 }
 
 interface PolicyTemplate {
@@ -123,7 +123,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       handleClose()
     },
     onError: (error) => {
-      onError?.(bucketName, error.message)
+      onError?.(bucketName, error.message, "saved")
     },
   })
 
@@ -135,7 +135,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       handleClose()
     },
     onError: (error) => {
-      onError?.(bucketName, error.message)
+      onError?.(bucketName, error.message, "deleted")
     },
   })
 

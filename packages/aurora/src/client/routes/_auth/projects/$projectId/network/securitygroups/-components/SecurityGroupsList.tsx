@@ -160,7 +160,11 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
 
   const handleCreateSecurityGroup = async (securityGroupData: Omit<CreateSecurityGroupInput, "project_id">) => {
     setCreateError(null)
-    await createSecurityGroupMutation.mutateAsync({ project_id: projectId, ...securityGroupData })
+    try {
+      await createSecurityGroupMutation.mutateAsync({ project_id: projectId, ...securityGroupData })
+    } catch {
+      // onError handles error state and UI feedback
+    }
   }
 
   const handleDeleteSecurityGroup = (securityGroupId: string) => {
@@ -183,9 +187,13 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
   ) => {
     setUpdateError(null)
     const sgName = data.name || securityGroups.find((sg) => sg.id === securityGroupId)?.name || securityGroupId
-    await updateSecurityGroupMutation.mutateAsync({ project_id: projectId, securityGroupId, ...data })
-    const { message, ...options } = getSecurityGroupUpdatedToast(sgName)
-    toast.success(message, options)
+    try {
+      await updateSecurityGroupMutation.mutateAsync({ project_id: projectId, securityGroupId, ...data })
+      const { message, ...options } = getSecurityGroupUpdatedToast(sgName)
+      toast.success(message, options)
+    } catch {
+      // onError handles error state and UI feedback
+    }
   }
 
   const handleClearUpdateError = () => {
