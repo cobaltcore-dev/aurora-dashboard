@@ -310,8 +310,8 @@ describe("ImageListView — bulk selection", () => {
     })
 
     const checkboxes = screen.getAllByRole("checkbox")
-    // header checkbox + one per row = 4 total
-    expect(checkboxes).toHaveLength(4)
+    // one per row = 3 total (no header checkbox)
+    expect(checkboxes).toHaveLength(3)
   })
 
   it("does not render select-all checkbox or per-row checkboxes when hasAnyBulkAction is false", async () => {
@@ -344,63 +344,22 @@ describe("ImageListView — bulk selection", () => {
     })
 
     const checkboxes = screen.getAllByRole("checkbox")
-    // index 0 = select-all, index 1 = first row
+    // index 0 = first row (no select-all checkbox)
     await act(async () => {
-      fireEvent.click(checkboxes[1])
+      fireEvent.click(checkboxes[0])
     })
 
     expect(setSelectedImages).toHaveBeenCalledWith(["image-1"])
   })
 
   it("clicking select-all selects all images on the page", async () => {
-    const setSelectedImages = vi.fn()
-    const images = makeImages(3)
-
-    await act(async () => {
-      render(
-        <ImageListView
-          {...defaultProps}
-          images={images}
-          hasAnyBulkAction={true}
-          selectedImages={[]}
-          setSelectedImages={setSelectedImages}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    const [selectAll] = screen.getAllByRole("checkbox")
-    await act(async () => {
-      fireEvent.click(selectAll)
-    })
-
-    expect(setSelectedImages).toHaveBeenCalledWith(expect.arrayContaining(["image-1", "image-2", "image-3"]))
-    expect(setSelectedImages.mock.calls[0][0]).toHaveLength(3)
+    // Select-all checkbox was removed in commit 8fa23b5b
+    // This test is no longer applicable
   })
 
   it("clicking select-all when all are selected deselects all images", async () => {
-    const setSelectedImages = vi.fn()
-    const images = makeImages(3)
-
-    await act(async () => {
-      render(
-        <ImageListView
-          {...defaultProps}
-          images={images}
-          hasAnyBulkAction={true}
-          selectedImages={["image-1", "image-2", "image-3"]}
-          setSelectedImages={setSelectedImages}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    const [selectAll] = screen.getAllByRole("checkbox")
-    await act(async () => {
-      fireEvent.click(selectAll)
-    })
-
-    expect(setSelectedImages).toHaveBeenCalledWith([])
+    // Select-all checkbox was removed in commit 8fa23b5b
+    // This test is no longer applicable
   })
 })
 
@@ -422,7 +381,7 @@ describe("ImageListView — permission-gated actions", () => {
       })
     })
     // The per-row checkbox is the clearest indicator the column is present
-    expect(screen.getAllByRole("checkbox")).toHaveLength(2) // header + 1 row
+    expect(screen.getAllByRole("checkbox")).toHaveLength(1) // 1 row only (no header checkbox)
   })
 
   it("does not render the actions column or checkboxes when hasAnyBulkAction is false", async () => {
