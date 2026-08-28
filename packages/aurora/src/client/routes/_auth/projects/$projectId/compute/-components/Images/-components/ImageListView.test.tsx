@@ -351,16 +351,6 @@ describe("ImageListView — bulk selection", () => {
 
     expect(setSelectedImages).toHaveBeenCalledWith(["image-1"])
   })
-
-  it("clicking select-all selects all images on the page", async () => {
-    // Select-all checkbox was removed in commit 8fa23b5b
-    // This test is no longer applicable
-  })
-
-  it("clicking select-all when all are selected deselects all images", async () => {
-    // Select-all checkbox was removed in commit 8fa23b5b
-    // This test is no longer applicable
-  })
 })
 
 describe("ImageListView — permission-gated actions", () => {
