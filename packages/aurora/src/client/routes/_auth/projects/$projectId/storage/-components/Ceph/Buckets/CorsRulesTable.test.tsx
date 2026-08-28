@@ -319,8 +319,8 @@ describe("CorsRulesTable", () => {
 
       await openRowMenu("cors-rule-row-0")
 
-      expect(screen.getByText("Edit")).toBeInTheDocument()
-      expect(screen.queryByText("Delete CORS Rule")).not.toBeInTheDocument()
+      expect(screen.getByRole("menuitem", { name: "Edit CORS Rule" })).toBeInTheDocument()
+      expect(screen.queryByRole("menuitem", { name: "Delete CORS Rule" })).not.toBeInTheDocument()
     })
 
     it("shows Delete CORS Rule but hides Edit when canUpdateCors is false and canDeleteCors is true", async () => {
@@ -339,8 +339,8 @@ describe("CorsRulesTable", () => {
 
       await openRowMenu("cors-rule-row-0")
 
-      expect(screen.queryByText("Edit")).not.toBeInTheDocument()
-      expect(screen.getByText("Delete CORS Rule")).toBeInTheDocument()
+      expect(screen.queryByRole("menuitem", { name: "Edit CORS Rule" })).not.toBeInTheDocument()
+      expect(screen.getByRole("menuitem", { name: "Delete CORS Rule" })).toBeInTheDocument()
     })
 
     it("renders no row menu button when both canUpdateCors and canDeleteCors are false", () => {

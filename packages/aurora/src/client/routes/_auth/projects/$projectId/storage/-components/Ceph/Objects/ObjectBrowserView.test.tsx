@@ -770,16 +770,19 @@ describe("ObjectBrowserView - Permission gating", () => {
     expect(screen.queryByRole("button", { name: /upload object/i })).not.toBeInTheDocument()
   })
 
-  it("hides the Create Folder button when canCreateFolder is false", () => {
+  it("hides the More Actions menu when canCreateFolder is false", () => {
     mockCephPermissions = { ...mockCephPermissions, canCreateFolder: false }
     render(<ObjectBrowserView bucketName="test-bucket" />)
-    expect(screen.queryByRole("button", { name: /create folder/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /more actions/i })).not.toBeInTheDocument()
+    expect(screen.queryByTestId("create-folder-action")).not.toBeInTheDocument()
   })
 
-  it("shows both toolbar buttons when permitted", () => {
+  it("shows the Upload button and the Create Folder menu item when permitted", async () => {
+    const user = userEvent.setup()
     render(<ObjectBrowserView bucketName="test-bucket" />)
     expect(screen.getByRole("button", { name: /upload object/i })).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /create folder/i })).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: /more actions/i }))
+    expect(screen.getByRole("menuitem", { name: /create folder/i })).toBeInTheDocument()
   })
 
   it("bulk selection is gated by canDeleteObject in the All tab", () => {

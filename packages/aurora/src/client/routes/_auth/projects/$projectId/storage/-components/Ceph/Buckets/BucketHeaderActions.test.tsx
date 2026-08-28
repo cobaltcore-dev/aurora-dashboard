@@ -36,11 +36,12 @@ describe("BucketHeaderActions", () => {
 
   const openMenu = async () => {
     const user = userEvent.setup()
-    await user.click(screen.getByRole("button"))
+    await user.click(screen.getByRole("button", { name: "Bucket actions" }))
   }
 
   it("shows every permitted item when all permissions are granted", async () => {
     render(<BucketHeaderActions {...defaultProps} />, { wrapper: Wrapper })
+    expect(screen.getByRole("button", { name: "Bucket actions" })).toBeInTheDocument()
     await openMenu()
 
     expect(screen.getByText("Enable Versioning")).toBeInTheDocument()

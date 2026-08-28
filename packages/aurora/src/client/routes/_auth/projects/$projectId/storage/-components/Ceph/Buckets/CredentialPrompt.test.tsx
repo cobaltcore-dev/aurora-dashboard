@@ -36,12 +36,13 @@ vi.mock("@/client/hooks/useProjectId", () => ({
 
 let mockCanCreateCredential = true
 let mockIsLoadingPermissions = false
+let mockIsErrorPermissions = false
 
 vi.mock("../hooks/useCephPermissions", () => ({
   useCephPermissions: () => ({
     permissions: { canCreateCredential: mockCanCreateCredential },
     isLoading: mockIsLoadingPermissions,
-    isError: false,
+    isError: mockIsErrorPermissions,
   }),
 }))
 
@@ -113,6 +114,7 @@ describe("CredentialPrompt", () => {
     mockState.isPending = false
     mockCanCreateCredential = true
     mockIsLoadingPermissions = false
+    mockIsErrorPermissions = false
     await act(async () => {
       i18n.activate("en")
     })
@@ -283,6 +285,17 @@ describe("CredentialPrompt", () => {
       renderCredentialPrompt()
 
       expect(screen.getByRole("button", { name: "Create S3 Credentials" })).toBeInTheDocument()
+      expect(screen.queryByText(/You don't have permission to create S3 credentials/)).not.toBeInTheDocument()
+    })
+
+    test("shows a permission-check error, not the denial message, when the permission query fails", () => {
+      mockIsLoadingPermissions = false
+      mockIsErrorPermissions = true
+      mockCanCreateCredential = false
+      renderCredentialPrompt()
+
+      expect(screen.getByText("Could not check permissions")).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: "Create S3 Credentials" })).not.toBeInTheDocument()
       expect(screen.queryByText(/You don't have permission to create S3 credentials/)).not.toBeInTheDocument()
     })
   })

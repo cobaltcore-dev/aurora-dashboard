@@ -11,7 +11,7 @@ interface CredentialPromptProps {
 export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const { permissions, isLoading: isLoadingPermissions } = useCephPermissions(projectId)
+  const { permissions, isLoading: isLoadingPermissions, isError: isPermissionsError } = useCephPermissions(projectId)
   const utils = trpcReact.useUtils()
 
   const createMutation = trpcReact.storage.ceph.ec2Credentials.create.useMutation({
@@ -43,6 +43,12 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
       </p>
       {isLoadingPermissions ? (
         <Spinner variant="primary" size="small" />
+      ) : isPermissionsError ? (
+        <Message variant="error" title={t`Could not check permissions`}>
+          <Trans>
+            We couldn't verify whether you can create S3 credentials. Please reload the page or try again later.
+          </Trans>
+        </Message>
       ) : permissions.canCreateCredential ? (
         <div>
           <Button

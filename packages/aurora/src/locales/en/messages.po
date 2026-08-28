@@ -161,6 +161,9 @@ msgstr "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgid "{selectedCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{selectedCount, plural, one {Empty Container} other {Empty # Containers}}"
 
+msgid "{skippedRuleCount, plural, one {# lifecycle rule on this bucket could not be read and is hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete it. Fix it with an external S3 tool (e.g. the AWS CLI) first, then reload this page.} other {# lifecycle rules on this bucket could not be read and are hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete them. Fix them with an external S3 tool (e.g. the AWS CLI) first, then reload this page.}}"
+msgstr "{skippedRuleCount, plural, one {# lifecycle rule on this bucket could not be read and is hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete it. Fix it with an external S3 tool (e.g. the AWS CLI) first, then reload this page.} other {# lifecycle rules on this bucket could not be read and are hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete them. Fix them with an external S3 tool (e.g. the AWS CLI) first, then reload this page.}}"
+
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 
@@ -515,6 +518,9 @@ msgstr "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} object 
 msgid "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} objects deleted."
 msgstr "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} objects deleted."
 
+msgid "Bucket actions"
+msgstr "Bucket actions"
+
 msgid "Bucket Created"
 msgstr "Bucket Created"
 
@@ -789,6 +795,9 @@ msgstr "CORS rule was successfully deleted from bucket \"{bucketName}\"."
 
 msgid "CORS Rules"
 msgstr "CORS Rules"
+
+msgid "Could not check permissions"
+msgstr "Could not check permissions"
 
 msgid "Could not copy \"{displayName}\": {errorMessage}"
 msgstr "Could not copy \"{displayName}\": {errorMessage}"
@@ -2157,6 +2166,9 @@ msgstr "Lifecycle rule was successfully saved for bucket \"{bucketName}\"."
 
 msgid "Lifecycle Rules"
 msgstr "Lifecycle Rules"
+
+msgid "Lifecycle rules cannot be modified"
+msgstr "Lifecycle rules cannot be modified"
 
 msgid "Limits"
 msgstr "Limits"
@@ -3944,6 +3956,9 @@ msgstr "Visibility"
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
+
+msgid "We couldn't verify whether you can create S3 credentials. Please reload the page or try again later."
+msgstr "We couldn't verify whether you can create S3 credentials. Please reload the page or try again later."
 
 msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
 msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."

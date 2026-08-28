@@ -67,7 +67,7 @@ export const BucketHeaderActions = ({
   return (
     <PopupMenu>
       <PopupMenuToggle as="div">
-        <Button icon="moreVert" />
+        <Button icon="moreVert" title={t`Bucket actions`} />
       </PopupMenuToggle>
       <PopupMenuOptions>
         {canEnableVersioning && (

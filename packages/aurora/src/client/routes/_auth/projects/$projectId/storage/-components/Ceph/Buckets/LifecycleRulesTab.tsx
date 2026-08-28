@@ -201,6 +201,14 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
   const allFilteredSelected = filteredIndices.length > 0 && filteredIndices.every((i) => selectedIndices.includes(i))
   const someFilteredSelected = filteredIndices.some((i) => selectedIndices.includes(i)) && !allFilteredSelected
 
+  const skippedRulesMessage = i18n._(
+    plural(skippedRuleCount, {
+      one: "# lifecycle rule on this bucket could not be read and is hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete it. Fix it with an external S3 tool (e.g. the AWS CLI) first, then reload this page.",
+      other:
+        "# lifecycle rules on this bucket could not be read and are hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete them. Fix them with an external S3 tool (e.g. the AWS CLI) first, then reload this page.",
+    })
+  )
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -219,6 +227,12 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
 
   return (
     <>
+      {mutationsBlocked && (
+        <Message variant="warning" title={t`Lifecycle rules cannot be modified`} className="mb-2">
+          {skippedRulesMessage}
+        </Message>
+      )}
+
       {/* Zone 1 — Sort controls and Create rule button (outside DataGridToolbar) */}
       <Stack distribution="end" alignment="center" gap="2" className="pb-2">
         <Stack gap="0.5" alignment="center">

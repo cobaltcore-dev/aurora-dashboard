@@ -262,5 +262,57 @@ describe("LifecycleRulesTab", () => {
 
       expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
     })
+
+    it("disables the Create Lifecycle Rule button when a rule was skipped on read", () => {
+      mockCephPermissions = { canUpdateLifecycle: true, canDeleteLifecycle: true }
+      ;(trpcReact.storage.ceph.lifecycle.get.useQuery as any).mockReturnValue({
+        data: { rules: [mockRule], skippedRuleCount: 1 },
+        isLoading: false,
+        error: null,
+      })
+
+      render(<LifecycleRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
+
+      expect(screen.getByRole("button", { name: /Create Lifecycle Rule/i })).toBeDisabled()
+    })
+
+    it("keeps the Create Lifecycle Rule button enabled when no rules were skipped on read", () => {
+      mockCephPermissions = { canUpdateLifecycle: true, canDeleteLifecycle: true }
+      ;(trpcReact.storage.ceph.lifecycle.get.useQuery as any).mockReturnValue({
+        data: { rules: [mockRule], skippedRuleCount: 0 },
+        isLoading: false,
+        error: null,
+      })
+
+      render(<LifecycleRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
+
+      expect(screen.getByRole("button", { name: /Create Lifecycle Rule/i })).not.toBeDisabled()
+    })
+
+    it("shows a warning message explaining why mutations are blocked when a rule was skipped on read", () => {
+      mockCephPermissions = { canUpdateLifecycle: true, canDeleteLifecycle: true }
+      ;(trpcReact.storage.ceph.lifecycle.get.useQuery as any).mockReturnValue({
+        data: { rules: [mockRule], skippedRuleCount: 1 },
+        isLoading: false,
+        error: null,
+      })
+
+      render(<LifecycleRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
+
+      expect(screen.getByText("Lifecycle rules cannot be modified")).toBeInTheDocument()
+    })
+
+    it("does not show the warning message when no rules were skipped on read", () => {
+      mockCephPermissions = { canUpdateLifecycle: true, canDeleteLifecycle: true }
+      ;(trpcReact.storage.ceph.lifecycle.get.useQuery as any).mockReturnValue({
+        data: { rules: [mockRule], skippedRuleCount: 0 },
+        isLoading: false,
+        error: null,
+      })
+
+      render(<LifecycleRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
+
+      expect(screen.queryByText("Lifecycle rules cannot be modified")).not.toBeInTheDocument()
+    })
   })
 })
