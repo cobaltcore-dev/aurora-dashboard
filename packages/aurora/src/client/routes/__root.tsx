@@ -102,7 +102,7 @@ function PendingComponent() {
   const { t } = useLingui()
   return (
     <AuroraLayout>
-      <Status status="progress" title={t`Loading...`} />
+      <Status status="progress" title="" body={t`Loading...`} />
     </AuroraLayout>
   )
 }
