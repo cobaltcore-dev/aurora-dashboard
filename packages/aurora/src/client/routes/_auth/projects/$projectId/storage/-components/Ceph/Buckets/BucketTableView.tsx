@@ -126,6 +126,7 @@ export const BucketTableView = ({
           <div style={{ paddingRight: `${scrollbarWidth}px` }}>
             <DataGrid
               columns={columnCount}
+              minContentColumns={[columnCount - 1]}
               gridColumnTemplate={gridColumnTemplate}
               className="buckets"
               data-testid="buckets-table-header"
