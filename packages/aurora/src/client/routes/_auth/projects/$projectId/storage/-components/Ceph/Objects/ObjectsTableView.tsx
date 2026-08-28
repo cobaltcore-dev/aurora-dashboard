@@ -388,7 +388,12 @@ export function ObjectsTableView({
       <div className="relative">
         {/* Table Header with scrollbar padding */}
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
-          <DataGrid columns={columnCount} gridColumnTemplate={gridColumnTemplate} data-testid="objects-table-header">
+          <DataGrid
+            columns={columnCount}
+            gridColumnTemplate={gridColumnTemplate}
+            data-testid="objects-table-header"
+            minContentColumns={[columnCount - 1]}
+          >
             <DataGridRow>
               {showSelection && (
                 <DataGridHeadCell>
@@ -509,7 +514,7 @@ export function ObjectsTableView({
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          className="flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2"
+                          className="flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline"
                           onClick={() => onFolderClick(row.prefix)}
                           title={row.prefix}
                         >
@@ -531,7 +536,7 @@ export function ObjectsTableView({
                         )}
                         <button
                           type="button"
-                          className="min-w-0 truncate text-left text-sm hover:underline focus-visible:outline focus-visible:outline-2 disabled:cursor-wait disabled:no-underline"
+                          className="min-w-0 truncate text-left text-sm hover:underline focus-visible:outline disabled:cursor-wait disabled:no-underline"
                           onClick={row.kind === "object" ? () => handlePreviewOrDownload(row) : undefined}
                           disabled={row.kind !== "object" || isStreaming}
                           title={

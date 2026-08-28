@@ -98,7 +98,7 @@ export const ObjectVersionHistoryModal = ({
   return (
     <Modal
       title={
-        <span className="flex max-w-[400px] items-center gap-1 md:max-w-[500px] lg:max-w-[1000px] xl:max-w-[1100px]">
+        <span className="flex max-w-100 items-center gap-1 md:max-w-125 lg:max-w-250 xl:max-w-275">
           <span className="shrink-0">
             <Trans>Version History:</Trans>
           </span>
@@ -144,7 +144,7 @@ export const ObjectVersionHistoryModal = ({
 
         {!isLoading && !error && versions.length > 0 && (
           <>
-            <DataGrid columns={6}>
+            <DataGrid columns={6} minContentColumns={[5]}>
               <DataGridRow>
                 <DataGridHeadCell>
                   <Trans>Status</Trans>

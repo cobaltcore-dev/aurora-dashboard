@@ -111,7 +111,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   const hasPreflightError = !!(objectsError || metaError)
 
   const modalTitle = (
-    <span className="flex max-w-[400px] items-center gap-2">
+    <span className="flex max-w-100 items-center gap-2">
       <span className="shrink-0">
         <Trans>Delete container:</Trans>
       </span>
