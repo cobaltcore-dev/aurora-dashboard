@@ -388,7 +388,12 @@ export function ObjectsTableView({
       <div className="relative">
         {/* Table Header with scrollbar padding */}
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
-          <DataGrid columns={columnCount} gridColumnTemplate={gridColumnTemplate} data-testid="objects-table-header">
+          <DataGrid
+            columns={columnCount}
+            gridColumnTemplate={gridColumnTemplate}
+            data-testid="objects-table-header"
+            minContentColumns={[columnCount - 1]}
+          >
             <DataGridRow>
               {showSelection && (
                 <DataGridHeadCell>

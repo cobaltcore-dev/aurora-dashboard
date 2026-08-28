@@ -60,9 +60,8 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
       </DataGrid>
     )
   }
-
   return (
-    <DataGrid columns={columnCount}>
+    <DataGrid columns={columnCount} minContentColumns={[columnCount - 1]}>
       <DataGridRow>
         {columns.map((label) => (
           <DataGridHeadCell key={label}>{label}</DataGridHeadCell>

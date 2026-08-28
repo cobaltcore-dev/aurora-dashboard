@@ -144,7 +144,7 @@ export const ObjectVersionHistoryModal = ({
 
         {!isLoading && !error && versions.length > 0 && (
           <>
-            <DataGrid columns={6}>
+            <DataGrid columns={6} minContentColumns={[5]}>
               <DataGridRow>
                 <DataGridHeadCell>
                   <Trans>Status</Trans>
