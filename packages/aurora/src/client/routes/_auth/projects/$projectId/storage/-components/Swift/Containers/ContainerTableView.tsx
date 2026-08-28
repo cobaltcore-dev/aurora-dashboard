@@ -157,6 +157,7 @@ export const ContainerTableView = ({
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
           <DataGrid
             columns={columnCount}
+            minContentColumns={[columnCount - 1]}
             gridColumnTemplate={gridColumnTemplate}
             className="containers"
             data-testid="containers-table-header"
