@@ -644,26 +644,39 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           )}
 
           <Stack gap="2" alignment="center">
-            <SortInput
-              options={sortSettings.options}
-              sortBy={sortSettings.sortBy}
-              sortDirection={sortSettings.sortDirection ?? "asc"}
-              selectClassName="min-w-40"
-              onSortByChange={(value) =>
-                handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
-              }
-              onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
-            />
-            {permissions.canCreateObject && (
-              <Button className="whitespace-nowrap" onClick={() => setIsUploadModalOpen(true)}>
-                <Trans>Upload Object</Trans>
-              </Button>
-            )}
-            {permissions.canCreateFolder && (
-              <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsCreateFolderModalOpen(true)}>
-                <Trans>Create Folder</Trans>
-              </Button>
-            )}
+            <Stack gap="0.5" alignment="center">
+              <SortInput
+                options={sortSettings.options}
+                sortBy={sortSettings.sortBy}
+                sortDirection={sortSettings.sortDirection ?? "asc"}
+                selectClassName="min-w-40"
+                onSortByChange={(value) =>
+                  handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
+                }
+                onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
+              />
+            </Stack>
+            <Stack gap="0.5" alignment="center">
+              {permissions.canCreateFolder && (
+                <PopupMenu className="flex items-center">
+                  <PopupMenuToggle as="div">
+                    <Button icon="moreVert" title={t`More Actions`} />
+                  </PopupMenuToggle>
+                  <PopupMenuOptions>
+                    <PopupMenuItem
+                      label={t`Create Folder`}
+                      onClick={() => setIsCreateFolderModalOpen(true)}
+                      data-testid="create-folder-action"
+                    />
+                  </PopupMenuOptions>
+                </PopupMenu>
+              )}
+              {permissions.canCreateObject && (
+                <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsUploadModalOpen(true)}>
+                  <Trans>Upload Object</Trans>
+                </Button>
+              )}
+            </Stack>
           </Stack>
         </Stack>
 

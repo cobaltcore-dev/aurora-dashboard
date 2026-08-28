@@ -245,13 +245,7 @@ msgstr ""
 msgid "A temporary URL grants time-limited read access to this object without requiring authentication. Anyone with the link can download it until it expires."
 msgstr "Eine temporäre URL gewährt zeitlich begrenzten Lesezugriff auf dieses Objekt ohne Authentifizierung. Jeder mit dem Link kann es herunterladen, bis es abläuft."
 
-msgid "Abort After Days"
-msgstr ""
-
-msgid "Abort Incomplete Multipart Uploads"
-msgstr ""
-
-msgid "Abort incomplete multipart uploads after this many days"
+msgid "Abort incomplete multipart uploads"
 msgstr ""
 
 msgid "About Aurora Dashboard"
@@ -271,6 +265,9 @@ msgstr "Zugriffskontrolle für Container:"
 
 msgid "Access Control Updated"
 msgstr "Zugriffskontrolle aktualisiert"
+
+msgid "Access Denied"
+msgstr ""
 
 msgid "Access Status"
 msgstr "Zugriffsstatus"
@@ -434,7 +431,7 @@ msgstr "Jeder Benutzer kann eine HEAD- oder GET-Operation auf dem Container ausf
 msgid "Any user has read access to objects. No token is required in the request."
 msgstr "Jeder Benutzer hat Lesezugriff auf Objekte. Es ist kein Token in der Anfrage erforderlich."
 
-msgid "Apply this rule only to objects with specific tags"
+msgid "Apply this rule only to objects with specific tags. Cannot be combined with Abort Incomplete Multipart Uploads."
 msgstr ""
 
 msgid "Apply this rule only to objects with this prefix (leave empty for all objects)"
@@ -584,16 +581,15 @@ msgstr "Abbrechen"
 msgid "Cancel upload"
 msgstr "Upload abbrechen"
 
-msgid "Cannot be combined with Abort Incomplete Multipart Uploads"
-msgstr ""
-
 msgid "Cannot be combined with Tag Filters"
 msgstr ""
 
-msgid "Cannot delete rule: {errorMessage}"
+#. placeholder {0}: validation.errors.join("; ")
+msgid "Cannot delete rule: {0}"
 msgstr ""
 
-msgid "Cannot delete rules: {errorMessage}"
+#. placeholder {0}: validation.errors.join("; ")
+msgid "Cannot delete rules: {0}"
 msgstr ""
 
 msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
@@ -628,9 +624,6 @@ msgstr "Prüfsumme"
 
 msgid "CIDR"
 msgstr "CIDR"
-
-msgid "Clean up abandoned multipart uploads"
-msgstr ""
 
 msgid "Clear all"
 msgstr "Alle Filter löschen"
@@ -995,6 +988,15 @@ msgstr "Benutzerdefinierte Eigenschaften / Metadaten"
 msgid "Date:"
 msgstr ""
 
+msgid "Days after becoming non-current"
+msgstr ""
+
+msgid "Days until cleanup"
+msgstr ""
+
+msgid "Days until deletion"
+msgstr ""
+
 msgid "Deactivate"
 msgstr "Deaktivieren"
 
@@ -1073,9 +1075,6 @@ msgstr ""
 msgid "Delete Marker"
 msgstr ""
 
-msgid "Delete noncurrent versions after this many days (requires versioning enabled)"
-msgstr ""
-
 msgid "Delete Object"
 msgstr ""
 
@@ -1083,12 +1082,6 @@ msgid "Delete object:"
 msgstr "Objekt löschen:"
 
 msgid "Delete Objects"
-msgstr ""
-
-msgid "Delete objects after this many days"
-msgstr ""
-
-msgid "Delete older versions of objects after they become noncurrent"
 msgstr ""
 
 msgid "Delete Policy"
@@ -1247,6 +1240,9 @@ msgstr ""
 msgid "e.g. Authorization, Content-Type, or *"
 msgstr ""
 
+msgid "e.g. bucket/folder/subfolder"
+msgstr ""
+
 msgid "e.g. environment"
 msgstr ""
 
@@ -1254,9 +1250,6 @@ msgid "e.g. Etag, Content-Length"
 msgstr ""
 
 msgid "e.g. https://example.com or *"
-msgstr ""
-
-msgid "e.g. logs/"
 msgstr ""
 
 msgid "e.g. my-lifecycle-rule"
@@ -1349,7 +1342,7 @@ msgstr "Wird geleert..."
 msgid "Enable file listing"
 msgstr "Dateilisting aktivieren"
 
-msgid "Enable Rule"
+msgid "Enable rule"
 msgstr ""
 
 msgid "Enable versioning"
@@ -1472,13 +1465,10 @@ msgstr "Erwartetes Format: JJJJ-MM-TT HH:mm:ss"
 msgid "Expiration"
 msgstr ""
 
-msgid "Expiration Days"
+msgid "Expire non-current versions"
 msgstr ""
 
-msgid "Expire Noncurrent Versions"
-msgstr ""
-
-msgid "Expire Objects"
+msgid "Expire objects"
 msgstr ""
 
 msgid "Expires at (UTC)"
@@ -1931,6 +1921,12 @@ msgstr "Wird generiert..."
 msgid "Get Involved"
 msgstr "Mitmachen"
 
+msgid "Go to Home"
+msgstr ""
+
+msgid "Go to Projects"
+msgstr ""
+
 msgid "Grant access to a user from a different project."
 msgstr "Zugriff für einen Benutzer aus einem anderen Projekt gewähren."
 
@@ -2141,6 +2137,9 @@ msgstr "Leer lassen für alle Codes"
 msgid "Leave empty for all types"
 msgstr "Leer lassen für alle Typen"
 
+msgid "Leave unchecked to save without activating."
+msgstr ""
+
 msgid "Leaving the JSON field empty will remove the policy from the bucket."
 msgstr ""
 
@@ -2242,6 +2241,9 @@ msgstr ""
 
 msgid "Loading..."
 msgstr "Lädt..."
+
+msgid "Log In"
+msgstr ""
 
 msgid "MAC Address"
 msgstr "MAC-Adresse"
@@ -2528,9 +2530,6 @@ msgstr ""
 msgid "No versions were deleted: {errorMessage}"
 msgstr ""
 
-msgid "Noncurrent Days"
-msgstr ""
-
 msgid "Noncurrent Version Transitions (Read-Only)"
 msgstr ""
 
@@ -2696,9 +2695,6 @@ msgstr "Ausstehend"
 msgid "Pending file upload..."
 msgstr "Datei-Upload ausstehend..."
 
-msgid "Permanently delete objects after a specified time"
-msgstr ""
-
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
@@ -2747,7 +2743,7 @@ msgstr "Vorsignierte URL"
 msgid "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 msgstr "Vorsignierte URL für \"{displayName}\" wurde in die Zwischenablage kopiert."
 
-msgid "Prefix Filter"
+msgid "Prefix and tag filters define which objects a rule applies to. Without them, this rule will be applied to all objects in the bucket."
 msgstr ""
 
 msgid "Press Enter to add"
@@ -2785,6 +2781,9 @@ msgstr "Projekt-ID"
 
 msgid "Project ID"
 msgstr "Projekt-ID"
+
+msgid "Project Not Accessible"
+msgstr ""
 
 msgid "Project Not Found"
 msgstr ""
@@ -2960,7 +2959,9 @@ msgstr ""
 msgid "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 msgstr ""
 
-msgid "Rule #{ruleNumber}"
+#. placeholder {0}: index + 1
+#. placeholder {0}: ruleIndex + 1
+msgid "Rule #{0}"
 msgstr ""
 
 msgid "Rule Details:"
@@ -3089,6 +3090,9 @@ msgstr ""
 msgid "Select an external network"
 msgstr "Externes Netzwerk auswählen"
 
+msgid "Select at least one lifecycle action"
+msgstr ""
+
 msgid "Select destination folder"
 msgstr "Zielordner auswählen"
 
@@ -3157,6 +3161,9 @@ msgstr "Serverrolle:"
 
 msgid "Services"
 msgstr "Services"
+
+msgid "Session Expired"
+msgstr ""
 
 msgid "Session expires in"
 msgstr "Sitzung läuft ab in"
@@ -3638,6 +3645,12 @@ msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr ""
 
+msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
+msgstr ""
+
+msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Please select a project from your current domain."
+msgstr ""
+
 msgid "This property is reserved and cannot be modified"
 msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 
@@ -3938,9 +3951,6 @@ msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung 
 msgid "What happens when suspended:"
 msgstr ""
 
-msgid "When enabled, this rule is actively applied to matching objects. Leave unchecked to save the rule without activating it."
-msgstr ""
-
 msgid "Why Choose Aurora?"
 msgstr "Warum Aurora wählen?"
 
@@ -4004,6 +4014,9 @@ msgstr "Sie haben keine Berechtigung, auf die Zugriffsinformationen für diesen 
 msgid "You don't have permission to access flavors for this project."
 msgstr "Sie haben keine Berechtigung, auf Flavors für dieses Projekt zuzugreifen."
 
+msgid "You don't have permission to access this project."
+msgstr ""
+
 msgid "You don't have permission to add tenant access to this flavor."
 msgstr "Sie haben keine Berechtigung, diesem Flavor Projektzugriffe hinzuzufügen."
 
@@ -4045,6 +4058,9 @@ msgstr ""
 
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+
+msgid "Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab."
+msgstr ""
 
 msgid "YYYY-MM-DD HH:mm:ss"
 msgstr "YYYY-MM-DD HH:mm:ss"

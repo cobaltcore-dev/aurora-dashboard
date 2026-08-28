@@ -81,6 +81,33 @@ export function parseDaysValue(raw: string): DaysParseResult {
 }
 
 /**
+ * Validate an Expiration object's structure against lifecycleExpirationSchema's refinements
+ * (server write schema): exactly one of Days/Date/ExpiredObjectDeleteMarker must be set, and
+ * ExpiredObjectDeleteMarker cannot combine with Days or Date.
+ *
+ * Used to guard against preserving/submitting an externally-authored Expiration (read via the
+ * lenient read schema) that would fail server-side validation, e.g. `{}` or `{ Days, Date }`.
+ *
+ * Accepts the lenient read-schema shape (`LifecycleRuleRead["Expiration"]`, where `Date` may be
+ * a `Date` object) since callers check both freshly-built write-shape rules and rules read
+ * straight from the server.
+ *
+ * @param expiration - Expiration to check, or undefined (treated as valid  no expiration set)
+ * @returns Whether the Expiration would satisfy the write schema's structural rules
+ */
+export function isValidExpiration(expiration: LifecycleRuleRead["Expiration"]): boolean {
+  if (!expiration) return true
+  const hasDays = expiration.Days !== undefined
+  const hasDate = expiration.Date !== undefined
+  const hasDeleteMarker = expiration.ExpiredObjectDeleteMarker !== undefined
+
+  if (!hasDays && !hasDate && !hasDeleteMarker) return false
+  if (hasDays && hasDate) return false
+  if (hasDeleteMarker && (hasDays || hasDate)) return false
+  return true
+}
+
+/**
  * Convert LifecycleRuleRead (lenient read schema) to LifecycleRule (strict write schema)
  *
  * Performs real conversion, not just a cast:
@@ -204,6 +231,13 @@ export function validateLifecycleRules(
     // Cannot have both Filter and legacy Prefix
     if (rule.Filter !== undefined && rule.Prefix !== undefined) {
       errors.push(`${ruleLabel}: Cannot have both Filter and legacy Prefix field set`)
+    }
+
+    // Expiration must specify exactly one of Days/Date/ExpiredObjectDeleteMarker mirrors
+    // lifecycleExpirationSchema (server). Catches structurally invalid Expiration objects
+    // (e.g. `{}` or `{ Days, Date }`) that the lenient read schema would otherwise let through.
+    if (rule.Expiration !== undefined && !isValidExpiration(rule.Expiration)) {
+      errors.push(`${ruleLabel}: Expiration must specify exactly one of Days, Date, or ExpiredObjectDeleteMarker`)
     }
 
     // ExpiredObjectDeleteMarker cannot be combined with tag-based filters

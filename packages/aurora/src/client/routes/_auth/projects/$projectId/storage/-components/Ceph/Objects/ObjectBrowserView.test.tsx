@@ -4,13 +4,18 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import type { ReactNode } from "react"
 import userEvent from "@testing-library/user-event"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { ObjectBrowserView } from "./ObjectBrowserView"
 import { trpcReact } from "@/client/trpcClient"
 
 // Mock dependencies
 const render = (ui: React.ReactElement) => {
   return rtlRender(ui, {
-    wrapper: ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>,
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <I18nProvider i18n={i18n}>
+        <PortalProvider>{children}</PortalProvider>
+      </I18nProvider>
+    ),
   })
 }
 
@@ -342,13 +347,16 @@ describe("ObjectBrowserView", () => {
     expect(screen.getByTestId("objects-table")).toBeInTheDocument()
   })
 
-  it("shows New Folder button", () => {
+  it("shows New Folder action in the kebab menu", async () => {
+    const user = userEvent.setup()
     render(<ObjectBrowserView bucketName="test-bucket" />)
 
-    expect(screen.getByRole("button", { name: /create folder/i })).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: /more Actions/i }))
+
+    expect(screen.getByRole("menuitem", { name: /create folder/i })).toBeInTheDocument()
   })
 
-  it("shows Upload button", () => {
+  it("shows Upload button as the primary action", () => {
     render(<ObjectBrowserView bucketName="test-bucket" />)
 
     expect(screen.getByRole("button", { name: /upload object/i })).toBeInTheDocument()
@@ -363,12 +371,12 @@ describe("ObjectBrowserView", () => {
     expect(screen.getByTestId("upload-object-modal")).toBeInTheDocument()
   })
 
-  it("opens create folder modal when New Folder is clicked", async () => {
+  it("opens create folder modal when New Folder is clicked from the kebab menu", async () => {
     const user = userEvent.setup()
     render(<ObjectBrowserView bucketName="test-bucket" />)
 
-    const createFolderButton = screen.getByRole("button", { name: /create folder/i })
-    await user.click(createFolderButton)
+    await user.click(screen.getByRole("button", { name: /more Actions/i }))
+    await user.click(screen.getByRole("menuitem", { name: /create folder/i }))
 
     expect(screen.getByTestId("create-folder-modal")).toBeInTheDocument()
   })

@@ -102,7 +102,7 @@ export function CorsRulesTable({
   return (
     <Stack direction="vertical" gap="4">
       {/* Rules Table */}
-      <DataGrid columns={columnCount}>
+      <DataGrid columns={columnCount} minContentColumns={canDeleteCors ? [0, columnCount - 1] : [columnCount - 1]}>
         <DataGridRow>
           {canDeleteCors && (
             <DataGridHeadCell>
@@ -169,7 +169,7 @@ export function CorsRulesTable({
                         <PopupMenuOptions>
                           {canUpdateCors && (
                             <PopupMenuItem
-                              label={t`Edit`}
+                              label={t`Edit CORS Rule`}
                               onClick={() => onEditRule(originalIndex)}
                               disabled={effectiveIsMutating}
                             />

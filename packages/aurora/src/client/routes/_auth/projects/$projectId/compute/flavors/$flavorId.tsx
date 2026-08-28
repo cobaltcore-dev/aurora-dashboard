@@ -7,6 +7,8 @@ import {
   PopupMenuToggle,
   PopupMenuOptions,
   PopupMenuItem,
+  Container,
+  Status,
 } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import type { RouteInfo } from "@/client/routes/routeInfo"
@@ -14,7 +16,6 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
 import { FlavorDetailsView } from "./-components/FlavorDetailsView"
-import { StatusError } from "@/client/components/Error/StatusError"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import { EditSpecModal } from "../-components/Flavors/-components/EditSpecModal"
 import { ManageAccessModal } from "../-components/Flavors/-components/ManageAccessModal"
@@ -141,26 +142,52 @@ function RouteComponent() {
     }
 
     return (
-      <StatusError
-        message={translatedError}
-        statusCode={getStatusCode(errorCode)}
-        title={t`Error Loading Flavor`}
-        onBackClick={handleBack}
-        onHomeClick={handleHome}
-        reset={canRetry ? handleRetry : undefined}
-      />
+      <Container className="py-8">
+        <Status
+          status="error"
+          code={getStatusCode(errorCode)}
+          title={t`Error Loading Flavor`}
+          body={translatedError}
+          action={
+            <ButtonRow>
+              <Button variant="primary" onClick={handleBack}>
+                <Trans>Back</Trans>
+              </Button>
+              <Button onClick={handleHome}>
+                <Trans>Home</Trans>
+              </Button>
+              {canRetry && (
+                <Button onClick={handleRetry}>
+                  <Trans>Try Again</Trans>
+                </Button>
+              )}
+            </ButtonRow>
+          }
+        />
+      </Container>
     )
   }
 
   if (!flavor) {
     return (
-      <StatusError
-        message={t`The requested flavor could not be found. It may have been deleted or you may not have access to it.`}
-        statusCode={404}
-        title={t`Flavor Not Found`}
-        onBackClick={handleBack}
-        onHomeClick={handleHome}
-      />
+      <Container className="py-8">
+        <Status
+          status="error"
+          code={404}
+          title={t`Flavor Not Found`}
+          body={t`The requested flavor could not be found. It may have been deleted or you may not have access to it.`}
+          action={
+            <ButtonRow>
+              <Button variant="primary" onClick={handleBack}>
+                <Trans>Back</Trans>
+              </Button>
+              <Button onClick={handleHome}>
+                <Trans>Home</Trans>
+              </Button>
+            </ButtonRow>
+          }
+        />
+      </Container>
     )
   }
 

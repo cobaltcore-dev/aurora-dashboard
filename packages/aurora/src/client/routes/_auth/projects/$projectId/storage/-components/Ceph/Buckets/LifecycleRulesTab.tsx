@@ -234,7 +234,7 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
           />
         </Stack>
         {permissions.canUpdateLifecycle && (
-          <Button variant="primary" onClick={handleAddRule}>
+          <Button variant="primary" onClick={handleAddRule} disabled={mutationsBlocked}>
             <Trans>Create Lifecycle Rule</Trans>
           </Button>
         )}

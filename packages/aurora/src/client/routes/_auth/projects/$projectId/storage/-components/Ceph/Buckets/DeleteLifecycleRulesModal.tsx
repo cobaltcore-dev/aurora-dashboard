@@ -155,8 +155,7 @@ export const DeleteLifecycleRulesModal = ({
         // Some rules remain - validate and set
         const validation = validateLifecycleRules(remaining)
         if (!validation.ok) {
-          const errorMessage = validation.errors.join("; ")
-          onError?.(bucketName, t`Cannot delete rules: ${errorMessage}`, ruleIndices.length)
+          onError?.(bucketName, t`Cannot delete rules: ${validation.errors.join("; ")}`, ruleIndices.length)
           return
         }
 
@@ -226,10 +225,9 @@ export const DeleteLifecycleRulesModal = ({
           </p>
           {rulesToDeleteWithIndices.length > 0 && (
             <ul className="mt-2 list-disc pl-5">
-              {visibleRules.map(({ rule, index }) => {
-                const ruleNumber = index + 1
-                return <li key={index}>{rule.ID || t`Rule #${ruleNumber}`}</li>
-              })}
+              {visibleRules.map(({ rule, index }) => (
+                <li key={index}>{rule.ID || t`Rule #${index + 1}`}</li>
+              ))}
               {hiddenCount > 0 && (
                 <li className="text-theme-light">
                   <Trans>... and {hiddenCount} more</Trans>

@@ -1,5 +1,5 @@
-import { createRootRouteWithContext, Outlet, useRouter, HeadContent } from "@tanstack/react-router"
-import { AppShell, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { createRootRouteWithContext, Outlet, HeadContent } from "@tanstack/react-router"
+import { AppShell, Button, Container, Spinner, Stack, Status } from "@cloudoperators/juno-ui-components"
 import { MainNavigation } from "../components/navigation/MainNavigation"
 import { TrpcClient, TrpcReact } from "../trpcClient"
 import { AuthContext } from "../store/AuthProvider"
@@ -8,8 +8,7 @@ import type { Slots, OnTrackEventCallback, AdditionalProjectService } from "../A
 import styles from "../index.css?inline"
 import { RouteError } from "../components/Error/RouteError"
 import { TRPCClientError } from "@trpc/client"
-import { useLingui } from "@lingui/react/macro"
-import { StatusError } from "../components/Error/StatusError"
+import { useLingui, Trans } from "@lingui/react/macro"
 import { Slot } from "../components/Slot"
 
 export interface RouterContext {
@@ -81,16 +80,21 @@ function RootErrorComponent({ error }: { error: Error }) {
 function PageNotFound() {
   const { t } = useLingui()
   const navigateTo = Route.useNavigate()
-  const router = useRouter()
 
   return (
-    <StatusError
-      message={t`The page you are looking for does not exist.`}
-      title={t`Page Not Found`}
-      onHomeClick={() => navigateTo({ to: "/" })}
-      onBackClick={() => router.history.back()}
-      statusCode={404}
-    />
+    <Container className="py-8">
+      <Status
+        status="error"
+        code={404}
+        title={t`Page Not Found`}
+        body={t`The page you are looking for does not exist.`}
+        action={
+          <Button variant="primary" onClick={() => navigateTo({ to: "/" })}>
+            <Trans>Go to Home</Trans>
+          </Button>
+        }
+      />
+    </Container>
   )
 }
 
