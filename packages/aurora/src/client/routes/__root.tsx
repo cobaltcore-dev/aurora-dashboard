@@ -99,9 +99,10 @@ function PageNotFound() {
 }
 
 function PendingComponent() {
+  const { t } = useLingui()
   return (
     <AuroraLayout>
-      <Status status="progress" title={""} />
+      <Status status="progress" title={t`Loading...`} />
     </AuroraLayout>
   )
 }
