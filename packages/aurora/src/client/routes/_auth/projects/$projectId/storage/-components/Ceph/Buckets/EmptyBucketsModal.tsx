@@ -116,25 +116,34 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          <Trans>
-            This will permanently delete all objects from {totalCount} selected{" "}
-            <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
-          </Trans>
+          <p className="text-theme-default">
+            <Trans>
+              This will permanently delete all objects from {totalCount} selected{" "}
+              <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
+            </Trans>
+          </p>
 
           <div>
-            <p className="text-theme-light mb-2 text-sm">
+            <p className="text-sm font-semibold">
               <Trans>Buckets to empty:</Trans>
             </p>
-            <ul className="list-inside list-disc space-y-1 text-sm">
-              {visibleBuckets.map((bucket) => (
-                <li key={bucket.name}>{bucket.name}</li>
-              ))}
-              {hiddenCount > 0 && (
-                <li className="text-theme-light">
-                  <Trans>... and {hiddenCount} more</Trans>
-                </li>
-              )}
-            </ul>
+            <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+              <Stack direction="vertical" gap="1">
+                {visibleBuckets.map((bucket) => (
+                  <div
+                    key={bucket.name}
+                    className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]"
+                  >
+                    {bucket.name}
+                  </div>
+                ))}
+                {hiddenCount > 0 && (
+                  <div className="text-theme-light pt-2 text-sm">
+                    <Trans>… and {hiddenCount} more</Trans>
+                  </div>
+                )}
+              </Stack>
+            </div>
           </div>
 
           <TextInput

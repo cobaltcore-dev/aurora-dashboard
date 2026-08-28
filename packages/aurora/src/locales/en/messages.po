@@ -728,8 +728,8 @@ msgstr "Containers Emptied"
 msgid "Containers Partially Emptied"
 msgstr "Containers Partially Emptied"
 
-msgid "Containers to be emptied ({totalCount})"
-msgstr "Containers to be emptied ({totalCount})"
+msgid "Containers to be emptied:"
+msgstr "Containers to be emptied:"
 
 msgid "Content type"
 msgstr "Content type"
