@@ -608,22 +608,7 @@ export function ImageListView({
             >
               {/* Table Header */}
               <DataGridRow>
-                {hasAnyBulkAction && (
-                  <DataGridHeadCell>
-                    <input
-                      type="checkbox"
-                      checked={selectedImages.length === images.length && images.length > 0}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedImages(images.map((img) => img.id))
-                        } else {
-                          setSelectedImages([])
-                        }
-                      }}
-                      aria-label="Select all images"
-                    />
-                  </DataGridHeadCell>
-                )}
+                <DataGridHeadCell></DataGridHeadCell>
                 <DataGridHeadCell>
                   <Trans>Status</Trans>
                 </DataGridHeadCell>
