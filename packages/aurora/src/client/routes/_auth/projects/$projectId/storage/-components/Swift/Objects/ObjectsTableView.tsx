@@ -364,7 +364,7 @@ export const ObjectsTableView = ({
                     {isFolder ? (
                       <button
                         type="button"
-                        className="focus-visible:outline-theme-focus flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline-2"
+                        className="focus-visible:outline-theme-focus flex min-w-0 items-center gap-2 rounded text-left hover:underline focus-visible:outline focus-visible:outline-2"
                         onClick={() => onFolderClick(row.name)}
                         data-testid={`folder-${row.name}`}
                         title={row.displayName}
