@@ -51,6 +51,13 @@ vi.mock("./-modals/CreateSecurityGroupModal", () => ({
   CreateSecurityGroupModal: () => null,
 }))
 
+vi.mock("./SecurityGroupToastNotifications", () => ({
+  getSecurityGroupDeletedToast: (name: string) => ({ message: "deleted", description: name }),
+  getSecurityGroupDeleteErrorToast: (errorMessage: string) => ({ message: "delete error", description: errorMessage }),
+  getSecurityGroupUpdatedToast: (name: string) => ({ message: "updated", description: name }),
+  getSecurityGroupUpdateErrorToast: (errorMessage: string) => ({ message: "update error", description: errorMessage }),
+}))
+
 vi.mock("@/client/hooks", () => ({
   useProjectId: () => "project-owner",
 }))
@@ -129,7 +136,7 @@ describe("SecurityGroups", () => {
     expect(success).toHaveBeenCalledWith(expect.anything(), expect.anything())
   })
 
-  it("updates a group and shows a success toast", async () => {
+  it("uses the submitted name in the update success toast", async () => {
     const success = vi.spyOn(toast, "success")
     const user = userEvent.setup()
     renderList()
@@ -141,6 +148,6 @@ describe("SecurityGroups", () => {
       securityGroupId: "sg-123",
       name: "updated",
     })
-    expect(success).toHaveBeenCalledWith(expect.anything(), expect.anything())
+    expect(success).toHaveBeenCalledWith("updated", { description: "updated" })
   })
 })

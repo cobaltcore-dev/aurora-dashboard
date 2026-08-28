@@ -114,8 +114,9 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         isOpen={activeModal === "policy"}
         bucketName={bucketName}
         onClose={onClose}
-        onSuccess={(bucketName) => {
-          const { message, ...options } = getBucketPolicySavedToast(bucketName)
+        onSuccess={(bucketName, action) => {
+          const { message, ...options } =
+            action === "deleted" ? getBucketPolicyDeletedToast(bucketName) : getBucketPolicySavedToast(bucketName)
           toast.success(message, options)
           onClose()
         }}

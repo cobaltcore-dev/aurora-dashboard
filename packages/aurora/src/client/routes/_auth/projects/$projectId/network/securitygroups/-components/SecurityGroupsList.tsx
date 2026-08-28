@@ -182,7 +182,7 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
     data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">
   ) => {
     setUpdateError(null)
-    const sgName = securityGroups.find((sg) => sg.id === securityGroupId)?.name || securityGroupId
+    const sgName = data.name || securityGroups.find((sg) => sg.id === securityGroupId)?.name || securityGroupId
     await updateSecurityGroupMutation.mutateAsync({ project_id: projectId, securityGroupId, ...data })
     const { message, ...options } = getSecurityGroupUpdatedToast(sgName)
     toast.success(message, options)

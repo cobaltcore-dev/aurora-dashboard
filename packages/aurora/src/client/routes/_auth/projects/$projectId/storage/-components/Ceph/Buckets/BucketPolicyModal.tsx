@@ -12,7 +12,7 @@ interface BucketPolicyModalProps {
   isOpen: boolean
   bucketName: string
   onClose: () => void
-  onSuccess?: (bucketName: string) => void
+  onSuccess?: (bucketName: string, action: "saved" | "deleted") => void
   onError?: (bucketName: string, errorMessage: string) => void
 }
 
@@ -119,7 +119,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const setMutation = trpcReact.storage.ceph.bucketPolicy.set.useMutation({
     onSuccess: () => {
       utils.storage.ceph.bucketPolicy.get.invalidate()
-      onSuccess?.(bucketName)
+      onSuccess?.(bucketName, "saved")
       handleClose()
     },
     onError: (error) => {
@@ -131,7 +131,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const deleteMutation = trpcReact.storage.ceph.bucketPolicy.delete.useMutation({
     onSuccess: () => {
       utils.storage.ceph.bucketPolicy.get.invalidate()
-      onSuccess?.(bucketName)
+      onSuccess?.(bucketName, "deleted")
       handleClose()
     },
     onError: (error) => {

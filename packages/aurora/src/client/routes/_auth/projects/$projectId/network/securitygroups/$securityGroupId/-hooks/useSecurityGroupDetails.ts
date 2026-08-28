@@ -97,10 +97,12 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
 
   // Update mutation
   const updateMutation = trpcReact.network.securityGroup.update.useMutation({
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.list.invalidate()
-      const { message, ...options } = getSecurityGroupUpdatedToast(securityGroupQuery.data?.name || securityGroupId)
+      const { message, ...options } = getSecurityGroupUpdatedToast(
+        variables.name || securityGroupQuery.data?.name || securityGroupId
+      )
       toast.success(message, options)
       setEditModalOpen(false)
     },

@@ -63,6 +63,21 @@ vi.mock("@/client/trpcClient", () => ({
   },
 }))
 
+vi.mock("../../-components/SecurityGroupToastNotifications", () => ({
+  getSecurityGroupUpdatedToast: (name: string) => ({ message: "updated", description: name }),
+  getSecurityGroupUpdateErrorToast: (errorMessage: string) => ({ message: "update error", description: errorMessage }),
+  getSecurityGroupRuleCreatedToast: () => ({ message: "created", description: "rule created" }),
+  getSecurityGroupRuleCreateErrorToast: (errorMessage: string) => ({
+    message: "create error",
+    description: errorMessage,
+  }),
+  getSecurityGroupRuleDeletedToast: () => ({ message: "deleted", description: "rule deleted" }),
+  getSecurityGroupRuleDeleteErrorToast: (errorMessage: string) => ({
+    message: "delete error",
+    description: errorMessage,
+  }),
+}))
+
 const filterControls = {
   searchTerm: "",
   onSearchChange: vi.fn(),
@@ -120,11 +135,15 @@ describe("useSecurityGroupDetails", () => {
     renderHook(() => useSecurityGroupDetails({ securityGroupId: "sg-123", filterControls }))
     const success = vi.spyOn(toast, "success")
 
-    ;(mockMutations.update.options.onSuccess as () => void)()
+    ;(mockMutations.update.options.onSuccess as (data: unknown, variables: { name?: string }) => void)(
+      {},
+      { name: "renamed-sg" }
+    )
     ;(mockMutations.deleteRule.options.onSuccess as () => void)()
     ;(mockMutations.createRule.options.onSuccess as () => void)()
 
     expect(success).toHaveBeenCalledTimes(3)
+    expect(success).toHaveBeenCalledWith("updated", { description: "renamed-sg" })
     expect(mockInvalidate).toHaveBeenCalled()
   })
 })
