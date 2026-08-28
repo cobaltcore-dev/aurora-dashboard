@@ -2249,7 +2249,7 @@ msgid "Loading Containers..."
 msgstr "Container werden geladen..."
 
 msgid "Loading Flavor Details..."
-msgstr ""
+msgstr "Flavor-Details werden geladen..."
 
 msgid "Loading Flavors..."
 msgstr "Lädt Flavors..."
