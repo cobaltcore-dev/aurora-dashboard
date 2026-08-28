@@ -90,7 +90,7 @@ export const DeleteFlavorModal: React.FC<DeleteFlavorModalProps> = ({
       confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isConfirmed || isLoading}
+      disableConfirmButton={!flavor?.id || !isConfirmed || isLoading}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
     >

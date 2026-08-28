@@ -38,7 +38,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
     markSubmitted,
   } = useDeleteConfirmation({
     isOpen,
-    confirmWord: "delete",
+    confirmWord: "empty",
     trackingPrefix: "storage.swift.container",
   })
 
