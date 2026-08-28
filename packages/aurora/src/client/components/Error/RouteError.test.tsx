@@ -1,8 +1,13 @@
 import { render, screen } from "@testing-library/react"
-import { describe, test, expect, beforeEach } from "vitest"
+import { describe, test, expect, beforeEach, vi } from "vitest"
 import { RouteError } from "./RouteError"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
+
+// Mock useNavigate
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => vi.fn(),
+}))
 
 // Wrapper component for tests
 const TestWrapper = ({ children }: { children: React.ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
@@ -19,7 +24,7 @@ describe("RouteError", () => {
     expect(screen.getByText("Unable to Load Content")).toBeInTheDocument()
     // Security: Error.message should NOT be exposed by default
     expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument()
-    expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument()
+    expect(screen.getByText(/An unexpected error occurred\./)).toBeInTheDocument()
     expect(
       screen.getByText(/This could be due to insufficient permissions or a temporary service issue/i)
     ).toBeInTheDocument()
@@ -32,7 +37,7 @@ describe("RouteError", () => {
     // Security test: sensitive error messages should not be exposed
     expect(screen.queryByText(/database connection string/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/sensitive-data/i)).not.toBeInTheDocument()
-    expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument()
+    expect(screen.getByText(/An unexpected error occurred\./)).toBeInTheDocument()
   })
 
   test("renders safe error message when explicitly passed", () => {
@@ -40,7 +45,7 @@ describe("RouteError", () => {
     const safeMessage = "The item you requested could not be found"
     render(<RouteError error={error} safeErrorMessage={safeMessage} />, { wrapper: TestWrapper })
 
-    expect(screen.getByText(safeMessage)).toBeInTheDocument()
+    expect(screen.getByText(new RegExp(safeMessage))).toBeInTheDocument()
     expect(screen.queryByText("Internal error")).not.toBeInTheDocument()
   })
 
@@ -51,7 +56,7 @@ describe("RouteError", () => {
     }
     render(<RouteError error={error} />, { wrapper: TestWrapper })
 
-    expect(screen.getByText("Unable to process your request")).toBeInTheDocument()
+    expect(screen.getByText(/Unable to process your request/)).toBeInTheDocument()
     expect(screen.queryByText(/Internal server error/i)).not.toBeInTheDocument()
   })
 
@@ -60,7 +65,7 @@ describe("RouteError", () => {
     render(<RouteError error={error} />, { wrapper: TestWrapper })
 
     expect(screen.getByText("Unable to Load Content")).toBeInTheDocument()
-    expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument()
+    expect(screen.getByText(/An unexpected error occurred\./)).toBeInTheDocument()
   })
 
   test("renders custom title when provided", () => {
@@ -76,7 +81,7 @@ describe("RouteError", () => {
     const customHelpText = "Please contact support for assistance"
     render(<RouteError error={error} helpText={customHelpText} />, { wrapper: TestWrapper })
 
-    expect(screen.getByText(customHelpText)).toBeInTheDocument()
+    expect(screen.getByText(new RegExp(customHelpText))).toBeInTheDocument()
     expect(screen.queryByText(/This could be due to insufficient permissions/i)).not.toBeInTheDocument()
   })
 
@@ -89,8 +94,8 @@ describe("RouteError", () => {
     expect(screen.getByText("Connection Error")).toBeInTheDocument()
     // Security: Error.message is not exposed by default
     expect(screen.queryByText("Network failure")).not.toBeInTheDocument()
-    expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument()
-    expect(screen.getByText("Check your network connection")).toBeInTheDocument()
+    expect(screen.getByText(/An unexpected error occurred\./)).toBeInTheDocument()
+    expect(screen.getByText(/Check your network connection/)).toBeInTheDocument()
   })
 
   test("renders custom title, help text, and safe error message", () => {
@@ -108,19 +113,19 @@ describe("RouteError", () => {
     )
 
     expect(screen.getByText("Connection Error")).toBeInTheDocument()
-    expect(screen.getByText("Unable to connect to the server")).toBeInTheDocument()
+    expect(screen.getByText(/Unable to connect to the server/)).toBeInTheDocument()
     expect(screen.queryByText("Internal network error")).not.toBeInTheDocument()
-    expect(screen.getByText("Check your network connection")).toBeInTheDocument()
+    expect(screen.getByText(/Check your network connection/)).toBeInTheDocument()
   })
 
   test("handles null or undefined error gracefully", () => {
     render(<RouteError error={null} />, { wrapper: TestWrapper })
-    expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument()
+    expect(screen.getByText(/An unexpected error occurred\./)).toBeInTheDocument()
   })
 
   test("handles string error correctly", () => {
     render(<RouteError error="Custom string error" />, { wrapper: TestWrapper })
-    expect(screen.getByText("Custom string error")).toBeInTheDocument()
+    expect(screen.getByText(/Custom string error/)).toBeInTheDocument()
   })
 
   test("extracts message from Error objects with various properties", () => {
@@ -128,7 +133,7 @@ describe("RouteError", () => {
     const standardError = new Error("Standard error message")
     const { rerender } = render(<RouteError error={standardError} />, { wrapper: TestWrapper })
     expect(screen.queryByText("Standard error message")).not.toBeInTheDocument()
-    expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument()
+    expect(screen.getByText(/An unexpected error occurred\./)).toBeInTheDocument()
 
     // Error with custom message property - should still show default message
     const customError = { message: "Custom error object" }
@@ -138,7 +143,7 @@ describe("RouteError", () => {
       </TestWrapper>
     )
     expect(screen.queryByText("Custom error object")).not.toBeInTheDocument()
-    expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument()
+    expect(screen.getByText(/An unexpected error occurred\./)).toBeInTheDocument()
 
     // Error with safeMessage property - should show safe message
     const safeError = { message: "Internal error", safeMessage: "User-friendly error" }
@@ -147,17 +152,22 @@ describe("RouteError", () => {
         <RouteError error={safeError} />
       </TestWrapper>
     )
-    expect(screen.getByText("User-friendly error")).toBeInTheDocument()
+    expect(screen.getByText(/User-friendly error/)).toBeInTheDocument()
     expect(screen.queryByText("Internal error")).not.toBeInTheDocument()
   })
 
-  test("applies correct CSS classes for layout", () => {
+  test("uses Juno Status component for layout", () => {
     const error = new Error("Test")
     const { container } = render(<RouteError error={error} />, { wrapper: TestWrapper })
 
     const wrapper = container.firstChild as HTMLElement
-    expect(wrapper).toHaveClass("flex")
-    expect(wrapper).toHaveClass("min-h-100")
-    expect(wrapper).toHaveClass("p-8")
+    expect(wrapper).toHaveClass("juno-status")
+  })
+
+  test("renders Go To Home button", () => {
+    const error = new Error("Test")
+    render(<RouteError error={error} />, { wrapper: TestWrapper })
+
+    expect(screen.getByRole("button", { name: /Go To Home/i })).toBeInTheDocument()
   })
 })
