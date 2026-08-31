@@ -14,6 +14,8 @@ import {
   getVersioningEnableErrorToast,
   getVersioningSuspendedToast,
   getVersioningSuspendErrorToast,
+  getBucketPolicySavedToast,
+  getBucketPolicySaveErrorToast,
   getBucketPolicyDeletedToast,
   getBucketPolicyDeleteErrorToast,
   getVersionsDeletedToast,
@@ -269,6 +271,8 @@ describe("BucketToastNotifications", () => {
         getVersioningSuspendErrorToast("b", "err"),
         getBucketPolicyDeletedToast("b"),
         getBucketPolicyDeleteErrorToast("b", "err"),
+        getBucketPolicySavedToast("b"),
+        getBucketPolicySaveErrorToast("b", "err"),
         getVersionsDeletedToast("b", 5),
         getVersionsDeleteErrorToast("b", "err"),
       ]
@@ -359,6 +363,22 @@ describe("BucketToastNotifications", () => {
       renderNotification(getBucketPolicyDeleteErrorToast("my-bucket", "Permission denied"))
       expect(screen.getByText("Failed to Delete Policy")).toBeInTheDocument()
       expect(screen.getByText(/Could not delete bucket policy from "my-bucket": Permission denied/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getBucketPolicySavedToast", () => {
+    it("renders correct message content", () => {
+      renderNotification(getBucketPolicySavedToast("my-bucket"))
+      expect(screen.getByText("Bucket Policy Saved")).toBeInTheDocument()
+      expect(screen.getByText(/successfully saved for "my-bucket"/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getBucketPolicySaveErrorToast", () => {
+    it("renders correct error message", () => {
+      renderNotification(getBucketPolicySaveErrorToast("my-bucket", "Invalid JSON"))
+      expect(screen.getByText("Failed to Save Bucket Policy")).toBeInTheDocument()
+      expect(screen.getByText(/Could not save bucket policy for "my-bucket": Invalid JSON/)).toBeInTheDocument()
     })
   })
 

@@ -2,9 +2,10 @@ import { z } from "zod"
 import { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, TextInput, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, TextInput, Message, toast } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import { getRBACPolicyAddedToast, getRBACPolicyAddErrorToast } from "../../-components/SecurityGroupToastNotifications"
 
 interface AddRBACPolicyModalProps {
   isOpen: boolean
@@ -38,10 +39,16 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
   })
 
   const createMutation = trpcReact.network.rbacPolicy.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       utils.network.rbacPolicy.list.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
+      const { message, ...options } = getRBACPolicyAddedToast(variables.targetTenant)
+      toast.success(message, options)
       handleClose()
+    },
+    onError: (error) => {
+      const { message, ...options } = getRBACPolicyAddErrorToast(error.message)
+      toast.error(message, options)
     },
   })
 

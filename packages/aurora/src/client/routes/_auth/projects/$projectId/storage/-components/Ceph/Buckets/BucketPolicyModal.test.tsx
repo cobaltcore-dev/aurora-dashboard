@@ -24,6 +24,8 @@ const mockSetReset = vi.fn()
 const mockDeleteMutate = vi.fn()
 const mockDeleteReset = vi.fn()
 const mockInvalidate = vi.fn()
+let mockSetOptions: { onSuccess?: () => void } = {}
+let mockDeleteOptions: { onSuccess?: () => void } = {}
 
 const mockPolicyData = {
   policy: {
@@ -61,18 +63,24 @@ vi.mock("@/client/trpcClient", () => ({
             useQuery: vi.fn(() => mockQueryResult),
           },
           set: {
-            useMutation: vi.fn(() => ({
-              mutate: mockSetMutate,
-              reset: mockSetReset,
-              isPending: false,
-            })),
+            useMutation: vi.fn((options) => {
+              mockSetOptions = options
+              return {
+                mutate: mockSetMutate,
+                reset: mockSetReset,
+                isPending: false,
+              }
+            }),
           },
           delete: {
-            useMutation: vi.fn(() => ({
-              mutate: mockDeleteMutate,
-              reset: mockDeleteReset,
-              isPending: false,
-            })),
+            useMutation: vi.fn((options) => {
+              mockDeleteOptions = options
+              return {
+                mutate: mockDeleteMutate,
+                reset: mockDeleteReset,
+                isPending: false,
+              }
+            }),
           },
         },
       },
@@ -120,6 +128,8 @@ describe("BucketPolicyModal", () => {
       isLoading: false,
       error: null,
     }
+    mockSetOptions = {}
+    mockDeleteOptions = {}
   })
 
   // ── Loading state ────────────────────────────────────────────────────────────
@@ -262,6 +272,18 @@ describe("BucketPolicyModal", () => {
       const saveButton = screen.getByText("Save")
       expect(saveButton).not.toBeDisabled()
     })
+  })
+
+  it("reports whether a policy was saved or deleted", () => {
+    const onSuccess = vi.fn()
+    renderModal({ ...defaultProps, onSuccess })
+
+    mockSetOptions.onSuccess?.()
+    expect(onSuccess).toHaveBeenCalledWith("test-bucket", "saved")
+
+    onSuccess.mockClear()
+    mockDeleteOptions.onSuccess?.()
+    expect(onSuccess).toHaveBeenCalledWith("test-bucket", "deleted")
   })
 
   // ── Policy size validation ───────────────────────────────────────────────────

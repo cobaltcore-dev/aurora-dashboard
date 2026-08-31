@@ -272,6 +272,12 @@ msgstr "Access Control Updated"
 msgid "Access Denied"
 msgstr "Access Denied"
 
+msgid "Access for project \"{targetTenant}\" was successfully revoked."
+msgstr "Access for project \"{targetTenant}\" was successfully revoked."
+
+msgid "Access Revoked"
+msgstr "Access Revoked"
+
 msgid "Access Status"
 msgstr "Access Status"
 
@@ -572,8 +578,14 @@ msgstr "Bucket name must start and end with a letter or number"
 msgid "Bucket Policy"
 msgstr "Bucket Policy"
 
+msgid "Bucket Policy Saved"
+msgstr "Bucket Policy Saved"
+
 msgid "Bucket policy was successfully deleted from \"{bucketName}\"."
 msgstr "Bucket policy was successfully deleted from \"{bucketName}\"."
+
+msgid "Bucket policy was successfully saved for \"{bucketName}\"."
+msgstr "Bucket policy was successfully saved for \"{bucketName}\"."
 
 msgid "Buckets to empty:"
 msgstr "Buckets to empty:"
@@ -817,6 +829,9 @@ msgstr "Could not create folder \"{folderName}\": {errorMessage}"
 msgid "Could not create folder \"{folderPath}\": {errorMessage}"
 msgstr "Could not create folder \"{folderPath}\": {errorMessage}"
 
+msgid "Could not create security group rule: {errorMessage}"
+msgstr "Could not create security group rule: {errorMessage}"
+
 msgid "Could not delete \"{displayName}\": {errorMessage}"
 msgstr "Could not delete \"{displayName}\": {errorMessage}"
 
@@ -856,6 +871,12 @@ msgstr "Could not delete lifecycle rule from bucket \"{bucketName}\": {errorMess
 msgid "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
 
+msgid "Could not delete security group rule: {errorMessage}"
+msgstr "Could not delete security group rule: {errorMessage}"
+
+msgid "Could not delete security group: {errorMessage}"
+msgstr "Could not delete security group: {errorMessage}"
+
 msgid "Could not delete version of \"{displayName}\": {errorMessage}"
 msgstr "Could not delete version of \"{displayName}\": {errorMessage}"
 
@@ -883,11 +904,20 @@ msgstr "Could not move \"{objectName}\": {errorMessage}"
 msgid "Could not restore \"{displayName}\": {errorMessage}"
 msgstr "Could not restore \"{displayName}\": {errorMessage}"
 
+msgid "Could not revoke access: {errorMessage}"
+msgstr "Could not revoke access: {errorMessage}"
+
+msgid "Could not save bucket policy for \"{bucketName}\": {errorMessage}"
+msgstr "Could not save bucket policy for \"{bucketName}\": {errorMessage}"
+
 msgid "Could not save CORS configuration for bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not save CORS configuration for bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Could not save lifecycle rule for bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not save lifecycle rule for bucket \"{bucketName}\": {errorMessage}"
+
+msgid "Could not share security group: {errorMessage}"
+msgstr "Could not share security group: {errorMessage}"
 
 msgid "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
@@ -903,6 +933,9 @@ msgstr "Could not update ACLs for container \"{containerName}\": {errorMessage}"
 
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Could not update container \"{containerName}\": {errorMessage}"
+
+msgid "Could not update security group: {errorMessage}"
+msgstr "Could not update security group: {errorMessage}"
 
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "Could not upload \"{objectName}\": {errorMessage}"
@@ -1552,6 +1585,9 @@ msgstr "Failed to Create Folder"
 msgid "Failed to create image. Please try again."
 msgstr "Failed to create image. Please try again."
 
+msgid "Failed to Create Rule"
+msgstr "Failed to Create Rule"
+
 msgid "Failed to create security group"
 msgstr "Failed to create security group"
 
@@ -1609,8 +1645,14 @@ msgstr "Failed to Delete Policy"
 msgid "Failed to delete rule"
 msgstr "Failed to delete rule"
 
+msgid "Failed to Delete Rule"
+msgstr "Failed to Delete Rule"
+
 msgid "Failed to delete security group"
 msgstr "Failed to delete security group"
+
+msgid "Failed to Delete Security Group"
+msgstr "Failed to Delete Security Group"
 
 msgid "Failed to delete the extra spec. Please try again."
 msgstr "Failed to delete the extra spec. Please try again."
@@ -1735,6 +1777,12 @@ msgstr "Failed to Restore Version"
 msgid "Failed to restore version: {errorMessage}"
 msgstr "Failed to restore version: {errorMessage}"
 
+msgid "Failed to Revoke Access"
+msgstr "Failed to Revoke Access"
+
+msgid "Failed to Save Bucket Policy"
+msgstr "Failed to Save Bucket Policy"
+
 msgid "Failed to Save CORS Configuration"
 msgstr "Failed to Save CORS Configuration"
 
@@ -1746,6 +1794,9 @@ msgstr "Failed to Save Lifecycle Rule"
 
 msgid "Failed to save policy"
 msgstr "Failed to save policy"
+
+msgid "Failed to Share Security Group"
+msgstr "Failed to Share Security Group"
 
 msgid "Failed to Suspend Versioning"
 msgstr "Failed to Suspend Versioning"
@@ -1773,6 +1824,9 @@ msgstr "Failed to update object: {mutationErrorMessage}"
 
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
+
+msgid "Failed to Update Security Group"
+msgstr "Failed to Update Security Group"
 
 msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
 msgstr "Failed to update visibility for \"{imageName}\": {errorMessage}"
@@ -2976,6 +3030,12 @@ msgstr "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\".
 msgid "Rule #{0}"
 msgstr "Rule #{0}"
 
+msgid "Rule Created"
+msgstr "Rule Created"
+
+msgid "Rule Deleted"
+msgstr "Rule Deleted"
+
 msgid "Rule Details:"
 msgstr "Rule Details:"
 
@@ -3063,11 +3123,35 @@ msgstr "Security"
 msgid "Security Group"
 msgstr "Security Group"
 
+msgid "Security group \"{name}\" was successfully deleted."
+msgstr "Security group \"{name}\" was successfully deleted."
+
+msgid "Security group \"{name}\" was successfully updated."
+msgstr "Security group \"{name}\" was successfully updated."
+
+msgid "Security Group Deleted"
+msgstr "Security Group Deleted"
+
 msgid "Security group name is required"
 msgstr "Security group name is required"
 
 msgid "Security group not found"
 msgstr "Security group not found"
+
+msgid "Security group rule was successfully created."
+msgstr "Security group rule was successfully created."
+
+msgid "Security group rule was successfully deleted."
+msgstr "Security group rule was successfully deleted."
+
+msgid "Security Group Shared"
+msgstr "Security Group Shared"
+
+msgid "Security Group Updated"
+msgstr "Security Group Updated"
+
+msgid "Security group was successfully shared with project \"{targetTenant}\"."
+msgstr "Security group was successfully shared with project \"{targetTenant}\"."
 
 msgid "Security Groups"
 msgstr "Security Groups"

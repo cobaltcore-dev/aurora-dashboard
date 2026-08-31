@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { Button, Stack, DataGridToolbar, SearchInput } from "@cloudoperators/juno-ui-components"
+import { Button, Stack, DataGridToolbar, SearchInput, toast } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
@@ -12,6 +12,12 @@ import { CreateSecurityGroupModal } from "./-modals/CreateSecurityGroupModal"
 import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
 import { useSecurityGroupPermissions } from "../-hooks/useSecurityGroupPermissions"
+import {
+  getSecurityGroupDeletedToast,
+  getSecurityGroupDeleteErrorToast,
+  getSecurityGroupUpdatedToast,
+  getSecurityGroupUpdateErrorToast,
+} from "./SecurityGroupToastNotifications"
 
 type SecurityGroupSortKey = "name" | "project_id"
 
@@ -134,6 +140,8 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
     },
     onError: (error) => {
       setDeleteError(error.message || t`Failed to delete security group`)
+      const { message, ...options } = getSecurityGroupDeleteErrorToast(error.message)
+      toast.error(message, options)
     },
   })
 
@@ -145,17 +153,32 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
     },
     onError: (error) => {
       setUpdateError(error.message || t`Failed to update security group`)
+      const { message, ...options } = getSecurityGroupUpdateErrorToast(error.message)
+      toast.error(message, options)
     },
   })
 
   const handleCreateSecurityGroup = async (securityGroupData: Omit<CreateSecurityGroupInput, "project_id">) => {
     setCreateError(null)
-    await createSecurityGroupMutation.mutateAsync({ project_id: projectId, ...securityGroupData })
+    try {
+      await createSecurityGroupMutation.mutateAsync({ project_id: projectId, ...securityGroupData })
+    } catch {
+      // onError handles error state and UI feedback
+    }
   }
 
   const handleDeleteSecurityGroup = (securityGroupId: string) => {
     setDeleteError(null)
-    deleteSecurityGroupMutation.mutate({ project_id: projectId, securityGroupId })
+    const sgName = securityGroups.find((sg) => sg.id === securityGroupId)?.name || securityGroupId
+    deleteSecurityGroupMutation.mutate(
+      { project_id: projectId, securityGroupId },
+      {
+        onSuccess: () => {
+          const { message, ...options } = getSecurityGroupDeletedToast(sgName)
+          toast.success(message, options)
+        },
+      }
+    )
   }
 
   const handleUpdateSecurityGroup = async (
@@ -163,7 +186,14 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
     data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">
   ) => {
     setUpdateError(null)
-    await updateSecurityGroupMutation.mutateAsync({ project_id: projectId, securityGroupId, ...data })
+    const sgName = data.name || securityGroups.find((sg) => sg.id === securityGroupId)?.name || securityGroupId
+    try {
+      await updateSecurityGroupMutation.mutateAsync({ project_id: projectId, securityGroupId, ...data })
+      const { message, ...options } = getSecurityGroupUpdatedToast(sgName)
+      toast.success(message, options)
+    } catch {
+      // onError handles error state and UI feedback
+    }
   }
 
   const handleClearUpdateError = () => {
