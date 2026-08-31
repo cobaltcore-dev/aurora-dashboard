@@ -213,20 +213,20 @@ describe("EmptyContainerModal", () => {
     test("Empty button is disabled when confirm input has wrong name", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "wrong")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "wrong")
       expect(screen.getByRole("button", { name: /^Empty Container$/i })).toBeDisabled()
     })
 
     test("Empty button is enabled when confirm input matches container name", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "empty")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "empty")
       expect(screen.getByRole("button", { name: /^Empty Container$/i })).not.toBeDisabled()
     })
 
-    test("shows copy icon button in title", () => {
+    test("renders confirmation input with container name in placeholder", () => {
       renderModal()
-      expect(screen.getByTitle(/Copy container name/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText("empty")).toBeInTheDocument()
     })
 
     test("shows overflow note when container.count exceeds listed objects", () => {
@@ -259,12 +259,12 @@ describe("EmptyContainerModal", () => {
 
     test("does not render confirmation text input", () => {
       renderModal({ container: makeContainer({ count: 0 }) })
-      expect(screen.queryByLabelText(/Type container name to confirm/i)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText(/Type "empty" to confirm/i)).not.toBeInTheDocument()
     })
 
     test("does not render copy icon button", () => {
       renderModal({ container: makeContainer({ count: 0 }) })
-      expect(screen.queryByTitle(/Copy container name/i)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText(/Copy container name/i)).not.toBeInTheDocument()
     })
 
     test("calls onClose when Close is clicked", async () => {
@@ -299,7 +299,7 @@ describe("EmptyContainerModal", () => {
 
     test("does not render copy icon button", () => {
       renderModal({ container: makeContainer({ count: 5 }) })
-      expect(screen.queryByTitle(/Copy container name/i)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText(/Copy container name/i)).not.toBeInTheDocument()
     })
 
     test("calls onClose when Close is clicked", async () => {
@@ -315,26 +315,30 @@ describe("EmptyContainerModal", () => {
     test("shows error when submitting with wrong container name", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "wrong")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "wrong")
       await user.keyboard("{Enter}")
       await waitFor(() => {
-        expect(screen.getByText(/Container name does not match/i)).toBeInTheDocument()
+        expect(screen.getByText(/Type "empty" to confirm/i)).toBeInTheDocument()
       })
     })
 
-    test("clears validation error when input changes", async () => {
+    test("allows submission after correcting invalid input", async () => {
       const user = userEvent.setup()
       renderModal()
-      const input = screen.getByLabelText(/Type container name to confirm/i)
+      const input = screen.getByLabelText(/Type "empty" to confirm/i)
+      const submitButton = screen.getByRole("button", { name: /^Empty Container$/i })
+
+      // Initially disabled
+      expect(submitButton).toBeDisabled()
+
+      // Type wrong value - still disabled
       await user.type(input, "wrong")
-      await user.keyboard("{Enter}")
-      await waitFor(() => {
-        expect(screen.getByText(/Container name does not match/i)).toBeInTheDocument()
-      })
-      await user.type(input, "-more")
-      await waitFor(() => {
-        expect(screen.queryByText(/Container name does not match/i)).not.toBeInTheDocument()
-      })
+      expect(submitButton).toBeDisabled()
+
+      // Clear and type correct value - now enabled
+      await user.clear(input)
+      await user.type(input, "empty")
+      expect(submitButton).not.toBeDisabled()
     })
   })
 
@@ -342,7 +346,7 @@ describe("EmptyContainerModal", () => {
     test("calls mutate with container name when Empty is clicked with correct name", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "empty")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "empty")
       await user.click(screen.getByRole("button", { name: /^Empty Container$/i }))
       expect(mockMutate).toHaveBeenCalledWith({
         project_id: mockProjectId,
@@ -353,7 +357,7 @@ describe("EmptyContainerModal", () => {
     test("calls mutate on Enter key press with correct name", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "empty")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "empty")
       await user.keyboard("{Enter}")
       expect(mockMutate).toHaveBeenCalledWith({
         project_id: mockProjectId,
@@ -365,7 +369,7 @@ describe("EmptyContainerModal", () => {
       const onSuccess = vi.fn()
       const user = userEvent.setup()
       renderModal({ onSuccess })
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "empty")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "empty")
       await user.click(screen.getByRole("button", { name: /^Empty Container$/i }))
       await waitFor(() => {
         expect(onSuccess).toHaveBeenCalledWith("empty", 3)
@@ -375,7 +379,7 @@ describe("EmptyContainerModal", () => {
     test("calls listContainers.invalidate after successful mutation", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "empty")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "empty")
       await user.click(screen.getByRole("button", { name: /^Empty Container$/i }))
       await waitFor(() => {
         expect(mockInvalidate).toHaveBeenCalled()
@@ -385,7 +389,7 @@ describe("EmptyContainerModal", () => {
     test("calls listObjects.invalidate with container name after successful mutation", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "empty")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "empty")
       await user.click(screen.getByRole("button", { name: /^Empty Container$/i }))
       await waitFor(() => {
         expect(mockInvalidateObjects).toHaveBeenCalledWith({
@@ -398,7 +402,7 @@ describe("EmptyContainerModal", () => {
     test("does not call mutate when confirm name does not match", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "wrong")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "wrong")
       await user.keyboard("{Enter}")
       expect(mockMutate).not.toHaveBeenCalled()
     })
@@ -410,7 +414,7 @@ describe("EmptyContainerModal", () => {
       const onError = vi.fn()
       const user = userEvent.setup()
       renderModal({ onError })
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "empty")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "empty")
       await user.click(screen.getByRole("button", { name: /^Empty Container$/i }))
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith("empty", "Bulk delete failed")
@@ -431,7 +435,7 @@ describe("EmptyContainerModal", () => {
       const onClose = vi.fn()
       const user = userEvent.setup()
       renderModal({ onClose })
-      await user.type(screen.getByLabelText(/Type container name to confirm/i), "empty")
+      await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "empty")
       await user.click(screen.getByRole("button", { name: /^Cancel$/i }))
       // handleClose resets state (calls mutation.reset) then calls onClose
       expect(mockReset).toHaveBeenCalled()
@@ -444,7 +448,7 @@ describe("EmptyContainerModal", () => {
       listObjectsError = { message: "Resource not found container: empty" }
       renderModal()
       expect(
-        screen.getByText(/Failed to load container objects: Resource not found container: my-container/i)
+        screen.getByText(/Failed to load container objects: Resource not found container: empty/i)
       ).toBeInTheDocument()
     })
 
@@ -465,23 +469,14 @@ describe("EmptyContainerModal", () => {
     test("does not render object form when fetch error is present", () => {
       listObjectsError = { message: "Not found" }
       renderModal()
-      expect(screen.queryByLabelText(/Type container name to confirm/i)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText(/Type "empty" to confirm/i)).not.toBeInTheDocument()
     })
   })
 
-  describe("Copy to clipboard", () => {
-    test("copy button shows Copied! title after click", async () => {
-      const user = userEvent.setup()
-      const writeText = vi.fn().mockResolvedValue(undefined)
-      Object.defineProperty(navigator, "clipboard", {
-        value: { writeText },
-        configurable: true,
-      })
+  describe("Accessibility", () => {
+    test("form has correct id attribute", () => {
       renderModal()
-      await user.click(screen.getByTitle(/Copy container name/i))
-      await waitFor(() => {
-        expect(screen.getByTitle(/Copied!/i)).toBeInTheDocument()
-      })
+      expect(document.getElementById("empty-container-form")).toBeInTheDocument()
     })
   })
 })

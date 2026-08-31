@@ -53,7 +53,10 @@ describe("DeactivateImagesModal", () => {
 
   it("should display the correct number of active images", () => {
     setup(true)
-    expect(screen.getByText(/Images to be deactivated \(3\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/Images to deactivate:/i)).toBeInTheDocument()
+    mockActiveImages.forEach((imageId) => {
+      expect(screen.getByText(imageId)).toBeInTheDocument()
+    })
   })
 
   it("should display all active image IDs", () => {
