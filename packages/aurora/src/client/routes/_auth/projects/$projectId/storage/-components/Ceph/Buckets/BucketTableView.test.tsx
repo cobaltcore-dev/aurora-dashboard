@@ -104,6 +104,8 @@ const renderTableView = ({
   onDeleteError = vi.fn(),
   selectedBuckets = [],
   setSelectedBuckets = vi.fn(),
+  canEmptyBucket = true,
+  canDeleteBucket = true,
 }: Partial<{
   buckets: Bucket[]
   createModalOpen: boolean
@@ -116,6 +118,8 @@ const renderTableView = ({
   onDeleteError: (bucketName: string, errorMessage: string) => void
   selectedBuckets: string[]
   setSelectedBuckets: (buckets: string[]) => void
+  canEmptyBucket: boolean
+  canDeleteBucket: boolean
 }> = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -132,6 +136,8 @@ const renderTableView = ({
           onDeleteError={onDeleteError}
           selectedBuckets={selectedBuckets}
           setSelectedBuckets={setSelectedBuckets}
+          canEmptyBucket={canEmptyBucket}
+          canDeleteBucket={canDeleteBucket}
         />
       </PortalProvider>
     </I18nProvider>
@@ -288,6 +294,30 @@ describe("BucketTableView", () => {
       expect(screen.getByTestId("bucket-row-bucket-1")).toBeInTheDocument()
       expect(screen.getByTestId("bucket-row-bucket-2")).toBeInTheDocument()
       expect(screen.getByTestId("bucket-row-bucket-3")).toBeInTheDocument()
+    })
+
+    test("shows Empty Bucket and Delete Bucket when permitted", async () => {
+      const user = userEvent.setup()
+      renderTableView()
+
+      // Open the row's popup menu via the toggle button within the row
+      const toggle = screen.getByTestId("bucket-row-bucket-1").querySelector("button")
+      if (toggle) await user.click(toggle)
+
+      expect(await screen.findByTestId("empty-action-bucket-1")).toBeInTheDocument()
+      expect(await screen.findByTestId("delete-action-bucket-1")).toBeInTheDocument()
+    })
+
+    test("hides both destructive items when canEmptyBucket and canDeleteBucket are false", async () => {
+      const user = userEvent.setup()
+      renderTableView({ canEmptyBucket: false, canDeleteBucket: false })
+
+      const toggle = screen.getByTestId("bucket-row-bucket-1").querySelector("button")
+      if (toggle) await user.click(toggle)
+
+      expect(await screen.findByTestId("show-details-action-bucket-1")).toBeInTheDocument()
+      expect(screen.queryByTestId("empty-action-bucket-1")).not.toBeInTheDocument()
+      expect(screen.queryByTestId("delete-action-bucket-1")).not.toBeInTheDocument()
     })
   })
 

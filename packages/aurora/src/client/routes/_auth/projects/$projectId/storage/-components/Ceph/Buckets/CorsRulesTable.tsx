@@ -30,6 +30,8 @@ interface CorsRulesTableProps {
   onDeleteRule?: (index: number) => void
   isMutating?: boolean
   isFiltered?: boolean
+  canUpdateCors: boolean
+  canDeleteCors: boolean
 }
 
 /**
@@ -47,6 +49,8 @@ export function CorsRulesTable({
   onDeleteRule,
   isMutating = false,
   isFiltered = false,
+  canUpdateCors,
+  canDeleteCors,
 }: CorsRulesTableProps) {
   const { t } = useLingui()
 
@@ -93,17 +97,20 @@ export function CorsRulesTable({
   const effectiveIsMutating = isMutating || isRowDeleteMutating
 
   const isEmpty = rulesWithIndices.length === 0
+  const columnCount = canDeleteCors ? 8 : 7
 
   return (
     <Stack direction="vertical" gap="4">
       {/* Rules Table */}
-      <DataGrid columns={8} minContentColumns={[0, 7]}>
+      <DataGrid columns={columnCount} minContentColumns={canDeleteCors ? [0, columnCount - 1] : [columnCount - 1]}>
         <DataGridRow>
-          <DataGridHeadCell>
-            <span className="sr-only">
-              <Trans>Select</Trans>
-            </span>
-          </DataGridHeadCell>
+          {canDeleteCors && (
+            <DataGridHeadCell>
+              <span className="sr-only">
+                <Trans>Select</Trans>
+              </span>
+            </DataGridHeadCell>
+          )}
           <DataGridHeadCell>{t`Rule ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Allowed Origins`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Allowed Methods`}</DataGridHeadCell>
@@ -114,7 +121,7 @@ export function CorsRulesTable({
         </DataGridRow>
         {isEmpty ? (
           <DataGridRow>
-            <DataGridCell colSpan={8}>
+            <DataGridCell colSpan={columnCount}>
               <p className="text-theme-light py-8 text-center">
                 {isFiltered ? (
                   <Trans>No CORS rules matching the current search criteria.</Trans>
@@ -131,17 +138,20 @@ export function CorsRulesTable({
             // originalIndex is the contract with parent's onEditRule(index) / onDeleteRule(index).
             const key = originalIndex
             const ruleLabel = rule.ID || String(originalIndex + 1)
+            const hasAnyRowAction = canUpdateCors || canDeleteCors
 
             return (
               <DataGridRow key={key} data-testid={`cors-rule-row-${originalIndex}`}>
-                <DataGridCell onClick={(e) => e.stopPropagation()}>
-                  <Checkbox
-                    checked={selectedIndices.includes(originalIndex)}
-                    onChange={() => onToggleSelectRule(originalIndex)}
-                    aria-label={t`Select rule ${ruleLabel}`}
-                    data-testid={`select-rule-${originalIndex}`}
-                  />
-                </DataGridCell>
+                {canDeleteCors && (
+                  <DataGridCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedIndices.includes(originalIndex)}
+                      onChange={() => onToggleSelectRule(originalIndex)}
+                      aria-label={t`Select rule ${ruleLabel}`}
+                      data-testid={`select-rule-${originalIndex}`}
+                    />
+                  </DataGridCell>
+                )}
                 <DataGridCell>{rule.ID || t`—`}</DataGridCell>
                 <DataGridCell className="break-all">{rule.AllowedOrigins.join(", ")}</DataGridCell>
                 <DataGridCell>{rule.AllowedMethods.join(", ")}</DataGridCell>
@@ -153,22 +163,28 @@ export function CorsRulesTable({
                 </DataGridCell>
                 <DataGridCell>{rule.MaxAgeSeconds !== undefined ? rule.MaxAgeSeconds : t`—`}</DataGridCell>
                 <DataGridCell onClick={(e) => e.stopPropagation()} className="justify-end pr-0">
-                  <div className="flex h-full items-center justify-end">
-                    <PopupMenu>
-                      <PopupMenuOptions>
-                        <PopupMenuItem
-                          label={t`Edit CORS Rule`}
-                          onClick={() => onEditRule(originalIndex)}
-                          disabled={effectiveIsMutating}
-                        />
-                        <PopupMenuItem
-                          label={t`Delete CORS Rule`}
-                          onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
-                          disabled={effectiveIsMutating}
-                        />
-                      </PopupMenuOptions>
-                    </PopupMenu>
-                  </div>
+                  {hasAnyRowAction && (
+                    <div className="flex h-full items-center justify-end">
+                      <PopupMenu>
+                        <PopupMenuOptions>
+                          {canUpdateCors && (
+                            <PopupMenuItem
+                              label={t`Edit CORS Rule`}
+                              onClick={() => onEditRule(originalIndex)}
+                              disabled={effectiveIsMutating}
+                            />
+                          )}
+                          {canDeleteCors && (
+                            <PopupMenuItem
+                              label={t`Delete CORS Rule`}
+                              onClick={() => handleOpenDeleteModal(originalIndex, rule.ID)}
+                              disabled={effectiveIsMutating}
+                            />
+                          )}
+                        </PopupMenuOptions>
+                      </PopupMenu>
+                    </div>
+                  )}
                 </DataGridCell>
               </DataGridRow>
             )
