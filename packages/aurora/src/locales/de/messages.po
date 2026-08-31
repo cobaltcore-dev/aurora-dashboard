@@ -716,9 +716,6 @@ msgstr "Container-Name"
 msgid "Container name cannot contain slashes"
 msgstr "Container-Name darf keine Schrägstriche enthalten"
 
-msgid "Container name does not match"
-msgstr "Container-Name stimmt nicht überein"
-
 msgid "Container name is required"
 msgstr "Container-Name ist erforderlich"
 
@@ -763,9 +760,6 @@ msgstr "Kopieren"
 
 msgid "Copy {text} to clipboard"
 msgstr "{text} in die Zwischenablage kopieren"
-
-msgid "Copy container name"
-msgstr "Container-Name kopieren"
 
 msgid "Copy metadata"
 msgstr "Metadaten kopieren"
@@ -3808,9 +3802,6 @@ msgstr "\"release\" zur Bestätigung eingeben"
 
 msgid "Type \"remove\" to confirm"
 msgstr "\"remove\" zur Bestätigung eingeben"
-
-msgid "Type container name to confirm"
-msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
 
 msgid "Type name"
 msgstr "Name eingeben"

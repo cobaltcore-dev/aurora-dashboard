@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Stack, Spinner, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, TextInput } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { FolderRow } from "./"
 

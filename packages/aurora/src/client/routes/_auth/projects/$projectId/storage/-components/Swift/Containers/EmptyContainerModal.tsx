@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
-import { useState, useRef } from "react"
+import { useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -14,7 +14,6 @@ import {
   TextInput,
   Stack,
   Spinner,
-  Icon,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary, ObjectSummary } from "@/server/Storage/types/swift"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -30,7 +29,6 @@ interface EmptyContainerModalProps {
 export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onError }: EmptyContainerModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const [copied, setCopied] = useState(false)
   const containerNameRef = useRef("")
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
@@ -39,14 +37,14 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   })
 
   const formSchema = z.object({
-    containerName: z
-      .string()
-      .refine((value) => value === container?.name, { message: t`Container name does not match` }),
+    confirm: z.string().refine((value) => value === "empty", {
+      message: t`Type "empty" to confirm`,
+    }),
   })
 
   const form = useForm({
     defaultValues: {
-      containerName: "",
+      confirm: "",
     },
     validators: {
       onSubmit: formSchema,
@@ -60,18 +58,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
     },
   })
 
-  const canEmpty = useStore(
-    form.store,
-    (state) => state.isSubmitting || !state.values.containerName || state.values.containerName !== container?.name
-  )
-
-  const handleCopyName = () => {
-    if (!container) return
-    navigator.clipboard.writeText(container.name).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
-  }
+  const canEmpty = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "empty")
 
   const utils = trpcReact.useUtils()
 
@@ -130,16 +117,6 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       <span className="truncate" title={container.name}>
         {container.name}
       </span>
-      {!isLoadingObjects && !showEmptyInfo && (
-        <button
-          type="button"
-          onClick={handleCopyName}
-          title={copied ? t`Copied!` : t`Copy container name`}
-          className="text-theme-light hover:text-theme-default inline-flex items-center transition-colors"
-        >
-          <Icon icon={copied ? "checkCircle" : "contentCopy"} size="16" />
-        </button>
-      )}
     </span>
   )
 
@@ -243,28 +220,18 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
           >
             <FormSection>
               <form.Field
-                name="containerName"
-                validators={{
-                  onSubmit: ({ value }) => {
-                    if (value !== container?.name) {
-                      return t`Container name does not match`
-                    }
-                    return undefined
-                  },
-                }}
+                name="confirm"
                 children={(field) => (
                   <TextInput
                     id={field.name}
                     name={field.name}
-                    label={t`Type container name to confirm`}
+                    label={t`Type "empty" to confirm`}
                     required
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    invalid={!!field.state.meta.errors.length}
-                    errortext={field.state.meta.errors.join(", ") || undefined}
                     disabled={emptyContainerMutation.isPending}
                     autoFocus
-                    placeholder={container.name}
+                    placeholder="empty"
                   />
                 )}
               />
