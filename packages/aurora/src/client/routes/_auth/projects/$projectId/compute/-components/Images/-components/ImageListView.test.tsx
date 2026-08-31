@@ -310,7 +310,7 @@ describe("ImageListView — bulk selection", () => {
     })
 
     const checkboxes = screen.getAllByRole("checkbox")
-    // one per row = 3 total (no header checkbox)
+    // one per row = 3 rows = 3 checkboxes
     expect(checkboxes).toHaveLength(3)
   })
 
@@ -344,7 +344,7 @@ describe("ImageListView — bulk selection", () => {
     })
 
     const checkboxes = screen.getAllByRole("checkbox")
-    // index 0 = first row (no select-all checkbox)
+    // click first row checkbox
     await act(async () => {
       fireEvent.click(checkboxes[0])
     })
