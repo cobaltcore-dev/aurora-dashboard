@@ -70,7 +70,7 @@ export const DetachFloatingIpModal = ({
   return (
     <Modal
       open={open}
-      size="small"
+      size="large"
       title={t`Detach Floating IP "${floating_ip_address}"`}
       onCancel={handleClose}
       cancelButtonLabel={t`Cancel`}
