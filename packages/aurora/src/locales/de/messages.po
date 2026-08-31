@@ -1888,11 +1888,41 @@ msgstr "Der Flavor-Service ist für dieses Projekt nicht verfügbar."
 msgid "Flavors"
 msgstr "Flavors"
 
+msgid "Floating IP \"{ip}\" was successfully allocated."
+msgstr ""
+
+msgid "Floating IP \"{ip}\" was successfully associated with the port."
+msgstr ""
+
+msgid "Floating IP \"{ip}\" was successfully detached from the port."
+msgstr ""
+
+msgid "Floating IP \"{ip}\" was successfully released."
+msgstr ""
+
+msgid "Floating IP \"{ip}\" was successfully updated."
+msgstr ""
+
 msgid "Floating IP Address"
 msgstr "Floating IP-Adresse"
 
+msgid "Floating IP Allocated"
+msgstr ""
+
+msgid "Floating IP Associated"
+msgstr ""
+
+msgid "Floating IP Detached"
+msgstr ""
+
 msgid "Floating IP not found"
 msgstr "Floating IP nicht gefunden"
+
+msgid "Floating IP Released"
+msgstr ""
+
+msgid "Floating IP Updated"
+msgstr ""
 
 msgid "Floating IPs"
 msgstr "Floating IPs"

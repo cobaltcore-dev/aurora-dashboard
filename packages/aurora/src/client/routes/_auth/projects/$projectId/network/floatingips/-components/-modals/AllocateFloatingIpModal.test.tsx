@@ -40,7 +40,7 @@ const createMockCreateMutationResult = (
   }> = {}
 ) =>
   ({
-    mutateAsync: vi.fn().mockResolvedValue({}),
+    mutateAsync: vi.fn().mockResolvedValue({ floating_ip_address: "203.0.113.50", id: "fip-new" }),
     reset: vi.fn(),
     isPending: false,
     error: null,
