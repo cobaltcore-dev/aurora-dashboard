@@ -45,7 +45,7 @@ describe("RouteError", () => {
     const safeMessage = "The item you requested could not be found"
     render(<RouteError error={error} safeErrorMessage={safeMessage} />, { wrapper: TestWrapper })
 
-    expect(screen.getByText(new RegExp(safeMessage))).toBeInTheDocument()
+    expect(screen.getByText(safeMessage, { exact: false })).toBeInTheDocument()
     expect(screen.queryByText("Internal error")).not.toBeInTheDocument()
   })
 
@@ -81,7 +81,7 @@ describe("RouteError", () => {
     const customHelpText = "Please contact support for assistance"
     render(<RouteError error={error} helpText={customHelpText} />, { wrapper: TestWrapper })
 
-    expect(screen.getByText(new RegExp(customHelpText))).toBeInTheDocument()
+    expect(screen.getByText(customHelpText, { exact: false })).toBeInTheDocument()
     expect(screen.queryByText(/This could be due to insufficient permissions/i)).not.toBeInTheDocument()
   })
 
