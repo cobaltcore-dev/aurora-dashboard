@@ -32,7 +32,6 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   const projectId = useProjectId()
   const [copied, setCopied] = useState(false)
   const containerNameRef = useRef("")
-  const [formError, setFormError] = useState<string | null>(null)
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
@@ -55,7 +54,6 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
     onSubmit: async () => {
       if (!container || emptyContainerMutation.isPending) return
 
-      setFormError(null)
       containerNameRef.current = container.name
       markSubmitted()
       emptyContainerMutation.mutate({ project_id: projectId, container: container.name })
@@ -105,7 +103,6 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   const handleClose = () => {
     trackClose()
     form.reset()
-    setFormError(null)
     emptyContainerMutation.reset()
     resetTracking()
     onClose()
@@ -262,12 +259,9 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
                     label={t`Type container name to confirm`}
                     required
                     value={field.state.value}
-                    onChange={(e) => {
-                      field.handleChange(e.target.value)
-                      if (formError) setFormError(null)
-                    }}
-                    invalid={!!formError || !!field.state.meta.errors.length}
-                    errortext={formError || field.state.meta.errors.join(", ") || undefined}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    invalid={!!field.state.meta.errors.length}
+                    errortext={field.state.meta.errors.join(", ") || undefined}
                     disabled={emptyContainerMutation.isPending}
                     autoFocus
                     placeholder={container.name}
