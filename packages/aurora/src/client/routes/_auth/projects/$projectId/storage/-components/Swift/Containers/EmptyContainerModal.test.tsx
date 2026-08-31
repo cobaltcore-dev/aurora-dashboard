@@ -318,7 +318,9 @@ describe("EmptyContainerModal", () => {
       await user.type(screen.getByLabelText(/Type "empty" to confirm/i), "wrong")
       await user.keyboard("{Enter}")
       await waitFor(() => {
-        expect(screen.getByText(/Type "empty" to confirm/i)).toBeInTheDocument()
+        // Error message will be 'Type "empty" to confirm'
+        const errorMessages = screen.getAllByText(/Type "empty" to confirm/i)
+        expect(errorMessages.length).toBeGreaterThan(1) // Label + error message
       })
     })
 

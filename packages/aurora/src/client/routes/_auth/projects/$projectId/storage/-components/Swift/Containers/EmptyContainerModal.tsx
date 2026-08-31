@@ -229,6 +229,11 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
                     required
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
+                    invalid={field.state.meta.errors.length > 0}
+                    errortext={
+                      field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ") ||
+                      undefined
+                    }
                     disabled={emptyContainerMutation.isPending}
                     autoFocus
                     placeholder="empty"
