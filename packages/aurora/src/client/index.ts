@@ -5,7 +5,9 @@ export {
   type SlotProps,
   type TrackEventPayload,
   type OnTrackEventCallback,
-  type AdditionalProjectService,
+  type ServiceExtension,
+  type ServiceExtensionProps,
+  type ServiceExtensionContext,
 } from "./AuroraApp"
 export {
   type TrpcClient,
@@ -18,11 +20,12 @@ export {
 } from "./trpcClient"
 
 export { useAuth } from "./store/AuthProvider"
-export { useDomainId, useProjectId, useScope } from "./hooks"
-export { servicesRoute } from "./routes/_auth/projects/$projectId/services"
+export { useDomainId, useScope } from "./hooks"
+export { createAuroraRouter } from "./router"
 export type { RouteInfo, Crumb } from "./routes/routeInfo"
 export { isRouteInfo } from "./routes/routeInfo"
 export { usePushBreadcrumbs } from "./hooks/usePushBreadcrumbs"
 export { useSetBreadcrumb } from "./hooks/useSetBreadcrumb"
 export { useBreadcrumbs, type BreadcrumbItem } from "./hooks/useBreadcrumbs"
 export { DynamicBreadcrumbContext, DynamicBreadcrumbProvider } from "./context/DynamicBreadcrumbContext"
+export { ContentHeader as PageContentHeader } from "./components/ContentHeader/ContentHeader"

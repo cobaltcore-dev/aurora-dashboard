@@ -114,15 +114,16 @@ await server.listen({ host: "0.0.0.0", port: 4000 })
 
 ### `<AuroraApp />`
 
-| Prop              | Type                            | Default          | Description                                                                                                         |
-| ----------------- | ------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `bffEndpoint`     | `string`                        | `"/polaris-bff"` | Must match the server's `bffEndpoint`                                                                               |
-| `theme`           | `"theme-light" \| "theme-dark"` | `"theme-light"`  | Initial theme                                                                                                       |
-| `onThemeChange`   | `(theme) => void`               | —                | Called when the user toggles the theme                                                                              |
-| `appName`         | `string`                        | `"Aurora"`       | App name shown in the header breadcrumb and logo                                                                    |
-| `slots`           | `Slots`                         | —                | Optional UI extension points — see [Slots](#slots)                                                                  |
-| `onTrackEvent`    | `OnTrackEventCallback`          | —                | Called on user interactions for analytics — see [Analytics](#analytics)                                             |
-| `enabledServices` | `string[]`                      | —                | Whitelist of service keys to show. When omitted, all services are shown — see [Enabled services](#enabled-services) |
+| Prop                | Type                            | Default          | Description                                                                                                         |
+| ------------------- | ------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `bffEndpoint`       | `string`                        | `"/polaris-bff"` | Must match the server's `bffEndpoint`                                                                               |
+| `theme`             | `"theme-light" \| "theme-dark"` | `"theme-light"`  | Initial theme                                                                                                       |
+| `onThemeChange`     | `(theme) => void`               | —                | Called when the user toggles the theme                                                                              |
+| `appName`           | `string`                        | `"Aurora"`       | App name shown in the header breadcrumb and logo                                                                    |
+| `slots`             | `Slots`                         | —                | Optional UI extension points — see [Slots](#slots)                                                                  |
+| `onTrackEvent`      | `OnTrackEventCallback`          | —                | Called on user interactions for analytics — see [Analytics](#analytics)                                             |
+| `enabledServices`   | `string[]`                      | —                | Whitelist of service keys to show. When omitted, all services are shown — see [Enabled services](#enabled-services) |
+| `serviceExtensions` | `ServiceExtension[]`            | —                | Consumer-defined services to mount under project scope — see [Service extensions](#service-extensions)              |
 
 ## Slots
 
@@ -213,6 +214,55 @@ enabledServices={import.meta.env.VITE_ENABLED_SERVICES?.split(",").map(s => s.tr
 # .env
 VITE_ENABLED_SERVICES="ceph-containers,securitygroups"
 ```
+
+## Service extensions
+
+Aurora lets you register consumer-owned services (service extensions) that appear alongside the built-in ones in the project navigation. Each extension is tied to an OpenStack catalog entry — Aurora checks whether the service type and name exist in the project's catalog and only shows the service when they do.
+
+Pass an array of service descriptors to `AuroraApp`:
+
+```tsx
+import type { ServiceExtension } from "@cobaltcore-dev/aurora/client"
+import { MyServiceApp } from "./myService/MyServiceApp"
+
+const serviceExtensions: ServiceExtension[] = [
+  {
+    serviceType: "my-service", // OpenStack catalog service type
+    serviceName: "my-service", // OpenStack catalog service name
+    label: "My Service", // Label shown in the side nav and project home
+    component: MyServiceApp, // React component that renders the service UI
+  },
+]
+
+;<AuroraApp serviceExtensions={serviceExtensions} />
+```
+
+The `component` receives a `basePath` (the URL prefix Aurora has mounted the service at) and a `context` object of host-provided data (`ServiceExtensionContext`). Today `context` carries the current `projectId`; it is an extensible object, so future host data (e.g. domain, scope) can be added without changing the component signature.
+
+Because Aurora mounts your extension at `basePath` and strips it from the sub-router, your routes never see `projectId` as a URL param. Seed `context` into your own router context so any component can read it:
+
+```tsx
+import { RouterProvider, createRouter, useRouteContext } from "@tanstack/react-router"
+import { useMemo } from "react"
+import type { ServiceExtensionProps, ServiceExtensionContext } from "@cobaltcore-dev/aurora/client"
+import { routeTree } from "./routeTree.gen"
+
+export function MyServiceApp({ basePath, context }: ServiceExtensionProps) {
+  // Seed the host context into the extension's own router context.
+  const router = useMemo(() => createRouter({ routeTree, context }), [basePath, context])
+  return <RouterProvider basepath={basePath} router={router} />
+}
+
+// In your root route, type the context so it flows through:
+//   createRootRouteWithContext<ServiceExtensionContext>()({ ... })
+//
+// Then read projectId anywhere in your tree:
+function useProjectId(): string {
+  return useRouteContext({ strict: false, select: (c: ServiceExtensionContext) => c.projectId })
+}
+```
+
+Aurora handles routing to your service, breadcrumb rendering for the service level, and showing or hiding the nav entry based on catalog availability. Navigation and breadcrumb details below the service level are the responsibility of the service component.
 
 ## Analytics
 

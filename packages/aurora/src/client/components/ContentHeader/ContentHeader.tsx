@@ -17,14 +17,17 @@ interface ContentHeaderProps {
 export function ContentHeader({ title, projectId, description, actions, badges }: ContentHeaderProps) {
   const { slots } = useRouteContext({ strict: false })
   const matches = useMatches()
-  const { provider } = useParams({ strict: false }) as { provider?: string }
+  const { provider, serviceType } = useParams({ strict: false }) as { provider?: string; serviceType?: string }
 
   const activeMatch = [...matches].reverse().find((m) => isRouteInfo(m.staticData))
   const routeService = activeMatch && isRouteInfo(activeMatch.staticData) ? activeMatch.staticData.service : undefined
 
   // Storage routes share service: "containers" for both Swift and Ceph.
   // Distinguish them by the $provider param.
-  const currentService = routeService === "containers" && provider === "ceph" ? "ceph-containers" : routeService
+  // The service-extension mount route sets only staticData.section (no `service`),
+  // so fall back to the $serviceType URL param to identify the current service.
+  const currentService =
+    routeService === "containers" && provider === "ceph" ? "ceph-containers" : (routeService ?? serviceType)
 
   const slotActions =
     slots?.servicePageActions && currentService ? (

@@ -10,7 +10,7 @@ import { I18nProvider } from "@lingui/react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans } from "@lingui/react/macro"
 import { NavigationItem } from "./components/navigation/types"
-import type { Slots, OnTrackEventCallback, AdditionalProjectService } from "./AuroraApp"
+import type { Slots, OnTrackEventCallback, ServiceExtension } from "./AuroraApp"
 import { messages as enMessages } from "../locales/en/messages"
 import { setupRouterAnalytics } from "./analytics/setupRouterAnalytics"
 
@@ -27,7 +27,7 @@ type AppProps = {
   appName?: string
   onTrackEvent?: OnTrackEventCallback
   enabledServices?: string[]
-  additionalProjectServices?: AdditionalProjectService[]
+  serviceExtensions?: ServiceExtension[]
 }
 
 // Additional navigation items can be added here and will be passed to the layout via context
@@ -39,7 +39,7 @@ const App = (props: AppProps) => {
     setBffEndpoint(props.bffEndpoint ?? "/polaris-bff")
   }, [props.bffEndpoint])
 
-  const [router] = useState(() => createAuroraRouter(trpcReact, trpcClient, props.additionalProjectServices))
+  const [router] = useState(() => createAuroraRouter(trpcReact, trpcClient, props.serviceExtensions))
 
   const [currentTheme, setCurrentTheme] = useState<"theme-dark" | "theme-light">(props.theme ?? "theme-light")
 
@@ -101,7 +101,7 @@ const App = (props: AppProps) => {
                   appName={props.appName}
                   onTrackEvent={props.onTrackEvent}
                   enabledServices={props.enabledServices}
-                  additionalProjectServices={props.additionalProjectServices ?? []}
+                  serviceExtensions={props.serviceExtensions ?? []}
                 />
               </AuthProvider>
             </QueryClientProvider>
@@ -112,6 +112,8 @@ const App = (props: AppProps) => {
   )
 }
 
+type AuroraRouter = ReturnType<typeof createAuroraRouter>
+
 function AppInner({
   router,
   navItems,
@@ -120,16 +122,16 @@ function AppInner({
   appName,
   onTrackEvent,
   enabledServices,
-  additionalProjectServices,
+  serviceExtensions,
 }: {
-  router: ReturnType<typeof createAuroraRouter>
+  router: AuroraRouter
   navItems: NavigationItem[]
   handleThemeToggle: (theme: string) => void
   slots?: Slots
   appName?: string
   onTrackEvent?: OnTrackEventCallback
   enabledServices?: string[]
-  additionalProjectServices: AdditionalProjectService[]
+  serviceExtensions: ServiceExtension[]
 }) {
   const auth = useAuth()
 
@@ -143,7 +145,7 @@ function AppInner({
     appName,
     onTrackEvent,
     enabledServices,
-    additionalProjectServices,
+    serviceExtensions,
   }
 
   // Set up analytics tracking for router navigation

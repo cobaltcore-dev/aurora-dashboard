@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest"
 import { i18n } from "@lingui/core"
 import { buildNavSections } from "./buildNavSections"
-import type { AdditionalProjectService } from "@/client/AuroraApp"
-import type { AnyRoute } from "@tanstack/react-router"
+import type { ServiceExtension } from "@/client/AuroraApp"
 
 beforeAll(() => {
   i18n.load({ en: {} })
@@ -17,11 +16,11 @@ const ALL_SERVICES = [
   { type: "object-store-ceph", name: "ceph" },
 ]
 
-const CUSTOM_SERVICE: AdditionalProjectService = {
+const CUSTOM_SERVICE: ServiceExtension = {
   serviceType: "custom-service",
   serviceName: "custom-provider",
   label: "Custom Service",
-  routes: {} as unknown as AnyRoute,
+  component: () => null,
 }
 
 describe("buildNavSections", () => {
@@ -67,7 +66,7 @@ describe("buildNavSections", () => {
     }
   })
 
-  describe("additionalProjectServices", () => {
+  describe("serviceExtensions", () => {
     it("adds a service nav item in the services section when its service is in the catalog", () => {
       const services = [...ALL_SERVICES, { type: "custom-service", name: "custom-provider" }]
       const sections = buildNavSections("proj-1", services, undefined, [CUSTOM_SERVICE])

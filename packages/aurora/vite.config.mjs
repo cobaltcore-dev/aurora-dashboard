@@ -74,7 +74,7 @@ export default defineConfig(({ mode }) => {
       isLib &&
         dts({
           include: ["**/*.ts", "**/*.tsx"],
-          exclude: ["routes/**", "**/*.test.*", "routeTree.gen.ts"],
+          exclude: ["routes/**", "**/*.test.*", "routeTree.gen.ts", "register.ts"],
           outDir: "../../dist/client",
           tsconfigPath: "../../tsconfig.json",
           entryRoot: ".",
