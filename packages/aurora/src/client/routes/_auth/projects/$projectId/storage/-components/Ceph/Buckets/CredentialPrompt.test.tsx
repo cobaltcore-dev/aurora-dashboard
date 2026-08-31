@@ -34,6 +34,18 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => mockProjectId,
 }))
 
+let mockCanCreateCredential = true
+let mockIsLoadingPermissions = false
+let mockIsErrorPermissions = false
+
+vi.mock("../hooks/useCephPermissions", () => ({
+  useCephPermissions: () => ({
+    permissions: { canCreateCredential: mockCanCreateCredential },
+    isLoading: mockIsLoadingPermissions,
+    isError: mockIsErrorPermissions,
+  }),
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 type MutationOptions = {
@@ -100,6 +112,9 @@ describe("CredentialPrompt", () => {
     mockState.mutationError = null
     mockState.capturedOptions = {}
     mockState.isPending = false
+    mockCanCreateCredential = true
+    mockIsLoadingPermissions = false
+    mockIsErrorPermissions = false
     await act(async () => {
       i18n.activate("en")
     })
@@ -242,6 +257,46 @@ describe("CredentialPrompt", () => {
 
       renderToastMessage(vi.mocked(toast.error).mock.calls[0][0])
       expect(screen.getByText(/Quota exceeded/)).toBeInTheDocument()
+    })
+  })
+
+  describe("Permission gating", () => {
+    test("shows a spinner while permissions are loading, neither button nor denial text", () => {
+      mockIsLoadingPermissions = true
+      renderCredentialPrompt()
+
+      expect(screen.getByText("S3 Object Storage: Setup Required")).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: "Create S3 Credentials" })).not.toBeInTheDocument()
+      expect(screen.queryByText(/You don't have permission to create S3 credentials/)).not.toBeInTheDocument()
+    })
+
+    test("shows denial message when not loading and permission denied", () => {
+      mockIsLoadingPermissions = false
+      mockCanCreateCredential = false
+      renderCredentialPrompt()
+
+      expect(screen.getByText(/You don't have permission to create S3 credentials/)).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: "Create S3 Credentials" })).not.toBeInTheDocument()
+    })
+
+    test("shows create button when not loading and permission granted", () => {
+      mockIsLoadingPermissions = false
+      mockCanCreateCredential = true
+      renderCredentialPrompt()
+
+      expect(screen.getByRole("button", { name: "Create S3 Credentials" })).toBeInTheDocument()
+      expect(screen.queryByText(/You don't have permission to create S3 credentials/)).not.toBeInTheDocument()
+    })
+
+    test("shows a permission-check error, not the denial message, when the permission query fails", () => {
+      mockIsLoadingPermissions = false
+      mockIsErrorPermissions = true
+      mockCanCreateCredential = false
+      renderCredentialPrompt()
+
+      expect(screen.getByText("Could not check permissions")).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: "Create S3 Credentials" })).not.toBeInTheDocument()
+      expect(screen.queryByText(/You don't have permission to create S3 credentials/)).not.toBeInTheDocument()
     })
   })
 

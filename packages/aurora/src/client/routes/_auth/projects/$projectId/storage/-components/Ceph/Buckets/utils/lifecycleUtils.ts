@@ -391,11 +391,7 @@ export function formatTransitions(transitions: LifecycleTransition[] | undefined
   if (!transitions || transitions.length === 0) return "–"
   return transitions
     .map((t) => {
-      const time = t.Days
-        ? `${t.Days} days`
-        : t.Date
-          ? new Date(typeof t.Date === "string" ? t.Date : t.Date).toLocaleDateString()
-          : "unknown"
+      const time = t.Days ? `${t.Days} days` : t.Date ? new Date(t.Date).toLocaleDateString() : "unknown"
       return `${t.StorageClass} after ${time}`
     })
     .join("; ")

@@ -157,6 +157,16 @@ interface ObjectsTableViewProps {
   onDownloadError: (objectKey: string, errorMessage: string) => void
   onRestoreVersion?: (objectKey: string, versionId: string) => void
   onDeleteVersion?: (objectKey: string, versionId: string) => void
+  // Download Object and View Versions are never gated — they're reads, and this codebase's
+  // convention is to gate mutations only.
+  canCopyObject: boolean
+  canMoveObject: boolean
+  canUpdateObject: boolean
+  canShareObject: boolean
+  canDeleteObject: boolean
+  canDeleteFolder: boolean
+  canDeleteVersion: boolean
+  canRestoreVersion: boolean
 }
 
 export function ObjectsTableView({
@@ -182,6 +192,14 @@ export function ObjectsTableView({
   onDownloadError,
   onRestoreVersion,
   onDeleteVersion,
+  canCopyObject,
+  canMoveObject,
+  canUpdateObject,
+  canShareObject,
+  canDeleteObject,
+  canDeleteFolder,
+  canDeleteVersion,
+  canRestoreVersion,
 }: ObjectsTableViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -593,91 +611,121 @@ export function ObjectsTableView({
                   {/* Actions */}
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end">
-                      {/* Show menu for: non-folders, non-version-view, or deleted folders in version view */}
+                      {/* Show menu for: non-folders, non-version-view, or deleted folders in version view.
+                          The normal-object branch always keeps Download Object / View Versions visible
+                          (reads are never gated), so it can never end up empty. The folder and
+                          deleted-file branches only offer gated mutations, so we also check
+                          hasAnyRowAction there to avoid ever rendering an empty PopupMenu. */}
                       {(() => {
                         const shouldShowFolderMenu = !isFolder || !showingVersions || row.isDeleted
-                        return shouldShowFolderMenu ? (
+                        if (!shouldShowFolderMenu) return null
+
+                        const hasAnyRowAction = isFolder
+                          ? row.isDeleted
+                            ? canRestoreVersion || canDeleteVersion
+                            : canDeleteFolder
+                          : isDeletedFile
+                            ? canRestoreVersion || canDeleteVersion
+                            : true // normal object: Download Object / View Versions are always visible
+
+                        if (!hasAnyRowAction) return null
+
+                        return (
                           <PopupMenu>
                             <PopupMenuOptions>
                               {isFolder ? (
                                 row.isDeleted ? (
                                   // Deleted folder (has delete marker) - show Restore and Delete options
                                   <>
-                                    <PopupMenuItem
-                                      label={t`Restore`}
-                                      onClick={() => {
-                                        // For folders, restoring means deleting the delete marker
-                                        if (row.deleteMarkerVersionId) {
-                                          setRestoreTarget({
-                                            key: row.prefix,
-                                            versionId: row.deleteMarkerVersionId,
-                                            size: undefined,
-                                            lastModified: undefined,
-                                          })
-                                        }
-                                      }}
-                                    />
-                                    <PopupMenuItem
-                                      label={t`Delete Folder`}
-                                      onClick={() => {
-                                        // Permanently delete the folder's delete marker and folder marker
-                                        if (row.deleteMarkerVersionId) {
-                                          setDeleteVersionTarget({
-                                            key: row.prefix,
-                                            versionId: row.deleteMarkerVersionId,
-                                            size: undefined,
-                                            lastModified: undefined,
-                                            isDeleteMarker: true, // This version IS a delete marker
-                                            folderMarkerVersionId: row.folderMarkerVersionId,
-                                            // Show both IDs in the confirmation dialog
-                                            allVersionIds: row.folderMarkerVersionId
-                                              ? [row.deleteMarkerVersionId, row.folderMarkerVersionId]
-                                              : undefined,
-                                          })
-                                        }
-                                      }}
-                                    />
+                                    {canRestoreVersion && (
+                                      <PopupMenuItem
+                                        label={t`Restore`}
+                                        onClick={() => {
+                                          // For folders, restoring means deleting the delete marker
+                                          if (row.deleteMarkerVersionId) {
+                                            setRestoreTarget({
+                                              key: row.prefix,
+                                              versionId: row.deleteMarkerVersionId,
+                                              size: undefined,
+                                              lastModified: undefined,
+                                            })
+                                          }
+                                        }}
+                                      />
+                                    )}
+                                    {/* Gated on canDeleteVersion, not canDeleteFolder - this permanently purges
+                                        the delete marker/version, it's not a soft delete. */}
+                                    {canDeleteVersion && (
+                                      <PopupMenuItem
+                                        label={t`Delete Folder`}
+                                        onClick={() => {
+                                          // Permanently delete the folder's delete marker and folder marker
+                                          if (row.deleteMarkerVersionId) {
+                                            setDeleteVersionTarget({
+                                              key: row.prefix,
+                                              versionId: row.deleteMarkerVersionId,
+                                              size: undefined,
+                                              lastModified: undefined,
+                                              isDeleteMarker: true, // This version IS a delete marker
+                                              folderMarkerVersionId: row.folderMarkerVersionId,
+                                              // Show both IDs in the confirmation dialog
+                                              allVersionIds: row.folderMarkerVersionId
+                                                ? [row.deleteMarkerVersionId, row.folderMarkerVersionId]
+                                                : undefined,
+                                            })
+                                          }
+                                        }}
+                                      />
+                                    )}
                                   </>
                                 ) : (
                                   // Regular folder - show Delete option
-                                  <PopupMenuItem
-                                    label={t`Delete Folder`}
-                                    onClick={() => setDeleteTarget({ key: row.prefix })}
-                                  />
+                                  canDeleteFolder && (
+                                    <PopupMenuItem
+                                      label={t`Delete Folder`}
+                                      onClick={() => setDeleteTarget({ key: row.prefix })}
+                                    />
+                                  )
                                 )
                               ) : isDeletedFile ? (
                                 // For deleted files, show "Restore" and "Delete" actions
                                 <>
-                                  <PopupMenuItem
-                                    label={t`Restore`}
-                                    onClick={() => {
-                                      if (row.kind === "version") {
-                                        setRestoreTarget({
-                                          key: row.key,
-                                          versionId: row.versionId,
-                                          size: row.size,
-                                          lastModified: row.lastModified,
-                                        })
-                                      }
-                                    }}
-                                  />
-                                  <PopupMenuItem
-                                    label={t`Delete Object`}
-                                    onClick={() => {
-                                      if (row.kind === "version") {
-                                        // For deleted files, delete all versions completely
-                                        const versionIdToDelete = row.deleteMarkerVersionId ?? row.versionId
-                                        setDeleteVersionTarget({
-                                          key: row.key,
-                                          versionId: versionIdToDelete,
-                                          size: row.size,
-                                          lastModified: row.lastModified,
-                                          isDeleteMarker: !!row.deleteMarkerVersionId,
-                                          allVersionIds: row.allVersionIds, // Pass all version IDs for complete deletion
-                                        })
-                                      }
-                                    }}
-                                  />
+                                  {canRestoreVersion && (
+                                    <PopupMenuItem
+                                      label={t`Restore`}
+                                      onClick={() => {
+                                        if (row.kind === "version") {
+                                          setRestoreTarget({
+                                            key: row.key,
+                                            versionId: row.versionId,
+                                            size: row.size,
+                                            lastModified: row.lastModified,
+                                          })
+                                        }
+                                      }}
+                                    />
+                                  )}
+                                  {/* Gated on canDeleteVersion, not canDeleteObject - this permanently purges
+                                      the delete marker/version, it's not a soft delete. */}
+                                  {canDeleteVersion && (
+                                    <PopupMenuItem
+                                      label={t`Delete Object`}
+                                      onClick={() => {
+                                        if (row.kind === "version") {
+                                          // For deleted files, delete all versions completely
+                                          const versionIdToDelete = row.deleteMarkerVersionId ?? row.versionId
+                                          setDeleteVersionTarget({
+                                            key: row.key,
+                                            versionId: versionIdToDelete,
+                                            size: row.size,
+                                            lastModified: row.lastModified,
+                                            isDeleteMarker: !!row.deleteMarkerVersionId,
+                                            allVersionIds: row.allVersionIds, // Pass all version IDs for complete deletion
+                                          })
+                                        }
+                                      }}
+                                    />
+                                  )}
                                 </>
                               ) : (
                                 <>
@@ -694,45 +742,57 @@ export function ObjectsTableView({
                                       onClick={() => setVersionHistoryTarget(row.key)}
                                     />
                                   )}
-                                  <PopupMenuItem
-                                    label={t`Copy Object`}
-                                    disabled={isStreaming}
-                                    onClick={() => setCopyTarget({ key: row.key, size: row.size })}
-                                  />
-                                  <PopupMenuItem
-                                    label={t`Move/Rename Object`}
-                                    disabled={isStreaming}
-                                    onClick={() => setMoveTarget({ key: row.key, size: row.size })}
-                                  />
-                                  <PopupMenuItem
-                                    label={t`Edit Object Metadata`}
-                                    disabled={isStreaming}
-                                    onClick={() => setEditMetadataTarget(row.key)}
-                                  />
-                                  <PopupMenuItem
-                                    label={t`Share Object URL`}
-                                    disabled={row.kind !== "object" || isStreaming}
-                                    onClick={
-                                      row.kind === "object" ? () => setPresignedUrlTarget({ key: row.key }) : undefined
-                                    }
-                                    data-testid={`share-url-action-${row.key}`}
-                                  />
-                                  <PopupMenuItem
-                                    label={t`Delete Object`}
-                                    disabled={isStreaming}
-                                    onClick={() =>
-                                      setDeleteTarget({
-                                        key: row.key,
-                                        size: row.size,
-                                        lastModified: row.lastModified,
-                                      })
-                                    }
-                                  />
+                                  {canCopyObject && (
+                                    <PopupMenuItem
+                                      label={t`Copy Object`}
+                                      disabled={isStreaming}
+                                      onClick={() => setCopyTarget({ key: row.key, size: row.size })}
+                                    />
+                                  )}
+                                  {canMoveObject && (
+                                    <PopupMenuItem
+                                      label={t`Move/Rename Object`}
+                                      disabled={isStreaming}
+                                      onClick={() => setMoveTarget({ key: row.key, size: row.size })}
+                                    />
+                                  )}
+                                  {canUpdateObject && (
+                                    <PopupMenuItem
+                                      label={t`Edit Object Metadata`}
+                                      disabled={isStreaming}
+                                      onClick={() => setEditMetadataTarget(row.key)}
+                                    />
+                                  )}
+                                  {canShareObject && (
+                                    <PopupMenuItem
+                                      label={t`Share Object URL`}
+                                      disabled={row.kind !== "object" || isStreaming}
+                                      onClick={
+                                        row.kind === "object"
+                                          ? () => setPresignedUrlTarget({ key: row.key })
+                                          : undefined
+                                      }
+                                      data-testid={`share-url-action-${row.key}`}
+                                    />
+                                  )}
+                                  {canDeleteObject && (
+                                    <PopupMenuItem
+                                      label={t`Delete Object`}
+                                      disabled={isStreaming}
+                                      onClick={() =>
+                                        setDeleteTarget({
+                                          key: row.key,
+                                          size: row.size,
+                                          lastModified: row.lastModified,
+                                        })
+                                      }
+                                    />
+                                  )}
                                 </>
                               )}
                             </PopupMenuOptions>
                           </PopupMenu>
-                        ) : null
+                        )
                       })()}
                     </div>
                   </DataGridCell>
@@ -841,6 +901,8 @@ export function ObjectsTableView({
         onClose={() => setVersionHistoryTarget(null)}
         onRestoreVersion={onRestoreVersion}
         onDeleteVersion={onDeleteVersion}
+        canRestoreVersion={canRestoreVersion}
+        canDeleteVersion={canDeleteVersion}
       />
     </>
   )

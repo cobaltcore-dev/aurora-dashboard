@@ -333,6 +333,43 @@ describe("lifecycleRouter", () => {
       ).rejects.toThrow(/rate limit exceeded/i)
     })
 
+    it("starts a new rate-limit window exactly at resetAt, not only after it", async () => {
+      vi.useFakeTimers()
+      try {
+        const start = new Date("2024-01-01T00:00:00.000Z")
+        vi.setSystemTime(start)
+        mockSend.mockResolvedValue({})
+        const bucket = "rate-limit-boundary-bucket-unique"
+
+        // Exhaust the window: 10 calls at T0 (count reaches the limit of 10)
+        for (let i = 0; i < 10; i++) {
+          await caller.set({
+            project_id: TEST_PROJECT_ID,
+            bucketName: bucket,
+            lifecycleConfiguration: {
+              Rules: [{ Status: "Enabled", Expiration: { Days: 30 } }],
+            },
+          })
+        }
+
+        // Advance to exactly resetAt (T0 + 60s), not past it
+        vi.setSystemTime(new Date(start.getTime() + 60 * 1000))
+
+        // A call exactly at resetAt should start a new window, not be rate limited
+        await expect(
+          caller.set({
+            project_id: TEST_PROJECT_ID,
+            bucketName: bucket,
+            lifecycleConfiguration: {
+              Rules: [{ Status: "Enabled", Expiration: { Days: 30 } }],
+            },
+          })
+        ).resolves.toBe(true)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
     it("should allow rate limiting per bucket (different buckets have separate limits)", async () => {
       mockSend.mockResolvedValue({})
       const bucket1 = "rate-limit-bucket-1-unique"

@@ -58,6 +58,12 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => "test-project-id",
 }))
 
+let mockCephPermissions = { canUpdateCors: true, canDeleteCors: true }
+
+vi.mock("../hooks/useCephPermissions", () => ({
+  useCephPermissions: () => ({ permissions: mockCephPermissions, isLoading: false, isError: false }),
+}))
+
 vi.mock("@cloudoperators/juno-ui-components", async () => {
   const actual = await vi.importActual("@cloudoperators/juno-ui-components")
   return {
@@ -132,6 +138,7 @@ describe("CorsRulesTab", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockCephPermissions = { canUpdateCors: true, canDeleteCors: true }
     ;(trpcReact.useUtils as any).mockReturnValue({
       storage: {
         ceph: {
@@ -347,5 +354,57 @@ describe("CorsRulesTab", () => {
     expect(screen.queryByRole("button", { name: /Discard/i })).not.toBeInTheDocument()
     // Should NOT show validation error banner
     expect(screen.queryByText(/Validation Error/i)).not.toBeInTheDocument()
+  })
+
+  describe("Permission gating", () => {
+    beforeEach(() => {
+      ;(trpcReact.storage.ceph.cors.get.useQuery as any).mockReturnValue({
+        data: { corsRules: [mockRule] },
+        isLoading: false,
+        error: null,
+      })
+      ;(trpcReact.storage.ceph.cors.set.useMutation as any).mockReturnValue({
+        mutate: mockMutate,
+        isPending: false,
+        isError: false,
+        error: null,
+        reset: vi.fn(),
+      })
+      ;(trpcReact.storage.ceph.cors.delete.useMutation as any).mockReturnValue({
+        mutate: mockDeleteMutate,
+        isPending: false,
+        isError: false,
+        error: null,
+        reset: vi.fn(),
+      })
+    })
+
+    it("hides the Create CORS Rule button when canUpdateCors is false", () => {
+      mockCephPermissions = { canUpdateCors: false, canDeleteCors: true }
+      render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
+      expect(screen.queryByRole("button", { name: /Create CORS Rule/i })).not.toBeInTheDocument()
+    })
+
+    it("hides the bulk selection/actions toolbar when canDeleteCors is false", () => {
+      mockCephPermissions = { canUpdateCors: true, canDeleteCors: false }
+      render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
+      expect(screen.queryByTestId("select-all-rules")).not.toBeInTheDocument()
+    })
+
+    it("keeps the rule counter right-aligned via a placeholder when canDeleteCors is false", () => {
+      mockCephPermissions = { canUpdateCors: true, canDeleteCors: false }
+      render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
+      const counter = screen.getByText("1 rule")
+      const counterRow = counter.parentElement
+      expect(counterRow?.children).toHaveLength(2)
+      expect(counterRow?.children[0].tagName).toBe("SPAN")
+      expect(counterRow?.children[1]).toBe(counter)
+    })
+
+    it("shows the bulk selection/actions toolbar when canDeleteCors is true", () => {
+      mockCephPermissions = { canUpdateCors: true, canDeleteCors: true }
+      render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
+      expect(screen.getByTestId("select-all-rules")).toBeInTheDocument()
+    })
   })
 })

@@ -131,6 +131,8 @@ const defaultProps = {
   onClose: vi.fn(),
   onRestoreVersion: vi.fn(),
   onDeleteVersion: vi.fn(),
+  canRestoreVersion: true,
+  canDeleteVersion: true,
 }
 
 describe("ObjectVersionHistoryModal", () => {
