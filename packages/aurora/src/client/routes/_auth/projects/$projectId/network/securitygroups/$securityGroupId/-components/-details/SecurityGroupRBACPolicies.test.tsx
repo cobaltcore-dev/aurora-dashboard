@@ -1,6 +1,6 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { PortalProvider } from "@cloudoperators/juno-ui-components"
+import { PortalProvider, toast } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -576,7 +576,32 @@ describe("SecurityGroupRBACPolicies", () => {
       const confirmButton = screen.getByRole("button", { name: /Confirm/i })
       await user.click(confirmButton)
 
-      expect(mockMutate).toHaveBeenCalledWith({ project_id: "test-project", policyId: "policy-1" })
+      expect(mockMutate).toHaveBeenCalledWith(
+        { project_id: "test-project", policyId: "policy-1" },
+        expect.objectContaining({ onSuccess: expect.any(Function) })
+      )
+
+      const mutationOptions = mockMutate.mock.calls[0][1] as { onSuccess: () => void }
+      const successSpy = vi.spyOn(toast, "success")
+      mutationOptions.onSuccess()
+
+      expect(successSpy).toHaveBeenCalledWith(expect.anything(), expect.anything())
+    })
+
+    it("registers an error toast handler for delete failures", () => {
+      vi.mocked(trpcReact.network.rbacPolicy.list.useQuery).mockReturnValue(
+        createMockQueryResult<RBACPolicy[]>({
+          data: mockPolicies,
+        })
+      )
+
+      render(<SecurityGroupRBACPolicies securityGroupId="sg-123" canManageAccess={true} />, {
+        wrapper: createWrapper(),
+      })
+
+      expect(trpcReact.network.rbacPolicy.delete.useMutation).toHaveBeenCalledWith(
+        expect.objectContaining({ onError: expect.any(Function) })
+      )
     })
   })
 

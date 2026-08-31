@@ -272,6 +272,12 @@ msgstr "Zugriffskontrolle aktualisiert"
 msgid "Access Denied"
 msgstr ""
 
+msgid "Access for project \"{targetTenant}\" was successfully revoked."
+msgstr ""
+
+msgid "Access Revoked"
+msgstr ""
+
 msgid "Access Status"
 msgstr "Zugriffsstatus"
 
@@ -569,7 +575,13 @@ msgstr ""
 msgid "Bucket Policy"
 msgstr ""
 
+msgid "Bucket Policy Saved"
+msgstr ""
+
 msgid "Bucket policy was successfully deleted from \"{bucketName}\"."
+msgstr ""
+
+msgid "Bucket policy was successfully saved for \"{bucketName}\"."
 msgstr ""
 
 msgid "Buckets to empty:"
@@ -812,6 +824,9 @@ msgstr "Ordner \"{folderName}\" konnte nicht erstellt werden: {errorMessage}"
 msgid "Could not create folder \"{folderPath}\": {errorMessage}"
 msgstr ""
 
+msgid "Could not create security group rule: {errorMessage}"
+msgstr ""
+
 msgid "Could not delete \"{displayName}\": {errorMessage}"
 msgstr ""
 
@@ -851,6 +866,12 @@ msgstr ""
 msgid "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
+msgid "Could not delete security group rule: {errorMessage}"
+msgstr ""
+
+msgid "Could not delete security group: {errorMessage}"
+msgstr ""
+
 msgid "Could not delete version of \"{displayName}\": {errorMessage}"
 msgstr ""
 
@@ -878,10 +899,19 @@ msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
 msgid "Could not restore \"{displayName}\": {errorMessage}"
 msgstr ""
 
+msgid "Could not revoke access: {errorMessage}"
+msgstr ""
+
+msgid "Could not save bucket policy for \"{bucketName}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not save CORS configuration for bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
 msgid "Could not save lifecycle rule for bucket \"{bucketName}\": {errorMessage}"
+msgstr ""
+
+msgid "Could not share security group: {errorMessage}"
 msgstr ""
 
 msgid "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
@@ -898,6 +928,9 @@ msgstr "ACLs für Container \"{containerName}\" konnten nicht aktualisiert werde
 
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Container \"{containerName}\" konnte nicht aktualisiert werden: {errorMessage}"
+
+msgid "Could not update security group: {errorMessage}"
+msgstr ""
 
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht hochgeladen werden: {errorMessage}"
@@ -1553,6 +1586,9 @@ msgstr "Fehler beim Erstellen des Ordners"
 msgid "Failed to create image. Please try again."
 msgstr "Image konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
 
+msgid "Failed to Create Rule"
+msgstr ""
+
 msgid "Failed to create security group"
 msgstr "Security Group konnte nicht erstellt werden"
 
@@ -1610,8 +1646,14 @@ msgstr ""
 msgid "Failed to delete rule"
 msgstr ""
 
+msgid "Failed to Delete Rule"
+msgstr ""
+
 msgid "Failed to delete security group"
 msgstr "Security Group konnte nicht gelöscht werden"
+
+msgid "Failed to Delete Security Group"
+msgstr ""
 
 msgid "Failed to delete the extra spec. Please try again."
 msgstr "Fehler beim Löschen des Extra-Specs. Bitte versuchen Sie es erneut."
@@ -1736,6 +1778,12 @@ msgstr ""
 msgid "Failed to restore version: {errorMessage}"
 msgstr ""
 
+msgid "Failed to Revoke Access"
+msgstr ""
+
+msgid "Failed to Save Bucket Policy"
+msgstr ""
+
 msgid "Failed to Save CORS Configuration"
 msgstr ""
 
@@ -1746,6 +1794,9 @@ msgid "Failed to Save Lifecycle Rule"
 msgstr ""
 
 msgid "Failed to save policy"
+msgstr ""
+
+msgid "Failed to Share Security Group"
 msgstr ""
 
 msgid "Failed to Suspend Versioning"
@@ -1774,6 +1825,9 @@ msgstr "Fehler beim Aktualisieren des Objekts: {mutationErrorMessage}"
 
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
+
+msgid "Failed to Update Security Group"
+msgstr ""
 
 msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
 msgstr "Fehler beim Aktualisieren der Sichtbarkeit für \"{imageName}\": {errorMessage}"
@@ -2963,6 +3017,12 @@ msgstr ""
 msgid "Rule #{ruleNumber}"
 msgstr ""
 
+msgid "Rule Created"
+msgstr ""
+
+msgid "Rule Deleted"
+msgstr ""
+
 msgid "Rule Details:"
 msgstr "Regeldetails:"
 
@@ -3050,11 +3110,35 @@ msgstr "Sicherheit"
 msgid "Security Group"
 msgstr "Security Group"
 
+msgid "Security group \"{name}\" was successfully deleted."
+msgstr ""
+
+msgid "Security group \"{name}\" was successfully updated."
+msgstr ""
+
+msgid "Security Group Deleted"
+msgstr ""
+
 msgid "Security group name is required"
 msgstr "Security Group-Name ist erforderlich"
 
 msgid "Security group not found"
 msgstr "Security Group nicht gefunden"
+
+msgid "Security group rule was successfully created."
+msgstr ""
+
+msgid "Security group rule was successfully deleted."
+msgstr ""
+
+msgid "Security Group Shared"
+msgstr ""
+
+msgid "Security Group Updated"
+msgstr ""
+
+msgid "Security group was successfully shared with project \"{targetTenant}\"."
+msgstr ""
 
 msgid "Security Groups"
 msgstr "Security Groups"

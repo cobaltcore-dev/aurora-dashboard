@@ -1,8 +1,17 @@
 import { useState, useMemo } from "react"
+import { toast } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import type { UpdateSecurityGroupInput, CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import type { RulesFilterControls } from "../-components/SecurityGroupDetailsView"
+import {
+  getSecurityGroupUpdatedToast,
+  getSecurityGroupUpdateErrorToast,
+  getSecurityGroupRuleCreatedToast,
+  getSecurityGroupRuleCreateErrorToast,
+  getSecurityGroupRuleDeletedToast,
+  getSecurityGroupRuleDeleteErrorToast,
+} from "../../-components/SecurityGroupToastNotifications"
 
 interface UseSecurityGroupDetailsParams {
   securityGroupId: string
@@ -88,10 +97,18 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
 
   // Update mutation
   const updateMutation = trpcReact.network.securityGroup.update.useMutation({
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.list.invalidate()
+      const { message, ...options } = getSecurityGroupUpdatedToast(
+        variables.name || securityGroupQuery.data?.name || securityGroupId
+      )
+      toast.success(message, options)
       setEditModalOpen(false)
+    },
+    onError: (error) => {
+      const { message, ...options } = getSecurityGroupUpdateErrorToast(error.message)
+      toast.error(message, options)
     },
   })
 
@@ -101,6 +118,12 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
       // Invalidate the security group query to refresh the rules list
       utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.list.invalidate()
+      const { message, ...options } = getSecurityGroupRuleDeletedToast()
+      toast.success(message, options)
+    },
+    onError: (error) => {
+      const { message, ...options } = getSecurityGroupRuleDeleteErrorToast(error.message)
+      toast.error(message, options)
     },
   })
 
@@ -109,6 +132,12 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     onSuccess: () => {
       utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.list.invalidate()
+      const { message, ...options } = getSecurityGroupRuleCreatedToast()
+      toast.success(message, options)
+    },
+    onError: (error) => {
+      const { message, ...options } = getSecurityGroupRuleCreateErrorToast(error.message)
+      toast.error(message, options)
     },
   })
 
