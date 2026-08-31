@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Modal, Message, Spinner } from "@cloudoperators/juno-ui-components"
+import { Modal, Message, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans, Plural, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -193,7 +193,7 @@ export const DeleteLifecycleRulesModal = ({
       open={isOpen}
       onCancel={handleClose}
       title={<Plural value={ruleCount} one="Delete Lifecycle Rule" other="Delete Lifecycle Rules" />}
-      size="small"
+      size="large"
       confirmButtonLabel={confirmLabel}
       confirmButtonVariant="primary-danger"
       onConfirm={handleConfirm}
@@ -212,8 +212,8 @@ export const DeleteLifecycleRulesModal = ({
           {queryError.message}
         </Message>
       ) : (
-        <>
-          <p>
+        <Stack direction="vertical" gap="4">
+          <p className="text-theme-default">
             {ruleCount === 1 ? (
               <Trans>
                 Are you sure you want to delete this lifecycle rule from bucket <strong>{bucketName}</strong>?
@@ -224,23 +224,36 @@ export const DeleteLifecycleRulesModal = ({
               </Trans>
             )}
           </p>
+
           {rulesToDeleteWithIndices.length > 0 && (
-            <ul className="mt-2 list-disc pl-5">
-              {visibleRules.map(({ rule, index }) => {
-                const ruleNumber = index + 1
-                return <li key={index}>{rule.ID || t`Rule #${ruleNumber}`}</li>
-              })}
-              {hiddenCount > 0 && (
-                <li className="text-theme-light">
-                  <Trans>... and {hiddenCount} more</Trans>
-                </li>
-              )}
-            </ul>
+            <div>
+              <p className="text-sm font-semibold">
+                <Trans>Rules to delete:</Trans>
+              </p>
+              <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+                <Stack direction="vertical" gap="1">
+                  {visibleRules.map(({ rule, index }) => {
+                    const ruleNumber = index + 1
+                    return (
+                      <div key={index} className="text-theme-default text-sm">
+                        {rule.ID || t`Rule #${ruleNumber}`}
+                      </div>
+                    )
+                  })}
+                  {hiddenCount > 0 && (
+                    <div className="text-theme-light pt-2 text-sm">
+                      <Trans>... and {hiddenCount} more</Trans>
+                    </div>
+                  )}
+                </Stack>
+              </div>
+            </div>
           )}
-          <p className="mt-2">
+
+          <p className="text-theme-default">
             <Trans>This action cannot be undone.</Trans>
           </p>
-        </>
+        </Stack>
       )}
     </Modal>
   )
