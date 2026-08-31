@@ -4,6 +4,7 @@ import { useParams } from "@tanstack/react-router"
 import { Badge, Divider } from "@cloudoperators/juno-ui-components"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { useBucketInfo } from "../hooks/useBucketInfo"
+import { useCephPermissions } from "../hooks/useCephPermissions"
 import { BucketHeaderActions } from "./BucketHeaderActions"
 import { BucketModals, type ModalType } from "./BucketModals"
 import { BucketDetailTabs } from "./BucketDetailTabs"
@@ -33,6 +34,8 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
     bucketName,
     enabled: true,
   })
+
+  const { permissions } = useCephPermissions(projectId)
 
   const openModal = (modal: ModalType) => setActiveModal(modal)
   const closeModal = () => setActiveModal(null)
@@ -66,6 +69,12 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
       hasOldVersionsOrDeleteMarkers={hasOldVersionsOrDeleteMarkers}
       isBucketEmpty={isBucketEmpty}
       onOpenModal={openModal}
+      canUpdateVersioning={permissions.canUpdateVersioning}
+      canUpdatePolicy={permissions.canUpdatePolicy}
+      canDeletePolicy={permissions.canDeletePolicy}
+      canEmptyBucket={permissions.canEmptyBucket}
+      canDeleteBucket={permissions.canDeleteBucket}
+      canDeleteVersions={permissions.canDeleteVersion}
     />
   )
 
