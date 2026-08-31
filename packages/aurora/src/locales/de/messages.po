@@ -2258,7 +2258,7 @@ msgid "Loading Floating IP Details..."
 msgstr "Floating IP-Details werden geladen..."
 
 msgid "Loading Floating IPs..."
-msgstr ""
+msgstr "Floating IPs werden geladen..."
 
 msgid "Loading Image Details..."
 msgstr "Image-Details werden geladen..."
