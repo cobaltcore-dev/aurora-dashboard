@@ -104,12 +104,12 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          <Message variant="danger">
+          <p className="text-theme-default">
             <Trans>
               Folder <span className="font-semibold">"{folderDisplayName}"</span> and all objects within it will be
               permanently deleted. This cannot be undone.
             </Trans>
-          </Message>
+          </p>
           <p className="text-theme-default">
             <Trans>
               Note: for <strong>static and dynamic large objects</strong> only the manifests are deleted — their
