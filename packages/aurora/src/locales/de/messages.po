@@ -2915,9 +2915,6 @@ msgstr "Bereich"
 msgid "RBAC Policies"
 msgstr "RBAC-Richtlinien"
 
-msgid "RBAC Policy Details:"
-msgstr "Details der RBAC-Richtlinie:"
-
 msgid "Read ACLs"
 msgstr "Lese-ACLs"
 

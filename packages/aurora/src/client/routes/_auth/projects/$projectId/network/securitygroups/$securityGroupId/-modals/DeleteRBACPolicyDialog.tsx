@@ -1,6 +1,16 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
-import { Modal, Stack, Message, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Stack,
+  Message,
+  Form,
+  FormSection,
+  TextInput,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+} from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RBACPolicy } from "@/server/Network/types/rbacPolicy"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -82,22 +92,22 @@ export function DeleteRBACPolicyDialog({
           </Trans>
         </p>
 
-        <div className="bg-theme-background-lvl-1 rounded p-4">
-          <p className="mb-2 font-semibold">
-            <Trans>RBAC Policy Details:</Trans>
-          </p>
-          <ul className="list-inside list-disc space-y-1 text-sm">
-            <li>
-              <Trans>Target Project ID</Trans>: {policy.target_tenant}
-            </li>
-            <li>
-              <Trans>Action</Trans>: {policy.action}
-            </li>
-            <li>
-              <Trans>Object Type</Trans>: {policy.object_type}
-            </li>
-          </ul>
-        </div>
+        <DescriptionList>
+          <DescriptionTerm>
+            <Trans>Target Project ID</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{policy.target_tenant}</DescriptionDefinition>
+
+          <DescriptionTerm>
+            <Trans>Action</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{policy.action}</DescriptionDefinition>
+
+          <DescriptionTerm>
+            <Trans>Object Type</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{policy.object_type}</DescriptionDefinition>
+        </DescriptionList>
 
         <Form
           className="mb-0"

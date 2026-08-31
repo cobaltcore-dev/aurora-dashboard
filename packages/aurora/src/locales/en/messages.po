@@ -2915,9 +2915,6 @@ msgstr "Range"
 msgid "RBAC Policies"
 msgstr "RBAC Policies"
 
-msgid "RBAC Policy Details:"
-msgstr "RBAC Policy Details:"
-
 msgid "Read ACLs"
 msgstr "Read ACLs"
 
