@@ -8,7 +8,6 @@ import {
   Modal,
   Spinner,
   Stack,
-  Message,
 } from "@cloudoperators/juno-ui-components"
 import { SizeDisplay } from "./SizeDisplay"
 
@@ -53,11 +52,9 @@ export const DeactivateImageModal: React.FC<DeactivateImageModalProps> = ({
         </Stack>
       ) : (
         <>
-          <Message
-            text={t`Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected.`}
-            variant="danger"
-            className="mb-4"
-          />
+          <p className="mb-4">
+            {t`Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected.`}
+          </p>
 
           <DescriptionList>
             <DescriptionTerm>{t`Name`}</DescriptionTerm>
