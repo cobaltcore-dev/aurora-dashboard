@@ -232,7 +232,10 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     invalid={!!field.state.meta.errors.length}
-                    errortext={field.state.meta.errors.join(", ") || undefined}
+                    errortext={
+                      field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ") ||
+                      undefined
+                    }
                     disabled={deleteContainerMutation.isPending}
                     autoFocus
                     placeholder="delete"
