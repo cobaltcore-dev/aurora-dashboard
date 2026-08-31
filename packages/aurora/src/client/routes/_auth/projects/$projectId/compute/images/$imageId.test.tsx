@@ -170,7 +170,8 @@ describe("RouteComponent (image detail)", () => {
       renderRoute()
       fireEvent.click(screen.getByText("trigger-member-change"))
 
-      expect(await screen.findByText(/Access status updated to/)).toBeInTheDocument()
+      expect(await screen.findByText("Access Status")).toBeInTheDocument()
+      expect(screen.getByText('Access status updated to "rejected".')).toBeInTheDocument()
       expect(h.updateMemberMutateAsync).toHaveBeenCalledWith(
         expect.objectContaining({ project_id: "p1", imageId: "img-1", memberId: "p1", status: "rejected" })
       )
@@ -182,6 +183,7 @@ describe("RouteComponent (image detail)", () => {
       renderRoute()
       fireEvent.click(screen.getByText("trigger-member-change"))
 
+      expect(await screen.findByText("Access Status")).toBeInTheDocument()
       expect(await screen.findByText("Permission denied")).toBeInTheDocument()
     })
   })

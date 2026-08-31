@@ -28,6 +28,13 @@ import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import {
   getImageAccessStatusUpdatedToast,
   getImageAccessStatusErrorToast,
+  getImageUpdatedToast,
+  getImageActivatedToast,
+  getImageActivationErrorToast,
+  getImageDeactivatedToast,
+  getImageDeactivationErrorToast,
+  getImageVisibilityUpdatedToast,
+  getImageVisibilityUpdateErrorToast,
 } from "../-components/Images/-components/ImageToastNotifications"
 import { useState } from "react"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
@@ -228,6 +235,8 @@ function RouteComponent() {
     try {
       await updateImageMutation.mutateAsync({ project_id: projectId, imageId, operations })
       setEditDetailsModalOpen(false)
+      const { message, ...options } = getImageUpdatedToast(String(image.name ?? image.id))
+      toast.success(message, options)
       return true
     } catch {
       return false
@@ -248,8 +257,12 @@ function RouteComponent() {
     try {
       await reactivateImageMutation.mutateAsync({ project_id: projectId, imageId: img.id })
       setActivateModalOpen(false)
-    } catch {
+      const { message, ...options } = getImageActivatedToast(String(img.name ?? img.id))
+      toast.success(message, options)
+    } catch (error) {
       setActivateModalOpen(false)
+      const { message, ...options } = getImageActivationErrorToast(img.id, (error as Error)?.message ?? "")
+      toast.error(message, options)
     }
   }
 
@@ -257,8 +270,12 @@ function RouteComponent() {
     try {
       await deactivateImageMutation.mutateAsync({ project_id: projectId, imageId: img.id })
       setDeactivateModalOpen(false)
-    } catch {
+      const { message, ...options } = getImageDeactivatedToast(String(img.name ?? img.id))
+      toast.success(message, options)
+    } catch (error) {
       setDeactivateModalOpen(false)
+      const { message, ...options } = getImageDeactivationErrorToast(img.id, (error as Error)?.message ?? "")
+      toast.error(message, options)
     }
   }
 
@@ -270,8 +287,14 @@ function RouteComponent() {
         imageId: image.id,
         visibility: newVisibility,
       })
-    } catch {
-      // error handled by mutation state
+      const { message, ...options } = getImageVisibilityUpdatedToast(String(image.name ?? image.id), newVisibility)
+      toast.success(message, options)
+    } catch (error) {
+      const { message, ...options } = getImageVisibilityUpdateErrorToast(
+        String(image.name ?? image.id),
+        (error as Error)?.message ?? ""
+      )
+      toast.error(message, options)
     }
   }
 

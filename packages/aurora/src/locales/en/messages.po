@@ -1858,11 +1858,17 @@ msgstr "Fingerprint"
 msgid "Fixed IP Address"
 msgstr "Fixed IP Address"
 
-msgid "Flavor \"{flavorName}\" has been successfully created."
-msgstr "Flavor \"{flavorName}\" has been successfully created."
+msgid "Flavor \"{name}\" was successfully created."
+msgstr "Flavor \"{name}\" was successfully created."
 
-msgid "Flavor \"{flavorName}\" has been successfully deleted."
-msgstr "Flavor \"{flavorName}\" has been successfully deleted."
+msgid "Flavor \"{name}\" was successfully deleted."
+msgstr "Flavor \"{name}\" was successfully deleted."
+
+msgid "Flavor Created"
+msgstr "Flavor Created"
+
+msgid "Flavor Deleted"
+msgstr "Flavor Deleted"
 
 msgid "Flavor ID"
 msgstr "Flavor ID"

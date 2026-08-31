@@ -5,7 +5,16 @@ import { useSearch, useNavigate } from "@tanstack/react-router"
 import { TrpcClient } from "@/client/trpcClient"
 import { Flavor } from "@/server/Compute/types/flavor"
 import { TRPCClientError } from "@trpc/client"
-import { Message, Button, Stack, Spinner, DataGridToolbar, SearchInput } from "@cloudoperators/juno-ui-components"
+import {
+  Message,
+  Button,
+  Stack,
+  Spinner,
+  DataGridToolbar,
+  SearchInput,
+  toast,
+} from "@cloudoperators/juno-ui-components"
+import { getFlavorCreatedToast, getFlavorDeletedToast } from "./-components/FlavorToastNotifications"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { FlavorListContainer } from "./-components/FlavorListContainer"
@@ -221,7 +230,6 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
 
   const [searchTerm, setSearchTerm] = useState(searchParams.search || "")
   const currentPage = searchParams.page ?? 1
-  const [success, setSuccess] = useState<{ message: string; timestamp: number } | undefined>()
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const [flavorsPromise, setFlavorsPromise] = useState(() =>
@@ -238,20 +246,14 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   }
 
   const handleFlavorDeleted = (flavorName: string) => {
-    setSuccess({
-      message: t`Flavor "${flavorName}" has been successfully deleted.`,
-      timestamp: Date.now(),
-    })
-    setTimeout(() => setSuccess(undefined), 5000)
+    const { message, ...options } = getFlavorDeletedToast(flavorName)
+    toast.success(message, options)
     refetchFlavors()
   }
 
   const handleFlavorCreated = (flavorName: string) => {
-    setSuccess({
-      message: t`Flavor "${flavorName}" has been successfully created.`,
-      timestamp: Date.now(),
-    })
-    setTimeout(() => setSuccess(undefined), 5000)
+    const { message, ...options } = getFlavorCreatedToast(flavorName)
+    toast.success(message, options)
     refetchFlavors()
   }
 
@@ -310,16 +312,6 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
 
   return (
     <div className="relative">
-      {success && (
-        <Message
-          className="absolute -top-14 right-0 left-0 z-50"
-          text={success.message}
-          variant="info"
-          onDismiss={() => setSuccess(undefined)}
-          dismissible
-        />
-      )}
-
       <ErrorBoundary
         fallbackRender={({ error }) => (
           <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
