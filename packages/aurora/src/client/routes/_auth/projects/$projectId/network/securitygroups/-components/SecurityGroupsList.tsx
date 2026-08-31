@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { Button, Stack, DataGridToolbar, SearchInput, toast } from "@cloudoperators/juno-ui-components"
+import { Button, Stack, DataGridToolbar, SearchInput, toast, Status } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
@@ -243,11 +243,7 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
   }
 
   if (isLoading) {
-    return (
-      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-        <Trans>Loading...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={t`Loading Security Groups...`} />
   }
 
   if (isError && !securityGroups.length) {

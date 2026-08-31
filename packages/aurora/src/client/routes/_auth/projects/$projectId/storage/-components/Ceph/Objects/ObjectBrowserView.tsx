@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, startTransition, useMemo } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { plural } from "@lingui/core/macro"
 import {
-  Spinner,
+  Status,
   Stack,
   Button,
   toast,
@@ -772,10 +772,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       </Stack>
 
       {isLoading && !continuationToken && !keyMarker ? (
-        <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-          <Spinner variant="primary" size="large" className="mb-2" />
-          <Trans>Loading objects...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Loading objects...`} />
       ) : (
         <ObjectsTableView
           bucketName={bucketName}

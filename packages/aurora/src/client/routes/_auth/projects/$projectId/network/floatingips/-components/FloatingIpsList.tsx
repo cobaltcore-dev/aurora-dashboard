@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { Button, Stack, DataGridToolbar, SearchInput, Message } from "@cloudoperators/juno-ui-components"
+import { Button, Stack, DataGridToolbar, SearchInput, Message, Status } from "@cloudoperators/juno-ui-components"
 import { FloatingIpQueryParameters } from "@/server/Network/types/floatingIp"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
@@ -152,20 +152,8 @@ export const FloatingIpsList = () => {
     }
   )
 
-  if (isLoading && !floatingIps.length) {
-    return (
-      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-        <Trans>Loading...</Trans>
-      </Stack>
-    )
-  }
-
   if (isError && !floatingIps.length) {
-    return (
-      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-        {error?.message ?? t`Failed to load Floating IPs`}
-      </Stack>
-    )
+    return <Status status="error" title={error?.message ?? t`Failed to load Floating IPs`} />
   }
 
   return (

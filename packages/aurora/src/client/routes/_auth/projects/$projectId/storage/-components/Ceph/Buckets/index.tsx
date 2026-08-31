@@ -15,8 +15,8 @@ import {
   PopupMenuOptions,
   PopupMenuToggle,
   SearchInput,
-  Spinner,
   Stack,
+  Status,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { BucketTableView } from "./BucketTableView"
@@ -237,12 +237,7 @@ export const CephBuckets = () => {
 
   // Handle loading state
   if (isLoading) {
-    return (
-      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Buckets...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={t`Loading Buckets...`} />
   }
 
   // Handle error state

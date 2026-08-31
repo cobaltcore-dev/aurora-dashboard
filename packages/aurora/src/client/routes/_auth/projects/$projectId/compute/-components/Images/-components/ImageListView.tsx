@@ -11,6 +11,7 @@ import {
   Pagination,
   Spinner,
   Stack,
+  Status,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
@@ -571,10 +572,7 @@ export function ImageListView({
       <div data-testid="loading">
         <DataGridRow>
           <DataGridCell colSpan={3}>
-            <Stack distribution="center" alignment="center">
-              <Spinner variant="primary" />
-              <Trans>Loading...</Trans>
-            </Stack>
+            <Status status="progress" title={t`Loading...`} />
           </DataGridCell>
         </DataGridRow>
       </div>

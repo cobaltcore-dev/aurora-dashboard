@@ -2257,6 +2257,9 @@ msgstr "Loading Flavors..."
 msgid "Loading Floating IP Details..."
 msgstr "Loading Floating IP Details..."
 
+msgid "Loading Floating IPs..."
+msgstr "Loading Floating IPs..."
+
 msgid "Loading Image Details..."
 msgstr "Loading Image Details..."
 
@@ -2295,6 +2298,9 @@ msgstr "Loading preview..."
 
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
+
+msgid "Loading Security Groups..."
+msgstr "Loading Security Groups..."
 
 msgid "Loading Server Groups..."
 msgstr "Loading Server Groups..."

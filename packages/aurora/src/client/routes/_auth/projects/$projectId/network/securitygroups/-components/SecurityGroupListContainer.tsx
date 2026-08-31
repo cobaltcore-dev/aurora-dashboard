@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import { DataGrid, DataGridHeadCell, DataGridRow, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { DataGrid, DataGridHeadCell, DataGridRow, Status } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate } from "@tanstack/react-router"
 import { useProjectId } from "@/client/hooks"
@@ -116,21 +116,12 @@ export const SecurityGroupListContainer = ({
 
   // Loading state
   if (isLoading) {
-    return (
-      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={t`Loading...`} />
   }
 
   // Error state
   if (isError) {
-    return (
-      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-        {error?.message ?? t`Failed to load security groups`}
-      </Stack>
-    )
+    return <Status status="error" title={error?.message ?? t`Failed to load security groups`} />
   }
 
   // Empty state

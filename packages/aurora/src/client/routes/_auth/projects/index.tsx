@@ -5,8 +5,8 @@ import { ProjectsOverviewNavBar } from "@/client/routes/_auth/projects/-componen
 import { ProjectCardView } from "@/client/routes/_auth/projects/-components/ProjectCardView"
 import { RouteError } from "@/client/components/Error/RouteError"
 import { TRPCClientError } from "@trpc/client"
-import { Container, ContentHeading, Spinner, Stack } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
+import { Container, ContentHeading, Status } from "@cloudoperators/juno-ui-components"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { z } from "zod"
 import { Slot } from "@/client/components/Slot"
 import { trpcReact } from "@/client/trpcClient"
@@ -53,6 +53,7 @@ export function ProjectsOverview() {
   const { search = "" } = Route.useSearch()
   const navigate = Route.useNavigate()
   const { slots } = useRouteContext({ strict: false })
+  const { t } = useLingui()
 
   const handleSearch = (value: string) => {
     navigate({ search: (prev) => ({ ...prev, search: value || undefined }), replace: true })
@@ -77,13 +78,7 @@ export function ProjectsOverview() {
       >
         <ProjectsOverviewNavBar searchTerm={search} onSearch={handleSearch} />
         <div className="pt-5">
-          <Suspense
-            fallback={
-              <Stack distribution="center" alignment="center" direction="vertical" className="py-12">
-                <Spinner variant="primary" size="large" />
-              </Stack>
-            }
-          >
+          <Suspense fallback={<Status status="progress" title={t`Loading...`} />}>
             <ProjectsContent search={search} />
           </Suspense>
         </div>

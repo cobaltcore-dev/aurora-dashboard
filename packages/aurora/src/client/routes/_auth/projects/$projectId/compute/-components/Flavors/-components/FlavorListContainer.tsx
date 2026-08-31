@@ -8,12 +8,10 @@ import {
   PopupMenu,
   PopupMenuOptions,
   PopupMenuItem,
-  Spinner,
-  Stack,
+  Status,
   Pagination,
 } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
-import { useLingui } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { DeleteFlavorModal } from "./DeleteFlavorModal"
 import { useEffect, useState } from "react"
 import { TrpcClient } from "@/client/trpcClient"
@@ -101,20 +99,7 @@ export const FlavorListContainer = ({
   }
 
   if (isLoading) {
-    return (
-      <div data-testid="loading">
-        <div data-testid="loading">
-          <DataGridRow>
-            <DataGridCell colSpan={3}>
-              <Stack distribution="center" alignment="center">
-                <Spinner variant="primary" />
-                <Trans>Loading...</Trans>
-              </Stack>
-            </DataGridCell>
-          </DataGridRow>
-        </div>
-      </div>
-    )
+    return <Status status="progress" title={t`Loading...`} />
   }
 
   if (!flavors || flavors.length === 0) {
