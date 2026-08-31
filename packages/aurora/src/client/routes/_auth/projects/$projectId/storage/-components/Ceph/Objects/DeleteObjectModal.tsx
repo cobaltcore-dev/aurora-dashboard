@@ -103,10 +103,7 @@ export function DeleteObjectModal({
   return (
     <Modal
       open={isOpen}
-      onCancel={() => {
-        trackClose()
-        handleClose()
-      }}
+      onCancel={handleClose}
       title={isFolder ? <Trans>Delete Folder "{displayName}"</Trans> : <Trans>Delete Object</Trans>}
       size="large"
       confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : isFolder ? t`Delete Folder` : t`Delete Object`}

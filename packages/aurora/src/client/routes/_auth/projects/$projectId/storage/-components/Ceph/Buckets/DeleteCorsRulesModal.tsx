@@ -98,6 +98,7 @@ export const DeleteCorsRulesModal = ({
   }, [isOpen, bucketName])
 
   const handleClose = () => {
+    trackClose()
     setMutation.reset()
     deleteMutation.reset()
     setIsVerifying(false)
@@ -182,10 +183,7 @@ export const DeleteCorsRulesModal = ({
     <Modal
       title={<Plural value={ruleCount} one="Delete CORS Rule" other="Delete CORS Rules" />}
       open={isOpen}
-      onCancel={() => {
-        trackClose()
-        handleClose()
-      }}
+      onCancel={handleClose}
       confirmButtonLabel={confirmLabel}
       confirmButtonVariant="primary-danger"
       onConfirm={handleDelete}

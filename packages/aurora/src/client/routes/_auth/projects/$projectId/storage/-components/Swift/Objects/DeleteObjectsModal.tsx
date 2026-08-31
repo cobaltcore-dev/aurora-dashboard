@@ -199,6 +199,8 @@ export const DeleteObjectsModal = ({
                     name={field.name}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
+                    invalid={field.state.meta.errors.length > 0}
+                    errortext={field.state.meta.errors.join(", ") || undefined}
                     disabled={isPending}
                     autoFocus
                     required

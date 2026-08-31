@@ -109,10 +109,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
     <Modal
       title={<Plural value={totalCount} one="Empty Bucket" other="Empty Buckets" />}
       open={isOpen}
-      onCancel={() => {
-        trackClose()
-        handleClose()
-      }}
+      onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Emptying...` : totalCount === 1 ? t`Empty Bucket` : t`Empty Buckets`}
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
