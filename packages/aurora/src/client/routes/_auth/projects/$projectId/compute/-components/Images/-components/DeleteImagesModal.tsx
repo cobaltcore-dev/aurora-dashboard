@@ -1,7 +1,9 @@
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
 import React, { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
-import { Modal, Stack, TextInput } from "@cloudoperators/juno-ui-components"
-import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
+import { Modal, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteImagesModalProps {
   deletableImages: Array<string>
@@ -32,11 +34,38 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
   const { t } = useLingui()
   const [result, setResult] = useState<DeleteResult | null>(null)
 
-  const { confirmText, setConfirmText, isConfirmed, trackClose, markSubmitted } = useDeleteConfirmation({
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
-    confirmWord: "delete",
-    trackingPrefix: "compute.images",
+    actionPrefix: "compute.images.delete",
   })
+
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "delete", {
+      message: t`Type "delete" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (result === null && !isLoading) {
+        // Step A: Confirm
+        markSubmitted()
+        onDelete(deletableImages)
+        // Note: Parent component should call setResult after getting backend response
+      } else {
+        // Step B: Close results view
+        handleClose()
+      }
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "delete")
 
   const deletableCount = deletableImages.length
   const protectedCount = protectedImages.length
@@ -44,19 +73,9 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
   const handleClose = () => {
     trackClose()
     setResult(null)
+    form.reset()
+    resetTracking()
     onClose()
-  }
-
-  const handleConfirm = () => {
-    if (result === null) {
-      // Step A: Confirm
-      markSubmitted()
-      onDelete(deletableImages)
-      // Note: Parent component should call setResult after getting backend response
-    } else {
-      // Step B: Close results view
-      handleClose()
-    }
   }
 
   // Step B: Results view
@@ -71,7 +90,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
         title={<Trans>Delete Results</Trans>}
         size="large"
         confirmButtonLabel={t`Done`}
-        onConfirm={handleConfirm}
+        onConfirm={form.handleSubmit}
       >
         <Stack direction="vertical" gap="4">
           {(() => {
@@ -135,9 +154,9 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
       size="large"
       confirmButtonLabel={confirmLabel}
       confirmButtonVariant="primary-danger"
-      onConfirm={handleConfirm}
+      onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isConfirmed || isLoading}
+      disableConfirmButton={canDelete || isLoading}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
     >
@@ -198,15 +217,33 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
           )}
         </div>
 
-        <div>
-          <TextInput
-            label={t`Type "delete" to confirm`}
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="delete"
-            autoFocus
-          />
-        </div>
+        <Form
+          className="mb-0"
+          id="delete-images-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <FormSection>
+            <form.Field
+              name="confirm"
+              children={(field) => (
+                <TextInput
+                  label={t`Type "delete" to confirm`}
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="delete"
+                  autoFocus
+                  disabled={isLoading}
+                  required
+                />
+              )}
+            />
+          </FormSection>
+        </Form>
       </Stack>
     </Modal>
   )

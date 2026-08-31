@@ -1,3 +1,5 @@
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
 import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -7,13 +9,15 @@ import {
   ModalFooter,
   Button,
   ButtonRow,
+  Form,
+  FormSection,
   TextInput,
   Stack,
   Spinner,
   Icon,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary, ObjectSummary } from "@/server/Storage/types/swift"
-import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface EmptyContainerModalProps {
   isOpen: boolean
@@ -28,19 +32,40 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   const projectId = useProjectId()
   const [copied, setCopied] = useState(false)
   const containerNameRef = useRef("")
+  const [formError, setFormError] = useState<string | null>(null)
 
-  const {
-    confirmText,
-    setConfirmText,
-    error: confirmError,
-    setError: setConfirmError,
-    trackClose,
-    markSubmitted,
-  } = useDeleteConfirmation({
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
-    confirmWord: "empty",
-    trackingPrefix: "storage.swift.container",
+    actionPrefix: "storage.swift.container.empty",
   })
+
+  const formSchema = z.object({
+    containerName: z
+      .string()
+      .refine((value) => value === container?.name, { message: t`Container name does not match` }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      containerName: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (!container || emptyContainerMutation.isPending) return
+
+      setFormError(null)
+      containerNameRef.current = container.name
+      markSubmitted()
+      emptyContainerMutation.mutate({ project_id: projectId, container: container.name })
+    },
+  })
+
+  const canEmpty = useStore(
+    form.store,
+    (state) => state.isSubmitting || !state.values.containerName || state.values.containerName !== container?.name
+  )
 
   const handleCopyName = () => {
     if (!container) return
@@ -79,24 +104,11 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
 
   const handleClose = () => {
     trackClose()
+    form.reset()
+    setFormError(null)
     emptyContainerMutation.reset()
+    resetTracking()
     onClose()
-  }
-
-  const handleSubmit = () => {
-    if (!container) return
-    if (confirmText.trim() !== container.name) {
-      setConfirmError(t`Container name does not match`)
-      return
-    }
-    setConfirmError(null)
-    containerNameRef.current = container.name
-    markSubmitted()
-    emptyContainerMutation.mutate({ project_id: projectId, container: container.name })
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSubmit()
   }
 
   if (!isOpen || !container) return null
@@ -141,7 +153,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       onCancel={handleClose}
       confirmButtonLabel={showEmptyInfo ? undefined : t`Empty Container`}
       confirmButtonVariant="primary-danger"
-      onConfirm={showEmptyInfo ? undefined : handleSubmit}
+      onConfirm={showEmptyInfo ? undefined : form.handleSubmit}
       cancelButtonLabel={showEmptyInfo ? undefined : t`Cancel`}
       modalFooter={
         showEmptyInfo ? (
@@ -155,12 +167,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
         ) : undefined
       }
       size="large"
-      disableConfirmButton={
-        isLoadingObjects ||
-        emptyContainerMutation.isPending ||
-        (!showEmptyInfo && !confirmText.trim()) ||
-        (!showEmptyInfo && confirmText.trim() !== container.name)
-      }
+      disableConfirmButton={isLoadingObjects || emptyContainerMutation.isPending || (!showEmptyInfo && canEmpty)}
     >
       {objectsError && (
         <p className="text-theme-error mb-4">
@@ -229,21 +236,46 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
             </div>
           </div>
 
-          <TextInput
-            label={t`Type container name to confirm`}
-            required
-            value={confirmText}
-            onChange={(e) => {
-              setConfirmText(e.target.value)
-              if (confirmError) setConfirmError(null)
+          <Form
+            className="mb-0"
+            id="empty-container-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
             }}
-            onKeyDown={handleKeyDown}
-            invalid={!!confirmError}
-            errortext={confirmError || undefined}
-            disabled={emptyContainerMutation.isPending}
-            autoFocus
-            placeholder={container.name}
-          />
+          >
+            <FormSection>
+              <form.Field
+                name="containerName"
+                validators={{
+                  onSubmit: ({ value }) => {
+                    if (value !== container?.name) {
+                      return t`Container name does not match`
+                    }
+                    return undefined
+                  },
+                }}
+                children={(field) => (
+                  <TextInput
+                    id={field.name}
+                    name={field.name}
+                    label={t`Type container name to confirm`}
+                    required
+                    value={field.state.value}
+                    onChange={(e) => {
+                      field.handleChange(e.target.value)
+                      if (formError) setFormError(null)
+                    }}
+                    invalid={!!formError || !!field.state.meta.errors.length}
+                    errortext={formError || field.state.meta.errors.join(", ") || undefined}
+                    disabled={emptyContainerMutation.isPending}
+                    autoFocus
+                    placeholder={container.name}
+                  />
+                )}
+              />
+            </FormSection>
+          </Form>
         </Stack>
       ) : null}
     </Modal>

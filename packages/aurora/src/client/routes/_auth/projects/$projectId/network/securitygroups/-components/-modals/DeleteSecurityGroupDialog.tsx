@@ -1,8 +1,10 @@
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
 import React from "react"
-import { Modal, Stack, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Message, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
-import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteSecurityGroupDialogProps {
   isOpen: boolean
@@ -23,24 +25,40 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
 }) => {
   const { t } = useLingui()
 
-  const { confirmText, setConfirmText, isConfirmed, trackClose, markSubmitted } = useDeleteConfirmation({
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
-    confirmWord: "delete",
-    trackingPrefix: "network.securitygroup",
+    actionPrefix: "network.securitygroup.delete",
   })
+
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "delete", {
+      message: t`Type "delete" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (isDeleting) return
+
+      markSubmitted()
+      onDelete(securityGroup.id)
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "delete")
 
   const securityGroupName = securityGroup.name || securityGroup.id
 
-  const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault()
-    if (isConfirmed && !isDeleting) {
-      markSubmitted()
-      onDelete(securityGroup.id)
-    }
-  }
-
   const handleClose = () => {
     trackClose()
+    form.reset()
+    resetTracking()
     onClose()
   }
 
@@ -52,9 +70,9 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
       title={t`Delete Security Group "${securityGroupName}"`}
       confirmButtonLabel={isDeleting ? t`Deleting...` : t`Delete`}
       confirmButtonVariant="primary-danger"
-      onConfirm={handleDelete}
+      onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isConfirmed || isDeleting}
+      disableConfirmButton={canDelete || isDeleting}
       disableCancelButton={isDeleting}
       disableCloseButton={isDeleting}
     >
@@ -65,18 +83,35 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
           <Trans>This action cannot be undone. The security group will be permanently deleted.</Trans>
         </p>
 
-        <TextInput
-          label={t`Type "delete" to confirm`}
-          id="confirmation"
-          name="confirmation"
-          value={confirmText}
-          onChange={(e) => setConfirmText(e.target.value)}
-          placeholder="delete"
-          disabled={isDeleting}
-          autoComplete="off"
-          autoFocus
-          data-testid="delete-confirmation-input"
-        />
+        <Form
+          className="mb-0"
+          id="delete-security-group-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <FormSection>
+            <form.Field
+              name="confirm"
+              children={(field) => (
+                <TextInput
+                  label={t`Type "delete" to confirm`}
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="delete"
+                  disabled={isDeleting}
+                  autoComplete="off"
+                  autoFocus
+                  data-testid="delete-confirmation-input"
+                  required
+                />
+              )}
+            />
+          </FormSection>
+        </Form>
       </Stack>
     </Modal>
   )

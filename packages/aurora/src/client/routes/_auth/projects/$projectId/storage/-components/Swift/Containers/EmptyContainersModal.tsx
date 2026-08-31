@@ -1,11 +1,14 @@
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
 import { useState } from "react"
 import React from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { plural } from "@lingui/core/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Spinner, Stack, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 // Max number of container names shown in the list before truncating
 const MAX_VISIBLE = 20
@@ -34,47 +37,74 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
   const projectId = useProjectId()
 
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
-  const [confirmValue, setConfirmValue] = useState("")
-  const isConfirmed = confirmValue.trim() === CONFIRM_WORD
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.swift.containers.empty",
+  })
+
+  const formSchema = z.object({
+    confirm: z
+      .string()
+      .transform((val) => val.trim())
+      .refine((value) => value === CONFIRM_WORD, {
+        message: t`Type "${CONFIRM_WORD}" to confirm`,
+      }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (emptyContainerMutation.isPending || progress !== null) return
+
+      markSubmitted()
+      let emptiedCount = 0
+      let totalDeleted = 0
+      const errors: string[] = []
+      const total = containers.length
+
+      for (let i = 0; i < containers.length; i++) {
+        setProgress({ current: i + 1, total })
+        const container = containers[i]
+
+        try {
+          const deleted = await emptyContainerMutation.mutateAsync({ project_id: projectId, container: container.name })
+          totalDeleted += deleted
+          emptiedCount++
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err)
+          errors.push(`${container.name}: ${message}`)
+        }
+      }
+
+      if (emptiedCount > 0) {
+        await utils.storage.swift.listContainers.invalidate()
+      }
+
+      onComplete?.({ emptiedCount, totalDeleted, errors })
+
+      handleClose()
+    },
+  })
+
+  const canEmpty = useStore(form.store, (state) => state.isSubmitting || state.values.confirm.trim() !== CONFIRM_WORD)
 
   const utils = trpcReact.useUtils()
 
   const emptyContainerMutation = trpcReact.storage.swift.emptyContainer.useMutation()
 
   const handleClose = () => {
+    trackClose()
     emptyContainerMutation.reset()
     setProgress(null)
-    setConfirmValue("")
+    form.reset()
+    resetTracking()
     onClose()
-  }
-
-  const handleConfirm = async () => {
-    let emptiedCount = 0
-    let totalDeleted = 0
-    const errors: string[] = []
-    const total = containers.length
-
-    for (let i = 0; i < containers.length; i++) {
-      setProgress({ current: i + 1, total })
-      const container = containers[i]
-
-      try {
-        const deleted = await emptyContainerMutation.mutateAsync({ project_id: projectId, container: container.name })
-        totalDeleted += deleted
-        emptiedCount++
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err)
-        errors.push(`${container.name}: ${message}`)
-      }
-    }
-
-    if (emptiedCount > 0) {
-      await utils.storage.swift.listContainers.invalidate()
-    }
-
-    onComplete?.({ emptiedCount, totalDeleted, errors })
-
-    handleClose()
   }
 
   if (!isOpen || containers.length === 0) return null
@@ -90,12 +120,15 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
     <Modal
       title={<Plural value={totalCount} one="Empty Container" other="Empty # Containers" />}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
-      onConfirm={handleConfirm}
-      disableConfirmButton={isPending || !isConfirmed}
+      onConfirm={form.handleSubmit}
+      disableConfirmButton={isPending || canEmpty}
       disableCancelButton={isPending}
       disableCloseButton={isPending}
       size="small"
@@ -153,12 +186,33 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
             </div>
           </div>
 
-          <TextInput
-            label={t`Type "empty" to confirm`}
-            placeholder={CONFIRM_WORD}
-            value={confirmValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmValue(e.target.value)}
-          />
+          <Form
+            className="mb-0"
+            id="empty-containers-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
+            }}
+          >
+            <FormSection>
+              <form.Field
+                name="confirm"
+                children={(field) => (
+                  <TextInput
+                    label={t`Type "empty" to confirm`}
+                    placeholder={CONFIRM_WORD}
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    disabled={isPending}
+                    autoFocus
+                    required
+                  />
+                )}
+              />
+            </FormSection>
+          </Form>
         </div>
       )}
     </Modal>

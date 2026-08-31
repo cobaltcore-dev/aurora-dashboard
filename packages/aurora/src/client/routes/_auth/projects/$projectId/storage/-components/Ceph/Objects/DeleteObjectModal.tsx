@@ -1,7 +1,10 @@
-import { useState } from "react"
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Modal,
+  Form,
+  FormSection,
   TextInput,
   Stack,
   DescriptionList,
@@ -38,13 +41,39 @@ export function DeleteObjectModal({
 }: DeleteObjectModalProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const [confirmText, setConfirmText] = useState("")
   const utils = trpcReact.useUtils()
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
     actionPrefix: "storage.ceph.object.delete",
   })
+
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "delete", {
+      message: t`Type "delete" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (deleteMutation.isPending || !projectId) return
+
+      markSubmitted()
+      deleteMutation.mutate({
+        project_id: projectId,
+        containerName: bucketName,
+        objectKey,
+      })
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "delete")
 
   const deleteMutation = trpcReact.storage.ceph.objects.delete.useMutation({
     onSuccess: () => {
@@ -61,26 +90,15 @@ export function DeleteObjectModal({
   })
 
   const handleClose = () => {
-    setConfirmText("")
+    trackClose()
+    form.reset()
     deleteMutation.reset()
     resetTracking()
     onClose()
   }
 
-  const handleConfirm = () => {
-    if (!projectId) return
-
-    markSubmitted()
-    deleteMutation.mutate({
-      project_id: projectId,
-      containerName: bucketName,
-      objectKey,
-    })
-  }
-
   const isFolder = objectKey.endsWith("/")
   const displayName = objectKey.split("/").filter(Boolean).pop() || objectKey
-  const isConfirmValid = confirmText === "delete"
 
   return (
     <Modal
@@ -93,9 +111,9 @@ export function DeleteObjectModal({
       size="large"
       confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : isFolder ? t`Delete Folder` : t`Delete Object`}
       confirmButtonVariant="primary-danger"
-      onConfirm={handleConfirm}
+      onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isConfirmValid || deleteMutation.isPending}
+      disableConfirmButton={canDelete || deleteMutation.isPending}
       disableCancelButton={deleteMutation.isPending}
       disableCloseButton={deleteMutation.isPending}
     >
@@ -173,15 +191,33 @@ export function DeleteObjectModal({
           </DescriptionList>
         )}
 
-        <div>
-          <TextInput
-            label={t`Type "delete" to confirm`}
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="delete"
-            autoFocus
-          />
-        </div>
+        <Form
+          className="mb-0"
+          id="delete-object-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <FormSection>
+            <form.Field
+              name="confirm"
+              children={(field) => (
+                <TextInput
+                  id={field.name}
+                  name={field.name}
+                  label={t`Type "delete" to confirm`}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="delete"
+                  autoFocus
+                  disabled={deleteMutation.isPending}
+                  required
+                />
+              )}
+            />
+          </FormSection>
+        </Form>
 
         {deleteMutation.error && (
           <p className="text-juno-red text-sm">

@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react"
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
+import { useEffect } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Spinner, Stack, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 // Max number of object names shown in the list before truncating
 const MAX_VISIBLE = 20
@@ -38,10 +41,47 @@ export const DeleteObjectsModal = ({
 
   const utils = trpcReact.useUtils()
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.swift.objects.delete",
+  })
+
+  const formSchema = z.object({
+    confirm: z
+      .string()
+      .transform((val) => val.trim())
+      .refine((value) => value === CONFIRM_WORD, {
+        message: t`Type "${CONFIRM_WORD}" to confirm`,
+      }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (bulkDeleteMutation.isPending) return
+
+      markSubmitted()
+      // bulkDelete expects fully-qualified paths: /<container>/<object>
+      // Each segment must be URL-encoded to match Swift's bulk-delete protocol —
+      // object keys containing newlines or % would otherwise corrupt the request body.
+      const objects = objectKeys.map((key) => `/${encodeURIComponent(container)}/${encodeURIComponent(key)}`)
+      bulkDeleteMutation.mutate({
+        project_id: projectId,
+        objects,
+        ...(account ? { account } : {}),
+      })
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm.trim() !== CONFIRM_WORD)
+
   // Type-to-confirm guard. Bulk deletion is irreversible, so a single click is
   // not enough — the user must type CONFIRM_WORD first.
-  const [confirmValue, setConfirmValue] = useState("")
-  const isConfirmed = confirmValue.trim() === CONFIRM_WORD
 
   const bulkDeleteMutation = trpcReact.storage.swift.bulkDelete.useMutation({
     onSuccess: (result) => {
@@ -76,27 +116,17 @@ export const DeleteObjectsModal = ({
   useEffect(() => {
     if (!isOpen) {
       bulkDeleteMutation.reset()
-      setConfirmValue("")
+      form.reset()
+      resetTracking()
     }
-  }, [isOpen])
+  }, [isOpen, resetTracking])
 
   const handleClose = () => {
+    trackClose()
     bulkDeleteMutation.reset()
-    setConfirmValue("")
+    form.reset()
+    resetTracking()
     onClose()
-  }
-
-  const handleConfirm = () => {
-    if (!isConfirmed) return
-    // bulkDelete expects fully-qualified paths: /<container>/<object>
-    // Each segment must be URL-encoded to match Swift's bulk-delete protocol —
-    // object keys containing newlines or % would otherwise corrupt the request body.
-    const objects = objectKeys.map((key) => `/${encodeURIComponent(container)}/${encodeURIComponent(key)}`)
-    bulkDeleteMutation.mutate({
-      project_id: projectId,
-      objects,
-      ...(account ? { account } : {}),
-    })
   }
 
   if (!isOpen || objectKeys.length === 0) return null
@@ -114,8 +144,8 @@ export const DeleteObjectsModal = ({
       confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
-      onConfirm={handleConfirm}
-      disableConfirmButton={isPending || !isConfirmed}
+      onConfirm={form.handleSubmit}
+      disableConfirmButton={isPending || canDelete}
       disableCancelButton={isPending}
       disableCloseButton={isPending}
       size="small"
@@ -150,12 +180,33 @@ export const DeleteObjectsModal = ({
             </div>
           </div>
 
-          <TextInput
-            label={t`Type "${CONFIRM_WORD}" to confirm`}
-            placeholder={CONFIRM_WORD}
-            value={confirmValue}
-            onChange={(event) => setConfirmValue(event.target.value)}
-          />
+          <Form
+            className="mb-0"
+            id="delete-objects-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
+            }}
+          >
+            <FormSection>
+              <form.Field
+                name="confirm"
+                children={(field) => (
+                  <TextInput
+                    label={t`Type "${CONFIRM_WORD}" to confirm`}
+                    placeholder={CONFIRM_WORD}
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    disabled={isPending}
+                    autoFocus
+                    required
+                  />
+                )}
+              />
+            </FormSection>
+          </Form>
         </Stack>
       )}
     </Modal>

@@ -1,7 +1,9 @@
-import { Modal, Stack, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
+import { Modal, Stack, Message, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RBACPolicy } from "@/server/Network/types/rbacPolicy"
-import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteRBACPolicyDialogProps {
   policy: RBACPolicy
@@ -22,20 +24,39 @@ export function DeleteRBACPolicyDialog({
 }: DeleteRBACPolicyDialogProps) {
   const { t } = useLingui()
 
-  const { confirmText, setConfirmText, isConfirmed, trackClose, markSubmitted } = useDeleteConfirmation({
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen: open,
-    confirmWord: "remove",
-    trackingPrefix: "network.securitygroup.rbacpolicy",
+    actionPrefix: "network.securitygroup.rbacpolicy.delete",
   })
+
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "remove", {
+      message: t`Type "remove" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (isLoading) return
+
+      markSubmitted()
+      onConfirm(policy.id)
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "remove")
 
   const handleClose = () => {
     trackClose()
+    form.reset()
+    resetTracking()
     onClose()
-  }
-
-  const handleConfirm = () => {
-    markSubmitted()
-    onConfirm(policy.id)
   }
 
   return (
@@ -44,11 +65,11 @@ export function DeleteRBACPolicyDialog({
       onCancel={handleClose}
       size="small"
       title={t`Remove RBAC Policy`}
-      onConfirm={handleConfirm}
+      onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={isLoading ? t`Removing...` : t`Remove Policy`}
       confirmButtonVariant="primary-danger"
-      disableConfirmButton={!isConfirmed || isLoading}
+      disableConfirmButton={canDelete || isLoading}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
     >
@@ -78,16 +99,35 @@ export function DeleteRBACPolicyDialog({
           </ul>
         </div>
 
-        <TextInput
-          label={t`Type "remove" to confirm`}
-          value={confirmText}
-          onChange={(e) => setConfirmText(e.target.value)}
-          placeholder="remove"
-          autoComplete="off"
-          autoFocus
-          disabled={isLoading}
-          data-testid="remove-policy-confirmation-input"
-        />
+        <Form
+          className="mb-0"
+          id="delete-rbac-policy-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <FormSection>
+            <form.Field
+              name="confirm"
+              children={(field) => (
+                <TextInput
+                  label={t`Type "remove" to confirm`}
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="remove"
+                  autoComplete="off"
+                  autoFocus
+                  disabled={isLoading}
+                  data-testid="remove-policy-confirmation-input"
+                  required
+                />
+              )}
+            />
+          </FormSection>
+        </Form>
       </Stack>
     </Modal>
   )

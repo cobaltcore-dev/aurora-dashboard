@@ -1,8 +1,10 @@
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
 import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Stack, Spinner, Checkbox, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, Checkbox, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
 
@@ -25,9 +27,36 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
 
   const utils = trpcReact.useUtils()
 
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "delete", {
+      message: t`Type "delete" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (deleteObjectMutation.isPending || !object) return
+
+      displayNameRef.current = object.displayName
+      deleteObjectMutation.mutate({
+        project_id: projectId,
+        container: containerName,
+        object: object.name,
+        ...(isSLO && !keepSegments ? { multipartManifest: "delete" as const } : {}),
+      })
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "delete")
+
   // keepSegments is only relevant for SLOs — toggled by a checkbox in the modal.
   const [keepSegments, setKeepSegments] = useState(false)
-  const [confirmText, setConfirmText] = useState("")
 
   // useRef so the object display name survives re-renders triggered by
   // deleteObjectMutation.reset() inside handleClose() before onSuccess/onError fire.
@@ -68,7 +97,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
     if (!isOpen) {
       deleteObjectMutation.reset()
       setKeepSegments(false)
-      setConfirmText("")
+      form.reset()
     }
   }, [isOpen])
 
@@ -77,27 +106,12 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
     onClose()
   }
 
-  const handleConfirm = () => {
-    if (!object) return
-    displayNameRef.current = object.displayName
-    deleteObjectMutation.mutate({
-      project_id: projectId,
-      container: containerName,
-      object: object.name,
-      // Send multipartManifest="delete" for SLOs only when the user has NOT
-      // checked "Keep segments" — tells Swift to also delete all segment objects.
-      // DLOs always use plain DELETE (segments are prefix-based, not enumerable).
-      ...(isSLO && !keepSegments ? { multipartManifest: "delete" as const } : {}),
-    })
-  }
-
   if (!isOpen || !object) return null
 
   const displayName = object.displayName
   const isLoading = isLoadingMetadata
   const isPending = deleteObjectMutation.isPending
   const metadataErrorMessage = metadataError?.message ?? ""
-  const isConfirmValid = confirmText === "delete"
 
   return (
     <Modal
@@ -115,10 +129,10 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
       confirmButtonVariant="primary-danger"
-      onConfirm={handleConfirm}
+      onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={isLoading || isPending || !!metadataError || !isConfirmValid}
+      disableConfirmButton={isLoading || isPending || !!metadataError || canDelete}
     >
       {metadataError && (
         <p className="text-theme-error mb-4">
@@ -167,13 +181,33 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
               </Trans>
             </p>
           )}
-          <TextInput
-            label={t`Type "delete" to confirm`}
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="delete"
-            autoFocus
-          />
+          <Form
+            className="mb-0"
+            id="delete-object-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
+            }}
+          >
+            <FormSection>
+              <form.Field
+                name="confirm"
+                children={(field) => (
+                  <TextInput
+                    id={field.name}
+                    name={field.name}
+                    label={t`Type "delete" to confirm`}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="delete"
+                    autoFocus
+                    disabled={isPending}
+                    required
+                  />
+                )}
+              />
+            </FormSection>
+          </Form>
         </Stack>
       ) : null}
     </Modal>

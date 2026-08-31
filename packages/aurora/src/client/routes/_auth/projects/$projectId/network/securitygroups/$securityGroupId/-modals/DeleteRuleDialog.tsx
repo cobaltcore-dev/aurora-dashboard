@@ -1,7 +1,9 @@
-import { Modal, Stack, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
+import { Modal, Stack, Message, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroupRule } from "@/server/Network/types/securityGroup"
-import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteRuleDialogProps {
   rule: SecurityGroupRule | null
@@ -15,21 +17,38 @@ interface DeleteRuleDialogProps {
 export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, error }: DeleteRuleDialogProps) {
   const { t } = useLingui()
 
-  const { confirmText, setConfirmText, isConfirmed, trackClose, markSubmitted } = useDeleteConfirmation({
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen: open,
-    confirmWord: "delete",
-    trackingPrefix: "network.securitygroup.rule",
+    actionPrefix: "network.securitygroup.rule.delete",
   })
 
-  const handleConfirm = () => {
-    if (rule && isConfirmed) {
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "delete", {
+      message: t`Type "delete" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (!rule || isLoading) return
+
       markSubmitted()
       onConfirm(rule.id)
-    }
-  }
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "delete")
 
   const handleClose = () => {
     trackClose()
+    form.reset()
+    resetTracking()
     onClose()
   }
 
@@ -43,9 +62,9 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
       title={t`Delete Security Group Rule`}
       confirmButtonLabel={isLoading ? t`Deleting...` : t`Delete Rule`}
       confirmButtonVariant="primary-danger"
-      onConfirm={handleConfirm}
+      onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isConfirmed || isLoading}
+      disableConfirmButton={canDelete || isLoading}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
     >
@@ -98,16 +117,35 @@ export function DeleteRuleDialog({ rule, open, onClose, onConfirm, isLoading, er
           </ul>
         </div>
 
-        <TextInput
-          label={t`Type "delete" to confirm`}
-          value={confirmText}
-          onChange={(e) => setConfirmText(e.target.value)}
-          placeholder="delete"
-          autoComplete="off"
-          autoFocus
-          disabled={isLoading}
-          data-testid="delete-rule-confirmation-input"
-        />
+        <Form
+          className="mb-0"
+          id="delete-rule-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <FormSection>
+            <form.Field
+              name="confirm"
+              children={(field) => (
+                <TextInput
+                  label={t`Type "delete" to confirm`}
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="delete"
+                  autoComplete="off"
+                  autoFocus
+                  disabled={isLoading}
+                  data-testid="delete-rule-confirmation-input"
+                  required
+                />
+              )}
+            />
+          </FormSection>
+        </Form>
       </Stack>
     </Modal>
   )

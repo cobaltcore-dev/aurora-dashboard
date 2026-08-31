@@ -1,9 +1,11 @@
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Message, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, Message, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { useProjectId } from "@/client/hooks"
 import { FloatingIpUpdateFields } from "./EditFloatingIpModal"
-import { useDeleteConfirmation } from "@/client/hooks/useDeleteConfirmation"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 export interface DetachFloatingIpModalProps {
   floatingIp: FloatingIp
@@ -26,23 +28,42 @@ export const DetachFloatingIpModal = ({
   const projectId = useProjectId()
   const { floating_ip_address } = floatingIp
 
-  const { confirmText, setConfirmText, isConfirmed, trackClose, markSubmitted } = useDeleteConfirmation({
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen: open,
-    confirmWord: "detach",
-    trackingPrefix: "network.floatingip",
+    actionPrefix: "network.floatingip.detach",
   })
+
+  const formSchema = z.object({
+    detach: z.string().refine((value) => value === "detach", {
+      message: t`Type "detach" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      detach: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (isLoading) return
+
+      markSubmitted()
+      await onUpdate(floatingIp.id, {
+        project_id: projectId,
+        port_id: null,
+      })
+      handleClose()
+    },
+  })
+
+  const canDetach = useStore(form.store, (state) => state.isSubmitting || state.values.detach !== "detach")
 
   const handleClose = () => {
     trackClose()
-    onClose()
-  }
-
-  const handleConfirm = async () => {
-    markSubmitted()
-    await onUpdate(floatingIp.id, {
-      project_id: projectId,
-      port_id: null,
-    })
+    form.reset()
+    resetTracking()
     onClose()
   }
 
@@ -55,8 +76,8 @@ export const DetachFloatingIpModal = ({
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={isLoading ? t`Detaching...` : t`Detach`}
       confirmButtonVariant="primary-danger"
-      onConfirm={handleConfirm}
-      disableConfirmButton={!isConfirmed || isLoading}
+      onConfirm={form.handleSubmit}
+      disableConfirmButton={isLoading || canDetach}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
     >
@@ -70,16 +91,34 @@ export const DetachFloatingIpModal = ({
           </Trans>
         </p>
 
-        <TextInput
-          label={t`Type "detach" to confirm`}
-          value={confirmText}
-          onChange={(e) => setConfirmText(e.target.value)}
-          placeholder="detach"
-          helptext={t`The text must match "detach" in lowercase.`}
-          autoFocus
-          disabled={isLoading}
-          required
-        />
+        <Form
+          className="mb-0"
+          id="detach-floating-ip-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <FormSection>
+            <form.Field
+              name="detach"
+              children={(field) => (
+                <TextInput
+                  id={field.name}
+                  name={field.name}
+                  label={t`Type "detach" to confirm`}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="detach"
+                  helptext={t`The text must match "detach" in lowercase.`}
+                  autoFocus
+                  disabled={isLoading}
+                  required
+                />
+              )}
+            />
+          </FormSection>
+        </Form>
       </Stack>
     </Modal>
   )
