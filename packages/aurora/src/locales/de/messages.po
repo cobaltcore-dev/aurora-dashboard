@@ -2263,9 +2263,6 @@ msgstr "Floating IPs werden geladen..."
 msgid "Loading Image Details..."
 msgstr "Image-Details werden geladen..."
 
-msgid "Loading images..."
-msgstr "Images werden geladen..."
-
 msgid "Loading Images..."
 msgstr "Lädt Images..."
 

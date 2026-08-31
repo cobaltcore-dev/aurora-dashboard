@@ -9,8 +9,6 @@ import {
   DataGridHeadCell,
   DataGridRow,
   Pagination,
-  Spinner,
-  Stack,
   Status,
   toast,
 } from "@cloudoperators/juno-ui-components"
@@ -18,8 +16,7 @@ import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import { FastifyError } from "fastify"
-import { Trans } from "@lingui/react/macro"
-import { t } from "@lingui/core/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { EditImageDetailsModal } from "./EditImageDetailsModal"
 import { EditImageMetadataModal } from "./EditImageMetadataModal"
 import { ImageTableRow } from "./ImageTableRow"
@@ -136,6 +133,7 @@ export function ImageListView({
   const [uploadId, setUploadId] = useState<string | null>(null)
   const [isUploadPending, setIsUploadPending] = useState(false)
   const [inputPage, setInputPage] = useState<string>(currentPage.toString())
+  const { t } = useLingui()
 
   useEffect(() => {
     setInputPage(currentPage.toString())
@@ -587,12 +585,7 @@ export function ImageListView({
         {/* Loading overlay when refetching */}
         {isFetching && (
           <div className="bg-theme-background-lvl-0/50 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
-            <Stack direction="vertical" alignment="center" gap="2">
-              <Spinner variant="primary" size="large" />
-              <span className="text-theme-high font-medium">
-                <Trans>Loading images...</Trans>
-              </span>
-            </Stack>
+            <Status status="progress" title={t`Loading Images...`} />
           </div>
         )}
 
