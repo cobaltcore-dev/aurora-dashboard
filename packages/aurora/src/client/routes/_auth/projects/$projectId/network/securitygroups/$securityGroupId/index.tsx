@@ -177,7 +177,7 @@ function RouteComponent() {
 
   // Handle loading permissions
   if (isLoadingPermissions) {
-    return <Status status="progress" title={""} body={t`Loading Permissions...`} />
+    return <Status status="progress" title={t`Loading Permissions...`} />
   }
 
   // Handle permissions error - default to no permissions
@@ -196,7 +196,7 @@ function RouteComponent() {
 
   // Handle loading state
   if (isLoading) {
-    return <Status status="progress" title={""} body={t`Loading Security Group Details...`} />
+    return <Status status="progress" title={t`Loading Security Group Details...`} />
   }
 
   // Handle error state

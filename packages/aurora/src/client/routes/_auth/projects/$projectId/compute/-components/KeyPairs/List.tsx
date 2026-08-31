@@ -33,7 +33,7 @@ export function KeyPairs({ client, project }: KeyPairsProps) {
   const { t } = useLingui()
 
   return (
-    <Suspense fallback={<Status status="progress" title={""} body={t`Loading Key Pairs...`} />}>
+    <Suspense fallback={<Status status="progress" title={t`Loading Key Pairs...`} />}>
       <KeyPairsContainer getKeyPairsPromise={getKeyPairsPromise} />
     </Suspense>
   )

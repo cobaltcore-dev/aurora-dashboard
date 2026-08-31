@@ -609,7 +609,7 @@ export const Images = ({ client, project }: ImagesProps) => {
           <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
         )}
       >
-        <Suspense fallback={<Status status="progress" title={""} body={t`Loading Images...`} />}>
+        <Suspense fallback={<Status status="progress" title={t`Loading Images...`} />}>
           <ImagesContent
             imagesPromise={imagesPromise}
             imageOverrides={imageOverrides}

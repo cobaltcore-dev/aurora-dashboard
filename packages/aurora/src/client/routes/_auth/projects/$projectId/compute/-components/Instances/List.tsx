@@ -32,7 +32,7 @@ export const Instances = ({
   const getServersPromise = client.compute.getServersByProjectId.query({ project_id: project })
 
   return (
-    <Suspense fallback={<Status status="progress" title={""} body={t`Loading Instances...`} />}>
+    <Suspense fallback={<Status status="progress" title={t`Loading Instances...`} />}>
       <InstanceContainer getServersPromise={getServersPromise} viewMode={viewMode} />
     </Suspense>
   )

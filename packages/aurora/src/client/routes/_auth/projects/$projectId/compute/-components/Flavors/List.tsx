@@ -325,7 +325,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
           <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
         )}
       >
-        <Suspense fallback={<Status status="progress" title={""} body={t`Loading Flavors...`} />}>
+        <Suspense fallback={<Status status="progress" title={t`Loading Flavors...`} />}>
           <FlavorsContent
             flavorsPromise={flavorsPromise}
             permissionsPromise={permissionsPromise}

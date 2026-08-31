@@ -119,7 +119,7 @@ function RouteComponent() {
   }
 
   if (status === "pending") {
-    return <Status status="progress" title="" body={t`Loading Flavor Details...`} />
+    return <Status status="progress" title={t`Loading Flavor Details...`} />
   }
 
   if (status === "error") {

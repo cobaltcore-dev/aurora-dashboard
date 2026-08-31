@@ -277,7 +277,7 @@ function RouteComponent() {
 
   // Handle loading state
   if (status === "pending") {
-    return <Status status="progress" title={""} body={t`Loading Image Details...`} />
+    return <Status status="progress" title={t`Loading Image Details...`} />
   }
 
   // Handle error state

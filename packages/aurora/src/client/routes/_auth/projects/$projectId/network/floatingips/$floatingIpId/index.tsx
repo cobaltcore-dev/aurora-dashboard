@@ -78,7 +78,7 @@ function RouteComponent() {
 
   // Loading state
   if (isLoading) {
-    return <Status status="progress" title={""} body={t`Loading Floating IP Details...`} />
+    return <Status status="progress" title={t`Loading Floating IP Details...`} />
   }
 
   // Error state

@@ -34,7 +34,7 @@ function LandingPage() {
   }, [isAuthenticated, isLoading, navigate, searchRedirect])
 
   if (isLoading) {
-    return <Status status="progress" title="" body={t`Loading...`} />
+    return <Status status="progress" title={t`Loading...`} />
   }
 
   if (slots?.login && !isAuthenticated) {
