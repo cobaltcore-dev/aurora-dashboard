@@ -353,8 +353,8 @@ msgstr "Regel hinzufügen"
 msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
 
-msgid "Add Tenant Access"
-msgstr "Projektzugriff hinzufügen"
+msgid "Add Tenant"
+msgstr ""
 
 msgid "After {abortDays} days"
 msgstr ""
@@ -2561,11 +2561,14 @@ msgstr ""
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
 
-msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
-msgstr "Kein spezifischer Projektzugriff für diesen privaten Flavor konfiguriert. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
-
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um X-Account-Meta-Temp-URL-Key oder X-Container-Meta-Temp-URL-Key zu konfigurieren."
+
+msgid "No tenant access configured."
+msgstr ""
+
+msgid "No tenant access configured. Click \"Add Tenant\" to grant access."
+msgstr ""
 
 msgid "No versions found for this object."
 msgstr ""
@@ -2942,9 +2945,6 @@ msgstr "Entfernen"
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Zugriff für {memberIdDisplay} entfernen"
 
-msgid "Remove access for {tenantId}"
-msgstr "Zugriff entfernen für {tenantId}"
-
 msgid "Remove member access"
 msgstr "Mitgliedszugriff entfernen"
 
@@ -2953,9 +2953,6 @@ msgstr "Richtlinie entfernen"
 
 msgid "Remove RBAC Policy"
 msgstr "RBAC-Richtlinie entfernen"
-
-msgid "Remove tenant access"
-msgstr "Projektzugriff entfernen"
 
 msgid "Removing..."
 msgstr "Wird entfernt..."
@@ -3449,14 +3446,11 @@ msgstr "Temporäre URL für \"{objectName}\" wurde in die Zwischenablage kopiert
 msgid "Temporary URLs"
 msgstr "Temporäre URLs"
 
-msgid "Tenant access for \"{tenantIdToRemove}\" has been removed successfully."
-msgstr "Der Projektzugriff für \"{tenantIdToRemove}\" wurde erfolgreich entfernt."
-
-msgid "Tenant access for \"{trimmedTenantId}\" has been added successfully."
-msgstr "Der Projektzugriff für \"{trimmedTenantId}\" wurde erfolgreich hinzugefügt."
-
 msgid "Tenant ID"
 msgstr "Projekt ID"
+
+msgid "Tenant ID is required"
+msgstr ""
 
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
@@ -3724,6 +3718,9 @@ msgstr ""
 
 msgid "This security group is already shared with the specified project."
 msgstr "Diese Sicherheitsgruppe ist bereits mit dem angegebenen Projekt geteilt."
+
+msgid "This tenant already has access"
+msgstr ""
 
 msgid "This tenant already has access to the flavor."
 msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."

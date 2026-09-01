@@ -353,8 +353,8 @@ msgstr "Add Rule"
 msgid "Add Security Group Rule"
 msgstr "Add Security Group Rule"
 
-msgid "Add Tenant Access"
-msgstr "Add Tenant Access"
+msgid "Add Tenant"
+msgstr "Add Tenant"
 
 msgid "After {abortDays} days"
 msgstr "After {abortDays} days"
@@ -2561,11 +2561,14 @@ msgstr "No rules found"
 msgid "No services available for this project."
 msgstr "No services available for this project."
 
-msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
-msgstr "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
-
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
+
+msgid "No tenant access configured."
+msgstr "No tenant access configured."
+
+msgid "No tenant access configured. Click \"Add Tenant\" to grant access."
+msgstr "No tenant access configured. Click \"Add Tenant\" to grant access."
 
 msgid "No versions found for this object."
 msgstr "No versions found for this object."
@@ -2942,9 +2945,6 @@ msgstr "Remove"
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Remove access for {memberIdDisplay}"
 
-msgid "Remove access for {tenantId}"
-msgstr "Remove access for {tenantId}"
-
 msgid "Remove member access"
 msgstr "Remove member access"
 
@@ -2953,9 +2953,6 @@ msgstr "Remove Policy"
 
 msgid "Remove RBAC Policy"
 msgstr "Remove RBAC Policy"
-
-msgid "Remove tenant access"
-msgstr "Remove tenant access"
 
 msgid "Removing..."
 msgstr "Removing..."
@@ -3449,14 +3446,11 @@ msgstr "Temporary URL for \"{objectName}\" was copied to clipboard."
 msgid "Temporary URLs"
 msgstr "Temporary URLs"
 
-msgid "Tenant access for \"{tenantIdToRemove}\" has been removed successfully."
-msgstr "Tenant access for \"{tenantIdToRemove}\" has been removed successfully."
-
-msgid "Tenant access for \"{trimmedTenantId}\" has been added successfully."
-msgstr "Tenant access for \"{trimmedTenantId}\" has been added successfully."
-
 msgid "Tenant ID"
 msgstr "Tenant ID"
+
+msgid "Tenant ID is required"
+msgstr "Tenant ID is required"
 
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
@@ -3724,6 +3718,9 @@ msgstr "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty
 
 msgid "This security group is already shared with the specified project."
 msgstr "This security group is already shared with the specified project."
+
+msgid "This tenant already has access"
+msgstr "This tenant already has access"
 
 msgid "This tenant already has access to the flavor."
 msgstr "This tenant already has access to the flavor."
