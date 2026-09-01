@@ -1,11 +1,19 @@
 import type { ReactNode } from "react"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
+import { toast } from "@cloudoperators/juno-ui-components"
 import { useModal } from "@/client/utils/useModal"
 import { useFloatingIpMutations } from "../../-hooks/useFloatingIpMutations"
 import { AssociateFloatingIpModal } from "./AssociateFloatingIpModal"
 import { DetachFloatingIpModal } from "./DetachFloatingIpModal"
 import { EditFloatingIpModal } from "./EditFloatingIpModal"
 import { ReleaseFloatingIpModal } from "./ReleaseFloatingIpModal"
+import {
+  getFloatingIpUpdatedToast,
+  getFloatingIpAssociatedToast,
+  getFloatingIpDetachedToast,
+  getFloatingIpReleasedToast,
+} from "./FloatingIpToastNotifications"
+import type { FloatingIpUpdateFields } from "./EditFloatingIpModal"
 
 export interface FloatingIpActionModalTriggers {
   toggleEditModal: () => void
@@ -28,6 +36,32 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
   const { handleUpdate, handleDelete, isUpdatePending, updateError, isDeletePending, deleteError } =
     useFloatingIpMutations()
 
+  const ip = floatingIp.floating_ip_address ?? floatingIp.id
+
+  const handleEditWithToast = async (floatingIpId: string, data: FloatingIpUpdateFields) => {
+    await handleUpdate(floatingIpId, data)
+    const { message, ...options } = getFloatingIpUpdatedToast(ip)
+    toast.success(message, options)
+  }
+
+  const handleAssociateWithToast = async (floatingIpId: string, data: FloatingIpUpdateFields) => {
+    await handleUpdate(floatingIpId, data)
+    const { message, ...options } = getFloatingIpAssociatedToast(ip)
+    toast.success(message, options)
+  }
+
+  const handleDetachWithToast = async (floatingIpId: string, data: FloatingIpUpdateFields) => {
+    await handleUpdate(floatingIpId, data)
+    const { message, ...options } = getFloatingIpDetachedToast(ip)
+    toast.success(message, options)
+  }
+
+  const handleReleaseWithToast = async (floatingIpId: string) => {
+    await handleDelete(floatingIpId)
+    const { message, ...options } = getFloatingIpReleasedToast(ip)
+    toast.success(message, options)
+  }
+
   return (
     <>
       {children({
@@ -42,7 +76,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
           floatingIp={floatingIp}
           open={editModalOpen}
           onClose={toggleEditModal}
-          onUpdate={handleUpdate}
+          onUpdate={handleEditWithToast}
           isLoading={isUpdatePending}
           error={updateError}
         />
@@ -53,7 +87,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
           floatingIp={floatingIp}
           open={attachModalOpen}
           onClose={toggleAttachModal}
-          onUpdate={handleUpdate}
+          onUpdate={handleAssociateWithToast}
           isLoading={isUpdatePending}
           error={updateError}
         />
@@ -64,7 +98,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
           floatingIp={floatingIp}
           open={detachModalOpen}
           onClose={toggleDetachModal}
-          onUpdate={handleUpdate}
+          onUpdate={handleDetachWithToast}
           isLoading={isUpdatePending}
           error={updateError}
         />
@@ -75,7 +109,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
           floatingIp={floatingIp}
           open={releaseModalOpen}
           onClose={toggleReleaseModal}
-          onUpdate={handleDelete}
+          onUpdate={handleReleaseWithToast}
           isLoading={isDeletePending}
           error={deleteError}
         />

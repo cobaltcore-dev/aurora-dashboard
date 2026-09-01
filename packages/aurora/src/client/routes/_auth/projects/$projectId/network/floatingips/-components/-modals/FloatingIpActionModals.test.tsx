@@ -1,9 +1,10 @@
 import type { ReactNode } from "react"
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest"
 import { render, screen, waitFor, cleanup } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
+import { PortalProvider, NotificationManager } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpActionModals } from "./FloatingIpActionModals"
 import { EditFloatingIpModalProps } from "./EditFloatingIpModal"
@@ -114,7 +115,14 @@ vi.mock("./AssociateFloatingIpModal", () => ({
     ) : null,
 }))
 
-const TestWrapper = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+const TestWrapper = ({ children }: { children: ReactNode }) => (
+  <I18nProvider i18n={i18n}>
+    <PortalProvider>
+      <NotificationManager />
+      {children}
+    </PortalProvider>
+  </I18nProvider>
+)
 
 const renderWithTriggers = (floatingIp: FloatingIp) =>
   render(
@@ -137,6 +145,23 @@ describe("FloatingIpActionModals", () => {
   const getByIdInvalidateMock = vi.fn()
   const mutateAsyncMock = vi.fn()
   const deleteAsyncMock = vi.fn()
+
+  beforeAll(() => {
+    if (!Element.prototype.scrollIntoView) Element.prototype.scrollIntoView = vi.fn()
+    if (!window.matchMedia) {
+      window.matchMedia = (query: string) =>
+        ({
+          matches: false,
+          media: query,
+          onchange: null,
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        }) as unknown as MediaQueryList
+    }
+  })
 
   const mockFloatingIp: FloatingIp = {
     id: "fip-123",
@@ -332,6 +357,48 @@ describe("FloatingIpActionModals", () => {
 
       expect(screen.getByTestId("release-modal-loading")).toHaveTextContent("loading")
       expect(screen.getByTestId("release-modal-error")).toHaveTextContent("Release failed")
+    })
+  })
+
+  describe("toast notifications", () => {
+    it("shows a success toast after a successful edit", async () => {
+      const user = userEvent.setup()
+      renderWithTriggers(mockFloatingIp)
+
+      await user.click(screen.getByRole("button", { name: "Open Edit" }))
+      await user.click(screen.getByRole("button", { name: "Save Edit" }))
+
+      expect(await screen.findByText("Floating IP Updated")).toBeInTheDocument()
+    })
+
+    it("shows a success toast after a successful associate", async () => {
+      const user = userEvent.setup()
+      renderWithTriggers(mockFloatingIp)
+
+      await user.click(screen.getByRole("button", { name: "Open Attach" }))
+      await user.click(screen.getByRole("button", { name: "Confirm Associate" }))
+
+      expect(await screen.findByText("Floating IP Associated")).toBeInTheDocument()
+    })
+
+    it("shows a success toast after a successful detach", async () => {
+      const user = userEvent.setup()
+      renderWithTriggers(mockFloatingIp)
+
+      await user.click(screen.getByRole("button", { name: "Open Detach" }))
+      await user.click(screen.getByRole("button", { name: "Confirm Detach" }))
+
+      expect(await screen.findByText("Floating IP Detached")).toBeInTheDocument()
+    })
+
+    it("shows a success toast after a successful release", async () => {
+      const user = userEvent.setup()
+      renderWithTriggers(mockFloatingIp)
+
+      await user.click(screen.getByRole("button", { name: "Open Release" }))
+      await user.click(screen.getByRole("button", { name: "Confirm Release" }))
+
+      expect(await screen.findByText("Floating IP Released")).toBeInTheDocument()
     })
   })
 })

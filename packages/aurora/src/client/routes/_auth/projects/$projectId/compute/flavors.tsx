@@ -10,7 +10,7 @@ const flavorsSearchFields = {
   page: z.number().int().positive().optional(),
 }
 
-const flavorsSearchSchema = z.object(flavorsSearchFields).passthrough()
+const flavorsSearchSchema = z.looseObject(flavorsSearchFields)
 
 export type FlavorsSearchParams = z.infer<typeof flavorsSearchSchema>
 
