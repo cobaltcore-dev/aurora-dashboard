@@ -167,6 +167,10 @@ function ImagesContent({
         : currentPage
   const safePage = Math.min(currentPage, totalPages)
 
+  useEffect(() => {
+    if (currentPage !== safePage) onPageChange(safePage)
+  }, [currentPage, safePage, onPageChange])
+
   const activeFilterSettings =
     memberStatusView === "pending" || memberStatusView === "accepted"
       ? {
@@ -511,9 +515,12 @@ export const Images = ({ client, project }: ImagesProps) => {
       )
       newPromise
         .then((result) => {
-          if (result.next && !pageMarkers.has(currentPage + 1)) {
-            setPageMarkers((prev) => new Map(prev).set(currentPage + 1, extractMarker(result.next)))
-          }
+          setPageMarkers((prev) => {
+            if (!result.next) return prev
+            const nextPage = currentPage + 1
+            if (prev.has(nextPage)) return prev
+            return new Map(prev).set(nextPage, extractMarker(result.next))
+          })
         })
         .catch(() => {})
         .finally(() => setIsFetching(false))
@@ -557,9 +564,12 @@ export const Images = ({ client, project }: ImagesProps) => {
       )
       newPromise
         .then((result) => {
-          if (result.next && !pageMarkers.has(urlPage + 1)) {
-            setPageMarkers((prev) => new Map(prev).set(urlPage + 1, extractMarker(result.next)))
-          }
+          setPageMarkers((prev) => {
+            if (!result.next) return prev
+            const nextPage = urlPage + 1
+            if (prev.has(nextPage)) return prev
+            return new Map(prev).set(nextPage, extractMarker(result.next))
+          })
         })
         .catch(() => {})
         .finally(() => setIsFetching(false))
