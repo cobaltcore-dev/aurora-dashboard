@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { DataGridRow, DataGridCell, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
-import { MEMBER_STATUSES } from "../../../-constants/filters"
+import { MEMBER_STATUSES } from "../../-constants/filters"
 
 interface ImageMember {
   image_id: string

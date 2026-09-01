@@ -23,10 +23,10 @@ import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
-import { ImageListView } from "./-components/ImageListView"
+import { ImageListView } from "./ImageListView"
 import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
-import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "./urlHelpers"
-import { createImagesPromise, createPermissionsPromise } from "./apiHelpers"
+import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
+import { createImagesPromise, createPermissionsPromise } from "../apiHelpers"
 
 const PAGE_SIZE = 50
 

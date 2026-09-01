@@ -8,10 +8,10 @@ import { TRPCClientError } from "@trpc/client"
 import { toast, Message, Button, Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/juno-ui-components"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
+import { FlavorListContainer } from "./FlavorListContainer"
+import { CreateFlavorModal } from "./CreateFlavorModal"
+import { getFlavorCreatedToast, getFlavorDeletedToast } from "./FlavorToastNotifications"
 import type { FlavorsSearchParams } from "@/client/routes/_auth/projects/$projectId/compute/flavors"
-import { FlavorListContainer } from "./-components/FlavorListContainer"
-import { CreateFlavorModal } from "./-components/CreateFlavorModal"
-import { getFlavorCreatedToast, getFlavorDeletedToast } from "./-components/FlavorToastNotifications"
 
 const PAGE_SIZE = 50
 
