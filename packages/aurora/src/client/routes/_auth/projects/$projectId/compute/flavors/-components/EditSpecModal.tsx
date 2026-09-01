@@ -229,7 +229,7 @@ function EditSpecModalInner({
       })
 
       // Delete removed/renamed specs
-      for (const key of keysToDelete) {
+      for (const key of new Set(keysToDelete)) {
         await client.compute.deleteExtraSpec.mutate({
           project_id: project,
           flavorId: flavor.id,
