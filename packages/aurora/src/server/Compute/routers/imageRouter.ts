@@ -77,14 +77,14 @@ export const imageRouter = {
         const allImages: GlanceImage[] = []
         const hasSearchTerm = queryInput.name && queryInput.name.trim()
 
-        // Build query params
+        // Build query params - ALWAYS start from beginning (no marker) to get accurate total count
         const queryParams = new URLSearchParams()
         const minimalQuery = {
           sort_key: queryInput.sort_key,
           sort_dir: queryInput.sort_dir,
           sort: queryInput.sort,
           limit: OPENSTACK_PAGE_SIZE,
-          marker: marker,
+          // Don't use marker here - we need to fetch ALL images for total count
         }
         applyImageQueryParams(queryParams, minimalQuery as ListImagesInput)
 
@@ -151,14 +151,21 @@ export const imageRouter = {
           filteredImages = filteredImages.filter((img) => img.owner === queryInput.owner)
         }
 
+        // Apply marker-based pagination: if marker provided, skip all images before it
+        let startIndex = 0
+        if (marker) {
+          const markerIndex = filteredImages.findIndex((img) => img.id === marker)
+          // Start from the image AFTER the marker
+          startIndex = markerIndex >= 0 ? markerIndex + 1 : 0
+        }
+
         // Implement frontend pagination
-        const startIndex = 0
-        const endIndex = FRONTEND_PAGE_SIZE
+        const endIndex = startIndex + FRONTEND_PAGE_SIZE
         const paginatedImages = filteredImages.slice(startIndex, endIndex)
 
         // We have all images, so we know the exact total
-        const hasMore = filteredImages.length > FRONTEND_PAGE_SIZE
-        const nextPageMarker = hasMore ? filteredImages[FRONTEND_PAGE_SIZE - 1]?.id : undefined
+        const hasMore = endIndex < filteredImages.length
+        const nextPageMarker = hasMore ? filteredImages[endIndex - 1]?.id : undefined
 
         return {
           images: paginatedImages,
