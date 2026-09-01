@@ -1,4 +1,4 @@
-import { useState, ReactNode, useEffect } from "react"
+import { useState, ReactNode } from "react"
 import { useProjectId } from "@/client/hooks"
 import type { CreateImageInput, GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import {
@@ -131,12 +131,7 @@ export function ImageListView({
   const [isCreateInProgress, setCreateInProgress] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
   const [isUploadPending, setIsUploadPending] = useState(false)
-  const [inputPage, setInputPage] = useState<string>(currentPage.toString())
   const { t } = useLingui()
-
-  useEffect(() => {
-    setInputPage(currentPage.toString())
-  }, [currentPage])
 
   const utils = trpcReact.useUtils()
 
@@ -560,7 +555,6 @@ export function ImageListView({
   const updateCurrentPage = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       onPageChange?.(newPage)
-      setInputPage(newPage.toString())
     }
   }
 
@@ -660,25 +654,11 @@ export function ImageListView({
             {totalPages > 1 && (
               <div className="flex justify-center py-4">
                 <Pagination
-                  variant="input"
+                  variant="number"
                   currentPage={currentPage}
                   pages={totalPages}
                   onPressPrevious={() => updateCurrentPage(Math.max(currentPage - 1, 1))}
                   onPressNext={() => updateCurrentPage(Math.min(currentPage + 1, totalPages))}
-                  onSelectChange={(selectedPage: number) => {
-                    updateCurrentPage(selectedPage)
-                  }}
-                  onInputChange={(newInputPage?: number) => {
-                    setInputPage(newInputPage === undefined ? "" : String(newInputPage))
-                  }}
-                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (e.key === "Enter" && inputPage !== "") {
-                      const newPage = parseInt(inputPage, 10)
-                      if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
-                        updateCurrentPage(newPage)
-                      }
-                    }
-                  }}
                 />
               </div>
             )}
