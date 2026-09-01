@@ -442,12 +442,23 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
               onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
             />
           </Stack>
-          <Button className="whitespace-nowrap" onClick={() => setUploadModalOpen(true)}>
-            <Trans>Upload Object</Trans>
-          </Button>
-          <Button variant="primary" className="whitespace-nowrap" onClick={() => setCreateFolderModalOpen(true)}>
-            <Trans>Create Folder</Trans>
-          </Button>
+          <Stack gap="0.5" alignment="center">
+            <PopupMenu className="flex items-center">
+              <PopupMenuToggle as="div">
+                <Button icon="moreVert" title={t`More Actions`} />
+              </PopupMenuToggle>
+              <PopupMenuOptions>
+                <PopupMenuItem
+                  label={t`Create Folder`}
+                  onClick={() => setCreateFolderModalOpen(true)}
+                  data-testid="create-folder-action"
+                />
+              </PopupMenuOptions>
+            </PopupMenu>
+            <Button variant="primary" className="whitespace-nowrap" onClick={() => setUploadModalOpen(true)}>
+              <Trans>Upload Object</Trans>
+            </Button>
+          </Stack>
         </Stack>
 
         {/* Zone 2 — debounced search. DataGridToolbar provides the background. */}

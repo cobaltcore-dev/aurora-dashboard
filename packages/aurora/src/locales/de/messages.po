@@ -676,6 +676,9 @@ msgstr "Container \"{containerName}\" wurde erfolgreich geleert. {deletedCount} 
 msgid "Container \"{containerName}\" was successfully emptied. {deletedCount} objects deleted."
 msgstr "Container \"{containerName}\" wurde erfolgreich geleert. {deletedCount} Objekte gelöscht."
 
+msgid "Container actions"
+msgstr ""
+
 msgid "Container Created"
 msgstr "Container erstellt"
 
@@ -1039,6 +1042,9 @@ msgstr ""
 msgid "Delete Bucket Policy"
 msgstr ""
 
+msgid "Delete Container"
+msgstr ""
+
 msgid "Delete container:"
 msgstr "Container löschen:"
 
@@ -1198,9 +1204,6 @@ msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 msgid "Done"
 msgstr ""
 
-msgid "Download"
-msgstr "Herunterladen"
-
 msgid "Download {rowDisplayName}"
 msgstr "{rowDisplayName} herunterladen"
 
@@ -1322,6 +1325,9 @@ msgid "Empty Bucket"
 msgstr ""
 
 msgid "Empty Buckets"
+msgstr ""
+
+msgid "Empty Container"
 msgstr ""
 
 msgid "Empty the bucket"
@@ -2356,12 +2362,6 @@ msgstr "Minimaler RAM, der zum Booten dieses Images erforderlich ist"
 msgid "More Actions"
 msgstr "Weitere Aktionen"
 
-msgid "Move"
-msgstr "Verschieben"
-
-msgid "Move/Rename"
-msgstr "Verschieben/Umbenennen"
-
 msgid "Move/Rename Object"
 msgstr ""
 
@@ -3179,9 +3179,6 @@ msgstr "Sicherheitsgruppe teilen"
 
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 msgstr "Teilen Sie diese Sicherheitsgruppe mit einem anderen Projekt. Das Zielprojekt kann diese Sicherheitsgruppe ansehen und verwenden, aber nicht ändern oder löschen."
-
-msgid "Share URL"
-msgstr "URL teilen"
 
 msgid "Share URL:"
 msgstr "URL teilen:"

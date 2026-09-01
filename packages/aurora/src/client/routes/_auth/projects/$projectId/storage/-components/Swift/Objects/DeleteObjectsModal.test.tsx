@@ -115,7 +115,7 @@ const renderModal = ({
 // behind the type-to-confirm input, so submission tests must type first.
 const confirmAndDelete = async (user: ReturnType<typeof userEvent.setup>) => {
   await user.type(screen.getByPlaceholderText("delete"), "delete")
-  await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+  await user.click(screen.getByRole("button", { name: /^Delete Objects?$/i }))
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -188,7 +188,7 @@ describe("DeleteObjectsModal", () => {
 
     test("renders Delete and Cancel buttons", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Delete Objects?$/i })).toBeInTheDocument()
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
     })
 
@@ -203,34 +203,34 @@ describe("DeleteObjectsModal", () => {
   describe("Type-to-confirm gating", () => {
     test("Delete button is disabled before the confirmation word is typed", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Objects?$/i })).toBeDisabled()
     })
 
     test("Delete button stays disabled when the wrong word is typed", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByPlaceholderText("delete"), "nope")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Objects?$/i })).toBeDisabled()
     })
 
     test("Delete button is enabled after typing the confirmation word", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByPlaceholderText("delete"), "delete")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Objects?$/i })).not.toBeDisabled()
     })
 
     test("ignores surrounding whitespace when matching the confirmation word", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByPlaceholderText("delete"), "  delete  ")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Objects?$/i })).not.toBeDisabled()
     })
 
     test("does not call mutate when Delete is clicked without confirming", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Objects?$/i }))
       expect(mockMutate).not.toHaveBeenCalled()
     })
   })
@@ -278,7 +278,7 @@ describe("DeleteObjectsModal", () => {
 
     test("shows Delete label on confirm button when not pending", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Delete Objects?$/i })).toBeInTheDocument()
     })
   })
 

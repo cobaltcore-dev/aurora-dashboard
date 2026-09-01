@@ -351,7 +351,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       }
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={isPending ? t`Moving...` : t`Move`}
+      confirmButtonLabel={isPending ? t`Moving...` : t`Move/Rename Object`}
       onConfirm={handleMove}
       cancelButtonLabel={t`Cancel`}
       size="large"

@@ -157,7 +157,7 @@ describe("DeleteObjectModal", () => {
       mockMetadataLoading = true
       mockMetadata = null
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Object$/i })).toBeDisabled()
     })
 
     it("shows error message when metadata fetch fails", () => {
@@ -172,7 +172,7 @@ describe("DeleteObjectModal", () => {
       mockMetadataError = { message: "Forbidden" }
       mockMetadata = null
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Object$/i })).toBeDisabled()
     })
   })
 
@@ -209,7 +209,7 @@ describe("DeleteObjectModal", () => {
     it("calls mutate without multipartManifest for regular objects", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       const call = mockMutate.mock.calls[0][0]
       expect(call.container).toBe("test-container")
       expect(call.object).toBe("folder/report.pdf")
@@ -242,7 +242,7 @@ describe("DeleteObjectModal", () => {
     it("calls mutate with multipartManifest='delete' when Keep segments is unchecked", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       expect(mockMutate).toHaveBeenCalledWith(
         expect.objectContaining({
           project_id: mockProjectId,
@@ -258,7 +258,7 @@ describe("DeleteObjectModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.click(screen.getByRole("checkbox"))
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       const call = mockMutate.mock.calls[0][0]
       expect(call).not.toHaveProperty("multipartManifest")
     })
@@ -289,7 +289,7 @@ describe("DeleteObjectModal", () => {
     it("calls mutate without multipartManifest for DLO", async () => {
       const user = userEvent.setup()
       renderModal()
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       const call = mockMutate.mock.calls[0][0]
       expect(call).not.toHaveProperty("multipartManifest")
     })
@@ -336,7 +336,7 @@ describe("DeleteObjectModal", () => {
       mockMutate = vi.fn((_input, { onSuccess: cb }) => cb?.())
       const user = userEvent.setup()
       renderModal({ onSuccess })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       expect(onSuccess).toHaveBeenCalledWith("report.pdf")
     })
 
@@ -345,7 +345,7 @@ describe("DeleteObjectModal", () => {
       mockMutate = vi.fn((_input, { onError: cb }) => cb?.({ message: "Forbidden" }))
       const user = userEvent.setup()
       renderModal({ onError })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       expect(onError).toHaveBeenCalledWith("report.pdf", "Forbidden")
     })
 
@@ -354,7 +354,7 @@ describe("DeleteObjectModal", () => {
       mockMutate = vi.fn((_input, { onSettled: cb }) => cb?.())
       const user = userEvent.setup()
       renderModal({ onClose })
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       expect(onClose).toHaveBeenCalled()
     })
 

@@ -111,7 +111,7 @@ export const DeleteObjectsModal = ({
       title={<Plural value={totalCount} one="Delete # Object" other="Delete # Objects" />}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
+      confirmButtonLabel={isPending ? t`Deleting...` : totalCount === 1 ? t`Delete Object` : t`Delete Objects`}
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
       onConfirm={handleConfirm}

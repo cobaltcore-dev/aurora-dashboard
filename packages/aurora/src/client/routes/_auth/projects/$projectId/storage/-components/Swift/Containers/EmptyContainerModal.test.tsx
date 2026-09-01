@@ -171,7 +171,7 @@ describe("EmptyContainerModal", () => {
       listObjectsLoading = true
       renderModal()
       // While loading, showEmptyInfo is false so Empty button is rendered but disabled
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Empty Container$/i })).toBeDisabled()
     })
   })
 
@@ -201,27 +201,27 @@ describe("EmptyContainerModal", () => {
 
     test("renders Empty and Cancel buttons", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Empty Container$/i })).toBeInTheDocument()
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
     })
 
     test("Empty button is disabled when confirm input is empty", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Empty Container$/i })).toBeDisabled()
     })
 
     test("Empty button is disabled when confirm input has wrong name", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "wrong-name")
-      expect(screen.getByRole("button", { name: /^Empty$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Empty Container$/i })).toBeDisabled()
     })
 
     test("Empty button is enabled when confirm input matches container name", async () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
-      expect(screen.getByRole("button", { name: /^Empty$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Empty Container$/i })).not.toBeDisabled()
     })
 
     test("shows copy icon button in title", () => {
@@ -249,7 +249,7 @@ describe("EmptyContainerModal", () => {
     test("renders Close button instead of Empty", () => {
       renderModal({ container: makeContainer({ count: 0 }) })
       expect(screen.getByTestId("empty-info-close-button")).toBeInTheDocument()
-      expect(screen.queryByRole("button", { name: /^Empty$/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: /^Empty Container$/i })).not.toBeInTheDocument()
     })
 
     test("renders Close as the only action button", () => {
@@ -289,7 +289,7 @@ describe("EmptyContainerModal", () => {
     test("renders Close button instead of Empty", () => {
       renderModal({ container: makeContainer({ count: 5 }) })
       expect(screen.getByTestId("empty-info-close-button")).toBeInTheDocument()
-      expect(screen.queryByRole("button", { name: /^Empty$/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: /^Empty Container$/i })).not.toBeInTheDocument()
     })
 
     test("renders Close as the only action button", () => {
@@ -343,7 +343,7 @@ describe("EmptyContainerModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await user.click(screen.getByRole("button", { name: /^Empty Container$/i }))
       expect(mockMutate).toHaveBeenCalledWith({
         project_id: mockProjectId,
         container: "my-container",
@@ -366,7 +366,7 @@ describe("EmptyContainerModal", () => {
       const user = userEvent.setup()
       renderModal({ onSuccess })
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await user.click(screen.getByRole("button", { name: /^Empty Container$/i }))
       await waitFor(() => {
         expect(onSuccess).toHaveBeenCalledWith("my-container", 3)
       })
@@ -376,7 +376,7 @@ describe("EmptyContainerModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await user.click(screen.getByRole("button", { name: /^Empty Container$/i }))
       await waitFor(() => {
         expect(mockInvalidate).toHaveBeenCalled()
       })
@@ -386,7 +386,7 @@ describe("EmptyContainerModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await user.click(screen.getByRole("button", { name: /^Empty Container$/i }))
       await waitFor(() => {
         expect(mockInvalidateObjects).toHaveBeenCalledWith({
           project_id: mockProjectId,
@@ -411,7 +411,7 @@ describe("EmptyContainerModal", () => {
       const user = userEvent.setup()
       renderModal({ onError })
       await user.type(screen.getByLabelText(/Type container name to confirm/i), "my-container")
-      await user.click(screen.getByRole("button", { name: /^Empty$/i }))
+      await user.click(screen.getByRole("button", { name: /^Empty Container$/i }))
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith("my-container", "Bulk delete failed")
       })
