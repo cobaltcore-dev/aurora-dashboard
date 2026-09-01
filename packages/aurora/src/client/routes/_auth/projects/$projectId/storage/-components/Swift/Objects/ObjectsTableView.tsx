@@ -314,8 +314,6 @@ export const ObjectsTableView = ({
                   key={row.name}
                   data-index={virtualRow.index}
                   ref={measureElement}
-                  className="datagrid-row"
-                  role="row"
                   style={{
                     position: "absolute",
                     top: 0,
