@@ -1,8 +1,19 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
-import { Modal, Message, TextInput, Form, FormSection } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Stack,
+  Message,
+  Form,
+  FormSection,
+  TextInput,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+} from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { RBACPolicy } from "@/server/Network/types/rbacPolicy"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteRBACPolicyDialogProps {
   policy: RBACPolicy
@@ -23,15 +34,20 @@ export function DeleteRBACPolicyDialog({
 }: DeleteRBACPolicyDialogProps) {
   const { t } = useLingui()
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen: open,
+    actionPrefix: "network.securitygroup.rbacpolicy.delete",
+  })
+
   const formSchema = z.object({
-    confirmText: z.string().refine((value) => value === "remove", {
+    confirm: z.string().refine((value) => value === "remove", {
       message: t`Type "remove" to confirm`,
     }),
   })
 
   const form = useForm({
     defaultValues: {
-      confirmText: "",
+      confirm: "",
     },
     validators: {
       onSubmit: formSchema,
@@ -39,16 +55,17 @@ export function DeleteRBACPolicyDialog({
     onSubmit: async () => {
       if (isLoading) return
 
+      markSubmitted()
       onConfirm(policy.id)
-      handleClose()
     },
   })
 
-  // Creates a reactive subscription so the component re-renders, which allows the confirm button to enable once the user types "remove"
-  const canRemove = useStore(form.store, (state) => state.isSubmitting || state.values.confirmText !== "remove")
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "remove")
 
   const handleClose = () => {
+    trackClose()
     form.reset()
+    resetTracking()
     onClose()
   }
 
@@ -61,73 +78,67 @@ export function DeleteRBACPolicyDialog({
       onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={isLoading ? t`Removing...` : t`Remove Policy`}
-      disableConfirmButton={isLoading || canRemove}
+      confirmButtonVariant="primary-danger"
+      disableConfirmButton={canDelete || isLoading}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
-      <div>
-        {/* Error Message */}
-        {error && (
-          <Message dismissible={false} variant="error" className="mt-4">
-            {error}
-          </Message>
-        )}
+      <Stack direction="vertical" gap="4">
+        {error && <Message variant="error">{error}</Message>}
 
-        {/* Warning */}
-        <Trans>
-          This action cannot be undone. The target project will lose access to this security group immediately.
-        </Trans>
+        <p className="text-theme-default">
+          <Trans>
+            This action cannot be undone. The target project will lose access to this security group immediately.
+          </Trans>
+        </p>
 
-        {/* Policy Details */}
-        <div className="bg-theme-background-lvl-1 mt-4 mb-4 rounded p-4">
-          <p className="mb-2 font-semibold">
-            <Trans>RBAC Policy Details:</Trans>
-          </p>
-          <ul className="list-inside list-disc space-y-1 text-sm">
-            <li>
-              <Trans>Target Project ID</Trans>: {policy.target_tenant}
-            </li>
-            <li>
-              <Trans>Action</Trans>: {policy.action}
-            </li>
-            <li>
-              <Trans>Object Type</Trans>: {policy.object_type}
-            </li>
-          </ul>
-        </div>
+        <DescriptionList>
+          <DescriptionTerm>
+            <Trans>Target Project ID</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{policy.target_tenant}</DescriptionDefinition>
 
-        {/* Confirmation Input */}
-        {!isLoading && (
-          <Form
-            className="mt-4 mb-0"
-            onSubmit={(e) => {
-              e.preventDefault()
-              form.handleSubmit()
-            }}
-          >
-            <FormSection>
-              <p className="mb-2 text-sm">
-                <Trans>
-                  Type <strong>remove</strong> to confirm:
-                </Trans>
-              </p>
-              <form.Field
-                name="confirmText"
-                children={(field) => (
-                  <TextInput
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder={t`remove`}
-                    autoComplete="off"
-                    disabled={isLoading}
-                    data-testid="remove-policy-confirmation-input"
-                  />
-                )}
-              />
-            </FormSection>
-          </Form>
-        )}
-      </div>
+          <DescriptionTerm>
+            <Trans>Action</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{policy.action}</DescriptionDefinition>
+
+          <DescriptionTerm>
+            <Trans>Object Type</Trans>
+          </DescriptionTerm>
+          <DescriptionDefinition>{policy.object_type}</DescriptionDefinition>
+        </DescriptionList>
+
+        <Form
+          className="mb-0"
+          id="delete-rbac-policy-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <FormSection>
+            <form.Field
+              name="confirm"
+              children={(field) => (
+                <TextInput
+                  label={t`Type "remove" to confirm`}
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="remove"
+                  autoComplete="off"
+                  autoFocus
+                  disabled={isLoading}
+                  data-testid="remove-policy-confirmation-input"
+                  required
+                />
+              )}
+            />
+          </FormSection>
+        </Form>
+      </Stack>
     </Modal>
   )
 }

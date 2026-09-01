@@ -2,23 +2,20 @@ import { useState, ReactNode, useEffect } from "react"
 import { useProjectId } from "@/client/hooks"
 import type { CreateImageInput, GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import {
-  Checkbox,
   ContentHeading,
   DataGrid,
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
   Pagination,
-  Spinner,
-  Stack,
+  Status,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
 import { FastifyError } from "fastify"
-import { Trans } from "@lingui/react/macro"
-import { t } from "@lingui/core/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { EditImageDetailsModal } from "./EditImageDetailsModal"
 import { EditImageMetadataModal } from "./EditImageMetadataModal"
 import { ImageTableRow } from "./ImageTableRow"
@@ -135,6 +132,7 @@ export function ImageListView({
   const [uploadId, setUploadId] = useState<string | null>(null)
   const [isUploadPending, setIsUploadPending] = useState(false)
   const [inputPage, setInputPage] = useState<string>(currentPage.toString())
+  const { t } = useLingui()
 
   useEffect(() => {
     setInputPage(currentPage.toString())
@@ -571,10 +569,7 @@ export function ImageListView({
       <div data-testid="loading">
         <DataGridRow>
           <DataGridCell colSpan={3}>
-            <Stack distribution="center" alignment="center">
-              <Spinner variant="primary" />
-              <Trans>Loading...</Trans>
-            </Stack>
+            <Status status="progress" title={t`Loading...`} />
           </DataGridCell>
         </DataGridRow>
       </div>
@@ -589,12 +584,7 @@ export function ImageListView({
         {/* Loading overlay when refetching */}
         {isFetching && (
           <div className="bg-theme-background-lvl-0/50 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
-            <Stack direction="vertical" alignment="center" gap="2">
-              <Spinner variant="primary" size="large" />
-              <span className="text-theme-high font-medium">
-                <Trans>Loading images...</Trans>
-              </span>
-            </Stack>
+            <Status status="progress" title={t`Loading Images...`} />
           </div>
         )}
 
@@ -609,24 +599,7 @@ export function ImageListView({
             >
               {/* Table Header */}
               <DataGridRow>
-                {hasAnyBulkAction && (
-                  <DataGridHeadCell>
-                    <Checkbox
-                      checked={(() => {
-                        const currentPageIds = images.map((image) => image.id)
-                        return currentPageIds.length > 0 && currentPageIds.every((id) => selectedImages.includes(id))
-                      })()}
-                      onChange={() => {
-                        const currentPageIds = images.map((image) => image.id)
-                        const allSelected = currentPageIds.every((id) => selectedImages.includes(id))
-                        if (allSelected) {
-                          return setSelectedImages(selectedImages.filter((id) => !currentPageIds.includes(id)))
-                        }
-                        return setSelectedImages([...new Set([...selectedImages, ...currentPageIds])])
-                      }}
-                    />
-                  </DataGridHeadCell>
-                )}
+                {hasAnyBulkAction && <DataGridHeadCell></DataGridHeadCell>}
                 <DataGridHeadCell>
                   <Trans>Status</Trans>
                 </DataGridHeadCell>

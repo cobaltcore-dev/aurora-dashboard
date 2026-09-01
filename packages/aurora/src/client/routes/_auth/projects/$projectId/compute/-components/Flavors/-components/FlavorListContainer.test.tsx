@@ -14,6 +14,7 @@ vi.mock("@tanstack/react-router", async () => {
     useParams: vi.fn(() => ({
       project_id: "test-project-id",
     })),
+    useRouteContext: vi.fn(() => ({ onTrackEvent: vi.fn() })),
     Link: ({ children, to, ...props }: { children: React.ReactNode; to: string; [key: string]: unknown }) => (
       <a href={to} {...props}>
         {children}

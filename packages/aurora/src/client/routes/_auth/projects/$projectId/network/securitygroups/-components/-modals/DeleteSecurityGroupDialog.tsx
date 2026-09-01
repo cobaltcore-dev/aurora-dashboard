@@ -1,7 +1,10 @@
-import React, { useState } from "react"
-import { Modal, Button, ModalFooter, ButtonRow, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
+import React from "react"
+import { Modal, Stack, Message, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteSecurityGroupDialogProps {
   isOpen: boolean
@@ -21,21 +24,41 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
   error = null,
 }) => {
   const { t } = useLingui()
-  const [confirmationText, setConfirmationText] = useState("")
 
-  const deleteWord = t`delete`
-  const isDeleteEnabled = confirmationText.toLowerCase() === deleteWord.toLowerCase()
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "network.securitygroup.delete",
+  })
+
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "delete", {
+      message: t`Type "delete" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (isDeleting) return
+
+      markSubmitted()
+      onDelete(securityGroup.id)
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "delete")
+
   const securityGroupName = securityGroup.name || securityGroup.id
 
-  const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault()
-    if (isDeleteEnabled && !isDeleting) {
-      onDelete(securityGroup.id)
-    }
-  }
-
   const handleClose = () => {
-    setConfirmationText("")
+    trackClose()
+    form.reset()
+    resetTracking()
     onClose()
   }
 
@@ -45,54 +68,51 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
       onCancel={handleClose}
       size="small"
       title={t`Delete Security Group "${securityGroupName}"`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button variant="default" onClick={handleClose} disabled={isDeleting}>
-              <Trans>Cancel</Trans>
-            </Button>
-            <Button
-              variant="primary-danger"
-              onClick={handleDelete}
-              disabled={!isDeleteEnabled || isDeleting}
-              data-testid="confirm-delete-button"
-            >
-              {isDeleting ? <Trans>Deleting...</Trans> : <Trans>Delete</Trans>}
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      confirmButtonLabel={isDeleting ? t`Deleting...` : t`Delete`}
+      confirmButtonVariant="primary-danger"
+      onConfirm={form.handleSubmit}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={canDelete || isDeleting}
+      disableCancelButton={isDeleting}
+      disableCloseButton={isDeleting}
     >
-      <div>
-        {/* Error Message */}
-        {error && (
-          <Message dismissible={false} variant="error" className="mt-4">
-            {error}
-          </Message>
-        )}
+      <Stack direction="vertical" gap="4">
+        {error && <Message variant="error">{error}</Message>}
 
-        {/* Warning */}
-        <Trans>This action cannot be undone. The security group will be permanently deleted.</Trans>
+        <p className="text-theme-default">
+          <Trans>This action cannot be undone. The security group will be permanently deleted.</Trans>
+        </p>
 
-        {/* Confirmation Input */}
-        <div className="mt-4">
-          <p className="mb-2 text-sm">
-            <Trans>
-              Type <strong>{deleteWord}</strong> to confirm:
-            </Trans>
-          </p>
-          <TextInput
-            id="confirmation"
-            name="confirmation"
-            value={confirmationText}
-            onChange={(e) => setConfirmationText(e.target.value)}
-            placeholder={deleteWord}
-            disabled={isDeleting}
-            autoComplete="off"
-            data-testid="delete-confirmation-input"
-          />
-        </div>
-      </div>
+        <Form
+          className="mb-0"
+          id="delete-security-group-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <FormSection>
+            <form.Field
+              name="confirm"
+              children={(field) => (
+                <TextInput
+                  label={t`Type "delete" to confirm`}
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="delete"
+                  disabled={isDeleting}
+                  autoComplete="off"
+                  autoFocus
+                  data-testid="delete-confirmation-input"
+                  required
+                />
+              )}
+            />
+          </FormSection>
+        </Form>
+      </Stack>
     </Modal>
   )
 }

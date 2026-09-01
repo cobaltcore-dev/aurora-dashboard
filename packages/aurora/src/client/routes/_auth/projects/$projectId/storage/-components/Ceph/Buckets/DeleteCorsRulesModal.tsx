@@ -98,6 +98,7 @@ export const DeleteCorsRulesModal = ({
   }, [isOpen, bucketName])
 
   const handleClose = () => {
+    trackClose()
     setMutation.reset()
     deleteMutation.reset()
     setIsVerifying(false)
@@ -182,10 +183,7 @@ export const DeleteCorsRulesModal = ({
     <Modal
       title={<Plural value={ruleCount} one="Delete CORS Rule" other="Delete CORS Rules" />}
       open={isOpen}
-      onCancel={() => {
-        trackClose()
-        handleClose()
-      }}
+      onCancel={handleClose}
       confirmButtonLabel={confirmLabel}
       confirmButtonVariant="primary-danger"
       onConfirm={handleDelete}
@@ -218,20 +216,26 @@ export const DeleteCorsRulesModal = ({
             </p>
 
             <div>
-              <p className="text-theme-light mb-2 text-sm">
+              <p className="text-sm font-semibold">
                 <Trans>Rules to delete:</Trans>
               </p>
-              <ul className="list-inside list-disc space-y-1 text-sm">
-                {visibleRules.map(({ rule, index }) => {
-                  const displayName = rule.ID || `Rule #${index + 1}`
-                  return <li key={index}>{displayName}</li>
-                })}
-                {hiddenCount > 0 && (
-                  <li className="text-theme-light">
-                    <Trans>... and {hiddenCount} more</Trans>
-                  </li>
-                )}
-              </ul>
+              <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+                <Stack direction="vertical" gap="1">
+                  {visibleRules.map(({ rule, index }) => {
+                    const displayName = rule.ID || `Rule #${index + 1}`
+                    return (
+                      <div key={index} className="text-theme-default text-sm">
+                        {displayName}
+                      </div>
+                    )
+                  })}
+                  {hiddenCount > 0 && (
+                    <div className="text-theme-light pt-2 text-sm">
+                      <Trans>... and {hiddenCount} more</Trans>
+                    </div>
+                  )}
+                </Stack>
+              </div>
             </div>
 
             <p className="text-theme-default">

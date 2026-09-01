@@ -1,6 +1,16 @@
-import { useState } from "react"
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Form,
+  FormSection,
+  TextInput,
+  Stack,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+} from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -31,13 +41,39 @@ export function DeleteObjectModal({
 }: DeleteObjectModalProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const [confirmText, setConfirmText] = useState("")
   const utils = trpcReact.useUtils()
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
     actionPrefix: "storage.ceph.object.delete",
   })
+
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "delete", {
+      message: t`Type "delete" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (deleteMutation.isPending || !projectId) return
+
+      markSubmitted()
+      deleteMutation.mutate({
+        project_id: projectId,
+        containerName: bucketName,
+        objectKey,
+      })
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "delete")
 
   const deleteMutation = trpcReact.storage.ceph.objects.delete.useMutation({
     onSuccess: () => {
@@ -54,41 +90,27 @@ export function DeleteObjectModal({
   })
 
   const handleClose = () => {
-    setConfirmText("")
+    trackClose()
+    form.reset()
     deleteMutation.reset()
     resetTracking()
     onClose()
   }
 
-  const handleConfirm = () => {
-    if (!projectId) return
-
-    markSubmitted()
-    deleteMutation.mutate({
-      project_id: projectId,
-      containerName: bucketName,
-      objectKey,
-    })
-  }
-
   const isFolder = objectKey.endsWith("/")
   const displayName = objectKey.split("/").filter(Boolean).pop() || objectKey
-  const isConfirmValid = confirmText === "delete"
 
   return (
     <Modal
       open={isOpen}
-      onCancel={() => {
-        trackClose()
-        handleClose()
-      }}
+      onCancel={handleClose}
       title={isFolder ? <Trans>Delete Folder "{displayName}"</Trans> : <Trans>Delete Object</Trans>}
       size="large"
       confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : isFolder ? t`Delete Folder` : t`Delete Object`}
       confirmButtonVariant="primary-danger"
-      onConfirm={handleConfirm}
+      onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isConfirmValid || deleteMutation.isPending}
+      disableConfirmButton={canDelete || deleteMutation.isPending}
       disableCancelButton={deleteMutation.isPending}
       disableCloseButton={deleteMutation.isPending}
     >
@@ -118,51 +140,81 @@ export function DeleteObjectModal({
           )}
         </p>
 
-        <div className="bg-theme-background-lvl-2 rounded p-4">
-          <Stack direction="vertical" gap="2">
-            <div>
-              <span className="text-theme-light text-sm">
-                <Trans>Name:</Trans>
-              </span>
-              <div className="mt-1 overflow-x-hidden [overflow-wrap:anywhere]">{displayName}</div>
-            </div>
+        {!isFolder ? (
+          <DescriptionList>
+            <DescriptionTerm>
+              <Trans>Name</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="overflow-x-hidden [overflow-wrap:anywhere]">
+              {displayName}
+            </DescriptionDefinition>
 
-            {!isFolder && objectSize !== undefined && (
-              <div>
-                <span className="text-theme-light text-sm">
-                  <Trans>Size:</Trans>
-                </span>
-                <div className="mt-1">{formatBytesBinary(objectSize)}</div>
-              </div>
-            )}
+            <DescriptionTerm>
+              <Trans>Size</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>
+              {objectSize !== undefined ? formatBytesBinary(objectSize) : "-"}
+            </DescriptionDefinition>
 
-            {!isFolder && lastModified && (
-              <div>
-                <span className="text-theme-light text-sm">
-                  <Trans>Last Modified:</Trans>
-                </span>
-                <div className="mt-1">{new Date(lastModified).toLocaleString()}</div>
-              </div>
-            )}
+            <DescriptionTerm>
+              <Trans>Last Modified</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition>
+              {lastModified ? new Date(lastModified).toLocaleString() : "-"}
+            </DescriptionDefinition>
 
-            <div>
-              <span className="text-theme-light text-sm">
-                <Trans>Full Path:</Trans>
-              </span>
-              <div className="mt-1 overflow-x-hidden [overflow-wrap:anywhere]">{objectKey}</div>
-            </div>
-          </Stack>
-        </div>
+            <DescriptionTerm>
+              <Trans>Full Path</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="overflow-x-hidden [overflow-wrap:anywhere]">
+              {objectKey}
+            </DescriptionDefinition>
+          </DescriptionList>
+        ) : (
+          <DescriptionList>
+            <DescriptionTerm>
+              <Trans>Name</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="overflow-x-hidden [overflow-wrap:anywhere]">
+              {displayName}
+            </DescriptionDefinition>
 
-        <div>
-          <TextInput
-            label={t`Type "delete" to confirm`}
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="delete"
-            autoFocus
-          />
-        </div>
+            <DescriptionTerm>
+              <Trans>Full Path</Trans>
+            </DescriptionTerm>
+            <DescriptionDefinition className="overflow-x-hidden [overflow-wrap:anywhere]">
+              {objectKey}
+            </DescriptionDefinition>
+          </DescriptionList>
+        )}
+
+        <Form
+          className="mb-0"
+          id="delete-object-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <FormSection>
+            <form.Field
+              name="confirm"
+              children={(field) => (
+                <TextInput
+                  id={field.name}
+                  name={field.name}
+                  label={t`Type "delete" to confirm`}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="delete"
+                  autoFocus
+                  disabled={deleteMutation.isPending}
+                  required
+                />
+              )}
+            />
+          </FormSection>
+        </Form>
 
         {deleteMutation.error && (
           <p className="text-juno-red text-sm">

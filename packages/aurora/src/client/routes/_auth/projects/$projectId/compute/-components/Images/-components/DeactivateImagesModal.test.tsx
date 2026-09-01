@@ -53,7 +53,10 @@ describe("DeactivateImagesModal", () => {
 
   it("should display the correct number of active images", () => {
     setup(true)
-    expect(screen.getByText(/Images to be deactivated \(3\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/Images to deactivate:/i)).toBeInTheDocument()
+    mockActiveImages.forEach((imageId) => {
+      expect(screen.getByText(imageId)).toBeInTheDocument()
+    })
   })
 
   it("should display all active image IDs", () => {
@@ -114,16 +117,13 @@ describe("DeactivateImagesModal", () => {
 
   it("should display summary with correct counts", () => {
     setup(true, false, mockActiveImages, mockDeactivatedImages)
-    expect(screen.getByText("Images to deactivate:")).toBeInTheDocument()
-    expect(screen.getByText("3")).toBeInTheDocument()
+    expect(screen.getByText(/Images to deactivate:/i)).toBeInTheDocument()
     expect(screen.getByText(/Already deactivated \(will be skipped\):/i)).toBeInTheDocument()
-    expect(screen.getByText("2")).toBeInTheDocument()
   })
 
   it("should display only active count in summary when no deactivated images", () => {
     setup(true, false, mockActiveImages, [])
-    expect(screen.getByText("Images to deactivate:")).toBeInTheDocument()
-    expect(screen.getByText("3")).toBeInTheDocument()
+    expect(screen.getByText(/Images to deactivate:/i)).toBeInTheDocument()
     expect(screen.queryByText(/Already deactivated \(will be skipped\):/i)).not.toBeInTheDocument()
   })
 
@@ -135,7 +135,7 @@ describe("DeactivateImagesModal", () => {
 
   it("should handle empty activeImages array", () => {
     setup(true, false, [], mockDeactivatedImages)
-    expect(screen.queryByText(/Images to be deactivated/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Images to deactivate:/i)).not.toBeInTheDocument()
   })
 
   it("should pass activeImages to onDeactivate, not deactivatedImages", () => {

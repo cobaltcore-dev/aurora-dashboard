@@ -69,12 +69,16 @@ describe("DeleteImageModal", () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  it("should call onDelete and onClose when the delete button is clicked", () => {
+  it("should call onDelete and onClose when the delete button is clicked", async () => {
     setup(true)
     const confirmInput = screen.getByPlaceholderText("delete")
-    fireEvent.change(confirmInput, { target: { value: "delete" } })
+    await act(async () => {
+      fireEvent.change(confirmInput, { target: { value: "delete" } })
+    })
     const deleteButton = screen.getByRole("button", { name: /Delete/i })
-    fireEvent.click(deleteButton)
+    await act(async () => {
+      fireEvent.click(deleteButton)
+    })
     expect(mockOnDelete).toHaveBeenCalledTimes(1)
     expect(mockOnDelete).toHaveBeenCalledWith(mockImage)
     // Note: onClose is called inside handleConfirm

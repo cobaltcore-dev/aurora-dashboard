@@ -3,8 +3,8 @@ import ServerListView from "./-components/ServerListView"
 import { Suspense, use } from "react"
 import { Server } from "@/server/Compute/types/server"
 import { TrpcClient } from "@/client/trpcClient"
-import { Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
-import { Trans } from "@lingui/react/macro"
+import { Status } from "@cloudoperators/juno-ui-components/index"
+import { useLingui } from "@lingui/react/macro"
 
 interface InstanceContainerProps {
   getServersPromise: Promise<Server[] | undefined>
@@ -28,17 +28,11 @@ export const Instances = ({
   client: TrpcClient
   viewMode: "list" | "card"
 }) => {
+  const { t } = useLingui()
   const getServersPromise = client.compute.getServersByProjectId.query({ project_id: project })
 
   return (
-    <Suspense
-      fallback={
-        <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-          <Spinner variant="primary" size="large" className="mb-2" />
-          <Trans>Loading Instances...</Trans>
-        </Stack>
-      }
-    >
+    <Suspense fallback={<Status status="progress" title={t`Loading Instances...`} />}>
       <InstanceContainer getServersPromise={getServersPromise} viewMode={viewMode} />
     </Suspense>
   )
