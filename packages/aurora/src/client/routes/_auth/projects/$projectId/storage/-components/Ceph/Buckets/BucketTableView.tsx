@@ -169,6 +169,8 @@ export const BucketTableView = ({
                 width: "100%",
                 position: "relative",
               }}
+              className="juno-datagrid"
+              role="grid"
             >
               {virtualItems.map((virtualRow) => {
                 const bucket = buckets[virtualRow.index]
@@ -190,7 +192,8 @@ export const BucketTableView = ({
                     key={bucket.name}
                     data-index={virtualRow.index}
                     ref={measureElement}
-                    className="juno-datagrid group hover:bg-theme-background-lvl-1 cursor-pointer"
+                    className="datagrid-row datagrid-row-hoverable"
+                    role="row"
                     style={{
                       position: "absolute",
                       top: 0,
@@ -202,7 +205,6 @@ export const BucketTableView = ({
                       alignItems: "stretch",
                     }}
                     data-testid={`bucket-row-${bucket.name}`}
-                    role="link"
                     tabIndex={0}
                     onClick={handleRowNavigate}
                     onKeyDown={(e) => {

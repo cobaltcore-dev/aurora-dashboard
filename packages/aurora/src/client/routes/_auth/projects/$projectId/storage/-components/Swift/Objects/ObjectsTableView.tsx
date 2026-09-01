@@ -298,6 +298,8 @@ export const ObjectsTableView = ({
               width: "100%",
               position: "relative",
             }}
+            className="juno-datagrid"
+            role="grid"
           >
             {virtualItems.map((virtualRow) => {
               const row = rows[virtualRow.index]
@@ -314,7 +316,8 @@ export const ObjectsTableView = ({
                   key={row.name}
                   data-index={virtualRow.index}
                   ref={measureElement}
-                  className="juno-datagrid"
+                  className="datagrid-row"
+                  role="row"
                   style={{
                     position: "absolute",
                     top: 0,

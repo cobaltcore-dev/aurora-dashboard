@@ -196,6 +196,8 @@ export const ContainerTableView = ({
               width: "100%",
               position: "relative",
             }}
+            className="juno-datagrid"
+            role="grid"
           >
             {virtualItems.map((virtualRow) => {
               const container = containers[virtualRow.index]
@@ -212,7 +214,8 @@ export const ContainerTableView = ({
                   key={container.name}
                   data-index={virtualRow.index}
                   ref={measureElement}
-                  className="juno-datagrid group hover:bg-theme-background-lvl-1 cursor-pointer"
+                  className="datagrid-row datagrid-row-hoverable"
+                  role="row"
                   style={{
                     position: "absolute",
                     top: 0,
@@ -224,7 +227,6 @@ export const ContainerTableView = ({
                     alignItems: "stretch",
                   }}
                   data-testid={`container-row-${container.name}`}
-                  role="link"
                   tabIndex={0}
                   onClick={handleRowNavigate}
                   onKeyDown={(e) => {

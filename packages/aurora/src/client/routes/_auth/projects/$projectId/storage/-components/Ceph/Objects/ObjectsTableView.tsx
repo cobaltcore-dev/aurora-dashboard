@@ -449,6 +449,8 @@ export function ObjectsTableView({
               width: "100%",
               position: "relative",
             }}
+            className="juno-datagrid"
+            role="grid"
           >
             {virtualItems.map((virtualRow) => {
               const row = rows[virtualRow.index]
@@ -467,7 +469,8 @@ export function ObjectsTableView({
                   key={isFolder ? row.prefix : isVersion ? `${row.key}-${row.versionId}` : row.key}
                   data-index={virtualRow.index}
                   ref={measureElement}
-                  className="juno-datagrid"
+                  className="datagrid-row"
+                  role="row"
                   style={{
                     position: "absolute",
                     top: 0,
