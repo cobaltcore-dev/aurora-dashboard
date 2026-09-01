@@ -72,7 +72,6 @@ export const imageRouter = {
         // Configuration for intelligent pagination
         const FRONTEND_PAGE_SIZE = 50
         const OPENSTACK_PAGE_SIZE = 100
-        const MIN_RESULTS_WHEN_SEARCHING = 50
         const MAX_PAGES_TO_SEARCH = 1000 // Safety limit to prevent infinite loops
 
         const allImages: GlanceImage[] = []
@@ -91,9 +90,8 @@ export const imageRouter = {
 
         let currentUrl: string | undefined = `v2/images?${queryParams.toString()}`
         let pageCount = 0
-        let nextMarker: string | undefined
 
-        // Fetch pages from OpenStack
+        // Fetch pages from OpenStack - fetch ALL pages to get accurate total count
         while (currentUrl && pageCount < MAX_PAGES_TO_SEARCH) {
           const response = await glance.get(currentUrl).catch((error) => {
             throw mapErrorResponseToTRPCError(error, { operation: "list images" })
@@ -107,46 +105,7 @@ export const imageRouter = {
           allImages.push(...parsedData.data.images)
           pageCount++
 
-          if (hasSearchTerm) {
-            // Apply BFF-side filtering to current batch to check if we have enough results
-            let filteredSoFar = filterBySearchParams(allImages, queryInput.name, ["name"])
-
-            if (queryInput.visibility && queryInput.visibility !== "all") {
-              filteredSoFar = filteredSoFar.filter((img) => img.visibility === queryInput.visibility)
-            }
-            if (queryInput.status) {
-              const values = parseMultiValue(queryInput.status)
-              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.status ?? ""))
-            }
-            if (queryInput.disk_format) {
-              const values = parseMultiValue(queryInput.disk_format)
-              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.disk_format ?? ""))
-            }
-            if (queryInput.container_format) {
-              const values = parseMultiValue(queryInput.container_format)
-              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.container_format ?? ""))
-            }
-            if (queryInput.protected !== undefined && queryInput.protected !== null) {
-              const wantProtected = queryInput.protected === "true"
-              filteredSoFar = filteredSoFar.filter((img) => !!img.protected === wantProtected)
-            }
-            if (queryInput.owner) {
-              filteredSoFar = filteredSoFar.filter((img) => img.owner === queryInput.owner)
-            }
-
-            // If we have enough results, stop fetching but remember next page
-            if (filteredSoFar.length >= MIN_RESULTS_WHEN_SEARCHING) {
-              nextMarker = parsedData.data.next
-              break
-            }
-          }
-
-          // For non-search queries, just fetch one OpenStack page
-          if (!hasSearchTerm) {
-            nextMarker = parsedData.data.next
-            break
-          }
-
+          // Continue fetching all pages for accurate total count
           currentUrl = parsedData.data.next
         }
 
@@ -197,18 +156,16 @@ export const imageRouter = {
         const endIndex = FRONTEND_PAGE_SIZE
         const paginatedImages = filteredImages.slice(startIndex, endIndex)
 
-        // Determine if there's a next page
-        const hasMore = filteredImages.length > FRONTEND_PAGE_SIZE || !!nextMarker
-        const nextPageMarker =
-          filteredImages.length > FRONTEND_PAGE_SIZE ? filteredImages[FRONTEND_PAGE_SIZE - 1]?.id : nextMarker
+        // We have all images, so we know the exact total
+        const hasMore = filteredImages.length > FRONTEND_PAGE_SIZE
+        const nextPageMarker = hasMore ? filteredImages[FRONTEND_PAGE_SIZE - 1]?.id : undefined
 
         return {
           images: paginatedImages,
           first: undefined,
           next: hasMore ? nextPageMarker : undefined,
           schema: "/v2/schemas/images",
-          // Only include totalCount if we have all images (no nextMarker from OpenStack)
-          totalCount: nextMarker ? undefined : filteredImages.length,
+          totalCount: filteredImages.length,
         }
       }, "list images")
     }),
