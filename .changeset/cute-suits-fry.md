@@ -1,5 +1,5 @@
 ---
-"@cobaltcore-dev/aurora": minor
+"@cobaltcore-dev/aurora": patch
 ---
 
 Fix Ceph bucket list allowing "Empty Bucket" to be triggered on a bucket that already has no content (#1107):

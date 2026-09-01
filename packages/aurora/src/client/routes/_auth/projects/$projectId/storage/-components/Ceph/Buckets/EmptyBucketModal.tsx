@@ -81,7 +81,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   const isVersioningEnabled = versioningStatus?.status === "Enabled" || versioningStatus?.status === "Suspended"
   const allVersions = versionCheckData?.versions ?? []
   const bucketObjectCount = bucket?.count ?? 0
-  const { isBucketEmpty, hasOnlyDeleteMarkers } = calculateBucketState(
+  const { isBucketEmpty, hasOnlyDeleteMarkers, hasOldVersionsOrDeleteMarkers } = calculateBucketState(
     allVersions,
     isVersioningEnabled,
     bucketObjectCount
@@ -90,7 +90,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   // Bucket has zero current objects AND zero versions/delete markers of any kind —
   // genuinely nothing to empty (unlike isBucketEmptyWithVersions, which still has
   // delete markers to clean up). Distinct render branch below shows an info-only view.
-  const isTrulyEmpty = isBucketEmpty && !hasOnlyDeleteMarkers
+  const isTrulyEmpty = isBucketEmpty && !hasOldVersionsOrDeleteMarkers
 
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
     onSettled: () => {
