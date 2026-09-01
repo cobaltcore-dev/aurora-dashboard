@@ -1,7 +1,16 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Checkbox, Spinner } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  ModalFooter,
+  Button,
+  ButtonRow,
+  TextInput,
+  Stack,
+  Checkbox,
+  Spinner,
+} from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { calculateBucketState } from "../hooks/bucketStateHelpers"
@@ -45,7 +54,9 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     }
   )
 
-  // Query to check if bucket has versions/delete markers (only when versioning is enabled/suspended)
+  // Query to check if bucket has versions/delete markers. Always runs (regardless of
+  // versioning status) to get accurate live data for the truly-empty check below —
+  // bucket.count from the list cache can be stale.
   // Use maxKeys=100 to get enough data - with maxKeys=1 we might miss current objects
   // if the first result is a delete marker
   const {
@@ -61,7 +72,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       showVersions: true,
     },
     {
-      enabled: !!projectId && !!bucket && isOpen && versioningStatus?.status !== "Unversioned",
+      enabled: !!projectId && !!bucket && isOpen,
       staleTime: 30 * 1000,
     }
   )
@@ -76,6 +87,10 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     bucketObjectCount
   )
   const isBucketEmptyWithVersions = isBucketEmpty && hasOnlyDeleteMarkers
+  // Bucket has zero current objects AND zero versions/delete markers of any kind —
+  // genuinely nothing to empty (unlike isBucketEmptyWithVersions, which still has
+  // delete markers to clean up). Distinct render branch below shows an info-only view.
+  const isTrulyEmpty = isBucketEmpty && !hasOnlyDeleteMarkers
 
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
     onSettled: () => {
@@ -185,6 +200,37 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
             autoFocus
           />
         </Stack>
+      </Modal>
+    )
+  }
+
+  // Bucket is genuinely empty — nothing to delete, show an info-only view
+  if (isTrulyEmpty && !isLoading) {
+    return (
+      <Modal
+        title={t`Empty Bucket`}
+        open={isOpen}
+        onCancel={handleClose}
+        size="small"
+        modalFooter={
+          <ModalFooter className="flex justify-end">
+            <ButtonRow>
+              <Button variant="primary" onClick={handleClose} data-testid="empty-info-close-button">
+                <Trans>Close</Trans>
+              </Button>
+            </ButtonRow>
+          </ModalFooter>
+        }
+      >
+        {hasQueryError ? (
+          <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
+            <Trans>Unable to verify bucket contents. Please try again.</Trans>
+          </div>
+        ) : (
+          <p className="text-theme-default py-2">
+            <Trans>This bucket is already empty.</Trans>
+          </p>
+        )}
       </Modal>
     )
   }

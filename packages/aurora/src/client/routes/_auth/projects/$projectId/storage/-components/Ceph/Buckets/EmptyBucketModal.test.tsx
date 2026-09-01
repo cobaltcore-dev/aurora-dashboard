@@ -43,29 +43,47 @@ type MutationOptions = {
   onSettled?: () => void
 }
 
-const { mockInvalidate, mockMutate, mockReset, mockState } = vi.hoisted(() => {
-  const mockState = {
-    mutationError: null as string | null,
-    isPending: false,
-    capturedOptions: {} as MutationOptions,
-  }
-  const mockMutate = vi.fn().mockImplementation((_variables: unknown, options?: MutationOptions) => {
-    // Merge options from both useMutation and mutate call
-    const mergedOptions = { ...mockState.capturedOptions, ...options }
-    if (mockState.mutationError) {
-      mergedOptions.onError?.({ message: mockState.mutationError })
-    } else {
-      mergedOptions.onSuccess?.(5)
+const { mockInvalidate, mockMutate, mockReset, mockState, mockVersioningState, mockVersionCheckState } = vi.hoisted(
+  () => {
+    const mockState = {
+      mutationError: null as string | null,
+      isPending: false,
+      capturedOptions: {} as MutationOptions,
     }
-    mergedOptions.onSettled?.()
-  })
-  return {
-    mockInvalidate: vi.fn(),
-    mockMutate,
-    mockReset: vi.fn(),
-    mockState,
+    const mockVersioningState = {
+      data: { status: "Unversioned" as "Enabled" | "Suspended" | "Unversioned" },
+      isLoading: false,
+      error: null as { message: string } | null,
+    }
+    const mockVersionCheckState = {
+      data: {
+        versions: [] as { isLatest: boolean; isDeleteMarker: boolean }[],
+        objects: [] as unknown[],
+        folders: [] as unknown[],
+      },
+      isLoading: false,
+      error: null as { message: string } | null,
+    }
+    const mockMutate = vi.fn().mockImplementation((_variables: unknown, options?: MutationOptions) => {
+      // Merge options from both useMutation and mutate call
+      const mergedOptions = { ...mockState.capturedOptions, ...options }
+      if (mockState.mutationError) {
+        mergedOptions.onError?.({ message: mockState.mutationError })
+      } else {
+        mergedOptions.onSuccess?.(5)
+      }
+      mergedOptions.onSettled?.()
+    })
+    return {
+      mockInvalidate: vi.fn(),
+      mockMutate,
+      mockReset: vi.fn(),
+      mockState,
+      mockVersioningState,
+      mockVersionCheckState,
+    }
   }
-})
+)
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -82,16 +100,18 @@ vi.mock("@/client/trpcClient", () => ({
         versioning: {
           getStatus: {
             useQuery: () => ({
-              data: { status: "Unversioned" },
-              isLoading: false,
+              data: mockVersioningState.data,
+              isLoading: mockVersioningState.isLoading,
+              error: mockVersioningState.error,
             }),
           },
         },
         objects: {
           list: {
             useQuery: () => ({
-              data: { versions: [], objects: [], folders: [] },
-              isLoading: false,
+              data: mockVersionCheckState.data,
+              isLoading: mockVersionCheckState.isLoading,
+              error: mockVersionCheckState.error,
             }),
           },
           deleteAll: {
@@ -153,6 +173,12 @@ describe("EmptyBucketModal", () => {
     mockState.mutationError = null
     mockState.capturedOptions = {}
     mockState.isPending = false
+    mockVersioningState.data = { status: "Unversioned" }
+    mockVersioningState.isLoading = false
+    mockVersioningState.error = null
+    mockVersionCheckState.data = { versions: [], objects: [], folders: [] }
+    mockVersionCheckState.isLoading = false
+    mockVersionCheckState.error = null
     await act(async () => {
       i18n.activate("en")
     })
@@ -176,7 +202,10 @@ describe("EmptyBucketModal", () => {
   })
 
   describe("Warning message", () => {
-    test("shows warning message for all buckets", () => {
+    test("shows warning message when stale metadata says empty but live check finds objects", () => {
+      // bucket.count === 0 but the live objects.list query still reports a current object
+      // (stale-cache / race scenario) — the modal must fall through to the normal flow
+      mockVersionCheckState.data = { versions: [{ isLatest: true, isDeleteMarker: false }], objects: [], folders: [] }
       renderModal({ bucket: mockEmptyBucket })
       expect(screen.getByText(/This action will permanently delete all objects/)).toBeInTheDocument()
       expect(screen.getByText(/This action cannot be undone/)).toBeInTheDocument()
@@ -199,12 +228,15 @@ describe("EmptyBucketModal", () => {
       expect(screen.getByRole("heading", { name: "Empty Bucket" })).toBeInTheDocument()
     })
 
-    test("still shows confirmation input for empty bucket", () => {
+    test("still shows confirmation input when metadata says empty but live check finds objects", () => {
+      // bucket.count === 0 but the live objects.list query still reports a current object
+      mockVersionCheckState.data = { versions: [{ isLatest: true, isDeleteMarker: false }], objects: [], folders: [] }
       renderModal({ bucket: mockEmptyBucket })
       expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeInTheDocument()
     })
 
-    test("allows emptying bucket even when count is 0", () => {
+    test("allows emptying bucket when count is 0 but live check finds objects", () => {
+      mockVersionCheckState.data = { versions: [{ isLatest: true, isDeleteMarker: false }], objects: [], folders: [] }
       renderModal({ bucket: mockEmptyBucket })
       expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).toBeInTheDocument()
     })
@@ -237,6 +269,47 @@ describe("EmptyBucketModal", () => {
     test("Empty button is disabled when confirmation name is empty", () => {
       renderModal()
       expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).toBeDisabled()
+    })
+  })
+
+  describe("Truly empty bucket (isTrulyEmpty)", () => {
+    test("shows info-only view when bucket metadata and live check both report empty", () => {
+      // mockVersionCheckState default already returns zero versions/objects
+      const onClose = vi.fn()
+      renderModal({ bucket: mockEmptyBucket, onClose })
+
+      expect(screen.getByText("This bucket is already empty.")).toBeInTheDocument()
+      expect(screen.queryByLabelText(/Type the bucket name to confirm/i)).not.toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: /^Empty Bucket$/i })).not.toBeInTheDocument()
+      expect(screen.getByTestId("empty-info-close-button")).toBeInTheDocument()
+    })
+
+    test("Close button calls onClose", async () => {
+      const user = userEvent.setup({ delay: null })
+      const onClose = vi.fn()
+      renderModal({ bucket: mockEmptyBucket, onClose })
+
+      await user.click(screen.getByTestId("empty-info-close-button"))
+
+      expect(onClose).toHaveBeenCalledTimes(1)
+    })
+
+    test("falls through to normal destructive UI when live check finds objects despite stale empty metadata", () => {
+      // Simulates the stale-cache/race scenario this fix targets: bucket.count/bytes say
+      // empty, but the live objects.list query still returns a current object.
+      mockVersionCheckState.data = { versions: [{ isLatest: true, isDeleteMarker: false }], objects: [], folders: [] }
+      renderModal({ bucket: mockEmptyBucket })
+
+      expect(screen.queryByText("This bucket is already empty.")).not.toBeInTheDocument()
+      expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).toBeInTheDocument()
+    })
+
+    test("does not show info-only view for a non-empty bucket", () => {
+      renderModal({ bucket: mockNonEmptyBucket })
+
+      expect(screen.queryByText("This bucket is already empty.")).not.toBeInTheDocument()
+      expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeInTheDocument()
     })
   })
 

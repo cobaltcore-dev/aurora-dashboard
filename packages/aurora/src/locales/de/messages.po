@@ -3704,6 +3704,9 @@ msgstr ""
 msgid "This bucket does not have any CORS rules."
 msgstr ""
 
+msgid "This bucket is already empty."
+msgstr ""
+
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
 msgstr "Dieser Container scheint leer zu sein — die Objekt-Anzahl ist möglicherweise aufgrund einer kürzlichen Operation noch nicht synchronisiert."
 
@@ -3880,6 +3883,9 @@ msgstr "Image-Sichtbarkeit kann nicht aktualisiert werden"
 
 msgid "Unable to Upload Image File"
 msgstr "Image-Datei kann nicht hochgeladen werden"
+
+msgid "Unable to verify bucket contents. Please try again."
+msgstr ""
 
 msgid "Unable to verify bucket versioning status. Please try again."
 msgstr ""

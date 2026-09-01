@@ -319,6 +319,41 @@ describe("BucketTableView", () => {
       expect(screen.queryByTestId("empty-action-bucket-1")).not.toBeInTheDocument()
       expect(screen.queryByTestId("delete-action-bucket-1")).not.toBeInTheDocument()
     })
+
+    test("hides Empty Bucket but keeps Delete Bucket for an already-empty bucket when permitted", async () => {
+      const user = userEvent.setup()
+      renderTableView()
+
+      // bucket-3 has count: 0, bytes: 0 in the fixtures above
+      const toggle = screen.getByTestId("bucket-row-bucket-3").querySelector("button")
+      if (toggle) await user.click(toggle)
+
+      expect(await screen.findByTestId("delete-action-bucket-3")).toBeInTheDocument()
+      expect(screen.queryByTestId("empty-action-bucket-3")).not.toBeInTheDocument()
+    })
+
+    test("shows Empty Bucket for a non-empty bucket when permitted", async () => {
+      const user = userEvent.setup()
+      renderTableView()
+
+      // bucket-1 has count: 5, bytes: 1024 in the fixtures above
+      const toggle = screen.getByTestId("bucket-row-bucket-1").querySelector("button")
+      if (toggle) await user.click(toggle)
+
+      expect(await screen.findByTestId("empty-action-bucket-1")).toBeInTheDocument()
+      expect(await screen.findByTestId("delete-action-bucket-1")).toBeInTheDocument()
+    })
+
+    test("hides Empty Bucket for an already-empty bucket even when canEmptyBucket is false (gates compose, not replace)", async () => {
+      const user = userEvent.setup()
+      renderTableView({ canEmptyBucket: false })
+
+      const toggle = screen.getByTestId("bucket-row-bucket-3").querySelector("button")
+      if (toggle) await user.click(toggle)
+
+      expect(await screen.findByTestId("show-details-action-bucket-3")).toBeInTheDocument()
+      expect(screen.queryByTestId("empty-action-bucket-3")).not.toBeInTheDocument()
+    })
   })
 
   describe("Modals", () => {
