@@ -1,20 +1,14 @@
-import { useState, Fragment } from "react"
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
+import { useState } from "react"
 import React from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { plural } from "@lingui/core/macro"
 import { trpcReact } from "@/client/trpcClient"
-import {
-  Modal,
-  Spinner,
-  Stack,
-  Message,
-  TextInput,
-  DescriptionList,
-  DescriptionTerm,
-  DescriptionDefinition,
-} from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 // Max number of container names shown in the list before truncating
 const MAX_VISIBLE = 20
@@ -43,47 +37,74 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
   const projectId = useProjectId()
 
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
-  const [confirmValue, setConfirmValue] = useState("")
-  const isConfirmed = confirmValue.trim() === CONFIRM_WORD
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.swift.containers.empty",
+  })
+
+  const formSchema = z.object({
+    confirm: z
+      .string()
+      .transform((val) => val.trim())
+      .refine((value) => value === CONFIRM_WORD, {
+        message: t`Type "${CONFIRM_WORD}" to confirm`,
+      }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (emptyContainerMutation.isPending || progress !== null) return
+
+      markSubmitted()
+      let emptiedCount = 0
+      let totalDeleted = 0
+      const errors: string[] = []
+      const total = containers.length
+
+      for (let i = 0; i < containers.length; i++) {
+        setProgress({ current: i + 1, total })
+        const container = containers[i]
+
+        try {
+          const deleted = await emptyContainerMutation.mutateAsync({ project_id: projectId, container: container.name })
+          totalDeleted += deleted
+          emptiedCount++
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err)
+          errors.push(`${container.name}: ${message}`)
+        }
+      }
+
+      if (emptiedCount > 0) {
+        await utils.storage.swift.listContainers.invalidate()
+      }
+
+      onComplete?.({ emptiedCount, totalDeleted, errors })
+
+      handleClose()
+    },
+  })
+
+  const canEmpty = useStore(form.store, (state) => state.isSubmitting || state.values.confirm.trim() !== CONFIRM_WORD)
 
   const utils = trpcReact.useUtils()
 
   const emptyContainerMutation = trpcReact.storage.swift.emptyContainer.useMutation()
 
   const handleClose = () => {
+    trackClose()
     emptyContainerMutation.reset()
     setProgress(null)
-    setConfirmValue("")
+    form.reset()
+    resetTracking()
     onClose()
-  }
-
-  const handleConfirm = async () => {
-    let emptiedCount = 0
-    let totalDeleted = 0
-    const errors: string[] = []
-    const total = containers.length
-
-    for (let i = 0; i < containers.length; i++) {
-      setProgress({ current: i + 1, total })
-      const container = containers[i]
-
-      try {
-        const deleted = await emptyContainerMutation.mutateAsync({ project_id: projectId, container: container.name })
-        totalDeleted += deleted
-        emptiedCount++
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err)
-        errors.push(`${container.name}: ${message}`)
-      }
-    }
-
-    if (emptiedCount > 0) {
-      await utils.storage.swift.listContainers.invalidate()
-    }
-
-    onComplete?.({ emptiedCount, totalDeleted, errors })
-
-    handleClose()
   }
 
   if (!isOpen || containers.length === 0) return null
@@ -99,12 +120,15 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
     <Modal
       title={<Plural value={totalCount} one="Empty Container" other="Empty # Containers" />}
       open={isOpen}
-      onCancel={handleClose}
+      onCancel={() => {
+        trackClose()
+        handleClose()
+      }}
       confirmButtonLabel={isPending ? t`Emptying...` : t`Empty`}
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
-      onConfirm={handleConfirm}
-      disableConfirmButton={isPending || !isConfirmed}
+      onConfirm={form.handleSubmit}
+      disableConfirmButton={isPending || canEmpty}
       disableCancelButton={isPending}
       disableCloseButton={isPending}
       size="small"
@@ -121,56 +145,74 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
           )}
         </Stack>
       ) : (
-        <div className="my-6">
-          <Message variant="danger" className="mb-6">
+        <div>
+          <p>
             <Trans>All objects in the selected containers will be permanently deleted. This cannot be undone.</Trans>
-          </Message>
-
-          <p className="text-theme-default mb-6 text-sm">
+          </p>
+          <p>
             <Trans>
               For <strong>dynamic</strong> and <strong>static large objects</strong> only the manifests are deleted —
               the related segments are not deleted.
             </Trans>
           </p>
-
-          <div className="mb-6">
-            <h3 className="jn:text-theme-high mb-3 font-semibold">
-              <Trans>Containers to be emptied ({totalCount})</Trans>
-            </h3>
-            <div className="jn:bg-theme-background-lvl-1 max-h-48 overflow-y-auto rounded p-4">
-              <DescriptionList className="grid-cols-2" alignTerms="left">
+          <div className="my-6">
+            <p className="text-sm font-semibold">
+              <Trans>Containers to be emptied:</Trans>
+            </p>
+            <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+              <Stack direction="vertical" gap="1">
                 {visibleContainers.map((container) => {
                   const count = container.count
                   return (
-                    <Fragment key={container.name}>
-                      <DescriptionTerm className="col-span-1">
-                        <span className="block truncate" title={container.name}>
-                          {container.name}
+                    <div
+                      key={container.name}
+                      className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]"
+                    >
+                      {container.name}
+                      {count != null && (
+                        <span className="text-theme-light ml-2">
+                          ({i18n._(plural(count, { one: "# object", other: "# objects" }))})
                         </span>
-                      </DescriptionTerm>
-                      <DescriptionDefinition className="col-span-1">
-                        <span className="whitespace-nowrap">
-                          {count != null ? i18n._(plural(count, { one: "# object", other: "# objects" })) : ""}
-                        </span>
-                      </DescriptionDefinition>
-                    </Fragment>
+                      )}
+                    </div>
                   )
                 })}
-              </DescriptionList>
-              {hiddenCount > 0 && (
-                <p className="text-theme-light mt-2 text-xs">
-                  <Trans>... and {hiddenCount} more</Trans>
-                </p>
-              )}
+                {hiddenCount > 0 && (
+                  <div className="text-theme-light pt-2 text-sm">
+                    <Trans>… and {hiddenCount} more</Trans>
+                  </div>
+                )}
+              </Stack>
             </div>
           </div>
 
-          <TextInput
-            label={t`Type "empty" to confirm`}
-            placeholder={CONFIRM_WORD}
-            value={confirmValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmValue(e.target.value)}
-          />
+          <Form
+            className="mb-0"
+            id="empty-containers-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
+            }}
+          >
+            <FormSection>
+              <form.Field
+                name="confirm"
+                children={(field) => (
+                  <TextInput
+                    label={t`Type "empty" to confirm`}
+                    placeholder={CONFIRM_WORD}
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    disabled={isPending}
+                    autoFocus
+                    required
+                  />
+                )}
+              />
+            </FormSection>
+          </Form>
         </div>
       )}
     </Modal>

@@ -37,6 +37,7 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
   })
 
   const handleClose = () => {
+    trackClose()
     setConfirmName("")
     setNameError(null)
     deleteVersionsMutation.reset()
@@ -90,10 +91,7 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
     <Modal
       title={t`Delete Versions`}
       open={isOpen}
-      onCancel={() => {
-        trackClose()
-        handleClose()
-      }}
+      onCancel={handleClose}
       confirmButtonLabel={t`Delete Versions`}
       confirmButtonVariant="primary-danger"
       onConfirm={handleSubmit}

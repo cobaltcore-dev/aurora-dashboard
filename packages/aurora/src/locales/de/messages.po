@@ -407,11 +407,8 @@ msgstr "Bereits aktiv (wird übersprungen)"
 msgid "Already active (will be skipped):"
 msgstr "Bereits aktiv (wird übersprungen):"
 
-msgid "Already deactivated (will be skipped)"
-msgstr "Bereits deaktiviert (wird übersprungen)"
-
 msgid "Already deactivated (will be skipped):"
-msgstr "Bereits deaktiviert (wird übersprungen):"
+msgstr ""
 
 msgid "Also delete all versions and all delete markers"
 msgstr ""
@@ -599,12 +596,10 @@ msgstr "Upload abbrechen"
 msgid "Cannot be combined with Tag Filters"
 msgstr ""
 
-#. placeholder {0}: validation.errors.join("; ")
-msgid "Cannot delete rule: {0}"
+msgid "Cannot delete rule: {errorMsg}"
 msgstr ""
 
-#. placeholder {0}: validation.errors.join("; ")
-msgid "Cannot delete rules: {0}"
+msgid "Cannot delete rules: {errorMsg}"
 msgstr ""
 
 msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
@@ -718,9 +713,6 @@ msgstr "Container-Name"
 msgid "Container name cannot contain slashes"
 msgstr "Container-Name darf keine Schrägstriche enthalten"
 
-msgid "Container name does not match"
-msgstr "Container-Name stimmt nicht überein"
-
 msgid "Container name is required"
 msgstr "Container-Name ist erforderlich"
 
@@ -748,8 +740,8 @@ msgstr "Container geleert"
 msgid "Containers Partially Emptied"
 msgstr "Container teilweise geleert"
 
-msgid "Containers to be emptied ({totalCount})"
-msgstr "Zu leerende Container ({totalCount})"
+msgid "Containers to be emptied:"
+msgstr ""
 
 msgid "Content type"
 msgstr "Content type"
@@ -765,9 +757,6 @@ msgstr "Kopieren"
 
 msgid "Copy {text} to clipboard"
 msgstr "{text} in die Zwischenablage kopieren"
-
-msgid "Copy container name"
-msgstr "Container-Name kopieren"
 
 msgid "Copy metadata"
 msgstr "Metadaten kopieren"
@@ -1057,9 +1046,6 @@ msgstr ""
 msgid "Define permissions for this bucket. You may use one of the predefined templates."
 msgstr ""
 
-msgid "delete"
-msgstr "delete"
-
 msgid "Delete"
 msgstr "Löschen"
 
@@ -1090,6 +1076,9 @@ msgstr ""
 msgid "Delete Flavor"
 msgstr "Flavor löschen"
 
+msgid "Delete Flavor \"{flavorName}\""
+msgstr ""
+
 msgid "Delete Folder"
 msgstr ""
 
@@ -1100,6 +1089,9 @@ msgid "Delete folder:"
 msgstr "Ordner löschen:"
 
 msgid "Delete Image"
+msgstr ""
+
+msgid "Delete Image \"{imageName}\""
 msgstr ""
 
 msgid "Delete Images"
@@ -1183,14 +1175,14 @@ msgstr "Die Beschreibung muss weniger als 65535 Zeichen haben."
 msgid "Detach"
 msgstr "Trennen"
 
-msgid "Detach Floating IP {floating_ip_address}"
-msgstr "Floating IP {floating_ip_address} trennen"
-
-msgid "Detaching Floating IP..."
-msgstr "Floating IP wird getrennt..."
+msgid "Detach Floating IP \"{floating_ip_address}\""
+msgstr ""
 
 msgid "Detaching this Floating IP will remove its association with the current port. The instance will no longer be reachable through this address."
 msgstr "Das Trennen dieser Floating IP hebt die Zuordnung zum aktuellen Port auf. Die Instance ist über diese Adresse nicht mehr erreichbar."
+
+msgid "Detaching..."
+msgstr ""
 
 msgid "Details"
 msgstr "Details"
@@ -1361,6 +1353,9 @@ msgid "Empty Bucket"
 msgstr ""
 
 msgid "Empty Buckets"
+msgstr ""
+
+msgid "Empty Container"
 msgstr ""
 
 msgid "Empty the bucket"
@@ -1957,10 +1952,10 @@ msgstr "Weitere Details finden Sie in der <0>Dokumentation</0>."
 msgid "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
 msgstr "Vollständiges Lifecycle-Management von Floating IPs, einschließlich Zuweisung, Port-Zuordnung/-Aufhebung, DNS-Einstellungen und Löschung"
 
-msgid "Full path:"
+msgid "Full Path"
 msgstr ""
 
-msgid "Full Path:"
+msgid "Full path:"
 msgstr ""
 
 msgid "General Image Data"
@@ -2098,11 +2093,8 @@ msgstr "Zu aktivierende Images:"
 msgid "Images to be activated ({deactivatedCount})"
 msgstr "Zu aktivierende Images ({deactivatedCount})"
 
-msgid "Images to be deactivated ({activeCount})"
-msgstr "Zu deaktivierende Images ({activeCount})"
-
 msgid "Images to deactivate:"
-msgstr "Zu deaktivierende Images:"
+msgstr ""
 
 msgid "Images to delete:"
 msgstr "Zu löschende Images:"
@@ -2181,9 +2173,6 @@ msgstr "Zuletzt geändert"
 
 msgid "Last modified (UTC)"
 msgstr "Zuletzt geändert (UTC)"
-
-msgid "Last Modified:"
-msgstr ""
 
 msgid "Last updated: {formattedDate}"
 msgstr "Zuletzt aktualisiert: {formattedDate}"
@@ -2466,9 +2455,6 @@ msgstr "Name"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
-
-msgid "Name:"
-msgstr ""
 
 msgid "Network"
 msgstr "Netzwerk"
@@ -2923,9 +2909,6 @@ msgstr "Bereich"
 msgid "RBAC Policies"
 msgstr "RBAC-Richtlinien"
 
-msgid "RBAC Policy Details:"
-msgstr "Details der RBAC-Richtlinie:"
-
 msgid "Read ACLs"
 msgstr "Lese-ACLs"
 
@@ -2941,11 +2924,11 @@ msgstr "Abgelehnt"
 msgid "Release"
 msgstr "Freigeben"
 
-msgid "Release Floating IP {floating_ip_address}"
-msgstr "Floating IP {floating_ip_address} freigeben"
+msgid "Release Floating IP \"{floating_ip_address}\""
+msgstr ""
 
-msgid "Releasing Floating IP..."
-msgstr "Floating IP wird freigegeben..."
+msgid "Releasing..."
+msgstr ""
 
 msgid "Remaining Quota:"
 msgstr "Verfügbare Quota:"
@@ -2961,9 +2944,6 @@ msgstr "Entfernte Sicherheitsgruppe"
 
 msgid "Remote Source"
 msgstr "Entfernte Quelle"
-
-msgid "remove"
-msgstr "entfernen"
 
 msgid "Remove"
 msgstr "Entfernen"
@@ -3025,9 +3005,7 @@ msgstr ""
 msgid "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 msgstr ""
 
-#. placeholder {0}: index + 1
-#. placeholder {0}: ruleIndex + 1
-msgid "Rule #{0}"
+msgid "Rule #{ruleNumber}"
 msgstr ""
 
 msgid "Rule Created"
@@ -3312,14 +3290,14 @@ msgstr ""
 msgid "Showing {rulesLength} of {totalCount} rules"
 msgstr ""
 
-msgid "Showing first {actualObjectCount} of {total} objects"
-msgstr "Erste {actualObjectCount} von {total} Objekten werden angezeigt"
-
 msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 msgstr ""
 
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 msgstr "Erste {maxOptions} von {totalCount} werden angezeigt — verfeinern Sie Ihre Suche, um die Ergebnisse einzugrenzen"
+
+msgid "Showing first {shown} of {total} objects"
+msgstr ""
 
 msgid "Sign In"
 msgstr "Einloggen"
@@ -3603,11 +3581,11 @@ msgstr "Die angegebene Projekt-ID ist ungültig. Bitte überprüfen Sie Ihre Ein
 msgid "The text must match \"delete\""
 msgstr "Der Text muss \"delete\" entsprechen"
 
-msgid "The text must match “detach” in lowercase."
-msgstr "Der Text muss “detach” in Kleinbuchstaben entsprechen."
+msgid "The text must match \"detach\" in lowercase."
+msgstr ""
 
-msgid "The text must match “release” in lowercase."
-msgstr "Der Text muss “release” in Kleinbuchstaben entsprechen."
+msgid "The text must match \"release\" in lowercase."
+msgstr ""
 
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr ""
@@ -3780,12 +3758,6 @@ msgstr ""
 msgid "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
 msgstr ""
 
-msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
-msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>“detach”</0> in das Feld unten ein."
-
-msgid "To confirm this action, type the word <0>\"release\"</0> in the field below."
-msgstr "Um diese Aktion zu bestätigen, geben Sie das Wort <0>\"release\"</0> in das Feld unten ein."
-
 msgid "To confirm type <0>delete</0> in the field below."
 msgstr "Geben Sie zur Bestätigung <0>delete</0> in das Feld unten ein."
 
@@ -3822,32 +3794,14 @@ msgstr "Geben Sie \"delete\" zur Bestätigung ein"
 msgid "Type \"detach\" to confirm"
 msgstr "\"detach\" zur Bestätigung eingeben"
 
-msgid "Type “detach” to confirm"
-msgstr "“detach” zur Bestätigung eingeben"
-
 msgid "Type \"empty\" to confirm"
 msgstr ""
 
 msgid "Type \"release\" to confirm"
 msgstr "\"release\" zur Bestätigung eingeben"
 
-msgid "Type “release” to confirm"
-msgstr "“release” zur Bestätigung eingeben"
-
 msgid "Type \"remove\" to confirm"
 msgstr "\"remove\" zur Bestätigung eingeben"
-
-msgid "Type <0>{deleteWord}</0> to confirm:"
-msgstr "<0>{deleteWord}</0> zur Bestätigung eingeben:"
-
-msgid "Type <0>delete</0> to confirm:"
-msgstr "<0>delete</0> zur Bestätigung eingeben:"
-
-msgid "Type <0>remove</0> to confirm:"
-msgstr "Geben Sie <0>entfernen</0> zur Bestätigung ein:"
-
-msgid "Type container name to confirm"
-msgstr "Geben Sie den Container-Namen zur Bestätigung ein"
 
 msgid "Type name"
 msgstr "Name eingeben"

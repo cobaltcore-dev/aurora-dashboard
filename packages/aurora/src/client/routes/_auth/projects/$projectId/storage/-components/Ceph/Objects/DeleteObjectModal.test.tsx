@@ -117,11 +117,11 @@ describe("DeleteObjectModal", () => {
   it("displays object information", () => {
     renderModal(defaultProps)
 
-    expect(screen.getByText("Name:")).toBeInTheDocument()
-    expect(screen.getByText("Size:")).toBeInTheDocument()
+    expect(screen.getByText("Name")).toBeInTheDocument()
+    expect(screen.getByText("Size")).toBeInTheDocument()
     expect(screen.getByText(/1.*KiB/)).toBeInTheDocument()
-    expect(screen.getByText("Last Modified:")).toBeInTheDocument()
-    expect(screen.getByText("Full Path:")).toBeInTheDocument()
+    expect(screen.getByText("Last Modified")).toBeInTheDocument()
+    expect(screen.getByText("Full Path")).toBeInTheDocument()
   })
 
   it("displays folder name correctly", () => {
@@ -133,8 +133,8 @@ describe("DeleteObjectModal", () => {
   it("does not show size and last modified for folders", () => {
     renderModal({ ...defaultProps, objectKey: "folder/" })
 
-    expect(screen.queryByText("Size:")).not.toBeInTheDocument()
-    expect(screen.queryByText("Last Modified:")).not.toBeInTheDocument()
+    expect(screen.queryByText("Size")).not.toBeInTheDocument()
+    expect(screen.queryByText("Last Modified")).not.toBeInTheDocument()
   })
 
   it("shows confirmation input field", () => {

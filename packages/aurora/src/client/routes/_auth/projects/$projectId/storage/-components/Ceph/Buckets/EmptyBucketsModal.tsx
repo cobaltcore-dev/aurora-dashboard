@@ -1,7 +1,9 @@
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
 import { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Spinner, Stack, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Spinner, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -25,55 +27,73 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
   const { t } = useLingui()
   const projectId = useProjectId()
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null)
-  const [confirmText, setConfirmText] = useState("")
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
     actionPrefix: "storage.ceph.buckets.empty",
   })
 
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "empty", {
+      message: t`Type "empty" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (emptyBucketMutation.isPending || progress !== null) return
+
+      markSubmitted()
+      let emptiedCount = 0
+      let totalDeleted = 0
+      const errors: string[] = []
+      const total = buckets.length
+
+      for (let i = 0; i < buckets.length; i++) {
+        setProgress({ current: i + 1, total })
+        const bucket = buckets[i]
+
+        try {
+          const deleted = await emptyBucketMutation.mutateAsync({
+            project_id: projectId,
+            containerName: bucket.name,
+          })
+          totalDeleted += deleted
+          emptiedCount++
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err)
+          errors.push(`${bucket.name}: ${message}`)
+        }
+      }
+
+      if (emptiedCount > 0) {
+        await utils.storage.ceph.containers.list.invalidate()
+        await utils.storage.ceph.objects.list.invalidate()
+      }
+
+      onComplete?.({ emptiedCount, totalDeleted, errors })
+      handleClose()
+    },
+  })
+
+  const canEmpty = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "empty")
+
   const utils = trpcReact.useUtils()
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation()
 
   const handleClose = () => {
+    trackClose()
     emptyBucketMutation.reset()
     setProgress(null)
-    setConfirmText("")
+    form.reset()
     resetTracking()
     onClose()
-  }
-
-  const handleConfirm = async () => {
-    markSubmitted()
-    let emptiedCount = 0
-    let totalDeleted = 0
-    const errors: string[] = []
-    const total = buckets.length
-
-    for (let i = 0; i < buckets.length; i++) {
-      setProgress({ current: i + 1, total })
-      const bucket = buckets[i]
-
-      try {
-        const deleted = await emptyBucketMutation.mutateAsync({
-          project_id: projectId,
-          containerName: bucket.name,
-        })
-        totalDeleted += deleted
-        emptiedCount++
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err)
-        errors.push(`${bucket.name}: ${message}`)
-      }
-    }
-
-    if (emptiedCount > 0) {
-      await utils.storage.ceph.containers.list.invalidate()
-      await utils.storage.ceph.objects.list.invalidate()
-    }
-
-    onComplete?.({ emptiedCount, totalDeleted, errors })
-    handleClose()
   }
 
   if (!isOpen || buckets.length === 0) return null
@@ -84,21 +104,17 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
   const isPending = emptyBucketMutation.isPending || progress !== null
   const progressCurrent = progress?.current
   const progressTotal = progress?.total
-  const isConfirmValid = confirmText === "empty"
 
   return (
     <Modal
       title={<Plural value={totalCount} one="Empty Bucket" other="Empty Buckets" />}
       open={isOpen}
-      onCancel={() => {
-        trackClose()
-        handleClose()
-      }}
+      onCancel={handleClose}
       confirmButtonLabel={isPending ? t`Emptying...` : totalCount === 1 ? t`Empty Bucket` : t`Empty Buckets`}
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
-      onConfirm={handleConfirm}
-      disableConfirmButton={isPending || !isConfirmValid}
+      onConfirm={form.handleSubmit}
+      disableConfirmButton={isPending || canEmpty}
       disableCancelButton={isPending}
       disableCloseButton={isPending}
       size="small"
@@ -116,34 +132,63 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          <Trans>
-            This will permanently delete all objects from {totalCount} selected{" "}
-            <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
-          </Trans>
+          <p className="text-theme-default">
+            <Trans>
+              This will permanently delete all objects from {totalCount} selected{" "}
+              <Plural value={totalCount} one="bucket" other="buckets" />. This action cannot be undone.
+            </Trans>
+          </p>
 
           <div>
-            <p className="text-theme-light mb-2 text-sm">
+            <p className="text-sm font-semibold">
               <Trans>Buckets to empty:</Trans>
             </p>
-            <ul className="list-inside list-disc space-y-1 text-sm">
-              {visibleBuckets.map((bucket) => (
-                <li key={bucket.name}>{bucket.name}</li>
-              ))}
-              {hiddenCount > 0 && (
-                <li className="text-theme-light">
-                  <Trans>... and {hiddenCount} more</Trans>
-                </li>
-              )}
-            </ul>
+            <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+              <Stack direction="vertical" gap="1">
+                {visibleBuckets.map((bucket) => (
+                  <div
+                    key={bucket.name}
+                    className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]"
+                  >
+                    {bucket.name}
+                  </div>
+                ))}
+                {hiddenCount > 0 && (
+                  <div className="text-theme-light pt-2 text-sm">
+                    <Trans>… and {hiddenCount} more</Trans>
+                  </div>
+                )}
+              </Stack>
+            </div>
           </div>
 
-          <TextInput
-            label={t`Type "empty" to confirm`}
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="empty"
-            autoFocus
-          />
+          <Form
+            className="mb-0"
+            id="empty-buckets-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
+            }}
+          >
+            <FormSection>
+              <form.Field
+                name="confirm"
+                children={(field) => (
+                  <TextInput
+                    id={field.name}
+                    name={field.name}
+                    label={t`Type "empty" to confirm`}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="empty"
+                    autoFocus
+                    disabled={isPending}
+                    required
+                  />
+                )}
+              />
+            </FormSection>
+          </Form>
         </Stack>
       )}
     </Modal>

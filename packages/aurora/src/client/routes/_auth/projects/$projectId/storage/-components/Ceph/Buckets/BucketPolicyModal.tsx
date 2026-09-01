@@ -204,6 +204,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   }, [isOpen, policyData, form, bucketName])
 
   const handleClose = () => {
+    trackClose()
     form.reset()
     setMutation.reset()
     deleteMutation.reset()
@@ -274,10 +275,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       key={bucketName} // Remount when bucket changes
       title={t`Edit/View Bucket Policy`}
       open={isOpen}
-      onCancel={() => {
-        trackClose()
-        handleClose()
-      }}
+      onCancel={handleClose}
       confirmButtonLabel={t`Save`}
       onConfirm={handleSave}
       cancelButtonLabel={t`Cancel`}
