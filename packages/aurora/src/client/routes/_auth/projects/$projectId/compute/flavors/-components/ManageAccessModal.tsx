@@ -84,19 +84,11 @@ function ManageAccessModalInner({
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newProjectId, setNewProjectId] = useState("")
-  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
   const isPublicFlavor = flavor["os-flavor-access:is_public"] !== false
   const canEdit = canAdd || canRemove
-
-  useEffect(() => {
-    if (confirmDeleteIndex !== null) {
-      const timer = setTimeout(() => setConfirmDeleteIndex(null), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [confirmDeleteIndex])
 
   const hasChanges = useMemo(() => {
     if (access.length !== initialAccess.length) return true
@@ -137,7 +129,6 @@ function ManageAccessModalInner({
 
   const handleDelete = (index: number) => {
     setAccess(access.filter((_, i) => i !== index))
-    setConfirmDeleteIndex(null)
     setErrors({})
   }
 
@@ -244,41 +235,44 @@ function ManageAccessModalInner({
             </p>
           ) : (
             <DescriptionList className="mb-6">
-              <DescriptionTerm>{t`Project ID`}</DescriptionTerm>
-              <DescriptionDefinition>{""}</DescriptionDefinition>
-
               <>
                 {isAddingNew && (
                   <>
-                    <DescriptionTerm>
-                      <TextInput
-                        value={newProjectId}
-                        onChange={(e) => {
-                          setNewProjectId(e.target.value)
-                          if (errors.newProjectId) {
-                            setErrors((prev) => {
-                              const next = { ...prev }
-                              delete next.newProjectId
-                              return next
-                            })
-                          }
-                        }}
-                        placeholder={t`Enter project ID`}
-                        errortext={errors.newProjectId}
-                        autoFocus
-                      />
+                    <DescriptionTerm className="flex items-center justify-end">
+                      <span className="jn:text-theme-high">{t`Project`}</span>
                     </DescriptionTerm>
                     <DescriptionDefinition>
-                      <Stack direction="horizontal" gap="2" alignment="center" className="justify-end">
-                        <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Add`} />
-                        <Button
-                          size="small"
-                          variant="subdued"
-                          onClick={handleCancelAdd}
-                          icon="close"
-                          title={t`Cancel`}
-                        />
-                      </Stack>
+                      <div className="flex w-full items-center gap-2">
+                        <div className="flex-1">
+                          <TextInput
+                            value={newProjectId}
+                            onChange={(e) => {
+                              setNewProjectId(e.target.value)
+                              if (errors.newProjectId) {
+                                setErrors((prev) => {
+                                  const next = { ...prev }
+                                  delete next.newProjectId
+                                  return next
+                                })
+                              }
+                            }}
+                            placeholder={t`Enter project ID`}
+                            errortext={errors.newProjectId}
+                            autoFocus
+                            wrapperClassName="w-full"
+                          />
+                        </div>
+                        <div className="flex shrink-0 gap-2">
+                          <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Add`} />
+                          <Button
+                            size="small"
+                            variant="subdued"
+                            onClick={handleCancelAdd}
+                            icon="close"
+                            title={t`Cancel`}
+                          />
+                        </div>
+                      </div>
                     </DescriptionDefinition>
                   </>
                 )}
@@ -288,36 +282,24 @@ function ManageAccessModalInner({
                 {access.map((entry, index) => (
                   <React.Fragment key={`${entry.originalProjectId || entry.projectId}-${index}`}>
                     <DescriptionTerm>
-                      <span className="jn:text-theme-high block max-w-xs truncate" title={entry.projectId}>
-                        {entry.projectId}
-                      </span>
+                      <span className="jn:text-theme-high">{t`Project`}</span>
                     </DescriptionTerm>
-                    <DescriptionDefinition className="flex items-center justify-end gap-2">
-                      {canRemove && (
-                        <Stack direction="horizontal" gap="2">
-                          {confirmDeleteIndex === index ? (
-                            <Button
-                              size="small"
-                              variant="primary-danger"
-                              onClick={() => handleDelete(index)}
-                              data-testid={`confirm-delete-${entry.projectId}`}
-                              title={t`Remove`}
-                              disabled={isAddingNew}
-                            >
-                              {t`Remove`}
-                            </Button>
-                          ) : (
-                            <Button
-                              size="small"
-                              onClick={() => setConfirmDeleteIndex(index)}
-                              icon="deleteForever"
-                              data-testid={`delete-${entry.projectId}`}
-                              title={t`Remove`}
-                              disabled={isAddingNew}
-                            />
-                          )}
-                        </Stack>
-                      )}
+                    <DescriptionDefinition>
+                      <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+                        <span className="jn:text-theme-high block max-w-xs truncate" title={entry.projectId}>
+                          {entry.projectId}
+                        </span>
+                        {canRemove && (
+                          <Button
+                            size="small"
+                            onClick={() => handleDelete(index)}
+                            icon="deleteForever"
+                            data-testid={`delete-${entry.projectId}`}
+                            title={t`Remove`}
+                            disabled={isAddingNew}
+                          />
+                        )}
+                      </Stack>
                     </DescriptionDefinition>
                   </React.Fragment>
                 ))}
