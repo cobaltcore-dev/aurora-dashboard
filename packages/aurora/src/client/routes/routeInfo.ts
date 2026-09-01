@@ -1,24 +1,10 @@
 import { z } from "zod"
-
-export const CRUMB_LABEL_KEYS = [
-  "Compute",
-  "Network",
-  "Storage",
-  "Services",
-  "Images",
-  "Flavors",
-  "Security Groups",
-  "Floating IPs",
-] as const
-
-export type CrumbLabelKey = (typeof CRUMB_LABEL_KEYS)[number]
+import type { MessageDescriptor } from "@lingui/core"
 
 const CrumbSchema = z.object({
-  labelKey: z.enum(CRUMB_LABEL_KEYS).optional(),
-  label: z.string().optional(),
+  text: z.custom<MessageDescriptor | string>().optional(),
   to: z.string().optional(),
-  useParamAsLabel: z.string().optional(),
-  useParentTitleAsLabel: z.boolean().optional(),
+  icon: z.string().optional(),
 })
 
 const AnalyticsSchema = z.object({
@@ -28,10 +14,7 @@ const AnalyticsSchema = z.object({
 const RouteInfoSchema = z.object({
   section: z.string().optional(),
   service: z.string().optional(),
-  isDetail: z.boolean().optional(),
   crumb: CrumbSchema.optional(),
-  sectionCrumb: CrumbSchema.optional(),
-  intermediateCrumb: CrumbSchema.optional(),
   analytics: AnalyticsSchema.optional(),
 })
 

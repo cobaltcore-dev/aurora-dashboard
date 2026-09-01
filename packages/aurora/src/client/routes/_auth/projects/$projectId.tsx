@@ -2,11 +2,13 @@ import { createFileRoute, Outlet, useLoaderData, useRouteContext } from "@tansta
 import { AppShell, Button, Container, Stack, Status } from "@cloudoperators/juno-ui-components"
 import { SideNavBar } from "@/client/routes/_auth/projects/-components/SideNavBar"
 import { buildNavSections } from "@/client/routes/_auth/projects/-components/buildNavSections"
-import { ProjectInfoBox } from "@/client/components/ProjectView/ProjectInfoBox"
+import { Breadcrumbs } from "@/client/components/Breadcrumbs"
 import { RouteError } from "@/client/components/Error/RouteError"
 import { useMemo } from "react"
 import { TRPCClientError } from "@trpc/client"
 import { useLingui, Trans } from "@lingui/react/macro"
+import { BreadcrumbExtensionProvider } from "@/client/context/BreadcrumbExtensionContext"
+import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 
 // Type for scope error that we catch and handle gracefully
 type ScopeError = {
@@ -100,6 +102,10 @@ function RouteComponent() {
   const navigate = Route.useNavigate()
   const { enabledServices, additionalProjectServices } = useRouteContext({ strict: false })
 
+  const projectName = loaderData.crumbProject?.name || loaderData.projectId
+  const projectLabel = loaderData.crumbDomain?.name ? `${loaderData.crumbDomain.name}/${projectName}` : projectName
+  useSetBreadcrumb(Route.id, projectLabel)
+
   // Handle scope errors with a friendly UI using Juno's Status component
   if (loaderData.scopeError) {
     const { code, message, currentDomain } = loaderData.scopeError
@@ -190,14 +196,10 @@ function RouteComponent() {
         <Stack direction="vertical" distribution="start" alignment="stretch" className="xl:flex-row" gap="6">
           {/* Main content area */}
           <div className="min-w-0 flex-1">
-            <ProjectInfoBox
-              projectInfo={{
-                id: projectId,
-                name: crumbProject?.name || projectId,
-                domain: crumbProject?.domain,
-              }}
-            />
-            <Outlet />
+            <BreadcrumbExtensionProvider>
+              <Breadcrumbs />
+              <Outlet />
+            </BreadcrumbExtensionProvider>
           </div>
         </Stack>
       </Container>

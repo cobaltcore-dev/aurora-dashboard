@@ -14,6 +14,7 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
+import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import { FlavorDetailsView } from "./-components/FlavorDetailsView"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import { EditSpecModal } from "./-components/EditSpecModal"
@@ -29,9 +30,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
     analytics: {
       name: "compute.flavors.detail",
     },
-    isDetail: true,
-    sectionCrumb: { labelKey: "Compute" },
-    crumb: { labelKey: "Flavors", to: "/projects/$projectId/compute/flavors" },
   } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const flavor = await context.trpcClient?.compute.getFlavorById.query({
@@ -79,6 +77,8 @@ function RouteComponent() {
     project_id: projectId,
     flavorId,
   })
+
+  useSetBreadcrumb(Route.id, flavor?.name)
 
   const { data: permissionsData } = trpcReact.compute.canUser.useQuery({
     project_id: projectId,

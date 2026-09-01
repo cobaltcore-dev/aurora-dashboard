@@ -9,6 +9,7 @@ import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
 import { ContainerHeader } from "../../../../-components/Swift/Containers/ContainerHeader"
+import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 
 // Search params schema
 // - prefix: base64-encoded current folder path, safe to carry "/" chars in the URL
@@ -49,9 +50,6 @@ export const Route = createFileRoute(
     analytics: {
       name: "storage.objectstore.detail",
     },
-    isDetail: true,
-    sectionCrumb: { labelKey: "Storage" },
-    crumb: { useParamAsLabel: "provider", to: "/projects/$projectId/storage/$provider/$storageType" },
   } satisfies RouteInfo,
   validateSearch: objectsSearchSchema,
   head: ({ match }) => ({
@@ -92,6 +90,8 @@ export function ObjectsDashboard() {
       containerName: params.containerName,
     }),
   })
+
+  useSetBreadcrumb(Route.id, containerName)
 
   const { prefix, sortBy, sortDirection, search, view } = Route.useSearch()
 

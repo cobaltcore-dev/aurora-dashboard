@@ -5,6 +5,7 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { useProjectId } from "@/client/hooks"
 import { trpcReact } from "@/client/trpcClient"
+import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import { FloatingIpDetailsView } from "./-components/-details/FloatingIpDetailsView"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/floatingips/$floatingIpId/")({
@@ -14,9 +15,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/floatin
     analytics: {
       name: "network.floatingips.detail",
     },
-    isDetail: true,
-    sectionCrumb: { labelKey: "Network" },
-    crumb: { labelKey: "Floating IPs", to: "/projects/$projectId/network/floatingips" },
   } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const floatingIp = await context.trpcClient?.network.floatingIp.getById.query({
@@ -68,6 +66,8 @@ function RouteComponent() {
     project_id: projectId,
     floatingip_id: floatingIpId,
   })
+
+  useSetBreadcrumb(Route.id, floatingIp?.floating_ip_address)
 
   const handleBack = () => {
     navigate({
