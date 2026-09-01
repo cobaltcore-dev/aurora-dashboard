@@ -245,7 +245,7 @@ function ManageAccessModalInner({
           ) : (
             <DescriptionList className="mb-6">
               <DescriptionTerm>{t`Project ID`}</DescriptionTerm>
-              <DescriptionDefinition>{t`Actions`}</DescriptionDefinition>
+              <DescriptionDefinition>{""}</DescriptionDefinition>
 
               <>
                 {isAddingNew && (
