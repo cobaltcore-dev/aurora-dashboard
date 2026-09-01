@@ -207,7 +207,8 @@ export const imageRouter = {
           first: undefined,
           next: hasMore ? nextPageMarker : undefined,
           schema: "/v2/schemas/images",
-          totalCount: filteredImages.length,
+          // Only include totalCount if we have all images (no nextMarker from OpenStack)
+          totalCount: nextMarker ? undefined : filteredImages.length,
         }
       }, "list images")
     }),
