@@ -363,14 +363,14 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
         setFlavorAccessData(deduped)
         setPermissionsData(permissions)
       } catch (error) {
-        setLoadError(translateError(error instanceof Error ? error.message : "Failed to load access data"))
+        setLoadError(error instanceof Error ? error.message : "Failed to load access data")
       } finally {
         setIsLoadingData(false)
       }
     }
 
     loadData()
-  }, [isOpen, flavor?.id, client, project, translateError])
+  }, [isOpen, flavor?.id, client, project])
 
   const initialAccess = useMemo(
     () => (flavorAccessData ? buildInitialAccess(flavorAccessData) : []),
@@ -396,7 +396,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   if (loadError) {
     return (
       <Modal open onCancel={onClose} size="large" title={t`Manage Access - ${flavorName}`}>
-        <Message variant="error" text={loadError} />
+        <Message variant="error" text={translateError(loadError)} />
       </Modal>
     )
   }
