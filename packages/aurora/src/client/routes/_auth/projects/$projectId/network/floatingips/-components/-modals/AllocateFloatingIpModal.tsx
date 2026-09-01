@@ -11,9 +11,11 @@ import {
   TextInput,
   Select,
   SelectOption,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
+import { getFloatingIpAllocatedToast } from "./FloatingIpToastNotifications"
 
 export interface AllocateFloatingIpModalProps {
   open: boolean
@@ -93,7 +95,7 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
     onSubmit: async ({ value }) => {
       if (isPending) return
 
-      await createFloatingIpMutation.mutateAsync({
+      const created = await createFloatingIpMutation.mutateAsync({
         project_id: projectId,
         floating_network_id: value.floating_network_id,
         ...(value.dns_domain && { dns_domain: value.dns_domain }),
@@ -103,6 +105,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
         ...(value.port_id && { port_id: value.port_id }),
         ...(value.fixed_ip_address && { fixed_ip_address: value.fixed_ip_address }),
       })
+      const { message, ...options } = getFloatingIpAllocatedToast(created.floating_ip_address ?? created.id)
+      toast.success(message, options)
       handleClose()
     },
   })
