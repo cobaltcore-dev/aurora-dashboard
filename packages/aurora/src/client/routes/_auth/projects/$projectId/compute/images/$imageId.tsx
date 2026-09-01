@@ -15,12 +15,12 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
-import { ImageDetailsView } from "../-components/Images/-components/ImageDetailsView"
-import { EditImageDetailsModal } from "../-components/Images/-components/EditImageDetailsModal"
-import { EditImageMetadataModal } from "../-components/Images/-components/EditImageMetadataModal"
-import { DeleteImageModal } from "../-components/Images/-components/DeleteImageModal"
-import { ActivateImageModal } from "../-components/Images/-components/ActivateImageModal"
-import { DeactivateImageModal } from "../-components/Images/-components/DeactivateImageModal"
+import { ImageDetailsView } from "./-components/ImageDetailsView"
+import { EditImageDetailsModal } from "./-components/EditImageDetailsModal"
+import { EditImageMetadataModal } from "./-components/EditImageMetadataModal"
+import { DeleteImageModal } from "./-components/DeleteImageModal"
+import { ActivateImageModal } from "./-components/ActivateImageModal"
+import { DeactivateImageModal } from "./-components/DeactivateImageModal"
 import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../-constants/filters"
 import { GlanceImage, MemberStatus } from "@/server/Compute/types/image"
 import { TRPCClientError } from "@trpc/client"
@@ -35,7 +35,7 @@ import {
   getImageDeactivationErrorToast,
   getImageVisibilityUpdatedToast,
   getImageVisibilityUpdateErrorToast,
-} from "../-components/Images/-components/ImageToastNotifications"
+} from "./-components/ImageToastNotifications"
 import { useState } from "react"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 
