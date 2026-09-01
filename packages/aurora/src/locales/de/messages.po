@@ -932,9 +932,6 @@ msgstr "Container konnte nicht geöffnet werden"
 msgid "Couldn't open container \"{containerName}\" — it may not exist, or you may not have access to it."
 msgstr "Container \"{containerName}\" konnte nicht geöffnet werden — er existiert möglicherweise nicht oder Sie haben keinen Zugriff darauf."
 
-msgid "CPU"
-msgstr "CPU"
-
 msgid "Create"
 msgstr "Erstellen"
 
@@ -1844,9 +1841,6 @@ msgstr "False"
 msgid "Filter by"
 msgstr "Filtern nach"
 
-msgid "Fingerprint"
-msgstr "Fingerprint"
-
 msgid "Fixed IP Address"
 msgstr "Feste IP-Adresse"
 
@@ -2024,9 +2018,6 @@ msgstr "Zugriff für einen Benutzer aus einem anderen Projekt gewähren."
 msgid "Grant access to all users from that project."
 msgstr "Zugriff für alle Benutzer aus diesem Projekt gewähren."
 
-msgid "Group Name"
-msgstr "Gruppenname"
-
 msgid "Hardware Specifications"
 msgstr "Hardware-Spezifikationen"
 
@@ -2165,12 +2156,6 @@ msgstr ""
 msgid "IP Version"
 msgstr "IP-Version"
 
-msgid "IPv4"
-msgstr "IPv4"
-
-msgid "IPv6"
-msgstr "IPv6"
-
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 msgstr ""
 
@@ -2197,9 +2182,6 @@ msgstr "Schlüssel ist erforderlich"
 
 msgid "Key must contain at least one alphanumeric character"
 msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
-
-msgid "Key Name"
-msgstr "Keyname"
 
 msgid "Last modified"
 msgstr ""
@@ -2291,12 +2273,6 @@ msgstr "Image-Details werden geladen..."
 msgid "Loading Images..."
 msgstr "Lädt Images..."
 
-msgid "Loading Instances..."
-msgstr "Lädt Instanzen..."
-
-msgid "Loading Key Pairs..."
-msgstr "Lädt Key Pairs..."
-
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
@@ -2323,9 +2299,6 @@ msgstr "Security Group-Details werden geladen..."
 
 msgid "Loading Security Groups..."
 msgstr ""
-
-msgid "Loading Server Groups..."
-msgstr "Lädt Servergruppen"
 
 msgid "Loading versions..."
 msgstr ""
@@ -2401,9 +2374,6 @@ msgstr "Mitglieds-ID"
 
 msgid "Member ID (project UUID) is required."
 msgstr "Mitglieds-ID (Projekt-UUID) ist erforderlich."
-
-msgid "Members"
-msgstr "Members"
 
 msgid "Metadata"
 msgstr "Metadata"
@@ -2552,9 +2522,6 @@ msgstr "Keine Floating IPs gefunden"
 msgid "No images found"
 msgstr "Keine Images gefunden"
 
-msgid "No key pairs available."
-msgstr "Keine Keypaare verfügbar"
-
 msgid "No lifecycle rules matching the current search criteria."
 msgstr ""
 
@@ -2593,12 +2560,6 @@ msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projek
 
 msgid "No rules found"
 msgstr ""
-
-msgid "No server groups available."
-msgstr "Keine Servergruppen verfügbar"
-
-msgid "No servers available."
-msgstr "Keine Server verfügbar"
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
@@ -2791,9 +2752,6 @@ msgstr "Bitte korrigieren Sie die Validierungsfehler unten."
 
 msgid "Please select a file to upload"
 msgstr "Bitte wählen Sie eine Datei zum Hochladen aus"
-
-msgid "Policy"
-msgstr "Richtlinie"
 
 msgid "Policy Deleted"
 msgstr ""
@@ -3007,9 +2965,6 @@ msgstr "Wird entfernt..."
 
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reservierte Schlüssel: web-index, web-listings, quota-count, quota-bytes"
-
-msgid "Restart"
-msgstr "Neustart"
 
 msgid "Restore"
 msgstr ""
@@ -3254,9 +3209,6 @@ msgstr "Ein Serverfehler ist aufgetreten, während der Projektzugriff entfernt w
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Der Server hat Probleme. Bitte versuchen Sie es später erneut."
 
-msgid "Server Name"
-msgstr "Servername"
-
 msgid "Server returned unexpected data format for extra specs."
 msgstr "Der Server hat ein unerwartetes Datenformat für die Metadata zurückgegeben."
 
@@ -3265,9 +3217,6 @@ msgstr "Der Server hat ein unerwartetes Datenformat für Flavor-Details zurückg
 
 msgid "Server returned unexpected data format."
 msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
-
-msgid "Server Role:"
-msgstr "Serverrolle:"
 
 msgid "Services"
 msgstr "Services"
@@ -3818,9 +3767,6 @@ msgstr "Erneut versuchen"
 msgid "Try Again"
 msgstr "Erneut versuchen"
 
-msgid "Type"
-msgstr "Typ"
-
 msgid "Type \"{CONFIRM_WORD}\" to confirm"
 msgstr "Geben Sie \"{CONFIRM_WORD}\" zur Bestätigung ein"
 
@@ -4018,9 +3964,6 @@ msgstr ""
 
 msgid "Versions to delete:"
 msgstr ""
-
-msgid "View Details"
-msgstr "Details ansehen"
 
 msgid "View Versions"
 msgstr ""

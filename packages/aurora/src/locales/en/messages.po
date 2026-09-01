@@ -932,9 +932,6 @@ msgstr "Couldn't Open Container"
 msgid "Couldn't open container \"{containerName}\" — it may not exist, or you may not have access to it."
 msgstr "Couldn't open container \"{containerName}\" — it may not exist, or you may not have access to it."
 
-msgid "CPU"
-msgstr "CPU"
-
 msgid "Create"
 msgstr "Create"
 
@@ -1844,9 +1841,6 @@ msgstr "False"
 msgid "Filter by"
 msgstr "Filter by"
 
-msgid "Fingerprint"
-msgstr "Fingerprint"
-
 msgid "Fixed IP Address"
 msgstr "Fixed IP Address"
 
@@ -2024,9 +2018,6 @@ msgstr "Grant access to a user from a different project."
 msgid "Grant access to all users from that project."
 msgstr "Grant access to all users from that project."
 
-msgid "Group Name"
-msgstr "Group Name"
-
 msgid "Hardware Specifications"
 msgstr "Hardware Specifications"
 
@@ -2165,12 +2156,6 @@ msgstr "IP Restricted"
 msgid "IP Version"
 msgstr "IP Version"
 
-msgid "IPv4"
-msgstr "IPv4"
-
-msgid "IPv6"
-msgstr "IPv6"
-
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 msgstr "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 
@@ -2197,9 +2182,6 @@ msgstr "Key is required"
 
 msgid "Key must contain at least one alphanumeric character"
 msgstr "Key must contain at least one alphanumeric character"
-
-msgid "Key Name"
-msgstr "Key Name"
 
 msgid "Last modified"
 msgstr "Last modified"
@@ -2291,12 +2273,6 @@ msgstr "Loading Image Details..."
 msgid "Loading Images..."
 msgstr "Loading Images..."
 
-msgid "Loading Instances..."
-msgstr "Loading Instances..."
-
-msgid "Loading Key Pairs..."
-msgstr "Loading Key Pairs..."
-
 msgid "Loading more..."
 msgstr "Loading more..."
 
@@ -2323,9 +2299,6 @@ msgstr "Loading Security Group Details..."
 
 msgid "Loading Security Groups..."
 msgstr "Loading Security Groups..."
-
-msgid "Loading Server Groups..."
-msgstr "Loading Server Groups..."
 
 msgid "Loading versions..."
 msgstr "Loading versions..."
@@ -2401,9 +2374,6 @@ msgstr "Member ID"
 
 msgid "Member ID (project UUID) is required."
 msgstr "Member ID (project UUID) is required."
-
-msgid "Members"
-msgstr "Members"
 
 msgid "Metadata"
 msgstr "Metadata"
@@ -2552,9 +2522,6 @@ msgstr "No Floating IPs found"
 msgid "No images found"
 msgstr "No images found"
 
-msgid "No key pairs available."
-msgstr "No key pairs available."
-
 msgid "No lifecycle rules matching the current search criteria."
 msgstr "No lifecycle rules matching the current search criteria."
 
@@ -2593,12 +2560,6 @@ msgstr "No projects have access to this image yet. Click \"Add Project Access\" 
 
 msgid "No rules found"
 msgstr "No rules found"
-
-msgid "No server groups available."
-msgstr "No server groups available."
-
-msgid "No servers available."
-msgstr "No servers available."
 
 msgid "No services available for this project."
 msgstr "No services available for this project."
@@ -2791,9 +2752,6 @@ msgstr "Please fix the validation errors below."
 
 msgid "Please select a file to upload"
 msgstr "Please select a file to upload"
-
-msgid "Policy"
-msgstr "Policy"
 
 msgid "Policy Deleted"
 msgstr "Policy Deleted"
@@ -3007,9 +2965,6 @@ msgstr "Removing..."
 
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
-
-msgid "Restart"
-msgstr "Restart"
 
 msgid "Restore"
 msgstr "Restore"
@@ -3254,9 +3209,6 @@ msgstr "Server error occurred while removing tenant access. Please try again lat
 msgid "Server is experiencing issues. Please try again later."
 msgstr "Server is experiencing issues. Please try again later."
 
-msgid "Server Name"
-msgstr "Server Name"
-
 msgid "Server returned unexpected data format for extra specs."
 msgstr "Server returned unexpected data format for extra specs."
 
@@ -3265,9 +3217,6 @@ msgstr "Server returned unexpected data format for flavor details."
 
 msgid "Server returned unexpected data format."
 msgstr "Server returned unexpected data format."
-
-msgid "Server Role:"
-msgstr "Server Role:"
 
 msgid "Services"
 msgstr "Services"
@@ -3818,9 +3767,6 @@ msgstr "Try again"
 msgid "Try Again"
 msgstr "Try Again"
 
-msgid "Type"
-msgstr "Type"
-
 msgid "Type \"{CONFIRM_WORD}\" to confirm"
 msgstr "Type \"{CONFIRM_WORD}\" to confirm"
 
@@ -4018,9 +3964,6 @@ msgstr "Versions Deleted Permanently"
 
 msgid "Versions to delete:"
 msgstr "Versions to delete:"
-
-msgid "View Details"
-msgstr "View Details"
 
 msgid "View Versions"
 msgstr "View Versions"

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { t } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
-import { Flavors } from "../-components/Flavors/List"
+import { Flavors } from "./-components/List"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { t } from "@lingui/core/macro"
 import { useLingui } from "@lingui/react/macro"
-import { Images } from "../-components/Images/List"
+import { Images } from "./-components/List"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 

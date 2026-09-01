@@ -55,7 +55,7 @@ vi.mock("@/client/trpcClient", () => ({
 
 // App components (not Juno) are stubbed. ImageDetailsView exposes a button that
 // invokes the member-status handler so we can drive it without the header menu.
-vi.mock("../-components/Images/-components/ImageDetailsView", () => ({
+vi.mock("./-components/ImageDetailsView", () => ({
   ImageDetailsView: ({ onMemberStatusChange }: { onMemberStatusChange: (s: string) => void }) => (
     <button type="button" onClick={() => onMemberStatusChange("rejected")}>
       trigger-member-change
@@ -65,11 +65,11 @@ vi.mock("../-components/Images/-components/ImageDetailsView", () => ({
 vi.mock("@/client/components/ContentHeader/ContentHeader", () => ({
   ContentHeader: ({ title }: { title: string }) => <div>{title}</div>,
 }))
-vi.mock("../-components/Images/-components/EditImageDetailsModal", () => ({ EditImageDetailsModal: () => null }))
-vi.mock("../-components/Images/-components/EditImageMetadataModal", () => ({ EditImageMetadataModal: () => null }))
-vi.mock("../-components/Images/-components/DeleteImageModal", () => ({ DeleteImageModal: () => null }))
-vi.mock("../-components/Images/-components/ActivateImageModal", () => ({ ActivateImageModal: () => null }))
-vi.mock("../-components/Images/-components/DeactivateImageModal", () => ({ DeactivateImageModal: () => null }))
+vi.mock("./-components/EditImageDetailsModal", () => ({ EditImageDetailsModal: () => null }))
+vi.mock("./-components/EditImageMetadataModal", () => ({ EditImageMetadataModal: () => null }))
+vi.mock("./-components/DeleteImageModal", () => ({ DeleteImageModal: () => null }))
+vi.mock("./-components/ActivateImageModal", () => ({ ActivateImageModal: () => null }))
+vi.mock("./-components/DeactivateImageModal", () => ({ DeactivateImageModal: () => null }))
 vi.mock("@/server/Authentication/helpers", () => ({ getServiceIndex: vi.fn() }))
 
 import { Route } from "./$imageId"

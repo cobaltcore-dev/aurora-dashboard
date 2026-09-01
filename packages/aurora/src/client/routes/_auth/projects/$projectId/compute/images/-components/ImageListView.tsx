@@ -51,7 +51,7 @@ import {
   getImageVisibilityUpdateErrorToast,
 } from "./ImageToastNotifications"
 import { ManageImageAccessModal } from "./ManageImageAccessModal"
-import { IMAGE_STATUSES } from "../../../-constants/filters"
+import { IMAGE_STATUSES } from "../../-constants/filters"
 
 interface ImagePageProps {
   images: GlanceImage[]
