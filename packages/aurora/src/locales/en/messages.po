@@ -161,6 +161,9 @@ msgstr "{selectedCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgid "{selectedCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{selectedCount, plural, one {Empty Container} other {Empty # Containers}}"
 
+msgid "{skippedRuleCount, plural, one {# lifecycle rule on this bucket could not be read and is hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete it. Fix it with an external S3 tool (e.g. the AWS CLI) first, then reload this page.} other {# lifecycle rules on this bucket could not be read and are hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete them. Fix them with an external S3 tool (e.g. the AWS CLI) first, then reload this page.}}"
+msgstr "{skippedRuleCount, plural, one {# lifecycle rule on this bucket could not be read and is hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete it. Fix it with an external S3 tool (e.g. the AWS CLI) first, then reload this page.} other {# lifecycle rules on this bucket could not be read and are hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete them. Fix them with an external S3 tool (e.g. the AWS CLI) first, then reload this page.}}"
+
 msgid "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{filteredCount} of {totalCount} bucket} other {{filteredCount} of {totalCount} buckets}}"
 
@@ -268,6 +271,12 @@ msgstr "Access Control Updated"
 
 msgid "Access Denied"
 msgstr "Access Denied"
+
+msgid "Access for project \"{targetTenant}\" was successfully revoked."
+msgstr "Access for project \"{targetTenant}\" was successfully revoked."
+
+msgid "Access Revoked"
+msgstr "Access Revoked"
 
 msgid "Access Status"
 msgstr "Access Status"
@@ -398,9 +407,6 @@ msgstr "Already active (will be skipped)"
 msgid "Already active (will be skipped):"
 msgstr "Already active (will be skipped):"
 
-msgid "Already deactivated (will be skipped)"
-msgstr "Already deactivated (will be skipped)"
-
 msgid "Already deactivated (will be skipped):"
 msgstr "Already deactivated (will be skipped):"
 
@@ -409,9 +415,6 @@ msgstr "Also delete all versions and all delete markers"
 
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr "An object with this name already exists at the destination and will be overwritten."
-
-msgid "An unexpected error occurred"
-msgstr "An unexpected error occurred"
 
 msgid "An unexpected error occurred."
 msgstr "An unexpected error occurred."
@@ -515,6 +518,9 @@ msgstr "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} object 
 msgid "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} objects deleted."
 msgstr "Bucket \"{bucketName}\" was successfully emptied. {deletedCount} objects deleted."
 
+msgid "Bucket actions"
+msgstr "Bucket actions"
+
 msgid "Bucket Created"
 msgstr "Bucket Created"
 
@@ -566,8 +572,14 @@ msgstr "Bucket name must start and end with a letter or number"
 msgid "Bucket Policy"
 msgstr "Bucket Policy"
 
+msgid "Bucket Policy Saved"
+msgstr "Bucket Policy Saved"
+
 msgid "Bucket policy was successfully deleted from \"{bucketName}\"."
 msgstr "Bucket policy was successfully deleted from \"{bucketName}\"."
+
+msgid "Bucket policy was successfully saved for \"{bucketName}\"."
+msgstr "Bucket policy was successfully saved for \"{bucketName}\"."
 
 msgid "Buckets to empty:"
 msgstr "Buckets to empty:"
@@ -584,13 +596,11 @@ msgstr "Cancel upload"
 msgid "Cannot be combined with Tag Filters"
 msgstr "Cannot be combined with Tag Filters"
 
-#. placeholder {0}: validation.errors.join("; ")
-msgid "Cannot delete rule: {0}"
-msgstr "Cannot delete rule: {0}"
+msgid "Cannot delete rule: {errorMsg}"
+msgstr "Cannot delete rule: {errorMsg}"
 
-#. placeholder {0}: validation.errors.join("; ")
-msgid "Cannot delete rules: {0}"
-msgstr "Cannot delete rules: {0}"
+msgid "Cannot delete rules: {errorMsg}"
+msgstr "Cannot delete rules: {errorMsg}"
 
 msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
 msgstr "Cannot move to the same location. Please select a different bucket, folder, or change the name."
@@ -706,9 +716,6 @@ msgstr "Container Name"
 msgid "Container name cannot contain slashes"
 msgstr "Container name cannot contain slashes"
 
-msgid "Container name does not match"
-msgstr "Container name does not match"
-
 msgid "Container name is required"
 msgstr "Container name is required"
 
@@ -736,8 +743,8 @@ msgstr "Containers Emptied"
 msgid "Containers Partially Emptied"
 msgstr "Containers Partially Emptied"
 
-msgid "Containers to be emptied ({totalCount})"
-msgstr "Containers to be emptied ({totalCount})"
+msgid "Containers to be emptied:"
+msgstr "Containers to be emptied:"
 
 msgid "Content type"
 msgstr "Content type"
@@ -753,9 +760,6 @@ msgstr "Copy"
 
 msgid "Copy {text} to clipboard"
 msgstr "Copy {text} to clipboard"
-
-msgid "Copy container name"
-msgstr "Copy container name"
 
 msgid "Copy metadata"
 msgstr "Copy metadata"
@@ -793,6 +797,9 @@ msgstr "CORS rule was successfully deleted from bucket \"{bucketName}\"."
 msgid "CORS Rules"
 msgstr "CORS Rules"
 
+msgid "Could not check permissions"
+msgstr "Could not check permissions"
+
 msgid "Could not copy \"{displayName}\": {errorMessage}"
 msgstr "Could not copy \"{displayName}\": {errorMessage}"
 
@@ -810,6 +817,9 @@ msgstr "Could not create folder \"{folderName}\": {errorMessage}"
 
 msgid "Could not create folder \"{folderPath}\": {errorMessage}"
 msgstr "Could not create folder \"{folderPath}\": {errorMessage}"
+
+msgid "Could not create security group rule: {errorMessage}"
+msgstr "Could not create security group rule: {errorMessage}"
 
 msgid "Could not delete \"{displayName}\": {errorMessage}"
 msgstr "Could not delete \"{displayName}\": {errorMessage}"
@@ -850,6 +860,12 @@ msgstr "Could not delete lifecycle rule from bucket \"{bucketName}\": {errorMess
 msgid "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not delete rule \"{ruleId}\" from bucket \"{bucketName}\": {errorMessage}"
 
+msgid "Could not delete security group rule: {errorMessage}"
+msgstr "Could not delete security group rule: {errorMessage}"
+
+msgid "Could not delete security group: {errorMessage}"
+msgstr "Could not delete security group: {errorMessage}"
+
 msgid "Could not delete version of \"{displayName}\": {errorMessage}"
 msgstr "Could not delete version of \"{displayName}\": {errorMessage}"
 
@@ -877,11 +893,20 @@ msgstr "Could not move \"{objectName}\": {errorMessage}"
 msgid "Could not restore \"{displayName}\": {errorMessage}"
 msgstr "Could not restore \"{displayName}\": {errorMessage}"
 
+msgid "Could not revoke access: {errorMessage}"
+msgstr "Could not revoke access: {errorMessage}"
+
+msgid "Could not save bucket policy for \"{bucketName}\": {errorMessage}"
+msgstr "Could not save bucket policy for \"{bucketName}\": {errorMessage}"
+
 msgid "Could not save CORS configuration for bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not save CORS configuration for bucket \"{bucketName}\": {errorMessage}"
 
 msgid "Could not save lifecycle rule for bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not save lifecycle rule for bucket \"{bucketName}\": {errorMessage}"
+
+msgid "Could not share security group: {errorMessage}"
+msgstr "Could not share security group: {errorMessage}"
 
 msgid "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not suspend versioning for bucket \"{bucketName}\": {errorMessage}"
@@ -897,6 +922,9 @@ msgstr "Could not update ACLs for container \"{containerName}\": {errorMessage}"
 
 msgid "Could not update container \"{containerName}\": {errorMessage}"
 msgstr "Could not update container \"{containerName}\": {errorMessage}"
+
+msgid "Could not update security group: {errorMessage}"
+msgstr "Could not update security group: {errorMessage}"
 
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "Could not upload \"{objectName}\": {errorMessage}"
@@ -1021,9 +1049,6 @@ msgstr "Deactivating this image will prevent it from being used to launch new in
 msgid "Define permissions for this bucket. You may use one of the predefined templates."
 msgstr "Define permissions for this bucket. You may use one of the predefined templates."
 
-msgid "delete"
-msgstr "delete"
-
 msgid "Delete"
 msgstr "Delete"
 
@@ -1057,6 +1082,9 @@ msgstr "Delete CORS Rules"
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
 
+msgid "Delete Flavor \"{flavorName}\""
+msgstr "Delete Flavor \"{flavorName}\""
+
 msgid "Delete Folder"
 msgstr "Delete Folder"
 
@@ -1068,6 +1096,9 @@ msgstr "Delete folder:"
 
 msgid "Delete Image"
 msgstr "Delete Image"
+
+msgid "Delete Image \"{imageName}\""
+msgstr "Delete Image \"{imageName}\""
 
 msgid "Delete Images"
 msgstr "Delete Images"
@@ -1150,14 +1181,14 @@ msgstr "Description must be less than 65535 characters."
 msgid "Detach"
 msgstr "Detach"
 
-msgid "Detach Floating IP {floating_ip_address}"
-msgstr "Detach Floating IP {floating_ip_address}"
-
-msgid "Detaching Floating IP..."
-msgstr "Detaching Floating IP..."
+msgid "Detach Floating IP \"{floating_ip_address}\""
+msgstr "Detach Floating IP \"{floating_ip_address}\""
 
 msgid "Detaching this Floating IP will remove its association with the current port. The instance will no longer be reachable through this address."
 msgstr "Detaching this Floating IP will remove its association with the current port. The instance will no longer be reachable through this address."
+
+msgid "Detaching..."
+msgstr "Detaching..."
 
 msgid "Details"
 msgstr "Details"
@@ -1549,6 +1580,9 @@ msgstr "Failed to Create Folder"
 msgid "Failed to create image. Please try again."
 msgstr "Failed to create image. Please try again."
 
+msgid "Failed to Create Rule"
+msgstr "Failed to Create Rule"
+
 msgid "Failed to create security group"
 msgstr "Failed to create security group"
 
@@ -1606,8 +1640,14 @@ msgstr "Failed to Delete Policy"
 msgid "Failed to delete rule"
 msgstr "Failed to delete rule"
 
+msgid "Failed to Delete Rule"
+msgstr "Failed to Delete Rule"
+
 msgid "Failed to delete security group"
 msgstr "Failed to delete security group"
+
+msgid "Failed to Delete Security Group"
+msgstr "Failed to Delete Security Group"
 
 msgid "Failed to delete the extra spec. Please try again."
 msgstr "Failed to delete the extra spec. Please try again."
@@ -1732,6 +1772,12 @@ msgstr "Failed to Restore Version"
 msgid "Failed to restore version: {errorMessage}"
 msgstr "Failed to restore version: {errorMessage}"
 
+msgid "Failed to Revoke Access"
+msgstr "Failed to Revoke Access"
+
+msgid "Failed to Save Bucket Policy"
+msgstr "Failed to Save Bucket Policy"
+
 msgid "Failed to Save CORS Configuration"
 msgstr "Failed to Save CORS Configuration"
 
@@ -1743,6 +1789,9 @@ msgstr "Failed to Save Lifecycle Rule"
 
 msgid "Failed to save policy"
 msgstr "Failed to save policy"
+
+msgid "Failed to Share Security Group"
+msgstr "Failed to Share Security Group"
 
 msgid "Failed to Suspend Versioning"
 msgstr "Failed to Suspend Versioning"
@@ -1770,6 +1819,9 @@ msgstr "Failed to update object: {mutationErrorMessage}"
 
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
+
+msgid "Failed to Update Security Group"
+msgstr "Failed to Update Security Group"
 
 msgid "Failed to update visibility for \"{imageName}\": {errorMessage}"
 msgstr "Failed to update visibility for \"{imageName}\": {errorMessage}"
@@ -1903,11 +1955,11 @@ msgstr "For more details, have a look at the <0>documentation</0>."
 msgid "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
 msgstr "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
 
+msgid "Full Path"
+msgstr "Full Path"
+
 msgid "Full path:"
 msgstr "Full path:"
-
-msgid "Full Path:"
-msgstr "Full Path:"
 
 msgid "General Image Data"
 msgstr "General Image Data"
@@ -2044,9 +2096,6 @@ msgstr "Images to activate:"
 msgid "Images to be activated ({deactivatedCount})"
 msgstr "Images to be activated ({deactivatedCount})"
 
-msgid "Images to be deactivated ({activeCount})"
-msgstr "Images to be deactivated ({activeCount})"
-
 msgid "Images to deactivate:"
 msgstr "Images to deactivate:"
 
@@ -2058,6 +2107,9 @@ msgstr "Ingress"
 
 msgid "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
 msgstr "Inside a project, objects are stored in containers. Containers are where you define access permissions and quotas."
+
+msgid "Insufficient permissions"
+msgstr "Insufficient permissions"
 
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
@@ -2125,9 +2177,6 @@ msgstr "Last Modified"
 msgid "Last modified (UTC)"
 msgstr "Last modified (UTC)"
 
-msgid "Last Modified:"
-msgstr "Last Modified:"
-
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
 
@@ -2160,6 +2209,9 @@ msgstr "Lifecycle rule was successfully saved for bucket \"{bucketName}\"."
 
 msgid "Lifecycle Rules"
 msgstr "Lifecycle Rules"
+
+msgid "Lifecycle rules cannot be modified"
+msgstr "Lifecycle rules cannot be modified"
 
 msgid "Limits"
 msgstr "Limits"
@@ -2197,11 +2249,11 @@ msgstr "Loading Flavors..."
 msgid "Loading Floating IP Details..."
 msgstr "Loading Floating IP Details..."
 
+msgid "Loading Floating IPs..."
+msgstr "Loading Floating IPs..."
+
 msgid "Loading Image Details..."
 msgstr "Loading Image Details..."
-
-msgid "Loading images..."
-msgstr "Loading images..."
 
 msgid "Loading Images..."
 msgstr "Loading Images..."
@@ -2235,6 +2287,9 @@ msgstr "Loading preview..."
 
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
+
+msgid "Loading Security Groups..."
+msgstr "Loading Security Groups..."
 
 msgid "Loading Server Groups..."
 msgstr "Loading Server Groups..."
@@ -2397,9 +2452,6 @@ msgstr "Name"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Name must be 2-50 characters long."
-
-msgid "Name:"
-msgstr "Name:"
 
 msgid "Network"
 msgstr "Network"
@@ -2854,9 +2906,6 @@ msgstr "Range"
 msgid "RBAC Policies"
 msgstr "RBAC Policies"
 
-msgid "RBAC Policy Details:"
-msgstr "RBAC Policy Details:"
-
 msgid "Read ACLs"
 msgstr "Read ACLs"
 
@@ -2872,11 +2921,11 @@ msgstr "Rejected"
 msgid "Release"
 msgstr "Release"
 
-msgid "Release Floating IP {floating_ip_address}"
-msgstr "Release Floating IP {floating_ip_address}"
+msgid "Release Floating IP \"{floating_ip_address}\""
+msgstr "Release Floating IP \"{floating_ip_address}\""
 
-msgid "Releasing Floating IP..."
-msgstr "Releasing Floating IP..."
+msgid "Releasing..."
+msgstr "Releasing..."
 
 msgid "Remaining Quota:"
 msgstr "Remaining Quota:"
@@ -2892,9 +2941,6 @@ msgstr "Remote Security Group"
 
 msgid "Remote Source"
 msgstr "Remote Source"
-
-msgid "remove"
-msgstr "remove"
 
 msgid "Remove"
 msgstr "Remove"
@@ -2956,10 +3002,14 @@ msgstr "rule"
 msgid "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 msgstr "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 
-#. placeholder {0}: index + 1
-#. placeholder {0}: ruleIndex + 1
-msgid "Rule #{0}"
-msgstr "Rule #{0}"
+msgid "Rule #{ruleNumber}"
+msgstr "Rule #{ruleNumber}"
+
+msgid "Rule Created"
+msgstr "Rule Created"
+
+msgid "Rule Deleted"
+msgstr "Rule Deleted"
 
 msgid "Rule Details:"
 msgstr "Rule Details:"
@@ -3048,11 +3098,35 @@ msgstr "Security"
 msgid "Security Group"
 msgstr "Security Group"
 
+msgid "Security group \"{name}\" was successfully deleted."
+msgstr "Security group \"{name}\" was successfully deleted."
+
+msgid "Security group \"{name}\" was successfully updated."
+msgstr "Security group \"{name}\" was successfully updated."
+
+msgid "Security Group Deleted"
+msgstr "Security Group Deleted"
+
 msgid "Security group name is required"
 msgstr "Security group name is required"
 
 msgid "Security group not found"
 msgstr "Security group not found"
+
+msgid "Security group rule was successfully created."
+msgstr "Security group rule was successfully created."
+
+msgid "Security group rule was successfully deleted."
+msgstr "Security group rule was successfully deleted."
+
+msgid "Security Group Shared"
+msgstr "Security Group Shared"
+
+msgid "Security Group Updated"
+msgstr "Security Group Updated"
+
+msgid "Security group was successfully shared with project \"{targetTenant}\"."
+msgstr "Security group was successfully shared with project \"{targetTenant}\"."
 
 msgid "Security Groups"
 msgstr "Security Groups"
@@ -3210,14 +3284,14 @@ msgstr "Showing {filteredCount} of {totalCount} projects"
 msgid "Showing {rulesLength} of {totalCount} rules"
 msgstr "Showing {rulesLength} of {totalCount} rules"
 
-msgid "Showing first {actualObjectCount} of {total} objects"
-msgstr "Showing first {actualObjectCount} of {total} objects"
-
 msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 msgstr "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 msgstr "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
+
+msgid "Showing first {shown} of {total} objects"
+msgstr "Showing first {shown} of {total} objects"
 
 msgid "Sign In"
 msgstr "Sign In"
@@ -3501,11 +3575,11 @@ msgstr "The tenant ID provided is invalid. Please check your input."
 msgid "The text must match \"delete\""
 msgstr "The text must match \"delete\""
 
-msgid "The text must match “detach” in lowercase."
-msgstr "The text must match “detach” in lowercase."
+msgid "The text must match \"detach\" in lowercase."
+msgstr "The text must match \"detach\" in lowercase."
 
-msgid "The text must match “release” in lowercase."
-msgstr "The text must match “release” in lowercase."
+msgid "The text must match \"release\" in lowercase."
+msgstr "The text must match \"release\" in lowercase."
 
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr "There are {bucketsCount} buckets, start typing to search"
@@ -3678,12 +3752,6 @@ msgstr "This will permanently delete all objects from {totalCount} selected {tot
 msgid "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
 msgstr "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
 
-msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
-msgstr "To confirm this action, type the word <0>“detach”</0> in the field below."
-
-msgid "To confirm this action, type the word <0>\"release\"</0> in the field below."
-msgstr "To confirm this action, type the word <0>\"release\"</0> in the field below."
-
 msgid "To confirm type <0>delete</0> in the field below."
 msgstr "To confirm type <0>delete</0> in the field below."
 
@@ -3720,32 +3788,14 @@ msgstr "Type \"delete\" to confirm"
 msgid "Type \"detach\" to confirm"
 msgstr "Type \"detach\" to confirm"
 
-msgid "Type “detach” to confirm"
-msgstr "Type “detach” to confirm"
-
 msgid "Type \"empty\" to confirm"
 msgstr "Type \"empty\" to confirm"
 
 msgid "Type \"release\" to confirm"
 msgstr "Type \"release\" to confirm"
 
-msgid "Type “release” to confirm"
-msgstr "Type “release” to confirm"
-
 msgid "Type \"remove\" to confirm"
 msgstr "Type \"remove\" to confirm"
-
-msgid "Type <0>{deleteWord}</0> to confirm:"
-msgstr "Type <0>{deleteWord}</0> to confirm:"
-
-msgid "Type <0>delete</0> to confirm:"
-msgstr "Type <0>delete</0> to confirm:"
-
-msgid "Type <0>remove</0> to confirm:"
-msgstr "Type <0>remove</0> to confirm:"
-
-msgid "Type container name to confirm"
-msgstr "Type container name to confirm"
 
 msgid "Type name"
 msgstr "Type name"
@@ -3939,6 +3989,9 @@ msgstr "Visibility"
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 
+msgid "We couldn't verify whether you can create S3 credentials. Please reload the page or try again later."
+msgstr "We couldn't verify whether you can create S3 credentials. Please reload the page or try again later."
+
 msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
 msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
 
@@ -4019,6 +4072,9 @@ msgstr "You don't have permission to create extra specs for this flavor."
 
 msgid "You don't have permission to create flavors in this project."
 msgstr "You don't have permission to create flavors in this project."
+
+msgid "You don't have permission to create S3 credentials. Please contact your administrator to request access to S3 Object Storage."
+msgstr "You don't have permission to create S3 credentials. Please contact your administrator to request access to S3 Object Storage."
 
 msgid "You don't have permission to delete extra specs for this flavor."
 msgstr "You don't have permission to delete extra specs for this flavor."

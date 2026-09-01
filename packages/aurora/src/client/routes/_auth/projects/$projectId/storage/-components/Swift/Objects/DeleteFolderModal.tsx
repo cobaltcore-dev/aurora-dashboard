@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Stack, Spinner, Message, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Spinner, TextInput } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { FolderRow } from "./"
 
@@ -79,7 +79,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
   return (
     <Modal
       title={
-        <span className="flex max-w-[400px] items-center gap-1">
+        <span className="flex max-w-100 items-center gap-1">
           <span className="shrink-0">
             <Trans>Delete folder:</Trans>
           </span>
@@ -104,12 +104,12 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
         </Stack>
       ) : (
         <Stack direction="vertical" gap="4">
-          <Message variant="danger">
+          <p className="text-theme-default">
             <Trans>
               Folder <span className="font-semibold">"{folderDisplayName}"</span> and all objects within it will be
               permanently deleted. This cannot be undone.
             </Trans>
-          </Message>
+          </p>
           <p className="text-theme-default">
             <Trans>
               Note: for <strong>static and dynamic large objects</strong> only the manifests are deleted — their

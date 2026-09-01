@@ -10,7 +10,7 @@ import {
   PopupMenuOptions,
   PopupMenuToggle,
   SearchInput,
-  Spinner,
+  Status,
   Stack,
   toast,
 } from "@cloudoperators/juno-ui-components"
@@ -389,12 +389,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   }
 
   if (isLoading) {
-    return (
-      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Objects...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={t`Loading Objects...`} />
   }
 
   // #1142: on load error we don't render the technical message anymore. The

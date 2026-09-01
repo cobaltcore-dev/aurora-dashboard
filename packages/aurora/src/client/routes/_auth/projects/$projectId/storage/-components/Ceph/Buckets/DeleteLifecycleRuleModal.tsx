@@ -144,7 +144,8 @@ export const DeleteLifecycleRuleModal = ({
         // Other rules remain - validate and set
         const validation = validateLifecycleRules(remaining)
         if (!validation.ok) {
-          onError?.(ruleIndex, t`Cannot delete rule: ${validation.errors.join("; ")}`)
+          const errorMsg = validation.errors.join("; ")
+          onError?.(ruleIndex, t`Cannot delete rule: ${errorMsg}`)
           return
         }
 
@@ -163,7 +164,8 @@ export const DeleteLifecycleRuleModal = ({
     }
   }
 
-  const displayName = ruleId || t`Rule #${ruleIndex + 1}`
+  const ruleNumber = ruleIndex + 1
+  const displayName = ruleId || t`Rule #${ruleNumber}`
 
   return (
     <Modal

@@ -1,4 +1,6 @@
-import { useState, useRef } from "react"
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
+import { useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -7,17 +9,14 @@ import {
   ModalFooter,
   Button,
   ButtonRow,
+  Form,
+  FormSection,
   TextInput,
   Stack,
   Spinner,
-  DataGrid,
-  DataGridRow,
-  DataGridHeadCell,
-  DataGridCell,
-  Icon,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary, ObjectSummary } from "@/server/Storage/types/swift"
-import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface EmptyContainerModalProps {
   isOpen: boolean
@@ -30,18 +29,36 @@ interface EmptyContainerModalProps {
 export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onError }: EmptyContainerModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const [confirmName, setConfirmName] = useState("")
-  const [nameError, setNameError] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
   const containerNameRef = useRef("")
 
-  const handleCopyName = () => {
-    if (!container) return
-    navigator.clipboard.writeText(container.name).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
-  }
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.swift.container.empty",
+  })
+
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "empty", {
+      message: t`Type "empty" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (!container || emptyContainerMutation.isPending) return
+
+      containerNameRef.current = container.name
+      markSubmitted()
+      emptyContainerMutation.mutate({ project_id: projectId, container: container.name })
+    },
+  })
+
+  const canEmpty = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "empty")
 
   const utils = trpcReact.useUtils()
 
@@ -71,30 +88,11 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
   })
 
   const handleClose = () => {
-    setConfirmName("")
-    setNameError(null)
+    trackClose()
+    form.reset()
     emptyContainerMutation.reset()
+    resetTracking()
     onClose()
-  }
-
-  const handleConfirmNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setConfirmName(value)
-    if (nameError) setNameError(null)
-  }
-
-  const handleSubmit = () => {
-    if (!container) return
-    if (confirmName.trim() !== container.name) {
-      setNameError(t`Container name does not match`)
-      return
-    }
-    containerNameRef.current = container.name
-    emptyContainerMutation.mutate({ project_id: projectId, container: container.name })
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSubmit()
   }
 
   if (!isOpen || !container) return null
@@ -119,16 +117,6 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       <span className="truncate" title={container.name}>
         {container.name}
       </span>
-      {!isLoadingObjects && !showEmptyInfo && (
-        <button
-          type="button"
-          onClick={handleCopyName}
-          title={copied ? t`Copied!` : t`Copy container name`}
-          className="text-theme-light hover:text-theme-default inline-flex items-center transition-colors"
-        >
-          <Icon icon={copied ? "checkCircle" : "contentCopy"} size="16" />
-        </button>
-      )}
     </span>
   )
 
@@ -139,7 +127,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
       onCancel={handleClose}
       confirmButtonLabel={showEmptyInfo ? undefined : t`Empty Container`}
       confirmButtonVariant="primary-danger"
-      onConfirm={showEmptyInfo ? undefined : handleSubmit}
+      onConfirm={showEmptyInfo ? undefined : form.handleSubmit}
       cancelButtonLabel={showEmptyInfo ? undefined : t`Cancel`}
       modalFooter={
         showEmptyInfo ? (
@@ -152,13 +140,8 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
           </ModalFooter>
         ) : undefined
       }
-      size="small"
-      disableConfirmButton={
-        isLoadingObjects ||
-        emptyContainerMutation.isPending ||
-        (!showEmptyInfo && !confirmName.trim()) ||
-        (!showEmptyInfo && confirmName.trim() !== container.name)
-      }
+      size="large"
+      disableConfirmButton={isLoadingObjects || emptyContainerMutation.isPending || (!showEmptyInfo && canEmpty)}
     >
       {objectsError && (
         <p className="text-theme-error mb-4">
@@ -199,61 +182,66 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
           </p>
 
           {/* Object list preview — capped at first 100 */}
-          <div className="border-theme-background-lvl-3 overflow-hidden rounded border">
-            {container.count > actualObjectCount && (
-              <p className="text-theme-light px-3 py-2 text-xs">
-                {(() => {
-                  const total = container.count
-                  return (
-                    <Trans>
-                      Showing first {actualObjectCount} of {total} objects
-                    </Trans>
-                  )
-                })()}
-              </p>
-            )}
-            <DataGrid columns={3} className="text-sm">
-              <DataGridRow>
-                <DataGridHeadCell>
-                  <Trans>Name</Trans>
-                </DataGridHeadCell>
-                <DataGridHeadCell>
-                  <Trans>Size</Trans>
-                </DataGridHeadCell>
-                <DataGridHeadCell>
-                  <Trans>Last Modified</Trans>
-                </DataGridHeadCell>
-              </DataGridRow>
-            </DataGrid>
-            <div className="max-h-48 overflow-y-auto">
-              <DataGrid columns={3} className="text-sm">
+          <div>
+            <p className="text-sm font-semibold">
+              <Trans>Objects to delete:</Trans>
+            </p>
+            <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
+              <Stack direction="vertical" gap="1">
                 {(objects as ObjectSummary[]).map((obj) => (
-                  <DataGridRow key={obj.name}>
-                    <DataGridCell className="max-w-50 truncate" title={obj.name}>
-                      {obj.name}
-                    </DataGridCell>
-                    <DataGridCell>{formatBytesBinary(obj.bytes)}</DataGridCell>
-                    <DataGridCell>
-                      {obj.last_modified ? new Date(obj.last_modified).toLocaleString() : t`N/A`}
-                    </DataGridCell>
-                  </DataGridRow>
+                  <div key={obj.name} className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]">
+                    {obj.name}
+                  </div>
                 ))}
-              </DataGrid>
+                {container.count > actualObjectCount && (
+                  <div className="text-theme-light pt-2 text-sm">
+                    {(() => {
+                      const shown = actualObjectCount
+                      const total = container.count
+                      return (
+                        <Trans>
+                          Showing first {shown} of {total} objects
+                        </Trans>
+                      )
+                    })()}
+                  </div>
+                )}
+              </Stack>
             </div>
           </div>
 
-          <TextInput
-            label={t`Type container name to confirm`}
-            required
-            value={confirmName}
-            onChange={handleConfirmNameChange}
-            onKeyDown={handleKeyDown}
-            invalid={!!nameError}
-            errortext={nameError || undefined}
-            disabled={emptyContainerMutation.isPending}
-            autoFocus
-            placeholder={container.name}
-          />
+          <Form
+            className="mb-0"
+            id="empty-container-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
+            }}
+          >
+            <FormSection>
+              <form.Field
+                name="confirm"
+                children={(field) => (
+                  <TextInput
+                    id={field.name}
+                    name={field.name}
+                    label={t`Type "empty" to confirm`}
+                    required
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    invalid={field.state.meta.errors.length > 0}
+                    errortext={
+                      field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ") ||
+                      undefined
+                    }
+                    disabled={emptyContainerMutation.isPending}
+                    autoFocus
+                    placeholder="empty"
+                  />
+                )}
+              />
+            </FormSection>
+          </Form>
         </Stack>
       ) : null}
     </Modal>

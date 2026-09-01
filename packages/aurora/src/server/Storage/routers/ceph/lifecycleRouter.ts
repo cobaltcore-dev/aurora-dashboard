@@ -26,7 +26,7 @@ function checkLifecycleSetRateLimit(bucketName: string, projectId: string): void
 
   const limit = lifecycleSetRateLimits.get(key)
 
-  if (!limit || now > limit.resetAt) {
+  if (!limit || now >= limit.resetAt) {
     lifecycleSetRateLimits.set(key, { count: 1, resetAt: now + windowMs })
     // Self-clean this one key after its window closes — O(1) per key, no full-map scan.
     setTimeout(() => {

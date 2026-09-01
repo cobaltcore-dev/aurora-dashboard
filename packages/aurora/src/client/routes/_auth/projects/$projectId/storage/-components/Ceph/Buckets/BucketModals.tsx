@@ -14,6 +14,8 @@ import {
   getVersioningEnableErrorToast,
   getVersioningSuspendedToast,
   getVersioningSuspendErrorToast,
+  getBucketPolicySavedToast,
+  getBucketPolicySaveErrorToast,
   getBucketPolicyDeletedToast,
   getBucketPolicyDeleteErrorToast,
   getVersionsDeletedToast,
@@ -108,7 +110,23 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
         }}
       />
 
-      <BucketPolicyModal isOpen={activeModal === "policy"} bucketName={bucketName} onClose={onClose} />
+      <BucketPolicyModal
+        isOpen={activeModal === "policy"}
+        bucketName={bucketName}
+        onClose={onClose}
+        onSuccess={(bucketName, action) => {
+          const { message, ...options } =
+            action === "deleted" ? getBucketPolicyDeletedToast(bucketName) : getBucketPolicySavedToast(bucketName)
+          toast.success(message, options)
+        }}
+        onError={(bucketName, errorMessage, action) => {
+          const { message, ...options } =
+            action === "deleted"
+              ? getBucketPolicyDeleteErrorToast(bucketName, errorMessage)
+              : getBucketPolicySaveErrorToast(bucketName, errorMessage)
+          toast.error(message, options)
+        }}
+      />
 
       <DeleteBucketPolicyModal
         isOpen={activeModal === "deletePolicy"}

@@ -10,6 +10,7 @@ import {
   Button,
   Message,
   SearchInput,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
@@ -18,6 +19,10 @@ import { RBACPolicyRow } from "./RBACPolicyRow"
 import { AddRBACPolicyModal } from "../../-modals/AddRBACPolicyModal"
 import { DeleteRBACPolicyDialog } from "../../-modals/DeleteRBACPolicyDialog"
 import { useModal } from "@/client/utils/useModal"
+import {
+  getRBACPolicyDeletedToast,
+  getRBACPolicyDeleteErrorToast,
+} from "../../../-components/SecurityGroupToastNotifications"
 
 interface SecurityGroupRBACPoliciesProps {
   securityGroupId: string
@@ -56,6 +61,10 @@ export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: 
       utils.network.rbacPolicy.list.invalidate({ project_id: projectId, securityGroupId })
       utils.network.securityGroup.getById.invalidate({ project_id: projectId, securityGroupId })
     },
+    onError: (error) => {
+      const { message, ...options } = getRBACPolicyDeleteErrorToast(error.message)
+      toast.error(message, options)
+    },
   })
 
   const handleDeleteClick = (policy: RBACPolicy) => {
@@ -63,7 +72,16 @@ export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: 
   }
 
   const handleConfirmDelete = (policyId: string) => {
-    deleteMutation.mutate({ project_id: projectId, policyId })
+    const targetTenant = policyToDelete?.target_tenant || policyId
+    deleteMutation.mutate(
+      { project_id: projectId, policyId },
+      {
+        onSuccess: () => {
+          const { message, ...options } = getRBACPolicyDeletedToast(targetTenant)
+          toast.success(message, options)
+        },
+      }
+    )
   }
 
   const handleCloseDeleteDialog = () => {

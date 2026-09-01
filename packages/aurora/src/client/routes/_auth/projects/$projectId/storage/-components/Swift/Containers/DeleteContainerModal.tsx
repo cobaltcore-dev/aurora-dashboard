@@ -1,9 +1,12 @@
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
 import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Spinner, Checkbox } from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, TextInput, Stack, Spinner, Checkbox } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteContainerModalProps {
   isOpen: boolean
@@ -16,9 +19,36 @@ interface DeleteContainerModalProps {
 export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, onError }: DeleteContainerModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
-  const [confirmName, setConfirmName] = useState("")
-  const [nameError, setNameError] = useState<string | null>(null)
   const [versionsConfirmed, setVersionsConfirmed] = useState(false)
+
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.swift.container.delete",
+  })
+
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "delete", {
+      message: t`The text must match "delete"`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (!container || objectsError || metaError || deleteContainerMutation.isPending) return
+      if (isVersioned && !versionsConfirmed) return
+
+      markSubmitted()
+      deleteContainerMutation.mutate({ project_id: projectId, container: container.name })
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "delete")
 
   const utils = trpcReact.useUtils()
 
@@ -61,40 +91,18 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
 
   useEffect(() => {
     if (!isOpen) {
-      setConfirmName("")
-      setNameError(null)
       setVersionsConfirmed(false)
       deleteContainerMutation.reset()
+      form.reset()
+      resetTracking()
     }
-  }, [isOpen, container?.name])
+  }, [isOpen, container?.name, resetTracking])
 
   const handleClose = () => {
-    setConfirmName("")
-    setNameError(null)
+    trackClose()
     setVersionsConfirmed(false)
     deleteContainerMutation.reset()
     onClose()
-  }
-
-  const handleConfirmNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setConfirmName(value)
-    if (nameError) setNameError(null)
-  }
-
-  const handleSubmit = () => {
-    if (!container) return
-    if (objectsError || metaError) return
-    if (confirmName.trim() !== "delete") {
-      setNameError(t`The text must match "delete"`)
-      return
-    }
-    if (isVersioned && !versionsConfirmed) return
-    deleteContainerMutation.mutate({ project_id: projectId, container: container.name })
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSubmit()
   }
 
   if (!isOpen || !container) return null
@@ -111,7 +119,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
   const hasPreflightError = !!(objectsError || metaError)
 
   const modalTitle = (
-    <span className="flex max-w-[400px] items-center gap-2">
+    <span className="flex max-w-100 items-center gap-2">
       <span className="shrink-0">
         <Trans>Delete container:</Trans>
       </span>
@@ -128,14 +136,14 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
       onCancel={handleClose}
       confirmButtonLabel={hasObjects ? t`Close` : t`Delete Container`}
       confirmButtonVariant={hasObjects ? "primary" : "primary-danger"}
-      onConfirm={hasObjects ? handleClose : handleSubmit}
+      onConfirm={hasObjects ? handleClose : form.handleSubmit}
       cancelButtonLabel={hasObjects ? undefined : t`Cancel`}
       size="small"
       disableConfirmButton={
         isLoadingObjects ||
         hasPreflightError ||
         deleteContainerMutation.isPending ||
-        (!hasObjects && confirmName.trim() !== "delete") ||
+        (!hasObjects && canDelete) ||
         (!hasObjects && isVersioned && !versionsConfirmed)
       }
     >
@@ -196,18 +204,46 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVersionsConfirmed(e.target.checked)}
             />
           )}
-          <TextInput
-            label={t`Type "delete" to confirm`}
-            required
-            value={confirmName}
-            onChange={handleConfirmNameChange}
-            onKeyDown={handleKeyDown}
-            invalid={!!nameError}
-            errortext={nameError || undefined}
-            disabled={deleteContainerMutation.isPending}
-            autoFocus
-            placeholder={t`delete`}
-          />
+          <Form
+            className="mb-0"
+            id="delete-container-form"
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
+            }}
+          >
+            <FormSection>
+              <form.Field
+                name="confirm"
+                validators={{
+                  onSubmit: ({ value }) => {
+                    if (value !== "delete") {
+                      return t`The text must match "delete"`
+                    }
+                    return undefined
+                  },
+                }}
+                children={(field) => (
+                  <TextInput
+                    label={t`Type "delete" to confirm`}
+                    required
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    invalid={!!field.state.meta.errors.length}
+                    errortext={
+                      field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ") ||
+                      undefined
+                    }
+                    disabled={deleteContainerMutation.isPending}
+                    autoFocus
+                    placeholder="delete"
+                  />
+                )}
+              />
+            </FormSection>
+          </Form>
         </Stack>
       )}
     </Modal>

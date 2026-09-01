@@ -12,8 +12,8 @@ interface BucketPolicyModalProps {
   isOpen: boolean
   bucketName: string
   onClose: () => void
-  onSuccess?: (bucketName: string) => void
-  onError?: (bucketName: string, errorMessage: string) => void
+  onSuccess?: (bucketName: string, action: "saved" | "deleted") => void
+  onError?: (bucketName: string, errorMessage: string, action: "saved" | "deleted") => void
 }
 
 interface PolicyTemplate {
@@ -119,11 +119,11 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const setMutation = trpcReact.storage.ceph.bucketPolicy.set.useMutation({
     onSuccess: () => {
       utils.storage.ceph.bucketPolicy.get.invalidate()
-      onSuccess?.(bucketName)
+      onSuccess?.(bucketName, "saved")
       handleClose()
     },
     onError: (error) => {
-      onError?.(bucketName, error.message)
+      onError?.(bucketName, error.message, "saved")
     },
   })
 
@@ -131,11 +131,11 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   const deleteMutation = trpcReact.storage.ceph.bucketPolicy.delete.useMutation({
     onSuccess: () => {
       utils.storage.ceph.bucketPolicy.get.invalidate()
-      onSuccess?.(bucketName)
+      onSuccess?.(bucketName, "deleted")
       handleClose()
     },
     onError: (error) => {
-      onError?.(bucketName, error.message)
+      onError?.(bucketName, error.message, "deleted")
     },
   })
 
@@ -204,6 +204,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
   }, [isOpen, policyData, form, bucketName])
 
   const handleClose = () => {
+    trackClose()
     form.reset()
     setMutation.reset()
     deleteMutation.reset()
@@ -274,10 +275,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       key={bucketName} // Remount when bucket changes
       title={t`Edit/View Bucket Policy`}
       open={isOpen}
-      onCancel={() => {
-        trackClose()
-        handleClose()
-      }}
+      onCancel={handleClose}
       confirmButtonLabel={t`Save`}
       onConfirm={handleSave}
       cancelButtonLabel={t`Cancel`}

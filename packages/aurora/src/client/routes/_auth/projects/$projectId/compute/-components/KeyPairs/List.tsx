@@ -4,8 +4,8 @@ import { Keypair } from "@/server/Compute/types/keypair"
 import { TrpcClient } from "@/client/trpcClient"
 
 import { Suspense, use } from "react"
-import { Trans } from "@lingui/react/macro"
-import { Spinner, Stack } from "@cloudoperators/juno-ui-components/index"
+import { Trans, useLingui } from "@lingui/react/macro"
+import { Status } from "@cloudoperators/juno-ui-components/index"
 
 interface KeyPairsContainerProps {
   getKeyPairsPromise: Promise<Keypair[] | undefined>
@@ -30,16 +30,10 @@ interface KeyPairsProps {
 
 export function KeyPairs({ client, project }: KeyPairsProps) {
   const getKeyPairsPromise = client.compute.getKeypairsByProjectId.query({ project_id: project })
+  const { t } = useLingui()
 
   return (
-    <Suspense
-      fallback={
-        <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-          <Spinner variant="primary" size="large" className="mb-2" />
-          <Trans>Loading Key Pairs...</Trans>
-        </Stack>
-      }
-    >
+    <Suspense fallback={<Status status="progress" title={t`Loading Key Pairs...`} />}>
       <KeyPairsContainer getKeyPairsPromise={getKeyPairsPromise} />
     </Suspense>
   )

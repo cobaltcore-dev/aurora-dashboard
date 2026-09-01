@@ -2,15 +2,14 @@ import { ReactNode } from "react"
 import { NotificationOptions } from "@cloudoperators/juno-ui-components"
 import { Trans, Plural } from "@lingui/react/macro"
 
-export const getBucketCreatedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+type ToastReturnType = { message: ReactNode } & NotificationOptions
+
+export const getBucketCreatedToast = (bucketName: string): ToastReturnType => ({
   message: <Trans>Bucket Created</Trans>,
   description: <Trans>Bucket "{bucketName}" was successfully created.</Trans>,
 })
 
-export const getBucketCreateErrorToast = (
-  bucketName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getBucketCreateErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
   message: <Trans>Failed to Create Bucket</Trans>,
   description: (
     <Trans>
@@ -19,10 +18,7 @@ export const getBucketCreateErrorToast = (
   ),
 })
 
-export const getBucketEmptiedToast = (
-  bucketName: string,
-  deletedCount: number
-): { message: ReactNode } & NotificationOptions => ({
+export const getBucketEmptiedToast = (bucketName: string, deletedCount: number): ToastReturnType => ({
   message: <Trans>Bucket Emptied</Trans>,
   description:
     deletedCount === 0 ? (
@@ -38,10 +34,7 @@ export const getBucketEmptiedToast = (
     ),
 })
 
-export const getBucketEmptyErrorToast = (
-  bucketName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getBucketEmptyErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
   message: <Trans>Failed to Empty Bucket</Trans>,
   description: (
     <Trans>
@@ -50,15 +43,12 @@ export const getBucketEmptyErrorToast = (
   ),
 })
 
-export const getBucketDeletedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+export const getBucketDeletedToast = (bucketName: string): ToastReturnType => ({
   message: <Trans>Bucket Deleted</Trans>,
   description: <Trans>Bucket "{bucketName}" was successfully deleted.</Trans>,
 })
 
-export const getBucketDeleteErrorToast = (
-  bucketName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getBucketDeleteErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
   message: <Trans>Failed to Delete Bucket</Trans>,
   description: (
     <Trans>
@@ -71,7 +61,7 @@ export const getBucketsEmptyCompleteToast = (
   emptiedCount: number,
   totalDeleted: number,
   errors: string[]
-): { message: ReactNode } & NotificationOptions => {
+): ToastReturnType => {
   const hasErrors = errors.length > 0
   const totalBuckets = emptiedCount + errors.length
   const errorsLength = errors.length
@@ -96,15 +86,12 @@ export const getBucketsEmptyCompleteToast = (
 
 // ── Versioning operations ──────────────────────────────────────────────────
 
-export const getVersioningEnabledToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+export const getVersioningEnabledToast = (bucketName: string): ToastReturnType => ({
   message: <Trans>Versioning Enabled</Trans>,
   description: <Trans>Versioning was successfully enabled for bucket "{bucketName}".</Trans>,
 })
 
-export const getVersioningEnableErrorToast = (
-  bucketName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getVersioningEnableErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
   message: <Trans>Failed to Enable Versioning</Trans>,
   description: (
     <Trans>
@@ -113,15 +100,12 @@ export const getVersioningEnableErrorToast = (
   ),
 })
 
-export const getVersioningSuspendedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+export const getVersioningSuspendedToast = (bucketName: string): ToastReturnType => ({
   message: <Trans>Versioning Suspended</Trans>,
   description: <Trans>Versioning was successfully suspended for bucket "{bucketName}".</Trans>,
 })
 
-export const getVersioningSuspendErrorToast = (
-  bucketName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getVersioningSuspendErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
   message: <Trans>Failed to Suspend Versioning</Trans>,
   description: (
     <Trans>
@@ -132,15 +116,26 @@ export const getVersioningSuspendErrorToast = (
 
 // ── Bucket policy operations ───────────────────────────────────────────────
 
-export const getBucketPolicyDeletedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+export const getBucketPolicySavedToast = (bucketName: string): ToastReturnType => ({
+  message: <Trans>Bucket Policy Saved</Trans>,
+  description: <Trans>Bucket policy was successfully saved for "{bucketName}".</Trans>,
+})
+
+export const getBucketPolicySaveErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
+  message: <Trans>Failed to Save Bucket Policy</Trans>,
+  description: (
+    <Trans>
+      Could not save bucket policy for "{bucketName}": {errorMessage}
+    </Trans>
+  ),
+})
+
+export const getBucketPolicyDeletedToast = (bucketName: string): ToastReturnType => ({
   message: <Trans>Policy Deleted</Trans>,
   description: <Trans>Bucket policy was successfully deleted from "{bucketName}".</Trans>,
 })
 
-export const getBucketPolicyDeleteErrorToast = (
-  bucketName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getBucketPolicyDeleteErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
   message: <Trans>Failed to Delete Policy</Trans>,
   description: (
     <Trans>
@@ -151,10 +146,7 @@ export const getBucketPolicyDeleteErrorToast = (
 
 // ── Delete versions operation ──────────────────────────────────────────────
 
-export const getVersionsDeletedToast = (
-  bucketName: string,
-  deletedCount: number
-): { message: ReactNode } & NotificationOptions => ({
+export const getVersionsDeletedToast = (bucketName: string, deletedCount: number): ToastReturnType => ({
   message: <Trans>Versions Deleted</Trans>,
   description:
     deletedCount === 0 ? (
@@ -170,10 +162,7 @@ export const getVersionsDeletedToast = (
     ),
 })
 
-export const getVersionsDeleteErrorToast = (
-  bucketName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getVersionsDeleteErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
   message: <Trans>Failed to Delete Versions</Trans>,
   description: (
     <Trans>
@@ -184,15 +173,12 @@ export const getVersionsDeleteErrorToast = (
 
 // ── CORS configuration operations ──────────────────────────────────────────
 
-export const getCorsSavedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+export const getCorsSavedToast = (bucketName: string): ToastReturnType => ({
   message: <Trans>CORS Configuration Saved</Trans>,
   description: <Trans>CORS configuration was successfully saved for bucket "{bucketName}".</Trans>,
 })
 
-export const getCorsSaveErrorToast = (
-  bucketName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getCorsSaveErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
   message: <Trans>Failed to Save CORS Configuration</Trans>,
   description: (
     <Trans>
@@ -201,10 +187,7 @@ export const getCorsSaveErrorToast = (
   ),
 })
 
-export const getCorsRuleDeletedToast = (
-  bucketName: string,
-  ruleId?: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getCorsRuleDeletedToast = (bucketName: string, ruleId?: string): ToastReturnType => ({
   message: <Trans>CORS Rule Deleted</Trans>,
   description: ruleId ? (
     <Trans>
@@ -219,7 +202,7 @@ export const getCorsRuleDeleteErrorToast = (
   bucketName: string,
   errorMessage: string,
   ruleId?: string
-): { message: ReactNode } & NotificationOptions => ({
+): ToastReturnType => ({
   message: <Trans>Failed to Delete CORS Rule</Trans>,
   description: ruleId ? (
     <Trans>
@@ -232,10 +215,7 @@ export const getCorsRuleDeleteErrorToast = (
   ),
 })
 
-export const getCorsRulesDeletedToast = (
-  bucketName: string,
-  count: number
-): { message: ReactNode } & NotificationOptions => ({
+export const getCorsRulesDeletedToast = (bucketName: string, count: number): ToastReturnType => ({
   message: <Plural value={count} one="CORS Rule Deleted" other="CORS Rules Deleted" />,
   description:
     count === 1 ? (
@@ -253,7 +233,7 @@ export const getCorsRulesDeleteErrorToast = (
   bucketName: string,
   count: number,
   errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+): ToastReturnType => ({
   message: <Plural value={count} one="Failed to Delete CORS Rule" other="Failed to Delete CORS Rules" />,
   description:
     count === 1 ? (
@@ -269,15 +249,12 @@ export const getCorsRulesDeleteErrorToast = (
 
 // ── Per-rule Lifecycle operations ───────────────────────────────────────────
 
-export const getLifecycleSavedToast = (bucketName: string): { message: ReactNode } & NotificationOptions => ({
+export const getLifecycleSavedToast = (bucketName: string): ToastReturnType => ({
   message: <Trans>Lifecycle Rule Saved</Trans>,
   description: <Trans>Lifecycle rule was successfully saved for bucket "{bucketName}".</Trans>,
 })
 
-export const getLifecycleSaveErrorToast = (
-  bucketName: string,
-  errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getLifecycleSaveErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
   message: <Trans>Failed to Save Lifecycle Rule</Trans>,
   description: (
     <Trans>
@@ -286,10 +263,7 @@ export const getLifecycleSaveErrorToast = (
   ),
 })
 
-export const getLifecycleRuleDeletedToast = (
-  bucketName: string,
-  ruleId?: string
-): { message: ReactNode } & NotificationOptions => ({
+export const getLifecycleRuleDeletedToast = (bucketName: string, ruleId?: string): ToastReturnType => ({
   message: <Trans>Lifecycle Rule Deleted</Trans>,
   description: ruleId ? (
     <Trans>
@@ -304,7 +278,7 @@ export const getLifecycleRuleDeleteErrorToast = (
   bucketName: string,
   errorMessage: string,
   ruleId?: string
-): { message: ReactNode } & NotificationOptions => ({
+): ToastReturnType => ({
   message: <Trans>Failed to Delete Lifecycle Rule</Trans>,
   description: ruleId ? (
     <Trans>
@@ -317,10 +291,7 @@ export const getLifecycleRuleDeleteErrorToast = (
   ),
 })
 
-export const getLifecycleRulesDeletedToast = (
-  bucketName: string,
-  count: number
-): { message: ReactNode } & NotificationOptions => ({
+export const getLifecycleRulesDeletedToast = (bucketName: string, count: number): ToastReturnType => ({
   message: <Plural value={count} one="Lifecycle Rule Deleted" other="Lifecycle Rules Deleted" />,
   description:
     count === 1 ? (
@@ -338,7 +309,7 @@ export const getLifecycleRulesDeleteErrorToast = (
   bucketName: string,
   count: number,
   errorMessage: string
-): { message: ReactNode } & NotificationOptions => ({
+): ToastReturnType => ({
   message: <Plural value={count} one="Failed to Delete Lifecycle Rule" other="Failed to Delete Lifecycle Rules" />,
   description:
     count === 1 ? (

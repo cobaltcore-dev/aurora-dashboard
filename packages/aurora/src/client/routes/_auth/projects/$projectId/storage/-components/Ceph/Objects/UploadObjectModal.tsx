@@ -180,7 +180,7 @@ export const UploadObjectModal = ({
   return (
     <Modal
       title={
-        <span className="flex max-w-[400px] items-center gap-1">
+        <span className="flex max-w-100 items-center gap-1">
           <span className="shrink-0">
             <Trans>Upload object to:</Trans>
           </span>

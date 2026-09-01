@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, startTransition, useMemo } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { plural } from "@lingui/core/macro"
 import {
-  Spinner,
+  Status,
   Stack,
   Button,
   toast,
@@ -19,6 +19,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useCephPermissions } from "../hooks/useCephPermissions"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { ObjectsTableView } from "./ObjectsTableView"
@@ -68,6 +69,7 @@ type SortKey = "name" | "lastModified" | "size" | "last_modified" | "bytes"
 export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
+  const { permissions } = useCephPermissions(projectId ?? "")
   const navigate = useNavigate({ from: Route.fullPath })
   const { provider, storageType } = Route.useParams()
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "", tab = "all" } = Route.useSearch()
@@ -93,9 +95,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [selectedItems, setSelectedItems] = useState<{ key: string; versionId?: string }[]>([])
   const [isDeleteObjectsModalOpen, setIsDeleteObjectsModalOpen] = useState(false)
 
-  // TODO(perms): wire to storage.canUser({ permission: "storage:objects:delete" })
-  // instead of hardcoding — mirrors the Swift objects list.
-  const hasAnyBulkAction = true
+  // The bulk action in the "deleted" tab permanently deletes versions/delete markers; in
+  // "all" it deletes current objects - these are gated by different permissions.
+  const hasAnyBulkAction = tab === "deleted" ? permissions.canDeleteVersion : permissions.canDeleteObject
 
   // Local mirror of the committed search term so typing stays responsive while
   // the URL commit is debounced (see Zone 2 SearchInput below).
@@ -655,21 +657,25 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
               />
             </Stack>
             <Stack gap="0.5" alignment="center">
-              <PopupMenu className="flex items-center">
-                <PopupMenuToggle as="div">
-                  <Button icon="moreVert" title={t`More Actions`} />
-                </PopupMenuToggle>
-                <PopupMenuOptions>
-                  <PopupMenuItem
-                    label={t`Create Folder`}
-                    onClick={() => setIsCreateFolderModalOpen(true)}
-                    data-testid="create-folder-action"
-                  />
-                </PopupMenuOptions>
-              </PopupMenu>
-              <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsUploadModalOpen(true)}>
-                <Trans>Upload Object</Trans>
-              </Button>
+              {permissions.canCreateFolder && (
+                <PopupMenu className="flex items-center">
+                  <PopupMenuToggle as="div">
+                    <Button icon="moreVert" title={t`More Actions`} />
+                  </PopupMenuToggle>
+                  <PopupMenuOptions>
+                    <PopupMenuItem
+                      label={t`Create Folder`}
+                      onClick={() => setIsCreateFolderModalOpen(true)}
+                      data-testid="create-folder-action"
+                    />
+                  </PopupMenuOptions>
+                </PopupMenu>
+              )}
+              {permissions.canCreateObject && (
+                <Button variant="primary" className="whitespace-nowrap" onClick={() => setIsUploadModalOpen(true)}>
+                  <Trans>Upload Object</Trans>
+                </Button>
+              )}
             </Stack>
           </Stack>
         </Stack>
@@ -766,10 +772,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       </Stack>
 
       {isLoading && !continuationToken && !keyMarker ? (
-        <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-          <Spinner variant="primary" size="large" className="mb-2" />
-          <Trans>Loading objects...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Loading objects...`} />
       ) : (
         <ObjectsTableView
           bucketName={bucketName}
@@ -783,6 +786,14 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           selectedItems={selectedItems}
           onToggleSelectKey={handleToggleSelectKey}
           onFolderClick={navigateToPrefix}
+          canCopyObject={permissions.canCopyObject}
+          canMoveObject={permissions.canMoveObject}
+          canUpdateObject={permissions.canUpdateObject}
+          canShareObject={permissions.canShareObject}
+          canDeleteObject={permissions.canDeleteObject}
+          canDeleteFolder={permissions.canDeleteFolder}
+          canDeleteVersion={permissions.canDeleteVersion}
+          canRestoreVersion={permissions.canRestoreVersion}
           onDeleteObjectSuccess={(objectKey) => {
             const { message, ...options } = getObjectDeletedToast(objectKey)
             toast.success(message, options)

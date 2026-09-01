@@ -1,14 +1,17 @@
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Button, Stack, toast } from "@cloudoperators/juno-ui-components"
+import { useCephPermissions } from "../hooks/useCephPermissions"
+import { Button, Stack, Message, Spinner, toast } from "@cloudoperators/juno-ui-components"
 
 interface CredentialPromptProps {
   onSuccess: () => void
 }
 
 export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
+  const { t } = useLingui()
   const projectId = useProjectId()
+  const { permissions, isLoading: isLoadingPermissions, isError: isPermissionsError } = useCephPermissions(projectId)
   const utils = trpcReact.useUtils()
 
   const createMutation = trpcReact.storage.ceph.ec2Credentials.create.useMutation({
@@ -38,14 +41,31 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
           Click the button below to automatically generate credentials for this project. You only need to do this once.
         </Trans>
       </p>
-      <div>
-        <Button
-          onClick={() => projectId && createMutation.mutate({ project_id: projectId })}
-          disabled={createMutation.isPending || !projectId}
-        >
-          {createMutation.isPending ? <Trans>Creating Credentials...</Trans> : <Trans>Create S3 Credentials</Trans>}
-        </Button>
-      </div>
+      {isLoadingPermissions ? (
+        <Spinner variant="primary" size="small" />
+      ) : isPermissionsError ? (
+        <Message variant="error" title={t`Could not check permissions`}>
+          <Trans>
+            We couldn't verify whether you can create S3 credentials. Please reload the page or try again later.
+          </Trans>
+        </Message>
+      ) : permissions.canCreateCredential ? (
+        <div>
+          <Button
+            onClick={() => projectId && createMutation.mutate({ project_id: projectId })}
+            disabled={createMutation.isPending || !projectId}
+          >
+            {createMutation.isPending ? <Trans>Creating Credentials...</Trans> : <Trans>Create S3 Credentials</Trans>}
+          </Button>
+        </div>
+      ) : (
+        <Message variant="info" title={t`Insufficient permissions`}>
+          <Trans>
+            You don't have permission to create S3 credentials. Please contact your administrator to request access to
+            S3 Object Storage.
+          </Trans>
+        </Message>
+      )}
     </Stack>
   )
 }

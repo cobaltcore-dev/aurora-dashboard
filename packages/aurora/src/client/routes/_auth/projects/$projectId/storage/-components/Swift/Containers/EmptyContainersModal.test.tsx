@@ -128,11 +128,9 @@ describe("EmptyContainersModal", () => {
   })
 
   describe("Content", () => {
-    test("renders warning as a danger Message component", () => {
+    test("renders warning text", () => {
       renderModal()
-      const warningEl = screen.getByText(/cannot be undone/i).closest(".juno-message")
-      expect(warningEl).toBeInTheDocument()
-      expect(warningEl).toHaveClass("juno-message-danger")
+      expect(screen.getByText(/cannot be undone/i)).toBeInTheDocument()
     })
 
     test("renders large objects notice without 'Please note:' prefix", () => {
@@ -142,9 +140,9 @@ describe("EmptyContainersModal", () => {
       expect(screen.queryByText(/Please note/i)).not.toBeInTheDocument()
     })
 
-    test("renders containers to be emptied heading with count", () => {
+    test("renders containers to be emptied heading", () => {
       renderModal()
-      expect(screen.getByText(/Containers to be emptied \(3\)/i)).toBeInTheDocument()
+      expect(screen.getByText(/Containers to be emptied:/i)).toBeInTheDocument()
     })
 
     test("renders all container names in the list", () => {
@@ -187,7 +185,7 @@ describe("EmptyContainersModal", () => {
     test("shows '... and N more' note when list is truncated", () => {
       const manyContainers = Array.from({ length: 25 }, (_, i) => makeContainer(`container-${i}`))
       renderModal({ containers: manyContainers })
-      expect(screen.getByText(/... and 5 more/i)).toBeInTheDocument()
+      expect(screen.getByText(/[.…] and 5 more/i)).toBeInTheDocument()
     })
 
     test("does not show overflow note when 20 or fewer containers", () => {

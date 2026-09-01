@@ -340,7 +340,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
   return (
     <Modal
       title={
-        <span className="flex max-w-[500px] items-center gap-1">
+        <span className="flex max-w-125 items-center gap-1">
           <span className="shrink-0">
             <Trans>Move/Rename Object:</Trans>
           </span>

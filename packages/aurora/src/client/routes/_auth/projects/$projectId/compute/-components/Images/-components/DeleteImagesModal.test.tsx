@@ -87,12 +87,16 @@ describe("DeleteImagesModal", () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  it("should call onDelete when delete button is clicked with correct confirmation", () => {
+  it("should call onDelete when delete button is clicked with correct confirmation", async () => {
     setup(true, false, mockDeletableImages, mockProtectedImages)
     const confirmInput = screen.getByPlaceholderText("delete")
-    fireEvent.change(confirmInput, { target: { value: "delete" } })
+    await act(async () => {
+      fireEvent.change(confirmInput, { target: { value: "delete" } })
+    })
     const deleteButton = screen.getByRole("button", { name: /Delete Images/i })
-    fireEvent.click(deleteButton)
+    await act(async () => {
+      fireEvent.click(deleteButton)
+    })
     expect(mockOnDelete).toHaveBeenCalledTimes(1)
     expect(mockOnDelete).toHaveBeenCalledWith(mockDeletableImages)
   })
@@ -124,14 +128,18 @@ describe("DeleteImagesModal", () => {
     expect(screen.getByText("Deleting...")).toBeInTheDocument()
   })
 
-  it("should pass deletableImages to onDelete, not protectedImages", () => {
+  it("should pass deletableImages to onDelete, not protectedImages", async () => {
     const deletableImgs = ["deletable-1", "deletable-2"]
     const protectedImgs = ["protected-1", "protected-2"]
     setup(true, false, deletableImgs, protectedImgs)
     const confirmInput = screen.getByPlaceholderText("delete")
-    fireEvent.change(confirmInput, { target: { value: "delete" } })
+    await act(async () => {
+      fireEvent.change(confirmInput, { target: { value: "delete" } })
+    })
     const deleteButton = screen.getByRole("button", { name: /Delete Images/i })
-    fireEvent.click(deleteButton)
+    await act(async () => {
+      fireEvent.click(deleteButton)
+    })
     expect(mockOnDelete).toHaveBeenCalledWith(deletableImgs)
   })
 

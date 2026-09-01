@@ -15,8 +15,8 @@ import {
   PopupMenuOptions,
   PopupMenuToggle,
   SearchInput,
-  Spinner,
   Stack,
+  Status,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { BucketTableView } from "./BucketTableView"
@@ -32,6 +32,7 @@ import {
 import { EmptyBucketsModal } from "./EmptyBucketsModal"
 import { CredentialPrompt } from "./CredentialPrompt"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useCephPermissions } from "../hooks/useCephPermissions"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType"
 
 export { CredentialPrompt } from "./CredentialPrompt"
@@ -54,10 +55,8 @@ export const CephBuckets = () => {
   // browser back/forward, and deep links.
   const { sortBy, sortDirection, search: searchParam = "" } = Route.useSearch()
 
-  // TODO(perms): wire to a real permission source once Ceph Buckets exposes one.
-  // Hardcoded true preserves the current always-on bulk behavior while putting the
-  // selection-column gating structure in place.
-  const hasAnyBulkAction = true
+  const { permissions } = useCephPermissions(projectId)
+  const hasAnyBulkAction = permissions.canEmptyBucket
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [emptyAllModalOpen, setEmptyAllModalOpen] = useState(false)
@@ -238,12 +237,7 @@ export const CephBuckets = () => {
 
   // Handle loading state
   if (isLoading) {
-    return (
-      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Buckets...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={t`Loading Buckets...`} />
   }
 
   // Handle error state
@@ -318,9 +312,11 @@ export const CephBuckets = () => {
               onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
             />
           </Stack>
-          <Button variant="primary" className="whitespace-nowrap" onClick={() => setCreateModalOpen(true)}>
-            <Trans>Create Bucket</Trans>
-          </Button>
+          {permissions.canCreateBucket && (
+            <Button variant="primary" className="whitespace-nowrap" onClick={() => setCreateModalOpen(true)}>
+              <Trans>Create Bucket</Trans>
+            </Button>
+          )}
         </Stack>
 
         {/* Zone 2 — debounced search. DataGridToolbar provides the background.
@@ -419,6 +415,8 @@ export const CephBuckets = () => {
         selectedBuckets={selectedBuckets}
         setSelectedBuckets={setSelectedBuckets}
         hasAnyBulkAction={hasAnyBulkAction}
+        canEmptyBucket={permissions.canEmptyBucket}
+        canDeleteBucket={permissions.canDeleteBucket}
       />
 
       <EmptyBucketsModal
