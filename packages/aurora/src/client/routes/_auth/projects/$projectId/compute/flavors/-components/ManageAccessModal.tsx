@@ -29,16 +29,16 @@ interface FlavorAccess {
 }
 
 interface AccessEntry {
-  tenantId: string
+  projectId: string
   isNew?: boolean
-  originalTenantId?: string
+  originalProjectId?: string
 }
 
 function buildInitialAccess(flavorAccess: FlavorAccess[]): AccessEntry[] {
   return flavorAccess.map((access) => ({
-    tenantId: access.tenant_id,
+    projectId: access.tenant_id,
     isNew: false,
-    originalTenantId: access.tenant_id,
+    originalProjectId: access.tenant_id,
   }))
 }
 
@@ -83,7 +83,7 @@ function ManageAccessModalInner({
   const [access, setAccess] = useState<AccessEntry[]>(initialAccess)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isAddingNew, setIsAddingNew] = useState(false)
-  const [newTenantId, setNewTenantId] = useState("")
+  const [newProjectId, setNewProjectId] = useState("")
   const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -105,32 +105,32 @@ function ManageAccessModalInner({
 
   const isSubmitDisabled = !hasChanges || isLoading || isSaving || isAddingNew
 
-  const validateTenantId = (tenantId: string, rowIndex?: number): string | null => {
-    const normalized = tenantId?.trim()
+  const validateProjectId = (projectId: string, rowIndex?: number): string | null => {
+    const normalized = projectId?.trim()
     if (!normalized) {
-      return t`Tenant ID is required`
+      return t`Project ID is required`
     }
-    const isDuplicate = access.some((entry, idx) => entry.tenantId.trim() === normalized && idx !== rowIndex)
+    const isDuplicate = access.some((entry, idx) => entry.projectId.trim() === normalized && idx !== rowIndex)
     if (isDuplicate) {
-      return t`This tenant already has access`
+      return t`This project already has access`
     }
     return null
   }
 
   const handleAddNew = () => {
-    const error = validateTenantId(newTenantId, access.length)
+    const error = validateProjectId(newProjectId, access.length)
     if (error) {
-      setErrors({ newTenantId: error })
+      setErrors({ newProjectId: error })
       return
     }
-    setAccess([...access, { tenantId: newTenantId.trim(), isNew: true }])
-    setNewTenantId("")
+    setAccess([...access, { projectId: newProjectId.trim(), isNew: true }])
+    setNewProjectId("")
     setIsAddingNew(false)
     setErrors({})
   }
 
   const handleCancelAdd = () => {
-    setNewTenantId("")
+    setNewProjectId("")
     setIsAddingNew(false)
     setErrors({})
   }
@@ -146,31 +146,31 @@ function ManageAccessModalInner({
     setSaveError(null)
 
     try {
-      // Collect tenants to remove (in initialAccess but not in current access)
-      const currentTenantIds = new Set(access.map((a) => a.tenantId))
-      const tenantsToRemove = initialAccess
-        .filter((initial) => !currentTenantIds.has(initial.tenantId))
-        .map((a) => a.originalTenantId!)
+      // Collect projects to remove (in initialAccess but not in current access)
+      const currentProjectIds = new Set(access.map((a) => a.projectId))
+      const projectsToRemove = initialAccess
+        .filter((initial) => !currentProjectIds.has(initial.projectId))
+        .map((a) => a.originalProjectId!)
         .filter(Boolean)
 
-      // Collect tenants to add (new entries)
-      const tenantsToAdd = access.filter((entry) => entry.isNew).map((a) => a.tenantId)
+      // Collect projects to add (new entries)
+      const projectsToAdd = access.filter((entry) => entry.isNew).map((a) => a.projectId)
 
-      // Remove tenants
-      for (const tenantId of tenantsToRemove) {
+      // Remove projects
+      for (const targetProjectId of projectsToRemove) {
         await client.compute.removeTenantAccess.mutate({
           project_id: project,
           flavorId: flavor.id,
-          targetProjectId: tenantId,
+          targetProjectId,
         })
       }
 
-      // Add tenants
-      for (const tenantId of tenantsToAdd) {
+      // Add projects
+      for (const targetProjectId of projectsToAdd) {
         await client.compute.addTenantAccess.mutate({
           project_id: project,
           flavorId: flavor.id,
-          targetProjectId: tenantId,
+          targetProjectId,
         })
       }
 
@@ -185,7 +185,7 @@ function ManageAccessModalInner({
   const handleClose = () => {
     setAccess(initialAccess)
     setIsAddingNew(false)
-    setNewTenantId("")
+    setNewProjectId("")
     setErrors({})
     setSaveError(null)
     onClose()
@@ -196,7 +196,7 @@ function ManageAccessModalInner({
     return (
       <Modal open onCancel={handleClose} size="large" title={t`Manage Access - ${flavorName}`}>
         <p className="jn:text-theme-light py-8 text-center">
-          {t`This is a public flavor. All tenants have access to it.`}
+          {t`This is a public flavor. All projects have access to it.`}
         </p>
       </Modal>
     )
@@ -227,7 +227,7 @@ function ManageAccessModalInner({
           {canAdd && (
             <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
               <Button
-                label={t`Add Tenant`}
+                label={t`Add Project`}
                 onClick={() => setIsAddingNew(true)}
                 variant="primary"
                 disabled={isAddingNew}
@@ -239,12 +239,12 @@ function ManageAccessModalInner({
           {access.length === 0 && !isAddingNew ? (
             <p className="jn:text-theme-light py-8 text-center">
               {canAdd
-                ? t`No tenant access configured. Click "Add Tenant" to grant access.`
-                : t`No tenant access configured.`}
+                ? t`No project access configured. Click "Add Project" to grant access.`
+                : t`No project access configured.`}
             </p>
           ) : (
             <DescriptionList className="mb-6">
-              <DescriptionTerm>{t`Tenant ID`}</DescriptionTerm>
+              <DescriptionTerm>{t`Project ID`}</DescriptionTerm>
               <DescriptionDefinition>{t`Actions`}</DescriptionDefinition>
 
               <>
@@ -252,19 +252,19 @@ function ManageAccessModalInner({
                   <>
                     <DescriptionTerm>
                       <TextInput
-                        value={newTenantId}
+                        value={newProjectId}
                         onChange={(e) => {
-                          setNewTenantId(e.target.value)
-                          if (errors.newTenantId) {
+                          setNewProjectId(e.target.value)
+                          if (errors.newProjectId) {
                             setErrors((prev) => {
                               const next = { ...prev }
-                              delete next.newTenantId
+                              delete next.newProjectId
                               return next
                             })
                           }
                         }}
-                        placeholder={t`Enter tenant ID`}
-                        errortext={errors.newTenantId}
+                        placeholder={t`Enter project ID`}
+                        errortext={errors.newProjectId}
                         autoFocus
                       />
                     </DescriptionTerm>
@@ -286,10 +286,10 @@ function ManageAccessModalInner({
 
               <>
                 {access.map((entry, index) => (
-                  <React.Fragment key={`${entry.originalTenantId || entry.tenantId}-${index}`}>
+                  <React.Fragment key={`${entry.originalProjectId || entry.projectId}-${index}`}>
                     <DescriptionTerm>
-                      <span className="jn:text-theme-high block max-w-xs truncate" title={entry.tenantId}>
-                        {entry.tenantId}
+                      <span className="jn:text-theme-high block max-w-xs truncate" title={entry.projectId}>
+                        {entry.projectId}
                       </span>
                     </DescriptionTerm>
                     <DescriptionDefinition className="flex items-center justify-end gap-2">
@@ -300,7 +300,7 @@ function ManageAccessModalInner({
                               size="small"
                               variant="primary-danger"
                               onClick={() => handleDelete(index)}
-                              data-testid={`confirm-delete-${entry.tenantId}`}
+                              data-testid={`confirm-delete-${entry.projectId}`}
                               title={t`Remove`}
                               disabled={isAddingNew}
                             >
@@ -311,7 +311,7 @@ function ManageAccessModalInner({
                               size="small"
                               onClick={() => setConfirmDeleteIndex(index)}
                               icon="deleteForever"
-                              data-testid={`delete-${entry.tenantId}`}
+                              data-testid={`delete-${entry.projectId}`}
                               title={t`Remove`}
                               disabled={isAddingNew}
                             />

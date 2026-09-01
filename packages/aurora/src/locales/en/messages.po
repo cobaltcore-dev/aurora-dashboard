@@ -338,6 +338,9 @@ msgstr "Add Member"
 msgid "Add Policy"
 msgstr "Add Policy"
 
+msgid "Add Project"
+msgstr "Add Project"
+
 msgid "Add Project Access"
 msgstr "Add Project Access"
 
@@ -352,9 +355,6 @@ msgstr "Add Rule"
 
 msgid "Add Security Group Rule"
 msgstr "Add Security Group Rule"
-
-msgid "Add Tenant"
-msgstr "Add Tenant"
 
 msgid "After {abortDays} days"
 msgstr "After {abortDays} days"
@@ -1439,8 +1439,8 @@ msgstr "Enter key"
 msgid "Enter member ID"
 msgstr "Enter member ID"
 
-msgid "Enter tenant ID"
-msgstr "Enter tenant ID"
+msgid "Enter project ID"
+msgstr "Enter project ID"
 
 msgid "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
 msgstr "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
@@ -2546,6 +2546,12 @@ msgstr "No policies match your search"
 msgid "No policy found"
 msgstr "No policy found"
 
+msgid "No project access configured."
+msgstr "No project access configured."
+
+msgid "No project access configured. Click \"Add Project\" to grant access."
+msgstr "No project access configured. Click \"Add Project\" to grant access."
+
 msgid "No project selected"
 msgstr "No project selected"
 
@@ -2563,12 +2569,6 @@ msgstr "No services available for this project."
 
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
-
-msgid "No tenant access configured."
-msgstr "No tenant access configured."
-
-msgid "No tenant access configured. Click \"Add Tenant\" to grant access."
-msgstr "No tenant access configured. Click \"Add Tenant\" to grant access."
 
 msgid "No versions found for this object."
 msgstr "No versions found for this object."
@@ -2827,6 +2827,9 @@ msgstr "Project id"
 
 msgid "Project ID"
 msgstr "Project ID"
+
+msgid "Project ID is required"
+msgstr "Project ID is required"
 
 msgid "Project Not Accessible"
 msgstr "Project Not Accessible"
@@ -3449,9 +3452,6 @@ msgstr "Temporary URLs"
 msgid "Tenant ID"
 msgstr "Tenant ID"
 
-msgid "Tenant ID is required"
-msgstr "Tenant ID is required"
-
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
 
@@ -3680,8 +3680,8 @@ msgstr "This is a <0>static large object (SLO)</0> manifest. Metadata changes ap
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 
-msgid "This is a public flavor. All tenants have access to it."
-msgstr "This is a public flavor. All tenants have access to it."
+msgid "This is a public flavor. All projects have access to it."
+msgstr "This is a public flavor. All projects have access to it."
 
 msgid "This is a public image. All users have access to it. Explicit sharing is not needed."
 msgstr "This is a public image. All users have access to it. Explicit sharing is not needed."
@@ -3694,6 +3694,9 @@ msgstr "This member already has access to this image."
 
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr "This object and all its versions will be permanently deleted and cannot be restored."
+
+msgid "This project already has access"
+msgstr "This project already has access"
 
 msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
 msgstr "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
@@ -3718,9 +3721,6 @@ msgstr "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty
 
 msgid "This security group is already shared with the specified project."
 msgstr "This security group is already shared with the specified project."
-
-msgid "This tenant already has access"
-msgstr "This tenant already has access"
 
 msgid "This tenant already has access to the flavor."
 msgstr "This tenant already has access to the flavor."

@@ -116,7 +116,7 @@ describe("ManageAccessModal", () => {
     )
 
     expect(screen.queryByText("Manage Access - Test Flavor")).not.toBeInTheDocument()
-    expect(screen.queryByText("Add Tenant")).not.toBeInTheDocument()
+    expect(screen.queryByText("Add Project")).not.toBeInTheDocument()
   })
 
   it("shows public flavor information message", async () => {
@@ -136,11 +136,11 @@ describe("ManageAccessModal", () => {
     // Wait for data to load, then the inner component shows the public message
     await waitFor(
       () => {
-        expect(screen.getByText("This is a public flavor. All tenants have access to it.")).toBeInTheDocument()
+        expect(screen.getByText("This is a public flavor. All projects have access to it.")).toBeInTheDocument()
       },
       { timeout: 3000 }
     )
-    expect(screen.queryByText("Add Tenant")).not.toBeInTheDocument()
+    expect(screen.queryByText("Add Project")).not.toBeInTheDocument()
   })
 
   it("fetches flavor access with correct parameters", async () => {
@@ -193,11 +193,11 @@ describe("ManageAccessModal", () => {
     )
   })
 
-  it("displays existing tenant access rows with delete buttons when user has permissions", async () => {
+  it("displays existing project access rows with delete buttons when user has permissions", async () => {
     const mockClient = createMockClient({
       flavorAccess: [
-        { flavor_id: "test-flavor-id", tenant_id: "tenant-a" },
-        { flavor_id: "test-flavor-id", tenant_id: "tenant-b" },
+        { flavor_id: "test-flavor-id", tenant_id: "project-a" },
+        { flavor_id: "test-flavor-id", tenant_id: "project-b" },
       ],
     })
 
@@ -214,8 +214,8 @@ describe("ManageAccessModal", () => {
 
     await waitFor(
       () => {
-        expect(screen.getByText("tenant-a")).toBeInTheDocument()
-        expect(screen.getByText("tenant-b")).toBeInTheDocument()
+        expect(screen.getByText("project-a")).toBeInTheDocument()
+        expect(screen.getByText("project-b")).toBeInTheDocument()
       },
       { timeout: 3000 }
     )
@@ -223,7 +223,7 @@ describe("ManageAccessModal", () => {
     // When canRemove is true, delete buttons should be present
     await waitFor(
       () => {
-        expect(screen.getByTestId("delete-tenant-a")).toBeInTheDocument()
+        expect(screen.getByTestId("delete-project-a")).toBeInTheDocument()
       },
       { timeout: 3000 }
     )
@@ -245,7 +245,9 @@ describe("ManageAccessModal", () => {
 
     await waitFor(
       () => {
-        expect(screen.getByText('No tenant access configured. Click "Add Tenant" to grant access.')).toBeInTheDocument()
+        expect(
+          screen.getByText('No project access configured. Click "Add Project" to grant access.')
+        ).toBeInTheDocument()
       },
       { timeout: 3000 }
     )
@@ -268,11 +270,11 @@ describe("ManageAccessModal", () => {
     // Wait for data to load (empty state message appears)
     await waitFor(
       () => {
-        expect(screen.getByText("No tenant access configured.")).toBeInTheDocument()
+        expect(screen.getByText("No project access configured.")).toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
-    expect(screen.queryByText("Add Tenant")).not.toBeInTheDocument()
+    expect(screen.queryByText("Add Project")).not.toBeInTheDocument()
   })
 })

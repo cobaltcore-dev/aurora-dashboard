@@ -338,6 +338,9 @@ msgstr "Mitglied hinzufügen"
 msgid "Add Policy"
 msgstr ""
 
+msgid "Add Project"
+msgstr ""
+
 msgid "Add Project Access"
 msgstr "Projektzugriff hinzufügen"
 
@@ -352,9 +355,6 @@ msgstr "Regel hinzufügen"
 
 msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
-
-msgid "Add Tenant"
-msgstr ""
 
 msgid "After {abortDays} days"
 msgstr ""
@@ -1439,8 +1439,8 @@ msgstr "Key eingeben"
 msgid "Enter member ID"
 msgstr "Mitglieds-ID eingeben"
 
-msgid "Enter tenant ID"
-msgstr "Project ID eingeben"
+msgid "Enter project ID"
+msgstr ""
 
 msgid "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
 msgstr "Geben Sie die ID des Projekts ein, mit dem Sie diese Sicherheitsgruppe teilen möchten. Sie finden Projekt-IDs im Konto-/Projekt-Umschalter oder im Identity-Service."
@@ -2546,6 +2546,12 @@ msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 msgid "No policy found"
 msgstr ""
 
+msgid "No project access configured."
+msgstr ""
+
+msgid "No project access configured. Click \"Add Project\" to grant access."
+msgstr ""
+
 msgid "No project selected"
 msgstr "Kein Projekt ausgewählt"
 
@@ -2563,12 +2569,6 @@ msgstr "Keine Dienste für dieses Projekt verfügbar."
 
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um X-Account-Meta-Temp-URL-Key oder X-Container-Meta-Temp-URL-Key zu konfigurieren."
-
-msgid "No tenant access configured."
-msgstr ""
-
-msgid "No tenant access configured. Click \"Add Tenant\" to grant access."
-msgstr ""
 
 msgid "No versions found for this object."
 msgstr ""
@@ -2827,6 +2827,9 @@ msgstr "Projekt-ID"
 
 msgid "Project ID"
 msgstr "Projekt-ID"
+
+msgid "Project ID is required"
+msgstr ""
 
 msgid "Project Not Accessible"
 msgstr ""
@@ -3449,9 +3452,6 @@ msgstr "Temporäre URLs"
 msgid "Tenant ID"
 msgstr "Projekt ID"
 
-msgid "Tenant ID is required"
-msgstr ""
-
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
 
@@ -3680,8 +3680,8 @@ msgstr "Dies ist ein <0>statisches großes Objekt (SLO)</0>-Manifest. Metadaten-
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "Dies ist ein <0>statisches großes Objekt</0>. Standardmäßig werden auch alle zugehörigen Segment-Objekte dauerhaft gelöscht."
 
-msgid "This is a public flavor. All tenants have access to it."
-msgstr "Dies ist ein öffentlicher Flavor. Alle Projekte haben Zugriff darauf."
+msgid "This is a public flavor. All projects have access to it."
+msgstr ""
 
 msgid "This is a public image. All users have access to it. Explicit sharing is not needed."
 msgstr "Dies ist ein öffentliches Image. Alle Benutzer haben Zugriff darauf. Eine explizite Freigabe ist nicht erforderlich."
@@ -3693,6 +3693,9 @@ msgid "This member already has access to this image."
 msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
+msgstr ""
+
+msgid "This project already has access"
 msgstr ""
 
 msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
@@ -3718,9 +3721,6 @@ msgstr ""
 
 msgid "This security group is already shared with the specified project."
 msgstr "Diese Sicherheitsgruppe ist bereits mit dem angegebenen Projekt geteilt."
-
-msgid "This tenant already has access"
-msgstr ""
 
 msgid "This tenant already has access to the flavor."
 msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."
