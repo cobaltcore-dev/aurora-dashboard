@@ -416,9 +416,6 @@ msgstr "Also delete all versions and all delete markers"
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr "An object with this name already exists at the destination and will be overwritten."
 
-msgid "An unexpected error occurred"
-msgstr "An unexpected error occurred"
-
 msgid "An unexpected error occurred."
 msgstr "An unexpected error occurred."
 
@@ -2249,11 +2246,11 @@ msgstr "Loading Flavors..."
 msgid "Loading Floating IP Details..."
 msgstr "Loading Floating IP Details..."
 
+msgid "Loading Floating IPs..."
+msgstr "Loading Floating IPs..."
+
 msgid "Loading Image Details..."
 msgstr "Loading Image Details..."
-
-msgid "Loading images..."
-msgstr "Loading images..."
 
 msgid "Loading Images..."
 msgstr "Loading Images..."
@@ -2287,6 +2284,9 @@ msgstr "Loading preview..."
 
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
+
+msgid "Loading Security Groups..."
+msgstr "Loading Security Groups..."
 
 msgid "Loading Server Groups..."
 msgstr "Loading Server Groups..."

@@ -53,7 +53,7 @@ describe("FloatingIpListContainer", () => {
         wrapper: TestWrapper,
       })
 
-      expect(screen.getByText("Loading...")).toBeInTheDocument()
+      expect(screen.getByText("Loading Floating IPs...")).toBeInTheDocument()
     })
 
     it("does not display table or error when loading", () => {
@@ -108,7 +108,7 @@ describe("FloatingIpListContainer", () => {
         { wrapper: TestWrapper }
       )
 
-      expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
+      expect(screen.queryByText("Loading Floating IPs...")).not.toBeInTheDocument()
       expect(screen.queryByText("No Floating IPs found")).not.toBeInTheDocument()
     })
   })
@@ -219,7 +219,7 @@ describe("FloatingIpListContainer", () => {
       })
       expect(screen.queryByText("No Floating IPs found")).not.toBeInTheDocument()
       expect(screen.queryByText("Failed to load Floating IPs")).not.toBeInTheDocument()
-      expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
+      expect(screen.queryByText("Loading Floating IPs...")).not.toBeInTheDocument()
     })
 
     it("does not display error or loading when data is present", async () => {
@@ -231,7 +231,7 @@ describe("FloatingIpListContainer", () => {
       await waitFor(() => {
         expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
       })
-      expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
+      expect(screen.queryByText("Loading Floating IPs...")).not.toBeInTheDocument()
       expect(screen.queryByText("Failed to load Floating IPs")).not.toBeInTheDocument()
     })
   })
@@ -259,7 +259,7 @@ describe("FloatingIpListContainer", () => {
         wrapper: TestWrapper,
       })
 
-      expect(screen.getByText("Loading...")).toBeInTheDocument()
+      expect(screen.getByText("Loading Floating IPs...")).toBeInTheDocument()
     })
 
     it("displays error state when isError is true after loading", () => {
@@ -274,7 +274,7 @@ describe("FloatingIpListContainer", () => {
       )
 
       expect(screen.getByText("Failed to load")).toBeInTheDocument()
-      expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
+      expect(screen.queryByText("Loading Floating IPs...")).not.toBeInTheDocument()
     })
   })
 
