@@ -2,7 +2,7 @@ import {
   Button,
   ButtonRow,
   Stack,
-  Spinner,
+  Status,
   PopupMenu,
   PopupMenuToggle,
   PopupMenuOptions,
@@ -277,12 +277,7 @@ function RouteComponent() {
 
   // Handle loading state
   if (status === "pending") {
-    return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Image Details...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={t`Loading Image Details...`} />
   }
 
   // Handle error state

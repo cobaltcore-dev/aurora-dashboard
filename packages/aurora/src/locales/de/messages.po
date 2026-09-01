@@ -419,9 +419,6 @@ msgstr ""
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr ""
 
-msgid "An unexpected error occurred"
-msgstr "Ein unerwarteter Fehler ist aufgetreten"
-
 msgid "An unexpected error occurred."
 msgstr ""
 
@@ -2260,11 +2257,11 @@ msgstr "Lädt Flavors..."
 msgid "Loading Floating IP Details..."
 msgstr "Floating IP-Details werden geladen..."
 
+msgid "Loading Floating IPs..."
+msgstr "Floating IPs werden geladen..."
+
 msgid "Loading Image Details..."
 msgstr "Image-Details werden geladen..."
-
-msgid "Loading images..."
-msgstr "Images werden geladen..."
 
 msgid "Loading Images..."
 msgstr "Lädt Images..."
@@ -2298,6 +2295,9 @@ msgstr "Vorschau wird geladen..."
 
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
+
+msgid "Loading Security Groups..."
+msgstr ""
 
 msgid "Loading Server Groups..."
 msgstr "Lädt Servergruppen"

@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { Status } from "@cloudoperators/juno-ui-components"
 import { z } from "zod"
 import { useEffect } from "react"
 import { LoginForm } from "../components/Auth/LoginForm"
 import { Slot } from "../components/Slot"
 import { useAuth } from "../store/AuthProvider"
+import { useLingui } from "@lingui/react/macro"
 
 function isSafeRedirect(path: unknown): path is string {
   return typeof path === "string" && path.startsWith("/") && !path.startsWith("//")
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/")({
 })
 
 function LandingPage() {
+  const { t } = useLingui()
   const { isLoading, isAuthenticated } = useAuth()
   const { slots } = Route.useRouteContext()
   const { redirect: searchRedirect } = Route.useSearch()
@@ -32,12 +34,7 @@ function LandingPage() {
   }, [isAuthenticated, isLoading, navigate, searchRedirect])
 
   if (isLoading) {
-    return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center">
-        <div className="absolute inset-0 backdrop-blur-sm" />
-        <Spinner variant="primary" size="large" />
-      </Stack>
-    )
+    return <Status status="progress" title={t`Loading...`} />
   }
 
   if (slots?.login && !isAuthenticated) {

@@ -14,7 +14,7 @@ import {
   PopupMenuOptions,
   PopupMenuToggle,
   SearchInput,
-  Spinner,
+  Status,
   Stack,
   toast,
 } from "@cloudoperators/juno-ui-components"
@@ -241,12 +241,7 @@ export const SwiftContainers = () => {
 
   // Handle loading state
   if (isLoading) {
-    return (
-      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Containers...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={t`Loading Containers...`} />
   }
 
   // Handle error state

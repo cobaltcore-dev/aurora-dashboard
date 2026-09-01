@@ -5,8 +5,7 @@ import {
   DataGridRow,
   DataGridCell,
   ContentHeading,
-  Stack,
-  Spinner,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpTableRow } from "./FloatingIpTableRow"
@@ -25,20 +24,11 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
   const columnCount = columns.length
 
   if (isLoading) {
-    return (
-      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={t`Loading Floating IPs...`} />
   }
 
   if (isError) {
-    return (
-      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-        {error?.message ?? t`Failed to load Floating IPs`}
-      </Stack>
-    )
+    return <Status status="error" title={error?.message ?? t`Failed to load Floating IPs`} />
   }
 
   if (floatingIps.length === 0) {

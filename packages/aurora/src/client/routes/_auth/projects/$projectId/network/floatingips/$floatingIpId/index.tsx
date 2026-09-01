@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
-import { Button, ContentHeading, Stack, Spinner } from "@cloudoperators/juno-ui-components"
-import { Trans } from "@lingui/react/macro"
+import { Button, ContentHeading, Stack, Status } from "@cloudoperators/juno-ui-components"
+import { Trans, useLingui } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { useProjectId } from "@/client/hooks"
@@ -56,6 +56,7 @@ function RouteComponent() {
   const { floatingIpId } = Route.useParams()
   const projectId = useProjectId()
   const navigate = useNavigate()
+  const { t } = useLingui()
 
   // Fetch floating IP details
   const {
@@ -77,12 +78,7 @@ function RouteComponent() {
 
   // Loading state
   if (isLoading) {
-    return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical">
-        <Spinner variant="primary" size="large" className="mb-2" />
-        <Trans>Loading Floating IP Details...</Trans>
-      </Stack>
-    )
+    return <Status status="progress" title={t`Loading Floating IP Details...`} />
   }
 
   // Error state
