@@ -339,7 +339,7 @@ msgid "Add Policy"
 msgstr ""
 
 msgid "Add Project"
-msgstr ""
+msgstr "Projekt hinzufügen"
 
 msgid "Add Project Access"
 msgstr "Projektzugriff hinzufügen"
@@ -1440,7 +1440,7 @@ msgid "Enter member ID"
 msgstr "Mitglieds-ID eingeben"
 
 msgid "Enter project ID"
-msgstr ""
+msgstr "Projekt-ID eingeben"
 
 msgid "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
 msgstr "Geben Sie die ID des Projekts ein, mit dem Sie diese Sicherheitsgruppe teilen möchten. Sie finden Projekt-IDs im Konto-/Projekt-Umschalter oder im Identity-Service."
@@ -2547,10 +2547,10 @@ msgid "No policy found"
 msgstr ""
 
 msgid "No project access configured."
-msgstr ""
+msgstr "Kein Projektzugriff konfiguriert."
 
 msgid "No project access configured. Click \"Add Project\" to grant access."
-msgstr ""
+msgstr "Kein Projektzugriff konfiguriert. Klicken Sie auf \"Projekt hinzufügen\", um Zugriff zu gewähren."
 
 msgid "No project selected"
 msgstr "Kein Projekt ausgewählt"
@@ -2829,7 +2829,7 @@ msgid "Project ID"
 msgstr "Projekt-ID"
 
 msgid "Project ID is required"
-msgstr ""
+msgstr "Projekt-ID ist erforderlich"
 
 msgid "Project Not Accessible"
 msgstr ""
@@ -3696,7 +3696,7 @@ msgid "This object and all its versions will be permanently deleted and cannot b
 msgstr ""
 
 msgid "This project already has access"
-msgstr ""
+msgstr "Dieses Projekt hat bereits Zugriff"
 
 msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
 msgstr ""
