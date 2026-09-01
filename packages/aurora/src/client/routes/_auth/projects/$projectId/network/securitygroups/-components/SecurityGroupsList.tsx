@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Button, Stack, DataGridToolbar, SearchInput, toast, Status } from "@cloudoperators/juno-ui-components"
+import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { trpcReact } from "@/client/trpcClient"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
@@ -9,9 +11,8 @@ import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import { SecurityGroupListContainer } from "./SecurityGroupListContainer"
 import { CreateSecurityGroupModal } from "./-modals/CreateSecurityGroupModal"
-import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
-import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
 import { useSecurityGroupPermissions } from "../-hooks/useSecurityGroupPermissions"
+import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
 import {
   getSecurityGroupDeletedToast,
   getSecurityGroupDeleteErrorToast,
@@ -256,6 +257,8 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
 
   return (
     <>
+      <ContentHeader title={t`Security Groups`} projectId={projectId} />
+
       <Stack distribution="end" alignment="center" gap="2" className="pb-2">
         <Stack gap="2">
           <SortInput

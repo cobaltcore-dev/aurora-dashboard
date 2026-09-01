@@ -71,7 +71,7 @@ describe("FloatingIpDetailsView", () => {
     it("displays floating IP address in the network section", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
+      expect(screen.getAllByText("203.0.113.10").length).toBeGreaterThan(0)
     })
 
     it("displays description text", () => {
@@ -123,7 +123,7 @@ describe("FloatingIpDetailsView", () => {
     it("displays project ID", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("proj-1")).toBeInTheDocument()
+      expect(screen.getAllByText("proj-1").length).toBeGreaterThan(0)
     })
 
     it("displays formatted status", () => {
@@ -181,7 +181,7 @@ describe("FloatingIpDetailsView", () => {
     it("displays floating IP address and network", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
+      expect(screen.getAllByText("203.0.113.10").length).toBeGreaterThan(0)
       expect(screen.getByText("net-external")).toBeInTheDocument()
     })
 
@@ -281,7 +281,7 @@ describe("FloatingIpDetailsView", () => {
     it("renders with minimal required data", () => {
       render(<FloatingIpDetailsView floatingIp={minimalFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("203.0.113.100")).toBeInTheDocument()
+      expect(screen.getAllByText("203.0.113.100").length).toBeGreaterThan(0)
       expect(screen.getByText("Down")).toBeInTheDocument()
       expect(screen.getByText("net-ext")).toBeInTheDocument()
     })

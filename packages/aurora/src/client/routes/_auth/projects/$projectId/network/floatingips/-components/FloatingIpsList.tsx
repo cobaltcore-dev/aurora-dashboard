@@ -7,6 +7,7 @@ import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SelectedFilters } from "@/client/components/ListToolbar/SelectedFilters"
 import { FiltersInput } from "@/client/components/ListToolbar/FiltersInput"
 import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { trpcReact } from "@/client/trpcClient"
 import { useModal } from "@/client/utils/useModal"
 import { useProjectId } from "@/client/hooks"
@@ -157,99 +158,103 @@ export const FloatingIpsList = () => {
   }
 
   return (
-    <div className="relative">
-      {/* Non-blocking error banner for refetch failures with cached data */}
-      {isError && floatingIps.length > 0 && (
-        <Message variant="error" className="mb-4">
-          {error?.message ?? t`Failed to refresh Floating IPs. Showing cached data.`}
-        </Message>
-      )}
+    <>
+      <ContentHeader title={t`Floating IPs`} projectId={projectId} />
 
-      {/* Zone 1 — sort + create button, no background */}
-      <Stack distribution="end" alignment="center" gap="2" className="pb-2">
-        <Stack gap="2">
-          <SortInput
-            options={sortSettings.options}
-            sortBy={sortSettings.sortBy}
-            sortDirection={sortSettings.sortDirection ?? "asc"}
-            selectClassName="min-w-52"
-            onSortByChange={(v) =>
-              handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
-            }
-            onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
-          />
-          {permissions?.canCreate && (
-            <Button onClick={toggleAllocateModal} variant="primary" className="whitespace-nowrap">
-              <Trans>Allocate Floating IP</Trans>
-            </Button>
-          )}
-        </Stack>
-      </Stack>
+      <div className="relative">
+        {/* Non-blocking error banner for refetch failures with cached data */}
+        {isError && floatingIps.length > 0 && (
+          <Message variant="error" className="mb-4">
+            {error?.message ?? t`Failed to refresh Floating IPs. Showing cached data.`}
+          </Message>
+        )}
 
-      {/* Zone 2 — filter + search + active filter pills */}
-      <DataGridToolbar>
-        <Stack direction="vertical" gap="2">
-          <Stack distribution="between" alignment="center">
-            <FiltersInput
-              filters={filterSettings.filters}
-              selectClassName="sm:min-w-40"
-              comboboxClassName="sm:min-w-40"
-              onChange={(selected) => {
-                const newSelected = applyFilterSelection(
-                  filterSettings.selectedFilters || [],
-                  selected,
-                  filterSettings.filters
-                )
-                if (newSelected === (filterSettings.selectedFilters || [])) return
-                handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
-              }}
-            />
-            <SearchInput
-              placeholder={t`Search floating IPs...`}
-              data-testid="searchbar"
-              value={localSearchTerm}
-              onInput={(e: React.FormEvent<HTMLInputElement>) => {
-                const v = e.currentTarget.value
-                setLocalSearchTerm(v)
-                clearTimeout(debounceTimer.current)
-                debounceTimer.current = window.setTimeout(() => handleSearchChange(v, true), 500)
-              }}
-              onSearch={(v) => {
-                clearTimeout(debounceTimer.current)
-                handleSearchChange(typeof v === "string" ? v : "", false)
-              }}
-              onClear={() => {
-                clearTimeout(debounceTimer.current)
-                setLocalSearchTerm("")
-                handleSearchChange("", false)
-              }}
-            />
-          </Stack>
-          {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
-            <SelectedFilters
-              selectedFilters={filterSettings.selectedFilters}
-              onDelete={(filterToRemove) =>
-                handleFilterChange({
-                  ...filterSettings,
-                  selectedFilters: (filterSettings.selectedFilters || []).filter(
-                    (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
-                  ),
-                })
+        {/* Zone 1 — sort + create button, no background */}
+        <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+          <Stack gap="2">
+            <SortInput
+              options={sortSettings.options}
+              sortBy={sortSettings.sortBy}
+              sortDirection={sortSettings.sortDirection ?? "asc"}
+              selectClassName="min-w-52"
+              onSortByChange={(v) =>
+                handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
               }
-              onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
+              onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
             />
-          )}
+            {permissions?.canCreate && (
+              <Button onClick={toggleAllocateModal} variant="primary" className="whitespace-nowrap">
+                <Trans>Allocate Floating IP</Trans>
+              </Button>
+            )}
+          </Stack>
         </Stack>
-      </DataGridToolbar>
 
-      <FloatingIpListContainer
-        floatingIps={floatingIps}
-        isLoading={isLoading}
-        isError={isError && !floatingIps.length}
-        error={error}
-      />
+        {/* Zone 2 — filter + search + active filter pills */}
+        <DataGridToolbar>
+          <Stack direction="vertical" gap="2">
+            <Stack distribution="between" alignment="center">
+              <FiltersInput
+                filters={filterSettings.filters}
+                selectClassName="sm:min-w-40"
+                comboboxClassName="sm:min-w-40"
+                onChange={(selected) => {
+                  const newSelected = applyFilterSelection(
+                    filterSettings.selectedFilters || [],
+                    selected,
+                    filterSettings.filters
+                  )
+                  if (newSelected === (filterSettings.selectedFilters || [])) return
+                  handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
+                }}
+              />
+              <SearchInput
+                placeholder={t`Search floating IPs...`}
+                data-testid="searchbar"
+                value={localSearchTerm}
+                onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                  const v = e.currentTarget.value
+                  setLocalSearchTerm(v)
+                  clearTimeout(debounceTimer.current)
+                  debounceTimer.current = window.setTimeout(() => handleSearchChange(v, true), 500)
+                }}
+                onSearch={(v) => {
+                  clearTimeout(debounceTimer.current)
+                  handleSearchChange(typeof v === "string" ? v : "", false)
+                }}
+                onClear={() => {
+                  clearTimeout(debounceTimer.current)
+                  setLocalSearchTerm("")
+                  handleSearchChange("", false)
+                }}
+              />
+            </Stack>
+            {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
+              <SelectedFilters
+                selectedFilters={filterSettings.selectedFilters}
+                onDelete={(filterToRemove) =>
+                  handleFilterChange({
+                    ...filterSettings,
+                    selectedFilters: (filterSettings.selectedFilters || []).filter(
+                      (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
+                    ),
+                  })
+                }
+                onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
+              />
+            )}
+          </Stack>
+        </DataGridToolbar>
 
-      {allocateModalOpen && <AllocateFloatingIpModal open={allocateModalOpen} onClose={toggleAllocateModal} />}
-    </div>
+        <FloatingIpListContainer
+          floatingIps={floatingIps}
+          isLoading={isLoading}
+          isError={isError && !floatingIps.length}
+          error={error}
+        />
+
+        {allocateModalOpen && <AllocateFloatingIpModal open={allocateModalOpen} onClose={toggleAllocateModal} />}
+      </div>
+    </>
   )
 }
