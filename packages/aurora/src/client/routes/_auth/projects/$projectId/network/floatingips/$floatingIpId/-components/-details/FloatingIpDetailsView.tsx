@@ -4,6 +4,7 @@ import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
 import type { DetailListItem } from "@/client/components/TwoColumnDescriptionList"
 import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { FloatingIpActionModals } from "../../../-components/-modals/FloatingIpActionModals"
 
 interface FloatingIpDetailsViewProps {
@@ -45,23 +46,24 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
 
   return (
     <>
-      <p className="text-theme-secondary mt-2 text-sm">
-        <Trans>
-          Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS
-          settings, and deletion
-        </Trans>
-      </p>
-
-      <FloatingIpActionModals floatingIp={floatingIp}>
-        {({ toggleEditModal, toggleAttachModal, toggleDetachModal, toggleReleaseModal }) => (
-          <ButtonRow>
-            <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
-            <Button onClick={toggleAttachModal}>{t`Attach`}</Button>
-            <Button onClick={toggleDetachModal}>{t`Detach`}</Button>
-            <Button onClick={toggleReleaseModal}>{t`Release`}</Button>
-          </ButtonRow>
-        )}
-      </FloatingIpActionModals>
+      <ContentHeader
+        title={floatingIp.floating_ip_address ?? floatingIp.id}
+        projectId={floatingIp.project_id}
+        description="Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS
+          settings, and deletion"
+        actions={
+          <FloatingIpActionModals floatingIp={floatingIp}>
+            {({ toggleEditModal, toggleAttachModal, toggleDetachModal, toggleReleaseModal }) => (
+              <ButtonRow>
+                <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
+                <Button onClick={toggleAttachModal}>{t`Attach`}</Button>
+                <Button onClick={toggleDetachModal}>{t`Detach`}</Button>
+                <Button onClick={toggleReleaseModal}>{t`Release`}</Button>
+              </ButtonRow>
+            )}
+          </FloatingIpActionModals>
+        }
+      />
 
       <Stack direction="vertical" gap="6" className="my-6">
         <Stack direction="vertical" gap="2">

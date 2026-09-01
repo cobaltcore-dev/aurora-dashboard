@@ -15,6 +15,9 @@ const { mockDelete, mockUpdate, mockInvalidate } = vi.hoisted(() => ({
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => vi.fn(),
   useSearch: () => ({}),
+  useRouteContext: () => ({}),
+  useMatches: () => [],
+  useParams: () => ({}),
 }))
 
 vi.mock("../-hooks/useSecurityGroupPermissions", () => ({

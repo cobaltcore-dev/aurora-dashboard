@@ -1,9 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { t } from "@lingui/core/macro"
-import { useLingui } from "@lingui/react/macro"
 import { SecurityGroups } from "./-components/SecurityGroupsList"
 import type { RouteInfo } from "@/client/routes/routeInfo"
-import { ContentHeading } from "@cloudoperators/juno-ui-components"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/securitygroups/")({
   staticData: {
@@ -20,7 +18,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/securit
 })
 
 function RouteComponent() {
-  const { t } = useLingui()
   const { projectId } = Route.useParams()
   const { trpcClient } = Route.useRouteContext()
 
@@ -28,10 +25,5 @@ function RouteComponent() {
     throw new Error("trpcClient is not available in route context")
   }
 
-  return (
-    <>
-      <ContentHeading>{t`Security Groups`}</ContentHeading>
-      <SecurityGroups project={projectId} />
-    </>
-  )
+  return <SecurityGroups project={projectId} />
 }

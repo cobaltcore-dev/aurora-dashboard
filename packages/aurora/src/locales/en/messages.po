@@ -1957,9 +1957,6 @@ msgstr "For <0>dynamic</0> and <1>static large objects</1> only the manifests ar
 msgid "For more details, have a look at the <0>documentation</0>."
 msgstr "For more details, have a look at the <0>documentation</0>."
 
-msgid "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
-msgstr "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
-
 msgid "Full path:"
 msgstr "Full path:"
 

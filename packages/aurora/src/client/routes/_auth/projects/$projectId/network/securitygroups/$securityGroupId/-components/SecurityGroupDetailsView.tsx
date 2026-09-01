@@ -8,7 +8,7 @@ import type {
 import type { FilterSettings, SortSettings } from "@/client/components/ListToolbar/types"
 import type { ListSortConfig } from "@/client/utils/useListWithFiltering"
 import type { SecurityGroupPermissions } from "../../-components/SecurityGroupTableRow"
-import { SecurityGroupHeader, SecurityGroupBasicInfo, SecurityGroupTabs, type TabType } from "./-details"
+import { SecurityGroupBasicInfo, SecurityGroupTabs, type TabType } from "./-details"
 import { SecurityGroupRulesTable } from "./-details"
 import { SecurityGroupRBACPolicies } from "./-details/SecurityGroupRBACPolicies"
 
@@ -62,9 +62,6 @@ export function SecurityGroupDetailsView({
   return (
     <Container px={false} py>
       <Stack direction="vertical" gap="4">
-        {/* Header Section */}
-        <SecurityGroupHeader name={securityGroup.name} id={securityGroup.id} />
-
         {/* Basic Info Section */}
         <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} canUpdate={permissions.canUpdate} />
 

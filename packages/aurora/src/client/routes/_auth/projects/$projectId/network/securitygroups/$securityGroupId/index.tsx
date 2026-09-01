@@ -1,22 +1,16 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  Button,
-  ContentHeading,
-  Stack,
-  Spinner,
-} from "@cloudoperators/juno-ui-components/index"
+import { Button, Stack, Spinner } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
-import type { RouteInfo } from "@/client/routes/routeInfo"
-import { Trans, useLingui } from "@lingui/react/macro"
 import { useMemo } from "react"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { useProjectId } from "@/client/hooks"
+import type { RouteInfo } from "@/client/routes/routeInfo"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
+import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
+import { trpcReact } from "@/client/trpcClient"
 import { SecurityGroupDetailsView } from "./-components/SecurityGroupDetailsView"
 import { EditSecurityGroupModal } from "../-components/-modals/EditSecurityGroupModal"
 import { useSecurityGroupDetails } from "./-hooks/useSecurityGroupDetails"
-import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
-import { trpcReact } from "@/client/trpcClient"
 import { useSecurityGroupPermissions } from "../-hooks/useSecurityGroupPermissions"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/securitygroups/$securityGroupId/")({
@@ -243,11 +237,11 @@ function RouteComponent() {
   // Render success state
   return (
     <Stack direction="vertical">
-      <ContentHeading>{securityGroup.name || securityGroup.id}</ContentHeading>
-      <Breadcrumb className="my-6">
-        <BreadcrumbItem onClick={handleBack} label={t`Security Groups`} />
-        <BreadcrumbItem active label={securityGroup.id} />
-      </Breadcrumb>
+      <ContentHeader
+        title={securityGroup.name || securityGroup.id}
+        projectId={projectId}
+        description={t`Configure the ingress and egress rules that control which traffic is allowed for this security group.`}
+      />
 
       <SecurityGroupDetailsView
         securityGroup={securityGroup}

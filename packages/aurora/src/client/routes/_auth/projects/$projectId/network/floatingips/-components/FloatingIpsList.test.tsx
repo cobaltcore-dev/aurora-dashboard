@@ -31,6 +31,11 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
   }
 })
 
+// ContentHeader relies on router context (useRouteContext/useMatches) that isn't set up in this unit test
+vi.mock("@/client/components/ContentHeader/ContentHeader", () => ({
+  ContentHeader: ({ title }: { title: string }) => <div>{title}</div>,
+}))
+
 // Simplified mock for tRPC useQuery - only includes properties actually used
 type MockQueryResult<TData> = {
   data: TData | undefined

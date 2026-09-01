@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
-import { Button, ContentHeading, Stack, Spinner } from "@cloudoperators/juno-ui-components"
+import { Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { Trans } from "@lingui/react/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { getServiceIndex } from "@/server/Authentication/helpers"
@@ -115,11 +115,5 @@ function RouteComponent() {
     )
   }
 
-  // Success state
-  return (
-    <>
-      <ContentHeading>{floatingIp.floating_ip_address}</ContentHeading>
-      <FloatingIpDetailsView floatingIp={floatingIp} />
-    </>
-  )
+  return <FloatingIpDetailsView floatingIp={floatingIp} />
 }

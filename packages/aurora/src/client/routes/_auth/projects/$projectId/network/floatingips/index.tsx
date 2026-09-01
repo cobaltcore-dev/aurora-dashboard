@@ -1,11 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { z } from "zod"
 import { t } from "@lingui/core/macro"
-import { useLingui } from "@lingui/react/macro"
-import { FloatingIpsList } from "./-components/FloatingIpsList"
-import type { RouteInfo } from "@/client/routes/routeInfo"
-import { ContentHeading } from "@cloudoperators/juno-ui-components"
 import { FloatingIpQueryParametersSchema, FloatingIpStatusSchema } from "@/server/Network/types/floatingIp"
+import type { RouteInfo } from "@/client/routes/routeInfo"
+import { FloatingIpsList } from "./-components/FloatingIpsList"
 
 const floatingIpsSearchFields = {
   status: FloatingIpStatusSchema.optional(),
@@ -14,7 +12,7 @@ const floatingIpsSearchFields = {
   sortDirection: z.enum(["asc", "desc"]).optional(),
 }
 
-const floatingIpsSearchSchema = z.object(floatingIpsSearchFields).passthrough()
+const floatingIpsSearchSchema = z.looseObject(floatingIpsSearchFields)
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/floatingips/")({
   staticData: {
@@ -44,11 +42,5 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/floatin
 })
 
 function RouteComponent() {
-  const { t } = useLingui()
-  return (
-    <>
-      <ContentHeading>{t`Floating IPs`}</ContentHeading>
-      <FloatingIpsList />
-    </>
-  )
+  return <FloatingIpsList />
 }
