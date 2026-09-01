@@ -1,21 +1,19 @@
-import React, { use, Suspense, useState, startTransition } from "react"
-import { ErrorBoundary } from "react-error-boundary"
-import { TrpcClient } from "@/client/trpcClient"
+import React, { useState, useEffect, useMemo } from "react"
 import { useLingui } from "@lingui/react/macro"
+import { TrpcClient } from "@/client/trpcClient"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import {
   Modal,
-  Message,
-  DescriptionList,
-  Stack,
   Button,
   Spinner,
+  Stack,
+  DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
+  TextInput,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
-import { SpecFormRow } from "./SpecFormRow"
-import { SpecRow } from "./SpecRow"
 
 interface EditSpecModalProps {
   client: TrpcClient
@@ -24,6 +22,26 @@ interface EditSpecModalProps {
   project: string
   flavor: Flavor | null
   canEdit?: boolean
+}
+
+interface SpecEntry {
+  key: string
+  value: string
+  isNew?: boolean
+  isEditing?: boolean
+  originalKey?: string
+  originalValue?: string
+}
+
+function buildInitialSpecs(extraSpecs: Record<string, string>): SpecEntry[] {
+  return Object.entries(extraSpecs).map(([key, value]) => ({
+    key,
+    value,
+    isNew: false,
+    isEditing: false,
+    originalKey: key,
+    originalValue: value,
+  }))
 }
 
 const createPermissionsPromise = (client: TrpcClient, project: string) => {
@@ -42,291 +60,472 @@ const createExtraSpecsPromise = (client: TrpcClient, project: string, flavorId: 
   })
 }
 
-function SpecsLoading() {
-  return (
-    <Stack distribution="center" alignment="center" className="py-4">
-      <Spinner variant="primary" />
-    </Stack>
-  )
-}
-
-function SpecsError({ error }: { error: unknown }) {
-  const { t } = useLingui()
-  const { translateError } = useErrorTranslation()
-  const message = error instanceof Error ? translateError(error.message) : t`An unexpected error occurred.`
-  return <Message variant="error" text={message} />
-}
-
-function EditSpecContent({
-  permissionsPromise,
-  extraSpecsPromise,
+function EditSpecModalInner({
   client,
   project,
   flavor,
-  onSpecsUpdate,
-  isAddingSpec,
-  setIsAddingSpec,
-  setMessage,
+  isLoading,
+  onClose,
+  initialSpecs,
+  canEdit,
 }: {
-  permissionsPromise: Promise<{ canCreate: boolean; canDelete: boolean }>
-  extraSpecsPromise: Promise<Record<string, string>>
   client: TrpcClient
   project: string
   flavor: Flavor
-  onSpecsUpdate: (specs: Record<string, string>) => void
-  isAddingSpec: boolean
-  setIsAddingSpec: (adding: boolean) => void
-  message: { text: string; type: "error" | "info" } | null
-  setMessage: (msg: { text: string; type: "error" | "info" } | null) => void
+  isLoading: boolean
+  onClose: () => void
+  initialSpecs: SpecEntry[]
+  canEdit: boolean
 }) {
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
 
-  const permissions = use(permissionsPromise)
-  const initialExtraSpecs = use(extraSpecsPromise)
+  const [specs, setSpecs] = useState<SpecEntry[]>(initialSpecs)
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [isAddingNew, setIsAddingNew] = useState(false)
+  const [newKey, setNewKey] = useState("")
+  const [newValue, setNewValue] = useState("")
+  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
-  const [extraSpecs, setExtraSpecs] = useState(initialExtraSpecs)
-  const [key, setKey] = useState("")
-  const [value, setValue] = useState("")
-  const [errors, setErrors] = useState<{ key?: string; value?: string }>({})
-  const [isDeleting, setIsDeleting] = useState<string | null>(null)
-  const [isSavingSpec, setIsSavingSpec] = useState(false)
-
-  const validateForm = () => {
-    const trimmedKey = key.trim()
-    const trimmedValue = value.trim()
-    const newErrors: { key?: string; value?: string } = {}
-
-    if (!trimmedKey) {
-      newErrors.key = "Key is required."
-    } else if (Object.keys(extraSpecs).includes(trimmedKey)) {
-      newErrors.key = "Key already exists."
+  useEffect(() => {
+    if (confirmDeleteIndex !== null) {
+      const timer = setTimeout(() => setConfirmDeleteIndex(null), 3000)
+      return () => clearTimeout(timer)
     }
+  }, [confirmDeleteIndex])
 
-    if (!trimmedValue) {
-      newErrors.value = "Value is required."
+  const hasChanges = useMemo(() => {
+    if (specs.length !== initialSpecs.length) return true
+    return specs.some((entry) => entry.isNew || entry.key !== entry.originalKey || entry.value !== entry.originalValue)
+  }, [specs, initialSpecs])
+
+  const isSubmitDisabled = !hasChanges || isLoading || isSaving || isAddingNew || specs.some((e) => e.isEditing)
+
+  const validateKey = (key: string, originalKey?: string, rowIndex?: number): string | null => {
+    const normalized = key?.trim()
+    if (!normalized) {
+      return t`Key is required`
     }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    const isDuplicate = specs.some(
+      (entry, idx) => entry.key.trim() === normalized && idx !== rowIndex && entry.originalKey !== originalKey
+    )
+    if (isDuplicate) {
+      return t`A property with this key already exists`
+    }
+    return null
   }
 
-  const resetForm = () => {
-    setKey("")
-    setValue("")
+  const handleAddNew = () => {
+    const keyError = validateKey(newKey, undefined, specs.length)
+    if (keyError) {
+      setErrors({ newKey: keyError })
+      return
+    }
+    if (!newValue.trim()) {
+      setErrors({ newValue: t`Value is required` })
+      return
+    }
+    setSpecs([...specs, { key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }])
+    setNewKey("")
+    setNewValue("")
+    setIsAddingNew(false)
     setErrors({})
   }
 
-  const handleSave = async () => {
-    if (isSavingSpec) return
+  const handleCancelAdd = () => {
+    setNewKey("")
+    setNewValue("")
+    setIsAddingNew(false)
+    setErrors({})
+  }
 
-    if (!validateForm()) {
-      setMessage({ text: t`Please fix the validation errors below.`, type: "error" })
+  const handleEdit = (index: number) => {
+    setConfirmDeleteIndex(null)
+    setSpecs(specs.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false })))
+    setIsAddingNew(false)
+  }
+
+  const handleSaveEdit = (index: number) => {
+    const entry = specs[index]
+    const keyError = validateKey(entry.key, entry.originalKey, index)
+    if (keyError) {
+      setErrors({ [`edit-${index}`]: keyError })
       return
     }
+    if (!entry.value.trim()) {
+      setErrors({ [`edit-${index}`]: t`Value is required` })
+      return
+    }
+    setSpecs(
+      specs.map((e, i) => (i === index ? { ...e, isEditing: false, key: e.key.trim(), value: e.value.trim() } : e))
+    )
+    setErrors({})
+  }
 
-    try {
-      setIsSavingSpec(true)
-      const trimmedKey = key.trim()
-      const trimmedValue = value.trim()
+  const handleCancelEdit = (index: number) => {
+    setSpecs(
+      specs.map((e, i) =>
+        i === index ? { ...e, isEditing: false, key: e.originalKey ?? e.key, value: e.originalValue ?? e.value } : e
+      )
+    )
+    setErrors({})
+  }
 
-      await client.compute.createExtraSpecs.mutate({
-        project_id: project,
-        flavorId: flavor.id,
-        extra_specs: { [trimmedKey]: trimmedValue },
+  const handleDelete = (index: number) => {
+    setSpecs(specs.filter((_, i) => i !== index))
+    setConfirmDeleteIndex(null)
+    setErrors({})
+  }
+
+  const handleKeyChange = (index: number, value: string) => {
+    setSpecs(specs.map((entry, i) => (i === index ? { ...entry, key: value } : entry)))
+    if (errors[`edit-${index}`]) {
+      setErrors((prev) => {
+        const next = { ...prev }
+        delete next[`edit-${index}`]
+        return next
       })
-
-      const newSpecs = { [trimmedKey]: trimmedValue, ...extraSpecs }
-      setExtraSpecs(newSpecs)
-      onSpecsUpdate(newSpecs)
-
-      setMessage({
-        text: t`Metadata "${trimmedKey}" has been added successfully.`,
-        type: "info",
-      })
-      resetForm()
-      setIsAddingSpec(false)
-    } catch (error) {
-      setMessage({
-        text: translateError(error instanceof Error ? error.message : "Failed to create extra spec"),
-        type: "error",
-      })
-    } finally {
-      setIsSavingSpec(false)
     }
   }
 
-  const handleDelete = async (keyToDelete: string) => {
-    try {
-      setIsDeleting(keyToDelete)
-      await client.compute.deleteExtraSpec.mutate({
-        project_id: project,
-        flavorId: flavor.id,
-        key: keyToDelete,
+  const handleValueChange = (index: number, value: string) => {
+    setSpecs(specs.map((entry, i) => (i === index ? { ...entry, value } : entry)))
+    if (errors[`edit-${index}`]) {
+      setErrors((prev) => {
+        const next = { ...prev }
+        delete next[`edit-${index}`]
+        return next
       })
-
-      const newSpecs = { ...extraSpecs }
-      delete newSpecs[keyToDelete]
-      setExtraSpecs(newSpecs)
-      onSpecsUpdate(newSpecs)
-
-      setMessage({
-        text: t`Metadata "${keyToDelete}" has been deleted successfully.`,
-        type: "info",
-      })
-    } catch (error) {
-      setMessage({
-        text: translateError(error instanceof Error ? error.message : `Failed to delete extra spec "${keyToDelete}"`),
-        type: "error",
-      })
-    } finally {
-      setIsDeleting(null)
     }
   }
 
-  const handleKeyChange = (newKey: string) => {
-    setKey(newKey)
-    if (errors.key) setErrors((prev) => ({ ...prev, key: undefined }))
+  const handleSubmit = async () => {
+    setIsSaving(true)
+    setSaveError(null)
+
+    try {
+      // Collect keys to delete (in initialSpecs but not in current specs, or key was renamed)
+      const currentKeys = new Set(specs.map((s) => s.key))
+      const keysToDelete = initialSpecs
+        .filter((initial) => !currentKeys.has(initial.key))
+        .map((s) => s.originalKey!)
+        .filter(Boolean)
+
+      // Also delete old keys when a key was renamed
+      specs.forEach((entry) => {
+        if (entry.originalKey && entry.key !== entry.originalKey && !entry.isNew) {
+          keysToDelete.push(entry.originalKey)
+        }
+      })
+
+      // Collect specs to create/update
+      const specsToSave: Record<string, string> = {}
+      specs.forEach((entry) => {
+        if (entry.isNew || entry.key !== entry.originalKey || entry.value !== entry.originalValue) {
+          specsToSave[entry.key] = entry.value
+        }
+      })
+
+      // Delete removed/renamed specs
+      for (const key of keysToDelete) {
+        await client.compute.deleteExtraSpec.mutate({
+          project_id: project,
+          flavorId: flavor.id,
+          key,
+        })
+      }
+
+      // Create/update specs
+      if (Object.keys(specsToSave).length > 0) {
+        await client.compute.createExtraSpecs.mutate({
+          project_id: project,
+          flavorId: flavor.id,
+          extra_specs: specsToSave,
+        })
+      }
+
+      onClose()
+    } catch (error) {
+      setSaveError(translateError(error instanceof Error ? error.message : "Failed to save changes"))
+    } finally {
+      setIsSaving(false)
+    }
   }
 
-  const handleValueChange = (newValue: string) => {
-    setValue(newValue)
-    if (errors.value) setErrors((prev) => ({ ...prev, value: undefined }))
+  const handleClose = () => {
+    setSpecs(initialSpecs)
+    setIsAddingNew(false)
+    setNewKey("")
+    setNewValue("")
+    setErrors({})
+    setSaveError(null)
+    onClose()
   }
-
-  const shouldShowEmptyState = Object.keys(extraSpecs).length === 0 && !isAddingSpec
 
   return (
-    <>
-      {permissions.canCreate && (
-        <Stack direction="horizontal" className="bg-theme-background-lvl-1 mb-4 justify-end p-2">
-          <Button
-            label={t`Add Metadata`}
-            data-testid="addExtraButton"
-            onClick={() => setIsAddingSpec(true)}
-            variant="primary"
-            disabled={isAddingSpec}
-          />
+    <Modal
+      open
+      onCancel={handleClose}
+      size="large"
+      title={canEdit ? t`Edit Metadata` : t`Metadata`}
+      onConfirm={canEdit ? handleSubmit : undefined}
+      confirmButtonLabel={t`Save Changes`}
+      cancelButtonLabel={t`Cancel`}
+      disableConfirmButton={isSubmitDisabled}
+    >
+      {isLoading ? (
+        <Stack distribution="center" alignment="center">
+          <Spinner variant="primary" />
         </Stack>
-      )}
-
-      {isAddingSpec && (
-        <SpecFormRow
-          specKey={key}
-          value={value}
-          errors={errors}
-          isLoading={isSavingSpec}
-          onKeyChange={handleKeyChange}
-          onValueChange={handleValueChange}
-          onSave={handleSave}
-          onCancel={() => {
-            resetForm()
-            setIsAddingSpec(false)
-            setMessage(null)
-          }}
-        />
-      )}
-
-      {shouldShowEmptyState ? (
-        <p className="text-theme-default py-4 text-center">
-          {t`No extra specs found. Click "Add Metadata" to create one.`}
-        </p>
       ) : (
-        <DescriptionList>
-          <DescriptionTerm>{t`Key`}</DescriptionTerm>
-          <DescriptionDefinition>{t`Value`}</DescriptionDefinition>
+        <div>
+          {saveError && (
+            <Message variant="error" text={saveError} className="mb-4" onDismiss={() => setSaveError(null)} />
+          )}
 
-          <>
-            {Object.entries(extraSpecs).map(([specKey, specValue]) => (
-              <SpecRow
-                key={specKey}
-                specKey={specKey}
-                value={specValue}
-                isDeleting={isDeleting === specKey}
-                onDelete={() => handleDelete(specKey)}
-                canDelete={permissions.canDelete}
+          {canEdit && (
+            <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
+              <Button
+                label={t`Add Property`}
+                onClick={() => setIsAddingNew(true)}
+                variant="primary"
+                disabled={isAddingNew || specs.some((e) => e.isEditing)}
+                icon="addCircle"
               />
-            ))}
-          </>
-        </DescriptionList>
+            </Stack>
+          )}
+
+          {specs.length === 0 && !isAddingNew ? (
+            <p className="jn:text-theme-light py-8 text-center">
+              {canEdit
+                ? t`No metadata properties found. Click "Add Property" to create one.`
+                : t`No metadata properties found.`}
+            </p>
+          ) : (
+            <DescriptionList className="mb-6">
+              <DescriptionTerm>{t`Property Key`}</DescriptionTerm>
+              <DescriptionDefinition>{t`Value`}</DescriptionDefinition>
+
+              <>
+                {isAddingNew && (
+                  <>
+                    <DescriptionTerm>
+                      <TextInput
+                        value={newKey}
+                        onChange={(e) => {
+                          setNewKey(e.target.value)
+                          if (errors.newKey) {
+                            setErrors((prev) => {
+                              const next = { ...prev }
+                              delete next.newKey
+                              return next
+                            })
+                          }
+                        }}
+                        placeholder={t`property_key`}
+                        errortext={errors.newKey}
+                        autoFocus
+                      />
+                    </DescriptionTerm>
+                    <DescriptionDefinition>
+                      <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+                        <TextInput
+                          value={newValue}
+                          onChange={(e) => {
+                            setNewValue(e.target.value)
+                            if (errors.newValue) {
+                              setErrors((prev) => {
+                                const next = { ...prev }
+                                delete next.newValue
+                                return next
+                              })
+                            }
+                          }}
+                          placeholder={t`Value`}
+                          errortext={errors.newValue}
+                        />
+                        <Stack direction="horizontal" gap="2">
+                          <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
+                          <Button
+                            size="small"
+                            variant="subdued"
+                            onClick={handleCancelAdd}
+                            icon="close"
+                            title={t`Discard`}
+                          />
+                        </Stack>
+                      </Stack>
+                    </DescriptionDefinition>
+                  </>
+                )}
+              </>
+
+              <>
+                {specs.map((entry, index) => (
+                  <React.Fragment key={`${entry.originalKey}-${index}`}>
+                    <DescriptionTerm>
+                      {entry.isEditing ? (
+                        <TextInput
+                          value={entry.key}
+                          onChange={(e) => handleKeyChange(index, e.target.value)}
+                          errortext={errors[`edit-${index}`]}
+                        />
+                      ) : (
+                        <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
+                          {entry.key}
+                        </span>
+                      )}
+                    </DescriptionTerm>
+                    <DescriptionDefinition className="flex items-center justify-between gap-2">
+                      {entry.isEditing ? (
+                        <>
+                          <TextInput value={entry.value} onChange={(e) => handleValueChange(index, e.target.value)} />
+                          <Stack direction="horizontal" gap="2">
+                            <Button
+                              size="small"
+                              variant="primary"
+                              onClick={() => handleSaveEdit(index)}
+                              icon="check"
+                              title={t`Save`}
+                            />
+                            <Button
+                              size="small"
+                              variant="subdued"
+                              onClick={() => handleCancelEdit(index)}
+                              icon="close"
+                              title={t`Discard`}
+                            />
+                          </Stack>
+                        </>
+                      ) : (
+                        <>
+                          <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
+                            {entry.value}
+                          </span>
+                          {canEdit && (
+                            <Stack direction="horizontal" gap="2">
+                              {confirmDeleteIndex !== index && (
+                                <Button
+                                  size="small"
+                                  variant="subdued"
+                                  onClick={() => handleEdit(index)}
+                                  icon="edit"
+                                  data-testid={`edit-${entry.key}`}
+                                  title={t`Edit`}
+                                  disabled={isAddingNew || specs.some((e) => e.isEditing)}
+                                />
+                              )}
+                              {confirmDeleteIndex === index ? (
+                                <Button
+                                  size="small"
+                                  variant="primary-danger"
+                                  onClick={() => handleDelete(index)}
+                                  data-testid={`confirm-delete-${entry.key}`}
+                                  title={t`Delete`}
+                                  disabled={isAddingNew || specs.some((e) => e.isEditing)}
+                                >
+                                  {t`Delete`}
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="small"
+                                  onClick={() => setConfirmDeleteIndex(index)}
+                                  icon="deleteForever"
+                                  data-testid={`delete-${entry.key}`}
+                                  title={t`Delete`}
+                                  disabled={isAddingNew || specs.some((e) => e.isEditing)}
+                                />
+                              )}
+                            </Stack>
+                          )}
+                        </>
+                      )}
+                    </DescriptionDefinition>
+                  </React.Fragment>
+                ))}
+              </>
+            </DescriptionList>
+          )}
+        </div>
       )}
-    </>
+    </Modal>
   )
 }
 
 export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, onClose, project, flavor, canEdit }) => {
   const { t } = useLingui()
 
-  const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
-  const [isAddingSpec, setIsAddingSpec] = useState(false)
-  const [extraSpecsPromise, setExtraSpecsPromise] = useState<Promise<Record<string, string>> | null>(null)
+  const [extraSpecsData, setExtraSpecsData] = useState<Record<string, string> | null>(null)
+  const [isLoadingSpecs, setIsLoadingSpecs] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [resolvedCanEdit, setResolvedCanEdit] = useState<boolean | undefined>(canEdit)
 
-  const permissionsPromise = React.useMemo(() => {
-    if (!isOpen) return null
-    if (canEdit !== undefined) return Promise.resolve({ canCreate: canEdit, canDelete: canEdit })
-    return createPermissionsPromise(client, project)
-  }, [client, project, isOpen, canEdit])
-
-  React.useEffect(() => {
-    if (canEdit !== undefined) {
-      setResolvedCanEdit(canEdit)
+  useEffect(() => {
+    if (!isOpen || !flavor?.id) {
+      setExtraSpecsData(null)
+      setLoadError(null)
       return
     }
-    permissionsPromise?.then(({ canCreate, canDelete }) => setResolvedCanEdit(canCreate || canDelete))
-  }, [permissionsPromise, canEdit])
 
-  const title = resolvedCanEdit ? t`Edit Metadata` : t`Metadata`
+    setIsLoadingSpecs(true)
+    setLoadError(null)
 
-  React.useEffect(() => {
-    if (isOpen && flavor?.id) {
-      startTransition(() => {
-        setExtraSpecsPromise(createExtraSpecsPromise(client, project, flavor.id))
-      })
+    const loadData = async () => {
+      try {
+        const [specs, permissions] = await Promise.all([
+          createExtraSpecsPromise(client, project, flavor.id),
+          canEdit !== undefined
+            ? Promise.resolve({ canCreate: canEdit, canDelete: canEdit })
+            : createPermissionsPromise(client, project),
+        ])
+        setExtraSpecsData(specs)
+        setResolvedCanEdit(permissions.canCreate || permissions.canDelete)
+      } catch (error) {
+        setLoadError(error instanceof Error ? error.message : "Failed to load metadata")
+      } finally {
+        setIsLoadingSpecs(false)
+      }
     }
-  }, [isOpen, flavor?.id, client, project])
 
-  const handleClose = () => {
-    setMessage(null)
-    setIsAddingSpec(false)
-    setExtraSpecsPromise(null)
-    onClose()
-  }
+    loadData()
+  }, [isOpen, flavor?.id, client, project, canEdit])
 
-  const handleSpecsUpdate = (specs: Record<string, string>) => {
-    startTransition(() => {
-      setExtraSpecsPromise(Promise.resolve(specs))
-    })
-  }
+  const initialSpecs = useMemo(() => (extraSpecsData ? buildInitialSpecs(extraSpecsData) : []), [extraSpecsData])
 
-  if (!isOpen || !flavor || !permissionsPromise || !extraSpecsPromise) {
+  if (!isOpen || !flavor) {
     return null
   }
 
-  return (
-    <Modal onCancel={handleClose} title={title} open={isOpen} size="xl">
-      <div>
-        {message && (
-          <Message onDismiss={() => setMessage(null)} text={message.text} variant={message.type} className="mb-4" />
-        )}
+  if (isLoadingSpecs) {
+    return (
+      <Modal open onCancel={onClose} size="large" title={t`Edit Metadata`}>
+        <Stack distribution="center" alignment="center">
+          <Spinner variant="primary" />
+        </Stack>
+      </Modal>
+    )
+  }
 
-        <ErrorBoundary fallbackRender={({ error }) => <SpecsError error={error} />}>
-          <Suspense fallback={<SpecsLoading />}>
-            <EditSpecContent
-              permissionsPromise={permissionsPromise}
-              extraSpecsPromise={extraSpecsPromise}
-              client={client}
-              project={project}
-              flavor={flavor}
-              onSpecsUpdate={handleSpecsUpdate}
-              isAddingSpec={isAddingSpec}
-              setIsAddingSpec={setIsAddingSpec}
-              message={message}
-              setMessage={setMessage}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      </div>
-    </Modal>
+  if (loadError) {
+    return (
+      <Modal open onCancel={onClose} size="large" title={t`Edit Metadata`}>
+        <Message variant="error" text={loadError} />
+      </Modal>
+    )
+  }
+
+  return (
+    <EditSpecModalInner
+      key={`${flavor.id}-${JSON.stringify(extraSpecsData)}`}
+      client={client}
+      project={project}
+      flavor={flavor}
+      isLoading={false}
+      onClose={onClose}
+      initialSpecs={initialSpecs}
+      canEdit={resolvedCanEdit ?? false}
+    />
   )
 }

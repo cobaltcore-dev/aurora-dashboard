@@ -335,9 +335,6 @@ msgstr "Add"
 msgid "Add Member"
 msgstr "Add Member"
 
-msgid "Add Metadata"
-msgstr "Add Metadata"
-
 msgid "Add Policy"
 msgstr "Add Policy"
 
@@ -2387,12 +2384,6 @@ msgstr "Member ID (project UUID) is required."
 msgid "Metadata"
 msgstr "Metadata"
 
-msgid "Metadata \"{keyToDelete}\" has been deleted successfully."
-msgstr "Metadata \"{keyToDelete}\" has been deleted successfully."
-
-msgid "Metadata \"{trimmedKey}\" has been added successfully."
-msgstr "Metadata \"{trimmedKey}\" has been added successfully."
-
 msgid "Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving."
 msgstr "Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving."
 
@@ -2510,9 +2501,6 @@ msgstr "No custom metadata. Click \"Add Property\" to create one."
 msgid "No custom properties defined"
 msgstr "No custom properties defined"
 
-msgid "No extra specs found. Click \"Add Metadata\" to create one."
-msgstr "No extra specs found. Click \"Add Metadata\" to create one."
-
 msgid "No flavor selected for deletion."
 msgstr "No flavor selected for deletion."
 
@@ -2530,6 +2518,12 @@ msgstr "No lifecycle rules matching the current search criteria."
 
 msgid "No limit"
 msgstr "No limit"
+
+msgid "No metadata properties found."
+msgstr "No metadata properties found."
+
+msgid "No metadata properties found. Click \"Add Property\" to create one."
+msgstr "No metadata properties found. Click \"Add Property\" to create one."
 
 msgid "No new versions will be created"
 msgstr "No new versions will be created"
