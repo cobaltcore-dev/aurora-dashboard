@@ -550,6 +550,19 @@ export const Images = ({ client, project }: ImagesProps) => {
           ? (urlFilters || []).filter((f) => f.name !== "visibility")
           : urlFilters || []
       const marker = pageMarkers.get(urlPage)
+
+      // If we don't have a marker for this page and it's not page 1, navigate to page 1
+      if (!marker && urlPage > 1) {
+        navigate({
+          search: ((prev: ImagesSearchParams) => ({
+            ...prev,
+            page: undefined,
+          })) as unknown as true,
+        })
+        setIsFetching(false)
+        return
+      }
+
       const newPromise = createImagesPromise(
         client,
         project,

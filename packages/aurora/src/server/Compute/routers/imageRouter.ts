@@ -79,14 +79,24 @@ export const imageRouter = {
 
         // Build query params - ALWAYS start from beginning (no marker) to get accurate total count
         const queryParams = new URLSearchParams()
-        const minimalQuery = {
+        // Pass single-value filters to OpenStack API to reduce fetched images
+        // Multi-value filters (format "in:val1,val2") must be applied client-side
+        // Name filtering is also client-side (OpenStack doesn't support substring matching)
+        const apiQuery = {
           sort_key: queryInput.sort_key,
           sort_dir: queryInput.sort_dir,
           sort: queryInput.sort,
           limit: OPENSTACK_PAGE_SIZE,
+          // Only pass single-value filters to API (multi-value filters start with "in:")
+          status: queryInput.status?.startsWith("in:") ? undefined : queryInput.status,
+          visibility: queryInput.visibility === "all" ? undefined : queryInput.visibility,
+          disk_format: queryInput.disk_format?.startsWith("in:") ? undefined : queryInput.disk_format,
+          container_format: queryInput.container_format?.startsWith("in:") ? undefined : queryInput.container_format,
+          protected: queryInput.protected,
+          owner: queryInput.owner,
           // Don't use marker here - we need to fetch ALL images for total count
         }
-        applyImageQueryParams(queryParams, minimalQuery as ListImagesInput)
+        applyImageQueryParams(queryParams, apiQuery as ListImagesInput)
 
         let currentUrl: string | undefined = `v2/images?${queryParams.toString()}`
         let pageCount = 0
