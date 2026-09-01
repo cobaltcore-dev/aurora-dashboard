@@ -49,7 +49,7 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
   // identical queries the modals below issue.
   const { data: containerInfo } = trpcReact.storage.swift.getContainerMetadata.useQuery(
     { project_id: projectId, container: containerName },
-    { enabled: !!projectId && !!containerName, retry: false }
+    { enabled: !!projectId && !!containerName }
   )
 
   const container: ContainerSummary | null = containerInfo

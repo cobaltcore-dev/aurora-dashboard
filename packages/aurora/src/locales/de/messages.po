@@ -176,6 +176,9 @@ msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Co
 msgid "{totalCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{totalCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
 
+msgid "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
+msgstr ""
+
 msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 

@@ -2,6 +2,7 @@ import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { useEffect } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
+import { plural } from "@lingui/core/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, Spinner, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -36,7 +37,7 @@ export const DeleteObjectsModal = ({
   onSuccess,
   onError,
 }: DeleteObjectsModalProps) => {
-  const { t } = useLingui()
+  const { t, i18n } = useLingui()
   const projectId = useProjectId()
 
   const utils = trpcReact.useUtils()
@@ -141,7 +142,9 @@ export const DeleteObjectsModal = ({
       title={<Plural value={totalCount} one="Delete # Object" other="Delete # Objects" />}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={isPending ? t`Deleting...` : totalCount === 1 ? t`Delete Object` : t`Delete Objects`}
+      confirmButtonLabel={
+        isPending ? t`Deleting...` : i18n._(plural(totalCount, { one: "Delete Object", other: "Delete Objects" }))
+      }
       confirmButtonVariant="primary-danger"
       cancelButtonLabel={t`Cancel`}
       onConfirm={form.handleSubmit}
