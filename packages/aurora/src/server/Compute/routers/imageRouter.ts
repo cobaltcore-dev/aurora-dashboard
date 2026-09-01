@@ -207,6 +207,7 @@ export const imageRouter = {
           first: undefined,
           next: hasMore ? nextPageMarker : undefined,
           schema: "/v2/schemas/images",
+          totalCount: filteredImages.length,
         }
       }, "list images")
     }),

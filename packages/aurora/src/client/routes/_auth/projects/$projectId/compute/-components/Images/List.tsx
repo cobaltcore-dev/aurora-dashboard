@@ -28,6 +28,17 @@ import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } fro
 import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "./urlHelpers"
 import { createImagesPromise, createPermissionsPromise } from "./apiHelpers"
 
+// Extract marker value from URL or return as-is if already a marker
+function extractMarker(nextValue: string | undefined): string | undefined {
+  if (!nextValue) return undefined
+  // If it's a full URL like "/v2/images?marker=xyz", extract just the marker value
+  if (nextValue.includes("?")) {
+    const url = new URL(nextValue, "http://dummy.com")
+    return url.searchParams.get("marker") || undefined
+  }
+  return nextValue
+}
+
 interface ImagesProps {
   client: TrpcClient
   project: string
@@ -145,11 +156,16 @@ function ImagesContent({
     .filter((img) => !deletedImageIds.has(img.id))
     .map((img) => imageOverrides.get(img.id) ?? img)
 
-  // For server-side pagination: we know current page and if there's a next page
-  // We don't know total pages upfront, so we show currentPage and allow next if there's more data
+  // Calculate total pages from API's totalCount if available
+  const PAGE_SIZE = 50
   const hasNextPage = !!imagesData.next
-  const totalPages = hasNextPage ? currentPage + 1 : currentPage
-  const safePage = currentPage
+  const totalPages =
+    imagesData.totalCount !== undefined
+      ? Math.max(1, Math.ceil(imagesData.totalCount / PAGE_SIZE))
+      : hasNextPage
+        ? currentPage + 1
+        : currentPage
+  const safePage = Math.min(currentPage, totalPages)
 
   const activeFilterSettings =
     memberStatusView === "pending" || memberStatusView === "accepted"
@@ -496,7 +512,7 @@ export const Images = ({ client, project }: ImagesProps) => {
       newPromise
         .then((result) => {
           if (result.next && !pageMarkers.has(currentPage + 1)) {
-            setPageMarkers((prev) => new Map(prev).set(currentPage + 1, result.next))
+            setPageMarkers((prev) => new Map(prev).set(currentPage + 1, extractMarker(result.next)))
           }
         })
         .catch(() => {})
@@ -542,7 +558,7 @@ export const Images = ({ client, project }: ImagesProps) => {
       newPromise
         .then((result) => {
           if (result.next && !pageMarkers.has(urlPage + 1)) {
-            setPageMarkers((prev) => new Map(prev).set(urlPage + 1, result.next))
+            setPageMarkers((prev) => new Map(prev).set(urlPage + 1, extractMarker(result.next)))
           }
         })
         .catch(() => {})
