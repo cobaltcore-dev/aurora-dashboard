@@ -43,7 +43,7 @@ const imagesSearchFields = {
   page: z.number().int().positive().optional(),
 }
 
-const imagesSearchSchema = z.object(imagesSearchFields).passthrough()
+const imagesSearchSchema = z.looseObject(imagesSearchFields)
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images")({
   staticData: {
