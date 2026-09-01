@@ -28,8 +28,6 @@ import { CONTAINER_FORMATS, DISK_FORMATS, IMAGE_STATUSES, IMAGE_VISIBILITY } fro
 import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "./urlHelpers"
 import { createImagesPromise, createPermissionsPromise } from "./apiHelpers"
 
-const PAGE_SIZE = 50
-
 interface ImagesProps {
   client: TrpcClient
   project: string
@@ -60,6 +58,7 @@ type ImagesResult = {
   next?: string
   schema: string
   listError?: string
+  totalCount?: number
 }
 
 type ImagesContentProps = {
@@ -146,13 +145,11 @@ function ImagesContent({
     .filter((img) => !deletedImageIds.has(img.id))
     .map((img) => imageOverrides.get(img.id) ?? img)
 
-  const totalPages = Math.max(1, Math.ceil(images.length / PAGE_SIZE))
-  const safePage = Math.min(currentPage, totalPages)
-  const paginatedImages = images.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
-
-  useEffect(() => {
-    if (currentPage !== 1 && currentPage > totalPages) onPageChange(1)
-  }, [totalPages, currentPage, onPageChange])
+  // For server-side pagination: we know current page and if there's a next page
+  // We don't know total pages upfront, so we show currentPage and allow next if there's more data
+  const hasNextPage = !!imagesData.next
+  const totalPages = hasNextPage ? currentPage + 1 : currentPage
+  const safePage = currentPage
 
   const activeFilterSettings =
     memberStatusView === "pending" || memberStatusView === "accepted"
@@ -165,6 +162,9 @@ function ImagesContent({
 
   const displayedImageIds = new Set(images.map((image: GlanceImage) => image.id))
   const validSelectedImages = selectedImages.filter((imageId) => displayedImageIds.has(imageId))
+
+  // For checkbox behavior: use images from current page
+  const paginatedImages = images
 
   const deletableImages = validSelectedImages.filter((imageId) => {
     const image = images.find((image: GlanceImage) => image.id === imageId)
@@ -448,6 +448,7 @@ export const Images = ({ client, project }: ImagesProps) => {
   const [isFetching, setIsFetching] = useState(true)
   const [imageOverrides, setImageOverrides] = useState<Map<string, GlanceImage>>(new Map())
   const [deletedImageIds, setDeletedImageIds] = useState<Set<string>>(new Set())
+  const [pageMarkers, setPageMarkers] = useState<Map<number, string | undefined>>(new Map([[1, undefined]]))
   const [imagesPromise, setImagesPromise] = useState<Promise<ImagesResult>>(
     () =>
       new Promise(() => {
@@ -479,6 +480,7 @@ export const Images = ({ client, project }: ImagesProps) => {
         urlMemberStatus === "pending" || urlMemberStatus === "accepted"
           ? (filterSettings.selectedFilters || []).filter((f) => f.name !== "visibility")
           : filterSettings.selectedFilters || []
+      const marker = pageMarkers.get(currentPage)
       const newPromise = createImagesPromise(
         client,
         project,
@@ -488,18 +490,27 @@ export const Images = ({ client, project }: ImagesProps) => {
         {
           ...buildFilterParams(effectiveFilters, filterSettings.filters),
           member_status: urlMemberStatusFilter,
-        }
+        },
+        marker
       )
-      newPromise.catch(() => {}).finally(() => setIsFetching(false))
+      newPromise
+        .then((result) => {
+          if (result.next && !pageMarkers.has(currentPage + 1)) {
+            setPageMarkers((prev) => new Map(prev).set(currentPage + 1, result.next))
+          }
+        })
+        .catch(() => {})
+        .finally(() => setIsFetching(false))
       setImagesPromise(newPromise as Promise<ImagesResult>)
     })
-  }, [client, sortSettings, searchTerm, filterSettings, searchParams.memberStatus])
+  }, [client, sortSettings, searchTerm, filterSettings, searchParams.memberStatus, currentPage, pageMarkers])
 
   useEffect(() => {
     const urlFilters = parseFiltersFromUrl(searchParams)
     const urlSortBy = searchParams.sortBy || "created_at"
     const urlSortDirection = searchParams.sortDirection || "desc"
     const urlSearchTerm = searchParams.search || ""
+    const urlPage = searchParams.page ?? 1
 
     setFilterSettings((prev) => ({ ...prev, selectedFilters: urlFilters }))
     setSortSettings((prev) => ({ ...prev, sortBy: urlSortBy, sortDirection: urlSortDirection }))
@@ -515,11 +526,27 @@ export const Images = ({ client, project }: ImagesProps) => {
         urlMemberStatus === "pending" || urlMemberStatus === "accepted"
           ? (urlFilters || []).filter((f) => f.name !== "visibility")
           : urlFilters || []
-      const newPromise = createImagesPromise(client, project, urlSortBy, urlSortDirection, urlSearchTerm, {
-        ...buildFilterParams(effectiveFilters, filterSettings.filters),
-        member_status: urlMemberStatusFilter,
-      })
-      newPromise.catch(() => {}).finally(() => setIsFetching(false))
+      const marker = pageMarkers.get(urlPage)
+      const newPromise = createImagesPromise(
+        client,
+        project,
+        urlSortBy,
+        urlSortDirection,
+        urlSearchTerm,
+        {
+          ...buildFilterParams(effectiveFilters, filterSettings.filters),
+          member_status: urlMemberStatusFilter,
+        },
+        marker
+      )
+      newPromise
+        .then((result) => {
+          if (result.next && !pageMarkers.has(urlPage + 1)) {
+            setPageMarkers((prev) => new Map(prev).set(urlPage + 1, result.next))
+          }
+        })
+        .catch(() => {})
+        .finally(() => setIsFetching(false))
       setImagesPromise(newPromise as Promise<ImagesResult>)
     })
   }, [
@@ -532,6 +559,7 @@ export const Images = ({ client, project }: ImagesProps) => {
     searchParams.sortDirection,
     searchParams.search,
     searchParams.memberStatus,
+    searchParams.page,
   ])
 
   const handleSortChange = (newSortSettings: SortSettings) => {
@@ -541,6 +569,7 @@ export const Images = ({ client, project }: ImagesProps) => {
       sortDirection: newSortSettings.sortDirection || "desc",
     }
     setSortSettings(settings)
+    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         ...prev,
@@ -554,6 +583,7 @@ export const Images = ({ client, project }: ImagesProps) => {
 
   const handleFilterChange = (newFilterSettings: FilterSettings) => {
     setFilterSettings(newFilterSettings)
+    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) =>
         buildUrlSearchParams(newFilterSettings.selectedFilters || [], newFilterSettings.filters, {
@@ -569,6 +599,7 @@ export const Images = ({ client, project }: ImagesProps) => {
   const handleSearchChange = (term: string | number | string[] | undefined) => {
     const searchValue = typeof term === "string" ? term : ""
     setSearchTerm(searchValue)
+    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         ...prev,
@@ -580,6 +611,7 @@ export const Images = ({ client, project }: ImagesProps) => {
   }
 
   const handleMemberStatusChange = (view: "all" | "pending" | "accepted") => {
+    setPageMarkers(new Map([[1, undefined]]))
     navigate({
       search: ((prev: ImagesSearchParams) => ({
         sortBy: prev.sortBy,
