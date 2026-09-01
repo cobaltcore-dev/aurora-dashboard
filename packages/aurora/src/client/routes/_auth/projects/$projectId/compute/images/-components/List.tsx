@@ -159,12 +159,8 @@ function ImagesContent({
   // Calculate total pages from API's totalCount if available
   const PAGE_SIZE = 50
   const hasNextPage = !!imagesData.next
-  const totalPages =
-    imagesData.totalCount !== undefined
-      ? Math.max(1, Math.ceil(imagesData.totalCount / PAGE_SIZE))
-      : hasNextPage
-        ? currentPage + 1
-        : currentPage
+  const totalItems = imagesData.totalCount ?? (hasNextPage ? PAGE_SIZE * (currentPage + 1) : images.length)
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
   const safePage = Math.min(currentPage, totalPages)
 
   useEffect(() => {
@@ -599,6 +595,7 @@ export const Images = ({ client, project }: ImagesProps) => {
     searchParams.search,
     searchParams.memberStatus,
     searchParams.page,
+    pageMarkers,
   ])
 
   const handleSortChange = (newSortSettings: SortSettings) => {
