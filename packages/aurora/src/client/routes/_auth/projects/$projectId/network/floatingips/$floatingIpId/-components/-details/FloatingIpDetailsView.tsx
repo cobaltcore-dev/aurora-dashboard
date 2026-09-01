@@ -49,8 +49,8 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
       <ContentHeader
         title={floatingIp.floating_ip_address ?? floatingIp.id}
         projectId={floatingIp.project_id}
-        description="Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS
-          settings, and deletion"
+        description={t`Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS
+          settings, and deletion`}
         actions={
           <FloatingIpActionModals floatingIp={floatingIp}>
             {({ toggleEditModal, toggleAttachModal, toggleDetachModal, toggleReleaseModal }) => (

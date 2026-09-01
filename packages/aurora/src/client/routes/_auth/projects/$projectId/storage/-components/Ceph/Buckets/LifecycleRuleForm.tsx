@@ -170,19 +170,19 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
   const abortDaysError = daysError(hasAbortUploadValue, abortDaysValue)
 
   const canSubmit = () => {
-    const values = form.state.values
+    // Use the reactive values from useStore, not form.state.values
     const hasAtLeastOneAction =
-      values.hasExpiration ||
-      values.hasNoncurrentExpiration ||
-      values.hasAbortUpload ||
+      hasExpirationValue ||
+      hasNoncurrentExpirationValue ||
+      hasAbortUploadValue ||
       (editingRule?.Transitions !== undefined && editingRule.Transitions.length > 0) ||
       (editingRule?.NoncurrentVersionTransitions !== undefined && editingRule.NoncurrentVersionTransitions.length > 0)
 
     if (!hasAtLeastOneAction) return false
 
     // If expiration is checked, must have valid days OR we're preserving non-Days expiration from editing
-    if (values.hasExpiration) {
-      const r = parseDaysValue(values.expirationDays)
+    if (hasExpirationValue) {
+      const r = parseDaysValue(expirationDaysValue)
       const hasPreservableNonDaysExpiration =
         editingRule?.Expiration &&
         editingRule.Expiration.Days === undefined &&
@@ -192,12 +192,12 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
     }
 
     // If noncurrent expiration is checked, must have valid days
-    if (values.hasNoncurrentExpiration && !parseDaysValue(values.noncurrentDays).ok) return false
+    if (hasNoncurrentExpirationValue && !parseDaysValue(noncurrentDaysValue).ok) return false
 
     // If abort is checked, must have valid days
-    if (values.hasAbortUpload && !parseDaysValue(values.abortDays).ok) return false
+    if (hasAbortUploadValue && !parseDaysValue(abortDaysValue).ok) return false
 
-    if (values.hasAbortUpload && values.tags.length > 0) return false
+    if (hasAbortUploadValue && tagsValue.length > 0) return false
 
     return true
   }
@@ -213,6 +213,7 @@ export const LifecycleRuleForm = ({ editingRule, onSubmit, formId, onValidationC
     noncurrentDaysValue,
     abortDaysValue,
     tagsValue,
+    editingRule,
     onValidationChange,
   ])
 

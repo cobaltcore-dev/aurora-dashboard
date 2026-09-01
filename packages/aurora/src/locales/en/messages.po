@@ -407,9 +407,6 @@ msgstr "Already active (will be skipped)"
 msgid "Already active (will be skipped):"
 msgstr "Already active (will be skipped):"
 
-msgid "Already deactivated (will be skipped)"
-msgstr "Already deactivated (will be skipped)"
-
 msgid "Already deactivated (will be skipped):"
 msgstr "Already deactivated (will be skipped):"
 
@@ -418,9 +415,6 @@ msgstr "Also delete all versions and all delete markers"
 
 msgid "An object with this name already exists at the destination and will be overwritten."
 msgstr "An object with this name already exists at the destination and will be overwritten."
-
-msgid "An unexpected error occurred"
-msgstr "An unexpected error occurred"
 
 msgid "An unexpected error occurred."
 msgstr "An unexpected error occurred."
@@ -602,13 +596,11 @@ msgstr "Cancel upload"
 msgid "Cannot be combined with Tag Filters"
 msgstr "Cannot be combined with Tag Filters"
 
-#. placeholder {0}: validation.errors.join("; ")
-msgid "Cannot delete rule: {0}"
-msgstr "Cannot delete rule: {0}"
+msgid "Cannot delete rule: {errorMsg}"
+msgstr "Cannot delete rule: {errorMsg}"
 
-#. placeholder {0}: validation.errors.join("; ")
-msgid "Cannot delete rules: {0}"
-msgstr "Cannot delete rules: {0}"
+msgid "Cannot delete rules: {errorMsg}"
+msgstr "Cannot delete rules: {errorMsg}"
 
 msgid "Cannot move to the same location. Please select a different bucket, folder, or change the name."
 msgstr "Cannot move to the same location. Please select a different bucket, folder, or change the name."
@@ -721,9 +713,6 @@ msgstr "Container Name"
 msgid "Container name cannot contain slashes"
 msgstr "Container name cannot contain slashes"
 
-msgid "Container name does not match"
-msgstr "Container name does not match"
-
 msgid "Container name is required"
 msgstr "Container name is required"
 
@@ -751,8 +740,8 @@ msgstr "Containers Emptied"
 msgid "Containers Partially Emptied"
 msgstr "Containers Partially Emptied"
 
-msgid "Containers to be emptied ({totalCount})"
-msgstr "Containers to be emptied ({totalCount})"
+msgid "Containers to be emptied:"
+msgstr "Containers to be emptied:"
 
 msgid "Content type"
 msgstr "Content type"
@@ -768,9 +757,6 @@ msgstr "Copy"
 
 msgid "Copy {text} to clipboard"
 msgstr "Copy {text} to clipboard"
-
-msgid "Copy container name"
-msgstr "Copy container name"
 
 msgid "Copy metadata"
 msgstr "Copy metadata"
@@ -1060,9 +1046,6 @@ msgstr "Deactivating this image will prevent it from being used to launch new in
 msgid "Define permissions for this bucket. You may use one of the predefined templates."
 msgstr "Define permissions for this bucket. You may use one of the predefined templates."
 
-msgid "delete"
-msgstr "delete"
-
 msgid "Delete"
 msgstr "Delete"
 
@@ -1093,6 +1076,9 @@ msgstr "Delete CORS Rules"
 msgid "Delete Flavor"
 msgstr "Delete Flavor"
 
+msgid "Delete Flavor \"{flavorName}\""
+msgstr "Delete Flavor \"{flavorName}\""
+
 msgid "Delete Folder"
 msgstr "Delete Folder"
 
@@ -1104,6 +1090,9 @@ msgstr "Delete folder:"
 
 msgid "Delete Image"
 msgstr "Delete Image"
+
+msgid "Delete Image \"{imageName}\""
+msgstr "Delete Image \"{imageName}\""
 
 msgid "Delete Images"
 msgstr "Delete Images"
@@ -1186,14 +1175,14 @@ msgstr "Description must be less than 65535 characters."
 msgid "Detach"
 msgstr "Detach"
 
-msgid "Detach Floating IP {floating_ip_address}"
-msgstr "Detach Floating IP {floating_ip_address}"
-
-msgid "Detaching Floating IP..."
-msgstr "Detaching Floating IP..."
+msgid "Detach Floating IP \"{floating_ip_address}\""
+msgstr "Detach Floating IP \"{floating_ip_address}\""
 
 msgid "Detaching this Floating IP will remove its association with the current port. The instance will no longer be reachable through this address."
 msgstr "Detaching this Floating IP will remove its association with the current port. The instance will no longer be reachable through this address."
+
+msgid "Detaching..."
+msgstr "Detaching..."
 
 msgid "Details"
 msgstr "Details"
@@ -1365,6 +1354,9 @@ msgstr "Empty Bucket"
 
 msgid "Empty Buckets"
 msgstr "Empty Buckets"
+
+msgid "Empty Container"
+msgstr "Empty Container"
 
 msgid "Empty the bucket"
 msgstr "Empty the bucket"
@@ -1957,11 +1949,18 @@ msgstr "For <0>dynamic</0> and <1>static large objects</1> only the manifests ar
 msgid "For more details, have a look at the <0>documentation</0>."
 msgstr "For more details, have a look at the <0>documentation</0>."
 
+msgid ""
+"Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS\n"
+"          settings, and deletion"
+msgstr ""
+"Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS\n"
+"          settings, and deletion"
+
+msgid "Full Path"
+msgstr "Full Path"
+
 msgid "Full path:"
 msgstr "Full path:"
-
-msgid "Full Path:"
-msgstr "Full Path:"
 
 msgid "General Image Data"
 msgstr "General Image Data"
@@ -2098,9 +2097,6 @@ msgstr "Images to activate:"
 msgid "Images to be activated ({deactivatedCount})"
 msgstr "Images to be activated ({deactivatedCount})"
 
-msgid "Images to be deactivated ({activeCount})"
-msgstr "Images to be deactivated ({activeCount})"
-
 msgid "Images to deactivate:"
 msgstr "Images to deactivate:"
 
@@ -2182,9 +2178,6 @@ msgstr "Last Modified"
 msgid "Last modified (UTC)"
 msgstr "Last modified (UTC)"
 
-msgid "Last Modified:"
-msgstr "Last Modified:"
-
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
 
@@ -2257,11 +2250,11 @@ msgstr "Loading Flavors..."
 msgid "Loading Floating IP Details..."
 msgstr "Loading Floating IP Details..."
 
+msgid "Loading Floating IPs..."
+msgstr "Loading Floating IPs..."
+
 msgid "Loading Image Details..."
 msgstr "Loading Image Details..."
-
-msgid "Loading images..."
-msgstr "Loading images..."
 
 msgid "Loading Images..."
 msgstr "Loading Images..."
@@ -2295,6 +2288,9 @@ msgstr "Loading preview..."
 
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
+
+msgid "Loading Security Groups..."
+msgstr "Loading Security Groups..."
 
 msgid "Loading Server Groups..."
 msgstr "Loading Server Groups..."
@@ -2463,9 +2459,6 @@ msgstr "Name"
 
 msgid "Name must be 2-50 characters long."
 msgstr "Name must be 2-50 characters long."
-
-msgid "Name:"
-msgstr "Name:"
 
 msgid "Network"
 msgstr "Network"
@@ -2920,9 +2913,6 @@ msgstr "Range"
 msgid "RBAC Policies"
 msgstr "RBAC Policies"
 
-msgid "RBAC Policy Details:"
-msgstr "RBAC Policy Details:"
-
 msgid "Read ACLs"
 msgstr "Read ACLs"
 
@@ -2938,11 +2928,11 @@ msgstr "Rejected"
 msgid "Release"
 msgstr "Release"
 
-msgid "Release Floating IP {floating_ip_address}"
-msgstr "Release Floating IP {floating_ip_address}"
+msgid "Release Floating IP \"{floating_ip_address}\""
+msgstr "Release Floating IP \"{floating_ip_address}\""
 
-msgid "Releasing Floating IP..."
-msgstr "Releasing Floating IP..."
+msgid "Releasing..."
+msgstr "Releasing..."
 
 msgid "Remaining Quota:"
 msgstr "Remaining Quota:"
@@ -2958,9 +2948,6 @@ msgstr "Remote Security Group"
 
 msgid "Remote Source"
 msgstr "Remote Source"
-
-msgid "remove"
-msgstr "remove"
 
 msgid "Remove"
 msgstr "Remove"
@@ -3022,10 +3009,8 @@ msgstr "rule"
 msgid "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 msgstr "Rule \"{ruleId}\" was successfully deleted from bucket \"{bucketName}\"."
 
-#. placeholder {0}: index + 1
-#. placeholder {0}: ruleIndex + 1
-msgid "Rule #{0}"
-msgstr "Rule #{0}"
+msgid "Rule #{ruleNumber}"
+msgstr "Rule #{ruleNumber}"
 
 msgid "Rule Created"
 msgstr "Rule Created"
@@ -3309,14 +3294,14 @@ msgstr "Showing {filteredCount} of {totalCount} projects"
 msgid "Showing {rulesLength} of {totalCount} rules"
 msgstr "Showing {rulesLength} of {totalCount} rules"
 
-msgid "Showing first {actualObjectCount} of {total} objects"
-msgstr "Showing first {actualObjectCount} of {total} objects"
-
 msgid "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 msgstr "Showing first {MAX_COMBO_OPTIONS} of {totalBuckets}, refine your search to narrow results"
 
 msgid "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
 msgstr "Showing first {maxOptions} of {totalCount} — refine your search to narrow results"
+
+msgid "Showing first {shown} of {total} objects"
+msgstr "Showing first {shown} of {total} objects"
 
 msgid "Sign In"
 msgstr "Sign In"
@@ -3600,11 +3585,11 @@ msgstr "The tenant ID provided is invalid. Please check your input."
 msgid "The text must match \"delete\""
 msgstr "The text must match \"delete\""
 
-msgid "The text must match “detach” in lowercase."
-msgstr "The text must match “detach” in lowercase."
+msgid "The text must match \"detach\" in lowercase."
+msgstr "The text must match \"detach\" in lowercase."
 
-msgid "The text must match “release” in lowercase."
-msgstr "The text must match “release” in lowercase."
+msgid "The text must match \"release\" in lowercase."
+msgstr "The text must match \"release\" in lowercase."
 
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr "There are {bucketsCount} buckets, start typing to search"
@@ -3777,12 +3762,6 @@ msgstr "This will permanently delete all objects from {totalCount} selected {tot
 msgid "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
 msgstr "To access S3 Object Storage, you need EC2 credentials (access key + secret key). These credentials authenticate your requests to the Ceph storage backend."
 
-msgid "To confirm this action, type the word <0>“detach”</0> in the field below."
-msgstr "To confirm this action, type the word <0>“detach”</0> in the field below."
-
-msgid "To confirm this action, type the word <0>\"release\"</0> in the field below."
-msgstr "To confirm this action, type the word <0>\"release\"</0> in the field below."
-
 msgid "To confirm type <0>delete</0> in the field below."
 msgstr "To confirm type <0>delete</0> in the field below."
 
@@ -3819,32 +3798,14 @@ msgstr "Type \"delete\" to confirm"
 msgid "Type \"detach\" to confirm"
 msgstr "Type \"detach\" to confirm"
 
-msgid "Type “detach” to confirm"
-msgstr "Type “detach” to confirm"
-
 msgid "Type \"empty\" to confirm"
 msgstr "Type \"empty\" to confirm"
 
 msgid "Type \"release\" to confirm"
 msgstr "Type \"release\" to confirm"
 
-msgid "Type “release” to confirm"
-msgstr "Type “release” to confirm"
-
 msgid "Type \"remove\" to confirm"
 msgstr "Type \"remove\" to confirm"
-
-msgid "Type <0>{deleteWord}</0> to confirm:"
-msgstr "Type <0>{deleteWord}</0> to confirm:"
-
-msgid "Type <0>delete</0> to confirm:"
-msgstr "Type <0>delete</0> to confirm:"
-
-msgid "Type <0>remove</0> to confirm:"
-msgstr "Type <0>remove</0> to confirm:"
-
-msgid "Type container name to confirm"
-msgstr "Type container name to confirm"
 
 msgid "Type name"
 msgstr "Type name"

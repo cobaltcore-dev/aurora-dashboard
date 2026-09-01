@@ -12,6 +12,7 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
   return {
     ...actual,
     useParams: vi.fn(() => ({ projectId: "test-project" })),
+    useRouteContext: vi.fn(() => ({ onTrackEvent: vi.fn() })),
   }
 })
 
@@ -76,20 +77,20 @@ describe("DetachFloatingIpModal", () => {
     test("renders title with floating IP address", () => {
       renderModal()
 
-      expect(screen.getByText("Detach Floating IP 203.0.113.10")).toBeInTheDocument()
+      expect(screen.getByText('Detach Floating IP "203.0.113.10"')).toBeInTheDocument()
     })
 
     test("shows confirmation instructions", () => {
       renderModal()
 
       expect(screen.getByText(/Detaching this Floating IP will remove its association/i)).toBeInTheDocument()
-      expect(screen.getByText(/type the word/i)).toBeInTheDocument()
+      expect(screen.getByText(/Type "detach" to confirm/i)).toBeInTheDocument()
     })
 
     test("does not render when open is false", () => {
       renderModal({ open: false })
 
-      expect(screen.queryByText("Detach Floating IP 203.0.113.10")).not.toBeInTheDocument()
+      expect(screen.queryByText('Detach Floating IP "203.0.113.10"')).not.toBeInTheDocument()
     })
   })
 
@@ -99,7 +100,7 @@ describe("DetachFloatingIpModal", () => {
       renderModal()
 
       const detachButton = screen.getByRole("button", { name: "Detach" })
-      const input = screen.getByPlaceholderText('Type "detach" to confirm')
+      const input = screen.getByPlaceholderText("detach")
 
       expect(detachButton).toBeDisabled()
 
@@ -116,7 +117,7 @@ describe("DetachFloatingIpModal", () => {
       const user = userEvent.setup()
       renderModal({ onUpdate })
 
-      const input = screen.getByPlaceholderText('Type "detach" to confirm')
+      const input = screen.getByPlaceholderText("detach")
       await user.type(input, "detach")
       const detachButton = screen.getByRole("button", { name: "Detach" })
 
@@ -137,7 +138,7 @@ describe("DetachFloatingIpModal", () => {
       const user = userEvent.setup()
       renderModal({ onUpdate, onClose })
 
-      const input = screen.getByPlaceholderText('Type "detach" to confirm')
+      const input = screen.getByPlaceholderText("detach")
       await user.type(input, "detach")
       const detachButton = screen.getByRole("button", { name: "Detach" })
 
@@ -157,9 +158,9 @@ describe("DetachFloatingIpModal", () => {
     test("shows loading state and hides input form when isLoading is true", () => {
       renderModal({ isLoading: true })
 
-      expect(screen.getByText("Detaching Floating IP...")).toBeInTheDocument()
-      expect(screen.queryByPlaceholderText('Type "detach" to confirm')).not.toBeInTheDocument()
-      expect(screen.getByRole("button", { name: "Detach" })).toBeDisabled()
+      expect(screen.getByText("Detaching...")).toBeInTheDocument()
+      expect(screen.queryByPlaceholderText("detach")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Detaching..." })).toBeDisabled()
     })
 
     test("displays error message when error prop is provided", () => {
@@ -192,7 +193,7 @@ describe("DetachFloatingIpModal", () => {
       const onUpdate = vi.fn().mockResolvedValue(undefined)
       const { rerender } = renderModal({ onClose, onUpdate })
 
-      const input = screen.getByPlaceholderText('Type "detach" to confirm') as HTMLInputElement
+      const input = screen.getByPlaceholderText("detach") as HTMLInputElement
       await user.type(input, "detach")
       expect(input.value).toBe("detach")
 
@@ -223,7 +224,7 @@ describe("DetachFloatingIpModal", () => {
       )
 
       await waitFor(() => {
-        expect((screen.getByPlaceholderText('Type "detach" to confirm') as HTMLInputElement).value).toBe("")
+        expect((screen.getByPlaceholderText("detach") as HTMLInputElement).value).toBe("")
       })
     })
   })

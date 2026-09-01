@@ -62,10 +62,10 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
 
               {/* Images to be deactivated */}
               <div className="mb-6">
-                <h3 className="jn:text-theme-high mb-3 font-semibold">
-                  <Trans>Images to be deactivated ({activeCount})</Trans>
-                </h3>
-                <div className="jn:bg-theme-background-lvl-1 max-h-24 overflow-y-auto rounded p-4">
+                <p className="text-sm font-semibold">
+                  <Trans>Images to deactivate:</Trans>
+                </p>
+                <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
                   <ul className="space-y-2">
                     {activeImages.map((imageId) => (
                       <li key={imageId} className="jn:text-theme-default">
@@ -81,10 +81,10 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
           {/* Already deactivated images (if any) */}
           {deactivatedCount > 0 && (
             <div className="mb-6">
-              <h3 className="jn:text-theme-high mb-3 font-semibold">
-                <Trans>Already deactivated (will be skipped)</Trans>
-              </h3>
-              <div className="jn:bg-theme-background-lvl-1 max-h-24 overflow-y-auto rounded p-4">
+              <p className="text-sm font-semibold">
+                <Trans>Already deactivated (will be skipped):</Trans>
+              </p>
+              <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
                 <ul className="space-y-2">
                   {deactivatedImages.map((imageId) => (
                     <li key={imageId} className="jn:text-theme-default">
@@ -95,26 +95,6 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
               </div>
             </div>
           )}
-
-          {/* Summary */}
-          <div className="jn:bg-theme-background-lvl-2 mb-6 rounded p-4">
-            {activeCount > 0 && (
-              <div className="mb-2 flex justify-between">
-                <span className="jn:text-theme-default">
-                  <Trans>Images to deactivate:</Trans>
-                </span>
-                <span className="jn:text-theme-highest font-semibold">{activeCount}</span>
-              </div>
-            )}
-            {deactivatedCount > 0 && (
-              <div className="flex justify-between">
-                <span className="jn:text-theme-default">
-                  <Trans>Already deactivated (will be skipped):</Trans>
-                </span>
-                <span className="jn:text-theme-warning font-semibold">{deactivatedCount}</span>
-              </div>
-            )}
-          </div>
         </div>
       )}
     </Modal>

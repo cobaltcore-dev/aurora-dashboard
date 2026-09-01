@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react"
+import { z } from "zod"
+import { useForm, useStore } from "@tanstack/react-form"
+import React from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { GlanceImage } from "@/server/Compute/types/image"
 import {
@@ -7,9 +9,12 @@ import {
   DescriptionTerm,
   Modal,
   Stack,
+  Form,
+  FormSection,
   TextInput,
 } from "@cloudoperators/juno-ui-components"
 import { SizeDisplay } from "./SizeDisplay"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 
 interface DeleteImageModalProps {
   image: GlanceImage
@@ -31,38 +36,57 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
   if (!image) return null
 
   const { t } = useLingui()
-  const [confirmText, setConfirmText] = useState("")
 
-  useEffect(() => {
-    if (!isOpen) {
-      setConfirmText("")
-    }
-  }, [isOpen])
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "compute.image.delete",
+  })
+
+  const formSchema = z.object({
+    confirm: z.string().refine((value) => value === "delete", {
+      message: t`Type "delete" to confirm`,
+    }),
+  })
+
+  const form = useForm({
+    defaultValues: {
+      confirm: "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async () => {
+      if (isLoading || isDisabled) return
+
+      markSubmitted()
+      onDelete(image)
+      handleClose()
+    },
+  })
+
+  const canDelete = useStore(form.store, (state) => state.isSubmitting || state.values.confirm !== "delete")
 
   const handleClose = () => {
-    setConfirmText("")
+    trackClose()
+    form.reset()
+    resetTracking()
     onClose()
   }
 
-  const handleConfirm = () => {
-    onDelete(image)
-    handleClose()
-  }
-
-  const isConfirmValid = confirmText === "delete"
   const confirmLabel = isLoading ? t`Deleting...` : t`Delete Image`
+  const imageName = image?.name || image?.id
 
   return (
     <Modal
       open={isOpen}
       onCancel={handleClose}
-      size="large"
-      title={t`Delete Image`}
+      size="small"
+      title={t`Delete Image "${imageName}"`}
       confirmButtonLabel={confirmLabel}
       confirmButtonVariant="primary-danger"
-      onConfirm={handleConfirm}
+      onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isConfirmValid || isLoading || isDisabled}
+      disableConfirmButton={canDelete || isLoading || isDisabled}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
     >
@@ -95,15 +119,33 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
           </DescriptionList>
         )}
 
-        <div>
-          <TextInput
-            label={t`Type "delete" to confirm`}
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            placeholder="delete"
-            autoFocus
-          />
-        </div>
+        <Form
+          className="mb-0"
+          id="delete-image-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+        >
+          <FormSection>
+            <form.Field
+              name="confirm"
+              children={(field) => (
+                <TextInput
+                  id={field.name}
+                  name={field.name}
+                  label={t`Type "delete" to confirm`}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="delete"
+                  autoFocus
+                  disabled={isLoading}
+                  required
+                />
+              )}
+            />
+          </FormSection>
+        </Form>
       </Stack>
     </Modal>
   )

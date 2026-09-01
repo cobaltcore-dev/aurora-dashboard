@@ -67,6 +67,7 @@ export const DeleteBucketPolicyModal = ({
   }, [isOpen, bucketName])
 
   const handleClose = () => {
+    trackClose()
     deleteMutation.reset()
     resetTracking()
     onClose()
@@ -89,10 +90,7 @@ export const DeleteBucketPolicyModal = ({
     <Modal
       title={t`Delete Bucket Policy`}
       open={isOpen}
-      onCancel={() => {
-        trackClose()
-        handleClose()
-      }}
+      onCancel={handleClose}
       confirmButtonLabel={t`Delete Policy`}
       confirmButtonVariant="primary-danger"
       onConfirm={handleDelete}
