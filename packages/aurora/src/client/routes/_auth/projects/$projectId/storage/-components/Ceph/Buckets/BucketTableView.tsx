@@ -163,14 +163,12 @@ export const BucketTableView = ({
             style={{ height: `${bodyHeight ?? 0}px` }}
             data-testid="buckets-table-body"
           >
-            <div
+            <DataGrid
               style={{
                 height: `${totalSize}px`,
                 width: "100%",
                 position: "relative",
               }}
-              className="juno-datagrid"
-              role="grid"
             >
               {virtualItems.map((virtualRow) => {
                 const bucket = buckets[virtualRow.index]
@@ -188,12 +186,10 @@ export const BucketTableView = ({
                   })
 
                 return (
-                  <div
+                  <DataGridRow
                     key={bucket.name}
                     data-index={virtualRow.index}
                     ref={measureElement}
-                    className="datagrid-row datagrid-row-hoverable"
-                    role="row"
                     style={{
                       position: "absolute",
                       top: 0,
@@ -263,10 +259,10 @@ export const BucketTableView = ({
                         </PopupMenuOptions>
                       </PopupMenu>
                     </DataGridCell>
-                  </div>
+                  </DataGridRow>
                 )
               })}
-            </div>
+            </DataGrid>
           </div>
         </div>
       )}

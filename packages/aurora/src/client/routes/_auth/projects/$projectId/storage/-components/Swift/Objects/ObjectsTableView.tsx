@@ -292,14 +292,12 @@ export const ObjectsTableView = ({
           style={{ height: `${bodyHeight ?? 0}px` }}
           data-testid="objects-table-body"
         >
-          <div
+          <DataGrid
             style={{
               height: `${totalSize}px`,
               width: "100%",
               position: "relative",
             }}
-            className="juno-datagrid"
-            role="grid"
           >
             {virtualItems.map((virtualRow) => {
               const row = rows[virtualRow.index]
@@ -312,7 +310,7 @@ export const ObjectsTableView = ({
               const isSelected = !isFolder && selectedObjects.includes(row.name)
 
               return (
-                <div
+                <DataGridRow
                   key={row.name}
                   data-index={virtualRow.index}
                   ref={measureElement}
@@ -484,10 +482,10 @@ export const ObjectsTableView = ({
                       </PopupMenuOptions>
                     </PopupMenu>
                   </DataGridCell>
-                </div>
+                </DataGridRow>
               )
             })}
-          </div>
+          </DataGrid>
         </div>
       </div>
 

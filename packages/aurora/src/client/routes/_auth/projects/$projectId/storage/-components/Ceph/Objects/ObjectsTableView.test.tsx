@@ -864,6 +864,18 @@ describe("ObjectsTableView", () => {
       expect(screen.getByTestId("objects-table-body").style.height).not.toBe("0px")
       expect(screen.getByTestId("object-row-file1.txt")).toBeInTheDocument()
     })
+
+    // #1223: the virtualized body must be a single grid wrapper with the rows as
+    // role="row" children — previously each row carried the grid itself (one grid
+    // per row), causing extra re-renders and broken grid semantics.
+    it("renders one grid wrapper with row children, not a grid per row", () => {
+      render(<ObjectsTableView {...defaultProps} />)
+      const body = screen.getByTestId("objects-table-body")
+      const grids = within(body).getAllByRole("grid")
+      expect(grids).toHaveLength(1)
+      const rows = within(grids[0]).getAllByRole("row")
+      expect(rows.length).toBeGreaterThan(1)
+    })
   })
 
   describe("Share URL (presigned URL)", () => {

@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act } from "@testing-library/react"
+import { render, screen, act, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -180,6 +180,18 @@ describe("BucketTableView", () => {
       expect(screen.getByTestId("bucket-row-bucket-1")).toBeInTheDocument()
       expect(screen.getByTestId("bucket-row-bucket-2")).toBeInTheDocument()
       expect(screen.getByTestId("bucket-row-bucket-3")).toBeInTheDocument()
+    })
+
+    // #1223: the virtualized body must be a single grid wrapper with the rows as
+    // role="row" children — previously each row carried the grid itself (one grid
+    // per row), causing extra re-renders and broken grid semantics.
+    test("renders one grid wrapper with row children, not a grid per row", () => {
+      renderTableView()
+      const body = screen.getByTestId("buckets-table-body")
+      const grids = within(body).getAllByRole("grid")
+      expect(grids).toHaveLength(1)
+      const rows = within(grids[0]).getAllByRole("row")
+      expect(rows.length).toBeGreaterThan(1)
     })
 
     test("displays bucket names", () => {

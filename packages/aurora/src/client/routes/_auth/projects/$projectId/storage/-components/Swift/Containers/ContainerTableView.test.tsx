@@ -1,6 +1,6 @@
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act, waitFor } from "@testing-library/react"
+import { render, screen, act, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -242,6 +242,18 @@ describe("ContainerTableView", () => {
       renderView()
       expect(screen.getByTestId("containers-table-body")).toBeInTheDocument()
     })
+
+    // #1223: the virtualized body must be a single grid wrapper with the rows as
+    // role="row" children — previously each row carried the grid itself (one grid
+    // per row), causing extra re-renders and broken grid semantics.
+    test("renders one grid wrapper with row children, not a grid per row", () => {
+      renderView()
+      const body = screen.getByTestId("containers-table-body")
+      const grids = within(body).getAllByRole("grid")
+      expect(grids).toHaveLength(1)
+      const rows = within(grids[0]).getAllByRole("row")
+      expect(rows.length).toBeGreaterThan(1)
+    })
   })
 
   describe("Container rows", () => {
@@ -368,12 +380,15 @@ describe("ContainerTableView", () => {
       })
     })
 
-    test("container rows have tabIndex 0 and role link", () => {
+    test("container rows have tabIndex 0 and role row", () => {
       renderView()
       mockContainers.forEach((c) => {
         const row = screen.getByTestId(`container-row-${c.name}`)
         expect(row).toHaveAttribute("tabindex", "0")
-        expect(row).toHaveAttribute("role", "link")
+        // Rows now render via Juno's <DataGridRow>, which sets role="row"
+        // (previously the row div used role="link"). Row-click / keyboard
+        // navigation is unchanged — see the navigation tests above.
+        expect(row).toHaveAttribute("role", "row")
       })
     })
 

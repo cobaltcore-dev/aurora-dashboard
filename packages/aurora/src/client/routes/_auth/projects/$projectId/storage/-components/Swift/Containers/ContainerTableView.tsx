@@ -190,14 +190,12 @@ export const ContainerTableView = ({
           style={{ height: `${bodyHeight ?? 0}px` }}
           data-testid="containers-table-body"
         >
-          <div
+          <DataGrid
             style={{
               height: `${totalSize}px`,
               width: "100%",
               position: "relative",
             }}
-            className="juno-datagrid"
-            role="grid"
           >
             {virtualItems.map((virtualRow) => {
               const container = containers[virtualRow.index]
@@ -210,12 +208,10 @@ export const ContainerTableView = ({
                 })
 
               return (
-                <div
+                <DataGridRow
                   key={container.name}
                   data-index={virtualRow.index}
                   ref={measureElement}
-                  className="datagrid-row datagrid-row-hoverable"
-                  role="row"
                   style={{
                     position: "absolute",
                     top: 0,
@@ -286,10 +282,10 @@ export const ContainerTableView = ({
                       </PopupMenuOptions>
                     </PopupMenu>
                   </DataGridCell>
-                </div>
+                </DataGridRow>
               )
             })}
-          </div>
+          </DataGrid>
         </div>
       </div>
 
