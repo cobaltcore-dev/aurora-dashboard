@@ -202,7 +202,7 @@ describe("DeleteObjectModal", () => {
 
     it("disables confirm button when confirmText is empty", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Object$/i })).toBeDisabled()
     })
 
     it("enables confirm button when 'delete' is typed", async () => {
@@ -210,7 +210,7 @@ describe("DeleteObjectModal", () => {
       renderModal()
       const input = screen.getByLabelText(/Type "delete" to confirm/i)
       await user.type(input, "delete")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Object$/i })).not.toBeDisabled()
     })
 
     it("does not show SLO or DLO info notes for regular objects", () => {
@@ -405,7 +405,7 @@ describe("DeleteObjectModal", () => {
       renderModal({ onError })
       const input = screen.getByLabelText(/Type "delete" to confirm/i)
       await user.type(input, "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete `Object$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       expect(onError).toHaveBeenCalledWith("report.pdf", "Forbidden")
     })
 
