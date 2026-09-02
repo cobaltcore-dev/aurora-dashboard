@@ -320,16 +320,18 @@ describe("BucketTableView", () => {
       expect(screen.queryByTestId("delete-action-bucket-1")).not.toBeInTheDocument()
     })
 
-    test("hides Empty Bucket but keeps Delete Bucket for an already-empty bucket when permitted", async () => {
+    test("shows Empty Bucket for an already-empty bucket when permitted", async () => {
       const user = userEvent.setup()
       renderTableView()
 
-      // bucket-3 has count: 0, bytes: 0 in the fixtures above
+      // bucket-3 has count: 0, bytes: 0 in the fixtures above — the list metadata alone
+      // can't tell whether old versions/delete markers remain, so the row action stays
+      // visible and EmptyBucketModal does the live re-check when opened.
       const toggle = screen.getByTestId("bucket-row-bucket-3").querySelector("button")
       if (toggle) await user.click(toggle)
 
       expect(await screen.findByTestId("delete-action-bucket-3")).toBeInTheDocument()
-      expect(screen.queryByTestId("empty-action-bucket-3")).not.toBeInTheDocument()
+      expect(await screen.findByTestId("empty-action-bucket-3")).toBeInTheDocument()
     })
 
     test("shows Empty Bucket for a non-empty bucket when permitted", async () => {
