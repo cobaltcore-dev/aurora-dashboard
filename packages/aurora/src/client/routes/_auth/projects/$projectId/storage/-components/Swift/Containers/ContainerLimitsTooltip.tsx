@@ -63,7 +63,7 @@ export const ContainerLimitsTooltip = ({ serviceInfo, accountInfo, open }: Conta
 
   return (
     <Tooltip triggerEvent="hover" placement="bottom-end" open={open}>
-      <TooltipTrigger>
+      <TooltipTrigger className="max-h-5">
         <span>
           <Icon icon="info" size="20px" className="text-theme-light hover:text-theme-default cursor-pointer" />
         </span>
