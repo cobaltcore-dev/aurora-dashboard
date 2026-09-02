@@ -157,7 +157,7 @@ describe("DeleteObjectModal", () => {
       mockMetadataLoading = true
       mockMetadata = null
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Object$/i })).toBeDisabled()
     })
 
     it("shows error message when metadata fetch fails", () => {
@@ -172,7 +172,7 @@ describe("DeleteObjectModal", () => {
       mockMetadataError = { message: "Forbidden" }
       mockMetadata = null
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Object$/i })).toBeDisabled()
     })
   })
 
@@ -202,7 +202,7 @@ describe("DeleteObjectModal", () => {
 
     it("disables confirm button when confirmText is empty", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Object$/i })).toBeDisabled()
     })
 
     it("enables confirm button when 'delete' is typed", async () => {
@@ -210,7 +210,7 @@ describe("DeleteObjectModal", () => {
       renderModal()
       const input = screen.getByLabelText(/Type "delete" to confirm/i)
       await user.type(input, "delete")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Object$/i })).not.toBeDisabled()
     })
 
     it("does not show SLO or DLO info notes for regular objects", () => {
@@ -229,7 +229,7 @@ describe("DeleteObjectModal", () => {
       renderModal()
       const input = screen.getByLabelText(/Type "delete" to confirm/i)
       await user.type(input, "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       const call = mockMutate.mock.calls[0][0]
       expect(call.container).toBe("test-container")
       expect(call.object).toBe("folder/report.pdf")
@@ -264,7 +264,7 @@ describe("DeleteObjectModal", () => {
       renderModal()
       const input = screen.getByLabelText(/Type "delete" to confirm/i)
       await user.type(input, "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       expect(mockMutate).toHaveBeenCalledWith(
         expect.objectContaining({
           project_id: mockProjectId,
@@ -282,7 +282,7 @@ describe("DeleteObjectModal", () => {
       const input = screen.getByLabelText(/Type "delete" to confirm/i)
       await user.type(input, "delete")
       await user.click(screen.getByRole("checkbox"))
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       const call = mockMutate.mock.calls[0][0]
       expect(call).not.toHaveProperty("multipartManifest")
     })
@@ -315,7 +315,7 @@ describe("DeleteObjectModal", () => {
       renderModal()
       const input = screen.getByLabelText(/Type "delete" to confirm/i)
       await user.type(input, "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       const call = mockMutate.mock.calls[0][0]
       expect(call).not.toHaveProperty("multipartManifest")
     })
@@ -394,7 +394,7 @@ describe("DeleteObjectModal", () => {
       renderModal({ onSuccess })
       const input = screen.getByLabelText(/Type "delete" to confirm/i)
       await user.type(input, "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       expect(onSuccess).toHaveBeenCalledWith("report.pdf")
     })
 
@@ -405,7 +405,7 @@ describe("DeleteObjectModal", () => {
       renderModal({ onError })
       const input = screen.getByLabelText(/Type "delete" to confirm/i)
       await user.type(input, "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       expect(onError).toHaveBeenCalledWith("report.pdf", "Forbidden")
     })
 
@@ -416,7 +416,7 @@ describe("DeleteObjectModal", () => {
       renderModal({ onClose })
       const input = screen.getByLabelText(/Type "delete" to confirm/i)
       await user.type(input, "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Object$/i }))
       expect(onClose).toHaveBeenCalled()
     })
 
