@@ -1,7 +1,16 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Checkbox, Spinner } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  ModalFooter,
+  Button,
+  ButtonRow,
+  TextInput,
+  Stack,
+  Checkbox,
+  Spinner,
+} from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { calculateBucketState } from "../hooks/bucketStateHelpers"
@@ -41,11 +50,15 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     },
     {
       enabled: !!projectId && !!bucket && isOpen,
-      staleTime: 30 * 1000,
+      // App-wide default staleTime is 60s (see App.tsx) — override it so every
+      // open of this modal re-verifies live instead of serving cached data.
+      staleTime: 0,
     }
   )
 
-  // Query to check if bucket has versions/delete markers (only when versioning is enabled/suspended)
+  // Query to check if bucket has versions/delete markers. Always runs (regardless of
+  // versioning status) to get accurate live data for the truly-empty check below —
+  // bucket.count from the list cache can be stale.
   // Use maxKeys=100 to get enough data - with maxKeys=1 we might miss current objects
   // if the first result is a delete marker
   const {
@@ -61,21 +74,32 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       showVersions: true,
     },
     {
-      enabled: !!projectId && !!bucket && isOpen && versioningStatus?.status !== "Unversioned",
-      staleTime: 30 * 1000,
+      enabled: !!projectId && !!bucket && isOpen,
+      // App-wide default staleTime is 60s (see App.tsx) — override it so every
+      // open of this modal re-verifies live instead of serving cached data.
+      staleTime: 0,
     }
   )
 
-  // Check bucket state using shared helper
+  // Check bucket state using shared helper. Pass 0 instead of bucket.count (list-cache
+  // metadata, can be stale) — this modal exists specifically to be the live, authoritative
+  // check, so it must rely on allVersions from the fresh query above, not the cached count.
   const isVersioningEnabled = versioningStatus?.status === "Enabled" || versioningStatus?.status === "Suspended"
   const allVersions = versionCheckData?.versions ?? []
-  const bucketObjectCount = bucket?.count ?? 0
-  const { isBucketEmpty, hasOnlyDeleteMarkers } = calculateBucketState(
+  const { isBucketEmpty, hasOnlyDeleteMarkers, hasOldVersionsOrDeleteMarkers } = calculateBucketState(
     allVersions,
     isVersioningEnabled,
-    bucketObjectCount
+    0
   )
-  const isBucketEmptyWithVersions = isBucketEmpty && hasOnlyDeleteMarkers
+  // objects.list only returns the first page (maxKeys: 100). If it's truncated, allVersions
+  // is incomplete and can't be trusted to classify the bucket as empty/delete-markers-only —
+  // fall back to the standard destructive form instead of risking a wrong "safe" branch.
+  const isVersionDataComplete = !versionCheckData?.isTruncated
+  const isBucketEmptyWithVersions = isVersionDataComplete && isBucketEmpty && hasOnlyDeleteMarkers
+  // Bucket has zero current objects AND zero versions/delete markers of any kind —
+  // genuinely nothing to empty (unlike isBucketEmptyWithVersions, which still has
+  // delete markers to clean up). Distinct render branch below shows an info-only view.
+  const isTrulyEmpty = isVersionDataComplete && isBucketEmpty && !hasOldVersionsOrDeleteMarkers
 
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
     onSettled: () => {
@@ -185,6 +209,43 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
             autoFocus
           />
         </Stack>
+      </Modal>
+    )
+  }
+
+  // Bucket is genuinely empty — nothing to delete, show an info-only view
+  if (isTrulyEmpty && !isLoading) {
+    return (
+      <Modal
+        title={t`Empty Bucket`}
+        open={isOpen}
+        onCancel={handleClose}
+        size="small"
+        modalFooter={
+          <ModalFooter className="flex justify-end">
+            <ButtonRow>
+              <Button variant="primary" onClick={handleClose} data-testid="empty-info-close-button">
+                <Trans>Close</Trans>
+              </Button>
+            </ButtonRow>
+          </ModalFooter>
+        }
+      >
+        {hasQueryError ? (
+          <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
+            {versioningError && versionCheckError ? (
+              <Trans>Unable to verify bucket versioning status and contents. Please try again.</Trans>
+            ) : versioningError ? (
+              <Trans>Unable to verify bucket versioning status. Please try again.</Trans>
+            ) : (
+              <Trans>Unable to verify bucket contents. Please try again.</Trans>
+            )}
+          </div>
+        ) : (
+          <p className="text-theme-default py-2">
+            <Trans>This bucket is already empty.</Trans>
+          </p>
+        )}
       </Modal>
     )
   }
