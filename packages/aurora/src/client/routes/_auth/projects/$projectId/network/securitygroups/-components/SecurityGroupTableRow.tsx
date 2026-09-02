@@ -68,7 +68,6 @@ export function SecurityGroupTableRow({
       <DataGridCell>
         <div>
           <p className="text-md">{sg.name}</p>
-          <p className="text-theme-light text-xs">{sg.id}</p>
         </div>
       </DataGridCell>
       <DataGridCell>{sg.description || t`—`}</DataGridCell>

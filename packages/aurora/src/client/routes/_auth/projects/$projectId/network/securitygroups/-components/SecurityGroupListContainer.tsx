@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import { DataGrid, DataGridHeadCell, DataGridRow, Status } from "@cloudoperators/juno-ui-components"
+import { DataGrid, DataGridCell, DataGridHeadCell, DataGridRow, Status } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate } from "@tanstack/react-router"
 import { useProjectId } from "@/client/hooks"
@@ -138,25 +138,39 @@ export const SecurityGroupListContainer = ({
             <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
           ))}
         </DataGridRow>
-        {securityGroups.map((sg) => {
-          // Compute isReadOnly only when the security group has an explicit project owner
-          const isReadOnly = Boolean(currentProjectId && sg.project_id && sg.project_id !== currentProjectId)
 
-          return (
-            <SecurityGroupTableRow
-              key={sg.id}
-              securityGroup={sg}
-              permissions={permissions}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onViewDetails={handleViewDetails}
-              isReadOnly={isReadOnly}
-              showSelectColumn={hasAnyBulkAction}
-              isSelected={false}
-              onSelect={() => {}}
-            />
-          )
-        })}
+        {securityGroups && securityGroups.length > 0 ? (
+          securityGroups.map((sg) => {
+            // Compute isReadOnly only when the security group has an explicit project owner
+            const isReadOnly = Boolean(currentProjectId && sg.project_id && sg.project_id !== currentProjectId)
+
+            return (
+              <SecurityGroupTableRow
+                key={sg.id}
+                securityGroup={sg}
+                permissions={permissions}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onViewDetails={handleViewDetails}
+                isReadOnly={isReadOnly}
+                showSelectColumn={hasAnyBulkAction}
+                isSelected={false}
+                onSelect={() => {}}
+              />
+            )
+          })
+        ) : (
+          <DataGridRow>
+            <DataGridCell colSpan={5}>
+              <Status
+                status="empty"
+                title={t`No security groups  found`}
+                body={t`There are no security groups available for this project with the current filters applied. Try adjusting your
+                               filter criteria or create a new security group to get started.`}
+              />
+            </DataGridCell>
+          </DataGridRow>
+        )}
       </DataGrid>
 
       {selectedSecurityGroup && (

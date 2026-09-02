@@ -4,7 +4,6 @@ import {
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
-  ContentHeading,
   PopupMenu,
   PopupMenuOptions,
   PopupMenuItem,
@@ -102,26 +101,6 @@ export const FlavorListContainer = ({
     return <Status status="progress" title={t`Loading...`} />
   }
 
-  if (!flavors || flavors.length === 0) {
-    return (
-      <DataGrid columns={7} className="flavors" data-testid="no-flavors">
-        <DataGridRow>
-          <DataGridCell colSpan={7}>
-            <ContentHeading>
-              <Trans>No flavors found</Trans>
-            </ContentHeading>
-            <p>
-              <Trans>
-                There are no flavors available for this project with the current filters applied. Try adjusting your
-                filter criteria or create a new flavor.
-              </Trans>
-            </p>
-          </DataGridCell>
-        </DataGridRow>
-      </DataGrid>
-    )
-  }
-
   return (
     <>
       <DataGrid columns={7} minContentColumns={[6]} className="flavors" data-testid="flavors-table">
@@ -147,56 +126,69 @@ export const FlavorListContainer = ({
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
 
-        {flavors.map((flavor) => (
-          <DataGridRow
-            key={flavor.id}
-            data-testid={`flavor-row-${flavor.id}`}
-            onClick={() =>
-              navigate({
-                to: "/projects/$projectId/compute/flavors/$flavorId",
-                params: { projectId, flavorId: flavor.id },
-              })
-            }
-          >
-            <DataGridCell>{flavor.name || flavor.id}</DataGridCell>
-            <DataGridCell>{flavor.vcpus || "–"}</DataGridCell>
-            <DataGridCell>{flavor.ram || "–"}</DataGridCell>
-            <DataGridCell>{flavor.disk || "–"}</DataGridCell>
-            <DataGridCell>{flavor.swap || "–"}</DataGridCell>
-            <DataGridCell>{flavor["os-flavor-access:is_public"] === false ? t`Private` : t`Public`}</DataGridCell>
-            <DataGridCell onClick={(e) => e.stopPropagation()}>
-              <PopupMenu>
-                <PopupMenuOptions>
-                  <PopupMenuItem
-                    label={t`Details`}
-                    onClick={() =>
-                      navigate({
-                        to: "/projects/$projectId/compute/flavors/$flavorId",
-                        params: { projectId, flavorId: flavor.id },
-                      })
-                    }
-                  />
-                  {(canManageSpecs || canListSpecs) && (
+        {flavors && flavors.length > 0 ? (
+          flavors.map((flavor) => (
+            <DataGridRow
+              key={flavor.id}
+              data-testid={`flavor-row-${flavor.id}`}
+              onClick={() =>
+                navigate({
+                  to: "/projects/$projectId/compute/flavors/$flavorId",
+                  params: { projectId, flavorId: flavor.id },
+                })
+              }
+            >
+              <DataGridCell>{flavor.name || flavor.id}</DataGridCell>
+              <DataGridCell>{flavor.vcpus || "–"}</DataGridCell>
+              <DataGridCell>{flavor.ram || "–"}</DataGridCell>
+              <DataGridCell>{flavor.disk || "–"}</DataGridCell>
+              <DataGridCell>{flavor.swap || "–"}</DataGridCell>
+              <DataGridCell>{flavor["os-flavor-access:is_public"] === false ? t`Private` : t`Public`}</DataGridCell>
+              <DataGridCell onClick={(e) => e.stopPropagation()}>
+                <PopupMenu>
+                  <PopupMenuOptions>
                     <PopupMenuItem
-                      label={canManageSpecs ? t`Edit Metadata` : t`Metadata`}
-                      onClick={() => openSpecModal(flavor)}
+                      label={t`Details`}
+                      onClick={() =>
+                        navigate({
+                          to: "/projects/$projectId/compute/flavors/$flavorId",
+                          params: { projectId, flavorId: flavor.id },
+                        })
+                      }
                     />
-                  )}
-                  {canMangageAccess && (
-                    <PopupMenuItem
-                      label={t`Manage Access`}
-                      onClick={() => openAccessModal(flavor)}
-                      disabled={flavor["os-flavor-access:is_public"] !== false}
-                    />
-                  )}
-                  {canDeleteFlavor && (
-                    <PopupMenuItem label={t`Delete Flavor`} onClick={() => openDeleteModal(flavor)} />
-                  )}
-                </PopupMenuOptions>
-              </PopupMenu>
+                    {(canManageSpecs || canListSpecs) && (
+                      <PopupMenuItem
+                        label={canManageSpecs ? t`Edit Metadata` : t`Metadata`}
+                        onClick={() => openSpecModal(flavor)}
+                      />
+                    )}
+                    {canMangageAccess && (
+                      <PopupMenuItem
+                        label={t`Manage Access`}
+                        onClick={() => openAccessModal(flavor)}
+                        disabled={flavor["os-flavor-access:is_public"] !== false}
+                      />
+                    )}
+                    {canDeleteFlavor && (
+                      <PopupMenuItem label={t`Delete Flavor`} onClick={() => openDeleteModal(flavor)} />
+                    )}
+                  </PopupMenuOptions>
+                </PopupMenu>
+              </DataGridCell>
+            </DataGridRow>
+          ))
+        ) : (
+          <DataGridRow>
+            <DataGridCell colSpan={7}>
+              <Status
+                status="empty"
+                title={t`No flavors found`}
+                body={t`          There are no flavors available for this project with the current filters applied. Try adjusting your
+                  filter criteria or create a new flavor.`}
+              />
             </DataGridCell>
           </DataGridRow>
-        ))}
+        )}
       </DataGrid>
       {totalPages > 1 && (
         <div className="flex justify-center py-4">

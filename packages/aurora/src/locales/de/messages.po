@@ -13,6 +13,11 @@ msgstr ""
 "Language: \n"
 "Language-Team: \n"
 
+msgid ""
+"          There are no flavors available for this project with the current filters applied. Try adjusting your\n"
+"                  filter criteria or create a new flavor."
+msgstr ""
+
 msgid "-"
 msgstr "-"
 
@@ -2561,6 +2566,9 @@ msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projek
 msgid "No rules found"
 msgstr ""
 
+msgid "No security groups  found"
+msgstr ""
+
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
 
@@ -3569,17 +3577,18 @@ msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuch
 msgid "There are no CORS rules for this bucket"
 msgstr ""
 
-msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
-msgstr "Keine Flavors verfügbar. Filtern Sie neu oder erstellen Sie einen neuen Flavor."
-
-msgid "There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses to instances."
-msgstr "Für dieses Projekt sind keine Floating IPs verfügbar. Floating IPs ermöglichen es, öffentliche IP-Adressen Instances zuzuordnen."
+msgid ""
+"There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses\n"
+"                to instances."
+msgstr ""
 
 msgid "There are no groups"
 msgstr "Keine Gruppen vorhanden"
 
-msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
-msgstr "Keine Images verfügbar. Filtern Sie neu oder erstellen Sie ein neues Image."
+msgid ""
+"There are no images available for this project with the current filters applied. Try adjusting your\n"
+"                     filter criteria or create a new image."
+msgstr ""
 
 msgid "There are no lifecycle rules for this bucket"
 msgstr ""
@@ -3589,6 +3598,11 @@ msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
 
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
+
+msgid ""
+"There are no security groups available for this project with the current filters applied. Try adjusting your\n"
+"                               filter criteria or create a new security group to get started."
+msgstr ""
 
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr ""

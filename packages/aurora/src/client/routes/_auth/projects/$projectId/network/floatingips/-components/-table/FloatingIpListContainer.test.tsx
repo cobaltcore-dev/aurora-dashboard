@@ -130,13 +130,13 @@ describe("FloatingIpListContainer", () => {
       expect(screen.getByText(/Floating IPs allow you to map public IP addresses/i)).toBeInTheDocument()
     })
 
-    it("has correct data-testid for empty state", () => {
+    it("renders empty state inside the table", () => {
       render(<FloatingIpListContainer floatingIps={[]} isLoading={false} isError={false} error={null} />, {
         wrapper: TestWrapper,
       })
 
-      const emptyState = screen.getByTestId("no-floating-ips")
-      expect(emptyState).toBeInTheDocument()
+      // Empty state is now rendered inside the table with Status component
+      expect(screen.getByRole("status")).toBeInTheDocument()
     })
   })
 
