@@ -468,6 +468,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
       return
     }
 
+    let cancelled = false
     setIsLoadingSpecs(true)
     setLoadError(null)
 
@@ -479,16 +480,21 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
             ? Promise.resolve({ canCreate: canEdit, canDelete: canEdit })
             : createPermissionsPromise(client, project),
         ])
+        if (cancelled) return
         setExtraSpecsData(specs)
         setResolvedCanEdit(permissions.canCreate || permissions.canDelete)
       } catch (error) {
+        if (cancelled) return
         setLoadError(error instanceof Error ? error.message : "Failed to load metadata")
       } finally {
-        setIsLoadingSpecs(false)
+        if (!cancelled) setIsLoadingSpecs(false)
       }
     }
 
     loadData()
+    return () => {
+      cancelled = true
+    }
   }, [isOpen, flavor?.id, client, project, canEdit])
 
   const initialSpecs = useMemo(() => (extraSpecsData ? buildInitialSpecs(extraSpecsData) : []), [extraSpecsData])

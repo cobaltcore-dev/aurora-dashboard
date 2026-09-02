@@ -329,6 +329,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
       return
     }
 
+    let cancelled = false
     setIsLoadingData(true)
     setLoadError(null)
 
@@ -338,6 +339,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
           createFlavorAccessPromise(client, project, flavor.id),
           createPermissionsPromise(client, project),
         ])
+        if (cancelled) return
         // Deduplicate
         const deduped = accessData.filter(
           (entry, idx, arr) => arr.findIndex((e) => e.tenant_id === entry.tenant_id) === idx
@@ -345,13 +347,17 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
         setFlavorAccessData(deduped)
         setPermissionsData(permissions)
       } catch (error) {
+        if (cancelled) return
         setLoadError(error instanceof Error ? error.message : "Failed to load access data")
       } finally {
-        setIsLoadingData(false)
+        if (!cancelled) setIsLoadingData(false)
       }
     }
 
     loadData()
+    return () => {
+      cancelled = true
+    }
   }, [isOpen, flavor?.id, client, project])
 
   const initialAccess = useMemo(
