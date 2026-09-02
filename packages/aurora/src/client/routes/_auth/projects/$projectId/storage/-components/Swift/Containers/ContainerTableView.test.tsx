@@ -401,8 +401,8 @@ describe("ContainerTableView", () => {
       await user.click(firstMenuTrigger)
       expect(screen.getByText("Manage Access")).toBeInTheDocument()
       expect(screen.getByText("Preview and Edit metadata")).toBeInTheDocument()
-      expect(screen.getByText("Empty")).toBeInTheDocument()
-      expect(screen.getByText("Delete")).toBeInTheDocument()
+      expect(screen.getByText("Empty Container")).toBeInTheDocument()
+      expect(screen.getByText("Delete Container")).toBeInTheDocument()
     })
   })
 

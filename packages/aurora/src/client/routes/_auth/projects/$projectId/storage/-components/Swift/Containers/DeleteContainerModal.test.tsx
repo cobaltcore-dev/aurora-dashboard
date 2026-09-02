@@ -181,7 +181,7 @@ describe("DeleteContainerModal", () => {
       renderModal()
       const buttons = screen.getAllByRole("button")
       const confirmButton = buttons.find(
-        (btn) => btn.classList.contains("juno-button") && btn.textContent?.match(/^Delete$/)
+        (btn) => btn.classList.contains("juno-button") && btn.textContent?.match(/^Delete Container$/)
       )
 
       expect(confirmButton).toBeDisabled()
@@ -201,27 +201,27 @@ describe("DeleteContainerModal", () => {
 
     test("renders Delete and Cancel buttons", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Delete Container$/i })).toBeInTheDocument()
       expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument()
     })
 
     test("Delete button is disabled when confirm input is empty", () => {
       renderModal()
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Container$/i })).toBeDisabled()
     })
 
     test('Delete button is disabled when confirm input is not "delete"', async () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "wrong-name")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Container$/i })).toBeDisabled()
     })
 
     test('Delete button is enabled when confirm input is "delete"', async () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Container$/i })).not.toBeDisabled()
     })
 
     test("does not render copy icon button in title", () => {
@@ -243,7 +243,7 @@ describe("DeleteContainerModal", () => {
     test("renders Close button instead of Delete", () => {
       renderModal({ container: makeContainer({ count: 1 }) })
       expect(screen.getAllByRole("button", { name: /^Close$/i }).length).toBeGreaterThan(0)
-      expect(screen.queryByRole("button", { name: /^Delete$/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: /^Delete Container$/i })).not.toBeInTheDocument()
     })
 
     test("does not render confirmation text input", () => {
@@ -329,7 +329,7 @@ describe("DeleteContainerModal", () => {
       const user = userEvent.setup()
       renderModal({ container: makeContainer({ count: 0 }) })
       await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Container$/i })).toBeDisabled()
     })
 
     test('Delete button is enabled when "delete" is typed and versioning checkbox is checked', async () => {
@@ -337,7 +337,7 @@ describe("DeleteContainerModal", () => {
       renderModal({ container: makeContainer({ count: 0 }) })
       await user.click(screen.getByLabelText(/I confirm that all existing versions will also be deleted/i))
       await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).not.toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Container$/i })).not.toBeDisabled()
     })
 
     test("versioning checkbox is unchecked by default", () => {
@@ -408,7 +408,7 @@ describe("DeleteContainerModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Container$/i }))
       expect(mockMutate).toHaveBeenCalledWith({
         project_id: mockProjectId,
         container: "my-container",
@@ -431,7 +431,7 @@ describe("DeleteContainerModal", () => {
       const user = userEvent.setup()
       renderModal({ onSuccess })
       await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Container$/i }))
       await waitFor(() => {
         expect(onSuccess).toHaveBeenCalledWith("my-container")
       })
@@ -441,7 +441,7 @@ describe("DeleteContainerModal", () => {
       const user = userEvent.setup()
       renderModal()
       await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Container$/i }))
       await waitFor(() => {
         expect(mockInvalidate).toHaveBeenCalled()
       })
@@ -463,7 +463,7 @@ describe("DeleteContainerModal", () => {
       const user = userEvent.setup()
       renderModal({ onError })
       await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      await user.click(screen.getByRole("button", { name: /^Delete$/i }))
+      await user.click(screen.getByRole("button", { name: /^Delete Container$/i }))
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith("my-container", "Container not found")
       })
@@ -546,7 +546,7 @@ describe("DeleteContainerModal", () => {
       listObjectsError = { message: "Not found" }
       renderModal()
       await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Container$/i })).toBeDisabled()
     })
 
     test("Delete button is disabled when getContainerMetadata query errors", async () => {
@@ -554,7 +554,7 @@ describe("DeleteContainerModal", () => {
       mockContainerMetadataError = { message: "Not found" }
       renderModal()
       await user.type(screen.getByLabelText(/Type "delete" to confirm/i), "delete")
-      expect(screen.getByRole("button", { name: /^Delete$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Delete Container$/i })).toBeDisabled()
     })
 
     test("does not call mutate when listObjects query has errored", async () => {
