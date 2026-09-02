@@ -183,8 +183,7 @@ export const FlavorListContainer = ({
               <Status
                 status="empty"
                 title={t`No flavors found`}
-                body={t`There are no flavors available for this project with the current filters applied. Try adjusting your
-                  filter criteria or create a new flavor.`}
+                body={t`There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor.`}
               />
             </DataGridCell>
           </DataGridRow>

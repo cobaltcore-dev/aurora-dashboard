@@ -3572,22 +3572,14 @@ msgstr "There are no containers available with the current search criteria. Try 
 msgid "There are no CORS rules for this bucket"
 msgstr "There are no CORS rules for this bucket"
 
-msgid ""
-"There are no flavors available for this project with the current filters applied. Try adjusting your\n"
-"                  filter criteria or create a new flavor."
-msgstr ""
-"There are no flavors available for this project with the current filters applied. Try adjusting your\n"
-"                  filter criteria or create a new flavor."
+msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
+msgstr "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 
 msgid "There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses to instances."
 msgstr "There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses to instances."
 
-msgid ""
-"There are no images available for this project with the current filters applied. Try adjusting your\n"
-"                     filter criteria or create a new image."
-msgstr ""
-"There are no images available for this project with the current filters applied. Try adjusting your\n"
-"                     filter criteria or create a new image."
+msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
+msgstr "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 
 msgid "There are no lifecycle rules for this bucket"
 msgstr "There are no lifecycle rules for this bucket"

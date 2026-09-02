@@ -653,8 +653,7 @@ export function ImageListView({
                   <Status
                     status="empty"
                     title={t`No images found`}
-                    body={t`There are no images available for this project with the current filters applied. Try adjusting your
-                     filter criteria or create a new image.`}
+                    body={t`There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image.`}
                   />
                 </DataGridCell>
               </DataGridRow>
