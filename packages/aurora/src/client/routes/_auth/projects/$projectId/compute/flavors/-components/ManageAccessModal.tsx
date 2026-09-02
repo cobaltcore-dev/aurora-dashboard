@@ -385,7 +385,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
 
   return (
     <ManageAccessModalInner
-      key={`${flavor.id}-${JSON.stringify(flavorAccessData)}`}
+      key={flavor.id}
       client={client}
       project={project}
       flavor={flavor}
