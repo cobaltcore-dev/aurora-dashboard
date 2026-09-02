@@ -3590,9 +3590,7 @@ msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
 
-msgid ""
-"There are no security groups available for this project with the current filters applied. Try adjusting your\n"
-"                               filter criteria or create a new security group to get started."
+msgid "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
 msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Sicherheitsgruppen verfügbar. Passen Sie Ihre Filterkriterien an oder erstellen Sie eine neue Sicherheitsgruppe."
 
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."

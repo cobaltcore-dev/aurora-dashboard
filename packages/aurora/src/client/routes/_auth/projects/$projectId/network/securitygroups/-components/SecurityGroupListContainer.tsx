@@ -160,8 +160,7 @@ export const SecurityGroupListContainer = ({
               <Status
                 status="empty"
                 title={t`No security groups  found`}
-                body={t`There are no security groups available for this project with the current filters applied. Try adjusting your
-                               filter criteria or create a new security group to get started.`}
+                body={t`There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started.`}
               />
             </DataGridCell>
           </DataGridRow>
