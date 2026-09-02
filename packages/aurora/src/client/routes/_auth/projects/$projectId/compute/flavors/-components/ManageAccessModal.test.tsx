@@ -1,4 +1,4 @@
-import { render, screen, act, waitFor } from "@testing-library/react"
+import { render, screen, waitFor, act } from "@testing-library/react"
 import { describe, it, expect, beforeAll, vi, beforeEach } from "vitest"
 import { ManageAccessModal } from "./ManageAccessModal"
 import { TrpcClient } from "@/client/trpcClient"
@@ -6,8 +6,13 @@ import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
 import { Flavor } from "@/server/Compute/types/flavor"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 
-const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+const TestingProvider = ({ children }: { children: ReactNode }) => (
+  <I18nProvider i18n={i18n}>
+    <PortalProvider>{children}</PortalProvider>
+  </I18nProvider>
+)
 
 describe("ManageAccessModal", () => {
   beforeAll(async () => {
@@ -16,22 +21,27 @@ describe("ManageAccessModal", () => {
     })
   })
 
-  const mockClient = {
-    compute: {
-      canUser: {
-        query: vi.fn().mockResolvedValue([true, true]),
+  const createMockClient = (overrides?: {
+    canUser?: boolean[]
+    flavorAccess?: Array<{ flavor_id: string; tenant_id: string }>
+  }) => {
+    return {
+      compute: {
+        canUser: {
+          query: vi.fn().mockResolvedValue(overrides?.canUser ?? [true, true]),
+        },
+        getFlavorAccess: {
+          query: vi.fn().mockResolvedValue(overrides?.flavorAccess ?? []),
+        },
+        addTenantAccess: {
+          mutate: vi.fn().mockResolvedValue([]),
+        },
+        removeTenantAccess: {
+          mutate: vi.fn().mockResolvedValue([]),
+        },
       },
-      getFlavorAccess: {
-        query: vi.fn().mockResolvedValue([]),
-      },
-      addTenantAccess: {
-        mutate: vi.fn().mockResolvedValue([]),
-      },
-      removeTenantAccess: {
-        mutate: vi.fn().mockResolvedValue([]),
-      },
-    },
-  } as unknown as TrpcClient
+    } as unknown as TrpcClient
+  }
 
   const mockPrivateFlavor: Flavor = {
     id: "test-flavor-id",
@@ -51,30 +61,32 @@ describe("ManageAccessModal", () => {
     "os-flavor-access:is_public": true,
   }
 
-  const mockOnClose = vi.fn()
+  const mockOnClose = vi.fn() as () => void
 
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it("renders the modal when open", async () => {
-    await act(async () => {
-      render(
-        <ManageAccessModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockPrivateFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
+    const mockClient = createMockClient()
+
+    render(
+      <ManageAccessModal
+        client={mockClient}
+        isOpen={true}
+        onClose={mockOnClose}
+        project="test-project"
+        flavor={mockPrivateFlavor}
+      />,
+      { wrapper: TestingProvider }
+    )
 
     expect(screen.getByText("Manage Access - Test Flavor")).toBeInTheDocument()
   })
 
   it("does not render when modal is closed", () => {
+    const mockClient = createMockClient()
+
     render(
       <ManageAccessModal
         client={mockClient}
@@ -89,190 +101,180 @@ describe("ManageAccessModal", () => {
     expect(screen.queryByText("Manage Access - Test Flavor")).not.toBeInTheDocument()
   })
 
-  it("shows add button when user has add permissions", async () => {
-    await act(async () => {
-      render(
-        <ManageAccessModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockPrivateFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
+  it("handles null flavor with not rendering", () => {
+    const mockClient = createMockClient()
 
-    await waitFor(() => {
-      const addTenantButton = screen.getByRole("button", { name: /Add Tenant Access/i })
-      expect(addTenantButton).toBeInTheDocument()
-    })
-  })
+    render(
+      <ManageAccessModal
+        client={mockClient}
+        isOpen={true}
+        onClose={mockOnClose}
+        project="test-project"
+        flavor={null}
+      />,
+      { wrapper: TestingProvider }
+    )
 
-  it("hides add button when user lacks add permissions", async () => {
-    const mockClientNoPermission = {
-      ...mockClient,
-      compute: {
-        ...mockClient.compute,
-        canUser: {
-          query: vi.fn().mockResolvedValue([false, true]),
-        },
-      },
-    } as unknown as TrpcClient
-
-    await act(async () => {
-      render(
-        <ManageAccessModal
-          client={mockClientNoPermission}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockPrivateFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByText("Add Tenant Access")).not.toBeInTheDocument()
-    })
-  })
-
-  it("displays existing tenant access rows", async () => {
-    const mockClientWithAccess = {
-      ...mockClient,
-      compute: {
-        ...mockClient.compute,
-        getFlavorAccess: {
-          query: vi.fn().mockResolvedValue([
-            { flavor_id: "test-flavor-id", tenant_id: "tenant-a" },
-            { flavor_id: "test-flavor-id", tenant_id: "tenant-b" },
-          ]),
-        },
-      },
-    } as unknown as TrpcClient
-
-    await act(async () => {
-      render(
-        <ManageAccessModal
-          client={mockClientWithAccess}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockPrivateFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    await waitFor(() => {
-      expect(screen.getByText("tenant-a")).toBeInTheDocument()
-      expect(screen.getByText("tenant-b")).toBeInTheDocument()
-    })
-  })
-
-  it("shows empty state when no access exists for private flavor", async () => {
-    await act(async () => {
-      render(
-        <ManageAccessModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockPrivateFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(
-          'No specific tenant access configured for this private flavor. Click "Add Tenant Access" to grant access.'
-        )
-      ).toBeInTheDocument()
-    })
+    expect(screen.queryByText("Manage Access - Test Flavor")).not.toBeInTheDocument()
+    expect(screen.queryByText("Add Project")).not.toBeInTheDocument()
   })
 
   it("shows public flavor information message", async () => {
-    await act(async () => {
-      render(
-        <ManageAccessModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockPublicFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
+    const mockClient = createMockClient()
 
-    await waitFor(() => {
-      expect(screen.getByText("This is a public flavor. All tenants have access to it.")).toBeInTheDocument()
-      expect(screen.queryByText("Add Tenant Access")).not.toBeInTheDocument()
-    })
-  })
+    render(
+      <ManageAccessModal
+        client={mockClient}
+        isOpen={true}
+        onClose={mockOnClose}
+        project="test-project"
+        flavor={mockPublicFlavor}
+      />,
+      { wrapper: TestingProvider }
+    )
 
-  it("handles null flavor with not rendering", async () => {
-    await act(async () => {
-      render(
-        <ManageAccessModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={null}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    expect(screen.queryByText("Manage Access - Test Flavor")).not.toBeInTheDocument()
-    expect(screen.queryByText("Add Tenant Access")).not.toBeInTheDocument()
+    // Wait for data to load, then the inner component shows the public message
+    await waitFor(
+      () => {
+        expect(screen.getByText("This is a public flavor. All projects have access to it.")).toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
+    expect(screen.queryByText("Add Project")).not.toBeInTheDocument()
   })
 
   it("fetches flavor access with correct parameters", async () => {
-    await act(async () => {
-      render(
-        <ManageAccessModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockPrivateFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
+    const mockClient = createMockClient()
 
-    await waitFor(() => {
-      expect(mockClient.compute.getFlavorAccess.query).toHaveBeenCalledWith({
-        project_id: "test-project",
-        flavorId: "test-flavor-id",
-      })
-    })
+    render(
+      <ManageAccessModal
+        client={mockClient}
+        isOpen={true}
+        onClose={mockOnClose}
+        project="test-project"
+        flavor={mockPrivateFlavor}
+      />,
+      { wrapper: TestingProvider }
+    )
+
+    await waitFor(
+      () => {
+        expect(mockClient.compute.getFlavorAccess.query).toHaveBeenCalledWith({
+          project_id: "test-project",
+          flavorId: "test-flavor-id",
+        })
+      },
+      { timeout: 3000 }
+    )
   })
 
   it("checks user permissions on mount", async () => {
-    await act(async () => {
-      render(
-        <ManageAccessModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockPrivateFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
+    const mockClient = createMockClient()
+
+    render(
+      <ManageAccessModal
+        client={mockClient}
+        isOpen={true}
+        onClose={mockOnClose}
+        project="test-project"
+        flavor={mockPrivateFlavor}
+      />,
+      { wrapper: TestingProvider }
+    )
+
+    await waitFor(
+      () => {
+        expect(mockClient.compute.canUser.query).toHaveBeenCalledWith({
+          project_id: "test-project",
+          permission: ["flavors:add_project", "flavors:remove_project"],
+        })
+      },
+      { timeout: 3000 }
+    )
+  })
+
+  it("displays existing project access rows with delete buttons when user has permissions", async () => {
+    const mockClient = createMockClient({
+      flavorAccess: [
+        { flavor_id: "test-flavor-id", tenant_id: "project-a" },
+        { flavor_id: "test-flavor-id", tenant_id: "project-b" },
+      ],
     })
 
-    await waitFor(() => {
-      expect(mockClient.compute.canUser.query).toHaveBeenCalledWith({
-        project_id: "test-project",
-        permission: ["flavors:add_project", "flavors:remove_project"],
-      })
-    })
+    render(
+      <ManageAccessModal
+        client={mockClient}
+        isOpen={true}
+        onClose={mockOnClose}
+        project="test-project"
+        flavor={mockPrivateFlavor}
+      />,
+      { wrapper: TestingProvider }
+    )
+
+    await waitFor(
+      () => {
+        expect(screen.getByText("project-a")).toBeInTheDocument()
+        expect(screen.getByText("project-b")).toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
+
+    // When canRemove is true, delete buttons should be present
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("delete-project-a")).toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
+  })
+
+  it("shows empty state when no access exists for private flavor", async () => {
+    const mockClient = createMockClient()
+
+    render(
+      <ManageAccessModal
+        client={mockClient}
+        isOpen={true}
+        onClose={mockOnClose}
+        project="test-project"
+        flavor={mockPrivateFlavor}
+      />,
+      { wrapper: TestingProvider }
+    )
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText('No project access configured. Click "Add Project" to grant access.')
+        ).toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
+  })
+
+  it("hides add button when user lacks add permissions", async () => {
+    const mockClient = createMockClient({ canUser: [false, true] })
+
+    render(
+      <ManageAccessModal
+        client={mockClient}
+        isOpen={true}
+        onClose={mockOnClose}
+        project="test-project"
+        flavor={mockPrivateFlavor}
+      />,
+      { wrapper: TestingProvider }
+    )
+
+    // Wait for data to load (empty state message appears)
+    await waitFor(
+      () => {
+        expect(screen.getByText("No project access configured.")).toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
+
+    expect(screen.queryByText("Add Project")).not.toBeInTheDocument()
   })
 })

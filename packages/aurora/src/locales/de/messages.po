@@ -335,11 +335,11 @@ msgstr "Hinzufügen"
 msgid "Add Member"
 msgstr "Mitglied hinzufügen"
 
-msgid "Add Metadata"
-msgstr "Metadata hinzufügen"
-
 msgid "Add Policy"
 msgstr ""
+
+msgid "Add Project"
+msgstr "Projekt hinzufügen"
 
 msgid "Add Project Access"
 msgstr "Projektzugriff hinzufügen"
@@ -355,9 +355,6 @@ msgstr "Regel hinzufügen"
 
 msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
-
-msgid "Add Tenant Access"
-msgstr "Projektzugriff hinzufügen"
 
 msgid "After {abortDays} days"
 msgstr ""
@@ -1442,8 +1439,8 @@ msgstr "Key eingeben"
 msgid "Enter member ID"
 msgstr "Mitglieds-ID eingeben"
 
-msgid "Enter tenant ID"
-msgstr "Project ID eingeben"
+msgid "Enter project ID"
+msgstr "Projekt-ID eingeben"
 
 msgid "Enter the ID of the project you want to share this security group with. You can find project IDs in the account/project switcher or in the Identity service."
 msgstr "Geben Sie die ID des Projekts ein, mit dem Sie diese Sicherheitsgruppe teilen möchten. Sie finden Projekt-IDs im Konto-/Projekt-Umschalter oder im Identity-Service."
@@ -2387,12 +2384,6 @@ msgstr "Mitglieds-ID (Projekt-UUID) ist erforderlich."
 msgid "Metadata"
 msgstr "Metadata"
 
-msgid "Metadata \"{keyToDelete}\" has been deleted successfully."
-msgstr "Metadaten \"{keyToDelete}\" wurden erfolgreich gelöscht."
-
-msgid "Metadata \"{trimmedKey}\" has been added successfully."
-msgstr "Metadaten \"{trimmedKey}\" wurden erfolgreich hinzugefügt."
-
 msgid "Metadata size exceeds the 2KB limit. Please remove or shorten some entries before saving."
 msgstr ""
 
@@ -2510,9 +2501,6 @@ msgstr "Keine benutzerdefinierten Metadaten. Klicken Sie auf \"Eigenschaft hinzu
 msgid "No custom properties defined"
 msgstr "Keine benutzerdefinierten Eigenschaften definiert"
 
-msgid "No extra specs found. Click \"Add Metadata\" to create one."
-msgstr "Keine Metadata gefunden. Klicken Sie auf \"Metadata hinzufügen\", um eine zu erstellen."
-
 msgid "No flavor selected for deletion."
 msgstr "Kein Flavor für die Löschung ausgewählt."
 
@@ -2530,6 +2518,12 @@ msgstr ""
 
 msgid "No limit"
 msgstr "Kein Limit"
+
+msgid "No metadata properties found."
+msgstr "Keine Metadaten-Eigenschaften gefunden."
+
+msgid "No metadata properties found. Click \"Add Property\" to create one."
+msgstr "Keine Metadaten-Eigenschaften gefunden. Klicken Sie auf \"Eigenschaft hinzufügen\", um eine zu erstellen."
 
 msgid "No new versions will be created"
 msgstr ""
@@ -2552,6 +2546,12 @@ msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 msgid "No policy found"
 msgstr ""
 
+msgid "No project access configured."
+msgstr "Kein Projektzugriff konfiguriert."
+
+msgid "No project access configured. Click \"Add Project\" to grant access."
+msgstr "Kein Projektzugriff konfiguriert. Klicken Sie auf \"Projekt hinzufügen\", um Zugriff zu gewähren."
+
 msgid "No project selected"
 msgstr "Kein Projekt ausgewählt"
 
@@ -2566,9 +2566,6 @@ msgstr ""
 
 msgid "No services available for this project."
 msgstr "Keine Dienste für dieses Projekt verfügbar."
-
-msgid "No specific tenant access configured for this private flavor. Click \"Add Tenant Access\" to grant access."
-msgstr "Kein spezifischer Projektzugriff für diesen privaten Flavor konfiguriert. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um X-Account-Meta-Temp-URL-Key oder X-Container-Meta-Temp-URL-Key zu konfigurieren."
@@ -2831,6 +2828,9 @@ msgstr "Projekt-ID"
 msgid "Project ID"
 msgstr "Projekt-ID"
 
+msgid "Project ID is required"
+msgstr "Projekt-ID ist erforderlich"
+
 msgid "Project Not Accessible"
 msgstr ""
 
@@ -2948,9 +2948,6 @@ msgstr "Entfernen"
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Zugriff für {memberIdDisplay} entfernen"
 
-msgid "Remove access for {tenantId}"
-msgstr "Zugriff entfernen für {tenantId}"
-
 msgid "Remove member access"
 msgstr "Mitgliedszugriff entfernen"
 
@@ -2959,9 +2956,6 @@ msgstr "Richtlinie entfernen"
 
 msgid "Remove RBAC Policy"
 msgstr "RBAC-Richtlinie entfernen"
-
-msgid "Remove tenant access"
-msgstr "Projektzugriff entfernen"
 
 msgid "Removing..."
 msgstr "Wird entfernt..."
@@ -3455,12 +3449,6 @@ msgstr "Temporäre URL für \"{objectName}\" wurde in die Zwischenablage kopiert
 msgid "Temporary URLs"
 msgstr "Temporäre URLs"
 
-msgid "Tenant access for \"{tenantIdToRemove}\" has been removed successfully."
-msgstr "Der Projektzugriff für \"{tenantIdToRemove}\" wurde erfolgreich entfernt."
-
-msgid "Tenant access for \"{trimmedTenantId}\" has been added successfully."
-msgstr "Der Projektzugriff für \"{trimmedTenantId}\" wurde erfolgreich hinzugefügt."
-
 msgid "Tenant ID"
 msgstr "Projekt ID"
 
@@ -3692,7 +3680,7 @@ msgstr "Dies ist ein <0>statisches großes Objekt (SLO)</0>-Manifest. Metadaten-
 msgid "This is a <0>static large object</0>. By default, all associated segment objects will also be permanently deleted."
 msgstr "Dies ist ein <0>statisches großes Objekt</0>. Standardmäßig werden auch alle zugehörigen Segment-Objekte dauerhaft gelöscht."
 
-msgid "This is a public flavor. All tenants have access to it."
+msgid "This is a public flavor. All projects have access to it."
 msgstr "Dies ist ein öffentlicher Flavor. Alle Projekte haben Zugriff darauf."
 
 msgid "This is a public image. All users have access to it. Explicit sharing is not needed."
@@ -3706,6 +3694,9 @@ msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr ""
+
+msgid "This project already has access"
+msgstr "Dieses Projekt hat bereits Zugriff"
 
 msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
 msgstr ""

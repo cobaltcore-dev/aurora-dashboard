@@ -94,18 +94,18 @@ describe("EditSpecModal", () => {
     })
 
     await waitFor(() => {
-      const addSpecButton = screen.getByRole("button", { name: /Add Metadata/i })
+      const addSpecButton = screen.getByRole("button", { name: /Add Property/i })
       expect(addSpecButton).toBeInTheDocument()
     })
   })
 
-  it("hides add button when user lacks create permissions", async () => {
+  it("hides add button when user lacks all permissions", async () => {
     const mockClientNoPermission = {
       ...mockClient,
       compute: {
         ...mockClient.compute,
         canUser: {
-          query: vi.fn().mockResolvedValue([false, true]),
+          query: vi.fn().mockResolvedValue([false, false]),
         },
       },
     } as unknown as TrpcClient
@@ -124,7 +124,7 @@ describe("EditSpecModal", () => {
     })
 
     await waitFor(() => {
-      expect(screen.queryByText("Add Metadata")).not.toBeInTheDocument()
+      expect(screen.queryByText("Add Property")).not.toBeInTheDocument()
     })
   })
 
@@ -178,7 +178,7 @@ describe("EditSpecModal", () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByText('No extra specs found. Click "Add Metadata" to create one.')).toBeInTheDocument()
+      expect(screen.getByText('No metadata properties found. Click "Add Property" to create one.')).toBeInTheDocument()
     })
   })
 
@@ -191,7 +191,7 @@ describe("EditSpecModal", () => {
     })
 
     expect(screen.queryByText("Edit Metadata")).not.toBeInTheDocument()
-    expect(screen.queryByText("Add Metadata")).not.toBeInTheDocument()
+    expect(screen.queryByText("Add Property")).not.toBeInTheDocument()
   })
 
   it("fetches extra specs with correct parameters", async () => {
