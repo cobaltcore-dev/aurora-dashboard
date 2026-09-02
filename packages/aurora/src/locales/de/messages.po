@@ -3681,7 +3681,7 @@ msgid "This is a <0>static large object</0>. By default, all associated segment 
 msgstr "Dies ist ein <0>statisches großes Objekt</0>. Standardmäßig werden auch alle zugehörigen Segment-Objekte dauerhaft gelöscht."
 
 msgid "This is a public flavor. All projects have access to it."
-msgstr ""
+msgstr "Dies ist ein öffentlicher Flavor. Alle Projekte haben Zugriff darauf."
 
 msgid "This is a public image. All users have access to it. Explicit sharing is not needed."
 msgstr "Dies ist ein öffentliches Image. Alle Benutzer haben Zugriff darauf. Eine explizite Freigabe ist nicht erforderlich."
