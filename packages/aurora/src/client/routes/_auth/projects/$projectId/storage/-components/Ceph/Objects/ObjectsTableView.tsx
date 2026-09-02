@@ -443,7 +443,10 @@ export function ObjectsTableView({
           style={{ height: `${bodyHeight ?? 0}px` }}
           data-testid="objects-table-body"
         >
-          <div
+          <DataGrid
+            columns={columnCount}
+            gridColumnTemplate={gridColumnTemplate}
+            minContentColumns={[columnCount - 1]}
             style={{
               height: `${totalSize}px`,
               width: "100%",
@@ -463,11 +466,10 @@ export function ObjectsTableView({
               const displayName = row.displayName
 
               return (
-                <div
+                <DataGridRow
                   key={isFolder ? row.prefix : isVersion ? `${row.key}-${row.versionId}` : row.key}
                   data-index={virtualRow.index}
                   ref={measureElement}
-                  className="juno-datagrid"
                   style={{
                     position: "absolute",
                     top: 0,
@@ -796,10 +798,10 @@ export function ObjectsTableView({
                       })()}
                     </div>
                   </DataGridCell>
-                </div>
+                </DataGridRow>
               )
             })}
-          </div>
+          </DataGrid>
         </div>
       </div>
 

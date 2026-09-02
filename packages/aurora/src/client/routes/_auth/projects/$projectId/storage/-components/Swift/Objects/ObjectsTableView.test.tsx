@@ -1,6 +1,6 @@
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act, fireEvent } from "@testing-library/react"
+import { render, screen, act, fireEvent, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -328,6 +328,18 @@ describe("ObjectsTableView", () => {
     test("renders table body", () => {
       renderView()
       expect(screen.getByTestId("objects-table-body")).toBeInTheDocument()
+    })
+
+    // #1223: the virtualized body must be a single grid wrapper with the rows as
+    // role="row" children — previously each row carried the grid itself (one grid
+    // per row), causing extra re-renders and broken grid semantics.
+    test("renders one grid wrapper with row children, not a grid per row", () => {
+      renderView()
+      const body = screen.getByTestId("objects-table-body")
+      const grids = within(body).getAllByRole("grid")
+      expect(grids).toHaveLength(1)
+      const rows = within(grids[0]).getAllByRole("row")
+      expect(rows.length).toBeGreaterThan(1)
     })
   })
 

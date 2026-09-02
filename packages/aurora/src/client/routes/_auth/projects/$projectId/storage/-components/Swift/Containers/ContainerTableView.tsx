@@ -190,7 +190,10 @@ export const ContainerTableView = ({
           style={{ height: `${bodyHeight ?? 0}px` }}
           data-testid="containers-table-body"
         >
-          <div
+          <DataGrid
+            columns={columnCount}
+            minContentColumns={[columnCount - 1]}
+            gridColumnTemplate={gridColumnTemplate}
             style={{
               height: `${totalSize}px`,
               width: "100%",
@@ -208,11 +211,10 @@ export const ContainerTableView = ({
                 })
 
               return (
-                <div
+                <DataGridRow
                   key={container.name}
                   data-index={virtualRow.index}
                   ref={measureElement}
-                  className="juno-datagrid group hover:bg-theme-background-lvl-1 cursor-pointer"
                   style={{
                     position: "absolute",
                     top: 0,
@@ -224,7 +226,6 @@ export const ContainerTableView = ({
                     alignItems: "stretch",
                   }}
                   data-testid={`container-row-${container.name}`}
-                  role="link"
                   tabIndex={0}
                   onClick={handleRowNavigate}
                   onKeyDown={(e) => {
@@ -284,10 +285,10 @@ export const ContainerTableView = ({
                       </PopupMenuOptions>
                     </PopupMenu>
                   </DataGridCell>
-                </div>
+                </DataGridRow>
               )
             })}
-          </div>
+          </DataGrid>
         </div>
       </div>
 
