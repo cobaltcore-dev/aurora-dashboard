@@ -8,6 +8,7 @@ import { CephCorsRules, CephLifecycleRules } from "../../../../-components/Ceph/
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
+import { ContainerHeader } from "../../../../-components/Swift/Containers/ContainerHeader"
 
 // Search params schema
 // - prefix: base64-encoded current folder path, safe to carry "/" chars in the URL
@@ -94,14 +95,14 @@ export function ObjectsDashboard() {
 
   const { prefix, sortBy, sortDirection, search, view } = Route.useSearch()
 
-  // For Ceph buckets, we show ContentHeader with badges and actions
-  // For Swift containers, the component handles its own header
-  const showContentHeader = provider === "ceph"
-
   return (
     <>
-      {showContentHeader && <BucketHeader bucketName={containerName} />}
-      <div>
+      {provider === "ceph" && <BucketHeader bucketName={containerName} />}
+      {provider === "swift" && <ContainerHeader containerName={containerName} />}
+      {/* Ceph gets extra breathing room below its header from BucketHeader's own
+          tabs block; Swift has no such block, so pad the content wrapper directly
+          to avoid the overflow menu sitting too close to the toolbar below it. */}
+      <div className={provider === "swift" ? "pt-4" : undefined}>
         {projectId ? (
           <ErrorBoundary
             resetKeys={[projectId, provider, containerName, prefix, sortBy, sortDirection, search, view]}
