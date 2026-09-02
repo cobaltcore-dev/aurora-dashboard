@@ -517,7 +517,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
 
   return (
     <EditSpecModalInner
-      key={`${flavor.id}-${JSON.stringify(extraSpecsData)}`}
+      key={flavor.id}
       client={client}
       project={project}
       flavor={flavor}
