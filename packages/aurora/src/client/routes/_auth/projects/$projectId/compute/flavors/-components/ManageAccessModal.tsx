@@ -137,15 +137,17 @@ function ManageAccessModalInner({
     setSaveError(null)
 
     try {
-      // Collect projects to remove (in initialAccess but not in current access)
       const currentProjectIds = new Set(access.map((a) => a.projectId))
+      const initialProjectIds = new Set(initialAccess.map((a) => a.projectId))
+
+      // Collect projects to remove (in initialAccess but not in current access)
       const projectsToRemove = initialAccess
         .filter((initial) => !currentProjectIds.has(initial.projectId))
         .map((a) => a.originalProjectId!)
         .filter(Boolean)
 
-      // Collect projects to add (new entries)
-      const projectsToAdd = access.filter((entry) => entry.isNew).map((a) => a.projectId)
+      // Collect projects to add (in current access but not in initialAccess)
+      const projectsToAdd = access.filter((entry) => !initialProjectIds.has(entry.projectId)).map((a) => a.projectId)
 
       // Remove projects
       for (const targetProjectId of projectsToRemove) {
