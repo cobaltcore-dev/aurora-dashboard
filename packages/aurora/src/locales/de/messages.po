@@ -2520,10 +2520,10 @@ msgid "No limit"
 msgstr "Kein Limit"
 
 msgid "No metadata properties found."
-msgstr ""
+msgstr "Keine Metadaten-Eigenschaften gefunden."
 
 msgid "No metadata properties found. Click \"Add Property\" to create one."
-msgstr ""
+msgstr "Keine Metadaten-Eigenschaften gefunden. Klicken Sie auf \"Eigenschaft hinzufügen\", um eine zu erstellen."
 
 msgid "No new versions will be created"
 msgstr ""
