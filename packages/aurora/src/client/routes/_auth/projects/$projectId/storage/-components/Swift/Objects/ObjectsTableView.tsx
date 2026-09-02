@@ -292,7 +292,10 @@ export const ObjectsTableView = ({
           style={{ height: `${bodyHeight ?? 0}px` }}
           data-testid="objects-table-body"
         >
-          <div
+          <DataGrid
+            columns={columnCount}
+            minContentColumns={[columnCount - 1]}
+            gridColumnTemplate={gridColumnTemplate}
             style={{
               height: `${totalSize}px`,
               width: "100%",
@@ -310,11 +313,10 @@ export const ObjectsTableView = ({
               const isSelected = !isFolder && selectedObjects.includes(row.name)
 
               return (
-                <div
+                <DataGridRow
                   key={row.name}
                   data-index={virtualRow.index}
                   ref={measureElement}
-                  className="juno-datagrid"
                   style={{
                     position: "absolute",
                     top: 0,
@@ -481,10 +483,10 @@ export const ObjectsTableView = ({
                       </PopupMenuOptions>
                     </PopupMenu>
                   </DataGridCell>
-                </div>
+                </DataGridRow>
               )
             })}
-          </div>
+          </DataGrid>
         </div>
       </div>
 
