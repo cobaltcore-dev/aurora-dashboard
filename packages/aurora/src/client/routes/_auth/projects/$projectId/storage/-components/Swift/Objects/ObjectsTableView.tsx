@@ -14,6 +14,7 @@ import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
@@ -221,28 +222,28 @@ export const ObjectsTableView = ({
     }
   }
 
-  if (rows.length === 0) {
-    return (
-      <DataGrid columns={5} className="objects" data-testid="no-objects">
-        <DataGridRow>
-          <DataGridCell colSpan={5}>
-            <div className="py-8 text-center">
-              <h3 className="text-lg font-semibold">
-                <Trans>No objects found</Trans>
-              </h3>
-              <p className="text-theme-light mt-2">
-                {searchTerm ? (
-                  <Trans>No objects match your search. Try adjusting your search term.</Trans>
-                ) : (
-                  <Trans>This folder is empty.</Trans>
-                )}
-              </p>
-            </div>
-          </DataGridCell>
-        </DataGridRow>
-      </DataGrid>
-    )
-  }
+  // if (rows.length === 0) {
+  //   return (
+  //     <DataGrid columns={5} className="objects" data-testid="no-objects">
+  //       <DataGridRow>
+  //         <DataGridCell colSpan={5}>
+  //           <div className="py-8 text-center">
+  //             <h3 className="text-lg font-semibold">
+  //               <Trans>No objects found</Trans>
+  //             </h3>
+  //             <p className="text-theme-light mt-2">
+  //               {searchTerm ? (
+  //                 <Trans>No objects match your search. Try adjusting your search term.</Trans>
+  //               ) : (
+  //                 <Trans>This folder is empty.</Trans>
+  //               )}
+  //             </p>
+  //           </div>
+  //         </DataGridCell>
+  //       </DataGridRow>
+  //     </DataGrid>
+  //   )
+  // }
 
   // Selection column is gated by hasAnyBulkAction — drop the leading checkbox
   // track (and one column) when no bulk action is available.
@@ -282,6 +283,22 @@ export const ObjectsTableView = ({
             </DataGridRow>
           </DataGrid>
         </div>
+
+        {rows.length === 0 && (
+          <DataGridRow>
+            <DataGridCell colSpan={5}>
+              <Status
+                status="empty"
+                title={t`No objects found`}
+                body={
+                  searchTerm
+                    ? t`No objects match your search. Try adjusting your search term.`
+                    : t`This folder is empty.`
+                }
+              />
+            </DataGridCell>
+          </DataGridRow>
+        )}
 
         {/* Virtualized Table Body — sized to the space actually left below the
             table, so banners above it shrink the table instead of growing the
