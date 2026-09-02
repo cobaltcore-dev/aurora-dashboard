@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate, useParams } from "@tanstack/react-router"
-import { toast } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
+import { toast, Message } from "@cloudoperators/juno-ui-components"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { trpcReact } from "@/client/trpcClient"
 import type { ContainerSummary } from "@/server/Storage/types/swift"
@@ -35,6 +36,7 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
     from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
   })
   const navigate = useNavigate()
+  const { t } = useLingui()
 
   const [activeModal, setActiveModal] = useState<ContainerModalType | null>(null)
   const closeModal = () => setActiveModal(null)
@@ -47,7 +49,7 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
   // listing every container in the account. Keep the input exactly
   // { project_id, container } so this query shares its cache entry with the
   // identical queries the modals below issue.
-  const { data: containerInfo } = trpcReact.storage.swift.getContainerMetadata.useQuery(
+  const { data: containerInfo, error: containerInfoError } = trpcReact.storage.swift.getContainerMetadata.useQuery(
     { project_id: projectId, container: containerName },
     { enabled: !!projectId && !!containerName }
   )
@@ -107,6 +109,12 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
         projectId={projectId}
         actions={container ? <ContainerHeaderActions onOpenModal={setActiveModal} /> : null}
       />
+
+      {containerInfoError && (
+        <Message variant="error" title={t`Failed to load container information`} className="mb-4">
+          {containerInfoError.message}
+        </Message>
+      )}
 
       <ManageContainerAccessModal
         isOpen={activeModal === "manageAccess"}

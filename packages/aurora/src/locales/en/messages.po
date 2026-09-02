@@ -1706,6 +1706,9 @@ msgstr "Failed to load buckets: {errorMessage}"
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Failed to load container ACLs: {errorMessage}"
 
+msgid "Failed to load container information"
+msgstr "Failed to load container information"
+
 msgid "Failed to load container objects: {errorMessage}"
 msgstr "Failed to load container objects: {errorMessage}"
 
