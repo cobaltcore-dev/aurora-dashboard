@@ -176,6 +176,9 @@ msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Co
 msgid "{totalCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{totalCount, plural, one {# Objekt löschen} other {# Objekte löschen}}"
 
+msgid "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
+msgstr ""
+
 msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
@@ -686,6 +689,9 @@ msgstr "Container \"{containerName}\" wurde erfolgreich geleert. {deletedCount} 
 msgid "Container \"{containerName}\" was successfully emptied. {deletedCount} objects deleted."
 msgstr "Container \"{containerName}\" wurde erfolgreich geleert. {deletedCount} Objekte gelöscht."
 
+msgid "Container actions"
+msgstr ""
+
 msgid "Container Created"
 msgstr "Container erstellt"
 
@@ -1061,6 +1067,9 @@ msgstr ""
 msgid "Delete Bucket Policy"
 msgstr ""
 
+msgid "Delete Container"
+msgstr ""
+
 msgid "Delete container:"
 msgstr "Container löschen:"
 
@@ -1225,9 +1234,6 @@ msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 
 msgid "Done"
 msgstr ""
-
-msgid "Download"
-msgstr "Herunterladen"
 
 msgid "Download {rowDisplayName}"
 msgstr "{rowDisplayName} herunterladen"
@@ -1699,6 +1705,9 @@ msgstr "Fehler beim Laden der Buckets: {errorMessage}"
 
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Fehler beim Laden der Container-ACLs: {errorMessage}"
+
+msgid "Failed to load container information"
+msgstr ""
 
 msgid "Failed to load container objects: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Objekte: {errorMessage}"
@@ -2419,12 +2428,6 @@ msgstr "Minimaler RAM, der zum Booten dieses Images erforderlich ist"
 
 msgid "More Actions"
 msgstr "Weitere Aktionen"
-
-msgid "Move"
-msgstr "Verschieben"
-
-msgid "Move/Rename"
-msgstr "Verschieben/Umbenennen"
 
 msgid "Move/Rename Object"
 msgstr ""
@@ -3241,9 +3244,6 @@ msgstr "Sicherheitsgruppe teilen"
 
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 msgstr "Teilen Sie diese Sicherheitsgruppe mit einem anderen Projekt. Das Zielprojekt kann diese Sicherheitsgruppe ansehen und verwenden, aber nicht ändern oder löschen."
-
-msgid "Share URL"
-msgstr "URL teilen"
 
 msgid "Share URL:"
 msgstr "URL teilen:"

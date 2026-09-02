@@ -56,6 +56,10 @@ vi.mock("../../../../-components/Ceph/Buckets/BucketHeader", () => ({
   BucketHeader: () => null,
 }))
 
+vi.mock("../../../../-components/Swift/Containers/ContainerHeader", () => ({
+  ContainerHeader: () => <div data-testid="swift-container-header" />,
+}))
+
 describe("Objects Route - checkServiceAvailability", () => {
   const defaultParams = {
     projectId: "proj-1",
@@ -417,5 +421,50 @@ describe("Objects Route - View Parameter Handling", () => {
     expect(screen.queryByTestId("ceph-objects")).not.toBeInTheDocument()
     expect(screen.queryByTestId("ceph-cors-rules")).not.toBeInTheDocument()
     expect(screen.queryByTestId("ceph-lifecycle-rules")).not.toBeInTheDocument()
+  })
+})
+
+describe("Objects Route - Header rendering per provider", () => {
+  const Wrapper = ({ children }: { children: React.ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("renders ContainerHeader (and not the Ceph header) when provider is swift", () => {
+    vi.mocked(useParams).mockReturnValue({
+      projectId: "proj-1",
+      provider: "swift",
+      containerName: "container-1",
+    })
+    vi.spyOn(Route, "useSearch").mockReturnValue({
+      view: "overview",
+      sortBy: "name",
+      sortDirection: "asc",
+      tab: "all",
+    })
+
+    render(<ObjectsDashboard />, { wrapper: Wrapper })
+
+    expect(screen.getByTestId("swift-container-header")).toBeInTheDocument()
+  })
+
+  it("renders the Ceph header (and not ContainerHeader) when provider is ceph", () => {
+    vi.mocked(useParams).mockReturnValue({
+      projectId: "proj-1",
+      provider: "ceph",
+      containerName: "bucket-1",
+    })
+    vi.spyOn(Route, "useSearch").mockReturnValue({
+      view: "overview",
+      sortBy: "name",
+      sortDirection: "asc",
+      tab: "all",
+    })
+
+    render(<ObjectsDashboard />, { wrapper: Wrapper })
+
+    expect(screen.getByTestId("ceph-objects")).toBeInTheDocument()
+    expect(screen.queryByTestId("swift-container-header")).not.toBeInTheDocument()
   })
 })

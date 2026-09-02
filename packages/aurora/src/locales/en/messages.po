@@ -176,6 +176,9 @@ msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} co
 msgid "{totalCount, plural, one {Delete # Object} other {Delete # Objects}}"
 msgstr "{totalCount, plural, one {Delete # Object} other {Delete # Objects}}"
 
+msgid "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
+msgstr "{totalCount, plural, one {Delete Object} other {Delete Objects}}"
+
 msgid "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 msgstr "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 
@@ -686,6 +689,9 @@ msgstr "Container \"{containerName}\" was successfully emptied. {deletedCount} o
 msgid "Container \"{containerName}\" was successfully emptied. {deletedCount} objects deleted."
 msgstr "Container \"{containerName}\" was successfully emptied. {deletedCount} objects deleted."
 
+msgid "Container actions"
+msgstr "Container actions"
+
 msgid "Container Created"
 msgstr "Container Created"
 
@@ -1061,6 +1067,9 @@ msgstr "Delete Bucket"
 msgid "Delete Bucket Policy"
 msgstr "Delete Bucket Policy"
 
+msgid "Delete Container"
+msgstr "Delete Container"
+
 msgid "Delete container:"
 msgstr "Delete container:"
 
@@ -1225,9 +1234,6 @@ msgstr "DNS name must be at most 63 characters."
 
 msgid "Done"
 msgstr "Done"
-
-msgid "Download"
-msgstr "Download"
 
 msgid "Download {rowDisplayName}"
 msgstr "Download {rowDisplayName}"
@@ -1699,6 +1705,9 @@ msgstr "Failed to load buckets: {errorMessage}"
 
 msgid "Failed to load container ACLs: {errorMessage}"
 msgstr "Failed to load container ACLs: {errorMessage}"
+
+msgid "Failed to load container information"
+msgstr "Failed to load container information"
 
 msgid "Failed to load container objects: {errorMessage}"
 msgstr "Failed to load container objects: {errorMessage}"
@@ -2419,12 +2428,6 @@ msgstr "Minimum RAM required to boot this image"
 
 msgid "More Actions"
 msgstr "More Actions"
-
-msgid "Move"
-msgstr "Move"
-
-msgid "Move/Rename"
-msgstr "Move/Rename"
 
 msgid "Move/Rename Object"
 msgstr "Move/Rename Object"
@@ -3241,9 +3244,6 @@ msgstr "Share Security Group"
 
 msgid "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
 msgstr "Share this security group with another project. The target project will be able to view and use this security group, but will not be able to modify or delete it."
-
-msgid "Share URL"
-msgstr "Share URL"
 
 msgid "Share URL:"
 msgstr "Share URL:"
