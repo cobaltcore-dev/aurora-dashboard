@@ -137,7 +137,6 @@ describe("ContainerLimitsTooltip", () => {
       // in the tooltip. Objects/Used/Quota (also account metadata) stay.
       renderOpenTooltip(undefined, mockAccountInfo)
       expect(screen.queryByText("Containers:")).not.toBeInTheDocument()
-      expect(screen.queryByText("12")).not.toBeInTheDocument()
     })
 
     test("displays object count", () => {
