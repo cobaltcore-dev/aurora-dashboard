@@ -173,6 +173,14 @@ export const BucketTableView = ({
               {virtualItems.map((virtualRow) => {
                 const bucket = buckets[virtualRow.index]
                 const isSelected = selectedBuckets.includes(bucket.name)
+                // Row-level "Empty Bucket" affordance is hidden once the bucket has no content,
+                // mirroring the detail page's `!isBucketEmpty` gate (BucketHeaderActions.tsx).
+                // Deliberately uses the lightweight list metadata already fetched for this table
+                // (no extra per-row query) rather than the detail page's full version-aware
+                // useBucketInfo/calculateBucketState check — EmptyBucketModal re-validates
+                // emptiness/versioning accurately itself when opened, so this is a menu-declutter
+                // decision, not a safety gate. See bucketStateHelpers.ts for the fuller check.
+                const bucketHasNoContent = bucket.count === 0 && bucket.bytes === 0
 
                 const handleRowNavigate = () =>
                   navigate({
@@ -244,7 +252,7 @@ export const BucketTableView = ({
                             onClick={handleRowNavigate}
                             data-testid={`show-details-action-${bucket.name}`}
                           />
-                          {canEmptyBucket && (
+                          {canEmptyBucket && !bucketHasNoContent && (
                             <PopupMenuItem
                               label={t`Empty Bucket`}
                               onClick={() => setEmptyModalBucket(bucket)}
