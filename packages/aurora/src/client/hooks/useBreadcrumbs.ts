@@ -1,4 +1,4 @@
-import { useMatches, useNavigate, useParams, useRouteContext } from "@tanstack/react-router"
+import { useMatches, useNavigate } from "@tanstack/react-router"
 import { useMemo, useContext } from "react"
 import { useLingui } from "@lingui/react/macro"
 import type { I18n } from "@lingui/core"
@@ -26,25 +26,14 @@ export function useBreadcrumbs(): BreadcrumbItem[] {
   const { i18n } = useLingui()
   const navigate = useNavigate()
   const matches = useMatches()
-  const { projectId } = useParams({ strict: false }) as { projectId?: string }
-  const { additionalProjectServices } = useRouteContext({ strict: false }) as {
-    additionalProjectServices?: Array<{ serviceType: string; label: string }>
-  }
   const { crumbs: dynamicCrumbs } = useContext(DynamicBreadcrumbContext)
 
   return useMemo(() => {
-    const items: BreadcrumbItem[] = []
-
-    const deepest = matches[matches.length - 1]
-    const anyParams = deepest?.params as Record<string, string> | undefined
-    const hasExtensionTrail = !!(anyParams?.serviceType && projectId)
-
     const crumbMatches = matches.filter(
       (m) => (isRouteInfo(m.staticData) && (m.staticData as RouteInfo).crumb) || dynamicCrumbs.has(m.routeId)
     )
 
-    for (let i = 0; i < crumbMatches.length; i++) {
-      const match = crumbMatches[i]
+    return crumbMatches.map((match, i) => {
       const dynamic = dynamicCrumbs.get(match.routeId)
       const staticCrumb = isRouteInfo(match.staticData) ? (match.staticData as RouteInfo).crumb : undefined
       const crumbText = dynamic?.text
@@ -54,25 +43,17 @@ export function useBreadcrumbs(): BreadcrumbItem[] {
           : undefined
       const crumbTo = dynamic?.to ?? staticCrumb?.to
       const crumbIcon = dynamic?.icon ?? staticCrumb?.icon
-      const isLast = i === crumbMatches.length - 1 && !hasExtensionTrail
-      items.push({
+      const isLast = i === crumbMatches.length - 1
+      return {
         label: crumbText,
         icon: crumbIcon,
-        onClick: isLast ? undefined : () => navigate({ to: (crumbTo ?? match.pathname) as never }),
+        onClick: isLast
+          ? undefined
+          : () => navigate({ to: (crumbTo ?? match.pathname) as never, params: match.params as never }),
         active: isLast,
-      })
-    }
-
-    if (hasExtensionTrail) {
-      const service = additionalProjectServices?.find((s) => s.serviceType === anyParams!.serviceType)
-      if (service) {
-        // Active state and onClick are left for the caller (ProjectInfoBox) to set based on extension crumbs
-        items.push({ label: service.label, active: true })
       }
-    }
-
-    return items
-  }, [matches, dynamicCrumbs, additionalProjectServices, projectId, navigate, i18n])
+    })
+  }, [matches, dynamicCrumbs, navigate, i18n, i18n.locale])
 }
 
 function resolveCrumbText(text: string | MessageDescriptor, i18n: I18n): string {

@@ -8,13 +8,17 @@ import type { BreadcrumbItem } from "@/client/hooks/useBreadcrumbs"
  *
  * Requirements:
  * - Must be rendered inside `BreadcrumbExtensionProvider` (mounted at `$projectId.tsx`)
- * - Pass the full ordered list on every render; the hook diffs by serialised label+active key
+ * - Pass the full ordered list on every render; the hook diffs by serialised label+icon+active key
  */
 export function usePushBreadcrumbs(breadcrumbs: BreadcrumbItem[]) {
   const { setBreadcrumbs } = useContext(BreadcrumbExtensionContext)
-  const key = breadcrumbs.map((c) => `${c.label}:${c.active}`).join(",")
+  const key = breadcrumbs.map((c) => `${c.label}:${c.icon}:${c.active}`).join(",")
+
   useEffect(() => {
     setBreadcrumbs(breadcrumbs)
-    return () => setBreadcrumbs([])
   }, [key])
+
+  useEffect(() => {
+    return () => setBreadcrumbs([])
+  }, [])
 }

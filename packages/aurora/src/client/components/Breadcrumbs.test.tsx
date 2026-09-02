@@ -7,6 +7,8 @@ import { i18n } from "@lingui/core"
 import { ReactNode } from "react"
 import { BreadcrumbExtensionProvider } from "@/client/context/BreadcrumbExtensionContext"
 import { DynamicBreadcrumbProvider } from "@/client/context/DynamicBreadcrumbContext"
+import { usePushBreadcrumbs } from "@/client/hooks/usePushBreadcrumbs"
+import type { BreadcrumbItem } from "@/client/hooks/useBreadcrumbs"
 
 const mockNavigate = vi.fn()
 let mockMatches: {
@@ -20,7 +22,6 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
   useMatches: () => mockMatches,
   useParams: () => ({ projectId: "test-project" }),
-  useRouteContext: () => ({}),
 }))
 
 const AUTH_ROUTE_ID = "/_auth"
@@ -48,7 +49,7 @@ const Wrapper = ({ children }: { children: ReactNode }) => (
   </PortalProvider>
 )
 
-describe("ProjectInfoBox", () => {
+describe("Breadcrumbs", () => {
   beforeAll(async () => {
     await act(async () => {
       i18n.activate("en")
@@ -543,6 +544,66 @@ describe("ProjectInfoBox", () => {
       fireEvent.click(screen.getByText("my-domain.com/My Project"))
 
       expect(mockNavigate).toHaveBeenCalledWith(expect.objectContaining({ to: "/projects/test-project" }))
+    })
+  })
+
+  describe("Extension crumbs", () => {
+    function PushCrumbs({ crumbs }: { crumbs: BreadcrumbItem[] }) {
+      usePushBreadcrumbs(crumbs)
+      return null
+    }
+
+    it("appends extension crumbs after the OSS trail", async () => {
+      mockMatches = [homeMatch, projectMatch]
+      render(
+        <Wrapper>
+          <PushCrumbs
+            crumbs={[
+              { label: "CA List", active: false },
+              { label: "cert-abc", active: true },
+            ]}
+          />
+          <Breadcrumbs />
+        </Wrapper>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText("CA List")).toBeInTheDocument()
+        expect(screen.getByText("cert-abc")).toBeInTheDocument()
+      })
+    })
+
+    it("deactivates the last OSS crumb when extension crumbs are present", async () => {
+      mockMatches = [homeMatch, projectMatch]
+      render(
+        <Wrapper>
+          <PushCrumbs crumbs={[{ label: "CA List", active: true }]} />
+          <Breadcrumbs />
+        </Wrapper>
+      )
+
+      await waitFor(() => screen.getByText("my-domain.com/My Project"))
+
+      // project crumb is no longer the active leaf — it should be rendered as a link
+      const projectCrumb = screen.getByText("my-domain.com/My Project").closest("[data-active]")
+      expect(projectCrumb).toBeNull()
+    })
+
+    it("clicking deactivated last OSS crumb navigates to the project", async () => {
+      mockMatches = [homeMatch, projectMatch]
+      render(
+        <Wrapper>
+          <PushCrumbs crumbs={[{ label: "CA List", active: true }]} />
+          <Breadcrumbs />
+        </Wrapper>
+      )
+
+      await waitFor(() => screen.getByText("my-domain.com/My Project"))
+      fireEvent.click(screen.getByText("my-domain.com/My Project"))
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({ to: "/projects/$projectId", params: { projectId: "test-project" } })
+      )
     })
   })
 })

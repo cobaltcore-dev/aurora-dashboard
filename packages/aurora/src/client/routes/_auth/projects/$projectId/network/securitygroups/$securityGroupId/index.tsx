@@ -149,7 +149,7 @@ function RouteComponent() {
     filterControls,
   })
 
-  useSetBreadcrumb(Route.id, securityGroup?.name || securityGroup?.id)
+  useSetBreadcrumb(Route.id, securityGroup?.name ?? undefined)
 
   // Fetch available security groups for the Add Rule dropdown
   const { data: securityGroups } = trpcReact.network.securityGroup.list.useQuery({ project_id: projectId })
