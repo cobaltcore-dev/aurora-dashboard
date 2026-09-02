@@ -89,8 +89,15 @@ function EditSpecModalInner({
   const [saveError, setSaveError] = useState<string | null>(null)
 
   const hasChanges = useMemo(() => {
-    if (specs.length !== initialSpecs.length) return true
-    return specs.some((entry) => entry.isNew || entry.key !== entry.originalKey || entry.value !== entry.originalValue)
+    // Build maps for comparison
+    const currentSpecs = new Map(specs.map((s) => [s.key.trim(), s.value.trim()]))
+    const originalSpecs = new Map(initialSpecs.map((s) => [s.key.trim(), s.value.trim()]))
+
+    if (currentSpecs.size !== originalSpecs.size) return true
+    for (const [key, value] of currentSpecs) {
+      if (originalSpecs.get(key) !== value) return true
+    }
+    return false
   }, [specs, initialSpecs])
 
   const isSubmitDisabled = !hasChanges || isLoading || isSaving || isAddingNew || specs.some((e) => e.isEditing)

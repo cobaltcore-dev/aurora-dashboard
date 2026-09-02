@@ -91,8 +91,13 @@ function ManageAccessModalInner({
   const canEdit = canAdd || canRemove
 
   const hasChanges = useMemo(() => {
-    if (access.length !== initialAccess.length) return true
-    return access.some((entry) => entry.isNew)
+    const currentProjectIds = new Set(access.map((a) => a.projectId))
+    const initialProjectIds = new Set(initialAccess.map((a) => a.projectId))
+    if (currentProjectIds.size !== initialProjectIds.size) return true
+    for (const id of currentProjectIds) {
+      if (!initialProjectIds.has(id)) return true
+    }
+    return false
   }, [access, initialAccess])
 
   const isSubmitDisabled = !hasChanges || isLoading || isSaving || isAddingNew
