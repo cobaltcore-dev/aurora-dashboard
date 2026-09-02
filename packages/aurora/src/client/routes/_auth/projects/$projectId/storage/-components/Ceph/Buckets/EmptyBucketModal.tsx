@@ -50,6 +50,9 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     },
     {
       enabled: !!projectId && !!bucket && isOpen,
+      // App-wide default staleTime is 60s (see App.tsx) — override it so every
+      // open of this modal re-verifies live instead of serving cached data.
+      staleTime: 0,
     }
   )
 
@@ -72,6 +75,9 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     },
     {
       enabled: !!projectId && !!bucket && isOpen,
+      // App-wide default staleTime is 60s (see App.tsx) — override it so every
+      // open of this modal re-verifies live instead of serving cached data.
+      staleTime: 0,
     }
   )
 
@@ -85,11 +91,15 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     isVersioningEnabled,
     0
   )
-  const isBucketEmptyWithVersions = isBucketEmpty && hasOnlyDeleteMarkers
+  // objects.list only returns the first page (maxKeys: 100). If it's truncated, allVersions
+  // is incomplete and can't be trusted to classify the bucket as empty/delete-markers-only —
+  // fall back to the standard destructive form instead of risking a wrong "safe" branch.
+  const isVersionDataComplete = !versionCheckData?.isTruncated
+  const isBucketEmptyWithVersions = isVersionDataComplete && isBucketEmpty && hasOnlyDeleteMarkers
   // Bucket has zero current objects AND zero versions/delete markers of any kind —
   // genuinely nothing to empty (unlike isBucketEmptyWithVersions, which still has
   // delete markers to clean up). Distinct render branch below shows an info-only view.
-  const isTrulyEmpty = isBucketEmpty && !hasOldVersionsOrDeleteMarkers
+  const isTrulyEmpty = isVersionDataComplete && isBucketEmpty && !hasOldVersionsOrDeleteMarkers
 
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
     onSettled: () => {
