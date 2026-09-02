@@ -454,6 +454,7 @@ function EditSpecModalInner({
 
 export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, onClose, project, flavor, canEdit }) => {
   const { t } = useLingui()
+  const { translateError } = useErrorTranslation()
 
   const [extraSpecsData, setExtraSpecsData] = useState<Record<string, string> | null>(null)
   const [isLoadingSpecs, setIsLoadingSpecs] = useState(false)
@@ -509,7 +510,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   if (loadError) {
     return (
       <Modal open onCancel={onClose} size="large" title={t`Edit Metadata`}>
-        <Message variant="error" text={loadError} />
+        <Message variant="error" text={translateError(loadError)} />
       </Modal>
     )
   }
