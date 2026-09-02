@@ -595,7 +595,6 @@ export const Images = ({ client, project }: ImagesProps) => {
     searchParams.search,
     searchParams.memberStatus,
     searchParams.page,
-    pageMarkers,
   ])
 
   const handleSortChange = (newSortSettings: SortSettings) => {
