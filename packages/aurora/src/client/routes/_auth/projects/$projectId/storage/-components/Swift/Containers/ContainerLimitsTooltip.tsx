@@ -73,7 +73,6 @@ export const ContainerLimitsTooltip = ({ serviceInfo, accountInfo, open }: Conta
           {/* Account stats */}
           {accountInfo && (
             <Section title={<Trans>Account</Trans>}>
-              <LimitItem label={t`Containers`} value={accountInfo.containerCount.toLocaleString()} />
               <LimitItem label={t`Objects`} value={accountInfo.objectCount.toLocaleString()} />
               <LimitItem label={t`Used`} value={formatBytesBinary(accountInfo.bytesUsed)} />
               {accountInfo.quotaBytes !== undefined && (
