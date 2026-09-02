@@ -72,28 +72,36 @@ export const imageRouter = {
         // Configuration for intelligent pagination
         const FRONTEND_PAGE_SIZE = 50
         const OPENSTACK_PAGE_SIZE = 100
-        const MIN_RESULTS_WHEN_SEARCHING = 50
         const MAX_PAGES_TO_SEARCH = 1000 // Safety limit to prevent infinite loops
 
         const allImages: GlanceImage[] = []
         const hasSearchTerm = queryInput.name && queryInput.name.trim()
 
-        // Build query params
+        // Build query params - ALWAYS start from beginning (no marker) to get accurate total count
         const queryParams = new URLSearchParams()
-        const minimalQuery = {
+        // Pass single-value filters to OpenStack API to reduce fetched images
+        // Multi-value filters (format "in:val1,val2") must be applied client-side
+        // Name filtering is also client-side (OpenStack doesn't support substring matching)
+        const apiQuery = {
           sort_key: queryInput.sort_key,
           sort_dir: queryInput.sort_dir,
           sort: queryInput.sort,
           limit: OPENSTACK_PAGE_SIZE,
-          marker: marker,
+          // Only pass single-value filters to API (multi-value filters start with "in:")
+          status: queryInput.status?.startsWith("in:") ? undefined : queryInput.status,
+          visibility: queryInput.visibility === "all" ? undefined : queryInput.visibility,
+          disk_format: queryInput.disk_format?.startsWith("in:") ? undefined : queryInput.disk_format,
+          container_format: queryInput.container_format?.startsWith("in:") ? undefined : queryInput.container_format,
+          protected: queryInput.protected,
+          owner: queryInput.owner,
+          // Don't use marker here - we need to fetch ALL images for total count
         }
-        applyImageQueryParams(queryParams, minimalQuery as ListImagesInput)
+        applyImageQueryParams(queryParams, apiQuery as ListImagesInput)
 
         let currentUrl: string | undefined = `v2/images?${queryParams.toString()}`
         let pageCount = 0
-        let nextMarker: string | undefined
 
-        // Fetch pages from OpenStack
+        // Fetch pages from OpenStack - fetch ALL pages to get accurate total count
         while (currentUrl && pageCount < MAX_PAGES_TO_SEARCH) {
           const response = await glance.get(currentUrl).catch((error) => {
             throw mapErrorResponseToTRPCError(error, { operation: "list images" })
@@ -107,46 +115,8 @@ export const imageRouter = {
           allImages.push(...parsedData.data.images)
           pageCount++
 
-          if (hasSearchTerm) {
-            // Apply BFF-side filtering to current batch to check if we have enough results
-            let filteredSoFar = filterBySearchParams(allImages, queryInput.name, ["name"])
-
-            if (queryInput.visibility && queryInput.visibility !== "all") {
-              filteredSoFar = filteredSoFar.filter((img) => img.visibility === queryInput.visibility)
-            }
-            if (queryInput.status) {
-              const values = parseMultiValue(queryInput.status)
-              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.status ?? ""))
-            }
-            if (queryInput.disk_format) {
-              const values = parseMultiValue(queryInput.disk_format)
-              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.disk_format ?? ""))
-            }
-            if (queryInput.container_format) {
-              const values = parseMultiValue(queryInput.container_format)
-              filteredSoFar = filteredSoFar.filter((img) => values.includes(img.container_format ?? ""))
-            }
-            if (queryInput.protected !== undefined && queryInput.protected !== null) {
-              const wantProtected = queryInput.protected === "true"
-              filteredSoFar = filteredSoFar.filter((img) => !!img.protected === wantProtected)
-            }
-            if (queryInput.owner) {
-              filteredSoFar = filteredSoFar.filter((img) => img.owner === queryInput.owner)
-            }
-
-            // If we have enough results, stop fetching but remember next page
-            if (filteredSoFar.length >= MIN_RESULTS_WHEN_SEARCHING) {
-              nextMarker = parsedData.data.next
-              break
-            }
-          }
-
-          // For non-search queries, just fetch one OpenStack page
-          if (!hasSearchTerm) {
-            nextMarker = parsedData.data.next
-            break
-          }
-
+          // Continue fetching all pages for accurate total count
+          validateRelativeUrl(parsedData.data.next, "pagination URL")
           currentUrl = parsedData.data.next
         }
 
@@ -192,21 +162,28 @@ export const imageRouter = {
           filteredImages = filteredImages.filter((img) => img.owner === queryInput.owner)
         }
 
+        // Apply marker-based pagination: if marker provided, skip all images before it
+        let startIndex = 0
+        if (marker) {
+          const markerIndex = filteredImages.findIndex((img) => img.id === marker)
+          // Start from the image AFTER the marker
+          startIndex = markerIndex >= 0 ? markerIndex + 1 : 0
+        }
+
         // Implement frontend pagination
-        const startIndex = 0
-        const endIndex = FRONTEND_PAGE_SIZE
+        const endIndex = startIndex + FRONTEND_PAGE_SIZE
         const paginatedImages = filteredImages.slice(startIndex, endIndex)
 
-        // Determine if there's a next page
-        const hasMore = filteredImages.length > FRONTEND_PAGE_SIZE || !!nextMarker
-        const nextPageMarker =
-          filteredImages.length > FRONTEND_PAGE_SIZE ? filteredImages[FRONTEND_PAGE_SIZE - 1]?.id : nextMarker
+        // We have all images, so we know the exact total
+        const hasMore = endIndex < filteredImages.length
+        const nextPageMarker = hasMore ? filteredImages[endIndex - 1]?.id : undefined
 
         return {
           images: paginatedImages,
           first: undefined,
           next: hasMore ? nextPageMarker : undefined,
           schema: "/v2/schemas/images",
+          totalCount: filteredImages.length,
         }
       }, "list images")
     }),

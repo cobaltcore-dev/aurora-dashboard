@@ -440,37 +440,37 @@ export const ObjectsTableView = ({
                           // File actions
                           <>
                             <PopupMenuItem
-                              label={isDownloading ? t`Downloading...` : t`Download`}
+                              label={isDownloading ? t`Downloading...` : t`Download Object`}
                               disabled={isStreaming}
                               onClick={() => handleDownload(row as ObjectRow)}
                               data-testid={`download-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Edit Metadata`}
+                              label={t`Edit Object Metadata`}
                               disabled={isStreaming}
                               onClick={() => setEditMetadataTarget(row as ObjectRow)}
                               data-testid={`edit-metadata-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Copy`}
+                              label={t`Copy Object`}
                               disabled={isStreaming}
                               onClick={() => setCopyObjectTarget(row as ObjectRow)}
                               data-testid={`copy-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Move/Rename`}
+                              label={t`Move/Rename Object`}
                               disabled={isStreaming}
                               onClick={() => setMoveRenameObjectTarget(row as ObjectRow)}
                               data-testid={`move-rename-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Share URL`}
+                              label={t`Share Object URL`}
                               disabled={isStreaming}
                               onClick={() => setTempUrlTarget(row as ObjectRow)}
                               data-testid={`temp-url-action-${row.name}`}
                             />
                             <PopupMenuItem
-                              label={t`Delete`}
+                              label={t`Delete Object`}
                               disabled={isStreaming}
                               onClick={() => setDeleteObjectTarget(row as ObjectRow)}
                               data-testid={`delete-action-${row.name}`}

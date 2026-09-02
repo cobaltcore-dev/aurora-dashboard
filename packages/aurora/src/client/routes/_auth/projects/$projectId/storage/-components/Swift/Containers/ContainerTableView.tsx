@@ -270,12 +270,12 @@ export const ContainerTableView = ({
                           data-testid={`properties-action-${container.name}`}
                         />
                         <PopupMenuItem
-                          label={t`Empty`}
+                          label={t`Empty Container`}
                           onClick={() => setEmptyModalContainer(container)}
                           data-testid={`empty-action-${container.name}`}
                         />
                         <PopupMenuItem
-                          label={t`Delete`}
+                          label={t`Delete Container`}
                           onClick={() => setDeleteModalContainer(container)}
                           data-testid={`delete-action-${container.name}`}
                         />
