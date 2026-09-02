@@ -116,6 +116,7 @@ export const imageRouter = {
           pageCount++
 
           // Continue fetching all pages for accurate total count
+          validateRelativeUrl(parsedData.data.next, "pagination URL")
           currentUrl = parsedData.data.next
         }
 
