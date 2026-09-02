@@ -15,6 +15,7 @@ import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { trpcReact } from "@/client/trpcClient"
+import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import { ImageDetailsView } from "./-components/ImageDetailsView"
 import { EditImageDetailsModal } from "./-components/EditImageDetailsModal"
 import { EditImageMetadataModal } from "./-components/EditImageMetadataModal"
@@ -46,9 +47,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/
     analytics: {
       name: "compute.images.detail",
     },
-    isDetail: true,
-    sectionCrumb: { labelKey: "Compute" },
-    crumb: { labelKey: "Images", to: "/projects/$projectId/compute/images" },
   } satisfies RouteInfo,
   validateSearch: z.object({
     tab: z.enum(["details", "sharing"]).optional(),
@@ -110,6 +108,8 @@ function RouteComponent() {
     status,
     error,
   } = trpcReact.compute.getImageById.useQuery({ project_id: projectId, imageId: imageId })
+
+  useSetBreadcrumb(Route.id, image?.name as string | undefined)
 
   const { data: permissionsData } = trpcReact.compute.canUser.useQuery({
     project_id: projectId,

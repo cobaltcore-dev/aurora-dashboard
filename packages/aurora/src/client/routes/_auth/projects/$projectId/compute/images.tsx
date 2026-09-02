@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { z } from "zod"
 import { getServiceIndex } from "@/server/Authentication/helpers"
+import { msg } from "@lingui/core/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 const multiValueEnum = (allowedValues: string[]) => {
@@ -49,8 +50,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images"
   staticData: {
     section: "compute",
     service: "images",
-    sectionCrumb: { labelKey: "Compute" },
-    crumb: { labelKey: "Images" },
+    crumb: { text: msg`Images` },
   } satisfies RouteInfo,
   validateSearch: (search) => {
     const result = imagesSearchSchema.safeParse(search)

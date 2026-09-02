@@ -12,6 +12,7 @@ import { SecurityGroupDetailsView } from "./-components/SecurityGroupDetailsView
 import { EditSecurityGroupModal } from "../-components/-modals/EditSecurityGroupModal"
 import { useSecurityGroupDetails } from "./-hooks/useSecurityGroupDetails"
 import { useSecurityGroupPermissions } from "../-hooks/useSecurityGroupPermissions"
+import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/network/securitygroups/$securityGroupId/")({
   staticData: {
@@ -20,9 +21,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/securit
     analytics: {
       name: "network.securitygroups.detail",
     },
-    isDetail: true,
-    sectionCrumb: { labelKey: "Network" },
-    crumb: { labelKey: "Security Groups", to: "/projects/$projectId/network/securitygroups" },
   } satisfies RouteInfo,
   loader: async ({ context, params }) => {
     const sg = await context.trpcClient?.network.securityGroup.getById.query({
@@ -150,6 +148,8 @@ function RouteComponent() {
     securityGroupId,
     filterControls,
   })
+
+  useSetBreadcrumb(Route.id, securityGroup?.name ?? undefined)
 
   // Fetch available security groups for the Add Rule dropdown
   const { data: securityGroups } = trpcReact.network.securityGroup.list.useQuery({ project_id: projectId })
