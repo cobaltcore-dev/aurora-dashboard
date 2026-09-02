@@ -85,16 +85,8 @@ function EditSpecModalInner({
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newKey, setNewKey] = useState("")
   const [newValue, setNewValue] = useState("")
-  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (confirmDeleteIndex !== null) {
-      const timer = setTimeout(() => setConfirmDeleteIndex(null), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [confirmDeleteIndex])
 
   const hasChanges = useMemo(() => {
     if (specs.length !== initialSpecs.length) return true
@@ -140,7 +132,6 @@ function EditSpecModalInner({
   }
 
   const handleEdit = (index: number) => {
-    setConfirmDeleteIndex(null)
     setSpecs(specs.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false })))
     setIsAddingNew(false)
   }
@@ -173,7 +164,6 @@ function EditSpecModalInner({
 
   const handleDelete = (index: number) => {
     setSpecs(specs.filter((_, i) => i !== index))
-    setConfirmDeleteIndex(null)
     setErrors({})
   }
 
@@ -408,38 +398,23 @@ function EditSpecModalInner({
                           </span>
                           {canEdit && (
                             <Stack direction="horizontal" gap="2">
-                              {confirmDeleteIndex !== index && (
-                                <Button
-                                  size="small"
-                                  variant="subdued"
-                                  onClick={() => handleEdit(index)}
-                                  icon="edit"
-                                  data-testid={`edit-${entry.key}`}
-                                  title={t`Edit`}
-                                  disabled={isAddingNew || specs.some((e) => e.isEditing)}
-                                />
-                              )}
-                              {confirmDeleteIndex === index ? (
-                                <Button
-                                  size="small"
-                                  variant="primary-danger"
-                                  onClick={() => handleDelete(index)}
-                                  data-testid={`confirm-delete-${entry.key}`}
-                                  title={t`Delete`}
-                                  disabled={isAddingNew || specs.some((e) => e.isEditing)}
-                                >
-                                  {t`Delete`}
-                                </Button>
-                              ) : (
-                                <Button
-                                  size="small"
-                                  onClick={() => setConfirmDeleteIndex(index)}
-                                  icon="deleteForever"
-                                  data-testid={`delete-${entry.key}`}
-                                  title={t`Delete`}
-                                  disabled={isAddingNew || specs.some((e) => e.isEditing)}
-                                />
-                              )}
+                              <Button
+                                size="small"
+                                variant="subdued"
+                                onClick={() => handleEdit(index)}
+                                icon="edit"
+                                data-testid={`edit-${entry.key}`}
+                                title={t`Edit`}
+                                disabled={isAddingNew || specs.some((e) => e.isEditing)}
+                              />
+                              <Button
+                                size="small"
+                                onClick={() => handleDelete(index)}
+                                icon="deleteForever"
+                                data-testid={`delete-${entry.key}`}
+                                title={t`Delete`}
+                                disabled={isAddingNew || specs.some((e) => e.isEditing)}
+                              />
                             </Stack>
                           )}
                         </>
