@@ -208,9 +208,11 @@ function ManageAccessModalInner({
       size="large"
       title={t`Manage Access - ${flavorName}`}
       onConfirm={canEdit ? handleSubmit : undefined}
-      confirmButtonLabel={t`Save Changes`}
+      confirmButtonLabel={isSaving ? t`Saving...` : t`Save Changes`}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isSubmitDisabled}
+      disableCancelButton={isSaving}
+      disableCloseButton={isSaving}
     >
       {isLoading ? (
         <Stack distribution="center" alignment="center">
