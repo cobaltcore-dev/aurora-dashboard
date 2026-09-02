@@ -176,45 +176,48 @@ function ImagesContent({
         }
       : filterSettings
 
-  const displayedImageIds = new Set(images.map((image: GlanceImage) => image.id))
+  // Detect pagination mode: server-paginated (totalCount present) vs client-paginated (member-status views)
+  const isServerPaginated = imagesData.totalCount !== undefined
+  const pageImages = isServerPaginated ? images : images.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+  const displayedImageIds = new Set(pageImages.map((image: GlanceImage) => image.id))
   const validSelectedImages = selectedImages.filter((imageId) => displayedImageIds.has(imageId))
 
   // For checkbox behavior: use images from current page
-  const paginatedImages = images
+  const paginatedImages = pageImages
 
   const deletableImages = validSelectedImages.filter((imageId) => {
-    const image = images.find((image: GlanceImage) => image.id === imageId)
+    const image = pageImages.find((image: GlanceImage) => image.id === imageId)
     return image && !image.protected
   })
   const protectedImages = validSelectedImages.filter((imageId) => {
-    const image = images.find((image: GlanceImage) => image.id === imageId)
+    const image = pageImages.find((image: GlanceImage) => image.id === imageId)
     return image && image.protected
   })
   const activeImages = validSelectedImages.filter((imageId) => {
-    const image = images.find((image: GlanceImage) => image.id === imageId)
+    const image = pageImages.find((image: GlanceImage) => image.id === imageId)
     return image && image.status === IMAGE_STATUSES.ACTIVE
   })
   const deactivatedImages = validSelectedImages.filter((imageId) => {
-    const image = images.find((image: GlanceImage) => image.id === imageId)
+    const image = pageImages.find((image: GlanceImage) => image.id === imageId)
     return image && image.status === IMAGE_STATUSES.DEACTIVATED
   })
 
   const isDeleteAllDisabled =
     !permissions.canDelete ||
     validSelectedImages.length === 0 ||
-    images
+    pageImages
       .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
       .every((image: GlanceImage) => image.protected)
   const isDeactivateAllDisabled =
     !permissions.canUpdate ||
     validSelectedImages.length === 0 ||
-    images
+    pageImages
       .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
       .every((image: GlanceImage) => image.status === IMAGE_STATUSES.DEACTIVATED)
   const isActivateAllDisabled =
     !permissions.canUpdate ||
     validSelectedImages.length === 0 ||
-    images
+    pageImages
       .filter((image: GlanceImage) => validSelectedImages.includes(image.id))
       .every((image: GlanceImage) => image.status === IMAGE_STATUSES.ACTIVE)
 
