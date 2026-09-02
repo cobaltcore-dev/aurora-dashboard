@@ -3833,6 +3833,9 @@ msgstr "Unable to Upload Image File"
 msgid "Unable to verify bucket contents. Please try again."
 msgstr "Unable to verify bucket contents. Please try again."
 
+msgid "Unable to verify bucket versioning status and contents. Please try again."
+msgstr "Unable to verify bucket versioning status and contents. Please try again."
+
 msgid "Unable to verify bucket versioning status. Please try again."
 msgstr "Unable to verify bucket versioning status. Please try again."
 

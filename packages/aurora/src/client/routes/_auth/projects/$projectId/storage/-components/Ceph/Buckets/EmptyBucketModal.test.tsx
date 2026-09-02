@@ -176,7 +176,10 @@ describe("EmptyBucketModal", () => {
     mockVersioningState.data = { status: "Unversioned" }
     mockVersioningState.isLoading = false
     mockVersioningState.error = null
-    mockVersionCheckState.data = { versions: [], objects: [], folders: [] }
+    // Default to the mockNonEmptyBucket case (the default `bucket` in renderModal): the modal
+    // no longer trusts bucket.count (list-cache metadata), so tests relying on a non-empty
+    // bucket must reflect that via live version-check data instead.
+    mockVersionCheckState.data = { versions: [{ isLatest: true, isDeleteMarker: false }], objects: [], folders: [] }
     mockVersionCheckState.isLoading = false
     mockVersionCheckState.error = null
     await act(async () => {
@@ -274,7 +277,7 @@ describe("EmptyBucketModal", () => {
 
   describe("Truly empty bucket (isTrulyEmpty)", () => {
     test("shows info-only view when bucket metadata and live check both report empty", () => {
-      // mockVersionCheckState default already returns zero versions/objects
+      mockVersionCheckState.data = { versions: [], objects: [], folders: [] }
       const onClose = vi.fn()
       renderModal({ bucket: mockEmptyBucket, onClose })
 
@@ -285,6 +288,7 @@ describe("EmptyBucketModal", () => {
     })
 
     test("Close button calls onClose", async () => {
+      mockVersionCheckState.data = { versions: [], objects: [], folders: [] }
       const user = userEvent.setup({ delay: null })
       const onClose = vi.fn()
       renderModal({ bucket: mockEmptyBucket, onClose })

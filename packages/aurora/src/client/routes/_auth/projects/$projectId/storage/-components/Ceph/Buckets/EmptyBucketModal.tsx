@@ -50,7 +50,6 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     },
     {
       enabled: !!projectId && !!bucket && isOpen,
-      staleTime: 30 * 1000,
     }
   )
 
@@ -73,18 +72,18 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     },
     {
       enabled: !!projectId && !!bucket && isOpen,
-      staleTime: 30 * 1000,
     }
   )
 
-  // Check bucket state using shared helper
+  // Check bucket state using shared helper. Pass 0 instead of bucket.count (list-cache
+  // metadata, can be stale) — this modal exists specifically to be the live, authoritative
+  // check, so it must rely on allVersions from the fresh query above, not the cached count.
   const isVersioningEnabled = versioningStatus?.status === "Enabled" || versioningStatus?.status === "Suspended"
   const allVersions = versionCheckData?.versions ?? []
-  const bucketObjectCount = bucket?.count ?? 0
   const { isBucketEmpty, hasOnlyDeleteMarkers, hasOldVersionsOrDeleteMarkers } = calculateBucketState(
     allVersions,
     isVersioningEnabled,
-    bucketObjectCount
+    0
   )
   const isBucketEmptyWithVersions = isBucketEmpty && hasOnlyDeleteMarkers
   // Bucket has zero current objects AND zero versions/delete markers of any kind —
@@ -224,7 +223,13 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       >
         {hasQueryError ? (
           <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
-            <Trans>Unable to verify bucket contents. Please try again.</Trans>
+            {versioningError && versionCheckError ? (
+              <Trans>Unable to verify bucket versioning status and contents. Please try again.</Trans>
+            ) : versioningError ? (
+              <Trans>Unable to verify bucket versioning status. Please try again.</Trans>
+            ) : (
+              <Trans>Unable to verify bucket contents. Please try again.</Trans>
+            )}
           </div>
         ) : (
           <p className="text-theme-default py-2">
