@@ -444,6 +444,9 @@ export function ObjectsTableView({
           data-testid="objects-table-body"
         >
           <DataGrid
+            columns={columnCount}
+            gridColumnTemplate={gridColumnTemplate}
+            minContentColumns={[columnCount - 1]}
             style={{
               height: `${totalSize}px`,
               width: "100%",

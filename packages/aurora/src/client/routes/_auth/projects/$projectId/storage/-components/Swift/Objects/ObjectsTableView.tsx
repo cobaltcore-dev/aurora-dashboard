@@ -293,6 +293,9 @@ export const ObjectsTableView = ({
           data-testid="objects-table-body"
         >
           <DataGrid
+            columns={columnCount}
+            minContentColumns={[columnCount - 1]}
+            gridColumnTemplate={gridColumnTemplate}
             style={{
               height: `${totalSize}px`,
               width: "100%",

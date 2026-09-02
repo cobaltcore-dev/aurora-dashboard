@@ -191,6 +191,9 @@ export const ContainerTableView = ({
           data-testid="containers-table-body"
         >
           <DataGrid
+            columns={columnCount}
+            minContentColumns={[columnCount - 1]}
+            gridColumnTemplate={gridColumnTemplate}
             style={{
               height: `${totalSize}px`,
               width: "100%",

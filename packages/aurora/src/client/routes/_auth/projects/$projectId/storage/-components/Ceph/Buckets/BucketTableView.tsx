@@ -164,6 +164,9 @@ export const BucketTableView = ({
             data-testid="buckets-table-body"
           >
             <DataGrid
+              columns={columnCount}
+              minContentColumns={[columnCount - 1]}
+              gridColumnTemplate={gridColumnTemplate}
               style={{
                 height: `${totalSize}px`,
                 width: "100%",
