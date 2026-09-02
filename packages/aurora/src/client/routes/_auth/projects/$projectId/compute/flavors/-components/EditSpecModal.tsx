@@ -379,7 +379,11 @@ function EditSpecModalInner({
                     <DescriptionDefinition className="flex items-center justify-between gap-2">
                       {entry.isEditing ? (
                         <>
-                          <TextInput value={entry.value} onChange={(e) => handleValueChange(index, e.target.value)} />
+                          <TextInput
+                            value={entry.value}
+                            onChange={(e) => handleValueChange(index, e.target.value)}
+                            errortext={errors[`edit-${index}`]}
+                          />
                           <Stack direction="horizontal" gap="2">
                             <Button
                               size="small"
