@@ -24,7 +24,8 @@ export const createImagesPromise = (
   sortBy: string,
   sortDirection: string,
   searchTerm: string,
-  filters: ImageFilters
+  filters: ImageFilters,
+  marker?: string
 ) => {
   if (filters.member_status && filters.member_status !== "all") {
     return client.compute.listSharedImagesByMemberStatus
@@ -54,6 +55,7 @@ export const createImagesPromise = (
       name: searchTerm || undefined,
       ...filters,
       member_status: undefined,
+      marker,
     })
     .then((res) => ({ ...res, listError: undefined }))
     .catch((err: unknown) => {

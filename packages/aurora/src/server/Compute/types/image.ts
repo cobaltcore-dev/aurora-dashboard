@@ -359,6 +359,7 @@ export const imagesPaginatedResponseSchema = z.object({
   first: z.string().optional(), // URL for the first page
   next: z.string().optional(), // URL for the next page (only present if more pages exist)
   schema: z.string().optional(), // URL for the schema describing the images list
+  totalCount: z.number().optional(), // Total number of images matching the filters
 })
 
 // Type exports

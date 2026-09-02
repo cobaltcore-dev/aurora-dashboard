@@ -311,11 +311,11 @@ describe("imageRouter", () => {
       expect(result.images.length).toBeLessThanOrEqual(50)
     })
 
-    it("should stop fetching pages when MIN_RESULTS_WHEN_SEARCHING is reached", async () => {
+    it("should fetch all pages to get accurate total count", async () => {
       const mockCtx = createMockContext()
       const caller = createCaller(mockCtx)
 
-      // Create many pages, but only mock first 2
+      // Create 3 pages of ubuntu images
       const createUbuntuPage = (startId: number) =>
         Array.from({ length: 30 }, (_, i) => ({
           ...mockGlanceImage,
@@ -336,17 +336,26 @@ describe("imageRouter", () => {
           ok: true,
           json: vi.fn().mockResolvedValue({
             images: createUbuntuPage(31), // 30 more ubuntu images = 60 total
-            next: "/v2/images?marker=page3", // Has more pages
+            next: "/v2/images?marker=page3",
+            schema: "/v2/schemas/images",
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            images: createUbuntuPage(61), // 30 more = 90 total
+            next: undefined, // Last page
             schema: "/v2/schemas/images",
           }),
         })
 
       const result = await caller.image.listImagesWithSearch({ project_id: TEST_PROJECT_ID, name: "ubuntu" })
 
-      // Should stop after 2 pages because we have >= 50 matching results (MIN_RESULTS_WHEN_SEARCHING)
-      expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(2)
+      // Should fetch all 3 pages to get accurate total count
+      expect(mockCtx.mockGlance.get).toHaveBeenCalledTimes(3)
       expect(result.images).toHaveLength(50) // Returns FRONTEND_PAGE_SIZE
       expect(result.next).toBeDefined() // Should have next marker for more results
+      expect(result.totalCount).toBe(90) // Should have accurate total count from all pages
     })
   })
 
