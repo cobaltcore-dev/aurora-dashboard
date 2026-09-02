@@ -159,7 +159,7 @@ export const SecurityGroupListContainer = ({
             <DataGridCell colSpan={hasAnyBulkAction ? 6 : 5}>
               <Status
                 status="empty"
-                title={t`No security groups  found`}
+                title={t`No security groups found`}
                 body={t`There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started.`}
               />
             </DataGridCell>

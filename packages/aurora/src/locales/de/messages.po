@@ -2561,7 +2561,7 @@ msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projek
 msgid "No rules found"
 msgstr ""
 
-msgid "No security groups  found"
+msgid "No security groups found"
 msgstr "Keine Sicherheitsgruppen gefunden"
 
 msgid "No services available for this project."
