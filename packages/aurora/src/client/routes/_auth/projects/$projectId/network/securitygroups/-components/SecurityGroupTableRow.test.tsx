@@ -98,7 +98,6 @@ describe("SecurityGroupTableRow", () => {
         expect(screen.getByText("web-servers")).toBeInTheDocument()
       })
 
-      // ID is no longer displayed in the row
       expect(screen.getByText("Security group for web servers")).toBeInTheDocument()
     })
 

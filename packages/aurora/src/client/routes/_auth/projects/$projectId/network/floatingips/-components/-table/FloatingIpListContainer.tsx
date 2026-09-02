@@ -39,8 +39,7 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
             <Status
               status="empty"
               title={t`No Floating IPs found`}
-              body={t`There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses
-                to instances.`}
+              body={t`There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses to instances.`}
             />
           </DataGridCell>
         </DataGridRow>

@@ -649,7 +649,7 @@ export function ImageListView({
               ))
             ) : (
               <DataGridRow>
-                <DataGridCell colSpan={7}>
+                <DataGridCell colSpan={hasAnyBulkAction ? 9 : 8}>
                   <Status
                     status="empty"
                     title={t`No images found`}

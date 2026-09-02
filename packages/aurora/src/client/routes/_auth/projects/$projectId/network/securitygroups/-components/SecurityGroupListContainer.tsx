@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { DataGrid, DataGridCell, DataGridHeadCell, DataGridRow, Status } from "@cloudoperators/juno-ui-components"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import { useNavigate } from "@tanstack/react-router"
 import { useProjectId } from "@/client/hooks"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
@@ -124,11 +124,6 @@ export const SecurityGroupListContainer = ({
     return <Status status="error" title={error?.message ?? t`Failed to load security groups`} />
   }
 
-  // Empty state
-  if (securityGroups.length === 0) {
-    return <Trans>There are no groups</Trans>
-  }
-
   return (
     <>
       <DataGrid columns={hasAnyBulkAction ? 6 : 5} minContentColumns={hasAnyBulkAction ? [5] : [4]}>
@@ -161,7 +156,7 @@ export const SecurityGroupListContainer = ({
           })
         ) : (
           <DataGridRow>
-            <DataGridCell colSpan={5}>
+            <DataGridCell colSpan={hasAnyBulkAction ? 6 : 5}>
               <Status
                 status="empty"
                 title={t`No security groups  found`}
