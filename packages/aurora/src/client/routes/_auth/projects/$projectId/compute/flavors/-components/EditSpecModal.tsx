@@ -103,14 +103,12 @@ function EditSpecModalInner({
 
   const isSubmitDisabled = !hasChanges || isLoading || isSaving || isAddingNew || specs.some((e) => e.isEditing)
 
-  const validateKey = (key: string, originalKey?: string, rowIndex?: number): string | null => {
+  const validateKey = (key: string, rowIndex?: number): string | null => {
     const normalized = key?.trim()
     if (!normalized) {
       return t`Key is required`
     }
-    const isDuplicate = specs.some(
-      (entry, idx) => entry.key.trim() === normalized && idx !== rowIndex && entry.originalKey !== originalKey
-    )
+    const isDuplicate = specs.some((entry, idx) => entry.key.trim() === normalized && idx !== rowIndex)
     if (isDuplicate) {
       return t`A property with this key already exists`
     }
@@ -118,7 +116,7 @@ function EditSpecModalInner({
   }
 
   const handleAddNew = () => {
-    const keyError = validateKey(newKey, undefined, specs.length)
+    const keyError = validateKey(newKey, specs.length)
     if (keyError) {
       setErrors({ newKey: keyError })
       return
@@ -149,7 +147,7 @@ function EditSpecModalInner({
 
   const handleSaveEdit = (index: number) => {
     const entry = specs[index]
-    const keyError = validateKey(entry.key, entry.originalKey, index)
+    const keyError = validateKey(entry.key, index)
     if (keyError) {
       setErrors({ [`edit-${index}`]: keyError })
       return
