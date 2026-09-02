@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { z } from "zod"
+import { msg } from "@lingui/core/macro"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
 const flavorsSearchFields = {
@@ -18,11 +19,10 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
   staticData: {
     section: "compute",
     service: "flavors",
-    sectionCrumb: { labelKey: "Compute" },
-    crumb: { labelKey: "Flavors" },
     analytics: {
       name: "compute.flavors.list",
     },
+    crumb: { text: msg`Flavors` },
   } satisfies RouteInfo,
   validateSearch: (search) => {
     const result = flavorsSearchSchema.safeParse(search)

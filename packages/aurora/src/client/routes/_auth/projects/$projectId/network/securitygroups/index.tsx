@@ -10,8 +10,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/securit
     analytics: {
       name: "network.securitygroups.list",
     },
-    sectionCrumb: { labelKey: "Network" },
-    crumb: { labelKey: "Security Groups" },
   } satisfies RouteInfo,
   head: () => ({ meta: [{ title: t`Security Groups` }] }),
   component: RouteComponent,

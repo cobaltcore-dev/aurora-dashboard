@@ -12,8 +12,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/
     analytics: {
       name: "compute.images.list",
     },
-    sectionCrumb: { labelKey: "Compute" },
-    crumb: { labelKey: "Images" },
   } satisfies RouteInfo,
   head: () => ({ meta: [{ title: t`Images` }] }),
   component: RouteComponent,

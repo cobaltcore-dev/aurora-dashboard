@@ -116,8 +116,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/storage/$provid
   staticData: {
     section: "storage",
     service: "containers",
-    sectionCrumb: { labelKey: "Storage" },
-    crumb: { useParamAsLabel: "provider" },
     analytics: {
       name: "storage.objectstore.list",
     },

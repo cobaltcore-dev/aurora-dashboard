@@ -21,8 +21,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/network/floatin
     analytics: {
       name: "network.floatingips.list",
     },
-    sectionCrumb: { labelKey: "Network" },
-    crumb: { labelKey: "Floating IPs" },
   } satisfies RouteInfo,
   validateSearch: (search) => {
     const result = floatingIpsSearchSchema.safeParse(search)
