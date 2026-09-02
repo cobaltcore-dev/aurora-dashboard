@@ -127,7 +127,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       }
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={isPending ? t`Deleting...` : t`Delete`}
+      confirmButtonLabel={isPending ? t`Deleting...` : t`Delete Object`}
       confirmButtonVariant="primary-danger"
       onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}
