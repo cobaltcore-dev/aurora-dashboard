@@ -141,16 +141,16 @@ export function ImageListView({
   })
 
   const deactivateImageMutation = trpcReact.compute.deactivateImage.useMutation({
-    onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
-      utils.compute.getImageById.invalidate()
+    onSuccess: async () => {
+      await utils.compute.listImagesWithPagination.invalidate()
+      await utils.compute.getImageById.invalidate()
     },
   })
 
   const reactivateImageMutation = trpcReact.compute.reactivateImage.useMutation({
-    onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
-      utils.compute.getImageById.invalidate()
+    onSuccess: async () => {
+      await utils.compute.listImagesWithPagination.invalidate()
+      await utils.compute.getImageById.invalidate()
     },
   })
 
@@ -382,6 +382,11 @@ export function ImageListView({
 
     try {
       await reactivateImageMutation.mutateAsync({ project_id: projectId, imageId })
+
+      // Optimistically update the local state
+      const updatedImage = { ...image, status: IMAGE_STATUSES.ACTIVE }
+      onImageUpdated(updatedImage)
+
       setActivateModalOpen(false)
       setSelectedImage(null)
       const { message, ...options } = getImageActivatedToast(imageName)
@@ -399,6 +404,11 @@ export function ImageListView({
 
     try {
       await deactivateImageMutation.mutateAsync({ project_id: projectId, imageId })
+
+      // Optimistically update the local state
+      const updatedImage = { ...image, status: IMAGE_STATUSES.DEACTIVATED }
+      onImageUpdated(updatedImage)
+
       setDeactivateModalOpen(false)
       setSelectedImage(null)
       const { message, ...options } = getImageDeactivatedToast(imageName)
