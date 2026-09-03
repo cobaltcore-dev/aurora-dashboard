@@ -47,7 +47,8 @@ export const useFloatingIpMutations = () => {
     onMutate: async () => {
       await utils.network.floatingIp.list.cancel()
     },
-    onSettled: () => {
+    onSettled: (_data, _error, variables) => {
+      utils.network.floatingIp.getById.invalidate({ project_id: projectId, floatingip_id: variables.floatingip_id })
       utils.network.floatingIp.list.invalidate()
     },
   })

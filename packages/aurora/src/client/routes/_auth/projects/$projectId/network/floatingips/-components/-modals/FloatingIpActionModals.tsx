@@ -1,7 +1,9 @@
 import type { ReactNode } from "react"
+import { useNavigate } from "@tanstack/react-router"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { toast } from "@cloudoperators/juno-ui-components"
 import { useModal } from "@/client/utils/useModal"
+import { useProjectId } from "@/client/hooks"
 import { useFloatingIpMutations } from "../../-hooks/useFloatingIpMutations"
 import { AssociateFloatingIpModal } from "./AssociateFloatingIpModal"
 import { DetachFloatingIpModal } from "./DetachFloatingIpModal"
@@ -28,6 +30,8 @@ interface FloatingIpActionModalsProps {
 }
 
 export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActionModalsProps) => {
+  const navigate = useNavigate()
+  const projectId = useProjectId()
   const [editModalOpen, toggleEditModal] = useModal(false)
   const [attachModalOpen, toggleAttachModal] = useModal(false)
   const [detachModalOpen, toggleDetachModal] = useModal(false)
@@ -60,6 +64,10 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
     await handleDelete(floatingIpId)
     const { message, ...options } = getFloatingIpReleasedToast(ip)
     toast.success(message, options)
+    navigate({
+      to: "/projects/$projectId/network/floatingips",
+      params: { projectId },
+    })
   }
 
   return (

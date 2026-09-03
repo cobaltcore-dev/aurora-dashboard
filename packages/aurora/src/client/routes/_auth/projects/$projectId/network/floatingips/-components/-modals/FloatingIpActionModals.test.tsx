@@ -12,11 +12,16 @@ import { DetachFloatingIpModalProps } from "./DetachFloatingIpModal"
 import { ReleaseFloatingIpModalProps } from "./ReleaseFloatingIpModal"
 import { AssociateFloatingIpModalProps } from "./AssociateFloatingIpModal"
 
+const { mockNavigate } = vi.hoisted(() => ({
+  mockNavigate: vi.fn(),
+}))
+
 vi.mock("@tanstack/react-router", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-router")>()
   return {
     ...actual,
     useParams: vi.fn(() => ({ projectId: "test-project" })),
+    useNavigate: vi.fn(() => mockNavigate),
   }
 })
 
@@ -219,17 +224,19 @@ describe("FloatingIpActionModals", () => {
       }
     )
 
-    mockDeleteMutation.mockImplementation((options?: { onSettled?: () => void }) => {
-      deleteAsyncMock.mockImplementation(async () => {
-        await options?.onSettled?.()
-      })
+    mockDeleteMutation.mockImplementation(
+      (options?: { onSettled?: (data: unknown, error: unknown, variables: { floatingip_id: string }) => void }) => {
+        deleteAsyncMock.mockImplementation(async (variables: { floatingip_id: string }) => {
+          await options?.onSettled?.(undefined, null, variables)
+        })
 
-      return {
-        mutateAsync: deleteAsyncMock,
-        isPending: false,
-        error: null,
+        return {
+          mutateAsync: deleteAsyncMock,
+          isPending: false,
+          error: null,
+        }
       }
-    })
+    )
   })
 
   describe("Edit modal", () => {
@@ -399,6 +406,10 @@ describe("FloatingIpActionModals", () => {
       await user.click(screen.getByRole("button", { name: "Confirm Release" }))
 
       expect(await screen.findByText("Floating IP Released")).toBeInTheDocument()
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/network/floatingips",
+        params: { projectId: "test-project" },
+      })
     })
   })
 })
