@@ -5,7 +5,6 @@ import {
   DescriptionDefinition,
   DescriptionList,
   DescriptionTerm,
-  Message,
   Modal,
   Spinner,
   Stack,
@@ -53,12 +52,8 @@ export const ActivateImageModal: React.FC<ActivateImageModalProps> = ({
         </Stack>
       )}
       {!isLoading && (
-        <div>
-          <Message
-            text={t`Activating this image will allow it to be used to launch new instances again.`}
-            variant="info"
-            className="mb-4"
-          />
+        <>
+          <p className="mb-4">{t`Activating this image will allow it to be used to launch new instances again.`}</p>
 
           <DescriptionList>
             <DescriptionTerm>{t`Name`}</DescriptionTerm>
@@ -84,7 +79,7 @@ export const ActivateImageModal: React.FC<ActivateImageModalProps> = ({
               })()}
             </DescriptionDefinition>
           </DescriptionList>
-        </div>
+        </>
       )}
     </Modal>
   )
