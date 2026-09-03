@@ -1,6 +1,6 @@
 import Logo from "../../assets/logo.svg?react"
 import { NavigationItem } from "./types"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { UserMenu } from "./UserMenu"
 import { PageHeader, ThemeToggle } from "@cloudoperators/juno-ui-components/index"
 import { cn } from "@/client/utils/cn"
@@ -19,6 +19,7 @@ const textHoverClass = "hover:text-theme-pageheader-appname-hover"
 
 export function MainNavigation({ items, handleThemeToggle, appName, slots }: NavigationProps) {
   const displayName = appName ?? "Aurora"
+  const navigate = useNavigate()
 
   return (
     <PageHeader
@@ -29,11 +30,8 @@ export function MainNavigation({ items, handleThemeToggle, appName, slots }: Nav
           <Logo className={cn("h-6 w-6 shrink-0 fill-current", textColorClass)} title={displayName} />
         )
       }
-      applicationName={
-        <Link to="/projects" className={cn("shrink-0", textColorClass, textHoverClass)}>
-          {displayName}
-        </Link>
-      }
+      applicationName={displayName}
+      onClick={() => navigate({ to: "/projects" })}
     >
       {items.map(({ route, label }, index) => (
         <Link className={cn("shrink-0", textColorClass, textHoverClass)} key={index} to={route}>
