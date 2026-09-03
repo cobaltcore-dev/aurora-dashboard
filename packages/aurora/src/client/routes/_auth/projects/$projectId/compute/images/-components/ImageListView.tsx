@@ -194,11 +194,13 @@ export function ImageListView({
 
   const handleUpdateImageVisibility = async (imageId: string, newVisibility: ImageVisibility, imageName: string) => {
     try {
-      await updateImageVisibilityMutation.mutateAsync({
+      const updatedImage = await updateImageVisibilityMutation.mutateAsync({
         project_id: projectId,
         imageId,
         visibility: newVisibility,
       })
+
+      onImageUpdated(updatedImage)
 
       const { message, ...options } = getImageVisibilityUpdatedToast(imageName, newVisibility)
       toast.success(message, options)
