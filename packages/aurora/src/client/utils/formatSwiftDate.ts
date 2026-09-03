@@ -40,7 +40,8 @@ export const parseSwiftDate = (value: string | null | undefined): Date | null =>
 }
 
 /**
- * Format a Swift timestamp in the viewer's local timezone.
+ * Format a Swift timestamp, defaulting to the viewer's local timezone (unless
+ * overridden via `options.timeZone`).
  *
  * Returns null for empty/invalid input so callers can supply their own fallback
  * (e.g. a translated "N/A"). `locales`/`options` are passed straight through to
