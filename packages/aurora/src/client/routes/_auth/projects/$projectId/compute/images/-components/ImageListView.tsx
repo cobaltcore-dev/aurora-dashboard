@@ -513,6 +513,14 @@ export function ImageListView({
       const failedCount = result.failed.length
       const totalCount = imageIds.length
 
+      // Optimistically update successful images
+      result.successful.forEach((imageId) => {
+        const image = images.find((img) => img.id === imageId)
+        if (image) {
+          onImageUpdated({ ...image, status: IMAGE_STATUSES.ACTIVE })
+        }
+      })
+
       if (failedCount === 0) {
         const { message, ...options } = getBulkActivateSuccessToast(successCount, totalCount)
         toast.success(message, options)
@@ -542,6 +550,14 @@ export function ImageListView({
       const successCount = result.successful.length
       const failedCount = result.failed.length
       const totalCount = imageIds.length
+
+      // Optimistically update successful images
+      result.successful.forEach((imageId) => {
+        const image = images.find((img) => img.id === imageId)
+        if (image) {
+          onImageUpdated({ ...image, status: IMAGE_STATUSES.DEACTIVATED })
+        }
+      })
 
       if (failedCount === 0) {
         const { message, ...options } = getBulkDeactivateSuccessToast(successCount, totalCount)
