@@ -1,7 +1,9 @@
 import { ReactElement, ReactNode } from "react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { render, screen, cleanup } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { FloatingIpDetailsView } from "./FloatingIpDetailsView"
@@ -17,7 +19,11 @@ vi.mock("../../../-components/-modals/FloatingIpActionModals", () => ({
     }),
 }))
 
-const TestWrapper = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+const TestWrapper = ({ children }: { children: ReactNode }) => (
+  <I18nProvider i18n={i18n}>
+    <PortalProvider>{children}</PortalProvider>
+  </I18nProvider>
+)
 
 describe("FloatingIpDetailsView", () => {
   const mockFloatingIp: FloatingIp = {
@@ -81,12 +87,20 @@ describe("FloatingIpDetailsView", () => {
     })
   })
 
-  describe("Button row", () => {
-    it("renders all action buttons", () => {
+  describe("Header actions", () => {
+    it("renders Attach as the primary action", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
-      expect(screen.getByText("Edit Description")).toBeInTheDocument()
       expect(screen.getByText("Attach")).toBeInTheDocument()
+    })
+
+    it("renders the remaining actions in the kebab menu", async () => {
+      const user = userEvent.setup()
+      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
+
+      await user.click(screen.getByRole("button", { name: "Floating IP actions" }))
+
+      expect(screen.getByText("Edit Description")).toBeInTheDocument()
       expect(screen.getByText("Detach")).toBeInTheDocument()
       expect(screen.getByText("Release")).toBeInTheDocument()
     })

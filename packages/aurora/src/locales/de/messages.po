@@ -1889,6 +1889,9 @@ msgstr ""
 msgid "Floating IP \"{ip}\" was successfully updated."
 msgstr ""
 
+msgid "Floating IP actions"
+msgstr ""
+
 msgid "Floating IP Address"
 msgstr "Floating IP-Adresse"
 
