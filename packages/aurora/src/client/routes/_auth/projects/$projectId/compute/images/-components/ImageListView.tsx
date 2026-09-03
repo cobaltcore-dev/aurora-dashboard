@@ -190,6 +190,7 @@ export function ImageListView({
 
   const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
     onSuccess: (updatedImage) => {
+      utils.compute.listImagesWithPagination.invalidate()
       onImageUpdated(updatedImage)
     },
   })

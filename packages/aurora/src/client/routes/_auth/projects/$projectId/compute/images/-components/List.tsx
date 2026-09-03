@@ -234,13 +234,13 @@ function ImagesContent({
   return (
     <>
       {/* Zone 1 — tabs + sort + create / more actions, no background */}
-      <Stack distribution="between" alignment="center" gap="2">
+      <Stack distribution="between" alignment="center" gap="2" className="pb-2">
         <TabNavigation activeItem={memberStatusView} onActiveItemChange={memberStatusTabs.onActiveItemChange}>
           {memberStatusTabs.items.map((item) => (
             <TabNavigationItem key={item.value} label={item.label} value={item.value} />
           ))}
         </TabNavigation>
-        <Stack gap="0.5" alignment="center">
+        <Stack gap="2" alignment="center">
           <SortInput
             options={sortSettings.options}
             sortBy={sortSettings.sortBy}
