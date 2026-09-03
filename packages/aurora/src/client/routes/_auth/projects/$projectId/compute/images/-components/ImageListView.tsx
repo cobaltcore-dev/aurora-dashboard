@@ -312,10 +312,15 @@ export function ImageListView({
         },
       })
 
-      // Show success notification and re-fetch image list
+      // Show success notification
       const { message, ...options } = getImageCreatedToast(imageName)
       toast.success(message, options)
-      await utils.compute.listImagesWithPagination.invalidate()
+
+      // Optimistically add the created image to the list
+      onImageUpdated(createdImage)
+
+      // Trigger manual refetch through member status change handler
+      onMemberStatusChanged()
     } catch (error) {
       // Show error notification based on failure point
       if (error instanceof TRPCClientError && error.data?.path === "compute.createImage") {
