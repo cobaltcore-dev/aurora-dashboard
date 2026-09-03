@@ -9,6 +9,7 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
@@ -111,36 +112,6 @@ export const ContainerTableView = ({
       setSelectedContainers([...selectedContainers, containerName])
     }
   }
-  if (!containers || containers.length === 0) {
-    return (
-      <>
-        <DataGrid columns={4} className="containers" data-testid="no-containers">
-          <DataGridRow>
-            <DataGridCell colSpan={4}>
-              <div className="py-8 text-center">
-                <h3 className="text-lg font-semibold">
-                  <Trans>No containers found</Trans>
-                </h3>
-                <p className="text-theme-light mt-2">
-                  <Trans>
-                    There are no containers available with the current search criteria. Try adjusting your search term.
-                  </Trans>
-                </p>
-              </div>
-            </DataGridCell>
-          </DataGridRow>
-        </DataGrid>
-
-        <CreateContainerModal
-          isOpen={createModalOpen}
-          onClose={() => setCreateModalOpen(false)}
-          onSuccess={onCreateSuccess}
-          onError={onCreateError}
-          maxContainerNameLength={maxContainerNameLength}
-        />
-      </>
-    )
-  }
 
   // Column count and template depend on whether the selection column is shown.
   // With selection: checkbox, name, count, last modified, size, actions menu (6).
@@ -157,7 +128,6 @@ export const ContainerTableView = ({
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
           <DataGrid
             columns={columnCount}
-            minContentColumns={[columnCount - 1]}
             gridColumnTemplate={gridColumnTemplate}
             className="containers"
             data-testid="containers-table-header"
@@ -178,6 +148,18 @@ export const ContainerTableView = ({
               </DataGridHeadCell>
               <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }} />
             </DataGridRow>
+
+            {(!containers || containers.length === 0) && (
+              <DataGridRow>
+                <DataGridCell colSpan={columnCount}>
+                  <Status
+                    status="empty"
+                    title={t`No containers found`}
+                    body={t`There are no containers available with the current search criteria. Try adjusting your search term.`}
+                  />
+                </DataGridCell>
+              </DataGridRow>
+            )}
           </DataGrid>
         </div>
 
@@ -192,7 +174,6 @@ export const ContainerTableView = ({
         >
           <DataGrid
             columns={columnCount}
-            minContentColumns={[columnCount - 1]}
             gridColumnTemplate={gridColumnTemplate}
             style={{
               height: `${totalSize}px`,

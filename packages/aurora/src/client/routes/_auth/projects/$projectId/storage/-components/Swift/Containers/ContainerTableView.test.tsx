@@ -209,7 +209,8 @@ describe("ContainerTableView", () => {
   describe("Empty state", () => {
     test("renders empty state when containers array is empty", () => {
       renderView({ containers: [] })
-      expect(screen.getByTestId("no-containers")).toBeInTheDocument()
+      // Empty state is now rendered inside the table header with Status component
+      expect(screen.getByTestId("containers-table-header")).toBeInTheDocument()
       expect(screen.getByText(/No containers found/i)).toBeInTheDocument()
     })
 
@@ -218,9 +219,10 @@ describe("ContainerTableView", () => {
       expect(screen.getByText(/There are no containers available/i)).toBeInTheDocument()
     })
 
-    test("does not render table header in empty state", () => {
+    test("renders table header with empty state inside", () => {
       renderView({ containers: [] })
-      expect(screen.queryByTestId("containers-table-header")).not.toBeInTheDocument()
+      expect(screen.getByTestId("containers-table-header")).toBeInTheDocument()
+      expect(screen.getByRole("status")).toBeInTheDocument()
     })
   })
 
