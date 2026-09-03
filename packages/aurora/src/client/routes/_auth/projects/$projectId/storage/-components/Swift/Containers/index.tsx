@@ -19,6 +19,7 @@ import {
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { parseSwiftDate } from "@/client/utils/formatSwiftDate"
 import { ContainerTableView } from "./ContainerTableView"
 import {
   getContainerCreatedToast,
@@ -197,7 +198,10 @@ export const SwiftContainers = () => {
           if (!a.last_modified || !b.last_modified) {
             return a.last_modified ? -1 : 1
           }
-          comparison = new Date(a.last_modified).getTime() - new Date(b.last_modified).getTime()
+          // #1236: Swift listing timestamps are UTC without a "Z" — parse them as
+          // UTC so the ordering is correct (matters near DST boundaries).
+          comparison =
+            (parseSwiftDate(a.last_modified)?.getTime() ?? 0) - (parseSwiftDate(b.last_modified)?.getTime() ?? 0)
           break
         default:
           comparison = a.name.localeCompare(b.name)
@@ -226,7 +230,10 @@ export const SwiftContainers = () => {
 
   const handleSortChange = (newSortSettings: SortSettings) => {
     const resolvedSortBy = (newSortSettings.sortBy?.toString() || "name") as
-      "name" | "count" | "bytes" | "last_modified"
+      | "name"
+      | "count"
+      | "bytes"
+      | "last_modified"
     const resolvedDirection = (newSortSettings.sortDirection || "asc") as "asc" | "desc"
     startTransition(() => {
       navigate({

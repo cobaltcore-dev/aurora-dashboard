@@ -17,6 +17,7 @@ import {
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { ObjectSummary } from "@/server/Storage/types/swift"
+import { parseSwiftDate } from "@/client/utils/formatSwiftDate"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { useNavigate } from "@tanstack/react-router"
@@ -354,7 +355,9 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
             const aDate = a.kind === "object" ? a.last_modified : undefined
             const bDate = b.kind === "object" ? b.last_modified : undefined
             if (!aDate || !bDate) break
-            comparison = new Date(aDate).getTime() - new Date(bDate).getTime()
+            // #1236: Swift listing timestamps are UTC without a "Z" — parse them
+            // as UTC so the ordering is correct (matters near DST boundaries).
+            comparison = (parseSwiftDate(aDate)?.getTime() ?? 0) - (parseSwiftDate(bDate)?.getTime() ?? 0)
             break
           }
           case "bytes": {
