@@ -113,7 +113,8 @@ describe("ImageListView — pagination", () => {
     })
 
     expect(screen.getByText("No images found")).toBeInTheDocument()
-    expect(screen.queryByTestId("images-table")).not.toBeInTheDocument()
+    // Table is now always rendered with empty state inside
+    expect(screen.getByTestId("images-table")).toBeInTheDocument()
   })
 
   it("renders all images when there are fewer than 50", async () => {

@@ -306,9 +306,11 @@ describe("ObjectsTableView", () => {
       expect(screen.getByText(/No objects match your search/i)).toBeInTheDocument()
     })
 
-    test("does not render table header in empty state", () => {
+    test("renders table header with empty state inside", () => {
       renderView({ rows: [] })
-      expect(screen.queryByTestId("objects-table-header")).not.toBeInTheDocument()
+      // Empty state is now rendered inside the table header with Status component
+      expect(screen.getByTestId("objects-table-header")).toBeInTheDocument()
+      expect(screen.getByRole("status")).toBeInTheDocument()
     })
   })
 
