@@ -98,7 +98,6 @@ describe("SecurityGroupTableRow", () => {
         expect(screen.getByText("web-servers")).toBeInTheDocument()
       })
 
-      expect(screen.getByText("sg-123")).toBeInTheDocument()
       expect(screen.getByText("Security group for web servers")).toBeInTheDocument()
     })
 

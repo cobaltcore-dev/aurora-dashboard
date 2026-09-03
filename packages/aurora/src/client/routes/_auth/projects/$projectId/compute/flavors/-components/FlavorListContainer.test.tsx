@@ -98,7 +98,8 @@ describe("FlavorListContainer", () => {
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
     expect(await screen.findByText("No flavors found")).toBeInTheDocument()
     expect(await screen.findByText(/There are no flavors available for this project/)).toBeInTheDocument()
-    expect(screen.queryByText("vCPU")).not.toBeInTheDocument()
+    // Table headers are now always rendered, empty state is shown inside the table
+    expect(screen.getByText("vCPU")).toBeInTheDocument()
   })
 
   it("renders no flavors message when flavors is undefined", async () => {
@@ -120,7 +121,8 @@ describe("FlavorListContainer", () => {
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument()
     expect(await screen.findByText("No flavors found")).toBeInTheDocument()
     expect(await screen.findByText(/There are no flavors available for this project/)).toBeInTheDocument()
-    expect(screen.queryByText("vCPU")).not.toBeInTheDocument()
+    // Table headers are now always rendered, empty state is shown inside the table
+    expect(screen.getByText("vCPU")).toBeInTheDocument()
   })
 
   it("renders the flavors table when flavors are provided", async () => {

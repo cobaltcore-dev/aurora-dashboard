@@ -151,7 +151,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     }
   )
 
-  const { data, isLoading, error } = trpcReact.storage.ceph.objects.list.useQuery(
+  const { data, isLoading, isFetching, error } = trpcReact.storage.ceph.objects.list.useQuery(
     {
       project_id: projectId ?? "",
       containerName: bucketName,
@@ -794,6 +794,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           canDeleteFolder={permissions.canDeleteFolder}
           canDeleteVersion={permissions.canDeleteVersion}
           canRestoreVersion={permissions.canRestoreVersion}
+          isLoading={isFetching}
           onDeleteObjectSuccess={(objectKey) => {
             const { message, ...options } = getObjectDeletedToast(objectKey)
             toast.success(message, options)

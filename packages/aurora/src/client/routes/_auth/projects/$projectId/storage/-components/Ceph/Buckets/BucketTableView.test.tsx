@@ -157,7 +157,9 @@ describe("BucketTableView", () => {
     test("shows empty state when no buckets", () => {
       renderTableView({ buckets: [] })
       expect(screen.getByText("No buckets found")).toBeInTheDocument()
-      expect(screen.getByTestId("no-buckets")).toBeInTheDocument()
+      // Empty state is now rendered inside the table with Status component
+      expect(screen.getByTestId("buckets-table-header")).toBeInTheDocument()
+      expect(screen.getByRole("status")).toBeInTheDocument()
     })
 
     test("shows helpful message in empty state", () => {

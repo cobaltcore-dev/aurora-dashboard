@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
-import { DataGrid, DataGridHeadCell, DataGridRow, Status } from "@cloudoperators/juno-ui-components"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { DataGrid, DataGridCell, DataGridHeadCell, DataGridRow, Status } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 import { useNavigate } from "@tanstack/react-router"
 import { useProjectId } from "@/client/hooks"
 import type { SecurityGroup } from "@/server/Network/types/securityGroup"
@@ -124,11 +124,6 @@ export const SecurityGroupListContainer = ({
     return <Status status="error" title={error?.message ?? t`Failed to load security groups`} />
   }
 
-  // Empty state
-  if (securityGroups.length === 0) {
-    return <Trans>There are no groups</Trans>
-  }
-
   return (
     <>
       <DataGrid columns={hasAnyBulkAction ? 6 : 5} minContentColumns={hasAnyBulkAction ? [5] : [4]}>
@@ -138,25 +133,38 @@ export const SecurityGroupListContainer = ({
             <DataGridHeadCell key={label}>{label}</DataGridHeadCell>
           ))}
         </DataGridRow>
-        {securityGroups.map((sg) => {
-          // Compute isReadOnly only when the security group has an explicit project owner
-          const isReadOnly = Boolean(currentProjectId && sg.project_id && sg.project_id !== currentProjectId)
 
-          return (
-            <SecurityGroupTableRow
-              key={sg.id}
-              securityGroup={sg}
-              permissions={permissions}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onViewDetails={handleViewDetails}
-              isReadOnly={isReadOnly}
-              showSelectColumn={hasAnyBulkAction}
-              isSelected={false}
-              onSelect={() => {}}
-            />
-          )
-        })}
+        {securityGroups && securityGroups.length > 0 ? (
+          securityGroups.map((sg) => {
+            // Compute isReadOnly only when the security group has an explicit project owner
+            const isReadOnly = Boolean(currentProjectId && sg.project_id && sg.project_id !== currentProjectId)
+
+            return (
+              <SecurityGroupTableRow
+                key={sg.id}
+                securityGroup={sg}
+                permissions={permissions}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onViewDetails={handleViewDetails}
+                isReadOnly={isReadOnly}
+                showSelectColumn={hasAnyBulkAction}
+                isSelected={false}
+                onSelect={() => {}}
+              />
+            )
+          })
+        ) : (
+          <DataGridRow>
+            <DataGridCell colSpan={hasAnyBulkAction ? 6 : 5}>
+              <Status
+                status="empty"
+                title={t`No security groups found`}
+                body={t`There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started.`}
+              />
+            </DataGridCell>
+          </DataGridRow>
+        )}
       </DataGrid>
 
       {selectedSecurityGroup && (

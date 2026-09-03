@@ -2561,6 +2561,9 @@ msgstr "No projects have access to this image yet. Click \"Add Project Access\" 
 msgid "No rules found"
 msgstr "No rules found"
 
+msgid "No security groups found"
+msgstr "No security groups found"
+
 msgid "No services available for this project."
 msgstr "No services available for this project."
 
@@ -3575,11 +3578,11 @@ msgstr "There are no flavors available for this project with the current filters
 msgid "There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses to instances."
 msgstr "There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses to instances."
 
-msgid "There are no groups"
-msgstr "There are no groups"
-
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 msgstr "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
+
+msgid "There are no items to display."
+msgstr "There are no items to display."
 
 msgid "There are no lifecycle rules for this bucket"
 msgstr "There are no lifecycle rules for this bucket"
@@ -3589,6 +3592,9 @@ msgstr "There are no RBAC policies for this security group"
 
 msgid "There are no rules for this security group"
 msgstr "There are no rules for this security group"
+
+msgid "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
+msgstr "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
 
 msgid "These objects and all their versions will be permanently deleted and cannot be restored."
 msgstr "These objects and all their versions will be permanently deleted and cannot be restored."
