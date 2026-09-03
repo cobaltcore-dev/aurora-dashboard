@@ -154,10 +154,10 @@ function FlavorsContent({
             }
             onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
           />
+          {permissions.canCreate && (
+            <Button variant="primary" label={t`Create Flavor`} onClick={() => setCreateModalOpen(true)} />
+          )}
         </Stack>
-        {permissions.canCreate && (
-          <Button variant="primary" label={t`Create Flavor`} onClick={() => setCreateModalOpen(true)} />
-        )}
       </Stack>
 
       {/* Zone 2 — search bar */}
