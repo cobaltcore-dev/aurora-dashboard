@@ -234,7 +234,6 @@ export const ObjectsTableView = ({
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
           <DataGrid
             columns={columnCount}
-            minContentColumns={[columnCount - 1]}
             gridColumnTemplate={gridColumnTemplate}
             className="objects"
             data-testid="objects-table-header"
@@ -288,7 +287,6 @@ export const ObjectsTableView = ({
         >
           <DataGrid
             columns={columnCount}
-            minContentColumns={[columnCount - 1]}
             gridColumnTemplate={gridColumnTemplate}
             style={{
               height: `${totalSize}px`,

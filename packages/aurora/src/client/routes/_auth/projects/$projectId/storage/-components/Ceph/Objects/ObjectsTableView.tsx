@@ -362,12 +362,7 @@ export function ObjectsTableView({
       <div className="relative">
         {/* Table Header with scrollbar padding */}
         <div style={{ paddingRight: `${scrollbarWidth}px` }}>
-          <DataGrid
-            columns={columnCount}
-            gridColumnTemplate={gridColumnTemplate}
-            data-testid="objects-table-header"
-            minContentColumns={[columnCount - 1]}
-          >
+          <DataGrid columns={columnCount} gridColumnTemplate={gridColumnTemplate} data-testid="objects-table-header">
             <DataGridRow>
               {showSelection && (
                 <DataGridHeadCell>
@@ -410,7 +405,6 @@ export function ObjectsTableView({
           <DataGrid
             columns={columnCount}
             gridColumnTemplate={gridColumnTemplate}
-            minContentColumns={[columnCount - 1]}
             style={{
               height: `${totalSize}px`,
               width: "100%",
