@@ -2795,9 +2795,6 @@ msgstr "Press Enter to add"
 msgid "Prevent accidental deletion"
 msgstr "Prevent accidental deletion"
 
-msgid "Preview"
-msgstr "Preview"
-
 msgid "Preview {rowDisplayName}"
 msgstr "Preview {rowDisplayName}"
 

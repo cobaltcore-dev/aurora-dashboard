@@ -157,7 +157,7 @@ describe("FloatingIpTableRow", () => {
   })
 
   describe("Navigation", () => {
-    it("navigates to details page when Preview is clicked", async () => {
+    it("navigates to details page when Show Details is clicked", async () => {
       const user = userEvent.setup()
       renderComponent()
 
@@ -165,7 +165,7 @@ describe("FloatingIpTableRow", () => {
         expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
       })
 
-      // Open the popup menu and click Preview
+      // Open the popup menu and click Show Details
       const row = screen.getByTestId(`floating-ip-row-${mockFloatingIp.id}`)
       const menuButton = row.querySelector("button")
       expect(menuButton).toBeInTheDocument()
@@ -173,12 +173,12 @@ describe("FloatingIpTableRow", () => {
       await user.click(menuButton!)
 
       await waitFor(() => {
-        const previewItem = screen.getByText("Preview")
-        expect(previewItem).toBeInTheDocument()
+        const showDetailsItem = screen.getByText("Show Details")
+        expect(showDetailsItem).toBeInTheDocument()
       })
 
-      const previewItem = screen.getByText("Preview")
-      await user.click(previewItem)
+      const showDetailsItem = screen.getByText("Show Details")
+      await user.click(showDetailsItem)
 
       // Verify navigation was called with correct parameters
       await waitFor(() => {
@@ -205,7 +205,7 @@ describe("FloatingIpTableRow", () => {
       await user.click(menuButton!)
 
       await waitFor(() => {
-        expect(screen.getByText("Preview")).toBeInTheDocument()
+        expect(screen.getByText("Show Details")).toBeInTheDocument()
         expect(screen.getByText("Edit Description")).toBeInTheDocument()
         expect(screen.getByText("Attach")).toBeInTheDocument()
         expect(screen.getByText("Detach")).toBeInTheDocument()

@@ -2795,9 +2795,6 @@ msgstr "Enter drücken zum Hinzufügen"
 msgid "Prevent accidental deletion"
 msgstr "Versehentliches Löschen verhindern"
 
-msgid "Preview"
-msgstr "Vorschau"
-
 msgid "Preview {rowDisplayName}"
 msgstr "{rowDisplayName} vorschauen"
 

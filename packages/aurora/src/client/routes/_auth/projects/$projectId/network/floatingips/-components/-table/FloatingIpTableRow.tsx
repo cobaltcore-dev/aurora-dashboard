@@ -45,7 +45,7 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
           {({ toggleEditModal, toggleAttachModal, toggleDetachModal, toggleReleaseModal }) => (
             <PopupMenu>
               <PopupMenuOptions>
-                <PopupMenuItem label={t`Preview`} onClick={navigateToDetailsPage} />
+                <PopupMenuItem label={t`Show Details`} onClick={navigateToDetailsPage} />
                 <PopupMenuItem label={t`Edit Description`} onClick={toggleEditModal} />
                 <PopupMenuItem label={t`Attach`} onClick={toggleAttachModal} />
                 <PopupMenuItem label={t`Detach`} onClick={toggleDetachModal} />
