@@ -134,62 +134,47 @@ export function ImageListView({
 
   const utils = trpcReact.useUtils()
 
-  const deleteImageMutation = trpcReact.compute.deleteImage.useMutation({
-    onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
-    },
-  })
+  const deleteImageMutation = trpcReact.compute.deleteImage.useMutation()
 
   const deactivateImageMutation = trpcReact.compute.deactivateImage.useMutation({
-    onSuccess: async () => {
-      await utils.compute.listImagesWithPagination.invalidate()
-      await utils.compute.getImageById.invalidate()
+    onSuccess: () => {
+      utils.compute.getImageById.invalidate()
     },
   })
 
   const reactivateImageMutation = trpcReact.compute.reactivateImage.useMutation({
-    onSuccess: async () => {
-      await utils.compute.listImagesWithPagination.invalidate()
-      await utils.compute.getImageById.invalidate()
+    onSuccess: () => {
+      utils.compute.getImageById.invalidate()
     },
   })
 
   const deleteImagesMutation = trpcReact.compute.deleteImages.useMutation({
     onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
       setSelectedImages([])
     },
   })
 
   const activateImagesMutation = trpcReact.compute.activateImages.useMutation({
     onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
       setSelectedImages([])
     },
   })
 
   const deactivateImagesMutation = trpcReact.compute.deactivateImages.useMutation({
     onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
       setSelectedImages([])
     },
   })
 
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
     onSuccess: (updatedImage) => {
-      utils.compute.listImagesWithPagination.invalidate()
       utils.compute.getImageById.setData({ project_id: projectId, imageId: updatedImage.id }, updatedImage)
     },
   })
 
   const createImageMutation = trpcReact.compute.createImage.useMutation()
 
-  const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
-    onSuccess: (updatedImage) => {
-      utils.compute.listImagesWithPagination.invalidate()
-      onImageUpdated(updatedImage)
-    },
-  })
+  const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation()
 
   const { data } = trpcReact.compute.watchUploadProgress.useSubscription(
     { project_id: projectId, uploadId: uploadId || "" },
@@ -792,13 +777,7 @@ export function ImageListView({
         />
         <CreateImageModal
           isOpen={createModalOpen}
-          onClose={() => {
-            if (uploadId) {
-              utils.compute.listImagesWithPagination.invalidate()
-            }
-
-            setCreateModalOpen(false)
-          }}
+          onClose={() => setCreateModalOpen(false)}
           onCreate={handleCreate}
           isLoading={createImageMutation.isPending || isUploadPending || isCreateInProgress}
           isUploadPending={isUploadPending && !!uploadId}
