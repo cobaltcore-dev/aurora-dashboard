@@ -734,9 +734,6 @@ msgstr "Container aktualisiert"
 msgid "Container:"
 msgstr "Container:"
 
-msgid "Containers"
-msgstr "Container"
-
 msgid "Containers Emptied"
 msgstr "Container geleert"
 
