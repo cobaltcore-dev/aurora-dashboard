@@ -794,6 +794,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           canDeleteFolder={permissions.canDeleteFolder}
           canDeleteVersion={permissions.canDeleteVersion}
           canRestoreVersion={permissions.canRestoreVersion}
+          isLoading={isLoading}
           onDeleteObjectSuccess={(objectKey) => {
             const { message, ...options } = getObjectDeletedToast(objectKey)
             toast.success(message, options)

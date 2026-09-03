@@ -3581,6 +3581,9 @@ msgstr "There are no Floating IPs available for this project. Floating IPs allow
 msgid "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 msgstr "There are no images available for this project with the current filters applied. Try adjusting your filter criteria or create a new image."
 
+msgid "There are no items to display."
+msgstr "There are no items to display."
+
 msgid "There are no lifecycle rules for this bucket"
 msgstr "There are no lifecycle rules for this bucket"
 

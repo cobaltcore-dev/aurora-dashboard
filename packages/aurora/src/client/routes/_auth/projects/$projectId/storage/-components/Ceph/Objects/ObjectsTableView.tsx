@@ -15,6 +15,7 @@ import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
@@ -167,6 +168,7 @@ interface ObjectsTableViewProps {
   canDeleteFolder: boolean
   canDeleteVersion: boolean
   canRestoreVersion: boolean
+  isLoading?: boolean
 }
 
 export function ObjectsTableView({
@@ -200,6 +202,7 @@ export function ObjectsTableView({
   canDeleteFolder,
   canDeleteVersion,
   canRestoreVersion,
+  isLoading = false,
 }: ObjectsTableViewProps) {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -354,53 +357,6 @@ export function ObjectsTableView({
     }
   }, [rows.length, bodyHeight])
 
-  if (rows.length === 0) {
-    return (
-      <>
-        <DataGrid columns={columnCount}>
-          <DataGridRow>
-            {showSelection && (
-              <DataGridHeadCell>
-                <span className="sr-only">
-                  <Trans>Select</Trans>
-                </span>
-              </DataGridHeadCell>
-            )}
-            <DataGridHeadCell>
-              <Trans>Name</Trans>
-            </DataGridHeadCell>
-            <DataGridHeadCell>
-              <Trans>Size</Trans>
-            </DataGridHeadCell>
-            <DataGridHeadCell>
-              <Trans>Last Modified</Trans>
-            </DataGridHeadCell>
-            <DataGridHeadCell />
-          </DataGridRow>
-          <DataGridRow>
-            <DataGridCell colSpan={columnCount}>
-              <div className="py-8 text-center">
-                <p className="text-theme-light">
-                  <Trans>No objects found.</Trans>
-                </p>
-              </div>
-            </DataGridCell>
-          </DataGridRow>
-        </DataGrid>
-        <DeleteObjectModal
-          bucketName={bucketName}
-          objectKey={deleteTarget?.key ?? ""}
-          objectSize={deleteTarget?.size}
-          lastModified={deleteTarget?.lastModified}
-          versioningEnabled={versioningEnabled}
-          isOpen={deleteTarget !== null}
-          onClose={() => setDeleteTarget(null)}
-          onSuccess={onDeleteObjectSuccess}
-          onError={onDeleteObjectError}
-        />
-      </>
-    )
-  }
   return (
     <>
       <div className="relative">
@@ -431,6 +387,14 @@ export function ObjectsTableView({
               </DataGridHeadCell>
               <DataGridHeadCell style={{ marginRight: `-${scrollbarWidth}px` }} />
             </DataGridRow>
+
+            {!isLoading && rows.length === 0 && (
+              <DataGridRow>
+                <DataGridCell colSpan={columnCount}>
+                  <Status status="empty" title={t`No objects found.`} body={t`There are no items to display.`} />
+                </DataGridCell>
+              </DataGridRow>
+            )}
           </DataGrid>
         </div>
 
