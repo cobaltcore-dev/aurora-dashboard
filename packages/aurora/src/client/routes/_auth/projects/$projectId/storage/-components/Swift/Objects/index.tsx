@@ -356,8 +356,12 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
             const bDate = b.kind === "object" ? b.last_modified : undefined
             if (!aDate || !bDate) break
             // #1236: Swift listing timestamps are UTC without a "Z" — parse them
-            // as UTC so the ordering is correct (matters near DST boundaries).
-            comparison = (parseSwiftDate(aDate)?.getTime() ?? 0) - (parseSwiftDate(bDate)?.getTime() ?? 0)
+            // as UTC so the ordering is correct (matters near DST boundaries). If
+            // a (non-empty) value can't be parsed, leave the pair as equal so the
+            // order is untouched (matches the old NaN behaviour).
+            const at = parseSwiftDate(aDate)?.getTime()
+            const bt = parseSwiftDate(bDate)?.getTime()
+            comparison = at == null || bt == null ? 0 : at - bt
             break
           }
           case "bytes": {
