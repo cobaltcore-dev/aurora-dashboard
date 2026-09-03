@@ -134,65 +134,47 @@ export function ImageListView({
 
   const utils = trpcReact.useUtils()
 
-  const deleteImageMutation = trpcReact.compute.deleteImage.useMutation({
-    onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
-    },
-  })
+  const deleteImageMutation = trpcReact.compute.deleteImage.useMutation()
 
   const deactivateImageMutation = trpcReact.compute.deactivateImage.useMutation({
     onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
       utils.compute.getImageById.invalidate()
     },
   })
 
   const reactivateImageMutation = trpcReact.compute.reactivateImage.useMutation({
     onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
       utils.compute.getImageById.invalidate()
     },
   })
 
   const deleteImagesMutation = trpcReact.compute.deleteImages.useMutation({
     onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
       setSelectedImages([])
     },
   })
 
   const activateImagesMutation = trpcReact.compute.activateImages.useMutation({
     onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
       setSelectedImages([])
     },
   })
 
   const deactivateImagesMutation = trpcReact.compute.deactivateImages.useMutation({
     onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
       setSelectedImages([])
     },
   })
 
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
     onSuccess: (updatedImage) => {
-      utils.compute.listImagesWithPagination.invalidate()
       utils.compute.getImageById.setData({ project_id: projectId, imageId: updatedImage.id }, updatedImage)
     },
   })
 
-  const createImageMutation = trpcReact.compute.createImage.useMutation({
-    onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
-    },
-  })
+  const createImageMutation = trpcReact.compute.createImage.useMutation()
 
-  const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
-    onSuccess: (updatedImage) => {
-      onImageUpdated(updatedImage)
-    },
-  })
+  const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation()
 
   const { data } = trpcReact.compute.watchUploadProgress.useSubscription(
     { project_id: projectId, uploadId: uploadId || "" },
@@ -212,11 +194,13 @@ export function ImageListView({
 
   const handleUpdateImageVisibility = async (imageId: string, newVisibility: ImageVisibility, imageName: string) => {
     try {
-      await updateImageVisibilityMutation.mutateAsync({
+      const updatedImage = await updateImageVisibilityMutation.mutateAsync({
         project_id: projectId,
         imageId,
         visibility: newVisibility,
       })
+
+      onImageUpdated(updatedImage)
 
       const { message, ...options } = getImageVisibilityUpdatedToast(imageName, newVisibility)
       toast.success(message, options)
@@ -315,10 +299,15 @@ export function ImageListView({
         },
       })
 
-      // Show success notification and re-fetch image list
+      // Show success notification
       const { message, ...options } = getImageCreatedToast(imageName)
       toast.success(message, options)
-      utils.compute.listImagesWithPagination.invalidate()
+
+      // Optimistically add the created image to the list
+      onImageUpdated(createdImage)
+
+      // Trigger manual refetch through member status change handler
+      onMemberStatusChanged()
     } catch (error) {
       // Show error notification based on failure point
       if (error instanceof TRPCClientError && error.data?.path === "compute.createImage") {
@@ -381,6 +370,11 @@ export function ImageListView({
 
     try {
       await reactivateImageMutation.mutateAsync({ project_id: projectId, imageId })
+
+      // Optimistically update the local state
+      const updatedImage = { ...image, status: IMAGE_STATUSES.ACTIVE }
+      onImageUpdated(updatedImage)
+
       setActivateModalOpen(false)
       setSelectedImage(null)
       const { message, ...options } = getImageActivatedToast(imageName)
@@ -398,6 +392,11 @@ export function ImageListView({
 
     try {
       await deactivateImageMutation.mutateAsync({ project_id: projectId, imageId })
+
+      // Optimistically update the local state
+      const updatedImage = { ...image, status: IMAGE_STATUSES.DEACTIVATED }
+      onImageUpdated(updatedImage)
+
       setDeactivateModalOpen(false)
       setSelectedImage(null)
       const { message, ...options } = getImageDeactivatedToast(imageName)
@@ -501,6 +500,14 @@ export function ImageListView({
       const failedCount = result.failed.length
       const totalCount = imageIds.length
 
+      // Optimistically update successful images
+      result.successful.forEach((imageId) => {
+        const image = images.find((img) => img.id === imageId)
+        if (image) {
+          onImageUpdated({ ...image, status: IMAGE_STATUSES.ACTIVE })
+        }
+      })
+
       if (failedCount === 0) {
         const { message, ...options } = getBulkActivateSuccessToast(successCount, totalCount)
         toast.success(message, options)
@@ -530,6 +537,14 @@ export function ImageListView({
       const successCount = result.successful.length
       const failedCount = result.failed.length
       const totalCount = imageIds.length
+
+      // Optimistically update successful images
+      result.successful.forEach((imageId) => {
+        const image = images.find((img) => img.id === imageId)
+        if (image) {
+          onImageUpdated({ ...image, status: IMAGE_STATUSES.DEACTIVATED })
+        }
+      })
 
       if (failedCount === 0) {
         const { message, ...options } = getBulkDeactivateSuccessToast(successCount, totalCount)
@@ -764,13 +779,7 @@ export function ImageListView({
         />
         <CreateImageModal
           isOpen={createModalOpen}
-          onClose={() => {
-            if (uploadId) {
-              utils.compute.listImagesWithPagination.invalidate()
-            }
-
-            setCreateModalOpen(false)
-          }}
+          onClose={() => setCreateModalOpen(false)}
           onCreate={handleCreate}
           isLoading={createImageMutation.isPending || isUploadPending || isCreateInProgress}
           isUploadPending={isUploadPending && !!uploadId}
