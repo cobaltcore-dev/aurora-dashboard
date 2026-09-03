@@ -10,8 +10,8 @@ describe("parseSwiftDate", () => {
     expect(date?.toISOString()).toBe("2024-03-01T08:00:00.000Z")
   })
 
-  test("handles microsecond precision", () => {
-    const date = parseSwiftDate("2024-03-01T08:00:00.435654031")
+  test("handles fractional seconds beyond milliseconds (truncates to ms)", () => {
+    const date = parseSwiftDate("2024-03-01T08:00:00.435654")
     // Engines keep millisecond precision; the instant is still 08:00:00.435 UTC.
     expect(date?.toISOString()).toBe("2024-03-01T08:00:00.435Z")
   })

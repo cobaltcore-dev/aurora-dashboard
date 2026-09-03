@@ -230,10 +230,7 @@ export const SwiftContainers = () => {
 
   const handleSortChange = (newSortSettings: SortSettings) => {
     const resolvedSortBy = (newSortSettings.sortBy?.toString() || "name") as
-      | "name"
-      | "count"
-      | "bytes"
-      | "last_modified"
+      "name" | "count" | "bytes" | "last_modified"
     const resolvedDirection = (newSortSettings.sortDirection || "asc") as "asc" | "desc"
     startTransition(() => {
       navigate({
