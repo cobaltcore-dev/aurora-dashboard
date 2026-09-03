@@ -62,12 +62,14 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
   const createMemberMutation = trpcReact.compute.createImageMember.useMutation({
     onSuccess: () => {
       utils.compute.listImageMembers.invalidate({ project_id: projectId, imageId: image.id })
+      utils.compute.listImagesWithPagination.invalidate()
     },
   })
 
   const deleteMemberMutation = trpcReact.compute.deleteImageMember.useMutation({
     onSuccess: () => {
       utils.compute.listImageMembers.invalidate({ project_id: projectId, imageId: image.id })
+      utils.compute.listImagesWithPagination.invalidate()
     },
   })
 
