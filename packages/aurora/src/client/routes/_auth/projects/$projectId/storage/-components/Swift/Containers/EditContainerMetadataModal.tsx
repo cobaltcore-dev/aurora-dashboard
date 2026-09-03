@@ -803,7 +803,7 @@ export const EditContainerMetadataModal = ({
                           />
                           <Button
                             size="small"
-                            variant="primary-danger"
+                            variant="default"
                             onClick={() => handleDeleteMeta(index)}
                             icon="deleteForever"
                             title={t`Delete`}
