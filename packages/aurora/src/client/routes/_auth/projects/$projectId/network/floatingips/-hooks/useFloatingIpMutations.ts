@@ -70,6 +70,7 @@ export const useFloatingIpMutations = () => {
   return {
     handleUpdate,
     handleDelete,
+    resetUpdateError: updateMutation.reset,
     isUpdatePending: updateMutation.isPending,
     updateError: updateMutation.error?.message ?? null,
     isDeletePending: deleteMutation.isPending,

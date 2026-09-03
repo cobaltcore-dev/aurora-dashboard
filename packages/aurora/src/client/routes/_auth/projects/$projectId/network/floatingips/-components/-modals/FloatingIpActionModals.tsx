@@ -37,8 +37,23 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
   const [detachModalOpen, toggleDetachModal] = useModal(false)
   const [releaseModalOpen, toggleReleaseModal] = useModal(false)
 
-  const { handleUpdate, handleDelete, isUpdatePending, updateError, isDeletePending, deleteError } =
+  const { handleUpdate, handleDelete, resetUpdateError, isUpdatePending, updateError, isDeletePending, deleteError } =
     useFloatingIpMutations()
+
+  const toggleEditModalWithReset = () => {
+    resetUpdateError()
+    toggleEditModal()
+  }
+
+  const toggleAttachModalWithReset = () => {
+    resetUpdateError()
+    toggleAttachModal()
+  }
+
+  const toggleDetachModalWithReset = () => {
+    resetUpdateError()
+    toggleDetachModal()
+  }
 
   const ip = floatingIp.floating_ip_address ?? floatingIp.id
 
@@ -73,9 +88,9 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
   return (
     <>
       {children({
-        toggleEditModal,
-        toggleAttachModal,
-        toggleDetachModal,
+        toggleEditModal: toggleEditModalWithReset,
+        toggleAttachModal: toggleAttachModalWithReset,
+        toggleDetachModal: toggleDetachModalWithReset,
         toggleReleaseModal,
       })}
 
@@ -83,7 +98,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
         <EditFloatingIpModal
           floatingIp={floatingIp}
           open={editModalOpen}
-          onClose={toggleEditModal}
+          onClose={toggleEditModalWithReset}
           onUpdate={handleEditWithToast}
           isLoading={isUpdatePending}
           error={updateError}
@@ -94,7 +109,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
         <AssociateFloatingIpModal
           floatingIp={floatingIp}
           open={attachModalOpen}
-          onClose={toggleAttachModal}
+          onClose={toggleAttachModalWithReset}
           onUpdate={handleAssociateWithToast}
           isLoading={isUpdatePending}
           error={updateError}
@@ -105,7 +120,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
         <DetachFloatingIpModal
           floatingIp={floatingIp}
           open={detachModalOpen}
-          onClose={toggleDetachModal}
+          onClose={toggleDetachModalWithReset}
           onUpdate={handleDetachWithToast}
           isLoading={isUpdatePending}
           error={updateError}

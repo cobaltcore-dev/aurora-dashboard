@@ -25,10 +25,11 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
   }
 })
 
-const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() => ({
+const { mockUseUtils, mockUpdateMutation, mockDeleteMutation, mockResetUpdateMutation } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
   mockUpdateMutation: vi.fn(),
   mockDeleteMutation: vi.fn(),
+  mockResetUpdateMutation: vi.fn(),
 }))
 
 vi.mock("@/client/trpcClient", async (importOriginal) => {
@@ -218,6 +219,7 @@ describe("FloatingIpActionModals", () => {
 
         return {
           mutateAsync: mutateAsyncMock,
+          reset: mockResetUpdateMutation,
           isPending: false,
           error: null,
         }
@@ -257,6 +259,7 @@ describe("FloatingIpActionModals", () => {
     it("passes loading and error mutation state to edit modal", async () => {
       mockUpdateMutation.mockReturnValue({
         mutateAsync: vi.fn(),
+        reset: mockResetUpdateMutation,
         isPending: true,
         error: { message: "Update failed" },
       })
@@ -289,6 +292,7 @@ describe("FloatingIpActionModals", () => {
     it("passes loading and error mutation state to detach modal", async () => {
       mockUpdateMutation.mockReturnValue({
         mutateAsync: vi.fn(),
+        reset: mockResetUpdateMutation,
         isPending: true,
         error: { message: "Detach failed" },
       })
@@ -321,6 +325,7 @@ describe("FloatingIpActionModals", () => {
     it("passes loading and error mutation state to attach modal", async () => {
       mockUpdateMutation.mockReturnValue({
         mutateAsync: vi.fn(),
+        reset: mockResetUpdateMutation,
         isPending: true,
         error: { message: "Attach failed" },
       })
@@ -410,6 +415,19 @@ describe("FloatingIpActionModals", () => {
         to: "/projects/$projectId/network/floatingips",
         params: { projectId: "test-project" },
       })
+    })
+  })
+
+  describe("Update error isolation", () => {
+    it("resets the shared update mutation when switching action modals", async () => {
+      const user = userEvent.setup()
+      renderWithTriggers(mockFloatingIp)
+
+      await user.click(screen.getByRole("button", { name: "Open Attach" }))
+      await user.click(screen.getByRole("button", { name: "Close Associate Modal" }))
+      await user.click(screen.getByRole("button", { name: "Open Edit" }))
+
+      expect(mockResetUpdateMutation).toHaveBeenCalledTimes(3)
     })
   })
 })
