@@ -195,6 +195,9 @@ export const SwiftContainers = () => {
           comparison = a.bytes - b.bytes
           break
         case "last_modified": {
+          // Both missing → equal (keeps the comparator transitive); exactly one
+          // missing → push it to the end.
+          if (!a.last_modified && !b.last_modified) return 0
           if (!a.last_modified || !b.last_modified) {
             return a.last_modified ? -1 : 1
           }
