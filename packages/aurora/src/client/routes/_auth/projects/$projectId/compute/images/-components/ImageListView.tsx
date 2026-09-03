@@ -182,11 +182,7 @@ export function ImageListView({
     },
   })
 
-  const createImageMutation = trpcReact.compute.createImage.useMutation({
-    onSuccess: () => {
-      utils.compute.listImagesWithPagination.invalidate()
-    },
-  })
+  const createImageMutation = trpcReact.compute.createImage.useMutation()
 
   const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
     onSuccess: (updatedImage) => {
@@ -319,7 +315,7 @@ export function ImageListView({
       // Show success notification and re-fetch image list
       const { message, ...options } = getImageCreatedToast(imageName)
       toast.success(message, options)
-      utils.compute.listImagesWithPagination.invalidate()
+      await utils.compute.listImagesWithPagination.invalidate()
     } catch (error) {
       // Show error notification based on failure point
       if (error instanceof TRPCClientError && error.data?.path === "compute.createImage") {
