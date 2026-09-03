@@ -8,11 +8,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { trpcReact } from "@/client/trpcClient"
 import { AllocateFloatingIpModal } from "./AllocateFloatingIpModal"
 
+const { mockNavigate } = vi.hoisted(() => ({
+  mockNavigate: vi.fn(),
+}))
+
 vi.mock("@tanstack/react-router", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-router")>()
   return {
     ...actual,
     useParams: vi.fn(() => ({ projectId: "test-project" })),
+    useNavigate: vi.fn(() => mockNavigate),
   }
 })
 
@@ -408,6 +413,23 @@ describe("AllocateFloatingIpModal", () => {
 
       const allocateButton = screen.getByRole("button", { name: /Allocate/i })
       expect(allocateButton).toBeDisabled()
+    })
+
+    it("redirects to the created floating IP details page", async () => {
+      const user = userEvent.setup()
+
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      await user.click(screen.getByLabelText("External Network"))
+      await user.click(screen.getByRole("option", { name: /Public Network \(net-1\)/i }))
+      await user.click(screen.getByRole("button", { name: /Allocate/i }))
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith({
+          to: "/projects/$projectId/network/floatingips/$floatingIpId",
+          params: { projectId: "test-project", floatingIpId: "fip-new" },
+        })
+      })
     })
   })
 

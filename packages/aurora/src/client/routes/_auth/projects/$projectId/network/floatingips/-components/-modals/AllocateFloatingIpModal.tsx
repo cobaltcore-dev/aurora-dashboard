@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
+import { useNavigate } from "@tanstack/react-router"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   Modal,
@@ -11,11 +12,9 @@ import {
   TextInput,
   Select,
   SelectOption,
-  toast,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
-import { getFloatingIpAllocatedToast } from "./FloatingIpToastNotifications"
 
 export interface AllocateFloatingIpModalProps {
   open: boolean
@@ -31,6 +30,7 @@ const dnsNameRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-
 export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
+  const navigate = useNavigate()
   const utils = trpcReact.useUtils()
 
   const { isPending, ...createFloatingIpMutation } = trpcReact.network.floatingIp.create.useMutation({
@@ -105,9 +105,11 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
         ...(value.port_id && { port_id: value.port_id }),
         ...(value.fixed_ip_address && { fixed_ip_address: value.fixed_ip_address }),
       })
-      const { message, ...options } = getFloatingIpAllocatedToast(created.floating_ip_address ?? created.id)
-      toast.success(message, options)
       handleClose()
+      navigate({
+        to: "/projects/$projectId/network/floatingips/$floatingIpId",
+        params: { projectId, floatingIpId: created.id },
+      })
     },
   })
 

@@ -1877,9 +1877,6 @@ msgstr "Der Flavor-Service ist für dieses Projekt nicht verfügbar."
 msgid "Flavors"
 msgstr "Flavors"
 
-msgid "Floating IP \"{ip}\" was successfully allocated."
-msgstr ""
-
 msgid "Floating IP \"{ip}\" was successfully associated with the port."
 msgstr ""
 
@@ -1894,9 +1891,6 @@ msgstr ""
 
 msgid "Floating IP Address"
 msgstr "Floating IP-Adresse"
-
-msgid "Floating IP Allocated"
-msgstr ""
 
 msgid "Floating IP Associated"
 msgstr ""

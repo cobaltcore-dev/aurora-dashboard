@@ -4,11 +4,6 @@ import { Trans } from "@lingui/react/macro"
 
 type ToastReturnType = { message: ReactNode } & NotificationOptions
 
-export const getFloatingIpAllocatedToast = (ip: string): ToastReturnType => ({
-  message: <Trans>Floating IP Allocated</Trans>,
-  description: <Trans>Floating IP "{ip}" was successfully allocated.</Trans>,
-})
-
 export const getFloatingIpUpdatedToast = (ip: string): ToastReturnType => ({
   message: <Trans>Floating IP Updated</Trans>,
   description: <Trans>Floating IP "{ip}" was successfully updated.</Trans>,
