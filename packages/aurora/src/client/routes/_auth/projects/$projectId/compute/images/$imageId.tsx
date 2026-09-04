@@ -354,7 +354,7 @@ const headerActions = (hasMoreActions || (!isSharedWithMe && permissions.canUpda
       {(hasMoreActions || (!isSharedWithMe && permissions.canUpdate)) && (
         <PopupMenu className="flex items-center">
           <PopupMenuToggle as="div">
-            <Button icon="moreVert" title={t`More Actions`} />
+            <Button icon="moreVert" title={t`More Actions`} disabled={isLoading} />
           </PopupMenuToggle>
           <PopupMenuOptions>
             {!isSharedWithMe && permissions.canUpdate && (
