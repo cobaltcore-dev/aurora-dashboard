@@ -494,7 +494,7 @@ export const ManageContainerAccessModal = ({
 
               {/* ── Right: reference panel ─────────────────────────────────── */}
               <div className="border-theme-background-lvl-3 w-72 shrink-0 border-l pl-6">
-                <p className="text-theme-light mb-3 text-xs">
+                <p className="text-theme-default mb-3 text-xs">
                   <Trans>Entries in ACLs are comma-separated. Examples:</Trans>
                 </p>
 
@@ -518,7 +518,7 @@ export const ManageContainerAccessModal = ({
                   />
                 </Stack>
 
-                <p className="text-theme-light mt-4 text-xs">
+                <p className="text-theme-default mt-4 text-xs">
                   <Trans>
                     For more details, have a look at the{" "}
                     <a
@@ -561,7 +561,7 @@ function AclExample({ code, description }: AclExampleProps) {
       <Badge variant="info" className="mb-1 text-xs">
         {code}
       </Badge>
-      <p className="text-theme-light text-xs leading-relaxed">{description}</p>
+      <p className="text-theme-default text-xs leading-relaxed">{description}</p>
     </div>
   )
 }
