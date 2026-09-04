@@ -19,6 +19,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { MdFolder, MdDescription } from "react-icons/md"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { formatSwiftDate } from "@/client/utils/formatSwiftDate"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
@@ -208,11 +209,6 @@ export const ObjectsTableView = ({
     }
   }, [rows.length, bodyHeight])
 
-  // Format date to localized string
-  const formatDate = (dateString: string): string => {
-    const d = new Date(dateString)
-    return Number.isNaN(d.getTime()) ? t`N/A` : d.toLocaleString()
-  }
   // Only object rows (not folders) are selectable
   const handleSelectObject = (name: string) => {
     if (selectedObjects.includes(name)) {
@@ -411,7 +407,7 @@ export const ObjectsTableView = ({
                         </button>
                       </div>
                     ) : !isFolder && row.last_modified ? (
-                      formatDate(row.last_modified)
+                      (formatSwiftDate(row.last_modified) ?? "—")
                     ) : (
                       "—"
                     )}
