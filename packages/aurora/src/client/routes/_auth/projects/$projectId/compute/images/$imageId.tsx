@@ -349,7 +349,7 @@ function RouteComponent() {
 
   const hasMoreActions = canRejectSharedImage || canUpdateOwnImage || canDeleteOwnImage || canManageSharing
 
-const headerActions = (hasMoreActions || (!isSharedWithMe && permissions.canUpdate)) && (
+  const headerActions = (hasMoreActions || (!isSharedWithMe && permissions.canUpdate)) && (
     <Stack gap="0.5" alignment="center">
       {(hasMoreActions || (!isSharedWithMe && permissions.canUpdate)) && (
         <PopupMenu className="flex items-center">
