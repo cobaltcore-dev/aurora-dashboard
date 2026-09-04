@@ -1,5 +1,4 @@
 import type { FC } from "react"
-import type { AnyRoute } from "@tanstack/react-router"
 import type { TrpcClient } from "./trpcClient"
 import App from "./App"
 
@@ -55,13 +54,34 @@ export type TrackEventPayload = {
 export type OnTrackEventCallback = (payload: TrackEventPayload) => void
 
 /**
- * An additional project-scoped service a consumer wants to register.
- * Aurora checks `serviceIndex[serviceType][serviceName]` against the project's OpenStack catalog.
- * When present, the service appears in the "Services" nav section and its routes are activated
- * under the OSS-owned `/services` layout. Pass the service's entry route (list/overview) as
- * `routes` — wire its full sub-tree via `addChildren` and set `getParentRoute: () => servicesRoute`.
+ * Host-provided data handed to a mounted service extension. Extend this as extensions need more
+ * from OSS (domainId, scope, a typed tRPC client, ...). Seed it into the extension's own router
+ * context so pages can read it via `useRouteContext`.
  */
-export type AdditionalProjectService = {
+export type ServiceExtensionContext = {
+  /** The current project ID. */
+  projectId: string
+}
+
+/**
+ * Props passed to a service extension component mounted by OSS.
+ * The basePath is the full URL prefix up to and including the service type segment.
+ */
+export type ServiceExtensionProps = {
+  /** Full URL prefix for this service, e.g. "/projects/abc/services/pca". Pass as `basepath` to RouterProvider. */
+  basePath: string
+  /** Host context to seed into the extension's own router context. */
+  context: ServiceExtensionContext
+}
+
+/**
+ * A project-scoped service extension a consumer wants to register.
+ * Aurora checks `serviceIndex[serviceType][serviceName]` against the project's OpenStack catalog.
+ * When present, the service appears in the "Services" nav section and its component is mounted
+ * under `/projects/$projectId/services/$serviceType`. The component receives `basePath` and
+ * `context`: use these to set up a standalone RouterProvider for the service.
+ */
+export type ServiceExtension = {
   /** OpenStack catalog service type, e.g. `"pca"`. */
   serviceType: string
   /** OpenStack catalog service name, e.g. `"clavis"`. */
@@ -69,12 +89,14 @@ export type AdditionalProjectService = {
   /** Nav item and service card label. */
   label: string
   /**
-   * The pre-assembled entry route for this service (list/overview).
-   * Set `getParentRoute: () => servicesRoute` (from `@cobaltcore-dev/aurora/client`) and wire
-   * the full sub-tree via `addChildren` before passing here.
-   * `routes.fullPath` is used as the nav item navigation target automatically.
+   * The React component to render at `/projects/$projectId/services/$serviceType/**`.
+   * Receives `basePath` (the URL prefix) and `context` (host data). Create your own RouterProvider
+   * inside this component using `basePath` as the `basepath` prop and `context` as the router context.
+   *
+   * Note: this is a self-contained sub-app. Host slots (see `Slots`) are not injected into it, so the
+   * extension owns its own header/actions (e.g. via the re-exported `PageContentHeader` `actions` prop).
    */
-  routes: AnyRoute
+  component: FC<ServiceExtensionProps>
 }
 
 /** Props for the top-level `<AuroraApp />` component. */
@@ -112,8 +134,8 @@ export type AuroraAppProps = {
   onTrackEvent?: OnTrackEventCallback
   /** Whitelist of service keys to show in the side nav and project home page. When omitted, all available services are shown. */
   enabledServices?: string[]
-  /** Additional project-scoped services to register. Each is activated when its OpenStack service appears in the project catalog. */
-  additionalProjectServices?: AdditionalProjectService[]
+  /** Service extensions to register. Each is activated when its OpenStack service appears in the project catalog. */
+  serviceExtensions?: ServiceExtension[]
 }
 
 export const AuroraApp: FC<AuroraAppProps> = App
