@@ -1,5 +1,41 @@
 # @cobaltcore-dev/dashboard
 
+## 1.2.12
+
+### Patch Changes
+
+- ca098d0: fix: update dependencies to resolve security vulnerabilities
+
+  - Update fastify to 5.12.1 (fixes CVE-2026-3635 trustProxy spoofing)
+  - Update @commitlint/cli and @commitlint/config-conventional to 21.2.2
+  - fast-uri updated to 3.1.6 and 4.1.3 (fixes CVE-2026-13676 variants)
+  - Remove obsolete security overrides from pnpm-workspace.yaml
+
+- Updated dependencies [c3b52d4]
+- Updated dependencies [ce9aeb7]
+- Updated dependencies [273aebb]
+- Updated dependencies [7c01ea2]
+- Updated dependencies [2275f02]
+- Updated dependencies [0cadedd]
+- Updated dependencies [4edfdc8]
+- Updated dependencies [ca098d0]
+- Updated dependencies [7036789]
+- Updated dependencies [af20f8b]
+- Updated dependencies [16e4e40]
+- Updated dependencies [d35562a]
+- Updated dependencies [70b0da6]
+- Updated dependencies [fb23589]
+- Updated dependencies [ecc682a]
+- Updated dependencies [d8da79a]
+- Updated dependencies [77c41c6]
+- Updated dependencies [7b38217]
+- Updated dependencies [ad13a73]
+- Updated dependencies [127d410]
+- Updated dependencies [37221d0]
+- Updated dependencies [f5f1ce0]
+- Updated dependencies [4ade8c9]
+  - @cobaltcore-dev/aurora@1.2.0
+
 ## 1.2.11
 
 ### Patch Changes
