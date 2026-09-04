@@ -30,6 +30,7 @@ const COMPUTE_IMAGE_MAPPINGS = {
   // Images
   "images:list": { engine: "image", rule: "get_images" },
   "images:create": { engine: "image", rule: "add_image" },
+  "images:upload": { engine: "image", rule: "upload_image" },
   "images:delete": { engine: "image", rule: "delete_image" },
   "images:update": { engine: "image", rule: "modify_image" },
   "images:create_member": { engine: "image", rule: "add_member" },

@@ -72,6 +72,7 @@ export const createPermissionsPromise = (client: TrpcClient, project: string) =>
       project_id: project,
       permission: [
         "images:create",
+        "images:upload",
         "images:delete",
         "images:update",
         "images:create_member",
@@ -79,8 +80,8 @@ export const createPermissionsPromise = (client: TrpcClient, project: string) =>
         "images:update_member",
       ],
     })
-    .then(([canCreate, canDelete, canUpdate, canCreateMember, canDeleteMember, canUpdateMember]) => ({
-      canCreate,
+    .then(([canCreate, canUpload, canDelete, canUpdate, canCreateMember, canDeleteMember, canUpdateMember]) => ({
+      canCreate: canCreate && canUpload,
       canDelete,
       canUpdate,
       canCreateMember,
