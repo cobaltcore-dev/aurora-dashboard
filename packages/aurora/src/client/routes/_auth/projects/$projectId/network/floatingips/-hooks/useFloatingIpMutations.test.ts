@@ -2,10 +2,11 @@ import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useFloatingIpMutations } from "./useFloatingIpMutations"
 
-const { mockUseUtils, mockUpdateUseMutation, mockDeleteUseMutation } = vi.hoisted(() => ({
+const { mockUseUtils, mockUpdateUseMutation, mockDeleteUseMutation, mockUpdateReset } = vi.hoisted(() => ({
   mockUseUtils: vi.fn(),
   mockUpdateUseMutation: vi.fn(),
   mockDeleteUseMutation: vi.fn(),
+  mockUpdateReset: vi.fn(),
 }))
 
 vi.mock("@/client/trpcClient", () => ({
@@ -50,7 +51,7 @@ describe("useFloatingIpMutations", () => {
   let deleteOptions:
     | {
         onMutate?: () => Promise<unknown>
-        onSettled?: () => void
+        onSettled?: (data: unknown, error: unknown, variables: Record<string, unknown>) => void
       }
     | undefined
 
@@ -79,6 +80,7 @@ describe("useFloatingIpMutations", () => {
 
       return {
         mutateAsync: updateMutateAsyncMock,
+        reset: mockUpdateReset,
         isPending: false,
         error: null,
       }
@@ -112,6 +114,14 @@ describe("useFloatingIpMutations", () => {
       port_id: "port-1",
       description: "Updated description",
     })
+  })
+
+  it("exposes the update mutation reset handler", () => {
+    const { result } = renderHook(() => useFloatingIpMutations())
+
+    result.current.resetUpdateError()
+
+    expect(mockUpdateReset).toHaveBeenCalledTimes(1)
   })
 
   it("calls delete mutation with floatingip_id", async () => {
@@ -182,13 +192,14 @@ describe("useFloatingIpMutations", () => {
     expect(listInvalidateMock).toHaveBeenCalledTimes(1)
   })
 
-  it("cancels list query on delete onMutate and invalidates list on settle", async () => {
+  it("cancels list query and invalidates detail and list on delete settle", async () => {
     renderHook(() => useFloatingIpMutations())
 
     await deleteOptions?.onMutate?.()
-    deleteOptions?.onSettled?.()
+    deleteOptions?.onSettled?.(undefined, null, { floatingip_id: "fip-123" })
 
     expect(listCancelMock).toHaveBeenCalledTimes(1)
+    expect(getByIdInvalidateMock).toHaveBeenCalledWith({ project_id: "proj-1", floatingip_id: "fip-123" })
     expect(listInvalidateMock).toHaveBeenCalledTimes(1)
   })
 

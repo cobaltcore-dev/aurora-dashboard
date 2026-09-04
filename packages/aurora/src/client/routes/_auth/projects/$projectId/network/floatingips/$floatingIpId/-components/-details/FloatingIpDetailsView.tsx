@@ -1,5 +1,13 @@
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Stack, ButtonRow, Button, ContentHeading } from "@cloudoperators/juno-ui-components"
+import {
+  Stack,
+  Button,
+  ContentHeading,
+  PopupMenu,
+  PopupMenuToggle,
+  PopupMenuItem,
+  PopupMenuOptions,
+} from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { formatFloatingIpStatus } from "@/client/utils/formatFloatingIpStatus"
 import type { DetailListItem } from "@/client/components/TwoColumnDescriptionList"
@@ -53,12 +61,21 @@ export const FloatingIpDetailsView = ({ floatingIp }: FloatingIpDetailsViewProps
         actions={
           <FloatingIpActionModals floatingIp={floatingIp}>
             {({ toggleEditModal, toggleAttachModal, toggleDetachModal, toggleReleaseModal }) => (
-              <ButtonRow>
-                <Button onClick={toggleEditModal}>{t`Edit Description`}</Button>
-                <Button onClick={toggleAttachModal}>{t`Attach`}</Button>
-                <Button onClick={toggleDetachModal}>{t`Detach`}</Button>
-                <Button onClick={toggleReleaseModal}>{t`Release`}</Button>
-              </ButtonRow>
+              <Stack gap="0.5" alignment="center">
+                <PopupMenu className="flex items-center">
+                  <PopupMenuToggle as="div">
+                    <Button icon="moreVert" title={t`Floating IP actions`} />
+                  </PopupMenuToggle>
+                  <PopupMenuOptions>
+                    <PopupMenuItem label={t`Edit Description`} onClick={toggleEditModal} />
+                    <PopupMenuItem label={t`Detach`} onClick={toggleDetachModal} />
+                    <PopupMenuItem label={t`Release`} onClick={toggleReleaseModal} />
+                  </PopupMenuOptions>
+                </PopupMenu>
+                <Button variant="primary" className="whitespace-nowrap" onClick={toggleAttachModal}>
+                  {t`Attach`}
+                </Button>
+              </Stack>
             )}
           </FloatingIpActionModals>
         }

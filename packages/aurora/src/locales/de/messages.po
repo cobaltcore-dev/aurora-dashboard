@@ -1877,9 +1877,6 @@ msgstr "Der Flavor-Service ist für dieses Projekt nicht verfügbar."
 msgid "Flavors"
 msgstr "Flavors"
 
-msgid "Floating IP \"{ip}\" was successfully allocated."
-msgstr ""
-
 msgid "Floating IP \"{ip}\" was successfully associated with the port."
 msgstr ""
 
@@ -1892,11 +1889,11 @@ msgstr ""
 msgid "Floating IP \"{ip}\" was successfully updated."
 msgstr ""
 
+msgid "Floating IP actions"
+msgstr ""
+
 msgid "Floating IP Address"
 msgstr "Floating IP-Adresse"
-
-msgid "Floating IP Allocated"
-msgstr ""
 
 msgid "Floating IP Associated"
 msgstr ""
@@ -1918,9 +1915,6 @@ msgstr "Floating IPs"
 
 msgid "Floating Network"
 msgstr "Floating Network"
-
-msgid "Floating Network ID"
-msgstr "Floating Network-ID"
 
 msgid "Folder \"{folderName}\" and {deletedCount} object were permanently deleted."
 msgstr "Ordner \"{folderName}\" und {deletedCount} Objekt wurden dauerhaft gelöscht."
@@ -2798,9 +2792,6 @@ msgstr "Enter drücken zum Hinzufügen"
 msgid "Prevent accidental deletion"
 msgstr "Versehentliches Löschen verhindern"
 
-msgid "Preview"
-msgstr "Vorschau"
-
 msgid "Preview {rowDisplayName}"
 msgstr "{rowDisplayName} vorschauen"
 
@@ -3448,9 +3439,6 @@ msgstr "Temporäre URL für \"{objectName}\" wurde in die Zwischenablage kopiert
 
 msgid "Temporary URLs"
 msgstr "Temporäre URLs"
-
-msgid "Tenant ID"
-msgstr "Projekt ID"
 
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."

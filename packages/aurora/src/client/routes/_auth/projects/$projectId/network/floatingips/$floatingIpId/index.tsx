@@ -1,8 +1,8 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
-import { Button, Stack, Status } from "@cloudoperators/juno-ui-components"
+import { Button, Status } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
-import type { RouteInfo } from "@/client/routes/routeInfo"
 import { getServiceIndex } from "@/server/Authentication/helpers"
+import type { RouteInfo } from "@/client/routes/routeInfo"
 import { useProjectId } from "@/client/hooks"
 import { trpcReact } from "@/client/trpcClient"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
@@ -82,32 +82,18 @@ function RouteComponent() {
   }
 
   // Error state
-  if (isError) {
-    const errorMessage = error?.message || "Unknown error"
+  if (isError || !floatingIp) {
+    const errorMessage = error?.message || t`Error loading floating IP`
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-error font-semibold">
-          <Trans>Error loading floating IP</Trans>
-        </p>
-        <p className="text-theme-highest">{errorMessage}</p>
-        <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Floating IPs</Trans>
-        </Button>
-      </Stack>
-    )
-  }
-
-  // No data state
-  if (!floatingIp) {
-    return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-secondary">
-          <Trans>Floating IP not found</Trans>
-        </p>
-        <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Floating IPs</Trans>
-        </Button>
-      </Stack>
+      <Status
+        status="error"
+        title={isError ? errorMessage : t`Floating IP not found`}
+        action={
+          <Button onClick={handleBack} variant="primary">
+            <Trans>Back to Floating IPs</Trans>
+          </Button>
+        }
+      />
     )
   }
 

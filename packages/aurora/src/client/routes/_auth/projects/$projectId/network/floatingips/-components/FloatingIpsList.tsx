@@ -44,16 +44,7 @@ export const FloatingIpsList = () => {
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
-    options: [
-      { label: t`Fixed IP Address`, value: "fixed_ip_address" },
-      { label: t`Floating IP Address`, value: "floating_ip_address" },
-      { label: t`Floating Network ID`, value: "floating_network_id" },
-      { label: t`ID`, value: "id" },
-      { label: t`Router ID`, value: "router_id" },
-      { label: t`Status`, value: "status" },
-      { label: t`Tenant ID`, value: "tenant_id" },
-      { label: t`Project ID`, value: "project_id" },
-    ],
+    options: [{ label: t`Status`, value: "status" }],
     sortBy: searchParams.sortBy || DEFAULT_SORT_KEY,
     sortDirection: searchParams.sortDirection || DEFAULT_SORT_DIR,
   })
@@ -73,15 +64,8 @@ export const FloatingIpsList = () => {
   const searchTerm = searchParams.search || ""
 
   const { data: permissions } = trpcReact.network.canUser.useQuery(
-    {
-      project_id: projectId,
-      permission: ["network:floatingips:create"],
-    },
-    {
-      select: ([canCreate]) => ({
-        canCreate,
-      }),
-    }
+    { project_id: projectId, permission: ["network:floatingips:create"] },
+    { select: ([canCreate]) => ({ canCreate }) }
   )
 
   useEffect(() => {
@@ -148,9 +132,7 @@ export const FloatingIpsList = () => {
       ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
       ...(searchTerm ? { searchTerm } : {}),
     },
-    {
-      placeholderData: (prev) => prev,
-    }
+    { placeholderData: (prev) => prev }
   )
 
   if (isError && !floatingIps.length) {

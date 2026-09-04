@@ -1877,9 +1877,6 @@ msgstr "Flavor service is not available for this project."
 msgid "Flavors"
 msgstr "Flavors"
 
-msgid "Floating IP \"{ip}\" was successfully allocated."
-msgstr "Floating IP \"{ip}\" was successfully allocated."
-
 msgid "Floating IP \"{ip}\" was successfully associated with the port."
 msgstr "Floating IP \"{ip}\" was successfully associated with the port."
 
@@ -1892,11 +1889,11 @@ msgstr "Floating IP \"{ip}\" was successfully released."
 msgid "Floating IP \"{ip}\" was successfully updated."
 msgstr "Floating IP \"{ip}\" was successfully updated."
 
+msgid "Floating IP actions"
+msgstr "Floating IP actions"
+
 msgid "Floating IP Address"
 msgstr "Floating IP Address"
-
-msgid "Floating IP Allocated"
-msgstr "Floating IP Allocated"
 
 msgid "Floating IP Associated"
 msgstr "Floating IP Associated"
@@ -1918,9 +1915,6 @@ msgstr "Floating IPs"
 
 msgid "Floating Network"
 msgstr "Floating Network"
-
-msgid "Floating Network ID"
-msgstr "Floating Network ID"
 
 msgid "Folder \"{folderName}\" and {deletedCount} object were permanently deleted."
 msgstr "Folder \"{folderName}\" and {deletedCount} object were permanently deleted."
@@ -2798,9 +2792,6 @@ msgstr "Press Enter to add"
 msgid "Prevent accidental deletion"
 msgstr "Prevent accidental deletion"
 
-msgid "Preview"
-msgstr "Preview"
-
 msgid "Preview {rowDisplayName}"
 msgstr "Preview {rowDisplayName}"
 
@@ -3448,9 +3439,6 @@ msgstr "Temporary URL for \"{objectName}\" was copied to clipboard."
 
 msgid "Temporary URLs"
 msgstr "Temporary URLs"
-
-msgid "Tenant ID"
-msgstr "Tenant ID"
 
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."

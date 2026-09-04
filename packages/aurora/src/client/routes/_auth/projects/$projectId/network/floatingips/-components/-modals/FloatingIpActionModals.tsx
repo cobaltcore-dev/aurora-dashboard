@@ -1,7 +1,9 @@
 import type { ReactNode } from "react"
+import { useNavigate } from "@tanstack/react-router"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { toast } from "@cloudoperators/juno-ui-components"
 import { useModal } from "@/client/utils/useModal"
+import { useProjectId } from "@/client/hooks"
 import { useFloatingIpMutations } from "../../-hooks/useFloatingIpMutations"
 import { AssociateFloatingIpModal } from "./AssociateFloatingIpModal"
 import { DetachFloatingIpModal } from "./DetachFloatingIpModal"
@@ -28,13 +30,30 @@ interface FloatingIpActionModalsProps {
 }
 
 export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActionModalsProps) => {
+  const navigate = useNavigate()
+  const projectId = useProjectId()
   const [editModalOpen, toggleEditModal] = useModal(false)
   const [attachModalOpen, toggleAttachModal] = useModal(false)
   const [detachModalOpen, toggleDetachModal] = useModal(false)
   const [releaseModalOpen, toggleReleaseModal] = useModal(false)
 
-  const { handleUpdate, handleDelete, isUpdatePending, updateError, isDeletePending, deleteError } =
+  const { handleUpdate, handleDelete, resetUpdateError, isUpdatePending, updateError, isDeletePending, deleteError } =
     useFloatingIpMutations()
+
+  const toggleEditModalWithReset = () => {
+    resetUpdateError()
+    toggleEditModal()
+  }
+
+  const toggleAttachModalWithReset = () => {
+    resetUpdateError()
+    toggleAttachModal()
+  }
+
+  const toggleDetachModalWithReset = () => {
+    resetUpdateError()
+    toggleDetachModal()
+  }
 
   const ip = floatingIp.floating_ip_address ?? floatingIp.id
 
@@ -60,14 +79,18 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
     await handleDelete(floatingIpId)
     const { message, ...options } = getFloatingIpReleasedToast(ip)
     toast.success(message, options)
+    navigate({
+      to: "/projects/$projectId/network/floatingips",
+      params: { projectId },
+    })
   }
 
   return (
     <>
       {children({
-        toggleEditModal,
-        toggleAttachModal,
-        toggleDetachModal,
+        toggleEditModal: toggleEditModalWithReset,
+        toggleAttachModal: toggleAttachModalWithReset,
+        toggleDetachModal: toggleDetachModalWithReset,
         toggleReleaseModal,
       })}
 
@@ -75,7 +98,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
         <EditFloatingIpModal
           floatingIp={floatingIp}
           open={editModalOpen}
-          onClose={toggleEditModal}
+          onClose={toggleEditModalWithReset}
           onUpdate={handleEditWithToast}
           isLoading={isUpdatePending}
           error={updateError}
@@ -86,7 +109,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
         <AssociateFloatingIpModal
           floatingIp={floatingIp}
           open={attachModalOpen}
-          onClose={toggleAttachModal}
+          onClose={toggleAttachModalWithReset}
           onUpdate={handleAssociateWithToast}
           isLoading={isUpdatePending}
           error={updateError}
@@ -97,7 +120,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
         <DetachFloatingIpModal
           floatingIp={floatingIp}
           open={detachModalOpen}
-          onClose={toggleDetachModal}
+          onClose={toggleDetachModalWithReset}
           onUpdate={handleDetachWithToast}
           isLoading={isUpdatePending}
           error={updateError}

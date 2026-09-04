@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
-import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, Spinner, Message, Select, SelectOption } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
+import { Modal, Form, FormSection, Status, Message, Select, SelectOption } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
@@ -86,16 +86,9 @@ export const AssociateFloatingIpModal = ({
         </Message>
       )}
 
-      {isLoading && (
-        <div className="mb-4 flex items-center justify-center gap-2">
-          <Spinner variant="primary" />
-          <span className="text-theme-high text-sm">
-            <Trans>Associating Floating IP...</Trans>
-          </span>
-        </div>
-      )}
-
-      {!isLoading && (
+      {isLoading ? (
+        <Status status="progress" title={t`Associating Floating IP...`} className="mt-0" />
+      ) : (
         <Form
           className="mb-0"
           id="associate-floating-ip-form"

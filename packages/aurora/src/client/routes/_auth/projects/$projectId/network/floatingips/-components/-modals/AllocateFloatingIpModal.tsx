@@ -1,21 +1,20 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useNavigate } from "@tanstack/react-router"
+import { useLingui } from "@lingui/react/macro"
 import {
   Modal,
   Form,
   FormSection,
-  Spinner,
+  Status,
   Message,
   Textarea,
   TextInput,
   Select,
   SelectOption,
-  toast,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
-import { getFloatingIpAllocatedToast } from "./FloatingIpToastNotifications"
 
 export interface AllocateFloatingIpModalProps {
   open: boolean
@@ -31,6 +30,7 @@ const dnsNameRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-
 export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
+  const navigate = useNavigate()
   const utils = trpcReact.useUtils()
 
   const { isPending, ...createFloatingIpMutation } = trpcReact.network.floatingIp.create.useMutation({
@@ -105,9 +105,11 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
         ...(value.port_id && { port_id: value.port_id }),
         ...(value.fixed_ip_address && { fixed_ip_address: value.fixed_ip_address }),
       })
-      const { message, ...options } = getFloatingIpAllocatedToast(created.floating_ip_address ?? created.id)
-      toast.success(message, options)
       handleClose()
+      navigate({
+        to: "/projects/$projectId/network/floatingips/$floatingIpId",
+        params: { projectId, floatingIpId: created.id },
+      })
     },
   })
 
@@ -146,16 +148,9 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
         </Message>
       )}
 
-      {isPending && (
-        <div className="mb-4 flex items-center justify-center gap-2">
-          <Spinner variant="primary" />
-          <span className="text-theme-high text-sm">
-            <Trans>Allocating Floating IP...</Trans>
-          </span>
-        </div>
-      )}
-
-      {!isPending && (
+      {isPending ? (
+        <Status status="progress" title={t`Allocating Floating IP...`} className="mt-0" />
+      ) : (
         <Form
           className="mb-0"
           id="allocate-floating-ip-form"
