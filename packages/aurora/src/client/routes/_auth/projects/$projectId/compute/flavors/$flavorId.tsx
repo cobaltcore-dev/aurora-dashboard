@@ -193,7 +193,7 @@ function RouteComponent() {
       {(canManageAccess || canDeleteFlavor) && (
         <PopupMenu>
           <PopupMenuToggle as="div">
-            <Button icon="moreVert">{/* <Trans>More Actions</Trans> */}</Button>
+            <Button icon="moreVert" title={t`More Actions`} />
           </PopupMenuToggle>
           <PopupMenuOptions>
             {canManageAccess && (
