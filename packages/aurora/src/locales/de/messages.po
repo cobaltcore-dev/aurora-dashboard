@@ -1916,9 +1916,6 @@ msgstr "Floating IPs"
 msgid "Floating Network"
 msgstr "Floating Network"
 
-msgid "Floating Network ID"
-msgstr "Floating Network-ID"
-
 msgid "Folder \"{folderName}\" and {deletedCount} object were permanently deleted."
 msgstr "Ordner \"{folderName}\" und {deletedCount} Objekt wurden dauerhaft gelöscht."
 
@@ -3442,9 +3439,6 @@ msgstr "Temporäre URL für \"{objectName}\" wurde in die Zwischenablage kopiert
 
 msgid "Temporary URLs"
 msgstr "Temporäre URLs"
-
-msgid "Tenant ID"
-msgstr "Projekt ID"
 
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."

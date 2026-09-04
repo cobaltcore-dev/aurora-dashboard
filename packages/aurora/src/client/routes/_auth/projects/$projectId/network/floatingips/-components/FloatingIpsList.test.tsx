@@ -296,12 +296,12 @@ describe("FloatingIps List", () => {
 
       const sortSelect = screen.getByTestId("sort-select")
       await user.click(sortSelect)
-      await user.click(screen.getByText("Floating IP Address"))
+      await user.click(screen.getByRole("option", { name: "Status" }))
 
       await waitFor(() => {
         const lastCall = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1][0]
         expect(lastCall).toMatchObject({
-          sort_key: "floating_ip_address",
+          sort_key: "status",
           sort_dir: "asc",
         })
       })
@@ -478,7 +478,7 @@ describe("FloatingIps List", () => {
       // Change sort
       const sortSelect = screen.getByTestId("sort-select")
       await user.click(sortSelect)
-      await user.click(screen.getByText("Floating IP Address"))
+      await user.click(screen.getByRole("option", { name: "Status" }))
 
       // Apply filter
       const filterSelect = screen.getByTestId("select-filterValue")
@@ -507,7 +507,7 @@ describe("FloatingIps List", () => {
         })
 
         expect(finalParams).toMatchObject({
-          sortBy: "floating_ip_address",
+          sortBy: "status",
           sortDirection: "asc",
           status: "ACTIVE",
           search: "203",
@@ -521,7 +521,7 @@ describe("FloatingIps List", () => {
       mockSearchParams = {
         status: "DOWN",
         search: "192.168",
-        sortBy: "floating_ip_address",
+        sortBy: "status",
         sortDirection: "desc",
       }
 
@@ -533,7 +533,7 @@ describe("FloatingIps List", () => {
       // Verify the component uses URL params in the query
       expect(mockUseQuery).toHaveBeenCalledWith(
         expect.objectContaining({
-          sort_key: "floating_ip_address",
+          sort_key: "status",
           sort_dir: "desc",
           status: "DOWN",
           searchTerm: "192.168",
