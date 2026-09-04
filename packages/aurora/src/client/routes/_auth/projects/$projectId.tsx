@@ -100,7 +100,7 @@ function RouteComponent() {
   const { t } = useLingui()
   const loaderData = useLoaderData({ from: Route.id })
   const navigate = Route.useNavigate()
-  const { enabledServices, additionalProjectServices } = useRouteContext({ strict: false })
+  const { enabledServices, serviceExtensions } = useRouteContext({ strict: false })
 
   const projectName = loaderData.crumbProject?.name || loaderData.projectId
   const projectLabel = loaderData.crumbDomain?.name ? `${loaderData.crumbDomain.name}/${projectName}` : projectName
@@ -175,8 +175,8 @@ function RouteComponent() {
   const { availableServices, projectId, crumbProject, crumbDomain } = loaderData
 
   const sections = useMemo(
-    () => buildNavSections(projectId, availableServices!, enabledServices, additionalProjectServices),
-    [projectId, availableServices, enabledServices, additionalProjectServices]
+    () => buildNavSections(projectId, availableServices!, enabledServices, serviceExtensions),
+    [projectId, availableServices, enabledServices, serviceExtensions]
   )
 
   return (
