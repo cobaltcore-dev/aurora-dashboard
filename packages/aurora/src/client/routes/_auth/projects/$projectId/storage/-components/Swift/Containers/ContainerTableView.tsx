@@ -14,6 +14,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { formatSwiftDate } from "@/client/utils/formatSwiftDate"
 import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
 import { CreateContainerModal } from "./CreateContainerModal"
 import { EmptyContainerModal } from "./EmptyContainerModal"
@@ -94,16 +95,6 @@ export const ContainerTableView = ({
       setScrollbarWidth(width)
     }
   }, [containers.length, bodyHeight])
-
-  // Format date to localized string
-  const formatDate = (dateString: string): string => {
-    try {
-      const date = new Date(dateString)
-      return date.toLocaleString()
-    } catch {
-      return t`N/A`
-    }
-  }
 
   const handleSelectContainer = (containerName: string) => {
     if (selectedContainers.includes(containerName)) {
@@ -238,7 +229,7 @@ export const ContainerTableView = ({
                     </span>
                   </DataGridCell>
                   <DataGridCell>{container.count.toLocaleString()}</DataGridCell>
-                  <DataGridCell>{container.last_modified ? formatDate(container.last_modified) : t`N/A`}</DataGridCell>
+                  <DataGridCell>{formatSwiftDate(container.last_modified) ?? t`N/A`}</DataGridCell>
                   <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>
