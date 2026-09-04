@@ -73,15 +73,8 @@ export const FloatingIpsList = () => {
   const searchTerm = searchParams.search || ""
 
   const { data: permissions } = trpcReact.network.canUser.useQuery(
-    {
-      project_id: projectId,
-      permission: ["network:floatingips:create"],
-    },
-    {
-      select: ([canCreate]) => ({
-        canCreate,
-      }),
-    }
+    { project_id: projectId, permission: ["network:floatingips:create"] },
+    { select: ([canCreate]) => ({ canCreate }) }
   )
 
   useEffect(() => {
@@ -148,9 +141,7 @@ export const FloatingIpsList = () => {
       ...buildFilterParams(filterSettings.selectedFilters || [], filterSettings.filters),
       ...(searchTerm ? { searchTerm } : {}),
     },
-    {
-      placeholderData: (prev) => prev,
-    }
+    { placeholderData: (prev) => prev }
   )
 
   if (isError && !floatingIps.length) {

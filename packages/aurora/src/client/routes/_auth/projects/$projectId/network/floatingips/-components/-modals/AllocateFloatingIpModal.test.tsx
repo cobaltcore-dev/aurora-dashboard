@@ -328,7 +328,7 @@ describe("AllocateFloatingIpModal", () => {
   })
 
   describe("Loading state UI", () => {
-    it("shows spinner and loading message when mutation is pending", () => {
+    it("shows loading status and message when mutation is pending", () => {
       vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
         createMockCreateMutationResult({ isPending: true })
       )

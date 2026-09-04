@@ -1,12 +1,12 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { useNavigate } from "@tanstack/react-router"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import {
   Modal,
   Form,
   FormSection,
-  Spinner,
+  Status,
   Message,
   Textarea,
   TextInput,
@@ -148,16 +148,9 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
         </Message>
       )}
 
-      {isPending && (
-        <div className="mb-4 flex items-center justify-center gap-2">
-          <Spinner variant="primary" />
-          <span className="text-theme-high text-sm">
-            <Trans>Allocating Floating IP...</Trans>
-          </span>
-        </div>
-      )}
-
-      {!isPending && (
+      {isPending ? (
+        <Status status="progress" title={t`Allocating Floating IP...`} className="mt-0" />
+      ) : (
         <Form
           className="mb-0"
           id="allocate-floating-ip-form"
