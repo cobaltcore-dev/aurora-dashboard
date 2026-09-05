@@ -1,5 +1,14 @@
 # @cobaltcore-dev/aurora
 
+## 1.2.1
+
+### Patch Changes
+
+- b79f440: Swift: the ACL explanation text in the container access-control modal now uses
+  the default font colour instead of the low-contrast light colour, improving
+  legibility at the small text size.
+- 8f993b8: Ensure single primary action button per page on flavor and image detail views
+
 ## 1.2.0
 
 ### Minor Changes
