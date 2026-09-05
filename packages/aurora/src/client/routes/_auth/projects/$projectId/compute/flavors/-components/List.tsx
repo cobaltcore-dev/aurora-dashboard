@@ -143,7 +143,7 @@ function FlavorsContent({
 
       {/* Zone 1 — sort + create action, no background */}
       <Stack distribution="end" alignment="center" gap="2" className="pb-2">
-        <Stack gap="0.5">
+        <Stack gap="2">
           <SortInput
             options={sortSettings.options}
             sortBy={sortSettings.sortBy}

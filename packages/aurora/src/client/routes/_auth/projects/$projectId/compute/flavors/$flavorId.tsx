@@ -189,24 +189,26 @@ function RouteComponent() {
   const hasMoreActions = canManageAccess || canDeleteFlavor || canManageSpecs || canListSpecs
 
   const headerActions = hasMoreActions ? (
-    <ButtonRow>
-      <PopupMenu>
-        <PopupMenuToggle as="div">
-          <Button icon="moreVert">
-            <Trans>More Actions</Trans>
-          </Button>
-        </PopupMenuToggle>
-        <PopupMenuOptions>
-          {(canManageSpecs || canListSpecs) && (
-            <PopupMenuItem label={canManageSpecs ? t`Edit Metadata` : t`Metadata`} onClick={toggleSpecModal} />
-          )}
-          {canManageAccess && (
-            <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} disabled={isPublicFlavor} />
-          )}
-          {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
-        </PopupMenuOptions>
-      </PopupMenu>
-    </ButtonRow>
+    <Stack gap="0.5" alignment="center">
+      {(canManageAccess || canDeleteFlavor) && (
+        <PopupMenu>
+          <PopupMenuToggle as="div">
+            <Button icon="moreVert" title={t`More Actions`} />
+          </PopupMenuToggle>
+          <PopupMenuOptions>
+            {canManageAccess && (
+              <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} disabled={isPublicFlavor} />
+            )}
+            {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
+          </PopupMenuOptions>
+        </PopupMenu>
+      )}
+      {(canManageSpecs || canListSpecs) && (
+        <Button variant="primary" onClick={toggleSpecModal}>
+          {canManageSpecs ? <Trans>Edit Metadata</Trans> : <Trans>Metadata</Trans>}
+        </Button>
+      )}
+    </Stack>
   ) : undefined
 
   return (
