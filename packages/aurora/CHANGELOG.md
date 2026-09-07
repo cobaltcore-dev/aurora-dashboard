@@ -1,5 +1,129 @@
 # @cobaltcore-dev/aurora
 
+## 1.2.0
+
+### Minor Changes
+
+- c3b52d4: Add server-side pagination to images list
+  Fix race condition in pageMarkers state updates
+  Fix safePage sync to prevent displaying wrong page
+  Fix test to match new behavior of fetching all pages for accurate total count
+- ce9aeb7: Gate Ceph/S3 Object Storage mutations behind `storage.canUser` permission checks, client-side, matching every other domain in the app. The following 11 mutation actions are now gated: generating a presigned/share URL for an object, deleting or restoring an object version, toggling bucket versioning, updating or deleting a bucket policy, creating/editing or deleting a CORS rule, creating/editing or deleting a lifecycle rule, and creating S3 (EC2) credentials. Bucket/object/folder create-delete-empty actions and the previously ungated Ceph bulk-action TODOs are also now wired to real permissions instead of hardcoded `true`.
+
+  Read/list/view/download actions (bucket and object listing, downloading, viewing CORS/lifecycle/policy config, viewing version history) are **not** gated - this matches the existing convention across the rest of the app (RBAC differentiates who can change things, not who can see things).
+
+  Operators who maintain a custom `storage.json` policy file need to add the 11 new rules for the gated actions to keep working as before: `storage:object_share`, `storage:object_version_delete`, `storage:object_version_restore`, `storage:container_versioning_update`, `storage:container_policy_update`, `storage:container_policy_delete`, `storage:container_cors_update`, `storage:container_cors_delete`, `storage:container_lifecycle_update`, `storage:container_lifecycle_delete`, `storage:credential_create`. If any of these rules is missing, the corresponding mutation controls simply render hidden (fail-closed) - there is no server error or crash.
+
+  Two of these eleven rules are `rule:storage_viewer` rather than `rule:storage_admin`: `storage:object_share` (a presigned GET URL only re-exports the download access a viewer already has) and `storage:credential_create` (a self-service prerequisite for any Ceph access at all, including read-only browsing). Keep these two at viewer tier unless you deliberately want to lock read-only users out of S3 entirely.
+
+- 0cadedd: Export generic breadcrumb primitives for use in embedded sub-apps and standalone consumers.
+
+  - `useBreadcrumbs()` - reads the breadcrumb chain from any TanStack Router instance (static `crumb` in route `staticData` + dynamic crumbs from `useSetBreadcrumb`). Works outside OSS - suitable for SCI sub-apps with their own `RouterProvider`.
+  - `useSetBreadcrumb(routeId, text)` - registers a dynamic breadcrumb label for a route at runtime; deregisters on unmount.
+  - `DynamicBreadcrumbContext` / `DynamicBreadcrumbProvider` - context backing the dynamic crumb system; wrap any `RouterProvider` to enable `useBreadcrumbs` and `useSetBreadcrumb` inside it.
+  - `usePushBreadcrumbs(breadcrumbs: BreadcrumbItem[])` - pushes a breadcrumb list into OSS's `BreadcrumbExtensionContext` so the OSS `Breadcrumbs` component can append them after its own trail.
+  - `BreadcrumbItem` type - unified breadcrumb shape (`label`, `icon`, `onClick`, `active`).
+
+  Internal: `ProjectInfoBox` renamed to `Breadcrumbs` and moved to `components/Breadcrumbs.tsx`.
+
+- 4edfdc8: Replace route-injection pattern with standalone extension sub-app pattern for consumer services, and unify the registration vocabulary on "extension".
+
+  Breaking changes:
+  - `AdditionalProjectService` type renamed to `ServiceExtension`, and the `AuroraAppProps.additionalProjectServices` prop renamed to `serviceExtensions`
+  - The `routes` field (type `AnyRoute`) is gone; register a `component` (type `FC<ServiceExtensionProps>`) instead: a standalone React component that mounts its own TanStack Router via `RouterProvider basepath={basePath}`
+  - The `component` receives `ServiceExtensionProps` = `{ basePath, context }`, where `context` is a `ServiceExtensionContext`. Seed it into your own router (`createRouter({ routeTree, context })`) and read values via `useRouteContext`
+  - `useProjectId` is no longer part of the public API. Extensions receive `projectId` via `ServiceExtensionProps.context` and read it from their own router context instead of the shared hook
+  - `servicesRoute` export removed; consumers no longer inject routes into the OSS route tree
+
+  New exports:
+  - `ServiceExtension` - registration entry for a project-scoped service extension
+  - `ServiceExtensionProps` - props type for service extension components (`{ basePath, context }`)
+  - `ServiceExtensionContext` - extensible host-context object handed to a mounted extension; seed it into the extension's own router context
+  - `PageContentHeader` - re-exported `ContentHeader` component for use in consumer service pages
+
+  Additional changes:
+  - On `/services/$serviceType/**` routes, OSS shows no section crumb (consistent with compute/network/storage). The project crumb links back to the project home, and extension sub-apps own every crumb below it via `usePushBreadcrumbs`.
+
+  OSS now provides a dynamic catch-all route at `/_auth/projects/$projectId/services/$serviceType/**` that mounts the registered service extension component.
+
+- 70b0da6: Add Ceph S3 bucket lifecycle configuration management. Implements full CRUD operations for lifecycle rules including expiration policies, noncurrent version expiration, and multipart upload cleanup.
+
+  Lifecycle rules are now managed via a dedicated "Lifecycle Rules" tab on the bucket detail page (accessed via `?view=lifecycle-rules`), using a DataGrid with per-rule edit/delete and multi-select bulk delete. Each mutation refetches and validates the configuration before saving. Deleting the last rule automatically removes the entire lifecycle configuration. Storage-class transitions configured outside Aurora are preserved but not editable in the UI.
+
+  The header menu actions for lifecycle rules have been removed in favor of the tab-based interface, consistent with the CORS rules architecture.
+
+  **Additional improvements in this PR:**
+  - Fix And-filter predicate counting to accept 2+ tags without other conditions (previously incorrectly rejected)
+  - Improve CORS rules table accessibility with proper aria-labels matching delete modal identifiers
+  - Replace O(n) rate-limiter cleanup with O(1) per-key timers in lifecycle/CORS/bucket-policy routers
+
+- 4ade8c9: Add an overflow actions menu to the Swift in-container objects page, mirroring the Ceph bucket page's header/actions position. The menu exposes Manage Access, Preview and Edit metadata, Empty Container, and Delete Container, reusing the existing modals from the Swift container list page but now wired with real container metadata (object count / size) fetched via `getContainerMetadata` instead of a placeholder. Deleting a container while browsing its objects now navigates back to the container list instead of leaving the user on a now-dead page.
+
+  **Additional improvements in this PR:**
+  - Renamed several Swift storage action labels for consistency across container and object row menus and their confirmation modals (e.g. "Delete" → "Delete Object" / "Delete Container", "Copy" → "Copy Object", "Move/Rename" → "Move/Rename Object", "Edit Metadata" → "Edit Object Metadata", "Share URL" → "Share Object URL")
+  - Reorganized the Swift objects page toolbar: "Create Folder" moved into a new overflow menu, "Upload Object" is now the primary action
+
+### Patch Changes
+
+- 273aebb: Swift: container and object "last modified" times now render in the viewer's
+  local timezone. Swift returns these timestamps as UTC without a zone
+  designator, which were previously parsed as local time and shown with an
+  offset.
+- 7c01ea2: Register CSRF protection before routes to prevent bypass
+- 2275f02: Fix Ceph bucket list allowing "Empty Bucket" to be triggered on a bucket that already has no content (#1107):
+
+  - `EmptyBucketModal` now re-verifies bucket contents on open and shows an info-only "This bucket is already empty" view (with just a Close button) instead of the destructive confirm form, guarding against stale list-cache data reaching the modal. This matches Swift's existing "Empty Container" behavior: the row action stays visible, and the live check on open decides whether there's anything to actually delete.
+
+- ca098d0: fix: update dependencies to resolve security vulnerabilities
+
+  - Update fastify to 5.12.1 (fixes CVE-2026-3635 trustProxy spoofing)
+  - Update @commitlint/cli and @commitlint/config-conventional to 21.2.2
+  - fast-uri updated to 3.1.6 and 4.1.3 (fixes CVE-2026-13676 variants)
+  - Remove obsolete security overrides from pnpm-workspace.yaml
+
+- 7036789: Prevent sort dropdown option labels from wrapping by increasing the minimum width of SortInput selects in affected views.
+- af20f8b: Fixes padding in images data grid. Implements optimistic UI updates for image status changes (activate/deactivate) and triggers proper list refresh after image mutations (create, delete, member changes).
+- 16e4e40: Swift: align the info icon in the containers info strip with the adjacent count
+  and quota text.
+- d35562a: Swift: the inline delete action in the container metadata editor now uses the
+  default button colour instead of primary-danger, consistent with the object
+  metadata editor.
+- fb23589: fix(aurora): optimize DataGrid Action column width and clean up modal title styling
+- ecc682a: Move Flavors and Images components from shared compute/-components/ directory to their respective feature directories for better code colocation
+- d8da79a: Refactor Flavor EditSpecModal and ManageAccessModal to match the Image EditImageMetadataModal design pattern.
+
+  **EditSpecModal changes:**
+  - Add inline editing for existing specs (click to edit key/value)
+  - Implement batch save pattern (Save Changes button saves all at once)
+  - Use DescriptionList layout matching Images metadata modal
+  - Improve hasChanges detection with actual key/value comparison
+
+  **ManageAccessModal changes:**
+  - Use two-column layout with fixed "Project" key and editable Project ID value
+  - Implement batch save pattern (changes saved on modal confirm, not immediately)
+  - Use full-width input field for better usability
+  - Improve hasChanges detection with Set comparison of project IDs
+
+- 77c41c6: - Add security warning to session cookie domain configuration about cross-subdomain trust requirements
+  - Derive floating IP tenant_id and project_id from authenticated session instead of client input to prevent ownership confusion
+- 7b38217: - Scope image upload progress tracking by projectId to prevent cross-tenant observation (keys now `projectId:uploadId` instead of bare `uploadId`)
+  - Validate uploadId format to reject colon-containing values (prevents double-scoping attacks)
+  - Await server session termination before redirect in logout flows; errors now shown to user instead of silently swallowed
+  - Clear local session state even when server termination fails
+- ad13a73: Swift: remove the container count from the limits tooltip so it's shown once
+  (in the info strip, from the container listing) and no longer mismatches the
+  eventually-consistent account metadata count.
+- 127d410: Refactor loading and error states to use Juno's Status component for consistent
+  UI presentation. Replace custom Spinner+Stack loading layouts and custom error
+  layouts with the standardized Status component across route loaders and list
+  views.
+- 37221d0: Storage: fix incorrect DataGrid usage in the virtualized Swift and Ceph tables.
+  The virtualized body now renders as a single grid wrapper with row children
+  instead of one grid per row, improving performance, layout, and accessibility.
+- f5f1ce0: - Standardize 15 deletion/confirmation modals to use TanStack Form + `useModalTracking` instead of `useDeleteConfirmation` hook
+  - Zod schemas for validation with field-level error display
+  - Consistent analytics tracking (`.open`/`.close` events) across all modals
+
 ## 1.1.0
 
 ### Minor Changes
