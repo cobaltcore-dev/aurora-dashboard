@@ -50,7 +50,7 @@ describe("useFloatingIpMutations", () => {
 
   let deleteOptions:
     | {
-        onMutate?: () => Promise<unknown>
+        onMutate?: (variables: Record<string, unknown>) => Promise<unknown>
         onSettled?: (data: unknown, error: unknown, variables: Record<string, unknown>) => void
       }
     | undefined
@@ -192,13 +192,14 @@ describe("useFloatingIpMutations", () => {
     expect(listInvalidateMock).toHaveBeenCalledTimes(1)
   })
 
-  it("cancels list query and invalidates detail and list on delete settle", async () => {
+  it("cancels list and detail queries and invalidates them on delete settle", async () => {
     renderHook(() => useFloatingIpMutations())
 
-    await deleteOptions?.onMutate?.()
+    await deleteOptions?.onMutate?.({ floatingip_id: "fip-123" })
     deleteOptions?.onSettled?.(undefined, null, { floatingip_id: "fip-123" })
 
     expect(listCancelMock).toHaveBeenCalledTimes(1)
+    expect(getByIdCancelMock).toHaveBeenCalledWith({ project_id: "proj-1", floatingip_id: "fip-123" })
     expect(getByIdInvalidateMock).toHaveBeenCalledWith({ project_id: "proj-1", floatingip_id: "fip-123" })
     expect(listInvalidateMock).toHaveBeenCalledTimes(1)
   })

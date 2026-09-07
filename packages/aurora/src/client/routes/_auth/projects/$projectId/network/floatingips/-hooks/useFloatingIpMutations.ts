@@ -44,8 +44,9 @@ export const useFloatingIpMutations = () => {
   })
 
   const deleteMutation = trpcReact.network.floatingIp.delete.useMutation({
-    onMutate: async () => {
+    onMutate: async (variables) => {
       await utils.network.floatingIp.list.cancel()
+      await utils.network.floatingIp.getById.cancel({ project_id: projectId, floatingip_id: variables.floatingip_id })
     },
     onSettled: (_data, _error, variables) => {
       utils.network.floatingIp.getById.invalidate({ project_id: projectId, floatingip_id: variables.floatingip_id })

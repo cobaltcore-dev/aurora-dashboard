@@ -239,7 +239,7 @@ describe("FloatingIps List", () => {
       expect(mockUseQuery).toHaveBeenCalledWith(
         {
           project_id: "test-project",
-          sort_key: "fixed_ip_address",
+          sort_key: "status",
           sort_dir: "asc",
         },
         {
@@ -287,24 +287,20 @@ describe("FloatingIps List", () => {
   })
 
   describe("Sort functionality", () => {
-    it("updates sort when field changes", async () => {
+    it("uses the only available sort field", () => {
       const mockUseQuery = vi.mocked(trpcReact.network.floatingIp.list.useQuery)
       mockUseQuery.mockReturnValue(createMockQueryResult<FloatingIp[]>({ data: mockFloatingIps }))
 
-      const user = userEvent.setup()
       render(<FloatingIpsList />, { wrapper: createWrapper() })
 
-      const sortSelect = screen.getByTestId("sort-select")
-      await user.click(sortSelect)
-      await user.click(screen.getByRole("option", { name: "Status" }))
-
-      await waitFor(() => {
-        const lastCall = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1][0]
-        expect(lastCall).toMatchObject({
+      expect(screen.getByTestId("sort-select")).toHaveTextContent("Status")
+      expect(mockUseQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
           sort_key: "status",
           sort_dir: "asc",
-        })
-      })
+        }),
+        expect.any(Object)
+      )
     })
 
     it("toggles sort direction", async () => {
@@ -320,7 +316,7 @@ describe("FloatingIps List", () => {
       await waitFor(() => {
         const lastCall = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1][0]
         expect(lastCall).toMatchObject({
-          sort_key: "fixed_ip_address",
+          sort_key: "status",
           sort_dir: "desc",
         })
       })
@@ -475,11 +471,6 @@ describe("FloatingIps List", () => {
       const user = userEvent.setup()
       render(<FloatingIpsList />, { wrapper: createWrapper() })
 
-      // Change sort
-      const sortSelect = screen.getByTestId("sort-select")
-      await user.click(sortSelect)
-      await user.click(screen.getByRole("option", { name: "Status" }))
-
       // Apply filter
       const filterSelect = screen.getByTestId("select-filterValue")
       await user.click(filterSelect)
@@ -507,8 +498,6 @@ describe("FloatingIps List", () => {
         })
 
         expect(finalParams).toMatchObject({
-          sortBy: "status",
-          sortDirection: "asc",
           status: "ACTIVE",
           search: "203",
         })
@@ -553,7 +542,7 @@ describe("FloatingIps List", () => {
       expect(mockUseQuery).toHaveBeenCalledWith(
         {
           project_id: "test-project",
-          sort_key: "fixed_ip_address",
+          sort_key: "status",
           sort_dir: "asc",
         },
         expect.any(Object)
@@ -572,7 +561,7 @@ describe("FloatingIps List", () => {
 
       expect(mockUseQuery).toHaveBeenCalledWith(
         expect.objectContaining({
-          sort_key: "fixed_ip_address",
+          sort_key: "status",
           sort_dir: "asc",
           searchTerm: "10.0.0",
         }),
