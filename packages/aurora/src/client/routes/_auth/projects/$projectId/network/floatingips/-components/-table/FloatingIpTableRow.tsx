@@ -40,7 +40,7 @@ export const FloatingIpTableRow = ({ floatingIp }: FloatingIpTableRowProps) => {
       <DataGridCell>{floatingIp.fixed_ip_address || "—"}</DataGridCell>
       <DataGridCell>{floatingIp.floating_network_id}</DataGridCell>
       <DataGridCell>
-        <span className="truncate">{floatingIp.description || "—"}</span>
+        <div className="truncate">{floatingIp.description || "—"}</div>
       </DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
         <FloatingIpActionModals floatingIp={floatingIp}>

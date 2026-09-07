@@ -23,7 +23,7 @@ export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProp
           <Fragment key={id ?? `left-${index}`}>
             <DescriptionTerm>{label}</DescriptionTerm>
             <DescriptionDefinition>
-              <span className="truncate">{value}</span>
+              <div className="truncate">{value}</div>
             </DescriptionDefinition>
           </Fragment>
         ))}
@@ -34,7 +34,7 @@ export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProp
           <Fragment key={id ?? `right-${index}`}>
             <DescriptionTerm>{label}</DescriptionTerm>
             <DescriptionDefinition>
-              <span className="truncate">{value}</span>
+              <div className="truncate">{value}</div>
             </DescriptionDefinition>
           </Fragment>
         ))}

@@ -2,12 +2,15 @@ import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useFloatingIpMutations } from "./useFloatingIpMutations"
 
-const { mockUseUtils, mockUpdateUseMutation, mockDeleteUseMutation, mockUpdateReset } = vi.hoisted(() => ({
-  mockUseUtils: vi.fn(),
-  mockUpdateUseMutation: vi.fn(),
-  mockDeleteUseMutation: vi.fn(),
-  mockUpdateReset: vi.fn(),
-}))
+const { mockUseUtils, mockUpdateUseMutation, mockDeleteUseMutation, mockUpdateReset, mockDeleteReset } = vi.hoisted(
+  () => ({
+    mockUseUtils: vi.fn(),
+    mockUpdateUseMutation: vi.fn(),
+    mockDeleteUseMutation: vi.fn(),
+    mockUpdateReset: vi.fn(),
+    mockDeleteReset: vi.fn(),
+  })
+)
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -91,6 +94,7 @@ describe("useFloatingIpMutations", () => {
 
       return {
         mutateAsync: deleteMutateAsyncMock,
+        reset: mockDeleteReset,
         isPending: false,
         error: null,
       }
@@ -122,6 +126,14 @@ describe("useFloatingIpMutations", () => {
     result.current.resetUpdateError()
 
     expect(mockUpdateReset).toHaveBeenCalledTimes(1)
+  })
+
+  it("exposes the delete mutation reset handler", () => {
+    const { result } = renderHook(() => useFloatingIpMutations())
+
+    result.current.resetDeleteError()
+
+    expect(mockDeleteReset).toHaveBeenCalledTimes(1)
   })
 
   it("calls delete mutation with floatingip_id", async () => {
