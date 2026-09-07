@@ -76,6 +76,8 @@ export const EditFloatingIpModal = ({
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}
       disableConfirmButton={isLoading || enableConfirmButton}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
       onConfirm={form.handleSubmit}
     >
       {error && (

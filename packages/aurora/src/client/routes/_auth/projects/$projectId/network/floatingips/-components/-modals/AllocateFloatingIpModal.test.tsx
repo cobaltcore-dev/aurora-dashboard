@@ -383,6 +383,17 @@ describe("AllocateFloatingIpModal", () => {
       await user.click(screen.getByRole("button", { name: /Cancel/i }))
       expect(onClose).toHaveBeenCalled()
     })
+
+    it("disables cancel and close buttons while mutation is pending", () => {
+      vi.mocked(trpcReact.network.floatingIp.create.useMutation).mockReturnValue(
+        createMockCreateMutationResult({ isPending: true })
+      )
+
+      render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
+
+      expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /Close/i })).toBeDisabled()
+    })
   })
 
   describe("Form validation", () => {

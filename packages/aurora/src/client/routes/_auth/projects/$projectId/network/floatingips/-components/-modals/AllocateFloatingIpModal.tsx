@@ -141,6 +141,8 @@ export const AllocateFloatingIpModal = ({ open, onClose }: AllocateFloatingIpMod
       confirmButtonLabel={t`Allocate`}
       onConfirm={form.handleSubmit}
       disableConfirmButton={isPending || !currentFloatingNetworkId}
+      disableCancelButton={isPending}
+      disableCloseButton={isPending}
     >
       {formErrorMessage && (
         <Message dismissible={false} variant="error" className="mb-4">

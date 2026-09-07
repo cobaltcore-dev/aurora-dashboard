@@ -181,6 +181,8 @@ describe("EditFloatingIpModal", () => {
       expect(screen.getByText("Updating Floating IP Description...")).toBeInTheDocument()
       expect(screen.queryByLabelText("Description")).not.toBeInTheDocument()
       expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
+      expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /close/i })).toBeDisabled()
     })
 
     test("displays error message when error prop is provided", () => {
