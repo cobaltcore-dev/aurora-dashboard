@@ -22,7 +22,7 @@ export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProp
         {firstColumn.map(({ id, label, value }, index) => (
           <Fragment key={id ?? `left-${index}`}>
             <DescriptionTerm>{label}</DescriptionTerm>
-            <DescriptionDefinition>{value}</DescriptionDefinition>
+            <DescriptionDefinition className="truncate">{value}</DescriptionDefinition>
           </Fragment>
         ))}
       </DescriptionList>
@@ -31,7 +31,7 @@ export const TwoColumnDescriptionList = ({ items }: TwoColumnDescriptionListProp
         {secondColumn.map(({ id, label, value }, index) => (
           <Fragment key={id ?? `right-${index}`}>
             <DescriptionTerm>{label}</DescriptionTerm>
-            <DescriptionDefinition>{value}</DescriptionDefinition>
+            <DescriptionDefinition className="truncate">{value}</DescriptionDefinition>
           </Fragment>
         ))}
       </DescriptionList>

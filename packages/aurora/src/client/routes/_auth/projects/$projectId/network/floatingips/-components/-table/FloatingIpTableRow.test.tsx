@@ -76,7 +76,7 @@ describe("FloatingIpTableRow", () => {
 
       expect(screen.getByText("10.0.0.5")).toBeInTheDocument()
       expect(screen.getByText("net-external")).toBeInTheDocument()
-      expect(screen.getByText("Web server FIP")).toBeInTheDocument()
+      expect(screen.getByText("Web server FIP")).toHaveClass("truncate")
     })
 
     it("renders status icon and text in single cell", async () => {

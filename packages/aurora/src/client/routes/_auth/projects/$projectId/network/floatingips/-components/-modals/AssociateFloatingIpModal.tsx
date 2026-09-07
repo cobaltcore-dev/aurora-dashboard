@@ -79,6 +79,8 @@ export const AssociateFloatingIpModal = ({
       confirmButtonLabel={t`Associate`}
       onConfirm={form.handleSubmit}
       disableConfirmButton={isLoading || !currentPortId}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
       {error && (
         <Message dismissible={false} variant="error" className="mb-4">

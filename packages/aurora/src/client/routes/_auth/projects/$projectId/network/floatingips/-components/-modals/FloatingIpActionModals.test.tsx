@@ -12,8 +12,9 @@ import { DetachFloatingIpModalProps } from "./DetachFloatingIpModal"
 import { ReleaseFloatingIpModalProps } from "./ReleaseFloatingIpModal"
 import { AssociateFloatingIpModalProps } from "./AssociateFloatingIpModal"
 
-const { mockNavigate } = vi.hoisted(() => ({
+const { mockNavigate, mockUseMatches } = vi.hoisted(() => ({
   mockNavigate: vi.fn(),
+  mockUseMatches: vi.fn(),
 }))
 
 vi.mock("@tanstack/react-router", async (importOriginal) => {
@@ -22,15 +23,18 @@ vi.mock("@tanstack/react-router", async (importOriginal) => {
     ...actual,
     useParams: vi.fn(() => ({ projectId: "test-project" })),
     useNavigate: vi.fn(() => mockNavigate),
+    useMatches: mockUseMatches,
   }
 })
 
-const { mockUseUtils, mockUpdateMutation, mockDeleteMutation, mockResetUpdateMutation } = vi.hoisted(() => ({
-  mockUseUtils: vi.fn(),
-  mockUpdateMutation: vi.fn(),
-  mockDeleteMutation: vi.fn(),
-  mockResetUpdateMutation: vi.fn(),
-}))
+const { mockUseUtils, mockUpdateMutation, mockDeleteMutation, mockResetUpdateMutation, mockResetDeleteMutation } =
+  vi.hoisted(() => ({
+    mockUseUtils: vi.fn(),
+    mockUpdateMutation: vi.fn(),
+    mockDeleteMutation: vi.fn(),
+    mockResetUpdateMutation: vi.fn(),
+    mockResetDeleteMutation: vi.fn(),
+  }))
 
 vi.mock("@/client/trpcClient", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/client/trpcClient")>()
@@ -193,6 +197,7 @@ describe("FloatingIpActionModals", () => {
 
   beforeEach(() => {
     i18n.activate("en")
+    mockUseMatches.mockReturnValue([])
 
     mockUseUtils.mockReturnValue({
       network: {
@@ -234,6 +239,7 @@ describe("FloatingIpActionModals", () => {
 
         return {
           mutateAsync: deleteAsyncMock,
+          reset: mockResetDeleteMutation,
           isPending: false,
           error: null,
         }
@@ -358,6 +364,7 @@ describe("FloatingIpActionModals", () => {
     it("passes loading and error mutation state to release modal", async () => {
       mockDeleteMutation.mockReturnValue({
         mutateAsync: vi.fn(),
+        reset: mockResetDeleteMutation,
         isPending: true,
         error: { message: "Release failed" },
       })
@@ -405,6 +412,7 @@ describe("FloatingIpActionModals", () => {
 
     it("shows a success toast after a successful release", async () => {
       const user = userEvent.setup()
+      mockUseMatches.mockReturnValue([{ routeId: "/_auth/projects/$projectId/network/floatingips/$floatingIpId/" }])
       renderWithTriggers(mockFloatingIp)
 
       await user.click(screen.getByRole("button", { name: "Open Release" }))
@@ -415,6 +423,17 @@ describe("FloatingIpActionModals", () => {
         to: "/projects/$projectId/network/floatingips",
         params: { projectId: "test-project" },
       })
+    })
+
+    it("does not navigate after release from the list page", async () => {
+      const user = userEvent.setup()
+      renderWithTriggers(mockFloatingIp)
+
+      await user.click(screen.getByRole("button", { name: "Open Release" }))
+      await user.click(screen.getByRole("button", { name: "Confirm Release" }))
+
+      expect(await screen.findByText("Floating IP Released")).toBeInTheDocument()
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
   })
 

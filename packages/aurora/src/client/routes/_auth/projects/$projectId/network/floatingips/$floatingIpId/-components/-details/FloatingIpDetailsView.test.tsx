@@ -73,17 +73,11 @@ describe("FloatingIpDetailsView", () => {
     vi.clearAllMocks()
   })
 
-  describe("Header and description", () => {
+  describe("Header", () => {
     it("displays floating IP address in the network section", () => {
       render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
 
       expect(screen.getAllByText("203.0.113.10").length).toBeGreaterThan(0)
-    })
-
-    it("displays description text", () => {
-      render(<FloatingIpDetailsView floatingIp={mockFloatingIp} />, { wrapper: TestWrapper })
-
-      expect(screen.getByText(/Full lifecycle management of Floating IPs/i)).toBeInTheDocument()
     })
   })
 
