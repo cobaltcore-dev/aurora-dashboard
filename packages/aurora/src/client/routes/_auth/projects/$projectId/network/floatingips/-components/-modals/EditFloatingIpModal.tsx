@@ -71,7 +71,7 @@ export const EditFloatingIpModal = ({
       key={floatingIp.id}
       open={open}
       size="large"
-      title={t`Edit Floating IP ${floating_ip_address}`}
+      title={t`Edit Floating IP ${floating_ip_address} Description`}
       onCancel={handleClose}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}
@@ -85,7 +85,7 @@ export const EditFloatingIpModal = ({
       )}
 
       {isLoading ? (
-        <Status status="progress" title={t`Updating Floating IP...`} className="mt-0" />
+        <Status status="progress" title={t`Updating Floating IP Description...`} className="mt-0" />
       ) : (
         <Form
           className="mb-0"
