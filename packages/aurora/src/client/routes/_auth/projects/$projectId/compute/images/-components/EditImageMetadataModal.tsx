@@ -111,7 +111,6 @@ function EditImageMetadataModalInner({
       setErrors({ newValue: t`Value is required` })
       return
     }
-    // Insert at the beginning so it's visible
     setMetadata((prev) => [{ key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }, ...prev])
     setNewKey("")
     setNewValue("")

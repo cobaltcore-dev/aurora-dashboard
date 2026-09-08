@@ -185,18 +185,14 @@ function ImagesContent({
   // For checkbox behavior: use images from current page
   const paginatedImages = pageImages
 
-  const deletableImages = validSelectedImages
-    .map((imageId) => pageImages.find((image: GlanceImage) => image.id === imageId))
-    .filter((image): image is GlanceImage => image !== undefined && image.protected !== true)
-  const protectedImages = validSelectedImages
-    .map((imageId) => pageImages.find((image: GlanceImage) => image.id === imageId))
-    .filter((image): image is GlanceImage => image !== undefined && image.protected === true)
-  const activeImages = validSelectedImages
-    .map((imageId) => pageImages.find((image: GlanceImage) => image.id === imageId))
-    .filter((image): image is GlanceImage => image !== undefined && image.status === IMAGE_STATUSES.ACTIVE)
-  const deactivatedImages = validSelectedImages
-    .map((imageId) => pageImages.find((image: GlanceImage) => image.id === imageId))
-    .filter((image): image is GlanceImage => image !== undefined && image.status === IMAGE_STATUSES.DEACTIVATED)
+  // Build ID→image lookup once to avoid repeated O(n*m) finds
+  const imageById = new Map(pageImages.map((image: GlanceImage) => [image.id, image]))
+  const selectedImageObjects = validSelectedImages.map((id) => imageById.get(id)).filter(Boolean) as GlanceImage[]
+
+  const deletableImages = selectedImageObjects.filter((image) => image.protected !== true)
+  const protectedImages = selectedImageObjects.filter((image) => image.protected === true)
+  const activeImages = selectedImageObjects.filter((image) => image.status === IMAGE_STATUSES.ACTIVE)
+  const deactivatedImages = selectedImageObjects.filter((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
 
   const isDeleteAllDisabled =
     !permissions.canDelete ||

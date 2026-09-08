@@ -61,7 +61,7 @@ describe("ActivateImagesModal", () => {
 
   it("should display the correct number of deactivated images", () => {
     setup(true)
-    expect(screen.getByText(/Image to activate/i)).toBeInTheDocument()
+    expect(screen.getByText(/Images to activate \(\d+\)/i)).toBeInTheDocument()
   })
 
   it("should display all deactivated image names", () => {
