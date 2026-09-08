@@ -1,14 +1,15 @@
 import React from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { GlanceImage } from "@/server/Compute/types/image"
 
 interface ActivateImagesModalProps {
-  deactivatedImages: Array<string>
-  activeImages: Array<string>
+  deactivatedImages: Array<GlanceImage>
+  activeImages: Array<GlanceImage>
   isOpen: boolean
   isLoading: boolean
   onClose: () => void
-  onActivate: (deactivatedImages: Array<string>) => void
+  onActivate: (deactivatedImageIds: Array<string>) => void
 }
 
 export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
@@ -26,14 +27,14 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
 
   const handleActivate = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault()
-    onActivate(deactivatedImages)
+    onActivate(deactivatedImages.map((img) => img.id))
   }
 
   return (
     <Modal
       onCancel={onClose}
       size="small"
-      title={t`Activate Images`}
+      title={<Plural value={deactivatedCount} one="Activate # Image" other="Activate # Images" />}
       open={isOpen}
       onConfirm={handleActivate}
       confirmButtonLabel={t`Activate`}
@@ -51,67 +52,49 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
           {deactivatedCount > 0 && (
             <>
               <p className="mb-6">
-                <Trans>
-                  You are about to activate <strong>{deactivatedCount} image(s)</strong>. Activated images will be
-                  available for launching new instances.
-                </Trans>
+                <Trans>Activated images will be available for launching new instances.</Trans>
               </p>
+
+              {activeCount > 0 && (
+                <div className="mb-6">
+                  <p className="text-sm font-semibold">
+                    <Plural
+                      value={activeCount}
+                      one="Already active (# will be skipped)"
+                      other="Already active (# will be skipped)"
+                    />
+                  </p>
+                  <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
+                    <div className="space-y-1">
+                      {activeImages.map((image) => (
+                        <div key={image.id} className="text-theme-default text-sm">
+                          <span className="font-medium">{image.name || t`Unnamed`}</span>
+                          <span className="text-theme-light ml-2 text-xs">({image.id})</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Images to be activated */}
               <div className="mb-6">
-                <h3 className="jn:text-theme-high mb-3 font-semibold">
-                  <Trans>Images to be activated ({deactivatedCount})</Trans>
-                </h3>
-                <div className="jn:bg-theme-background-lvl-1 max-h-24 overflow-y-auto rounded p-4">
-                  <ul className="space-y-2">
-                    {deactivatedImages.map((imageId) => (
-                      <li key={imageId} className="jn:text-theme-default">
-                        {imageId}
-                      </li>
+                <p className="text-sm font-semibold">
+                  <Plural value={deactivatedCount} one="Image to activate (#)" other="Images to activate (#)" />
+                </p>
+                <div className="jn:bg-theme-background-lvl-1 mt-2 max-h-24 overflow-y-auto rounded p-4">
+                  <div className="space-y-1">
+                    {deactivatedImages.map((image) => (
+                      <div key={image.id} className="text-theme-default text-sm">
+                        <span className="font-medium">{image.name || t`Unnamed`}</span>
+                        <span className="text-theme-light ml-2 text-xs">({image.id})</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               </div>
             </>
           )}
-
-          {/* Already active images (if any) */}
-          {activeCount > 0 && (
-            <div className="mb-6">
-              <h3 className="jn:text-theme-high mb-3 font-semibold">
-                <Trans>Already active (will be skipped)</Trans>
-              </h3>
-              <div className="jn:bg-theme-warning/10 max-h-24 overflow-y-auto rounded border border-yellow-500/20 p-4">
-                <ul className="space-y-2">
-                  {activeImages.map((imageId) => (
-                    <li key={imageId} className="jn:text-theme-default">
-                      {imageId}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {/* Summary */}
-          <div className="jn:bg-theme-background-lvl-2 mb-6 rounded p-4">
-            {deactivatedCount > 0 && (
-              <div className="mb-2 flex justify-between">
-                <span className="jn:text-theme-default">
-                  <Trans>Images to activate:</Trans>
-                </span>
-                <span className="jn:text-theme-highest font-semibold">{deactivatedCount}</span>
-              </div>
-            )}
-            {activeCount > 0 && (
-              <div className="flex justify-between">
-                <span className="jn:text-theme-default">
-                  <Trans>Already active (will be skipped):</Trans>
-                </span>
-                <span className="jn:text-theme-warning font-semibold">{activeCount}</span>
-              </div>
-            )}
-          </div>
         </div>
       )}
     </Modal>

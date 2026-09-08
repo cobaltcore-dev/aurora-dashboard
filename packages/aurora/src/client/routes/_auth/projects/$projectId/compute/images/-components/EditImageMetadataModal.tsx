@@ -20,6 +20,7 @@ interface EditImageMetadataModalProps {
   isLoading?: boolean
   onClose: () => void
   onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
+  onSuccess?: () => void
 }
 
 interface MetadataEntry {
@@ -51,12 +52,14 @@ function EditImageMetadataModalInner({
   isLoading,
   onClose,
   onSave,
+  onSuccess,
   initialMetadata,
   excludedProperties,
 }: {
   isLoading: boolean
   onClose: () => void
   onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
+  onSuccess?: () => void
   initialMetadata: MetadataEntry[]
   excludedProperties: Set<string>
 }) {
@@ -108,7 +111,7 @@ function EditImageMetadataModalInner({
       setErrors({ newValue: t`Value is required` })
       return
     }
-    setMetadata([...metadata, { key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }])
+    setMetadata((prev) => [{ key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }, ...prev])
     setNewKey("")
     setNewValue("")
     setIsAddingNew(false)
@@ -124,8 +127,8 @@ function EditImageMetadataModalInner({
 
   const handleEdit = (index: number) => {
     setConfirmDeleteIndex(null)
-    setMetadata(
-      metadata.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false }))
+    setMetadata((prev) =>
+      prev.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false }))
     )
     setIsAddingNew(false)
   }
@@ -141,15 +144,15 @@ function EditImageMetadataModalInner({
       setErrors({ [`edit-${index}`]: t`Value is required` })
       return
     }
-    setMetadata(
-      metadata.map((e, i) => (i === index ? { ...e, isEditing: false, key: e.key.trim(), value: e.value.trim() } : e))
+    setMetadata((prev) =>
+      prev.map((e, i) => (i === index ? { ...e, isEditing: false, key: e.key.trim(), value: e.value.trim() } : e))
     )
     setErrors({})
   }
 
   const handleCancelEdit = (index: number) => {
-    setMetadata(
-      metadata.map((e, i) =>
+    setMetadata((prev) =>
+      prev.map((e, i) =>
         i === index ? { ...e, isEditing: false, key: e.originalKey ?? e.key, value: e.originalValue ?? e.value } : e
       )
     )
@@ -157,13 +160,13 @@ function EditImageMetadataModalInner({
   }
 
   const handleDelete = (index: number) => {
-    setMetadata(metadata.filter((_, i) => i !== index))
+    setMetadata((prev) => prev.filter((_, i) => i !== index))
     setConfirmDeleteIndex(null)
     setErrors({})
   }
 
   const handleKeyChange = (index: number, value: string) => {
-    setMetadata(metadata.map((entry, i) => (i === index ? { ...entry, key: value } : entry)))
+    setMetadata((prev) => prev.map((entry, i) => (i === index ? { ...entry, key: value } : entry)))
     if (errors[`edit-${index}`]) {
       setErrors((prev) => {
         const next = { ...prev }
@@ -174,7 +177,7 @@ function EditImageMetadataModalInner({
   }
 
   const handleValueChange = (index: number, value: string) => {
-    setMetadata(metadata.map((entry, i) => (i === index ? { ...entry, value } : entry)))
+    setMetadata((prev) => prev.map((entry, i) => (i === index ? { ...entry, value } : entry)))
     if (errors[`edit-${index}`]) {
       setErrors((prev) => {
         const next = { ...prev }
@@ -201,7 +204,10 @@ function EditImageMetadataModalInner({
         metadataObject[entry.key] = entry.value
       })
     const success = await onSave({ ...metadataObject, ...removedEntries })
-    if (success) onClose()
+    if (success) {
+      onClose()
+      onSuccess?.()
+    }
   }
 
   const handleClose = () => {
@@ -230,7 +236,7 @@ function EditImageMetadataModalInner({
         </Stack>
       ) : (
         <div>
-          <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
+          <Stack direction="horizontal" className="mb-4 justify-end p-2">
             <Button
               label={t`Add Property`}
               onClick={() => setIsAddingNew(true)}
@@ -287,7 +293,14 @@ function EditImageMetadataModalInner({
                           errortext={errors.newValue}
                         />
                         <Stack direction="horizontal" gap="2">
-                          <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
+                          <Button
+                            size="small"
+                            variant="primary"
+                            onClick={handleAddNew}
+                            icon="check"
+                            title={t`Save`}
+                            disabled={!newKey.trim()}
+                          />
                           <Button
                             size="small"
                             variant="subdued"

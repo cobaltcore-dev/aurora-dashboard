@@ -185,22 +185,14 @@ function ImagesContent({
   // For checkbox behavior: use images from current page
   const paginatedImages = pageImages
 
-  const deletableImages = validSelectedImages.filter((imageId) => {
-    const image = pageImages.find((image: GlanceImage) => image.id === imageId)
-    return image && !image.protected
-  })
-  const protectedImages = validSelectedImages.filter((imageId) => {
-    const image = pageImages.find((image: GlanceImage) => image.id === imageId)
-    return image && image.protected
-  })
-  const activeImages = validSelectedImages.filter((imageId) => {
-    const image = pageImages.find((image: GlanceImage) => image.id === imageId)
-    return image && image.status === IMAGE_STATUSES.ACTIVE
-  })
-  const deactivatedImages = validSelectedImages.filter((imageId) => {
-    const image = pageImages.find((image: GlanceImage) => image.id === imageId)
-    return image && image.status === IMAGE_STATUSES.DEACTIVATED
-  })
+  // Build ID→image lookup once to avoid repeated O(n*m) finds
+  const imageById = new Map(pageImages.map((image: GlanceImage) => [image.id, image]))
+  const selectedImageObjects = validSelectedImages.map((id) => imageById.get(id)).filter(Boolean) as GlanceImage[]
+
+  const deletableImages = selectedImageObjects.filter((image) => image.protected !== true)
+  const protectedImages = selectedImageObjects.filter((image) => image.protected === true)
+  const activeImages = selectedImageObjects.filter((image) => image.status === IMAGE_STATUSES.ACTIVE)
+  const deactivatedImages = selectedImageObjects.filter((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
 
   const isDeleteAllDisabled =
     !permissions.canDelete ||

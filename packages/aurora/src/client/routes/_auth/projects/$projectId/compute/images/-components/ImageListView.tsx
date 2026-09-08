@@ -79,10 +79,10 @@ interface ImagePageProps {
   setActivateAllModalOpen: (open: boolean) => void
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
-  deletableImages: Array<string>
-  protectedImages: Array<string>
-  activeImages: Array<string>
-  deactivatedImages: Array<string>
+  deletableImages: Array<GlanceImage>
+  protectedImages: Array<GlanceImage>
+  activeImages: Array<GlanceImage>
+  deactivatedImages: Array<GlanceImage>
   onImageUpdated: (image: GlanceImage) => void
   onImageDeleted: (imageIds: string | string[]) => void
   onMemberStatusChanged: () => void

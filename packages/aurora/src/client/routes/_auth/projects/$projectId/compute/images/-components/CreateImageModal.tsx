@@ -504,7 +504,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                 onBlur={handleBlur}
                 required
                 errortext={errors.name}
-                placeholder={t`Ubuntu 22.04 LTS`}
+                placeholder={t`e.g. Ubuntu 22.04 LTS`}
                 disabled={isLoading}
               />
             </FormRow>
@@ -520,8 +520,8 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                       value={tagsInput}
                       onChange={handleTagsInputChange}
                       onKeyDown={handleTagKeyPress}
-                      helptext={t`Press Enter to add`}
-                      placeholder={t`production, linux`}
+                      helptext={t`Press Enter or click Add to add a tag`}
+                      placeholder={t`e.g. production`}
                       disabled={isLoading}
                     />
                   </div>

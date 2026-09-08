@@ -73,6 +73,15 @@ msgstr ""
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr ""
 
+msgid "{activeCount, plural, one {Already active (# will be skipped)} other {Already active (# will be skipped)}}"
+msgstr ""
+
+msgid "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
+msgstr ""
+
+msgid "{activeCount, plural, one {Image to deactivate (#)} other {Images to deactivate (#)}}"
+msgstr ""
+
 msgid "{count, plural, one {# object} other {# objects}}"
 msgstr "{count, plural, one {# Objekt} other {# Objekte}}"
 
@@ -97,7 +106,19 @@ msgstr ""
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} Minuten"
 
+msgid "{deactivatedCount, plural, one {Activate # Image} other {Activate # Images}}"
+msgstr ""
+
+msgid "{deactivatedCount, plural, one {Already deactivated (# will be skipped)} other {Already deactivated (# will be skipped)}}"
+msgstr ""
+
+msgid "{deactivatedCount, plural, one {Image to activate (#)} other {Images to activate (#)}}"
+msgstr ""
+
 msgid "{deletableCount, plural, one {Delete # Image} other {Delete # Images}}"
+msgstr ""
+
+msgid "{deletableCount, plural, one {Image to delete (#)} other {Images to delete (#)}}"
 msgstr ""
 
 msgid "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
@@ -139,6 +160,9 @@ msgstr "{numberDeleted} Objekte wurden dauerhaft gelöscht."
 
 msgid "{percent}%"
 msgstr "{percent}%"
+
+msgid "{protectedCount, plural, one {Image Protected from Deletion (#)} other {Images Protected from Deletion (#)}}"
+msgstr ""
 
 msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 msgstr ""
@@ -317,14 +341,14 @@ msgstr "Aktivieren"
 msgid "Activate Image"
 msgstr "Image aktivieren"
 
-msgid "Activate Images"
-msgstr "Images aktivieren"
-
 msgid "Activate Selected"
 msgstr "Ausgewählte aktivieren"
 
 msgid "Activated {successCount} image(s), but {failedCount} image(s) could not be activated."
 msgstr "{successCount} Image(s) aktiviert, aber {failedCount} Image(s) konnten nicht aktiviert werden."
+
+msgid "Activated images will be available for launching new instances."
+msgstr ""
 
 msgid "Activating this image will allow it to be used to launch new instances again."
 msgstr "Durch die Aktivierung dieses Images kann es wieder zum Starten neuer Instances verwendet werden."
@@ -399,15 +423,6 @@ msgid "Allowed Methods"
 msgstr ""
 
 msgid "Allowed Origins"
-msgstr ""
-
-msgid "Already active (will be skipped)"
-msgstr "Bereits aktiv (wird übersprungen)"
-
-msgid "Already active (will be skipped):"
-msgstr "Bereits aktiv (wird übersprungen):"
-
-msgid "Already deactivated (will be skipped):"
 msgstr ""
 
 msgid "Also delete all versions and all delete markers"
@@ -1025,14 +1040,14 @@ msgstr "Deaktivieren"
 msgid "Deactivate Image"
 msgstr "Image deaktivieren"
 
-msgid "Deactivate Images"
-msgstr "Images deaktivieren"
-
 msgid "Deactivate Selected"
 msgstr "Ausgewählte deaktivieren"
 
 msgid "Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated."
 msgstr "{successCount} Image(s) deaktiviert, aber {failedCount} Image(s) konnten nicht deaktiviert werden."
+
+msgid "Deactivated images cannot be used to launch instances."
+msgstr ""
 
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 msgstr ""
@@ -1285,6 +1300,9 @@ msgstr ""
 
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
+
+msgid "e.g. Ubuntu 22.04 LTS"
+msgstr ""
 
 msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
@@ -2108,18 +2126,6 @@ msgstr "Images deaktiviert"
 msgid "Images Deleted"
 msgstr "Images gelöscht"
 
-msgid "Images to activate:"
-msgstr "Zu aktivierende Images:"
-
-msgid "Images to be activated ({deactivatedCount})"
-msgstr "Zu aktivierende Images ({deactivatedCount})"
-
-msgid "Images to deactivate:"
-msgstr ""
-
-msgid "Images to delete:"
-msgstr "Zu löschende Images:"
-
 msgid "Ingress"
 msgstr "Ingress"
 
@@ -2783,8 +2789,8 @@ msgstr "Vorsignierte URL für \"{displayName}\" wurde in die Zwischenablage kopi
 msgid "Prefix and tag filters define which objects a rule applies to. Without them, this rule will be applied to all objects in the bucket."
 msgstr ""
 
-msgid "Press Enter to add"
-msgstr "Enter drücken zum Hinzufügen"
+msgid "Press Enter or click Add to add a tag"
+msgstr ""
 
 msgid "Prevent accidental deletion"
 msgstr "Versehentliches Löschen verhindern"
@@ -2803,9 +2809,6 @@ msgstr "Privat"
 
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist möglicherweise unvollständig."
-
-msgid "production, linux"
-msgstr "production, linux"
 
 msgid "Project"
 msgstr "Projekt"
@@ -2848,9 +2851,6 @@ msgstr "Dieses Image vor dem Löschen schützen"
 
 msgid "Protected"
 msgstr "Geschützt"
-
-msgid "Protected images (cannot be deleted):"
-msgstr ""
 
 msgid "Protocol"
 msgstr "Protokoll"
@@ -3782,9 +3782,6 @@ msgstr "Zum Suchen von Containern eingeben..."
 msgid "Type: {typeValue}, Code: {codeValue}"
 msgstr "Typ: {typeValue}, Code: {codeValue}"
 
-msgid "Ubuntu 22.04 LTS"
-msgstr "Ubuntu 22.04 LTS"
-
 msgid "Unable to connect to the compute service. Please check your connection and try again."
 msgstr "Die bereitgestellten Flavor-Daten sind ungültig. Bitte überprüfen Sie Ihre Eingabe."
 
@@ -3985,12 +3982,6 @@ msgstr "Schreib-ACLs — Vorschau"
 
 msgid "Yes"
 msgstr "Ja"
-
-msgid "You are about to activate <0>{deactivatedCount} image(s)</0>. Activated images will be available for launching new instances."
-msgstr "Sie sind dabei, <0>{deactivatedCount} Image(s)</0> zu aktivieren. Aktivierte Images stehen zum Starten neuer Instances zur Verfügung."
-
-msgid "You are about to deactivate <0>{activeCount} image(s)</0>. Deactivated images cannot be used to launch new instances."
-msgstr "Sie sind dabei, <0>{activeCount} Image(s)</0> zu deaktivieren. Deaktivierte Images können nicht zum Starten neuer Instances verwendet werden."
 
 msgid "You are currently on the dashboard route."
 msgstr "Sie befinden sich derzeit auf der Dashboard-Route."

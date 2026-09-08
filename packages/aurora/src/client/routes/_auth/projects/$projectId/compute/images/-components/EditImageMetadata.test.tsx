@@ -194,20 +194,15 @@ describe("EditImageMetadataModal", () => {
       fireEvent.click(addButton)
     })
 
-    // Try to save without entering key
+    // Try to save without entering key - Save button should be disabled
     const valueInput = screen.getByPlaceholderText("Value")
     await act(async () => {
       fireEvent.change(valueInput, { target: { value: "test" } })
     })
 
     const saveButtons = screen.getAllByTitle("Save")
-    await act(async () => {
-      fireEvent.click(saveButtons[0])
-    })
-
-    await waitFor(() => {
-      expect(screen.getByText("Key is required")).toBeInTheDocument()
-    })
+    // Save button should be disabled when key is empty
+    expect(saveButtons[0]).toBeDisabled()
   })
 
   test("validates required value when adding property", async () => {
