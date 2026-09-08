@@ -20,6 +20,7 @@ interface EditImageMetadataModalProps {
   isLoading?: boolean
   onClose: () => void
   onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
+  onSuccess?: () => void
 }
 
 interface MetadataEntry {
@@ -51,12 +52,14 @@ function EditImageMetadataModalInner({
   isLoading,
   onClose,
   onSave,
+  onSuccess,
   initialMetadata,
   excludedProperties,
 }: {
   isLoading: boolean
   onClose: () => void
   onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
+  onSuccess?: () => void
   initialMetadata: MetadataEntry[]
   excludedProperties: Set<string>
 }) {
@@ -108,7 +111,8 @@ function EditImageMetadataModalInner({
       setErrors({ newValue: t`Value is required` })
       return
     }
-    setMetadata([...metadata, { key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }])
+    // Insert at the beginning so it's visible
+    setMetadata([{ key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }, ...metadata])
     setNewKey("")
     setNewValue("")
     setIsAddingNew(false)
@@ -201,7 +205,10 @@ function EditImageMetadataModalInner({
         metadataObject[entry.key] = entry.value
       })
     const success = await onSave({ ...metadataObject, ...removedEntries })
-    if (success) onClose()
+    if (success) {
+      onClose()
+      onSuccess?.()
+    }
   }
 
   const handleClose = () => {
@@ -230,7 +237,7 @@ function EditImageMetadataModalInner({
         </Stack>
       ) : (
         <div>
-          <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
+          <Stack direction="horizontal" className="mb-4 justify-end p-2">
             <Button
               label={t`Add Property`}
               onClick={() => setIsAddingNew(true)}
@@ -287,7 +294,14 @@ function EditImageMetadataModalInner({
                           errortext={errors.newValue}
                         />
                         <Stack direction="horizontal" gap="2">
-                          <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
+                          <Button
+                            size="small"
+                            variant="primary"
+                            onClick={handleAddNew}
+                            icon="check"
+                            title={t`Save`}
+                            disabled={!newKey.trim()}
+                          />
                           <Button
                             size="small"
                             variant="subdued"
