@@ -1,5 +1,29 @@
 # @cobaltcore-dev/aurora
 
+## 1.3.0
+
+### Minor Changes
+
+- ab46357: fix(network): resolve floating IP issues
+
+  - Fix crash after attach/detach actions
+  - Fix error state leaking between modals
+  - Fix long descriptions overflowing into kebab menu
+  - Redirect to detail page after creating a floating IP
+  - Ensure attach is the only primary action on the detail page
+  - Add toast notifications for all CRUD operations
+  - Rename "Preview" overflow action to "Show Details"
+  - Replace empty/loading/error states with Juno Status component
+  - Adjust sort-by fields
+  - Update wording in attach and edit modals
+
+### Patch Changes
+
+- b79f440: Swift: the ACL explanation text in the container access-control modal now uses
+  the default font colour instead of the low-contrast light colour, improving
+  legibility at the small text size.
+- 8f993b8: Ensure single primary action button per page on flavor and image detail views
+
 ## 1.2.0
 
 ### Minor Changes
