@@ -187,7 +187,7 @@ function ImagesContent({
 
   const deletableImages = validSelectedImages
     .map((imageId) => pageImages.find((image: GlanceImage) => image.id === imageId))
-    .filter((image): image is GlanceImage => image !== undefined && image.protected === false)
+    .filter((image): image is GlanceImage => image !== undefined && image.protected !== true)
   const protectedImages = validSelectedImages
     .map((imageId) => pageImages.find((image: GlanceImage) => image.id === imageId))
     .filter((image): image is GlanceImage => image !== undefined && image.protected === true)

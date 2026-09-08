@@ -68,7 +68,7 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
                     <div className="space-y-1">
                       {activeImages.map((image) => (
                         <div key={image.id} className="text-theme-default text-sm">
-                          <span className="font-medium">{image.name}</span>
+                          <span className="font-medium">{image.name || t`Unnamed`}</span>
                           <span className="text-theme-light ml-2 text-xs">({image.id})</span>
                         </div>
                       ))}
@@ -86,7 +86,7 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
                   <div className="space-y-1">
                     {deactivatedImages.map((image) => (
                       <div key={image.id} className="text-theme-default text-sm">
-                        <span className="font-medium">{image.name}</span>
+                        <span className="font-medium">{image.name || t`Unnamed`}</span>
                         <span className="text-theme-light ml-2 text-xs">({image.id})</span>
                       </div>
                     ))}
