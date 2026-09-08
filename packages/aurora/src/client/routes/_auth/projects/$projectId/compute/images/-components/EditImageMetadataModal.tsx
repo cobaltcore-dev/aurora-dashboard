@@ -112,7 +112,7 @@ function EditImageMetadataModalInner({
       return
     }
     // Insert at the beginning so it's visible
-    setMetadata([{ key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }, ...metadata])
+    setMetadata((prev) => [{ key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }, ...prev])
     setNewKey("")
     setNewValue("")
     setIsAddingNew(false)
@@ -128,8 +128,8 @@ function EditImageMetadataModalInner({
 
   const handleEdit = (index: number) => {
     setConfirmDeleteIndex(null)
-    setMetadata(
-      metadata.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false }))
+    setMetadata((prev) =>
+      prev.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false }))
     )
     setIsAddingNew(false)
   }
@@ -145,15 +145,15 @@ function EditImageMetadataModalInner({
       setErrors({ [`edit-${index}`]: t`Value is required` })
       return
     }
-    setMetadata(
-      metadata.map((e, i) => (i === index ? { ...e, isEditing: false, key: e.key.trim(), value: e.value.trim() } : e))
+    setMetadata((prev) =>
+      prev.map((e, i) => (i === index ? { ...e, isEditing: false, key: e.key.trim(), value: e.value.trim() } : e))
     )
     setErrors({})
   }
 
   const handleCancelEdit = (index: number) => {
-    setMetadata(
-      metadata.map((e, i) =>
+    setMetadata((prev) =>
+      prev.map((e, i) =>
         i === index ? { ...e, isEditing: false, key: e.originalKey ?? e.key, value: e.originalValue ?? e.value } : e
       )
     )
@@ -161,13 +161,13 @@ function EditImageMetadataModalInner({
   }
 
   const handleDelete = (index: number) => {
-    setMetadata(metadata.filter((_, i) => i !== index))
+    setMetadata((prev) => prev.filter((_, i) => i !== index))
     setConfirmDeleteIndex(null)
     setErrors({})
   }
 
   const handleKeyChange = (index: number, value: string) => {
-    setMetadata(metadata.map((entry, i) => (i === index ? { ...entry, key: value } : entry)))
+    setMetadata((prev) => prev.map((entry, i) => (i === index ? { ...entry, key: value } : entry)))
     if (errors[`edit-${index}`]) {
       setErrors((prev) => {
         const next = { ...prev }
@@ -178,7 +178,7 @@ function EditImageMetadataModalInner({
   }
 
   const handleValueChange = (index: number, value: string) => {
-    setMetadata(metadata.map((entry, i) => (i === index ? { ...entry, value } : entry)))
+    setMetadata((prev) => prev.map((entry, i) => (i === index ? { ...entry, value } : entry)))
     if (errors[`edit-${index}`]) {
       setErrors((prev) => {
         const next = { ...prev }
