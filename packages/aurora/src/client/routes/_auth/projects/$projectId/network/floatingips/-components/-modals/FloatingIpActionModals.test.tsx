@@ -12,19 +12,29 @@ import { DetachFloatingIpModalProps } from "./DetachFloatingIpModal"
 import { ReleaseFloatingIpModalProps } from "./ReleaseFloatingIpModal"
 import { AssociateFloatingIpModalProps } from "./AssociateFloatingIpModal"
 
+const { mockNavigate, mockUseMatches } = vi.hoisted(() => ({
+  mockNavigate: vi.fn(),
+  mockUseMatches: vi.fn(),
+}))
+
 vi.mock("@tanstack/react-router", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-router")>()
   return {
     ...actual,
     useParams: vi.fn(() => ({ projectId: "test-project" })),
+    useNavigate: vi.fn(() => mockNavigate),
+    useMatches: mockUseMatches,
   }
 })
 
-const { mockUseUtils, mockUpdateMutation, mockDeleteMutation } = vi.hoisted(() => ({
-  mockUseUtils: vi.fn(),
-  mockUpdateMutation: vi.fn(),
-  mockDeleteMutation: vi.fn(),
-}))
+const { mockUseUtils, mockUpdateMutation, mockDeleteMutation, mockResetUpdateMutation, mockResetDeleteMutation } =
+  vi.hoisted(() => ({
+    mockUseUtils: vi.fn(),
+    mockUpdateMutation: vi.fn(),
+    mockDeleteMutation: vi.fn(),
+    mockResetUpdateMutation: vi.fn(),
+    mockResetDeleteMutation: vi.fn(),
+  }))
 
 vi.mock("@/client/trpcClient", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/client/trpcClient")>()
@@ -187,6 +197,7 @@ describe("FloatingIpActionModals", () => {
 
   beforeEach(() => {
     i18n.activate("en")
+    mockUseMatches.mockReturnValue([])
 
     mockUseUtils.mockReturnValue({
       network: {
@@ -213,23 +224,27 @@ describe("FloatingIpActionModals", () => {
 
         return {
           mutateAsync: mutateAsyncMock,
+          reset: mockResetUpdateMutation,
           isPending: false,
           error: null,
         }
       }
     )
 
-    mockDeleteMutation.mockImplementation((options?: { onSettled?: () => void }) => {
-      deleteAsyncMock.mockImplementation(async () => {
-        await options?.onSettled?.()
-      })
+    mockDeleteMutation.mockImplementation(
+      (options?: { onSettled?: (data: unknown, error: unknown, variables: { floatingip_id: string }) => void }) => {
+        deleteAsyncMock.mockImplementation(async (variables: { floatingip_id: string }) => {
+          await options?.onSettled?.(undefined, null, variables)
+        })
 
-      return {
-        mutateAsync: deleteAsyncMock,
-        isPending: false,
-        error: null,
+        return {
+          mutateAsync: deleteAsyncMock,
+          reset: mockResetDeleteMutation,
+          isPending: false,
+          error: null,
+        }
       }
-    })
+    )
   })
 
   describe("Edit modal", () => {
@@ -250,6 +265,7 @@ describe("FloatingIpActionModals", () => {
     it("passes loading and error mutation state to edit modal", async () => {
       mockUpdateMutation.mockReturnValue({
         mutateAsync: vi.fn(),
+        reset: mockResetUpdateMutation,
         isPending: true,
         error: { message: "Update failed" },
       })
@@ -282,6 +298,7 @@ describe("FloatingIpActionModals", () => {
     it("passes loading and error mutation state to detach modal", async () => {
       mockUpdateMutation.mockReturnValue({
         mutateAsync: vi.fn(),
+        reset: mockResetUpdateMutation,
         isPending: true,
         error: { message: "Detach failed" },
       })
@@ -314,6 +331,7 @@ describe("FloatingIpActionModals", () => {
     it("passes loading and error mutation state to attach modal", async () => {
       mockUpdateMutation.mockReturnValue({
         mutateAsync: vi.fn(),
+        reset: mockResetUpdateMutation,
         isPending: true,
         error: { message: "Attach failed" },
       })
@@ -346,6 +364,7 @@ describe("FloatingIpActionModals", () => {
     it("passes loading and error mutation state to release modal", async () => {
       mockDeleteMutation.mockReturnValue({
         mutateAsync: vi.fn(),
+        reset: mockResetDeleteMutation,
         isPending: true,
         error: { message: "Release failed" },
       })
@@ -393,12 +412,41 @@ describe("FloatingIpActionModals", () => {
 
     it("shows a success toast after a successful release", async () => {
       const user = userEvent.setup()
+      mockUseMatches.mockReturnValue([{ routeId: "/_auth/projects/$projectId/network/floatingips/$floatingIpId/" }])
       renderWithTriggers(mockFloatingIp)
 
       await user.click(screen.getByRole("button", { name: "Open Release" }))
       await user.click(screen.getByRole("button", { name: "Confirm Release" }))
 
       expect(await screen.findByText("Floating IP Released")).toBeInTheDocument()
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/projects/$projectId/network/floatingips",
+        params: { projectId: "test-project" },
+      })
+    })
+
+    it("does not navigate after release from the list page", async () => {
+      const user = userEvent.setup()
+      renderWithTriggers(mockFloatingIp)
+
+      await user.click(screen.getByRole("button", { name: "Open Release" }))
+      await user.click(screen.getByRole("button", { name: "Confirm Release" }))
+
+      expect(await screen.findByText("Floating IP Released")).toBeInTheDocument()
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+  })
+
+  describe("Update error isolation", () => {
+    it("resets the shared update mutation when switching action modals", async () => {
+      const user = userEvent.setup()
+      renderWithTriggers(mockFloatingIp)
+
+      await user.click(screen.getByRole("button", { name: "Open Attach" }))
+      await user.click(screen.getByRole("button", { name: "Close Associate Modal" }))
+      await user.click(screen.getByRole("button", { name: "Open Edit" }))
+
+      expect(mockResetUpdateMutation).toHaveBeenCalledTimes(3)
     })
   })
 })

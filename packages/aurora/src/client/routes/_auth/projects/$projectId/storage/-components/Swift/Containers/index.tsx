@@ -19,6 +19,7 @@ import {
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { parseSwiftDate } from "@/client/utils/formatSwiftDate"
 import { ContainerTableView } from "./ContainerTableView"
 import {
   getContainerCreatedToast,
@@ -193,12 +194,22 @@ export const SwiftContainers = () => {
         case "bytes":
           comparison = a.bytes - b.bytes
           break
-        case "last_modified":
+        case "last_modified": {
+          // Both missing → equal (keeps the comparator transitive); exactly one
+          // missing → push it to the end.
+          if (!a.last_modified && !b.last_modified) return 0
           if (!a.last_modified || !b.last_modified) {
             return a.last_modified ? -1 : 1
           }
-          comparison = new Date(a.last_modified).getTime() - new Date(b.last_modified).getTime()
+          // #1236: Swift listing timestamps are UTC without a "Z" — parse them as
+          // UTC so the ordering is correct (matters near DST boundaries). If a
+          // (non-empty) value can't be parsed, treat the pair as equal so the
+          // order is left untouched (matches the old NaN behaviour).
+          const at = parseSwiftDate(a.last_modified)?.getTime()
+          const bt = parseSwiftDate(b.last_modified)?.getTime()
+          comparison = at == null || bt == null ? 0 : at - bt
           break
+        }
         default:
           comparison = a.name.localeCompare(b.name)
       }

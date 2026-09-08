@@ -29,7 +29,7 @@ vi.mock("@tanstack/react-router", () => ({
     },
   ],
   useParams: () => ({ projectId: "test-project" }),
-  useRouteContext: () => ({ additionalProjectServices: [] }),
+  useRouteContext: () => ({ serviceExtensions: [] }),
 }))
 
 const wrapper = ({ children }: { children: ReactNode }) => (

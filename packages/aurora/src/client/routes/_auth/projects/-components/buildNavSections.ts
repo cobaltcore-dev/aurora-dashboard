@@ -1,7 +1,7 @@
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { t } from "@lingui/core/macro"
 import type { NavigateFn } from "@tanstack/react-router"
-import type { AdditionalProjectService } from "@/client/AuroraApp"
+import type { ServiceExtension } from "@/client/AuroraApp"
 
 export type NavItem = {
   service: string
@@ -20,7 +20,7 @@ export function buildNavSections(
   projectId: string,
   availableServices: { type: string; name: string }[],
   enabledServices?: string[],
-  additionalProjectServices?: AdditionalProjectService[]
+  serviceExtensions?: ServiceExtension[]
 ): NavSection[] {
   const serviceIndex = getServiceIndex(availableServices)
   const isEnabled = (service: string) => !enabledServices || enabledServices.includes(service)
@@ -114,16 +114,20 @@ export function buildNavSections(
     ["services", { section: "services", label: t`Services`, services: [] }],
   ])
 
-  // Merge additional services: activate when the service exists in the project's catalog
-  for (const module of additionalProjectServices ?? []) {
-    if (!serviceIndex[module.serviceType]?.[module.serviceName]) continue
-    if (enabledServices && !enabledServices.includes(module.serviceType)) continue
+  // Merge service extensions: activate when the service exists in the project's catalog
+  for (const extension of serviceExtensions ?? []) {
+    if (!serviceIndex[extension.serviceType]?.[extension.serviceName]) continue
+    if (enabledServices && !enabledServices.includes(extension.serviceType)) continue
 
     sectionMap.get("services")?.services.push({
-      service: module.serviceType,
-      label: module.label,
-      navigate: (nav: NavigateFn) => nav({ to: module.routes.fullPath as never, params: { projectId } as never }),
-      params: { projectId },
+      service: extension.serviceType,
+      label: extension.label,
+      navigate: (nav: NavigateFn) =>
+        nav({
+          to: "/projects/$projectId/services/$serviceType",
+          params: { projectId, serviceType: extension.serviceType },
+        }),
+      params: { projectId, serviceType: extension.serviceType },
     })
   }
 

@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
-import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, Spinner, Textarea, Message } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
+import { Modal, Form, FormSection, Status, Textarea, Message } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks"
 import type { FloatingIp, FloatingIpUpdateRequest } from "@/server/Network/types/floatingIp"
 
@@ -71,11 +71,13 @@ export const EditFloatingIpModal = ({
       key={floatingIp.id}
       open={open}
       size="large"
-      title={t`Edit Floating IP ${floating_ip_address}`}
+      title={t`Edit Floating IP ${floating_ip_address} Description`}
       onCancel={handleClose}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Save`}
       disableConfirmButton={isLoading || enableConfirmButton}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
       onConfirm={form.handleSubmit}
     >
       {error && (
@@ -84,16 +86,9 @@ export const EditFloatingIpModal = ({
         </Message>
       )}
 
-      {isLoading && (
-        <div className="mb-4 flex items-center justify-center gap-2">
-          <Spinner variant="primary" />
-          <span className="text-theme-high text-sm">
-            <Trans>Updating Floating IP...</Trans>
-          </span>
-        </div>
-      )}
-
-      {!isLoading && (
+      {isLoading ? (
+        <Status status="progress" title={t`Updating Floating IP Description...`} className="mt-0" />
+      ) : (
         <Form
           className="mb-0"
           id="edit-floating-ip-form"

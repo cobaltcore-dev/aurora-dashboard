@@ -1,34 +1,13 @@
 import { createRouter } from "@tanstack/react-router"
 import { routeTree } from "./routeTree.gen"
 import type { TrpcReact, TrpcClient } from "./trpcClient"
-import type { AdditionalProjectService } from "./AuroraApp"
-import type { AnyRoute } from "@tanstack/react-router"
-
-type RouteWithChildren = {
-  _addFileChildren: (c: Record<string, AnyRoute>) => void
-  children?: Record<string, AnyRoute>
-}
+import type { ServiceExtension } from "./AuroraApp"
 
 export function createAuroraRouter(
   trpcReact: TrpcReact,
   trpcClient: TrpcClient,
-  additionalProjectServices?: AdditionalProjectService[]
+  serviceExtensions?: ServiceExtension[]
 ) {
-  const extraRoutes = additionalProjectServices?.map((m) => m.routes) ?? []
-
-  if (extraRoutes.length > 0) {
-    for (let i = 0; i < extraRoutes.length; i++) {
-      const route = extraRoutes[i]
-      const parentFn = (route as { options?: { getParentRoute?: () => AnyRoute } }).options?.getParentRoute
-      if (!parentFn) {
-        throw new Error(`additionalProjectServices[${i}] route is missing options.getParentRoute()`)
-      }
-      const parent = parentFn() as unknown as RouteWithChildren
-      const existing = parent.children ?? {}
-      parent._addFileChildren({ ...existing, [`_extra_${i}`]: route })
-    }
-  }
-
   return createRouter({
     routeTree,
     context: {
@@ -39,7 +18,7 @@ export function createAuroraRouter(
       handleThemeToggle: undefined!,
       slots: undefined,
       onTrackEvent: undefined,
-      additionalProjectServices: additionalProjectServices ?? [],
+      serviceExtensions: serviceExtensions ?? [],
     },
   })
 }

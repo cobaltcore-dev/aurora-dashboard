@@ -2,11 +2,15 @@ import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useFloatingIpMutations } from "./useFloatingIpMutations"
 
-const { mockUseUtils, mockUpdateUseMutation, mockDeleteUseMutation } = vi.hoisted(() => ({
-  mockUseUtils: vi.fn(),
-  mockUpdateUseMutation: vi.fn(),
-  mockDeleteUseMutation: vi.fn(),
-}))
+const { mockUseUtils, mockUpdateUseMutation, mockDeleteUseMutation, mockUpdateReset, mockDeleteReset } = vi.hoisted(
+  () => ({
+    mockUseUtils: vi.fn(),
+    mockUpdateUseMutation: vi.fn(),
+    mockDeleteUseMutation: vi.fn(),
+    mockUpdateReset: vi.fn(),
+    mockDeleteReset: vi.fn(),
+  })
+)
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -49,8 +53,8 @@ describe("useFloatingIpMutations", () => {
 
   let deleteOptions:
     | {
-        onMutate?: () => Promise<unknown>
-        onSettled?: () => void
+        onMutate?: (variables: Record<string, unknown>) => Promise<unknown>
+        onSettled?: (data: unknown, error: unknown, variables: Record<string, unknown>) => void
       }
     | undefined
 
@@ -79,6 +83,7 @@ describe("useFloatingIpMutations", () => {
 
       return {
         mutateAsync: updateMutateAsyncMock,
+        reset: mockUpdateReset,
         isPending: false,
         error: null,
       }
@@ -89,6 +94,7 @@ describe("useFloatingIpMutations", () => {
 
       return {
         mutateAsync: deleteMutateAsyncMock,
+        reset: mockDeleteReset,
         isPending: false,
         error: null,
       }
@@ -112,6 +118,22 @@ describe("useFloatingIpMutations", () => {
       port_id: "port-1",
       description: "Updated description",
     })
+  })
+
+  it("exposes the update mutation reset handler", () => {
+    const { result } = renderHook(() => useFloatingIpMutations())
+
+    result.current.resetUpdateError()
+
+    expect(mockUpdateReset).toHaveBeenCalledTimes(1)
+  })
+
+  it("exposes the delete mutation reset handler", () => {
+    const { result } = renderHook(() => useFloatingIpMutations())
+
+    result.current.resetDeleteError()
+
+    expect(mockDeleteReset).toHaveBeenCalledTimes(1)
   })
 
   it("calls delete mutation with floatingip_id", async () => {
@@ -182,13 +204,15 @@ describe("useFloatingIpMutations", () => {
     expect(listInvalidateMock).toHaveBeenCalledTimes(1)
   })
 
-  it("cancels list query on delete onMutate and invalidates list on settle", async () => {
+  it("cancels list and detail queries and invalidates them on delete settle", async () => {
     renderHook(() => useFloatingIpMutations())
 
-    await deleteOptions?.onMutate?.()
-    deleteOptions?.onSettled?.()
+    await deleteOptions?.onMutate?.({ floatingip_id: "fip-123" })
+    deleteOptions?.onSettled?.(undefined, null, { floatingip_id: "fip-123" })
 
     expect(listCancelMock).toHaveBeenCalledTimes(1)
+    expect(getByIdCancelMock).toHaveBeenCalledWith({ project_id: "proj-1", floatingip_id: "fip-123" })
+    expect(getByIdInvalidateMock).toHaveBeenCalledWith({ project_id: "proj-1", floatingip_id: "fip-123" })
     expect(listInvalidateMock).toHaveBeenCalledTimes(1)
   })
 

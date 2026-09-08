@@ -56,7 +56,7 @@ function RouteComponent() {
     from: "/_auth/projects/$projectId",
   })
   const { t } = useLingui()
-  const { enabledServices, additionalProjectServices } = useRouteContext({ strict: false })
+  const { enabledServices, serviceExtensions } = useRouteContext({ strict: false })
   const isEnabled = (service: string) => !enabledServices || enabledServices.includes(service)
 
   const serviceIndex = getServiceIndex(availableServices ?? [])
@@ -99,17 +99,17 @@ function RouteComponent() {
       service: "ceph-containers",
     })
 
-  for (const additionalService of additionalProjectServices ?? []) {
-    // if additional service is in the list of services and is enabled display a card for it
+  for (const extension of serviceExtensions ?? []) {
+    // if the extension's service is in the catalog and enabled, display a card for it
     if (
-      serviceIndex[additionalService.serviceType]?.[additionalService.serviceName] &&
-      (!enabledServices || enabledServices.includes(additionalService.serviceType))
+      serviceIndex[extension.serviceType]?.[extension.serviceName] &&
+      (!enabledServices || enabledServices.includes(extension.serviceType))
     )
       cards.push({
         group: t`Services`,
-        label: additionalService.label,
-        to: additionalService.routes.fullPath.replace("$projectId", projectId),
-        service: additionalService.serviceType,
+        label: extension.label,
+        to: `/projects/${projectId}/services/${extension.serviceType}`,
+        service: extension.serviceType,
       })
   }
 

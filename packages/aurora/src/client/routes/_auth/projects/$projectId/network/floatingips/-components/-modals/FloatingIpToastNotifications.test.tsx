@@ -3,14 +3,13 @@ import { render, screen } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import {
-  getFloatingIpAllocatedToast,
   getFloatingIpUpdatedToast,
   getFloatingIpAssociatedToast,
   getFloatingIpDetachedToast,
   getFloatingIpReleasedToast,
 } from "./FloatingIpToastNotifications"
 
-type Notification = ReturnType<typeof getFloatingIpAllocatedToast>
+type Notification = ReturnType<typeof getFloatingIpUpdatedToast>
 
 const renderNotification = (notification: Notification) => {
   const description =
@@ -30,7 +29,6 @@ describe("FloatingIpToastNotifications", () => {
 
   it("all helpers return a message and renderable description", () => {
     const notifications = [
-      getFloatingIpAllocatedToast("203.0.113.1"),
       getFloatingIpUpdatedToast("203.0.113.1"),
       getFloatingIpAssociatedToast("203.0.113.1"),
       getFloatingIpDetachedToast("203.0.113.1"),
@@ -41,15 +39,6 @@ describe("FloatingIpToastNotifications", () => {
       expect(n.description).toBeTruthy()
       const view = renderNotification(n)
       view.unmount()
-    })
-  })
-
-  describe("getFloatingIpAllocatedToast", () => {
-    it("renders correct message and includes the IP", () => {
-      renderNotification(getFloatingIpAllocatedToast("203.0.113.1"))
-      expect(screen.getByText("Floating IP Allocated")).toBeInTheDocument()
-      expect(screen.getByText(/203\.0\.113\.1/)).toBeInTheDocument()
-      expect(screen.getByText(/successfully allocated/)).toBeInTheDocument()
     })
   })
 

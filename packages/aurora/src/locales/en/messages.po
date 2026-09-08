@@ -473,23 +473,20 @@ msgstr "Are you sure you want to delete the policy for bucket <0>{bucketName}</0
 msgid "Are you sure you want to delete this lifecycle rule from bucket <0>{bucketName}</0>?"
 msgstr "Are you sure you want to delete this lifecycle rule from bucket <0>{bucketName}</0>?"
 
-msgid "Associate"
-msgstr "Associate"
-
-msgid "Associate Floating IP {floating_ip_address} with Port"
-msgstr "Associate Floating IP {floating_ip_address} with Port"
-
 msgid "Associates on the selected port. If the port has multiple IPs, select the desired fixed IP address."
 msgstr "Associates on the selected port. If the port has multiple IPs, select the desired fixed IP address."
-
-msgid "Associating Floating IP..."
-msgstr "Associating Floating IP..."
 
 msgid "At Aurora, our mission is to provide a centralized platform that unifies cloud management. We aim to simplify the complexities of provisioning, configuring, and scaling resources across diverse cloud environments while enabling seamless growth for your business."
 msgstr "At Aurora, our mission is to provide a centralized platform that unifies cloud management. We aim to simplify the complexities of provisioning, configuring, and scaling resources across diverse cloud environments while enabling seamless growth for your business."
 
 msgid "Attach"
 msgstr "Attach"
+
+msgid "Attach Floating IP {floating_ip_address} to the Port"
+msgstr "Attach Floating IP {floating_ip_address} to the Port"
+
+msgid "Attaching Floating IP..."
+msgstr "Attaching Floating IP..."
 
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
@@ -1325,8 +1322,8 @@ msgstr "Edit Description"
 msgid "Edit Details"
 msgstr "Edit Details"
 
-msgid "Edit Floating IP {floating_ip_address}"
-msgstr "Edit Floating IP {floating_ip_address}"
+msgid "Edit Floating IP {floating_ip_address} Description"
+msgstr "Edit Floating IP {floating_ip_address} Description"
 
 msgid "Edit Image Details"
 msgstr "Edit Image Details"
@@ -1895,9 +1892,6 @@ msgstr "Flavor service is not available for this project."
 msgid "Flavors"
 msgstr "Flavors"
 
-msgid "Floating IP \"{ip}\" was successfully allocated."
-msgstr "Floating IP \"{ip}\" was successfully allocated."
-
 msgid "Floating IP \"{ip}\" was successfully associated with the port."
 msgstr "Floating IP \"{ip}\" was successfully associated with the port."
 
@@ -1910,11 +1904,11 @@ msgstr "Floating IP \"{ip}\" was successfully released."
 msgid "Floating IP \"{ip}\" was successfully updated."
 msgstr "Floating IP \"{ip}\" was successfully updated."
 
+msgid "Floating IP actions"
+msgstr "Floating IP actions"
+
 msgid "Floating IP Address"
 msgstr "Floating IP Address"
-
-msgid "Floating IP Allocated"
-msgstr "Floating IP Allocated"
 
 msgid "Floating IP Associated"
 msgstr "Floating IP Associated"
@@ -1936,9 +1930,6 @@ msgstr "Floating IPs"
 
 msgid "Floating Network"
 msgstr "Floating Network"
-
-msgid "Floating Network ID"
-msgstr "Floating Network ID"
 
 msgid "Folder \"{folderName}\" and {deletedCount} object were permanently deleted."
 msgstr "Folder \"{folderName}\" and {deletedCount} object were permanently deleted."
@@ -1999,9 +1990,6 @@ msgstr "For <0>dynamic</0> and <1>static large objects</1> only the manifests ar
 
 msgid "For more details, have a look at the <0>documentation</0>."
 msgstr "For more details, have a look at the <0>documentation</0>."
-
-msgid "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
-msgstr "Full lifecycle management of Floating IPs, including attachment, port association/disassociation, DNS settings, and deletion"
 
 msgid "Full Path"
 msgstr "Full Path"
@@ -2077,6 +2065,9 @@ msgstr "ID must only contain alphanumeric characters, hyphens, underscores, and 
 
 msgid "If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants."
 msgstr "If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants."
+
+msgid "If the port has multiple IPs, select the desired fixed IP address."
+msgstr "If the port has multiple IPs, select the desired fixed IP address."
 
 msgid "If there is no index file, the URL displays a list of objects in the container."
 msgstr "If there is no index file, the URL displays a list of objects in the container."
@@ -2804,9 +2795,6 @@ msgstr "Press Enter or click Add to add a tag"
 msgid "Prevent accidental deletion"
 msgstr "Prevent accidental deletion"
 
-msgid "Preview"
-msgstr "Preview"
-
 msgid "Preview {rowDisplayName}"
 msgstr "Preview {rowDisplayName}"
 
@@ -3134,6 +3122,9 @@ msgstr "Select a DNS domain."
 msgid "Select a fixed IP address"
 msgstr "Select a fixed IP address"
 
+msgid "Select a port to attach to"
+msgstr "Select a port to attach to"
+
 msgid "Select a rule type..."
 msgstr "Select a rule type..."
 
@@ -3448,9 +3439,6 @@ msgstr "Temporary URL for \"{objectName}\" was copied to clipboard."
 
 msgid "Temporary URLs"
 msgstr "Temporary URLs"
-
-msgid "Tenant ID"
-msgstr "Tenant ID"
 
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
@@ -3848,8 +3836,8 @@ msgstr "Updated At"
 msgid "Updated:"
 msgstr "Updated:"
 
-msgid "Updating Floating IP..."
-msgstr "Updating Floating IP..."
+msgid "Updating Floating IP Description..."
+msgstr "Updating Floating IP Description..."
 
 msgid "Updating security group..."
 msgstr "Updating security group..."

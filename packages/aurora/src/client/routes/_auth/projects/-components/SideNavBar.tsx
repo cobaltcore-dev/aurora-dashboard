@@ -21,7 +21,7 @@ interface SideNavBarProps {
 export const SideNavBar = ({ projectId, projectName, domainName, sections }: SideNavBarProps) => {
   const navigate = useNavigate()
   const matches = useMatches()
-  const { provider } = useParams({ strict: false }) as { provider?: string }
+  const { provider, serviceType } = useParams({ strict: false }) as { provider?: string; serviceType?: string }
   const { slots } = useRouteContext({ strict: false })
 
   const navBadge = (service: string) => {
@@ -29,11 +29,19 @@ export const SideNavBar = ({ projectId, projectName, domainName, sections }: Sid
     return <Slot component={slots.serviceBadge} useShadowDOM={false} currentService={service} />
   }
 
-  // Read active section/service from the deepest match that has valid RouteInfo staticData
-  const activeMatch = [...matches].reverse().find((m) => isRouteInfo(m.staticData))
+  // Read active section/service from the deepest match that has meaningful RouteInfo staticData.
+  // isRouteInfo uses an all-optional schema, so an empty {} also passes — require at least section
+  // or service to be set so that stub routes (index/splat) don't shadow their layout parent.
+  const activeMatch = [...matches]
+    .reverse()
+    .find(
+      (m) => isRouteInfo(m.staticData) && (m.staticData.section !== undefined || m.staticData.service !== undefined)
+    )
   const activeRouteInfo = activeMatch && isRouteInfo(activeMatch.staticData) ? activeMatch.staticData : undefined
   const activeSection = activeRouteInfo?.section ?? null
-  const activeService = activeRouteInfo?.service ?? null
+  // Extension mount routes carry only staticData.section (no static `service`), so fall back to
+  // the $serviceType URL param to identify the active service and highlight its nav item.
+  const activeService = activeRouteInfo?.service ?? serviceType ?? null
 
   // Track which sections should be forced open by incrementing a counter
   // This forces a remount of SideNavigationGroup since it doesn't expose onToggle

@@ -24,6 +24,13 @@ describe("TwoColumnDescriptionList", () => {
     }
   })
 
+  it("truncates values", () => {
+    render(<TwoColumnDescriptionList items={items} />)
+    for (const { value } of items) {
+      expect(screen.getByText(value)).toHaveClass("truncate")
+    }
+  })
+
   it("splits items evenly across two columns", () => {
     const { container } = render(<TwoColumnDescriptionList items={items} />)
     const lists = container.querySelectorAll("dl")

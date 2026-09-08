@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
-import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, Form, FormSection, Spinner, Message, Select, SelectOption } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
+import { Modal, Form, FormSection, Status, Message, Select, SelectOption } from "@cloudoperators/juno-ui-components"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
@@ -73,12 +73,14 @@ export const AssociateFloatingIpModal = ({
       id={floatingIp.id}
       open={open}
       size="large"
-      title={t`Associate Floating IP ${floating_ip_address} with Port`}
+      title={t`Attach Floating IP ${floating_ip_address} to the Port`}
       onCancel={handleClose}
       cancelButtonLabel={t`Cancel`}
-      confirmButtonLabel={t`Associate`}
+      confirmButtonLabel={t`Attach`}
       onConfirm={form.handleSubmit}
       disableConfirmButton={isLoading || !currentPortId}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
       {error && (
         <Message dismissible={false} variant="error" className="mb-4">
@@ -86,19 +88,12 @@ export const AssociateFloatingIpModal = ({
         </Message>
       )}
 
-      {isLoading && (
-        <div className="mb-4 flex items-center justify-center gap-2">
-          <Spinner variant="primary" />
-          <span className="text-theme-high text-sm">
-            <Trans>Associating Floating IP...</Trans>
-          </span>
-        </div>
-      )}
-
-      {!isLoading && (
+      {isLoading ? (
+        <Status status="progress" title={t`Attaching Floating IP...`} className="mt-0" />
+      ) : (
         <Form
           className="mb-0"
-          id="associate-floating-ip-form"
+          id="attach-floating-ip-form"
           onSubmit={(e) => {
             e.preventDefault()
             form.handleSubmit()
@@ -120,7 +115,7 @@ export const AssociateFloatingIpModal = ({
                     form.setFieldValue("fixed_ip_address", ips.length === 1 ? ips[0].ip_address : "")
                   }}
                   label={t`Port ID`}
-                  placeholder={t`Select port to associate`}
+                  placeholder={t`Select a port to attach to`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                   disabled={isLoading}
                 >
@@ -146,7 +141,7 @@ export const AssociateFloatingIpModal = ({
                   onChange={(value) => field.handleChange(typeof value === "string" ? value : "")}
                   label={t`Fixed IP Address`}
                   placeholder={t`Select a fixed IP address`}
-                  helptext={t`Associates on the selected port. If the port has multiple IPs, select the desired fixed IP address.`}
+                  helptext={t`If the port has multiple IPs, select the desired fixed IP address.`}
                   errortext={field.state.meta.errors.map((e) => e?.message).join(", ")}
                   disabled={isLoading || portFixedIps.length === 0}
                 >

@@ -15,6 +15,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { formatSwiftDate } from "@/client/utils/formatSwiftDate"
 import { ObjectRow } from "./"
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -73,18 +74,18 @@ const validateMetaKey = (key: string): MetaKeyError | null => {
   return null
 }
 
-const formatDate = (iso: string): string => {
-  const date = new Date(iso)
-  if (isNaN(date.getTime())) return "—"
-  return date.toLocaleString(undefined, {
+const formatDate = (iso: string): string =>
+  // #1236: Swift timestamps are UTC without a "Z"; parse them as UTC (via
+  // formatSwiftDate) so the value is correct. This view intentionally displays
+  // in UTC (timeZone: "UTC"), unlike the list tables which show local time.
+  formatSwiftDate(iso, undefined, {
     year: "numeric",
     month: "short",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "UTC",
-  })
-}
+  }) ?? "—"
 
 // Converts a Unix timestamp (seconds) to the "YYYY-MM-DD HH:mm:ss" field format (UTC)
 const formatUnixToTimestamp = (unix: number): string => {
