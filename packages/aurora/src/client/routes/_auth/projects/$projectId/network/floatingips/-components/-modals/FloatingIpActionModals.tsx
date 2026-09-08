@@ -1,7 +1,9 @@
 import type { ReactNode } from "react"
+import { useNavigate, useMatches } from "@tanstack/react-router"
 import type { FloatingIp } from "@/server/Network/types/floatingIp"
 import { toast } from "@cloudoperators/juno-ui-components"
 import { useModal } from "@/client/utils/useModal"
+import { useProjectId } from "@/client/hooks"
 import { useFloatingIpMutations } from "../../-hooks/useFloatingIpMutations"
 import { AssociateFloatingIpModal } from "./AssociateFloatingIpModal"
 import { DetachFloatingIpModal } from "./DetachFloatingIpModal"
@@ -28,13 +30,45 @@ interface FloatingIpActionModalsProps {
 }
 
 export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActionModalsProps) => {
+  const navigate = useNavigate()
+  const projectId = useProjectId()
+  const matches = useMatches()
+
   const [editModalOpen, toggleEditModal] = useModal(false)
   const [attachModalOpen, toggleAttachModal] = useModal(false)
   const [detachModalOpen, toggleDetachModal] = useModal(false)
   const [releaseModalOpen, toggleReleaseModal] = useModal(false)
 
-  const { handleUpdate, handleDelete, isUpdatePending, updateError, isDeletePending, deleteError } =
-    useFloatingIpMutations()
+  const {
+    handleUpdate,
+    handleDelete,
+    resetUpdateError,
+    resetDeleteError,
+    isUpdatePending,
+    updateError,
+    isDeletePending,
+    deleteError,
+  } = useFloatingIpMutations()
+
+  const toggleEditModalWithReset = () => {
+    resetUpdateError()
+    toggleEditModal()
+  }
+
+  const toggleAttachModalWithReset = () => {
+    resetUpdateError()
+    toggleAttachModal()
+  }
+
+  const toggleDetachModalWithReset = () => {
+    resetUpdateError()
+    toggleDetachModal()
+  }
+
+  const toggleReleaseModalWithReset = () => {
+    resetDeleteError()
+    toggleReleaseModal()
+  }
 
   const ip = floatingIp.floating_ip_address ?? floatingIp.id
 
@@ -60,22 +94,33 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
     await handleDelete(floatingIpId)
     const { message, ...options } = getFloatingIpReleasedToast(ip)
     toast.success(message, options)
+
+    const isOnDetailsPage = matches.some(
+      (route) => route.routeId === "/_auth/projects/$projectId/network/floatingips/$floatingIpId/"
+    )
+
+    if (isOnDetailsPage) {
+      navigate({
+        to: "/projects/$projectId/network/floatingips",
+        params: { projectId },
+      })
+    }
   }
 
   return (
     <>
       {children({
-        toggleEditModal,
-        toggleAttachModal,
-        toggleDetachModal,
-        toggleReleaseModal,
+        toggleEditModal: toggleEditModalWithReset,
+        toggleAttachModal: toggleAttachModalWithReset,
+        toggleDetachModal: toggleDetachModalWithReset,
+        toggleReleaseModal: toggleReleaseModalWithReset,
       })}
 
       {editModalOpen && (
         <EditFloatingIpModal
           floatingIp={floatingIp}
           open={editModalOpen}
-          onClose={toggleEditModal}
+          onClose={toggleEditModalWithReset}
           onUpdate={handleEditWithToast}
           isLoading={isUpdatePending}
           error={updateError}
@@ -86,7 +131,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
         <AssociateFloatingIpModal
           floatingIp={floatingIp}
           open={attachModalOpen}
-          onClose={toggleAttachModal}
+          onClose={toggleAttachModalWithReset}
           onUpdate={handleAssociateWithToast}
           isLoading={isUpdatePending}
           error={updateError}
@@ -97,7 +142,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
         <DetachFloatingIpModal
           floatingIp={floatingIp}
           open={detachModalOpen}
-          onClose={toggleDetachModal}
+          onClose={toggleDetachModalWithReset}
           onUpdate={handleDetachWithToast}
           isLoading={isUpdatePending}
           error={updateError}
@@ -108,7 +153,7 @@ export const FloatingIpActionModals = ({ floatingIp, children }: FloatingIpActio
         <ReleaseFloatingIpModal
           floatingIp={floatingIp}
           open={releaseModalOpen}
-          onClose={toggleReleaseModal}
+          onClose={toggleReleaseModalWithReset}
           onUpdate={handleReleaseWithToast}
           isLoading={isDeletePending}
           error={deleteError}

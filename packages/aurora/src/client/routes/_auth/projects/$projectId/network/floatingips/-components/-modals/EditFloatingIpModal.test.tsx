@@ -80,7 +80,7 @@ describe("EditFloatingIpModal", () => {
     test("renders title with floating IP address", () => {
       renderModal()
 
-      expect(screen.getByText("Edit Floating IP 203.0.113.10")).toBeInTheDocument()
+      expect(screen.getByText("Edit Floating IP 203.0.113.10 Description")).toBeInTheDocument()
     })
 
     test("pre-fills description from floating IP", () => {
@@ -100,7 +100,7 @@ describe("EditFloatingIpModal", () => {
     test("does not render when open is false", () => {
       renderModal({ open: false })
 
-      expect(screen.queryByText("Edit Floating IP 203.0.113.10")).not.toBeInTheDocument()
+      expect(screen.queryByText("Edit Floating IP 203.0.113.10 Description")).not.toBeInTheDocument()
     })
   })
 
@@ -170,7 +170,7 @@ describe("EditFloatingIpModal", () => {
       await waitFor(() => {
         expect(onUpdate).not.toHaveBeenCalled()
       })
-      expect(screen.getByText("Edit Floating IP 203.0.113.10")).toBeInTheDocument()
+      expect(screen.getByText("Edit Floating IP 203.0.113.10 Description")).toBeInTheDocument()
     })
   })
 
@@ -178,9 +178,11 @@ describe("EditFloatingIpModal", () => {
     test("shows loading state and hides form when isLoading is true", () => {
       renderModal({ isLoading: true })
 
-      expect(screen.getByText("Updating Floating IP...")).toBeInTheDocument()
+      expect(screen.getByText("Updating Floating IP Description...")).toBeInTheDocument()
       expect(screen.queryByLabelText("Description")).not.toBeInTheDocument()
       expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
+      expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /close/i })).toBeDisabled()
     })
 
     test("displays error message when error prop is provided", () => {

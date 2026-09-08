@@ -29,5 +29,5 @@ export const TABLE_COLUMNS = () =>
     t`Fixed IP Address`,
     t`Subnet`,
     t`Description`,
-    "", // empty column for item-actions with context menu containing "Preview", "Edit Description", "Attach", "Detach" and "Release"
+    "", // empty column for item-actions with context menu containing "Show Details", "Edit Description", "Attach", "Detach" and "Release"
   ] as const

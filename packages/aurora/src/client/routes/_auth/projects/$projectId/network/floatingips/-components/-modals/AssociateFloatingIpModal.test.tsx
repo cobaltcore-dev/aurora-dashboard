@@ -110,7 +110,7 @@ describe("AssociateFloatingIpModal", () => {
   test("renders title, port select and fixed IP select", () => {
     renderModal()
 
-    expect(screen.getByText("Associate Floating IP 203.0.113.10 with Port")).toBeInTheDocument()
+    expect(screen.getByText("Attach Floating IP 203.0.113.10 to the Port")).toBeInTheDocument()
     expect(screen.getByLabelText("Port ID")).toBeInTheDocument()
     expect(screen.getByLabelText("Fixed IP Address")).toBeInTheDocument()
   })
@@ -118,7 +118,7 @@ describe("AssociateFloatingIpModal", () => {
   test("does not render when open is false", () => {
     renderModal({ open: false })
 
-    expect(screen.queryByText("Associate Floating IP 203.0.113.10 with Port")).not.toBeInTheDocument()
+    expect(screen.queryByText("Attach Floating IP 203.0.113.10 to the Port")).not.toBeInTheDocument()
   })
 
   test("port select shows available ports from query", () => {
@@ -130,11 +130,11 @@ describe("AssociateFloatingIpModal", () => {
     expect(screen.getByText("port-3")).toBeInTheDocument()
   })
 
-  test("associate button is disabled until a port is selected", async () => {
+  test("attach button is disabled until a port is selected", async () => {
     const user = userEvent.setup()
     renderModal()
 
-    const associateBtn = screen.getByRole("button", { name: "Associate" })
+    const associateBtn = screen.getByRole("button", { name: "Attach" })
     expect(associateBtn).toBeDisabled()
 
     await user.click(screen.getByText("web-port (port-1)"))
@@ -148,7 +148,7 @@ describe("AssociateFloatingIpModal", () => {
     renderModal({ onUpdate, onClose })
 
     await user.click(screen.getByText("web-port (port-1)"))
-    await user.click(screen.getByRole("button", { name: "Associate" }))
+    await user.click(screen.getByRole("button", { name: "Attach" }))
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalledWith("fip-123", {
@@ -166,7 +166,7 @@ describe("AssociateFloatingIpModal", () => {
     renderModal({ onUpdate })
 
     await user.click(screen.getByText("db-port (port-2)"))
-    await user.click(screen.getByRole("button", { name: "Associate" }))
+    await user.click(screen.getByRole("button", { name: "Attach" }))
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalledWith("fip-123", {
@@ -188,7 +188,7 @@ describe("AssociateFloatingIpModal", () => {
     expect(screen.getByText("10.0.0.7")).toBeInTheDocument()
 
     await user.click(screen.getByText("10.0.0.7"))
-    await user.click(screen.getByRole("button", { name: "Associate" }))
+    await user.click(screen.getByRole("button", { name: "Attach" }))
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalledWith("fip-123", {
@@ -216,11 +216,11 @@ describe("AssociateFloatingIpModal", () => {
     expect(fixedIpSelect).toBeDisabled()
   })
 
-  test("shows loading state and disables associate button", () => {
+  test("shows loading state and disables attach button", () => {
     renderModal({ isLoading: true })
 
-    expect(screen.getByText("Associating Floating IP...")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Associate" })).toBeDisabled()
+    expect(screen.getByText("Attaching Floating IP...")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Attach" })).toBeDisabled()
     expect(screen.queryByLabelText("Port ID")).not.toBeInTheDocument()
   })
 
