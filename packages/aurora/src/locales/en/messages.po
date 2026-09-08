@@ -73,6 +73,15 @@ msgstr "{0, plural, one {Delete # Rule} other {Delete # Rules}}"
 msgid "{0, plural, one {Object:} other {Objects to delete:}}"
 msgstr "{0, plural, one {Object:} other {Objects to delete:}}"
 
+msgid "{activeCount, plural, one {Already active (# will be skipped)} other {Already active (# will be skipped)}}"
+msgstr "{activeCount, plural, one {Already active (# will be skipped)} other {Already active (# will be skipped)}}"
+
+msgid "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
+msgstr "{activeCount, plural, one {Deactivate # Image} other {Deactivate # Images}}"
+
+msgid "{activeCount, plural, one {Image to deactivate (#)} other {Images to deactivate (#)}}"
+msgstr "{activeCount, plural, one {Image to deactivate (#)} other {Images to deactivate (#)}}"
+
 msgid "{count, plural, one {# object} other {# objects}}"
 msgstr "{count, plural, one {# object} other {# objects}}"
 
@@ -97,8 +106,20 @@ msgstr "{count, plural, one {Lifecycle Rule Deleted} other {Lifecycle Rules Dele
 msgid "{customMinutes} minutes"
 msgstr "{customMinutes} minutes"
 
+msgid "{deactivatedCount, plural, one {Activate # Image} other {Activate # Images}}"
+msgstr "{deactivatedCount, plural, one {Activate # Image} other {Activate # Images}}"
+
+msgid "{deactivatedCount, plural, one {Already deactivated (# will be skipped)} other {Already deactivated (# will be skipped)}}"
+msgstr "{deactivatedCount, plural, one {Already deactivated (# will be skipped)} other {Already deactivated (# will be skipped)}}"
+
+msgid "{deactivatedCount, plural, one {Image to activate (#)} other {Images to activate (#)}}"
+msgstr "{deactivatedCount, plural, one {Image to activate (#)} other {Images to activate (#)}}"
+
 msgid "{deletableCount, plural, one {Delete # Image} other {Delete # Images}}"
 msgstr "{deletableCount, plural, one {Delete # Image} other {Delete # Images}}"
+
+msgid "{deletableCount, plural, one {Image to delete (#)} other {Images to delete (#)}}"
+msgstr "{deletableCount, plural, one {Image to delete (#)} other {Images to delete (#)}}"
 
 msgid "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
 msgstr "{deletedCount, plural, one {# object was deleted.} other {# objects were deleted.}}"
@@ -139,6 +160,9 @@ msgstr "{numberDeleted} objects were permanently deleted."
 
 msgid "{percent}%"
 msgstr "{percent}%"
+
+msgid "{protectedCount, plural, one {Image Protected from Deletion (#)} other {Images Protected from Deletion (#)}}"
+msgstr "{protectedCount, plural, one {Image Protected from Deletion (#)} other {Images Protected from Deletion (#)}}"
 
 msgid "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
 msgstr "{ruleCount, plural, one {Delete CORS Rule} other {Delete CORS Rules}}"
@@ -317,14 +341,14 @@ msgstr "Activate"
 msgid "Activate Image"
 msgstr "Activate Image"
 
-msgid "Activate Images"
-msgstr "Activate Images"
-
 msgid "Activate Selected"
 msgstr "Activate Selected"
 
 msgid "Activated {successCount} image(s), but {failedCount} image(s) could not be activated."
 msgstr "Activated {successCount} image(s), but {failedCount} image(s) could not be activated."
+
+msgid "Activated images will be available for launching new instances."
+msgstr "Activated images will be available for launching new instances."
 
 msgid "Activating this image will allow it to be used to launch new instances again."
 msgstr "Activating this image will allow it to be used to launch new instances again."
@@ -400,15 +424,6 @@ msgstr "Allowed Methods"
 
 msgid "Allowed Origins"
 msgstr "Allowed Origins"
-
-msgid "Already active (will be skipped)"
-msgstr "Already active (will be skipped)"
-
-msgid "Already active (will be skipped):"
-msgstr "Already active (will be skipped):"
-
-msgid "Already deactivated (will be skipped):"
-msgstr "Already deactivated (will be skipped):"
 
 msgid "Also delete all versions and all delete markers"
 msgstr "Also delete all versions and all delete markers"
@@ -1028,14 +1043,14 @@ msgstr "Deactivate"
 msgid "Deactivate Image"
 msgstr "Deactivate Image"
 
-msgid "Deactivate Images"
-msgstr "Deactivate Images"
-
 msgid "Deactivate Selected"
 msgstr "Deactivate Selected"
 
 msgid "Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated."
 msgstr "Deactivated {successCount} image(s), but {failedCount} image(s) could not be deactivated."
+
+msgid "Deactivated images cannot be used to launch instances."
+msgstr "Deactivated images cannot be used to launch instances."
 
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 msgstr "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
@@ -1288,6 +1303,9 @@ msgstr "e.g. production"
 
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "e.g. PROJECT_ID:USER_ID"
+
+msgid "e.g. Ubuntu 22.04 LTS"
+msgstr "e.g. Ubuntu 22.04 LTS"
 
 msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgstr "e.g., b90f9c4bc76140e18540b2cec1299e2a"
@@ -2117,18 +2135,6 @@ msgstr "Images Deactivated"
 msgid "Images Deleted"
 msgstr "Images Deleted"
 
-msgid "Images to activate:"
-msgstr "Images to activate:"
-
-msgid "Images to be activated ({deactivatedCount})"
-msgstr "Images to be activated ({deactivatedCount})"
-
-msgid "Images to deactivate:"
-msgstr "Images to deactivate:"
-
-msgid "Images to delete:"
-msgstr "Images to delete:"
-
 msgid "Ingress"
 msgstr "Ingress"
 
@@ -2792,8 +2798,8 @@ msgstr "Pre-signed URL for \"{displayName}\" was copied to clipboard."
 msgid "Prefix and tag filters define which objects a rule applies to. Without them, this rule will be applied to all objects in the bucket."
 msgstr "Prefix and tag filters define which objects a rule applies to. Without them, this rule will be applied to all objects in the bucket."
 
-msgid "Press Enter to add"
-msgstr "Press Enter to add"
+msgid "Press Enter or click Add to add a tag"
+msgstr "Press Enter or click Add to add a tag"
 
 msgid "Prevent accidental deletion"
 msgstr "Prevent accidental deletion"
@@ -2815,9 +2821,6 @@ msgstr "Private"
 
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private flavors could not be loaded. You may be seeing an incomplete list."
-
-msgid "production, linux"
-msgstr "production, linux"
 
 msgid "Project"
 msgstr "Project"
@@ -2860,9 +2863,6 @@ msgstr "Protect this image from being deleted"
 
 msgid "Protected"
 msgstr "Protected"
-
-msgid "Protected images (cannot be deleted):"
-msgstr "Protected images (cannot be deleted):"
 
 msgid "Protocol"
 msgstr "Protocol"
@@ -3794,9 +3794,6 @@ msgstr "Type to search containers..."
 msgid "Type: {typeValue}, Code: {codeValue}"
 msgstr "Type: {typeValue}, Code: {codeValue}"
 
-msgid "Ubuntu 22.04 LTS"
-msgstr "Ubuntu 22.04 LTS"
-
 msgid "Unable to connect to the compute service. Please check your connection and try again."
 msgstr "Unable to connect to the compute service. Please check your connection and try again."
 
@@ -3997,12 +3994,6 @@ msgstr "Write ACLs — Preview"
 
 msgid "Yes"
 msgstr "Yes"
-
-msgid "You are about to activate <0>{deactivatedCount} image(s)</0>. Activated images will be available for launching new instances."
-msgstr "You are about to activate <0>{deactivatedCount} image(s)</0>. Activated images will be available for launching new instances."
-
-msgid "You are about to deactivate <0>{activeCount} image(s)</0>. Deactivated images cannot be used to launch new instances."
-msgstr "You are about to deactivate <0>{activeCount} image(s)</0>. Deactivated images cannot be used to launch new instances."
 
 msgid "You are currently on the dashboard route."
 msgstr "You are currently on the dashboard route."

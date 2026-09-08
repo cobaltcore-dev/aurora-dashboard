@@ -4,12 +4,20 @@ import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { DeleteImagesModal } from "./DeleteImagesModal"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
+import { GlanceImage } from "@/server/Compute/types/image"
 
 describe("DeleteImagesModal", () => {
   const mockOnClose = vi.fn()
   const mockOnDelete = vi.fn()
-  const mockDeletableImages = ["image-1", "image-2", "image-3"]
-  const mockProtectedImages = ["image-4", "image-5"]
+  const mockDeletableImages: GlanceImage[] = [
+    { id: "image-1", name: "Ubuntu 22.04", protected: false } as GlanceImage,
+    { id: "image-2", name: "Debian 12", protected: false } as GlanceImage,
+    { id: "image-3", name: "Fedora 39", protected: false } as GlanceImage,
+  ]
+  const mockProtectedImages: GlanceImage[] = [
+    { id: "image-4", name: "Windows Server 2022", protected: true } as GlanceImage,
+    { id: "image-5", name: "RHEL 9", protected: true } as GlanceImage,
+  ]
 
   beforeEach(async () => {
     vi.clearAllMocks()
@@ -22,7 +30,7 @@ describe("DeleteImagesModal", () => {
     isOpen: boolean,
     isLoading = false,
     deletableImages = mockDeletableImages,
-    protectedImages = [] as Array<string>
+    protectedImages = [] as Array<GlanceImage>
   ) => {
     render(
       <I18nProvider i18n={i18n}>
@@ -58,26 +66,26 @@ describe("DeleteImagesModal", () => {
 
   it("should display all deletable image IDs", () => {
     setup(true)
-    mockDeletableImages.forEach((imageId) => {
-      expect(screen.getByText(imageId)).toBeInTheDocument()
+    mockDeletableImages.forEach((image) => {
+      expect(screen.getByText(image.name!)).toBeInTheDocument()
     })
   })
 
   it("should display protected images section when protectedImages is not empty", () => {
     setup(true, false, mockDeletableImages, mockProtectedImages)
-    expect(screen.getByText(/Protected images \(cannot be deleted\):/i)).toBeInTheDocument()
+    expect(screen.getByText(/Images Protected from Deletion/i)).toBeInTheDocument()
   })
 
   it("should display all protected image IDs in the protected section", () => {
     setup(true, false, mockDeletableImages, mockProtectedImages)
-    mockProtectedImages.forEach((imageId) => {
-      expect(screen.getByText(imageId)).toBeInTheDocument()
+    mockProtectedImages.forEach((image) => {
+      expect(screen.getByText(image.name!)).toBeInTheDocument()
     })
   })
 
   it("should not display protected images section when protectedImages is empty", () => {
     setup(true, false, mockDeletableImages, [])
-    expect(screen.queryByText(/Protected images \(cannot be deleted\):/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Images Protected from Deletion/i)).not.toBeInTheDocument()
   })
 
   it("should call onClose when the cancel button is clicked", () => {
@@ -98,7 +106,7 @@ describe("DeleteImagesModal", () => {
       fireEvent.click(deleteButton)
     })
     expect(mockOnDelete).toHaveBeenCalledTimes(1)
-    expect(mockOnDelete).toHaveBeenCalledWith(mockDeletableImages)
+    expect(mockOnDelete).toHaveBeenCalledWith(mockDeletableImages.map((img) => img.id))
   })
 
   it("should disable delete button when confirmation text is not entered", () => {
@@ -129,8 +137,14 @@ describe("DeleteImagesModal", () => {
   })
 
   it("should pass deletableImages to onDelete, not protectedImages", async () => {
-    const deletableImgs = ["deletable-1", "deletable-2"]
-    const protectedImgs = ["protected-1", "protected-2"]
+    const deletableImgs: GlanceImage[] = [
+      { id: "deletable-1", name: "Deletable 1", protected: false } as GlanceImage,
+      { id: "deletable-2", name: "Deletable 2", protected: false } as GlanceImage,
+    ]
+    const protectedImgs: GlanceImage[] = [
+      { id: "protected-1", name: "Protected 1", protected: true } as GlanceImage,
+      { id: "protected-2", name: "Protected 2", protected: true } as GlanceImage,
+    ]
     setup(true, false, deletableImgs, protectedImgs)
     const confirmInput = screen.getByPlaceholderText("delete")
     await act(async () => {
@@ -140,18 +154,23 @@ describe("DeleteImagesModal", () => {
     await act(async () => {
       fireEvent.click(deleteButton)
     })
-    expect(mockOnDelete).toHaveBeenCalledWith(deletableImgs)
+    expect(mockOnDelete).toHaveBeenCalledWith(deletableImgs.map((img) => img.id))
   })
 
   it("should render with single image correctly", () => {
-    setup(true, false, ["single-image"], [])
-    expect(screen.getByText("single-image")).toBeInTheDocument()
+    const singleImage: GlanceImage[] = [{ id: "single-image", name: "Single Image", protected: false } as GlanceImage]
+    setup(true, false, singleImage, [])
+    expect(screen.getByText("Single Image")).toBeInTheDocument()
   })
 
   it("should have scrollable container for long image lists", () => {
-    const manyImages = Array.from({ length: 20 }, (_, i) => `image-${i}`)
+    const manyImages: GlanceImage[] = Array.from({ length: 20 }, (_, i) => ({
+      id: `image-${i}`,
+      name: `Image ${i}`,
+      protected: false,
+    })) as GlanceImage[]
     setup(true, false, manyImages, [])
-    const listContainer = screen.getByText("image-0").closest(".overflow-y-auto")
+    const listContainer = screen.getByText("Image 0").closest(".overflow-y-auto")
     expect(listContainer).toBeInTheDocument()
     expect(listContainer).toHaveClass("max-h-48")
   })

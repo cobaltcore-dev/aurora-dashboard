@@ -4,14 +4,15 @@ import React, { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { Modal, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
+import { GlanceImage } from "@/server/Compute/types/image"
 
 interface DeleteImagesModalProps {
-  deletableImages: Array<string>
-  protectedImages: Array<string>
+  deletableImages: Array<GlanceImage>
+  protectedImages: Array<GlanceImage>
   isOpen: boolean
   isLoading: boolean
   onClose: () => void
-  onDelete: (deletableImages: Array<string>) => void
+  onDelete: (deletableImageIds: Array<string>) => void
 }
 
 interface DeleteResult {
@@ -56,7 +57,7 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
       if (result === null && !isLoading) {
         // Step A: Confirm
         markSubmitted()
-        onDelete(deletableImages)
+        onDelete(deletableImages.map((img) => img.id))
         // Note: Parent component should call setResult after getting backend response
       } else {
         // Step B: Close results view
@@ -166,24 +167,26 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
         </p>
 
         <div className="space-y-3">
-          {deletableCount > 0 && (
+          {protectedCount > 0 && (
             <div>
               <p className="text-sm font-semibold">
-                <Trans>Images to delete:</Trans>
+                <Plural
+                  value={protectedCount}
+                  one="Image Protected from Deletion (#)"
+                  other="Images Protected from Deletion (#)"
+                />
               </p>
               <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
                 <Stack direction="vertical" gap="1">
-                  {visibleDeletable.map((imageId) => (
-                    <div
-                      key={imageId}
-                      className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]"
-                    >
-                      {imageId}
+                  {visibleProtected.map((image) => (
+                    <div key={image.id} className="text-theme-default text-sm">
+                      <span className="font-medium">{image.name}</span>
+                      <span className="text-theme-light ml-2 text-xs">({image.id})</span>
                     </div>
                   ))}
-                  {hiddenDeletableCount > 0 && (
+                  {hiddenProtectedCount > 0 && (
                     <div className="text-theme-light pt-2 text-sm">
-                      <Trans>… and {hiddenDeletableCount} more</Trans>
+                      <Trans>… and {hiddenProtectedCount} more</Trans>
                     </div>
                   )}
                 </Stack>
@@ -191,24 +194,22 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
             </div>
           )}
 
-          {protectedCount > 0 && (
+          {deletableCount > 0 && (
             <div>
               <p className="text-sm font-semibold">
-                <Trans>Protected images (cannot be deleted):</Trans>
+                <Plural value={deletableCount} one="Image to delete (#)" other="Images to delete (#)" />
               </p>
-              <div className="bg-theme-warning/10 mt-2 max-h-48 overflow-y-auto rounded border border-yellow-500/20 p-3">
+              <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
                 <Stack direction="vertical" gap="1">
-                  {visibleProtected.map((imageId) => (
-                    <div
-                      key={imageId}
-                      className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]"
-                    >
-                      {imageId}
+                  {visibleDeletable.map((image) => (
+                    <div key={image.id} className="text-theme-default text-sm">
+                      <span className="font-medium">{image.name}</span>
+                      <span className="text-theme-light ml-2 text-xs">({image.id})</span>
                     </div>
                   ))}
-                  {hiddenProtectedCount > 0 && (
+                  {hiddenDeletableCount > 0 && (
                     <div className="text-theme-light pt-2 text-sm">
-                      <Trans>… and {hiddenProtectedCount} more</Trans>
+                      <Trans>… and {hiddenDeletableCount} more</Trans>
                     </div>
                   )}
                 </Stack>
