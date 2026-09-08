@@ -61,7 +61,7 @@ describe("DeleteImagesModal", () => {
 
   it("should display the correct label for images to delete", () => {
     setup(true)
-    expect(screen.getByText(/Images to delete:/i)).toBeInTheDocument()
+    expect(screen.getByText(/Images to delete \(\d+\)/i)).toBeInTheDocument()
   })
 
   it("should display all deletable image IDs", () => {
