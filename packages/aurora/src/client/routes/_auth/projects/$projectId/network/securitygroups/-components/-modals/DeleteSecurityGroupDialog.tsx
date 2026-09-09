@@ -68,7 +68,7 @@ export const DeleteSecurityGroupDialog: React.FC<DeleteSecurityGroupDialogProps>
       onCancel={handleClose}
       size="small"
       title={t`Delete Security Group "${securityGroupName}"`}
-      confirmButtonLabel={isDeleting ? t`Deleting...` : t`Delete`}
+      confirmButtonLabel={isDeleting ? t`Deleting...` : t`Delete Group`}
       confirmButtonVariant="primary-danger"
       onConfirm={form.handleSubmit}
       cancelButtonLabel={t`Cancel`}

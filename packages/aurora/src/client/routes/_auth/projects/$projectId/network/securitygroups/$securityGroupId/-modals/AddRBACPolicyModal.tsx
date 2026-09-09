@@ -90,7 +90,7 @@ export function AddRBACPolicyModal({ isOpen, onClose, securityGroupId }: AddRBAC
       size="large"
       onConfirm={handleConfirm}
       cancelButtonLabel={t`Cancel`}
-      confirmButtonLabel={t`Share`}
+      confirmButtonLabel={t`Share Group`}
       disableConfirmButton={createMutation.isPending}
     >
       {createMutation.error && (

@@ -2,14 +2,14 @@ import { useState, useEffect, useMemo, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import {
   DataGrid,
+  DataGridCell,
   DataGridRow,
   DataGridHeadCell,
   DataGridToolbar,
   Stack,
-  Spinner,
   Button,
-  Message,
   SearchInput,
+  Status,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
@@ -23,6 +23,8 @@ import {
   getRBACPolicyDeletedToast,
   getRBACPolicyDeleteErrorToast,
 } from "../../../-components/SecurityGroupToastNotifications"
+
+const RBAC_COLUMN_COUNT = 3
 
 interface SecurityGroupRBACPoliciesProps {
   securityGroupId: string
@@ -112,106 +114,91 @@ export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: 
     )
   }, [policies, searchTerm])
 
-  if (isPending) {
-    return (
-      <Stack distribution="center" alignment="center" className="py-8">
-        <Spinner variant="primary" />
-      </Stack>
-    )
-  }
-
-  if (isError) {
-    return (
-      <Message variant="error" className="mb-4">
-        {error.message}
-      </Message>
-    )
-  }
-
-  const totalCount = policies?.length || 0
-  const filteredCount = filteredPolicies.length
-
   return (
     <>
-      <Stack direction="vertical" gap="4">
-        {/* Zone 1 — count + Share button */}
-        <Stack distribution="between" alignment="center" gap="2" className="pb-2">
-          {/* Count display */}
-          <span className="theme-color-text-light text-sm">
-            {totalCount !== filteredCount ? (
-              <Trans>
-                Showing {filteredCount} of {totalCount} projects
-              </Trans>
-            ) : (
-              <Trans>{totalCount} projects</Trans>
-            )}
-          </span>
-
-          {canManageAccess && (
-            <Button variant="primary" icon="addCircle" onClick={toggleAddModal} className="whitespace-nowrap">
-              <Trans>Share Security Group</Trans>
-            </Button>
-          )}
-        </Stack>
-
-        {/* Zone 2 — search only (no filters needed) */}
-        <DataGridToolbar>
-          <Stack distribution="between" alignment="center">
-            <SearchInput
-              placeholder={t`Search policies...`}
-              data-testid="searchbar"
-              value={localSearchTerm}
-              onInput={(e: React.FormEvent<HTMLInputElement>) => {
-                const v = e.currentTarget.value
-                setLocalSearchTerm(v)
-                clearTimeout(debounceTimer.current)
-                debounceTimer.current = window.setTimeout(() => setSearchTerm(v), 500)
-              }}
-              onSearch={(v) => {
-                clearTimeout(debounceTimer.current)
-                setSearchTerm(typeof v === "string" ? v : "")
-              }}
-              onClear={() => {
-                clearTimeout(debounceTimer.current)
-                setLocalSearchTerm("")
-                setSearchTerm("")
-              }}
-            />
-          </Stack>
-        </DataGridToolbar>
-
-        {/* RBAC Policies Table */}
-        {filteredCount === 0 ? (
-          searchTerm ? (
-            <Trans>No policies match your search</Trans>
-          ) : (
-            <Trans>There are no RBAC policies for this security group</Trans>
-          )
-        ) : (
-          <DataGrid columns={3}>
-            <DataGridRow>
-              <DataGridHeadCell>
-                <Trans>Target Project ID</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Action</Trans>
-              </DataGridHeadCell>
-              <DataGridHeadCell>
-                <Trans>Actions</Trans>
-              </DataGridHeadCell>
-            </DataGridRow>
-
-            {filteredPolicies.map((policy) => (
-              <RBACPolicyRow
-                key={policy.id}
-                policy={policy}
-                onDelete={() => handleDeleteClick(policy)}
-                canDelete={canManageAccess}
-              />
-            ))}
-          </DataGrid>
+      {/* Zone 1 — Share button */}
+      <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+        {canManageAccess && (
+          <Button variant="primary" onClick={toggleAddModal} className="whitespace-nowrap">
+            <Trans>Share Security Group</Trans>
+          </Button>
         )}
       </Stack>
+
+      {/* Zone 2 — search only (no filters needed) */}
+      <DataGridToolbar>
+        {/* No filters here, so the search input takes the right-hand slot on its own */}
+        <Stack distribution="end" alignment="center">
+          <SearchInput
+            className="w-60 sm:w-68"
+            placeholder={t`Search RBAC policies...`}
+            data-testid="searchbar"
+            value={localSearchTerm}
+            onInput={(e: React.FormEvent<HTMLInputElement>) => {
+              const v = e.currentTarget.value
+              setLocalSearchTerm(v)
+              clearTimeout(debounceTimer.current)
+              debounceTimer.current = window.setTimeout(() => setSearchTerm(v), 500)
+            }}
+            onSearch={(v) => {
+              clearTimeout(debounceTimer.current)
+              setSearchTerm(typeof v === "string" ? v : "")
+            }}
+            onClear={() => {
+              clearTimeout(debounceTimer.current)
+              setLocalSearchTerm("")
+              setSearchTerm("")
+            }}
+          />
+        </Stack>
+      </DataGridToolbar>
+
+      {/* RBAC Policies Table */}
+      <DataGrid columns={RBAC_COLUMN_COUNT}>
+        <DataGridRow>
+          <DataGridHeadCell>
+            <Trans>Target Project ID</Trans>
+          </DataGridHeadCell>
+          <DataGridHeadCell>
+            <Trans>Action</Trans>
+          </DataGridHeadCell>
+          <DataGridHeadCell />
+        </DataGridRow>
+
+        {isPending ? (
+          <DataGridRow>
+            <DataGridCell colSpan={RBAC_COLUMN_COUNT}>
+              <Status status="progress" title={t`Loading...`} />
+            </DataGridCell>
+          </DataGridRow>
+        ) : isError ? (
+          <DataGridRow>
+            <DataGridCell colSpan={RBAC_COLUMN_COUNT}>
+              <Status status="error" title={error.message} />
+            </DataGridCell>
+          </DataGridRow>
+        ) : filteredPolicies.length === 0 ? (
+          <DataGridRow>
+            <DataGridCell colSpan={RBAC_COLUMN_COUNT}>
+              <Status
+                status="empty"
+                title={
+                  searchTerm ? t`No policies match your search` : t`There are no RBAC policies for this security group`
+                }
+              />
+            </DataGridCell>
+          </DataGridRow>
+        ) : (
+          filteredPolicies.map((policy) => (
+            <RBACPolicyRow
+              key={policy.id}
+              policy={policy}
+              onDelete={() => handleDeleteClick(policy)}
+              canDelete={canManageAccess}
+            />
+          ))
+        )}
+      </DataGrid>
 
       {/* Delete Confirmation Dialog */}
       {!!policyToDelete && (

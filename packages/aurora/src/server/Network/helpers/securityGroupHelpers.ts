@@ -392,6 +392,22 @@ export const deduplicateSecurityGroupsById = <T extends { id: string }>(items: T
 }
 
 /**
+ * Filters security groups by their stateful flag.
+ * Groups that omit the field are treated as stateful, matching Neutron's default.
+ * @param items - Array of security groups to filter
+ * @param stateful - Required stateful value; when undefined the list is returned unchanged
+ * @returns Filtered array of security groups
+ */
+export const filterSecurityGroupsByStateful = <T extends { stateful?: boolean }>(
+  items: T[],
+  stateful?: boolean
+): T[] => {
+  if (stateful === undefined) return items
+
+  return items.filter((item) => (item.stateful ?? true) === stateful)
+}
+
+/**
  * Sorts security groups by the specified key and direction
  * @param items - Array of security groups to sort
  * @param sortKey - The field to sort by (e.g., 'name', 'id', 'created_at')

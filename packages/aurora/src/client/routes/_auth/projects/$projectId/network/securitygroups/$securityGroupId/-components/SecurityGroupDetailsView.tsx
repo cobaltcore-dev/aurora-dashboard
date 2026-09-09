@@ -24,7 +24,6 @@ export interface RulesFilterControls {
 interface SecurityGroupDetailsViewProps {
   securityGroup: SecurityGroup
   filteredAndSortedRules: SecurityGroupRule[]
-  onEdit?: () => void
   onDeleteRule: (ruleId: string) => void
   isDeletingRule?: boolean
   deleteRuleError?: string | null
@@ -41,7 +40,6 @@ interface SecurityGroupDetailsViewProps {
 export function SecurityGroupDetailsView({
   securityGroup,
   filteredAndSortedRules,
-  onEdit,
   onDeleteRule,
   isDeletingRule = false,
   deleteRuleError = null,
@@ -63,7 +61,7 @@ export function SecurityGroupDetailsView({
     <Container px={false} py>
       <Stack direction="vertical" gap="4">
         {/* Basic Info Section */}
-        <SecurityGroupBasicInfo securityGroup={securityGroup} onEdit={onEdit} canUpdate={permissions.canUpdate} />
+        <SecurityGroupBasicInfo securityGroup={securityGroup} />
 
         {/* Tabs Navigation - Show rules tab always, RBAC only if owner and has permission */}
         <SecurityGroupTabs activeTab={activeTab} onTabChange={setActiveTab} showRBACTab={showRBACTab} />
@@ -73,7 +71,6 @@ export function SecurityGroupDetailsView({
           {activeTab === "rules" && (
             <SecurityGroupRulesTable
               rules={filteredAndSortedRules}
-              totalRulesCount={securityGroup.security_group_rules?.length}
               onDeleteRule={onDeleteRule}
               isDeletingRule={isDeletingRule}
               deleteError={deleteRuleError}

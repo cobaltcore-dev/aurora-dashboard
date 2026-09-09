@@ -82,12 +82,14 @@ export function SecurityGroupTableRow({
       <DataGridCell>
         <BooleanValue value={sg.stateful} />
       </DataGridCell>
-      <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end justify-end pr-0">
+      <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuOptions>
             <PopupMenuItem label={t`Show Details`} onClick={() => handleShowDetails()} />
-            {permissions.canUpdate && !isReadOnly && <PopupMenuItem label={t`Edit`} onClick={() => onEdit(sg)} />}
-            {permissions.canDelete && !isReadOnly && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(sg)} />}
+            {permissions.canUpdate && !isReadOnly && <PopupMenuItem label={t`Edit Group`} onClick={() => onEdit(sg)} />}
+            {permissions.canDelete && !isReadOnly && (
+              <PopupMenuItem label={t`Delete Group`} onClick={() => onDelete(sg)} />
+            )}
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>

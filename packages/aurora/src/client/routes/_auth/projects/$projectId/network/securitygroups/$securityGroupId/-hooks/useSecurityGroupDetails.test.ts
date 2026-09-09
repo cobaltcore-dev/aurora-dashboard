@@ -8,6 +8,7 @@ const mockProjectId = "project-owner"
 const { mockMutations, mockInvalidate } = vi.hoisted(() => ({
   mockMutations: {
     update: { mutateAsync: vi.fn(), options: {} as Record<string, unknown> },
+    deleteGroup: { mutateAsync: vi.fn(), options: {} as Record<string, unknown> },
     deleteRule: { mutateAsync: vi.fn(), options: {} as Record<string, unknown> },
     createRule: { mutateAsync: vi.fn(), options: {} as Record<string, unknown> },
   },
@@ -44,6 +45,12 @@ vi.mock("@/client/trpcClient", () => ({
             return { ...mockMutations.update, isPending: false, error: null }
           },
         },
+        deleteById: {
+          useMutation: (options: Record<string, unknown>) => {
+            mockMutations.deleteGroup.options = options
+            return { ...mockMutations.deleteGroup, isPending: false, error: null }
+          },
+        },
       },
       securityGroupRule: {
         delete: {
@@ -64,6 +71,11 @@ vi.mock("@/client/trpcClient", () => ({
 }))
 
 vi.mock("../../-components/SecurityGroupToastNotifications", () => ({
+  getSecurityGroupDeletedToast: (name: string) => ({ message: "group deleted", description: name }),
+  getSecurityGroupDeleteErrorToast: (errorMessage: string) => ({
+    message: "group delete error",
+    description: errorMessage,
+  }),
   getSecurityGroupUpdatedToast: (name: string) => ({ message: "updated", description: name }),
   getSecurityGroupUpdateErrorToast: (errorMessage: string) => ({ message: "update error", description: errorMessage }),
   getSecurityGroupRuleCreatedToast: () => ({ message: "created", description: "rule created" }),

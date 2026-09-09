@@ -14,6 +14,7 @@ import {
   parseSecurityGroupResponse,
   parseSecurityGroupListResponse,
   deduplicateSecurityGroupsById,
+  filterSecurityGroupsByStateful,
   sortSecurityGroups,
 } from "../helpers/securityGroupHelpers"
 import { getNetworkService } from "../helpers/index"
@@ -70,7 +71,7 @@ export const securityGroupRouter = {
     .input(listSecurityGroupsInputSchema)
     .query(async ({ input, ctx }): Promise<SecurityGroup[]> => {
       return withErrorHandling(async () => {
-        const { searchTerm, project_id, shared, sort_key, sort_dir, ...queryInput } = input
+        const { searchTerm, project_id, shared, stateful, sort_key, sort_dir, ...queryInput } = input
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
@@ -82,7 +83,11 @@ export const securityGroupRouter = {
             sort_key,
             sort_dir,
           })
-          return filterBySearchParams(securityGroups, searchTerm, ["name", "description", "id"])
+          return filterBySearchParams(filterSecurityGroupsByStateful(securityGroups, stateful), searchTerm, [
+            "name",
+            "description",
+            "id",
+          ])
         }
 
         // When fetching both own and shared groups, we need to:
@@ -104,7 +109,8 @@ export const securityGroupRouter = {
         // Merge and deduplicate
         let combined = deduplicateSecurityGroupsById<SecurityGroup>([...ownGroups, ...sharedGroups])
 
-        // Apply BFF-side search filter
+        // Apply BFF-side filters
+        combined = filterSecurityGroupsByStateful<SecurityGroup>(combined, stateful)
         combined = filterBySearchParams<SecurityGroup>(combined, searchTerm, ["name", "description", "id"])
 
         // Apply global sort

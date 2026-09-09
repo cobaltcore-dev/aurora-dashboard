@@ -269,7 +269,8 @@ describe("SecurityGroupRBACPolicies", () => {
 
       expect(screen.getByText("Target Project ID")).toBeInTheDocument()
       expect(screen.getByText("Action")).toBeInTheDocument()
-      expect(screen.getByText("Actions")).toBeInTheDocument()
+      // The actions column head cell is intentionally left blank
+      expect(screen.queryByText("Actions")).not.toBeInTheDocument()
     })
 
     it("renders Share Security Group button", () => {
@@ -299,7 +300,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      expect(screen.getByPlaceholderText("Search policies...")).toBeInTheDocument()
+      expect(screen.getByPlaceholderText("Search RBAC policies...")).toBeInTheDocument()
     })
 
     it("filters policies by target tenant", async () => {
@@ -313,7 +314,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search policies...")
+      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
       const user = userEvent.setup()
       await user.type(searchInput, "abc")
 
@@ -338,7 +339,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search policies...")
+      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
       const user = userEvent.setup()
       await user.type(searchInput, "external")
 
@@ -363,7 +364,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search policies...")
+      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
       const user = userEvent.setup()
       await user.type(searchInput, "nonexistent")
 
@@ -386,7 +387,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search policies...")
+      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
       const user = userEvent.setup()
       await user.type(searchInput, "PROJECT-ABC")
 
@@ -409,7 +410,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search policies...")
+      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
       const user = userEvent.setup()
 
       // Type and then clear

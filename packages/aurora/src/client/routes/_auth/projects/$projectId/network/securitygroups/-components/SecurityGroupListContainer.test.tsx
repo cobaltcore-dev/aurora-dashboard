@@ -285,10 +285,10 @@ describe("SecurityGroupListContainer", () => {
       await user.click(popupMenuButton!)
 
       await waitFor(() => {
-        expect(screen.getByText("Edit")).toBeInTheDocument()
+        expect(screen.getByText("Edit Group")).toBeInTheDocument()
       })
 
-      await user.click(screen.getByText("Edit"))
+      await user.click(screen.getByText("Edit Group"))
 
       await waitFor(() => {
         expect(screen.getByTestId("edit-modal-sg-id")).toHaveTextContent("sg-1")
@@ -318,10 +318,10 @@ describe("SecurityGroupListContainer", () => {
       await user.click(popupMenuButton!)
 
       await waitFor(() => {
-        expect(screen.getByText("Edit")).toBeInTheDocument()
+        expect(screen.getByText("Edit Group")).toBeInTheDocument()
       })
 
-      await user.click(screen.getByText("Edit"))
+      await user.click(screen.getByText("Edit Group"))
 
       await waitFor(() => {
         expect(screen.getByTestId("edit-modal-sg-id")).toBeInTheDocument()

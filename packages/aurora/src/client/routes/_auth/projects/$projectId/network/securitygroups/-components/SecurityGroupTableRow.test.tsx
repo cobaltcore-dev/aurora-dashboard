@@ -160,10 +160,10 @@ describe("SecurityGroupTableRow", () => {
       await user.click(popupButton!)
 
       await waitFor(() => {
-        expect(screen.getByText("Edit")).toBeInTheDocument()
+        expect(screen.getByText("Edit Group")).toBeInTheDocument()
       })
 
-      await user.click(screen.getByText("Edit"))
+      await user.click(screen.getByText("Edit Group"))
 
       expect(mockOnEdit).toHaveBeenCalledWith(mockSecurityGroup)
     })
@@ -254,7 +254,7 @@ describe("SecurityGroupTableRow", () => {
         expect(screen.getByText("Show Details")).toBeInTheDocument()
       })
 
-      expect(screen.queryByText("Edit")).not.toBeInTheDocument()
+      expect(screen.queryByText("Edit Group")).not.toBeInTheDocument()
     })
 
     it("hides Access Control when canManageAccess is false", async () => {
@@ -310,7 +310,7 @@ describe("SecurityGroupTableRow", () => {
         expect(screen.getByText("Show Details")).toBeInTheDocument()
       })
 
-      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Group")).not.toBeInTheDocument()
     })
 
     it("shows only Show Details when all permissions are false", async () => {
@@ -347,8 +347,8 @@ describe("SecurityGroupTableRow", () => {
         expect(screen.getByText("Show Details")).toBeInTheDocument()
       })
 
-      expect(screen.queryByText("Edit")).not.toBeInTheDocument()
-      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
+      expect(screen.queryByText("Edit Group")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Group")).not.toBeInTheDocument()
     })
   })
 })

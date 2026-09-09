@@ -21,11 +21,11 @@ export function RBACPolicyRow({ policy, onDelete, canDelete }: RBACPolicyRowProp
     <DataGridRow>
       <DataGridCell>{policy.target_tenant}</DataGridCell>
       <DataGridCell>{policy.action}</DataGridCell>
-      <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end justify-end pr-0">
+      <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
         {canDelete && (
           <PopupMenu>
             <PopupMenuOptions>
-              <PopupMenuItem label={t`Remove`} onClick={onDelete} />
+              <PopupMenuItem label={t`Remove Policy`} onClick={onDelete} />
             </PopupMenuOptions>
           </PopupMenu>
         )}

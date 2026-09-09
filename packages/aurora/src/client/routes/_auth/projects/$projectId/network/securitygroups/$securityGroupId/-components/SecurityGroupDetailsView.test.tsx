@@ -1,5 +1,4 @@
 import { cleanup, render, screen } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -187,30 +186,6 @@ describe("SecurityGroupDetailsView", () => {
 
     expect(screen.getByText("Yes")).toBeInTheDocument()
     expect(screen.getByText("No")).toBeInTheDocument()
-  })
-
-  it("calls onEdit when Edit button is clicked", async () => {
-    const onEdit = vi.fn()
-    render(
-      <SecurityGroupDetailsView
-        securityGroup={mockSecurityGroup}
-        filteredAndSortedRules={mockSecurityGroup.security_group_rules || []}
-        onEdit={onEdit}
-        onDeleteRule={() => {}}
-        filterControls={defaultFilterControls}
-        availableSecurityGroups={[]}
-        currentProjectId={mockCurrentProjectId}
-        permissions={defaultPermissions}
-      />,
-      {
-        wrapper: createWrapper(),
-      }
-    )
-
-    const user = userEvent.setup()
-    await user.click(screen.getByRole("button", { name: /Edit/i }))
-
-    expect(onEdit).toHaveBeenCalledTimes(1)
   })
 
   describe("Client-side filtering", () => {

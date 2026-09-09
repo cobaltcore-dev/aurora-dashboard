@@ -66,6 +66,9 @@ export const listSecurityGroupsInputSchema = projectScopedInputSchema.extend({
   not_tags: z.string().optional(),
   not_tags_any: z.string().optional(),
 
+  // Filtered in the BFF layer, not forwarded to Neutron
+  stateful: z.boolean().optional(),
+
   // BFF-side search (filtered in BFF layer, not sent to OpenStack)
   searchTerm: z.string().optional(),
 })

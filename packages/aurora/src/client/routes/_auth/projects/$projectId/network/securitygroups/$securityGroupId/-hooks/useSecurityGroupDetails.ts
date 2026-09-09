@@ -5,6 +5,8 @@ import { useProjectId } from "@/client/hooks"
 import type { UpdateSecurityGroupInput, CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import type { RulesFilterControls } from "../-components/SecurityGroupDetailsView"
 import {
+  getSecurityGroupDeletedToast,
+  getSecurityGroupDeleteErrorToast,
   getSecurityGroupUpdatedToast,
   getSecurityGroupUpdateErrorToast,
   getSecurityGroupRuleCreatedToast,
@@ -20,6 +22,7 @@ interface UseSecurityGroupDetailsParams {
 
 export function useSecurityGroupDetails({ securityGroupId, filterControls }: UseSecurityGroupDetailsParams) {
   const [editModalOpen, setEditModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const projectId = useProjectId()
 
   const utils = trpcReact.useUtils()
@@ -112,6 +115,20 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     },
   })
 
+  // Delete security group mutation
+  const deleteMutation = trpcReact.network.securityGroup.deleteById.useMutation({
+    onSuccess: () => {
+      utils.network.securityGroup.list.invalidate()
+      const { message, ...options } = getSecurityGroupDeletedToast(securityGroupQuery.data?.name || securityGroupId)
+      toast.success(message, options)
+      setDeleteModalOpen(false)
+    },
+    onError: (error) => {
+      const { message, ...options } = getSecurityGroupDeleteErrorToast(error.message)
+      toast.error(message, options)
+    },
+  })
+
   // Delete rule mutation
   const deleteRuleMutation = trpcReact.network.securityGroupRule.delete.useMutation({
     onSuccess: () => {
@@ -150,6 +167,18 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     setEditModalOpen(false)
   }
 
+  const handleDelete = () => {
+    setDeleteModalOpen(true)
+  }
+
+  const handleCloseDeleteModal = () => {
+    setDeleteModalOpen(false)
+  }
+
+  const handleDeleteSecurityGroup = async () => {
+    await deleteMutation.mutateAsync({ project_id: projectId, securityGroupId })
+  }
+
   const handleUpdate = async (id: string, data: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id">) => {
     await updateMutation.mutateAsync({
       project_id: projectId,
@@ -179,6 +208,8 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
     // Mutation states
     isUpdating: updateMutation.isPending,
     updateError: updateMutation.error?.message || null,
+    isDeleting: deleteMutation.isPending,
+    deleteError: deleteMutation.error?.message || null,
     isDeletingRule: deleteRuleMutation.isPending,
     deleteRuleError: deleteRuleMutation.error?.message || null,
     isCreatingRule: createRuleMutation.isPending,
@@ -186,11 +217,15 @@ export function useSecurityGroupDetails({ securityGroupId, filterControls }: Use
 
     // Modal states
     editModalOpen,
+    deleteModalOpen,
 
     // Handlers
     handleEdit,
     handleCloseEditModal,
     handleUpdate,
+    handleDelete,
+    handleCloseDeleteModal,
+    handleDeleteSecurityGroup,
     handleDeleteRule,
     handleCreateRule,
   }

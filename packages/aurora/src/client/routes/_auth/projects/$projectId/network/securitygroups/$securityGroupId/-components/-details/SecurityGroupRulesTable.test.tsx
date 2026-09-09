@@ -172,7 +172,8 @@ describe("SecurityGroupRulesTable", () => {
       expect(screen.getAllByText("Ethertype").length).toBeGreaterThan(0)
       expect(screen.getAllByText("Protocol").length).toBeGreaterThan(0)
       expect(screen.getByText("Range")).toBeInTheDocument()
-      expect(screen.getByText("Actions")).toBeInTheDocument()
+      // The actions column head cell is intentionally left blank
+      expect(screen.queryByText("Actions")).not.toBeInTheDocument()
       // Note: "Remote Source" column was removed in linter updates
     })
 
@@ -613,6 +614,77 @@ describe("SecurityGroupRulesTable", () => {
       // Here we just verify the table renders with rules
       const ruleRows = screen.getAllByRole("row").slice(1)
       expect(ruleRows[0]).toBeInTheDocument()
+    })
+  })
+
+  describe("Range column", () => {
+    const renderRule = (rule: Partial<SecurityGroupRule>) =>
+      render(
+        <SecurityGroupRulesTable
+          rules={[{ id: "rule-range", direction: "ingress", ethertype: "IPv4", ...rule }]}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+    it("shows a single port when both bounds are equal", () => {
+      renderRule({ protocol: "tcp", port_range_min: 22, port_range_max: 22 })
+
+      expect(screen.getByText("22")).toBeInTheDocument()
+    })
+
+    it("shows a port range when the bounds differ", () => {
+      renderRule({ protocol: "tcp", port_range_min: 8000, port_range_max: 8080 })
+
+      expect(screen.getByText("8000-8080")).toBeInTheDocument()
+    })
+
+    it("shows a dash when no port range is set", () => {
+      renderRule({ protocol: "tcp", port_range_min: null, port_range_max: null })
+
+      expect(screen.getAllByText("—").length).toBeGreaterThan(0)
+    })
+
+    it("shows a dash instead of 'undefined' when the port range keys are absent", () => {
+      renderRule({ protocol: "tcp" })
+
+      expect(screen.queryByText("undefined")).not.toBeInTheDocument()
+      expect(screen.getAllByText("—").length).toBeGreaterThan(0)
+    })
+
+    it("reads the port range as ICMP type and code", () => {
+      renderRule({ protocol: "icmp", port_range_min: 8, port_range_max: 0 })
+
+      expect(screen.getByText("Type: 8, Code: 0")).toBeInTheDocument()
+    })
+
+    it("shows the ICMP type alone when no code is set", () => {
+      renderRule({ protocol: "icmp", port_range_min: 8, port_range_max: null })
+
+      expect(screen.getByText("Type: 8")).toBeInTheDocument()
+    })
+
+    it("shows a dash for an ICMP rule with neither type nor code", () => {
+      renderRule({ protocol: "icmp", port_range_min: null, port_range_max: null })
+
+      expect(screen.getAllByText("—").length).toBeGreaterThan(0)
+    })
+
+    it("recognises ICMP written as an alias or as a protocol number", () => {
+      renderRule({ protocol: "icmpv6", port_range_min: 128, port_range_max: 0 })
+      expect(screen.getByText("Type: 128, Code: 0")).toBeInTheDocument()
+      cleanup()
+
+      renderRule({ protocol: "58", port_range_min: 128, port_range_max: 0 })
+      expect(screen.getByText("Type: 128, Code: 0")).toBeInTheDocument()
+      cleanup()
+
+      renderRule({ protocol: "1", port_range_min: 8, port_range_max: 0 })
+      expect(screen.getByText("Type: 8, Code: 0")).toBeInTheDocument()
     })
   })
 })
