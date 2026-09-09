@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server"
 import {
   SecurityGroupErrorHandlers,
   deduplicateSecurityGroupsById,
+  filterSecurityGroupsByStateful,
   sortSecurityGroups,
   applyMarkerPagination,
 } from "./securityGroupHelpers"
@@ -221,6 +222,40 @@ describe("deduplicateSecurityGroupsById", () => {
     const result = deduplicateSecurityGroupsById(items)
     expect(result).toHaveLength(1)
     expect(result[0].name).toBe("first")
+  })
+})
+
+describe("filterSecurityGroupsByStateful", () => {
+  const items = [
+    { id: "sg-1", stateful: true },
+    { id: "sg-2", stateful: false },
+    // Neutron omits the field when the stateful-security-group extension is disabled
+    { id: "sg-3" },
+  ]
+
+  it("returns items unchanged when stateful is undefined", () => {
+    const result = filterSecurityGroupsByStateful(items)
+    expect(result).toEqual(items)
+  })
+
+  it("treats a missing stateful flag as stateful when filtering by true", () => {
+    const result = filterSecurityGroupsByStateful(items, true)
+    expect(result.map((item) => item.id)).toEqual(["sg-1", "sg-3"])
+  })
+
+  it("excludes items with a missing stateful flag when filtering by false", () => {
+    const result = filterSecurityGroupsByStateful(items, false)
+    expect(result.map((item) => item.id)).toEqual(["sg-2"])
+  })
+
+  it("does not mutate the original array", () => {
+    const original = [...items]
+    filterSecurityGroupsByStateful(items, false)
+    expect(items).toEqual(original)
+  })
+
+  it("returns empty array when input is empty", () => {
+    expect(filterSecurityGroupsByStateful([], true)).toEqual([])
   })
 })
 

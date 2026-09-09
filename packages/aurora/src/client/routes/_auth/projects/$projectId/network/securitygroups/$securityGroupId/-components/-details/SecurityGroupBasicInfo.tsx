@@ -14,7 +14,7 @@ export function SecurityGroupBasicInfo({ securityGroup }: SecurityGroupBasicInfo
     { label: t`ID`, value: securityGroup.id },
     { label: t`Tags`, value: securityGroup.tags?.join(", ") || t`—` },
     { label: t`Name`, value: securityGroup.name || t`—` },
-    { label: t`Stateful`, value: securityGroup.stateful ? t`Yes` : t`No` },
+    { label: t`Stateful`, value: (securityGroup.stateful ?? true) ? t`Yes` : t`No` },
     { label: t`Owning Project ID`, value: securityGroup.project_id || t`—` },
     { label: t`Shared`, value: securityGroup.shared ? t`Yes` : t`No` },
   ]

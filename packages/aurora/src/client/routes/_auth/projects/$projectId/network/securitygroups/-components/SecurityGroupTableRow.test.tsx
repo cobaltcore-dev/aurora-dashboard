@@ -101,6 +101,29 @@ describe("SecurityGroupTableRow", () => {
       expect(screen.getByText("Security group for web servers")).toBeInTheDocument()
     })
 
+    it("renders a missing stateful flag as Yes, matching Neutron's default", async () => {
+      // Neutron omits `stateful` when the stateful-security-group extension is disabled; the BFF
+      // filter treats those groups as stateful, so the column must not label them "No".
+      const sgWithoutStateful: SecurityGroup = { ...mockSecurityGroup }
+      delete sgWithoutStateful.stateful
+      const router = createTestRouter(
+        <SecurityGroupTableRow
+          securityGroup={sgWithoutStateful}
+          permissions={defaultPermissions}
+          onEdit={mockOnEdit}
+          onDelete={mockOnDelete}
+        />
+      )
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByText("Yes")).toBeInTheDocument()
+      })
+
+      // The Shared column still reads "No" (Neutron's default for `shared` is false)
+      expect(screen.getByText("No")).toBeInTheDocument()
+    })
+
     it("renders em dash when description is missing", async () => {
       const sgWithoutDescription = { ...mockSecurityGroup, description: "" }
       const router = createTestRouter(

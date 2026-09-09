@@ -80,7 +80,7 @@ export function SecurityGroupTableRow({
         )}
       </DataGridCell>
       <DataGridCell>
-        <BooleanValue value={sg.stateful} />
+        <BooleanValue value={sg.stateful ?? true} />
       </DataGridCell>
       <DataGridCell onClick={(e) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
