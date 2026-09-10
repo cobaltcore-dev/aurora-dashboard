@@ -114,19 +114,11 @@ export const SecurityGroupListContainer = ({
     prevIsUpdatingRef.current = isUpdatingSecurityGroup
   }, [isUpdatingSecurityGroup, updateError, editModalOpen])
 
-  // Loading state
-  if (isLoading) {
-    return <Status status="progress" title={t`Loading...`} />
-  }
-
-  // Error state
-  if (isError) {
-    return <Status status="error" title={error?.message ?? t`Failed to load security groups`} />
-  }
+  const columnCount = hasAnyBulkAction ? 6 : 5
 
   return (
     <>
-      <DataGrid columns={hasAnyBulkAction ? 6 : 5} minContentColumns={hasAnyBulkAction ? [5] : [4]}>
+      <DataGrid columns={columnCount} minContentColumns={hasAnyBulkAction ? [5] : [4]}>
         <DataGridRow>
           {hasAnyBulkAction && <DataGridHeadCell />}
           {[t`Name`, t`Description`, t`Shared`, t`Stateful`, ""].map((label) => (
@@ -134,7 +126,19 @@ export const SecurityGroupListContainer = ({
           ))}
         </DataGridRow>
 
-        {securityGroups && securityGroups.length > 0 ? (
+        {isLoading ? (
+          <DataGridRow>
+            <DataGridCell colSpan={columnCount}>
+              <Status status="progress" title={t`Loading...`} />
+            </DataGridCell>
+          </DataGridRow>
+        ) : isError ? (
+          <DataGridRow>
+            <DataGridCell colSpan={columnCount}>
+              <Status status="error" title={error?.message ?? t`Failed to load security groups`} />
+            </DataGridCell>
+          </DataGridRow>
+        ) : securityGroups.length > 0 ? (
           securityGroups.map((sg) => {
             // Compute isReadOnly only when the security group has an explicit project owner
             const isReadOnly = Boolean(currentProjectId && sg.project_id && sg.project_id !== currentProjectId)
@@ -156,7 +160,7 @@ export const SecurityGroupListContainer = ({
           })
         ) : (
           <DataGridRow>
-            <DataGridCell colSpan={hasAnyBulkAction ? 6 : 5}>
+            <DataGridCell colSpan={columnCount}>
               <Status
                 status="empty"
                 title={t`No security groups found`}

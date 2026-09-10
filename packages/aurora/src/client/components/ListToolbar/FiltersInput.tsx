@@ -11,6 +11,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { cn } from "@/client/utils/cn"
 import { Filter, SelectedFilter } from "./types"
+import { resolveValueLabel } from "./valueLabels"
 
 export type FiltersInputProps = {
   filters: Filter[]
@@ -38,9 +39,8 @@ export const FiltersInput = ({
   const [selectedFilterName, setSelectedFilterName] = useState<string>("")
   const [selectedFilterValue, setSelectedFilterValue] = useState<string>("")
 
-  const filterValues: string[] | undefined = filters
-    .find((filter) => filter.filterName === selectedFilterName)
-    ?.values?.filter((value) => value)
+  const selectedFilterDef = filters.find((filter) => filter.filterName === selectedFilterName)
+  const filterValues: string[] | undefined = selectedFilterDef?.values?.filter((value) => value)
 
   const handleValueChange = useCallback(
     (value: string) => {
@@ -87,7 +87,12 @@ export const FiltersInput = ({
       </Select>
       <ComboBox {...getComboBoxProps()}>
         {filterValues?.map((value) => (
-          <ComboBoxOption value={value} key={value} label={value} data-testid={value} />
+          <ComboBoxOption
+            value={value}
+            key={value}
+            label={resolveValueLabel(selectedFilterDef, value)}
+            data-testid={value}
+          />
         ))}
       </ComboBox>
     </InputGroup>

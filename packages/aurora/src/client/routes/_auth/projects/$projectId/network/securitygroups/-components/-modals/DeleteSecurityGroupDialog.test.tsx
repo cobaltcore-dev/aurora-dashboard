@@ -79,7 +79,7 @@ describe("DeleteSecurityGroupDialog", () => {
       { wrapper: createWrapper() }
     )
 
-    const deleteButton = screen.getByText("Delete")
+    const deleteButton = screen.getByText("Delete Group")
     expect(deleteButton).toBeDisabled()
 
     const input = screen.getByTestId("delete-confirmation-input")
@@ -103,7 +103,7 @@ describe("DeleteSecurityGroupDialog", () => {
     const input = screen.getByTestId("delete-confirmation-input")
     await user.type(input, "delete")
 
-    const deleteButton = screen.getByText("Delete")
+    const deleteButton = screen.getByText("Delete Group")
     await user.click(deleteButton)
 
     expect(mockOnDelete).toHaveBeenCalledWith("sg-123")
@@ -121,7 +121,7 @@ describe("DeleteSecurityGroupDialog", () => {
       { wrapper: createWrapper() }
     )
 
-    const deleteButton = screen.getByText("Delete")
+    const deleteButton = screen.getByText("Delete Group")
     await user.click(deleteButton)
 
     expect(mockOnDelete).not.toHaveBeenCalled()

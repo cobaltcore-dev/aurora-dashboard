@@ -198,6 +198,7 @@ export const ListToolbar = ({
               selectedFilters={filterSettings.selectedFilters}
               onDelete={handleFilterDelete}
               onClear={() => onFilter({ ...filterSettings, selectedFilters: [] })}
+              filters={filterSettings.filters}
             />
           </div>
         )}

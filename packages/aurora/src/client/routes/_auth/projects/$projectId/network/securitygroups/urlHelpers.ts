@@ -1,7 +1,9 @@
 import { SelectedFilter, Filter } from "@/client/components/ListToolbar/types"
+import { isKnownSecurityGroupFilter } from "./filterConfig"
 
 type SecurityGroupsSearchParams = {
   shared?: string
+  stateful?: string
   search?: string
   sortBy?: string
   sortDirection?: "asc" | "desc"
@@ -14,8 +16,13 @@ export const parseFiltersFromUrl = (searchParams: SecurityGroupsSearchParams): S
   const filters: SelectedFilter[] = []
 
   // Shared filter
-  if (searchParams.shared) {
+  if (searchParams.shared && isKnownSecurityGroupFilter("shared", searchParams.shared)) {
     filters.push({ name: "shared", value: searchParams.shared })
+  }
+
+  // Stateful filter
+  if (searchParams.stateful && isKnownSecurityGroupFilter("stateful", searchParams.stateful)) {
+    filters.push({ name: "stateful", value: searchParams.stateful })
   }
 
   return filters

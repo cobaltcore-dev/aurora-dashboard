@@ -75,7 +75,7 @@ describe("AddRBACPolicyModal", () => {
     renderModal()
 
     await user.type(screen.getByLabelText("Target Project ID"), "not-a-project-id")
-    await user.click(screen.getByRole("button", { name: "Share" }))
+    await user.click(screen.getByRole("button", { name: "Share Group" }))
 
     await waitFor(() => {
       expect(screen.getByText(/Invalid project ID format/)).toBeInTheDocument()
@@ -89,7 +89,7 @@ describe("AddRBACPolicyModal", () => {
     renderModal(true, onClose)
 
     await user.type(screen.getByLabelText("Target Project ID"), "12345678123412341234123412345678")
-    await user.click(screen.getByRole("button", { name: "Share" }))
+    await user.click(screen.getByRole("button", { name: "Share Group" }))
 
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalledWith({

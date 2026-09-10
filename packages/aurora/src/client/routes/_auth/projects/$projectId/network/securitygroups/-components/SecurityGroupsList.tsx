@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { Button, Stack, DataGridToolbar, SearchInput, toast, Status } from "@cloudoperators/juno-ui-components"
+import { Button, Stack, DataGridToolbar, SearchInput, Message, toast } from "@cloudoperators/juno-ui-components"
 import { CreateSecurityGroupInput, UpdateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { trpcReact } from "@/client/trpcClient"
@@ -12,7 +12,8 @@ import { FilterSettings, SortSettings } from "@/client/components/ListToolbar/ty
 import { SecurityGroupListContainer } from "./SecurityGroupListContainer"
 import { CreateSecurityGroupModal } from "./-modals/CreateSecurityGroupModal"
 import { useSecurityGroupPermissions } from "../-hooks/useSecurityGroupPermissions"
-import { parseFiltersFromUrl, buildFilterParams, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
+import { parseFiltersFromUrl, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
+import { buildSecurityGroupFilterParams, buildSecurityGroupFilters } from "../filterConfig"
 import {
   getSecurityGroupDeletedToast,
   getSecurityGroupDeleteErrorToast,
@@ -20,10 +21,13 @@ import {
   getSecurityGroupUpdateErrorToast,
 } from "./SecurityGroupToastNotifications"
 
+const SEARCH_DEBOUNCE_MS = 500
+
 type SecurityGroupSortKey = "name" | "project_id"
 
 type SecurityGroupsSearchParams = {
   shared?: string
+  stateful?: string
   search?: string
   sortBy?: string
   sortDirection?: "asc" | "desc"
@@ -54,24 +58,20 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
   })
 
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
-    filters: [
-      {
-        displayName: t`Shared`,
-        filterName: "shared",
-        values: ["true", "false"],
-        supportsMultiValue: false,
-      },
-    ],
+    filters: buildSecurityGroupFilters({ shared: t`Shared`, stateful: t`Stateful`, yes: t`Yes`, no: t`No` }),
     selectedFilters: parseFiltersFromUrl(searchParams),
   })
 
-  const [searchTerm, setSearchTerm] = useState(searchParams.search || "")
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchParams.search || "")
+  const debounceTimer = useRef<number | undefined>(undefined)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [createError, setCreateError] = useState<string | null>(null)
   const [updateError, setUpdateError] = useState<string | null>(null)
 
   const utils = trpcReact.useUtils()
+
+  useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
   useEffect(() => {
     setSortSettings((prev) => ({
@@ -83,8 +83,12 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
       ...prev,
       selectedFilters: parseFiltersFromUrl(searchParams),
     }))
-    setSearchTerm(searchParams.search || "")
-  }, [searchParams.sortBy, searchParams.sortDirection, searchParams.search, searchParams.shared])
+    // Only sync the input from the URL when there's no debounced search "in flight" — otherwise
+    // this effect would clobber characters the user typed while the debounce timer was pending.
+    if (debounceTimer.current === undefined) {
+      setLocalSearchTerm(searchParams.search || "")
+    }
+  }, [searchParams.sortBy, searchParams.sortDirection, searchParams.search, searchParams.shared, searchParams.stateful])
 
   const urlFilters = parseFiltersFromUrl(searchParams)
   const urlSortBy = (searchParams.sortBy || "name") as SecurityGroupSortKey
@@ -101,17 +105,21 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
       project_id: projectId || "",
       sort_key: urlSortBy,
       sort_dir: urlSortDirection,
-      ...buildFilterParams(urlFilters, filterSettings.filters),
+      ...buildSecurityGroupFilterParams(urlFilters),
       ...(urlSearchTerm ? { searchTerm: urlSearchTerm } : {}),
     },
     {
       refetchOnWindowFocus: false,
+      placeholderData: (prev) => prev,
     }
   )
 
   const securityGroups = securityGroupsData || []
-  const listError =
-    isError && error?.data?.code === "FORBIDDEN" ? t`You do not have permission to view security groups` : null
+  const listError = isError
+    ? error?.data?.code === "FORBIDDEN"
+      ? t`You do not have permission to view security groups`
+      : error.message || t`Failed to load security groups`
+    : null
 
   const { permissions } = useSecurityGroupPermissions(projectId)
 
@@ -231,133 +239,141 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
     })
   }
 
-  const handleSearchChange = (term: string | number | string[] | undefined) => {
-    const searchValue = typeof term === "string" ? term : ""
-    setSearchTerm(searchValue)
+  const handleSearchChange = (term: string) => {
     navigate({
       search: ((prev: SecurityGroupsSearchParams) => ({
         ...prev,
-        search: searchValue || undefined,
+        search: term || undefined,
       })) as unknown as true,
       replace: true,
     })
-  }
-
-  if (isLoading) {
-    return <Status status="progress" title={t`Loading Security Groups...`} />
-  }
-
-  if (isError && !securityGroups.length) {
-    return (
-      <Stack className="py-8" distribution="center" alignment="center" direction="vertical">
-        {listError || t`Failed to load security groups`}
-      </Stack>
-    )
   }
 
   return (
     <>
       <ContentHeader title={t`Security Groups`} projectId={projectId} />
 
-      <Stack distribution="end" alignment="center" gap="2" className="pb-2">
-        <Stack gap="2">
-          <SortInput
-            options={sortSettings.options}
-            sortBy={sortSettings.sortBy}
-            sortDirection={sortSettings.sortDirection ?? "asc"}
-            selectClassName="min-w-40"
-            onSortByChange={(v) =>
-              handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
-            }
-            onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
-          />
-          {permissions.canCreate && (
-            <Button onClick={() => setCreateModalOpen(true)} variant="primary" className="whitespace-nowrap">
-              <Trans>Create Security Group</Trans>
-            </Button>
-          )}
-        </Stack>
-      </Stack>
+      <div className="relative">
+        {/* Non-blocking error banner for refetch failures with cached data */}
+        {isError && securityGroups.length > 0 && (
+          <Message variant="error" className="mb-4">
+            {listError}
+          </Message>
+        )}
 
-      <DataGridToolbar>
-        <Stack direction="vertical" gap="2">
-          <Stack distribution="between" alignment="center">
-            <FiltersInput
-              filters={filterSettings.filters}
-              selectClassName="sm:min-w-40"
-              comboboxClassName="sm:min-w-40"
-              onChange={(selected) => {
-                const newSelected = applyFilterSelection(
-                  filterSettings.selectedFilters || [],
-                  selected,
-                  filterSettings.filters
-                )
-                if (newSelected === (filterSettings.selectedFilters || [])) return
-                handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
-              }}
-            />
-            <SearchInput
-              placeholder={t`Search security groups...`}
-              data-testid="searchbar"
-              value={searchTerm}
-              onInput={(e: React.FormEvent<HTMLInputElement>) => {
-                const v = e.currentTarget.value
-                setSearchTerm(v)
-              }}
-              onSearch={(v) => {
-                handleSearchChange(typeof v === "string" ? v : "")
-              }}
-              onClear={() => {
-                setSearchTerm("")
-                handleSearchChange("")
-              }}
-            />
-          </Stack>
-          {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
-            <SelectedFilters
-              selectedFilters={filterSettings.selectedFilters}
-              onDelete={(filterToRemove) =>
-                handleFilterChange({
-                  ...filterSettings,
-                  selectedFilters: (filterSettings.selectedFilters || []).filter(
-                    (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
-                  ),
-                })
+        <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+          <Stack gap="2">
+            <SortInput
+              options={sortSettings.options}
+              sortBy={sortSettings.sortBy}
+              sortDirection={sortSettings.sortDirection ?? "asc"}
+              selectClassName="min-w-40"
+              onSortByChange={(v) =>
+                handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
               }
-              onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
+              onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
             />
-          )}
+            {permissions.canCreate && (
+              <Button onClick={() => setCreateModalOpen(true)} variant="primary" className="whitespace-nowrap">
+                <Trans>Create Security Group</Trans>
+              </Button>
+            )}
+          </Stack>
         </Stack>
-      </DataGridToolbar>
 
-      <SecurityGroupListContainer
-        securityGroups={securityGroups}
-        isLoading={false}
-        isError={false}
-        error={null}
-        permissions={permissions}
-        onCreateClick={() => setCreateModalOpen(true)}
-        onDeleteSecurityGroup={handleDeleteSecurityGroup}
-        isDeletingSecurityGroup={deleteSecurityGroupMutation.isPending}
-        deleteError={deleteError}
-        onUpdateSecurityGroup={handleUpdateSecurityGroup}
-        isUpdatingSecurityGroup={updateSecurityGroupMutation.isPending}
-        updateError={updateError}
-        currentProjectId={projectId}
-        hasAnyBulkAction={false}
-        onClearUpdateError={handleClearUpdateError}
-      />
+        <DataGridToolbar>
+          <Stack direction="vertical" gap="2">
+            <Stack distribution="between" alignment="center">
+              <FiltersInput
+                filters={filterSettings.filters}
+                selectClassName="sm:min-w-40"
+                comboboxClassName="sm:min-w-40"
+                onChange={(selected) => {
+                  const newSelected = applyFilterSelection(
+                    filterSettings.selectedFilters || [],
+                    selected,
+                    filterSettings.filters
+                  )
+                  if (newSelected === (filterSettings.selectedFilters || [])) return
+                  handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
+                }}
+              />
+              <SearchInput
+                // The wrapper is inline-block/w-auto and the input reserves pr-16 for its icons, so at
+                // the browser's default input width this placeholder gets cut off mid-ellipsis.
+                className="w-60 sm:w-68"
+                placeholder={t`Search security groups...`}
+                data-testid="searchbar"
+                value={localSearchTerm}
+                onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                  const v = e.currentTarget.value
+                  setLocalSearchTerm(v)
+                  clearTimeout(debounceTimer.current)
+                  debounceTimer.current = window.setTimeout(() => {
+                    debounceTimer.current = undefined
+                    handleSearchChange(v)
+                  }, SEARCH_DEBOUNCE_MS)
+                }}
+                onSearch={(v) => {
+                  clearTimeout(debounceTimer.current)
+                  debounceTimer.current = undefined
+                  handleSearchChange(typeof v === "string" ? v : "")
+                }}
+                onClear={() => {
+                  clearTimeout(debounceTimer.current)
+                  debounceTimer.current = undefined
+                  setLocalSearchTerm("")
+                  handleSearchChange("")
+                }}
+              />
+            </Stack>
+            {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
+              <SelectedFilters
+                selectedFilters={filterSettings.selectedFilters}
+                filters={filterSettings.filters}
+                onDelete={(filterToRemove) =>
+                  handleFilterChange({
+                    ...filterSettings,
+                    selectedFilters: (filterSettings.selectedFilters || []).filter(
+                      (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
+                    ),
+                  })
+                }
+                onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
+              />
+            )}
+          </Stack>
+        </DataGridToolbar>
 
-      <CreateSecurityGroupModal
-        isOpen={createModalOpen}
-        onClose={() => {
-          setCreateError(null)
-          setCreateModalOpen(false)
-        }}
-        onCreate={handleCreateSecurityGroup}
-        isLoading={createSecurityGroupMutation.isPending}
-        error={createError}
-      />
+        <SecurityGroupListContainer
+          securityGroups={securityGroups}
+          isLoading={isLoading}
+          isError={isError && securityGroups.length === 0}
+          error={listError ? { message: listError } : null}
+          permissions={permissions}
+          onCreateClick={() => setCreateModalOpen(true)}
+          onDeleteSecurityGroup={handleDeleteSecurityGroup}
+          isDeletingSecurityGroup={deleteSecurityGroupMutation.isPending}
+          deleteError={deleteError}
+          onUpdateSecurityGroup={handleUpdateSecurityGroup}
+          isUpdatingSecurityGroup={updateSecurityGroupMutation.isPending}
+          updateError={updateError}
+          currentProjectId={projectId}
+          hasAnyBulkAction={false}
+          onClearUpdateError={handleClearUpdateError}
+        />
+
+        <CreateSecurityGroupModal
+          isOpen={createModalOpen}
+          onClose={() => {
+            setCreateError(null)
+            setCreateModalOpen(false)
+          }}
+          onCreate={handleCreateSecurityGroup}
+          isLoading={createSecurityGroupMutation.isPending}
+          error={createError}
+        />
+      </div>
     </>
   )
 }

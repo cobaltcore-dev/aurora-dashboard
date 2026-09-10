@@ -65,7 +65,6 @@ const NETWORK_MAPPINGS = {
   "network:security_group_rules:read": { engine: "network", rule: "get_security_group_rule" },
   "network:security_group_rules:list": { engine: "network", rule: "get_security_group_rules" },
   "network:security_group_rules:create": { engine: "network", rule: "create_security_group_rule" },
-  "network:security_group_rules:update": { engine: "network", rule: "update_security_group_rule" },
   "network:security_group_rules:delete": { engine: "network", rule: "delete_security_group_rule" },
 
   // Port Operations

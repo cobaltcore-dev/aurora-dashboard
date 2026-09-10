@@ -54,6 +54,12 @@ export type Filter = {
    * visibility=public
    */
   supportsMultiValue?: boolean
+  /**
+   * Optional human-readable labels for raw filter values, keyed by value.
+   * Use when the wire/URL value differs from what the table shows (e.g. `shared: "true"` → "Yes").
+   * Values without an entry fall back to the raw value.
+   */
+  valueLabels?: Record<string, string>
 }
 
 /**

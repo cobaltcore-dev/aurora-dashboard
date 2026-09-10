@@ -1,6 +1,7 @@
 import { useLingui } from "@lingui/react/macro"
 import { Button, Pill, Stack } from "@cloudoperators/juno-ui-components"
-import { SelectedFilter } from "./types"
+import { Filter, SelectedFilter } from "./types"
+import { resolveValueLabel } from "./valueLabels"
 
 export type SelectedFiltersProps = {
   /**
@@ -17,6 +18,12 @@ export type SelectedFiltersProps = {
    * Callback function invoked when the "Clear all" button is clicked.
    */
   onClear: () => void
+
+  /**
+   * Optional filter definitions used to resolve human-readable labels for pills;
+   * when omitted, raw name/value are shown.
+   */
+  filters?: Filter[]
 }
 
 /**
@@ -27,21 +34,24 @@ export type SelectedFiltersProps = {
  *
  * The pills are arranged in a flexible, wrapping layout that adapts to available space.
  */
-export const SelectedFilters = ({ selectedFilters, onDelete, onClear }: SelectedFiltersProps) => {
+export const SelectedFilters = ({ selectedFilters, onDelete, onClear, filters }: SelectedFiltersProps) => {
   const { t } = useLingui()
 
   return (
     <Stack gap="2" wrap={true} alignment="start" distribution="start">
       {/* Render a closeable pill for each selected filter */}
-      {selectedFilters.map((filter) => (
-        <Pill
-          key={`${filter.name}:${filter.value}`}
-          closeable
-          pillKey={filter.name}
-          pillValue={filter.value}
-          onClose={() => onDelete(filter)}
-        />
-      ))}
+      {selectedFilters.map((filter) => {
+        const def = filters?.find((f) => f.filterName === filter.name)
+        return (
+          <Pill
+            key={`${filter.name}:${filter.value}`}
+            closeable
+            pillKey={def?.displayName ?? filter.name}
+            pillValue={resolveValueLabel(def, filter.value)}
+            onClose={() => onDelete(filter)}
+          />
+        )
+      })}
       {selectedFilters.length > 1 && <Button size="small" label={t`Clear all`} onClick={onClear} />}
     </Stack>
   )

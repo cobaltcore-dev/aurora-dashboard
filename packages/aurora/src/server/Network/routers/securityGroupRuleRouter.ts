@@ -7,6 +7,7 @@ import {
 import { withErrorHandling } from "../../helpers/errorHandling"
 import { SecurityGroupRuleErrorHandlers, parseSecurityGroupRuleResponse } from "../helpers/securityGroupHelpers"
 import { getNetworkService } from "../helpers/index"
+import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
 
 const SECURITY_GROUP_RULES_BASE_URL = "v2.0/security-group-rules"
 
@@ -28,7 +29,8 @@ export const securityGroupRuleRouter = {
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
-        const response = await network.del(`${SECURITY_GROUP_RULES_BASE_URL}/${ruleId}`)
+        const encodedRuleId = validateAndEncodeResourceId(ruleId, "Security group rule")
+        const response = await network.del(`${SECURITY_GROUP_RULES_BASE_URL}/${encodedRuleId}`)
 
         if (!response?.ok) {
           throw SecurityGroupRuleErrorHandlers.delete(response, ruleId)

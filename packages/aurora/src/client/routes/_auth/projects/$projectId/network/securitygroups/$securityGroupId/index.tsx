@@ -1,4 +1,12 @@
-import { Button, Stack, Status } from "@cloudoperators/juno-ui-components/index"
+import {
+  Button,
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuOptions,
+  PopupMenuToggle,
+  Stack,
+  Status,
+} from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
 import { useMemo } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -10,6 +18,7 @@ import { useListWithFiltering } from "@/client/utils/useListWithFiltering"
 import { trpcReact } from "@/client/trpcClient"
 import { SecurityGroupDetailsView } from "./-components/SecurityGroupDetailsView"
 import { EditSecurityGroupModal } from "../-components/-modals/EditSecurityGroupModal"
+import { DeleteSecurityGroupDialog } from "../-components/-modals/DeleteSecurityGroupDialog"
 import { useSecurityGroupDetails } from "./-hooks/useSecurityGroupDetails"
 import { useSecurityGroupPermissions } from "../-hooks/useSecurityGroupPermissions"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
@@ -134,14 +143,20 @@ function RouteComponent() {
     error,
     isUpdating,
     updateError,
+    isDeleting,
+    deleteError,
     isDeletingRule,
     deleteRuleError,
     isCreatingRule,
     createRuleError,
     editModalOpen,
+    deleteModalOpen,
     handleEdit,
     handleCloseEditModal,
     handleUpdate,
+    handleDelete,
+    handleCloseDeleteModal,
+    handleDeleteSecurityGroup,
     handleDeleteRule,
     handleCreateRule,
   } = useSecurityGroupDetails({
@@ -224,19 +239,50 @@ function RouteComponent() {
     )
   }
 
+  // Groups owned by another project are shared read-only copies: they cannot be edited or deleted,
+  // the same rule the list applies to its row actions.
+  const isReadOnly = Boolean(securityGroup.project_id && securityGroup.project_id !== projectId)
+  const canEdit = safePermissions.canUpdate && !isReadOnly
+  const canDelete = safePermissions.canDelete && !isReadOnly
+
+  const headerActions = (canEdit || canDelete) && (
+    <Stack gap="0.5" alignment="center">
+      {canDelete && (
+        <PopupMenu className="flex items-center">
+          <PopupMenuToggle as="div">
+            <Button icon="moreVert" title={t`More Actions`} disabled={isDeleting} />
+          </PopupMenuToggle>
+          <PopupMenuOptions>
+            <PopupMenuItem label={t`Delete Group`} onClick={handleDelete} />
+          </PopupMenuOptions>
+        </PopupMenu>
+      )}
+
+      {canEdit && (
+        <Button variant="primary" onClick={handleEdit} disabled={isDeleting}>
+          <Trans>Edit Details</Trans>
+        </Button>
+      )}
+    </Stack>
+  )
+
+  const handleConfirmDelete = async () => {
+    try {
+      await handleDeleteSecurityGroup()
+      handleBack()
+    } catch {
+      // onError surfaces the toast; the dialog keeps showing deleteError
+    }
+  }
+
   // Render success state
   return (
     <Stack direction="vertical">
-      <ContentHeader
-        title={securityGroup.name || securityGroup.id}
-        projectId={projectId}
-        description={t`Configure the ingress and egress rules that control which traffic is allowed for this security group.`}
-      />
+      <ContentHeader title={securityGroup.name || securityGroup.id} projectId={projectId} actions={headerActions} />
 
       <SecurityGroupDetailsView
         securityGroup={securityGroup}
         filteredAndSortedRules={filteredAndSortedRules}
-        onEdit={handleEdit}
         onDeleteRule={handleDeleteRule}
         isDeletingRule={isDeletingRule}
         deleteRuleError={deleteRuleError}
@@ -257,6 +303,17 @@ function RouteComponent() {
         isLoading={isUpdating}
         error={updateError}
       />
+
+      {deleteModalOpen && (
+        <DeleteSecurityGroupDialog
+          securityGroup={securityGroup}
+          isOpen={deleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onDelete={handleConfirmDelete}
+          isDeleting={isDeleting}
+          error={deleteError}
+        />
+      )}
     </Stack>
   )
 }

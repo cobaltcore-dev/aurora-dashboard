@@ -202,7 +202,6 @@ The operation being performed, using **consistent verbs**.
 "network:security_group_rules:read" // Get rule
 "network:security_group_rules:list" // List rules
 "network:security_group_rules:create" // Create rule
-"network:security_group_rules:update" // Update rule
 "network:security_group_rules:delete" // Delete rule
 
 // Port Operations

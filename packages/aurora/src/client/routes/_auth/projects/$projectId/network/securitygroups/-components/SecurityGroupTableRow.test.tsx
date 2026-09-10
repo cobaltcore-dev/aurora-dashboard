@@ -101,6 +101,29 @@ describe("SecurityGroupTableRow", () => {
       expect(screen.getByText("Security group for web servers")).toBeInTheDocument()
     })
 
+    it("renders a missing stateful flag as Yes, matching Neutron's default", async () => {
+      // Neutron omits `stateful` when the stateful-security-group extension is disabled; the BFF
+      // filter treats those groups as stateful, so the column must not label them "No".
+      const sgWithoutStateful: SecurityGroup = { ...mockSecurityGroup }
+      delete sgWithoutStateful.stateful
+      const router = createTestRouter(
+        <SecurityGroupTableRow
+          securityGroup={sgWithoutStateful}
+          permissions={defaultPermissions}
+          onEdit={mockOnEdit}
+          onDelete={mockOnDelete}
+        />
+      )
+      render(<RouterProvider router={router} />)
+
+      await waitFor(() => {
+        expect(screen.getByText("Yes")).toBeInTheDocument()
+      })
+
+      // The Shared column still reads "No" (Neutron's default for `shared` is false)
+      expect(screen.getByText("No")).toBeInTheDocument()
+    })
+
     it("renders em dash when description is missing", async () => {
       const sgWithoutDescription = { ...mockSecurityGroup, description: "" }
       const router = createTestRouter(
@@ -160,10 +183,10 @@ describe("SecurityGroupTableRow", () => {
       await user.click(popupButton!)
 
       await waitFor(() => {
-        expect(screen.getByText("Edit")).toBeInTheDocument()
+        expect(screen.getByText("Edit Group")).toBeInTheDocument()
       })
 
-      await user.click(screen.getByText("Edit"))
+      await user.click(screen.getByText("Edit Group"))
 
       expect(mockOnEdit).toHaveBeenCalledWith(mockSecurityGroup)
     })
@@ -254,7 +277,7 @@ describe("SecurityGroupTableRow", () => {
         expect(screen.getByText("Show Details")).toBeInTheDocument()
       })
 
-      expect(screen.queryByText("Edit")).not.toBeInTheDocument()
+      expect(screen.queryByText("Edit Group")).not.toBeInTheDocument()
     })
 
     it("hides Access Control when canManageAccess is false", async () => {
@@ -310,7 +333,7 @@ describe("SecurityGroupTableRow", () => {
         expect(screen.getByText("Show Details")).toBeInTheDocument()
       })
 
-      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Group")).not.toBeInTheDocument()
     })
 
     it("shows only Show Details when all permissions are false", async () => {
@@ -347,8 +370,8 @@ describe("SecurityGroupTableRow", () => {
         expect(screen.getByText("Show Details")).toBeInTheDocument()
       })
 
-      expect(screen.queryByText("Edit")).not.toBeInTheDocument()
-      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
+      expect(screen.queryByText("Edit Group")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Group")).not.toBeInTheDocument()
     })
   })
 })

@@ -13,6 +13,7 @@ import {
   parseRBACPoliciesListResponse,
 } from "../helpers/rbacPolicyHelpers"
 import { getNetworkService } from "../helpers/index"
+import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
 
 const RBAC_POLICIES_BASE_URL = "v2.0/rbac-policies"
 
@@ -96,7 +97,8 @@ export const rbacPolicyRouter = {
           },
         }
 
-        const response = await network.put(`${RBAC_POLICIES_BASE_URL}/${policyId}`, requestBody)
+        const encodedPolicyId = validateAndEncodeResourceId(policyId, "RBAC policy")
+        const response = await network.put(`${RBAC_POLICIES_BASE_URL}/${encodedPolicyId}`, requestBody)
 
         if (!response.ok) {
           throw RBACPolicyErrorHandlers.update(response, policyId)
@@ -113,7 +115,8 @@ export const rbacPolicyRouter = {
       // ctx.openstack is already rescoped to the project by projectScopedProcedure
       const network = getNetworkService(ctx)
 
-      const response = await network.del(`${RBAC_POLICIES_BASE_URL}/${policyId}`)
+      const encodedPolicyId = validateAndEncodeResourceId(policyId, "RBAC policy")
+      const response = await network.del(`${RBAC_POLICIES_BASE_URL}/${encodedPolicyId}`)
 
       if (!response.ok) {
         throw RBACPolicyErrorHandlers.delete(response, policyId)
