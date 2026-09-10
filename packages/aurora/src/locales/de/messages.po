@@ -2801,9 +2801,6 @@ msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist m
 msgid "Project"
 msgstr "Projekt"
 
-msgid "Project id"
-msgstr "Projekt-ID"
-
 msgid "Project ID"
 msgstr "Projekt-ID"
 
@@ -2950,9 +2947,6 @@ msgstr ""
 
 msgid "Root"
 msgstr "Root"
-
-msgid "Root Disk"
-msgstr "Root Disk"
 
 msgid "Root Disk (GiB)"
 msgstr "Root Disk (GiB)"

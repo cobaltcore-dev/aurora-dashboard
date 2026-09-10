@@ -2801,9 +2801,6 @@ msgstr "Private flavors could not be loaded. You may be seeing an incomplete lis
 msgid "Project"
 msgstr "Project"
 
-msgid "Project id"
-msgstr "Project id"
-
 msgid "Project ID"
 msgstr "Project ID"
 
@@ -2950,9 +2947,6 @@ msgstr "Restore Version"
 
 msgid "Root"
 msgstr "Root"
-
-msgid "Root Disk"
-msgstr "Root Disk"
 
 msgid "Root Disk (GiB)"
 msgstr "Root Disk (GiB)"
