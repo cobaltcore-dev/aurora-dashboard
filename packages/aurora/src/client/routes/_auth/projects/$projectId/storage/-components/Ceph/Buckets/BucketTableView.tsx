@@ -29,6 +29,7 @@ interface BucketTableViewProps {
   onEmptyError: (bucketName: string, errorMessage: string) => void
   onDeleteSuccess: (bucketName: string) => void
   onDeleteError: (bucketName: string, errorMessage: string) => void
+  existingBuckets?: Bucket[]
   selectedBuckets: string[]
   setSelectedBuckets: (buckets: string[]) => void
   // When false, the selection column (header select-all + per-row checkboxes) is dropped.
@@ -47,6 +48,7 @@ export const BucketTableView = ({
   onEmptyError,
   onDeleteSuccess,
   onDeleteError,
+  existingBuckets = [],
   selectedBuckets,
   setSelectedBuckets,
   hasAnyBulkAction = true,
@@ -269,6 +271,7 @@ export const BucketTableView = ({
         onClose={() => setCreateModalOpen(false)}
         onSuccess={onCreateSuccess}
         onError={onCreateError}
+        existingBuckets={existingBuckets}
       />
 
       <EmptyBucketModal

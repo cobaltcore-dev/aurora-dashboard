@@ -27,6 +27,7 @@ interface ContainerTableViewProps {
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
   maxContainerNameLength?: number
+  existingContainers?: ContainerSummary[]
   onCreateSuccess: (containerName: string) => void
   onCreateError: (containerName: string, errorMessage: string) => void
   onEmptySuccess: (containerName: string, deletedCount: number) => void
@@ -50,6 +51,7 @@ export const ContainerTableView = ({
   createModalOpen,
   setCreateModalOpen,
   maxContainerNameLength,
+  existingContainers = [],
   onCreateSuccess,
   onCreateError,
   onEmptySuccess,
@@ -270,6 +272,7 @@ export const ContainerTableView = ({
         onSuccess={onCreateSuccess}
         onError={onCreateError}
         maxContainerNameLength={maxContainerNameLength}
+        existingContainers={existingContainers}
       />
 
       <EmptyContainerModal

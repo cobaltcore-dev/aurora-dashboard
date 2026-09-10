@@ -531,6 +531,8 @@ describe("swiftRouter", () => {
   describe("createContainer", () => {
     it("should successfully create container", async () => {
       const mockCtx = createMockContext()
+      // No existing container at this name — the pre-existence HEAD check should 404.
+      mockCtx.mockSwift.head.mockRejectedValue({ statusCode: 404, message: "Not Found" })
       const caller = createCaller(mockCtx)
 
       const input = { project_id: TEST_PROJECT_ID, container: "new-container" }
@@ -543,6 +545,7 @@ describe("swiftRouter", () => {
 
     it("should handle metadata during creation", async () => {
       const mockCtx = createMockContext()
+      mockCtx.mockSwift.head.mockRejectedValue({ statusCode: 404, message: "Not Found" })
       const caller = createCaller(mockCtx)
 
       const input = {
@@ -558,6 +561,17 @@ describe("swiftRouter", () => {
           metadata: { project: "test" },
         })
       )
+    })
+
+    it("should throw CONFLICT when container already exists", async () => {
+      const mockCtx = createMockContext()
+      // Default head mock resolves successfully, simulating an existing container.
+      const caller = createCaller(mockCtx)
+
+      const input = { project_id: TEST_PROJECT_ID, container: "existing-container" }
+
+      await expect(caller.storage.swift.createContainer(input)).rejects.toMatchObject({ code: "CONFLICT" })
+      expect(mockCtx.mockSwift.put).not.toHaveBeenCalled()
     })
   })
 

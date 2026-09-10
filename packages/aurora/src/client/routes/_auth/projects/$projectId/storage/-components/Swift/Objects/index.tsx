@@ -589,6 +589,7 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         onClose={() => setCreateFolderModalOpen(false)}
         onSuccess={handleCreateFolderSuccess}
         onError={handleCreateFolderError}
+        existingRows={allRows}
       />
 
       <UploadObjectModal

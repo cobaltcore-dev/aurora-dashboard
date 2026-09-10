@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { ContainerSummary } from "@/server/Storage/types/swift"
 
 interface CreateContainerModalProps {
   isOpen: boolean
@@ -10,6 +11,7 @@ interface CreateContainerModalProps {
   onSuccess?: (containerName: string) => void
   onError?: (containerName: string, errorMessage: string) => void
   maxContainerNameLength?: number
+  existingContainers?: ContainerSummary[]
 }
 
 export const CreateContainerModal = ({
@@ -18,6 +20,7 @@ export const CreateContainerModal = ({
   onSuccess,
   onError,
   maxContainerNameLength = 256,
+  existingContainers = [],
 }: CreateContainerModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
@@ -31,11 +34,17 @@ export const CreateContainerModal = ({
       utils.storage.swift.listContainers.invalidate()
       const name = containerName.trim()
       onSuccess?.(name)
+      handleClose()
     },
     onError: (error) => {
-      onError?.(containerName.trim(), error.message)
-    },
-    onSettled: () => {
+      const trimmed = containerName.trim()
+
+      if (error.data?.code === "CONFLICT") {
+        setNameError(t`"${trimmed}" is already taken.`)
+        return
+      }
+
+      onError?.(trimmed, error.message)
       handleClose()
     },
   })
@@ -48,18 +57,26 @@ export const CreateContainerModal = ({
   }
 
   const validateName = (name: string): boolean => {
-    if (!name.trim()) {
+    const trimmed = name.trim()
+
+    if (!trimmed) {
       setNameError(t`Container name is required`)
       return false
     }
-    if (name.length > maxContainerNameLength) {
+    if (trimmed.length > maxContainerNameLength) {
       setNameError(t`Container name must be ${maxContainerNameLength} characters or fewer`)
       return false
     }
-    if (name.includes("/")) {
+    if (trimmed.includes("/")) {
       setNameError(t`Container name cannot contain slashes`)
       return false
     }
+
+    if (existingContainers.some((c) => c.name === trimmed)) {
+      setNameError(t`"${trimmed}" is already taken.`)
+      return false
+    }
+
     setNameError(null)
     return true
   }
@@ -91,7 +108,7 @@ export const CreateContainerModal = ({
       title={t`Create Container`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={t`Create`}
+      confirmButtonLabel={createContainerMutation.isPending ? t`Creating...` : t`Create`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"

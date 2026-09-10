@@ -28,13 +28,14 @@ vi.mock("@tanstack/react-router", () => ({
 
 type MutationOptions = {
   onSuccess?: () => void
-  onError?: (error: { message: string }) => void
-  onSettled?: () => void
+  onError?: (error: { message: string; data?: { code?: string } }) => void
 }
 
 const { mockInvalidate, mockMutate, mockReset, mockState } = vi.hoisted(() => {
   const mockState = {
     mutationError: null as string | null,
+    // tRPC error code the mocked failure carries — mirrors error.data.code from the real client.
+    mutationErrorCode: undefined as string | undefined,
     isPending: false,
     capturedOptions: {} as MutationOptions,
   }
@@ -42,11 +43,13 @@ const { mockInvalidate, mockMutate, mockReset, mockState } = vi.hoisted(() => {
     // Use microtask to allow state updates to flush
     await Promise.resolve()
     if (mockState.mutationError) {
-      mockState.capturedOptions.onError?.({ message: mockState.mutationError })
+      mockState.capturedOptions.onError?.({
+        message: mockState.mutationError,
+        data: mockState.mutationErrorCode ? { code: mockState.mutationErrorCode } : undefined,
+      })
     } else {
       mockState.capturedOptions.onSuccess?.()
     }
-    mockState.capturedOptions.onSettled?.()
   })
   return {
     mockInvalidate: vi.fn(),
@@ -87,16 +90,24 @@ const renderModal = ({
   onClose = vi.fn(),
   onSuccess = vi.fn(),
   onError = vi.fn(),
+  existingBucketNames = [],
 }: {
   isOpen?: boolean
   onClose?: () => void
   onSuccess?: (bucketName: string) => void
   onError?: (bucketName: string, errorMessage: string) => void
+  existingBucketNames?: string[]
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <CreateBucketModal isOpen={isOpen} onClose={onClose} onSuccess={onSuccess} onError={onError} />
+        <CreateBucketModal
+          isOpen={isOpen}
+          onClose={onClose}
+          onSuccess={onSuccess}
+          onError={onError}
+          existingBuckets={existingBucketNames.map((name) => ({ name, count: 0, bytes: 0 }))}
+        />
       </PortalProvider>
     </I18nProvider>
   )
@@ -107,6 +118,7 @@ describe("CreateBucketModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     mockState.mutationError = null
+    mockState.mutationErrorCode = undefined
     mockState.capturedOptions = {}
     mockState.isPending = false
     mockOnTrackEvent.mockClear()
@@ -531,6 +543,39 @@ describe("CreateBucketModal", () => {
     })
   })
 
+  describe("Invalid bucket names - Duplicate check against loaded list", () => {
+    test("rejects a name already present in existingBucketNames without calling the mutation", async () => {
+      const user = userEvent.setup()
+      renderModal({ existingBucketNames: ["taken-bucket"] })
+
+      const input = screen.getByLabelText(/Bucket name/i)
+      await user.type(input, "taken-bucket")
+
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
+      await user.click(createButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/is already taken/i)).toBeInTheDocument()
+      })
+      expect(mockMutate).not.toHaveBeenCalled()
+    })
+
+    test("accepts a name not present in existingBucketNames", async () => {
+      const user = userEvent.setup()
+      renderModal({ existingBucketNames: ["other-bucket"] })
+
+      const input = screen.getByLabelText(/Bucket name/i)
+      await user.type(input, "new-bucket")
+
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
+      await user.click(createButton)
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalled()
+      })
+    })
+  })
+
   describe("Bucket creation", () => {
     test("calls mutation with correct parameters on submit", async () => {
       const user = userEvent.setup()
@@ -626,12 +671,13 @@ describe("CreateBucketModal", () => {
       })
     })
 
-    test("disables input and button while creating", () => {
+    test("disables input and button, and switches label to Creating..., while creating", () => {
       mockState.isPending = true
       renderModal()
 
       expect(screen.getByLabelText(/Bucket name/i)).toBeDisabled()
-      expect(screen.getByRole("button", { name: /^Create Bucket$/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Creating\.\.\.$/i })).toBeDisabled()
+      expect(screen.queryByRole("button", { name: /^Create Bucket$/i })).not.toBeInTheDocument()
       expect(screen.getByRole("checkbox", { name: /Enable versioning/i })).toBeDisabled()
     })
   })
@@ -733,6 +779,28 @@ describe("CreateBucketModal", () => {
       await waitFor(() => {
         expect(mockOnClose).toHaveBeenCalledTimes(1)
       })
+    })
+
+    test("on a CONFLICT (name taken) error, keeps the modal open and shows an inline field error instead of the toast callback", async () => {
+      const user = userEvent.setup()
+      const mockOnClose = vi.fn()
+      const mockOnError = vi.fn()
+      mockState.mutationError = "Bucket already exists"
+      mockState.mutationErrorCode = "CONFLICT"
+      renderModal({ onClose: mockOnClose, onError: mockOnError })
+
+      const input = screen.getByLabelText(/Bucket name/i)
+      await user.type(input, "taken-on-server")
+
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
+      await user.click(createButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/"taken-on-server" is already taken/i)).toBeInTheDocument()
+      })
+      expect(screen.getByLabelText(/Bucket name/i)).toHaveClass("juno-textinput-invalid")
+      expect(mockOnClose).not.toHaveBeenCalled()
+      expect(mockOnError).not.toHaveBeenCalled()
     })
   })
 

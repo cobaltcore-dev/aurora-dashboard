@@ -4,12 +4,14 @@ import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack, Checkbox } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
+import { Bucket } from "@/server/Storage/types/ceph"
 
 interface CreateBucketModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: (bucketName: string) => void
   onError?: (bucketName: string, errorMessage: string) => void
+  existingBuckets?: Bucket[]
 }
 
 // S3 bucket naming validation patterns
@@ -18,7 +20,13 @@ const IP_ADDRESS_REGEX = /^(\d{1,3}\.){3}\d{1,3}$/
 const RESERVED_PREFIXES = ["xn--", "sthree-", "amzn-s3-demo-"]
 const RESERVED_SUFFIXES = ["-s3alias", "--ol-s3", ".mrap", "--x-s3", "--table-s3"]
 
-export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: CreateBucketModalProps) => {
+export const CreateBucketModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  onError,
+  existingBuckets = [],
+}: CreateBucketModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [bucketName, setBucketName] = useState("")
@@ -37,11 +45,17 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
       utils.storage.ceph.containers.list.invalidate()
       const name = bucketName.trim()
       onSuccess?.(name)
+      handleClose()
     },
     onError: (error) => {
-      onError?.(bucketName.trim(), error.message)
-    },
-    onSettled: () => {
+      const trimmed = bucketName.trim()
+
+      if (error.data?.code === "CONFLICT") {
+        setNameError(t`"${trimmed}" is already taken.`)
+        return
+      }
+
+      onError?.(trimmed, error.message)
       handleClose()
     },
   })
@@ -113,6 +127,13 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
       }
     }
 
+    // Fast path against the already-loaded bucket list — catches the common case
+    // instantly, without waiting on the server's authoritative CONFLICT response.
+    if (existingBuckets.some((b) => b.name === trimmed)) {
+      setNameError(t`"${trimmed}" is already taken.`)
+      return false
+    }
+
     setNameError(null)
     return true
   }
@@ -146,7 +167,7 @@ export const CreateBucketModal = ({ isOpen, onClose, onSuccess, onError }: Creat
       title={t`Create Bucket`}
       open={isOpen}
       onCancel={handleClose}
-      confirmButtonLabel={t`Create Bucket`}
+      confirmButtonLabel={createBucketMutation.isPending ? t`Creating...` : t`Create Bucket`}
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"

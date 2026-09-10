@@ -58,6 +58,9 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
+msgid "\"{trimmed}\" is already taken."
+msgstr "\"{trimmed}\" is already taken."
+
 #. placeholder {0}: selectedIndices.length
 msgid "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rules}}"
 msgstr "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rules}}"

@@ -327,10 +327,25 @@ export const swiftRouter = {
 
         validateSwiftService(swift)
 
-        const headers = buildContainerMetadataHeaders(options)
-
         const accountPath = account || ""
         const url = accountPath ? `${accountPath}/${encodeURIComponent(container)}` : encodeURIComponent(container)
+
+        const exists = await swift
+          .head(url)
+          .then(() => true)
+          .catch((error) => {
+            if (error.statusCode === 404) return false
+            throw mapErrorResponseToTRPCError(error, { operation: "create container", container })
+          })
+
+        if (exists) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Conflict - create container - container already exists: ${container}`,
+          })
+        }
+
+        const headers = buildContainerMetadataHeaders(options)
 
         await swift.put(url, undefined, { headers }).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "create container", container })

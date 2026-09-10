@@ -408,6 +408,7 @@ export const CephBuckets = () => {
         setCreateModalOpen={setCreateModalOpen}
         onCreateSuccess={handleCreateSuccess}
         onCreateError={handleCreateError}
+        existingBuckets={buckets}
         onEmptySuccess={handleEmptySuccess}
         onEmptyError={handleEmptyError}
         onDeleteSuccess={handleDeleteSuccess}

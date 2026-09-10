@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
+import { BrowserRow } from "./"
 
 interface CreateFolderModalProps {
   isOpen: boolean
@@ -11,9 +12,17 @@ interface CreateFolderModalProps {
   onClose: () => void
   onSuccess?: (folderName: string) => void
   onError?: (folderName: string, errorMessage: string) => void
+  existingRows?: BrowserRow[]
 }
 
-export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, onError }: CreateFolderModalProps) => {
+export const CreateFolderModal = ({
+  isOpen,
+  currentPrefix,
+  onClose,
+  onSuccess,
+  onError,
+  existingRows = [],
+}: CreateFolderModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName } = useParams({
@@ -63,6 +72,13 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
       setNameError(t`Folder name cannot have leading or trailing whitespace`)
       return false
     }
+
+    const newPath = `${currentPrefix}${trimmed}/`
+    if (existingRows.some((row) => row.kind === "folder" && row.name === newPath)) {
+      setNameError(t`A folder with this name already exists`)
+      return false
+    }
+
     setNameError(null)
     return true
   }
