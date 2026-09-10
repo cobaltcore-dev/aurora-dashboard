@@ -109,6 +109,7 @@ const createMockContext = (shouldFailAuth = false, shouldFailSwift = false) => {
     }),
     put: vi.fn().mockResolvedValue({
       ok: true,
+      status: 201,
       headers: new Headers(),
     }),
     patch: vi.fn().mockResolvedValue({
@@ -531,8 +532,6 @@ describe("swiftRouter", () => {
   describe("createContainer", () => {
     it("should successfully create container", async () => {
       const mockCtx = createMockContext()
-      // No existing container at this name — the pre-existence HEAD check should 404.
-      mockCtx.mockSwift.head.mockRejectedValue({ statusCode: 404, message: "Not Found" })
       const caller = createCaller(mockCtx)
 
       const input = { project_id: TEST_PROJECT_ID, container: "new-container" }
@@ -543,9 +542,25 @@ describe("swiftRouter", () => {
       expect(result).toBe(true)
     })
 
+    it("treats a 201 response as a successful create", async () => {
+      const mockCtx = createMockContext()
+      mockCtx.mockSwift.put.mockResolvedValue({ ok: true, status: 201, headers: new Headers() })
+      const caller = createCaller(mockCtx)
+
+      const input = { project_id: TEST_PROJECT_ID, container: "new-container" }
+      const result = await caller.storage.swift.createContainer(input)
+
+      expect(result).toBe(true)
+      expect(mockCtx.mockSwift.put).toHaveBeenCalledTimes(1)
+      expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
+        encodeURIComponent("new-container"),
+        undefined,
+        expect.anything()
+      )
+    })
+
     it("should handle metadata during creation", async () => {
       const mockCtx = createMockContext()
-      mockCtx.mockSwift.head.mockRejectedValue({ statusCode: 404, message: "Not Found" })
       const caller = createCaller(mockCtx)
 
       const input = {
@@ -565,13 +580,16 @@ describe("swiftRouter", () => {
 
     it("should throw CONFLICT when container already exists", async () => {
       const mockCtx = createMockContext()
-      // Default head mock resolves successfully, simulating an existing container.
+      // Swift answers an idempotent container PUT with 202 when the container already
+      // existed (201 means newly created) — this is how the race-free existence check
+      // is implemented, no HEAD pre-check involved.
+      mockCtx.mockSwift.put.mockResolvedValue({ ok: true, status: 202, headers: new Headers() })
       const caller = createCaller(mockCtx)
 
       const input = { project_id: TEST_PROJECT_ID, container: "existing-container" }
 
       await expect(caller.storage.swift.createContainer(input)).rejects.toMatchObject({ code: "CONFLICT" })
-      expect(mockCtx.mockSwift.put).not.toHaveBeenCalled()
+      expect(mockCtx.mockSwift.head).not.toHaveBeenCalled()
     })
   })
 

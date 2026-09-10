@@ -5,6 +5,7 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { CreateContainerModal } from "./CreateContainerModal"
+import { ContainerSummary } from "@/server/Storage/types/swift"
 
 // ─── Mock useProjectId ────────────────────────────────────────────────────────
 
@@ -21,17 +22,22 @@ const mockInvalidate = vi.fn()
 
 // Controls which path mockMutate takes: null = success, string = error message
 let mutationError: string | null = null
+// tRPC error code the mocked failure carries — mirrors error.data.code from the real client.
+let mutationErrorCode: string | undefined = undefined
 
 // Captured options from the last useMutation call so mockMutate can fire them
 let capturedOptions: {
   onSuccess?: () => void
-  onError?: (error: { message: string }) => void
+  onError?: (error: { message: string; data?: { code?: string } }) => void
   onSettled?: () => void
 } = {}
 
 const mockMutate = vi.fn().mockImplementation(() => {
   if (mutationError) {
-    capturedOptions.onError?.({ message: mutationError })
+    capturedOptions.onError?.({
+      message: mutationError,
+      data: mutationErrorCode ? { code: mutationErrorCode } : undefined,
+    })
   } else {
     capturedOptions.onSuccess?.()
   }
@@ -54,7 +60,7 @@ vi.mock("@/client/trpcClient", () => ({
         createContainer: {
           useMutation: (options: {
             onSuccess?: () => void
-            onError?: (error: { message: string }) => void
+            onError?: (error: { message: string; data?: { code?: string } }) => void
             onSettled?: () => void
           }) => {
             capturedOptions = options ?? {}
@@ -78,12 +84,14 @@ const renderModal = ({
   onSuccess = vi.fn(),
   onError = vi.fn(),
   maxContainerNameLength,
+  existingContainerNames = [],
 }: {
   isOpen?: boolean
   onClose?: () => void
   onSuccess?: (name: string) => void
   onError?: (name: string, error: string) => void
   maxContainerNameLength?: number
+  existingContainerNames?: string[]
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -94,6 +102,7 @@ const renderModal = ({
           onSuccess={onSuccess}
           onError={onError}
           maxContainerNameLength={maxContainerNameLength}
+          existingContainers={existingContainerNames.map((name): ContainerSummary => ({ name, count: 0, bytes: 0 }))}
         />
       </PortalProvider>
     </I18nProvider>
@@ -105,6 +114,7 @@ describe("CreateContainerModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     mutationError = null
+    mutationErrorCode = undefined
     capturedOptions = {}
     await act(async () => {
       i18n.activate("en")
@@ -218,6 +228,33 @@ describe("CreateContainerModal", () => {
         expect(screen.queryByText(/cannot contain slashes/i)).not.toBeInTheDocument()
       })
     })
+
+    test("rejects a name already present in existingContainers without calling the mutation", async () => {
+      const user = userEvent.setup()
+      renderModal({ existingContainerNames: ["taken-container"] })
+
+      const input = screen.getByLabelText(/Container name/i)
+      await user.type(input, "taken-container")
+      await user.keyboard("{Enter}")
+
+      await waitFor(() => {
+        expect(screen.getByText(/is already taken/i)).toBeInTheDocument()
+      })
+      expect(mockMutate).not.toHaveBeenCalled()
+    })
+
+    test("accepts a name not present in existingContainers", async () => {
+      const user = userEvent.setup()
+      renderModal({ existingContainerNames: ["other-container"] })
+
+      const input = screen.getByLabelText(/Container name/i)
+      await user.type(input, "new-container")
+      await user.keyboard("{Enter}")
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalled()
+      })
+    })
   })
 
   describe("Submission", () => {
@@ -284,6 +321,37 @@ describe("CreateContainerModal", () => {
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith("my-container", "Container already exists")
       })
+    })
+
+    test("stays open on a non-CONFLICT error, firing onError instead of closing", async () => {
+      mutationError = "Creation failed"
+      const onClose = vi.fn()
+      const onError = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onClose, onError })
+      await user.type(screen.getByLabelText(/Container name/i), "my-container")
+      await user.click(screen.getByRole("button", { name: /Create/i }))
+      await waitFor(() => {
+        expect(onError).toHaveBeenCalledWith("my-container", "Creation failed")
+      })
+      expect(onClose).not.toHaveBeenCalled()
+      expect(screen.getByText("Create Container")).toBeInTheDocument()
+    })
+
+    test("on a CONFLICT (name taken) error, keeps the modal open and shows an inline field error instead of the toast callback", async () => {
+      mutationError = "Container already exists"
+      mutationErrorCode = "CONFLICT"
+      const onClose = vi.fn()
+      const onError = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onClose, onError })
+      await user.type(screen.getByLabelText(/Container name/i), "taken-on-server")
+      await user.click(screen.getByRole("button", { name: /Create/i }))
+      await waitFor(() => {
+        expect(screen.getByText(/"taken-on-server" is already taken/i)).toBeInTheDocument()
+      })
+      expect(onClose).not.toHaveBeenCalled()
+      expect(onError).not.toHaveBeenCalled()
     })
   })
 

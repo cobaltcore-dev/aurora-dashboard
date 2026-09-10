@@ -764,11 +764,12 @@ describe("CreateBucketModal", () => {
       })
     })
 
-    test("closes modal on error", async () => {
+    test("stays open on a non-CONFLICT error so the user can retry", async () => {
       const user = userEvent.setup()
       const mockOnClose = vi.fn()
+      const mockOnError = vi.fn()
       mockState.mutationError = "Creation failed"
-      renderModal({ onClose: mockOnClose })
+      renderModal({ onClose: mockOnClose, onError: mockOnError })
 
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket")
@@ -777,8 +778,10 @@ describe("CreateBucketModal", () => {
       await user.click(createButton)
 
       await waitFor(() => {
-        expect(mockOnClose).toHaveBeenCalledTimes(1)
+        expect(mockOnError).toHaveBeenCalledWith("my-bucket", "Creation failed")
       })
+      expect(mockOnClose).not.toHaveBeenCalled()
+      expect(screen.getByRole("dialog")).toBeInTheDocument()
     })
 
     test("on a CONFLICT (name taken) error, keeps the modal open and shows an inline field error instead of the toast callback", async () => {

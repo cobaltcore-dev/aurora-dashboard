@@ -5,6 +5,7 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { CreateFolderModal } from "./CreateFolderModal"
+import type { BrowserRow } from "./"
 
 // ─── Mock useProjectId ────────────────────────────────────────────────────────
 
@@ -93,12 +94,14 @@ const renderModal = ({
   onClose = vi.fn(),
   onSuccess = vi.fn(),
   onError = vi.fn(),
+  existingRows = [],
 }: {
   isOpen?: boolean
   currentPrefix?: string
   onClose?: () => void
   onSuccess?: (name: string) => void
   onError?: (name: string, error: string) => void
+  existingRows?: BrowserRow[]
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -109,6 +112,7 @@ const renderModal = ({
           onClose={onClose}
           onSuccess={onSuccess}
           onError={onError}
+          existingRows={existingRows}
         />
       </PortalProvider>
     </I18nProvider>
@@ -235,6 +239,56 @@ describe("CreateFolderModal", () => {
       await user.type(input, "good-name")
       await waitFor(() => {
         expect(screen.queryByText(/cannot contain slashes/i)).not.toBeInTheDocument()
+      })
+    })
+
+    test("rejects a folder name that already exists at the root level", async () => {
+      const user = userEvent.setup()
+      renderModal({
+        currentPrefix: "",
+        existingRows: [{ kind: "folder", name: "reports/", displayName: "reports" }],
+      })
+      await user.type(screen.getByLabelText(/Folder name/i), "reports")
+      await user.keyboard("{Enter}")
+      await waitFor(() => {
+        expect(screen.getByText(/A folder with this name already exists/i)).toBeInTheDocument()
+      })
+      expect(mockMutate).not.toHaveBeenCalled()
+    })
+
+    test("rejects a duplicate folder name inside a subfolder", async () => {
+      const user = userEvent.setup()
+      renderModal({
+        currentPrefix: "documents/",
+        existingRows: [{ kind: "folder", name: "documents/reports/", displayName: "reports" }],
+      })
+      await user.type(screen.getByLabelText(/Folder name/i), "reports")
+      await user.keyboard("{Enter}")
+      await waitFor(() => {
+        expect(screen.getByText(/A folder with this name already exists/i)).toBeInTheDocument()
+      })
+      expect(mockMutate).not.toHaveBeenCalled()
+    })
+
+    test("accepts a folder name that only collides with an object row", async () => {
+      const user = userEvent.setup()
+      renderModal({
+        currentPrefix: "",
+        existingRows: [
+          {
+            kind: "object",
+            name: "reports/",
+            displayName: "reports",
+            bytes: 0,
+            last_modified: undefined,
+            content_type: undefined,
+          },
+        ],
+      })
+      await user.type(screen.getByLabelText(/Folder name/i), "reports")
+      await user.keyboard("{Enter}")
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalled()
       })
     })
   })

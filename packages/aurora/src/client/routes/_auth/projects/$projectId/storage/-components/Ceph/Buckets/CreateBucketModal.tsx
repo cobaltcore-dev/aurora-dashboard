@@ -56,7 +56,6 @@ export const CreateBucketModal = ({
       }
 
       onError?.(trimmed, error.message)
-      handleClose()
     },
   })
 

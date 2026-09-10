@@ -45,7 +45,6 @@ export const CreateContainerModal = ({
       }
 
       onError?.(trimmed, error.message)
-      handleClose()
     },
   })
 
