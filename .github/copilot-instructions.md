@@ -93,12 +93,12 @@ Zone 2  [DataGridToolbar]
         SearchInput → distribution="end"
 
 Zone 3  [DataGridToolbar, optional]
-        Checkbox (select-all, indeterminate)  +  PopupMenu (bulk actions)  +  item count
-        Only rendered when bulk-select feature exists
-
-Zone 4  [DataGridToolbar, optional]
         Breadcrumb / prefix navigation
         Only rendered when hierarchical navigation exists
+
+Zone 4  [DataGridToolbar, optional]
+        Checkbox (select-all, indeterminate)  +  PopupMenu (bulk actions)  +  item count
+        Only rendered when bulk-select feature exists
 ```
 
 - Zone 1 is outside `DataGridToolbar`; zones 2–4 are inside.
