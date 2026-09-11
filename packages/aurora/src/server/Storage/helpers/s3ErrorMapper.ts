@@ -18,6 +18,7 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
   BucketAlreadyExists: "CONFLICT",
   BucketAlreadyOwnedByYou: "CONFLICT",
   BucketNotEmpty: "PRECONDITION_FAILED",
+  PreconditionFailed: "CONFLICT",
   InvalidBucketState: "BAD_REQUEST",
   VersioningNotEnabled: "PRECONDITION_FAILED",
   AccessDenied: "FORBIDDEN",
@@ -80,6 +81,8 @@ export function mapS3ErrorToTRPCError(
     parts.push(
       "The bucket is not empty. Some objects or versions may still exist. Use 'Empty Bucket' first to delete all contents."
     )
+  } else if (errorCode === "PreconditionFailed") {
+    parts.push("The object already exists")
   } else if (s3Error.message) {
     parts.push(s3Error.message)
   }

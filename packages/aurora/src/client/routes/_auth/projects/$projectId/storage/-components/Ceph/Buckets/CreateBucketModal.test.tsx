@@ -555,7 +555,7 @@ describe("CreateBucketModal", () => {
       await user.click(createButton)
 
       await waitFor(() => {
-        expect(screen.getByText(/is already taken/i)).toBeInTheDocument()
+        expect(screen.getByText(/already exists/i)).toBeInTheDocument()
       })
       expect(mockMutate).not.toHaveBeenCalled()
     })
@@ -799,7 +799,7 @@ describe("CreateBucketModal", () => {
       await user.click(createButton)
 
       await waitFor(() => {
-        expect(screen.getByText(/"taken-on-server" is already taken/i)).toBeInTheDocument()
+        expect(screen.getByText(/A bucket with this name already exists/i)).toBeInTheDocument()
       })
       expect(screen.getByLabelText(/Bucket name/i)).toHaveClass("juno-textinput-invalid")
       expect(mockOnClose).not.toHaveBeenCalled()

@@ -398,7 +398,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderView()
       const row = screen.getByTestId("container-row-alpha")
-      const toggle = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      const toggle = row.querySelector("button") as HTMLElement
       await user.click(toggle)
       expect(mockNavigateFn).not.toHaveBeenCalled()
     })
@@ -465,7 +465,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderView({ onEmptySuccess })
       const row = screen.getByTestId("container-row-alpha")
-      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(row.querySelector("button") as HTMLElement)
       await user.click(screen.getByTestId("empty-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateEmptySuccess" }))
       expect(onEmptySuccess).toHaveBeenCalledWith("alpha", 3)
@@ -476,7 +476,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderView({ onEmptyError })
       const row = screen.getByTestId("container-row-alpha")
-      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(row.querySelector("button") as HTMLElement)
       await user.click(screen.getByTestId("empty-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateEmptyError" }))
       expect(onEmptyError).toHaveBeenCalledWith("alpha", "Delete failed")
@@ -487,7 +487,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderView({ onDeleteSuccess })
       const row = screen.getByTestId("container-row-alpha")
-      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(row.querySelector("button") as HTMLElement)
       await user.click(screen.getByTestId("delete-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateDeleteSuccess" }))
       expect(onDeleteSuccess).toHaveBeenCalledWith("alpha")
@@ -498,7 +498,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderView({ onDeleteError })
       const row = screen.getByTestId("container-row-alpha")
-      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(row.querySelector("button") as HTMLElement)
       await user.click(screen.getByTestId("delete-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateDeleteError" }))
       expect(onDeleteError).toHaveBeenCalledWith("alpha", "Delete failed")
@@ -509,7 +509,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderView({ onPropertiesSuccess })
       const row = screen.getByTestId("container-row-alpha")
-      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(row.querySelector("button") as HTMLElement)
       await user.click(screen.getByTestId("properties-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateEditSuccess" }))
       expect(onPropertiesSuccess).toHaveBeenCalledWith("alpha")
@@ -520,7 +520,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderView({ onPropertiesError })
       const row = screen.getByTestId("container-row-alpha")
-      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(row.querySelector("button") as HTMLElement)
       await user.click(screen.getByTestId("properties-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateEditError" }))
       expect(onPropertiesError).toHaveBeenCalledWith("alpha", "Update failed")
@@ -531,7 +531,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderView({ onAclSuccess })
       const row = screen.getByTestId("container-row-alpha")
-      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(row.querySelector("button") as HTMLElement)
       await user.click(screen.getByTestId("access-control-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateAclSuccess" }))
       expect(onAclSuccess).toHaveBeenCalledWith("alpha")
@@ -542,7 +542,7 @@ describe("ContainerTableView", () => {
       const user = userEvent.setup()
       renderView({ onAclError })
       const row = screen.getByTestId("container-row-alpha")
-      await user.click(row.querySelector("button[aria-haspopup='menu']") as HTMLElement)
+      await user.click(row.querySelector("button") as HTMLElement)
       await user.click(screen.getByTestId("access-control-action-alpha"))
       await user.click(screen.getByRole("button", { name: "SimulateAclError" }))
       expect(onAclError).toHaveBeenCalledWith("alpha", "ACL update failed")
@@ -553,7 +553,7 @@ describe("ContainerTableView", () => {
     // Helper: open the PopupMenu for a given container row, then click Empty
     const openEmptyModal = async (user: ReturnType<typeof userEvent.setup>, containerName: string) => {
       const row = screen.getByTestId(`container-row-${containerName}`)
-      const toggle = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      const toggle = row.querySelector("button") as HTMLElement
       await user.click(toggle)
       await user.click(screen.getByTestId(`empty-action-${containerName}`))
     }
@@ -599,7 +599,7 @@ describe("ContainerTableView", () => {
     // Helper: open the PopupMenu for a given container row, then click Delete
     const openDeleteModal = async (user: ReturnType<typeof userEvent.setup>, containerName: string) => {
       const row = screen.getByTestId(`container-row-${containerName}`)
-      const toggle = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      const toggle = row.querySelector("button") as HTMLElement
       await user.click(toggle)
       await user.click(screen.getByTestId(`delete-action-${containerName}`))
     }
@@ -645,7 +645,7 @@ describe("ContainerTableView", () => {
     // Helper: open the PopupMenu for a given container row, then click Manage Access
     const openManageAccessModal = async (user: ReturnType<typeof userEvent.setup>, containerName: string) => {
       const row = screen.getByTestId(`container-row-${containerName}`)
-      const toggle = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      const toggle = row.querySelector("button") as HTMLElement
       await user.click(toggle)
       await user.click(screen.getByTestId(`access-control-action-${containerName}`))
     }

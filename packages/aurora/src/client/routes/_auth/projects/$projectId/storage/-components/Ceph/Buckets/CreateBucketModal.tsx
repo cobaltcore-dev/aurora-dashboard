@@ -51,7 +51,7 @@ export const CreateBucketModal = ({
       const trimmed = bucketName.trim()
 
       if (error.data?.code === "CONFLICT") {
-        setNameError(t`"${trimmed}" is already taken.`)
+        setNameError(t`A bucket with this name already exists`)
         return
       }
 
@@ -129,7 +129,7 @@ export const CreateBucketModal = ({
     // Fast path against the already-loaded bucket list — catches the common case
     // instantly, without waiting on the server's authoritative CONFLICT response.
     if (existingBuckets.some((b) => b.name === trimmed)) {
-      setNameError(t`"${trimmed}" is already taken.`)
+      setNameError(t`A bucket with this name already exists`)
       return false
     }
 
@@ -171,6 +171,8 @@ export const CreateBucketModal = ({
       cancelButtonLabel={t`Cancel`}
       size="small"
       disableConfirmButton={createBucketMutation.isPending || !bucketName.trim()}
+      disableCancelButton={createBucketMutation.isPending}
+      disableCloseButton={createBucketMutation.isPending}
     >
       <Stack direction="vertical" gap="6">
         <p className="text-theme-default">

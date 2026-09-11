@@ -37,6 +37,8 @@ export const CreateFolderModal = ({
   // useRef so the submitted name survives re-renders triggered by
   // createFolderMutation.reset() inside handleClose() before onSuccess/onError fire.
   const submittedNameRef = useRef("")
+  // Set on CONFLICT so onSettled knows to keep the modal open instead of closing it.
+  const keepOpenRef = useRef(false)
 
   const createFolderMutation = trpcReact.storage.swift.createFolder.useMutation({
     onSuccess: () => {
@@ -44,9 +46,16 @@ export const CreateFolderModal = ({
       onSuccess?.(submittedNameRef.current)
     },
     onError: (error) => {
+      if (error.data?.code === "CONFLICT") {
+        keepOpenRef.current = true
+        setNameError(t`A folder with this name already exists`)
+        return
+      }
+
       onError?.(submittedNameRef.current, error.message)
     },
     onSettled: () => {
+      if (keepOpenRef.current) return
       handleClose()
     },
   })
@@ -91,6 +100,7 @@ export const CreateFolderModal = ({
 
   const handleSubmit = () => {
     if (!validateName(folderName)) return
+    keepOpenRef.current = false
     submittedNameRef.current = folderName.trim()
     const folderPath = `${currentPrefix}${submittedNameRef.current}/`
     createFolderMutation.mutate({ project_id: projectId, container: containerName, folderPath })

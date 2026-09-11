@@ -72,6 +72,18 @@ describe("mapS3ErrorToTRPCError", () => {
       )
     })
 
+    it("maps PreconditionFailed to CONFLICT", () => {
+      const error = Object.assign(new Error("At least one of the pre-conditions you specified did not hold"), {
+        Code: "PreconditionFailed",
+      })
+
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
+        expect.objectContaining({
+          code: "CONFLICT",
+        })
+      )
+    })
+
     it("maps BucketNotEmpty to PRECONDITION_FAILED", () => {
       const error = Object.assign(new Error("The bucket you tried to delete is not empty"), {
         Code: "BucketNotEmpty",

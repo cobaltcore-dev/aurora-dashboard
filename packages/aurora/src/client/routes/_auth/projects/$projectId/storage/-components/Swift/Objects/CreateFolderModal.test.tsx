@@ -22,17 +22,22 @@ const mockInvalidate = vi.fn()
 
 // Controls which path mockMutate takes: null = success, string = error message
 let mutationError: string | null = null
+// tRPC error code the mocked failure carries — mirrors error.data.code from the real client.
+let mutationErrorCode: string | undefined = undefined
 
 // Captured options from the last useMutation call so mockMutate can fire them
 let capturedOptions: {
   onSuccess?: () => void
-  onError?: (error: { message: string }) => void
+  onError?: (error: { message: string; data?: { code?: string } }) => void
   onSettled?: () => void
 } = {}
 
 const mockMutate = vi.fn().mockImplementation(() => {
   if (mutationError) {
-    capturedOptions.onError?.({ message: mutationError })
+    capturedOptions.onError?.({
+      message: mutationError,
+      data: mutationErrorCode ? { code: mutationErrorCode } : undefined,
+    })
   } else {
     capturedOptions.onSuccess?.()
   }
@@ -55,7 +60,7 @@ vi.mock("@/client/trpcClient", () => ({
         createFolder: {
           useMutation: (options: {
             onSuccess?: () => void
-            onError?: (error: { message: string }) => void
+            onError?: (error: { message: string; data?: { code?: string } }) => void
             onSettled?: () => void
           }) => {
             capturedOptions = options ?? {}
@@ -124,6 +129,7 @@ describe("CreateFolderModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     mutationError = null
+    mutationErrorCode = undefined
     capturedOptions = {}
     await act(async () => {
       i18n.activate("en")
@@ -367,6 +373,37 @@ describe("CreateFolderModal", () => {
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith("my-folder", "Object already exists")
       })
+    })
+
+    test("on a CONFLICT (folder already exists on server) error, keeps the modal open and shows an inline field error", async () => {
+      mutationError = "Conflict - create folder - folder already exists"
+      mutationErrorCode = "CONFLICT"
+      const onClose = vi.fn()
+      const onError = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onClose, onError })
+      await user.type(screen.getByLabelText(/Folder name/i), "server-side-duplicate")
+      await user.click(screen.getByRole("button", { name: /Create folder/i }))
+      await waitFor(() => {
+        expect(screen.getByText(/A folder with this name already exists/i)).toBeInTheDocument()
+      })
+      expect(onError).not.toHaveBeenCalled()
+      expect(onClose).not.toHaveBeenCalled()
+      expect(screen.getByLabelText(/Folder name/i)).toHaveValue("server-side-duplicate")
+    })
+
+    test("still toasts and closes for non-conflict errors", async () => {
+      mutationError = "Internal Server Error"
+      const onClose = vi.fn()
+      const onError = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onClose, onError })
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
+      await user.click(screen.getByRole("button", { name: /Create folder/i }))
+      await waitFor(() => {
+        expect(onError).toHaveBeenCalledWith("my-folder", "Internal Server Error")
+      })
+      expect(onClose).toHaveBeenCalled()
     })
   })
 

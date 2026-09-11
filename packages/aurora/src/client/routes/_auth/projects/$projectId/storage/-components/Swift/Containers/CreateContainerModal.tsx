@@ -3,6 +3,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 
 interface CreateContainerModalProps {
@@ -27,6 +28,11 @@ export const CreateContainerModal = ({
   const [containerName, setContainerName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
 
+  const { trackClose, markSubmitted, resetTracking } = useModalTracking({
+    isOpen,
+    actionPrefix: "storage.swift.container.create",
+  })
+
   const utils = trpcReact.useUtils()
 
   const createContainerMutation = trpcReact.storage.swift.createContainer.useMutation({
@@ -40,7 +46,7 @@ export const CreateContainerModal = ({
       const trimmed = containerName.trim()
 
       if (error.data?.code === "CONFLICT") {
-        setNameError(t`"${trimmed}" is already taken.`)
+        setNameError(t`A container with this name already exists`)
         return
       }
 
@@ -49,8 +55,10 @@ export const CreateContainerModal = ({
   })
 
   const handleClose = () => {
+    trackClose()
     setContainerName("")
     setNameError(null)
+    resetTracking()
     createContainerMutation.reset()
     onClose()
   }
@@ -72,7 +80,7 @@ export const CreateContainerModal = ({
     }
 
     if (existingContainers.some((c) => c.name === trimmed)) {
-      setNameError(t`"${trimmed}" is already taken.`)
+      setNameError(t`A container with this name already exists`)
       return false
     }
 
@@ -88,6 +96,7 @@ export const CreateContainerModal = ({
 
   const handleSubmit = () => {
     if (!validateName(containerName)) return
+    markSubmitted()
     createContainerMutation.mutate({
       project_id: projectId,
       container: containerName.trim(),
@@ -112,6 +121,8 @@ export const CreateContainerModal = ({
       cancelButtonLabel={t`Cancel`}
       size="small"
       disableConfirmButton={createContainerMutation.isPending || !containerName.trim()}
+      disableCancelButton={createContainerMutation.isPending}
+      disableCloseButton={createContainerMutation.isPending}
     >
       <Stack direction="vertical" gap="6">
         <p className="text-theme-default">

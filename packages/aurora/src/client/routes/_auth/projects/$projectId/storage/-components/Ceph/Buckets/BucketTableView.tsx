@@ -6,9 +6,11 @@ import {
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
+  Icon,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuToggle,
   Status,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -236,6 +238,12 @@ export const BucketTableView = ({
                   <DataGridCell>{formatBytesBinary(bucket.bytes)}</DataGridCell>
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>
+                      <PopupMenuToggle
+                        title={t`More Actions`}
+                        className="jn:hover:text-theme-accent jn:active:text-theme-accent jn:cursor-pointer"
+                      >
+                        <Icon icon="moreVert" />
+                      </PopupMenuToggle>
                       <PopupMenuOptions>
                         <PopupMenuItem
                           label={t`Show Details`}

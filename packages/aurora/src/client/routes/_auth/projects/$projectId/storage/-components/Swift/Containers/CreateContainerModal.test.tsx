@@ -15,6 +15,16 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => mockProjectId,
 }))
 
+// ─── useRouteContext mock ─────────────────────────────────────────────────────
+
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const mockReset = vi.fn()
@@ -238,7 +248,7 @@ describe("CreateContainerModal", () => {
       await user.keyboard("{Enter}")
 
       await waitFor(() => {
-        expect(screen.getByText(/is already taken/i)).toBeInTheDocument()
+        expect(screen.getByText(/already exists/i)).toBeInTheDocument()
       })
       expect(mockMutate).not.toHaveBeenCalled()
     })
@@ -348,7 +358,7 @@ describe("CreateContainerModal", () => {
       await user.type(screen.getByLabelText(/Container name/i), "taken-on-server")
       await user.click(screen.getByRole("button", { name: /Create/i }))
       await waitFor(() => {
-        expect(screen.getByText(/"taken-on-server" is already taken/i)).toBeInTheDocument()
+        expect(screen.getByText(/A container with this name already exists/i)).toBeInTheDocument()
       })
       expect(onClose).not.toHaveBeenCalled()
       expect(onError).not.toHaveBeenCalled()

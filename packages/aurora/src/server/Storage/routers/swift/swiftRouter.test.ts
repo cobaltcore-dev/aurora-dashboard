@@ -590,6 +590,91 @@ describe("swiftRouter", () => {
 
       await expect(caller.storage.swift.createContainer(input)).rejects.toMatchObject({ code: "CONFLICT" })
       expect(mockCtx.mockSwift.head).not.toHaveBeenCalled()
+      expect(mockCtx.mockSwift.post).not.toHaveBeenCalled()
+    })
+
+    it("does not apply metadata, ACL or quota to a container that already exists", async () => {
+      const mockCtx = createMockContext()
+      mockCtx.mockSwift.put.mockResolvedValue({ ok: true, status: 202, headers: new Headers() })
+      ;(swiftHelpers.buildContainerMetadataHeaders as Mock).mockImplementation(
+        (opts: { metadata?: Record<string, string>; read?: string; quotaBytes?: number; storagePolicy?: string }) => {
+          const headers: Record<string, string> = {}
+          if (opts.storagePolicy !== undefined) headers["X-Storage-Policy"] = opts.storagePolicy
+          if (opts.metadata) headers["X-Container-Meta-Project"] = opts.metadata.project
+          if (opts.read !== undefined) headers["X-Container-Read"] = opts.read
+          if (opts.quotaBytes !== undefined) headers["X-Container-Meta-Quota-Bytes"] = String(opts.quotaBytes)
+          return headers
+        }
+      )
+      const caller = createCaller(mockCtx)
+
+      const input = {
+        project_id: TEST_PROJECT_ID,
+        container: "existing-container",
+        metadata: { project: "test" },
+        read: ".r:*",
+        quotaBytes: 1024,
+      }
+
+      await expect(caller.storage.swift.createContainer(input)).rejects.toMatchObject({ code: "CONFLICT" })
+      expect(mockCtx.mockSwift.post).not.toHaveBeenCalled()
+      // The probe PUT must carry no caller-supplied metadata/ACL/quota headers
+      expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(expect.any(String), undefined, { headers: {} })
+    })
+
+    it("applies caller options in a follow-up POST only after a 201", async () => {
+      const mockCtx = createMockContext()
+      mockCtx.mockSwift.put.mockResolvedValue({ ok: true, status: 201, headers: new Headers() })
+      ;(swiftHelpers.buildContainerMetadataHeaders as Mock).mockImplementation(
+        (opts: { metadata?: Record<string, string>; read?: string; quotaBytes?: number; storagePolicy?: string }) => {
+          const headers: Record<string, string> = {}
+          if (opts.storagePolicy !== undefined) headers["X-Storage-Policy"] = opts.storagePolicy
+          if (opts.metadata) headers["X-Container-Meta-Project"] = opts.metadata.project
+          if (opts.read !== undefined) headers["X-Container-Read"] = opts.read
+          if (opts.quotaBytes !== undefined) headers["X-Container-Meta-Quota-Bytes"] = String(opts.quotaBytes)
+          return headers
+        }
+      )
+      const caller = createCaller(mockCtx)
+
+      const input = {
+        project_id: TEST_PROJECT_ID,
+        container: "new-container",
+        metadata: { project: "test" },
+        read: ".r:*",
+        quotaBytes: 1024,
+      }
+
+      const result = await caller.storage.swift.createContainer(input)
+
+      expect(result).toBe(true)
+      expect(mockCtx.mockSwift.post).toHaveBeenCalledTimes(1)
+      expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(
+        encodeURIComponent("new-container"),
+        undefined,
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            "X-Container-Meta-Project": "test",
+            "X-Container-Read": ".r:*",
+            "X-Container-Meta-Quota-Bytes": "1024",
+          }),
+        })
+      )
+      expect(mockCtx.mockSwift.put.mock.invocationCallOrder[0]).toBeLessThan(
+        mockCtx.mockSwift.post.mock.invocationCallOrder[0]
+      )
+    })
+
+    it("skips the follow-up POST when no options are supplied", async () => {
+      const mockCtx = createMockContext()
+      mockCtx.mockSwift.put.mockResolvedValue({ ok: true, status: 201, headers: new Headers() })
+      const caller = createCaller(mockCtx)
+
+      const input = { project_id: TEST_PROJECT_ID, container: "new-container" }
+      const result = await caller.storage.swift.createContainer(input)
+
+      expect(result).toBe(true)
+      expect(mockCtx.mockSwift.post).not.toHaveBeenCalled()
     })
   })
 
@@ -1214,15 +1299,61 @@ describe("swiftRouter", () => {
       expect(swiftHelpers.normalizeFolderPath).toHaveBeenCalledWith("test-folder")
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         expect.stringContaining("test-container"),
+        expect.any(ArrayBuffer),
         expect.objectContaining({
-          body: expect.any(ArrayBuffer),
           headers: expect.objectContaining({
             "Content-Type": "application/directory",
             "Content-Length": "0",
+            "If-None-Match": "*",
           }),
         })
       )
       expect(result).toBe(true)
+    })
+
+    it("throws CONFLICT instead of overwriting an existing folder marker", async () => {
+      const mockCtx = createMockContext()
+      mockCtx.mockSwift.put.mockRejectedValue({ statusCode: 412, message: "Precondition Failed" })
+      const caller = createCaller(mockCtx)
+
+      ;(swiftHelpers.normalizeFolderPath as Mock).mockReturnValue("test-folder/")
+
+      const input = { project_id: TEST_PROJECT_ID, container: "test-container", folderPath: "test-folder" }
+
+      await expect(caller.storage.swift.createFolder(input)).rejects.toMatchObject({ code: "CONFLICT" })
+      expect(swiftHelpers.mapErrorResponseToTRPCError).not.toHaveBeenCalled()
+    })
+
+    it("sends If-None-Match on the marker PUT so the check is server-authoritative", async () => {
+      const mockCtx = createMockContext()
+      const caller = createCaller(mockCtx)
+
+      ;(swiftHelpers.normalizeFolderPath as Mock).mockReturnValue("test-folder/")
+
+      const input = { project_id: TEST_PROJECT_ID, container: "test-container", folderPath: "test-folder" }
+      await caller.storage.swift.createFolder(input)
+
+      expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(ArrayBuffer),
+        expect.objectContaining({ headers: expect.objectContaining({ "If-None-Match": "*" }) })
+      )
+    })
+
+    it("passes non-412 errors through the shared error mapper", async () => {
+      const mockCtx = createMockContext()
+      mockCtx.mockSwift.put.mockRejectedValue({ statusCode: 403, message: "Forbidden" })
+      ;(swiftHelpers.mapErrorResponseToTRPCError as Mock).mockReturnValue(
+        new TRPCError({ code: "FORBIDDEN", message: "Access forbidden" })
+      )
+      const caller = createCaller(mockCtx)
+
+      ;(swiftHelpers.normalizeFolderPath as Mock).mockReturnValue("test-folder/")
+
+      const input = { project_id: TEST_PROJECT_ID, container: "test-container", folderPath: "test-folder" }
+
+      await expect(caller.storage.swift.createFolder(input)).rejects.toMatchObject({ code: "FORBIDDEN" })
+      expect(swiftHelpers.mapErrorResponseToTRPCError).toHaveBeenCalled()
     })
   })
 

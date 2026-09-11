@@ -58,9 +58,6 @@ msgstr "\"{objectName}\" was successfully moved to {destination}."
 msgid "\"{objectName}\" was successfully uploaded."
 msgstr "\"{objectName}\" was successfully uploaded."
 
-msgid "\"{trimmed}\" is already taken."
-msgstr "\"{trimmed}\" is already taken."
-
 #. placeholder {0}: selectedIndices.length
 msgid "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rules}}"
 msgstr "{0, plural, one {Delete # Lifecycle Rule} other {Delete # Lifecycle Rules}}"
@@ -247,6 +244,12 @@ msgstr "24 hours"
 
 msgid "7 days"
 msgstr "7 days"
+
+msgid "A bucket with this name already exists"
+msgstr "A bucket with this name already exists"
+
+msgid "A container with this name already exists"
+msgstr "A container with this name already exists"
 
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "A flavor with this ID or name already exists. Please use different values."

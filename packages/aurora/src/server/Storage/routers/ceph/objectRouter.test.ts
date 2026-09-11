@@ -1276,6 +1276,7 @@ describe("objects.createFolder", () => {
           Key: "documents/reports/",
           Body: expect.any(Buffer),
           ContentLength: 0,
+          IfNoneMatch: "*",
         }),
       })
     )
@@ -1305,21 +1306,30 @@ describe("objects.createFolder", () => {
     )
   })
 
-  it("succeeds when folder already exists (idempotent)", async () => {
-    mockSend.mockResolvedValue({
-      $metadata: { httpStatusCode: 200 },
+  it("throws CONFLICT instead of overwriting an existing folder marker", async () => {
+    const s3Error = Object.assign(new Error("At least one of the pre-conditions you specified did not hold"), {
+      Code: "PreconditionFailed",
     })
+    mockSend.mockRejectedValue(s3Error)
 
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.ceph.objects.createFolder({
-      project_id: TEST_PROJECT_ID,
-      containerName: TEST_BUCKET_NAME,
-      folderPath: "existing-folder/",
-    })
+    await expect(
+      caller.storage.ceph.objects.createFolder({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+        folderPath: "existing-folder/",
+      })
+    ).rejects.toMatchObject({ code: "CONFLICT" })
 
-    expect(result).toBe(true)
+    // The conditional write itself is what prevents the overwrite — assert
+    // it was actually requested, not just that the mocked rejection surfaced.
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({ IfNoneMatch: "*" }),
+      })
+    )
   })
 
   it("throws NOT_FOUND when bucket does not exist", async () => {

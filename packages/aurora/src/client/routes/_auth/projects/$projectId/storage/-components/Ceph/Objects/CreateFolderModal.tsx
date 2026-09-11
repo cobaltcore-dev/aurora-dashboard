@@ -61,10 +61,12 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
 
   const handleFolderNameChange = (value: string) => {
     setFolderName(value)
-    // Get existing folder names for duplicate detection
-    const existingFolders = objectsData?.folders.map((f) => f.prefix) ?? []
-    const error = validateFolderName(value, existingFolders, currentPrefix)
-    setValidationError(error ? t(error.message) : null)
+
+    if (validationError) {
+      const existingFolders = objectsData?.folders.map((f) => f.prefix) ?? []
+      const error = validateFolderName(value, existingFolders, currentPrefix)
+      setValidationError(error ? t(error.message) : null)
+    }
   }
 
   const handleCreate = () => {
@@ -87,8 +89,6 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
     })
   }
 
-  const isValid = !validationError && folderName.trim().length > 0
-
   return (
     <Modal
       open={isOpen}
@@ -102,7 +102,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
       onConfirm={handleCreate}
       confirmButtonVariant="primary"
       cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={!isValid || createFolderMutation.isPending}
+      disableConfirmButton={createFolderMutation.isPending || !folderName.trim()}
       disableCancelButton={createFolderMutation.isPending}
       disableCloseButton={createFolderMutation.isPending}
     >
@@ -129,7 +129,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
           invalid={!!validationError}
           errortext={validationError || undefined}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && isValid && !createFolderMutation.isPending) {
+            if (e.key === "Enter" && !createFolderMutation.isPending) {
               handleCreate()
             }
           }}
