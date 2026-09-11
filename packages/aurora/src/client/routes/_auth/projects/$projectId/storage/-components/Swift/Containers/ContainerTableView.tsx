@@ -238,7 +238,12 @@ export const ContainerTableView = ({
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>
                       <PopupMenuToggle as="div">
-                        <Button icon="moreVert" title={t`Container actions`} className="!bg-transparent" />
+                        <Button
+                          icon="moreVert"
+                          title={t`Container actions`}
+                          aria-label={t`Container actions`}
+                          className="!bg-transparent"
+                        />
                       </PopupMenuToggle>
                       <PopupMenuOptions>
                         <PopupMenuItem

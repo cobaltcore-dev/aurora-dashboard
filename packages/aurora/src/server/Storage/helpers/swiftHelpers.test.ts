@@ -1094,19 +1094,40 @@ describe("swiftHelpers", () => {
       expect(error.message).toBe("Conflict - delete container container: not-empty")
     })
 
-    it("should map 412 status (If-None-Match/If-Match precondition failure) to CONFLICT", () => {
+    it("should map 412 status to CONFLICT when the caller marks it as a create-if-not-exists check (e.g. createFolder's If-None-Match: *)", () => {
       const errorResponse = {
         name: "SignalOpenstackApiError",
         statusCode: 412,
         message: "Precondition Failed",
       }
-      const context = { operation: "create folder", container: "test-container", object: "test-folder/" }
+      const context = {
+        operation: "create folder",
+        container: "test-container",
+        object: "test-folder/",
+        preconditionFailedMeansAlreadyExists: true,
+      }
 
       const error = mapErrorResponseToTRPCError(errorResponse, context)
 
       expect(error.code).toBe("CONFLICT")
       expect(error.message).toBe(
         "Conflict - create folder container: test-container, object: test-folder/ - already exists"
+      )
+    })
+
+    it("should map 412 status to PRECONDITION_FAILED (not CONFLICT) for a general conditional request, e.g. getObjectMetadata's arbitrary If-Match/If-None-Match", () => {
+      const errorResponse = {
+        name: "SignalOpenstackApiError",
+        statusCode: 412,
+        message: "Precondition Failed",
+      }
+      const context = { operation: "get object metadata", container: "test-container", object: "file.txt" }
+
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
+
+      expect(error.code).toBe("PRECONDITION_FAILED")
+      expect(error.message).toBe(
+        "Precondition failed - get object metadata container: test-container, object: file.txt"
       )
     })
 

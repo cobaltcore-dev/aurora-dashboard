@@ -2,7 +2,7 @@ import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { BrowserRow } from "./"
 
@@ -11,7 +11,6 @@ interface CreateFolderModalProps {
   currentPrefix: string
   onClose: () => void
   onSuccess?: (folderName: string) => void
-  onError?: (folderName: string, errorMessage: string) => void
   existingRows?: BrowserRow[]
 }
 
@@ -20,7 +19,6 @@ export const CreateFolderModal = ({
   currentPrefix,
   onClose,
   onSuccess,
-  onError,
   existingRows = [],
 }: CreateFolderModalProps) => {
   const { t } = useLingui()
@@ -31,38 +29,34 @@ export const CreateFolderModal = ({
 
   const [folderName, setFolderName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const utils = trpcReact.useUtils()
 
   // useRef so the submitted name survives re-renders triggered by
-  // createFolderMutation.reset() inside handleClose() before onSuccess/onError fire.
+  // createFolderMutation.reset() inside handleClose() before onSuccess fires.
   const submittedNameRef = useRef("")
-  // Set on CONFLICT so onSettled knows to keep the modal open instead of closing it.
-  const keepOpenRef = useRef(false)
 
   const createFolderMutation = trpcReact.storage.swift.createFolder.useMutation({
     onSuccess: () => {
       utils.storage.swift.listObjects.invalidate()
       onSuccess?.(submittedNameRef.current)
+      handleClose()
     },
     onError: (error) => {
       if (error.data?.code === "CONFLICT") {
-        keepOpenRef.current = true
         setNameError(t`A folder with this name already exists`)
-        return
+        setSubmitError(null)
+      } else {
+        setSubmitError(error.message || t`The folder could not be created. Try again.`)
       }
-
-      onError?.(submittedNameRef.current, error.message)
-    },
-    onSettled: () => {
-      if (keepOpenRef.current) return
-      handleClose()
     },
   })
 
   const handleClose = () => {
     setFolderName("")
     setNameError(null)
+    setSubmitError(null)
     createFolderMutation.reset()
     onClose()
   }
@@ -95,12 +89,13 @@ export const CreateFolderModal = ({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setFolderName(value)
+    setSubmitError(null)
     if (nameError) validateName(value)
   }
 
   const handleSubmit = () => {
     if (!validateName(folderName)) return
-    keepOpenRef.current = false
+    setSubmitError(null)
     submittedNameRef.current = folderName.trim()
     const folderPath = `${currentPrefix}${submittedNameRef.current}/`
     createFolderMutation.mutate({ project_id: projectId, container: containerName, folderPath })
@@ -138,6 +133,18 @@ export const CreateFolderModal = ({
       disableCloseButton={createFolderMutation.isPending}
     >
       <Stack direction="vertical" gap="6">
+        {submitError && (
+          <Message
+            variant="error"
+            dismissible
+            onDismiss={() => setSubmitError(null)}
+            role="alert"
+            aria-live="assertive"
+            data-testid="create-folder-error"
+          >
+            {submitError}
+          </Message>
+        )}
         <p className="text-theme-default">
           <Trans>
             Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing

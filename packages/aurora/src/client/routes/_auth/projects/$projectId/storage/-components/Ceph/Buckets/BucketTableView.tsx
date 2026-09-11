@@ -239,7 +239,12 @@ export const BucketTableView = ({
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>
                       <PopupMenuToggle as="div">
-                        <Button icon="moreVert" title={t`Bucket actions`} className="!bg-transparent" />
+                        <Button
+                          icon="moreVert"
+                          title={t`Bucket actions`}
+                          aria-label={t`Bucket actions`}
+                          className="!bg-transparent"
+                        />
                       </PopupMenuToggle>
                       <PopupMenuOptions>
                         <PopupMenuItem

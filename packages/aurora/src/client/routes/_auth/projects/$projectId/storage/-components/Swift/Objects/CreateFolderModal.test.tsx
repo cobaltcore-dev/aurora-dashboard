@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -29,7 +29,6 @@ let mutationErrorCode: string | undefined = undefined
 let capturedOptions: {
   onSuccess?: () => void
   onError?: (error: { message: string; data?: { code?: string } }) => void
-  onSettled?: () => void
 } = {}
 
 const mockMutate = vi.fn().mockImplementation(() => {
@@ -41,7 +40,6 @@ const mockMutate = vi.fn().mockImplementation(() => {
   } else {
     capturedOptions.onSuccess?.()
   }
-  capturedOptions.onSettled?.()
 })
 
 vi.mock("@/client/trpcClient", () => ({
@@ -61,7 +59,6 @@ vi.mock("@/client/trpcClient", () => ({
           useMutation: (options: {
             onSuccess?: () => void
             onError?: (error: { message: string; data?: { code?: string } }) => void
-            onSettled?: () => void
           }) => {
             capturedOptions = options ?? {}
             return {
@@ -98,14 +95,12 @@ const renderModal = ({
   currentPrefix = "",
   onClose = vi.fn(),
   onSuccess = vi.fn(),
-  onError = vi.fn(),
   existingRows = [],
 }: {
   isOpen?: boolean
   currentPrefix?: string
   onClose?: () => void
   onSuccess?: (name: string) => void
-  onError?: (name: string, error: string) => void
   existingRows?: BrowserRow[]
 } = {}) =>
   render(
@@ -116,7 +111,6 @@ const renderModal = ({
           currentPrefix={currentPrefix}
           onClose={onClose}
           onSuccess={onSuccess}
-          onError={onError}
           existingRows={existingRows}
         />
       </PortalProvider>
@@ -363,80 +357,108 @@ describe("CreateFolderModal", () => {
   })
 
   describe("Error handling", () => {
-    test("calls onError with folder name and error message on mutation failure", async () => {
-      mutationError = "Object already exists"
-      const onError = vi.fn()
+    test("shows a persistent error banner for a non-CONFLICT failure", async () => {
+      mutationError = "Internal Server Error"
       const user = userEvent.setup()
-      renderModal({ onError })
+      renderModal()
       await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith("my-folder", "Object already exists")
+        expect(screen.getByTestId("create-folder-error")).toHaveTextContent("Internal Server Error")
       })
     })
 
-    test("on a CONFLICT (folder already exists on server) error, keeps the modal open and shows an inline field error", async () => {
+    test("error banner carries role=alert and aria-live=assertive", async () => {
+      mutationError = "Creation failed"
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
+      await user.click(screen.getByRole("button", { name: /Create folder/i }))
+
+      const banner = await screen.findByTestId("create-folder-error")
+      expect(banner).toHaveAttribute("role", "alert")
+      expect(banner).toHaveAttribute("aria-live", "assertive")
+    })
+
+    test("stays open on a non-CONFLICT error so the user can retry", async () => {
+      mutationError = "Creation failed"
+      const onClose = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onClose })
+      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
+      await user.click(screen.getByRole("button", { name: /Create folder/i }))
+      await waitFor(() => {
+        expect(screen.getByTestId("create-folder-error")).toBeInTheDocument()
+      })
+      expect(onClose).not.toHaveBeenCalled()
+      expect(screen.getByLabelText(/Folder name/i)).toHaveValue("my-folder")
+    })
+
+    test("clears the error banner when the folder name is edited", async () => {
+      mutationError = "Creation failed"
+      const user = userEvent.setup()
+      renderModal()
+      const input = screen.getByLabelText(/Folder name/i)
+      await user.type(input, "my-folder")
+      await user.click(screen.getByRole("button", { name: /Create folder/i }))
+      await waitFor(() => {
+        expect(screen.getByTestId("create-folder-error")).toBeInTheDocument()
+      })
+
+      await user.type(input, "-2")
+
+      expect(screen.queryByTestId("create-folder-error")).not.toBeInTheDocument()
+    })
+
+    test("a dismiss-then-new-failure cycle re-shows a fresh banner", async () => {
+      mutationError = "Creation failed"
+      const user = userEvent.setup()
+      renderModal()
+      const input = screen.getByLabelText(/Folder name/i)
+      await user.type(input, "my-folder")
+      const createButton = screen.getByRole("button", { name: /Create folder/i })
+      await user.click(createButton)
+
+      const banner = await screen.findByTestId("create-folder-error")
+      const dismissButton = within(banner).getByRole("button")
+      await user.click(dismissButton)
+
+      expect(screen.queryByTestId("create-folder-error")).not.toBeInTheDocument()
+
+      await user.click(createButton)
+
+      expect(await screen.findByTestId("create-folder-error")).toBeInTheDocument()
+    })
+
+    test("on a CONFLICT (folder already exists on server) error, keeps the modal open and shows an inline field error instead of a banner", async () => {
       mutationError = "Conflict - create folder - folder already exists"
       mutationErrorCode = "CONFLICT"
       const onClose = vi.fn()
-      const onError = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onClose, onError })
+      renderModal({ onClose })
       await user.type(screen.getByLabelText(/Folder name/i), "server-side-duplicate")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
       await waitFor(() => {
         expect(screen.getByText(/A folder with this name already exists/i)).toBeInTheDocument()
       })
-      expect(onError).not.toHaveBeenCalled()
+      expect(screen.queryByTestId("create-folder-error")).not.toBeInTheDocument()
       expect(onClose).not.toHaveBeenCalled()
       expect(screen.getByLabelText(/Folder name/i)).toHaveValue("server-side-duplicate")
-    })
-
-    test("still toasts and closes for non-conflict errors", async () => {
-      mutationError = "Internal Server Error"
-      const onClose = vi.fn()
-      const onError = vi.fn()
-      const user = userEvent.setup()
-      renderModal({ onClose, onError })
-      await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
-      await user.click(screen.getByRole("button", { name: /Create folder/i }))
-      await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith("my-folder", "Internal Server Error")
-      })
-      expect(onClose).toHaveBeenCalled()
     })
   })
 
   describe("Submitted name snapshot", () => {
-    test("onSuccess receives correct name even when onSettled fires and clears state first", async () => {
-      // Suppress the automatic callback firing for this test so we can control
-      // the order manually — without this, mockMutate fires onSuccess synchronously
-      // before our manual ordering, making the assertion non-diagnostic.
-      mockMutate.mockImplementationOnce(() => {
-        // intentionally does not invoke any callbacks
-      })
-
+    test("onSuccess receives the trimmed submitted name even after handleClose resets local state", async () => {
       const onSuccess = vi.fn()
-      const onClose = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onSuccess, onClose })
+      renderModal({ onSuccess })
 
       await user.type(screen.getByLabelText(/Folder name/i), "my-folder")
       await user.click(screen.getByRole("button", { name: /Create folder/i }))
-      expect(mockMutate).toHaveBeenCalled()
 
-      // Simulate the race: fire onSettled first, which calls handleClose and clears folderName
-      await act(async () => {
-        capturedOptions.onSettled?.()
+      await waitFor(() => {
+        expect(onSuccess).toHaveBeenCalledTimes(1)
       })
-      expect(onClose).toHaveBeenCalled()
-
-      // Now fire onSuccess — submittedNameRef.current must still be "my-folder", not ""
-      await act(async () => {
-        capturedOptions.onSuccess?.()
-      })
-      // toHaveBeenCalledTimes(1) confirms it only fired from our manual trigger, not the mock
-      expect(onSuccess).toHaveBeenCalledTimes(1)
       expect(onSuccess).toHaveBeenLastCalledWith("my-folder")
     })
   })

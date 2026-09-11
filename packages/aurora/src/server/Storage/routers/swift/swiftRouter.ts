@@ -944,7 +944,12 @@ export const swiftRouter = {
           : `${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
 
         await swift.put(url, new ArrayBuffer(0), { headers }).catch((error) => {
-          throw mapErrorResponseToTRPCError(error, { operation: "create folder", container, object: normalizedPath })
+          throw mapErrorResponseToTRPCError(error, {
+            operation: "create folder",
+            container,
+            object: normalizedPath,
+            preconditionFailedMeansAlreadyExists: true,
+          })
         })
 
         return true

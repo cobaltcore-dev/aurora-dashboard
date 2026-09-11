@@ -30,7 +30,6 @@ import { DeleteObjectsModal } from "./DeleteObjectsModal"
 import {
   getContainerAccessErrorToast,
   getFolderCreatedToast,
-  getFolderCreateErrorToast,
   getFolderDeletedToast,
   getFolderDeleteErrorToast,
   getObjectDownloadErrorToast,
@@ -195,10 +194,6 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   const handleCreateFolderSuccess = (folderName: string) => {
     const { message, ...options } = getFolderCreatedToast(folderName)
     toast.success(message, options)
-  }
-  const handleCreateFolderError = (folderName: string, errorMessage: string) => {
-    const { message, ...options } = getFolderCreateErrorToast(folderName, errorMessage)
-    toast.error(message, options)
   }
   const handleUploadSuccess = (objectName: string) => {
     const { message, ...options } = getObjectUploadedToast(objectName)
@@ -588,7 +583,6 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
         currentPrefix={currentPrefix}
         onClose={() => setCreateFolderModalOpen(false)}
         onSuccess={handleCreateFolderSuccess}
-        onError={handleCreateFolderError}
         existingRows={allRows}
       />
 

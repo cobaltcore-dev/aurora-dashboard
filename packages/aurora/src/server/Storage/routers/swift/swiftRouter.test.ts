@@ -996,6 +996,33 @@ describe("swiftRouter", () => {
         })
       ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
     })
+
+    // getObjectMetadata's If-Match/If-None-Match are arbitrary caller-supplied conditions,
+    // unlike createFolder's fixed "If-None-Match: *" existence check — a 412 here must not
+    // be misreported as CONFLICT ("already exists"), see swiftHelpers.test.ts for the mapper itself.
+    // The real mapper is mocked in this file, so this asserts the *contract* the router must
+    // uphold: it must not tell the shared mapper to treat this 412 as an existence conflict.
+    it("does not mark a 412 on a conditional If-Match request as a create-if-not-exists conflict", async () => {
+      const mockCtx = createMockContext()
+      mockCtx.mockSwift.head.mockRejectedValue({ statusCode: 412, message: "Precondition Failed" })
+      ;(swiftHelpers.mapErrorResponseToTRPCError as Mock).mockReturnValue(
+        new TRPCError({ code: "PRECONDITION_FAILED", message: "Precondition failed" })
+      )
+      const caller = createCaller(mockCtx)
+
+      await expect(
+        caller.storage.swift.getObjectMetadata({
+          project_id: TEST_PROJECT_ID,
+          container: "test-container",
+          object: "file.txt",
+          ifMatch: '"stale-etag"',
+        })
+      ).rejects.toMatchObject({ code: "PRECONDITION_FAILED" })
+
+      const [, context] = (swiftHelpers.mapErrorResponseToTRPCError as Mock).mock.calls[0]
+      expect(context).toEqual(expect.objectContaining({ operation: "get object metadata" }))
+      expect(context.preconditionFailedMeansAlreadyExists).toBeFalsy()
+    })
   })
 
   describe("updateObjectMetadata", () => {
