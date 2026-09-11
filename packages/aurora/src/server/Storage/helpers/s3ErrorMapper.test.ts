@@ -72,14 +72,32 @@ describe("mapS3ErrorToTRPCError", () => {
       )
     })
 
-    it("maps PreconditionFailed to CONFLICT", () => {
+    it("maps PreconditionFailed to CONFLICT when the operation opts in as a create-if-not-exists check", () => {
+      const error = Object.assign(new Error("At least one of the pre-conditions you specified did not hold"), {
+        Code: "PreconditionFailed",
+      })
+
+      expect(() =>
+        mapS3ErrorToTRPCError(error, {
+          operation: TEST_OPERATION,
+          bucket: TEST_BUCKET,
+          preconditionFailedMeansAlreadyExists: true,
+        })
+      ).toThrow(
+        expect.objectContaining({
+          code: "CONFLICT",
+        })
+      )
+    })
+
+    it("maps PreconditionFailed to PRECONDITION_FAILED for an arbitrary conditional request", () => {
       const error = Object.assign(new Error("At least one of the pre-conditions you specified did not hold"), {
         Code: "PreconditionFailed",
       })
 
       expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
         expect.objectContaining({
-          code: "CONFLICT",
+          code: "PRECONDITION_FAILED",
         })
       )
     })

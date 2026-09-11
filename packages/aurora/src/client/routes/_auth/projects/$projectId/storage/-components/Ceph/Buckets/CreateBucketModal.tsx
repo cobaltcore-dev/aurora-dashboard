@@ -10,7 +10,6 @@ interface CreateBucketModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: (bucketName: string) => void
-  onError?: (bucketName: string, errorMessage: string) => void
   existingBuckets?: Bucket[]
 }
 

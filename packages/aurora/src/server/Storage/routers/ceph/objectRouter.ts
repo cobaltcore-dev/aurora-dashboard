@@ -817,6 +817,7 @@ export const objectRouter = {
           operation: "create folder",
           bucket: containerName,
           key: normalizedPath,
+          preconditionFailedMeansAlreadyExists: true,
         })
       }
     }),

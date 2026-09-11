@@ -89,13 +89,11 @@ const renderModal = ({
   isOpen = true,
   onClose = vi.fn(),
   onSuccess = vi.fn(),
-  onError = vi.fn(),
   existingBucketNames = [],
 }: {
   isOpen?: boolean
   onClose?: () => void
   onSuccess?: (bucketName: string) => void
-  onError?: (bucketName: string, errorMessage: string) => void
   existingBucketNames?: string[]
 } = {}) =>
   render(
@@ -105,7 +103,6 @@ const renderModal = ({
           isOpen={isOpen}
           onClose={onClose}
           onSuccess={onSuccess}
-          onError={onError}
           existingBuckets={existingBucketNames.map((name) => ({ name, count: 0, bytes: 0 }))}
         />
       </PortalProvider>
@@ -747,11 +744,10 @@ describe("CreateBucketModal", () => {
   })
 
   describe("Error handling", () => {
-    test("shows a persistent error banner instead of calling onError for a non-CONFLICT failure", async () => {
+    test("shows a persistent error banner for a non-CONFLICT failure", async () => {
       const user = userEvent.setup()
-      const mockOnError = vi.fn()
       mockState.mutationError = "Bucket already exists"
-      renderModal({ onError: mockOnError })
+      renderModal()
 
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "existing-bucket")
@@ -762,7 +758,6 @@ describe("CreateBucketModal", () => {
       await waitFor(() => {
         expect(screen.getByTestId("create-bucket-error")).toHaveTextContent("Bucket already exists")
       })
-      expect(mockOnError).not.toHaveBeenCalled()
     })
 
     test("error banner carries role=alert and aria-live=assertive", async () => {
@@ -784,9 +779,8 @@ describe("CreateBucketModal", () => {
     test("stays open on a non-CONFLICT error so the user can retry", async () => {
       const user = userEvent.setup()
       const mockOnClose = vi.fn()
-      const mockOnError = vi.fn()
       mockState.mutationError = "Creation failed"
-      renderModal({ onClose: mockOnClose, onError: mockOnError })
+      renderModal({ onClose: mockOnClose })
 
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "my-bucket")
@@ -798,7 +792,6 @@ describe("CreateBucketModal", () => {
         expect(screen.getByTestId("create-bucket-error")).toBeInTheDocument()
       })
       expect(mockOnClose).not.toHaveBeenCalled()
-      expect(mockOnError).not.toHaveBeenCalled()
       expect(screen.getByRole("dialog")).toBeInTheDocument()
     })
 
@@ -844,13 +837,12 @@ describe("CreateBucketModal", () => {
       expect(await screen.findByTestId("create-bucket-error")).toBeInTheDocument()
     })
 
-    test("on a CONFLICT (name taken) error, keeps the modal open and shows an inline field error instead of a banner or the toast callback", async () => {
+    test("on a CONFLICT (name taken) error, keeps the modal open and shows an inline field error instead of a banner", async () => {
       const user = userEvent.setup()
       const mockOnClose = vi.fn()
-      const mockOnError = vi.fn()
       mockState.mutationError = "Bucket already exists"
       mockState.mutationErrorCode = "CONFLICT"
-      renderModal({ onClose: mockOnClose, onError: mockOnError })
+      renderModal({ onClose: mockOnClose })
 
       const input = screen.getByLabelText(/Bucket name/i)
       await user.type(input, "taken-on-server")
@@ -864,7 +856,6 @@ describe("CreateBucketModal", () => {
       expect(screen.getByLabelText(/Bucket name/i)).toHaveClass("juno-textinput-invalid")
       expect(screen.queryByTestId("create-bucket-error")).not.toBeInTheDocument()
       expect(mockOnClose).not.toHaveBeenCalled()
-      expect(mockOnError).not.toHaveBeenCalled()
     })
   })
 
@@ -1055,7 +1046,7 @@ describe("CreateBucketModal", () => {
       rerender(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <CreateBucketModal isOpen={false} onClose={mockOnClose} onSuccess={vi.fn()} onError={vi.fn()} />
+            <CreateBucketModal isOpen={false} onClose={mockOnClose} onSuccess={vi.fn()} />
           </PortalProvider>
         </I18nProvider>
       )
@@ -1066,7 +1057,7 @@ describe("CreateBucketModal", () => {
       rerender(
         <I18nProvider i18n={i18n}>
           <PortalProvider>
-            <CreateBucketModal isOpen={true} onClose={mockOnClose} onSuccess={vi.fn()} onError={vi.fn()} />
+            <CreateBucketModal isOpen={true} onClose={mockOnClose} onSuccess={vi.fn()} />
           </PortalProvider>
         </I18nProvider>
       )

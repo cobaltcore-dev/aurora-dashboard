@@ -22,7 +22,6 @@ import {
 import { BucketTableView } from "./BucketTableView"
 import {
   getBucketCreatedToast,
-  getBucketCreateErrorToast,
   getBucketEmptiedToast,
   getBucketEmptyErrorToast,
   getBucketDeletedToast,
@@ -81,12 +80,6 @@ export const CephBuckets = () => {
     const { message, ...options } = getBucketCreatedToast(bucketName)
 
     toast.success(message, options)
-  }
-
-  const handleCreateError = (bucketName: string, errorMessage: string) => {
-    const { message, ...options } = getBucketCreateErrorToast(bucketName, errorMessage)
-
-    toast.error(message, options)
   }
 
   const handleEmptySuccess = (bucketName: string, deletedCount: number) => {
@@ -407,7 +400,6 @@ export const CephBuckets = () => {
         createModalOpen={createModalOpen}
         setCreateModalOpen={setCreateModalOpen}
         onCreateSuccess={handleCreateSuccess}
-        onCreateError={handleCreateError}
         existingBuckets={buckets}
         onEmptySuccess={handleEmptySuccess}
         onEmptyError={handleEmptyError}

@@ -26,7 +26,6 @@ interface BucketTableViewProps {
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
   onCreateSuccess: (bucketName: string) => void
-  onCreateError: (bucketName: string, errorMessage: string) => void
   onEmptySuccess: (bucketName: string, deletedCount: number) => void
   onEmptyError: (bucketName: string, errorMessage: string) => void
   onDeleteSuccess: (bucketName: string) => void
@@ -45,7 +44,6 @@ export const BucketTableView = ({
   createModalOpen,
   setCreateModalOpen,
   onCreateSuccess,
-  onCreateError,
   onEmptySuccess,
   onEmptyError,
   onDeleteSuccess,
@@ -280,7 +278,6 @@ export const BucketTableView = ({
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSuccess={onCreateSuccess}
-        onError={onCreateError}
         existingBuckets={existingBuckets}
       />
 
