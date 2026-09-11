@@ -1,6 +1,49 @@
 # Aurora Dashboard — PR Review Guidelines
 
+## Repository Context
+
+Aurora is an AWS-style cloud management dashboard backed by OpenStack. It provides self-service infrastructure management (compute, storage, networking, identity) for end users and operators. Correctness, security, and a consistent user experience are critical — subtle bugs in permission checks, data fetching, or UI state can expose resources across project boundaries or silently fail infrastructure operations.
+
+---
+
 A PR reviewer or AI assistant **must reject** code that violates these rules unless the PR author provides an explicit justification.
+
+**Review in three passes — report all findings from all passes before submitting:**
+
+1. **Security & Data** — B.7 (Data Fetching), B.8 (Permissions/RBAC), B.15 (DataGrid/Row Interaction)
+2. **UI Correctness** — B.1 (Component Library), B.4 (Color Tokens), B.5 (Modal Structure), B.6 (Empty/Loading/Error), B.9 (URL State), B.11 (Form Validation)
+3. **Style & Consistency** — B.2 (List Page Zones), B.3 (Spacing), B.10 (Toast Notifications), B.12 (Naming), B.13 (Import Order), B.14 (Accessibility/i18n), B.16 (Messages vs. Toast), B.17 (Utility Hooks), B.18 (PopupMenu Ordering), B.19 (UX Writing)
+
+---
+
+## Quick Reject Checklist
+
+- [ ] Raw HTML element (`<div>`, `<table>`, `<button>`) where a Juno component exists
+- [ ] Hardcoded Tailwind color class (`text-gray-*`, `bg-red-*`) instead of a `text-theme-*` token
+- [ ] `error` variant used for a destructive action (should be `danger`), or vice versa
+- [ ] Ad-hoc spacing value not in the approved list (B.3)
+- [ ] Permission prop not named `can<Verb><Noun>`
+- [ ] UI control shown before permissions are resolved (not fail-closed)
+- [ ] Bulk-action controls or "Create" button rendered without permission check
+- [ ] Nested interactive element in a clickable row without `event.stopPropagation()`
+- [ ] `toast.success/error` with inline string instead of delegating to `*ToastNotifications`
+- [ ] `toast.error` used for a persistent/actionable error (use `<Message>` instead)
+- [ ] `<Message>` variant conflicting with the modal's primary button variant
+- [ ] Modal without `disableCancelButton` / `disableCloseButton` during async operations
+- [ ] Custom `modalFooter` without explicit `disableCloseButton` on the `Modal` itself
+- [ ] Destructive modal without `confirmButtonVariant="primary-danger"`
+- [ ] Destructive modal with alarmist/vague title (`"Danger!"`, `"Are You Sure?"`)
+- [ ] `PopupMenu` without `PopupMenuToggle` as trigger
+- [ ] "Delete" action not the last item in its menu group, or missing divider before it (single-entity menu)
+- [ ] URL-worthy state held in `useState` instead of search params
+- [ ] User-facing string not wrapped in `<Trans>` or `` t`...` ``
+- [ ] Error element without `role="alert"` and `aria-live="assertive"`
+- [ ] Icon-only button without `aria-label`
+- [ ] `outline-none` suppressing focus ring without replacement
+- [ ] File named with lowercase-dash convention or generic name
+- [ ] Import using `../../` traversal beyond one level instead of `@/`
+- [ ] Re-implementation of a utility hook from B.17
+- [ ] String using "Please", "Thanks", "We", exclamation marks, or all-caps
 
 ---
 
@@ -48,7 +91,7 @@ Derived from the reference implementations in:
 - `packages/aurora/src/client/routes/_auth/projects/$projectId/compute/flavors`
 - `packages/aurora/src/client/routes/_auth/projects/$projectId/storage/-components/Ceph`
 
-### B.1 Component Library
+### B.1 [STANDARD] Component Library
 
 Use Juno UI components for UI primitives; use the application components listed below where they are prescribed. Do not use raw HTML elements (`<div>`, `<table>`, `<button>`) where a Juno component exists.
 
@@ -80,7 +123,7 @@ Use Juno UI components for UI primitives; use the application components listed 
 
 **Reject** any PR that introduces a plain `<table>`, `<input>`, `<select>`, or `<button>` where a Juno equivalent exists.
 
-### B.2 List Page Zone Structure
+### B.2 [STANDARD] List Page Zone Structure
 
 Every list page **must** follow this four-zone pattern:
 
@@ -105,7 +148,7 @@ Zone 4  [DataGridToolbar, optional]
 - Each zone is a `Stack` with `direction="horizontal"`.
 - **Reject** any structure that mixes zones or skips Zone 2 when search is available.
 
-### B.3 Spacing Rules
+### B.3 [STYLE] Spacing Rules
 
 Use only these spacing values. Do not invent arbitrary padding or margin classes.
 
@@ -140,7 +183,7 @@ Use only these spacing values. Do not invent arbitrary padding or margin classes
 
 **Reject** any use of ad-hoc `mt-3`, `mb-5`, `px-6`, etc. not listed above.
 
-### B.4 Color Tokens
+### B.4 [STANDARD] Color Tokens
 
 Use only Juno theme tokens. Do not use raw Tailwind color classes (`text-gray-500`, `bg-red-100`, etc.).
 
@@ -159,7 +202,7 @@ Use only Juno theme tokens. Do not use raw Tailwind color classes (`text-gray-50
 
 **Reject** any PR that introduces a raw Tailwind color class for a purpose covered by the tokens above, or that misuses `error`/`danger` semantics.
 
-### B.5 Modal Structure
+### B.5 [STANDARD] Modal Structure
 
 All modals **must** follow this skeleton:
 
@@ -184,32 +227,16 @@ All modals **must** follow this skeleton:
 </Modal>
 ```
 
-**Modal titles** must use title case and state the action clearly. Put the affected object's name in the body, not the title.
+- **Titles:** title case, action-oriented. Put the object name in the body, not the title. Use `"Delete Object"` not `"Are You Sure?"`.
+- **Confirm labels:** prefer verb + object type: `"Delete Image"`, `"Stop Instance"`. Verb alone when object type is long.
+- **Destructive modals:** `confirmButtonVariant="primary-danger"` mandatory. Low severity → button only; mid → checkbox first; high → type a phrase first.
+- **`disableCloseButton` sync:** built-in footer syncs automatically; custom `modalFooter` requires explicit `disableCloseButton` on `<Modal>`.
+- **Loading:** render `<Modal open onCancel={...}><Spinner /></Modal>` while loading; pass data to an inner `*Inner` component.
+- Never stack modals. Never open a modal without prior user interaction.
 
-Do use: `"Delete Object"`, `"Remove User from Project"`, `"Revoke API Key"`
-Do not use: `"Danger!"`, `"Delete"`, `"Are You Sure?"`, `"Action Required"`, `"Please Confirm"`
+**Reject** any modal missing `disableCancelButton` / `disableCloseButton` during async ops, using a custom `<dialog>`, with a vague title, or using `primary-danger` for a non-destructive action.
 
-**Confirm button labels** — prefer verb + object type when the object name is short: `"Delete Image"`, `"Revoke Key"`, `"Stop Instance"`. Fall back to the verb alone when the object type is multi-word or long. Be consistent within the application.
-
-**Destructive modals** — `confirmButtonVariant="primary-danger"` is **mandatory**. Severity determines how the user must confirm:
-
-| Severity | Required confirmation                                      |
-| -------- | ---------------------------------------------------------- |
-| Low      | Modal button only (always enabled)                         |
-| Mid      | Checkbox, then button (enabled after check)                |
-| High     | Type a specified phrase, then button (enabled after match) |
-
-A toast notification confirming deletion is required for all destructive actions unless the action is very low risk or context makes it obvious.
-
-**`disableCancelButton` / `disableCloseButton` sync rule** — when using the built-in footer, `disableCancelButton` automatically disables the close-X. When using a custom `modalFooter`, you must also pass `disableCloseButton` explicitly — the sync does not apply to custom footers.
-
-- Loading state: render `<Modal open onCancel={...}><Spinner /></Modal>` while loading; pass loaded data to an inner `*Inner` component.
-- Conditional footer: when a resource cannot be acted on yet, swap to a "Close"-only footer via the `modalFooter` prop.
-- Never stack modals. Never show a modal without prior user interaction.
-
-**Reject** any modal that omits `disableCancelButton` / `disableCloseButton` during async operations, uses a custom `<dialog>` overlay, has an alarmist/vague title, or uses `primary-danger` for a non-destructive action.
-
-### B.6 Empty / Loading / Error States
+### B.6 [STANDARD] Empty / Loading / Error States
 
 ```tsx
 // Full-page loading
@@ -232,18 +259,13 @@ A toast notification confirming deletion is required for all destructive actions
 <p className="text-theme-error" role="alert" aria-live="assertive">{error}</p>
 ```
 
-**`Status` is the required default** for any error, loading, or empty state not covered by a more specific pattern. It adapts automatically to DataGrid context when placed inside `DataGridRow` + `DataGridCell`.
+- Use `Status` as the default for any error, loading, or empty state not covered by a more specific pattern.
+- Distinguish empty reasons: "no data" → suggest creating; "no filter results" → suggest clearing filters.
+- Scope loading states to the affected component, not the whole page.
 
-**Distinguish empty reasons:**
+**Reject** any error element without `role="alert"` and `aria-live="assertive"`, any dismissible `Message` without `onDismiss`, or any empty/broken state without explanation.
 
-- "No data exists" → suggest next action (e.g. create first item)
-- "No results match current filters" → suggest clearing filters
-
-**Scope loading states tightly** — a DataGrid loading its data must show the spinner scoped to itself, not the whole page. Only use a page-level spinner if the entire page is blocked.
-
-**Reject** any error element without `role="alert"` and `aria-live="assertive"`, any dismissible `Message` banner without `onDismiss`, or any component that renders a visibly empty/broken state without explanation.
-
-### B.7 Data Fetching
+### B.7 [CRITICAL] Data Fetching
 
 Two approved patterns — match the existing pattern in the surrounding module.
 
@@ -272,7 +294,7 @@ startTransition(() => setPromise(createResourcePromise(...)))
 
 **Permissions always default to `false`** while loading (fail-closed). **Reject** any pattern that shows UI controls before permissions are confirmed.
 
-### B.8 Permissions / RBAC
+### B.8 [CRITICAL] Permissions / RBAC
 
 - Centralize feature-area permissions in a `use<Feature>Permissions(projectId)` hook with `staleTime: Infinity`.
 - Boolean permission props **must** be named `can<Verb><Noun>` (e.g., `canDeleteFlavor`, `canUpdateVersioning`).
@@ -280,7 +302,7 @@ startTransition(() => setPromise(createResourcePromise(...)))
 
 **Reject** any permission prop named `isAllowed`, `hasPermission`, `allowed`, or anything other than `can<Verb><Noun>`.
 
-### B.9 URL State Management
+### B.9 [STANDARD] URL State Management
 
 All persistent UI state **must** live in URL search params.
 
@@ -300,7 +322,7 @@ Use a local mirror state for debounced search inputs; sync back on external navi
 
 **Reject** any `useState` for state that should survive a page refresh or be shareable via URL.
 
-### B.10 Toast Notifications
+### B.10 [STANDARD] Toast Notifications
 
 All toast messages **must** be extracted to a dedicated `<Resource>ToastNotifications.tsx` file.
 
@@ -318,7 +340,7 @@ toast.success(message, options)
 
 **Reject** any `toast.success/error/warning(...)` call with an inline string or JSX not delegated to a `*ToastNotifications` helper.
 
-### B.11 Form Validation
+### B.11 [STANDARD] Form Validation
 
 Preferred: `@tanstack/react-form` with Zod schema validators.
 
@@ -343,30 +365,16 @@ const form = useForm({
 </form.Field>
 ```
 
-**Validation timing:**
-
-- **On blur** (default) — validate when user leaves a field; avoids flagging errors mid-typing
-- **On submit** — always validate all fields on submit regardless of earlier validation
-- **As-you-type** — only for fields with strict format requirements (slug, key pattern); avoid for fields where partial input is always temporarily invalid
-
-Never show errors on required but untouched fields before the user has interacted or submitted.
-
-**Error placement:**
-
-- Inline below the field when the error can be attributed to a specific field
-- Summary `<Message variant="error">` at the top of the form for cross-field errors or multi-field submit failures
-- Never use both inline and summary for the same error
-
-**Cross-field validation** — show the error on the dependent field (the one whose value is the problem), not the first field filled in.
-
-- `required` + `errortext` on every validated `TextInput`.
-- `autoFocus` on the primary confirm input.
-- `disabled={isMutating}` on all inputs during in-flight mutations.
-- General error banner (`<Message variant="error">`) at the top of the form, with `onDismiss`.
+- Validate **on blur** by default; always re-validate all fields **on submit**.
+- Validate **as-you-type** only for strict-format fields (slug, key pattern).
+- Never show errors on untouched fields before submit.
+- Inline errors below the field for single-field failures; `<Message variant="error">` at form top for cross-field or multi-field failures. Never use both for the same error.
+- Cross-field errors go on the dependent field, not the first field filled in.
+- `autoFocus` on the primary input. `disabled={isMutating}` on all inputs during in-flight mutations.
 
 **Reject** any form that mutates without validation, shows no error state on failure, or shows errors on untouched fields before submit.
 
-### B.12 File & Component Naming
+### B.12 [STYLE] File & Component Naming
 
 | Artifact       | Convention                                         | Example                        |
 | -------------- | -------------------------------------------------- | ------------------------------ |
@@ -385,7 +393,7 @@ Never show errors on required but untouched fields before the user has interacte
 
 **Reject** any file using lowercase-dash convention (`create-flavor-modal.tsx`), generic names (`Modal.tsx`, `Table.tsx`), or tests placed outside the source directory.
 
-### B.13 Import Order
+### B.13 [STYLE] Import Order
 
 1. React / framework (`react`, `@tanstack/react-router`, `@tanstack/react-form`, `zod`)
 2. i18n (`@lingui/react/macro`, `@lingui/core/macro`)
@@ -398,7 +406,7 @@ Never show errors on required but untouched fields before the user has interacte
 
 All imports **must** use `@/` path aliases. No relative `../../` traversal beyond one level.
 
-### B.14 Accessibility & Internationalisation
+### B.14 [STANDARD] Accessibility & Internationalisation
 
 - All user-facing strings **must** be wrapped in `<Trans>` (JSX) or `` t`...` `` (strings) from `@lingui/react/macro` / `@lingui/core/macro`.
 - Error messages **must** use `role="alert"` and `aria-live="assertive"`. Non-urgent status updates use `role="status"`.
@@ -411,7 +419,7 @@ All imports **must** use `@/` path aliases. No relative `../../` traversal beyon
 
 **Reject** any hardcoded English string in JSX, any error element without appropriate ARIA attributes, or any icon-only button without `aria-label`.
 
-### B.15 DataGrid Column Structure & Row Interaction
+### B.15 [CRITICAL] DataGrid Column Structure & Row Interaction
 
 **Column ordering:**
 
@@ -433,7 +441,7 @@ All imports **must** use `@/` path aliases. No relative `../../` traversal beyon
 
 **Reject** any DataGrid that renders bulk-action or create UI without checking permissions, or any nested interactive element in a clickable row without `stopPropagation()`.
 
-### B.16 Messages vs. Toast Notifications — When to Use Which
+### B.16 [STANDARD] Messages vs. Toast Notifications — When to Use Which
 
 | Situation                                        | Use                                       |
 | ------------------------------------------------ | ----------------------------------------- |
@@ -445,13 +453,12 @@ All imports **must** use `@/` path aliases. No relative `../../` traversal beyon
 | Form-level validation failure                    | `<Message variant="error">` at form top   |
 | DataGrid/section-level error                     | `<Status status="error">` inside the grid |
 
-**Key rule:** Do not use `toast` for errors that require user action — they auto-dismiss and the user may miss them. Use `<Message>` placed close to the relevant content instead.
+- Do not use `toast` for actionable errors — they auto-dismiss and the user may miss them.
+- `<Message>` inside a modal must match the primary button variant (`info` → blue primary, `danger` → `primary-danger`).
 
-**Semantic variant alignment in modals:** When using `<Message>` inside a modal, its variant must align with the primary action button — `info` for blue primary, `danger` for `primary-danger`. Do not mix conflicting semantic colors in the same modal.
+**Reject** any `toast.error` for a persistent or actionable error, or any `<Message>` variant conflicting with the modal's primary button.
 
-**Reject** any `toast.error` used for a persistent or actionable error, or any `<Message>` variant that conflicts with the modal's primary button variant.
-
-### B.17 Recurring Utility Hooks (Do Not Reinvent)
+### B.17 [STANDARD] Recurring Utility Hooks (Do Not Reinvent)
 
 | Hook                        | Purpose                                                   |
 | --------------------------- | --------------------------------------------------------- |
@@ -464,88 +471,43 @@ All imports **must** use `@/` path aliases. No relative `../../` traversal beyon
 
 **Reject** any re-implementation of the above logic inline in a component.
 
-### B.16 PopupMenu / Overflow Menu Item Ordering
+### B.18 [STANDARD] PopupMenu / Overflow Menu Item Ordering
 
-Items in a `PopupMenu` or overflow menu must follow this order:
-
-1. Sort all items **alphabetically** within each group.
-2. **"Delete [Entity]"** is always the **last item**, separated from the rest by a `PopupMenuItem` divider.
-3. When the menu contains actions for **multiple entity types**, group them by entity type with a divider between groups. Within each group, the Delete action is last (no extra divider needed inside multi-entity menus — group dividers already provide separation).
+- Sort items **alphabetically** within each group.
+- **"Delete [Entity]"** is always **last**, preceded by a `PopupMenuItem` divider.
+- For menus with multiple entity types, group by entity with a divider between groups; Delete is last within each group.
 
 ```
-// Single entity (DataGrid row menu)
-Copy Item
-Download Item
-Share Item URL
-View Item
+// Single entity
+Copy Item / Download Item / View Item
 ──────────────
 Delete Item
 
-// Multiple entities (page-level overflow menu)
-Edit Bucket
-Empty Bucket
-Delete Bucket
+// Multiple entities
+Edit Bucket / Empty Bucket / Delete Bucket
 ──────────────
-Edit Policy
-Delete Policy
-──────────────
-Suspend Versioning
-Delete Version
+Edit Policy / Delete Policy
 ```
 
-**Reject** any menu where "Delete" is not the last item in its group, or where a single-entity menu lacks a divider before Delete.
+**Reject** any menu where "Delete" is not last in its group, or a single-entity menu lacks a divider before Delete.
 
-### B.17 UX Writing & Content Standards
+### B.19 [STYLE] UX Writing & Content Standards
 
-These rules apply to all user-visible strings: labels, titles, button text, error messages, toasts, empty states.
+- **Title case** for modal titles, page headings, column headers, button labels, toast/message titles, tab labels. Capitalize nouns, verbs, adjectives, adverbs; lowercase articles, short prepositions, short conjunctions, `"to"` in infinitives.
+- **Never** all-caps, exclamation marks, or double punctuation.
+- **Voice:** active and impersonal. No "We", "Please", "Thanks". Use `"An error occurred"` not `"We encountered an error"`.
+- **Precision:** prefer domain terms (OpenStack, Kubernetes) over vague synonyms.
+- **Consistency:** one term per concept. Don't mix "terminate" and "stop" for the same action.
+- **Button labels:** short imperative verb + object type: `"Delete Image"`, `"Create Instance"`. Never `"OK"` or `"Click to delete"`.
 
-**Title case** — use for: modal titles, page headings, DataGrid column headers, button labels, `Message`/toast titles, tab labels.
-
-Capitalize: first + last word, nouns, verbs, pronouns, adjectives, adverbs, subordinating conjunctions.
-Do NOT capitalize: articles (`a`, `an`, `the`), short prepositions (`at`, `by`, `for`, `in`, `of`, `on`, `to`), short coordinating conjunctions (`and`, `but`, `or`, `nor`), `"to"` in infinitives.
-
-**Never all-caps. No exclamation marks. No double punctuation.**
-
-**Voice** — active and impersonal. Avoid "We", "Us", "Please", "Thanks".
-
-- Do: `"An error occurred while processing your request."`
-- Don't: `"We encountered an error."` / `"Please try again!"`
-
-**Precision** — prefer technical precision over verbosity. Use established domain terms (Kubernetes, OpenStack, etc.) without apology.
-
-**Consistency** — use the same term for the same concept throughout. Don't mix "terminate" and "stop" for the same action.
-
-**Button labels** — short imperative verb (+ short object type when unambiguous): `"Delete"`, `"Create Instance"`, `"Revoke Key"`. Never `"Click to delete"` or `"OK"` unless no better label fits.
-
-**Reject** any string using alarmist language (`"Danger!"`, `"Warning!!!"`), personal voice (`"We're sorry"`), or inconsistent terminology for the same action.
+**Reject** any string using alarmist language, personal voice, or inconsistent terminology for the same action.
 
 ---
 
-## Quick Reject Checklist
+## Review Style
 
-- [ ] Raw HTML element (`<div>`, `<table>`, `<button>`) where a Juno component exists
-- [ ] Hardcoded Tailwind color class (`text-gray-*`, `bg-red-*`) instead of a `text-theme-*` token
-- [ ] `error` variant used for a destructive action (should be `danger`), or vice versa
-- [ ] Ad-hoc spacing value not in the approved list (B.3)
-- [ ] Permission prop not named `can<Verb><Noun>`
-- [ ] UI control shown before permissions are resolved (not fail-closed)
-- [ ] Bulk-action controls or "Create" button rendered without permission check
-- [ ] Nested interactive element in a clickable row without `event.stopPropagation()`
-- [ ] `toast.success/error` with inline string instead of delegating to `*ToastNotifications`
-- [ ] `toast.error` used for a persistent/actionable error (use `<Message>` instead)
-- [ ] `<Message>` variant conflicting with the modal's primary button variant
-- [ ] Modal without `disableCancelButton` / `disableCloseButton` during async operations
-- [ ] Custom `modalFooter` without explicit `disableCloseButton` on the `Modal` itself
-- [ ] Destructive modal without `confirmButtonVariant="primary-danger"`
-- [ ] Destructive modal with alarmist/vague title (`"Danger!"`, `"Are You Sure?"`)
-- [ ] `PopupMenu` without `PopupMenuToggle` as trigger
-- [ ] "Delete" action not the last item in its menu group, or missing divider before it (single-entity menu)
-- [ ] URL-worthy state held in `useState` instead of search params
-- [ ] User-facing string not wrapped in `<Trans>` or `` t`...` ``
-- [ ] Error element without `role="alert"` and `aria-live="assertive"`
-- [ ] Icon-only button without `aria-label`
-- [ ] `outline-none` suppressing focus ring without replacement
-- [ ] File named with lowercase-dash convention or generic name
-- [ ] Import using `../../` traversal beyond one level instead of `@/`
-- [ ] Re-implementation of a utility hook from B.17
-- [ ] String using "Please", "Thanks", "We", exclamation marks, or all-caps
+- Be concise, specific, and actionable.
+- Explain the "why" behind each recommendation — reference the rule it violates and the risk it introduces.
+- Always include a short corrected code snippet when a guideline is violated.
+- Do not repeat findings already raised in a previous review round on the same PR.
+- Prioritize findings: flag `[CRITICAL]` issues first, then `[STANDARD]`, then `[STYLE]`.
