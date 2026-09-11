@@ -50,7 +50,7 @@ Derived from the reference implementations in:
 
 ### B.1 Component Library
 
-All UI components **must** be imported from `@cloudoperators/juno-ui-components`. Do not use raw HTML elements (`<div>`, `<table>`, `<button>`) where a Juno component exists.
+Use Juno UI components for UI primitives; use the application components listed below where they are prescribed. Do not use raw HTML elements (`<div>`, `<table>`, `<button>`) where a Juno component exists.
 
 | Purpose                       | Required component                                                             |
 | ----------------------------- | ------------------------------------------------------------------------------ |
