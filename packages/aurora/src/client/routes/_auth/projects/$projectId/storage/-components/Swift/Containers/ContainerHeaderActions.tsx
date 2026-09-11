@@ -22,7 +22,7 @@ export const ContainerHeaderActions = ({ onOpenModal }: ContainerHeaderActionsPr
   return (
     <PopupMenu>
       <PopupMenuToggle as="div">
-        <Button icon="moreVert" title={t`Container actions`} />
+        <Button icon="moreVert" title={t`Container actions`} aria-label={t`Container actions`} />
       </PopupMenuToggle>
       <PopupMenuOptions>
         <PopupMenuItem

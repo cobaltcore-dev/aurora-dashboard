@@ -785,8 +785,10 @@ export const objectRouter = {
    * Create a folder (zero-byte object with key ending in "/").
    *
    * In S3, folders are virtual - they're just zero-byte objects with keys ending in "/".
-   * This operation is idempotent - creating an existing folder succeeds.
+   * The write is conditional (IfNoneMatch: "*"), so creating a folder that
+   * already exists throws CONFLICT instead of silently overwriting it.
    *
+   * @throws TRPCError CONFLICT - a folder (or object) with this key already exists
    * @throws TRPCError NOT_FOUND - bucket does not exist
    * @throws TRPCError FORBIDDEN - no credentials or access denied
    */
@@ -806,6 +808,7 @@ export const objectRouter = {
             Key: normalizedPath,
             Body: Buffer.from(""),
             ContentLength: 0,
+            IfNoneMatch: "*",
           })
         )
         return true
@@ -814,6 +817,7 @@ export const objectRouter = {
           operation: "create folder",
           bucket: containerName,
           key: normalizedPath,
+          preconditionFailedMeansAlreadyExists: true,
         })
       }
     }),

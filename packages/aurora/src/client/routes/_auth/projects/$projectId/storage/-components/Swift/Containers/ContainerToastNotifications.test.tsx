@@ -4,7 +4,7 @@ import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
 import {
   getContainerCreatedToast,
-  getContainerCreateErrorToast,
+  getContainerCreatedWithWarningToast,
   getContainerEmptiedToast,
   getContainerEmptyErrorToast,
   getContainerDeletedToast,
@@ -62,18 +62,18 @@ describe("ContainerToastNotifications", () => {
     })
   })
 
-  describe("getContainerCreateErrorToast", () => {
-    it("renders correct error message content", () => {
-      renderNotification(getContainerCreateErrorToast("my-container", "Conflict"))
-      expect(screen.getByText("Failed to Create Container")).toBeInTheDocument()
+  describe("getContainerCreatedWithWarningToast", () => {
+    it("renders correct warning message content", () => {
+      renderNotification(getContainerCreatedWithWarningToast("my-container", "Conflict"))
+      expect(screen.getByText("Container Created with Warnings")).toBeInTheDocument()
       expect(screen.getByText(/my-container/)).toBeInTheDocument()
-      expect(screen.getByText(/Could not create container/)).toBeInTheDocument()
+      expect(screen.getByText(/was created, but its settings could not be applied/)).toBeInTheDocument()
       expect(screen.getByText(/Conflict/)).toBeInTheDocument()
     })
 
-    it("handles long error messages", () => {
-      const longMessage = "Container name already exists in this account and cannot be created again"
-      renderNotification(getContainerCreateErrorToast("my-container", longMessage))
+    it("handles long reason messages", () => {
+      const longReason = "Container name already exists in this account and cannot be created again"
+      renderNotification(getContainerCreatedWithWarningToast("my-container", longReason))
       expect(screen.getByText(/Container name already exists/)).toBeInTheDocument()
     })
   })
@@ -234,7 +234,7 @@ describe("ContainerToastNotifications", () => {
     it("all helpers return a message and description as renderable ReactNodes", () => {
       const notifications = [
         getContainerCreatedToast("c"),
-        getContainerCreateErrorToast("c", "err"),
+        getContainerCreatedWithWarningToast("c", "err"),
         getContainerEmptiedToast("c", 3),
         getContainerEmptyErrorToast("c", "err"),
         getContainerDeletedToast("c"),

@@ -1,10 +1,11 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { CreateContainerModal } from "./CreateContainerModal"
+import { ContainerSummary } from "@/server/Storage/types/swift"
 
 // ─── Mock useProjectId ────────────────────────────────────────────────────────
 
@@ -14,6 +15,16 @@ vi.mock("@/client/hooks/useProjectId", () => ({
   useProjectId: () => mockProjectId,
 }))
 
+// ─── useRouteContext mock ─────────────────────────────────────────────────────
+
+const mockOnTrackEvent = vi.fn()
+
+vi.mock("@tanstack/react-router", () => ({
+  useRouteContext: () => ({
+    onTrackEvent: mockOnTrackEvent,
+  }),
+}))
+
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
 const mockReset = vi.fn()
@@ -21,19 +32,34 @@ const mockInvalidate = vi.fn()
 
 // Controls which path mockMutate takes: null = success, string = error message
 let mutationError: string | null = null
+// tRPC error code the mocked failure carries — mirrors error.data.code from the real client.
+let mutationErrorCode: string | undefined = undefined
+// Controls the success payload's partial-success shape (see swiftRouter.createContainer)
+let mutationOptionsApplied = true
+let mutationOptionsError: string | undefined = undefined
+let mockIsPending = false
+
+type CreateContainerResult = { created: true; optionsApplied: boolean; optionsError?: string }
 
 // Captured options from the last useMutation call so mockMutate can fire them
 let capturedOptions: {
-  onSuccess?: () => void
-  onError?: (error: { message: string }) => void
+  onSuccess?: (data: CreateContainerResult) => void
+  onError?: (error: { message: string; data?: { code?: string } }) => void
   onSettled?: () => void
 } = {}
 
 const mockMutate = vi.fn().mockImplementation(() => {
   if (mutationError) {
-    capturedOptions.onError?.({ message: mutationError })
+    capturedOptions.onError?.({
+      message: mutationError,
+      data: mutationErrorCode ? { code: mutationErrorCode } : undefined,
+    })
   } else {
-    capturedOptions.onSuccess?.()
+    capturedOptions.onSuccess?.({
+      created: true,
+      optionsApplied: mutationOptionsApplied,
+      optionsError: mutationOptionsError,
+    })
   }
   capturedOptions.onSettled?.()
 })
@@ -53,15 +79,15 @@ vi.mock("@/client/trpcClient", () => ({
       swift: {
         createContainer: {
           useMutation: (options: {
-            onSuccess?: () => void
-            onError?: (error: { message: string }) => void
+            onSuccess?: (data: CreateContainerResult) => void
+            onError?: (error: { message: string; data?: { code?: string } }) => void
             onSettled?: () => void
           }) => {
             capturedOptions = options ?? {}
             return {
               mutate: mockMutate,
               reset: mockReset,
-              isPending: false,
+              isPending: mockIsPending,
             }
           },
         },
@@ -76,14 +102,16 @@ const renderModal = ({
   isOpen = true,
   onClose = vi.fn(),
   onSuccess = vi.fn(),
-  onError = vi.fn(),
+  onPartialSuccess = vi.fn(),
   maxContainerNameLength,
+  existingContainerNames = [],
 }: {
   isOpen?: boolean
   onClose?: () => void
   onSuccess?: (name: string) => void
-  onError?: (name: string, error: string) => void
+  onPartialSuccess?: (name: string, reason: string) => void
   maxContainerNameLength?: number
+  existingContainerNames?: string[]
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -92,8 +120,9 @@ const renderModal = ({
           isOpen={isOpen}
           onClose={onClose}
           onSuccess={onSuccess}
-          onError={onError}
+          onPartialSuccess={onPartialSuccess}
           maxContainerNameLength={maxContainerNameLength}
+          existingContainers={existingContainerNames.map((name): ContainerSummary => ({ name, count: 0, bytes: 0 }))}
         />
       </PortalProvider>
     </I18nProvider>
@@ -105,6 +134,10 @@ describe("CreateContainerModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     mutationError = null
+    mutationErrorCode = undefined
+    mutationOptionsApplied = true
+    mutationOptionsError = undefined
+    mockIsPending = false
     capturedOptions = {}
     await act(async () => {
       i18n.activate("en")
@@ -218,6 +251,33 @@ describe("CreateContainerModal", () => {
         expect(screen.queryByText(/cannot contain slashes/i)).not.toBeInTheDocument()
       })
     })
+
+    test("rejects a name already present in existingContainers without calling the mutation", async () => {
+      const user = userEvent.setup()
+      renderModal({ existingContainerNames: ["taken-container"] })
+
+      const input = screen.getByLabelText(/Container name/i)
+      await user.type(input, "taken-container")
+      await user.keyboard("{Enter}")
+
+      await waitFor(() => {
+        expect(screen.getByText(/already exists/i)).toBeInTheDocument()
+      })
+      expect(mockMutate).not.toHaveBeenCalled()
+    })
+
+    test("accepts a name not present in existingContainers", async () => {
+      const user = userEvent.setup()
+      renderModal({ existingContainerNames: ["other-container"] })
+
+      const input = screen.getByLabelText(/Container name/i)
+      await user.type(input, "new-container")
+      await user.keyboard("{Enter}")
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalled()
+      })
+    })
   })
 
   describe("Submission", () => {
@@ -274,16 +334,149 @@ describe("CreateContainerModal", () => {
   })
 
   describe("Error handling", () => {
-    test("calls onError with container name and error message on mutation failure", async () => {
+    test("shows a persistent error banner instead of calling onPartialSuccess for a non-CONFLICT failure", async () => {
       mutationError = "Container already exists"
-      const onError = vi.fn()
+      const onPartialSuccess = vi.fn()
       const user = userEvent.setup()
-      renderModal({ onError })
+      renderModal({ onPartialSuccess })
       await user.type(screen.getByLabelText(/Container name/i), "my-container")
       await user.click(screen.getByRole("button", { name: /Create/i }))
       await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith("my-container", "Container already exists")
+        expect(screen.getByTestId("create-container-error")).toHaveTextContent("Container already exists")
       })
+      expect(onPartialSuccess).not.toHaveBeenCalled()
+    })
+
+    test("error banner carries role=alert and aria-live=assertive", async () => {
+      mutationError = "Creation failed"
+      const user = userEvent.setup()
+      renderModal()
+      await user.type(screen.getByLabelText(/Container name/i), "my-container")
+      await user.click(screen.getByRole("button", { name: /Create/i }))
+
+      const banner = await screen.findByTestId("create-container-error")
+      expect(banner).toHaveAttribute("role", "alert")
+      expect(banner).toHaveAttribute("aria-live", "assertive")
+    })
+
+    test("stays open on a non-CONFLICT error so the user can retry", async () => {
+      mutationError = "Creation failed"
+      const onClose = vi.fn()
+      const onPartialSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onClose, onPartialSuccess })
+      await user.type(screen.getByLabelText(/Container name/i), "my-container")
+      await user.click(screen.getByRole("button", { name: /Create/i }))
+      await waitFor(() => {
+        expect(screen.getByTestId("create-container-error")).toBeInTheDocument()
+      })
+      expect(onClose).not.toHaveBeenCalled()
+      expect(onPartialSuccess).not.toHaveBeenCalled()
+      expect(screen.getByText("Create Container")).toBeInTheDocument()
+    })
+
+    test("clears the error banner when the container name is edited", async () => {
+      mutationError = "Creation failed"
+      const user = userEvent.setup()
+      renderModal()
+      const input = screen.getByLabelText(/Container name/i)
+      await user.type(input, "my-container")
+      await user.click(screen.getByRole("button", { name: /Create/i }))
+      await waitFor(() => {
+        expect(screen.getByTestId("create-container-error")).toBeInTheDocument()
+      })
+
+      await user.type(input, "-2")
+
+      expect(screen.queryByTestId("create-container-error")).not.toBeInTheDocument()
+    })
+
+    test("a dismiss-then-new-failure cycle re-shows a fresh banner", async () => {
+      mutationError = "Creation failed"
+      const user = userEvent.setup()
+      renderModal()
+      const input = screen.getByLabelText(/Container name/i)
+      await user.type(input, "my-container")
+      const createButton = screen.getByRole("button", { name: /Create/i })
+      await user.click(createButton)
+
+      const banner = await screen.findByTestId("create-container-error")
+      const dismissButton = within(banner).getByRole("button")
+      await user.click(dismissButton)
+
+      expect(screen.queryByTestId("create-container-error")).not.toBeInTheDocument()
+
+      await user.click(createButton)
+
+      expect(await screen.findByTestId("create-container-error")).toBeInTheDocument()
+    })
+
+    test("on a CONFLICT (name taken) error, keeps the modal open and shows an inline field error instead of a banner or the toast callback", async () => {
+      mutationError = "Container already exists"
+      mutationErrorCode = "CONFLICT"
+      const onClose = vi.fn()
+      const onPartialSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onClose, onPartialSuccess })
+      await user.type(screen.getByLabelText(/Container name/i), "taken-on-server")
+      await user.click(screen.getByRole("button", { name: /Create/i }))
+      await waitFor(() => {
+        expect(screen.getByText(/A container with this name already exists/i)).toBeInTheDocument()
+      })
+      expect(screen.queryByTestId("create-container-error")).not.toBeInTheDocument()
+      expect(onClose).not.toHaveBeenCalled()
+      expect(onPartialSuccess).not.toHaveBeenCalled()
+    })
+  })
+
+  describe("Partial-success reporting", () => {
+    test("reports via onPartialSuccess (not onSuccess) and still closes when the container is created but options could not be applied", async () => {
+      mutationOptionsApplied = false
+      mutationOptionsError = "Failed to apply container settings"
+      const onClose = vi.fn()
+      const onPartialSuccess = vi.fn()
+      const onSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onClose, onPartialSuccess, onSuccess })
+      await user.type(screen.getByLabelText(/Container name/i), "my-container")
+      await user.click(screen.getByRole("button", { name: /Create/i }))
+
+      await waitFor(() => {
+        expect(onPartialSuccess).toHaveBeenCalledWith("my-container", "Failed to apply container settings")
+      })
+      // Only one callback fires - never both, which would otherwise produce a
+      // contradictory "created" + "failed" pair of toasts for the same event.
+      expect(onSuccess).not.toHaveBeenCalled()
+      expect(onClose).toHaveBeenCalled()
+    })
+
+    test("falls back to a generic message when optionsError is not provided", async () => {
+      mutationOptionsApplied = false
+      mutationOptionsError = undefined
+      const onPartialSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onPartialSuccess })
+      await user.type(screen.getByLabelText(/Container name/i), "my-container")
+      await user.click(screen.getByRole("button", { name: /Create/i }))
+
+      await waitFor(() => {
+        expect(onPartialSuccess).toHaveBeenCalledWith("my-container", "The container's settings could not be applied.")
+      })
+    })
+
+    test("calls onSuccess (not onPartialSuccess) when options were applied successfully", async () => {
+      mutationOptionsApplied = true
+      const onPartialSuccess = vi.fn()
+      const onSuccess = vi.fn()
+      const user = userEvent.setup()
+      renderModal({ onPartialSuccess, onSuccess })
+      await user.type(screen.getByLabelText(/Container name/i), "my-container")
+      await user.click(screen.getByRole("button", { name: /Create/i }))
+
+      await waitFor(() => {
+        expect(onSuccess).toHaveBeenCalledWith("my-container")
+      })
+      expect(onPartialSuccess).not.toHaveBeenCalled()
     })
   })
 
@@ -303,6 +496,23 @@ describe("CreateContainerModal", () => {
       await user.type(screen.getByLabelText(/Container name/i), "my-container")
       await user.click(screen.getByRole("button", { name: /Cancel/i }))
       expect(onClose).toHaveBeenCalled()
+    })
+
+    // Regression test: Copilot review flagged Cancel/close as not disabled while the create
+    // mutation is pending. Both are already wired via disableCancelButton/disableCloseButton -
+    // this just proves it.
+    test("disables the Cancel button while the create mutation is pending", () => {
+      mockIsPending = true
+      renderModal()
+      expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled()
+    })
+
+    test("disables the modal's close (X) control while the create mutation is pending", () => {
+      mockIsPending = true
+      renderModal()
+      // Juno's built-in close (X) control falls back to the icon name ("close") as its
+      // accessible name since the Modal doesn't pass a distinct title/aria-label for it.
+      expect(screen.getByRole("button", { name: "close" })).toBeDisabled()
     })
   })
 })

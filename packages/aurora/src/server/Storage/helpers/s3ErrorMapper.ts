@@ -18,6 +18,7 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
   BucketAlreadyExists: "CONFLICT",
   BucketAlreadyOwnedByYou: "CONFLICT",
   BucketNotEmpty: "PRECONDITION_FAILED",
+  PreconditionFailed: "CONFLICT",
   InvalidBucketState: "BAD_REQUEST",
   VersioningNotEnabled: "PRECONDITION_FAILED",
   AccessDenied: "FORBIDDEN",
@@ -46,7 +47,12 @@ const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
  */
 export function mapS3ErrorToTRPCError(
   error: unknown,
-  context: { operation: string; bucket?: string; key?: string }
+  context: {
+    operation: string
+    bucket?: string
+    key?: string
+    preconditionFailedMeansAlreadyExists?: boolean
+  }
 ): never {
   if (error instanceof TRPCError) {
     throw error
@@ -54,7 +60,10 @@ export function mapS3ErrorToTRPCError(
 
   const s3Error = error as S3ErrorShape
   const errorCode = s3Error.Code ?? s3Error.name ?? ""
-  const trpcCode = S3_ERROR_MAP[errorCode] ?? "INTERNAL_SERVER_ERROR"
+  const trpcCode =
+    errorCode === "PreconditionFailed" && !context.preconditionFailedMeansAlreadyExists
+      ? "PRECONDITION_FAILED"
+      : (S3_ERROR_MAP[errorCode] ?? "INTERNAL_SERVER_ERROR")
 
   // Log unmapped errors for future improvements
   if (!S3_ERROR_MAP[errorCode] && errorCode) {
@@ -80,6 +89,8 @@ export function mapS3ErrorToTRPCError(
     parts.push(
       "The bucket is not empty. Some objects or versions may still exist. Use 'Empty Bucket' first to delete all contents."
     )
+  } else if (errorCode === "PreconditionFailed") {
+    parts.push(context.preconditionFailedMeansAlreadyExists ? "The object already exists" : "Precondition failed")
   } else if (s3Error.message) {
     parts.push(s3Error.message)
   }

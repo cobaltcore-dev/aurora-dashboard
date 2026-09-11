@@ -30,6 +30,7 @@ import {
   deleteAccountInputSchema,
   listObjectsInputSchema,
   createContainerInputSchema,
+  CreateContainerResult,
   updateContainerMetadataInputSchema,
   getContainerMetadataInputSchema,
   deleteContainerInputSchema,
@@ -319,24 +320,49 @@ export const swiftRouter = {
    */
   createContainer: projectScopedProcedure
     .input(projectScopedInputSchema.extend(createContainerInputSchema.shape))
-    .mutation(async ({ input, ctx }): Promise<boolean> => {
+    .mutation(async ({ input, ctx }): Promise<CreateContainerResult> => {
       return withErrorHandling(async () => {
         const { account, container, ...options } = input
+        const { storagePolicy, ...applyOptions } = options
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
         validateSwiftService(swift)
 
-        const headers = buildContainerMetadataHeaders(options)
-
         const accountPath = account || ""
         const url = accountPath ? `${accountPath}/${encodeURIComponent(container)}` : encodeURIComponent(container)
 
-        await swift.put(url, undefined, { headers }).catch((error) => {
+        const probeHeaders = buildContainerMetadataHeaders({ storagePolicy })
+
+        const response = await swift.put(url, undefined, { headers: probeHeaders }).catch((error) => {
           throw mapErrorResponseToTRPCError(error, { operation: "create container", container })
         })
 
-        return true
+        if (response.status === 202) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Conflict - create container - container already exists: ${container}`,
+          })
+        }
+
+        const optionHeaders = buildContainerMetadataHeaders(applyOptions)
+        if (Object.keys(optionHeaders).length === 0) {
+          return { created: true, optionsApplied: true }
+        }
+
+        let optionsError: string | undefined
+
+        await swift.post(url, undefined, { headers: optionHeaders }).catch((error) => {
+          optionsError = mapErrorResponseToTRPCError(error, {
+            operation: "apply container settings",
+            container,
+            additionalInfo: "container was created but its metadata/ACL/quota could not be applied",
+          }).message
+        })
+
+        return optionsError === undefined
+          ? { created: true, optionsApplied: true }
+          : { created: true, optionsApplied: false, optionsError }
       }, "create container")
     }),
 
@@ -902,6 +928,7 @@ export const swiftRouter = {
         const headers: Record<string, string> = {
           "Content-Type": "application/directory",
           "Content-Length": "0",
+          "If-None-Match": "*",
         }
 
         // Add custom metadata if provided
@@ -916,14 +943,14 @@ export const swiftRouter = {
           ? `${accountPath}/${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
           : `${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
 
-        await swift
-          .put(url, {
-            headers,
-            body: new ArrayBuffer(0), // Zero-byte object
+        await swift.put(url, new ArrayBuffer(0), { headers }).catch((error) => {
+          throw mapErrorResponseToTRPCError(error, {
+            operation: "create folder",
+            container,
+            object: normalizedPath,
+            preconditionFailedMeansAlreadyExists: true,
           })
-          .catch((error) => {
-            throw mapErrorResponseToTRPCError(error, { operation: "create folder", container, object: normalizedPath })
-          })
+        })
 
         return true
       }, "create folder")

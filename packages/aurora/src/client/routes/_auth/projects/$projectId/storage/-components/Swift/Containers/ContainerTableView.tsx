@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import {
+  Button,
   Checkbox,
   DataGrid,
   DataGridHeadCell,
@@ -9,6 +10,7 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuToggle,
   Status,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -27,8 +29,9 @@ interface ContainerTableViewProps {
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
   maxContainerNameLength?: number
+  existingContainers?: ContainerSummary[]
   onCreateSuccess: (containerName: string) => void
-  onCreateError: (containerName: string, errorMessage: string) => void
+  onCreatePartialSuccess: (containerName: string, reason: string) => void
   onEmptySuccess: (containerName: string, deletedCount: number) => void
   onEmptyError: (containerName: string, errorMessage: string) => void
   onDeleteSuccess: (containerName: string) => void
@@ -50,8 +53,9 @@ export const ContainerTableView = ({
   createModalOpen,
   setCreateModalOpen,
   maxContainerNameLength,
+  existingContainers = [],
   onCreateSuccess,
-  onCreateError,
+  onCreatePartialSuccess,
   onEmptySuccess,
   onEmptyError,
   onDeleteSuccess,
@@ -233,6 +237,14 @@ export const ContainerTableView = ({
                   <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>
+                      <PopupMenuToggle as="div">
+                        <Button
+                          icon="moreVert"
+                          title={t`Container actions`}
+                          aria-label={t`Container actions`}
+                          className="!bg-transparent"
+                        />
+                      </PopupMenuToggle>
                       <PopupMenuOptions>
                         <PopupMenuItem
                           label={t`Manage Access`}
@@ -268,8 +280,9 @@ export const ContainerTableView = ({
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSuccess={onCreateSuccess}
-        onError={onCreateError}
+        onPartialSuccess={onCreatePartialSuccess}
         maxContainerNameLength={maxContainerNameLength}
+        existingContainers={existingContainers}
       />
 
       <EmptyContainerModal

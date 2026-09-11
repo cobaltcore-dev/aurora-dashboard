@@ -2,18 +2,25 @@ import { useState, useRef } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
+import { BrowserRow } from "./"
 
 interface CreateFolderModalProps {
   isOpen: boolean
   currentPrefix: string
   onClose: () => void
   onSuccess?: (folderName: string) => void
-  onError?: (folderName: string, errorMessage: string) => void
+  existingRows?: BrowserRow[]
 }
 
-export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, onError }: CreateFolderModalProps) => {
+export const CreateFolderModal = ({
+  isOpen,
+  currentPrefix,
+  onClose,
+  onSuccess,
+  existingRows = [],
+}: CreateFolderModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const { containerName } = useParams({
@@ -22,29 +29,34 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
 
   const [folderName, setFolderName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const utils = trpcReact.useUtils()
 
   // useRef so the submitted name survives re-renders triggered by
-  // createFolderMutation.reset() inside handleClose() before onSuccess/onError fire.
+  // createFolderMutation.reset() inside handleClose() before onSuccess fires.
   const submittedNameRef = useRef("")
 
   const createFolderMutation = trpcReact.storage.swift.createFolder.useMutation({
     onSuccess: () => {
       utils.storage.swift.listObjects.invalidate()
       onSuccess?.(submittedNameRef.current)
+      handleClose()
     },
     onError: (error) => {
-      onError?.(submittedNameRef.current, error.message)
-    },
-    onSettled: () => {
-      handleClose()
+      if (error.data?.code === "CONFLICT") {
+        setNameError(t`A folder with this name already exists`)
+        setSubmitError(null)
+      } else {
+        setSubmitError(error.message || t`The folder could not be created. Try again.`)
+      }
     },
   })
 
   const handleClose = () => {
     setFolderName("")
     setNameError(null)
+    setSubmitError(null)
     createFolderMutation.reset()
     onClose()
   }
@@ -63,6 +75,13 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
       setNameError(t`Folder name cannot have leading or trailing whitespace`)
       return false
     }
+
+    const newPath = `${currentPrefix}${trimmed}/`
+    if (existingRows.some((row) => row.kind === "folder" && row.name === newPath)) {
+      setNameError(t`A folder with this name already exists`)
+      return false
+    }
+
     setNameError(null)
     return true
   }
@@ -70,18 +89,20 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setFolderName(value)
+    setSubmitError(null)
     if (nameError) validateName(value)
   }
 
   const handleSubmit = () => {
     if (!validateName(folderName)) return
+    setSubmitError(null)
     submittedNameRef.current = folderName.trim()
     const folderPath = `${currentPrefix}${submittedNameRef.current}/`
     createFolderMutation.mutate({ project_id: projectId, container: containerName, folderPath })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSubmit()
+    if (e.key === "Enter" && !createFolderMutation.isPending) handleSubmit()
   }
 
   // Display the path where the folder will be created, e.g. "/ " or "test/ "
@@ -108,8 +129,22 @@ export const CreateFolderModal = ({ isOpen, currentPrefix, onClose, onSuccess, o
       cancelButtonLabel={t`Cancel`}
       size="small"
       disableConfirmButton={createFolderMutation.isPending || !folderName.trim()}
+      disableCancelButton={createFolderMutation.isPending}
+      disableCloseButton={createFolderMutation.isPending}
     >
       <Stack direction="vertical" gap="6">
+        {submitError && (
+          <Message
+            variant="error"
+            dismissible
+            onDismiss={() => setSubmitError(null)}
+            role="alert"
+            aria-live="assertive"
+            data-testid="create-folder-error"
+          >
+            {submitError}
+          </Message>
+        )}
         <p className="text-theme-default">
           <Trans>
             Folders in object storage are virtual — they are created as zero-byte placeholder objects with a trailing
