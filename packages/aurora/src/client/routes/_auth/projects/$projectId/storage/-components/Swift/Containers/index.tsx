@@ -152,7 +152,7 @@ export const SwiftContainers = () => {
 
   const sortSettings: SortSettings = {
     options: [
-      { label: t`Name`, value: "name" },
+      { label: t`Container Name`, value: "name" },
       { label: t`Object Count`, value: "count" },
       { label: t`Total Size`, value: "bytes" },
       { label: t`Last Modified`, value: "last_modified" },
