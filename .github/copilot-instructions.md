@@ -207,7 +207,7 @@ A toast notification confirming deletion is required for all destructive actions
 - Conditional footer: when a resource cannot be acted on yet, swap to a "Close"-only footer via the `modalFooter` prop.
 - Never stack modals. Never show a modal without prior user interaction.
 
-**Reject** any modal that omits `disableCancelButton` / `disableCloseButton` during async operations, uses a custom `<dialog>` overlay, has an alarmist/vague title, or uses `primary-danger` without matching a mid/high severity destructive action.
+**Reject** any modal that omits `disableCancelButton` / `disableCloseButton` during async operations, uses a custom `<dialog>` overlay, has an alarmist/vague title, or uses `primary-danger` for a non-destructive action.
 
 ### B.6 Empty / Loading / Error States
 
