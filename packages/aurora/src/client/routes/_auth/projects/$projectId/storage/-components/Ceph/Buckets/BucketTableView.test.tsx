@@ -310,6 +310,12 @@ describe("BucketTableView", () => {
       expect(screen.getByTestId("bucket-row-bucket-3")).toBeInTheDocument()
     })
 
+    test("row menu trigger is a button with accessible name 'Bucket actions'", () => {
+      renderTableView()
+      const toggle = screen.getByTestId("bucket-row-bucket-1").querySelector("button")
+      expect(toggle).toHaveAccessibleName("Bucket actions")
+    })
+
     test("shows Empty Bucket and Delete Bucket when permitted", async () => {
       const user = userEvent.setup()
       renderTableView()

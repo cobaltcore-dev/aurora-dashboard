@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -747,7 +747,7 @@ describe("CreateBucketModal", () => {
   })
 
   describe("Error handling", () => {
-    test("calls onError with bucket name and error message", async () => {
+    test("shows a persistent error banner instead of calling onError for a non-CONFLICT failure", async () => {
       const user = userEvent.setup()
       const mockOnError = vi.fn()
       mockState.mutationError = "Bucket already exists"
@@ -760,8 +760,25 @@ describe("CreateBucketModal", () => {
       await user.click(createButton)
 
       await waitFor(() => {
-        expect(mockOnError).toHaveBeenCalledWith("existing-bucket", "Bucket already exists")
+        expect(screen.getByTestId("create-bucket-error")).toHaveTextContent("Bucket already exists")
       })
+      expect(mockOnError).not.toHaveBeenCalled()
+    })
+
+    test("error banner carries role=alert and aria-live=assertive", async () => {
+      const user = userEvent.setup()
+      mockState.mutationError = "Creation failed"
+      renderModal()
+
+      const input = screen.getByLabelText(/Bucket name/i)
+      await user.type(input, "my-bucket")
+
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
+      await user.click(createButton)
+
+      const banner = await screen.findByTestId("create-bucket-error")
+      expect(banner).toHaveAttribute("role", "alert")
+      expect(banner).toHaveAttribute("aria-live", "assertive")
     })
 
     test("stays open on a non-CONFLICT error so the user can retry", async () => {
@@ -778,13 +795,56 @@ describe("CreateBucketModal", () => {
       await user.click(createButton)
 
       await waitFor(() => {
-        expect(mockOnError).toHaveBeenCalledWith("my-bucket", "Creation failed")
+        expect(screen.getByTestId("create-bucket-error")).toBeInTheDocument()
       })
       expect(mockOnClose).not.toHaveBeenCalled()
+      expect(mockOnError).not.toHaveBeenCalled()
       expect(screen.getByRole("dialog")).toBeInTheDocument()
     })
 
-    test("on a CONFLICT (name taken) error, keeps the modal open and shows an inline field error instead of the toast callback", async () => {
+    test("clears the error banner when the bucket name is edited", async () => {
+      const user = userEvent.setup()
+      mockState.mutationError = "Creation failed"
+      renderModal()
+
+      const input = screen.getByLabelText(/Bucket name/i)
+      await user.type(input, "my-bucket")
+
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
+      await user.click(createButton)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("create-bucket-error")).toBeInTheDocument()
+      })
+
+      await user.type(input, "-2")
+
+      expect(screen.queryByTestId("create-bucket-error")).not.toBeInTheDocument()
+    })
+
+    test("a dismiss-then-new-failure cycle re-shows a fresh banner", async () => {
+      const user = userEvent.setup()
+      mockState.mutationError = "Creation failed"
+      renderModal()
+
+      const input = screen.getByLabelText(/Bucket name/i)
+      await user.type(input, "my-bucket")
+
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
+      await user.click(createButton)
+
+      const banner = await screen.findByTestId("create-bucket-error")
+      const dismissButton = within(banner).getByRole("button")
+      await user.click(dismissButton)
+
+      expect(screen.queryByTestId("create-bucket-error")).not.toBeInTheDocument()
+
+      await user.click(createButton)
+
+      expect(await screen.findByTestId("create-bucket-error")).toBeInTheDocument()
+    })
+
+    test("on a CONFLICT (name taken) error, keeps the modal open and shows an inline field error instead of a banner or the toast callback", async () => {
       const user = userEvent.setup()
       const mockOnClose = vi.fn()
       const mockOnError = vi.fn()
@@ -802,6 +862,7 @@ describe("CreateBucketModal", () => {
         expect(screen.getByText(/A bucket with this name already exists/i)).toBeInTheDocument()
       })
       expect(screen.getByLabelText(/Bucket name/i)).toHaveClass("juno-textinput-invalid")
+      expect(screen.queryByTestId("create-bucket-error")).not.toBeInTheDocument()
       expect(mockOnClose).not.toHaveBeenCalled()
       expect(mockOnError).not.toHaveBeenCalled()
     })
@@ -857,6 +918,60 @@ describe("CreateBucketModal", () => {
       await user.click(cancelButton)
 
       expect(mockOnClose).toHaveBeenCalled()
+    })
+
+    test("clears the submit error banner when the modal is closed and reopened", async () => {
+      const user = userEvent.setup()
+      mockState.mutationError = "Creation failed"
+      const { rerender } = renderModal({ isOpen: true })
+
+      const input = screen.getByLabelText(/Bucket name/i)
+      await user.type(input, "my-bucket")
+
+      const createButton = screen.getByRole("button", { name: /^Create Bucket$/i })
+      await user.click(createButton)
+
+      expect(await screen.findByTestId("create-bucket-error")).toBeInTheDocument()
+
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i })
+      await user.click(cancelButton)
+
+      // Simulate the parent re-opening the modal after close
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <CreateBucketModal isOpen={false} onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      rerender(
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <CreateBucketModal isOpen={true} onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+
+      expect(screen.queryByTestId("create-bucket-error")).not.toBeInTheDocument()
+    })
+
+    // Regression test: Copilot review flagged Cancel/close as not disabled while the create
+    // mutation is pending. Both are already wired via disableCancelButton/disableCloseButton -
+    // this just proves it.
+    test("disables the Cancel button while the create mutation is pending", () => {
+      mockState.isPending = true
+      renderModal()
+
+      expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled()
+    })
+
+    test("disables the modal's close (X) control while the create mutation is pending", () => {
+      mockState.isPending = true
+      renderModal()
+
+      // Juno's built-in close (X) control falls back to the icon name ("close") as its
+      // accessible name since the Modal doesn't pass a distinct title/aria-label for it.
+      expect(screen.getByRole("button", { name: "close" })).toBeDisabled()
     })
   })
 

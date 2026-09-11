@@ -46,12 +46,14 @@ vi.mock("@tanstack/react-virtual", () => ({
 // We test the modal in isolation; here we only care it receives the right props.
 
 vi.mock("./CreateContainerModal", () => ({
-  CreateContainerModal: vi.fn(({ isOpen, onClose, onSuccess, onError }) =>
+  CreateContainerModal: vi.fn(({ isOpen, onClose, onSuccess, onPartialSuccess }) =>
     isOpen ? (
       <div data-testid="create-container-modal">
         <button onClick={onClose}>Close</button>
         <button onClick={() => onSuccess?.("new-container")}>SimulateSuccess</button>
-        <button onClick={() => onError?.("new-container", "Server error")}>SimulateError</button>
+        <button onClick={() => onPartialSuccess?.("new-container", "Settings could not be applied")}>
+          SimulatePartialSuccess
+        </button>
       </div>
     ) : null
   ),
@@ -141,7 +143,7 @@ const renderView = ({
   setCreateModalOpen = vi.fn(),
   maxContainerNameLength,
   onCreateSuccess = vi.fn(),
-  onCreateError = vi.fn(),
+  onCreatePartialSuccess = vi.fn(),
   onEmptySuccess = vi.fn(),
   onEmptyError = vi.fn(),
   onDeleteSuccess = vi.fn(),
@@ -158,7 +160,7 @@ const renderView = ({
   setCreateModalOpen?: (open: boolean) => void
   maxContainerNameLength?: number
   onCreateSuccess?: (containerName: string) => void
-  onCreateError?: (containerName: string, errorMessage: string) => void
+  onCreatePartialSuccess?: (containerName: string, reason: string) => void
   onEmptySuccess?: (containerName: string, deletedCount: number) => void
   onEmptyError?: (containerName: string, errorMessage: string) => void
   onDeleteSuccess?: (containerName: string) => void
@@ -179,7 +181,7 @@ const renderView = ({
           setCreateModalOpen={setCreateModalOpen}
           maxContainerNameLength={maxContainerNameLength}
           onCreateSuccess={onCreateSuccess}
-          onCreateError={onCreateError}
+          onCreatePartialSuccess={onCreatePartialSuccess}
           onEmptySuccess={onEmptySuccess}
           onEmptyError={onEmptyError}
           onDeleteSuccess={onDeleteSuccess}
@@ -407,14 +409,20 @@ describe("ContainerTableView", () => {
   describe("Context menu", () => {
     test("renders a popup menu trigger for each container row", () => {
       renderView()
-      const menuTriggers = screen.getAllByRole("button", { name: /more/i })
+      const menuTriggers = screen.getAllByRole("button", { name: "Container actions" })
       expect(menuTriggers).toHaveLength(mockContainers.length)
+    })
+
+    test("row menu trigger is a button with accessible name 'Container actions'", () => {
+      renderView()
+      const toggle = screen.getByTestId("container-row-alpha").querySelector("button")
+      expect(toggle).toHaveAccessibleName("Container actions")
     })
 
     test("shows all four actions when menu is opened", async () => {
       const user = userEvent.setup()
       renderView()
-      const [firstMenuTrigger] = screen.getAllByRole("button", { name: /more/i })
+      const [firstMenuTrigger] = screen.getAllByRole("button", { name: "Container actions" })
       await user.click(firstMenuTrigger)
       expect(screen.getByText("Manage Access")).toBeInTheDocument()
       expect(screen.getByText("Preview and Edit metadata")).toBeInTheDocument()
@@ -452,12 +460,12 @@ describe("ContainerTableView", () => {
       expect(onCreateSuccess).toHaveBeenCalledWith("new-container")
     })
 
-    test("calls onCreateError when create modal fires error", async () => {
-      const onCreateError = vi.fn()
+    test("calls onCreatePartialSuccess when create modal fires partial success", async () => {
+      const onCreatePartialSuccess = vi.fn()
       const user = userEvent.setup()
-      renderView({ createModalOpen: true, onCreateError })
-      await user.click(screen.getByRole("button", { name: "SimulateError" }))
-      expect(onCreateError).toHaveBeenCalledWith("new-container", "Server error")
+      renderView({ createModalOpen: true, onCreatePartialSuccess })
+      await user.click(screen.getByRole("button", { name: "SimulatePartialSuccess" }))
+      expect(onCreatePartialSuccess).toHaveBeenCalledWith("new-container", "Settings could not be applied")
     })
 
     test("calls onEmptySuccess when empty modal fires success", async () => {

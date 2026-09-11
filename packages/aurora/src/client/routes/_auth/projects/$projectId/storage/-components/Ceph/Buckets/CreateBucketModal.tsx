@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack, Checkbox } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Checkbox, Message } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { Bucket } from "@/server/Storage/types/ceph"
@@ -20,17 +20,12 @@ const IP_ADDRESS_REGEX = /^(\d{1,3}\.){3}\d{1,3}$/
 const RESERVED_PREFIXES = ["xn--", "sthree-", "amzn-s3-demo-"]
 const RESERVED_SUFFIXES = ["-s3alias", "--ol-s3", ".mrap", "--x-s3", "--table-s3"]
 
-export const CreateBucketModal = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  onError,
-  existingBuckets = [],
-}: CreateBucketModalProps) => {
+export const CreateBucketModal = ({ isOpen, onClose, onSuccess, existingBuckets = [] }: CreateBucketModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [bucketName, setBucketName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [enableVersioning, setEnableVersioning] = useState(false)
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
@@ -48,14 +43,14 @@ export const CreateBucketModal = ({
       handleClose()
     },
     onError: (error) => {
-      const trimmed = bucketName.trim()
-
       if (error.data?.code === "CONFLICT") {
         setNameError(t`A bucket with this name already exists`)
-        return
+        setSubmitError(null)
+      } else {
+        setSubmitError(error.message || t`The bucket could not be created. Try again or choose a different name.`)
       }
 
-      onError?.(trimmed, error.message)
+      resetTracking()
     },
   })
 
@@ -63,6 +58,7 @@ export const CreateBucketModal = ({
     trackClose()
     setBucketName("")
     setNameError(null)
+    setSubmitError(null)
     setEnableVersioning(false)
     resetTracking()
     createBucketMutation.reset()
@@ -140,11 +136,13 @@ export const CreateBucketModal = ({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setBucketName(value)
+    setSubmitError(null)
     if (nameError) validateName(value)
   }
 
   const handleSubmit = () => {
     if (!validateName(bucketName)) return
+    setSubmitError(null)
     markSubmitted()
     createBucketMutation.mutate({
       project_id: projectId,
@@ -175,6 +173,18 @@ export const CreateBucketModal = ({
       disableCloseButton={createBucketMutation.isPending}
     >
       <Stack direction="vertical" gap="6">
+        {submitError && (
+          <Message
+            variant="error"
+            dismissible
+            onDismiss={() => setSubmitError(null)}
+            role="alert"
+            aria-live="assertive"
+            data-testid="create-bucket-error"
+          >
+            {submitError}
+          </Message>
+        )}
         <p className="text-theme-default">
           <Trans>
             S3 bucket names must be 3-63 characters long and contain only lowercase letters, numbers, periods, and

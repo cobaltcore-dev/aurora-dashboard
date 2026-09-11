@@ -187,9 +187,9 @@ vi.mock("./ContainerToastNotifications", () => ({
     message: "Container Created",
     description: `Container "${name}" was successfully created.`,
   })),
-  getContainerCreateErrorToast: vi.fn((name, error) => ({
-    message: "Failed to Create Container",
-    description: `Could not create container "${name}": ${error}`,
+  getContainerCreatedWithWarningToast: vi.fn((name, reason) => ({
+    message: "Container Created with Warnings",
+    description: `Container "${name}" was created, but its settings could not be applied: ${reason}`,
   })),
   getContainerEmptiedToast: vi.fn((name, deletedCount) => ({
     message: "Container Emptied",
@@ -250,12 +250,14 @@ vi.mock("./ContainerToastNotifications", () => ({
 // ─── Mock individual container modals ────────────────────────────────────────
 
 vi.mock("./CreateContainerModal", () => ({
-  CreateContainerModal: vi.fn(({ isOpen, onClose, onSuccess, onError }) =>
+  CreateContainerModal: vi.fn(({ isOpen, onClose, onSuccess, onPartialSuccess }) =>
     isOpen ? (
       <div data-testid="create-container-modal">
         <button onClick={onClose}>Close</button>
         <button onClick={() => onSuccess?.("new-container")}>SimulateSuccess</button>
-        <button onClick={() => onError?.("new-container", "Server error")}>SimulateError</button>
+        <button onClick={() => onPartialSuccess?.("new-container", "Settings could not be applied")}>
+          SimulatePartialSuccess
+        </button>
       </div>
     ) : null
   ),
@@ -784,17 +786,19 @@ describe("SwiftContainers (List)", () => {
       })
     })
 
-    test("shows error toast when container creation fails", async () => {
+    test("shows a warning toast when the container is created but its settings could not be applied", async () => {
       const user = userEvent.setup()
       renderList()
       await user.click(screen.getByRole("button", { name: /Create Container/i }))
       await waitFor(() => expect(screen.getByTestId("create-container-modal")).toBeInTheDocument())
-      await user.click(screen.getByRole("button", { name: "SimulateError" }))
+      await user.click(screen.getByRole("button", { name: "SimulatePartialSuccess" }))
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith(
+        expect(toast.warning).toHaveBeenCalledWith(
           expect.anything(),
           expect.objectContaining({
-            description: expect.stringContaining('Could not create container "new-container": Server error'),
+            description: expect.stringContaining(
+              'Container "new-container" was created, but its settings could not be applied: Settings could not be applied'
+            ),
           })
         )
       })

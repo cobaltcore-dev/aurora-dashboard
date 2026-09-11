@@ -539,7 +539,7 @@ describe("swiftRouter", () => {
 
       expect(swiftHelpers.buildContainerMetadataHeaders).toHaveBeenCalled()
       expect(mockCtx.mockSwift.put).toHaveBeenCalled()
-      expect(result).toBe(true)
+      expect(result).toEqual({ created: true, optionsApplied: true })
     })
 
     it("treats a 201 response as a successful create", async () => {
@@ -550,7 +550,7 @@ describe("swiftRouter", () => {
       const input = { project_id: TEST_PROJECT_ID, container: "new-container" }
       const result = await caller.storage.swift.createContainer(input)
 
-      expect(result).toBe(true)
+      expect(result).toEqual({ created: true, optionsApplied: true })
       expect(mockCtx.mockSwift.put).toHaveBeenCalledTimes(1)
       expect(mockCtx.mockSwift.put).toHaveBeenCalledWith(
         encodeURIComponent("new-container"),
@@ -647,7 +647,7 @@ describe("swiftRouter", () => {
 
       const result = await caller.storage.swift.createContainer(input)
 
-      expect(result).toBe(true)
+      expect(result).toEqual({ created: true, optionsApplied: true })
       expect(mockCtx.mockSwift.post).toHaveBeenCalledTimes(1)
       expect(mockCtx.mockSwift.post).toHaveBeenCalledWith(
         encodeURIComponent("new-container"),
@@ -673,8 +673,38 @@ describe("swiftRouter", () => {
       const input = { project_id: TEST_PROJECT_ID, container: "new-container" }
       const result = await caller.storage.swift.createContainer(input)
 
-      expect(result).toBe(true)
+      expect(result).toEqual({ created: true, optionsApplied: true })
       expect(mockCtx.mockSwift.post).not.toHaveBeenCalled()
+    })
+
+    it("degrades to optionsApplied: false instead of throwing when the follow-up options POST fails after a 201", async () => {
+      const mockCtx = createMockContext()
+      mockCtx.mockSwift.put.mockResolvedValue({ ok: true, status: 201, headers: new Headers() })
+      mockCtx.mockSwift.post.mockRejectedValue({ statusCode: 500, message: "Internal Server Error" })
+      ;(swiftHelpers.buildContainerMetadataHeaders as Mock).mockImplementation(
+        (opts: { metadata?: Record<string, string> }) => {
+          const headers: Record<string, string> = {}
+          if (opts.metadata) headers["X-Container-Meta-Project"] = opts.metadata.project
+          return headers
+        }
+      )
+      ;(swiftHelpers.mapErrorResponseToTRPCError as Mock).mockReturnValue(
+        new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to apply container settings" })
+      )
+      const caller = createCaller(mockCtx)
+
+      const input = {
+        project_id: TEST_PROJECT_ID,
+        container: "new-container",
+        metadata: { project: "test" },
+      }
+
+      await expect(caller.storage.swift.createContainer(input)).resolves.toEqual({
+        created: true,
+        optionsApplied: false,
+        optionsError: expect.any(String),
+      })
+      expect(mockCtx.mockSwift.post).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -1314,6 +1344,9 @@ describe("swiftRouter", () => {
     it("throws CONFLICT instead of overwriting an existing folder marker", async () => {
       const mockCtx = createMockContext()
       mockCtx.mockSwift.put.mockRejectedValue({ statusCode: 412, message: "Precondition Failed" })
+      ;(swiftHelpers.mapErrorResponseToTRPCError as Mock).mockReturnValue(
+        new TRPCError({ code: "CONFLICT", message: "Conflict" })
+      )
       const caller = createCaller(mockCtx)
 
       ;(swiftHelpers.normalizeFolderPath as Mock).mockReturnValue("test-folder/")
@@ -1321,7 +1354,12 @@ describe("swiftRouter", () => {
       const input = { project_id: TEST_PROJECT_ID, container: "test-container", folderPath: "test-folder" }
 
       await expect(caller.storage.swift.createFolder(input)).rejects.toMatchObject({ code: "CONFLICT" })
-      expect(swiftHelpers.mapErrorResponseToTRPCError).not.toHaveBeenCalled()
+      // 412 goes through the same shared mapper as every other status code now (swiftHelpers.mapErrorResponseToTRPCError),
+      // not a special-cased inline branch — see swiftHelpers.test.ts for the 412-\>CONFLICT mapping itself.
+      expect(swiftHelpers.mapErrorResponseToTRPCError).toHaveBeenCalledWith(
+        expect.objectContaining({ statusCode: 412 }),
+        expect.objectContaining({ operation: "create folder" })
+      )
     })
 
     it("sends If-None-Match on the marker PUT so the check is server-authoritative", async () => {

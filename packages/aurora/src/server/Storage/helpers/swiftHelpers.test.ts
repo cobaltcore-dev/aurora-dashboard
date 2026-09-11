@@ -1094,6 +1094,22 @@ describe("swiftHelpers", () => {
       expect(error.message).toBe("Conflict - delete container container: not-empty")
     })
 
+    it("should map 412 status (If-None-Match/If-Match precondition failure) to CONFLICT", () => {
+      const errorResponse = {
+        name: "SignalOpenstackApiError",
+        statusCode: 412,
+        message: "Precondition Failed",
+      }
+      const context = { operation: "create folder", container: "test-container", object: "test-folder/" }
+
+      const error = mapErrorResponseToTRPCError(errorResponse, context)
+
+      expect(error.code).toBe("CONFLICT")
+      expect(error.message).toBe(
+        "Conflict - create folder container: test-container, object: test-folder/ - already exists"
+      )
+    })
+
     it("should map 413 status to PAYLOAD_TOO_LARGE", () => {
       const errorResponse = {
         name: "SignalOpenstackApiError",

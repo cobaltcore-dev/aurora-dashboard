@@ -173,7 +173,7 @@ storage.ceph
   │   ├── list()            → { objects, folders, isTruncated, nextContinuationToken }
   │   ├── getDetails()      → S3ObjectDetails
   │   ├── delete()          → { success: boolean }
-  │   ├── createFolder()    → { success: boolean }
+  │   ├── createFolder()    → boolean (throws CONFLICT if it already exists)
   │   ├── copy()            → { success: boolean, etag?: string }
   │   ├── move()            → { success: boolean, etag?: string }
   │   ├── updateMetadata()  → { success: boolean }
@@ -696,7 +696,8 @@ await trpc.storage.ceph.objects.delete.mutate({
 
 #### `createFolder`
 
-Creates a pseudo-folder by uploading a zero-byte object with a trailing `/` (S3 `PutObject` operation).
+Creates a pseudo-folder by uploading a zero-byte object with a trailing `/` (S3 `PutObject` operation). The write is
+conditional (`IfNoneMatch: "*"`), so this is an atomic create-if-not-exists rather than an upsert.
 
 **Input:**
 
@@ -711,10 +712,10 @@ Creates a pseudo-folder by uploading a zero-byte object with a trailing `/` (S3 
 **Output:**
 
 ```typescript
-{
-  success: boolean
-}
+boolean // always true on success
 ```
+
+**Throws:** `CONFLICT` if a folder (or object) with this key already exists.
 
 **Example:**
 

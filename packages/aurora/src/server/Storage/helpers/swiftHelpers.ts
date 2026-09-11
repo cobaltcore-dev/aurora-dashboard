@@ -541,6 +541,12 @@ export function mapErrorResponseToTRPCError(
         message: `Conflict - ${operation}${containerInfo}${objectInfo}${extraInfo}`,
       })
 
+    case 412:
+      return new TRPCError({
+        code: "CONFLICT",
+        message: `Conflict - ${operation}${containerInfo}${objectInfo} - already exists${extraInfo}`,
+      })
+
     case 413:
       return new TRPCError({
         code: "PAYLOAD_TOO_LARGE",

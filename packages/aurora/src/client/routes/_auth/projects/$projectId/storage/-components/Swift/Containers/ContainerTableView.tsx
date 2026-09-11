@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import {
+  Button,
   Checkbox,
   DataGrid,
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
-  Icon,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
@@ -31,7 +31,7 @@ interface ContainerTableViewProps {
   maxContainerNameLength?: number
   existingContainers?: ContainerSummary[]
   onCreateSuccess: (containerName: string) => void
-  onCreateError: (containerName: string, errorMessage: string) => void
+  onCreatePartialSuccess: (containerName: string, reason: string) => void
   onEmptySuccess: (containerName: string, deletedCount: number) => void
   onEmptyError: (containerName: string, errorMessage: string) => void
   onDeleteSuccess: (containerName: string) => void
@@ -55,7 +55,7 @@ export const ContainerTableView = ({
   maxContainerNameLength,
   existingContainers = [],
   onCreateSuccess,
-  onCreateError,
+  onCreatePartialSuccess,
   onEmptySuccess,
   onEmptyError,
   onDeleteSuccess,
@@ -237,11 +237,8 @@ export const ContainerTableView = ({
                   <DataGridCell>{formatBytesBinary(container.bytes)}</DataGridCell>
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>
-                      <PopupMenuToggle
-                        title={t`More Actions`}
-                        className="jn:hover:text-theme-accent jn:active:text-theme-accent jn:cursor-pointer"
-                      >
-                        <Icon icon="moreVert" />
+                      <PopupMenuToggle as="div">
+                        <Button icon="moreVert" title={t`Container actions`} className="!bg-transparent" />
                       </PopupMenuToggle>
                       <PopupMenuOptions>
                         <PopupMenuItem
@@ -278,7 +275,7 @@ export const ContainerTableView = ({
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSuccess={onCreateSuccess}
-        onError={onCreateError}
+        onPartialSuccess={onCreatePartialSuccess}
         maxContainerNameLength={maxContainerNameLength}
         existingContainers={existingContainers}
       />

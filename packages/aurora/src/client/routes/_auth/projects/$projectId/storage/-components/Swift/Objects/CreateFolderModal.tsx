@@ -107,7 +107,7 @@ export const CreateFolderModal = ({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSubmit()
+    if (e.key === "Enter" && !createFolderMutation.isPending) handleSubmit()
   }
 
   // Display the path where the folder will be created, e.g. "/ " or "test/ "
@@ -134,6 +134,8 @@ export const CreateFolderModal = ({
       cancelButtonLabel={t`Cancel`}
       size="small"
       disableConfirmButton={createFolderMutation.isPending || !folderName.trim()}
+      disableCancelButton={createFolderMutation.isPending}
+      disableCloseButton={createFolderMutation.isPending}
     >
       <Stack direction="vertical" gap="6">
         <p className="text-theme-default">

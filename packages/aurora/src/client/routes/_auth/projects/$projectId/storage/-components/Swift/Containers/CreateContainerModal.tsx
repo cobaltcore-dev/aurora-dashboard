@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { ContainerSummary } from "@/server/Storage/types/swift"
@@ -10,7 +10,7 @@ interface CreateContainerModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: (containerName: string) => void
-  onError?: (containerName: string, errorMessage: string) => void
+  onPartialSuccess?: (containerName: string, reason: string) => void
   maxContainerNameLength?: number
   existingContainers?: ContainerSummary[]
 }
@@ -19,7 +19,7 @@ export const CreateContainerModal = ({
   isOpen,
   onClose,
   onSuccess,
-  onError,
+  onPartialSuccess,
   maxContainerNameLength = 256,
   existingContainers = [],
 }: CreateContainerModalProps) => {
@@ -27,6 +27,7 @@ export const CreateContainerModal = ({
   const projectId = useProjectId()
   const [containerName, setContainerName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
@@ -36,21 +37,25 @@ export const CreateContainerModal = ({
   const utils = trpcReact.useUtils()
 
   const createContainerMutation = trpcReact.storage.swift.createContainer.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       utils.storage.swift.listContainers.invalidate()
       const name = containerName.trim()
-      onSuccess?.(name)
+      if (data.optionsApplied) {
+        onSuccess?.(name)
+      } else {
+        onPartialSuccess?.(name, data.optionsError ?? t`The container's settings could not be applied.`)
+      }
       handleClose()
     },
     onError: (error) => {
-      const trimmed = containerName.trim()
-
       if (error.data?.code === "CONFLICT") {
         setNameError(t`A container with this name already exists`)
-        return
+        setSubmitError(null)
+      } else {
+        setSubmitError(error.message || t`The container could not be created. Try again or choose a different name.`)
       }
 
-      onError?.(trimmed, error.message)
+      resetTracking()
     },
   })
 
@@ -58,6 +63,7 @@ export const CreateContainerModal = ({
     trackClose()
     setContainerName("")
     setNameError(null)
+    setSubmitError(null)
     resetTracking()
     createContainerMutation.reset()
     onClose()
@@ -91,11 +97,13 @@ export const CreateContainerModal = ({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setContainerName(value)
+    setSubmitError(null)
     if (nameError) validateName(value)
   }
 
   const handleSubmit = () => {
     if (!validateName(containerName)) return
+    setSubmitError(null)
     markSubmitted()
     createContainerMutation.mutate({
       project_id: projectId,
@@ -125,6 +133,18 @@ export const CreateContainerModal = ({
       disableCloseButton={createContainerMutation.isPending}
     >
       <Stack direction="vertical" gap="6">
+        {submitError && (
+          <Message
+            variant="error"
+            dismissible
+            onDismiss={() => setSubmitError(null)}
+            role="alert"
+            aria-live="assertive"
+            data-testid="create-container-error"
+          >
+            {submitError}
+          </Message>
+        )}
         <p className="text-theme-default">
           <Trans>
             Inside a project, objects are stored in containers. Containers are where you define access permissions and

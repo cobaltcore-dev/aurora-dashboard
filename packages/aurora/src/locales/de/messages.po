@@ -677,6 +677,9 @@ msgstr "Eigenschaften des Containers \"{containerName}\" wurden erfolgreich aktu
 msgid "Container \"{containerName}\" was already empty."
 msgstr "Container \"{containerName}\" war bereits leer."
 
+msgid "Container \"{containerName}\" was created, but its settings could not be applied: {reason}"
+msgstr ""
+
 msgid "Container \"{containerName}\" was successfully created."
 msgstr "Container \"{containerName}\" wurde erfolgreich erstellt."
 
@@ -694,6 +697,9 @@ msgstr ""
 
 msgid "Container Created"
 msgstr "Container erstellt"
+
+msgid "Container Created with Warnings"
+msgstr ""
 
 msgid "Container Deleted"
 msgstr "Container gelöscht"
@@ -808,9 +814,6 @@ msgstr "\"{objectName}\" konnte nicht kopiert werden: {errorMessage}"
 
 msgid "Could not create bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
-
-msgid "Could not create container \"{containerName}\": {errorMessage}"
-msgstr "Container \"{containerName}\" konnte nicht erstellt werden: {errorMessage}"
 
 msgid "Could not create folder \"{folderName}\": {errorMessage}"
 msgstr "Ordner \"{folderName}\" konnte nicht erstellt werden: {errorMessage}"
@@ -1567,9 +1570,6 @@ msgstr "Fehler beim Kopieren der temporären URL in die Zwischenablage"
 
 msgid "Failed to Create Bucket"
 msgstr ""
-
-msgid "Failed to Create Container"
-msgstr "Fehler beim Erstellen des Containers"
 
 msgid "Failed to create credential: {errorMessage}"
 msgstr ""
@@ -3428,17 +3428,26 @@ msgstr "Temporäre URL für \"{objectName}\" wurde in die Zwischenablage kopiert
 msgid "Temporary URLs"
 msgstr "Temporäre URLs"
 
+msgid "The bucket could not be created. Try again or choose a different name."
+msgstr ""
+
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "Der Compute-Dienst ist für dieses Projekt derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
 
 msgid "The container cannot be deleted as it contains objects. Empty the container first."
 msgstr "Der Container kann nicht gelöscht werden, da er Objekte enthält. Leeren Sie den Container zuerst."
 
+msgid "The container could not be created. Try again or choose a different name."
+msgstr ""
+
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 msgstr "Die Container-Metadaten melden Objekte, aber keine wurden aufgelistet. Dies kann eine vorübergehende Synchronisierungsverzögerung sein — bitte warten Sie einen Moment und versuchen Sie es erneut."
 
 msgid "The container will be deleted. This action is permanent and cannot be undone."
 msgstr "Der Container wird gelöscht. Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden."
+
+msgid "The container's settings could not be applied."
+msgstr ""
 
 msgid "The CORS configuration has changed. Please refresh and try again."
 msgstr ""
@@ -3469,6 +3478,9 @@ msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Möglicherweis
 
 msgid "The flavor or tenant could not be found. Please verify they exist."
 msgstr "Der Flavor oder das Projekt konnte nicht gefunden werden. Bitte überprüfen Sie, ob sie existieren."
+
+msgid "The folder could not be created. Try again."
+msgstr ""
 
 msgid "The ID of the network associated with the floating IP."
 msgstr "Die ID des Netzwerks, das der Floating IP zugeordnet ist."

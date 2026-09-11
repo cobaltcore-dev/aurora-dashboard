@@ -30,6 +30,7 @@ import {
   deleteAccountInputSchema,
   listObjectsInputSchema,
   createContainerInputSchema,
+  CreateContainerResult,
   updateContainerMetadataInputSchema,
   getContainerMetadataInputSchema,
   deleteContainerInputSchema,
@@ -319,7 +320,7 @@ export const swiftRouter = {
    */
   createContainer: projectScopedProcedure
     .input(projectScopedInputSchema.extend(createContainerInputSchema.shape))
-    .mutation(async ({ input, ctx }): Promise<boolean> => {
+    .mutation(async ({ input, ctx }): Promise<CreateContainerResult> => {
       return withErrorHandling(async () => {
         const { account, container, ...options } = input
         const { storagePolicy, ...applyOptions } = options
@@ -345,17 +346,23 @@ export const swiftRouter = {
         }
 
         const optionHeaders = buildContainerMetadataHeaders(applyOptions)
-        if (Object.keys(optionHeaders).length > 0) {
-          await swift.post(url, undefined, { headers: optionHeaders }).catch((error) => {
-            throw mapErrorResponseToTRPCError(error, {
-              operation: "apply container settings",
-              container,
-              additionalInfo: "container was created but its metadata/ACL/quota could not be applied",
-            })
-          })
+        if (Object.keys(optionHeaders).length === 0) {
+          return { created: true, optionsApplied: true }
         }
 
-        return true
+        let optionsError: string | undefined
+
+        await swift.post(url, undefined, { headers: optionHeaders }).catch((error) => {
+          optionsError = mapErrorResponseToTRPCError(error, {
+            operation: "apply container settings",
+            container,
+            additionalInfo: "container was created but its metadata/ACL/quota could not be applied",
+          }).message
+        })
+
+        return optionsError === undefined
+          ? { created: true, optionsApplied: true }
+          : { created: true, optionsApplied: false, optionsError }
       }, "create container")
     }),
 
@@ -937,12 +944,6 @@ export const swiftRouter = {
           : `${encodeURIComponent(container)}/${encodeURIComponent(normalizedPath)}`
 
         await swift.put(url, new ArrayBuffer(0), { headers }).catch((error) => {
-          if (error?.statusCode === 412) {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `Conflict - create folder - folder already exists: ${normalizedPath}`,
-            })
-          }
           throw mapErrorResponseToTRPCError(error, { operation: "create folder", container, object: normalizedPath })
         })
 

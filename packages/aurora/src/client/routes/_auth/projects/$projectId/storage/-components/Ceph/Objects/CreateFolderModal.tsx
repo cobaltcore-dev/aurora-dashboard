@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, TextInput, Stack, Message } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -19,6 +19,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
   const projectId = useProjectId()
   const [folderName, setFolderName] = useState("")
   const [validationError, setValidationError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const utils = trpcReact.useUtils()
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
@@ -49,11 +50,22 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
       onSuccess(submittedFullPath)
       handleClose()
     },
+    onError: (error) => {
+      if (error.data?.code === "CONFLICT") {
+        setValidationError(t`A folder with this name already exists`)
+        setSubmitError(null)
+      } else {
+        setSubmitError(error.message || t`The folder could not be created. Try again.`)
+      }
+
+      resetTracking()
+    },
   })
 
   const handleClose = () => {
     setFolderName("")
     setValidationError(null)
+    setSubmitError(null)
     createFolderMutation.reset()
     resetTracking()
     onClose()
@@ -61,6 +73,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
 
   const handleFolderNameChange = (value: string) => {
     setFolderName(value)
+    setSubmitError(null)
 
     if (validationError) {
       const existingFolders = objectsData?.folders.map((f) => f.prefix) ?? []
@@ -79,6 +92,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
       return
     }
 
+    setSubmitError(null)
     markSubmitted()
     const fullPath = currentPrefix + folderName.trim()
 
@@ -107,6 +121,18 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
       disableCloseButton={createFolderMutation.isPending}
     >
       <Stack direction="vertical" gap="4">
+        {submitError && (
+          <Message
+            variant="error"
+            dismissible
+            onDismiss={() => setSubmitError(null)}
+            role="alert"
+            aria-live="assertive"
+            data-testid="create-folder-error"
+          >
+            {submitError}
+          </Message>
+        )}
         <p>
           <Trans>Enter a name for the new folder.</Trans>
         </p>
@@ -128,6 +154,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
           autoFocus
           invalid={!!validationError}
           errortext={validationError || undefined}
+          disabled={createFolderMutation.isPending}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !createFolderMutation.isPending) {
               handleCreate()
@@ -141,12 +168,6 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
           </span>
           <div className="mt-1 text-sm break-all">{currentPrefix + folderName.trim() + "/"}</div>
         </div>
-
-        {createFolderMutation.error && (
-          <p className="text-juno-red text-sm">
-            <Trans>Error:</Trans> {createFolderMutation.error.message}
-          </p>
-        )}
       </Stack>
     </Modal>
   )

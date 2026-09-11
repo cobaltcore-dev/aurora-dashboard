@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import {
+  Button,
   Checkbox,
   DataGrid,
   DataGridHeadCell,
   DataGridRow,
   DataGridCell,
-  Icon,
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
@@ -238,11 +238,8 @@ export const BucketTableView = ({
                   <DataGridCell>{formatBytesBinary(bucket.bytes)}</DataGridCell>
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>
-                      <PopupMenuToggle
-                        title={t`More Actions`}
-                        className="jn:hover:text-theme-accent jn:active:text-theme-accent jn:cursor-pointer"
-                      >
-                        <Icon icon="moreVert" />
+                      <PopupMenuToggle as="div">
+                        <Button icon="moreVert" title={t`Bucket actions`} className="!bg-transparent" />
                       </PopupMenuToggle>
                       <PopupMenuOptions>
                         <PopupMenuItem
