@@ -1,5 +1,27 @@
 # @cobaltcore-dev/aurora
 
+## 1.3.1
+
+### Patch Changes
+
+- 2b9bf93: Improve image modal UX
+  - Add "e.g." prefix to Create Image modal placeholders (Image Name, Tags)
+  - Update Tags helptext to "Press Enter or click Add to add a tag"
+  - Add image count to bulk action modal titles (Delete/Deactivate/Activate)
+  - Show image names instead of UUIDs in bulk action modals
+  - Move protected/already-active/already-deactivated sections above main action list
+  - Remove input-styled boxes from exception sections (protected/already-active/already-deactivated)
+  - Use consistent Plural component for all section headings with counts
+- 2b9bf93: fix image modals to show "Unnamed" fallback and treat undefined protected field as unprotected
+- 24c79e7: Remove non-functional chevron from project service cards
+  Fix sort/filter inconsistencies across all lists:
+  - Security Groups: remove "Project id" sort option (not in table)
+  - Images: remove "Updated At" sort option, rename "Name" to "Image Name"
+  - Flavors: match sort labels to table headers (vCPU, RAM (MiB), Root Disk (GiB), Swap (MiB))
+  - Swift Containers: rename "Name" to "Container Name"
+  - Ceph Buckets: rename "Name" to "Bucket Name"
+- dedf5a8: Security Groups UI improvements and fixes: fixed Shared filter type error, added Stateful filter, debounced search, consistent Yes/No labels across filters and table, fixed kebab menu vertical alignment. Detail page now matches image detail layout with header actions, removed redundant description and counts, improved empty/loading/error states, clearer action labels ("Delete Rule", "Remove Policy"). Fixed ICMP rule rendering and "undefined" display in Range column. Added ID validation for security group rules and RBAC policies in request paths. Removed unused "network:security_group_rules:update" permission key.
+
 ## 1.3.0
 
 ### Minor Changes
