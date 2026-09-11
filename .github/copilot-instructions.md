@@ -241,7 +241,7 @@ A toast notification confirming deletion is required for all destructive actions
 
 **Scope loading states tightly** — a DataGrid loading its data must show the spinner scoped to itself, not the whole page. Only use a page-level spinner if the entire page is blocked.
 
-**Reject** any error element without `role="alert"` and `aria-live="assertive"`, any `Message` banner without `onDismiss`, or any component that renders a visibly empty/broken state without explanation.
+**Reject** any error element without `role="alert"` and `aria-live="assertive"`, any dismissible `Message` banner without `onDismiss`, or any component that renders a visibly empty/broken state without explanation.
 
 ### B.7 Data Fetching
 
