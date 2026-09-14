@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import {
+  Button,
   Checkbox,
   DataGrid,
   DataGridHeadCell,
@@ -9,6 +10,7 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuToggle,
   Status,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -24,11 +26,11 @@ interface BucketTableViewProps {
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
   onCreateSuccess: (bucketName: string) => void
-  onCreateError: (bucketName: string, errorMessage: string) => void
   onEmptySuccess: (bucketName: string, deletedCount: number) => void
   onEmptyError: (bucketName: string, errorMessage: string) => void
   onDeleteSuccess: (bucketName: string) => void
   onDeleteError: (bucketName: string, errorMessage: string) => void
+  existingBuckets?: Bucket[]
   selectedBuckets: string[]
   setSelectedBuckets: (buckets: string[]) => void
   // When false, the selection column (header select-all + per-row checkboxes) is dropped.
@@ -42,11 +44,11 @@ export const BucketTableView = ({
   createModalOpen,
   setCreateModalOpen,
   onCreateSuccess,
-  onCreateError,
   onEmptySuccess,
   onEmptyError,
   onDeleteSuccess,
   onDeleteError,
+  existingBuckets = [],
   selectedBuckets,
   setSelectedBuckets,
   hasAnyBulkAction = true,
@@ -234,6 +236,14 @@ export const BucketTableView = ({
                   <DataGridCell>{formatBytesBinary(bucket.bytes)}</DataGridCell>
                   <DataGridCell onClick={(e) => e.stopPropagation()}>
                     <PopupMenu>
+                      <PopupMenuToggle as="div">
+                        <Button
+                          icon="moreVert"
+                          title={t`Bucket actions`}
+                          aria-label={t`Bucket actions`}
+                          className="!bg-transparent"
+                        />
+                      </PopupMenuToggle>
                       <PopupMenuOptions>
                         <PopupMenuItem
                           label={t`Show Details`}
@@ -268,7 +278,7 @@ export const BucketTableView = ({
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSuccess={onCreateSuccess}
-        onError={onCreateError}
+        existingBuckets={existingBuckets}
       />
 
       <EmptyBucketModal

@@ -110,7 +110,7 @@ Complete tRPC router with procedures for:
 
 #### Folder Operations
 
-- `createFolder` - Create a pseudo-folder with a zero-byte marker object (`Content-Type: application/directory`)
+- `createFolder` - Create a pseudo-folder with a zero-byte marker object (`Content-Type: application/directory`); the write is conditional (`If-None-Match: "*"`), so this is atomic create-if-not-exists and throws `CONFLICT` if the folder already exists
 - `listFolderContents` - List folders and objects at the current level with hierarchy
 - `moveFolder` - Move a folder by copying all objects then deleting originals
 - `deleteFolder` - Delete a folder recursively or at the current level only
@@ -183,7 +183,7 @@ const containers = await trpc.storage.swift.listContainers.query({
 ### Create Container with Metadata
 
 ```typescript
-await trpc.storage.swift.createContainer.mutate({
+const result = await trpc.storage.swift.createContainer.mutate({
   container: "my-container",
   metadata: {
     project: "demo",
@@ -192,7 +192,17 @@ await trpc.storage.swift.createContainer.mutate({
   read: ".r:*", // Public read access
   quotaBytes: 10737418240, // 10 GB quota
 })
+// result: { created: true, optionsApplied: boolean, optionsError?: string }
 ```
+
+`createContainer` resolves to `{ created: true, optionsApplied: boolean, optionsError?: string }` instead of a plain
+`boolean`. The container-creation PUT and the follow-up metadata/ACL/quota POST are two separate requests — by the
+time the second one runs, the container already exists. If that follow-up POST fails, the procedure does not throw
+(a throw would make the caller believe creation itself failed, and a retry would then hit the `CONFLICT` case
+below). Instead it resolves with `optionsApplied: false` and an `optionsError` message, so the container is left in
+a "created, but its settings could not be applied" state that the caller can report separately.
+
+Rejects with a `CONFLICT` error if a container with that name already exists.
 
 ### Upload Object
 

@@ -245,6 +245,12 @@ msgstr "24 hours"
 msgid "7 days"
 msgstr "7 days"
 
+msgid "A bucket with this name already exists"
+msgstr "A bucket with this name already exists"
+
+msgid "A container with this name already exists"
+msgstr "A container with this name already exists"
+
 msgid "A flavor with this ID or name already exists. Please use different values."
 msgstr "A flavor with this ID or name already exists. Please use different values."
 
@@ -671,6 +677,9 @@ msgstr "Container \"{containerName}\" properties were successfully updated."
 msgid "Container \"{containerName}\" was already empty."
 msgstr "Container \"{containerName}\" was already empty."
 
+msgid "Container \"{containerName}\" was created, but its settings could not be applied: {reason}"
+msgstr "Container \"{containerName}\" was created, but its settings could not be applied: {reason}"
+
 msgid "Container \"{containerName}\" was successfully created."
 msgstr "Container \"{containerName}\" was successfully created."
 
@@ -688,6 +697,9 @@ msgstr "Container actions"
 
 msgid "Container Created"
 msgstr "Container Created"
+
+msgid "Container Created with Warnings"
+msgstr "Container Created with Warnings"
 
 msgid "Container Deleted"
 msgstr "Container Deleted"
@@ -802,9 +814,6 @@ msgstr "Could not copy \"{objectName}\": {errorMessage}"
 
 msgid "Could not create bucket \"{bucketName}\": {errorMessage}"
 msgstr "Could not create bucket \"{bucketName}\": {errorMessage}"
-
-msgid "Could not create container \"{containerName}\": {errorMessage}"
-msgstr "Could not create container \"{containerName}\": {errorMessage}"
 
 msgid "Could not create folder \"{folderName}\": {errorMessage}"
 msgstr "Could not create folder \"{folderName}\": {errorMessage}"
@@ -1561,9 +1570,6 @@ msgstr "Failed to copy the temporary URL to the clipboard"
 
 msgid "Failed to Create Bucket"
 msgstr "Failed to Create Bucket"
-
-msgid "Failed to Create Container"
-msgstr "Failed to Create Container"
 
 msgid "Failed to create credential: {errorMessage}"
 msgstr "Failed to create credential: {errorMessage}"
@@ -3416,17 +3422,26 @@ msgstr "Temporary URL for \"{objectName}\" was copied to clipboard."
 msgid "Temporary URLs"
 msgstr "Temporary URLs"
 
+msgid "The bucket could not be created. Try again or choose a different name."
+msgstr "The bucket could not be created. Try again or choose a different name."
+
 msgid "The compute service is currently unavailable for this project. Please try again later."
 msgstr "The compute service is currently unavailable for this project. Please try again later."
 
 msgid "The container cannot be deleted as it contains objects. Empty the container first."
 msgstr "The container cannot be deleted as it contains objects. Empty the container first."
 
+msgid "The container could not be created. Try again or choose a different name."
+msgstr "The container could not be created. Try again or choose a different name."
+
 msgid "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 msgstr "The container metadata reports objects but none were listed. This may be a temporary synchronization delay — please wait a moment and try again."
 
 msgid "The container will be deleted. This action is permanent and cannot be undone."
 msgstr "The container will be deleted. This action is permanent and cannot be undone."
+
+msgid "The container's settings could not be applied."
+msgstr "The container's settings could not be applied."
 
 msgid "The CORS configuration has changed. Please refresh and try again."
 msgstr "The CORS configuration has changed. Please refresh and try again."
@@ -3457,6 +3472,9 @@ msgstr "The flavor or tenant could not be found. It may have already been remove
 
 msgid "The flavor or tenant could not be found. Please verify they exist."
 msgstr "The flavor or tenant could not be found. Please verify they exist."
+
+msgid "The folder could not be created. Try again."
+msgstr "The folder could not be created. Try again."
 
 msgid "The ID of the network associated with the floating IP."
 msgstr "The ID of the network associated with the floating IP."

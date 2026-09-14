@@ -187,9 +187,9 @@ vi.mock("./ContainerToastNotifications", () => ({
     message: "Container Created",
     description: `Container "${name}" was successfully created.`,
   })),
-  getContainerCreateErrorToast: vi.fn((name, error) => ({
-    message: "Failed to Create Container",
-    description: `Could not create container "${name}": ${error}`,
+  getContainerCreatedWithWarningToast: vi.fn((name, reason) => ({
+    message: "Container Created with Warnings",
+    description: `Container "${name}" was created, but its settings could not be applied: ${reason}`,
   })),
   getContainerEmptiedToast: vi.fn((name, deletedCount) => ({
     message: "Container Emptied",
@@ -250,12 +250,14 @@ vi.mock("./ContainerToastNotifications", () => ({
 // ─── Mock individual container modals ────────────────────────────────────────
 
 vi.mock("./CreateContainerModal", () => ({
-  CreateContainerModal: vi.fn(({ isOpen, onClose, onSuccess, onError }) =>
+  CreateContainerModal: vi.fn(({ isOpen, onClose, onSuccess, onPartialSuccess }) =>
     isOpen ? (
       <div data-testid="create-container-modal">
         <button onClick={onClose}>Close</button>
         <button onClick={() => onSuccess?.("new-container")}>SimulateSuccess</button>
-        <button onClick={() => onError?.("new-container", "Server error")}>SimulateError</button>
+        <button onClick={() => onPartialSuccess?.("new-container", "Settings could not be applied")}>
+          SimulatePartialSuccess
+        </button>
       </div>
     ) : null
   ),
@@ -465,22 +467,22 @@ describe("SwiftContainers (List)", () => {
       await user.click(screen.getByTestId(`select-container-${name}`))
     }
     const openActionsMenu = async (user: ReturnType<typeof userEvent.setup>) => {
-      await user.click(screen.getByRole("button", { name: /Actions/i }))
+      await user.click(screen.getByRole("button", { name: /^Actions/ }))
     }
 
     test("renders the Actions button", () => {
       renderList()
-      expect(screen.getByRole("button", { name: /Actions/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Actions/ })).toBeInTheDocument()
     })
 
     test("Actions button is disabled when no containers are selected", () => {
       renderList()
-      expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Actions/ })).toBeDisabled()
     })
 
     test("no Empty item is reachable when no containers are selected", () => {
       renderList()
-      expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Actions/ })).toBeDisabled()
       expect(screen.queryByText(/^Empty Container/)).not.toBeInTheDocument()
     })
 
@@ -488,7 +490,7 @@ describe("SwiftContainers (List)", () => {
       const user = userEvent.setup()
       renderList()
       await selectViaCheckbox(user, "alpha")
-      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await waitFor(() => expect(screen.getByRole("button", { name: /^Actions/ })).toBeEnabled())
       await openActionsMenu(user)
       expect(await screen.findByText("Empty Container")).toBeInTheDocument()
     })
@@ -498,7 +500,7 @@ describe("SwiftContainers (List)", () => {
       renderList()
       await selectViaCheckbox(user, "alpha")
       await selectViaCheckbox(user, "beta")
-      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await waitFor(() => expect(screen.getByRole("button", { name: /^Actions/ })).toBeEnabled())
       await openActionsMenu(user)
       expect(await screen.findByText("Empty 2 Containers")).toBeInTheDocument()
     })
@@ -508,9 +510,9 @@ describe("SwiftContainers (List)", () => {
       renderList()
       const alphaCheckbox = screen.getByTestId("select-container-alpha")
       await user.click(alphaCheckbox)
-      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await waitFor(() => expect(screen.getByRole("button", { name: /^Actions/ })).toBeEnabled())
       await user.click(alphaCheckbox)
-      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled())
+      await waitFor(() => expect(screen.getByRole("button", { name: /^Actions/ })).toBeDisabled())
     })
 
     test("selecting multiple containers enables Actions and shows the plural Empty item with count", async () => {
@@ -519,7 +521,7 @@ describe("SwiftContainers (List)", () => {
       await user.click(screen.getByTestId("select-container-alpha"))
       await user.click(screen.getByTestId("select-container-beta"))
       await user.click(screen.getByTestId("select-container-gamma"))
-      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
+      await waitFor(() => expect(screen.getByRole("button", { name: /^Actions/ })).toBeEnabled())
       await openActionsMenu(user)
       expect(await screen.findByText("Empty 3 Containers")).toBeInTheDocument()
     })
@@ -530,8 +532,8 @@ describe("SwiftContainers (List)", () => {
     // open the bulk-empty modal.
     const selectAlphaAndOpenModal = async (user: ReturnType<typeof userEvent.setup>) => {
       await user.click(screen.getByTestId("select-container-alpha"))
-      await waitFor(() => expect(screen.getByRole("button", { name: /Actions/i })).toBeEnabled())
-      await user.click(screen.getByRole("button", { name: /Actions/i }))
+      await waitFor(() => expect(screen.getByRole("button", { name: /^Actions/ })).toBeEnabled())
+      await user.click(screen.getByRole("button", { name: /^Actions/ }))
       await user.click(await screen.findByText("Empty Container"))
     }
 
@@ -580,7 +582,7 @@ describe("SwiftContainers (List)", () => {
         expect(getContainersEmptyCompleteToast).toHaveBeenCalledWith(1, 3, [])
         expect(toast.success).toHaveBeenCalled()
         // Selection cleared → the Actions toggle is disabled again.
-        expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
+        expect(screen.getByRole("button", { name: /^Actions/ })).toBeDisabled()
       })
     })
 
@@ -764,7 +766,7 @@ describe("SwiftContainers (List)", () => {
     // Helper: open popup menu for a container row
     const openMenu = async (user: ReturnType<typeof userEvent.setup>, containerName: string) => {
       const row = screen.getByTestId(`container-row-${containerName}`)
-      const toggle = row.querySelector("button[aria-haspopup='menu']") as HTMLElement
+      const toggle = row.querySelector("button") as HTMLElement
       await user.click(toggle)
     }
 
@@ -784,17 +786,19 @@ describe("SwiftContainers (List)", () => {
       })
     })
 
-    test("shows error toast when container creation fails", async () => {
+    test("shows a warning toast when the container is created but its settings could not be applied", async () => {
       const user = userEvent.setup()
       renderList()
       await user.click(screen.getByRole("button", { name: /Create Container/i }))
       await waitFor(() => expect(screen.getByTestId("create-container-modal")).toBeInTheDocument())
-      await user.click(screen.getByRole("button", { name: "SimulateError" }))
+      await user.click(screen.getByRole("button", { name: "SimulatePartialSuccess" }))
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith(
+        expect(toast.warning).toHaveBeenCalledWith(
           expect.anything(),
           expect.objectContaining({
-            description: expect.stringContaining('Could not create container "new-container": Server error'),
+            description: expect.stringContaining(
+              'Container "new-container" was created, but its settings could not be applied: Settings could not be applied'
+            ),
           })
         )
       })
