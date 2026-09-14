@@ -191,7 +191,7 @@ export const FloatingIpsList = () => {
                 }}
               />
               <SearchInput
-                placeholder={t`Search floating IPs...`}
+                placeholder={t`Search by IP address, description, or network ID...`}
                 data-testid="searchbar"
                 value={localSearchTerm}
                 onInput={(e: React.FormEvent<HTMLInputElement>) => {

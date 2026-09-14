@@ -189,7 +189,7 @@ export function SecurityGroupRulesTable({
               {onSearchChange && (
                 <SearchInput
                   className="w-60 sm:w-68"
-                  placeholder={t`Search rules...`}
+                  placeholder={t`Search by description, protocol, or ethertype...`}
                   data-testid="searchbar"
                   value={localSearchTerm}
                   onInput={(e: React.FormEvent<HTMLInputElement>) => {

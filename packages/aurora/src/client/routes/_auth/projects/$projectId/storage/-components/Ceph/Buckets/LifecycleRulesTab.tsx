@@ -259,7 +259,7 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
         <Stack direction="vertical" gap="2">
           <Stack distribution="end" alignment="center">
             <SearchInput
-              placeholder={t`Search lifecycle rules...`}
+              placeholder={t`Search by rule ID...`}
               data-testid="lifecycle-rules-searchbar"
               value={lifecycleSearch}
               onInput={(e) => {

@@ -248,7 +248,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
         <Stack direction="vertical" gap="2">
           <Stack distribution="end" alignment="center">
             <SearchInput
-              placeholder={t`Search CORS rules...`}
+              placeholder={t`Search by rule ID...`}
               data-testid="cors-rules-searchbar"
               value={corsSearch}
               onInput={(e) => {

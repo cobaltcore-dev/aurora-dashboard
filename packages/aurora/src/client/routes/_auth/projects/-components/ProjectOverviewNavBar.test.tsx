@@ -42,7 +42,7 @@ describe("ProjectOverviewNavBar", () => {
         </TestingProvider>
       )
     })
-    expect(screen.getByPlaceholderText("Search...")).toHaveValue("initial search")
+    expect(screen.getByPlaceholderText("Search projects by name or description...")).toHaveValue("initial search")
   })
 
   it("updates local search term immediately on input change", async () => {
@@ -54,7 +54,7 @@ describe("ProjectOverviewNavBar", () => {
       )
     })
 
-    const searchInput = screen.getByPlaceholderText("Search...")
+    const searchInput = screen.getByPlaceholderText("Search projects by name or description...")
     fireEvent.change(searchInput, { target: { value: "test" } })
 
     expect(searchInput).toHaveValue("test")
@@ -69,7 +69,7 @@ describe("ProjectOverviewNavBar", () => {
       )
     })
 
-    const searchInput = screen.getByPlaceholderText("Search...")
+    const searchInput = screen.getByPlaceholderText("Search projects by name or description...")
     fireEvent.change(searchInput, { target: { value: "test" } })
 
     // onSearch should not be called immediately
@@ -92,7 +92,7 @@ describe("ProjectOverviewNavBar", () => {
       )
     })
 
-    const searchInput = screen.getByPlaceholderText("Search...")
+    const searchInput = screen.getByPlaceholderText("Search projects by name or description...")
 
     fireEvent.change(searchInput, { target: { value: "te" } })
 

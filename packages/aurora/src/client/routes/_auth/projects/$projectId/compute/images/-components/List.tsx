@@ -270,7 +270,7 @@ function ImagesContent({
               }}
             />
             <SearchInput
-              placeholder={t`Search images...`}
+              placeholder={t`Search by name...`}
               data-testid="searchbar"
               value={localSearchTerm}
               onInput={(e: React.FormEvent<HTMLInputElement>) => {

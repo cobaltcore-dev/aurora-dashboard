@@ -48,7 +48,7 @@ export function ProjectsOverviewNavBar({ onSearch, searchTerm = "" }: ProjectsOv
     <SearchInput
       className="w-full"
       type="text"
-      placeholder={t`Search...`}
+      placeholder={t`Search projects by name or description...`}
       onChange={handleSearchChange}
       onFocus={() => {
         inputFocusedRef.current = true

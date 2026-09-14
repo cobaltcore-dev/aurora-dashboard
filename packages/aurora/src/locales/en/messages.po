@@ -3023,38 +3023,29 @@ msgstr "Saving..."
 msgid "Scope"
 msgstr "Scope"
 
-msgid "Search buckets..."
-msgstr "Search buckets..."
+msgid "Search by description, protocol, or ethertype..."
+msgstr "Search by description, protocol, or ethertype..."
 
-msgid "Search containers..."
-msgstr "Search containers..."
+msgid "Search by IP address, description, or network ID..."
+msgstr "Search by IP address, description, or network ID..."
 
-msgid "Search CORS rules..."
-msgstr "Search CORS rules..."
+msgid "Search by name, description, or ID..."
+msgstr "Search by name, description, or ID..."
 
-msgid "Search flavors..."
-msgstr "Search flavors..."
+msgid "Search by name, ID, or description..."
+msgstr "Search by name, ID, or description..."
 
-msgid "Search floating IPs..."
-msgstr "Search floating IPs..."
+msgid "Search by name..."
+msgstr "Search by name..."
 
-msgid "Search images..."
-msgstr "Search images..."
+msgid "Search by rule ID..."
+msgstr "Search by rule ID..."
 
-msgid "Search lifecycle rules..."
-msgstr "Search lifecycle rules..."
+msgid "Search by tenant or action..."
+msgstr "Search by tenant or action..."
 
-msgid "Search objects..."
-msgstr "Search objects..."
-
-msgid "Search RBAC policies..."
-msgstr "Search RBAC policies..."
-
-msgid "Search rules..."
-msgstr "Search rules..."
-
-msgid "Search security groups..."
-msgstr "Search security groups..."
+msgid "Search projects by name or description..."
+msgstr "Search projects by name or description..."
 
 msgid "Search..."
 msgstr "Search..."

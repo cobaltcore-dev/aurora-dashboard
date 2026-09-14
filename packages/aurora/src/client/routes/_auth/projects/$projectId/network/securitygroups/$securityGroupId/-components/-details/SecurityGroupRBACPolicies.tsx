@@ -131,7 +131,7 @@ export function SecurityGroupRBACPolicies({ securityGroupId, canManageAccess }: 
         <Stack distribution="end" alignment="center">
           <SearchInput
             className="w-60 sm:w-68"
-            placeholder={t`Search RBAC policies...`}
+            placeholder={t`Search by tenant or action...`}
             data-testid="searchbar"
             value={localSearchTerm}
             onInput={(e: React.FormEvent<HTMLInputElement>) => {

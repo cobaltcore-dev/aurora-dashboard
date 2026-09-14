@@ -3023,37 +3023,28 @@ msgstr "Wird gespeichert..."
 msgid "Scope"
 msgstr ""
 
-msgid "Search buckets..."
-msgstr "Buckets suchen..."
-
-msgid "Search containers..."
-msgstr "Container suchen..."
-
-msgid "Search CORS rules..."
+msgid "Search by description, protocol, or ethertype..."
 msgstr ""
 
-msgid "Search flavors..."
-msgstr "Flavors suchen..."
-
-msgid "Search floating IPs..."
+msgid "Search by IP address, description, or network ID..."
 msgstr ""
 
-msgid "Search images..."
-msgstr "Images suchen..."
-
-msgid "Search lifecycle rules..."
+msgid "Search by name, description, or ID..."
 msgstr ""
 
-msgid "Search objects..."
-msgstr "Objekte suchen..."
-
-msgid "Search RBAC policies..."
+msgid "Search by name, ID, or description..."
 msgstr ""
 
-msgid "Search rules..."
+msgid "Search by name..."
 msgstr ""
 
-msgid "Search security groups..."
+msgid "Search by rule ID..."
+msgstr ""
+
+msgid "Search by tenant or action..."
+msgstr ""
+
+msgid "Search projects by name or description..."
 msgstr ""
 
 msgid "Search..."

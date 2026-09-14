@@ -302,7 +302,7 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
                 // The wrapper is inline-block/w-auto and the input reserves pr-16 for its icons, so at
                 // the browser's default input width this placeholder gets cut off mid-ellipsis.
                 className="w-60 sm:w-68"
-                placeholder={t`Search security groups...`}
+                placeholder={t`Search by name, description, or ID...`}
                 data-testid="searchbar"
                 value={localSearchTerm}
                 onInput={(e: React.FormEvent<HTMLInputElement>) => {

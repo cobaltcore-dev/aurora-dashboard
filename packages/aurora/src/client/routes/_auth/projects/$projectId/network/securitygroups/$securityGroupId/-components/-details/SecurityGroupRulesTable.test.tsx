@@ -289,7 +289,7 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      expect(screen.getByPlaceholderText("Search rules...")).toBeInTheDocument()
+      expect(screen.getByPlaceholderText("Search by description, protocol, or ethertype...")).toBeInTheDocument()
     })
 
     it("calls onSearchChange when search input changes", async () => {
@@ -307,7 +307,7 @@ describe("SecurityGroupRulesTable", () => {
         { wrapper: createWrapper() }
       )
 
-      const searchInput = screen.getByPlaceholderText("Search rules...")
+      const searchInput = screen.getByPlaceholderText("Search by description, protocol, or ethertype...")
       const user = userEvent.setup()
       await user.type(searchInput, "HTTP")
 

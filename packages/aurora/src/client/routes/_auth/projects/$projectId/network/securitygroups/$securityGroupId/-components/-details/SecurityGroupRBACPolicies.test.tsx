@@ -300,7 +300,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      expect(screen.getByPlaceholderText("Search RBAC policies...")).toBeInTheDocument()
+      expect(screen.getByPlaceholderText("Search by tenant or action...")).toBeInTheDocument()
     })
 
     it("filters policies by target tenant", async () => {
@@ -314,7 +314,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
+      const searchInput = screen.getByPlaceholderText("Search by tenant or action...")
       const user = userEvent.setup()
       await user.type(searchInput, "abc")
 
@@ -339,7 +339,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
+      const searchInput = screen.getByPlaceholderText("Search by tenant or action...")
       const user = userEvent.setup()
       await user.type(searchInput, "external")
 
@@ -364,7 +364,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
+      const searchInput = screen.getByPlaceholderText("Search by tenant or action...")
       const user = userEvent.setup()
       await user.type(searchInput, "nonexistent")
 
@@ -387,7 +387,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
+      const searchInput = screen.getByPlaceholderText("Search by tenant or action...")
       const user = userEvent.setup()
       await user.type(searchInput, "PROJECT-ABC")
 
@@ -410,7 +410,7 @@ describe("SecurityGroupRBACPolicies", () => {
         wrapper: createWrapper(),
       })
 
-      const searchInput = screen.getByPlaceholderText("Search RBAC policies...")
+      const searchInput = screen.getByPlaceholderText("Search by tenant or action...")
       const user = userEvent.setup()
 
       // Type and then clear
