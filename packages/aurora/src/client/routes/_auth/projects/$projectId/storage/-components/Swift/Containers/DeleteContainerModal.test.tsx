@@ -170,7 +170,7 @@ describe("DeleteContainerModal", () => {
   })
 
   describe("Loading state", () => {
-    test("shows loading spinner while fetching objects", () => {
+    test("shows loading state while fetching objects", () => {
       listObjectsLoading = true
       renderModal()
       expect(screen.getByText(/Loading/i)).toBeInTheDocument()

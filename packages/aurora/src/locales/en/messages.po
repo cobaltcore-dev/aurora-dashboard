@@ -1478,8 +1478,8 @@ msgstr "Ephemeral Disk must be an integer ≥ 0."
 msgid "Error loading component"
 msgstr "Error loading component"
 
-msgid "Error Loading Containers: {errorMessage}"
-msgstr "Error Loading Containers: {errorMessage}"
+msgid "Error loading containers"
+msgstr "Error loading containers"
 
 msgid "Error Loading Flavor"
 msgstr "Error Loading Flavor"
@@ -1709,14 +1709,17 @@ msgstr "Failed to generate temporary URL: {generalError}"
 msgid "Failed to load buckets: {errorMessage}"
 msgstr "Failed to load buckets: {errorMessage}"
 
-msgid "Failed to load container ACLs: {errorMessage}"
-msgstr "Failed to load container ACLs: {errorMessage}"
+msgid "Failed to load container ACLs"
+msgstr "Failed to load container ACLs"
 
 msgid "Failed to load container information"
 msgstr "Failed to load container information"
 
 msgid "Failed to load container objects: {errorMessage}"
 msgstr "Failed to load container objects: {errorMessage}"
+
+msgid "Failed to load container properties"
+msgstr "Failed to load container properties"
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Failed to load container properties: {errorMessage}"
@@ -1744,9 +1747,6 @@ msgstr "Failed to load metadata configuration."
 
 msgid "Failed to load object metadata"
 msgstr "Failed to load object metadata"
-
-msgid "Failed to load object metadata: {metadataErrorMessage}"
-msgstr "Failed to load object metadata: {metadataErrorMessage}"
 
 msgid "Failed to load objects"
 msgstr "Failed to load objects"

@@ -6,7 +6,7 @@ import {
   Modal,
   TextInput,
   Stack,
-  Spinner,
+  Status,
   DataGrid,
   DataGridRow,
   DataGridHeadCell,
@@ -373,14 +373,14 @@ export const EditObjectMetadataModal = ({
       disableConfirmButton={isBusy || !hasChanges || hasEditing || isAddingNew}
     >
       {isLoading ? (
-        <Stack direction="horizontal" alignment="center" gap="2" className="py-8">
-          <Spinner size="small" />
-          <Trans>Loading object properties...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Loading object properties...`} className="mt-0" />
       ) : isMetaError ? (
-        <p className="text-theme-error">
-          <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
-        </p>
+        <Status
+          status="error"
+          title={t`Failed to load object metadata`}
+          details={metadataErrorMessage}
+          className="mt-0"
+        />
       ) : (
         <Stack direction="vertical" gap="6">
           {/* Mutation error */}

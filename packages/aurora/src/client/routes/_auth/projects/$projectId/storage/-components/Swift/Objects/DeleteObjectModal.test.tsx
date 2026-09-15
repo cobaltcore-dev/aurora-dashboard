@@ -146,7 +146,7 @@ describe("DeleteObjectModal", () => {
   // ── Metadata loading ──────────────────────────────────────────────────────
 
   describe("Metadata loading", () => {
-    it("shows loading spinner while metadata is being fetched", () => {
+    it("shows loading state while metadata is being fetched", () => {
       mockMetadataLoading = true
       mockMetadata = null
       renderModal()

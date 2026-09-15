@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Stack, Spinner, Checkbox, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Status, Checkbox, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { ObjectRow } from "./"
 
@@ -134,22 +134,18 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       size="small"
       disableConfirmButton={isLoading || isPending || !!metadataError || canDelete}
     >
-      {metadataError && (
-        <p className="text-theme-error mb-4">
-          <Trans>Failed to load object metadata: {metadataErrorMessage}</Trans>
-        </p>
-      )}
       {isPending ? (
-        <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
-          <Spinner size="small" />
-          <Trans>Deleting...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Deleting...`} className="mt-0" />
       ) : isLoading ? (
-        <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
-          <Spinner size="small" />
-          <Trans>Loading object info...</Trans>
-        </Stack>
-      ) : !metadataError ? (
+        <Status status="progress" title={t`Loading object info...`} className="mt-0" />
+      ) : metadataError ? (
+        <Status
+          status="error"
+          title={t`Failed to load object metadata`}
+          details={metadataErrorMessage}
+          className="mt-0"
+        />
+      ) : (
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">
             <Trans>
@@ -209,7 +205,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
             </FormSection>
           </Form>
         </Stack>
-      ) : null}
+      )}
     </Modal>
   )
 }

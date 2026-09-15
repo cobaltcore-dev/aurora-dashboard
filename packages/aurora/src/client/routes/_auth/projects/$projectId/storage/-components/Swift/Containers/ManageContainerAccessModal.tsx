@@ -7,7 +7,7 @@ import {
   Modal,
   Textarea,
   Stack,
-  Spinner,
+  Status,
   Checkbox,
   Badge,
   Button,
@@ -355,17 +355,14 @@ export const ManageContainerAccessModal = ({
         </div>
 
         {isLoading ? (
-          <Stack direction="horizontal" alignment="center" gap="2" className="py-6">
-            <Spinner size="small" />
-            <Trans>Loading ACLs...</Trans>
-          </Stack>
+          <Status status="progress" title={t`Loading ACLs...`} className="mt-0" />
         ) : isMetaError ? (
-          <p className="text-theme-error py-2">
-            {(() => {
-              const errorMessage = metaError?.message ?? ""
-              return <Trans>Failed to load container ACLs: {errorMessage}</Trans>
-            })()}
-          </p>
+          <Status
+            status="error"
+            title={t`Failed to load container ACLs`}
+            details={metaError?.message ?? ""}
+            className="mt-0"
+          />
         ) : (
           <>
             <div className="flex gap-6">

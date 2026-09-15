@@ -257,13 +257,7 @@ export const SwiftContainers = () => {
 
   // Handle error state
   if (error) {
-    const errorMessage = error.message
-
-    return (
-      <Stack className="absolute inset-0" distribution="center" alignment="center" direction="vertical">
-        <Trans>Error Loading Containers: {errorMessage}</Trans>
-      </Stack>
-    )
+    return <Status status="error" title={t`Error loading containers`} details={error.message} />
   }
 
   // Calculate quota information

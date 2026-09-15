@@ -1478,8 +1478,8 @@ msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 msgid "Error loading component"
 msgstr "Fehler beim Laden der Komponente"
 
-msgid "Error Loading Containers: {errorMessage}"
-msgstr "Fehler beim Laden der Container: {errorMessage}"
+msgid "Error loading containers"
+msgstr ""
 
 msgid "Error Loading Flavor"
 msgstr "Fehler beim Laden des Flavors"
@@ -1709,14 +1709,17 @@ msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 msgid "Failed to load buckets: {errorMessage}"
 msgstr "Fehler beim Laden der Buckets: {errorMessage}"
 
-msgid "Failed to load container ACLs: {errorMessage}"
-msgstr "Fehler beim Laden der Container-ACLs: {errorMessage}"
+msgid "Failed to load container ACLs"
+msgstr ""
 
 msgid "Failed to load container information"
 msgstr ""
 
 msgid "Failed to load container objects: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Objekte: {errorMessage}"
+
+msgid "Failed to load container properties"
+msgstr ""
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Fehler beim Laden der Container-Eigenschaften: {errorMessage}"
@@ -1744,9 +1747,6 @@ msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 
 msgid "Failed to load object metadata"
 msgstr ""
-
-msgid "Failed to load object metadata: {metadataErrorMessage}"
-msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 
 msgid "Failed to load objects"
 msgstr ""

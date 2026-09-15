@@ -161,7 +161,7 @@ describe("EmptyContainerModal", () => {
   })
 
   describe("Loading state", () => {
-    test("shows loading spinner while fetching objects", () => {
+    test("shows loading state while fetching objects", () => {
       listObjectsLoading = true
       renderModal()
       expect(screen.getByText(/Loading objects/i)).toBeInTheDocument()

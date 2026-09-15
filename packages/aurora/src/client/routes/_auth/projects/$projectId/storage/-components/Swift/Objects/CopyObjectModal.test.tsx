@@ -536,10 +536,10 @@ describe("CopyObjectModal", () => {
       expect(screen.getByText(/Copying\.\.\./i)).toBeInTheDocument()
     })
 
-    test("shows spinner when copy is pending", () => {
+    test("shows progress state when copy is pending", () => {
       trpcState.copyIsPending = true
       renderModal()
-      // Pending state renders a spinner + text instead of the form
+      // Pending state renders a Status progress view instead of the form
       expect(screen.getByText(/Copying object\.\.\./i)).toBeInTheDocument()
     })
   })

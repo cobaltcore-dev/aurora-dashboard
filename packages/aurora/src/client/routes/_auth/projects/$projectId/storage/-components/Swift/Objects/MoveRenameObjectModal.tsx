@@ -2,7 +2,16 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Stack, Spinner, ComboBox, ComboBoxOption, TextInput, Button } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Stack,
+  Status,
+  Spinner,
+  ComboBox,
+  ComboBoxOption,
+  TextInput,
+  Button,
+} from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
 import { useVirtualizer } from "@tanstack/react-virtual"
@@ -358,10 +367,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
     >
       {isPending ? (
-        <Stack direction="horizontal" alignment="center" gap="2" className="py-8">
-          <Spinner size="small" />
-          <Trans>Moving object...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Moving object...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
           {(copyMutation.isError || deleteMutation.isError) &&
@@ -501,7 +507,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
                         {isFolder ? (
                           <button
                             type="button"
-                            className="hover:bg-theme-background-lvl-2 focus-visible:outline-theme-focus flex w-full items-center gap-2 px-4 py-2 text-left text-sm focus-visible:outline focus-visible:outline-2"
+                            className="hover:bg-theme-background-lvl-2 focus-visible:outline-theme-focus flex w-full items-center gap-2 px-4 py-2 text-left text-sm focus-visible:outline-2"
                             onClick={() => handleFolderClick(row.name)}
                           >
                             <MdFolder size={16} className="text-theme-light shrink-0" />
