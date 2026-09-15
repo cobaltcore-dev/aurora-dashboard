@@ -2474,6 +2474,9 @@ msgstr "No CORS rules found"
 msgid "No CORS rules matching the current search criteria."
 msgstr "No CORS rules matching the current search criteria."
 
+msgid "No custom metadata properties found."
+msgstr "No custom metadata properties found."
+
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "No custom metadata properties found. Click \"Add Property\" to create one."
 
@@ -2821,9 +2824,6 @@ msgstr "Properties of \"{displayName}\" were successfully updated."
 
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Properties of \"{objectName}\" were successfully updated."
-
-msgid "Property Key"
-msgstr "Property Key"
 
 msgid "property_key"
 msgstr "property_key"
@@ -3232,6 +3232,9 @@ msgstr "Show ACLs Preview"
 
 msgid "Show Details"
 msgstr "Show Details"
+
+msgid "Show Metadata"
+msgstr "Show Metadata"
 
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"

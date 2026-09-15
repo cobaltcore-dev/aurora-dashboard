@@ -148,7 +148,7 @@ export const FlavorListContainer = ({
                 <PopupMenu>
                   <PopupMenuOptions>
                     <PopupMenuItem
-                      label={t`Details`}
+                      label={t`Show Details`}
                       onClick={() =>
                         navigate({
                           to: "/projects/$projectId/compute/flavors/$flavorId",
@@ -162,12 +162,8 @@ export const FlavorListContainer = ({
                         onClick={() => openSpecModal(flavor)}
                       />
                     )}
-                    {canMangageAccess && (
-                      <PopupMenuItem
-                        label={t`Manage Access`}
-                        onClick={() => openAccessModal(flavor)}
-                        disabled={flavor["os-flavor-access:is_public"] !== false}
-                      />
+                    {canMangageAccess && flavor["os-flavor-access:is_public"] === false && (
+                      <PopupMenuItem label={t`Manage Access`} onClick={() => openAccessModal(flavor)} />
                     )}
                     {canDeleteFlavor && (
                       <PopupMenuItem label={t`Delete Flavor`} onClick={() => openDeleteModal(flavor)} />

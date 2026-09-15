@@ -263,10 +263,10 @@ function EditSpecModalInner({
     <Modal
       open
       onCancel={handleClose}
-      size="large"
-      title={canEdit ? t`Edit Metadata` : t`Metadata`}
+      size="xl"
+      title={canEdit ? t`Edit Metadata` : t`Show Metadata`}
       onConfirm={canEdit ? handleSubmit : undefined}
-      confirmButtonLabel={isSaving ? t`Saving...` : t`Save Changes`}
+      confirmButtonLabel={canEdit ? (isSaving ? t`Saving...` : t`Save Changes`) : undefined}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isSubmitDisabled}
       disableCancelButton={isSaving}
@@ -283,7 +283,7 @@ function EditSpecModalInner({
           )}
 
           {canEdit && (
-            <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
+            <Stack direction="horizontal" className="mb-4 justify-end">
               <Button
                 label={t`Add Property`}
                 onClick={() => setIsAddingNew(true)}
@@ -301,10 +301,7 @@ function EditSpecModalInner({
                 : t`No metadata properties found.`}
             </p>
           ) : (
-            <DescriptionList className="mb-6">
-              <DescriptionTerm>{t`Property Key`}</DescriptionTerm>
-              <DescriptionDefinition>{t`Value`}</DescriptionDefinition>
-
+            <DescriptionList className="mb-6" alignTerms="left">
               <>
                 {isAddingNew && (
                   <>
