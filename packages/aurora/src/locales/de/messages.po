@@ -1439,9 +1439,6 @@ msgstr "DNS-Name eingeben"
 msgid "Enter key"
 msgstr "Key eingeben"
 
-msgid "Enter member ID"
-msgstr "Mitglieds-ID eingeben"
-
 msgid "Enter project ID"
 msgstr "Projekt-ID eingeben"
 
@@ -2357,12 +2354,6 @@ msgstr "Mitglied \"{memberIdToRemove}\" wurde erfolgreich entfernt."
 msgid "Member \"{trimmedMemberId}\" has been added successfully."
 msgstr "Mitglied \"{trimmedMemberId}\" wurde erfolgreich hinzugefügt."
 
-msgid "Member ID"
-msgstr "Mitglieds-ID"
-
-msgid "Member ID (project UUID) is required."
-msgstr "Mitglieds-ID (Projekt-UUID) ist erforderlich."
-
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -2806,6 +2797,9 @@ msgstr "Projekt"
 
 msgid "Project ID"
 msgstr "Projekt-ID"
+
+msgid "Project ID (project UUID) is required."
+msgstr ""
 
 msgid "Project ID is required"
 msgstr "Projekt-ID ist erforderlich"

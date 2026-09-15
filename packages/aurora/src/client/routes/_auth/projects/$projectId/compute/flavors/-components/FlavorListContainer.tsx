@@ -7,6 +7,7 @@ import {
   PopupMenu,
   PopupMenuOptions,
   PopupMenuItem,
+  PopupMenuSectionSeparator,
   Status,
   Pagination,
 } from "@cloudoperators/juno-ui-components"
@@ -166,7 +167,10 @@ export const FlavorListContainer = ({
                       <PopupMenuItem label={t`Manage Access`} onClick={() => openAccessModal(flavor)} />
                     )}
                     {canDeleteFlavor && (
-                      <PopupMenuItem label={t`Delete Flavor`} onClick={() => openDeleteModal(flavor)} />
+                      <>
+                        <PopupMenuSectionSeparator />
+                        <PopupMenuItem label={t`Delete Flavor`} onClick={() => openDeleteModal(flavor)} />
+                      </>
                     )}
                   </PopupMenuOptions>
                 </PopupMenu>

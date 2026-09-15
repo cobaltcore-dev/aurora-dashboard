@@ -6,6 +6,7 @@ import {
   PopupMenuToggle,
   PopupMenuOptions,
   PopupMenuItem,
+  PopupMenuSectionSeparator,
   toast,
 } from "@cloudoperators/juno-ui-components/index"
 import { createFileRoute, redirect, useNavigate, useParams, useSearch } from "@tanstack/react-router"
@@ -358,23 +359,17 @@ function RouteComponent() {
           </PopupMenuToggle>
           <PopupMenuOptions>
             {!isSharedWithMe && permissions.canUpdate && (
-              <PopupMenuItem
-                onClick={() => setEditMetadataModalOpen(true)}
-                label={t`Edit Metadata`}
-                disabled={isLoading}
-              />
-            )}
-            {canRejectSharedImage && (
-              <PopupMenuItem label={t`Reject`} onClick={() => handleMemberStatusChange("rejected")} />
-            )}
-            {!isSharedWithMe && permissions.canUpdate && (
-              <PopupMenuItem
-                label={isDeactivated ? t`Activate` : t`Deactivate`}
-                onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
-              />
-            )}
-            {!isSharedWithMe && permissions.canUpdate && isPrivate && (
-              <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
+              <>
+                <PopupMenuItem
+                  label={isDeactivated ? t`Activate` : t`Deactivate`}
+                  onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
+                />
+                <PopupMenuItem
+                  onClick={() => setEditMetadataModalOpen(true)}
+                  label={t`Edit Metadata`}
+                  disabled={isLoading}
+                />
+              </>
             )}
             {!isSharedWithMe &&
               isImageOwner &&
@@ -391,8 +386,17 @@ function RouteComponent() {
                   }
                 />
               )}
+            {canRejectSharedImage && (
+              <PopupMenuItem label={t`Reject`} onClick={() => handleMemberStatusChange("rejected")} />
+            )}
+            {!isSharedWithMe && permissions.canUpdate && isPrivate && (
+              <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
+            )}
             {!isSharedWithMe && permissions.canDelete && !image.protected && (
-              <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
+              <>
+                <PopupMenuSectionSeparator />
+                <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
+              </>
             )}
           </PopupMenuOptions>
         </PopupMenu>
