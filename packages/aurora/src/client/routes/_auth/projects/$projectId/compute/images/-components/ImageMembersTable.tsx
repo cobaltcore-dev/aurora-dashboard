@@ -80,7 +80,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
     const newErrors: { memberId?: string } = {}
 
     if (!trimmedMemberId) {
-      newErrors.memberId = t`Member ID (project UUID) is required.`
+      newErrors.memberId = t`Project ID (project UUID) is required.`
     } else if (imageMembers?.some((member) => member.member_id === trimmedMemberId)) {
       newErrors.memberId = t`This member already has access to this image.`
     }
@@ -198,7 +198,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
       <DataGrid columns={4}>
         <DataGridRow>
           <DataGridHeadCell>{t`Image ID`}</DataGridHeadCell>
-          <DataGridHeadCell>{t`Member ID`}</DataGridHeadCell>
+          <DataGridHeadCell>{t`Project ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>

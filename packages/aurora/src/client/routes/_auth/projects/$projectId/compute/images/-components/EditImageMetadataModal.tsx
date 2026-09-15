@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useMemo } from "react"
 import { useLingui } from "@lingui/react/macro"
 import { useProjectId } from "@/client/hooks"
 import {
@@ -18,6 +18,7 @@ interface EditImageMetadataModalProps {
   image: GlanceImage
   isOpen: boolean
   isLoading?: boolean
+  canEdit?: boolean
   onClose: () => void
   onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
   onSuccess?: () => void
@@ -55,6 +56,7 @@ function EditImageMetadataModalInner({
   onSuccess,
   initialMetadata,
   excludedProperties,
+  canEdit = true,
 }: {
   isLoading: boolean
   onClose: () => void
@@ -62,6 +64,7 @@ function EditImageMetadataModalInner({
   onSuccess?: () => void
   initialMetadata: MetadataEntry[]
   excludedProperties: Set<string>
+  canEdit?: boolean
 }) {
   const { t } = useLingui()
 
@@ -70,14 +73,6 @@ function EditImageMetadataModalInner({
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newKey, setNewKey] = useState("")
   const [newValue, setNewValue] = useState("")
-  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null)
-
-  useEffect(() => {
-    if (confirmDeleteIndex !== null) {
-      const timer = setTimeout(() => setConfirmDeleteIndex(null), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [confirmDeleteIndex])
 
   const isSubmitDisabled =
     metadata.every((entry) => !entry.isNew && entry.key === entry.originalKey && entry.value === entry.originalValue) &&
@@ -126,7 +121,6 @@ function EditImageMetadataModalInner({
   }
 
   const handleEdit = (index: number) => {
-    setConfirmDeleteIndex(null)
     setMetadata((prev) =>
       prev.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false }))
     )
@@ -161,7 +155,6 @@ function EditImageMetadataModalInner({
 
   const handleDelete = (index: number) => {
     setMetadata((prev) => prev.filter((_, i) => i !== index))
-    setConfirmDeleteIndex(null)
     setErrors({})
   }
 
@@ -223,10 +216,10 @@ function EditImageMetadataModalInner({
     <Modal
       open
       onCancel={handleClose}
-      size="large"
-      title={t`Edit Image Metadata`}
-      onConfirm={handleSubmit}
-      confirmButtonLabel={t`Save Changes`}
+      size="xl"
+      title={canEdit ? t`Edit Metadata` : t`Show Metadata`}
+      onConfirm={canEdit ? handleSubmit : undefined}
+      confirmButtonLabel={canEdit ? t`Save Changes` : undefined}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isLoading || isAddingNew || metadata.some((e) => e.isEditing) || isSubmitDisabled}
     >
@@ -236,24 +229,25 @@ function EditImageMetadataModalInner({
         </Stack>
       ) : (
         <div>
-          <Stack direction="horizontal" className="mb-4 justify-end p-2">
-            <Button
-              label={t`Add Property`}
-              onClick={() => setIsAddingNew(true)}
-              variant="primary"
-              disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-              icon="addCircle"
-            />
-          </Stack>
+          {canEdit && (
+            <Stack direction="horizontal" className="mb-4 justify-end p-2">
+              <Button
+                label={t`Add Property`}
+                onClick={() => setIsAddingNew(true)}
+                variant="primary"
+                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
+                icon="addCircle"
+              />
+            </Stack>
+          )}
           {metadata.length === 0 && !isAddingNew ? (
             <p className="jn:text-theme-light py-8 text-center">
-              {t`No custom metadata properties found. Click "Add Property" to create one.`}
+              {canEdit
+                ? t`No custom metadata properties found. Click "Add Property" to create one.`
+                : t`No custom metadata properties found.`}
             </p>
           ) : (
-            <DescriptionList className="mb-6">
-              <DescriptionTerm>{t`Property Key`}</DescriptionTerm>
-              <DescriptionDefinition>{t`Value`}</DescriptionDefinition>
-
+            <DescriptionList className="mb-6" alignTerms="left">
               <>
                 {isAddingNew && (
                   <>
@@ -357,8 +351,8 @@ function EditImageMetadataModalInner({
                           <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
                             {entry.value}
                           </span>
-                          <Stack direction="horizontal" gap="2">
-                            {confirmDeleteIndex !== index && (
+                          {canEdit && (
+                            <Stack direction="horizontal" gap="2">
                               <Button
                                 size="small"
                                 variant="subdued"
@@ -368,29 +362,17 @@ function EditImageMetadataModalInner({
                                 title={t`Edit`}
                                 disabled={isAddingNew || metadata.some((e) => e.isEditing)}
                               />
-                            )}
-                            {confirmDeleteIndex === index ? (
                               <Button
                                 size="small"
-                                variant="primary-danger"
                                 onClick={() => handleDelete(index)}
-                                data-testid={`confirm-delete-${entry.key}`}
-                                title={t`Delete`}
-                                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                              >
-                                {t`Delete`}
-                              </Button>
-                            ) : (
-                              <Button
-                                size="small"
-                                onClick={() => setConfirmDeleteIndex(index)}
                                 icon="deleteForever"
+                                aria-label={t`Delete`}
                                 data-testid={`delete-${entry.key}`}
                                 title={t`Delete`}
                                 disabled={isAddingNew || metadata.some((e) => e.isEditing)}
                               />
-                            )}
-                          </Stack>
+                            </Stack>
+                          )}
                         </>
                       )}
                     </DescriptionDefinition>
@@ -409,6 +391,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   image,
   isOpen,
   isLoading = false,
+  canEdit = true,
   onClose,
   onSave,
 }) => {
@@ -437,7 +420,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   if (isLoadingExcluded) {
     return (
-      <Modal open onCancel={onClose} size="large" title={t`Edit Image Metadata`}>
+      <Modal open onCancel={onClose} size="xl" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
         <Stack distribution="center" alignment="center">
           <Spinner variant="primary" />
         </Stack>
@@ -447,7 +430,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   if (isErrorExcluded) {
     return (
-      <Modal open onCancel={onClose} size="large" title={t`Edit Image Metadata`}>
+      <Modal open onCancel={onClose} size="xl" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
         <Stack distribution="center" alignment="center">
           <span>{t`Failed to load metadata configuration.`}</span>
         </Stack>
@@ -463,6 +446,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
       onSave={onSave}
       initialMetadata={initialMetadata}
       excludedProperties={excludedProperties}
+      canEdit={canEdit}
     />
   )
 }

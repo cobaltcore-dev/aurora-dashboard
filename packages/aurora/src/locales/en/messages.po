@@ -1328,9 +1328,6 @@ msgstr "Edit Group"
 msgid "Edit Image Details"
 msgstr "Edit Image Details"
 
-msgid "Edit Image Metadata"
-msgstr "Edit Image Metadata"
-
 msgid "Edit Lifecycle Rule"
 msgstr "Edit Lifecycle Rule"
 
@@ -1447,9 +1444,6 @@ msgstr "Enter DNS name"
 
 msgid "Enter key"
 msgstr "Enter key"
-
-msgid "Enter member ID"
-msgstr "Enter member ID"
 
 msgid "Enter project ID"
 msgstr "Enter project ID"
@@ -2363,12 +2357,6 @@ msgstr "Member \"{memberIdToRemove}\" has been removed successfully."
 msgid "Member \"{trimmedMemberId}\" has been added successfully."
 msgstr "Member \"{trimmedMemberId}\" has been added successfully."
 
-msgid "Member ID"
-msgstr "Member ID"
-
-msgid "Member ID (project UUID) is required."
-msgstr "Member ID (project UUID) is required."
-
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -2479,6 +2467,9 @@ msgstr "No CORS rules found"
 
 msgid "No CORS rules matching the current search criteria."
 msgstr "No CORS rules matching the current search criteria."
+
+msgid "No custom metadata properties found."
+msgstr "No custom metadata properties found."
 
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
 msgstr "No custom metadata properties found. Click \"Add Property\" to create one."
@@ -2810,6 +2801,9 @@ msgstr "Project"
 msgid "Project ID"
 msgstr "Project ID"
 
+msgid "Project ID (project UUID) is required."
+msgstr "Project ID (project UUID) is required."
+
 msgid "Project ID is required"
 msgstr "Project ID is required"
 
@@ -2827,9 +2821,6 @@ msgstr "Properties of \"{displayName}\" were successfully updated."
 
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Properties of \"{objectName}\" were successfully updated."
-
-msgid "Property Key"
-msgstr "Property Key"
 
 msgid "property_key"
 msgstr "property_key"
@@ -3238,6 +3229,9 @@ msgstr "Show ACLs Preview"
 
 msgid "Show Details"
 msgstr "Show Details"
+
+msgid "Show Metadata"
+msgstr "Show Metadata"
 
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Showing {filteredCount} of {totalCount} {itemName}"
