@@ -502,9 +502,10 @@ export function mapErrorResponseToTRPCError(
     container?: string
     object?: string
     additionalInfo?: string
+    preconditionFailedMeansAlreadyExists?: boolean
   }
 ): TRPCError {
-  const { operation, container, object, additionalInfo } = context
+  const { operation, container, object, additionalInfo, preconditionFailedMeansAlreadyExists } = context
   const baseMessage = `Failed to ${operation}`
   const containerInfo = container ? ` container: ${container}` : ""
   const objectInfo = object ? `, object: ${object}` : ""
@@ -540,6 +541,17 @@ export function mapErrorResponseToTRPCError(
         code: "CONFLICT",
         message: `Conflict - ${operation}${containerInfo}${objectInfo}${extraInfo}`,
       })
+
+    case 412:
+      return preconditionFailedMeansAlreadyExists
+        ? new TRPCError({
+            code: "CONFLICT",
+            message: `Conflict - ${operation}${containerInfo}${objectInfo} - already exists${extraInfo}`,
+          })
+        : new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: `Precondition failed - ${operation}${containerInfo}${objectInfo}${extraInfo}`,
+          })
 
     case 413:
       return new TRPCError({

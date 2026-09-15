@@ -241,6 +241,13 @@ export const createContainerInputSchema = baseContainerInputSchema.extend({
   tempUrlKey2: z.string().optional(),
 })
 
+export const createContainerResultSchema = z.object({
+  created: z.literal(true),
+  optionsApplied: z.boolean(),
+  optionsError: z.string().optional(),
+})
+export type CreateContainerResult = z.infer<typeof createContainerResultSchema>
+
 // Update container metadata input schema
 export const updateContainerMetadataInputSchema = baseContainerInputSchema.extend({
   metadata: z.record(z.string(), z.string()).optional(),

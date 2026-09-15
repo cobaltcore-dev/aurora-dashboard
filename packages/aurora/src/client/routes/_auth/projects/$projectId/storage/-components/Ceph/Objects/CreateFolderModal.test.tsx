@@ -115,65 +115,104 @@ describe("CreateFolderModal", () => {
     expect(screen.getByText("docs/reports/")).toBeInTheDocument()
   })
 
-  it("validates empty folder name", async () => {
-    const user = userEvent.setup()
-    render(<CreateFolderModal {...defaultProps} />)
-
-    const createButton = screen.getByRole("button", { name: "Create Folder" })
-    expect(createButton).toBeDisabled()
-
-    const input = screen.getByLabelText("Folder Name")
-    await user.type(input, "test")
-    await user.clear(input)
-
-    await waitFor(() => {
-      expect(screen.getByText("Folder name is required")).toBeInTheDocument()
-    })
-  })
-
-  it("validates folder name length", async () => {
-    const user = userEvent.setup()
-    render(<CreateFolderModal {...defaultProps} />)
-
-    const input = screen.getByLabelText("Folder Name")
-    const longName = "a".repeat(256)
-    await user.type(input, longName)
-
-    await waitFor(() => {
-      expect(screen.getByText("Folder name is too long (max 255 characters)")).toBeInTheDocument()
-    })
-  })
-
-  it("validates slashes in folder name", async () => {
+  it("does not validate live while typing — only on submit", async () => {
     const user = userEvent.setup()
     render(<CreateFolderModal {...defaultProps} />)
 
     const input = screen.getByLabelText("Folder Name")
     await user.type(input, "folder/name")
 
+    // Invalid text sits in the field with no error shown yet — validation
+    // hasn't run because Create hasn't been clicked.
+    expect(screen.queryByText("Folder name cannot contain slashes")).not.toBeInTheDocument()
+    expect(mockMutate).not.toHaveBeenCalled()
+  })
+
+  it("validates empty folder name on submit", async () => {
+    const user = userEvent.setup()
+    render(<CreateFolderModal {...defaultProps} />)
+
+    const input = screen.getByLabelText("Folder Name")
+    await user.type(input, "test")
+    await user.clear(input)
+    await user.keyboard("{Enter}")
+
     await waitFor(() => {
-      expect(screen.getByText("Folder name cannot contain slashes")).toBeInTheDocument()
+      expect(screen.getByText("Folder name is required")).toBeInTheDocument()
     })
   })
 
-  it("validates leading/trailing slashes", async () => {
+  it("validates folder name length on submit", async () => {
+    const user = userEvent.setup()
+    render(<CreateFolderModal {...defaultProps} />)
+
+    const input = screen.getByLabelText("Folder Name")
+    const longName = "a".repeat(256)
+    await user.type(input, longName)
+    await user.keyboard("{Enter}")
+
+    await waitFor(() => {
+      expect(screen.getByText("Folder name is too long (max 255 characters)")).toBeInTheDocument()
+    })
+    expect(mockMutate).not.toHaveBeenCalled()
+  })
+
+  it("validates slashes in folder name on submit", async () => {
+    const user = userEvent.setup()
+    render(<CreateFolderModal {...defaultProps} />)
+
+    const input = screen.getByLabelText("Folder Name")
+    await user.type(input, "folder/name")
+    await user.keyboard("{Enter}")
+
+    await waitFor(() => {
+      expect(screen.getByText("Folder name cannot contain slashes")).toBeInTheDocument()
+    })
+    expect(mockMutate).not.toHaveBeenCalled()
+  })
+
+  it("validates leading/trailing slashes on submit", async () => {
     const user = userEvent.setup()
     render(<CreateFolderModal {...defaultProps} />)
 
     const input = screen.getByLabelText("Folder Name")
     await user.type(input, "/folder/")
+    await user.keyboard("{Enter}")
 
     await waitFor(() => {
       expect(screen.getByText("Folder name cannot contain slashes")).toBeInTheDocument()
     })
+    expect(mockMutate).not.toHaveBeenCalled()
   })
 
-  it("disables create button when validation fails", async () => {
+  it("clears validation error once a valid name is entered after a failed submit", async () => {
+    const user = userEvent.setup()
+    render(<CreateFolderModal {...defaultProps} />)
+
+    const input = screen.getByLabelText("Folder Name")
+    await user.type(input, "bad/name")
+    await user.keyboard("{Enter}")
+
+    await waitFor(() => {
+      expect(screen.getByText("Folder name cannot contain slashes")).toBeInTheDocument()
+    })
+
+    await user.clear(input)
+    await user.type(input, "good-name")
+
+    await waitFor(() => {
+      expect(screen.queryByText("Folder name cannot contain slashes")).not.toBeInTheDocument()
+    })
+  })
+
+  it("disables create button only when name is empty, regardless of prior validation errors", async () => {
     const user = userEvent.setup()
     render(<CreateFolderModal {...defaultProps} />)
 
     const createButton = screen.getByRole("button", { name: "Create Folder" })
     const input = screen.getByLabelText("Folder Name")
+
+    expect(createButton).toBeDisabled()
 
     await user.type(input, "valid")
     expect(createButton).not.toBeDisabled()
