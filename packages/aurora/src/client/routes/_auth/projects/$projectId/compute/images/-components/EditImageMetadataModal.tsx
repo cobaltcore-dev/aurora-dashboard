@@ -366,6 +366,7 @@ function EditImageMetadataModalInner({
                                 size="small"
                                 onClick={() => handleDelete(index)}
                                 icon="deleteForever"
+                                aria-label={t`Delete`}
                                 data-testid={`delete-${entry.key}`}
                                 title={t`Delete`}
                                 disabled={isAddingNew || metadata.some((e) => e.isEditing)}
@@ -419,7 +420,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   if (isLoadingExcluded) {
     return (
-      <Modal open onCancel={onClose} size="large" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
+      <Modal open onCancel={onClose} size="xl" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
         <Stack distribution="center" alignment="center">
           <Spinner variant="primary" />
         </Stack>
@@ -429,7 +430,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   if (isErrorExcluded) {
     return (
-      <Modal open onCancel={onClose} size="large" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
+      <Modal open onCancel={onClose} size="xl" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
         <Stack distribution="center" alignment="center">
           <span>{t`Failed to load metadata configuration.`}</span>
         </Stack>
