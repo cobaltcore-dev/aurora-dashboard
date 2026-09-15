@@ -1742,6 +1742,9 @@ msgstr ""
 msgid "Failed to load metadata configuration."
 msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 
+msgid "Failed to load object metadata"
+msgstr ""
+
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
 

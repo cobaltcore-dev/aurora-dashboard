@@ -6,6 +6,7 @@ import type { ObjectVersion } from "@/server/Storage/types/versioning"
 import {
   Modal,
   Stack,
+  Status,
   Message,
   DataGrid,
   DataGridRow,
@@ -15,7 +16,6 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
-  Spinner,
 } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
@@ -125,25 +125,12 @@ export const ObjectVersionHistoryModal = ({
           </Message>
         )}
 
-        {isLoading && (
-          <Stack direction="horizontal" gap="2" alignment="center" className="py-8">
-            <Spinner />
-            <span className="text-theme-light text-sm">
-              <Trans>Loading versions...</Trans>
-            </span>
-          </Stack>
-        )}
+        {isLoading && <Status status="progress" title={t`Loading versions...`} className="mt-0" />}
 
-        {error && (
-          <Message variant="error" title={t`Failed to load versions`}>
-            {error.message}
-          </Message>
-        )}
+        {error && <Status status="error" title={t`Failed to load versions`} details={error.message} className="mt-0" />}
 
         {!isLoading && !error && versions.length === 0 && (
-          <Message variant="info">
-            <Trans>No versions found for this object.</Trans>
-          </Message>
+          <Status status="empty" title={t`No versions found for this object.`} className="mt-0" />
         )}
 
         {!isLoading && !error && versions.length > 0 && (

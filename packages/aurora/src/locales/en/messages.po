@@ -1742,6 +1742,9 @@ msgstr "Failed to load lifecycle configuration"
 msgid "Failed to load metadata configuration."
 msgstr "Failed to load metadata configuration."
 
+msgid "Failed to load object metadata"
+msgstr "Failed to load object metadata"
+
 msgid "Failed to load object metadata: {metadataErrorMessage}"
 msgstr "Failed to load object metadata: {metadataErrorMessage}"
 

@@ -5,7 +5,7 @@ import { i18n } from "@lingui/core"
 import { useNavigate } from "@tanstack/react-router"
 import { trpcReact } from "@/client/trpcClient"
 import {
-  Spinner,
+  Status,
   Message,
   Button,
   Stack,
@@ -210,19 +210,11 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
   )
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Spinner variant="primary" size="large" />
-      </div>
-    )
+    return <Status status="progress" />
   }
 
   if (error) {
-    return (
-      <Message variant="error" title={t`Failed to load lifecycle configuration`}>
-        {error.message}
-      </Message>
-    )
+    return <Status status="error" title={t`Failed to load lifecycle configuration`} details={error.message} />
   }
 
   return (

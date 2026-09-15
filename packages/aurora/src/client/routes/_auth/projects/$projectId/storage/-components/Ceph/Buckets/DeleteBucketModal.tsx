@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, ModalFooter, ButtonRow, TextInput, Stack, Spinner, Button } from "@cloudoperators/juno-ui-components"
+import { Modal, ModalFooter, ButtonRow, TextInput, Stack, Status, Button } from "@cloudoperators/juno-ui-components"
 import type { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { calculateBucketState } from "../hooks/bucketStateHelpers"
@@ -171,12 +171,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
         )}
 
         {isLoading ? (
-          <Stack direction="horizontal" gap="2" alignment="center">
-            <Spinner />
-            <span className="text-juno-grey-light-1 text-sm">
-              <Trans>Checking bucket contents...</Trans>
-            </span>
-          </Stack>
+          <Status status="progress" title={t`Checking bucket contents...`} className="mt-0" />
         ) : cannotDelete ? (
           <div className="text-theme-default">
             <p className="mb-4">

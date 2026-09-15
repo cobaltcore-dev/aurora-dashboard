@@ -3,7 +3,16 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
-import { Modal, Stack, Spinner, ComboBox, ComboBoxOption, TextInput, Button } from "@cloudoperators/juno-ui-components"
+import {
+  Modal,
+  Stack,
+  Spinner,
+  Status,
+  ComboBox,
+  ComboBoxOption,
+  TextInput,
+  Button,
+} from "@cloudoperators/juno-ui-components"
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useCopyMoveModalState } from "./hooks/useCopyMoveModalState"
@@ -284,10 +293,7 @@ export const CopyObjectModal = ({
       disableConfirmButton={isPending || isLoadingBuckets || isUnchanged}
     >
       {isPending ? (
-        <Stack direction="horizontal" alignment="center" gap="2" className="py-8">
-          <Spinner size="small" />
-          <Trans>Copying object...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Copying object...`} />
       ) : (
         <Stack direction="vertical" gap="4">
           {/* Target bucket — ComboBox with debounced search */}
@@ -396,7 +402,7 @@ export const CopyObjectModal = ({
                         {isFolder ? (
                           <button
                             type="button"
-                            className="hover:bg-theme-background-lvl-2 focus-visible:outline-theme-focus flex w-full items-center gap-2 px-4 py-2 text-left text-sm focus-visible:outline focus-visible:outline-2"
+                            className="hover:bg-theme-background-lvl-2 focus-visible:outline-theme-focus flex w-full items-center gap-2 px-4 py-2 text-left text-sm focus-visible:outline-2"
                             onClick={() => modalState.navigateToPrefix(row.name)}
                           >
                             <MdFolder size={16} className="text-theme-light shrink-0" />
