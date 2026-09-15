@@ -1319,9 +1319,6 @@ msgstr ""
 msgid "Edit Image Details"
 msgstr "Image-Details bearbeiten"
 
-msgid "Edit Image Metadata"
-msgstr "Image-Metadaten bearbeiten"
-
 msgid "Edit Lifecycle Rule"
 msgstr ""
 

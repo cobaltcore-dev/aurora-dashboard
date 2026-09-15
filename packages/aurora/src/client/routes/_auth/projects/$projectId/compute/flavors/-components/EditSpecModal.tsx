@@ -490,7 +490,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
 
   if (isLoadingSpecs) {
     return (
-      <Modal open onCancel={onClose} size="large" title={t`Edit Metadata`}>
+      <Modal open onCancel={onClose} size="large" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
         <Stack distribution="center" alignment="center">
           <Spinner variant="primary" />
         </Stack>
@@ -500,7 +500,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
 
   if (loadError) {
     return (
-      <Modal open onCancel={onClose} size="large" title={t`Edit Metadata`}>
+      <Modal open onCancel={onClose} size="large" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
         <Message variant="error" text={translateError(loadError)} />
       </Modal>
     )

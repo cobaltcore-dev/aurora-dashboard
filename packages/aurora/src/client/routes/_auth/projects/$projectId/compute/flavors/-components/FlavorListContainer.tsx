@@ -148,15 +148,6 @@ export const FlavorListContainer = ({
               <DataGridCell onClick={(e) => e.stopPropagation()}>
                 <PopupMenu>
                   <PopupMenuOptions>
-                    <PopupMenuItem
-                      label={t`Show Details`}
-                      onClick={() =>
-                        navigate({
-                          to: "/projects/$projectId/compute/flavors/$flavorId",
-                          params: { projectId, flavorId: flavor.id },
-                        })
-                      }
-                    />
                     {(canManageSpecs || canListSpecs) && (
                       <PopupMenuItem
                         label={canManageSpecs ? t`Edit Metadata` : t`Metadata`}
@@ -166,6 +157,15 @@ export const FlavorListContainer = ({
                     {canMangageAccess && flavor["os-flavor-access:is_public"] === false && (
                       <PopupMenuItem label={t`Manage Access`} onClick={() => openAccessModal(flavor)} />
                     )}
+                    <PopupMenuItem
+                      label={t`Show Details`}
+                      onClick={() =>
+                        navigate({
+                          to: "/projects/$projectId/compute/flavors/$flavorId",
+                          params: { projectId, flavorId: flavor.id },
+                        })
+                      }
+                    />
                     {canDeleteFlavor && (
                       <>
                         <PopupMenuSectionSeparator />

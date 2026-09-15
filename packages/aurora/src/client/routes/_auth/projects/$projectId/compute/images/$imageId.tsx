@@ -452,7 +452,6 @@ function RouteComponent() {
           image={image}
           isOpen={editMetadataModalOpen}
           isLoading={updateImageMutation.isPending}
-          canEdit={canUpdateOwnImage}
           onClose={() => setEditMetadataModalOpen(false)}
           onSave={handleSaveEdit}
         />

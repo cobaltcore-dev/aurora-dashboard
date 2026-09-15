@@ -419,7 +419,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   if (isLoadingExcluded) {
     return (
-      <Modal open onCancel={onClose} size="large" title={t`Edit Image Metadata`}>
+      <Modal open onCancel={onClose} size="large" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
         <Stack distribution="center" alignment="center">
           <Spinner variant="primary" />
         </Stack>
@@ -429,7 +429,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
 
   if (isErrorExcluded) {
     return (
-      <Modal open onCancel={onClose} size="large" title={t`Edit Image Metadata`}>
+      <Modal open onCancel={onClose} size="large" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
         <Stack distribution="center" alignment="center">
           <span>{t`Failed to load metadata configuration.`}</span>
         </Stack>

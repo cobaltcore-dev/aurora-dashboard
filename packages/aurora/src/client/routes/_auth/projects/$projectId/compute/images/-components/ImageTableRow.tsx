@@ -135,16 +135,6 @@ export function ImageTableRow({
         ) : (
           <PopupMenu>
             <PopupMenuOptions>
-              <PopupMenuItem
-                label={t`Show Details`}
-                onClick={() =>
-                  navigate({
-                    to: "/projects/$projectId/compute/images/$imageId",
-                    params: { projectId, imageId: id },
-                  })
-                }
-              />
-
               {isExternalImage && permissions.canUpdateMember && (
                 <>
                   {isPending && (
@@ -179,6 +169,15 @@ export function ImageTableRow({
                   )}
                 </>
               )}
+              <PopupMenuItem
+                label={t`Show Details`}
+                onClick={() =>
+                  navigate({
+                    to: "/projects/$projectId/compute/images/$imageId",
+                    params: { projectId, imageId: id },
+                  })
+                }
+              />
               {!isExternalImage && permissions.canDelete && !image.protected && (
                 <>
                   <PopupMenuSectionSeparator />

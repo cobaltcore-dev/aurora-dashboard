@@ -1319,9 +1319,6 @@ msgstr "Edit Group"
 msgid "Edit Image Details"
 msgstr "Edit Image Details"
 
-msgid "Edit Image Metadata"
-msgstr "Edit Image Metadata"
-
 msgid "Edit Lifecycle Rule"
 msgstr "Edit Lifecycle Rule"
 
