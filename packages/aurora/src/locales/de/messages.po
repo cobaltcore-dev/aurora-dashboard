@@ -1610,6 +1610,9 @@ msgstr "Fehler beim Erstellen des Ordners"
 msgid "Failed to create image. Please try again."
 msgstr "Image konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
 
+msgid "Failed to Create Property"
+msgstr ""
+
 msgid "Failed to Create Rule"
 msgstr ""
 
@@ -1665,6 +1668,9 @@ msgid "Failed to delete policy"
 msgstr ""
 
 msgid "Failed to Delete Policy"
+msgstr ""
+
+msgid "Failed to Delete Property"
 msgstr ""
 
 msgid "Failed to delete rule"
@@ -1849,6 +1855,9 @@ msgstr "Fehler beim Aktualisieren des Objekts"
 
 msgid "Failed to update object: {mutationErrorMessage}"
 msgstr "Fehler beim Aktualisieren des Objekts: {mutationErrorMessage}"
+
+msgid "Failed to Update Property"
+msgstr ""
 
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
@@ -2854,6 +2863,24 @@ msgstr ""
 
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Eigenschaften von \"{objectName}\" wurden erfolgreich aktualisiert."
+
+msgid "Property Created"
+msgstr ""
+
+msgid "Property Deleted"
+msgstr ""
+
+msgid "Property Updated"
+msgstr ""
+
+msgid "Property was successfully created."
+msgstr ""
+
+msgid "Property was successfully deleted."
+msgstr ""
+
+msgid "Property was successfully updated."
+msgstr ""
 
 msgid "property_key"
 msgstr "property_key"

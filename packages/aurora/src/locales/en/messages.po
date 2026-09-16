@@ -1610,6 +1610,9 @@ msgstr "Failed to Create Folder"
 msgid "Failed to create image. Please try again."
 msgstr "Failed to create image. Please try again."
 
+msgid "Failed to Create Property"
+msgstr "Failed to Create Property"
+
 msgid "Failed to Create Rule"
 msgstr "Failed to Create Rule"
 
@@ -1666,6 +1669,9 @@ msgstr "Failed to delete policy"
 
 msgid "Failed to Delete Policy"
 msgstr "Failed to Delete Policy"
+
+msgid "Failed to Delete Property"
+msgstr "Failed to Delete Property"
 
 msgid "Failed to delete rule"
 msgstr "Failed to delete rule"
@@ -1849,6 +1855,9 @@ msgstr "Failed to Update Object"
 
 msgid "Failed to update object: {mutationErrorMessage}"
 msgstr "Failed to update object: {mutationErrorMessage}"
+
+msgid "Failed to Update Property"
+msgstr "Failed to Update Property"
 
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
@@ -2854,6 +2863,24 @@ msgstr "Properties of \"{displayName}\" were successfully updated."
 
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Properties of \"{objectName}\" were successfully updated."
+
+msgid "Property Created"
+msgstr "Property Created"
+
+msgid "Property Deleted"
+msgstr "Property Deleted"
+
+msgid "Property Updated"
+msgstr "Property Updated"
+
+msgid "Property was successfully created."
+msgstr "Property was successfully created."
+
+msgid "Property was successfully deleted."
+msgstr "Property was successfully deleted."
+
+msgid "Property was successfully updated."
+msgstr "Property was successfully updated."
 
 msgid "property_key"
 msgstr "property_key"
