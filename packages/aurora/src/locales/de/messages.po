@@ -1328,9 +1328,6 @@ msgstr ""
 msgid "Edit Image Details"
 msgstr "Image-Details bearbeiten"
 
-msgid "Edit Image Metadata"
-msgstr "Image-Metadaten bearbeiten"
-
 msgid "Edit Lifecycle Rule"
 msgstr ""
 
@@ -1447,9 +1444,6 @@ msgstr "DNS-Name eingeben"
 
 msgid "Enter key"
 msgstr "Key eingeben"
-
-msgid "Enter member ID"
-msgstr "Mitglieds-ID eingeben"
 
 msgid "Enter project ID"
 msgstr "Projekt-ID eingeben"
@@ -2363,12 +2357,6 @@ msgstr "Mitglied \"{memberIdToRemove}\" wurde erfolgreich entfernt."
 msgid "Member \"{trimmedMemberId}\" has been added successfully."
 msgstr "Mitglied \"{trimmedMemberId}\" wurde erfolgreich hinzugefügt."
 
-msgid "Member ID"
-msgstr "Mitglieds-ID"
-
-msgid "Member ID (project UUID) is required."
-msgstr "Mitglieds-ID (Projekt-UUID) ist erforderlich."
-
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -2478,6 +2466,9 @@ msgid "No CORS rules found"
 msgstr ""
 
 msgid "No CORS rules matching the current search criteria."
+msgstr ""
+
+msgid "No custom metadata properties found."
 msgstr ""
 
 msgid "No custom metadata properties found. Click \"Add Property\" to create one."
@@ -2810,6 +2801,9 @@ msgstr "Projekt"
 msgid "Project ID"
 msgstr "Projekt-ID"
 
+msgid "Project ID (project UUID) is required."
+msgstr ""
+
 msgid "Project ID is required"
 msgstr "Projekt-ID ist erforderlich"
 
@@ -2827,9 +2821,6 @@ msgstr ""
 
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Eigenschaften von \"{objectName}\" wurden erfolgreich aktualisiert."
-
-msgid "Property Key"
-msgstr "Eigenschaftsschlüssel"
 
 msgid "property_key"
 msgstr "property_key"
@@ -3238,6 +3229,9 @@ msgstr "ACLs-Vorschau anzeigen"
 
 msgid "Show Details"
 msgstr "Details anzeigen"
+
+msgid "Show Metadata"
+msgstr ""
 
 msgid "Showing {filteredCount} of {totalCount} {itemName}"
 msgstr "Zeige {filteredCount} von {totalCount} {itemName}"
