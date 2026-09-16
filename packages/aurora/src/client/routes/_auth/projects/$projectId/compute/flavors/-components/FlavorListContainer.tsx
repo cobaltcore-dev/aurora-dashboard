@@ -28,7 +28,6 @@ interface FlavorListContainerProps {
   canDeleteFlavor?: boolean
   canMangageAccess?: boolean
   canManageSpecs?: boolean
-  canListSpecs?: boolean
   currentPage?: number
   totalPages?: number
   onPageChange?: (page: number) => void
@@ -43,7 +42,6 @@ export const FlavorListContainer = ({
   canDeleteFlavor,
   canMangageAccess,
   canManageSpecs,
-  canListSpecs,
   currentPage = 1,
   totalPages = 1,
   onPageChange,
@@ -148,12 +146,7 @@ export const FlavorListContainer = ({
               <DataGridCell onClick={(e) => e.stopPropagation()}>
                 <PopupMenu>
                   <PopupMenuOptions>
-                    {(canManageSpecs || canListSpecs) && (
-                      <PopupMenuItem
-                        label={canManageSpecs ? t`Edit Metadata` : t`Metadata`}
-                        onClick={() => openSpecModal(flavor)}
-                      />
-                    )}
+                    {canManageSpecs && <PopupMenuItem label={t`Edit Metadata`} onClick={() => openSpecModal(flavor)} />}
                     {canMangageAccess && flavor["os-flavor-access:is_public"] === false && (
                       <PopupMenuItem label={t`Manage Access`} onClick={() => openAccessModal(flavor)} />
                     )}

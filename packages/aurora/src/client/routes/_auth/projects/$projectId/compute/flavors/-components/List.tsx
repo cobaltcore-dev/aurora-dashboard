@@ -54,15 +54,13 @@ const createPermissionsPromise = (client: TrpcClient, project: string) => {
         "flavors:list_projects",
         "flavor_specs:create",
         "flavor_specs:delete",
-        "flavor_specs:list",
       ],
     })
-    .then(([canCreate, canDelete, canManageAccess, canCreateSpecs, canDeleteSpecs, canListSpecs]) => ({
+    .then(([canCreate, canDelete, canManageAccess, canCreateSpecs, canDeleteSpecs]) => ({
       canCreate,
       canDelete,
       canManageAccess,
       canManageSpecs: canCreateSpecs || canDeleteSpecs,
-      canListSpecs,
     }))
 }
 
@@ -88,7 +86,6 @@ function FlavorsContent({
     canDelete: boolean
     canManageAccess: boolean
     canManageSpecs: boolean
-    canListSpecs: boolean
   }>
   client: TrpcClient
   project: string
@@ -195,7 +192,6 @@ function FlavorsContent({
         canDeleteFlavor={permissions.canDelete}
         canMangageAccess={permissions.canManageAccess}
         canManageSpecs={permissions.canManageSpecs}
-        canListSpecs={permissions.canListSpecs}
         currentPage={safePage}
         totalPages={totalPages}
         onPageChange={onPageChange}
