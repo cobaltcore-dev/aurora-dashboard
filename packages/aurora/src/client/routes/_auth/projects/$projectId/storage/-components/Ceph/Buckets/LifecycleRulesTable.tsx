@@ -9,6 +9,7 @@ import {
   PopupMenuItem,
   PopupMenuOptions,
   Checkbox,
+  Status,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -132,13 +133,11 @@ export function LifecycleRulesTable({
         {isEmpty ? (
           <DataGridRow>
             <DataGridCell colSpan={columnCount}>
-              <p className="text-theme-light py-8 text-center">
-                {isFiltered ? (
-                  <Trans>No lifecycle rules matching the current search criteria.</Trans>
-                ) : (
-                  <Trans>There are no lifecycle rules for this bucket</Trans>
-                )}
-              </p>
+              {isFiltered ? (
+                <Status status="no-matches" title={t`No lifecycle rules matching the current search criteria.`} />
+              ) : (
+                <Status status="empty" title={t`There are no lifecycle rules for this bucket`} />
+              )}
             </DataGridCell>
           </DataGridRow>
         ) : (

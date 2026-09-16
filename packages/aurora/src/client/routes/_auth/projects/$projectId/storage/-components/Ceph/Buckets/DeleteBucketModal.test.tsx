@@ -401,7 +401,7 @@ describe("DeleteBucketModal", () => {
       mockState.objectsError = "Failed to fetch objects"
       renderModal()
 
-      expect(screen.getByText(/Failed to check bucket contents:/)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to check bucket contents/)).toBeInTheDocument()
       expect(screen.getByText(/Failed to fetch objects/)).toBeInTheDocument()
     })
 

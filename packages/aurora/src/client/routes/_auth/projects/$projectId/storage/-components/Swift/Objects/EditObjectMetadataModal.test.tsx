@@ -200,7 +200,7 @@ describe("EditObjectMetadataModal", () => {
   // ── Loading state ───────────────────────────────────────────────────────────
 
   describe("Loading state", () => {
-    test("shows loading spinner while fetching metadata", () => {
+    test("shows loading state while fetching metadata", () => {
       metadataLoading = true
       renderModal()
       expect(screen.getByText(/Loading object properties/i)).toBeInTheDocument()

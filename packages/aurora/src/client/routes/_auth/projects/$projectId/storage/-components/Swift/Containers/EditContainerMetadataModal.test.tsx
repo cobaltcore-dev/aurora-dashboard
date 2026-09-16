@@ -204,7 +204,7 @@ describe("EditContainerMetadataModal", () => {
   // ──────────────────────────────────────────────────────────────────────────
 
   describe("Loading state", () => {
-    test("shows loading spinner while fetching container properties", () => {
+    test("shows loading state while fetching container properties", () => {
       metadataLoading = true
       renderModal()
       expect(screen.getByText(/Loading container properties/i)).toBeInTheDocument()

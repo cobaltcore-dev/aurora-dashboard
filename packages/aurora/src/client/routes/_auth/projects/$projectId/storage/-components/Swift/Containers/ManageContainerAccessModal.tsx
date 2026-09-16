@@ -7,7 +7,7 @@ import {
   Modal,
   Textarea,
   Stack,
-  Spinner,
+  Status,
   Checkbox,
   Badge,
   Button,
@@ -336,12 +336,12 @@ export const ManageContainerAccessModal = ({
       disableConfirmButton={isBusy || isMetaError}
     >
       {updateMutation.isError && (
-        <p className="text-theme-error mb-4">
+        <Message variant="error" className="mb-4">
           {(() => {
             const errorMessage = updateMutation.error.message
             return <Trans>Failed to update ACLs: {errorMessage}</Trans>
           })()}
-        </p>
+        </Message>
       )}
       <div className="max-h-[70vh] overflow-y-auto pr-1 pl-1">
         {/* ── Info message ─────────────────────────────────────────────────── */}
@@ -355,17 +355,14 @@ export const ManageContainerAccessModal = ({
         </div>
 
         {isLoading ? (
-          <Stack direction="horizontal" alignment="center" gap="2" className="py-6">
-            <Spinner size="small" />
-            <Trans>Loading ACLs...</Trans>
-          </Stack>
+          <Status status="progress" title={t`Loading ACLs...`} className="mt-0" />
         ) : isMetaError ? (
-          <p className="text-theme-error py-2">
-            {(() => {
-              const errorMessage = metaError?.message ?? ""
-              return <Trans>Failed to load container ACLs: {errorMessage}</Trans>
-            })()}
-          </p>
+          <Status
+            status="error"
+            title={t`Failed to load container ACLs`}
+            details={metaError?.message ?? ""}
+            className="mt-0"
+          />
         ) : (
           <>
             <div className="flex gap-6">

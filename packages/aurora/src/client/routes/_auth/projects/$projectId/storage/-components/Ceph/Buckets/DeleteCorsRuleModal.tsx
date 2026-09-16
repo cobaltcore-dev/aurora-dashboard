@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Spinner, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Status, Message } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { toCorsRule } from "./utils/corsUtils"
@@ -167,22 +167,19 @@ export const DeleteCorsRuleModal = ({
       disableConfirmButton={isDeleting || isCorsLoading || !hasRules || !!corsError || isVerifying}
     >
       <Stack direction="vertical" gap="4">
-        {isCorsLoading && (
-          <div className="flex items-center justify-center py-4">
-            <Spinner variant="primary" size="large" />
-          </div>
-        )}
+        {isCorsLoading && <Status status="progress" title={t`Loading CORS rules...`} className="mt-0" />}
 
         {corsError && (
-          <Message variant="error" title={t`Failed to load CORS rules`}>
-            {corsError.message}
-          </Message>
+          <Status status="error" title={t`Failed to load CORS rules`} details={corsError.message} className="mt-0" />
         )}
 
         {!isCorsLoading && !corsError && !hasRules && (
-          <Message variant="warning" title={t`No rules found`}>
-            <Trans>This bucket does not have any CORS rules.</Trans>
-          </Message>
+          <Status
+            status="empty"
+            title={t`No rules found`}
+            body={t`This bucket does not have any CORS rules.`}
+            className="mt-0"
+          />
         )}
 
         {!isCorsLoading && !corsError && hasRules && (

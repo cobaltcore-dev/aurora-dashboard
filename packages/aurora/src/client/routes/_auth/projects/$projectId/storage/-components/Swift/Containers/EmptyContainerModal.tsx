@@ -13,7 +13,7 @@ import {
   FormSection,
   TextInput,
   Stack,
-  Spinner,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary, ObjectSummary } from "@/server/Storage/types/swift"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -152,10 +152,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
         </p>
       )}
       {isLoadingObjects ? (
-        <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
-          <Spinner size="small" />
-          <Trans>Loading objects...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Loading objects...`} className="mt-0" />
       ) : showEmptyInfo && !objectsError ? (
         // ── Case 2 & 3 ──────────────────────────────────────────────────────
         <p className="text-theme-default py-2">
@@ -189,7 +186,7 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
             <div className="bg-theme-background-lvl-2 mt-2 max-h-48 overflow-y-auto rounded p-3">
               <Stack direction="vertical" gap="1">
                 {(objects as ObjectSummary[]).map((obj) => (
-                  <div key={obj.name} className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]">
+                  <div key={obj.name} className="text-theme-default overflow-x-hidden text-sm wrap-anywhere">
                     {obj.name}
                   </div>
                 ))}

@@ -635,6 +635,9 @@ msgstr "Checking bucket contents..."
 msgid "Checking if object exists..."
 msgstr "Checking if object exists..."
 
+msgid "Checking permissions..."
+msgstr "Checking permissions..."
+
 msgid "Checksum"
 msgstr "Checksum"
 
@@ -1478,8 +1481,8 @@ msgstr "Ephemeral Disk must be an integer ≥ 0."
 msgid "Error loading component"
 msgstr "Error loading component"
 
-msgid "Error Loading Containers: {errorMessage}"
-msgstr "Error Loading Containers: {errorMessage}"
+msgid "Error loading containers"
+msgstr "Error loading containers"
 
 msgid "Error Loading Flavor"
 msgstr "Error Loading Flavor"
@@ -1553,8 +1556,8 @@ msgstr "Failed to add member"
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Failed to add tenant access to flavor. Please try again."
 
-msgid "Failed to check bucket contents: {errorMessage}"
-msgstr "Failed to check bucket contents: {errorMessage}"
+msgid "Failed to check bucket contents"
+msgstr "Failed to check bucket contents"
 
 msgid "Failed to Copy Object"
 msgstr "Failed to Copy Object"
@@ -1709,14 +1712,17 @@ msgstr "Failed to generate temporary URL: {generalError}"
 msgid "Failed to load buckets: {errorMessage}"
 msgstr "Failed to load buckets: {errorMessage}"
 
-msgid "Failed to load container ACLs: {errorMessage}"
-msgstr "Failed to load container ACLs: {errorMessage}"
+msgid "Failed to load container ACLs"
+msgstr "Failed to load container ACLs"
 
 msgid "Failed to load container information"
 msgstr "Failed to load container information"
 
 msgid "Failed to load container objects: {errorMessage}"
 msgstr "Failed to load container objects: {errorMessage}"
+
+msgid "Failed to load container properties"
+msgstr "Failed to load container properties"
 
 msgid "Failed to load container properties: {errorMessage}"
 msgstr "Failed to load container properties: {errorMessage}"
@@ -1742,8 +1748,8 @@ msgstr "Failed to load lifecycle configuration"
 msgid "Failed to load metadata configuration."
 msgstr "Failed to load metadata configuration."
 
-msgid "Failed to load object metadata: {metadataErrorMessage}"
-msgstr "Failed to load object metadata: {metadataErrorMessage}"
+msgid "Failed to load object metadata"
+msgstr "Failed to load object metadata"
 
 msgid "Failed to load objects"
 msgstr "Failed to load objects"
@@ -2252,6 +2258,12 @@ msgstr "Loading containers..."
 msgid "Loading Containers..."
 msgstr "Loading Containers..."
 
+msgid "Loading CORS configuration..."
+msgstr "Loading CORS configuration..."
+
+msgid "Loading CORS rules..."
+msgstr "Loading CORS rules..."
+
 msgid "Loading Flavor Details..."
 msgstr "Loading Flavor Details..."
 
@@ -2270,6 +2282,9 @@ msgstr "Loading Image Details..."
 msgid "Loading Images..."
 msgstr "Loading Images..."
 
+msgid "Loading lifecycle configuration..."
+msgstr "Loading lifecycle configuration..."
+
 msgid "Loading more..."
 msgstr "Loading more..."
 
@@ -2287,6 +2302,9 @@ msgstr "Loading Objects..."
 
 msgid "Loading Permissions..."
 msgstr "Loading Permissions..."
+
+msgid "Loading policy..."
+msgstr "Loading policy..."
 
 msgid "Loading preview..."
 msgstr "Loading preview..."
@@ -3817,6 +3835,9 @@ msgstr "Unable to verify bucket versioning status. Please try again."
 
 msgid "Unknown domain"
 msgstr "Unknown domain"
+
+msgid "Unknown error"
+msgstr "Unknown error"
 
 msgid "Unnamed"
 msgstr "Unnamed"

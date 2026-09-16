@@ -193,7 +193,7 @@ describe("ManageContainerAccessModal", () => {
   // ──────────────────────────────────────────────────────────────────────────
 
   describe("Loading state", () => {
-    test("shows loading spinner while fetching ACLs", () => {
+    test("shows loading state while fetching ACLs", () => {
       metadataLoading = true
       renderModal()
       expect(screen.getByText(/Loading ACLs/i)).toBeInTheDocument()

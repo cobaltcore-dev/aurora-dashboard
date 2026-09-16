@@ -1,11 +1,10 @@
 import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { useState } from "react"
-import React from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { plural } from "@lingui/core/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Spinner, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Status, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -134,16 +133,13 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
       size="small"
     >
       {isPending ? (
-        <Stack direction="vertical" distribution="center" alignment="center" gap="2" className="py-4">
-          <Spinner variant="primary" />
-          {progress && (
-            <p className="text-theme-light text-sm">
-              <Trans>
-                Emptying container {progressCurrent} of {progressTotal}, please wait...
-              </Trans>
-            </p>
-          )}
-        </Stack>
+        <Status
+          status="progress"
+          title={
+            progress ? t`Emptying container ${progressCurrent} of ${progressTotal}, please wait...` : t`Emptying...`
+          }
+          className="mt-0"
+        />
       ) : (
         <div>
           <p>
@@ -164,10 +160,7 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
                 {visibleContainers.map((container) => {
                   const count = container.count
                   return (
-                    <div
-                      key={container.name}
-                      className="text-theme-default overflow-x-hidden text-sm [overflow-wrap:anywhere]"
-                    >
+                    <div key={container.name} className="text-theme-default overflow-x-hidden text-sm wrap-anywhere">
                       {container.name}
                       {count != null && (
                         <span className="text-theme-light ml-2">

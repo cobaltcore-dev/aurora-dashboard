@@ -9,7 +9,7 @@ import {
   TextInput,
   Stack,
   Checkbox,
-  Spinner,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -264,12 +264,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name || hasQueryError}
     >
       {isLoading ? (
-        <Stack direction="horizontal" gap="2" alignment="center">
-          <Spinner />
-          <span className="text-juno-grey-light-1 text-sm">
-            <Trans>Checking bucket contents...</Trans>
-          </span>
-        </Stack>
+        <Status status="progress" title={t`Checking bucket contents...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="6">
           {hasQueryError && (

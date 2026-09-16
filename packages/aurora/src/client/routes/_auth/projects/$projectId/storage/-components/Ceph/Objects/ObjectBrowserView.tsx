@@ -6,7 +6,6 @@ import {
   Stack,
   Button,
   toast,
-  Message,
   DataGridToolbar,
   SearchInput,
   TabNavigation,
@@ -593,11 +592,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   if (error) {
     const errorMessage = error.message
-    return (
-      <Message variant="error" title={t`Failed to load objects`}>
-        {errorMessage}
-      </Message>
-    )
+    return <Status status="error" title={t`Failed to load objects`} body={errorMessage} />
   }
 
   return (
