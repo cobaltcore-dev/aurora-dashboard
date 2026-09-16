@@ -1580,9 +1580,6 @@ msgstr "Fehler beim Erstellen des Ordners"
 msgid "Failed to create image. Please try again."
 msgstr "Image konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
 
-msgid "Failed to Create Property"
-msgstr ""
-
 msgid "Failed to Create Rule"
 msgstr ""
 

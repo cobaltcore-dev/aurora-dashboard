@@ -1580,9 +1580,6 @@ msgstr "Failed to Create Folder"
 msgid "Failed to create image. Please try again."
 msgstr "Failed to create image. Please try again."
 
-msgid "Failed to Create Property"
-msgstr "Failed to Create Property"
-
 msgid "Failed to Create Rule"
 msgstr "Failed to Create Rule"
 

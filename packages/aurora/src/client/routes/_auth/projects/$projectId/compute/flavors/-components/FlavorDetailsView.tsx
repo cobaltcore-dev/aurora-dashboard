@@ -15,9 +15,10 @@ import { useParams } from "@tanstack/react-router"
 
 interface FlavorDetailsViewProps {
   flavor: Flavor
+  canListSpecs?: boolean
 }
 
-export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
+export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetailsViewProps) {
   const { t } = useLingui()
   const { projectId } = useParams({ strict: false }) as { projectId: string }
   const formatWithUnit = (value: number, unit: string) => `${value} ${unit}`
@@ -32,7 +33,7 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
       flavorId: flavor.id,
     },
     {
-      enabled: !!projectId && !!flavor.id,
+      enabled: !!projectId && !!flavor.id && canListSpecs,
     }
   )
 
@@ -103,29 +104,31 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
         </Stack>
       </Stack>
 
-      <Stack direction="vertical" gap="2">
-        <ContentHeading>
-          <Trans>Metadata</Trans>
-        </ContentHeading>
-        {isLoading ? (
-          <Status status="progress" />
-        ) : isError ? (
-          <Status status="error" title={t`Failed to load metadata`} />
-        ) : extraSpecs && Object.keys(extraSpecs).length > 0 ? (
-          <DescriptionList alignTerms="right" className="grid-cols-2">
-            {extraSpecItems.map(({ label, value }, index) => (
-              <Fragment key={`extra-${index}`}>
-                <DescriptionTerm className="col-span-1">{label}</DescriptionTerm>
-                <DescriptionDefinition className="col-span-1">
-                  <div className="truncate">{value}</div>
-                </DescriptionDefinition>
-              </Fragment>
-            ))}
-          </DescriptionList>
-        ) : (
-          <Status status="no-matches" />
-        )}
-      </Stack>
+      {canListSpecs && (
+        <Stack direction="vertical" gap="2">
+          <ContentHeading>
+            <Trans>Metadata</Trans>
+          </ContentHeading>
+          {isLoading ? (
+            <Status status="progress" />
+          ) : isError ? (
+            <Status status="error" title={t`Failed to load metadata`} />
+          ) : extraSpecs && Object.keys(extraSpecs).length > 0 ? (
+            <DescriptionList alignTerms="right" className="grid-cols-2">
+              {extraSpecItems.map(({ label, value }, index) => (
+                <Fragment key={`extra-${index}`}>
+                  <DescriptionTerm className="col-span-1">{label}</DescriptionTerm>
+                  <DescriptionDefinition className="col-span-1">
+                    <div className="truncate">{value}</div>
+                  </DescriptionDefinition>
+                </Fragment>
+              ))}
+            </DescriptionList>
+          ) : (
+            <Status status="no-matches" />
+          )}
+        </Stack>
+      )}
     </Stack>
   )
 }

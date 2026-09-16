@@ -88,6 +88,7 @@ function RouteComponent() {
       "flavors:delete",
       "flavors:add_project",
       "flavors:remove_project",
+      "flavor_specs:list",
       "flavor_specs:create",
       "flavor_specs:delete",
     ],
@@ -95,7 +96,8 @@ function RouteComponent() {
 
   const canDeleteFlavor = permissionsData?.[0] ?? false
   const canManageAccess = (permissionsData?.[1] ?? false) || (permissionsData?.[2] ?? false)
-  const canManageSpecs = (permissionsData?.[3] ?? false) || (permissionsData?.[4] ?? false)
+  const canListSpecs = permissionsData?.[3] ?? false
+  const canManageSpecs = (permissionsData?.[4] ?? false) || (permissionsData?.[5] ?? false)
 
   const [specModalOpen, toggleSpecModal] = useModal()
   const [accessModalOpen, toggleAccessModal] = useModal()
@@ -227,7 +229,7 @@ function RouteComponent() {
     <>
       <ContentHeader title={flavor.name} projectId={projectId} actions={headerActions} />
       <Stack direction="vertical">
-        <FlavorDetailsView flavor={flavor} />
+        <FlavorDetailsView flavor={flavor} canListSpecs={canListSpecs} />
       </Stack>
 
       {trpcClient && (

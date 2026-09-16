@@ -23,4 +23,6 @@
 - Remove Cancel button from EditSpecModal (only Close button remains)
 - Invalidate metadata query when EditSpecModal closes to refresh metadata display
 - Show loading/error states for metadata section instead of hiding it
+- Add flavor_specs:list permission check - metadata section only renders when user has permission
+- Use persistent validation message instead of auto-dismissing toast for create property errors in EditSpecModal
 

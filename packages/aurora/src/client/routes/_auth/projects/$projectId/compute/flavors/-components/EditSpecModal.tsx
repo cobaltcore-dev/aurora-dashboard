@@ -119,9 +119,7 @@ function EditSpecModalInner({
       })
     } catch (error) {
       const errorMsg = translateError(error instanceof Error ? error.message : "Failed to create property")
-      toast.error(t`Failed to Create Property`, {
-        description: errorMsg,
-      })
+      setValidationMessage(errorMsg)
     } finally {
       setOperationInProgress(false)
     }
