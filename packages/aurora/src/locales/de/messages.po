@@ -1271,25 +1271,7 @@ msgstr "Legen Sie Ihre Image-Datei hier ab"
 msgid "e.g. .r:*,.rlistings"
 msgstr "z. B. .r:*,.rlistings"
 
-msgid "e.g. 1"
-msgstr ""
-
-msgid "e.g. 2"
-msgstr ""
-
-msgid "e.g. 20"
-msgstr ""
-
 msgid "e.g. 3600 (1 hour) or 604800 (7 days)"
-msgstr ""
-
-msgid "e.g. 40"
-msgstr ""
-
-msgid "e.g. 4096"
-msgstr ""
-
-msgid "e.g. 512"
 msgstr ""
 
 msgid "e.g. allow-frontend-app"
@@ -1310,9 +1292,6 @@ msgstr ""
 msgid "e.g. https://example.com or *"
 msgstr ""
 
-msgid "e.g. m1.small"
-msgstr ""
-
 msgid "e.g. my-lifecycle-rule"
 msgstr ""
 
@@ -1321,12 +1300,6 @@ msgstr ""
 
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
-
-msgid "e.g. Small Instance"
-msgstr ""
-
-msgid "e.g. Small instance for testing"
-msgstr ""
 
 msgid "e.g. Ubuntu 22.04 LTS"
 msgstr ""

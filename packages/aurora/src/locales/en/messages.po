@@ -1271,26 +1271,8 @@ msgstr "Drop your image file here"
 msgid "e.g. .r:*,.rlistings"
 msgstr "e.g. .r:*,.rlistings"
 
-msgid "e.g. 1"
-msgstr "e.g. 1"
-
-msgid "e.g. 2"
-msgstr "e.g. 2"
-
-msgid "e.g. 20"
-msgstr "e.g. 20"
-
 msgid "e.g. 3600 (1 hour) or 604800 (7 days)"
 msgstr "e.g. 3600 (1 hour) or 604800 (7 days)"
-
-msgid "e.g. 40"
-msgstr "e.g. 40"
-
-msgid "e.g. 4096"
-msgstr "e.g. 4096"
-
-msgid "e.g. 512"
-msgstr "e.g. 512"
 
 msgid "e.g. allow-frontend-app"
 msgstr "e.g. allow-frontend-app"
@@ -1310,9 +1292,6 @@ msgstr "e.g. Etag, Content-Length"
 msgid "e.g. https://example.com or *"
 msgstr "e.g. https://example.com or *"
 
-msgid "e.g. m1.small"
-msgstr "e.g. m1.small"
-
 msgid "e.g. my-lifecycle-rule"
 msgstr "e.g. my-lifecycle-rule"
 
@@ -1321,12 +1300,6 @@ msgstr "e.g. production"
 
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "e.g. PROJECT_ID:USER_ID"
-
-msgid "e.g. Small Instance"
-msgstr "e.g. Small Instance"
-
-msgid "e.g. Small instance for testing"
-msgstr "e.g. Small instance for testing"
 
 msgid "e.g. Ubuntu 22.04 LTS"
 msgstr "e.g. Ubuntu 22.04 LTS"

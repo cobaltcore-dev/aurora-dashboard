@@ -1,10 +1,26 @@
 import { render, screen } from "@testing-library/react"
-import { describe, it, expect, beforeAll } from "vitest"
+import { describe, it, expect, beforeAll, vi, beforeEach } from "vitest"
 import { FlavorDetailsView } from "./FlavorDetailsView"
 import { PortalProvider } from "@cloudoperators/juno-ui-components/index"
 import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
+
+let mockExtraSpecsData: Record<string, string> | undefined = {}
+
+vi.mock("@tanstack/react-router", () => ({
+  useParams: () => ({ projectId: "test-project" }),
+}))
+
+vi.mock("@/client/trpcClient", () => ({
+  trpcReact: {
+    compute: {
+      getExtraSpecs: {
+        useQuery: vi.fn(() => ({ data: mockExtraSpecsData })),
+      },
+    },
+  },
+}))
 
 const TestingProvider = ({ children }: { children: ReactNode }) => (
   <PortalProvider>
@@ -15,6 +31,10 @@ const TestingProvider = ({ children }: { children: ReactNode }) => (
 describe("FlavorDetailsView", () => {
   beforeAll(() => {
     i18n.activate("en")
+  })
+
+  beforeEach(() => {
+    mockExtraSpecsData = {}
   })
 
   const baseFlavor = {
@@ -29,10 +49,6 @@ describe("FlavorDetailsView", () => {
     "os-flavor-access:is_public": true,
     "OS-FLV-DISABLED:disabled": false,
     "OS-FLV-EXT-DATA:ephemeral": 20,
-    extra_specs: {
-      "hw:cpu_policy": "dedicated",
-      "hw:mem_page_size": "large",
-    },
   }
 
   it("renders basic information section correctly", () => {
@@ -42,7 +58,7 @@ describe("FlavorDetailsView", () => {
       </TestingProvider>
     )
 
-    expect(screen.getByText("Basic Information")).toBeInTheDocument()
+    expect(screen.getByText("Flavor Information")).toBeInTheDocument()
     expect(screen.getByText("ID")).toBeInTheDocument()
     expect(screen.getByText("flavor-123")).toBeInTheDocument()
     expect(screen.getByText("Name")).toBeInTheDocument()
@@ -77,7 +93,7 @@ describe("FlavorDetailsView", () => {
     expect(screen.getByText("4")).toBeInTheDocument()
     expect(screen.getByText("RAM")).toBeInTheDocument()
     expect(screen.getByText("8192 MiB")).toBeInTheDocument()
-    expect(screen.getByText("Disk")).toBeInTheDocument()
+    expect(screen.getByText("Root Disk")).toBeInTheDocument()
     expect(screen.getByText("40 GiB")).toBeInTheDocument()
     expect(screen.getByText("Ephemeral Disk")).toBeInTheDocument()
     expect(screen.getByText("20 GiB")).toBeInTheDocument()
@@ -122,13 +138,18 @@ describe("FlavorDetailsView", () => {
   })
 
   it("renders extra specs when present", () => {
+    mockExtraSpecsData = {
+      "hw:cpu_policy": "dedicated",
+      "hw:mem_page_size": "large",
+    }
+
     render(
       <TestingProvider>
         <FlavorDetailsView flavor={baseFlavor} />
       </TestingProvider>
     )
 
-    expect(screen.getByText("Extra Specs")).toBeInTheDocument()
+    expect(screen.getByText("Metadata")).toBeInTheDocument()
     expect(screen.getByText("hw:cpu_policy")).toBeInTheDocument()
     expect(screen.getByText("dedicated")).toBeInTheDocument()
     expect(screen.getByText("hw:mem_page_size")).toBeInTheDocument()
@@ -136,33 +157,27 @@ describe("FlavorDetailsView", () => {
   })
 
   it("does not render extra specs section when empty", () => {
-    const flavorWithoutExtraSpecs = {
-      ...baseFlavor,
-      extra_specs: {},
-    }
+    mockExtraSpecsData = {}
 
     render(
       <TestingProvider>
-        <FlavorDetailsView flavor={flavorWithoutExtraSpecs} />
+        <FlavorDetailsView flavor={baseFlavor} />
       </TestingProvider>
     )
 
-    expect(screen.queryByText("Extra Specs")).not.toBeInTheDocument()
+    expect(screen.queryByText("Metadata")).not.toBeInTheDocument()
   })
 
   it("does not render extra specs section when undefined", () => {
-    const flavorWithoutExtraSpecs = {
-      ...baseFlavor,
-      extra_specs: undefined,
-    }
+    mockExtraSpecsData = undefined
 
     render(
       <TestingProvider>
-        <FlavorDetailsView flavor={flavorWithoutExtraSpecs} />
+        <FlavorDetailsView flavor={baseFlavor} />
       </TestingProvider>
     )
 
-    expect(screen.queryByText("Extra Specs")).not.toBeInTheDocument()
+    expect(screen.queryByText("Metadata")).not.toBeInTheDocument()
   })
 
   it("handles missing ephemeral disk data", () => {

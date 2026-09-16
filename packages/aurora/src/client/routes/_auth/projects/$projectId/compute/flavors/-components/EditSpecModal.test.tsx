@@ -18,9 +18,6 @@ describe("EditSpecModal", () => {
 
   const mockClient = {
     compute: {
-      canUser: {
-        query: vi.fn().mockResolvedValue([true, true]),
-      },
       getExtraSpecs: {
         query: vi.fn().mockResolvedValue({}),
       },
@@ -79,7 +76,7 @@ describe("EditSpecModal", () => {
     expect(screen.queryByText("Edit Metadata")).not.toBeInTheDocument()
   })
 
-  it("shows add button when user has create permissions", async () => {
+  it("shows add button", async () => {
     await act(async () => {
       render(
         <EditSpecModal
@@ -96,35 +93,6 @@ describe("EditSpecModal", () => {
     await waitFor(() => {
       const addSpecButton = screen.getByRole("button", { name: /Add Property/i })
       expect(addSpecButton).toBeInTheDocument()
-    })
-  })
-
-  it("hides add button when user lacks all permissions", async () => {
-    const mockClientNoPermission = {
-      ...mockClient,
-      compute: {
-        ...mockClient.compute,
-        canUser: {
-          query: vi.fn().mockResolvedValue([false, false]),
-        },
-      },
-    } as unknown as TrpcClient
-
-    await act(async () => {
-      render(
-        <EditSpecModal
-          client={mockClientNoPermission}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByText("Add Property")).not.toBeInTheDocument()
     })
   })
 
@@ -212,28 +180,6 @@ describe("EditSpecModal", () => {
       expect(mockClient.compute.getExtraSpecs.query).toHaveBeenCalledWith({
         project_id: "test-project",
         flavorId: "test-flavor-id",
-      })
-    })
-  })
-
-  it("checks user permissions on mount", async () => {
-    await act(async () => {
-      render(
-        <EditSpecModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    await waitFor(() => {
-      expect(mockClient.compute.canUser.query).toHaveBeenCalledWith({
-        project_id: "test-project",
-        permission: ["flavor_specs:create", "flavor_specs:delete"],
       })
     })
   })

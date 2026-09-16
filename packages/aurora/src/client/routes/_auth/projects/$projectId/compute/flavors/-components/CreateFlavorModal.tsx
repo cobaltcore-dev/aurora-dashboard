@@ -180,7 +180,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onBlur={handleBlur}
                 errortext={errors.id}
                 helptext={t`Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed.`}
-                placeholder={t`e.g. m1.small`}
               />
             </FormRow>
             <FormRow>
@@ -193,7 +192,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onBlur={handleBlur}
                 errortext={errors.name}
                 helptext={t`2-50 characters.`}
-                placeholder={t`e.g. Small Instance`}
                 required
               />
             </FormRow>
@@ -206,7 +204,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 errortext={errors.description}
-                placeholder={t`e.g. Small instance for testing`}
               />
             </FormRow>
             <FormRow>
@@ -225,12 +222,11 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
               <TextInput
                 id="vcpus"
                 name="vcpus"
-                label={t`VCPUs`}
+                label={t`vCPU`}
                 value={String(newFlavor.vcpus || "")}
                 onChange={(e) => handleNumericInputChange("vcpus", Number(e.target.value))}
                 onBlur={handleBlur}
                 errortext={errors.vcpus}
-                placeholder={t`e.g. 2`}
                 type="number"
                 required
               />
@@ -245,7 +241,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onBlur={handleBlur}
                 errortext={errors.ram}
                 helptext={t`Minimum 128 MB.`}
-                placeholder={t`e.g. 4096`}
                 type="number"
                 required
               />
@@ -259,7 +254,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onChange={(e) => handleNumericInputChange("disk", Number(e.target.value))}
                 onBlur={handleBlur}
                 errortext={errors.disk}
-                placeholder={t`e.g. 40`}
                 type="number"
                 required
               />
@@ -273,7 +267,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onChange={(e) => handleNumericInputChange("OS-FLV-EXT-DATA:ephemeral", Number(e.target.value))}
                 onBlur={handleBlur}
                 errortext={errors["OS-FLV-EXT-DATA:ephemeral"]}
-                placeholder={t`e.g. 20`}
                 type="number"
               />
             </FormRow>
@@ -286,7 +279,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onChange={(e) => handleNumericInputChange("swap", e.target.value ? Number(e.target.value) : undefined)}
                 onBlur={handleBlur}
                 errortext={errors.swap}
-                placeholder={t`e.g. 512`}
                 type="number"
               />
             </FormRow>
@@ -301,7 +293,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onBlur={handleBlur}
                 errortext={errors.rxtx_factor}
                 helptext={t`Defaults to 1.`}
-                placeholder={t`e.g. 1`}
                 type="number"
               />
             </FormRow>
