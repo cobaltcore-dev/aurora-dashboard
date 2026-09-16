@@ -286,7 +286,7 @@ All modals **must** follow this skeleton:
 | 401 Unauthenticated                        | Redirect to Sign-in, remember target, redirect back after auth; show an auth error on the Sign-in page.                             |
 | 403 Unauthorized (page)                    | Error page reflecting the route in breadcrumb + title, SideNav if applicable, plus an **info** `Message` explaining lack of access. |
 | Component/API render error                 | Feedback scoped to the affected component; render the rest of the page.                                                             |
-| Operation/CRUD error                       | Non-blocking `Message`/toast with detail; don't block other actions; offer retry.                                                   |
+| Operation/CRUD error                       | Non-blocking `Message` with detail; offer retry where feasible; use a toast only when no user action is required; don't block other actions. |
 | Validation error                           | Inline per field (see B.11), or a `Message` at form/section top for cross-field.                                                    |
 | Network/connectivity                       | Clear offline/timeout state with a manual retry option.                                                                             |
 
