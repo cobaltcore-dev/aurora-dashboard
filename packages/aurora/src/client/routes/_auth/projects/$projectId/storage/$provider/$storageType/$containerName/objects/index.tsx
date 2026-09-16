@@ -1,15 +1,42 @@
-import { createFileRoute, useParams } from "@tanstack/react-router"
+import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { checkServiceAvailability } from "../../../../-components/utils/serviceAvailability"
 import { ErrorBoundary } from "react-error-boundary"
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 import { SwiftObjects } from "../../../../-components/Swift/Objects"
 import { CephObjects } from "../../../../-components/Ceph/Objects"
 import { CephCorsRules, CephLifecycleRules } from "../../../../-components/Ceph/Buckets"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
+import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
 import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
 import { ContainerHeader } from "../../../../-components/Swift/Containers/ContainerHeader"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
+
+function ObjectStorageErrorComponent() {
+  const { t } = useLingui()
+  const navigate = useNavigate()
+  const { projectId, provider, storageType } = Route.useParams()
+  const isCeph = provider === "ceph"
+
+  return (
+    <RouteIdLevelDefaultError
+      action={
+        <Button
+          variant="primary"
+          onClick={() =>
+            navigate({
+              to: "/projects/$projectId/storage/$provider/$storageType",
+              params: { projectId, provider, storageType },
+            })
+          }
+        >
+          {isCeph ? t`Back to Buckets` : t`Back to Containers`}
+        </Button>
+      }
+    />
+  )
+}
 
 // Search params schema
 // - prefix: base64-encoded current folder path, safe to carry "/" chars in the URL
@@ -58,13 +85,8 @@ export const Route = createFileRoute(
   component: () => {
     return <ObjectsDashboard />
   },
-  notFoundComponent: () => {
-    return (
-      <p>
-        <Trans>Storage container not found</Trans>
-      </p>
-    )
-  },
+  notFoundComponent: ObjectStorageErrorComponent,
+  errorComponent: ObjectStorageErrorComponent,
   loader: async ({ context }) => {
     const { trpcClient } = context
     const availableServices = await trpcClient?.auth.getAvailableServices.query()

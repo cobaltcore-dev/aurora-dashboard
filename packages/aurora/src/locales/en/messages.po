@@ -494,6 +494,15 @@ msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigat
 msgid "Back"
 msgstr "Back"
 
+msgid "Back to Buckets"
+msgstr "Back to Buckets"
+
+msgid "Back to Containers"
+msgstr "Back to Containers"
+
+msgid "Back to Flavors"
+msgstr "Back to Flavors"
+
 msgid "Back to Floating IPs"
 msgstr "Back to Floating IPs"
 
@@ -2141,9 +2150,6 @@ msgstr "Image Name"
 msgid "Image name is required"
 msgstr "Image name is required"
 
-msgid "Image not found"
-msgstr "Image not found"
-
 msgid "Image Visibility"
 msgstr "Image Visibility"
 
@@ -3376,9 +3382,6 @@ msgstr "Storage"
 
 msgid "Storage Class Transitions (read-only)"
 msgstr "Storage Class Transitions (read-only)"
-
-msgid "Storage container not found"
-msgstr "Storage container not found"
 
 msgid "Storage Overview"
 msgstr "Storage Overview"

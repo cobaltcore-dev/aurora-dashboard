@@ -21,7 +21,10 @@ const h = vi.hoisted(() => ({
 // The route file only exports `Route`; capture the options to render the
 // component under test, and stub the router hooks it reads.
 vi.mock("@tanstack/react-router", () => ({
-  createFileRoute: () => (options: unknown) => ({ options }),
+  createFileRoute: () => (options: unknown) => ({
+    options,
+    useParams: () => ({ projectId: "p1", imageId: "img-1" }),
+  }),
   useParams: () => ({ projectId: "p1", imageId: "img-1" }),
   useSearch: () => ({ tab: undefined }),
   useNavigate: () => h.navigate,
@@ -146,7 +149,8 @@ describe("RouteComponent (image detail)", () => {
 
       renderRoute()
 
-      expect(screen.getByText("Image not found")).toBeInTheDocument()
+      expect(screen.getByText("Resource Not Found")).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Back to Images" })).toBeInTheDocument()
     })
 
     it("renders the detail view once the image has loaded", () => {

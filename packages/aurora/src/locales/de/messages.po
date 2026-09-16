@@ -494,6 +494,15 @@ msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partne
 msgid "Back"
 msgstr "Zurück"
 
+msgid "Back to Buckets"
+msgstr ""
+
+msgid "Back to Containers"
+msgstr ""
+
+msgid "Back to Flavors"
+msgstr ""
+
 msgid "Back to Floating IPs"
 msgstr "Zurück zu Floating IPs"
 
@@ -2141,9 +2150,6 @@ msgstr "Image-Name"
 msgid "Image name is required"
 msgstr "Image-Name ist erforderlich"
 
-msgid "Image not found"
-msgstr "Image nicht gefunden"
-
 msgid "Image Visibility"
 msgstr "Image-Sichtbarkeit"
 
@@ -3376,9 +3382,6 @@ msgstr "Storage"
 
 msgid "Storage Class Transitions (read-only)"
 msgstr ""
-
-msgid "Storage container not found"
-msgstr "Storage-Container nicht gefunden"
 
 msgid "Storage Overview"
 msgstr "Speicherübersicht"

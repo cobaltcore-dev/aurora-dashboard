@@ -22,6 +22,26 @@ import { ManageAccessModal } from "./-components/ManageAccessModal"
 import { DeleteFlavorModal } from "./-components/DeleteFlavorModal"
 import { useModal } from "@/client/utils/useModal"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
+import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
+
+function FlavorErrorComponent() {
+  const { t } = useLingui()
+  const navigate = useNavigate()
+  const { projectId } = Route.useParams()
+
+  return (
+    <RouteIdLevelDefaultError
+      action={
+        <Button
+          variant="primary"
+          onClick={() => navigate({ to: "/projects/$projectId/compute/flavors", params: { projectId } })}
+        >
+          {t`Back to Flavors`}
+        </Button>
+      }
+    />
+  )
+}
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors/$flavorId")({
   staticData: {
@@ -57,6 +77,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/flavors
       })
     }
   },
+  errorComponent: FlavorErrorComponent,
 })
 
 function RouteComponent() {
