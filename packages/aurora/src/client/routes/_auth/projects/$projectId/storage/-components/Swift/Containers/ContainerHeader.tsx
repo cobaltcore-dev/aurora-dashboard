@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
-import { toast, Message } from "@cloudoperators/juno-ui-components"
+import { toast, Status } from "@cloudoperators/juno-ui-components"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { trpcReact } from "@/client/trpcClient"
 import type { ContainerSummary } from "@/server/Storage/types/swift"
@@ -111,9 +111,12 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
       />
 
       {containerInfoError && (
-        <Message variant="error" title={t`Failed to load container information`} className="mb-4">
-          {containerInfoError.message}
-        </Message>
+        <Status
+          status="error"
+          title={t`Failed to load container information`}
+          details={containerInfoError.message}
+          className="mb-4"
+        />
       )}
 
       <ManageContainerAccessModal

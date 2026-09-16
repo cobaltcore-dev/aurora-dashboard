@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Spinner, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Status, Message } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import type { CorsRuleRead } from "@/server/Storage/types/ceph"
@@ -194,16 +194,15 @@ export const DeleteCorsRulesModal = ({
       disableCloseButton={isDeleting || isVerifying}
     >
       <Stack direction="vertical" gap="4">
-        {isCorsLoading && (
-          <div className="flex items-center justify-center py-4">
-            <Spinner variant="primary" size="large" />
-          </div>
-        )}
+        {isCorsLoading && <Status status="progress" title={t`Loading CORS configuration...`} className="mt-0" />}
 
         {corsError && (
-          <Message variant="error" title={t`Failed to load CORS configuration`}>
-            {corsError.message}
-          </Message>
+          <Status
+            status="error"
+            title={t`Failed to load CORS configuration`}
+            body={corsError.message}
+            className="mt-0"
+          />
         )}
 
         {!isCorsLoading && !corsError && (

@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Spinner, Message } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Status, Message } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 
@@ -99,22 +99,19 @@ export const DeleteBucketPolicyModal = ({
       disableConfirmButton={isDeleting || isPolicyLoading || !hasPolicy || !!policyError}
     >
       <Stack direction="vertical" gap="4">
-        {isPolicyLoading && (
-          <div className="flex items-center justify-center py-4">
-            <Spinner variant="primary" size="large" />
-          </div>
-        )}
+        {isPolicyLoading && <Status status="progress" title={t`Loading policy...`} className="mt-0" />}
 
         {policyError && (
-          <Message variant="error" title={t`Failed to load policy`}>
-            {policyError.message}
-          </Message>
+          <Status status="error" title={t`Failed to load policy`} body={policyError.message} className="mt-0" />
         )}
 
         {!isPolicyLoading && !policyError && !hasPolicy && (
-          <Message variant="warning" title={t`No policy found`}>
-            <Trans>This bucket does not have a policy attached.</Trans>
-          </Message>
+          <Status
+            status="empty"
+            title={t`No policy found`}
+            body={t`This bucket does not have a policy attached.`}
+            className="mt-0"
+          />
         )}
 
         {!isPolicyLoading && !policyError && hasPolicy && (

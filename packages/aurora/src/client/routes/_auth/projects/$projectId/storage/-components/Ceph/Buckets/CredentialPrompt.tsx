@@ -2,7 +2,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useCephPermissions } from "../hooks/useCephPermissions"
-import { Button, Stack, Message, Spinner, toast } from "@cloudoperators/juno-ui-components"
+import { Button, Stack, Message, Status, toast } from "@cloudoperators/juno-ui-components"
 
 interface CredentialPromptProps {
   onSuccess: () => void
@@ -42,13 +42,13 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
         </Trans>
       </p>
       {isLoadingPermissions ? (
-        <Spinner variant="primary" size="small" />
+        <Status status="progress" title={t`Checking permissions...`} />
       ) : isPermissionsError ? (
-        <Message variant="error" title={t`Could not check permissions`}>
-          <Trans>
-            We couldn't verify whether you can create S3 credentials. Please reload the page or try again later.
-          </Trans>
-        </Message>
+        <Status
+          status="error"
+          title={t`Could not check permissions`}
+          body={t`We couldn't verify whether you can create S3 credentials. Please reload the page or try again later.`}
+        />
       ) : permissions.canCreateCredential ? (
         <div>
           <Button

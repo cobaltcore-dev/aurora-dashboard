@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Modal, Spinner, Message, ModalFooter, ButtonRow, Button } from "@cloudoperators/juno-ui-components"
+import { Modal, Status, Message, ModalFooter, ButtonRow, Button } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { Trans } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -193,13 +193,14 @@ export const LifecycleRuleModal = ({
       }
     >
       {isLifecycleLoading ? (
-        <div className="flex items-center justify-center py-8">
-          <Spinner variant="primary" size="large" />
-        </div>
+        <Status status="progress" title={t`Loading lifecycle configuration...`} className="mt-0" />
       ) : lifecycleError ? (
-        <Message variant="error" title={t`Failed to load lifecycle configuration`}>
-          {lifecycleError.message}
-        </Message>
+        <Status
+          status="error"
+          title={t`Failed to load lifecycle configuration`}
+          body={lifecycleError.message}
+          className="mt-0"
+        />
       ) : (
         <>
           {validationErrors.length > 0 && (

@@ -13,6 +13,7 @@ import {
   ModalFooter,
   Textarea,
   Message,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import { CreateSecurityGroupInput } from "@/server/Network/types/securityGroup"
 
@@ -133,14 +134,7 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
         </Message>
       )}
 
-      {isLoading && (
-        <div className="mb-4 flex items-center justify-center gap-2">
-          <Spinner variant="primary" />
-          <span className="text-theme-high text-sm">
-            <Trans>Creating security group...</Trans>
-          </span>
-        </div>
-      )}
+      {isLoading && <Status status="progress" title={t`Creating security group...`} className="mt-0" />}
 
       {!isLoading && (
         <Form className="mb-6">

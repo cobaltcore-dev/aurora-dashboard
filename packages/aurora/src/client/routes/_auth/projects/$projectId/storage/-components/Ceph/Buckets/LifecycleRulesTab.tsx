@@ -214,7 +214,7 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
   }
 
   if (error) {
-    return <Status status="error" title={t`Failed to load lifecycle configuration`} details={error.message} />
+    return <Status status="error" title={t`Failed to load lifecycle configuration`} body={error.message} />
   }
 
   return (

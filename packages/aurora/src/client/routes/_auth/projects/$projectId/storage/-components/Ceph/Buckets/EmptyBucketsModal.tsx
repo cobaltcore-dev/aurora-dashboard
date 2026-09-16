@@ -3,7 +3,7 @@ import { useForm, useStore } from "@tanstack/react-form"
 import { useState } from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Spinner, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Status, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -120,16 +120,11 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
       size="small"
     >
       {isPending ? (
-        <Stack direction="vertical" distribution="center" alignment="center" gap="2" className="py-4">
-          <Spinner variant="primary" />
-          {progress && (
-            <p className="text-theme-light text-sm">
-              <Trans>
-                Emptying bucket {progressCurrent} of {progressTotal}, please wait...
-              </Trans>
-            </p>
-          )}
-        </Stack>
+        <Status
+          status="progress"
+          title={progress ? t`Emptying bucket ${progressCurrent} of ${progressTotal}, please wait...` : t`Emptying...`}
+          className="mt-0"
+        />
       ) : (
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">

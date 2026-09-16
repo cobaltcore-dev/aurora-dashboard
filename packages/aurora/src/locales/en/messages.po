@@ -635,6 +635,9 @@ msgstr "Checking bucket contents..."
 msgid "Checking if object exists..."
 msgstr "Checking if object exists..."
 
+msgid "Checking permissions..."
+msgstr "Checking permissions..."
+
 msgid "Checksum"
 msgstr "Checksum"
 
@@ -1553,8 +1556,8 @@ msgstr "Failed to add member"
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Failed to add tenant access to flavor. Please try again."
 
-msgid "Failed to check bucket contents: {errorMessage}"
-msgstr "Failed to check bucket contents: {errorMessage}"
+msgid "Failed to check bucket contents"
+msgstr "Failed to check bucket contents"
 
 msgid "Failed to Copy Object"
 msgstr "Failed to Copy Object"
@@ -2255,6 +2258,12 @@ msgstr "Loading containers..."
 msgid "Loading Containers..."
 msgstr "Loading Containers..."
 
+msgid "Loading CORS configuration..."
+msgstr "Loading CORS configuration..."
+
+msgid "Loading CORS rules..."
+msgstr "Loading CORS rules..."
+
 msgid "Loading Flavor Details..."
 msgstr "Loading Flavor Details..."
 
@@ -2273,6 +2282,9 @@ msgstr "Loading Image Details..."
 msgid "Loading Images..."
 msgstr "Loading Images..."
 
+msgid "Loading lifecycle configuration..."
+msgstr "Loading lifecycle configuration..."
+
 msgid "Loading more..."
 msgstr "Loading more..."
 
@@ -2290,6 +2302,9 @@ msgstr "Loading Objects..."
 
 msgid "Loading Permissions..."
 msgstr "Loading Permissions..."
+
+msgid "Loading policy..."
+msgstr "Loading policy..."
 
 msgid "Loading preview..."
 msgstr "Loading preview..."

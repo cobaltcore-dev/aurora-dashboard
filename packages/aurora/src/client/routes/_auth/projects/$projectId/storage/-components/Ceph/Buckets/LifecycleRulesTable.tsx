@@ -134,7 +134,7 @@ export function LifecycleRulesTable({
           <DataGridRow>
             <DataGridCell colSpan={columnCount}>
               {isFiltered ? (
-                <Status status="no-matches" body={t`No lifecycle rules matching the current search criteria.`} />
+                <Status status="no-matches" title={t`No lifecycle rules matching the current search criteria.`} />
               ) : (
                 <Status status="empty" title={t`There are no lifecycle rules for this bucket`} />
               )}

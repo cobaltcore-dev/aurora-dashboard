@@ -322,12 +322,7 @@ export const EditMetadataModal = ({
       {isLoading ? (
         <Status status="progress" title={t`Loading object properties...`} className="mt-0" />
       ) : isMetaError ? (
-        <Status
-          status="error"
-          title={t`Failed to load object metadata`}
-          details={metadataErrorMessage}
-          className="mt-0"
-        />
+        <Status status="error" title={t`Failed to load object metadata`} body={metadataErrorMessage} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="6">
           {/* Mutation error */}

@@ -635,6 +635,9 @@ msgstr "Checking bucket contents..."
 msgid "Checking if object exists..."
 msgstr "Checking if object exists..."
 
+msgid "Checking permissions..."
+msgstr ""
+
 msgid "Checksum"
 msgstr "Prüfsumme"
 
@@ -1553,7 +1556,7 @@ msgstr "Fehler beim Hinzufügen des Mitglieds"
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Fehler beim Hinzufügen des Zugriffs für das Project zum Flavor. Bitte versuchen Sie es erneut."
 
-msgid "Failed to check bucket contents: {errorMessage}"
+msgid "Failed to check bucket contents"
 msgstr ""
 
 msgid "Failed to Copy Object"
@@ -2255,6 +2258,12 @@ msgstr "Container werden geladen..."
 msgid "Loading Containers..."
 msgstr "Container werden geladen..."
 
+msgid "Loading CORS configuration..."
+msgstr ""
+
+msgid "Loading CORS rules..."
+msgstr ""
+
 msgid "Loading Flavor Details..."
 msgstr "Flavor-Details werden geladen..."
 
@@ -2273,6 +2282,9 @@ msgstr "Image-Details werden geladen..."
 msgid "Loading Images..."
 msgstr "Lädt Images..."
 
+msgid "Loading lifecycle configuration..."
+msgstr ""
+
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
@@ -2289,6 +2301,9 @@ msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
 msgid "Loading Permissions..."
+msgstr ""
+
+msgid "Loading policy..."
 msgstr ""
 
 msgid "Loading preview..."

@@ -286,7 +286,7 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
         {isPolicyLoading && <Status status="progress" className="mt-0" />}
 
         {policyError && (
-          <Status status="error" title={t`Failed to load policy`} details={policyError.message} className="mt-0" />
+          <Status status="error" title={t`Failed to load policy`} body={policyError.message} className="mt-0" />
         )}
 
         {setMutation.error && (

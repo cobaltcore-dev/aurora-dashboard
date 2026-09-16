@@ -165,9 +165,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
     >
       <Stack direction="vertical" gap="6">
         {objectsError && (
-          <p className="text-theme-error" role="alert" aria-live="assertive">
-            <Trans>Failed to check bucket contents: {errorMessage}</Trans>
-          </p>
+          <Status status="error" title={t`Failed to check bucket contents`} body={errorMessage} className="mt-0" />
         )}
 
         {isLoading ? (

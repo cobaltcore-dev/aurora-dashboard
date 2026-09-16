@@ -207,7 +207,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   }
 
   if (error) {
-    return <Status status="error" title={t`Failed to load CORS configuration`} details={error.message} />
+    return <Status status="error" title={t`Failed to load CORS configuration`} body={error.message} />
   }
 
   return (

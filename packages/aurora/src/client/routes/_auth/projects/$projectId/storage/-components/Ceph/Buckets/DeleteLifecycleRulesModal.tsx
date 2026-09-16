@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Modal, Message, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Status, Stack } from "@cloudoperators/juno-ui-components"
 import { Trans, Plural, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -204,13 +204,14 @@ export const DeleteLifecycleRulesModal = ({
       closeOnEsc={!(isMutating || isVerifying)}
     >
       {isLoading ? (
-        <div className="flex items-center justify-center py-8">
-          <Spinner variant="primary" />
-        </div>
+        <Status status="progress" title={t`Loading lifecycle configuration...`} className="mt-0" />
       ) : queryError ? (
-        <Message variant="error" title={t`Failed to load lifecycle configuration`}>
-          {queryError.message}
-        </Message>
+        <Status
+          status="error"
+          title={t`Failed to load lifecycle configuration`}
+          body={queryError.message}
+          className="mt-0"
+        />
       ) : (
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">
