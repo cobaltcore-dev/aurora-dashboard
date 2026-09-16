@@ -228,7 +228,6 @@ export const FlavorListContainer = ({
         onClose={() => setSpecModalOpen(false)}
         project={project}
         flavor={selectedFlavor}
-        canEdit={canManageSpecs}
       />
 
       <ManageAccessModal

@@ -82,19 +82,12 @@ function RouteComponent() {
 
   const { data: permissionsData } = trpcReact.compute.canUser.useQuery({
     project_id: projectId,
-    permission: [
-      "flavors:delete",
-      "flavors:list_projects",
-      "flavor_specs:create",
-      "flavor_specs:delete",
-      "flavor_specs:list",
-    ],
+    permission: ["flavors:delete", "flavors:list_projects", "flavor_specs:create", "flavor_specs:delete"],
   })
 
   const canDeleteFlavor = permissionsData?.[0] ?? false
   const canManageAccess = permissionsData?.[1] ?? false
   const canManageSpecs = (permissionsData?.[2] ?? false) || (permissionsData?.[3] ?? false)
-  const canListSpecs = permissionsData?.[4] ?? false
 
   const [specModalOpen, toggleSpecModal] = useModal()
   const [accessModalOpen, toggleAccessModal] = useModal()
@@ -186,7 +179,7 @@ function RouteComponent() {
   }
 
   const isPublicFlavor = flavor["os-flavor-access:is_public"] !== false
-  const hasMoreActions = canManageAccess || canDeleteFlavor || canManageSpecs || canListSpecs
+  const hasMoreActions = canManageAccess || canDeleteFlavor || canManageSpecs
 
   const headerActions = hasMoreActions ? (
     <Stack gap="0.5" alignment="center">
@@ -203,9 +196,9 @@ function RouteComponent() {
           </PopupMenuOptions>
         </PopupMenu>
       )}
-      {(canManageSpecs || canListSpecs) && (
+      {canManageSpecs && (
         <Button variant="primary" onClick={toggleSpecModal}>
-          {canManageSpecs ? <Trans>Edit Metadata</Trans> : <Trans>Metadata</Trans>}
+          <Trans>Edit Metadata</Trans>
         </Button>
       )}
     </Stack>
@@ -227,7 +220,6 @@ function RouteComponent() {
               onClose={toggleSpecModal}
               project={projectId}
               flavor={flavor}
-              canEdit={canManageSpecs}
             />
           )}
 

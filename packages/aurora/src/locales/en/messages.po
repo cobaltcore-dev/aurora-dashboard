@@ -2498,9 +2498,6 @@ msgstr "No lifecycle rules matching the current search criteria."
 msgid "No limit"
 msgstr "No limit"
 
-msgid "No metadata properties found."
-msgstr "No metadata properties found."
-
 msgid "No metadata properties found. Click \"Add Property\" to create one."
 msgstr "No metadata properties found. Click \"Add Property\" to create one."
 
