@@ -94,11 +94,7 @@ const openstackErrorMiddleware = t.middleware(async ({ next }) => {
  * Non-401 OpenStack errors and unknown errors are re-thrown unchanged so the
  * generic `openstackErrorMiddleware` can map them.
  */
-export function mapScopeError(
-  error: unknown,
-  ctx: AuroraPortalContext,
-  opts: { notFoundMessage: string }
-): unknown {
+export function mapScopeError(error: unknown, ctx: AuroraPortalContext, opts: { notFoundMessage: string }): unknown {
   if (error instanceof SignalOpenstackApiError && error.statusCode === 401) {
     // NOTE: We intentionally do NOT pass the SignalOpenstackApiError as `cause`.
     // The outer `openstackErrorMiddleware` inspects `error.cause` and would
