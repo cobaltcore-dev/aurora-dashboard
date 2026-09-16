@@ -139,12 +139,7 @@ export const DeleteObjectModal = ({ isOpen, object, onClose, onSuccess, onError 
       ) : isLoading ? (
         <Status status="progress" title={t`Loading object info...`} className="mt-0" />
       ) : metadataError ? (
-        <Status
-          status="error"
-          title={t`Failed to load object metadata`}
-          details={metadataErrorMessage}
-          className="mt-0"
-        />
+        <Status status="error" title={t`Failed to load object metadata`} body={metadataErrorMessage} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">

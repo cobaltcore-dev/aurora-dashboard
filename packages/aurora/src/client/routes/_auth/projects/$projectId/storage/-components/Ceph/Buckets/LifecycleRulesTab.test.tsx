@@ -149,7 +149,7 @@ describe("LifecycleRulesTab", () => {
     })
   })
 
-  it("shows loading spinner while fetching lifecycle rules", () => {
+  it("shows loading state while fetching lifecycle rules", () => {
     ;(trpcReact.storage.ceph.lifecycle.get.useQuery as any).mockReturnValue({
       data: undefined,
       isLoading: true,

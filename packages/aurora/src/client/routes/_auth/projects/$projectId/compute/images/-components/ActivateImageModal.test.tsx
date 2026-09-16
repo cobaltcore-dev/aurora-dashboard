@@ -63,7 +63,7 @@ describe("ActivateImageModal", () => {
     expect(screen.getByText("qcow2")).toBeInTheDocument()
   })
 
-  it("should show spinner and hide details when isLoading is true", () => {
+  it("should show loading state and hide details when isLoading is true", () => {
     setup(true, true)
     expect(screen.getByRole("progressbar")).toBeInTheDocument()
     expect(screen.queryByText("Test Image")).not.toBeInTheDocument()

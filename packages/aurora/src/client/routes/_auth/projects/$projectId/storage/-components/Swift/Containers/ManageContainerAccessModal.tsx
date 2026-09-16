@@ -360,7 +360,7 @@ export const ManageContainerAccessModal = ({
           <Status
             status="error"
             title={t`Failed to load container ACLs`}
-            details={metaError?.message ?? ""}
+            body={metaError?.message ?? ""}
             className="mt-0"
           />
         ) : (

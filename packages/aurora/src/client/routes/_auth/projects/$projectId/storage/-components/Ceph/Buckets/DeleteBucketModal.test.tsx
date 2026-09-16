@@ -240,12 +240,12 @@ describe("DeleteBucketModal", () => {
   })
 
   describe("Loading state", () => {
-    test("shows loading spinner when checking bucket contents", () => {
+    test("shows loading state when checking bucket contents", () => {
       mockState.isLoading = true
       renderModal()
 
       expect(screen.getByText(/Checking bucket contents.../)).toBeInTheDocument()
-      // Spinner is present in the DOM
+      // Status progress view is present in the DOM
       const spinnerContainer = screen.getByText(/Checking bucket contents.../).closest(".juno-stack")
       expect(spinnerContainer).toBeInTheDocument()
     })

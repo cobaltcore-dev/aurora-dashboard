@@ -5,7 +5,7 @@ import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import {
   Modal,
   Button,
-  Spinner,
+  Status,
   Stack,
   DescriptionList,
   DescriptionTerm,
@@ -273,9 +273,7 @@ function EditSpecModalInner({
       disableCloseButton={isSaving}
     >
       {isLoading ? (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
+        <Status status="progress" title={t`Loading metadata...`} className="mt-0" />
       ) : (
         <div>
           {saveError && (
@@ -494,9 +492,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   if (isLoadingSpecs) {
     return (
       <Modal open onCancel={onClose} size="large" title={t`Edit Metadata`}>
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
+        <Status status="progress" title={t`Loading metadata...`} className="mt-0" />
       </Modal>
     )
   }
@@ -504,7 +500,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   if (loadError) {
     return (
       <Modal open onCancel={onClose} size="large" title={t`Edit Metadata`}>
-        <Message variant="error" text={translateError(loadError)} />
+        <Status status="error" title={t`Failed to load metadata`} body={translateError(loadError)} className="mt-0" />
       </Modal>
     )
   }

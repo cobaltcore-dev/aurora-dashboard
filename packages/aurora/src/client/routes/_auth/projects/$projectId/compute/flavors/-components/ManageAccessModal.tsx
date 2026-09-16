@@ -9,7 +9,7 @@ import {
   DescriptionTerm,
   DescriptionDefinition,
   Stack,
-  Spinner,
+  Status,
   Button,
   TextInput,
 } from "@cloudoperators/juno-ui-components"
@@ -215,9 +215,7 @@ function ManageAccessModalInner({
       disableCloseButton={isSaving}
     >
       {isLoading ? (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
+        <Status status="progress" title={t`Loading access...`} className="mt-0" />
       ) : (
         <div>
           {saveError && (
@@ -383,9 +381,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   if (isLoadingData) {
     return (
       <Modal open onCancel={onClose} size="large" title={t`Manage Access - ${flavorName}`}>
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
+        <Status status="progress" title={t`Loading access...`} className="mt-0" />
       </Modal>
     )
   }
@@ -393,7 +389,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   if (loadError) {
     return (
       <Modal open onCancel={onClose} size="large" title={t`Manage Access - ${flavorName}`}>
-        <Message variant="error" text={translateError(loadError)} />
+        <Status status="error" title={t`Failed to load access`} body={translateError(loadError)} className="mt-0" />
       </Modal>
     )
   }

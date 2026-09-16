@@ -152,7 +152,7 @@ describe("CorsRulesTab", () => {
     })
   })
 
-  it("shows loading spinner while fetching CORS rules", () => {
+  it("shows loading state while fetching CORS rules", () => {
     ;(trpcReact.storage.ceph.cors.get.useQuery as any).mockReturnValue({
       data: undefined,
       isLoading: true,

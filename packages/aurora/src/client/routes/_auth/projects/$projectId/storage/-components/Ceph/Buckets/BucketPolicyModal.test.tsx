@@ -134,7 +134,7 @@ describe("BucketPolicyModal", () => {
 
   // ── Loading state ────────────────────────────────────────────────────────────
 
-  it("shows loading spinner when fetching policy", () => {
+  it("shows loading state when fetching policy", () => {
     mockQueryResult = {
       data: null,
       isLoading: true,

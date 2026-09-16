@@ -103,7 +103,7 @@ describe("ActivateImagesModal", () => {
     expect(mockOnActivate).toHaveBeenCalledWith(mockDeactivatedImages.map((img) => img.id))
   })
 
-  it("should show loading spinner overlay when isLoading is true", () => {
+  it("should show loading state when isLoading is true", () => {
     setup(true, true)
     const spinners = screen.getAllByRole("progressbar")
     expect(spinners.length).toBeGreaterThan(0)

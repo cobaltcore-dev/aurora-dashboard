@@ -347,6 +347,12 @@ msgstr "{successCount} Image(s) aktiviert, aber {failedCount} Image(s) konnten n
 msgid "Activated images will be available for launching new instances."
 msgstr ""
 
+msgid "Activating image..."
+msgstr ""
+
+msgid "Activating images..."
+msgstr ""
+
 msgid "Activating this image will allow it to be used to launch new instances again."
 msgstr "Durch die Aktivierung dieses Images kann es wieder zum Starten neuer Instances verwendet werden."
 
@@ -995,6 +1001,9 @@ msgstr "Erstellt am"
 msgid "Creating Credentials..."
 msgstr ""
 
+msgid "Creating flavor..."
+msgstr ""
+
 msgid "Creating image..."
 msgstr "Image wird erstellt..."
 
@@ -1044,6 +1053,12 @@ msgid "Deactivated {successCount} image(s), but {failedCount} image(s) could not
 msgstr "{successCount} Image(s) deaktiviert, aber {failedCount} Image(s) konnten nicht deaktiviert werden."
 
 msgid "Deactivated images cannot be used to launch instances."
+msgstr ""
+
+msgid "Deactivating image..."
+msgstr ""
+
+msgid "Deactivating images..."
 msgstr ""
 
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
@@ -1709,6 +1724,9 @@ msgstr "Fehler beim Generieren der vorsignierten URL: {generalError}"
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
+msgid "Failed to load access"
+msgstr ""
+
 msgid "Failed to load buckets: {errorMessage}"
 msgstr "Fehler beim Laden der Buckets: {errorMessage}"
 
@@ -1739,14 +1757,23 @@ msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
 msgid "Failed to load flavor details. Please try again."
 msgstr "Flavor-Details konnten nicht geladen werden. Bitte versuchen Sie es erneut."
 
+msgid "Failed to load Flavors"
+msgstr ""
+
 msgid "Failed to load Floating IPs"
 msgstr "Floating IPs konnten nicht geladen werden"
+
+msgid "Failed to load Images"
+msgstr ""
 
 msgid "Failed to load lifecycle configuration"
 msgstr ""
 
-msgid "Failed to load metadata configuration."
-msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
+msgid "Failed to load metadata"
+msgstr ""
+
+msgid "Failed to load metadata configuration"
+msgstr ""
 
 msgid "Failed to load object metadata"
 msgstr ""
@@ -2240,6 +2267,9 @@ msgstr "Zugriff auflisten"
 msgid "Load More"
 msgstr "Mehr laden"
 
+msgid "Loading access..."
+msgstr ""
+
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
 
@@ -2283,6 +2313,12 @@ msgid "Loading Images..."
 msgstr "Lädt Images..."
 
 msgid "Loading lifecycle configuration..."
+msgstr ""
+
+msgid "Loading metadata configuration..."
+msgstr ""
+
+msgid "Loading metadata..."
 msgstr ""
 
 msgid "Loading more..."
@@ -3034,6 +3070,12 @@ msgstr "Änderungen speichern"
 
 msgid "Save Metadata"
 msgstr "Metadata speichern"
+
+msgid "Saving image details..."
+msgstr ""
+
+msgid "Saving metadata..."
+msgstr ""
 
 msgid "Saving..."
 msgstr "Wird gespeichert..."

@@ -304,32 +304,34 @@ function RouteComponent() {
 
   // Handle error state
   if (status === "error") {
-    const errorMessage = error?.message || "Unknown error"
+    const errorMessage = error?.message || t`Unknown error`
 
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-error font-semibold">
-          <Trans>Error loading image</Trans>
-        </p>
-        <p className="text-theme-highest">{errorMessage}</p>
-        <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Images</Trans>
-        </Button>
-      </Stack>
+      <Status
+        status="error"
+        title={t`Error loading image`}
+        body={errorMessage}
+        action={
+          <Button onClick={handleBack} variant="primary">
+            <Trans>Back to Images</Trans>
+          </Button>
+        }
+      />
     )
   }
 
   // Handle no data state
   if (!image) {
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-highest">
-          <Trans>Image not found</Trans>
-        </p>
-        <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Images</Trans>
-        </Button>
-      </Stack>
+      <Status
+        status="empty"
+        title={t`Image not found`}
+        action={
+          <Button onClick={handleBack} variant="primary">
+            <Trans>Back to Images</Trans>
+          </Button>
+        }
+      />
     )
   }
 

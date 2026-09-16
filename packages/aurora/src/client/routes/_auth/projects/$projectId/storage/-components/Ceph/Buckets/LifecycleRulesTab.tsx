@@ -210,7 +210,7 @@ export function LifecycleRulesTab({ bucketName }: LifecycleRulesTabProps) {
   )
 
   if (isLoading) {
-    return <Status status="progress" />
+    return <Status status="progress" title={t`Loading lifecycle configuration...`} />
   }
 
   if (error) {

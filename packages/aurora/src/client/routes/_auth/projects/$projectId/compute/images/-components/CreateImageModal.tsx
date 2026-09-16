@@ -10,7 +10,7 @@ import {
   SelectOption,
   Checkbox,
   Button,
-  Spinner,
+  Status,
   Stack,
   Pill,
   Message,
@@ -368,11 +368,11 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       closeOnEsc={!isLoading}
     >
       {isLoading && !uploadProgressPercent && (
-        <Stack distribution="center" alignment="center" className="mt-4">
-          <Spinner variant="primary" />
-          {!isUploadPending && <Trans>Creating image...</Trans>}
-          {isUploadPending && <Trans>Pending file upload...</Trans>}
-        </Stack>
+        <Status
+          status="progress"
+          title={isUploadPending ? t`Pending file upload...` : t`Creating image...`}
+          className="mt-4"
+        />
       )}
 
       {isLoading && !!uploadProgressPercent && (

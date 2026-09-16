@@ -347,6 +347,12 @@ msgstr "Activated {successCount} image(s), but {failedCount} image(s) could not 
 msgid "Activated images will be available for launching new instances."
 msgstr "Activated images will be available for launching new instances."
 
+msgid "Activating image..."
+msgstr "Activating image..."
+
+msgid "Activating images..."
+msgstr "Activating images..."
+
 msgid "Activating this image will allow it to be used to launch new instances again."
 msgstr "Activating this image will allow it to be used to launch new instances again."
 
@@ -995,6 +1001,9 @@ msgstr "Created At"
 msgid "Creating Credentials..."
 msgstr "Creating Credentials..."
 
+msgid "Creating flavor..."
+msgstr "Creating flavor..."
+
 msgid "Creating image..."
 msgstr "Creating image..."
 
@@ -1045,6 +1054,12 @@ msgstr "Deactivated {successCount} image(s), but {failedCount} image(s) could no
 
 msgid "Deactivated images cannot be used to launch instances."
 msgstr "Deactivated images cannot be used to launch instances."
+
+msgid "Deactivating image..."
+msgstr "Deactivating image..."
+
+msgid "Deactivating images..."
+msgstr "Deactivating images..."
 
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 msgstr "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
@@ -1709,6 +1724,9 @@ msgstr "Failed to generate pre-signed URL: {generalError}"
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Failed to generate temporary URL: {generalError}"
 
+msgid "Failed to load access"
+msgstr "Failed to load access"
+
 msgid "Failed to load buckets: {errorMessage}"
 msgstr "Failed to load buckets: {errorMessage}"
 
@@ -1739,14 +1757,23 @@ msgstr "Failed to load extra specs. Please try again."
 msgid "Failed to load flavor details. Please try again."
 msgstr "Failed to load flavor details. Please try again."
 
+msgid "Failed to load Flavors"
+msgstr "Failed to load Flavors"
+
 msgid "Failed to load Floating IPs"
 msgstr "Failed to load Floating IPs"
+
+msgid "Failed to load Images"
+msgstr "Failed to load Images"
 
 msgid "Failed to load lifecycle configuration"
 msgstr "Failed to load lifecycle configuration"
 
-msgid "Failed to load metadata configuration."
-msgstr "Failed to load metadata configuration."
+msgid "Failed to load metadata"
+msgstr "Failed to load metadata"
+
+msgid "Failed to load metadata configuration"
+msgstr "Failed to load metadata configuration"
 
 msgid "Failed to load object metadata"
 msgstr "Failed to load object metadata"
@@ -2240,6 +2267,9 @@ msgstr "Listing access"
 msgid "Load More"
 msgstr "Load More"
 
+msgid "Loading access..."
+msgstr "Loading access..."
+
 msgid "Loading ACLs..."
 msgstr "Loading ACLs..."
 
@@ -2284,6 +2314,12 @@ msgstr "Loading Images..."
 
 msgid "Loading lifecycle configuration..."
 msgstr "Loading lifecycle configuration..."
+
+msgid "Loading metadata configuration..."
+msgstr "Loading metadata configuration..."
+
+msgid "Loading metadata..."
+msgstr "Loading metadata..."
 
 msgid "Loading more..."
 msgstr "Loading more..."
@@ -3034,6 +3070,12 @@ msgstr "Save Changes"
 
 msgid "Save Metadata"
 msgstr "Save Metadata"
+
+msgid "Saving image details..."
+msgstr "Saving image details..."
+
+msgid "Saving metadata..."
+msgstr "Saving metadata..."
 
 msgid "Saving..."
 msgstr "Saving..."

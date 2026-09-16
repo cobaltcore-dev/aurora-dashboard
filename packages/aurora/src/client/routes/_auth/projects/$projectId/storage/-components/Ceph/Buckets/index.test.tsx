@@ -278,7 +278,7 @@ describe("CephBuckets (index)", () => {
   }
 
   describe("Loading state", () => {
-    test("shows loading spinner while fetching", () => {
+    test("shows loading state while fetching", () => {
       trpcState.isLoading = true
       trpcState.buckets = undefined
       renderBuckets()

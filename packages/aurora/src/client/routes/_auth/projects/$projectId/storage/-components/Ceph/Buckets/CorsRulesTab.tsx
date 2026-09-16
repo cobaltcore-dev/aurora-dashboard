@@ -203,7 +203,7 @@ export function CorsRulesTab({ bucketName }: CorsRulesTabProps) {
   const someFilteredSelected = filteredIndices.some((i) => selectedIndices.includes(i)) && !allFilteredSelected
 
   if (isLoading) {
-    return <Status status="progress" />
+    return <Status status="progress" title={t`Loading CORS configuration...`} />
   }
 
   if (error) {

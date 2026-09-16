@@ -306,7 +306,11 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
     <div className="relative">
       <ErrorBoundary
         fallbackRender={({ error }) => (
-          <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
+          <Status
+            status="error"
+            title={t`Failed to load Flavors`}
+            body={error instanceof Error ? error.message : t`An unexpected error occurred.`}
+          />
         )}
       >
         <Suspense fallback={<Status status="progress" title={t`Loading Flavors...`} />}>

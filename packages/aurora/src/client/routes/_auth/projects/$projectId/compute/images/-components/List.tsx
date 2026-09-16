@@ -6,7 +6,6 @@ import { GlanceImage } from "@/server/Compute/types/image"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import {
   Button,
-  Message,
   Stack,
   Status,
   PopupMenu,
@@ -667,7 +666,11 @@ export const Images = ({ client, project }: ImagesProps) => {
     <div className="relative">
       <ErrorBoundary
         fallbackRender={({ error }) => (
-          <Message variant="error" text={error instanceof Error ? error.message : t`An unexpected error occurred.`} />
+          <Status
+            status="error"
+            title={t`Failed to load Images`}
+            body={error instanceof Error ? error.message : t`An unexpected error occurred.`}
+          />
         )}
       >
         <Suspense fallback={<Status status="progress" title={t`Loading Images...`} />}>

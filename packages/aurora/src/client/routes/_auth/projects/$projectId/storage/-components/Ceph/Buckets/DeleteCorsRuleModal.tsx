@@ -170,7 +170,7 @@ export const DeleteCorsRuleModal = ({
         {isCorsLoading && <Status status="progress" title={t`Loading CORS rules...`} className="mt-0" />}
 
         {corsError && (
-          <Status status="error" title={t`Failed to load CORS rules`} details={corsError.message} className="mt-0" />
+          <Status status="error" title={t`Failed to load CORS rules`} body={corsError.message} className="mt-0" />
         )}
 
         {!isCorsLoading && !corsError && !hasRules && (
