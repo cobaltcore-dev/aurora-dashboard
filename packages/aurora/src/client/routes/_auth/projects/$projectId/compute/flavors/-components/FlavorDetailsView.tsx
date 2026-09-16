@@ -9,7 +9,6 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Fragment } from "react"
 import type { Flavor } from "@/server/Compute/types/flavor"
 import ClipboardText from "@/client/components/ClipboardText"
-import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
 import { trpcReact } from "@/client/trpcClient"
 import { useParams } from "@tanstack/react-router"
 
@@ -49,7 +48,7 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
   const hardwareSpecItems = [
     { label: t`VCPUs`, value: flavor.vcpus },
     { label: t`RAM`, value: formatWithUnit(flavor.ram, "MiB") },
-    { label: t`Disk`, value: formatWithUnit(flavor.disk, "GiB") },
+    { label: t`Root Disk`, value: formatWithUnit(flavor.disk, "GiB") },
     {
       label: t`Ephemeral Disk`,
       value: formatWithUnit(flavor["OS-FLV-EXT-DATA:ephemeral"] || 0, "GiB"),
@@ -65,18 +64,38 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
 
   return (
     <Stack direction="vertical" gap="6" className="mt-6">
-      <Stack direction="vertical" gap="2">
-        <ContentHeading>
-          <Trans>Basic Information</Trans>
-        </ContentHeading>
-        <TwoColumnDescriptionList items={basicInfoItems} />
-      </Stack>
+      <Stack direction="horizontal" gap="6" className="grid grid-cols-2">
+        <Stack direction="vertical" gap="2">
+          <ContentHeading>
+            <Trans>Flavor Information</Trans>
+          </ContentHeading>
+          <DescriptionList alignTerms="right">
+            {basicInfoItems.map(({ label, value }, index) => (
+              <Fragment key={`basic-${index}`}>
+                <DescriptionTerm>{label}</DescriptionTerm>
+                <DescriptionDefinition>
+                  <div className="truncate">{value}</div>
+                </DescriptionDefinition>
+              </Fragment>
+            ))}
+          </DescriptionList>
+        </Stack>
 
-      <Stack direction="vertical" gap="2">
-        <ContentHeading>
-          <Trans>Hardware Specifications</Trans>
-        </ContentHeading>
-        <TwoColumnDescriptionList items={hardwareSpecItems} />
+        <Stack direction="vertical" gap="2">
+          <ContentHeading>
+            <Trans>Hardware Specifications</Trans>
+          </ContentHeading>
+          <DescriptionList alignTerms="right">
+            {hardwareSpecItems.map(({ label, value }, index) => (
+              <Fragment key={`hardware-${index}`}>
+                <DescriptionTerm>{label}</DescriptionTerm>
+                <DescriptionDefinition>
+                  <div className="truncate">{value}</div>
+                </DescriptionDefinition>
+              </Fragment>
+            ))}
+          </DescriptionList>
+        </Stack>
       </Stack>
 
       {extraSpecs && Object.keys(extraSpecs).length > 0 && (

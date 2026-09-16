@@ -506,9 +506,6 @@ msgstr "Back to Security Groups"
 msgid "Basic Info"
 msgstr "Basic Info"
 
-msgid "Basic Information"
-msgstr "Basic Information"
-
 msgid "Boot RAM"
 msgstr "Boot RAM"
 
@@ -2980,6 +2977,9 @@ msgstr "Restore Version"
 
 msgid "Root"
 msgstr "Root"
+
+msgid "Root Disk"
+msgstr "Root Disk"
 
 msgid "Root Disk (GiB)"
 msgstr "Root Disk (GiB)"
