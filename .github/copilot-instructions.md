@@ -280,15 +280,15 @@ All modals **must** follow this skeleton:
 
 **Error scope by category:**
 
-| Category                                   | Handling                                                                                                                            |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| "Big" errors (500/502/503/504, 404, crash) | Dedicated full-page error view with numeric code, title, description; keep PageHeader/navigation or at least a link home.           |
-| 401 Unauthenticated                        | Redirect to Sign-in, remember target, redirect back after auth; show an auth error on the Sign-in page.                             |
-| 403 Unauthorized (page)                    | Error page reflecting the route in breadcrumb + title, SideNav if applicable, plus an **info** `Message` explaining lack of access. |
-| Component/API render error                 | Feedback scoped to the affected component; render the rest of the page.                                                             |
+| Category                                   | Handling                                                                                                                                     |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Big" errors (500/502/503/504, 404, crash) | Dedicated full-page error view with numeric code, title, description; keep PageHeader/navigation or at least a link home.                    |
+| 401 Unauthenticated                        | Redirect to Sign-in, remember target, redirect back after auth; show an auth error on the Sign-in page.                                      |
+| 403 Unauthorized (page)                    | Error page reflecting the route in breadcrumb + title, SideNav if applicable, plus an **info** `Message` explaining lack of access.          |
+| Component/API render error                 | Feedback scoped to the affected component; render the rest of the page.                                                                      |
 | Operation/CRUD error                       | Non-blocking `Message` with detail; offer retry where feasible; use a toast only when no user action is required; don't block other actions. |
-| Validation error                           | Inline per field (see B.11), or a `Message` at form/section top for cross-field.                                                    |
-| Network/connectivity                       | Clear offline/timeout state with a manual retry option.                                                                             |
+| Validation error                           | Inline per field (see B.11), or a `Message` at form/section top for cross-field.                                                             |
+| Network/connectivity                       | Clear offline/timeout state with a manual retry option.                                                                                      |
 
 Recommended copy (impersonal, no exclamation): 401 `"Authentication failed. Verify your credentials and try again."`; 403 `"You do not have the required permissions to access this resource."`; 404 `"The requested URL does not exist or may have moved."`; 500 `"An internal error occurred. Try again."`
 
