@@ -22,4 +22,5 @@
 - Disable key editing in metadata - keys are read-only, only values can be edited
 - Remove Cancel button from EditSpecModal (only Close button remains)
 - Invalidate metadata query when EditSpecModal closes to refresh metadata display
+- Show loading/error states for metadata section instead of hiding it
 

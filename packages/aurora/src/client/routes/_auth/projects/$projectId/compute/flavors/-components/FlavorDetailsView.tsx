@@ -4,6 +4,7 @@ import {
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
+  Status,
 } from "@cloudoperators/juno-ui-components/index"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { Fragment } from "react"
@@ -21,7 +22,11 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
   const { projectId } = useParams({ strict: false }) as { projectId: string }
   const formatWithUnit = (value: number, unit: string) => `${value} ${unit}`
 
-  const { data: extraSpecs } = trpcReact.compute.getExtraSpecs.useQuery(
+  const {
+    data: extraSpecs,
+    isLoading,
+    isError,
+  } = trpcReact.compute.getExtraSpecs.useQuery(
     {
       project_id: projectId,
       flavorId: flavor.id,
@@ -98,11 +103,15 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
         </Stack>
       </Stack>
 
-      {extraSpecs && Object.keys(extraSpecs).length > 0 && (
-        <Stack direction="vertical" gap="2">
-          <ContentHeading>
-            <Trans>Metadata</Trans>
-          </ContentHeading>
+      <Stack direction="vertical" gap="2">
+        <ContentHeading>
+          <Trans>Metadata</Trans>
+        </ContentHeading>
+        {isLoading ? (
+          <Status status="progress" />
+        ) : isError ? (
+          <Status status="error" title={t`Failed to load metadata`} />
+        ) : extraSpecs && Object.keys(extraSpecs).length > 0 ? (
           <DescriptionList alignTerms="right" className="grid-cols-2">
             {extraSpecItems.map(({ label, value }, index) => (
               <Fragment key={`extra-${index}`}>
@@ -113,8 +122,10 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
               </Fragment>
             ))}
           </DescriptionList>
-        </Stack>
-      )}
+        ) : (
+          <Status status="no-matches" />
+        )}
+      </Stack>
     </Stack>
   )
 }

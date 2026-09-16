@@ -1739,6 +1739,9 @@ msgstr "Floating IPs konnten nicht geladen werden"
 msgid "Failed to load lifecycle configuration"
 msgstr ""
 
+msgid "Failed to load metadata"
+msgstr ""
+
 msgid "Failed to load metadata configuration."
 msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 
