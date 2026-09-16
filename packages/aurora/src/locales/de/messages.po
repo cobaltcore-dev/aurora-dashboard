@@ -3314,7 +3314,7 @@ msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 msgid "Services"
 msgstr "Services"
 
-msgid "Session Expired"
+msgid "Session changed"
 msgstr ""
 
 msgid "Session expires in"
@@ -4193,7 +4193,7 @@ msgstr ""
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
 
-msgid "Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab."
+msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue."
 msgstr ""
 
 msgid "YYYY-MM-DD HH:mm:ss"

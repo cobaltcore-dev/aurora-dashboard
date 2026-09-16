@@ -116,7 +116,7 @@ function RouteComponent() {
         <Container className="py-8">
           <Status
             status="error"
-            title={t`Session Changed`}
+            title={t`Session changed`}
             body={t`Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue.`}
             action={
               <Button variant="primary" onClick={() => navigate({ to: "/" })}>

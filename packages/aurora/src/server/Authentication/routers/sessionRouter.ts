@@ -50,7 +50,7 @@ export const sessionRouter = {
           // cannot be scoped to (NOT_FOUND) so the client can show the right message.
           throw mapScopeError(error, ctx, {
             notFoundMessage:
-              "This domain doesn't exist or is not accessible with your current session. Please select an available domain.",
+              "This domain doesn't exist or is not accessible with your current session. Select an available domain.",
           })
         }
         const token = session?.getToken()
