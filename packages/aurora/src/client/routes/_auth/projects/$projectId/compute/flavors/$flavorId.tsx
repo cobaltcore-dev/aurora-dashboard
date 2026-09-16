@@ -67,6 +67,7 @@ function RouteComponent() {
   const navigate = useNavigate()
   const { t } = useLingui()
   const { translateError, isRetryableError } = useErrorTranslation()
+  const utils = trpcReact.useUtils()
 
   const {
     data: flavor,
@@ -98,6 +99,11 @@ function RouteComponent() {
   const [specModalOpen, toggleSpecModal] = useModal()
   const [accessModalOpen, toggleAccessModal] = useModal()
   const [deleteModalOpen, toggleDeleteModal] = useModal()
+
+  const handleSpecModalClose = () => {
+    toggleSpecModal()
+    utils.compute.getExtraSpecs.invalidate({ project_id: projectId, flavorId })
+  }
 
   const handleBack = () => {
     navigate({
@@ -224,7 +230,7 @@ function RouteComponent() {
             <EditSpecModal
               client={trpcClient}
               isOpen={specModalOpen}
-              onClose={toggleSpecModal}
+              onClose={handleSpecModalClose}
               project={projectId}
               flavor={flavor}
             />

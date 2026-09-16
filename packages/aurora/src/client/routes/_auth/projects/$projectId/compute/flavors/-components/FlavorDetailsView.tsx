@@ -101,7 +101,7 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
       {extraSpecs && Object.keys(extraSpecs).length > 0 && (
         <Stack direction="vertical" gap="2">
           <ContentHeading>
-            <Trans>Extra Specs</Trans>
+            <Trans>Metadata</Trans>
           </ContentHeading>
           <DescriptionList alignTerms="right" className="grid-cols-2">
             {extraSpecItems.map(({ label, value }, index) => (

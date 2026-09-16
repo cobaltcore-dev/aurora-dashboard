@@ -1559,9 +1559,6 @@ msgstr "Externes Netzwerk"
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
 
-msgid "Extra Specs"
-msgstr "Zusätzliche Spezifikationen"
-
 msgid "Failed deletions:"
 msgstr ""
 
