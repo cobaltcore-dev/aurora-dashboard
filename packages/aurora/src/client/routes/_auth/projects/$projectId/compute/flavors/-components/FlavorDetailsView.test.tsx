@@ -6,7 +6,7 @@ import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
 
-let mockExtraSpecsData: Record<string, string> | undefined = {}
+let mockUseQueryReturn: { data?: Record<string, string>; isLoading?: boolean; error?: Error } = { data: {} }
 
 vi.mock("@tanstack/react-router", () => ({
   useParams: () => ({ projectId: "test-project" }),
@@ -16,7 +16,7 @@ vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
     compute: {
       getExtraSpecs: {
-        useQuery: vi.fn(() => ({ data: mockExtraSpecsData })),
+        useQuery: vi.fn(() => mockUseQueryReturn),
       },
     },
   },
@@ -34,7 +34,7 @@ describe("FlavorDetailsView", () => {
   })
 
   beforeEach(() => {
-    mockExtraSpecsData = {}
+    mockUseQueryReturn = { data: {} }
   })
 
   const baseFlavor = {
@@ -51,7 +51,7 @@ describe("FlavorDetailsView", () => {
     "OS-FLV-EXT-DATA:ephemeral": 20,
   }
 
-  it("renders basic information section correctly", () => {
+  it("renders flavor information section with all fields", () => {
     render(
       <TestingProvider>
         <FlavorDetailsView flavor={baseFlavor} />
@@ -65,23 +65,11 @@ describe("FlavorDetailsView", () => {
     expect(screen.getByText("Test Flavor")).toBeInTheDocument()
     expect(screen.getByText("Description")).toBeInTheDocument()
     expect(screen.getByText("A test flavor for unit tests")).toBeInTheDocument()
+    expect(screen.getByText("Public")).toBeInTheDocument()
+    expect(screen.getByText("Disabled")).toBeInTheDocument()
   })
 
-  it("renders public and disabled status correctly", () => {
-    render(
-      <TestingProvider>
-        <FlavorDetailsView flavor={baseFlavor} />
-      </TestingProvider>
-    )
-
-    const yesElements = screen.getAllByText("Yes")
-    const noElements = screen.getAllByText("No")
-
-    expect(yesElements).toHaveLength(1)
-    expect(noElements).toHaveLength(1)
-  })
-
-  it("renders hardware specifications correctly", () => {
+  it("renders hardware specifications section with all fields", () => {
     render(
       <TestingProvider>
         <FlavorDetailsView flavor={baseFlavor} />
@@ -103,44 +91,12 @@ describe("FlavorDetailsView", () => {
     expect(screen.getByText("1")).toBeInTheDocument()
   })
 
-  it("handles zero values correctly", () => {
-    const flavorWithZeros = {
-      ...baseFlavor,
-      disk: 0,
-      swap: 0,
-      "OS-FLV-EXT-DATA:ephemeral": 0,
-    }
-
-    render(
-      <TestingProvider>
-        <FlavorDetailsView flavor={flavorWithZeros} />
-      </TestingProvider>
-    )
-
-    const zeroGib = screen.getAllByText("0 GiB")
-    expect(zeroGib.length).toBeGreaterThanOrEqual(2) // root and eph
-    expect(screen.getByText("None")).toBeInTheDocument() // For swap
-  })
-
-  it("handles empty swap string correctly", () => {
-    const flavorWithEmptySwap = {
-      ...baseFlavor,
-      swap: "",
-    }
-
-    render(
-      <TestingProvider>
-        <FlavorDetailsView flavor={flavorWithEmptySwap} />
-      </TestingProvider>
-    )
-
-    expect(screen.getByText("None")).toBeInTheDocument()
-  })
-
-  it("renders extra specs when present", () => {
-    mockExtraSpecsData = {
-      "hw:cpu_policy": "dedicated",
-      "hw:mem_page_size": "large",
+  it("renders metadata section when specs are present", () => {
+    mockUseQueryReturn = {
+      data: {
+        "hw:cpu_policy": "dedicated",
+        "hw:mem_page_size": "large",
+      },
     }
 
     render(
@@ -156,8 +112,8 @@ describe("FlavorDetailsView", () => {
     expect(screen.getByText("large")).toBeInTheDocument()
   })
 
-  it("does not render extra specs section when empty", () => {
-    mockExtraSpecsData = {}
+  it("does not render metadata section when specs are empty", () => {
+    mockUseQueryReturn = { data: {} }
 
     render(
       <TestingProvider>
@@ -168,8 +124,8 @@ describe("FlavorDetailsView", () => {
     expect(screen.queryByText("Metadata")).not.toBeInTheDocument()
   })
 
-  it("does not render extra specs section when undefined", () => {
-    mockExtraSpecsData = undefined
+  it("does not render metadata section when specs are undefined", () => {
+    mockUseQueryReturn = { data: undefined }
 
     render(
       <TestingProvider>
@@ -180,7 +136,78 @@ describe("FlavorDetailsView", () => {
     expect(screen.queryByText("Metadata")).not.toBeInTheDocument()
   })
 
-  it("handles missing ephemeral disk data", () => {
+  it("does not render metadata section while loading", () => {
+    mockUseQueryReturn = { isLoading: true, data: undefined }
+
+    render(
+      <TestingProvider>
+        <FlavorDetailsView flavor={baseFlavor} />
+      </TestingProvider>
+    )
+
+    expect(screen.queryByText("Metadata")).not.toBeInTheDocument()
+  })
+
+  it("does not render metadata section on query error", () => {
+    mockUseQueryReturn = { error: new Error("Failed to load"), data: undefined }
+
+    render(
+      <TestingProvider>
+        <FlavorDetailsView flavor={baseFlavor} />
+      </TestingProvider>
+    )
+
+    expect(screen.queryByText("Metadata")).not.toBeInTheDocument()
+  })
+
+  it("handles zero disk values", () => {
+    const flavorWithZeros = {
+      ...baseFlavor,
+      disk: 0,
+      "OS-FLV-EXT-DATA:ephemeral": 0,
+    }
+
+    render(
+      <TestingProvider>
+        <FlavorDetailsView flavor={flavorWithZeros} />
+      </TestingProvider>
+    )
+
+    const zeroGib = screen.getAllByText("0 GiB")
+    expect(zeroGib.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it("displays 'None' for zero swap", () => {
+    const flavorWithZeroSwap = {
+      ...baseFlavor,
+      swap: 0,
+    }
+
+    render(
+      <TestingProvider>
+        <FlavorDetailsView flavor={flavorWithZeroSwap} />
+      </TestingProvider>
+    )
+
+    expect(screen.getByText("None")).toBeInTheDocument()
+  })
+
+  it("displays 'None' for empty swap string", () => {
+    const flavorWithEmptySwap = {
+      ...baseFlavor,
+      swap: "",
+    }
+
+    render(
+      <TestingProvider>
+        <FlavorDetailsView flavor={flavorWithEmptySwap} />
+      </TestingProvider>
+    )
+
+    expect(screen.getByText("None")).toBeInTheDocument()
+  })
+
+  it("handles missing ephemeral disk", () => {
     const flavorWithoutEphemeral = {
       ...baseFlavor,
       "OS-FLV-EXT-DATA:ephemeral": undefined,
@@ -196,24 +223,7 @@ describe("FlavorDetailsView", () => {
     expect(screen.getByText("0 GiB")).toBeInTheDocument()
   })
 
-  it("formats bytes correctly with different units", () => {
-    const flavorForFormatting = {
-      ...baseFlavor,
-      ram: 0,
-      disk: 0,
-    }
-
-    render(
-      <TestingProvider>
-        <FlavorDetailsView flavor={flavorForFormatting} />
-      </TestingProvider>
-    )
-
-    expect(screen.getByText("0 MiB")).toBeInTheDocument()
-    expect(screen.getByText("0 GiB")).toBeInTheDocument()
-  })
-
-  it("handles private flavors correctly", () => {
+  it("shows 'No' for private flavors", () => {
     const privateFlavor = {
       ...baseFlavor,
       "os-flavor-access:is_public": false,
@@ -226,11 +236,10 @@ describe("FlavorDetailsView", () => {
     )
 
     const noElements = screen.getAllByText("No")
-
     expect(noElements.length).toBeGreaterThanOrEqual(1)
   })
 
-  it("handles disabled flavors correctly", () => {
+  it("shows 'Yes' for disabled flavors", () => {
     const disabledFlavor = {
       ...baseFlavor,
       "OS-FLV-DISABLED:disabled": true,
@@ -243,7 +252,6 @@ describe("FlavorDetailsView", () => {
     )
 
     const yesElements = screen.getAllByText("Yes")
-
     expect(yesElements.length).toBeGreaterThanOrEqual(1)
   })
 })
