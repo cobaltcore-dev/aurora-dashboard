@@ -165,11 +165,17 @@ function ManageAccessModalInner({
 
       // Add projects
       for (const targetProjectId of projectsToAdd) {
-        await client.compute.addTenantAccess.mutate({
-          project_id: project,
-          flavorId: flavor.id,
-          targetProjectId,
-        })
+        try {
+          await client.compute.addTenantAccess.mutate({
+            project_id: project,
+            flavorId: flavor.id,
+            targetProjectId,
+          })
+        } catch (error) {
+          // Remove failed project from access list
+          setAccess((prev) => prev.filter((a) => a.projectId !== targetProjectId))
+          throw error
+        }
       }
 
       onClose()
@@ -262,6 +268,7 @@ function ManageAccessModalInner({
                               }
                             }}
                             placeholder={t`Enter project ID`}
+                            invalid={!!errors.newProjectId}
                             autoFocus
                             wrapperClassName="w-full"
                           />

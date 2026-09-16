@@ -202,7 +202,7 @@ function RouteComponent() {
       {hasPopupMenuItems && (
         <PopupMenu>
           <PopupMenuToggle as="div">
-            <Button icon="moreVert" title={t`More Actions`} />
+            <Button icon="moreVert" title={t`More Actions`} aria-label={t`More Actions`} />
           </PopupMenuToggle>
           <PopupMenuOptions>
             {canManageAccess && !isPublicFlavor && (

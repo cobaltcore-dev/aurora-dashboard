@@ -11,7 +11,7 @@ import { Fragment } from "react"
 import type { Flavor } from "@/server/Compute/types/flavor"
 import ClipboardText from "@/client/components/ClipboardText"
 import { trpcReact } from "@/client/trpcClient"
-import { useParams } from "@tanstack/react-router"
+import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface FlavorDetailsViewProps {
   flavor: Flavor
@@ -20,7 +20,7 @@ interface FlavorDetailsViewProps {
 
 export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetailsViewProps) {
   const { t } = useLingui()
-  const { projectId } = useParams({ strict: false }) as { projectId: string }
+  const projectId = useProjectId()
   const formatWithUnit = (value: number, unit: string) => `${value} ${unit}`
 
   const {

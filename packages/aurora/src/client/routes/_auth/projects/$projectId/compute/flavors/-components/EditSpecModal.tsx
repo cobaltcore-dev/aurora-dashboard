@@ -312,6 +312,7 @@ function EditSpecModalInner({
                           onClick={handleAddNew}
                           icon="check"
                           title={t`Save`}
+                          aria-label={t`Save`}
                           disabled={operationInProgress}
                         />
                         <Button
@@ -320,6 +321,7 @@ function EditSpecModalInner({
                           onClick={handleCancelAdd}
                           icon="close"
                           title={t`Discard`}
+                          aria-label={t`Discard`}
                           disabled={operationInProgress}
                         />
                       </Stack>
@@ -360,6 +362,7 @@ function EditSpecModalInner({
                               onClick={() => handleSaveEdit(index)}
                               icon="check"
                               title={t`Save`}
+                              aria-label={t`Save`}
                               disabled={operationInProgress}
                             />
                             <Button
@@ -368,6 +371,7 @@ function EditSpecModalInner({
                               onClick={() => handleCancelEdit(index)}
                               icon="close"
                               title={t`Discard`}
+                              aria-label={t`Discard`}
                               disabled={operationInProgress}
                             />
                           </Stack>
