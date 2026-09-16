@@ -75,6 +75,53 @@ const openstackErrorMiddleware = t.middleware(async ({ next }) => {
   return result
 })
 
+/**
+ * Disambiguates an error thrown while rescoping the session to a project or domain.
+ *
+ * Keystone answers a rescope request with HTTP 401 in two very different
+ * situations, and it deliberately does NOT return 404 for an unknown/unauthorized
+ * project in order to avoid leaking whether that project exists:
+ *
+ *   1. The base token is no longer valid (session changed/revoked in another
+ *      browser tab, or expired). This is a genuine session problem.
+ *   2. The base token is still valid, but the requested scope cannot be
+ *      authorized (the project/domain does not exist or the user has no role).
+ *
+ * To tell them apart we re-check the validity of the current base token after a
+ * failed rescope. A still-valid token means the failure was about the requested
+ * scope, so we surface NOT_FOUND instead of a misleading "session expired".
+ *
+ * Non-401 OpenStack errors and unknown errors are re-thrown unchanged so the
+ * generic `openstackErrorMiddleware` can map them.
+ */
+export function mapScopeError(
+  error: unknown,
+  ctx: AuroraPortalContext,
+  opts: { notFoundMessage: string }
+): unknown {
+  if (error instanceof SignalOpenstackApiError && error.statusCode === 401) {
+    // NOTE: We intentionally do NOT pass the SignalOpenstackApiError as `cause`.
+    // The outer `openstackErrorMiddleware` inspects `error.cause` and would
+    // re-map any 401 back to UNAUTHORIZED, defeating this disambiguation.
+
+    // If the base token is still valid the 401 was about the requested scope,
+    // not the session itself.
+    if (ctx.validateSession() === true) {
+      return new TRPCError({
+        code: "NOT_FOUND",
+        message: opts.notFoundMessage,
+      })
+    }
+    return new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Your session is no longer valid. Please log in again.",
+    })
+  }
+
+  // Not a scope-related 401 - let the caller / generic middleware handle it.
+  return error
+}
+
 export const router = t.router
 export const auroraRouter = t.router
 export const mergeRouters = t.mergeRouters
@@ -158,17 +205,38 @@ export const projectScopedProcedure = protectedProcedure
     // because it was validated by projectScopedInputSchema
     const { project_id } = input
 
-    // Rescope the session to the specified project
-    // This calls Keystone to get a new token scoped to the project
-    // The token is automatically cached in a cookie by rescopeSession
-    // Errors are handled by openstackErrorMiddleware
-    const openstackSession = await ctx.rescopeSession({ projectId: project_id })
+    // Rescope the session to the specified project.
+    // This calls Keystone to get a new token scoped to the project.
+    // The token is automatically cached in a cookie by rescopeSession.
+    //
+    // Keystone returns HTTP 401 both when the base token is no longer valid
+    // (e.g. the session was changed/revoked in another browser tab) AND when
+    // the requested project scope is unauthorized (project does not exist or
+    // the user has no role on it). To surface the real cause we re-check the
+    // validity of the base token after a failed rescope:
+    //   - base token invalid  -> UNAUTHORIZED (session changed/expired)
+    //   - base token still ok  -> NOT_FOUND   (project missing/not accessible)
+    let openstackSession
+    try {
+      openstackSession = await ctx.rescopeSession({ projectId: project_id })
+    } catch (error) {
+      throw mapScopeError(error, ctx, {
+        notFoundMessage: "Project not found or not accessible with your current session.",
+      })
+    }
 
-    // If rescoping returns null (no session), throw an error
+    // If rescoping returns null the session could not be established at all,
+    // which means the base token is no longer usable.
     if (!openstackSession) {
+      if (ctx.validateSession() === false) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Your session is no longer valid. Please log in again.",
+        })
+      }
       throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Failed to scope session to project. User may not have access to this project.",
+        code: "NOT_FOUND",
+        message: "Project not found or not accessible with your current session.",
       })
     }
 
@@ -274,13 +342,26 @@ export const domainScopedProcedure = protectedProcedure
     // Keystone will enforce permissions based on the user's role assignments in that domain
     // The token is automatically cached in a cookie by rescopeSession
     // Errors are handled by openstackErrorMiddleware
-    const openstackSession = await ctx.rescopeSession({ domainId: domain_id })
+    let openstackSession
+    try {
+      openstackSession = await ctx.rescopeSession({ domainId: domain_id })
+    } catch (error) {
+      throw mapScopeError(error, ctx, {
+        notFoundMessage: "Domain not found or not accessible with your current session.",
+      })
+    }
 
-    // If rescoping returns null (no session), throw an error
+    // If rescoping returns null (no session), the base token is no longer usable
     if (!openstackSession) {
+      if (ctx.validateSession() === false) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Your session is no longer valid. Please log in again.",
+        })
+      }
       throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Failed to scope session to domain. Please try again or contact support.",
+        code: "NOT_FOUND",
+        message: "Domain not found or not accessible with your current session.",
       })
     }
 

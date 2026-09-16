@@ -3,6 +3,7 @@ import { sessionRouter } from "./sessionRouter"
 import { createCallerFactory, router } from "../../trpc"
 import { AuroraPortalContext } from "../../context"
 import { TRPCError } from "@trpc/server"
+import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 
 // Create tRPC caller
 const createCaller = createCallerFactory(router(sessionRouter))
@@ -272,6 +273,42 @@ describe("sessionRouter", () => {
             projectId: "test-project",
           })
         ).rejects.toThrow("Failed to rescope to the requested project.")
+      })
+
+      it("should throw NOT_FOUND when Keystone returns 401 but the base token is still valid", async () => {
+        // A valid session that cannot scope to the project means the project
+        // does not exist or is not accessible - not a session problem.
+        mockContext.validateSession.mockReturnValue(true)
+        mockContext.rescopeSession.mockRejectedValue(new SignalOpenstackApiError("Unauthorized", 401))
+
+        await expect(
+          caller.setCurrentScope({
+            type: "project",
+            projectId: "does-not-exist",
+          })
+        ).rejects.toThrow(
+          expect.objectContaining({
+            code: "NOT_FOUND",
+            message: expect.stringContaining("doesn't exist or is not accessible"),
+          })
+        )
+      })
+
+      it("should throw UNAUTHORIZED when the base session is invalid", async () => {
+        // If the base token is no longer valid (e.g. session changed in another
+        // tab), protectedProcedure rejects before rescoping is attempted.
+        mockContext.validateSession.mockReturnValue(false)
+
+        await expect(
+          caller.setCurrentScope({
+            type: "project",
+            projectId: "test-project",
+          })
+        ).rejects.toThrow(
+          expect.objectContaining({
+            code: "UNAUTHORIZED",
+          })
+        )
       })
     })
 

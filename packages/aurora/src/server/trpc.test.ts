@@ -8,6 +8,7 @@ import {
   domainScopedInputSchema,
 } from "./trpc"
 import { AuroraPortalContext } from "./context"
+import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import { z } from "zod"
 
 /**
@@ -17,6 +18,7 @@ import { z } from "zod"
 const createMockContext = (opts?: {
   invalidSession?: boolean
   rescopeFails?: boolean
+  rescopeThrows?: Error
   availableDomains?: Array<{ id: string; name: string }>
   currentProjectId?: string
   currentDomainId?: string
@@ -24,6 +26,7 @@ const createMockContext = (opts?: {
   const {
     invalidSession = false,
     rescopeFails = false,
+    rescopeThrows,
     availableDomains = [],
     currentProjectId,
     currentDomainId,
@@ -53,6 +56,11 @@ const createMockContext = (opts?: {
       availableDomains,
     }),
     rescopeSession: vi.fn().mockImplementation(async (scope: { projectId?: string; domainId?: string }) => {
+      // Simulate rescoping throwing (e.g. Keystone returns 401)
+      if (rescopeThrows) {
+        throw rescopeThrows
+      }
+
       // Simulate rescoping failure
       if (rescopeFails) {
         return null
@@ -150,7 +158,9 @@ describe("projectScopedProcedure", () => {
     )
   })
 
-  it("should throw UNAUTHORIZED when session rescoping fails", async () => {
+  it("should throw NOT_FOUND when rescoping returns null but the session is still valid", async () => {
+    // A valid base token that cannot be scoped to the project means the project
+    // does not exist or is not accessible - not a session problem.
     const ctx = createMockContext({ rescopeFails: true })
 
     const testRouter = auroraRouter({
@@ -167,8 +177,84 @@ describe("projectScopedProcedure", () => {
 
     await expect(caller.test.testProcedure({ project_id: "proj-123" })).rejects.toThrow(
       expect.objectContaining({
+        code: "NOT_FOUND",
+        message: expect.stringContaining("Project not found or not accessible"),
+      })
+    )
+  })
+
+  it("should throw UNAUTHORIZED when rescoping returns null and the session is invalid", async () => {
+    // The base token is no longer valid (e.g. session changed in another tab).
+    // protectedProcedure rejects before rescoping is attempted.
+    const ctx = createMockContext({ rescopeFails: true, invalidSession: true })
+
+    const testRouter = auroraRouter({
+      test: {
+        testProcedure: projectScopedProcedure
+          .input(projectScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
+      },
+    })
+
+    const caller = createCallerFactory(testRouter)(ctx)
+
+    await expect(caller.test.testProcedure({ project_id: "proj-123" })).rejects.toThrow(
+      expect.objectContaining({
         code: "UNAUTHORIZED",
-        message: expect.stringContaining("Failed to scope session to project"),
+      })
+    )
+  })
+
+  it("should throw NOT_FOUND when Keystone returns 401 but the base token is still valid", async () => {
+    // Keystone returns 401 for an unauthorized/nonexistent project scope even
+    // though the base token itself is valid. This must not be shown as a
+    // "session expired" error.
+    const ctx = createMockContext({ rescopeThrows: new SignalOpenstackApiError("Unauthorized", 401) })
+
+    const testRouter = auroraRouter({
+      test: {
+        testProcedure: projectScopedProcedure
+          .input(projectScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
+      },
+    })
+
+    const caller = createCallerFactory(testRouter)(ctx)
+
+    await expect(caller.test.testProcedure({ project_id: "does-not-exist" })).rejects.toThrow(
+      expect.objectContaining({
+        code: "NOT_FOUND",
+        message: expect.stringContaining("Project not found or not accessible"),
+      })
+    )
+  })
+
+  it("should throw UNAUTHORIZED when Keystone returns 401 and the base token is invalid", async () => {
+    // protectedProcedure rejects before rescoping when the base token is invalid.
+    const ctx = createMockContext({
+      rescopeThrows: new SignalOpenstackApiError("Unauthorized", 401),
+      invalidSession: true,
+    })
+
+    const testRouter = auroraRouter({
+      test: {
+        testProcedure: projectScopedProcedure
+          .input(projectScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
+      },
+    })
+
+    const caller = createCallerFactory(testRouter)(ctx)
+
+    await expect(caller.test.testProcedure({ project_id: "proj-123" })).rejects.toThrow(
+      expect.objectContaining({
+        code: "UNAUTHORIZED",
       })
     )
   })
@@ -348,7 +434,7 @@ describe("domainScopedProcedure", () => {
     )
   })
 
-  it("should throw UNAUTHORIZED when session rescoping fails", async () => {
+  it("should throw NOT_FOUND when rescoping returns null but the session is still valid", async () => {
     const ctx = createMockContext({
       availableDomains: [{ id: "domain-123", name: "Domain 123" }],
       rescopeFails: true,
@@ -368,8 +454,34 @@ describe("domainScopedProcedure", () => {
 
     await expect(caller.test.testProcedure({ domain_id: "domain-123" })).rejects.toThrow(
       expect.objectContaining({
-        code: "UNAUTHORIZED",
-        message: expect.stringContaining("Failed to scope session to domain"),
+        code: "NOT_FOUND",
+        message: expect.stringContaining("Domain not found or not accessible"),
+      })
+    )
+  })
+
+  it("should throw NOT_FOUND when Keystone returns 401 but the base token is still valid", async () => {
+    const ctx = createMockContext({
+      availableDomains: [{ id: "domain-123", name: "Domain 123" }],
+      rescopeThrows: new SignalOpenstackApiError("Unauthorized", 401),
+    })
+
+    const testRouter = auroraRouter({
+      test: {
+        testProcedure: domainScopedProcedure
+          .input(domainScopedInputSchema.extend({ otherField: z.string().optional() }))
+          .query(async () => {
+            return "success"
+          }),
+      },
+    })
+
+    const caller = createCallerFactory(testRouter)(ctx)
+
+    await expect(caller.test.testProcedure({ domain_id: "domain-123" })).rejects.toThrow(
+      expect.objectContaining({
+        code: "NOT_FOUND",
+        message: expect.stringContaining("Domain not found or not accessible"),
       })
     )
   })
