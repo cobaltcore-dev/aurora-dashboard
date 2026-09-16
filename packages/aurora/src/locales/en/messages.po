@@ -239,6 +239,9 @@ msgstr "1 hour"
 msgid "1 minute"
 msgstr "1 minute"
 
+msgid "2-50 characters."
+msgstr "2-50 characters."
+
 msgid "24 hours"
 msgstr "24 hours"
 
@@ -484,6 +487,9 @@ msgstr "Attaching Floating IP..."
 
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
+
+msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
+msgstr "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
 
 msgid "Back"
 msgstr "Back"
@@ -1046,6 +1052,9 @@ msgstr "Deactivated images cannot be used to launch instances."
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 msgstr "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 
+msgid "Defaults to 1."
+msgstr "Defaults to 1."
+
 msgid "Define permissions for this bucket. You may use one of the predefined templates."
 msgstr "Define permissions for this bucket. You may use one of the predefined templates."
 
@@ -1214,9 +1223,6 @@ msgstr "Discard"
 msgid "Disk"
 msgstr "Disk"
 
-msgid "Disk (GiB)"
-msgstr "Disk (GiB)"
-
 msgid "Disk Format"
 msgstr "Disk Format"
 
@@ -1268,8 +1274,26 @@ msgstr "Drop your image file here"
 msgid "e.g. .r:*,.rlistings"
 msgstr "e.g. .r:*,.rlistings"
 
+msgid "e.g. 1"
+msgstr "e.g. 1"
+
+msgid "e.g. 2"
+msgstr "e.g. 2"
+
+msgid "e.g. 20"
+msgstr "e.g. 20"
+
 msgid "e.g. 3600 (1 hour) or 604800 (7 days)"
 msgstr "e.g. 3600 (1 hour) or 604800 (7 days)"
+
+msgid "e.g. 40"
+msgstr "e.g. 40"
+
+msgid "e.g. 4096"
+msgstr "e.g. 4096"
+
+msgid "e.g. 512"
+msgstr "e.g. 512"
 
 msgid "e.g. allow-frontend-app"
 msgstr "e.g. allow-frontend-app"
@@ -1289,6 +1313,9 @@ msgstr "e.g. Etag, Content-Length"
 msgid "e.g. https://example.com or *"
 msgstr "e.g. https://example.com or *"
 
+msgid "e.g. m1.small"
+msgstr "e.g. m1.small"
+
 msgid "e.g. my-lifecycle-rule"
 msgstr "e.g. my-lifecycle-rule"
 
@@ -1297,6 +1324,12 @@ msgstr "e.g. production"
 
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "e.g. PROJECT_ID:USER_ID"
+
+msgid "e.g. Small Instance"
+msgstr "e.g. Small Instance"
+
+msgid "e.g. Small instance for testing"
+msgstr "e.g. Small instance for testing"
 
 msgid "e.g. Ubuntu 22.04 LTS"
 msgstr "e.g. Ubuntu 22.04 LTS"
@@ -1871,6 +1904,9 @@ msgstr "Flavor ID"
 msgid "Flavor ID is required and cannot be empty."
 msgstr "Flavor ID is required and cannot be empty."
 
+msgid "Flavor Information"
+msgstr "Flavor Information"
+
 msgid "Flavor Name"
 msgstr "Flavor Name"
 
@@ -2374,6 +2410,9 @@ msgstr "Min. Disk"
 
 msgid "Min. RAM"
 msgstr "Min. RAM"
+
+msgid "Minimum 128 MB."
+msgstr "Minimum 128 MB."
 
 msgid "Minimum Disk (GB)"
 msgstr "Minimum Disk (GB)"
