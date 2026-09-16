@@ -82,12 +82,18 @@ function RouteComponent() {
 
   const { data: permissionsData } = trpcReact.compute.canUser.useQuery({
     project_id: projectId,
-    permission: ["flavors:delete", "flavors:list_projects", "flavor_specs:create", "flavor_specs:delete"],
+    permission: [
+      "flavors:delete",
+      "flavors:add_project",
+      "flavors:remove_project",
+      "flavor_specs:create",
+      "flavor_specs:delete",
+    ],
   })
 
   const canDeleteFlavor = permissionsData?.[0] ?? false
-  const canManageAccess = permissionsData?.[1] ?? false
-  const canManageSpecs = (permissionsData?.[2] ?? false) || (permissionsData?.[3] ?? false)
+  const canManageAccess = (permissionsData?.[1] ?? false) || (permissionsData?.[2] ?? false)
+  const canManageSpecs = (permissionsData?.[3] ?? false) || (permissionsData?.[4] ?? false)
 
   const [specModalOpen, toggleSpecModal] = useModal()
   const [accessModalOpen, toggleAccessModal] = useModal()
@@ -179,18 +185,19 @@ function RouteComponent() {
   }
 
   const isPublicFlavor = flavor["os-flavor-access:is_public"] !== false
-  const hasMoreActions = canManageAccess || canDeleteFlavor || canManageSpecs
+  const hasPopupMenuItems = (canManageAccess && !isPublicFlavor) || canDeleteFlavor
+  const hasMoreActions = hasPopupMenuItems || canManageSpecs
 
   const headerActions = hasMoreActions ? (
     <Stack gap="0.5" alignment="center">
-      {(canManageAccess || canDeleteFlavor) && (
+      {hasPopupMenuItems && (
         <PopupMenu>
           <PopupMenuToggle as="div">
             <Button icon="moreVert" title={t`More Actions`} />
           </PopupMenuToggle>
           <PopupMenuOptions>
-            {canManageAccess && (
-              <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} disabled={isPublicFlavor} />
+            {canManageAccess && !isPublicFlavor && (
+              <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} />
             )}
             {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
           </PopupMenuOptions>

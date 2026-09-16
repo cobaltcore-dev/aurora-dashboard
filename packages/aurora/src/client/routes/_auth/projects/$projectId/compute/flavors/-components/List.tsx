@@ -51,15 +51,16 @@ const createPermissionsPromise = (client: TrpcClient, project: string) => {
       permission: [
         "flavors:create",
         "flavors:delete",
-        "flavors:list_projects",
+        "flavors:add_project",
+        "flavors:remove_project",
         "flavor_specs:create",
         "flavor_specs:delete",
       ],
     })
-    .then(([canCreate, canDelete, canManageAccess, canCreateSpecs, canDeleteSpecs]) => ({
+    .then(([canCreate, canDelete, canAddProject, canRemoveProject, canCreateSpecs, canDeleteSpecs]) => ({
       canCreate,
       canDelete,
-      canManageAccess,
+      canManageAccess: canAddProject || canRemoveProject,
       canManageSpecs: canCreateSpecs || canDeleteSpecs,
     }))
 }
