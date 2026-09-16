@@ -225,14 +225,8 @@ function ManageAccessModalInner({
           )}
 
           {canAdd && (
-            <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
-              <Button
-                label={t`Add Project`}
-                onClick={() => setIsAddingNew(true)}
-                variant="primary"
-                disabled={isAddingNew}
-                icon="addCircle"
-              />
+            <Stack direction="horizontal" className="mb-4 justify-end">
+              <Button label={t`Add Project`} onClick={() => setIsAddingNew(true)} disabled={isAddingNew} />
             </Stack>
           )}
 
