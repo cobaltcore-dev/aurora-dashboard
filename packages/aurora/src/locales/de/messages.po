@@ -2048,6 +2048,9 @@ msgstr "Mitmachen"
 msgid "Go to Home"
 msgstr ""
 
+msgid "Go to Project Home"
+msgstr ""
+
 msgid "Go to Projects"
 msgstr ""
 
@@ -2996,6 +2999,9 @@ msgstr "Wird entfernt..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reservierte Schlüssel: web-index, web-listings, quota-count, quota-bytes"
 
+msgid "Resource Not Found"
+msgstr ""
+
 msgid "Restore"
 msgstr ""
 
@@ -3571,6 +3577,9 @@ msgstr ""
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
+
+msgid "The Resource you are looking for does not exist or is not accessible."
+msgstr ""
 
 msgid "The selected images will be permanently deleted. This action cannot be undone."
 msgstr ""

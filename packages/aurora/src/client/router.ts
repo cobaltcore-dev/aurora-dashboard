@@ -2,6 +2,7 @@ import { createRouter } from "@tanstack/react-router"
 import { routeTree } from "./routeTree.gen"
 import type { TrpcReact, TrpcClient } from "./trpcClient"
 import type { ServiceExtension } from "./AuroraApp"
+import { ServiceLevelDefaultError } from "./components/Errors/ServiceLevelDefaultError"
 
 export function createAuroraRouter(
   trpcReact: TrpcReact,
@@ -10,6 +11,7 @@ export function createAuroraRouter(
 ) {
   return createRouter({
     routeTree,
+    defaultNotFoundComponent: ServiceLevelDefaultError,
     context: {
       trpcReact,
       trpcClient,
