@@ -6,6 +6,7 @@ import {
   PopupMenuToggle,
   PopupMenuOptions,
   PopupMenuItem,
+  PopupMenuSectionSeparator,
   Container,
   Status,
 } from "@cloudoperators/juno-ui-components/index"
@@ -205,7 +206,12 @@ function RouteComponent() {
             {canManageAccess && !isPublicFlavor && (
               <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} />
             )}
-            {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
+            {canDeleteFlavor && (
+              <>
+                <PopupMenuSectionSeparator />
+                <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />
+              </>
+            )}
           </PopupMenuOptions>
         </PopupMenu>
       )}
