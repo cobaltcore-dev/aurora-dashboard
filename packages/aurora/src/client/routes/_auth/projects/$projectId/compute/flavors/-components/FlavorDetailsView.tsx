@@ -1,8 +1,17 @@
-import { Stack, ContentHeading } from "@cloudoperators/juno-ui-components/index"
+import {
+  Stack,
+  ContentHeading,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+} from "@cloudoperators/juno-ui-components/index"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { Fragment } from "react"
 import type { Flavor } from "@/server/Compute/types/flavor"
 import ClipboardText from "@/client/components/ClipboardText"
 import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
+import { trpcReact } from "@/client/trpcClient"
+import { useParams } from "@tanstack/react-router"
 
 interface FlavorDetailsViewProps {
   flavor: Flavor
@@ -10,7 +19,18 @@ interface FlavorDetailsViewProps {
 
 export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
   const { t } = useLingui()
+  const { projectId } = useParams({ strict: false }) as { projectId: string }
   const formatWithUnit = (value: number, unit: string) => `${value} ${unit}`
+
+  const { data: extraSpecs } = trpcReact.compute.getExtraSpecs.useQuery(
+    {
+      project_id: projectId,
+      flavorId: flavor.id,
+    },
+    {
+      enabled: !!projectId && !!flavor.id,
+    }
+  )
 
   const basicInfoItems = [
     { label: t`ID`, value: <ClipboardText text={flavor.id} /> },
@@ -41,9 +61,7 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
     { label: t`RX/TX Factor`, value: flavor.rxtx_factor ?? "" },
   ]
 
-  const extraSpecItems = flavor.extra_specs
-    ? Object.entries(flavor.extra_specs).map(([key, value]) => ({ label: key, value }))
-    : []
+  const extraSpecItems = extraSpecs ? Object.entries(extraSpecs).map(([key, value]) => ({ label: key, value })) : []
 
   return (
     <Stack direction="vertical" gap="6" className="mt-6">
@@ -61,12 +79,21 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
         <TwoColumnDescriptionList items={hardwareSpecItems} />
       </Stack>
 
-      {flavor.extra_specs && Object.keys(flavor.extra_specs).length > 0 && (
+      {extraSpecs && Object.keys(extraSpecs).length > 0 && (
         <Stack direction="vertical" gap="2">
           <ContentHeading>
             <Trans>Extra Specs</Trans>
           </ContentHeading>
-          <TwoColumnDescriptionList items={extraSpecItems} />
+          <DescriptionList alignTerms="right" className="grid-cols-2">
+            {extraSpecItems.map(({ label, value }, index) => (
+              <Fragment key={`extra-${index}`}>
+                <DescriptionTerm className="col-span-1">{label}</DescriptionTerm>
+                <DescriptionDefinition className="col-span-1">
+                  <div className="truncate">{value}</div>
+                </DescriptionDefinition>
+              </Fragment>
+            ))}
+          </DescriptionList>
         </Stack>
       )}
     </Stack>

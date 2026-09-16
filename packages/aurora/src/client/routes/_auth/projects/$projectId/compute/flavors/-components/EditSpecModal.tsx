@@ -301,11 +301,11 @@ function EditSpecModalInner({
                 : t`No metadata properties found.`}
             </p>
           ) : (
-            <DescriptionList className="mb-6" alignTerms="left">
+            <DescriptionList className="mb-6 grid-cols-2" alignTerms="left">
               <>
                 {isAddingNew && (
                   <>
-                    <DescriptionTerm>
+                    <DescriptionTerm className="col-span-1">
                       <TextInput
                         value={newKey}
                         onChange={(e) => {
@@ -323,8 +323,8 @@ function EditSpecModalInner({
                         autoFocus
                       />
                     </DescriptionTerm>
-                    <DescriptionDefinition>
-                      <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+                    <DescriptionDefinition className="col-span-1">
+                      <Stack direction="horizontal" gap="2" alignment="center">
                         <TextInput
                           value={newValue}
                           onChange={(e) => {
@@ -339,8 +339,9 @@ function EditSpecModalInner({
                           }}
                           placeholder={t`Value`}
                           errortext={errors.newValue}
+                          className="flex-1"
                         />
-                        <Stack direction="horizontal" gap="2">
+                        <Stack direction="horizontal" gap="2" className="shrink-0">
                           <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
                           <Button
                             size="small"
@@ -359,7 +360,7 @@ function EditSpecModalInner({
               <>
                 {specs.map((entry, index) => (
                   <React.Fragment key={`${entry.originalKey}-${index}`}>
-                    <DescriptionTerm>
+                    <DescriptionTerm className="col-span-1">
                       {entry.isEditing ? (
                         <TextInput
                           value={entry.key}
@@ -372,15 +373,16 @@ function EditSpecModalInner({
                         </span>
                       )}
                     </DescriptionTerm>
-                    <DescriptionDefinition className="flex items-center justify-between gap-2">
+                    <DescriptionDefinition className="col-span-1 flex items-center gap-2">
                       {entry.isEditing ? (
                         <>
                           <TextInput
                             value={entry.value}
                             onChange={(e) => handleValueChange(index, e.target.value)}
                             errortext={errors[`edit-${index}`]}
+                            className="flex-1"
                           />
-                          <Stack direction="horizontal" gap="2">
+                          <Stack direction="horizontal" gap="2" className="shrink-0">
                             <Button
                               size="small"
                               variant="primary"
@@ -403,7 +405,7 @@ function EditSpecModalInner({
                             {entry.value}
                           </span>
                           {canEdit && (
-                            <Stack direction="horizontal" gap="2">
+                            <Stack direction="horizontal" gap="2" className="shrink-0">
                               <Button
                                 size="small"
                                 variant="subdued"
