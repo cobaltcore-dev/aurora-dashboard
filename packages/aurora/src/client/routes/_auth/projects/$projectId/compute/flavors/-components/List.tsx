@@ -211,10 +211,10 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
     options: [
       { label: t`Name`, value: "name" },
-      { label: t`VCPUs`, value: "vcpus" },
-      { label: t`RAM`, value: "ram" },
-      { label: t`Root Disk`, value: "disk" },
-      { label: t`Swap`, value: "swap" },
+      { label: t`vCPU`, value: "vcpus" },
+      { label: t`RAM (MiB)`, value: "ram" },
+      { label: t`Root Disk (GiB)`, value: "disk" },
+      { label: t`Swap (MiB)`, value: "swap" },
     ],
     sortBy: searchParams.sortBy || "name",
     sortDirection: searchParams.sortDirection || "asc",

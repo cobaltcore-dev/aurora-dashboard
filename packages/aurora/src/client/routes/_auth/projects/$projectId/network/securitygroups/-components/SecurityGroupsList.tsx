@@ -49,10 +49,7 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
   const searchParams = useSearch({ strict: false }) as SecurityGroupsSearchParams
 
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
-    options: [
-      { label: t`Name`, value: "name" },
-      { label: t`Project id`, value: "project_id" },
-    ],
+    options: [{ label: t`Name`, value: "name" }],
     sortBy: searchParams.sortBy || "name",
     sortDirection: searchParams.sortDirection || "asc",
   })

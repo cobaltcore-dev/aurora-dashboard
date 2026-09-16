@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { useRouteContext } from "@tanstack/react-router"
 
 interface UseModalTrackingOptions {
@@ -57,31 +57,31 @@ export const useModalTracking = ({ isOpen, actionPrefix }: UseModalTrackingOptio
    * Track close event if user didn't submit.
    * Call this at the start of your handleClose function.
    */
-  const trackClose = () => {
+  const trackClose = useCallback(() => {
     if (isOpen && !hasSubmitted.current) {
       onTrackEvent?.({
         source: "modal",
         action: `${actionPrefix}.close`,
       })
     }
-  }
+  }, [isOpen, onTrackEvent, actionPrefix])
 
   /**
    * Mark that the user submitted the form.
    * Call this in your handleSubmit function before the mutation.
    */
-  const markSubmitted = () => {
+  const markSubmitted = useCallback(() => {
     hasSubmitted.current = true
-  }
+  }, [])
 
   /**
    * Reset tracking state.
    * Call this in handleClose after tracking close event.
    */
-  const resetTracking = () => {
+  const resetTracking = useCallback(() => {
     hasSubmitted.current = false
     hasTrackedOpen.current = false
-  }
+  }, [])
 
   return {
     trackClose,

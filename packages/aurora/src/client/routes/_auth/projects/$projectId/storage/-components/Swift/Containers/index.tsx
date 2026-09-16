@@ -23,7 +23,7 @@ import { parseSwiftDate } from "@/client/utils/formatSwiftDate"
 import { ContainerTableView } from "./ContainerTableView"
 import {
   getContainerCreatedToast,
-  getContainerCreateErrorToast,
+  getContainerCreatedWithWarningToast,
   getContainerEmptiedToast,
   getContainerEmptyErrorToast,
   getContainerDeletedToast,
@@ -82,9 +82,9 @@ export const SwiftContainers = () => {
     toast.success(message, options)
   }
 
-  const handleCreateError = (containerName: string, errorMessage: string) => {
-    const { message, ...options } = getContainerCreateErrorToast(containerName, errorMessage)
-    toast.error(message, options)
+  const handleCreatePartialSuccess = (containerName: string, reason: string) => {
+    const { message, ...options } = getContainerCreatedWithWarningToast(containerName, reason)
+    toast.warning(message, options)
   }
 
   const handleEmptySuccess = (containerName: string, deletedCount: number) => {
@@ -152,7 +152,7 @@ export const SwiftContainers = () => {
 
   const sortSettings: SortSettings = {
     options: [
-      { label: t`Name`, value: "name" },
+      { label: t`Container Name`, value: "name" },
       { label: t`Object Count`, value: "count" },
       { label: t`Total Size`, value: "bytes" },
       { label: t`Last Modified`, value: "last_modified" },
@@ -420,8 +420,9 @@ export const SwiftContainers = () => {
         createModalOpen={createModalOpen}
         setCreateModalOpen={setCreateModalOpen}
         maxContainerNameLength={serviceInfo?.swift?.max_container_name_length}
+        existingContainers={containers}
         onCreateSuccess={handleCreateSuccess}
-        onCreateError={handleCreateError}
+        onCreatePartialSuccess={handleCreatePartialSuccess}
         onEmptySuccess={handleEmptySuccess}
         onEmptyError={handleEmptyError}
         onDeleteSuccess={handleDeleteSuccess}

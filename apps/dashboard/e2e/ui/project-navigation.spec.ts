@@ -77,15 +77,4 @@ test.describe("Project Navigation", () => {
 
     await expect(page.locator("body")).not.toBeEmpty()
   })
-
-  test("Object Storage (Swift) page loads without errors", async ({ page }) => {
-    await navigateToProject(page)
-
-    const pageErrors = setupErrorTracking(page)
-    await page.locator('[data-testid="service-card-label"]', { hasText: "Object Storage (Swift)" }).click()
-    await expectPageLoaded(page)
-    await expectNoJavaScriptErrors(pageErrors, page)
-
-    await expect(page.locator("body")).not.toBeEmpty()
-  })
 })

@@ -1,5 +1,5 @@
 import { createFileRoute, useLoaderData, useNavigate } from "@tanstack/react-router"
-import { Card, Icon, Stack } from "@cloudoperators/juno-ui-components"
+import { Card, Stack } from "@cloudoperators/juno-ui-components"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { Trans } from "@lingui/react/macro"
 import { useLingui } from "@lingui/react/macro"
@@ -35,10 +35,7 @@ function ServiceCard({ group, label, to, service }: ServiceCardProps) {
       data-testid="service-card"
     >
       <div className="flex min-w-0 flex-col">
-        <div className="flex items-center gap-1">
-          <p className="text-theme-light text-xs leading-5 font-medium">{group}</p>
-          <Icon icon="expandMore" size="16" className="text-theme-high" />
-        </div>
+        <p className="text-theme-light text-xs leading-5 font-medium">{group}</p>
         <div className="flex items-center gap-2">
           <p className="text-theme-high text-lg leading-7 font-bold" data-testid="service-card-label">
             {label}

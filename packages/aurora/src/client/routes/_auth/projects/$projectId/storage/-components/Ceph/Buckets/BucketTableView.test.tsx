@@ -97,7 +97,6 @@ const renderTableView = ({
   createModalOpen = false,
   setCreateModalOpen = vi.fn(),
   onCreateSuccess = vi.fn(),
-  onCreateError = vi.fn(),
   onEmptySuccess = vi.fn(),
   onEmptyError = vi.fn(),
   onDeleteSuccess = vi.fn(),
@@ -111,7 +110,6 @@ const renderTableView = ({
   createModalOpen: boolean
   setCreateModalOpen: (open: boolean) => void
   onCreateSuccess: (bucketName: string) => void
-  onCreateError: (bucketName: string, errorMessage: string) => void
   onEmptySuccess: (bucketName: string, deletedCount: number) => void
   onEmptyError: (bucketName: string, errorMessage: string) => void
   onDeleteSuccess: (bucketName: string) => void
@@ -129,7 +127,6 @@ const renderTableView = ({
           createModalOpen={createModalOpen}
           setCreateModalOpen={setCreateModalOpen}
           onCreateSuccess={onCreateSuccess}
-          onCreateError={onCreateError}
           onEmptySuccess={onEmptySuccess}
           onEmptyError={onEmptyError}
           onDeleteSuccess={onDeleteSuccess}
@@ -308,6 +305,12 @@ describe("BucketTableView", () => {
       expect(screen.getByTestId("bucket-row-bucket-1")).toBeInTheDocument()
       expect(screen.getByTestId("bucket-row-bucket-2")).toBeInTheDocument()
       expect(screen.getByTestId("bucket-row-bucket-3")).toBeInTheDocument()
+    })
+
+    test("row menu trigger is a button with accessible name 'Bucket actions'", () => {
+      renderTableView()
+      const toggle = screen.getByTestId("bucket-row-bucket-1").querySelector("button")
+      expect(toggle).toHaveAccessibleName("Bucket actions")
     })
 
     test("shows Empty Bucket and Delete Bucket when permitted", async () => {

@@ -402,8 +402,7 @@ export const Images = ({ client, project }: ImagesProps) => {
   const [sortSettings, setSortSettings] = useState<RequiredSortSettings>({
     options: [
       { label: t`Created At`, value: "created_at" },
-      { label: t`Updated At`, value: "updated_at" },
-      { label: t`Name`, value: "name" },
+      { label: t`Image Name`, value: "name" },
       { label: t`Size`, value: "size" },
       { label: t`Status`, value: "status" },
     ],

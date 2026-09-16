@@ -98,14 +98,14 @@ describe("EditImageMetadataModal", () => {
     renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
 
     await waitFor(() => {
-      expect(screen.getByText("Edit Image Metadata")).toBeDefined()
+      expect(screen.getByText("Edit Metadata")).toBeDefined()
     })
   })
 
   test("does not render when isOpen is false", () => {
     renderMetadataModal(false, mockOnClose, mockImage, mockOnSave)
 
-    expect(screen.queryByText("Edit Image Metadata")).toBeNull()
+    expect(screen.queryByText("Edit Metadata")).toBeNull()
   })
 
   test("displays custom metadata properties and excludes system properties", async () => {
@@ -361,16 +361,10 @@ describe("EditImageMetadataModal", () => {
     // Verify property exists
     expect(screen.getByText("os_version")).toBeInTheDocument()
 
-    // First click: shows confirm button
+    // Click delete button
     const deleteButton = screen.getByTestId("delete-os_version")
     await act(async () => {
       fireEvent.click(deleteButton)
-    })
-
-    // Second click: confirm deletion
-    const confirmButton = screen.getByTestId("confirm-delete-os_version")
-    await act(async () => {
-      fireEvent.click(confirmButton)
     })
 
     await waitFor(() => {
