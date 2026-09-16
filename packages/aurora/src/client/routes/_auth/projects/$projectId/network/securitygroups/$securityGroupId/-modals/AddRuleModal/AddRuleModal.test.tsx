@@ -141,7 +141,7 @@ describe("AddRuleModal", () => {
   })
 
   describe("Loading state", () => {
-    test("shows loading spinner when isLoading is true", () => {
+    test("shows loading state when isLoading is true", () => {
       renderModal({ isLoading: true })
       expect(screen.getByText(/Creating security group rule.../i)).toBeInTheDocument()
     })

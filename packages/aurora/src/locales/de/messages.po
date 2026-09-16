@@ -3836,6 +3836,9 @@ msgstr ""
 msgid "Unknown domain"
 msgstr ""
 
+msgid "Unknown error"
+msgstr ""
+
 msgid "Unnamed"
 msgstr "Unbenannt"
 

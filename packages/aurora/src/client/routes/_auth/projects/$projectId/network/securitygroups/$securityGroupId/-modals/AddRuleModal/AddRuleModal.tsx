@@ -10,6 +10,7 @@ import {
   Spinner,
   ModalFooter,
   Message,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import type { CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import { createRuleFormSchema } from "./validation/formSchema"
@@ -177,14 +178,7 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
         </Message>
       )}
 
-      {isLoading && (
-        <div className="mb-4 flex items-center justify-center gap-2">
-          <Spinner variant="primary" />
-          <span className="text-theme-secondary text-sm">
-            <Trans>Creating security group rule...</Trans>
-          </span>
-        </div>
-      )}
+      {isLoading && <Status status="progress" title={t`Creating security group rule...`} className="mt-0" />}
 
       <Form
         className="mb-6"

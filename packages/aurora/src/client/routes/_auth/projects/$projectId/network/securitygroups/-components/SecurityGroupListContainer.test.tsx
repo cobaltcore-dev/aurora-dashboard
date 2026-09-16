@@ -147,7 +147,7 @@ describe("SecurityGroupListContainer", () => {
   })
 
   describe("State rendering", () => {
-    it("renders loading spinner", async () => {
+    it("renders loading state", async () => {
       const router = createTestRouter(
         <SecurityGroupListContainer
           securityGroups={[]}

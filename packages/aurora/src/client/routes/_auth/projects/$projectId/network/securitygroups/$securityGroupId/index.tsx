@@ -210,32 +210,34 @@ function RouteComponent() {
 
   // Handle error state
   if (isError) {
-    const errorMessage = error?.message || "Unknown error"
+    const errorMessage = error?.message || t`Unknown error`
 
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-error font-semibold">
-          <Trans>Error loading security group</Trans>
-        </p>
-        <p className="text-theme-highest">{errorMessage}</p>
-        <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Security Groups</Trans>
-        </Button>
-      </Stack>
+      <Status
+        status="error"
+        title={t`Error loading security group`}
+        body={errorMessage}
+        action={
+          <Button onClick={handleBack} variant="primary">
+            <Trans>Back to Security Groups</Trans>
+          </Button>
+        }
+      />
     )
   }
 
   // Handle no data state
   if (!securityGroup) {
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-secondary">
-          <Trans>Security group not found</Trans>
-        </p>
-        <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Security Groups</Trans>
-        </Button>
-      </Stack>
+      <Status
+        status="empty"
+        title={t`Security group not found`}
+        action={
+          <Button onClick={handleBack} variant="primary">
+            <Trans>Back to Security Groups</Trans>
+          </Button>
+        }
+      />
     )
   }
 

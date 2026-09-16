@@ -3836,6 +3836,9 @@ msgstr "Unable to verify bucket versioning status. Please try again."
 msgid "Unknown domain"
 msgstr "Unknown domain"
 
+msgid "Unknown error"
+msgstr "Unknown error"
+
 msgid "Unnamed"
 msgstr "Unnamed"
 
