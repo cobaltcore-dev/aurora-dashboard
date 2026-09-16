@@ -197,6 +197,7 @@ function EditSpecModalInner({
 
       setSpecs(specs.filter((_, i) => i !== index))
       setErrors({})
+      setValidationMessage(null)
 
       toast.success(t`Property Deleted`, {
         description: t`Property was successfully deleted.`,
@@ -396,6 +397,7 @@ function EditSpecModalInner({
                               icon="deleteForever"
                               data-testid={`delete-${entry.key}`}
                               title={t`Delete`}
+                              aria-label={t`Delete`}
                               disabled={isModalDisabled}
                             />
                           </Stack>
