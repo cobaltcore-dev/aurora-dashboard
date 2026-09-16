@@ -101,7 +101,7 @@ describe("FlavorDetailsView", () => {
 
     render(
       <TestingProvider>
-        <FlavorDetailsView flavor={baseFlavor} />
+        <FlavorDetailsView flavor={baseFlavor} canListSpecs={true} />
       </TestingProvider>
     )
 
@@ -124,40 +124,55 @@ describe("FlavorDetailsView", () => {
     expect(screen.queryByText("Metadata")).not.toBeInTheDocument()
   })
 
-  it("does not render metadata section when specs are undefined", () => {
+  it("does not render metadata section when canListSpecs is false", () => {
     mockUseQueryReturn = { data: undefined }
 
     render(
       <TestingProvider>
-        <FlavorDetailsView flavor={baseFlavor} />
+        <FlavorDetailsView flavor={baseFlavor} canListSpecs={false} />
       </TestingProvider>
     )
 
     expect(screen.queryByText("Metadata")).not.toBeInTheDocument()
   })
 
-  it("does not render metadata section while loading", () => {
+  it("renders metadata heading and empty state when specs are empty", () => {
+    mockUseQueryReturn = { data: {} }
+
+    render(
+      <TestingProvider>
+        <FlavorDetailsView flavor={baseFlavor} canListSpecs={true} />
+      </TestingProvider>
+    )
+
+    expect(screen.getByText("Metadata")).toBeInTheDocument()
+    // Should show no-matches status for empty specs
+  })
+
+  it("renders metadata heading and loading state while loading", () => {
     mockUseQueryReturn = { isLoading: true, data: undefined }
 
     render(
       <TestingProvider>
-        <FlavorDetailsView flavor={baseFlavor} />
+        <FlavorDetailsView flavor={baseFlavor} canListSpecs={true} />
       </TestingProvider>
     )
 
-    expect(screen.queryByText("Metadata")).not.toBeInTheDocument()
+    expect(screen.getByText("Metadata")).toBeInTheDocument()
+    // Should show progress status
   })
 
-  it("does not render metadata section on query error", () => {
+  it("renders metadata heading and error state on query error", () => {
     mockUseQueryReturn = { error: new Error("Failed to load"), data: undefined }
 
     render(
       <TestingProvider>
-        <FlavorDetailsView flavor={baseFlavor} />
+        <FlavorDetailsView flavor={baseFlavor} canListSpecs={true} />
       </TestingProvider>
     )
 
-    expect(screen.queryByText("Metadata")).not.toBeInTheDocument()
+    expect(screen.getByText("Metadata")).toBeInTheDocument()
+    // Should show error status
   })
 
   it("handles zero disk values", () => {

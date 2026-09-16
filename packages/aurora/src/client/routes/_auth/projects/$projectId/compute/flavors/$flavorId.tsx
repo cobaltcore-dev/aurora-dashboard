@@ -195,7 +195,8 @@ function RouteComponent() {
 
   const isPublicFlavor = flavor["os-flavor-access:is_public"] !== false
   const hasPopupMenuItems = (canManageAccess && !isPublicFlavor) || canDeleteFlavor
-  const hasMoreActions = hasPopupMenuItems || canManageSpecs
+  const canEditMetadata = canManageSpecs && canListSpecs
+  const hasMoreActions = hasPopupMenuItems || canEditMetadata
 
   const headerActions = hasMoreActions ? (
     <Stack gap="0.5" alignment="center">
@@ -217,7 +218,7 @@ function RouteComponent() {
           </PopupMenuOptions>
         </PopupMenu>
       )}
-      {canManageSpecs && (
+      {canEditMetadata && (
         <Button variant="primary" onClick={toggleSpecModal}>
           <Trans>Edit Metadata</Trans>
         </Button>

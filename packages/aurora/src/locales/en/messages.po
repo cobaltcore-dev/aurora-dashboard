@@ -647,6 +647,9 @@ msgstr "CIDR"
 msgid "Clear all"
 msgstr "Clear all"
 
+msgid "Click \"Add Property\" to create one."
+msgstr "Click \"Add Property\" to create one."
+
 msgid "Click the button below to automatically generate credentials for this project. You only need to do this once."
 msgstr "Click the button below to automatically generate credentials for this project. You only need to do this once."
 
@@ -1637,9 +1640,6 @@ msgstr "Failed to delete policy"
 msgid "Failed to Delete Policy"
 msgstr "Failed to Delete Policy"
 
-msgid "Failed to Delete Property"
-msgstr "Failed to Delete Property"
-
 msgid "Failed to delete rule"
 msgstr "Failed to delete rule"
 
@@ -1825,9 +1825,6 @@ msgstr "Failed to Update Object"
 
 msgid "Failed to update object: {mutationErrorMessage}"
 msgstr "Failed to update object: {mutationErrorMessage}"
-
-msgid "Failed to Update Property"
-msgstr "Failed to Update Property"
 
 msgid "Failed to update security group"
 msgstr "Failed to update security group"
@@ -2513,8 +2510,11 @@ msgstr "No lifecycle rules matching the current search criteria."
 msgid "No limit"
 msgstr "No limit"
 
-msgid "No metadata properties found. Click \"Add Property\" to create one."
-msgstr "No metadata properties found. Click \"Add Property\" to create one."
+msgid "No metadata properties found"
+msgstr "No metadata properties found"
+
+msgid "No metadata properties found."
+msgstr "No metadata properties found."
 
 msgid "No new versions will be created"
 msgstr "No new versions will be created"

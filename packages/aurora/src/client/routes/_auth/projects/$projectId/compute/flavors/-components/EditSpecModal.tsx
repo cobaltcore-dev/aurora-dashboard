@@ -12,6 +12,7 @@ import {
   DescriptionDefinition,
   TextInput,
   Message,
+  Status,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
@@ -169,9 +170,7 @@ function EditSpecModalInner({
       })
     } catch (error) {
       const errorMsg = translateError(error instanceof Error ? error.message : "Failed to update property")
-      toast.error(t`Failed to Update Property`, {
-        description: errorMsg,
-      })
+      setValidationMessage(errorMsg)
     } finally {
       setOperationInProgress(false)
     }
@@ -204,9 +203,7 @@ function EditSpecModalInner({
       })
     } catch (error) {
       const errorMsg = translateError(error instanceof Error ? error.message : "Failed to delete property")
-      toast.error(t`Failed to Delete Property`, {
-        description: errorMsg,
-      })
+      setValidationMessage(errorMsg)
     } finally {
       setOperationInProgress(false)
     }
@@ -257,9 +254,11 @@ function EditSpecModalInner({
           </Stack>
 
           {specs.length === 0 && !isAddingNew ? (
-            <p className="jn:text-theme-light py-8 text-center">
-              {t`No metadata properties found. Click "Add Property" to create one.`}
-            </p>
+            <Status
+              status="empty"
+              title={t`No metadata properties found`}
+              body={t`Click "Add Property" to create one.`}
+            />
           ) : (
             <DescriptionList className="mb-6 grid-cols-2" alignTerms="left">
               <>

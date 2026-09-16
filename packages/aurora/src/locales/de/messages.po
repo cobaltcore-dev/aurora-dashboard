@@ -647,6 +647,9 @@ msgstr "CIDR"
 msgid "Clear all"
 msgstr "Alle Filter löschen"
 
+msgid "Click \"Add Property\" to create one."
+msgstr ""
+
 msgid "Click the button below to automatically generate credentials for this project. You only need to do this once."
 msgstr ""
 
@@ -1637,9 +1640,6 @@ msgstr ""
 msgid "Failed to Delete Policy"
 msgstr ""
 
-msgid "Failed to Delete Property"
-msgstr ""
-
 msgid "Failed to delete rule"
 msgstr ""
 
@@ -1825,9 +1825,6 @@ msgstr "Fehler beim Aktualisieren des Objekts"
 
 msgid "Failed to update object: {mutationErrorMessage}"
 msgstr "Fehler beim Aktualisieren des Objekts: {mutationErrorMessage}"
-
-msgid "Failed to Update Property"
-msgstr ""
 
 msgid "Failed to update security group"
 msgstr "Security Group konnte nicht aktualisiert werden"
@@ -2513,8 +2510,11 @@ msgstr ""
 msgid "No limit"
 msgstr "Kein Limit"
 
-msgid "No metadata properties found. Click \"Add Property\" to create one."
-msgstr "Keine Metadaten-Eigenschaften gefunden. Klicken Sie auf \"Eigenschaft hinzufügen\", um eine zu erstellen."
+msgid "No metadata properties found"
+msgstr ""
+
+msgid "No metadata properties found."
+msgstr ""
 
 msgid "No new versions will be created"
 msgstr ""

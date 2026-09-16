@@ -125,7 +125,7 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
               ))}
             </DescriptionList>
           ) : (
-            <Status status="no-matches" />
+            <Status status="empty" title={t`No metadata properties found.`} />
           )}
         </Stack>
       )}
