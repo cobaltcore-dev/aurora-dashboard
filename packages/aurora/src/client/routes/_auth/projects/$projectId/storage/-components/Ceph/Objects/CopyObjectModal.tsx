@@ -293,7 +293,7 @@ export const CopyObjectModal = ({
       disableConfirmButton={isPending || isLoadingBuckets || isUnchanged}
     >
       {isPending ? (
-        <Status status="progress" title={t`Copying object...`} />
+        <Status status="progress" title={t`Copying Object...`} />
       ) : (
         <Stack direction="vertical" gap="4">
           {/* Target bucket — ComboBox with debounced search */}

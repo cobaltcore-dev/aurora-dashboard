@@ -540,7 +540,7 @@ describe("CopyObjectModal", () => {
       trpcState.copyIsPending = true
       renderModal()
       // Pending state renders a Status progress view instead of the form
-      expect(screen.getByText(/Copying object\.\.\./i)).toBeInTheDocument()
+      expect(screen.getByText(/Copying Object\.\.\./i)).toBeInTheDocument()
     })
   })
 

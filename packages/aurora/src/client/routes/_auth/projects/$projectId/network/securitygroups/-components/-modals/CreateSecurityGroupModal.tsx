@@ -134,7 +134,7 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
         </Message>
       )}
 
-      {isLoading && <Status status="progress" title={t`Creating security group...`} className="mt-0" />}
+      {isLoading && <Status status="progress" title={t`Creating Security Group...`} className="mt-0" />}
 
       {!isLoading && (
         <Form className="mb-6">

@@ -42,7 +42,7 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
       disableConfirmButton={isLoading}
     >
       {isLoading ? (
-        <Status status="progress" title={t`Activating images...`} className="mt-0" />
+        <Status status="progress" title={t`Activating Images...`} className="mt-0" />
       ) : (
         <div className="my-6">
           {deactivatedCount > 0 && (

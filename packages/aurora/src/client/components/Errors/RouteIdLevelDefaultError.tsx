@@ -35,7 +35,7 @@ export const RouteIdLevelDefaultError = ({ errorTitle, errorDescription, action 
       action={
         action ?? (
           <Button variant="primary" onClick={navigateToProjectId}>
-            {t`Go to Project Home`}
+            {projectId ? t`Go to Project Home` : t`Go to Home`}
           </Button>
         )
       }

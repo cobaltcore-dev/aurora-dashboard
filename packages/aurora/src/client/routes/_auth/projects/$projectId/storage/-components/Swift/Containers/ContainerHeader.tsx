@@ -113,7 +113,7 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
       {containerInfoError && (
         <Status
           status="error"
-          title={t`Failed to load container information`}
+          title={t`Failed to Load Container Information`}
           body={containerInfoError.message}
           className="mb-4"
         />

@@ -178,7 +178,7 @@ export const AddRuleModal: React.FC<AddRuleModalProps> = ({
         </Message>
       )}
 
-      {isLoading && <Status status="progress" title={t`Creating security group rule...`} className="mt-0" />}
+      {isLoading && <Status status="progress" title={t`Creating Security Group Rule...`} className="mt-0" />}
 
       <Form
         className="mb-6"

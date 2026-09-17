@@ -222,7 +222,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
       disableConfirmButton={isLoading || isSubmitDisabled}
     >
       {isLoading ? (
-        <Status status="progress" title={t`Saving image details...`} className="mt-0" />
+        <Status status="progress" title={t`Saving Image Details...`} className="mt-0" />
       ) : (
         <Form>
           {/* Basic Metadata Section */}

@@ -155,7 +155,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Create New Flavor`}
     >
-      {isLoading && <Status status="progress" title={t`Creating flavor...`} className="mt-0" />}
+      {isLoading && <Status status="progress" title={t`Creating Flavor...`} className="mt-0" />}
       {!isLoading && (
         <Form>
           {generalError && (

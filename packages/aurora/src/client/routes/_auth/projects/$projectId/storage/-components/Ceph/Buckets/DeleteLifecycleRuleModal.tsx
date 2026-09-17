@@ -183,11 +183,11 @@ export const DeleteLifecycleRuleModal = ({
       closeOnEsc={!(isMutating || isVerifying)}
     >
       {isLoading ? (
-        <Status status="progress" title={t`Loading lifecycle configuration...`} className="mt-0" />
+        <Status status="progress" title={t`Loading Lifecycle Configuration...`} className="mt-0" />
       ) : queryError ? (
         <Status
           status="error"
-          title={t`Failed to load lifecycle configuration`}
+          title={t`Failed to Load Lifecycle Configuration`}
           body={queryError.message}
           className="mt-0"
         />

@@ -203,7 +203,7 @@ describe("EditObjectMetadataModal", () => {
     test("shows loading state while fetching metadata", () => {
       metadataLoading = true
       renderModal()
-      expect(screen.getByText(/Loading object properties/i)).toBeInTheDocument()
+      expect(screen.getByText(/Loading Object Properties/i)).toBeInTheDocument()
     })
 
     test("Update object button is disabled while loading", () => {
@@ -219,7 +219,7 @@ describe("EditObjectMetadataModal", () => {
     test("shows error message when metadata fetch fails", () => {
       metadataError = { message: "Not found" }
       renderModal()
-      expect(screen.getByText(/Failed to load object metadata/i)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Load Object Metadata/i)).toBeInTheDocument()
       expect(screen.getByText(/Not found/)).toBeInTheDocument()
     })
   })

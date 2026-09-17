@@ -298,7 +298,7 @@ describe("CephBuckets (index)", () => {
       trpcState.error = { message: "Network error" }
       trpcState.buckets = undefined
       renderBuckets()
-      expect(screen.getByText(/Failed to load buckets/i)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Load Buckets/i)).toBeInTheDocument()
       expect(screen.getByText(/Network error/i)).toBeInTheDocument()
     })
 

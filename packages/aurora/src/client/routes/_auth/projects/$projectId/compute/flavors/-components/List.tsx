@@ -306,7 +306,7 @@ export const Flavors = ({ client, project }: FlavorsProps) => {
         fallbackRender={({ error }) => (
           <Status
             status="error"
-            title={t`Failed to load Flavors`}
+            title={t`Failed to Load Flavors`}
             body={error instanceof Error ? error.message : t`An unexpected error occurred.`}
           />
         )}

@@ -153,7 +153,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
             <p className="text-theme-error">
               {(() => {
                 const errorMessage = objectsError.message
-                return <Trans>Failed to load container objects: {errorMessage}</Trans>
+                return <Trans>Failed to Load Container Objects: {errorMessage}</Trans>
               })()}
             </p>
           )}
@@ -161,7 +161,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
             <p className="text-theme-error">
               {(() => {
                 const errorMessage = metaError.message
-                return <Trans>Failed to load container properties: {errorMessage}</Trans>
+                return <Trans>Failed to Load Container Properties: {errorMessage}</Trans>
               })()}
             </p>
           )}

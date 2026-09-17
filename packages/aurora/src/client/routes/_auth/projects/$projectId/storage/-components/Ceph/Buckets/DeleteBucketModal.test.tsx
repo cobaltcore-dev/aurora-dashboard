@@ -244,9 +244,9 @@ describe("DeleteBucketModal", () => {
       mockState.isLoading = true
       renderModal()
 
-      expect(screen.getByText(/Checking bucket contents.../)).toBeInTheDocument()
+      expect(screen.getByText(/Checking Bucket Contents.../)).toBeInTheDocument()
       // Status progress view is present in the DOM
-      const spinnerContainer = screen.getByText(/Checking bucket contents.../).closest(".juno-stack")
+      const spinnerContainer = screen.getByText(/Checking Bucket Contents.../).closest(".juno-stack")
       expect(spinnerContainer).toBeInTheDocument()
     })
 
@@ -401,7 +401,7 @@ describe("DeleteBucketModal", () => {
       mockState.objectsError = "Failed to fetch objects"
       renderModal()
 
-      expect(screen.getByText(/Failed to check bucket contents/)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Check Bucket Contents/)).toBeInTheDocument()
       expect(screen.getByText(/Failed to fetch objects/)).toBeInTheDocument()
     })
 

@@ -136,7 +136,7 @@ export const EmptyContainersModal = ({ isOpen, containers, onClose, onComplete }
         <Status
           status="progress"
           title={
-            progress ? t`Emptying container ${progressCurrent} of ${progressTotal}, please wait...` : t`Emptying...`
+            progress ? t`Emptying Container ${progressCurrent} of ${progressTotal}, Please Wait...` : t`Emptying...`
           }
           className="mt-0"
         />

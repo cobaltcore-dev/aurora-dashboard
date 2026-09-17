@@ -83,11 +83,11 @@ function RouteComponent() {
 
   // Error state
   if (isError || !floatingIp) {
-    const errorMessage = error?.message || t`Error loading floating IP`
+    const errorMessage = error?.message || t`Error Loading Floating IP`
     return (
       <Status
         status="error"
-        title={isError ? errorMessage : t`Floating IP not found`}
+        title={isError ? errorMessage : t`Floating IP Not Found`}
         action={
           <Button onClick={handleBack} variant="primary">
             <Trans>Back to Floating IPs</Trans>

@@ -147,12 +147,12 @@ export const EmptyContainerModal = ({ isOpen, container, onClose, onSuccess, onE
         <p className="text-theme-error mb-4">
           {(() => {
             const errorMessage = objectsError.message
-            return <Trans>Failed to load container objects: {errorMessage}</Trans>
+            return <Trans>Failed to Load Container Objects: {errorMessage}</Trans>
           })()}
         </p>
       )}
       {isLoadingObjects ? (
-        <Status status="progress" title={t`Loading objects...`} className="mt-0" />
+        <Status status="progress" title={t`Loading Objects...`} className="mt-0" />
       ) : showEmptyInfo && !objectsError ? (
         // ── Case 2 & 3 ──────────────────────────────────────────────────────
         <p className="text-theme-default py-2">

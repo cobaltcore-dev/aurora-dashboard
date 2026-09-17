@@ -210,12 +210,12 @@ function RouteComponent() {
 
   // Handle error state
   if (isError) {
-    const errorMessage = error?.message || t`Unknown error`
+    const errorMessage = error?.message || t`Unknown Error`
 
     return (
       <Status
         status="error"
-        title={t`Error loading security group`}
+        title={t`Error Loading Security Group`}
         body={errorMessage}
         action={
           <Button onClick={handleBack} variant="primary">
@@ -231,7 +231,7 @@ function RouteComponent() {
     return (
       <Status
         status="empty"
-        title={t`Security group not found`}
+        title={t`Security Group Not Found`}
         action={
           <Button onClick={handleBack} variant="primary">
             <Trans>Back to Security Groups</Trans>

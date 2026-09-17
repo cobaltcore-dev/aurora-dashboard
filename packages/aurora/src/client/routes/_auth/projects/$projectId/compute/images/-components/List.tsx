@@ -668,8 +668,8 @@ export const Images = ({ client, project }: ImagesProps) => {
         fallbackRender={({ error }) => (
           <Status
             status="error"
-            title={t`Failed to load Images`}
-            body={error instanceof Error ? error.message : t`An unexpected error occurred.`}
+            title={t`Failed to Load Images`}
+            body={error instanceof Error ? error.message : t`An Unexpected Error Occurred.`}
           />
         )}
       >

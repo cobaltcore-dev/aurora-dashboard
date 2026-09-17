@@ -302,7 +302,7 @@ export const MoveObjectModal = ({
       disableConfirmButton={isPending || isLoadingBuckets || isUnchanged}
     >
       {isPending ? (
-        <Status status="progress" title={t`Moving object...`} className="mt-0" />
+        <Status status="progress" title={t`Moving Object...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
           {/* New object name */}

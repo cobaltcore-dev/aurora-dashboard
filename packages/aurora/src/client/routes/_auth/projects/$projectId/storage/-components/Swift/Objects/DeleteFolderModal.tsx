@@ -98,7 +98,7 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
       disableConfirmButton={deleteFolderMutation.isPending || !isConfirmed}
     >
       {deleteFolderMutation.isPending ? (
-        <Status status="progress" title={t`Deleting folder and all its contents...`} className="mt-0" />
+        <Status status="progress" title={t`Deleting Folder and all its contents...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">

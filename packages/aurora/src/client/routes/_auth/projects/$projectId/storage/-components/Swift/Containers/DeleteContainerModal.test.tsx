@@ -514,7 +514,7 @@ describe("DeleteContainerModal", () => {
       listObjectsError = { message: "Resource not found container: my-container" }
       renderModal()
       expect(
-        screen.getByText(/Failed to load container objects: Resource not found container: my-container/i)
+        screen.getByText(/Failed to Load Container Objects: Resource not found container: my-container/i)
       ).toBeInTheDocument()
     })
 
@@ -522,7 +522,7 @@ describe("DeleteContainerModal", () => {
       mockContainerMetadataError = { message: "Resource not found container: my-container" }
       renderModal()
       expect(
-        screen.getByText(/Failed to load container properties: Resource not found container: my-container/i)
+        screen.getByText(/Failed to Load Container Properties: Resource not found container: my-container/i)
       ).toBeInTheDocument()
     })
 
@@ -530,8 +530,8 @@ describe("DeleteContainerModal", () => {
       listObjectsError = { message: "Objects error" }
       mockContainerMetadataError = { message: "Metadata error" }
       renderModal()
-      expect(screen.getByText(/Failed to load container objects: Objects error/i)).toBeInTheDocument()
-      expect(screen.getByText(/Failed to load container properties: Metadata error/i)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Load Container Objects: Objects error/i)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Load Container Properties: Metadata error/i)).toBeInTheDocument()
     })
 
     test("still renders modal content below error banners", () => {

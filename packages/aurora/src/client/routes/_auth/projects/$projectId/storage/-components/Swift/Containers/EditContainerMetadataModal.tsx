@@ -454,12 +454,12 @@ export const EditContainerMetadataModal = ({
         </p>
       )}
       {isLoading ? (
-        <Status status="progress" title={t`Loading container properties...`} className="mt-0" />
+        <Status status="progress" title={t`Loading Container Properties...`} className="mt-0" />
       ) : isMetaFailed ? (
         <Status
           status="error"
-          title={t`Failed to load container properties`}
-          body={metaError?.message ?? t`Unknown error`}
+          title={t`Failed to Load Container Properties`}
+          body={metaError?.message ?? t`Unknown Error`}
           className="mt-0"
         />
       ) : (

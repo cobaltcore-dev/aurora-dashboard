@@ -201,7 +201,7 @@ describe("CorsRulesTab", () => {
 
     render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
 
-    expect(screen.getByText(/Failed to load CORS configuration/i)).toBeInTheDocument()
+    expect(screen.getByText(/Failed to Load CORS Configuration/i)).toBeInTheDocument()
     expect(screen.getByText("Network error")).toBeInTheDocument()
   })
 

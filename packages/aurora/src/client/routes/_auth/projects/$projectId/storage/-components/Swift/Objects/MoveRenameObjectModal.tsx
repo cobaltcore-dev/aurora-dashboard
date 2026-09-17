@@ -367,7 +367,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
     >
       {isPending ? (
-        <Status status="progress" title={t`Moving object...`} className="mt-0" />
+        <Status status="progress" title={t`Moving Object...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
           {(copyMutation.isError || deleteMutation.isError) &&
@@ -411,7 +411,7 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
             onInputChange={handleContainerSearch}
             placeholder={t`Type to search containers...`}
             helptext={(() => {
-              if (isLoadingContainers) return t`Loading containers...`
+              if (isLoadingContainers) return t`Loading Containers...`
               if (containerSearch.trim().length === 0) return t`Start typing to search for a container`
               if (hiddenCount > 0) {
                 const maxOptions = MAX_COMBO_OPTIONS

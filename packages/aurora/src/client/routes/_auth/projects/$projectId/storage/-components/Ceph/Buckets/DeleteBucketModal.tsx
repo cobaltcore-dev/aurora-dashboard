@@ -165,11 +165,11 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
     >
       <Stack direction="vertical" gap="6">
         {objectsError && (
-          <Status status="error" title={t`Failed to check bucket contents`} body={errorMessage} className="mt-0" />
+          <Status status="error" title={t`Failed to Check Bucket Contents`} body={errorMessage} className="mt-0" />
         )}
 
         {isLoading ? (
-          <Status status="progress" title={t`Checking bucket contents...`} className="mt-0" />
+          <Status status="progress" title={t`Checking Bucket Contents...`} className="mt-0" />
         ) : cannotDelete ? (
           <div className="text-theme-default">
             <p className="mb-4">

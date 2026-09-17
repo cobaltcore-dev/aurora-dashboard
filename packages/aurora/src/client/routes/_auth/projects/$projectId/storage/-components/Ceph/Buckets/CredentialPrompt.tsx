@@ -47,7 +47,7 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
         <Status
           status="error"
           title={t`Could not check permissions`}
-          body={t`We couldn't verify whether you can create S3 credentials. Please reload the page or try again later.`}
+          body={t`Could not verify whether you can create S3 credentials. Reload the page or try again later.`}
         />
       ) : permissions.canCreateCredential ? (
         <div>

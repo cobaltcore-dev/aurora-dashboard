@@ -191,14 +191,14 @@ export const CorsRuleModal = ({
         </ModalFooter>
       }
     >
-      {isCorsLoading && <Status status="progress" title={t`Loading CORS configuration...`} className="mt-0" />}
+      {isCorsLoading && <Status status="progress" title={t`Loading CORS Configuration...`} className="mt-0" />}
 
       {corsError && (
-        <Status status="error" title={t`Failed to load CORS configuration`} body={corsError.message} className="mt-0" />
+        <Status status="error" title={t`Failed to Load CORS Configuration`} body={corsError.message} className="mt-0" />
       )}
 
       {setMutation.isError && (
-        <Message variant="error" title={t`Failed to save CORS rule`}>
+        <Message variant="error" title={t`Failed to Save CORS Rule`}>
           {setMutation.error?.message}
         </Message>
       )}

@@ -75,7 +75,7 @@ describe("CreateSecurityGroupModal", () => {
   describe("Loading state", () => {
     test("shows loading state when isLoading is true", () => {
       renderModal({ isLoading: true })
-      expect(screen.getByText(/Creating security group.../i)).toBeInTheDocument()
+      expect(screen.getByText(/Creating Security Group.../i)).toBeInTheDocument()
     })
 
     test("disables buttons when isLoading is true", () => {

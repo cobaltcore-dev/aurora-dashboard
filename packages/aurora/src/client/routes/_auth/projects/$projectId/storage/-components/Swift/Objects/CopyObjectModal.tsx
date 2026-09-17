@@ -314,7 +314,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
     >
       {isPending ? (
-        <Status status="progress" title={t`Copying object...`} className="mt-0" />
+        <Status status="progress" title={t`Copying Object...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
           {copyMutation.isError &&
@@ -335,7 +335,7 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
             onInputChange={handleContainerSearch}
             placeholder={t`Type to search containers...`}
             helptext={(() => {
-              if (isLoadingContainers) return t`Loading containers...`
+              if (isLoadingContainers) return t`Loading Containers...`
               if (containerSearch.trim().length === 0) return t`Start typing to search for a container`
               if (hiddenCount > 0) {
                 const maxOptions = MAX_COMBO_OPTIONS

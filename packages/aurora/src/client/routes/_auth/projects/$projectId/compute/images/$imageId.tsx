@@ -326,11 +326,11 @@ function RouteComponent() {
 
   // Handle error state
   if (status === "error") {
-    const errorMessage = error?.message || t`Unknown error`
+    const errorMessage = error?.message || t`Unknown Error`
 
     return (
       <RouteIdLevelDefaultError
-        errorTitle={t`Error loading image`}
+        errorTitle={t`Error Loading Image`}
         errorDescription={errorMessage}
         action={
           <Button onClick={handleBack} variant="primary">

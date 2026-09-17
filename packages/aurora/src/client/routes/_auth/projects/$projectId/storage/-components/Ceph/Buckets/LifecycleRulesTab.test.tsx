@@ -170,7 +170,7 @@ describe("LifecycleRulesTab", () => {
 
     render(<LifecycleRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
 
-    expect(screen.getByText(/Failed to load lifecycle configuration/i)).toBeInTheDocument()
+    expect(screen.getByText(/Failed to Load Lifecycle Configuration/i)).toBeInTheDocument()
     expect(screen.getByText("Network error")).toBeInTheDocument()
   })
 

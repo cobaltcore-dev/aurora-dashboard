@@ -46,7 +46,7 @@ export const ActivateImageModal: React.FC<ActivateImageModalProps> = ({
       disableConfirmButton={isLoading}
     >
       {isLoading ? (
-        <Status status="progress" title={t`Activating image...`} className="mt-0" />
+        <Status status="progress" title={t`Activating Image...`} className="mt-0" />
       ) : (
         <>
           <p className="mb-4">{t`Activating this image will allow it to be used to launch new instances again.`}</p>

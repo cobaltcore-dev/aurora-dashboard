@@ -273,38 +273,38 @@ describe("AllocateFloatingIpModal", () => {
   describe("Query error handling", () => {
     it("displays error message from external networks query", () => {
       vi.mocked(trpcReact.network.floatingIp.listExternalNetworks.useQuery).mockReturnValue(
-        createMockQueryResult({ error: { message: "Failed to load networks" } }) as ReturnType<
+        createMockQueryResult({ error: { message: "Failed to Load Networks" } }) as ReturnType<
           typeof trpcReact.network.floatingIp.listExternalNetworks.useQuery
         >
       )
 
       render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
-      expect(screen.getByText("Failed to load networks")).toBeInTheDocument()
+      expect(screen.getByText("Failed to Load Networks")).toBeInTheDocument()
     })
 
     it("displays error message from DNS domains query", () => {
       vi.mocked(trpcReact.network.floatingIp.listDnsDomains.useQuery).mockReturnValue(
-        createMockQueryResult({ error: { message: "Failed to load DNS domains" } }) as ReturnType<
+        createMockQueryResult({ error: { message: "Failed to Load DNS Domains" } }) as ReturnType<
           typeof trpcReact.network.floatingIp.listDnsDomains.useQuery
         >
       )
 
       render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
-      expect(screen.getByText("Failed to load DNS domains")).toBeInTheDocument()
+      expect(screen.getByText("Failed to Load DNS Domains")).toBeInTheDocument()
     })
 
     it("displays error message from ports query", () => {
       vi.mocked(trpcReact.network.floatingIp.listAvailablePorts.useQuery).mockReturnValue(
-        createMockQueryResult({ error: { message: "Failed to load ports" } }) as ReturnType<
+        createMockQueryResult({ error: { message: "Failed to Load Ports" } }) as ReturnType<
           typeof trpcReact.network.floatingIp.listAvailablePorts.useQuery
         >
       )
 
       render(<AllocateFloatingIpModal open={true} onClose={vi.fn()} />, { wrapper: createWrapper() })
 
-      expect(screen.getByText("Failed to load ports")).toBeInTheDocument()
+      expect(screen.getByText("Failed to Load Ports")).toBeInTheDocument()
     })
 
     it("prioritizes query errors over mutation error message", () => {

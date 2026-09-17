@@ -264,7 +264,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name || hasQueryError}
     >
       {isLoading ? (
-        <Status status="progress" title={t`Checking bucket contents...`} className="mt-0" />
+        <Status status="progress" title={t`Checking Bucket Contents...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="6">
           {hasQueryError && (

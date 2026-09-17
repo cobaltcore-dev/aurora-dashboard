@@ -283,20 +283,20 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       size="large"
     >
       <Stack direction="vertical" gap="4">
-        {isPolicyLoading && <Status status="progress" title={t`Loading policy...`} className="mt-0" />}
+        {isPolicyLoading && <Status status="progress" title={t`Loading Policy...`} className="mt-0" />}
 
         {policyError && (
-          <Status status="error" title={t`Failed to load policy`} body={policyError.message} className="mt-0" />
+          <Status status="error" title={t`Failed to Load Policy`} body={policyError.message} className="mt-0" />
         )}
 
         {setMutation.error && (
-          <Message variant="error" title={t`Failed to save policy`}>
+          <Message variant="error" title={t`Failed to Save Policy`}>
             {setMutation.error.message}
           </Message>
         )}
 
         {deleteMutation.error && (
-          <Message variant="error" title={t`Failed to delete policy`}>
+          <Message variant="error" title={t`Failed to Delete Policy`}>
             {deleteMutation.error.message}
           </Message>
         )}

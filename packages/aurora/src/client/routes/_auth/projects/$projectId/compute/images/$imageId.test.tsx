@@ -140,7 +140,7 @@ describe("RouteComponent (image detail)", () => {
 
       renderRoute()
 
-      expect(screen.getByText("Error loading image")).toBeInTheDocument()
+      expect(screen.getByText("Error Loading Image")).toBeInTheDocument()
       expect(screen.getByText("Boom")).toBeInTheDocument()
     })
 

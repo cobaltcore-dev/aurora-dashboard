@@ -150,7 +150,7 @@ describe("DeleteObjectModal", () => {
       mockMetadataLoading = true
       mockMetadata = null
       renderModal()
-      expect(screen.getByText(/Loading object info/i)).toBeInTheDocument()
+      expect(screen.getByText(/Loading Object Info/i)).toBeInTheDocument()
     })
 
     it("disables confirm button while metadata is loading", () => {
@@ -164,7 +164,7 @@ describe("DeleteObjectModal", () => {
       mockMetadataError = { message: "Forbidden" }
       mockMetadata = null
       renderModal()
-      expect(screen.getByText(/Failed to load object metadata/i)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Load Object Metadata/i)).toBeInTheDocument()
       expect(screen.getByText(/Forbidden/i)).toBeInTheDocument()
     })
 

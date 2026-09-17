@@ -224,7 +224,7 @@ function EditImageMetadataModalInner({
       disableConfirmButton={isLoading || isAddingNew || metadata.some((e) => e.isEditing) || isSubmitDisabled}
     >
       {isLoading ? (
-        <Status status="progress" title={t`Saving metadata...`} className="mt-0" />
+        <Status status="progress" title={t`Saving Metadata...`} className="mt-0" />
       ) : (
         <div>
           {canEdit && (
@@ -419,7 +419,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   if (isLoadingExcluded) {
     return (
       <Modal open onCancel={onClose} size="xl" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
-        <Status status="progress" title={t`Loading metadata configuration...`} className="mt-0" />
+        <Status status="progress" title={t`Loading Metadata Configuration...`} className="mt-0" />
       </Modal>
     )
   }
@@ -427,7 +427,7 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
   if (isErrorExcluded) {
     return (
       <Modal open onCancel={onClose} size="xl" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
-        <Status status="error" title={t`Failed to load metadata configuration`} className="mt-0" />
+        <Status status="error" title={t`Failed to Load Metadata Configuration`} className="mt-0" />
       </Modal>
     )
   }

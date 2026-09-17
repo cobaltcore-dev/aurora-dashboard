@@ -167,10 +167,10 @@ export const DeleteCorsRuleModal = ({
       disableConfirmButton={isDeleting || isCorsLoading || !hasRules || !!corsError || isVerifying}
     >
       <Stack direction="vertical" gap="4">
-        {isCorsLoading && <Status status="progress" title={t`Loading CORS rules...`} className="mt-0" />}
+        {isCorsLoading && <Status status="progress" title={t`Loading CORS Rules...`} className="mt-0" />}
 
         {corsError && (
-          <Status status="error" title={t`Failed to load CORS rules`} body={corsError.message} className="mt-0" />
+          <Status status="error" title={t`Failed to Load CORS Rules`} body={corsError.message} className="mt-0" />
         )}
 
         {!isCorsLoading && !corsError && !hasRules && (

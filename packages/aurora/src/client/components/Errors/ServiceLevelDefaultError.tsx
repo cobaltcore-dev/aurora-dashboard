@@ -24,7 +24,7 @@ export const ServiceLevelDefaultError = () => {
       status="error"
       action={
         <Button variant="primary" onClick={navigateToProjectId}>
-          {t`Go to Project Home`}
+          {projectId ? t`Go to Project Home` : t`Go to Home`}
         </Button>
       }
     />

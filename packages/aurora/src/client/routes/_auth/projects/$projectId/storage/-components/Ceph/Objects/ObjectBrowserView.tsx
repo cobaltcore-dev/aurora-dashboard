@@ -592,7 +592,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   if (error) {
     const errorMessage = error.message
-    return <Status status="error" title={t`Failed to load objects`} body={errorMessage} />
+    return <Status status="error" title={t`Failed to Load Objects`} body={errorMessage} />
   }
 
   return (
@@ -767,7 +767,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       </Stack>
 
       {isLoading && !continuationToken && !keyMarker ? (
-        <Status status="progress" title={t`Loading objects...`} />
+        <Status status="progress" title={t`Loading Objects...`} />
       ) : (
         <ObjectsTableView
           bucketName={bucketName}

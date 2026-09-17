@@ -320,9 +320,9 @@ export const EditMetadataModal = ({
       disableConfirmButton={isBusy || !hasChanges || hasEditing || isAddingNew || isSizeExceeded}
     >
       {isLoading ? (
-        <Status status="progress" title={t`Loading object properties...`} className="mt-0" />
+        <Status status="progress" title={t`Loading Object Properties...`} className="mt-0" />
       ) : isMetaError ? (
-        <Status status="error" title={t`Failed to load object metadata`} body={metadataErrorMessage} className="mt-0" />
+        <Status status="error" title={t`Failed to Load Object Metadata`} body={metadataErrorMessage} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="6">
           {/* Mutation error */}

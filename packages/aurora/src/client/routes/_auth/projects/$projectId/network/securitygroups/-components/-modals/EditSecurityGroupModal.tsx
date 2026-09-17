@@ -147,7 +147,7 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
         </Message>
       )}
 
-      {isLoading && <Status status="progress" title={t`Updating security group...`} className="mt-0" />}
+      {isLoading && <Status status="progress" title={t`Updating Security Group...`} className="mt-0" />}
 
       {!isLoading && (
         <Form className="mb-6">

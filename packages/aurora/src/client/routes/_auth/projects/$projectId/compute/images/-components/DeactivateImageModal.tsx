@@ -46,7 +46,7 @@ export const DeactivateImageModal: React.FC<DeactivateImageModalProps> = ({
       disableConfirmButton={isLoading}
     >
       {isLoading ? (
-        <Status status="progress" title={t`Deactivating image...`} className="mt-0" />
+        <Status status="progress" title={t`Deactivating Image...`} className="mt-0" />
       ) : (
         <>
           <p className="mb-4">

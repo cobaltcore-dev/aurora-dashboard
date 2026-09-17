@@ -194,12 +194,12 @@ export const DeleteCorsRulesModal = ({
       disableCloseButton={isDeleting || isVerifying}
     >
       <Stack direction="vertical" gap="4">
-        {isCorsLoading && <Status status="progress" title={t`Loading CORS configuration...`} className="mt-0" />}
+        {isCorsLoading && <Status status="progress" title={t`Loading CORS Configuration...`} className="mt-0" />}
 
         {corsError && (
           <Status
             status="error"
-            title={t`Failed to load CORS configuration`}
+            title={t`Failed to Load CORS Configuration`}
             body={corsError.message}
             className="mt-0"
           />

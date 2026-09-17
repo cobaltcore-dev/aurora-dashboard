@@ -370,7 +370,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       {isLoading && !uploadProgressPercent && (
         <Status
           status="progress"
-          title={isUploadPending ? t`Pending file upload...` : t`Creating image...`}
+          title={isUploadPending ? t`Pending File Upload...` : t`Creating Image...`}
           className="mt-4"
         />
       )}

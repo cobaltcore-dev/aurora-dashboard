@@ -242,7 +242,7 @@ function EditSpecModalInner({
       disableCancelButton={operationInProgress}
     >
       {isLoading ? (
-        <Status status="progress" title={t`Loading metadata...`} className="mt-0" />
+        <Status status="progress" title={t`Loading Metadata...`} className="mt-0" />
       ) : (
         <div>
           {validationMessage && <Message variant="error" text={validationMessage} className="mb-4" />}
@@ -438,7 +438,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
         setExtraSpecsData(specs)
       } catch (error) {
         if (cancelled) return
-        setLoadError(error instanceof Error ? error.message : "Failed to load metadata")
+        setLoadError(error instanceof Error ? error.message : "Failed to Load Metadata")
       } finally {
         if (!cancelled) setIsLoadingSpecs(false)
       }
@@ -459,7 +459,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   if (isLoadingSpecs) {
     return (
       <Modal open onCancel={onClose} size="xl" title={t`Edit Metadata`}>
-        <Status status="progress" title={t`Loading metadata...`} className="mt-0" />
+        <Status status="progress" title={t`Loading Metadata...`} className="mt-0" />
       </Modal>
     )
   }
@@ -467,7 +467,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   if (loadError) {
     return (
       <Modal open onCancel={onClose} size="xl" title={t`Edit Metadata`}>
-        <Status status="error" title={t`Failed to load metadata`} body={translateError(loadError)} className="mt-0" />
+        <Status status="error" title={t`Failed to Load Metadata`} body={translateError(loadError)} className="mt-0" />
       </Modal>
     )
   }

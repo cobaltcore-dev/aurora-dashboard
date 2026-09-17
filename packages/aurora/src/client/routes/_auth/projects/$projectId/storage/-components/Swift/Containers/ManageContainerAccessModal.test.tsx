@@ -221,7 +221,7 @@ describe("ManageContainerAccessModal", () => {
     test("shows error message when metadata query fails", () => {
       metadataError = { message: "Network error" }
       renderModal()
-      expect(screen.getByText(/Failed to load container ACLs/i)).toBeInTheDocument()
+      expect(screen.getByText(/Failed to Load Container ACLs/i)).toBeInTheDocument()
     })
 
     test("Save button is disabled when metadata query fails", () => {
