@@ -9,3 +9,5 @@
 - Add progress indicators on Add and Delete buttons during operations
 - Disable operations while any add/delete is in progress
 - Fix property_key translation to show "Property Key" instead of "property_key"
+- Change "No metadata properties found" to "No Metadata Properties Found" (title case)
+- Disable Create Flavor button until all required fields are filled and valid

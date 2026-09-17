@@ -146,6 +146,34 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
     setGeneralError(null)
   }
 
+  const isFormValid = () => {
+    // Check required fields are filled and have no errors
+    const requiredFields: FlavorFormField[] = ["name", "vcpus", "ram", "disk"]
+
+    for (const field of requiredFields) {
+      const value = newFlavor[field]
+      // Field must have a value
+      if (value === undefined || value === "" || value === null) {
+        return false
+      }
+      // Field must not have an error
+      if (errors[field]) {
+        return false
+      }
+    }
+
+    // Check optional fields for errors (if they have values)
+    const optionalFields: FlavorFormField[] = ["id", "swap", "OS-FLV-EXT-DATA:ephemeral", "rxtx_factor", "description"]
+
+    for (const field of optionalFields) {
+      if (errors[field]) {
+        return false
+      }
+    }
+
+    return true
+  }
+
   return (
     <Modal
       onCancel={handleClose}
@@ -155,6 +183,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Create New Flavor`}
+      disableConfirmButton={!isFormValid() || isLoading}
     >
       {isLoading && (
         <Stack distribution="center" alignment="center">

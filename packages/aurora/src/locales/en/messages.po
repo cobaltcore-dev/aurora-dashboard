@@ -2531,11 +2531,8 @@ msgstr "No lifecycle rules matching the current search criteria."
 msgid "No limit"
 msgstr "No limit"
 
-msgid "No metadata properties found"
-msgstr "No metadata properties found"
-
-msgid "No metadata properties found."
-msgstr "No metadata properties found."
+msgid "No Metadata Properties Found"
+msgstr "No Metadata Properties Found"
 
 msgid "No new versions will be created"
 msgstr "No new versions will be created"

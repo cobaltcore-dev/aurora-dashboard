@@ -257,7 +257,7 @@ function EditSpecModalInner({
           {specs.length === 0 && !isAddingNew ? (
             <Status
               status="empty"
-              title={t`No metadata properties found`}
+              title={t`No Metadata Properties Found`}
               body={t`Click "Add Property" to create one.`}
             />
           ) : (

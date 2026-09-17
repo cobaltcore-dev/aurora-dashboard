@@ -2531,10 +2531,7 @@ msgstr ""
 msgid "No limit"
 msgstr "Kein Limit"
 
-msgid "No metadata properties found"
-msgstr ""
-
-msgid "No metadata properties found."
+msgid "No Metadata Properties Found"
 msgstr ""
 
 msgid "No new versions will be created"
