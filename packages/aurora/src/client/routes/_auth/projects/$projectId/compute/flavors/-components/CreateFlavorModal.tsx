@@ -52,6 +52,11 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
 
       return newState
     })
+    // Clear error for this field when user changes the value
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }))
     if (generalError) setGeneralError(null)
   }
 
@@ -59,6 +64,11 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
     setNewFlavor((prev) => ({
       ...prev,
       [name]: value,
+    }))
+    // Clear error for this field when user changes the value
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
     }))
     if (generalError) setGeneralError(null)
   }
@@ -153,22 +163,20 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
     for (const field of requiredFields) {
       const value = newFlavor[field]
       // Field must have a value
-      if (value === undefined || value === "" || value === null) {
-        return false
-      }
-      // Field must not have an error
-      if (errors[field]) {
-        return false
-      }
+      if (value === undefined || value === "" || value === null) return false
+      // Field must not have a validation error
+      if (validateField(field, value, t)) return false
     }
 
     // Check optional fields for errors (if they have values)
     const optionalFields: FlavorFormField[] = ["id", "swap", "OS-FLV-EXT-DATA:ephemeral", "rxtx_factor", "description"]
 
     for (const field of optionalFields) {
-      if (errors[field]) {
-        return false
-      }
+      const value = newFlavor[field]
+      // Skip empty optional fields
+      if (value === undefined || value === "" || value === null) continue
+      // Field must not have a validation error
+      if (validateField(field, value, t)) return false
     }
 
     return true
