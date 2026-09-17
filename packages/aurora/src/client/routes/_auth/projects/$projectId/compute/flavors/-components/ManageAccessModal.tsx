@@ -210,6 +210,8 @@ function ManageAccessModalInner({
             </Stack>
           )}
 
+          {errors.newProjectId && <Message variant="error" text={errors.newProjectId} className="mb-4" />}
+
           {access.length === 0 && !isAddingNew ? (
             <p className="jn:text-theme-light py-8 text-center">
               {canAdd
@@ -237,7 +239,6 @@ function ManageAccessModalInner({
                             }}
                             placeholder={t`Enter project ID`}
                             invalid={!!errors.newProjectId}
-                            errortext={errors.newProjectId}
                             autoFocus
                             wrapperClassName="w-full"
                             disabled={addingProjectId}
