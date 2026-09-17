@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Modal, Spinner, Message, ModalFooter, ButtonRow, Button } from "@cloudoperators/juno-ui-components"
+import { Modal, Status, Message, ModalFooter, ButtonRow, Button } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
 import { Trans } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
@@ -191,20 +191,14 @@ export const CorsRuleModal = ({
         </ModalFooter>
       }
     >
-      {isCorsLoading && (
-        <div className="flex items-center justify-center py-8">
-          <Spinner variant="primary" size="large" />
-        </div>
-      )}
+      {isCorsLoading && <Status status="progress" title={t`Loading CORS Configuration...`} className="mt-0" />}
 
       {corsError && (
-        <Message variant="error" title={t`Failed to load CORS configuration`}>
-          {corsError.message}
-        </Message>
+        <Status status="error" title={t`Failed to Load CORS Configuration`} body={corsError.message} className="mt-0" />
       )}
 
       {setMutation.isError && (
-        <Message variant="error" title={t`Failed to save CORS rule`}>
+        <Message variant="error" title={t`Failed to Save CORS Rule`}>
           {setMutation.error?.message}
         </Message>
       )}

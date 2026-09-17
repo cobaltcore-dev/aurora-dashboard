@@ -136,7 +136,7 @@ export const FloatingIpsList = () => {
   )
 
   if (isError && !floatingIps.length) {
-    return <Status status="error" title={error?.message ?? t`Failed to load Floating IPs`} />
+    return <Status status="error" title={error?.message ?? t`Failed to Load Floating IPs`} />
   }
 
   return (

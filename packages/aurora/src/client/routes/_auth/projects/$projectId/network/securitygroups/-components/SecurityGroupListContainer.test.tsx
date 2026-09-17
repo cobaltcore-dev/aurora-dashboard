@@ -147,7 +147,7 @@ describe("SecurityGroupListContainer", () => {
   })
 
   describe("State rendering", () => {
-    it("renders loading spinner", async () => {
+    it("renders loading state", async () => {
       const router = createTestRouter(
         <SecurityGroupListContainer
           securityGroups={[]}
@@ -196,7 +196,7 @@ describe("SecurityGroupListContainer", () => {
       render(<RouterProvider router={router} />)
 
       await waitFor(() => {
-        expect(screen.getByText("Failed to load security groups")).toBeInTheDocument()
+        expect(screen.getByText("Failed to Load Security Groups")).toBeInTheDocument()
       })
     })
 

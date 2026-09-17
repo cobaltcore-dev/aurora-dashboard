@@ -61,8 +61,8 @@ describe("FloatingIpListContainer", () => {
         wrapper: TestWrapper,
       })
 
-      expect(screen.queryByText("No Floating IPs found")).not.toBeInTheDocument()
-      expect(screen.queryByText("Failed to load Floating IPs")).not.toBeInTheDocument()
+      expect(screen.queryByText("No Floating IPs Found")).not.toBeInTheDocument()
+      expect(screen.queryByText("Failed to Load Floating IPs")).not.toBeInTheDocument()
     })
   })
 
@@ -86,7 +86,7 @@ describe("FloatingIpListContainer", () => {
         wrapper: TestWrapper,
       })
 
-      expect(screen.getByText("Failed to load Floating IPs")).toBeInTheDocument()
+      expect(screen.getByText("Failed to Load Floating IPs")).toBeInTheDocument()
     })
 
     it("displays default error message when error object without message", () => {
@@ -94,7 +94,7 @@ describe("FloatingIpListContainer", () => {
         wrapper: TestWrapper,
       })
 
-      expect(screen.getByText("Failed to load Floating IPs")).toBeInTheDocument()
+      expect(screen.getByText("Failed to Load Floating IPs")).toBeInTheDocument()
     })
 
     it("does not display table or loading when error occurs", () => {
@@ -109,7 +109,7 @@ describe("FloatingIpListContainer", () => {
       )
 
       expect(screen.queryByText("Loading Floating IPs...")).not.toBeInTheDocument()
-      expect(screen.queryByText("No Floating IPs found")).not.toBeInTheDocument()
+      expect(screen.queryByText("No Floating IPs Found")).not.toBeInTheDocument()
     })
   })
 
@@ -119,7 +119,7 @@ describe("FloatingIpListContainer", () => {
         wrapper: TestWrapper,
       })
 
-      expect(screen.getByText("No Floating IPs found")).toBeInTheDocument()
+      expect(screen.getByText("No Floating IPs Found")).toBeInTheDocument()
     })
 
     it("displays helpful message in empty state", () => {
@@ -217,8 +217,8 @@ describe("FloatingIpListContainer", () => {
       await waitFor(() => {
         expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
       })
-      expect(screen.queryByText("No Floating IPs found")).not.toBeInTheDocument()
-      expect(screen.queryByText("Failed to load Floating IPs")).not.toBeInTheDocument()
+      expect(screen.queryByText("No Floating IPs Found")).not.toBeInTheDocument()
+      expect(screen.queryByText("Failed to Load Floating IPs")).not.toBeInTheDocument()
       expect(screen.queryByText("Loading Floating IPs...")).not.toBeInTheDocument()
     })
 
@@ -232,7 +232,7 @@ describe("FloatingIpListContainer", () => {
         expect(screen.getByText("203.0.113.10")).toBeInTheDocument()
       })
       expect(screen.queryByText("Loading Floating IPs...")).not.toBeInTheDocument()
-      expect(screen.queryByText("Failed to load Floating IPs")).not.toBeInTheDocument()
+      expect(screen.queryByText("Failed to Load Floating IPs")).not.toBeInTheDocument()
     })
   })
 
@@ -268,12 +268,12 @@ describe("FloatingIpListContainer", () => {
           floatingIps={[]}
           isLoading={false}
           isError={true}
-          error={{ message: "Failed to load" }}
+          error={{ message: "Failed to Load" }}
         />,
         { wrapper: TestWrapper }
       )
 
-      expect(screen.getByText("Failed to load")).toBeInTheDocument()
+      expect(screen.getByText("Failed to Load")).toBeInTheDocument()
       expect(screen.queryByText("Loading Floating IPs...")).not.toBeInTheDocument()
     })
   })
@@ -284,7 +284,7 @@ describe("FloatingIpListContainer", () => {
         wrapper: TestWrapper,
       })
 
-      expect(screen.getByText("No Floating IPs found")).toBeInTheDocument()
+      expect(screen.getByText("No Floating IPs Found")).toBeInTheDocument()
     })
 
     it("handles null error object gracefully", () => {
@@ -292,7 +292,7 @@ describe("FloatingIpListContainer", () => {
         wrapper: TestWrapper,
       })
 
-      expect(screen.getByText("Failed to load Floating IPs")).toBeInTheDocument()
+      expect(screen.getByText("Failed to Load Floating IPs")).toBeInTheDocument()
     })
   })
 

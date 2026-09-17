@@ -64,7 +64,7 @@ function RowTransferProgress({ downloadId, isPreviewing }: { downloadId: string;
         {percent != null ? (
           <Trans>{percent}%</Trans>
         ) : isPreviewing ? (
-          <Trans>Loading preview...</Trans>
+          <Trans>Loading Preview...</Trans>
         ) : (
           <Trans>Downloading...</Trans>
         )}
@@ -372,7 +372,7 @@ export const ObjectsTableView = ({
                         title={
                           isStreaming
                             ? isPreviewing
-                              ? t`Loading preview...`
+                              ? t`Loading Preview...`
                               : t`Downloading...`
                             : isPreviewableContentType((row as ObjectRow).content_type ?? "")
                               ? t`Preview ${rowDisplayName}`

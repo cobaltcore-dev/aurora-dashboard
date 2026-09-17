@@ -5,7 +5,7 @@ import {
   Modal,
   TextInput,
   Stack,
-  Spinner,
+  Status,
   DataGrid,
   DataGridRow,
   DataGridHeadCell,
@@ -454,17 +454,14 @@ export const EditContainerMetadataModal = ({
         </p>
       )}
       {isLoading ? (
-        <Stack direction="horizontal" alignment="center" gap="2" className="py-8">
-          <Spinner size="small" />
-          <Trans>Loading container properties...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Loading Container Properties...`} className="mt-0" />
       ) : isMetaFailed ? (
-        <p className="text-theme-error py-8 text-center">
-          {(() => {
-            const errorMessage = metaError?.message ?? "Unknown error"
-            return <Trans>Failed to load container properties: {errorMessage}</Trans>
-          })()}
-        </p>
+        <Status
+          status="error"
+          title={t`Failed to Load Container Properties`}
+          body={metaError?.message ?? t`Unknown Error`}
+          className="mt-0"
+        />
       ) : (
         <div className="max-h-[65vh] overflow-y-auto pr-1 pl-1">
           <Stack direction="vertical" gap="6">

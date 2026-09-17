@@ -359,6 +359,12 @@ msgstr "{successCount} Image(s) aktiviert, aber {failedCount} Image(s) konnten n
 msgid "Activated images will be available for launching new instances."
 msgstr ""
 
+msgid "Activating Image..."
+msgstr ""
+
+msgid "Activating Images..."
+msgstr ""
+
 msgid "Activating this image will allow it to be used to launch new instances again."
 msgstr "Durch die Aktivierung dieses Images kann es wieder zum Starten neuer Instances verwendet werden."
 
@@ -440,6 +446,9 @@ msgstr ""
 msgid "An unexpected error occurred."
 msgstr ""
 
+msgid "An Unexpected Error Occurred."
+msgstr ""
+
 msgid "An unexpected error occurred. Please try again."
 msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
 
@@ -502,6 +511,15 @@ msgstr ""
 
 msgid "Back"
 msgstr "Zurück"
+
+msgid "Back to Buckets"
+msgstr ""
+
+msgid "Back to Containers"
+msgstr ""
+
+msgid "Back to Flavors"
+msgstr ""
 
 msgid "Back to Floating IPs"
 msgstr "Zurück zu Floating IPs"
@@ -641,11 +659,14 @@ msgstr "Ändern Sie den Namen, den Ziel-Container oder den Ordner, um dieses Obj
 msgid "Changes take effect immediately after saving."
 msgstr "Änderungen werden sofort nach dem Speichern wirksam."
 
-msgid "Checking bucket contents..."
-msgstr "Checking bucket contents..."
+msgid "Checking Bucket Contents..."
+msgstr ""
 
 msgid "Checking if object exists..."
 msgstr "Checking if object exists..."
+
+msgid "Checking Permissions..."
+msgstr ""
 
 msgid "Checksum"
 msgstr "Prüfsumme"
@@ -797,8 +818,8 @@ msgstr "Objekt kopieren:"
 msgid "Copy URL"
 msgstr "URL kopieren"
 
-msgid "Copying object..."
-msgstr "Objekt wird kopiert..."
+msgid "Copying Object..."
+msgstr ""
 
 msgid "Copying..."
 msgstr "Wird kopiert..."
@@ -821,7 +842,7 @@ msgstr ""
 msgid "Could not add access for project \"{projectId}\": {errorMessage}"
 msgstr ""
 
-msgid "Could not check permissions"
+msgid "Could Not Check Permissions"
 msgstr ""
 
 msgid "Could not copy \"{displayName}\": {errorMessage}"
@@ -953,6 +974,9 @@ msgstr ""
 msgid "Could not upload \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht hochgeladen werden: {errorMessage}"
 
+msgid "Could not verify whether you can create S3 credentials. Reload the page or try again later."
+msgstr ""
+
 msgid "Couldn't Open Container"
 msgstr "Container konnte nicht geöffnet werden"
 
@@ -1013,14 +1037,17 @@ msgstr "Erstellt am"
 msgid "Creating Credentials..."
 msgstr ""
 
-msgid "Creating image..."
-msgstr "Image wird erstellt..."
+msgid "Creating Flavor..."
+msgstr ""
 
-msgid "Creating security group rule..."
-msgstr "Sicherheitsgruppenregel wird erstellt..."
+msgid "Creating Image..."
+msgstr ""
 
-msgid "Creating security group..."
-msgstr "Sicherheitsgruppe wird erstellt..."
+msgid "Creating Security Group Rule..."
+msgstr ""
+
+msgid "Creating Security Group..."
+msgstr ""
 
 msgid "Creating..."
 msgstr ""
@@ -1062,6 +1089,12 @@ msgid "Deactivated {successCount} image(s), but {failedCount} image(s) could not
 msgstr "{successCount} Image(s) deaktiviert, aber {failedCount} Image(s) konnten nicht deaktiviert werden."
 
 msgid "Deactivated images cannot be used to launch instances."
+msgstr ""
+
+msgid "Deactivating Image..."
+msgstr ""
+
+msgid "Deactivating Images..."
 msgstr ""
 
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
@@ -1181,8 +1214,8 @@ msgstr ""
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "{successCount} Image(s) gelöscht, aber {failedCount} Image(s) konnten nicht gelöscht werden."
 
-msgid "Deleting folder and all its contents..."
-msgstr "Ordner und alle Inhalte werden gelöscht..."
+msgid "Deleting Folder and All Its Contents..."
+msgstr ""
 
 msgid "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
 msgstr ""
@@ -1394,11 +1427,11 @@ msgstr ""
 msgid "Empty:"
 msgstr "Leeren:"
 
-msgid "Emptying bucket {progressCurrent} of {progressTotal}, please wait..."
+msgid "Emptying Bucket {progressCurrent} of {progressTotal}, Please Wait..."
 msgstr ""
 
-msgid "Emptying container {progressCurrent} of {progressTotal}, please wait..."
-msgstr "Container {progressCurrent} von {progressTotal} wird geleert, bitte warten..."
+msgid "Emptying Container {progressCurrent} of {progressTotal}, Please Wait..."
+msgstr ""
 
 msgid "Emptying..."
 msgstr "Wird geleert..."
@@ -1493,20 +1526,20 @@ msgstr "Ephemeral Disk muss eine ganze Zahl ≥ 0 sein."
 msgid "Error loading component"
 msgstr "Fehler beim Laden der Komponente"
 
-msgid "Error Loading Containers: {errorMessage}"
-msgstr "Fehler beim Laden der Container: {errorMessage}"
+msgid "Error Loading Containers"
+msgstr ""
 
 msgid "Error Loading Flavor"
 msgstr "Fehler beim Laden des Flavors"
 
-msgid "Error loading floating IP"
-msgstr "Fehler beim Laden der Floating-IP"
+msgid "Error Loading Floating IP"
+msgstr ""
 
-msgid "Error loading image"
-msgstr "Fehler beim Laden des Images"
+msgid "Error Loading Image"
+msgstr ""
 
-msgid "Error loading security group"
-msgstr "Fehler beim Laden der Security Group"
+msgid "Error Loading Security Group"
+msgstr ""
 
 msgid "Error:"
 msgstr ""
@@ -1568,7 +1601,7 @@ msgstr "Fehler beim Hinzufügen des Mitglieds"
 msgid "Failed to add tenant access to flavor. Please try again."
 msgstr "Fehler beim Hinzufügen des Zugriffs für das Project zum Flavor. Bitte versuchen Sie es erneut."
 
-msgid "Failed to check bucket contents: {errorMessage}"
+msgid "Failed to Check Bucket Contents"
 msgstr ""
 
 msgid "Failed to Copy Object"
@@ -1721,25 +1754,31 @@ msgstr "Fehler beim Generieren der vorsignierten URL: {generalError}"
 msgid "Failed to generate temporary URL: {generalError}"
 msgstr "Fehler beim Generieren der temporären URL: {generalError}"
 
-msgid "Failed to load buckets: {errorMessage}"
-msgstr "Fehler beim Laden der Buckets: {errorMessage}"
-
-msgid "Failed to load container ACLs: {errorMessage}"
-msgstr "Fehler beim Laden der Container-ACLs: {errorMessage}"
-
-msgid "Failed to load container information"
+msgid "Failed to Load Access"
 msgstr ""
 
-msgid "Failed to load container objects: {errorMessage}"
-msgstr "Fehler beim Laden der Container-Objekte: {errorMessage}"
-
-msgid "Failed to load container properties: {errorMessage}"
-msgstr "Fehler beim Laden der Container-Eigenschaften: {errorMessage}"
-
-msgid "Failed to load CORS configuration"
+msgid "Failed to Load Buckets: {errorMessage}"
 msgstr ""
 
-msgid "Failed to load CORS rules"
+msgid "Failed to Load Container ACLs"
+msgstr ""
+
+msgid "Failed to Load Container Information"
+msgstr ""
+
+msgid "Failed to Load Container Objects: {errorMessage}"
+msgstr ""
+
+msgid "Failed to Load Container Properties"
+msgstr ""
+
+msgid "Failed to Load Container Properties: {errorMessage}"
+msgstr ""
+
+msgid "Failed to Load CORS Configuration"
+msgstr ""
+
+msgid "Failed to Load CORS Rules"
 msgstr ""
 
 msgid "Failed to load extra specs. Please try again."
@@ -1748,31 +1787,37 @@ msgstr "Fehler beim Laden der Extra-Specs. Bitte versuchen Sie es erneut."
 msgid "Failed to load flavor details. Please try again."
 msgstr "Flavor-Details konnten nicht geladen werden. Bitte versuchen Sie es erneut."
 
-msgid "Failed to load Floating IPs"
-msgstr "Floating IPs konnten nicht geladen werden"
-
-msgid "Failed to load lifecycle configuration"
+msgid "Failed to Load Flavors"
 msgstr ""
 
-msgid "Failed to load metadata"
+msgid "Failed to Load Floating IPs"
 msgstr ""
 
-msgid "Failed to load metadata configuration."
-msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
-
-msgid "Failed to load object metadata: {metadataErrorMessage}"
-msgstr "Fehler beim Laden der Objekt-Metadaten: {metadataErrorMessage}"
-
-msgid "Failed to load objects"
+msgid "Failed to Load Images"
 msgstr ""
 
-msgid "Failed to load policy"
+msgid "Failed to Load Lifecycle Configuration"
 msgstr ""
 
-msgid "Failed to load security groups"
-msgstr "Security Groups konnten nicht geladen werden"
+msgid "Failed to Load Metadata"
+msgstr ""
 
-msgid "Failed to load versions"
+msgid "Failed to Load Metadata Configuration"
+msgstr ""
+
+msgid "Failed to Load Object Metadata"
+msgstr ""
+
+msgid "Failed to Load Objects"
+msgstr ""
+
+msgid "Failed to Load Policy"
+msgstr ""
+
+msgid "Failed to Load Security Groups"
+msgstr ""
+
+msgid "Failed to Load Versions"
 msgstr ""
 
 msgid "Failed to Move Object"
@@ -1811,13 +1856,13 @@ msgstr ""
 msgid "Failed to Save CORS Configuration"
 msgstr ""
 
-msgid "Failed to save CORS rule"
+msgid "Failed to Save CORS Rule"
 msgstr ""
 
 msgid "Failed to Save Lifecycle Rule"
 msgstr ""
 
-msgid "Failed to save policy"
+msgid "Failed to Save Policy"
 msgstr ""
 
 msgid "Failed to Share Security Group"
@@ -1937,8 +1982,8 @@ msgstr ""
 msgid "Floating IP Detached"
 msgstr ""
 
-msgid "Floating IP not found"
-msgstr "Floating IP nicht gefunden"
+msgid "Floating IP Not Found"
+msgstr ""
 
 msgid "Floating IP Released"
 msgstr ""
@@ -2039,6 +2084,9 @@ msgstr "Mitmachen"
 msgid "Go to Home"
 msgstr ""
 
+msgid "Go to Project Home"
+msgstr ""
+
 msgid "Go to Projects"
 msgstr ""
 
@@ -2125,9 +2173,6 @@ msgstr "Image-Name"
 
 msgid "Image name is required"
 msgstr "Image-Name ist erforderlich"
-
-msgid "Image not found"
-msgstr "Image nicht gefunden"
 
 msgid "Image Visibility"
 msgstr "Image-Sichtbarkeit"
@@ -2255,6 +2300,9 @@ msgstr "Zugriff auflisten"
 msgid "Load More"
 msgstr "Mehr laden"
 
+msgid "Loading Access..."
+msgstr ""
+
 msgid "Loading ACLs..."
 msgstr "ACLs werden geladen..."
 
@@ -2264,14 +2312,17 @@ msgstr ""
 msgid "Loading Buckets..."
 msgstr ""
 
-msgid "Loading container properties..."
-msgstr "Container-Eigenschaften werden geladen..."
-
-msgid "Loading containers..."
-msgstr "Container werden geladen..."
+msgid "Loading Container Properties..."
+msgstr ""
 
 msgid "Loading Containers..."
 msgstr "Container werden geladen..."
+
+msgid "Loading CORS Configuration..."
+msgstr ""
+
+msgid "Loading CORS Rules..."
+msgstr ""
 
 msgid "Loading Flavor Details..."
 msgstr "Flavor-Details werden geladen..."
@@ -2291,17 +2342,23 @@ msgstr "Image-Details werden geladen..."
 msgid "Loading Images..."
 msgstr "Lädt Images..."
 
+msgid "Loading Lifecycle Configuration..."
+msgstr ""
+
+msgid "Loading Metadata Configuration..."
+msgstr ""
+
+msgid "Loading Metadata..."
+msgstr ""
+
 msgid "Loading more..."
 msgstr "Weitere werden geladen..."
 
-msgid "Loading object info..."
-msgstr "Objekt-Informationen werden geladen..."
+msgid "Loading Object Info..."
+msgstr ""
 
-msgid "Loading object properties..."
-msgstr "Objekt-Eigenschaften werden geladen..."
-
-msgid "Loading objects..."
-msgstr "Objekte werden geladen..."
+msgid "Loading Object Properties..."
+msgstr ""
 
 msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
@@ -2309,13 +2366,19 @@ msgstr "Objekte werden geladen..."
 msgid "Loading Permissions..."
 msgstr ""
 
+msgid "Loading Policy..."
+msgstr ""
+
 msgid "Loading preview..."
 msgstr "Vorschau wird geladen..."
+
+msgid "Loading Preview..."
+msgstr ""
 
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
 
-msgid "Loading versions..."
+msgid "Loading Versions..."
 msgstr ""
 
 msgid "Loading..."
@@ -2435,8 +2498,8 @@ msgstr "Objekt verschieben/umbenennen:"
 msgid "Move/Rename Object:"
 msgstr "Objekt verschieben/umbenennen:"
 
-msgid "Moving object..."
-msgstr "Objekt wird verschoben..."
+msgid "Moving Object..."
+msgstr ""
 
 msgid "Moving..."
 msgstr "Wird verschoben..."
@@ -2495,7 +2558,7 @@ msgstr "Keine Container gefunden"
 msgid "No CORS rules found"
 msgstr ""
 
-msgid "No CORS rules matching the current search criteria."
+msgid "No CORS Rules Matching the Current Search Criteria."
 msgstr ""
 
 msgid "No custom metadata properties found."
@@ -2516,13 +2579,13 @@ msgstr "Kein Flavor für die Löschung ausgewählt."
 msgid "No flavors found"
 msgstr "Keine Flavors gefunden"
 
-msgid "No Floating IPs found"
-msgstr "Keine Floating IPs gefunden"
+msgid "No Floating IPs Found"
+msgstr ""
 
 msgid "No images found"
 msgstr "Keine Images gefunden"
 
-msgid "No lifecycle rules matching the current search criteria."
+msgid "No Lifecycle Rules Matching the Current Search Criteria."
 msgstr ""
 
 msgid "No limit"
@@ -2549,7 +2612,7 @@ msgstr ""
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 
-msgid "No policy found"
+msgid "No Policy Found"
 msgstr ""
 
 msgid "No project access configured."
@@ -2567,7 +2630,7 @@ msgstr "Keine Projekte verfügbar."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
-msgid "No rules found"
+msgid "No Rules Found"
 msgstr ""
 
 msgid "No security groups found"
@@ -2579,7 +2642,7 @@ msgstr "Keine Dienste für dieses Projekt verfügbar."
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um X-Account-Meta-Temp-URL-Key oder X-Container-Meta-Temp-URL-Key zu konfigurieren."
 
-msgid "No versions found for this object."
+msgid "No Versions Found for This Object."
 msgstr ""
 
 msgid "No versions to delete in bucket \"{bucketName}\"."
@@ -2750,8 +2813,8 @@ msgstr "Teilweise erfolgreich gelöscht"
 msgid "Pending"
 msgstr "Ausstehend"
 
-msgid "Pending file upload..."
-msgstr "Datei-Upload ausstehend..."
+msgid "Pending File Upload..."
+msgstr ""
 
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
@@ -2984,6 +3047,9 @@ msgstr "Wird entfernt..."
 msgid "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgstr "Reservierte Schlüssel: web-index, web-listings, quota-count, quota-bytes"
 
+msgid "Resource Not Found"
+msgstr ""
+
 msgid "Restore"
 msgstr ""
 
@@ -3062,6 +3128,12 @@ msgstr "Änderungen speichern"
 msgid "Save Metadata"
 msgstr "Metadata speichern"
 
+msgid "Saving Image Details..."
+msgstr ""
+
+msgid "Saving Metadata..."
+msgstr ""
+
 msgid "Saving..."
 msgstr "Wird gespeichert..."
 
@@ -3122,8 +3194,8 @@ msgstr ""
 msgid "Security group name is required"
 msgstr "Security Group-Name ist erforderlich"
 
-msgid "Security group not found"
-msgstr "Security Group nicht gefunden"
+msgid "Security Group Not Found"
+msgstr ""
 
 msgid "Security group rule was successfully created."
 msgstr ""
@@ -3359,9 +3431,6 @@ msgstr "Storage"
 msgid "Storage Class Transitions (read-only)"
 msgstr ""
 
-msgid "Storage container not found"
-msgstr "Storage-Container nicht gefunden"
-
 msgid "Storage Overview"
 msgstr "Speicherübersicht"
 
@@ -3560,6 +3629,9 @@ msgstr ""
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
 
+msgid "The Resource you are looking for does not exist or is not accessible."
+msgstr ""
+
 msgid "The selected images will be permanently deleted. This action cannot be undone."
 msgstr ""
 
@@ -3599,7 +3671,7 @@ msgstr ""
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
-msgid "There are no CORS rules for this bucket"
+msgid "There Are No CORS Rules for This Bucket"
 msgstr ""
 
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
@@ -3614,7 +3686,7 @@ msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Images verfügb
 msgid "There are no items to display."
 msgstr "Es gibt keine Elemente zum Anzeigen."
 
-msgid "There are no lifecycle rules for this bucket"
+msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr ""
 
 msgid "There are no RBAC policies for this security group"
@@ -3866,6 +3938,9 @@ msgstr ""
 msgid "Unknown domain"
 msgstr ""
 
+msgid "Unknown Error"
+msgstr ""
+
 msgid "Unnamed"
 msgstr "Unbenannt"
 
@@ -3884,8 +3959,8 @@ msgstr "Aktualisiert:"
 msgid "Updating Floating IP Description..."
 msgstr ""
 
-msgid "Updating security group..."
-msgstr "Security Group wird aktualisiert..."
+msgid "Updating Security Group..."
+msgstr ""
 
 msgid "Upload"
 msgstr "Hochladen"
@@ -4006,9 +4081,6 @@ msgstr "Sichtbarkeit"
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
-
-msgid "We couldn't verify whether you can create S3 credentials. Please reload the page or try again later."
-msgstr ""
 
 msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
 msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung der nächsten Generation. Wir sind bestrebt, die Art und Weise, wie Sie mit Ihrer Cloud-Infrastruktur interagieren und diese verwalten, zu vereinfachen. Mit Effizienz, Skalierbarkeit und Benutzerfreundlichkeit im Kern konzipiert, ermöglicht Aurora Ihnen, Prozesse zu optimieren und das volle Potenzial Ihrer Cloud-Ressourcen auszuschöpfen."

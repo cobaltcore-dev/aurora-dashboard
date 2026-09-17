@@ -93,7 +93,7 @@ vi.mock("./CorsRulesTable", () => ({
     <div>
       <div>
         {rulesWithIndices.length === 0
-          ? "There are no CORS rules for this bucket"
+          ? "There Are No CORS Rules for This Bucket"
           : `${rulesWithIndices.length} rule(s)`}
       </div>
       {rulesWithIndices.map(({ originalIndex }: any) => (
@@ -152,7 +152,7 @@ describe("CorsRulesTab", () => {
     })
   })
 
-  it("shows loading spinner while fetching CORS rules", () => {
+  it("shows loading state while fetching CORS rules", () => {
     ;(trpcReact.storage.ceph.cors.get.useQuery as any).mockReturnValue({
       data: undefined,
       isLoading: true,
@@ -201,7 +201,7 @@ describe("CorsRulesTab", () => {
 
     render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
 
-    expect(screen.getByText(/Failed to load CORS configuration/i)).toBeInTheDocument()
+    expect(screen.getByText(/Failed to Load CORS Configuration/i)).toBeInTheDocument()
     expect(screen.getByText("Network error")).toBeInTheDocument()
   })
 
@@ -228,7 +228,7 @@ describe("CorsRulesTab", () => {
 
     render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
 
-    expect(screen.getByText(/There are no CORS rules for this bucket/i)).toBeInTheDocument()
+    expect(screen.getByText(/There Are No CORS Rules for This Bucket/i)).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Create CORS Rule/i })).toBeInTheDocument()
   })
 
@@ -259,7 +259,7 @@ describe("CorsRulesTab", () => {
     render(<CorsRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
 
     // Verify the empty state is shown
-    expect(screen.getByText("There are no CORS rules for this bucket")).toBeInTheDocument()
+    expect(screen.getByText("There Are No CORS Rules for This Bucket")).toBeInTheDocument()
   })
 
   it("opens add rule modal when clicking Create CORS Rule button", async () => {

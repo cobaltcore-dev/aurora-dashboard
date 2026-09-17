@@ -115,7 +115,7 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
   const listError = isError
     ? error?.data?.code === "FORBIDDEN"
       ? t`You do not have permission to view security groups`
-      : error.message || t`Failed to load security groups`
+      : error.message || t`Failed to Load Security Groups`
     : null
 
   const { permissions } = useSecurityGroupPermissions(projectId)

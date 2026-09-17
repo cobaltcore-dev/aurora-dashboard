@@ -650,7 +650,7 @@ describe("MoveRenameObjectModal", () => {
       expect(trpcState.copyMutate).not.toHaveBeenCalled()
     })
 
-    test("shows Moving... label and spinner when copy is pending", () => {
+    test("shows Moving... label and progress state when copy is pending", () => {
       trpcState.copyIsPending = true
       renderModal()
       expect(screen.getByText(/Moving\.\.\./i)).toBeInTheDocument()

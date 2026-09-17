@@ -21,7 +21,7 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
   }
 
   if (isError) {
-    return <Status status="error" title={error?.message ?? t`Failed to load Floating IPs`} />
+    return <Status status="error" title={error?.message ?? t`Failed to Load Floating IPs`} />
   }
 
   return (
@@ -38,7 +38,7 @@ export const FloatingIpListContainer = ({ floatingIps, isLoading, isError, error
           <DataGridCell colSpan={columnCount}>
             <Status
               status="empty"
-              title={t`No Floating IPs found`}
+              title={t`No Floating IPs Found`}
               body={t`There are no Floating IPs available for this project. Floating IPs allow you to map public IP addresses to instances.`}
             />
           </DataGridCell>

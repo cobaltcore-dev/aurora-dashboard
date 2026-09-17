@@ -112,7 +112,7 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
           {isLoading ? (
             <Status status="progress" />
           ) : isError ? (
-            <Status status="error" title={t`Failed to load metadata`} />
+            <Status status="error" title={t`Failed to Load Metadata`} />
           ) : extraSpecs && Object.keys(extraSpecs).length > 0 ? (
             <DescriptionList alignTerms="right" className="grid-cols-2">
               {extraSpecItems.map(({ label, value }, index) => (

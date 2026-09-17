@@ -5,14 +5,13 @@ import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
 import {
   Modal,
   Button,
-  Spinner,
+  Status,
   Stack,
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
   TextInput,
   Message,
-  Status,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
@@ -243,9 +242,7 @@ function EditSpecModalInner({
       disableCancelButton={operationInProgress}
     >
       {isLoading ? (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
+        <Status status="progress" title={t`Loading Metadata...`} className="mt-0" />
       ) : (
         <div>
           {validationMessage && <Message variant="error" text={validationMessage} className="mb-4" />}
@@ -441,7 +438,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
         setExtraSpecsData(specs)
       } catch (error) {
         if (cancelled) return
-        setLoadError(error instanceof Error ? error.message : "Failed to load metadata")
+        setLoadError(error instanceof Error ? error.message : "Failed to Load Metadata")
       } finally {
         if (!cancelled) setIsLoadingSpecs(false)
       }
@@ -462,9 +459,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   if (isLoadingSpecs) {
     return (
       <Modal open onCancel={onClose} size="xl" title={t`Edit Metadata`}>
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
+        <Status status="progress" title={t`Loading Metadata...`} className="mt-0" />
       </Modal>
     )
   }
@@ -472,7 +467,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
   if (loadError) {
     return (
       <Modal open onCancel={onClose} size="xl" title={t`Edit Metadata`}>
-        <Message variant="error" text={translateError(loadError)} />
+        <Status status="error" title={t`Failed to Load Metadata`} body={translateError(loadError)} className="mt-0" />
       </Modal>
     )
   }

@@ -8,8 +8,7 @@ import {
   FormSection,
   TextInput,
   Message,
-  Spinner,
-  Stack,
+  Status,
   Checkbox,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
@@ -192,12 +191,10 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Create New Flavor`}
       disableConfirmButton={!isFormValid() || isLoading}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
-      {isLoading && (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
-      )}
+      {isLoading && <Status status="progress" title={t`Creating Flavor...`} className="mt-0" />}
       {!isLoading && (
         <Form>
           {generalError && (
