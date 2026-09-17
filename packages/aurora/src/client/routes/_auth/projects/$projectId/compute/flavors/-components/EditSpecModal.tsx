@@ -335,11 +335,11 @@ function EditSpecModalInner({
                   <React.Fragment key={index}>
                     <DescriptionTerm className="col-span-1">
                       {entry.isEditing ? (
-                        <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
+                        <span className="jn:text-theme-high block break-all" title={entry.key}>
                           {entry.key}
                         </span>
                       ) : (
-                        <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
+                        <span className="jn:text-theme-high block break-all" title={entry.key}>
                           {entry.key}
                         </span>
                       )}
@@ -378,7 +378,7 @@ function EditSpecModalInner({
                         </>
                       ) : (
                         <>
-                          <span className="jn:text-theme-default flex-1 truncate" title={entry.value}>
+                          <span className="jn:text-theme-default flex-1 break-all" title={entry.value}>
                             {entry.value}
                           </span>
                           <Stack direction="horizontal" gap="2" className="shrink-0">

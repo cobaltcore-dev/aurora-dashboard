@@ -117,9 +117,9 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
             <DescriptionList alignTerms="right" className="grid-cols-2">
               {extraSpecItems.map(({ label, value }, index) => (
                 <Fragment key={`extra-${index}`}>
-                  <DescriptionTerm className="col-span-1">{label}</DescriptionTerm>
+                  <DescriptionTerm className="col-span-1 break-all">{label}</DescriptionTerm>
                   <DescriptionDefinition className="col-span-1">
-                    <div className="truncate">{value}</div>
+                    <div className="break-all">{value}</div>
                   </DescriptionDefinition>
                 </Fragment>
               ))}
