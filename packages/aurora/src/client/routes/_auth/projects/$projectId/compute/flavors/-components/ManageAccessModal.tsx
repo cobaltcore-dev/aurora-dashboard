@@ -200,6 +200,8 @@ function ManageAccessModalInner({
         </Stack>
       ) : (
         <div>
+          {errors.newProjectId && <Message variant="error" text={errors.newProjectId} className="mb-4" />}
+
           {canAdd && (
             <Stack direction="horizontal" className="mb-4 justify-end">
               <Button
@@ -209,8 +211,6 @@ function ManageAccessModalInner({
               />
             </Stack>
           )}
-
-          {errors.newProjectId && <Message variant="error" text={errors.newProjectId} className="mb-4" />}
 
           {access.length === 0 && !isAddingNew ? (
             <p className="jn:text-theme-light py-8 text-center">
