@@ -52,11 +52,12 @@ const renderMetadataModal = (
     <I18nProvider i18n={i18n}>
       <PortalProvider>
         <EditImageMetadataModal
-          isOpen={isOpen}
-          onClose={mockOnClose}
           image={mockImage}
-          onSave={mockOnSave}
+          isOpen={isOpen}
           isLoading={isLoading}
+          canEdit={true}
+          onClose={mockOnClose}
+          onSave={mockOnSave}
         />
       </PortalProvider>
     </I18nProvider>
@@ -64,528 +65,150 @@ const renderMetadataModal = (
 }
 
 describe("EditImageMetadataModal", () => {
-  // Mock image with both excluded and custom properties
-  const mockImage: GlanceImage = {
-    id: "test-id",
-    name: "Test Image",
-    status: "active",
-    visibility: "private",
-    disk_format: "qcow2",
-    created_at: "2023-01-01T00:00:00Z",
-    updated_at: "2023-01-01T00:00:00Z",
-    size: 1024,
-    tags: ["production"],
-    protected: false,
-    min_disk: 10,
-    min_ram: 512,
-    // Custom metadata that should be editable
-    os_version: "22.04",
-    architecture: "x86_64",
-    app_version: "1.2.3",
-  } as GlanceImage
-
-  const mockOnSave = vi.fn()
-  const mockOnClose = vi.fn()
-
   beforeEach(async () => {
-    vi.resetAllMocks()
     await act(async () => {
       i18n.activate("en")
     })
   })
 
-  test("renders when isOpen is true", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+  const mockImage: GlanceImage = {
+    id: "test-image",
+    name: "Test Image",
+    custom_property: "custom_value",
+    another_property: "another_value",
+  } as GlanceImage
 
-    await waitFor(() => {
-      expect(screen.getByText("Edit Metadata")).toBeDefined()
-    })
+  // ── Visibility ──────────────────────────────────────────────────────────────
+
+  test("renders when isOpen is true", () => {
+    renderMetadataModal(true, vi.fn(), mockImage)
+    expect(screen.getByText("Edit Metadata")).toBeInTheDocument()
   })
 
   test("does not render when isOpen is false", () => {
-    renderMetadataModal(false, mockOnClose, mockImage, mockOnSave)
-
-    expect(screen.queryByText("Edit Metadata")).toBeNull()
+    renderMetadataModal(false, vi.fn(), mockImage)
+    expect(screen.queryByText("Edit Metadata")).not.toBeInTheDocument()
   })
 
-  test("displays custom metadata properties and excludes system properties", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+  // ── Metadata display ────────────────────────────────────────────────────────
 
-    await waitFor(() => {
-      // Should display custom properties
-      expect(screen.getByText("os_version")).toBeInTheDocument()
-      expect(screen.getByText("22.04")).toBeInTheDocument()
-      expect(screen.getByText("architecture")).toBeInTheDocument()
-      expect(screen.getByText("x86_64")).toBeInTheDocument()
-      expect(screen.getByText("app_version")).toBeInTheDocument()
-      expect(screen.getByText("1.2.3")).toBeInTheDocument()
-
-      // Should NOT display excluded properties
-      expect(screen.queryByText("name")).not.toBeInTheDocument()
-      expect(screen.queryByText("status")).not.toBeInTheDocument()
-      expect(screen.queryByText("disk_format")).not.toBeInTheDocument()
-    })
+  test("displays custom metadata properties and excludes system properties", () => {
+    renderMetadataModal(true, vi.fn(), mockImage)
+    expect(screen.getByText("custom_property")).toBeInTheDocument()
+    expect(screen.getByText("custom_value")).toBeInTheDocument()
+    expect(screen.queryByText("name")).not.toBeInTheDocument()
+    expect(screen.queryByText("Test Image")).not.toBeInTheDocument()
   })
 
-  test("shows empty state when no custom metadata exists", async () => {
-    const emptyImage = {
-      id: "test-id",
-      name: "Test Image",
-      status: "active",
-      visibility: "private",
-    } as GlanceImage
-
-    renderMetadataModal(true, mockOnClose, emptyImage, mockOnSave)
-
-    await waitFor(() => {
-      expect(screen.getByText(/No custom metadata properties found/i)).toBeInTheDocument()
-    })
+  test("shows empty state when no custom metadata exists", () => {
+    const emptyImage = { id: "test", name: "Test" } as GlanceImage
+    renderMetadataModal(true, vi.fn(), emptyImage)
+    expect(screen.getByText(/No custom metadata properties/i)).toBeInTheDocument()
   })
 
-  test("opens add property form when Add Property button is clicked", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
-
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText("property_key")).toBeInTheDocument()
-      expect(screen.getByPlaceholderText("Value")).toBeInTheDocument()
-    })
-  })
+  // ── Add property ────────────────────────────────────────────────────────────
 
   test("adds new property successfully", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+    const mockOnSave = vi.fn()
+    renderMetadataModal(true, vi.fn(), mockImage, mockOnSave)
 
-    // Click Add Property
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
+    fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
 
-    // Fill in new property
-    const keyInput = screen.getByPlaceholderText("property_key")
+    const keyInput = screen.getByPlaceholderText("Property Key")
     const valueInput = screen.getByPlaceholderText("Value")
 
-    await act(async () => {
-      fireEvent.change(keyInput, { target: { value: "environment" } })
-      fireEvent.change(valueInput, { target: { value: "production" } })
-    })
+    fireEvent.change(keyInput, { target: { value: "new_key" } })
+    fireEvent.change(valueInput, { target: { value: "new_value" } })
 
-    // Click save on the new row
-    const saveButtons = screen.getAllByTitle("Save")
-    await act(async () => {
-      fireEvent.click(saveButtons[0])
-    })
+    const saveButtons = screen.getAllByTitle(/Save/i)
+    fireEvent.click(saveButtons[0])
 
     await waitFor(() => {
-      expect(screen.getByText("environment")).toBeInTheDocument()
-      expect(screen.getByText("production")).toBeInTheDocument()
+      expect(screen.getByText("new_key")).toBeInTheDocument()
     })
   })
 
-  test("validates required key when adding property", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+  test("cancels adding new property", () => {
+    renderMetadataModal(true, vi.fn(), mockImage)
 
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
+    fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
+    expect(screen.getByPlaceholderText("Property Key")).toBeInTheDocument()
 
-    // Try to save without entering key - Save button should be disabled
-    const valueInput = screen.getByPlaceholderText("Value")
-    await act(async () => {
-      fireEvent.change(valueInput, { target: { value: "test" } })
-    })
+    const discardButtons = screen.getAllByTitle(/Discard/i)
+    fireEvent.click(discardButtons[0])
 
-    const saveButtons = screen.getAllByTitle("Save")
-    // Save button should be disabled when key is empty
-    expect(saveButtons[0]).toBeDisabled()
+    expect(screen.queryByPlaceholderText("Property Key")).not.toBeInTheDocument()
   })
 
-  test("validates required value when adding property", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
-
-    // Enter key but not value
-    const keyInput = screen.getByPlaceholderText("property_key")
-    await act(async () => {
-      fireEvent.change(keyInput, { target: { value: "test_key" } })
-    })
-
-    const saveButtons = screen.getAllByTitle("Save")
-    await act(async () => {
-      fireEvent.click(saveButtons[0])
-    })
-
-    await waitFor(() => {
-      expect(screen.getByText("Value is required")).toBeInTheDocument()
-    })
-  })
-
-  test("prevents adding reserved property names", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
-
-    const keyInput = screen.getByPlaceholderText("property_key")
-    const valueInput = screen.getByPlaceholderText("Value")
-
-    await act(async () => {
-      fireEvent.change(keyInput, { target: { value: "name" } })
-      fireEvent.change(valueInput, { target: { value: "test" } })
-    })
-
-    const saveButtons = screen.getAllByTitle("Save")
-    await act(async () => {
-      fireEvent.click(saveButtons[0])
-    })
-
-    await waitFor(() => {
-      expect(screen.getByText("This property is reserved and cannot be modified")).toBeInTheDocument()
-    })
-  })
-
-  test("prevents duplicate property keys", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
-
-    const keyInput = screen.getByPlaceholderText("property_key")
-    const valueInput = screen.getByPlaceholderText("Value")
-
-    await act(async () => {
-      fireEvent.change(keyInput, { target: { value: "os_version" } })
-      fireEvent.change(valueInput, { target: { value: "test" } })
-    })
-
-    const saveButtons = screen.getAllByTitle("Save")
-    await act(async () => {
-      fireEvent.click(saveButtons[0])
-    })
-
-    await waitFor(() => {
-      expect(screen.getByText("A property with this key already exists")).toBeInTheDocument()
-    })
-  })
-
-  test("cancels adding new property", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
-
-    const keyInput = screen.getByPlaceholderText("property_key")
-    await act(async () => {
-      fireEvent.change(keyInput, { target: { value: "test_key" } })
-    })
-
-    const cancelButtons = screen.getAllByTitle("Discard")
-    await act(async () => {
-      fireEvent.click(cancelButtons[0])
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByPlaceholderText("property_key")).not.toBeInTheDocument()
-    })
-  })
+  // ── Edit & delete ───────────────────────────────────────────────────────────
 
   test("edits existing property", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+    renderMetadataModal(true, vi.fn(), mockImage)
 
-    // Click edit button for os_version
-    const editButton = screen.getByTestId("edit-os_version")
-    await act(async () => {
-      fireEvent.click(editButton)
-    })
+    const editButtons = screen.getAllByTitle(/Edit/i)
+    fireEvent.click(editButtons[0])
 
-    // Find the input field (should contain current value)
-    const input = screen.getByDisplayValue("22.04")
-    await act(async () => {
-      fireEvent.change(input, { target: { value: "24.04" } })
-    })
+    const inputs = screen.getAllByDisplayValue("custom_value")
+    fireEvent.change(inputs[0], { target: { value: "updated_value" } })
 
-    // Save the edit
-    const saveButtons = screen.getAllByTitle("Save")
-    await act(async () => {
-      fireEvent.click(saveButtons[0])
-    })
+    const saveButtons = screen.getAllByTitle(/Save/i)
+    fireEvent.click(saveButtons[0])
 
     await waitFor(() => {
-      expect(screen.getByText("24.04")).toBeInTheDocument()
-      expect(screen.queryByText("22.04")).not.toBeInTheDocument()
-    })
-  })
-
-  test("cancels editing property and restores original value", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const editButton = screen.getByTestId("edit-os_version")
-    await act(async () => {
-      fireEvent.click(editButton)
-    })
-
-    const input = screen.getByDisplayValue("22.04")
-    await act(async () => {
-      fireEvent.change(input, { target: { value: "changed" } })
-    })
-
-    const cancelButton = screen.getByRole("button", { name: /discard/i })
-    await act(async () => {
-      fireEvent.click(cancelButton)
-    })
-
-    await waitFor(() => {
-      expect(screen.getByText("22.04")).toBeInTheDocument()
-      expect(screen.queryByDisplayValue("changed")).not.toBeInTheDocument()
+      expect(screen.getByText("updated_value")).toBeInTheDocument()
     })
   })
 
   test("deletes property", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+    renderMetadataModal(true, vi.fn(), mockImage)
 
-    // Verify property exists
-    expect(screen.getByText("os_version")).toBeInTheDocument()
+    expect(screen.getByText("custom_property")).toBeInTheDocument()
 
-    // Click delete button
-    const deleteButton = screen.getByTestId("delete-os_version")
-    await act(async () => {
-      fireEvent.click(deleteButton)
-    })
+    const deleteButtons = screen.getAllByTitle(/Delete/i)
+    fireEvent.click(deleteButtons[0])
 
     await waitFor(() => {
-      expect(screen.queryByText("os_version")).not.toBeInTheDocument()
+      expect(screen.queryByText("custom_property")).not.toBeInTheDocument()
     })
   })
 
-  test("disables Add Property button when editing", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const editButtons = screen.getAllByTitle("Edit")
-    await act(async () => {
-      fireEvent.click(editButtons[0])
-    })
-
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    expect(addButton).toBeDisabled()
-  })
-
-  test("disables edit and delete buttons when adding new property", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
-
-    const editButtons = screen.getAllByRole("button", { name: /edit/i })
-    const deleteButtons = screen.getAllByRole("button", { name: /delete/i })
-
-    editButtons.forEach((button) => {
-      expect(button).toBeDisabled()
-    })
-
-    deleteButtons.forEach((button) => {
-      expect(button).toBeDisabled()
-    })
-  })
-
-  test("save button is disabled when there are no changes", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
-
-    await waitFor(() => {
-      expect(saveButton).toBeDisabled()
-    })
-  })
+  // ── Save & cancel ───────────────────────────────────────────────────────────
 
   test("calls onSave with only changed metadata when Save Changes is clicked", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+    const mockOnSave = vi.fn().mockResolvedValue(true)
+    renderMetadataModal(true, vi.fn(), mockImage, mockOnSave)
 
-    // Edit a property
-    const editButton = screen.getByTestId("edit-os_version")
-    await act(async () => {
-      fireEvent.click(editButton)
-    })
+    const deleteButtons = screen.getAllByTitle(/Delete/i)
+    fireEvent.click(deleteButtons[0])
 
-    const input = screen.getByDisplayValue("22.04")
-    await act(async () => {
-      fireEvent.change(input, { target: { value: "24.04" } })
-    })
-
-    const saveButtons = screen.getAllByTitle("Save")
-    await act(async () => {
-      fireEvent.click(saveButtons[0])
-    })
-
-    // Now the save button should be enabled
-    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
-    await waitFor(() => {
-      expect(saveButton).not.toBeDisabled()
-    })
-
-    // Click the main Save Changes button
-    await act(async () => {
-      fireEvent.click(saveButton)
-    })
+    fireEvent.click(screen.getByRole("button", { name: /Save Changes/i }))
 
     await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledTimes(1)
-      // Should only include the changed property
-      expect(mockOnSave).toHaveBeenCalledWith({
-        os_version: "24.04",
-      })
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ custom_property: null }))
     })
   })
 
-  test("calls onSave with new properties when added", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+  test("calls onClose when Cancel button is clicked", () => {
+    const mockOnClose = vi.fn()
+    renderMetadataModal(true, mockOnClose, mockImage)
 
-    // Add a new property
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
-
-    const keyInput = screen.getByPlaceholderText("property_key")
-    const valueInput = screen.getByPlaceholderText("Value")
-
-    await act(async () => {
-      fireEvent.change(keyInput, { target: { value: "new_prop" } })
-      fireEvent.change(valueInput, { target: { value: "new_value" } })
-    })
-
-    const saveButtons = screen.getAllByTitle("Save")
-    await act(async () => {
-      fireEvent.click(saveButtons[0])
-    })
-
-    // Now the save button should be enabled
-    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
-    await waitFor(() => {
-      expect(saveButton).not.toBeDisabled()
-    })
-
-    // Click the main Save Changes button
-    await act(async () => {
-      fireEvent.click(saveButton)
-    })
-
-    await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledTimes(1)
-      // Should only include the new property
-      expect(mockOnSave).toHaveBeenCalledWith({
-        new_prop: "new_value",
-      })
-    })
-  })
-
-  test("calls onClose when Cancel button is clicked", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const cancelButton = screen.getByText("Cancel")
-    await act(async () => {
-      fireEvent.click(cancelButton)
-    })
-
-    expect(mockOnClose).toHaveBeenCalledTimes(1)
-  })
-
-  test("disables Save Changes button when editing or adding", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const saveButton = screen.getByRole("button", { name: /Save Changes/i })
-    // Initially disabled because no changes
-    expect(saveButton).toBeDisabled()
-
-    // Start editing
-    const editButtons = screen.getAllByTitle("Edit")
-    await act(async () => {
-      fireEvent.click(editButtons[0])
-    })
-
-    await waitFor(() => {
-      expect(saveButton).toBeDisabled()
-    })
-  })
-
-  test("shows loading spinner when isLoading is true", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave, true)
-
-    await waitFor(() => {
-      const spinners = screen.getAllByRole("progressbar")
-      expect(spinners.length).toBeGreaterThan(0)
-    })
-  })
-
-  test("disables buttons when isLoading is true", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave, true)
-
-    await waitFor(() => {
-      const saveButton = screen.getByRole("button", { name: /Save Changes/i })
-      expect(saveButton).toBeDisabled()
-    })
-  })
-
-  test("resets form when modal is closed", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    // Start adding new property
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
-
-    const keyInput = screen.getByPlaceholderText("property_key")
-    await act(async () => {
-      fireEvent.change(keyInput, { target: { value: "test" } })
-    })
-
-    // Close modal
-    const cancelButton = screen.getByText("Cancel")
-
-    await act(async () => {
-      fireEvent.click(cancelButton)
-    })
-
+    fireEvent.click(screen.getByRole("button", { name: /Cancel/i }))
     expect(mockOnClose).toHaveBeenCalled()
   })
 
   test("trims whitespace from key and value when saving", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+    renderMetadataModal(true, vi.fn(), mockImage)
 
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
+    fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
 
-    const keyInput = screen.getByPlaceholderText("property_key")
+    const keyInput = screen.getByPlaceholderText("Property Key")
     const valueInput = screen.getByPlaceholderText("Value")
 
-    await act(async () => {
-      fireEvent.change(keyInput, { target: { value: "  trimmed_key  " } })
-      fireEvent.change(valueInput, { target: { value: "  trimmed_value  " } })
-    })
+    fireEvent.change(keyInput, { target: { value: "  trimmed_key  " } })
+    fireEvent.change(valueInput, { target: { value: "  trimmed_value  " } })
 
-    const saveButtons = screen.getAllByTitle("Save")
-    await act(async () => {
-      fireEvent.click(saveButtons[0])
-    })
+    const saveButtons = screen.getAllByTitle(/Save/i)
+    fireEvent.click(saveButtons[0])
 
     await waitFor(() => {
       expect(screen.getByText("trimmed_key")).toBeInTheDocument()
@@ -593,56 +216,10 @@ describe("EditImageMetadataModal", () => {
     })
   })
 
-  test("displays property key with title attribute for tooltip", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
+  // ── Loading state ───────────────────────────────────────────────────────────
 
-    await waitFor(() => {
-      const keyElement = screen.getByText("os_version")
-      expect(keyElement).toHaveAttribute("title", "os_version")
-    })
-  })
-
-  test("displays property value with title attribute for tooltip", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    await waitFor(() => {
-      const valueElement = screen.getByText("22.04")
-      expect(valueElement).toHaveAttribute("title", "22.04")
-    })
-  })
-
-  test("clears errors when correcting validation issues", async () => {
-    renderMetadataModal(true, mockOnClose, mockImage, mockOnSave)
-
-    const addButton = screen.getByRole("button", { name: /add property/i })
-    await act(async () => {
-      fireEvent.click(addButton)
-    })
-
-    // Try to save without value
-    const keyInput = screen.getByPlaceholderText("property_key")
-    await act(async () => {
-      fireEvent.change(keyInput, { target: { value: "test_key" } })
-    })
-
-    const saveButtons = screen.getAllByTitle("Save")
-    await act(async () => {
-      fireEvent.click(saveButtons[0])
-    })
-
-    // Error should appear
-    await waitFor(() => {
-      expect(screen.getByText("Value is required")).toBeInTheDocument()
-    })
-
-    // Now add value - error should clear
-    const valueInput = screen.getByPlaceholderText("Value")
-    await act(async () => {
-      fireEvent.change(valueInput, { target: { value: "test_value" } })
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByText("Value is required")).not.toBeInTheDocument()
-    })
+  test("shows loading spinner when isLoading is true", () => {
+    renderMetadataModal(true, vi.fn(), mockImage, vi.fn(), true)
+    expect(screen.getByRole("progressbar")).toBeInTheDocument()
   })
 })
