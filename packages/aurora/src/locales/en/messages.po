@@ -239,6 +239,9 @@ msgstr "1 hour"
 msgid "1 minute"
 msgstr "1 minute"
 
+msgid "2-50 characters."
+msgstr "2-50 characters."
+
 msgid "24 hours"
 msgstr "24 hours"
 
@@ -485,6 +488,9 @@ msgstr "Attaching Floating IP..."
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 
+msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
+msgstr "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
+
 msgid "Back"
 msgstr "Back"
 
@@ -499,9 +505,6 @@ msgstr "Back to Security Groups"
 
 msgid "Basic Info"
 msgstr "Basic Info"
-
-msgid "Basic Information"
-msgstr "Basic Information"
 
 msgid "Boot RAM"
 msgstr "Boot RAM"
@@ -643,6 +646,9 @@ msgstr "CIDR"
 
 msgid "Clear all"
 msgstr "Clear all"
+
+msgid "Click \"Add Property\" to create one."
+msgstr "Click \"Add Property\" to create one."
 
 msgid "Click the button below to automatically generate credentials for this project. You only need to do this once."
 msgstr "Click the button below to automatically generate credentials for this project. You only need to do this once."
@@ -1046,6 +1052,9 @@ msgstr "Deactivated images cannot be used to launch instances."
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 msgstr "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 
+msgid "Defaults to 1."
+msgstr "Defaults to 1."
+
 msgid "Define permissions for this bucket. You may use one of the predefined templates."
 msgstr "Define permissions for this bucket. You may use one of the predefined templates."
 
@@ -1213,9 +1222,6 @@ msgstr "Discard"
 
 msgid "Disk"
 msgstr "Disk"
-
-msgid "Disk (GiB)"
-msgstr "Disk (GiB)"
 
 msgid "Disk Format"
 msgstr "Disk Format"
@@ -1529,9 +1535,6 @@ msgstr "External Network"
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Extra spec key is required and cannot be empty."
 
-msgid "Extra Specs"
-msgstr "Extra Specs"
-
 msgid "Failed deletions:"
 msgstr "Failed deletions:"
 
@@ -1733,6 +1736,9 @@ msgstr "Failed to load Floating IPs"
 msgid "Failed to load lifecycle configuration"
 msgstr "Failed to load lifecycle configuration"
 
+msgid "Failed to load metadata"
+msgstr "Failed to load metadata"
+
 msgid "Failed to load metadata configuration."
 msgstr "Failed to load metadata configuration."
 
@@ -1870,6 +1876,9 @@ msgstr "Flavor ID"
 
 msgid "Flavor ID is required and cannot be empty."
 msgstr "Flavor ID is required and cannot be empty."
+
+msgid "Flavor Information"
+msgstr "Flavor Information"
 
 msgid "Flavor Name"
 msgstr "Flavor Name"
@@ -2375,6 +2384,9 @@ msgstr "Min. Disk"
 msgid "Min. RAM"
 msgstr "Min. RAM"
 
+msgid "Minimum 128 MB."
+msgstr "Minimum 128 MB."
+
 msgid "Minimum Disk (GB)"
 msgstr "Minimum Disk (GB)"
 
@@ -2498,11 +2510,11 @@ msgstr "No lifecycle rules matching the current search criteria."
 msgid "No limit"
 msgstr "No limit"
 
+msgid "No metadata properties found"
+msgstr "No metadata properties found"
+
 msgid "No metadata properties found."
 msgstr "No metadata properties found."
-
-msgid "No metadata properties found. Click \"Add Property\" to create one."
-msgstr "No metadata properties found. Click \"Add Property\" to create one."
 
 msgid "No new versions will be created"
 msgstr "No new versions will be created"
@@ -2822,6 +2834,24 @@ msgstr "Properties of \"{displayName}\" were successfully updated."
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Properties of \"{objectName}\" were successfully updated."
 
+msgid "Property Created"
+msgstr "Property Created"
+
+msgid "Property Deleted"
+msgstr "Property Deleted"
+
+msgid "Property Updated"
+msgstr "Property Updated"
+
+msgid "Property was successfully created."
+msgstr "Property was successfully created."
+
+msgid "Property was successfully deleted."
+msgstr "Property was successfully deleted."
+
+msgid "Property was successfully updated."
+msgstr "Property was successfully updated."
+
 msgid "property_key"
 msgstr "property_key"
 
@@ -2944,6 +2974,9 @@ msgstr "Restore Version"
 
 msgid "Root"
 msgstr "Root"
+
+msgid "Root Disk"
+msgstr "Root Disk"
 
 msgid "Root Disk (GiB)"
 msgstr "Root Disk (GiB)"

@@ -169,7 +169,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
             </FormRow>
           )}
 
-          <FormSection>
+          <FormSection title={t`Flavor Information`}>
             <FormRow>
               <TextInput
                 id="id"
@@ -179,6 +179,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 errortext={errors.id}
+                helptext={t`Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed.`}
               />
             </FormRow>
             <FormRow>
@@ -190,6 +191,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 errortext={errors.name}
+                helptext={t`2-50 characters.`}
                 required
               />
             </FormRow>
@@ -205,10 +207,22 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
               />
             </FormRow>
             <FormRow>
+              <Checkbox
+                name="os-flavor-access:is_public"
+                label={t`Public Flavor`}
+                helptext={t`If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants.`}
+                checked={!!newFlavor["os-flavor-access:is_public"]}
+                onChange={handleInputChange}
+              />
+            </FormRow>
+          </FormSection>
+
+          <FormSection title={t`Hardware Specifications`}>
+            <FormRow>
               <TextInput
                 id="vcpus"
                 name="vcpus"
-                label={t`VCPUs`}
+                label={t`vCPU`}
                 value={String(newFlavor.vcpus || "")}
                 onChange={(e) => handleNumericInputChange("vcpus", Number(e.target.value))}
                 onBlur={handleBlur}
@@ -226,6 +240,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onChange={(e) => handleNumericInputChange("ram", Number(e.target.value))}
                 onBlur={handleBlur}
                 errortext={errors.ram}
+                helptext={t`Minimum 128 MB.`}
                 type="number"
                 required
               />
@@ -234,7 +249,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
               <TextInput
                 id="disk"
                 name="disk"
-                label={t`Disk (GiB)`}
+                label={t`Root Disk (GiB)`}
                 value={String(newFlavor.disk || "")}
                 onChange={(e) => handleNumericInputChange("disk", Number(e.target.value))}
                 onBlur={handleBlur}
@@ -277,16 +292,8 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 onChange={(e) => handleNumericInputChange("rxtx_factor", Number(e.target.value))}
                 onBlur={handleBlur}
                 errortext={errors.rxtx_factor}
+                helptext={t`Defaults to 1.`}
                 type="number"
-              />
-            </FormRow>
-            <FormRow>
-              <Checkbox
-                name="os-flavor-access:is_public"
-                label={t`Public Flavor`}
-                helptext={t`If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants.`}
-                checked={!!newFlavor["os-flavor-access:is_public"]}
-                onChange={handleInputChange}
               />
             </FormRow>
           </FormSection>
