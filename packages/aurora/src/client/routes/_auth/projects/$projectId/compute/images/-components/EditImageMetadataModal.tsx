@@ -266,6 +266,7 @@ function EditImageMetadataModalInner({
                         }}
                         placeholder={t`property_key`}
                         errortext={errors.newKey}
+                        invalid={!!errors.newKey}
                         autoFocus
                       />
                     </DescriptionTerm>
@@ -318,6 +319,7 @@ function EditImageMetadataModalInner({
                           value={entry.key}
                           onChange={(e) => handleKeyChange(index, e.target.value)}
                           errortext={errors[`edit-${index}`]}
+                          invalid={!!errors[`edit-${index}`]}
                         />
                       ) : (
                         <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
