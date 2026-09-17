@@ -264,7 +264,7 @@ function EditImageMetadataModalInner({
                             })
                           }
                         }}
-                        placeholder={t`property_key`}
+                        placeholder={t`Property Key`}
                         errortext={errors.newKey}
                         invalid={!!errors.newKey}
                         autoFocus
