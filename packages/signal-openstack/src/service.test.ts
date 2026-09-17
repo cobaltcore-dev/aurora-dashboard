@@ -189,6 +189,9 @@ describe("service", () => {
     })
 
     it("should handle cancellation with options", () => {
+      const service = SignalOpenstackService("service1", token, {})
+      service.cancellableGet("path")
+
       const fetchCall = (globalThis.fetch as Mock).mock.calls[(globalThis.fetch as Mock).mock.calls.length - 1][1]
 
       expect(fetchCall.signal).toBeInstanceOf(AbortSignal)

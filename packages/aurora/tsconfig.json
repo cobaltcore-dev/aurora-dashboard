@@ -19,6 +19,6 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["vite/client", "vitest/globals", "vite-plugin-svgr/client", "@testing-library/jest-dom"]
+    "types": ["vite/client", "vitest/globals", "vite-plugin-svgr/client", "@testing-library/jest-dom/vitest"]
   }
 }

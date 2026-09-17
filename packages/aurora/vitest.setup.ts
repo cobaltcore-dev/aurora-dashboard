@@ -1,5 +1,8 @@
-import { beforeAll, beforeEach, vi, expect } from "vitest"
-import * as matchers from "@testing-library/jest-dom/matchers"
+import { beforeAll, beforeEach, vi } from "vitest"
+// Registers the jest-dom matchers on vitest's `expect` and augments the
+// `vitest` Assertion types. The dedicated `/vitest` entrypoint is required
+// for type augmentation to work with vitest 5.
+import "@testing-library/jest-dom/vitest"
 import { i18n } from "@lingui/core"
 import type { ReactNode } from "react"
 
@@ -8,8 +11,6 @@ vi.mock("./src/client/assets/logo.svg?react", () => ({ default: () => null }))
 
 import { messages } from "./src/locales/en/messages"
 import { messages as deMessages } from "./src/locales/de/messages"
-
-expect.extend(matchers)
 
 // Stable router mock — shared instance so assertions on .invalidate/.navigate work
 const mockRouter = {
@@ -55,9 +56,6 @@ vi.mock("@/client/trpcClient", () => {
 })
 
 beforeAll(() => {
-  global.window = window
-  global.document = window.document
-
   global.ResizeObserver = class {
     observe = vi.fn()
     unobserve = vi.fn()

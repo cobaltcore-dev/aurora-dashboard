@@ -1,7 +1,3 @@
-import { beforeAll } from "vitest"
-
-beforeAll(() => {
-  // Mock global objects if necessary
-  global.window = window
-  global.document = window.document
-})
+// The jsdom environment (configured in vitest.config.ts) already provides
+// `window` and `document` as globals, so no manual setup is required here.
+export {}
