@@ -120,7 +120,7 @@ describe("EditImageMetadataModal", () => {
     fireEvent.change(keyInput, { target: { value: "new_key" } })
     fireEvent.change(valueInput, { target: { value: "new_value" } })
 
-    const saveButtons = screen.getAllByTitle(/Save/i)
+    const saveButtons = screen.getAllByTitle(/Save/i).filter((el) => el.tagName.toLowerCase() === "button")
     fireEvent.click(saveButtons[0])
 
     await waitFor(() => {
@@ -134,7 +134,7 @@ describe("EditImageMetadataModal", () => {
     fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
     expect(screen.getByPlaceholderText("Property Key")).toBeInTheDocument()
 
-    const discardButtons = screen.getAllByTitle(/Discard/i)
+    const discardButtons = screen.getAllByTitle(/Discard/i).filter((el) => el.tagName.toLowerCase() === "button")
     fireEvent.click(discardButtons[0])
 
     expect(screen.queryByPlaceholderText("Property Key")).not.toBeInTheDocument()
@@ -145,13 +145,13 @@ describe("EditImageMetadataModal", () => {
   test("edits existing property", async () => {
     renderMetadataModal(true, vi.fn(), mockImage)
 
-    const editButtons = screen.getAllByTitle(/Edit/i)
+    const editButtons = screen.getAllByTitle(/Edit/i).filter((el) => el.tagName.toLowerCase() === "button")
     fireEvent.click(editButtons[0])
 
     const inputs = screen.getAllByDisplayValue("custom_value")
     fireEvent.change(inputs[0], { target: { value: "updated_value" } })
 
-    const saveButtons = screen.getAllByTitle(/Save/i)
+    const saveButtons = screen.getAllByTitle(/Save/i).filter((el) => el.tagName.toLowerCase() === "button")
     fireEvent.click(saveButtons[0])
 
     await waitFor(() => {
@@ -164,7 +164,7 @@ describe("EditImageMetadataModal", () => {
 
     expect(screen.getByText("custom_property")).toBeInTheDocument()
 
-    const deleteButtons = screen.getAllByTitle(/Delete/i)
+    const deleteButtons = screen.getAllByTitle(/Delete/i).filter((el) => el.tagName.toLowerCase() === "button")
     fireEvent.click(deleteButtons[0])
 
     await waitFor(() => {
@@ -178,7 +178,7 @@ describe("EditImageMetadataModal", () => {
     const mockOnSave = vi.fn().mockResolvedValue(true)
     renderMetadataModal(true, vi.fn(), mockImage, mockOnSave)
 
-    const deleteButtons = screen.getAllByTitle(/Delete/i)
+    const deleteButtons = screen.getAllByTitle(/Delete/i).filter((el) => el.tagName.toLowerCase() === "button")
     fireEvent.click(deleteButtons[0])
 
     fireEvent.click(screen.getByRole("button", { name: /Save Changes/i }))
@@ -207,7 +207,7 @@ describe("EditImageMetadataModal", () => {
     fireEvent.change(keyInput, { target: { value: "  trimmed_key  " } })
     fireEvent.change(valueInput, { target: { value: "  trimmed_value  " } })
 
-    const saveButtons = screen.getAllByTitle(/Save/i)
+    const saveButtons = screen.getAllByTitle(/Save/i).filter((el) => el.tagName.toLowerCase() === "button")
     fireEvent.click(saveButtons[0])
 
     await waitFor(() => {
