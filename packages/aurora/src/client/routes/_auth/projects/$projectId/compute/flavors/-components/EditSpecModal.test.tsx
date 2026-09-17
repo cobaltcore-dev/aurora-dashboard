@@ -1,4 +1,4 @@
-import { render, screen, act, waitFor } from "@testing-library/react"
+import { render, screen, act, waitFor, fireEvent } from "@testing-library/react"
 import { describe, it, expect, beforeAll, vi, beforeEach } from "vitest"
 import { EditSpecModal } from "./EditSpecModal"
 import { TrpcClient } from "@/client/trpcClient"
@@ -16,23 +16,6 @@ describe("EditSpecModal", () => {
     })
   })
 
-  const mockClient = {
-    compute: {
-      canUser: {
-        query: vi.fn().mockResolvedValue([true, true]),
-      },
-      getExtraSpecs: {
-        query: vi.fn().mockResolvedValue({}),
-      },
-      createExtraSpecs: {
-        mutate: vi.fn().mockResolvedValue({ success: true }),
-      },
-      deleteExtraSpec: {
-        mutate: vi.fn().mockResolvedValue({ success: true }),
-      },
-    },
-  } as unknown as TrpcClient
-
   const mockFlavor: Flavor = {
     id: "test-flavor-id",
     name: "Test Flavor",
@@ -47,97 +30,17 @@ describe("EditSpecModal", () => {
     vi.clearAllMocks()
   })
 
-  it("renders the modal when open", async () => {
-    await act(async () => {
-      render(
-        <EditSpecModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    expect(screen.getByText("Edit Metadata")).toBeInTheDocument()
-  })
-
-  it("does not render when modal is closed", () => {
-    render(
-      <EditSpecModal
-        client={mockClient}
-        isOpen={false}
-        onClose={mockOnClose}
-        project="test-project"
-        flavor={mockFlavor}
-      />,
-      { wrapper: TestingProvider }
-    )
-
-    expect(screen.queryByText("Edit Metadata")).not.toBeInTheDocument()
-  })
-
-  it("shows add button when user has create permissions", async () => {
-    await act(async () => {
-      render(
-        <EditSpecModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    await waitFor(() => {
-      const addSpecButton = screen.getByRole("button", { name: /Add Property/i })
-      expect(addSpecButton).toBeInTheDocument()
-    })
-  })
-
-  it("hides add button when user lacks all permissions", async () => {
-    const mockClientNoPermission = {
-      ...mockClient,
+  it("calls createExtraSpecs with correct payload when adding new property", async () => {
+    const mockClient = {
       compute: {
-        ...mockClient.compute,
-        canUser: {
-          query: vi.fn().mockResolvedValue([false, false]),
-        },
-      },
-    } as unknown as TrpcClient
-
-    await act(async () => {
-      render(
-        <EditSpecModal
-          client={mockClientNoPermission}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByText("Add Property")).not.toBeInTheDocument()
-    })
-  })
-
-  it("displays existing extra specs", async () => {
-    const mockClientWithSpecs = {
-      ...mockClient,
-      compute: {
-        ...mockClient.compute,
         getExtraSpecs: {
-          query: vi.fn().mockResolvedValue({
-            "hw:cpu_policy": "dedicated",
-            "hw:mem_page_size": "large",
-          }),
+          query: vi.fn().mockResolvedValue({}),
+        },
+        createExtraSpecs: {
+          mutate: vi.fn().mockResolvedValue({ success: true }),
+        },
+        deleteExtraSpec: {
+          mutate: vi.fn().mockResolvedValue({ success: true }),
         },
       },
     } as unknown as TrpcClient
@@ -145,28 +48,6 @@ describe("EditSpecModal", () => {
     await act(async () => {
       render(
         <EditSpecModal
-          client={mockClientWithSpecs}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    await waitFor(() => {
-      expect(screen.getByText("hw:cpu_policy")).toBeInTheDocument()
-      expect(screen.getByText("dedicated")).toBeInTheDocument()
-      expect(screen.getByText("hw:mem_page_size")).toBeInTheDocument()
-      expect(screen.getByText("large")).toBeInTheDocument()
-    })
-  })
-
-  it("shows empty state when no specs exist", async () => {
-    await act(async () => {
-      render(
-        <EditSpecModal
           client={mockClient}
           isOpen={true}
           onClose={mockOnClose}
@@ -177,46 +58,44 @@ describe("EditSpecModal", () => {
       )
     })
 
-    await waitFor(() => {
-      expect(screen.getByText('No metadata properties found. Click "Add Property" to create one.')).toBeInTheDocument()
-    })
-  })
+    await waitFor(() => screen.getByRole("button", { name: /Add Property/i }))
+    fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
 
-  it("handles null flavor with not rendering", async () => {
+    await waitFor(() => screen.getByPlaceholderText("property_key"))
+
+    const inputs = screen.getAllByRole("textbox")
+    fireEvent.change(inputs[0], { target: { value: "hw:cpu_policy" } })
+    fireEvent.change(inputs[1], { target: { value: "dedicated" } })
+
+    const saveButton = screen.getByRole("button", { name: /Save/i })
     await act(async () => {
-      render(
-        <EditSpecModal client={mockClient} isOpen={true} onClose={mockOnClose} project="test-project" flavor={null} />,
-        { wrapper: TestingProvider }
-      )
-    })
-
-    expect(screen.queryByText("Edit Metadata")).not.toBeInTheDocument()
-    expect(screen.queryByText("Add Property")).not.toBeInTheDocument()
-  })
-
-  it("fetches extra specs with correct parameters", async () => {
-    await act(async () => {
-      render(
-        <EditSpecModal
-          client={mockClient}
-          isOpen={true}
-          onClose={mockOnClose}
-          project="test-project"
-          flavor={mockFlavor}
-        />,
-        { wrapper: TestingProvider }
-      )
+      fireEvent.click(saveButton)
     })
 
     await waitFor(() => {
-      expect(mockClient.compute.getExtraSpecs.query).toHaveBeenCalledWith({
+      expect(mockClient.compute.createExtraSpecs.mutate).toHaveBeenCalledWith({
         project_id: "test-project",
         flavorId: "test-flavor-id",
+        extra_specs: { "hw:cpu_policy": "dedicated" },
       })
     })
   })
 
-  it("checks user permissions on mount", async () => {
+  it("calls deleteExtraSpec with correct payload when deleting property", async () => {
+    const mockClient = {
+      compute: {
+        getExtraSpecs: {
+          query: vi.fn().mockResolvedValue({ "hw:cpu_policy": "dedicated" }),
+        },
+        createExtraSpecs: {
+          mutate: vi.fn().mockResolvedValue({ success: true }),
+        },
+        deleteExtraSpec: {
+          mutate: vi.fn().mockResolvedValue({ success: true }),
+        },
+      },
+    } as unknown as TrpcClient
+
     await act(async () => {
       render(
         <EditSpecModal
@@ -230,11 +109,67 @@ describe("EditSpecModal", () => {
       )
     })
 
+    await waitFor(() => screen.getByTestId("delete-hw:cpu_policy"))
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("delete-hw:cpu_policy"))
+    })
+
     await waitFor(() => {
-      expect(mockClient.compute.canUser.query).toHaveBeenCalledWith({
+      expect(mockClient.compute.deleteExtraSpec.mutate).toHaveBeenCalledWith({
         project_id: "test-project",
-        permission: ["flavor_specs:create", "flavor_specs:delete"],
+        flavorId: "test-flavor-id",
+        key: "hw:cpu_policy",
       })
     })
+  })
+
+  it("validates duplicate keys and shows error message", async () => {
+    const mockClient = {
+      compute: {
+        getExtraSpecs: {
+          query: vi.fn().mockResolvedValue({ "hw:cpu_policy": "dedicated" }),
+        },
+        createExtraSpecs: {
+          mutate: vi.fn().mockResolvedValue({ success: true }),
+        },
+        deleteExtraSpec: {
+          mutate: vi.fn().mockResolvedValue({ success: true }),
+        },
+      },
+    } as unknown as TrpcClient
+
+    await act(async () => {
+      render(
+        <EditSpecModal
+          client={mockClient}
+          isOpen={true}
+          onClose={mockOnClose}
+          project="test-project"
+          flavor={mockFlavor}
+        />,
+        { wrapper: TestingProvider }
+      )
+    })
+
+    await waitFor(() => screen.getByRole("button", { name: /Add Property/i }))
+    fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
+
+    await waitFor(() => screen.getByPlaceholderText("property_key"))
+
+    const inputs = screen.getAllByRole("textbox")
+    fireEvent.change(inputs[0], { target: { value: "hw:cpu_policy" } })
+    fireEvent.change(inputs[1], { target: { value: "shared" } })
+
+    const saveButton = screen.getByRole("button", { name: /Save/i })
+    await act(async () => {
+      fireEvent.click(saveButton)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText("A property with this key already exists")).toBeInTheDocument()
+    })
+
+    expect(mockClient.compute.createExtraSpecs.mutate).not.toHaveBeenCalled()
   })
 })

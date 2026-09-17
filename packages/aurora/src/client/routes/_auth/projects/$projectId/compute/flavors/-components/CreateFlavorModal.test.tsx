@@ -66,9 +66,9 @@ describe("CreateFlavorModal", () => {
     expect(screen.getByLabelText("Flavor ID")).toBeInTheDocument()
     expect(screen.getByLabelText("Flavor Name")).toBeInTheDocument()
     expect(screen.getByLabelText("Description")).toBeInTheDocument()
-    expect(screen.getByLabelText("VCPUs")).toBeInTheDocument()
+    expect(screen.getByLabelText("vCPU")).toBeInTheDocument()
     expect(screen.getByLabelText("RAM (MiB)")).toBeInTheDocument()
-    expect(screen.getByLabelText("Disk (GiB)")).toBeInTheDocument()
+    expect(screen.getByLabelText("Root Disk (GiB)")).toBeInTheDocument()
     expect(screen.getByLabelText("Ephemeral Disk (GiB)")).toBeInTheDocument()
     expect(screen.getByLabelText("Swap (MiB)")).toBeInTheDocument()
     expect(screen.getByLabelText("RX/TX Factor")).toBeInTheDocument()
@@ -93,9 +93,9 @@ describe("CreateFlavorModal", () => {
     fireEvent.change(screen.getByLabelText("Flavor ID"), { target: { value: "TestFlavor" } })
     fireEvent.change(screen.getByLabelText("Flavor Name"), { target: { value: "TestFlavor" } })
     fireEvent.change(screen.getByLabelText("Description"), { target: { value: "A test flavor" } })
-    fireEvent.change(screen.getByLabelText("VCPUs"), { target: { value: "4" } })
+    fireEvent.change(screen.getByLabelText("vCPU"), { target: { value: "4" } })
     fireEvent.change(screen.getByLabelText("RAM (MiB)"), { target: { value: "2048" } })
-    fireEvent.change(screen.getByLabelText("Disk (GiB)"), { target: { value: "20" } })
+    fireEvent.change(screen.getByLabelText("Root Disk (GiB)"), { target: { value: "20" } })
 
     const submitButton = screen.getByText(/Create New Flavor/i)
 
@@ -167,9 +167,9 @@ describe("CreateFlavorModal", () => {
 
     // Fill in required fields
     fireEvent.change(screen.getByLabelText("Flavor Name"), { target: { value: "TestFlavor" } })
-    fireEvent.change(screen.getByLabelText("VCPUs"), { target: { value: "4" } })
+    fireEvent.change(screen.getByLabelText("vCPU"), { target: { value: "4" } })
     fireEvent.change(screen.getByLabelText("RAM (MiB)"), { target: { value: "2048" } })
-    fireEvent.change(screen.getByLabelText("Disk (GiB)"), { target: { value: "20" } })
+    fireEvent.change(screen.getByLabelText("Root Disk (GiB)"), { target: { value: "20" } })
 
     const submitButton = screen.getByText(/Create New Flavor/i)
 
@@ -209,9 +209,9 @@ describe("CreateFlavorModal", () => {
     })
 
     fireEvent.change(screen.getByLabelText("Flavor Name"), { target: { value: "TestFlavor" } })
-    fireEvent.change(screen.getByLabelText("VCPUs"), { target: { value: "4" } })
+    fireEvent.change(screen.getByLabelText("vCPU"), { target: { value: "4" } })
     fireEvent.change(screen.getByLabelText("RAM (MiB)"), { target: { value: "2048" } })
-    fireEvent.change(screen.getByLabelText("Disk (GiB)"), { target: { value: "20" } })
+    fireEvent.change(screen.getByLabelText("Root Disk (GiB)"), { target: { value: "20" } })
 
     const submitButton = screen.getByText(/Create New Flavor/i)
 
