@@ -134,7 +134,7 @@ describe("BucketPolicyModal", () => {
 
   // ── Loading state ────────────────────────────────────────────────────────────
 
-  it("shows loading spinner when fetching policy", () => {
+  it("shows loading state when fetching policy", () => {
     mockQueryResult = {
       data: null,
       isLoading: true,
@@ -151,12 +151,12 @@ describe("BucketPolicyModal", () => {
     mockQueryResult = {
       data: null,
       isLoading: false,
-      error: { message: "Failed to fetch policy" },
+      error: { message: "Failed to Fetch Policy" },
     }
     renderModal(defaultProps)
 
-    expect(screen.getByText("Failed to load policy")).toBeInTheDocument()
-    expect(screen.getByText("Failed to fetch policy")).toBeInTheDocument()
+    expect(screen.getByText("Failed to Load Policy")).toBeInTheDocument()
+    expect(screen.getByText("Failed to Fetch Policy")).toBeInTheDocument()
   })
 
   // ── Modal rendering ──────────────────────────────────────────────────────────

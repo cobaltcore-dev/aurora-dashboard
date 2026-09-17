@@ -10,7 +10,7 @@ import {
   SelectOption,
   Checkbox,
   Button,
-  Spinner,
+  Status,
   Stack,
   Pill,
 } from "@cloudoperators/juno-ui-components"
@@ -221,13 +221,9 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isLoading || isSubmitDisabled}
     >
-      {isLoading && (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
-      )}
-
-      {!isLoading && (
+      {isLoading ? (
+        <Status status="progress" title={t`Saving Image Details...`} className="mt-0" />
+      ) : (
         <Form>
           {/* Basic Metadata Section */}
           <FormSection className="mb-6">

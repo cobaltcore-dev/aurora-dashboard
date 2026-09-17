@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { plural } from "@lingui/core/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Spinner, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Status, Stack, Form, FormSection, TextInput } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 
@@ -154,12 +154,10 @@ export const DeleteObjectsModal = ({
       size="small"
     >
       {isPending ? (
-        <Stack distribution="center" alignment="center" className="py-4">
-          <Spinner variant="primary" />
-        </Stack>
+        <Status status="progress" title={t`Deleting...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
-          <p className="text-theme-default overflow-x-hidden [overflow-wrap:anywhere]">
+          <p className="text-theme-default overflow-x-hidden wrap-anywhere">
             <Trans>The selected objects will be permanently deleted. This cannot be undone.</Trans>
           </p>
 

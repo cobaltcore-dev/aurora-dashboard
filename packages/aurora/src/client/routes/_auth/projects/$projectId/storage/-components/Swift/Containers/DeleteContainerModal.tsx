@@ -3,7 +3,7 @@ import { useForm, useStore } from "@tanstack/react-form"
 import { useState, useEffect } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Form, FormSection, TextInput, Stack, Spinner, Checkbox } from "@cloudoperators/juno-ui-components"
+import { Modal, Form, FormSection, TextInput, Stack, Status, Checkbox } from "@cloudoperators/juno-ui-components"
 import { ContainerSummary } from "@/server/Storage/types/swift"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -153,7 +153,7 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
             <p className="text-theme-error">
               {(() => {
                 const errorMessage = objectsError.message
-                return <Trans>Failed to load container objects: {errorMessage}</Trans>
+                return <Trans>Failed to Load Container Objects: {errorMessage}</Trans>
               })()}
             </p>
           )}
@@ -161,17 +161,14 @@ export const DeleteContainerModal = ({ isOpen, container, onClose, onSuccess, on
             <p className="text-theme-error">
               {(() => {
                 const errorMessage = metaError.message
-                return <Trans>Failed to load container properties: {errorMessage}</Trans>
+                return <Trans>Failed to Load Container Properties: {errorMessage}</Trans>
               })()}
             </p>
           )}
         </Stack>
       )}
       {isLoadingObjects ? (
-        <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
-          <Spinner size="small" />
-          <Trans>Loading...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Loading...`} className="mt-0" />
       ) : hasObjects ? (
         // ── Container has objects — block deletion ───────────────────────────
         <Stack direction="vertical" gap="3">

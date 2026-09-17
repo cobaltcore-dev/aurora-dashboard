@@ -6,8 +6,7 @@ import {
   DescriptionList,
   DescriptionTerm,
   Modal,
-  Spinner,
-  Stack,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import { SizeDisplay } from "./SizeDisplay"
 
@@ -45,11 +44,11 @@ export const DeactivateImageModal: React.FC<DeactivateImageModalProps> = ({
       confirmButtonLabel={t`Deactivate`}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isLoading}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
       {isLoading ? (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
+        <Status status="progress" title={t`Deactivating Image...`} className="mt-0" />
       ) : (
         <>
           <p className="mb-4">

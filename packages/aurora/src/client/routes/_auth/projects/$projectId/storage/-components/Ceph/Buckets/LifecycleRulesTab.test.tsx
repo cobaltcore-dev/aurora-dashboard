@@ -93,7 +93,7 @@ vi.mock("./LifecycleRulesTable", () => ({
     <div>
       <div>
         {rulesWithIndices.length === 0
-          ? "There are no lifecycle rules for this bucket"
+          ? "There Are No Lifecycle Rules for This Bucket"
           : `${rulesWithIndices.length} rule(s)`}
       </div>
       {rulesWithIndices.map(({ originalIndex }: any) => (
@@ -149,7 +149,7 @@ describe("LifecycleRulesTab", () => {
     })
   })
 
-  it("shows loading spinner while fetching lifecycle rules", () => {
+  it("shows loading state while fetching lifecycle rules", () => {
     ;(trpcReact.storage.ceph.lifecycle.get.useQuery as any).mockReturnValue({
       data: undefined,
       isLoading: true,
@@ -170,7 +170,7 @@ describe("LifecycleRulesTab", () => {
 
     render(<LifecycleRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
 
-    expect(screen.getByText(/Failed to load lifecycle configuration/i)).toBeInTheDocument()
+    expect(screen.getByText(/Failed to Load Lifecycle Configuration/i)).toBeInTheDocument()
     expect(screen.getByText("Network error")).toBeInTheDocument()
   })
 
@@ -183,7 +183,7 @@ describe("LifecycleRulesTab", () => {
 
     render(<LifecycleRulesTab bucketName="test-bucket" />, { wrapper: Wrapper })
 
-    expect(screen.getByText(/There are no lifecycle rules for this bucket/i)).toBeInTheDocument()
+    expect(screen.getByText(/There Are No Lifecycle Rules for This Bucket/i)).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Create Lifecycle Rule/i })).toBeInTheDocument()
   })
 

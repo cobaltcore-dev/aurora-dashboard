@@ -260,7 +260,7 @@ export const CephBuckets = () => {
               administrator.
             </Trans>
           ) : (
-            <Trans>Failed to load buckets: {errorMessage}</Trans>
+            <Trans>Failed to Load Buckets: {errorMessage}</Trans>
           )}
         </p>
       </div>

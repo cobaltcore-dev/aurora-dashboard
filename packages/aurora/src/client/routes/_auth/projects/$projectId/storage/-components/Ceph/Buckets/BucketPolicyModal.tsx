@@ -3,7 +3,7 @@ import { z } from "zod"
 import { useForm, useStore } from "@tanstack/react-form"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { Modal, Stack, Select, SelectOption, Spinner, Message, Form } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Select, SelectOption, Status, Message, Form } from "@cloudoperators/juno-ui-components"
 import { JsonEditor } from "@/client/components/JsonEditor"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
@@ -283,26 +283,20 @@ export const BucketPolicyModal = ({ isOpen, bucketName, onClose, onSuccess, onEr
       size="large"
     >
       <Stack direction="vertical" gap="4">
-        {isPolicyLoading && (
-          <div className="flex items-center justify-center py-8">
-            <Spinner variant="primary" size="large" />
-          </div>
-        )}
+        {isPolicyLoading && <Status status="progress" title={t`Loading Policy...`} className="mt-0" />}
 
         {policyError && (
-          <Message variant="error" title={t`Failed to load policy`}>
-            {policyError.message}
-          </Message>
+          <Status status="error" title={t`Failed to Load Policy`} body={policyError.message} className="mt-0" />
         )}
 
         {setMutation.error && (
-          <Message variant="error" title={t`Failed to save policy`}>
+          <Message variant="error" title={t`Failed to Save Policy`}>
             {setMutation.error.message}
           </Message>
         )}
 
         {deleteMutation.error && (
-          <Message variant="error" title={t`Failed to delete policy`}>
+          <Message variant="error" title={t`Failed to Delete Policy`}>
             {deleteMutation.error.message}
           </Message>
         )}
