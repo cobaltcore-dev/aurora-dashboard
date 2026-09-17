@@ -12,6 +12,8 @@ import {
   DescriptionDefinition,
   TextInput,
   Message,
+  Status,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
 
@@ -21,36 +23,21 @@ interface EditSpecModalProps {
   onClose: () => void
   project: string
   flavor: Flavor | null
-  canEdit?: boolean
 }
 
 interface SpecEntry {
   key: string
   value: string
-  isNew?: boolean
   isEditing?: boolean
-  originalKey?: string
-  originalValue?: string
+  editingValue?: string
 }
 
 function buildInitialSpecs(extraSpecs: Record<string, string>): SpecEntry[] {
   return Object.entries(extraSpecs).map(([key, value]) => ({
     key,
     value,
-    isNew: false,
     isEditing: false,
-    originalKey: key,
-    originalValue: value,
   }))
-}
-
-const createPermissionsPromise = (client: TrpcClient, project: string) => {
-  return client.compute.canUser
-    .query({
-      project_id: project,
-      permission: ["flavor_specs:create", "flavor_specs:delete"],
-    })
-    .then(([canCreate, canDelete]) => ({ canCreate, canDelete }))
 }
 
 const createExtraSpecsPromise = (client: TrpcClient, project: string, flavorId: string) => {
@@ -67,7 +54,6 @@ function EditSpecModalInner({
   isLoading,
   onClose,
   initialSpecs,
-  canEdit,
 }: {
   client: TrpcClient
   project: string
@@ -75,7 +61,6 @@ function EditSpecModalInner({
   isLoading: boolean
   onClose: () => void
   initialSpecs: SpecEntry[]
-  canEdit: boolean
 }) {
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
@@ -85,22 +70,10 @@ function EditSpecModalInner({
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newKey, setNewKey] = useState("")
   const [newValue, setNewValue] = useState("")
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
+  const [operationInProgress, setOperationInProgress] = useState(false)
+  const [validationMessage, setValidationMessage] = useState<string | null>(null)
 
-  const hasChanges = useMemo(() => {
-    // Build maps for comparison
-    const currentSpecs = new Map(specs.map((s) => [s.key.trim(), s.value.trim()]))
-    const originalSpecs = new Map(initialSpecs.map((s) => [s.key.trim(), s.value.trim()]))
-
-    if (currentSpecs.size !== originalSpecs.size) return true
-    for (const [key, value] of currentSpecs) {
-      if (originalSpecs.get(key) !== value) return true
-    }
-    return false
-  }, [specs, initialSpecs])
-
-  const isSubmitDisabled = !hasChanges || isLoading || isSaving || isAddingNew || specs.some((e) => e.isEditing)
+  const isModalDisabled = operationInProgress || isAddingNew || specs.some((e) => e.isEditing)
 
   const validateKey = (key: string, rowIndex?: number): string | null => {
     const normalized = key?.trim()
@@ -114,21 +87,43 @@ function EditSpecModalInner({
     return null
   }
 
-  const handleAddNew = () => {
+  const handleAddNew = async () => {
     const keyError = validateKey(newKey, specs.length)
     if (keyError) {
-      setErrors({ newKey: keyError })
+      setErrors({ newKey: "error" })
+      setValidationMessage(keyError)
       return
     }
     if (!newValue.trim()) {
-      setErrors({ newValue: t`Value is required` })
+      setErrors({ newValue: "error" })
+      setValidationMessage(t`Value is required`)
       return
     }
-    setSpecs([...specs, { key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }])
-    setNewKey("")
-    setNewValue("")
-    setIsAddingNew(false)
-    setErrors({})
+
+    setOperationInProgress(true)
+    try {
+      await client.compute.createExtraSpecs.mutate({
+        project_id: project,
+        flavorId: flavor.id,
+        extra_specs: { [newKey.trim()]: newValue.trim() },
+      })
+
+      setSpecs([...specs, { key: newKey.trim(), value: newValue.trim(), isEditing: false }])
+      setNewKey("")
+      setNewValue("")
+      setIsAddingNew(false)
+      setErrors({})
+      setValidationMessage(null)
+
+      toast.success(t`Property Created`, {
+        description: t`Property was successfully created.`,
+      })
+    } catch (error) {
+      const errorMsg = translateError(error instanceof Error ? error.message : "Failed to create property")
+      setValidationMessage(errorMsg)
+    } finally {
+      setOperationInProgress(false)
+    }
   }
 
   const handleCancelAdd = () => {
@@ -136,127 +131,106 @@ function EditSpecModalInner({
     setNewValue("")
     setIsAddingNew(false)
     setErrors({})
+    setValidationMessage(null)
   }
 
   const handleEdit = (index: number) => {
-    setSpecs(specs.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false })))
+    setSpecs(
+      specs.map((e, i) => (i === index ? { ...e, isEditing: true, editingValue: e.value } : { ...e, isEditing: false }))
+    )
     setIsAddingNew(false)
   }
 
-  const handleSaveEdit = (index: number) => {
-    const entry = specs[index]
-    const keyError = validateKey(entry.key, index)
-    if (keyError) {
-      setErrors({ [`edit-${index}`]: keyError })
+  const handleSaveEdit = async (index: number) => {
+    const spec = specs[index]
+
+    if (!spec.value.trim()) {
+      setErrors({ [`edit-value-${index}`]: "error" })
+      setValidationMessage(t`Value is required`)
       return
     }
-    if (!entry.value.trim()) {
-      setErrors({ [`edit-${index}`]: t`Value is required` })
-      return
+
+    setOperationInProgress(true)
+    try {
+      const trimmedValue = spec.value.trim()
+
+      // Create/update the spec (OpenStack API handles upsert)
+      await client.compute.createExtraSpecs.mutate({
+        project_id: project,
+        flavorId: flavor.id,
+        extra_specs: { [spec.key]: trimmedValue },
+      })
+
+      setSpecs(specs.map((e, i) => (i === index ? { key: spec.key, value: trimmedValue, isEditing: false } : e)))
+      setErrors({})
+      setValidationMessage(null)
+
+      toast.success(t`Property Updated`, {
+        description: t`Property was successfully updated.`,
+      })
+    } catch (error) {
+      const errorMsg = translateError(error instanceof Error ? error.message : "Failed to update property")
+      setValidationMessage(errorMsg)
+    } finally {
+      setOperationInProgress(false)
     }
-    setSpecs(
-      specs.map((e, i) => (i === index ? { ...e, isEditing: false, key: e.key.trim(), value: e.value.trim() } : e))
-    )
-    setErrors({})
   }
 
   const handleCancelEdit = (index: number) => {
     setSpecs(
-      specs.map((e, i) =>
-        i === index ? { ...e, isEditing: false, key: e.originalKey ?? e.key, value: e.originalValue ?? e.value } : e
-      )
+      specs.map((e, i) => (i === index ? { key: e.key, value: e.editingValue ?? e.value, isEditing: false } : e))
     )
     setErrors({})
+    setValidationMessage(null)
   }
 
-  const handleDelete = (index: number) => {
-    setSpecs(specs.filter((_, i) => i !== index))
-    setErrors({})
-  }
+  const handleDelete = async (index: number) => {
+    const spec = specs[index]
+    setOperationInProgress(true)
 
-  const handleKeyChange = (index: number, value: string) => {
-    setSpecs(specs.map((entry, i) => (i === index ? { ...entry, key: value } : entry)))
-    if (errors[`edit-${index}`]) {
-      setErrors((prev) => {
-        const next = { ...prev }
-        delete next[`edit-${index}`]
-        return next
+    try {
+      await client.compute.deleteExtraSpec.mutate({
+        project_id: project,
+        flavorId: flavor.id,
+        key: spec.key,
       })
+
+      setSpecs(specs.filter((_, i) => i !== index))
+      setErrors({})
+      setValidationMessage(null)
+
+      toast.success(t`Property Deleted`, {
+        description: t`Property was successfully deleted.`,
+      })
+    } catch (error) {
+      const errorMsg = translateError(error instanceof Error ? error.message : "Failed to delete property")
+      setValidationMessage(errorMsg)
+    } finally {
+      setOperationInProgress(false)
     }
   }
 
   const handleValueChange = (index: number, value: string) => {
     setSpecs(specs.map((entry, i) => (i === index ? { ...entry, value } : entry)))
-    if (errors[`edit-${index}`]) {
+    if (errors[`edit-value-${index}`]) {
       setErrors((prev) => {
         const next = { ...prev }
-        delete next[`edit-${index}`]
+        delete next[`edit-value-${index}`]
         return next
       })
-    }
-  }
-
-  const handleSubmit = async () => {
-    setIsSaving(true)
-    setSaveError(null)
-
-    try {
-      // Collect keys to delete (in initialSpecs but not in current specs, or key was renamed)
-      const currentKeys = new Set(specs.map((s) => s.key))
-      const keysToDelete = initialSpecs
-        .filter((initial) => !currentKeys.has(initial.key))
-        .map((s) => s.originalKey!)
-        .filter(Boolean)
-
-      // Also delete old keys when a key was renamed
-      specs.forEach((entry) => {
-        if (entry.originalKey && entry.key !== entry.originalKey && !entry.isNew) {
-          keysToDelete.push(entry.originalKey)
-        }
-      })
-
-      // Collect specs to create/update
-      const specsToSave: Record<string, string> = {}
-      specs.forEach((entry) => {
-        if (entry.isNew || entry.key !== entry.originalKey || entry.value !== entry.originalValue) {
-          specsToSave[entry.key] = entry.value
-        }
-      })
-
-      // Delete removed/renamed specs
-      for (const key of new Set(keysToDelete)) {
-        await client.compute.deleteExtraSpec.mutate({
-          project_id: project,
-          flavorId: flavor.id,
-          key,
-        })
-      }
-
-      // Create/update specs
-      if (Object.keys(specsToSave).length > 0) {
-        await client.compute.createExtraSpecs.mutate({
-          project_id: project,
-          flavorId: flavor.id,
-          extra_specs: specsToSave,
-        })
-      }
-
-      onClose()
-    } catch (error) {
-      setSaveError(translateError(error instanceof Error ? error.message : "Failed to save changes"))
-    } finally {
-      setIsSaving(false)
+      setValidationMessage(null)
     }
   }
 
   const handleClose = () => {
-    setSpecs(initialSpecs)
-    setIsAddingNew(false)
-    setNewKey("")
-    setNewValue("")
-    setErrors({})
-    setSaveError(null)
-    onClose()
+    if (!operationInProgress) {
+      setIsAddingNew(false)
+      setNewKey("")
+      setNewValue("")
+      setErrors({})
+      setValidationMessage(null)
+      onClose()
+    }
   }
 
   return (
@@ -264,13 +238,9 @@ function EditSpecModalInner({
       open
       onCancel={handleClose}
       size="xl"
-      title={canEdit ? t`Edit Metadata` : t`Show Metadata`}
-      onConfirm={canEdit ? handleSubmit : undefined}
-      confirmButtonLabel={canEdit ? (isSaving ? t`Saving...` : t`Save Changes`) : undefined}
-      cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={isSubmitDisabled}
-      disableCancelButton={isSaving}
-      disableCloseButton={isSaving}
+      title={t`Edit Metadata`}
+      cancelButtonLabel={t`Close`}
+      disableCancelButton={operationInProgress}
     >
       {isLoading ? (
         <Stack distribution="center" alignment="center">
@@ -278,34 +248,24 @@ function EditSpecModalInner({
         </Stack>
       ) : (
         <div>
-          {saveError && (
-            <Message variant="error" text={saveError} className="mb-4" onDismiss={() => setSaveError(null)} />
-          )}
+          {validationMessage && <Message variant="error" text={validationMessage} className="mb-4" />}
 
-          {canEdit && (
-            <Stack direction="horizontal" className="mb-4 justify-end">
-              <Button
-                label={t`Add Property`}
-                onClick={() => setIsAddingNew(true)}
-                variant="primary"
-                disabled={isAddingNew || specs.some((e) => e.isEditing)}
-                icon="addCircle"
-              />
-            </Stack>
-          )}
+          <Stack direction="horizontal" className="mb-4 justify-end">
+            <Button label={t`Add Property`} onClick={() => setIsAddingNew(true)} disabled={isModalDisabled} />
+          </Stack>
 
           {specs.length === 0 && !isAddingNew ? (
-            <p className="jn:text-theme-light py-8 text-center">
-              {canEdit
-                ? t`No metadata properties found. Click "Add Property" to create one.`
-                : t`No metadata properties found.`}
-            </p>
+            <Status
+              status="empty"
+              title={t`No metadata properties found`}
+              body={t`Click "Add Property" to create one.`}
+            />
           ) : (
-            <DescriptionList className="mb-6" alignTerms="left">
+            <DescriptionList className="mb-6 grid-cols-2" alignTerms="left">
               <>
                 {isAddingNew && (
                   <>
-                    <DescriptionTerm>
+                    <DescriptionTerm className="col-span-1">
                       <TextInput
                         value={newKey}
                         onChange={(e) => {
@@ -316,15 +276,17 @@ function EditSpecModalInner({
                               delete next.newKey
                               return next
                             })
+                            setValidationMessage(null)
                           }
                         }}
                         placeholder={t`property_key`}
-                        errortext={errors.newKey}
+                        invalid={!!errors.newKey}
                         autoFocus
+                        disabled={operationInProgress}
                       />
                     </DescriptionTerm>
-                    <DescriptionDefinition>
-                      <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+                    <DescriptionDefinition className="col-span-1 flex items-center gap-2">
+                      <div className="flex-1">
                         <TextInput
                           value={newValue}
                           onChange={(e) => {
@@ -335,21 +297,33 @@ function EditSpecModalInner({
                                 delete next.newValue
                                 return next
                               })
+                              setValidationMessage(null)
                             }
                           }}
                           placeholder={t`Value`}
-                          errortext={errors.newValue}
+                          invalid={!!errors.newValue}
+                          disabled={operationInProgress}
                         />
-                        <Stack direction="horizontal" gap="2">
-                          <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Save`} />
-                          <Button
-                            size="small"
-                            variant="subdued"
-                            onClick={handleCancelAdd}
-                            icon="close"
-                            title={t`Discard`}
-                          />
-                        </Stack>
+                      </div>
+                      <Stack direction="horizontal" gap="2" className="shrink-0">
+                        <Button
+                          size="small"
+                          variant="primary"
+                          onClick={handleAddNew}
+                          icon="check"
+                          title={t`Save`}
+                          aria-label={t`Save`}
+                          disabled={operationInProgress}
+                        />
+                        <Button
+                          size="small"
+                          variant="subdued"
+                          onClick={handleCancelAdd}
+                          icon="close"
+                          title={t`Discard`}
+                          aria-label={t`Discard`}
+                          disabled={operationInProgress}
+                        />
                       </Stack>
                     </DescriptionDefinition>
                   </>
@@ -358,35 +332,38 @@ function EditSpecModalInner({
 
               <>
                 {specs.map((entry, index) => (
-                  <React.Fragment key={`${entry.originalKey}-${index}`}>
-                    <DescriptionTerm>
+                  <React.Fragment key={index}>
+                    <DescriptionTerm className="col-span-1">
                       {entry.isEditing ? (
-                        <TextInput
-                          value={entry.key}
-                          onChange={(e) => handleKeyChange(index, e.target.value)}
-                          errortext={errors[`edit-${index}`]}
-                        />
+                        <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
+                          {entry.key}
+                        </span>
                       ) : (
                         <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
                           {entry.key}
                         </span>
                       )}
                     </DescriptionTerm>
-                    <DescriptionDefinition className="flex items-center justify-between gap-2">
+                    <DescriptionDefinition className="col-span-1 flex items-center gap-2">
                       {entry.isEditing ? (
                         <>
-                          <TextInput
-                            value={entry.value}
-                            onChange={(e) => handleValueChange(index, e.target.value)}
-                            errortext={errors[`edit-${index}`]}
-                          />
-                          <Stack direction="horizontal" gap="2">
+                          <div className="flex-1">
+                            <TextInput
+                              value={entry.value}
+                              onChange={(e) => handleValueChange(index, e.target.value)}
+                              invalid={!!errors[`edit-value-${index}`]}
+                              disabled={operationInProgress}
+                            />
+                          </div>
+                          <Stack direction="horizontal" gap="2" className="shrink-0">
                             <Button
                               size="small"
                               variant="primary"
                               onClick={() => handleSaveEdit(index)}
                               icon="check"
                               title={t`Save`}
+                              aria-label={t`Save`}
+                              disabled={operationInProgress}
                             />
                             <Button
                               size="small"
@@ -394,35 +371,36 @@ function EditSpecModalInner({
                               onClick={() => handleCancelEdit(index)}
                               icon="close"
                               title={t`Discard`}
+                              aria-label={t`Discard`}
+                              disabled={operationInProgress}
                             />
                           </Stack>
                         </>
                       ) : (
                         <>
-                          <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
+                          <span className="jn:text-theme-default flex-1 truncate" title={entry.value}>
                             {entry.value}
                           </span>
-                          {canEdit && (
-                            <Stack direction="horizontal" gap="2">
-                              <Button
-                                size="small"
-                                variant="subdued"
-                                onClick={() => handleEdit(index)}
-                                icon="edit"
-                                data-testid={`edit-${entry.key}`}
-                                title={t`Edit`}
-                                disabled={isAddingNew || specs.some((e) => e.isEditing)}
-                              />
-                              <Button
-                                size="small"
-                                onClick={() => handleDelete(index)}
-                                icon="deleteForever"
-                                data-testid={`delete-${entry.key}`}
-                                title={t`Delete`}
-                                disabled={isAddingNew || specs.some((e) => e.isEditing)}
-                              />
-                            </Stack>
-                          )}
+                          <Stack direction="horizontal" gap="2" className="shrink-0">
+                            <Button
+                              size="small"
+                              variant="subdued"
+                              onClick={() => handleEdit(index)}
+                              icon="edit"
+                              data-testid={`edit-${entry.key}`}
+                              title={t`Edit`}
+                              disabled={isModalDisabled}
+                            />
+                            <Button
+                              size="small"
+                              onClick={() => handleDelete(index)}
+                              icon="deleteForever"
+                              data-testid={`delete-${entry.key}`}
+                              title={t`Delete`}
+                              aria-label={t`Delete`}
+                              disabled={isModalDisabled}
+                            />
+                          </Stack>
                         </>
                       )}
                     </DescriptionDefinition>
@@ -437,14 +415,13 @@ function EditSpecModalInner({
   )
 }
 
-export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, onClose, project, flavor, canEdit }) => {
+export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, onClose, project, flavor }) => {
   const { t } = useLingui()
   const { translateError } = useErrorTranslation()
 
   const [extraSpecsData, setExtraSpecsData] = useState<Record<string, string> | null>(null)
   const [isLoadingSpecs, setIsLoadingSpecs] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [resolvedCanEdit, setResolvedCanEdit] = useState<boolean | undefined>(canEdit)
 
   useEffect(() => {
     if (!isOpen || !flavor?.id) {
@@ -459,15 +436,9 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
 
     const loadData = async () => {
       try {
-        const [specs, permissions] = await Promise.all([
-          createExtraSpecsPromise(client, project, flavor.id),
-          canEdit !== undefined
-            ? Promise.resolve({ canCreate: canEdit, canDelete: canEdit })
-            : createPermissionsPromise(client, project),
-        ])
+        const specs = await createExtraSpecsPromise(client, project, flavor.id)
         if (cancelled) return
         setExtraSpecsData(specs)
-        setResolvedCanEdit(permissions.canCreate || permissions.canDelete)
       } catch (error) {
         if (cancelled) return
         setLoadError(error instanceof Error ? error.message : "Failed to load metadata")
@@ -480,7 +451,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
     return () => {
       cancelled = true
     }
-  }, [isOpen, flavor?.id, client, project, canEdit])
+  }, [isOpen, flavor?.id, client, project])
 
   const initialSpecs = useMemo(() => (extraSpecsData ? buildInitialSpecs(extraSpecsData) : []), [extraSpecsData])
 
@@ -490,7 +461,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
 
   if (isLoadingSpecs) {
     return (
-      <Modal open onCancel={onClose} size="xl" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
+      <Modal open onCancel={onClose} size="xl" title={t`Edit Metadata`}>
         <Stack distribution="center" alignment="center">
           <Spinner variant="primary" />
         </Stack>
@@ -500,7 +471,7 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
 
   if (loadError) {
     return (
-      <Modal open onCancel={onClose} size="xl" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
+      <Modal open onCancel={onClose} size="xl" title={t`Edit Metadata`}>
         <Message variant="error" text={translateError(loadError)} />
       </Modal>
     )
@@ -515,7 +486,6 @@ export const EditSpecModal: React.FC<EditSpecModalProps> = ({ client, isOpen, on
       isLoading={false}
       onClose={onClose}
       initialSpecs={initialSpecs}
-      canEdit={resolvedCanEdit ?? false}
     />
   )
 }

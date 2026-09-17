@@ -6,6 +6,7 @@ import {
   PopupMenuToggle,
   PopupMenuOptions,
   PopupMenuItem,
+  PopupMenuSectionSeparator,
   Container,
   Status,
 } from "@cloudoperators/juno-ui-components/index"
@@ -67,6 +68,7 @@ function RouteComponent() {
   const navigate = useNavigate()
   const { t } = useLingui()
   const { translateError, isRetryableError } = useErrorTranslation()
+  const utils = trpcReact.useUtils()
 
   const {
     data: flavor,
@@ -84,21 +86,27 @@ function RouteComponent() {
     project_id: projectId,
     permission: [
       "flavors:delete",
-      "flavors:list_projects",
+      "flavors:add_project",
+      "flavors:remove_project",
+      "flavor_specs:list",
       "flavor_specs:create",
       "flavor_specs:delete",
-      "flavor_specs:list",
     ],
   })
 
   const canDeleteFlavor = permissionsData?.[0] ?? false
-  const canManageAccess = permissionsData?.[1] ?? false
-  const canManageSpecs = (permissionsData?.[2] ?? false) || (permissionsData?.[3] ?? false)
-  const canListSpecs = permissionsData?.[4] ?? false
+  const canManageAccess = (permissionsData?.[1] ?? false) || (permissionsData?.[2] ?? false)
+  const canListSpecs = permissionsData?.[3] ?? false
+  const canManageSpecs = (permissionsData?.[4] ?? false) || (permissionsData?.[5] ?? false)
 
   const [specModalOpen, toggleSpecModal] = useModal()
   const [accessModalOpen, toggleAccessModal] = useModal()
   const [deleteModalOpen, toggleDeleteModal] = useModal()
+
+  const handleSpecModalClose = () => {
+    toggleSpecModal()
+    utils.compute.getExtraSpecs.invalidate({ project_id: projectId, flavorId })
+  }
 
   const handleBack = () => {
     navigate({
@@ -186,26 +194,33 @@ function RouteComponent() {
   }
 
   const isPublicFlavor = flavor["os-flavor-access:is_public"] !== false
-  const hasMoreActions = canManageAccess || canDeleteFlavor || canManageSpecs || canListSpecs
+  const hasPopupMenuItems = (canManageAccess && !isPublicFlavor) || canDeleteFlavor
+  const canEditMetadata = canManageSpecs && canListSpecs
+  const hasMoreActions = hasPopupMenuItems || canEditMetadata
 
   const headerActions = hasMoreActions ? (
     <Stack gap="0.5" alignment="center">
-      {(canManageAccess || canDeleteFlavor) && (
+      {hasPopupMenuItems && (
         <PopupMenu>
           <PopupMenuToggle as="div">
-            <Button icon="moreVert" title={t`More Actions`} />
+            <Button icon="moreVert" title={t`More Actions`} aria-label={t`More Actions`} />
           </PopupMenuToggle>
           <PopupMenuOptions>
-            {canManageAccess && (
-              <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} disabled={isPublicFlavor} />
+            {canManageAccess && !isPublicFlavor && (
+              <PopupMenuItem label={t`Manage Access`} onClick={toggleAccessModal} />
             )}
-            {canDeleteFlavor && <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />}
+            {canDeleteFlavor && (
+              <>
+                <PopupMenuSectionSeparator />
+                <PopupMenuItem label={t`Delete Flavor`} onClick={toggleDeleteModal} />
+              </>
+            )}
           </PopupMenuOptions>
         </PopupMenu>
       )}
-      {(canManageSpecs || canListSpecs) && (
+      {canEditMetadata && (
         <Button variant="primary" onClick={toggleSpecModal}>
-          {canManageSpecs ? <Trans>Edit Metadata</Trans> : <Trans>Metadata</Trans>}
+          <Trans>Edit Metadata</Trans>
         </Button>
       )}
     </Stack>
@@ -215,7 +230,7 @@ function RouteComponent() {
     <>
       <ContentHeader title={flavor.name} projectId={projectId} actions={headerActions} />
       <Stack direction="vertical">
-        <FlavorDetailsView flavor={flavor} />
+        <FlavorDetailsView flavor={flavor} canListSpecs={canListSpecs} />
       </Stack>
 
       {trpcClient && (
@@ -224,10 +239,9 @@ function RouteComponent() {
             <EditSpecModal
               client={trpcClient}
               isOpen={specModalOpen}
-              onClose={toggleSpecModal}
+              onClose={handleSpecModalClose}
               project={projectId}
               flavor={flavor}
-              canEdit={canManageSpecs}
             />
           )}
 

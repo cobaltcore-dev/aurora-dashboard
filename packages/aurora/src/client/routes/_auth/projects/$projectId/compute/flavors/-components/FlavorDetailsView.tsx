@@ -1,16 +1,41 @@
-import { Stack, ContentHeading } from "@cloudoperators/juno-ui-components/index"
+import {
+  Stack,
+  ContentHeading,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+  Status,
+} from "@cloudoperators/juno-ui-components/index"
 import { Trans, useLingui } from "@lingui/react/macro"
+import { Fragment } from "react"
 import type { Flavor } from "@/server/Compute/types/flavor"
 import ClipboardText from "@/client/components/ClipboardText"
-import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
+import { trpcReact } from "@/client/trpcClient"
+import { useProjectId } from "@/client/hooks/useProjectId"
 
 interface FlavorDetailsViewProps {
   flavor: Flavor
+  canListSpecs?: boolean
 }
 
-export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
+export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetailsViewProps) {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const formatWithUnit = (value: number, unit: string) => `${value} ${unit}`
+
+  const {
+    data: extraSpecs,
+    isLoading,
+    isError,
+  } = trpcReact.compute.getExtraSpecs.useQuery(
+    {
+      project_id: projectId,
+      flavorId: flavor.id,
+    },
+    {
+      enabled: !!projectId && !!flavor.id && canListSpecs,
+    }
+  )
 
   const basicInfoItems = [
     { label: t`ID`, value: <ClipboardText text={flavor.id} /> },
@@ -29,7 +54,7 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
   const hardwareSpecItems = [
     { label: t`VCPUs`, value: flavor.vcpus },
     { label: t`RAM`, value: formatWithUnit(flavor.ram, "MiB") },
-    { label: t`Disk`, value: formatWithUnit(flavor.disk, "GiB") },
+    { label: t`Root Disk`, value: formatWithUnit(flavor.disk, "GiB") },
     {
       label: t`Ephemeral Disk`,
       value: formatWithUnit(flavor["OS-FLV-EXT-DATA:ephemeral"] || 0, "GiB"),
@@ -41,32 +66,67 @@ export function FlavorDetailsView({ flavor }: FlavorDetailsViewProps) {
     { label: t`RX/TX Factor`, value: flavor.rxtx_factor ?? "" },
   ]
 
-  const extraSpecItems = flavor.extra_specs
-    ? Object.entries(flavor.extra_specs).map(([key, value]) => ({ label: key, value }))
-    : []
+  const extraSpecItems = extraSpecs ? Object.entries(extraSpecs).map(([key, value]) => ({ label: key, value })) : []
 
   return (
     <Stack direction="vertical" gap="6" className="mt-6">
-      <Stack direction="vertical" gap="2">
-        <ContentHeading>
-          <Trans>Basic Information</Trans>
-        </ContentHeading>
-        <TwoColumnDescriptionList items={basicInfoItems} />
-      </Stack>
-
-      <Stack direction="vertical" gap="2">
-        <ContentHeading>
-          <Trans>Hardware Specifications</Trans>
-        </ContentHeading>
-        <TwoColumnDescriptionList items={hardwareSpecItems} />
-      </Stack>
-
-      {flavor.extra_specs && Object.keys(flavor.extra_specs).length > 0 && (
+      <Stack direction="horizontal" gap="6" className="grid grid-cols-2">
         <Stack direction="vertical" gap="2">
           <ContentHeading>
-            <Trans>Extra Specs</Trans>
+            <Trans>Flavor Information</Trans>
           </ContentHeading>
-          <TwoColumnDescriptionList items={extraSpecItems} />
+          <DescriptionList alignTerms="right">
+            {basicInfoItems.map(({ label, value }, index) => (
+              <Fragment key={`basic-${index}`}>
+                <DescriptionTerm>{label}</DescriptionTerm>
+                <DescriptionDefinition>
+                  <div className="truncate">{value}</div>
+                </DescriptionDefinition>
+              </Fragment>
+            ))}
+          </DescriptionList>
+        </Stack>
+
+        <Stack direction="vertical" gap="2">
+          <ContentHeading>
+            <Trans>Hardware Specifications</Trans>
+          </ContentHeading>
+          <DescriptionList alignTerms="right">
+            {hardwareSpecItems.map(({ label, value }, index) => (
+              <Fragment key={`hardware-${index}`}>
+                <DescriptionTerm>{label}</DescriptionTerm>
+                <DescriptionDefinition>
+                  <div className="truncate">{value}</div>
+                </DescriptionDefinition>
+              </Fragment>
+            ))}
+          </DescriptionList>
+        </Stack>
+      </Stack>
+
+      {canListSpecs && (
+        <Stack direction="vertical" gap="2">
+          <ContentHeading>
+            <Trans>Metadata</Trans>
+          </ContentHeading>
+          {isLoading ? (
+            <Status status="progress" />
+          ) : isError ? (
+            <Status status="error" title={t`Failed to load metadata`} />
+          ) : extraSpecs && Object.keys(extraSpecs).length > 0 ? (
+            <DescriptionList alignTerms="right" className="grid-cols-2">
+              {extraSpecItems.map(({ label, value }, index) => (
+                <Fragment key={`extra-${index}`}>
+                  <DescriptionTerm className="col-span-1">{label}</DescriptionTerm>
+                  <DescriptionDefinition className="col-span-1">
+                    <div className="truncate">{value}</div>
+                  </DescriptionDefinition>
+                </Fragment>
+              ))}
+            </DescriptionList>
+          ) : (
+            <Status status="empty" title={t`No metadata properties found.`} />
+          )}
         </Stack>
       )}
     </Stack>

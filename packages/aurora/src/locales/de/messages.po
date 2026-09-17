@@ -239,6 +239,9 @@ msgstr "1 Stunde"
 msgid "1 minute"
 msgstr "1 Minute"
 
+msgid "2-50 characters."
+msgstr ""
+
 msgid "24 hours"
 msgstr "24 Stunden"
 
@@ -485,6 +488,9 @@ msgstr ""
 msgid "Aurora Dashboard is more than just a tool—it's your partner in navigating the cloud. Whether you're a small startup or a global enterprise, Aurora provides the flexibility, power, and simplicity you need to achieve your goals."
 msgstr "Das Aurora-Dashboard ist mehr als nur ein Werkzeug – es ist Ihr Partner bei der Navigation in der Cloud. Egal, ob Sie ein kleines Startup oder ein globales Unternehmen sind, Aurora bietet Ihnen die Flexibilität, Leistung und Einfachheit, die Sie benötigen, um Ihre Ziele zu erreichen."
 
+msgid "Auto-generated if not provided. Only alphanumeric, hyphens, underscores, and dots allowed."
+msgstr ""
+
 msgid "Back"
 msgstr "Zurück"
 
@@ -498,9 +504,6 @@ msgid "Back to Security Groups"
 msgstr "Zurück zu Security Groups"
 
 msgid "Basic Info"
-msgstr "Grundlegende Informationen"
-
-msgid "Basic Information"
 msgstr "Grundlegende Informationen"
 
 msgid "Boot RAM"
@@ -643,6 +646,9 @@ msgstr "CIDR"
 
 msgid "Clear all"
 msgstr "Alle Filter löschen"
+
+msgid "Click \"Add Property\" to create one."
+msgstr ""
 
 msgid "Click the button below to automatically generate credentials for this project. You only need to do this once."
 msgstr ""
@@ -1046,6 +1052,9 @@ msgstr ""
 msgid "Deactivating this image will prevent it from being used to launch new instances. Existing instances will not be affected."
 msgstr ""
 
+msgid "Defaults to 1."
+msgstr ""
+
 msgid "Define permissions for this bucket. You may use one of the predefined templates."
 msgstr ""
 
@@ -1213,9 +1222,6 @@ msgstr "Verwerfen"
 
 msgid "Disk"
 msgstr "Disk"
-
-msgid "Disk (GiB)"
-msgstr "Disk (GiB)"
 
 msgid "Disk Format"
 msgstr "Festplattenformat"
@@ -1529,9 +1535,6 @@ msgstr "Externes Netzwerk"
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
 
-msgid "Extra Specs"
-msgstr "Zusätzliche Spezifikationen"
-
 msgid "Failed deletions:"
 msgstr ""
 
@@ -1733,6 +1736,9 @@ msgstr "Floating IPs konnten nicht geladen werden"
 msgid "Failed to load lifecycle configuration"
 msgstr ""
 
+msgid "Failed to load metadata"
+msgstr ""
+
 msgid "Failed to load metadata configuration."
 msgstr "Metadaten-Konfiguration konnte nicht geladen werden."
 
@@ -1870,6 +1876,9 @@ msgstr "Flavor ID"
 
 msgid "Flavor ID is required and cannot be empty."
 msgstr "Flavor-ID ist erforderlich und darf nicht leer sein"
+
+msgid "Flavor Information"
+msgstr ""
 
 msgid "Flavor Name"
 msgstr "Flavor Name"
@@ -2375,6 +2384,9 @@ msgstr "Min. Disk"
 msgid "Min. RAM"
 msgstr "Min. RAM"
 
+msgid "Minimum 128 MB."
+msgstr ""
+
 msgid "Minimum Disk (GB)"
 msgstr "Minimale Festplatte (GB)"
 
@@ -2498,11 +2510,11 @@ msgstr ""
 msgid "No limit"
 msgstr "Kein Limit"
 
-msgid "No metadata properties found."
-msgstr "Keine Metadaten-Eigenschaften gefunden."
+msgid "No metadata properties found"
+msgstr ""
 
-msgid "No metadata properties found. Click \"Add Property\" to create one."
-msgstr "Keine Metadaten-Eigenschaften gefunden. Klicken Sie auf \"Eigenschaft hinzufügen\", um eine zu erstellen."
+msgid "No metadata properties found."
+msgstr ""
 
 msgid "No new versions will be created"
 msgstr ""
@@ -2822,6 +2834,24 @@ msgstr ""
 msgid "Properties of \"{objectName}\" were successfully updated."
 msgstr "Eigenschaften von \"{objectName}\" wurden erfolgreich aktualisiert."
 
+msgid "Property Created"
+msgstr ""
+
+msgid "Property Deleted"
+msgstr ""
+
+msgid "Property Updated"
+msgstr ""
+
+msgid "Property was successfully created."
+msgstr ""
+
+msgid "Property was successfully deleted."
+msgstr ""
+
+msgid "Property was successfully updated."
+msgstr ""
+
 msgid "property_key"
 msgstr "property_key"
 
@@ -2944,6 +2974,9 @@ msgstr ""
 
 msgid "Root"
 msgstr "Root"
+
+msgid "Root Disk"
+msgstr ""
 
 msgid "Root Disk (GiB)"
 msgstr "Root Disk (GiB)"
