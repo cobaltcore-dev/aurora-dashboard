@@ -12,3 +12,4 @@
 - Change "No metadata properties found" to "No Metadata Properties Found" (title case)
 - Disable Create Flavor button until all required fields are filled and valid
 - Force word break on metadata keys and values in flavor detail view and modal to prevent overflow
+- Shorten Public Flavor helptext in Create Flavor modal

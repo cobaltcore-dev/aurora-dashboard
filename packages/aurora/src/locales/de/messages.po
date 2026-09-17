@@ -2084,9 +2084,6 @@ msgstr "ID"
 msgid "ID must only contain alphanumeric characters, hyphens, underscores, and dots."
 msgstr "Die ID darf nur alphanumerische Zeichen, Bindestriche, Unterstriche und Punkte enthalten."
 
-msgid "If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants."
-msgstr "Wenn diese Option aktiviert ist, wird dieser Flavor für alle Projekte verfügbar sein. Wenn sie deaktiviert ist, muss der Zugriff explizit für bestimmte Projekt gewährt werden."
-
 msgid "If the port has multiple IPs, select the desired fixed IP address."
 msgstr ""
 
@@ -4014,6 +4011,9 @@ msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management
 msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung der nächsten Generation. Wir sind bestrebt, die Art und Weise, wie Sie mit Ihrer Cloud-Infrastruktur interagieren und diese verwalten, zu vereinfachen. Mit Effizienz, Skalierbarkeit und Benutzerfreundlichkeit im Kern konzipiert, ermöglicht Aurora Ihnen, Prozesse zu optimieren und das volle Potenzial Ihrer Cloud-Ressourcen auszuschöpfen."
 
 msgid "What happens when suspended:"
+msgstr ""
+
+msgid "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 msgstr ""
 
 msgid "Why Choose Aurora?"

@@ -2084,9 +2084,6 @@ msgstr "ID"
 msgid "ID must only contain alphanumeric characters, hyphens, underscores, and dots."
 msgstr "ID must only contain alphanumeric characters, hyphens, underscores, and dots."
 
-msgid "If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants."
-msgstr "If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants."
-
 msgid "If the port has multiple IPs, select the desired fixed IP address."
 msgstr "If the port has multiple IPs, select the desired fixed IP address."
 
@@ -4015,6 +4012,9 @@ msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud managemen
 
 msgid "What happens when suspended:"
 msgstr "What happens when suspended:"
+
+msgid "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
+msgstr "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"

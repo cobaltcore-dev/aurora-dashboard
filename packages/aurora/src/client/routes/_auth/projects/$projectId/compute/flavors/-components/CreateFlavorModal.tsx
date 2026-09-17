@@ -239,7 +239,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
               <Checkbox
                 name="os-flavor-access:is_public"
                 label={t`Public Flavor`}
-                helptext={t`If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants.`}
+                helptext={t`When checked, all tenants can use this flavor. Otherwise, grant access explicitly.`}
                 checked={!!newFlavor["os-flavor-access:is_public"]}
                 onChange={handleInputChange}
               />
