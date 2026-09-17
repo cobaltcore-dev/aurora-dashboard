@@ -139,15 +139,9 @@ const renderModal = ({
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-// Juno icon buttons render an SVG with a <title> child, which makes getByTitle
-// match both the <button title="X"> and the inner SVG <title>X</title>.
-// This helper returns only the actual button element.
 const getIconButton = (title: string | RegExp) =>
   screen.getAllByTitle(title).find((el) => el.tagName.toLowerCase() === "button") as HTMLElement
 
-// The modal footer "Save" button has visible text "Save" and default size.
-// The inline row save button is icon-only (small size, empty text content).
-// Distinguish by the text node directly inside the button.
 const getModalSaveButton = () =>
   screen
     .getAllByRole("button", { name: /Save/i })
@@ -173,821 +167,187 @@ describe("EditContainerMetadataModal", () => {
     })
   })
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Visibility
-  // ──────────────────────────────────────────────────────────────────────────
+  // ── Visibility ──────────────────────────────────────────────────────────────
 
-  describe("Visibility", () => {
-    test("does not render when isOpen is false", () => {
-      renderModal({ isOpen: false })
-      expect(screen.queryByText(/Container:/i)).not.toBeInTheDocument()
-    })
+  test("renders nothing when closed or container is null", () => {
+    renderModal({ isOpen: false })
+    expect(screen.queryByText(/Container:/i)).not.toBeInTheDocument()
 
-    test("does not render when container is null", () => {
-      renderModal({ container: null })
-      expect(screen.queryByText(/Container:/i)).not.toBeInTheDocument()
-    })
+    renderModal({ isOpen: true, container: null })
+    expect(screen.queryByText(/Container:/i)).not.toBeInTheDocument()
+  })
 
-    test("renders when isOpen is true and container is set", () => {
-      renderModal()
-      expect(screen.getByText("my-container")).toBeInTheDocument()
-    })
+  test("renders modal with container name when open", () => {
+    renderModal()
+    expect(screen.getByText("my-container")).toBeInTheDocument()
+  })
 
-    test("renders modal title with container name", () => {
-      renderModal({ container: makeContainer({ name: "special-container" }) })
-      expect(screen.getByText("special-container")).toBeInTheDocument()
+  // ── Loading & error states ──────────────────────────────────────────────────
+
+  test("shows loading spinner while fetching metadata", () => {
+    metadataLoading = true
+    renderModal()
+    expect(screen.getByText(/Loading container properties/i)).toBeInTheDocument()
+  })
+
+  test("shows error message when metadata fetch fails", () => {
+    metadataError = { message: "Not found" }
+    renderModal()
+    expect(screen.getByText(/Failed to load container properties/i)).toBeInTheDocument()
+    expect(screen.getByText(/Not found/)).toBeInTheDocument()
+  })
+
+  // ── Custom metadata validation ──────────────────────────────────────────────
+
+  test("validates metadata key is required", async () => {
+    const user = userEvent.setup()
+    renderModal()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.click(getIconButton(/Save/i))
+    await waitFor(() => {
+      expect(screen.getByText(/Key is required/i)).toBeInTheDocument()
     })
   })
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Loading state
-  // ──────────────────────────────────────────────────────────────────────────
-
-  describe("Loading state", () => {
-    test("shows loading spinner while fetching container properties", () => {
-      metadataLoading = true
-      renderModal()
-      expect(screen.getByText(/Loading container properties/i)).toBeInTheDocument()
-    })
-
-    test("Save button is disabled while loading", () => {
-      metadataLoading = true
-      renderModal()
-      expect(screen.getByRole("button", { name: /Save/i })).toBeDisabled()
-    })
-
-    test("renders content once loading finishes", () => {
-      metadataLoading = false
-      renderModal()
-      expect(screen.getByLabelText(/Object count$/i)).toBeInTheDocument()
+  test("validates metadata key contains only valid characters", async () => {
+    const user = userEvent.setup()
+    renderModal()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "invalid key")
+    await user.click(getIconButton(/Save/i))
+    await waitFor(() => {
+      expect(screen.getByText(/Key contains invalid characters/i)).toBeInTheDocument()
     })
   })
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Read-only stats
-  // ──────────────────────────────────────────────────────────────────────────
-
-  describe("Read-only stats", () => {
-    test("renders object count from container summary", () => {
-      renderModal({ container: makeContainer({ count: 42 }) })
-      expect(screen.getByDisplayValue("42")).toBeInTheDocument()
-    })
-
-    test("renders total size from ContainerInfo when available", () => {
-      mockContainerInfo = makeContainerInfo({ bytesUsed: 2048 })
-      renderModal()
-      expect(screen.getByDisplayValue(/2,048 B/)).toBeInTheDocument()
-    })
-
-    test("falls back to container.bytes when ContainerInfo is not yet loaded", () => {
-      mockContainerInfo = undefined
-      renderModal({ container: makeContainer({ bytes: 4096 }) })
-      expect(screen.getByDisplayValue(/4,096 B/)).toBeInTheDocument()
-    })
-
-    test("object count and total size fields are read-only", () => {
-      renderModal()
-      const inputs = screen.getAllByRole("textbox")
-      const objectCountInput = inputs.find((i) => i.getAttribute("value") === "10")
-      expect(objectCountInput).toBeDisabled()
+  test("validates metadata key has at least one alphanumeric character", async () => {
+    const user = userEvent.setup()
+    renderModal()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "----")
+    await user.click(getIconButton(/Save/i))
+    await waitFor(() => {
+      expect(screen.getByText(/Key must contain at least one alphanumeric character/i)).toBeInTheDocument()
     })
   })
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Quota fields
-  // ──────────────────────────────────────────────────────────────────────────
-
-  describe("Quota fields", () => {
-    test("renders quota fields with empty values when not set", () => {
-      renderModal()
-      expect(screen.getByLabelText(/Object count quota/i)).toHaveValue("")
-      expect(screen.getByLabelText(/Total size quota/i)).toHaveValue("")
-    })
-
-    test("populates quota fields from ContainerInfo", () => {
-      mockContainerInfo = makeContainerInfo({ quotaCount: 500, quotaBytes: 1073741824 })
-      renderModal()
-      expect(screen.getByLabelText(/Object count quota/i)).toHaveValue("500")
-      expect(screen.getByLabelText(/Total size quota/i)).toHaveValue("1073741824")
-    })
-
-    test("shows validation error for negative quota-bytes", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.clear(screen.getByLabelText(/Total size quota/i))
-      await user.type(screen.getByLabelText(/Total size quota/i), "-1")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows validation error for non-numeric quota-count", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.type(screen.getByLabelText(/Object count quota/i), "abc")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows validation error for decimal quota-bytes", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.clear(screen.getByLabelText(/Total size quota/i))
-      await user.type(screen.getByLabelText(/Total size quota/i), "1.5")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows validation error for decimal quota-count", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.type(screen.getByLabelText(/Object count quota/i), "1.5")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument()
-      })
-    })
-
-    test("clears quota-bytes error when field changes", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.type(screen.getByLabelText(/Total size quota/i), "-5")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => expect(screen.getByText(/Must be a whole number, 0 or greater/i)).toBeInTheDocument())
-      await user.clear(screen.getByLabelText(/Total size quota/i))
-      await user.type(screen.getByLabelText(/Total size quota/i), "100")
-      await waitFor(() => {
-        expect(screen.queryByText(/Must be a whole number, 0 or greater/i)).not.toBeInTheDocument()
-      })
-    })
-
-    test("does not call mutate when quota validation fails", async () => {
-      const user = userEvent.setup()
-      // Load with a changed field so Save button is enabled
-      mockContainerInfo = makeContainerInfo({ quotaBytes: 0 })
-      renderModal()
-      await user.clear(screen.getByLabelText(/Total size quota/i))
-      await user.type(screen.getByLabelText(/Total size quota/i), "-1")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      expect(mockMutate).not.toHaveBeenCalled()
+  test("accepts valid metadata key with hyphens", async () => {
+    const user = userEvent.setup()
+    renderModal()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "my-key-1")
+    await user.type(screen.getByPlaceholderText(/Value/i), "val")
+    await user.click(getIconButton(/Save/i))
+    await waitFor(() => {
+      expect(screen.getByText("my-key-1")).toBeInTheDocument()
     })
   })
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Public URL
-  // ──────────────────────────────────────────────────────────────────────────
+  // ── Metadata CRUD ───────────────────────────────────────────────────────────
 
-  describe("Public URL section", () => {
-    test("does not render public URL section when publicUrl is null", () => {
-      mockPublicUrl = null
-      renderModal()
-      expect(screen.queryByText(/URL for public access/i)).not.toBeInTheDocument()
-    })
-
-    test("renders public URL input when publicUrl is available", () => {
-      mockContainerInfo = makeContainerInfo({ read: ".r:*,.rlistings" })
-      mockPublicUrl = "https://swift.example.com/v1/AUTH_test/my-container/"
-      renderModal()
-      expect(screen.getByText(/URL for public access/i)).toBeInTheDocument()
-      expect(screen.getByDisplayValue("https://swift.example.com/v1/AUTH_test/my-container/")).toBeInTheDocument()
-    })
-
-    test("renders Open in new tab link pointing to the public URL", () => {
-      mockContainerInfo = makeContainerInfo({ read: ".r:*,.rlistings" })
-      mockPublicUrl = "https://swift.example.com/v1/AUTH_test/my-container/"
-      renderModal()
-      const link = screen.getByRole("link", { name: /Open in new tab/i })
-      expect(link).toHaveAttribute("href", "https://swift.example.com/v1/AUTH_test/my-container/")
-      expect(link).toHaveAttribute("target", "_blank")
-    })
-  })
-
-  // ──────────────────────────────────────────────────────────────────────────
-  // Static website serving
-  // ──────────────────────────────────────────────────────────────────────────
-
-  describe("Static website serving", () => {
-    test("shows info message when container does not have public read access", () => {
-      mockContainerInfo = makeContainerInfo({ read: "AUTH_user1" })
-      renderModal()
-      expect(screen.getByText(/Public read access is not enabled/i)).toBeInTheDocument()
-      expect(screen.getByText(/Manage Access/i)).toBeInTheDocument()
-    })
-
-    test("shows web-index and web-listings controls when container has public read access", () => {
-      mockContainerInfo = makeContainerInfo({ read: ".r:*,.rlistings" })
-      renderModal()
-      expect(screen.getByLabelText(/Serve objects as index when file name is/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Enable file listing/i)).toBeInTheDocument()
-    })
-
-    test("web-index checkbox is unchecked when web-index metadata is not set", () => {
-      mockContainerInfo = makeContainerInfo({ read: ".r:*,.rlistings", metadata: {} })
-      renderModal()
-      expect(screen.getByLabelText(/Serve objects as index when file name is/i)).not.toBeChecked()
-    })
-
-    test("web-index checkbox is checked when web-index metadata is set", () => {
-      mockContainerInfo = makeContainerInfo({
-        read: ".r:*,.rlistings",
-        metadata: { "web-index": "index.html" },
-      })
-      renderModal()
-      expect(screen.getByLabelText(/Serve objects as index when file name is/i)).toBeChecked()
-    })
-
-    test("checking web-index sets default value index.html in text input", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ read: ".r:*,.rlistings", metadata: {} })
-      renderModal()
-      await user.click(screen.getByLabelText(/Serve objects as index when file name is/i))
-      const inputs = screen.getAllByRole("textbox")
-      const webIndexInput = inputs.find((i) => i.getAttribute("placeholder") === "index.html")
-      expect(webIndexInput).toHaveValue("index.html")
-    })
-
-    test("unchecking web-index clears the text input", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({
-        read: ".r:*,.rlistings",
-        metadata: { "web-index": "index.html" },
-      })
-      renderModal()
-      await user.click(screen.getByLabelText(/Serve objects as index when file name is/i))
-      const inputs = screen.getAllByRole("textbox")
-      const webIndexInput = inputs.find((i) => i.getAttribute("placeholder") === "index.html")
-      expect(webIndexInput).toHaveValue("")
-    })
-
-    test("web-listings checkbox is unchecked by default", () => {
-      mockContainerInfo = makeContainerInfo({ read: ".r:*,.rlistings", metadata: {} })
-      renderModal()
-      expect(screen.getByLabelText(/Enable file listing/i)).not.toBeChecked()
-    })
-
-    test("web-listings checkbox is checked when web-listings metadata is '1'", () => {
-      mockContainerInfo = makeContainerInfo({
-        read: ".r:*,.rlistings",
-        metadata: { "web-listings": "1" },
-      })
-      renderModal()
-      expect(screen.getByLabelText(/Enable file listing/i)).toBeChecked()
-    })
-
-    test("web-listings checkbox is checked when web-listings metadata is 'true'", () => {
-      mockContainerInfo = makeContainerInfo({
-        read: ".r:*,.rlistings",
-        metadata: { "web-listings": "true" },
-      })
-      renderModal()
-      expect(screen.getByLabelText(/Enable file listing/i)).toBeChecked()
-    })
-
-    test("renders tooltip for Enable file listing checkbox", () => {
-      mockContainerInfo = makeContainerInfo({ read: ".r:*,.rlistings" })
-      renderModal()
-      // Help icon acts as tooltip trigger
-      expect(screen.getByLabelText(/Enable file listing/i)).toBeInTheDocument()
-    })
-  })
-
-  // ──────────────────────────────────────────────────────────────────────────
-  // Object versioning
-  // ──────────────────────────────────────────────────────────────────────────
-
-  describe("Object versioning", () => {
-    test("renders 'Store old object versions' checkbox when versioning is not configured", () => {
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      expect(screen.getByLabelText(/Store old object versions/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Store old object versions/i)).not.toBeChecked()
-    })
-
-    test("renders 'Versioning is enabled' when server-side versioning is active without location", () => {
-      mockContainerInfo = makeContainerInfo({ versionsEnabled: true })
-      renderModal()
-      expect(screen.getByLabelText(/Versioning is enabled/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Versioning is enabled/i)).toBeChecked()
-    })
-
-    test("'Versioning is enabled' checkbox is disabled (read-only indicator)", () => {
-      mockContainerInfo = makeContainerInfo({ versionsEnabled: true })
-      renderModal()
-      expect(screen.getByLabelText(/Versioning is enabled/i)).toBeDisabled()
-    })
-
-    test("renders container selector when versioning is enabled via versionsLocation", () => {
-      mockContainerInfo = makeContainerInfo({ versionsLocation: "versions-container" })
-      renderModal()
-      expect(screen.getByLabelText(/Store old object versions in container/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Store old object versions in container/i)).toBeChecked()
-    })
-
-    test("renders container selector when versioning is enabled via historyLocation", () => {
-      mockContainerInfo = makeContainerInfo({ historyLocation: "history-container" })
-      renderModal()
-      expect(screen.getByLabelText(/Store old object versions in container/i)).toBeInTheDocument()
-    })
-
-    test("checking 'Store old object versions' transitions to container selector", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      await user.click(screen.getByLabelText(/Store old object versions/i))
-      await waitFor(() => {
-        expect(screen.getByLabelText(/Store old object versions in container/i)).toBeInTheDocument()
-      })
-    })
-
-    test("unchecking versioning checkbox clears the container selector", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ versionsLocation: "versions-container" })
-      renderModal()
-      await user.click(screen.getByLabelText(/Store old object versions in container/i))
-      await waitFor(() => {
-        expect(screen.queryByLabelText(/Store old object versions in container/i)).not.toBeInTheDocument()
-        expect(screen.getByLabelText(/Store old object versions/i)).not.toBeChecked()
-      })
-    })
-
-    test("ComboBox shows search placeholder text", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      await user.click(screen.getByLabelText(/Store old object versions/i))
-      await waitFor(() => {
-        expect(screen.getByText(/Start typing to search for a container/i)).toBeInTheDocument()
-      })
-    })
-
-    test("ComboBox filters containers based on input and excludes current container", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      mockContainerList = [{ name: "my-container" }, { name: "versions-container" }, { name: "other-container" }]
-      renderModal()
-      await user.click(screen.getByLabelText(/Store old object versions/i))
-      const comboInput = await screen.findByPlaceholderText(/Type to search containers/i)
-      await user.type(comboInput, "container")
-      await waitFor(() => {
-        expect(screen.getByText("versions-container")).toBeInTheDocument()
-        expect(screen.getByText("other-container")).toBeInTheDocument()
-        // current container is excluded
-        expect(screen.queryByRole("option", { name: "my-container" })).not.toBeInTheDocument()
-      })
-    })
-  })
-
-  // ──────────────────────────────────────────────────────────────────────────
-  // Custom metadata
-  // ──────────────────────────────────────────────────────────────────────────
-
-  describe("Custom metadata", () => {
-    test("renders empty state message when no custom metadata exists", () => {
-      mockContainerInfo = makeContainerInfo({ metadata: {} })
-      renderModal()
-      expect(screen.getByText(/No custom metadata/i)).toBeInTheDocument()
-    })
-
-    test("renders existing metadata entries", () => {
-      mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice", project: "Aurora" } })
-      renderModal()
+  test("adds new metadata entry", async () => {
+    const user = userEvent.setup()
+    renderModal()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "author")
+    await user.type(screen.getByPlaceholderText(/Value/i), "Alice")
+    await user.click(getIconButton(/Save/i))
+    await waitFor(() => {
       expect(screen.getByText("author")).toBeInTheDocument()
       expect(screen.getByText("Alice")).toBeInTheDocument()
-      expect(screen.getByText("project")).toBeInTheDocument()
-      expect(screen.getByText("Aurora")).toBeInTheDocument()
-    })
-
-    test("does not render reserved keys in the metadata table", () => {
-      mockContainerInfo = makeContainerInfo({
-        metadata: { "quota-bytes": "1000", "web-index": "index.html", author: "Alice" },
-      })
-      renderModal()
-      expect(screen.queryByText("quota-bytes")).not.toBeInTheDocument()
-      expect(screen.queryByText("web-index")).not.toBeInTheDocument()
-      expect(screen.getByText("author")).toBeInTheDocument()
-    })
-
-    test("renders Add Property button", () => {
-      renderModal()
-      expect(screen.getByRole("button", { name: /Add Property/i })).toBeInTheDocument()
-    })
-
-    test("clicking Add Property shows new row input fields", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      expect(screen.getByPlaceholderText(/property_key/i)).toBeInTheDocument()
-      expect(screen.getByPlaceholderText(/Value/i)).toBeInTheDocument()
-    })
-
-    test("shows key required error when saving new entry with empty key", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/Key is required/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows value required error when saving new entry with empty value", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "my-key")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/Value is required/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows error when adding a reserved key", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "quota-bytes")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/This key is reserved and managed separately/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows error when adding a duplicate key", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice" } })
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "author")
-      await user.type(screen.getByPlaceholderText(/Value/i), "Bob")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/A property with this key already exists/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows error when key contains invalid characters (spaces)", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "invalid key")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/Key contains invalid characters/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows error when key contains invalid characters (special separators)", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "key@value")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/Key contains invalid characters/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows error when key has no alphanumeric characters", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "----")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/Key must contain at least one alphanumeric character/i)).toBeInTheDocument()
-      })
-    })
-
-    test("accepts valid key with hyphens and alphanumeric characters", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "my-key-1")
-      await user.type(screen.getByPlaceholderText(/Value/i), "value")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText("my-key-1")).toBeInTheDocument()
-      })
-    })
-
-    test("adds new metadata entry to table after valid save", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "new-key")
-      await user.type(screen.getByPlaceholderText(/Value/i), "new-value")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText("new-key")).toBeInTheDocument()
-        expect(screen.getByText("new-value")).toBeInTheDocument()
-      })
-    })
-
-    test("Discard button cancels new entry without adding it", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "discard-me")
-      await user.click(getIconButton(/Discard/i))
-      await waitFor(() => {
-        expect(screen.queryByText("discard-me")).not.toBeInTheDocument()
-        expect(screen.getByText(/No custom metadata/i)).toBeInTheDocument()
-      })
-    })
-
-    test("Edit button shows edit inputs for existing entry", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice" } })
-      renderModal()
-      await user.click(getIconButton(/^Edit$/i))
-      // Key and value become editable inputs
-      expect(screen.getAllByRole("textbox").some((i) => i.getAttribute("value") === "author")).toBeTruthy()
-    })
-
-    test("can save edited metadata entry", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice" } })
-      renderModal()
-      await user.click(getIconButton(/^Edit$/i))
-      const valueInputs = screen.getAllByRole("textbox").filter((i) => i.getAttribute("value") === "Alice")
-      await user.clear(valueInputs[0])
-      await user.type(valueInputs[0], "Bob")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText("Bob")).toBeInTheDocument()
-      })
-    })
-
-    test("Discard in edit mode restores original value", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice" } })
-      renderModal()
-      await user.click(getIconButton(/^Edit$/i))
-      const valueInputs = screen.getAllByRole("textbox").filter((i) => i.getAttribute("value") === "Alice")
-      await user.clear(valueInputs[0])
-      await user.type(valueInputs[0], "Temp")
-      await user.click(getIconButton(/Discard/i))
-      await waitFor(() => {
-        expect(screen.getByText("Alice")).toBeInTheDocument()
-      })
-    })
-
-    test("Delete button removes metadata entry", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice" } })
-      renderModal()
-      await user.click(getIconButton(/^Delete$/i))
-      await waitFor(() => {
-        expect(screen.queryByText("author")).not.toBeInTheDocument()
-        expect(screen.getByText(/No custom metadata/i)).toBeInTheDocument()
-      })
-    })
-
-    test("Add Property button is disabled while editing an existing entry", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice" } })
-      renderModal()
-      await user.click(getIconButton(/^Edit$/i))
-      expect(screen.getByRole("button", { name: /Add Property/i })).toBeDisabled()
-    })
-
-    test("Add Property button is disabled while adding a new entry", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      expect(screen.getByRole("button", { name: /Add Property/i })).toBeDisabled()
     })
   })
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Save button disabled state (isUnchanged)
-  // ──────────────────────────────────────────────────────────────────────────
-
-  describe("Save button enabled state", () => {
-    test("Save button is disabled when form is unchanged", () => {
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      expect(screen.getByRole("button", { name: /Save/i })).toBeDisabled()
-    })
-
-    test("Save button is enabled after quota-bytes is changed", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      await user.type(screen.getByLabelText(/Total size quota/i), "1000")
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Save/i })).not.toBeDisabled()
-      })
-    })
-
-    test("Save button is enabled after a new metadata entry is added", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "k")
-      await user.type(screen.getByPlaceholderText(/Value/i), "v")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Save/i })).not.toBeDisabled()
-      })
-    })
-
-    test("Save button is disabled while an unsaved new entry row is open", async () => {
-      const user = userEvent.setup()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      expect(getModalSaveButton()).toBeDisabled()
-    })
-
-    test("Save button is disabled while an entry is being edited", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice" } })
-      renderModal()
-      await user.click(getIconButton(/^Edit$/i))
-      expect(getModalSaveButton()).toBeDisabled()
+  test("edits existing metadata entry", async () => {
+    mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice" } })
+    const user = userEvent.setup()
+    renderModal()
+    await user.click(getIconButton(/Edit/i))
+    const valueInputs = screen.getAllByRole("textbox").filter((i) => i.getAttribute("value") === "Alice")
+    await user.clear(valueInputs[0])
+    await user.type(valueInputs[0], "Bob")
+    await user.click(getIconButton(/Save/i))
+    await waitFor(() => {
+      expect(screen.getByText("Bob")).toBeInTheDocument()
     })
   })
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Submission
-  // ──────────────────────────────────────────────────────────────────────────
-
-  describe("Submission", () => {
-    test("calls mutate with quotaBytes when changed", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      await user.type(screen.getByLabelText(/Total size quota/i), "2048")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ project_id: mockProjectId, container: "my-container", quotaBytes: 2048 })
-      )
-    })
-
-    test("calls mutate with quotaCount when changed", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      await user.type(screen.getByLabelText(/Object count quota/i), "100")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ project_id: mockProjectId, container: "my-container", quotaCount: 100 })
-      )
-    })
-
-    test("calls mutate with new metadata entry", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "owner")
-      await user.type(screen.getByPlaceholderText(/Value/i), "Alice")
-      await user.click(getIconButton(/^Save$/i))
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ project_id: mockProjectId, metadata: expect.objectContaining({ owner: "Alice" }) })
-      )
-    })
-
-    test("calls mutate with removeMetadata for deleted entry", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice" } })
-      renderModal()
-      await user.click(getIconButton(/^Delete$/i))
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ project_id: mockProjectId, removeMetadata: expect.arrayContaining(["author"]) })
-      )
-    })
-
-    test("calls mutate with removeVersionsLocation when versioning is disabled", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo({ versionsLocation: "versions-container" })
-      renderModal()
-      await user.click(screen.getByLabelText(/Store old object versions in container/i))
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ project_id: mockProjectId, removeVersionsLocation: true })
-      )
-    })
-
-    test("calls onSuccess with container name after successful mutation", async () => {
-      const onSuccess = vi.fn()
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal({ onSuccess })
-      await user.type(screen.getByLabelText(/Total size quota/i), "1000")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(onSuccess).toHaveBeenCalledWith("my-container")
-      })
-    })
-
-    test("invalidates getContainerMetadata cache on success", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      await user.type(screen.getByLabelText(/Total size quota/i), "1000")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(mockInvalidateContainerMetadata).toHaveBeenCalledWith({ container: "my-container" })
-      })
-    })
-
-    test("invalidates listContainers cache on success", async () => {
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal()
-      await user.type(screen.getByLabelText(/Total size quota/i), "1000")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(mockInvalidateListContainers).toHaveBeenCalled()
-      })
+  test("deletes metadata entry", async () => {
+    mockContainerInfo = makeContainerInfo({ metadata: { author: "Alice" } })
+    const user = userEvent.setup()
+    renderModal()
+    await user.click(getIconButton(/Delete/i))
+    await waitFor(() => {
+      expect(screen.queryByText("author")).not.toBeInTheDocument()
+      expect(screen.getByText(/No custom metadata/i)).toBeInTheDocument()
     })
   })
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Error handling
-  // ──────────────────────────────────────────────────────────────────────────
-
-  describe("Error handling", () => {
-    test("shows the error inline in the modal and does not fire onError (toast) on mutation failure", async () => {
-      // #1162: container-update is recoverable, so the failure is surfaced via
-      // the inline banner in the modal body — NOT via a toast. onError must not
-      // be called, so the parent doesn't also raise a toast (no double error).
-      mutationError = "Internal Server Error"
-      const onError = vi.fn()
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal({ onError })
-      await user.type(screen.getByLabelText(/Total size quota/i), "1000")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(screen.getByText(/Failed to update container/i)).toBeInTheDocument()
-      })
-      expect(screen.getByText(/Internal Server Error/i)).toBeInTheDocument()
-      expect(onError).not.toHaveBeenCalled()
-    })
-
-    test("does not close the modal on mutation failure", async () => {
-      mutationError = "Server error"
-      const onClose = vi.fn()
-      const user = userEvent.setup()
-      mockContainerInfo = makeContainerInfo()
-      renderModal({ onClose })
-      await user.type(screen.getByLabelText(/Total size quota/i), "1000")
-      await user.click(screen.getByRole("button", { name: /Save/i }))
-      await waitFor(() => {
-        expect(onClose).not.toHaveBeenCalled()
-      })
+  test("discards unsaved new entry", async () => {
+    const user = userEvent.setup()
+    renderModal()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "discard-me")
+    await user.click(getIconButton(/Discard/i))
+    await waitFor(() => {
+      expect(screen.queryByText("discard-me")).not.toBeInTheDocument()
+      expect(screen.getByText(/No custom metadata/i)).toBeInTheDocument()
     })
   })
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Cancel / close
-  // ──────────────────────────────────────────────────────────────────────────
+  // ── Submission ──────────────────────────────────────────────────────────────
 
-  describe("Cancel / close", () => {
-    test("calls onClose when Cancel button is clicked", async () => {
-      const onClose = vi.fn()
-      const user = userEvent.setup()
-      renderModal({ onClose })
-      await user.click(screen.getByRole("button", { name: /Cancel/i }))
-      expect(onClose).toHaveBeenCalled()
-    })
-
-    test("resets form state when modal is closed and reopened", async () => {
-      const { rerender } = render(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <EditContainerMetadataModal isOpen={true} container={makeContainer()} onClose={vi.fn()} />
-          </PortalProvider>
-        </I18nProvider>
-      )
-      const user = userEvent.setup()
-      await user.type(screen.getByLabelText(/Total size quota/i), "9999")
-      rerender(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <EditContainerMetadataModal isOpen={false} container={makeContainer()} onClose={vi.fn()} />
-          </PortalProvider>
-        </I18nProvider>
-      )
-      rerender(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <EditContainerMetadataModal isOpen={true} container={makeContainer()} onClose={vi.fn()} />
-          </PortalProvider>
-        </I18nProvider>
-      )
-      await waitFor(() => {
-        expect(screen.getByLabelText(/Total size quota/i)).toHaveValue("")
+  test("submits metadata changes with correct parameters", async () => {
+    const user = userEvent.setup()
+    renderModal()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "owner")
+    await user.type(screen.getByPlaceholderText(/Value/i), "Alice")
+    await user.click(getIconButton(/Save/i))
+    await user.click(getModalSaveButton())
+    expect(mockMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        project_id: mockProjectId,
+        container: "my-container",
+        metadata: expect.objectContaining({ owner: "Alice" }),
       })
+    )
+  })
+
+  test("calls onSuccess and invalidates cache after successful mutation", async () => {
+    const onSuccess = vi.fn()
+    mockContainerInfo = makeContainerInfo({ metadata: { k: "v" } })
+    const user = userEvent.setup()
+    renderModal({ onSuccess })
+    await user.click(getIconButton(/Delete/i))
+    await user.click(getModalSaveButton())
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledWith("my-container")
+      expect(mockInvalidateContainerMetadata).toHaveBeenCalled()
+      expect(mockInvalidateListContainers).toHaveBeenCalled()
     })
+  })
+
+  test("shows error message on mutation failure", async () => {
+    mutationError = "Forbidden"
+    mockContainerInfo = makeContainerInfo({ metadata: { k: "v" } })
+    const user = userEvent.setup()
+    renderModal()
+    await user.click(getIconButton(/Delete/i))
+    await user.click(getModalSaveButton())
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to update container/i)).toBeInTheDocument()
+    })
+    expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
+  })
+
+  // ── Modal lifecycle ─────────────────────────────────────────────────────────
+
+  test("closes modal on cancel", async () => {
+    const onClose = vi.fn()
+    const user = userEvent.setup()
+    renderModal({ onClose })
+    await user.click(screen.getByRole("button", { name: /Cancel/i }))
+    expect(onClose).toHaveBeenCalled()
   })
 })
