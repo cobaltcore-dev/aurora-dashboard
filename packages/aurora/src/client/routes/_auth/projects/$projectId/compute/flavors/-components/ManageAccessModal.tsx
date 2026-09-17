@@ -145,6 +145,7 @@ function ManageAccessModalInner({
   }
 
   const handleDelete = async (projectId: string) => {
+    setErrors({})
     setDeletingProjectIds((prev) => new Set(prev).add(projectId))
 
     try {
