@@ -7,6 +7,7 @@ import {
   Modal,
   Stack,
   Spinner,
+  Status,
   ComboBox,
   ComboBoxOption,
   TextInput,
@@ -280,7 +281,7 @@ export const MoveObjectModal = ({
   return (
     <Modal
       title={
-        <span className="flex max-w-[500px] items-center gap-1">
+        <span className="flex max-w-125 items-center gap-1">
           <span className="shrink-0">
             <Trans>Move/Rename object:</Trans>
           </span>
@@ -299,12 +300,11 @@ export const MoveObjectModal = ({
       cancelButtonLabel={t`Cancel`}
       size="large"
       disableConfirmButton={isPending || isLoadingBuckets || isUnchanged}
+      disableCancelButton={isPending || isLoadingBuckets}
+      disableCloseButton={isPending || isLoadingBuckets || isUnchanged}
     >
       {isPending ? (
-        <Stack direction="horizontal" alignment="center" gap="2" className="py-8">
-          <Spinner size="small" />
-          <Trans>Moving object...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Moving Object...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
           {/* New object name */}
@@ -444,7 +444,7 @@ export const MoveObjectModal = ({
                         {isFolder ? (
                           <button
                             type="button"
-                            className="hover:bg-theme-background-lvl-2 focus-visible:outline-theme-focus flex w-full items-center gap-2 px-4 py-2 text-left text-sm focus-visible:outline focus-visible:outline-2"
+                            className="hover:bg-theme-background-lvl-2 focus-visible:outline-theme-focus flex w-full items-center gap-2 px-4 py-2 text-left text-sm focus-visible:outline-2"
                             onClick={() => modalState.navigateToPrefix(row.name)}
                           >
                             <MdFolder size={16} className="text-theme-light shrink-0" />

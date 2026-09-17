@@ -9,6 +9,7 @@ import {
   PopupMenuItem,
   PopupMenuOptions,
   Checkbox,
+  Status,
   toast,
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -122,13 +123,11 @@ export function CorsRulesTable({
         {isEmpty ? (
           <DataGridRow>
             <DataGridCell colSpan={columnCount}>
-              <p className="text-theme-light py-8 text-center">
-                {isFiltered ? (
-                  <Trans>No CORS rules matching the current search criteria.</Trans>
-                ) : (
-                  <Trans>There are no CORS rules for this bucket</Trans>
-                )}
-              </p>
+              {isFiltered ? (
+                <Status status="no-matches" title={t`No CORS Rules Matching the Current Search Criteria.`} />
+              ) : (
+                <Status status="empty" title={t`There Are No CORS Rules for This Bucket`} />
+              )}
             </DataGridCell>
           </DataGridRow>
         ) : (

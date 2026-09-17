@@ -6,8 +6,7 @@ import {
   DescriptionList,
   DescriptionTerm,
   Modal,
-  Spinner,
-  Stack,
+  Status,
 } from "@cloudoperators/juno-ui-components"
 import { SizeDisplay } from "./SizeDisplay"
 
@@ -45,13 +44,12 @@ export const ActivateImageModal: React.FC<ActivateImageModalProps> = ({
       confirmButtonLabel={t`Activate`}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isLoading}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
-      {isLoading && (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
-      )}
-      {!isLoading && (
+      {isLoading ? (
+        <Status status="progress" title={t`Activating Image...`} className="mt-0" />
+      ) : (
         <>
           <p className="mb-4">{t`Activating this image will allow it to be used to launch new instances again.`}</p>
 

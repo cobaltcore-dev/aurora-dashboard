@@ -294,7 +294,7 @@ describe("CredentialPrompt", () => {
       mockCanCreateCredential = false
       renderCredentialPrompt()
 
-      expect(screen.getByText("Could not check permissions")).toBeInTheDocument()
+      expect(screen.getByText("Could Not Check Permissions")).toBeInTheDocument()
       expect(screen.queryByRole("button", { name: "Create S3 Credentials" })).not.toBeInTheDocument()
       expect(screen.queryByText(/You don't have permission to create S3 credentials/)).not.toBeInTheDocument()
     })

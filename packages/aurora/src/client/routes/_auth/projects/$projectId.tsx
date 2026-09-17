@@ -3,7 +3,7 @@ import { AppShell, Button, Container, Stack, Status } from "@cloudoperators/juno
 import { SideNavBar } from "@/client/routes/_auth/projects/-components/SideNavBar"
 import { buildNavSections } from "@/client/routes/_auth/projects/-components/buildNavSections"
 import { Breadcrumbs } from "@/client/components/Breadcrumbs"
-import { RouteError } from "@/client/components/Error/RouteError"
+import { RouteError } from "@/client/components/Errors/RouteError"
 import { useMemo } from "react"
 import { TRPCClientError } from "@trpc/client"
 import { useLingui, Trans } from "@lingui/react/macro"
