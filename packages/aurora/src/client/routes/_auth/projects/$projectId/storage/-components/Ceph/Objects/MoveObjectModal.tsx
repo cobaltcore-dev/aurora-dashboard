@@ -300,6 +300,8 @@ export const MoveObjectModal = ({
       cancelButtonLabel={t`Cancel`}
       size="large"
       disableConfirmButton={isPending || isLoadingBuckets || isUnchanged}
+      disableCancelButton={isPending || isLoadingBuckets}
+      disableCloseButton={isPending || isLoadingBuckets || isUnchanged}
     >
       {isPending ? (
         <Status status="progress" title={t`Moving Object...`} className="mt-0" />

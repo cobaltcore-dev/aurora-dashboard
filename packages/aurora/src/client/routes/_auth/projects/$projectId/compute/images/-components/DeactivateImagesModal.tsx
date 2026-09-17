@@ -43,6 +43,8 @@ export const DeactivateImagesModal: React.FC<DeactivateImagesModalProps> = ({
       confirmButtonLabel={t`Deactivate`}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isLoading}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
       {isLoading ? (
         <Status status="progress" title={t`Deactivating Images...`} className="mt-0" />

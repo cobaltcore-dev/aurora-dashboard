@@ -365,6 +365,8 @@ export const MoveRenameObjectModal = ({ isOpen, object, onClose, onSuccess, onEr
       cancelButtonLabel={t`Cancel`}
       size="large"
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
+      disableCancelButton={isPending || isLoadingContainers}
+      disableCloseButton={isPending || isLoadingContainers || isUnchanged}
     >
       {isPending ? (
         <Status status="progress" title={t`Moving Object...`} className="mt-0" />

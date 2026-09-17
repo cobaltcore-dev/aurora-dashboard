@@ -194,7 +194,7 @@ describe("LifecycleRulesTable", () => {
         { wrapper: Wrapper }
       )
 
-      expect(screen.getByText("No Lifecycle Rules Matching the Current Search Criteria")).toBeInTheDocument()
+      expect(screen.getByText("No Lifecycle Rules Matching the Current Search Criteria.")).toBeInTheDocument()
     })
   })
 

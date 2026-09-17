@@ -42,7 +42,9 @@ describe("ServiceLevelDefaultError", () => {
 
     render(<ServiceLevelDefaultError />, { wrapper: TestWrapper })
 
-    fireEvent.click(screen.getByRole("button", { name: "Go to Project Home" }))
+    expect(screen.getByRole("button", { name: "Go to Home" })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Go to Project Home" })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "Go to Home" }))
 
     expect(mockNavigate).toHaveBeenCalledWith({ to: "/" })
   })

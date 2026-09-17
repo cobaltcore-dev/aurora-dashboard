@@ -96,6 +96,8 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
       cancelButtonLabel={t`Cancel`}
       size="small"
       disableConfirmButton={deleteFolderMutation.isPending || !isConfirmed}
+      disableCancelButton={deleteFolderMutation.isPending}
+      disableCloseButton={deleteFolderMutation.isPending}
     >
       {deleteFolderMutation.isPending ? (
         <Status status="progress" title={t`Deleting Folder and All Its Contents...`} className="mt-0" />

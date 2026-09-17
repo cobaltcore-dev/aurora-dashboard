@@ -312,6 +312,8 @@ export const CopyObjectModal = ({ isOpen, object, onClose, onSuccess, onError }:
       cancelButtonLabel={t`Cancel`}
       size="large"
       disableConfirmButton={isPending || isLoadingContainers || isUnchanged}
+      disableCancelButton={isPending || isLoadingContainers}
+      disableCloseButton={isPending || isLoadingContainers || isUnchanged}
     >
       {isPending ? (
         <Status status="progress" title={t`Copying Object...`} className="mt-0" />
