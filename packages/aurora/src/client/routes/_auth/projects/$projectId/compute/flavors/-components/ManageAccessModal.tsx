@@ -12,8 +12,15 @@ import {
   Spinner,
   Button,
   TextInput,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { Flavor } from "@/server/Compute/types/flavor"
+import {
+  getFlavorAccessAddedToast,
+  getFlavorAccessRemovedToast,
+  getFlavorAccessAddErrorToast,
+  getFlavorAccessRemoveErrorToast,
+} from "./FlavorToastNotifications"
 
 interface ManageAccessProps {
   client: TrpcClient
@@ -30,15 +37,11 @@ interface FlavorAccess {
 
 interface AccessEntry {
   projectId: string
-  isNew?: boolean
-  originalProjectId?: string
 }
 
 function buildInitialAccess(flavorAccess: FlavorAccess[]): AccessEntry[] {
   return flavorAccess.map((access) => ({
     projectId: access.tenant_id,
-    isNew: false,
-    originalProjectId: access.tenant_id,
   }))
 }
 
@@ -84,46 +87,55 @@ function ManageAccessModalInner({
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newProjectId, setNewProjectId] = useState("")
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
+  const [deletingProjectIds, setDeletingProjectIds] = useState<Set<string>>(new Set())
+  const [addingProjectId, setAddingProjectId] = useState(false)
 
   const isPublicFlavor = flavor["os-flavor-access:is_public"] !== false
-  const canEdit = canAdd || canRemove
 
-  const hasChanges = useMemo(() => {
-    const currentProjectIds = new Set(access.map((a) => a.projectId))
-    const initialProjectIds = new Set(initialAccess.map((a) => a.projectId))
-    if (currentProjectIds.size !== initialProjectIds.size) return true
-    for (const id of currentProjectIds) {
-      if (!initialProjectIds.has(id)) return true
-    }
-    return false
-  }, [access, initialAccess])
-
-  const isSubmitDisabled = !hasChanges || isLoading || isSaving || isAddingNew
-
-  const validateProjectId = (projectId: string, rowIndex?: number): string | null => {
+  const validateProjectId = (projectId: string): string | null => {
     const normalized = projectId?.trim()
     if (!normalized) {
       return t`Project ID is required`
     }
-    const isDuplicate = access.some((entry, idx) => entry.projectId.trim() === normalized && idx !== rowIndex)
+    const isDuplicate = access.some((entry) => entry.projectId.trim() === normalized)
     if (isDuplicate) {
       return t`This project already has access`
     }
     return null
   }
 
-  const handleAddNew = () => {
-    const error = validateProjectId(newProjectId, access.length)
+  const handleAddNew = async () => {
+    const error = validateProjectId(newProjectId)
     if (error) {
       setErrors({ newProjectId: error })
       return
     }
-    setAccess([...access, { projectId: newProjectId.trim(), isNew: true }])
-    setNewProjectId("")
-    setIsAddingNew(false)
+
+    const trimmedProjectId = newProjectId.trim()
+    setAddingProjectId(true)
     setErrors({})
+
+    try {
+      await client.compute.addTenantAccess.mutate({
+        project_id: project,
+        flavorId: flavor.id,
+        targetProjectId: trimmedProjectId,
+      })
+
+      setAccess((prev) => [...prev, { projectId: trimmedProjectId }])
+      setNewProjectId("")
+      setIsAddingNew(false)
+
+      const { message, ...options } = getFlavorAccessAddedToast(trimmedProjectId, flavor.name)
+      toast.success(message, options)
+    } catch (error) {
+      const errorMessage = translateError(error instanceof Error ? error.message : "Failed to add access")
+      setErrors({ newProjectId: errorMessage })
+      const { message, ...options } = getFlavorAccessAddErrorToast(trimmedProjectId, errorMessage)
+      toast.error(message, options)
+    } finally {
+      setAddingProjectId(false)
+    }
   }
 
   const handleCancelAdd = () => {
@@ -132,66 +144,37 @@ function ManageAccessModalInner({
     setErrors({})
   }
 
-  const handleDelete = (index: number) => {
-    setAccess(access.filter((_, i) => i !== index))
-    setErrors({})
-  }
-
-  const handleSubmit = async () => {
-    setIsSaving(true)
-    setSaveError(null)
+  const handleDelete = async (projectId: string) => {
+    setDeletingProjectIds((prev) => new Set(prev).add(projectId))
 
     try {
-      const currentProjectIds = new Set(access.map((a) => a.projectId))
-      const initialProjectIds = new Set(initialAccess.map((a) => a.projectId))
+      await client.compute.removeTenantAccess.mutate({
+        project_id: project,
+        flavorId: flavor.id,
+        targetProjectId: projectId,
+      })
 
-      // Collect projects to remove (in initialAccess but not in current access)
-      const projectsToRemove = initialAccess
-        .filter((initial) => !currentProjectIds.has(initial.projectId))
-        .map((a) => a.originalProjectId!)
-        .filter(Boolean)
+      setAccess((prev) => prev.filter((a) => a.projectId !== projectId))
 
-      // Collect projects to add (in current access but not in initialAccess)
-      const projectsToAdd = access.filter((entry) => !initialProjectIds.has(entry.projectId)).map((a) => a.projectId)
-
-      // Remove projects
-      for (const targetProjectId of projectsToRemove) {
-        await client.compute.removeTenantAccess.mutate({
-          project_id: project,
-          flavorId: flavor.id,
-          targetProjectId,
-        })
-      }
-
-      // Add projects
-      for (const targetProjectId of projectsToAdd) {
-        try {
-          await client.compute.addTenantAccess.mutate({
-            project_id: project,
-            flavorId: flavor.id,
-            targetProjectId,
-          })
-        } catch (error) {
-          // Remove failed project from access list
-          setAccess((prev) => prev.filter((a) => a.projectId !== targetProjectId))
-          throw error
-        }
-      }
-
-      onClose()
+      const { message, ...options } = getFlavorAccessRemovedToast(projectId, flavor.name)
+      toast.success(message, options)
     } catch (error) {
-      setSaveError(translateError(error instanceof Error ? error.message : "Failed to save changes"))
+      const errorMessage = translateError(error instanceof Error ? error.message : "Failed to remove access")
+      const { message, ...options } = getFlavorAccessRemoveErrorToast(projectId, errorMessage)
+      toast.error(message, options)
     } finally {
-      setIsSaving(false)
+      setDeletingProjectIds((prev) => {
+        const next = new Set(prev)
+        next.delete(projectId)
+        return next
+      })
     }
   }
 
   const handleClose = () => {
-    setAccess(initialAccess)
     setIsAddingNew(false)
     setNewProjectId("")
     setErrors({})
-    setSaveError(null)
     onClose()
   }
 
@@ -207,36 +190,25 @@ function ManageAccessModalInner({
   }
 
   const flavorName = flavor.name
+  const isAnyOperationInProgress = addingProjectId || deletingProjectIds.size > 0
+
   return (
-    <Modal
-      open
-      onCancel={handleClose}
-      size="large"
-      title={t`Manage Access - ${flavorName}`}
-      onConfirm={canEdit ? handleSubmit : undefined}
-      confirmButtonLabel={isSaving ? t`Saving...` : t`Save Changes`}
-      cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={isSubmitDisabled}
-      disableCancelButton={isSaving}
-      disableCloseButton={isSaving}
-    >
+    <Modal open onCancel={handleClose} size="large" title={t`Manage Access - ${flavorName}`}>
       {isLoading ? (
         <Stack distribution="center" alignment="center">
           <Spinner variant="primary" />
         </Stack>
       ) : (
         <div>
-          {saveError && (
-            <Message variant="error" text={saveError} className="mb-4" onDismiss={() => setSaveError(null)} />
-          )}
-
           {canAdd && (
             <Stack direction="horizontal" className="mb-4 justify-end">
-              <Button label={t`Add Project`} onClick={() => setIsAddingNew(true)} disabled={isAddingNew} />
+              <Button
+                label={t`Add Project`}
+                onClick={() => setIsAddingNew(true)}
+                disabled={isAddingNew || isAnyOperationInProgress}
+              />
             </Stack>
           )}
-
-          {errors.newProjectId && <Message variant="error" text={errors.newProjectId} className="mb-4" />}
 
           {access.length === 0 && !isAddingNew ? (
             <p className="jn:text-theme-light py-8 text-center">
@@ -260,27 +232,34 @@ function ManageAccessModalInner({
                             onChange={(e) => {
                               setNewProjectId(e.target.value)
                               if (errors.newProjectId) {
-                                setErrors((prev) => {
-                                  const next = { ...prev }
-                                  delete next.newProjectId
-                                  return next
-                                })
+                                setErrors({})
                               }
                             }}
                             placeholder={t`Enter project ID`}
                             invalid={!!errors.newProjectId}
+                            errortext={errors.newProjectId}
                             autoFocus
                             wrapperClassName="w-full"
+                            disabled={addingProjectId}
                           />
                         </div>
                         <div className="flex shrink-0 gap-2">
-                          <Button size="small" variant="primary" onClick={handleAddNew} icon="check" title={t`Add`} />
+                          <Button
+                            size="small"
+                            variant="primary"
+                            onClick={handleAddNew}
+                            icon="check"
+                            title={t`Add`}
+                            disabled={addingProjectId}
+                            progress={addingProjectId}
+                          />
                           <Button
                             size="small"
                             variant="subdued"
                             onClick={handleCancelAdd}
                             icon="close"
                             title={t`Cancel`}
+                            disabled={addingProjectId}
                           />
                         </div>
                       </div>
@@ -290,30 +269,34 @@ function ManageAccessModalInner({
               </>
 
               <>
-                {access.map((entry, index) => (
-                  <React.Fragment key={`${entry.originalProjectId || entry.projectId}-${index}`}>
-                    <DescriptionTerm>
-                      <span className="jn:text-theme-high">{t`Project`}</span>
-                    </DescriptionTerm>
-                    <DescriptionDefinition>
-                      <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
-                        <span className="jn:text-theme-high block max-w-xs truncate" title={entry.projectId}>
-                          {entry.projectId}
-                        </span>
-                        {canRemove && (
-                          <Button
-                            size="small"
-                            onClick={() => handleDelete(index)}
-                            icon="deleteForever"
-                            data-testid={`delete-${entry.projectId}`}
-                            title={t`Remove`}
-                            disabled={isAddingNew}
-                          />
-                        )}
-                      </Stack>
-                    </DescriptionDefinition>
-                  </React.Fragment>
-                ))}
+                {access.map((entry) => {
+                  const isDeleting = deletingProjectIds.has(entry.projectId)
+                  return (
+                    <React.Fragment key={entry.projectId}>
+                      <DescriptionTerm>
+                        <span className="jn:text-theme-high">{t`Project`}</span>
+                      </DescriptionTerm>
+                      <DescriptionDefinition>
+                        <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+                          <span className="jn:text-theme-high block max-w-xs truncate" title={entry.projectId}>
+                            {entry.projectId}
+                          </span>
+                          {canRemove && (
+                            <Button
+                              size="small"
+                              onClick={() => handleDelete(entry.projectId)}
+                              icon="deleteForever"
+                              data-testid={`delete-${entry.projectId}`}
+                              title={t`Remove`}
+                              disabled={isDeleting || isAddingNew}
+                              progress={isDeleting}
+                            />
+                          )}
+                        </Stack>
+                      </DescriptionDefinition>
+                    </React.Fragment>
+                  )
+                })}
               </>
             </DescriptionList>
           )}

@@ -290,6 +290,9 @@ msgstr "Accepted"
 msgid "Accepted Images"
 msgstr "Accepted Images"
 
+msgid "Access Added"
+msgstr "Access Added"
+
 msgid "Access Control for Container:"
 msgstr "Access Control for Container:"
 
@@ -299,8 +302,14 @@ msgstr "Access Control Updated"
 msgid "Access Denied"
 msgstr "Access Denied"
 
+msgid "Access for project \"{projectId}\" to flavor \"{flavorName}\" was successfully revoked."
+msgstr "Access for project \"{projectId}\" to flavor \"{flavorName}\" was successfully revoked."
+
 msgid "Access for project \"{targetTenant}\" was successfully revoked."
 msgstr "Access for project \"{targetTenant}\" was successfully revoked."
+
+msgid "Access Removed"
+msgstr "Access Removed"
 
 msgid "Access Revoked"
 msgstr "Access Revoked"
@@ -809,6 +818,9 @@ msgstr "CORS rule was successfully deleted from bucket \"{bucketName}\"."
 msgid "CORS Rules"
 msgstr "CORS Rules"
 
+msgid "Could not add access for project \"{projectId}\": {errorMessage}"
+msgstr "Could not add access for project \"{projectId}\": {errorMessage}"
+
 msgid "Could not check permissions"
 msgstr "Could not check permissions"
 
@@ -898,6 +910,9 @@ msgstr "Could not move \"{displayName}\": {errorMessage}"
 
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "Could not move \"{objectName}\": {errorMessage}"
+
+msgid "Could not remove access for project \"{projectId}\": {errorMessage}"
+msgstr "Could not remove access for project \"{projectId}\": {errorMessage}"
 
 msgid "Could not restore \"{displayName}\": {errorMessage}"
 msgstr "Could not restore \"{displayName}\": {errorMessage}"
@@ -1544,6 +1559,9 @@ msgstr "Failed to activate {failedCount} of {totalCount} image(s). Some images m
 msgid "Failed to Activate Images"
 msgstr "Failed to Activate Images"
 
+msgid "Failed to Add Access"
+msgstr "Failed to Add Access"
+
 msgid "Failed to add member"
 msgstr "Failed to add member"
 
@@ -1765,6 +1783,9 @@ msgstr "Failed to move object: {copyErrorMessage}"
 
 msgid "Failed to refresh Floating IPs. Showing cached data."
 msgstr "Failed to refresh Floating IPs. Showing cached data."
+
+msgid "Failed to Remove Access"
+msgstr "Failed to Remove Access"
 
 msgid "Failed to remove member"
 msgstr "Failed to remove member"
@@ -2810,6 +2831,9 @@ msgstr "Private flavors could not be loaded. You may be seeing an incomplete lis
 msgid "Project"
 msgstr "Project"
 
+msgid "Project \"{projectId}\" now has access to flavor \"{flavorName}\"."
+msgstr "Project \"{projectId}\" now has access to flavor \"{flavorName}\"."
+
 msgid "Project ID"
 msgstr "Project ID"
 
@@ -2853,7 +2877,7 @@ msgid "Property was successfully updated."
 msgstr "Property was successfully updated."
 
 msgid "property_key"
-msgstr "property_key"
+msgstr "Property Key"
 
 msgid "property-key"
 msgstr "property-key"

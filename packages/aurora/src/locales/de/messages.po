@@ -290,6 +290,9 @@ msgstr "Akzeptiert"
 msgid "Accepted Images"
 msgstr "Akzeptierte Images"
 
+msgid "Access Added"
+msgstr ""
+
 msgid "Access Control for Container:"
 msgstr "Zugriffskontrolle für Container:"
 
@@ -299,7 +302,13 @@ msgstr "Zugriffskontrolle aktualisiert"
 msgid "Access Denied"
 msgstr ""
 
+msgid "Access for project \"{projectId}\" to flavor \"{flavorName}\" was successfully revoked."
+msgstr ""
+
 msgid "Access for project \"{targetTenant}\" was successfully revoked."
+msgstr ""
+
+msgid "Access Removed"
 msgstr ""
 
 msgid "Access Revoked"
@@ -809,6 +818,9 @@ msgstr ""
 msgid "CORS Rules"
 msgstr ""
 
+msgid "Could not add access for project \"{projectId}\": {errorMessage}"
+msgstr ""
+
 msgid "Could not check permissions"
 msgstr ""
 
@@ -898,6 +910,9 @@ msgstr ""
 
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
+
+msgid "Could not remove access for project \"{projectId}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not restore \"{displayName}\": {errorMessage}"
 msgstr ""
@@ -1544,6 +1559,9 @@ msgstr "{failedCount} von {totalCount} Image(s) konnten nicht aktiviert werden. 
 msgid "Failed to Activate Images"
 msgstr "Fehler beim Aktivieren der Images"
 
+msgid "Failed to Add Access"
+msgstr ""
+
 msgid "Failed to add member"
 msgstr "Fehler beim Hinzufügen des Mitglieds"
 
@@ -1764,6 +1782,9 @@ msgid "Failed to move object: {copyErrorMessage}"
 msgstr "Fehler beim Verschieben des Objekts: {copyErrorMessage}"
 
 msgid "Failed to refresh Floating IPs. Showing cached data."
+msgstr ""
+
+msgid "Failed to Remove Access"
 msgstr ""
 
 msgid "Failed to remove member"
@@ -2809,6 +2830,9 @@ msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist m
 
 msgid "Project"
 msgstr "Projekt"
+
+msgid "Project \"{projectId}\" now has access to flavor \"{flavorName}\"."
+msgstr ""
 
 msgid "Project ID"
 msgstr "Projekt-ID"
