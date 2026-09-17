@@ -176,7 +176,7 @@ describe("LifecycleRulesTable", () => {
         { wrapper: Wrapper }
       )
 
-      expect(screen.getByText("There are no lifecycle rules for this bucket")).toBeInTheDocument()
+      expect(screen.getByText("There Are No Lifecycle Rules for This Bucket")).toBeInTheDocument()
     })
 
     it("shows the no-matches message when isFiltered is true", () => {
@@ -194,7 +194,7 @@ describe("LifecycleRulesTable", () => {
         { wrapper: Wrapper }
       )
 
-      expect(screen.getByText("No lifecycle rules matching the current search criteria.")).toBeInTheDocument()
+      expect(screen.getByText("No Lifecycle Rules Matching the Current Search Criteria.")).toBeInTheDocument()
     })
   })
 

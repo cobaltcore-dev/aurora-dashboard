@@ -39,6 +39,26 @@ import {
 } from "./-components/ImageToastNotifications"
 import { useState } from "react"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
+import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
+
+function ImageErrorComponent() {
+  const { t } = useLingui()
+  const navigate = useNavigate()
+  const { projectId } = Route.useParams()
+
+  return (
+    <RouteIdLevelDefaultError
+      action={
+        <Button
+          variant="primary"
+          onClick={() => navigate({ to: "/projects/$projectId/compute/images", params: { projectId } })}
+        >
+          {t`Back to Images`}
+        </Button>
+      }
+    />
+  )
+}
 
 export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/$imageId")({
   staticData: {
@@ -90,6 +110,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/compute/images/
       })
     }
   },
+  errorComponent: ImageErrorComponent,
 })
 
 function RouteComponent() {
@@ -305,33 +326,24 @@ function RouteComponent() {
 
   // Handle error state
   if (status === "error") {
-    const errorMessage = error?.message || "Unknown error"
+    const errorMessage = error?.message || t`Unknown Error`
 
     return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-error font-semibold">
-          <Trans>Error loading image</Trans>
-        </p>
-        <p className="text-theme-highest">{errorMessage}</p>
-        <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Images</Trans>
-        </Button>
-      </Stack>
+      <RouteIdLevelDefaultError
+        errorTitle={t`Error Loading Image`}
+        errorDescription={errorMessage}
+        action={
+          <Button onClick={handleBack} variant="primary">
+            <Trans>Back to Images</Trans>
+          </Button>
+        }
+      />
     )
   }
 
   // Handle no data state
   if (!image) {
-    return (
-      <Stack className="fixed inset-0" distribution="center" alignment="center" direction="vertical" gap="5">
-        <p className="text-theme-highest">
-          <Trans>Image not found</Trans>
-        </p>
-        <Button onClick={handleBack} variant="primary">
-          <Trans>Back to Images</Trans>
-        </Button>
-      </Stack>
-    )
+    return <ImageErrorComponent />
   }
 
   const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED

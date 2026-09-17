@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { Modal, Stack, Spinner, TextInput } from "@cloudoperators/juno-ui-components"
+import { Modal, Stack, Status, TextInput } from "@cloudoperators/juno-ui-components"
 import { useParams } from "@tanstack/react-router"
 import { FolderRow } from "./"
 
@@ -96,12 +96,11 @@ export const DeleteFolderModal = ({ isOpen, folder, onClose, onSuccess, onError 
       cancelButtonLabel={t`Cancel`}
       size="small"
       disableConfirmButton={deleteFolderMutation.isPending || !isConfirmed}
+      disableCancelButton={deleteFolderMutation.isPending}
+      disableCloseButton={deleteFolderMutation.isPending}
     >
       {deleteFolderMutation.isPending ? (
-        <Stack direction="horizontal" alignment="center" gap="2" className="py-4">
-          <Spinner size="small" />
-          <Trans>Deleting folder and all its contents...</Trans>
-        </Stack>
+        <Status status="progress" title={t`Deleting Folder and All Its Contents...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="4">
           <p className="text-theme-default">

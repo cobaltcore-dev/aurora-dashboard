@@ -135,7 +135,7 @@ export const SecurityGroupListContainer = ({
         ) : isError ? (
           <DataGridRow>
             <DataGridCell colSpan={columnCount}>
-              <Status status="error" title={error?.message ?? t`Failed to load security groups`} />
+              <Status status="error" title={error?.message ?? t`Failed to Load Security Groups`} />
             </DataGridCell>
           </DataGridRow>
         ) : securityGroups.length > 0 ? (

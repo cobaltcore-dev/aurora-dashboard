@@ -148,9 +148,9 @@ describe("EditSecurityGroupModal", () => {
       expect(screen.getByTestId("update-security-group-button")).toHaveTextContent("Update Security Group")
     })
 
-    test("shows 'Updating security group...' when loading", () => {
+    test("shows 'Updating Security Group...' when loading", () => {
       renderModal({ isLoading: true })
-      expect(screen.getByText(/Updating security group.../i)).toBeInTheDocument()
+      expect(screen.getByText(/Updating Security Group.../i)).toBeInTheDocument()
     })
   })
 

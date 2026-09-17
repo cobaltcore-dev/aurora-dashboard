@@ -6,7 +6,7 @@ import {
   DataGridHeadCell,
   DataGridCell,
   Stack,
-  Spinner,
+  Status,
   Button,
   Message,
 } from "@cloudoperators/juno-ui-components"
@@ -27,18 +27,6 @@ interface ImageMembersTableProps {
   setIsAddingMember: (adding: boolean) => void
   setMessage: (msg: { text: string; type: "error" | "info" } | null) => void
   projectId: string
-}
-
-function MembersLoadingState() {
-  return (
-    <DataGridRow>
-      <DataGridCell colSpan={4}>
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
-      </DataGridCell>
-    </DataGridRow>
-  )
 }
 
 export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
@@ -167,7 +155,12 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
           <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
-        <MembersLoadingState />
+
+        <DataGridRow>
+          <DataGridCell colSpan={4}>
+            <Status status="progress" title={t`Loading...`} />
+          </DataGridCell>
+        </DataGridRow>
       </DataGrid>
     )
   }

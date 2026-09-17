@@ -551,10 +551,10 @@ describe("ObjectsTableView", () => {
       expect(screen.getByText(/Downloading\.\.\./i)).toBeInTheDocument()
     })
 
-    test("shows Loading preview... for a preview transfer", () => {
+    test("shows Loading Preview... for a preview transfer", () => {
       seedTransfer("test-container", "readme.txt", { kind: "preview" })
       renderView({ rows: [makeObject("readme.txt", { content_type: "text/plain" })] })
-      expect(screen.getByText(/Loading preview\.\.\./i)).toBeInTheDocument()
+      expect(screen.getByText(/Loading Preview\.\.\./i)).toBeInTheDocument()
     })
 
     test("shows the percentage when the progress subscription reports one", () => {

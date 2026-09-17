@@ -531,7 +531,7 @@ describe("ObjectBrowserView - Error state", () => {
     vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
       data: undefined,
       isLoading: false,
-      error: { message: "Failed to load objects", shape: {}, data: {} } as ReturnType<
+      error: { message: "Failed to Load Objects", shape: {}, data: {} } as ReturnType<
         typeof trpcReact.storage.ceph.objects.list.useQuery
       >["error"],
       trpc: {},
@@ -539,7 +539,7 @@ describe("ObjectBrowserView - Error state", () => {
 
     render(<ObjectBrowserView bucketName="test-bucket" />)
 
-    expect(screen.getAllByText(/failed to load objects/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Failed to Load Objects/i).length).toBeGreaterThan(0)
   })
 })
 

@@ -10,6 +10,11 @@ interface RouteErrorProps {
   safeErrorMessage?: string
 }
 
+/**
+ * Renders errors that occur outside the application layout, such as an expired
+ * cookie or token. In these cases, the normal page content is unavailable and
+ * only the header may remain visible.
+ */
 export function RouteError({ error, title, helpText, safeErrorMessage }: RouteErrorProps) {
   const { t } = useLingui()
   const navigate = useNavigate()

@@ -9,7 +9,7 @@ import {
   DescriptionTerm,
   DescriptionDefinition,
   Stack,
-  Spinner,
+  Status,
   Button,
   TextInput,
 } from "@cloudoperators/juno-ui-components"
@@ -221,9 +221,7 @@ function ManageAccessModalInner({
       disableCloseButton={isSaving}
     >
       {isLoading ? (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
+        <Status status="progress" title={t`Loading Access...`} className="mt-0" />
       ) : (
         <div>
           {saveError && (
@@ -359,7 +357,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
         setPermissionsData(permissions)
       } catch (error) {
         if (cancelled) return
-        setLoadError(error instanceof Error ? error.message : "Failed to load access data")
+        setLoadError(error instanceof Error ? error.message : "Failed to Load Access Data")
       } finally {
         if (!cancelled) setIsLoadingData(false)
       }
@@ -385,9 +383,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   if (isLoadingData) {
     return (
       <Modal open onCancel={onClose} size="large" title={t`Manage Access - ${flavorName}`}>
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
+        <Status status="progress" title={t`Loading Access...`} className="mt-0" />
       </Modal>
     )
   }
@@ -395,7 +391,7 @@ export const ManageAccessModal: React.FC<ManageAccessProps> = ({ client, isOpen,
   if (loadError) {
     return (
       <Modal open onCancel={onClose} size="large" title={t`Manage Access - ${flavorName}`}>
-        <Message variant="error" text={translateError(loadError)} />
+        <Status status="error" title={t`Failed to Load Access`} body={translateError(loadError)} className="mt-0" />
       </Modal>
     )
   }

@@ -163,7 +163,7 @@ describe("FlavorDetailsView", () => {
   })
 
   it("renders metadata heading and error state on query error", () => {
-    mockUseQueryReturn = { error: new Error("Failed to load"), data: undefined }
+    mockUseQueryReturn = { error: new Error("Failed to Load"), data: undefined }
 
     render(
       <TestingProvider>

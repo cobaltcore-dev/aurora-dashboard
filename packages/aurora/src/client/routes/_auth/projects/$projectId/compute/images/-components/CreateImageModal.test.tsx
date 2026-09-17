@@ -507,7 +507,7 @@ describe("CreateImageModal", () => {
       expect(mockOnClose).toHaveBeenCalled()
     })
 
-    test("should display spinner while loading without upload progress", async () => {
+    test("should display loading state while loading without upload progress", async () => {
       await act(async () => {
         render(
           <I18nProvider i18n={i18n}>
@@ -526,10 +526,10 @@ describe("CreateImageModal", () => {
 
       const spinners = screen.getAllByRole("progressbar")
       expect(spinners.length).toBeGreaterThan(0)
-      expect(screen.getByText("Creating image...")).toBeInTheDocument()
+      expect(screen.getByText("Creating Image...")).toBeInTheDocument()
     })
 
-    test("should display 'Creating image...' message when isLoading is true without progress", async () => {
+    test("should display 'Creating Image...' message when isLoading is true without progress", async () => {
       await act(async () => {
         render(
           <I18nProvider i18n={i18n}>
@@ -547,10 +547,10 @@ describe("CreateImageModal", () => {
         )
       })
 
-      // Verify the "Creating image..." message is displayed
-      expect(screen.getByText("Creating image...")).toBeInTheDocument()
+      // Verify the "Creating Image..." message is displayed
+      expect(screen.getByText("Creating Image...")).toBeInTheDocument()
 
-      // Verify the spinner is shown
+      // Verify the loading state is shown
       const spinners = screen.getAllByRole("progressbar")
       expect(spinners.length).toBeGreaterThan(0)
 
@@ -562,7 +562,7 @@ describe("CreateImageModal", () => {
       expect(progressBar).not.toBeInTheDocument()
     })
 
-    test("should display spinner with pending upload message when isUploadPending is true", async () => {
+    test("should display loading state with pending upload message when isUploadPending is true", async () => {
       await act(async () => {
         render(
           <I18nProvider i18n={i18n}>
@@ -581,7 +581,7 @@ describe("CreateImageModal", () => {
 
       const spinners = screen.getAllByRole("progressbar")
       expect(spinners.length).toBeGreaterThan(0)
-      expect(screen.getByText("Pending file upload...")).toBeInTheDocument()
+      expect(screen.getByText("Pending File Upload...")).toBeInTheDocument()
     })
 
     test("should display upload progress bar when uploadProgressPercent is provided", async () => {

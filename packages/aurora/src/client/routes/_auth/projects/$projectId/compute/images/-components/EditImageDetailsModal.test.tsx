@@ -299,7 +299,7 @@ describe("EditImageDetailsModal", () => {
     expect(mockOnSave).not.toHaveBeenCalled()
   })
 
-  test("shows loading spinner when isLoading is true", async () => {
+  test("shows loading state when isLoading is true", async () => {
     renderEditModal(true, mockOnClose, mockImage, mockOnSave, true)
 
     await waitFor(() => {

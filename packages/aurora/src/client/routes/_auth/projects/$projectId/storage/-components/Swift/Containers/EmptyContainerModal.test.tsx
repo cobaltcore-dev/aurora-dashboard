@@ -161,10 +161,10 @@ describe("EmptyContainerModal", () => {
   })
 
   describe("Loading state", () => {
-    test("shows loading spinner while fetching objects", () => {
+    test("shows loading state while fetching objects", () => {
       listObjectsLoading = true
       renderModal()
-      expect(screen.getByText(/Loading objects/i)).toBeInTheDocument()
+      expect(screen.getByText(/Loading Objects/i)).toBeInTheDocument()
     })
 
     test("confirm button is disabled while loading", () => {
@@ -450,7 +450,7 @@ describe("EmptyContainerModal", () => {
       listObjectsError = { message: "Resource not found container: empty" }
       renderModal()
       expect(
-        screen.getByText(/Failed to load container objects: Resource not found container: empty/i)
+        screen.getByText(/Failed to Load Container Objects: Resource not found container: empty/i)
       ).toBeInTheDocument()
     })
 

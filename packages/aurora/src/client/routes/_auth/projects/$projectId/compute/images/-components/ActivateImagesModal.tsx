@@ -1,6 +1,6 @@
 import React from "react"
 import { Trans, useLingui, Plural } from "@lingui/react/macro"
-import { Modal, Spinner, Stack } from "@cloudoperators/juno-ui-components"
+import { Modal, Status } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
 
 interface ActivateImagesModalProps {
@@ -40,14 +40,12 @@ export const ActivateImagesModal: React.FC<ActivateImagesModalProps> = ({
       confirmButtonLabel={t`Activate`}
       cancelButtonLabel={t`Cancel`}
       disableConfirmButton={isLoading}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
-      {isLoading && (
-        <Stack distribution="center" alignment="center">
-          <Spinner variant="primary" />
-        </Stack>
-      )}
-
-      {!isLoading && (
+      {isLoading ? (
+        <Status status="progress" title={t`Activating Images...`} className="mt-0" />
+      ) : (
         <div className="my-6">
           {deactivatedCount > 0 && (
             <>
