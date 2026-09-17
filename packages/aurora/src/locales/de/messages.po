@@ -2937,7 +2937,7 @@ msgid "Property was successfully updated."
 msgstr ""
 
 msgid "property_key"
-msgstr "property_key"
+msgstr "Property Key"
 
 msgid "property-key"
 msgstr ""
