@@ -176,7 +176,7 @@ export const DeleteCorsRuleModal = ({
         {!isCorsLoading && !corsError && !hasRules && (
           <Status
             status="empty"
-            title={t`No rules found`}
+            title={t`No Rules Found`}
             body={t`This bucket does not have any CORS rules.`}
             className="mt-0"
           />

@@ -171,7 +171,7 @@ describe("CorsRulesTable", () => {
 
     // Headers should still be present
     expect(screen.getByText("Rule ID")).toBeInTheDocument()
-    expect(screen.getByText("There are no CORS rules for this bucket")).toBeInTheDocument()
+    expect(screen.getByText("There Are No CORS Rules for This Bucket")).toBeInTheDocument()
   })
 
   it("renders wildcard warning only when * is present in AllowedOrigins", () => {

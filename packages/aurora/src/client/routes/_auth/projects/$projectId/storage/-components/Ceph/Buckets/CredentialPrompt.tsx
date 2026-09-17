@@ -42,11 +42,11 @@ export function CredentialPrompt({ onSuccess }: CredentialPromptProps) {
         </Trans>
       </p>
       {isLoadingPermissions ? (
-        <Status status="progress" title={t`Checking permissions...`} />
+        <Status status="progress" title={t`Checking Permissions...`} />
       ) : isPermissionsError ? (
         <Status
           status="error"
-          title={t`Could not check permissions`}
+          title={t`Could Not Check Permissions`}
           body={t`Could not verify whether you can create S3 credentials. Reload the page or try again later.`}
         />
       ) : permissions.canCreateCredential ? (

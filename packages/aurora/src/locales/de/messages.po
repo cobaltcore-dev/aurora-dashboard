@@ -656,7 +656,7 @@ msgstr ""
 msgid "Checking if object exists..."
 msgstr "Checking if object exists..."
 
-msgid "Checking permissions..."
+msgid "Checking Permissions..."
 msgstr ""
 
 msgid "Checksum"
@@ -830,7 +830,7 @@ msgstr ""
 msgid "CORS Rules"
 msgstr ""
 
-msgid "Could not check permissions"
+msgid "Could Not Check Permissions"
 msgstr ""
 
 msgid "Could not copy \"{displayName}\": {errorMessage}"
@@ -1199,7 +1199,7 @@ msgstr ""
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "{successCount} Image(s) gelöscht, aber {failedCount} Image(s) konnten nicht gelöscht werden."
 
-msgid "Deleting Folder and all its contents..."
+msgid "Deleting Folder and All Its Contents..."
 msgstr ""
 
 msgid "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
@@ -1412,7 +1412,7 @@ msgstr ""
 msgid "Empty:"
 msgstr "Leeren:"
 
-msgid "Emptying bucket {progressCurrent} of {progressTotal}, please wait..."
+msgid "Emptying Bucket {progressCurrent} of {progressTotal}, Please Wait..."
 msgstr ""
 
 msgid "Emptying Container {progressCurrent} of {progressTotal}, Please Wait..."
@@ -2540,7 +2540,7 @@ msgstr "Keine Container gefunden"
 msgid "No CORS rules found"
 msgstr ""
 
-msgid "No CORS rules matching the current search criteria."
+msgid "No CORS Rules Matching the Current Search Criteria."
 msgstr ""
 
 msgid "No custom metadata properties found."
@@ -2567,7 +2567,7 @@ msgstr ""
 msgid "No images found"
 msgstr "Keine Images gefunden"
 
-msgid "No lifecycle rules matching the current search criteria."
+msgid "No Lifecycle Rules Matching the Current Search Criteria."
 msgstr ""
 
 msgid "No limit"
@@ -2597,7 +2597,7 @@ msgstr ""
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 
-msgid "No policy found"
+msgid "No Policy Found"
 msgstr ""
 
 msgid "No project access configured."
@@ -2615,7 +2615,7 @@ msgstr "Keine Projekte verfügbar."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
 
-msgid "No rules found"
+msgid "No Rules Found"
 msgstr ""
 
 msgid "No security groups found"
@@ -2627,7 +2627,7 @@ msgstr "Keine Dienste für dieses Projekt verfügbar."
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "Kein Temp-URL-Schlüssel konfiguriert. Ein temporärer URL-Schlüssel muss auf Account- oder Container-Ebene gesetzt werden, bevor temporäre URLs generiert werden können. Wenden Sie sich an Ihren Administrator, um X-Account-Meta-Temp-URL-Key oder X-Container-Meta-Temp-URL-Key zu konfigurieren."
 
-msgid "No Versions Found for this Object."
+msgid "No Versions Found for This Object."
 msgstr ""
 
 msgid "No versions to delete in bucket \"{bucketName}\"."
@@ -3650,7 +3650,7 @@ msgstr ""
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
-msgid "There are no CORS rules for this bucket"
+msgid "There Are No CORS Rules for This Bucket"
 msgstr ""
 
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
@@ -3665,7 +3665,7 @@ msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Images verfügb
 msgid "There are no items to display."
 msgstr "Es gibt keine Elemente zum Anzeigen."
 
-msgid "There are no lifecycle rules for this bucket"
+msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr ""
 
 msgid "There are no RBAC policies for this security group"

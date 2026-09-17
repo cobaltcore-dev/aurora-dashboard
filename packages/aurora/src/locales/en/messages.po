@@ -656,8 +656,8 @@ msgstr "Checking Bucket Contents..."
 msgid "Checking if object exists..."
 msgstr "Checking if object exists..."
 
-msgid "Checking permissions..."
-msgstr "Checking permissions..."
+msgid "Checking Permissions..."
+msgstr "Checking Permissions..."
 
 msgid "Checksum"
 msgstr "Checksum"
@@ -830,8 +830,8 @@ msgstr "CORS rule was successfully deleted from bucket \"{bucketName}\"."
 msgid "CORS Rules"
 msgstr "CORS Rules"
 
-msgid "Could not check permissions"
-msgstr "Could not check permissions"
+msgid "Could Not Check Permissions"
+msgstr "Could Not Check Permissions"
 
 msgid "Could not copy \"{displayName}\": {errorMessage}"
 msgstr "Could not copy \"{displayName}\": {errorMessage}"
@@ -1199,8 +1199,8 @@ msgstr "Deleted"
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 
-msgid "Deleting Folder and all its contents..."
-msgstr "Deleting Folder and all its contents..."
+msgid "Deleting Folder and All Its Contents..."
+msgstr "Deleting Folder and All Its Contents..."
 
 msgid "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
 msgstr "Deleting the policy will remove all access restrictions defined by it. This action cannot be undone."
@@ -1412,8 +1412,8 @@ msgstr "Empty the bucket"
 msgid "Empty:"
 msgstr "Empty:"
 
-msgid "Emptying bucket {progressCurrent} of {progressTotal}, please wait..."
-msgstr "Emptying bucket {progressCurrent} of {progressTotal}, please wait..."
+msgid "Emptying Bucket {progressCurrent} of {progressTotal}, Please Wait..."
+msgstr "Emptying Bucket {progressCurrent} of {progressTotal}, Please Wait..."
 
 msgid "Emptying Container {progressCurrent} of {progressTotal}, Please Wait..."
 msgstr "Emptying Container {progressCurrent} of {progressTotal}, Please Wait..."
@@ -2540,8 +2540,8 @@ msgstr "No containers found"
 msgid "No CORS rules found"
 msgstr "No CORS rules found"
 
-msgid "No CORS rules matching the current search criteria."
-msgstr "No CORS rules matching the current search criteria."
+msgid "No CORS Rules Matching the Current Search Criteria."
+msgstr "No CORS Rules Matching the Current Search Criteria."
 
 msgid "No custom metadata properties found."
 msgstr "No custom metadata properties found."
@@ -2567,8 +2567,8 @@ msgstr "No Floating IPs Found"
 msgid "No images found"
 msgstr "No images found"
 
-msgid "No lifecycle rules matching the current search criteria."
-msgstr "No lifecycle rules matching the current search criteria."
+msgid "No Lifecycle Rules Matching the Current Search Criteria."
+msgstr "No Lifecycle Rules Matching the Current Search Criteria."
 
 msgid "No limit"
 msgstr "No limit"
@@ -2597,8 +2597,8 @@ msgstr "No objects were deleted: {errorMessage}"
 msgid "No policies match your search"
 msgstr "No policies match your search"
 
-msgid "No policy found"
-msgstr "No policy found"
+msgid "No Policy Found"
+msgstr "No Policy Found"
 
 msgid "No project access configured."
 msgstr "No project access configured."
@@ -2615,8 +2615,8 @@ msgstr "No projects available."
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 
-msgid "No rules found"
-msgstr "No rules found"
+msgid "No Rules Found"
+msgstr "No Rules Found"
 
 msgid "No security groups found"
 msgstr "No security groups found"
@@ -2627,8 +2627,8 @@ msgstr "No services available for this project."
 msgid "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 msgstr "No Temp URL key configured. A temporary URL key must be set at the account or container level before temporary URLs can be generated. Contact your administrator to configure X-Account-Meta-Temp-URL-Key or X-Container-Meta-Temp-URL-Key."
 
-msgid "No Versions Found for this Object."
-msgstr "No Versions Found for this Object."
+msgid "No Versions Found for This Object."
+msgstr "No Versions Found for This Object."
 
 msgid "No versions to delete in bucket \"{bucketName}\"."
 msgstr "No versions to delete in bucket \"{bucketName}\"."
@@ -3650,8 +3650,8 @@ msgstr "There are no buckets available with the current search criteria. Try adj
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "There are no containers available with the current search criteria. Try adjusting your search term."
 
-msgid "There are no CORS rules for this bucket"
-msgstr "There are no CORS rules for this bucket"
+msgid "There Are No CORS Rules for This Bucket"
+msgstr "There Are No CORS Rules for This Bucket"
 
 msgid "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
 msgstr "There are no flavors available for this project with the current filters applied. Try adjusting your filter criteria or create a new flavor."
@@ -3665,8 +3665,8 @@ msgstr "There are no images available for this project with the current filters 
 msgid "There are no items to display."
 msgstr "There are no items to display."
 
-msgid "There are no lifecycle rules for this bucket"
-msgstr "There are no lifecycle rules for this bucket"
+msgid "There Are No Lifecycle Rules for This Bucket"
+msgstr "There Are No Lifecycle Rules for This Bucket"
 
 msgid "There are no RBAC policies for this security group"
 msgstr "There are no RBAC policies for this security group"

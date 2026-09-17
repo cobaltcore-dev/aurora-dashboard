@@ -130,7 +130,7 @@ export const ObjectVersionHistoryModal = ({
         {error && <Status status="error" title={t`Failed to Load Versions`} body={error.message} className="mt-0" />}
 
         {!isLoading && !error && versions.length === 0 && (
-          <Status status="empty" title={t`No Versions Found for this Object.`} className="mt-0" />
+          <Status status="empty" title={t`No Versions Found for This Object.`} className="mt-0" />
         )}
 
         {!isLoading && !error && versions.length > 0 && (

@@ -122,7 +122,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
       {isPending ? (
         <Status
           status="progress"
-          title={progress ? t`Emptying bucket ${progressCurrent} of ${progressTotal}, please wait...` : t`Emptying...`}
+          title={progress ? t`Emptying Bucket ${progressCurrent} of ${progressTotal}, Please Wait...` : t`Emptying...`}
           className="mt-0"
         />
       ) : (

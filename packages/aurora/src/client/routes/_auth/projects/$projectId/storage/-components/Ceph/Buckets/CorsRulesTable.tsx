@@ -124,9 +124,9 @@ export function CorsRulesTable({
           <DataGridRow>
             <DataGridCell colSpan={columnCount}>
               {isFiltered ? (
-                <Status status="no-matches" title={t`No CORS rules matching the current search criteria.`} />
+                <Status status="no-matches" title={t`No CORS Rules Matching the Current Search Criteria.`} />
               ) : (
-                <Status status="empty" title={t`There are no CORS rules for this bucket`} />
+                <Status status="empty" title={t`There Are No CORS Rules for This Bucket`} />
               )}
             </DataGridCell>
           </DataGridRow>

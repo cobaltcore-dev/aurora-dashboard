@@ -108,7 +108,7 @@ export const DeleteBucketPolicyModal = ({
         {!isPolicyLoading && !policyError && !hasPolicy && (
           <Status
             status="empty"
-            title={t`No policy found`}
+            title={t`No Policy Found`}
             body={t`This bucket does not have a policy attached.`}
             className="mt-0"
           />
