@@ -18,7 +18,6 @@ import { Flavor } from "@/server/Compute/types/flavor"
 import {
   getFlavorAccessAddedToast,
   getFlavorAccessRemovedToast,
-  getFlavorAccessAddErrorToast,
   getFlavorAccessRemoveErrorToast,
 } from "./FlavorToastNotifications"
 
@@ -131,8 +130,7 @@ function ManageAccessModalInner({
     } catch (error) {
       const errorMessage = translateError(error instanceof Error ? error.message : "Failed to add access")
       setErrors({ newProjectId: errorMessage })
-      const { message, ...options } = getFlavorAccessAddErrorToast(trimmedProjectId, errorMessage)
-      toast.error(message, options)
+      // Error shown inline via Message component above the form
     } finally {
       setAddingProjectId(false)
     }
