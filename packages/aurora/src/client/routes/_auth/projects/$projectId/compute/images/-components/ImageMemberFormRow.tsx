@@ -30,7 +30,7 @@ export const ImageMemberFormRow: React.FC<ImageMemberFormRowProps> = ({
         <TextInput
           value={memberId}
           onChange={(e) => onMemberIdChange(e.target.value)}
-          placeholder={t`Enter member ID`}
+          placeholder={t`Enter project ID`}
           errortext={errors.memberId}
           required
         />

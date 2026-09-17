@@ -165,11 +165,17 @@ function ManageAccessModalInner({
 
       // Add projects
       for (const targetProjectId of projectsToAdd) {
-        await client.compute.addTenantAccess.mutate({
-          project_id: project,
-          flavorId: flavor.id,
-          targetProjectId,
-        })
+        try {
+          await client.compute.addTenantAccess.mutate({
+            project_id: project,
+            flavorId: flavor.id,
+            targetProjectId,
+          })
+        } catch (error) {
+          // Remove failed project from access list
+          setAccess((prev) => prev.filter((a) => a.projectId !== targetProjectId))
+          throw error
+        }
       }
 
       onClose()
@@ -223,16 +229,12 @@ function ManageAccessModalInner({
           )}
 
           {canAdd && (
-            <Stack direction="horizontal" className="jn:bg-theme-background-lvl-1 mb-4 justify-end p-2">
-              <Button
-                label={t`Add Project`}
-                onClick={() => setIsAddingNew(true)}
-                variant="primary"
-                disabled={isAddingNew}
-                icon="addCircle"
-              />
+            <Stack direction="horizontal" className="mb-4 justify-end">
+              <Button label={t`Add Project`} onClick={() => setIsAddingNew(true)} disabled={isAddingNew} />
             </Stack>
           )}
+
+          {errors.newProjectId && <Message variant="error" text={errors.newProjectId} className="mb-4" />}
 
           {access.length === 0 && !isAddingNew ? (
             <p className="jn:text-theme-light py-8 text-center">
@@ -264,7 +266,7 @@ function ManageAccessModalInner({
                               }
                             }}
                             placeholder={t`Enter project ID`}
-                            errortext={errors.newProjectId}
+                            invalid={!!errors.newProjectId}
                             autoFocus
                             wrapperClassName="w-full"
                           />

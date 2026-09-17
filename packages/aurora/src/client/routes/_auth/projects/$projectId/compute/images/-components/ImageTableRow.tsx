@@ -6,6 +6,7 @@ import {
   PopupMenu,
   PopupMenuItem,
   PopupMenuOptions,
+  PopupMenuSectionSeparator,
   Spinner,
   toast,
 } from "@cloudoperators/juno-ui-components"
@@ -134,16 +135,6 @@ export function ImageTableRow({
         ) : (
           <PopupMenu>
             <PopupMenuOptions>
-              <PopupMenuItem
-                label={t`Show Details`}
-                onClick={() =>
-                  navigate({
-                    to: "/projects/$projectId/compute/images/$imageId",
-                    params: { projectId, imageId: id },
-                  })
-                }
-              />
-
               {isExternalImage && permissions.canUpdateMember && (
                 <>
                   {isPending && (
@@ -159,12 +150,12 @@ export function ImageTableRow({
               {/* Own image: full actions */}
               {!isExternalImage && permissions.canUpdate && (
                 <>
-                  <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
-                  <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
                   <PopupMenuItem
                     label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate` : t`Deactivate`}
                     onClick={() => onActivationStatusChange(image)}
                   />
+                  <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
+                  <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
                   {image.visibility === IMAGE_VISIBILITY.SHARED &&
                     isImageOwner &&
                     (permissions.canCreateMember || permissions.canDeleteMember) && (
@@ -178,8 +169,20 @@ export function ImageTableRow({
                   )}
                 </>
               )}
+              <PopupMenuItem
+                label={t`Show Details`}
+                onClick={() =>
+                  navigate({
+                    to: "/projects/$projectId/compute/images/$imageId",
+                    params: { projectId, imageId: id },
+                  })
+                }
+              />
               {!isExternalImage && permissions.canDelete && !image.protected && (
-                <PopupMenuItem label={t`Delete`} onClick={() => onDelete(image)} />
+                <>
+                  <PopupMenuSectionSeparator />
+                  <PopupMenuItem label={t`Delete`} onClick={() => onDelete(image)} />
+                </>
               )}
             </PopupMenuOptions>
           </PopupMenu>

@@ -7,6 +7,7 @@ import {
   PopupMenu,
   PopupMenuOptions,
   PopupMenuItem,
+  PopupMenuSectionSeparator,
   Status,
   Pagination,
 } from "@cloudoperators/juno-ui-components"
@@ -27,7 +28,6 @@ interface FlavorListContainerProps {
   canDeleteFlavor?: boolean
   canMangageAccess?: boolean
   canManageSpecs?: boolean
-  canListSpecs?: boolean
   currentPage?: number
   totalPages?: number
   onPageChange?: (page: number) => void
@@ -42,7 +42,6 @@ export const FlavorListContainer = ({
   canDeleteFlavor,
   canMangageAccess,
   canManageSpecs,
-  canListSpecs,
   currentPage = 1,
   totalPages = 1,
   onPageChange,
@@ -147,8 +146,12 @@ export const FlavorListContainer = ({
               <DataGridCell onClick={(e) => e.stopPropagation()}>
                 <PopupMenu>
                   <PopupMenuOptions>
+                    {canManageSpecs && <PopupMenuItem label={t`Edit Metadata`} onClick={() => openSpecModal(flavor)} />}
+                    {canMangageAccess && flavor["os-flavor-access:is_public"] === false && (
+                      <PopupMenuItem label={t`Manage Access`} onClick={() => openAccessModal(flavor)} />
+                    )}
                     <PopupMenuItem
-                      label={t`Details`}
+                      label={t`Show Details`}
                       onClick={() =>
                         navigate({
                           to: "/projects/$projectId/compute/flavors/$flavorId",
@@ -156,21 +159,11 @@ export const FlavorListContainer = ({
                         })
                       }
                     />
-                    {(canManageSpecs || canListSpecs) && (
-                      <PopupMenuItem
-                        label={canManageSpecs ? t`Edit Metadata` : t`Metadata`}
-                        onClick={() => openSpecModal(flavor)}
-                      />
-                    )}
-                    {canMangageAccess && (
-                      <PopupMenuItem
-                        label={t`Manage Access`}
-                        onClick={() => openAccessModal(flavor)}
-                        disabled={flavor["os-flavor-access:is_public"] !== false}
-                      />
-                    )}
                     {canDeleteFlavor && (
-                      <PopupMenuItem label={t`Delete Flavor`} onClick={() => openDeleteModal(flavor)} />
+                      <>
+                        <PopupMenuSectionSeparator />
+                        <PopupMenuItem label={t`Delete Flavor`} onClick={() => openDeleteModal(flavor)} />
+                      </>
                     )}
                   </PopupMenuOptions>
                 </PopupMenu>
@@ -228,7 +221,6 @@ export const FlavorListContainer = ({
         onClose={() => setSpecModalOpen(false)}
         project={project}
         flavor={selectedFlavor}
-        canEdit={canManageSpecs}
       />
 
       <ManageAccessModal

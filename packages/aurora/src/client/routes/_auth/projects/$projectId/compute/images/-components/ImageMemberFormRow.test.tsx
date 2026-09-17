@@ -55,14 +55,14 @@ describe("ImageMemberFormRow", () => {
 
   it("should call onMemberIdChange when input value changes", () => {
     setup()
-    const input = screen.getByPlaceholderText("Enter member ID") as HTMLInputElement
+    const input = screen.getByPlaceholderText("Enter project ID") as HTMLInputElement
     fireEvent.change(input, { target: { value: "new-member-id" } })
     expect(mockOnMemberIdChange).toHaveBeenCalledWith("new-member-id")
   })
 
   it("should handle multiple input changes", () => {
     setup()
-    const input = screen.getByPlaceholderText("Enter member ID") as HTMLInputElement
+    const input = screen.getByPlaceholderText("Enter project ID") as HTMLInputElement
 
     fireEvent.change(input, { target: { value: "first-change" } })
     expect(mockOnMemberIdChange).toHaveBeenCalledWith("first-change")
@@ -160,7 +160,7 @@ describe("ImageMemberFormRow", () => {
 
   it("should have placeholder text on input", () => {
     setup()
-    const input = screen.getByPlaceholderText("Enter member ID")
+    const input = screen.getByPlaceholderText("Enter project ID")
     expect(input).toBeInTheDocument()
   })
 
@@ -178,7 +178,7 @@ describe("ImageMemberFormRow", () => {
 
   it("should handle empty memberId", () => {
     setup("")
-    const input = screen.getByPlaceholderText("Enter member ID") as HTMLInputElement
+    const input = screen.getByPlaceholderText("Enter project ID") as HTMLInputElement
     expect(input.value).toBe("")
   })
 

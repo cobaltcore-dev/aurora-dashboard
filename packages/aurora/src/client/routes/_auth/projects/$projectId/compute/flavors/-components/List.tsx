@@ -51,18 +51,17 @@ const createPermissionsPromise = (client: TrpcClient, project: string) => {
       permission: [
         "flavors:create",
         "flavors:delete",
-        "flavors:list_projects",
+        "flavors:add_project",
+        "flavors:remove_project",
         "flavor_specs:create",
         "flavor_specs:delete",
-        "flavor_specs:list",
       ],
     })
-    .then(([canCreate, canDelete, canManageAccess, canCreateSpecs, canDeleteSpecs, canListSpecs]) => ({
+    .then(([canCreate, canDelete, canAddProject, canRemoveProject, canCreateSpecs, canDeleteSpecs]) => ({
       canCreate,
       canDelete,
-      canManageAccess,
+      canManageAccess: canAddProject || canRemoveProject,
       canManageSpecs: canCreateSpecs || canDeleteSpecs,
-      canListSpecs,
     }))
 }
 
@@ -88,7 +87,6 @@ function FlavorsContent({
     canDelete: boolean
     canManageAccess: boolean
     canManageSpecs: boolean
-    canListSpecs: boolean
   }>
   client: TrpcClient
   project: string
@@ -148,7 +146,8 @@ function FlavorsContent({
             options={sortSettings.options}
             sortBy={sortSettings.sortBy}
             sortDirection={sortSettings.sortDirection ?? "asc"}
-            selectClassName="min-w-40"
+            selectClassName="min-w-45"
+            selectWidth="auto"
             onSortByChange={(v) =>
               handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
             }
@@ -195,7 +194,6 @@ function FlavorsContent({
         canDeleteFlavor={permissions.canDelete}
         canMangageAccess={permissions.canManageAccess}
         canManageSpecs={permissions.canManageSpecs}
-        canListSpecs={permissions.canListSpecs}
         currentPage={safePage}
         totalPages={totalPages}
         onPageChange={onPageChange}
