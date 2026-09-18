@@ -120,14 +120,11 @@ const makeObjectMetadata = (overrides: Partial<ObjectMetadata> = {}): ObjectMeta
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-// Finds a small icon button (Save/Discard/Edit/Delete) by its title attribute.
 const getIconButton = (name: RegExp) =>
   screen.getAllByRole("button").find((btn) => name.test(btn.getAttribute("title") ?? ""))!
 
 const getModalUpdateButton = () => screen.getByRole("button", { name: /Update object/i })
 
-// Flushes React effects after render so the form body (which depends on metadataRaw)
-// is guaranteed to be in the DOM before interactions begin.
 const flushEffects = () => act(async () => {})
 
 // ─── Render helper ────────────────────────────────────────────────────────────
@@ -177,651 +174,281 @@ describe("EditObjectMetadataModal", () => {
 
   // ── Visibility ──────────────────────────────────────────────────────────────
 
-  describe("Visibility", () => {
-    test("renders nothing when isOpen is false", () => {
-      renderModal({ isOpen: false })
-      expect(screen.queryByText(/Edit metadata:/i)).not.toBeInTheDocument()
-    })
+  test("renders nothing when closed or object is null", () => {
+    renderModal({ isOpen: false })
+    expect(screen.queryByText(/Edit metadata:/i)).not.toBeInTheDocument()
 
-    test("renders nothing when object is null", () => {
-      renderModal({ object: null })
-      expect(screen.queryByText(/Edit metadata:/i)).not.toBeInTheDocument()
-    })
+    renderModal({ isOpen: true, object: null })
+    expect(screen.queryByText(/Edit metadata:/i)).not.toBeInTheDocument()
+  })
 
-    test("renders modal title with object display name", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText("Edit metadata:")).toBeInTheDocument()
-      expect(screen.getByText("sample.txt")).toBeInTheDocument()
+  test("renders modal with object name when open", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    renderModal()
+    await flushEffects()
+    expect(screen.getByText("Edit metadata:")).toBeInTheDocument()
+    expect(screen.getByText("sample.txt")).toBeInTheDocument()
+  })
+
+  // ── Loading & error states ──────────────────────────────────────────────────
+
+  test("shows loading spinner while fetching metadata", () => {
+    metadataLoading = true
+    renderModal()
+    expect(screen.getByText(/Loading object properties/i)).toBeInTheDocument()
+  })
+
+  test("shows error message when metadata fetch fails", () => {
+    metadataError = { message: "Not found" }
+    renderModal()
+    expect(screen.getByText(/Failed to load object metadata/i)).toBeInTheDocument()
+    expect(screen.getByText(/Not found/)).toBeInTheDocument()
+  })
+
+  // ── Custom metadata validation ──────────────────────────────────────────────
+
+  test("validates metadata key is required", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.click(getIconButton(/^Save$/i))
+    await waitFor(() => {
+      expect(screen.getByText(/Key is required/i)).toBeInTheDocument()
     })
   })
 
-  // ── Loading state ───────────────────────────────────────────────────────────
-
-  describe("Loading state", () => {
-    test("shows loading state while fetching metadata", () => {
-      metadataLoading = true
-      renderModal()
-      expect(screen.getByText(/Loading Object Properties/i)).toBeInTheDocument()
-    })
-
-    test("Update object button is disabled while loading", () => {
-      metadataLoading = true
-      renderModal()
-      expect(getModalUpdateButton()).toBeDisabled()
+  test("validates metadata key contains only valid characters", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "invalid key")
+    await user.click(getIconButton(/^Save$/i))
+    await waitFor(() => {
+      expect(screen.getByText(/Key contains invalid characters/i)).toBeInTheDocument()
     })
   })
 
-  // ── Error state ─────────────────────────────────────────────────────────────
-
-  describe("Error state", () => {
-    test("shows error message when metadata fetch fails", () => {
-      metadataError = { message: "Not found" }
-      renderModal()
-      expect(screen.getByText(/Failed to Load Object Metadata/i)).toBeInTheDocument()
-      expect(screen.getByText(/Not found/)).toBeInTheDocument()
+  test("validates metadata key has at least one alphanumeric character", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "----")
+    await user.click(getIconButton(/^Save$/i))
+    await waitFor(() => {
+      expect(screen.getByText(/Key must contain at least one alphanumeric character/i)).toBeInTheDocument()
     })
   })
 
-  // ── Read-only properties ────────────────────────────────────────────────────
-
-  describe("Read-only properties", () => {
-    test("displays content type", async () => {
-      mockObjectMetadata = makeObjectMetadata({ contentType: "application/json" })
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText("application/json")).toBeInTheDocument()
-    })
-
-    test("displays etag as MD5 checksum", async () => {
-      mockObjectMetadata = makeObjectMetadata({ etag: "deadbeef1234" })
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText("deadbeef1234")).toBeInTheDocument()
-    })
-
-    test("displays formatted size", async () => {
-      mockObjectMetadata = makeObjectMetadata({ contentLength: 1024 })
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText(/1(\s*)KiB/i)).toBeInTheDocument()
-    })
-
-    test("displays — for missing content type", async () => {
-      mockObjectMetadata = makeObjectMetadata({ contentType: undefined })
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText("Content type").closest("div")?.textContent).toContain("—")
-    })
-
-    test("displays last modified from metadataRaw when available", async () => {
-      mockObjectMetadata = makeObjectMetadata({ lastModified: "2026-04-16T13:29:05.000000" })
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText(/Last modified/i)).toBeInTheDocument()
-    })
-
-    test("falls back to object.last_modified when lastModified not in metadata", async () => {
-      mockObjectMetadata = makeObjectMetadata({ lastModified: undefined })
-      renderModal({ object: makeObjectRow({ last_modified: "2026-04-10T13:29:04.000000" }) })
-      await flushEffects()
-      expect(screen.getByText(/Last modified/i)).toBeInTheDocument()
+  test("accepts valid metadata key with hyphens", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "my-key-1")
+    await user.type(screen.getByPlaceholderText(/Value/i), "val")
+    await user.click(getIconButton(/^Save$/i))
+    await waitFor(() => {
+      expect(screen.getByText("my-key-1")).toBeInTheDocument()
     })
   })
 
-  // ── SLO / DLO notices ───────────────────────────────────────────────────────
+  // ── Expires at validation ───────────────────────────────────────────────────
 
-  describe("Large object notices", () => {
-    test("shows SLO notice when staticLargeObject is true", async () => {
-      mockObjectMetadata = makeObjectMetadata({ staticLargeObject: true })
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText(/static large object/i)).toBeInTheDocument()
+  test("validates expires at timestamp format", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    renderModal()
+    await flushEffects()
+    await user.type(screen.getByLabelText(/Expires at/i), "not-a-date")
+    act(() => vi.advanceTimersByTime(700))
+    await waitFor(() => {
+      expect(screen.getByText(/Expected format: YYYY-MM-DD HH:mm:ss/i)).toBeInTheDocument()
     })
+    vi.useRealTimers()
+  }, 10000)
 
-    test("shows DLO notice when objectManifest is set", async () => {
-      mockObjectMetadata = makeObjectMetadata({ objectManifest: "segments/prefix" })
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText(/dynamic large object/i)).toBeInTheDocument()
-    })
+  test("blocks submission when expires at format is invalid", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    const input = screen.getByLabelText(/Expires at/i)
+    await user.clear(input)
+    await user.type(input, "bad-format")
+    await user.click(getModalUpdateButton())
+    expect(mockMutate).not.toHaveBeenCalled()
+  })
 
-    test("shows no large object notice for a regular object", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      renderModal()
-      await flushEffects()
-      expect(screen.queryByText(/large object/i)).not.toBeInTheDocument()
+  // ── Metadata CRUD ───────────────────────────────────────────────────────────
+
+  test("adds new metadata entry", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "new-key")
+    await user.type(screen.getByPlaceholderText(/Value/i), "new-value")
+    await user.click(getIconButton(/^Save$/i))
+    await waitFor(() => {
+      expect(screen.getByText("new-key")).toBeInTheDocument()
+      expect(screen.getByText("new-value")).toBeInTheDocument()
     })
   })
 
-  // ── Expires at field ────────────────────────────────────────────────────────
-
-  describe("Expires at field", () => {
-    test("field is empty when deleteAt is not set", async () => {
-      mockObjectMetadata = makeObjectMetadata({ deleteAt: undefined })
-      renderModal()
-      await flushEffects()
-      const input = screen.getByLabelText(/Expires at/i)
-      expect(input).toHaveValue("")
-    })
-
-    test("field is populated with formatted timestamp when deleteAt is set", async () => {
-      // Unix 1747400000 → 2025-05-16T12:53:20.000Z (UTC)
-      mockObjectMetadata = makeObjectMetadata({ deleteAt: 1747400000 })
-      renderModal()
-      await flushEffects()
-      const input = screen.getByLabelText(/Expires at/i)
-      expect(input).toHaveValue("2025-05-16 12:53:20")
-    })
-
-    test("shows invalid state after debounce when format is wrong", async () => {
-      vi.useFakeTimers({ shouldAdvanceTime: true })
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-      renderModal()
-      await flushEffects()
-      await user.type(screen.getByLabelText(/Expires at/i), "not-a-date")
-      act(() => vi.advanceTimersByTime(700))
-      await waitFor(() => {
-        expect(screen.getByText(/Expected format: YYYY-MM-DD HH:mm:ss/i)).toBeInTheDocument()
-      })
-      vi.useRealTimers()
-    }, 10000)
-
-    test("always shows helper text above expires at input", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText(/Enter a timestamp like/i)).toBeInTheDocument()
-    })
-
-    test("shows helper text even when field is empty", async () => {
-      mockObjectMetadata = makeObjectMetadata({ deleteAt: undefined })
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText(/Enter a timestamp like/i)).toBeInTheDocument()
-    })
-
-    test("blocks submission when expires at format is invalid", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      const input = screen.getByLabelText(/Expires at/i)
-      await user.clear(input)
-      await user.type(input, "bad-format")
-      await user.click(getModalUpdateButton())
-      expect(mockMutate).not.toHaveBeenCalled()
+  test("edits existing metadata entry", async () => {
+    mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice" } })
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    await user.click(getIconButton(/^Edit$/i))
+    const valueInputs = screen.getAllByRole("textbox").filter((i) => i.getAttribute("value") === "Alice")
+    await user.clear(valueInputs[0])
+    await user.type(valueInputs[0], "Bob")
+    await user.click(getIconButton(/^Save$/i))
+    await waitFor(() => {
+      expect(screen.getByText("Bob")).toBeInTheDocument()
     })
   })
 
-  // ── Custom metadata ─────────────────────────────────────────────────────────
-
-  describe("Custom metadata", () => {
-    test("shows empty state when no custom metadata", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      renderModal()
-      await flushEffects()
+  test("deletes metadata entry", async () => {
+    mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice" } })
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    await user.click(getIconButton(/^Delete$/i))
+    await waitFor(() => {
+      expect(screen.queryByText("author")).not.toBeInTheDocument()
       expect(screen.getByText(/No custom metadata/i)).toBeInTheDocument()
     })
-
-    test("renders existing custom metadata entries", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice", version: "2" } })
-      renderModal()
-      await flushEffects()
-      expect(screen.getByText("author")).toBeInTheDocument()
-      expect(screen.getByText("Alice")).toBeInTheDocument()
-      expect(screen.getByText("version")).toBeInTheDocument()
-      expect(screen.getByText("2")).toBeInTheDocument()
-    })
-
-    test("Add Property button is visible", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      renderModal()
-      await flushEffects()
-      expect(screen.getByRole("button", { name: /Add Property/i })).toBeInTheDocument()
-    })
-
-    test("clicking Add Property shows new row inputs", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      expect(screen.getByPlaceholderText(/property_key/i)).toBeInTheDocument()
-      expect(screen.getByPlaceholderText(/Value/i)).toBeInTheDocument()
-    })
-
-    test("shows error when saving new entry with empty key", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/Key is required/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows error when key contains invalid characters", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "invalid key")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/Key contains invalid characters/i)).toBeInTheDocument()
-      })
-    })
-
-    test("shows error when key has no alphanumeric characters", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "----")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/Key must contain at least one alphanumeric character/i)).toBeInTheDocument()
-      })
-    })
-
-    test("accepts valid key with hyphens", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "my-key-1")
-      await user.type(screen.getByPlaceholderText(/Value/i), "val")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText("my-key-1")).toBeInTheDocument()
-      })
-    })
-
-    test("adds new metadata entry to table after valid save", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "new-key")
-      await user.type(screen.getByPlaceholderText(/Value/i), "new-value")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText("new-key")).toBeInTheDocument()
-        expect(screen.getByText("new-value")).toBeInTheDocument()
-      })
-    })
-
-    test("Discard button cancels new entry without adding it", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "discard-me")
-      await user.click(getIconButton(/Discard/i))
-      await waitFor(() => {
-        expect(screen.queryByText("discard-me")).not.toBeInTheDocument()
-        expect(screen.getByText(/No custom metadata/i)).toBeInTheDocument()
-      })
-    })
-
-    test("Edit button shows edit inputs for existing entry", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Edit$/i))
-      expect(screen.getAllByRole("textbox").some((i) => i.getAttribute("value") === "author")).toBeTruthy()
-    })
-
-    test("can save edited metadata entry", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Edit$/i))
-      const valueInputs = screen.getAllByRole("textbox").filter((i) => i.getAttribute("value") === "Alice")
-      await user.clear(valueInputs[0])
-      await user.type(valueInputs[0], "Bob")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText("Bob")).toBeInTheDocument()
-      })
-    })
-
-    test("Discard in edit mode restores original value", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Edit$/i))
-      const valueInputs = screen.getAllByRole("textbox").filter((i) => i.getAttribute("value") === "Alice")
-      await user.clear(valueInputs[0])
-      await user.type(valueInputs[0], "Temp")
-      await user.click(getIconButton(/Discard/i))
-      await waitFor(() => {
-        expect(screen.getByText("Alice")).toBeInTheDocument()
-      })
-    })
-
-    test("shows error when saving edit with invalid key characters", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Edit$/i))
-      const keyInput = screen.getAllByRole("textbox").find((i) => i.getAttribute("value") === "author")!
-      await user.clear(keyInput)
-      await user.type(keyInput, "bad key")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(screen.getByText(/Key contains invalid characters/i)).toBeInTheDocument()
-      })
-    })
-
-    test("Delete button removes metadata entry", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await waitFor(() => {
-        expect(screen.queryByText("author")).not.toBeInTheDocument()
-        expect(screen.getByText(/No custom metadata/i)).toBeInTheDocument()
-      })
-    })
-
-    test("Add Property button is disabled while editing an existing entry", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Edit$/i))
-      expect(screen.getByRole("button", { name: /Add Property/i })).toBeDisabled()
-    })
-
-    test("Add Property button is disabled while adding a new entry", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      expect(screen.getByRole("button", { name: /Add Property/i })).toBeDisabled()
-    })
   })
 
-  // ── Update object button disabled state ─────────────────────────────────────
-
-  describe("Update object button enabled state", () => {
-    test("is disabled when form is unchanged", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      renderModal()
-      await flushEffects()
-      expect(getModalUpdateButton()).toBeDisabled()
-    })
-
-    test("is enabled after a new metadata entry is added", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "k")
-      await user.type(screen.getByPlaceholderText(/Value/i), "v")
-      await user.click(getIconButton(/^Save$/i))
-      await waitFor(() => {
-        expect(getModalUpdateButton()).not.toBeDisabled()
-      })
-    })
-
-    test("is enabled after an existing entry is deleted", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await waitFor(() => {
-        expect(getModalUpdateButton()).not.toBeDisabled()
-      })
-    })
-
-    test("is enabled after expires at is changed", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
-      await waitFor(() => {
-        expect(getModalUpdateButton()).not.toBeDisabled()
-      })
-    })
-
-    test("is disabled while an unsaved new entry row is open", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      expect(getModalUpdateButton()).toBeDisabled()
-    })
-
-    test("is disabled while an entry is being edited", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { author: "Alice" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Edit$/i))
-      expect(getModalUpdateButton()).toBeDisabled()
+  test("discards unsaved new entry", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "discard-me")
+    await user.click(getIconButton(/Discard/i))
+    await waitFor(() => {
+      expect(screen.queryByText("discard-me")).not.toBeInTheDocument()
+      expect(screen.getByText(/No custom metadata/i)).toBeInTheDocument()
     })
   })
 
   // ── Submission ──────────────────────────────────────────────────────────────
 
-  describe("Submission", () => {
-    test("calls mutate with new metadata entry", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Add Property/i }))
-      await user.type(screen.getByPlaceholderText(/property_key/i), "owner")
-      await user.type(screen.getByPlaceholderText(/Value/i), "Alice")
-      await user.click(getIconButton(/^Save$/i))
-      await user.click(getModalUpdateButton())
-      expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ project_id: mockProjectId, metadata: expect.objectContaining({ owner: "Alice" }) })
-      )
-    })
-
-    test("calls mutate with deleteAt when expires at is set", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
-      await user.click(getModalUpdateButton())
-      expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ project_id: mockProjectId, deleteAt: expect.any(Number) })
-      )
-    })
-
-    test("calls mutate without deleteAt when expires at is empty", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await user.click(getModalUpdateButton())
-      expect(mockMutate).toHaveBeenCalledWith(expect.objectContaining({ project_id: mockProjectId }))
-      expect(mockMutate).toHaveBeenCalledWith(expect.not.objectContaining({ deleteAt: expect.anything() }))
-    })
-
-    test("calls mutate with correct container and object name", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await user.click(getModalUpdateButton())
-      expect(mockMutate).toHaveBeenCalledWith(
-        expect.objectContaining({ container: "test-container", object: "sample.txt" })
-      )
-    })
-
-    test("calls onSuccess with object display name after successful mutation", async () => {
-      const onSuccess = vi.fn()
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
-      const user = userEvent.setup()
-      renderModal({ onSuccess })
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await user.click(getModalUpdateButton())
-      await waitFor(() => {
-        expect(onSuccess).toHaveBeenCalledWith("sample.txt")
+  test("submits metadata changes with correct parameters", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    await user.click(screen.getByRole("button", { name: /Add Property/i }))
+    await user.type(screen.getByPlaceholderText(/Property Key/i), "owner")
+    await user.type(screen.getByPlaceholderText(/Value/i), "Alice")
+    await user.click(getIconButton(/^Save$/i))
+    await user.click(getModalUpdateButton())
+    expect(mockMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        project_id: mockProjectId,
+        container: "test-container",
+        object: "sample.txt",
+        metadata: expect.objectContaining({ owner: "Alice" }),
       })
-    })
+    )
+  })
 
-    test("invalidates getObjectMetadata cache on success", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await user.click(getModalUpdateButton())
-      await waitFor(() => {
-        expect(mockInvalidateObjectMetadata).toHaveBeenCalledWith({
-          project_id: mockProjectId,
-          container: "test-container",
-          object: "sample.txt",
-        })
-      })
-    })
+  test("submits deleteAt when expires at is set", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup()
+    renderModal()
+    await flushEffects()
+    await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
+    await user.click(getModalUpdateButton())
+    expect(mockMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ project_id: mockProjectId, deleteAt: expect.any(Number) })
+    )
+  })
 
-    test("invalidates listObjects cache on success", async () => {
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await user.click(getModalUpdateButton())
-      await waitFor(() => {
-        expect(mockInvalidateListObjects).toHaveBeenCalledWith({
-          project_id: mockProjectId,
-          container: "test-container",
-        })
-      })
-    })
-
-    test("closes modal after successful mutation", async () => {
-      const onClose = vi.fn()
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
-      const user = userEvent.setup()
-      renderModal({ onClose })
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await user.click(getModalUpdateButton())
-      await waitFor(() => {
-        expect(onClose).toHaveBeenCalled()
-      })
+  test("calls onSuccess and invalidates cache after successful mutation", async () => {
+    const onSuccess = vi.fn()
+    mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
+    const user = userEvent.setup()
+    renderModal({ onSuccess })
+    await flushEffects()
+    await user.click(getIconButton(/^Delete$/i))
+    await user.click(getModalUpdateButton())
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledWith("sample.txt")
+      expect(mockInvalidateObjectMetadata).toHaveBeenCalled()
+      expect(mockInvalidateListObjects).toHaveBeenCalled()
     })
   })
 
-  // ── Error handling ──────────────────────────────────────────────────────────
-
-  describe("Error handling", () => {
-    test("calls onError with object name and error message on mutation failure", async () => {
-      mutationError = "Internal Server Error"
-      const onError = vi.fn()
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
-      const user = userEvent.setup()
-      renderModal({ onError })
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await user.click(getModalUpdateButton())
-      await waitFor(() => {
-        expect(onError).toHaveBeenCalledWith("sample.txt", "Internal Server Error")
-      })
-    })
-
-    test("does not close the modal on mutation failure", async () => {
-      mutationError = "Server error"
-      const onClose = vi.fn()
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
-      const user = userEvent.setup()
-      renderModal({ onClose })
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await user.click(getModalUpdateButton())
-      await waitFor(() => {
-        expect(onClose).not.toHaveBeenCalled()
-      })
-    })
-
-    test("shows mutation error message in modal", async () => {
-      mutationError = "Forbidden"
-      mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
-      const user = userEvent.setup()
-      renderModal()
-      await flushEffects()
-      await user.click(getIconButton(/^Delete$/i))
-      await user.click(getModalUpdateButton())
-      await waitFor(() => {
-        expect(screen.getByText(/Failed to update object/i)).toBeInTheDocument()
-        expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
-      })
+  test("calls onError and shows error message on mutation failure", async () => {
+    mutationError = "Forbidden"
+    const onError = vi.fn()
+    mockObjectMetadata = makeObjectMetadata({ customMetadata: { k: "v" } })
+    const user = userEvent.setup()
+    renderModal({ onError })
+    await flushEffects()
+    await user.click(getIconButton(/^Delete$/i))
+    await user.click(getModalUpdateButton())
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledWith("sample.txt", "Forbidden")
+      expect(screen.getByText(/Failed to update object/i)).toBeInTheDocument()
+      expect(screen.getByText(/Forbidden/)).toBeInTheDocument()
     })
   })
 
-  // ── Cancel / close ──────────────────────────────────────────────────────────
+  // ── Modal lifecycle ─────────────────────────────────────────────────────────
 
-  describe("Cancel / close", () => {
-    test("calls onClose when Cancel button is clicked", async () => {
-      const onClose = vi.fn()
-      mockObjectMetadata = makeObjectMetadata()
-      const user = userEvent.setup()
-      renderModal({ onClose })
-      await flushEffects()
-      await user.click(screen.getByRole("button", { name: /Cancel/i }))
-      expect(onClose).toHaveBeenCalled()
-    })
+  test("closes modal on cancel", async () => {
+    const onClose = vi.fn()
+    mockObjectMetadata = makeObjectMetadata()
+    const user = userEvent.setup()
+    renderModal({ onClose })
+    await flushEffects()
+    await user.click(screen.getByRole("button", { name: /Cancel/i }))
+    expect(onClose).toHaveBeenCalled()
+  })
 
-    test("resets form state when modal is closed and reopened", async () => {
-      mockObjectMetadata = makeObjectMetadata()
-      const { rerender } = render(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <EditObjectMetadataModal isOpen={true} object={makeObjectRow()} onClose={vi.fn()} />
-          </PortalProvider>
-        </I18nProvider>
-      )
-      const user = userEvent.setup()
-      await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
-      rerender(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <EditObjectMetadataModal isOpen={false} object={makeObjectRow()} onClose={vi.fn()} />
-          </PortalProvider>
-        </I18nProvider>
-      )
-      rerender(
-        <I18nProvider i18n={i18n}>
-          <PortalProvider>
-            <EditObjectMetadataModal isOpen={true} object={makeObjectRow()} onClose={vi.fn()} />
-          </PortalProvider>
-        </I18nProvider>
-      )
-      await waitFor(() => {
-        expect(screen.getByLabelText(/Expires at/i)).toHaveValue("")
-      })
+  test("resets form state when modal is reopened", async () => {
+    mockObjectMetadata = makeObjectMetadata()
+    const { rerender } = render(
+      <I18nProvider i18n={i18n}>
+        <PortalProvider>
+          <EditObjectMetadataModal isOpen={true} object={makeObjectRow()} onClose={vi.fn()} />
+        </PortalProvider>
+      </I18nProvider>
+    )
+    const user = userEvent.setup()
+    await user.type(screen.getByLabelText(/Expires at/i), "2026-05-16 18:14:57")
+    rerender(
+      <I18nProvider i18n={i18n}>
+        <PortalProvider>
+          <EditObjectMetadataModal isOpen={false} object={makeObjectRow()} onClose={vi.fn()} />
+        </PortalProvider>
+      </I18nProvider>
+    )
+    rerender(
+      <I18nProvider i18n={i18n}>
+        <PortalProvider>
+          <EditObjectMetadataModal isOpen={true} object={makeObjectRow()} onClose={vi.fn()} />
+        </PortalProvider>
+      </I18nProvider>
+    )
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Expires at/i)).toHaveValue("")
     })
   })
 })

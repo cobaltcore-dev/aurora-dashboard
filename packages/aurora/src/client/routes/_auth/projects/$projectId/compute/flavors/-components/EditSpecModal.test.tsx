@@ -61,7 +61,7 @@ describe("EditSpecModal", () => {
     await waitFor(() => screen.getByRole("button", { name: /Add Property/i }))
     fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
 
-    await waitFor(() => screen.getByPlaceholderText("property_key"))
+    await waitFor(() => screen.getByPlaceholderText(/Property Key/i))
 
     const inputs = screen.getAllByRole("textbox")
     fireEvent.change(inputs[0], { target: { value: "hw:cpu_policy" } })
@@ -155,7 +155,7 @@ describe("EditSpecModal", () => {
     await waitFor(() => screen.getByRole("button", { name: /Add Property/i }))
     fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
 
-    await waitFor(() => screen.getByPlaceholderText("property_key"))
+    await waitFor(() => screen.getByPlaceholderText(/Property Key/i))
 
     const inputs = screen.getAllByRole("textbox")
     fireEvent.change(inputs[0], { target: { value: "hw:cpu_policy" } })

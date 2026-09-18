@@ -51,6 +51,11 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
 
       return newState
     })
+    // Clear error for this field when user changes the value
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }))
     if (generalError) setGeneralError(null)
   }
 
@@ -58,6 +63,11 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
     setNewFlavor((prev) => ({
       ...prev,
       [name]: value,
+    }))
+    // Clear error for this field when user changes the value
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
     }))
     if (generalError) setGeneralError(null)
   }
@@ -145,6 +155,32 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
     setGeneralError(null)
   }
 
+  const isFormValid = () => {
+    // Check required fields are filled and have no errors
+    const requiredFields: FlavorFormField[] = ["name", "vcpus", "ram", "disk"]
+
+    for (const field of requiredFields) {
+      const value = newFlavor[field]
+      // Field must have a value
+      if (value === undefined || value === "" || value === null) return false
+      // Field must not have a validation error
+      if (validateField(field, value, t)) return false
+    }
+
+    // Check optional fields for errors (if they have values)
+    const optionalFields: FlavorFormField[] = ["id", "swap", "OS-FLV-EXT-DATA:ephemeral", "rxtx_factor", "description"]
+
+    for (const field of optionalFields) {
+      const value = newFlavor[field]
+      // Skip empty optional fields
+      if (value === undefined || value === "" || value === null) continue
+      // Field must not have a validation error
+      if (validateField(field, value, t)) return false
+    }
+
+    return true
+  }
+
   return (
     <Modal
       onCancel={handleClose}
@@ -154,7 +190,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       confirmButtonLabel={t`Create New Flavor`}
-      disableConfirmButton={isLoading}
+      disableConfirmButton={!isFormValid() || isLoading}
       disableCancelButton={isLoading}
       disableCloseButton={isLoading}
     >
@@ -208,7 +244,7 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
               <Checkbox
                 name="os-flavor-access:is_public"
                 label={t`Public Flavor`}
-                helptext={t`If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants.`}
+                helptext={t`When checked, all tenants can use this flavor. Otherwise, grant access explicitly.`}
                 checked={!!newFlavor["os-flavor-access:is_public"]}
                 onChange={handleInputChange}
               />

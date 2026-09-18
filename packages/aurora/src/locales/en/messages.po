@@ -290,6 +290,9 @@ msgstr "Accepted"
 msgid "Accepted Images"
 msgstr "Accepted Images"
 
+msgid "Access Added"
+msgstr "Access Added"
+
 msgid "Access Control for Container:"
 msgstr "Access Control for Container:"
 
@@ -299,8 +302,14 @@ msgstr "Access Control Updated"
 msgid "Access Denied"
 msgstr "Access Denied"
 
+msgid "Access for project \"{projectId}\" to flavor \"{flavorName}\" was successfully revoked."
+msgstr "Access for project \"{projectId}\" to flavor \"{flavorName}\" was successfully revoked."
+
 msgid "Access for project \"{targetTenant}\" was successfully revoked."
 msgstr "Access for project \"{targetTenant}\" was successfully revoked."
+
+msgid "Access Removed"
+msgstr "Access Removed"
 
 msgid "Access Revoked"
 msgstr "Access Revoked"
@@ -830,6 +839,9 @@ msgstr "CORS rule was successfully deleted from bucket \"{bucketName}\"."
 msgid "CORS Rules"
 msgstr "CORS Rules"
 
+msgid "Could not add access for project \"{projectId}\": {errorMessage}"
+msgstr "Could not add access for project \"{projectId}\": {errorMessage}"
+
 msgid "Could Not Check Permissions"
 msgstr "Could Not Check Permissions"
 
@@ -919,6 +931,9 @@ msgstr "Could not move \"{displayName}\": {errorMessage}"
 
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "Could not move \"{objectName}\": {errorMessage}"
+
+msgid "Could not remove access for project \"{projectId}\": {errorMessage}"
+msgstr "Could not remove access for project \"{projectId}\": {errorMessage}"
 
 msgid "Could not restore \"{displayName}\": {errorMessage}"
 msgstr "Could not restore \"{displayName}\": {errorMessage}"
@@ -1577,6 +1592,9 @@ msgstr "Failed to activate {failedCount} of {totalCount} image(s). Some images m
 msgid "Failed to Activate Images"
 msgstr "Failed to Activate Images"
 
+msgid "Failed to Add Access"
+msgstr "Failed to Add Access"
+
 msgid "Failed to add member"
 msgstr "Failed to add member"
 
@@ -1810,6 +1828,9 @@ msgstr "Failed to move object: {copyErrorMessage}"
 
 msgid "Failed to refresh Floating IPs. Showing cached data."
 msgstr "Failed to refresh Floating IPs. Showing cached data."
+
+msgid "Failed to Remove Access"
+msgstr "Failed to Remove Access"
 
 msgid "Failed to remove member"
 msgstr "Failed to remove member"
@@ -2110,9 +2131,6 @@ msgstr "ID"
 
 msgid "ID must only contain alphanumeric characters, hyphens, underscores, and dots."
 msgstr "ID must only contain alphanumeric characters, hyphens, underscores, and dots."
-
-msgid "If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants."
-msgstr "If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants."
 
 msgid "If the port has multiple IPs, select the desired fixed IP address."
 msgstr "If the port has multiple IPs, select the desired fixed IP address."
@@ -2573,11 +2591,8 @@ msgstr "No Lifecycle Rules Matching the Current Search Criteria."
 msgid "No limit"
 msgstr "No limit"
 
-msgid "No metadata properties found"
-msgstr "No metadata properties found"
-
-msgid "No metadata properties found."
-msgstr "No metadata properties found."
+msgid "No Metadata Properties Found"
+msgstr "No Metadata Properties Found"
 
 msgid "No new versions will be created"
 msgstr "No new versions will be created"
@@ -2873,6 +2888,9 @@ msgstr "Private flavors could not be loaded. You may be seeing an incomplete lis
 msgid "Project"
 msgstr "Project"
 
+msgid "Project \"{projectId}\" now has access to flavor \"{flavorName}\"."
+msgstr "Project \"{projectId}\" now has access to flavor \"{flavorName}\"."
+
 msgid "Project ID"
 msgstr "Project ID"
 
@@ -2903,6 +2921,9 @@ msgstr "Property Created"
 msgid "Property Deleted"
 msgstr "Property Deleted"
 
+msgid "Property Key"
+msgstr "Property Key"
+
 msgid "Property Updated"
 msgstr "Property Updated"
 
@@ -2916,7 +2937,7 @@ msgid "Property was successfully updated."
 msgstr "Property was successfully updated."
 
 msgid "property_key"
-msgstr "property_key"
+msgstr "Property Key"
 
 msgid "property-key"
 msgstr "property-key"
@@ -4066,6 +4087,9 @@ msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud managemen
 
 msgid "What happens when suspended:"
 msgstr "What happens when suspended:"
+
+msgid "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
+msgstr "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 
 msgid "Why Choose Aurora?"
 msgstr "Why Choose Aurora?"
