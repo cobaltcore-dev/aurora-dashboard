@@ -2384,9 +2384,6 @@ msgstr ""
 msgid "Loading..."
 msgstr "Lädt..."
 
-msgid "Log In"
-msgstr ""
-
 msgid "MAC Address"
 msgstr "MAC-Adresse"
 
@@ -3314,7 +3311,7 @@ msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 msgid "Services"
 msgstr "Services"
 
-msgid "Session Expired"
+msgid "Session Changed"
 msgstr ""
 
 msgid "Session expires in"
@@ -3369,6 +3366,9 @@ msgid "Showing first {maxOptions} of {totalCount} — refine your search to narr
 msgstr "Erste {maxOptions} von {totalCount} werden angezeigt — verfeinern Sie Ihre Suche, um die Ergebnisse einzugrenzen"
 
 msgid "Showing first {shown} of {total} objects"
+msgstr ""
+
+msgid "Sign in"
 msgstr ""
 
 msgid "Sign In"
@@ -4193,7 +4193,7 @@ msgstr ""
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
 
-msgid "Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab."
+msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue."
 msgstr ""
 
 msgid "YYYY-MM-DD HH:mm:ss"

@@ -197,14 +197,14 @@ describe("flavorRouter", () => {
       expect(flavorHelpers.filterAndSortFlavors).toHaveBeenCalledWith(expect.any(Array), "", "name", "asc")
     })
 
-    it("should throw UNAUTHORIZED when rescopeSession returns null", async () => {
+    it("should throw NOT_FOUND when rescopeSession returns null but the session is valid", async () => {
       const mockCtx = createMockContext(false, true)
       const caller = createCaller(mockCtx)
 
       await expect(caller.flavor.getFlavorsByProjectId({ project_id: "test-project-123" })).rejects.toThrow(
         new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Failed to scope session to project. User may not have access to this project.",
+          code: "NOT_FOUND",
+          message: "Project not found or not accessible with your current session.",
         })
       )
 

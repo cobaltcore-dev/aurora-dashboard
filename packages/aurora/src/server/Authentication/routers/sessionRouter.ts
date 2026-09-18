@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { protectedProcedure, publicProcedure } from "../../trpc"
+import { mapScopeError, protectedProcedure, publicProcedure } from "../../trpc"
 import { TRPCError } from "@trpc/server"
 
 const discriminatedSchema = z.discriminatedUnion("type", [
@@ -42,7 +42,17 @@ export const sessionRouter = {
   setCurrentScope: protectedProcedure.input(discriminatedSchema).mutation(async ({ input, ctx }) => {
     switch (input.type) {
       case "domain": {
-        const session = await ctx.rescopeSession({ domainId: input.domainId })
+        let session
+        try {
+          session = await ctx.rescopeSession({ domainId: input.domainId })
+        } catch (error) {
+          // Distinguish an invalid session (UNAUTHORIZED) from a domain that
+          // cannot be scoped to (NOT_FOUND) so the client can show the right message.
+          throw mapScopeError(error, ctx, {
+            notFoundMessage:
+              "This domain doesn't exist or is not accessible with your current session. Select an available domain.",
+          })
+        }
         const token = session?.getToken()
 
         if (!token?.tokenData.domain) {
@@ -58,7 +68,19 @@ export const sessionRouter = {
         }
       }
       case "project": {
-        const session = await ctx.rescopeSession({ projectId: input.projectId })
+        let session
+        try {
+          session = await ctx.rescopeSession({ projectId: input.projectId })
+        } catch (error) {
+          // Keystone returns 401 both when the session is no longer valid
+          // (e.g. changed in another browser tab) and when the project simply
+          // does not exist / is not accessible. mapScopeError re-checks the base
+          // token validity to surface the real cause (UNAUTHORIZED vs NOT_FOUND).
+          throw mapScopeError(error, ctx, {
+            notFoundMessage:
+              "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain.",
+          })
+        }
         const token = session?.getToken()
 
         if (!token?.tokenData.project) {

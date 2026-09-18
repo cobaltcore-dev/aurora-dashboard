@@ -116,11 +116,11 @@ function RouteComponent() {
         <Container className="py-8">
           <Status
             status="error"
-            title={t`Session Expired`}
-            body={t`Your session has expired. Please log in again. This may have occurred because you logged out or switched domains in another browser tab.`}
+            title={t`Session Changed`}
+            body={t`Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue.`}
             action={
               <Button variant="primary" onClick={() => navigate({ to: "/" })}>
-                <Trans>Log In</Trans>
+                <Trans>Sign in</Trans>
               </Button>
             }
           />
