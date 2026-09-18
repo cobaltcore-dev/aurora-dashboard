@@ -2384,9 +2384,6 @@ msgstr "Loading Versions..."
 msgid "Loading..."
 msgstr "Loading..."
 
-msgid "Log In"
-msgstr "Log In"
-
 msgid "MAC Address"
 msgstr "MAC Address"
 
@@ -3370,6 +3367,9 @@ msgstr "Showing first {maxOptions} of {totalCount} — refine your search to nar
 
 msgid "Showing first {shown} of {total} objects"
 msgstr "Showing first {shown} of {total} objects"
+
+msgid "Sign in"
+msgstr "Sign in"
 
 msgid "Sign In"
 msgstr "Sign In"

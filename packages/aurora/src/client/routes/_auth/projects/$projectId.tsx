@@ -120,7 +120,7 @@ function RouteComponent() {
             body={t`Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue.`}
             action={
               <Button variant="primary" onClick={() => navigate({ to: "/" })}>
-                <Trans>Log In</Trans>
+                <Trans>Sign in</Trans>
               </Button>
             }
           />
