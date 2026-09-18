@@ -110,7 +110,7 @@ export function mapScopeError(error: unknown, ctx: AuroraPortalContext, opts: { 
     }
     return new TRPCError({
       code: "UNAUTHORIZED",
-      message: "Your session is no longer valid. Please log in again.",
+      message: "Your session is no longer valid. Please sign in again.",
     })
   }
 
