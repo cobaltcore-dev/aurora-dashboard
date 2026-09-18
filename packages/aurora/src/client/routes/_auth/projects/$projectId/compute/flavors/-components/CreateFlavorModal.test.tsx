@@ -5,6 +5,7 @@ import { TrpcClient } from "@/client/trpcClient"
 import { I18nProvider } from "@lingui/react"
 import { ReactNode } from "react"
 import { i18n } from "@lingui/core"
+import { PortalProvider } from "@cloudoperators/juno-ui-components"
 
 vi.mock("@/hooks/useErrorTranslation", () => ({
   useErrorTranslation: () => ({
@@ -23,7 +24,11 @@ vi.mock("@/hooks/useErrorTranslation", () => ({
   }),
 }))
 
-const TestingProvider = ({ children }: { children: ReactNode }) => <I18nProvider i18n={i18n}>{children}</I18nProvider>
+const TestingProvider = ({ children }: { children: ReactNode }) => (
+  <I18nProvider i18n={i18n}>
+    <PortalProvider>{children}</PortalProvider>
+  </I18nProvider>
+)
 
 describe("CreateFlavorModal", () => {
   beforeAll(async () => {
@@ -222,7 +227,7 @@ describe("CreateFlavorModal", () => {
     expect(screen.getByText("An unexpected error occurred. Please try again.")).toBeInTheDocument()
   })
 
-  it("prevents submission with validation errors", async () => {
+  it("disables submit button when form is invalid", async () => {
     await act(async () => {
       render(
         <CreateFlavorModal
@@ -240,11 +245,8 @@ describe("CreateFlavorModal", () => {
 
     const submitButton = screen.getByText(/Create New Flavor/i)
 
-    await act(async () => {
-      fireEvent.click(submitButton)
-    })
-
-    expect(screen.getByText("Please fix the validation errors below.")).toBeInTheDocument()
+    // Button should be disabled with empty form (missing required fields)
+    expect(submitButton).toBeDisabled()
     expect(mockClient.compute.createFlavor.mutate).not.toHaveBeenCalled()
     expect(mockOnSuccess).not.toHaveBeenCalled()
   })
