@@ -290,6 +290,9 @@ msgstr "Akzeptiert"
 msgid "Accepted Images"
 msgstr "Akzeptierte Images"
 
+msgid "Access Added"
+msgstr ""
+
 msgid "Access Control for Container:"
 msgstr "Zugriffskontrolle für Container:"
 
@@ -299,7 +302,13 @@ msgstr "Zugriffskontrolle aktualisiert"
 msgid "Access Denied"
 msgstr ""
 
+msgid "Access for project \"{projectId}\" to flavor \"{flavorName}\" was successfully revoked."
+msgstr ""
+
 msgid "Access for project \"{targetTenant}\" was successfully revoked."
+msgstr ""
+
+msgid "Access Removed"
 msgstr ""
 
 msgid "Access Revoked"
@@ -830,6 +839,9 @@ msgstr ""
 msgid "CORS Rules"
 msgstr ""
 
+msgid "Could not add access for project \"{projectId}\": {errorMessage}"
+msgstr ""
+
 msgid "Could Not Check Permissions"
 msgstr ""
 
@@ -919,6 +931,9 @@ msgstr ""
 
 msgid "Could not move \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht verschoben werden: {errorMessage}"
+
+msgid "Could not remove access for project \"{projectId}\": {errorMessage}"
+msgstr ""
 
 msgid "Could not restore \"{displayName}\": {errorMessage}"
 msgstr ""
@@ -1577,6 +1592,9 @@ msgstr "{failedCount} von {totalCount} Image(s) konnten nicht aktiviert werden. 
 msgid "Failed to Activate Images"
 msgstr "Fehler beim Aktivieren der Images"
 
+msgid "Failed to Add Access"
+msgstr ""
+
 msgid "Failed to add member"
 msgstr "Fehler beim Hinzufügen des Mitglieds"
 
@@ -1809,6 +1827,9 @@ msgid "Failed to move object: {copyErrorMessage}"
 msgstr "Fehler beim Verschieben des Objekts: {copyErrorMessage}"
 
 msgid "Failed to refresh Floating IPs. Showing cached data."
+msgstr ""
+
+msgid "Failed to Remove Access"
 msgstr ""
 
 msgid "Failed to remove member"
@@ -2110,9 +2131,6 @@ msgstr "ID"
 
 msgid "ID must only contain alphanumeric characters, hyphens, underscores, and dots."
 msgstr "Die ID darf nur alphanumerische Zeichen, Bindestriche, Unterstriche und Punkte enthalten."
-
-msgid "If checked, this flavor will be available to all tenants. If unchecked, access must be explicitly granted to specific tenants."
-msgstr "Wenn diese Option aktiviert ist, wird dieser Flavor für alle Projekte verfügbar sein. Wenn sie deaktiviert ist, muss der Zugriff explizit für bestimmte Projekt gewährt werden."
 
 msgid "If the port has multiple IPs, select the desired fixed IP address."
 msgstr ""
@@ -2573,10 +2591,7 @@ msgstr ""
 msgid "No limit"
 msgstr "Kein Limit"
 
-msgid "No metadata properties found"
-msgstr ""
-
-msgid "No metadata properties found."
+msgid "No Metadata Properties Found"
 msgstr ""
 
 msgid "No new versions will be created"
@@ -2873,6 +2888,9 @@ msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist m
 msgid "Project"
 msgstr "Projekt"
 
+msgid "Project \"{projectId}\" now has access to flavor \"{flavorName}\"."
+msgstr ""
+
 msgid "Project ID"
 msgstr "Projekt-ID"
 
@@ -2903,6 +2921,9 @@ msgstr ""
 msgid "Property Deleted"
 msgstr ""
 
+msgid "Property Key"
+msgstr ""
+
 msgid "Property Updated"
 msgstr ""
 
@@ -2916,7 +2937,7 @@ msgid "Property was successfully updated."
 msgstr ""
 
 msgid "property_key"
-msgstr "property_key"
+msgstr "Property Key"
 
 msgid "property-key"
 msgstr ""
@@ -4065,6 +4086,9 @@ msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management
 msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung der nächsten Generation. Wir sind bestrebt, die Art und Weise, wie Sie mit Ihrer Cloud-Infrastruktur interagieren und diese verwalten, zu vereinfachen. Mit Effizienz, Skalierbarkeit und Benutzerfreundlichkeit im Kern konzipiert, ermöglicht Aurora Ihnen, Prozesse zu optimieren und das volle Potenzial Ihrer Cloud-Ressourcen auszuschöpfen."
 
 msgid "What happens when suspended:"
+msgstr ""
+
+msgid "When checked, all tenants can use this flavor. Otherwise, grant access explicitly."
 msgstr ""
 
 msgid "Why Choose Aurora?"
