@@ -1,5 +1,80 @@
 # @cobaltcore-dev/aurora
 
+## 2.0.0
+
+### Major Changes
+
+- 060ec0b: Swift storage: container and folder creation now reject duplicate names, matching Ceph's existing bucket/folder behavior. Server-side duplicate detection for container creation branches on Swift's idempotent container-PUT response status (201 created vs 202 already existed), closing a race condition where concurrent creates could silently both succeed; this is paired with inline client validation. Folder creation adds the same client-side duplicate check Ceph already has. The Ceph bucket and Swift container creation modals now stay open on any failure (not just name conflicts) so the user can retry, closing only on success or Cancel; Swift's folder creation modal now disables Cancel/close while the request is in flight, matching the other three create modals. Also fixes a bug in the shared modal-tracking hook (`useModalTracking`) where unmemoized callbacks caused an effect in two Swift delete modals to re-run on every render instead of only on open/close, and a related bug where a failed-then-abandoned create (user hits Cancel after a failed attempt) went unrecorded by the same hook's analytics tracking.
+
+  Container creation no longer applies caller-supplied metadata, ACL, or quota settings to a container that already exists before reporting the conflict — those settings are now applied via a follow-up request only after a genuine create. Folder creation (both Swift and Ceph) is now also verified server-side via an atomic conditional write (rejecting the write with `CONFLICT` if the folder already exists), which additionally fixes Swift folder markers being stored as a JSON blob instead of a proper zero-byte folder object. **Ceph's `storage.ceph.objects.createFolder` procedure is a behavioral break**: it previously succeeded idempotently when a folder already existed; it now throws `CONFLICT` instead, matching Swift and the object-store's proper create-if-not-exists semantics.
+
+  Non-conflict failures in the bucket/container/folder create modals now surface as a persistent, dismissible in-modal error banner instead of an auto-dismissing toast, so the failure reason stays visible while the user retries (Ceph's folder-create modal previously showed the raw, untranslated server error string with no such handling at all). The bucket and container row-action menus now use the same accessible `PopupMenuToggle` + labeled `Button` trigger pattern used everywhere else in the app, instead of a bare icon. When a Swift container is created but its metadata/ACL/quota settings fail to apply, this now surfaces as a single "created with warnings" toast instead of a contradictory simultaneous "created" + "failed to create" pair.
+
+  **Breaking (published API):** `storage.swift.createContainer`'s tRPC procedure now resolves to `{ created: true, optionsApplied: boolean, optionsError?: string }` instead of a plain `boolean`. If the container is created (the initial PUT succeeds) but the follow-up request that applies metadata/ACL/quota settings fails, the procedure no longer throws — it resolves with `optionsApplied: false` and an `optionsError` message, since the container already exists at that point and a thrown error would incorrectly suggest the create itself failed. **Also breaking:** `storage.ceph.objects.createFolder` now throws `CONFLICT` for an existing folder instead of resolving successfully (see above).
+
+### Patch Changes
+
+- 2b9bf93: Improve image modal UX
+  - Add "e.g." prefix to Create Image modal placeholders (Image Name, Tags)
+  - Update Tags helptext to "Press Enter or click Add to add a tag"
+  - Add image count to bulk action modal titles (Delete/Deactivate/Activate)
+  - Show image names instead of UUIDs in bulk action modals
+  - Move protected/already-active/already-deactivated sections above main action list
+  - Remove input-styled boxes from exception sections (protected/already-active/already-deactivated)
+  - Use consistent Plural component for all section headings with counts
+- cffc7ec: Standardize status and error handling across the dashboard, improve error handling, and update text casing.
+- 1d0facc: - Fix flavor modal tests after translation and validation changes
+- 7dca5fb: - Fix 50/50 width split in Flavor metadata DescriptionLists
+  - Fix value input to use full available width in EditSpecModal
+  - Fetch metadata separately in FlavorDetailsView to display metadata
+  - Sort by Input width is now wider to allow all children to fit in one row
+  - Remove view-only "Metadata" button - metadata now always visible in Details section
+  - Simplify EditSpecModal to only support editing (not viewing)
+  - Remove primary styling and icon from "Add Property" button in EditSpecModal
+  - Remove primary styling and icon from "Add Project" button in ManageAccessModal
+  - Remove background color from "Add Project" button container
+  - Hide "Manage Access" menu item for public flavors instead of showing disabled
+  - Fix "Manage Access" to only show when user has add_project or remove_project permissions
+  - Use Message component instead of errortext for validation errors in ManageAccessModal
+  - Improve Create Flavor modal with FormSections, helper text, and placeholders
+  - Reorganize flavor details into two-column layout with Flavor Information and Hardware Specifications
+  - Refactor EditSpecModal to save/delete metadata immediately instead of bulk save
+  - Add toast notifications for metadata create/update/delete operations
+  - Show validation errors as Message component above inputs instead of inline errortext
+  - Disable key editing in metadata - keys are read-only, only values can be edited
+  - Remove Cancel button from EditSpecModal (only Close button remains)
+  - Invalidate metadata query when EditSpecModal closes to refresh metadata display
+  - Show loading/error states for metadata section instead of hiding it
+  - Add flavor_specs:list permission check - metadata section only renders when user has permission
+  - Use persistent validation message instead of auto-dismissing toast for create property errors in EditSpecModal
+- 2b9bf93: fix image modals to show "Unnamed" fallback and treat undefined protected field as unprotected
+- 1d0facc: - Change ManageAccessModal from bulk save to direct add/delete operations
+  - Add toast notifications for access add/remove success and error
+  - Show validation errors in Message component above Add Project button
+  - Remove Save Changes and Cancel buttons - changes apply immediately
+  - Add progress indicators on Add and Delete buttons during operations
+  - Disable operations while any add/delete is in progress
+  - Fix property_key translation to show "Property Key" instead of "property_key"
+  - Change "No metadata properties found" to "No Metadata Properties Found" (title case)
+  - Disable Create Flavor button until all required fields are filled and valid
+  - Force word break on metadata keys and values in flavor detail view and modal to prevent overflow
+  - Shorten Public Flavor helptext in Create Flavor modal
+- 8c7b1e1: Improve metadata modals and UI consistency in compute images and flavors
+  - Remove duplicate DELETE confirmation in image metadata modal
+  - Show "Edit Metadata" title when editable, "Show Metadata" when read-only
+  - Hide "Save Changes" button in read-only mode
+  - Increase modal size to "xl" for better visibility
+  - Rename "Member ID" to "Project ID" in image sharing (issue #1296)
+  - Sort popup menu items alphabetically with Delete last (separated by divider)
+- 24c79e7: Remove non-functional chevron from project service cards
+  Fix sort/filter inconsistencies across all lists:
+  - Security Groups: remove "Project id" sort option (not in table)
+  - Images: remove "Updated At" sort option, rename "Name" to "Image Name"
+  - Flavors: match sort labels to table headers (vCPU, RAM (MiB), Root Disk (GiB), Swap (MiB))
+  - Swift Containers: rename "Name" to "Container Name"
+  - Ceph Buckets: rename "Name" to "Bucket Name"
+- dedf5a8: Security Groups UI improvements and fixes: fixed Shared filter type error, added Stateful filter, debounced search, consistent Yes/No labels across filters and table, fixed kebab menu vertical alignment. Detail page now matches image detail layout with header actions, removed redundant description and counts, improved empty/loading/error states, clearer action labels ("Delete Rule", "Remove Policy"). Fixed ICMP rule rendering and "undefined" display in Range column. Added ID validation for security group rules and RBAC policies in request paths. Removed unused "network:security_group_rules:update" permission key.
+
 ## 1.3.0
 
 ### Minor Changes
