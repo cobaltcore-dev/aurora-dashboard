@@ -3314,7 +3314,7 @@ msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 msgid "Services"
 msgstr "Services"
 
-msgid "Session changed"
+msgid "Session Changed"
 msgstr ""
 
 msgid "Session expires in"
