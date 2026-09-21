@@ -7,6 +7,7 @@ interface RouteIdLevelDefaultErrorProps {
   errorTitle?: string
   errorDescription?: string
   action?: ReactNode
+  code?: number | string | null
 }
 
 /**
@@ -18,7 +19,12 @@ interface RouteIdLevelDefaultErrorProps {
  * resource-specific titles, descriptions, and actions; otherwise, the default
  * action navigates back to the current project.
  */
-export const RouteIdLevelDefaultError = ({ errorTitle, errorDescription, action }: RouteIdLevelDefaultErrorProps) => {
+export const RouteIdLevelDefaultError = ({
+  errorTitle,
+  errorDescription,
+  action,
+  code = 404,
+}: RouteIdLevelDefaultErrorProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const { projectId } = useParams({ strict: false })
@@ -28,7 +34,7 @@ export const RouteIdLevelDefaultError = ({ errorTitle, errorDescription, action 
 
   return (
     <Status
-      code={404}
+      code={code ?? undefined}
       status="error"
       title={errorTitle || t`Resource Not Found`}
       body={errorDescription || t`The Resource you are looking for does not exist or is not accessible.`}

@@ -7,6 +7,8 @@ import { useRouteContext } from "@tanstack/react-router"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { Slot } from "@/client/components/Slot"
 import type { RouteInfo } from "@/client/routes/routeInfo"
+import { hasServiceByName } from "@/client/utils/serviceCatalog"
+import { STORAGE_PROVIDER, STORAGE_TYPE_BY_PROVIDER } from "@/client/utils/storageProviders"
 
 export const Route = createFileRoute("/_auth/projects/$projectId/")({
   staticData: {
@@ -81,18 +83,18 @@ function RouteComponent() {
         service: "floatingips",
       })
   }
-  if (serviceIndex["object-store"]?.["swift"] && isEnabled("containers"))
+  if (hasServiceByName(serviceIndex, STORAGE_PROVIDER.SWIFT) && isEnabled("containers"))
     cards.push({
       group: t`Storage`,
       label: t`Object Storage (Swift)`,
-      to: `${base}/storage/swift/containers`,
+      to: `${base}/storage/${STORAGE_PROVIDER.SWIFT}/${STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.SWIFT]}`,
       service: "containers",
     })
-  if (serviceIndex["object-store-ceph"]?.["ceph"] && isEnabled("ceph-containers"))
+  if (hasServiceByName(serviceIndex, STORAGE_PROVIDER.CEPH) && isEnabled("ceph-containers"))
     cards.push({
       group: t`Storage`,
       label: t`Object Storage (Ceph)`,
-      to: `${base}/storage/ceph/buckets`,
+      to: `${base}/storage/${STORAGE_PROVIDER.CEPH}/${STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.CEPH]}`,
       service: "ceph-containers",
     })
 

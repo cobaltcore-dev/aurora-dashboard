@@ -1,9 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
-import { redirect } from "@tanstack/react-router"
+import { redirect, isNotFound } from "@tanstack/react-router"
 import { ErrorBoundary } from "react-error-boundary"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { checkServiceAvailability } from "./index"
+import {
+  guardStorageRoute,
+  requireObjectStoreService,
+  validateStorageAccess,
+} from "../../-components/utils/serviceAvailability"
+import { Route } from "./index"
 
 // Mock the dependencies
 vi.mock("@tanstack/react-router", async () => {
@@ -30,10 +35,36 @@ vi.mock("@/server/Authentication/helpers", () => ({
   getServiceIndex: vi.fn(),
 }))
 
-describe("Storage Route - checkServiceAvailability", () => {
+/**
+ * Asserts `fn` throws a TanStack Router `notFound()` and returns the caught error so
+ * callers can assert the `reason` it carries (D10) — `caught.data`, not `caught`.
+ */
+function expectNotFound(fn: () => void): { data?: { reason?: string } } {
+  try {
+    fn()
+  } catch (caught) {
+    expect(isNotFound(caught)).toBe(true)
+    return caught as { data?: { reason?: string } }
+  }
+  throw new Error("Expected function to throw a notFound()")
+}
+
+/** Async twin of `expectNotFound` — the route loader is async, so its throw arrives as a rejection. */
+async function expectNotFoundAsync(promise: Promise<unknown>): Promise<{ data?: { reason?: string } }> {
+  try {
+    await promise
+  } catch (caught) {
+    expect(isNotFound(caught)).toBe(true)
+    return caught as { data?: { reason?: string } }
+  }
+  throw new Error("Expected the loader to throw a notFound()")
+}
+
+describe("Storage Route - service availability guards", () => {
   const defaultParams = {
     projectId: "proj-1",
     provider: "swift",
+    storageType: "containers",
   }
 
   const defaultServices = [
@@ -54,7 +85,11 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, defaultParams)
+        requireObjectStoreService(defaultServices, defaultParams)
+      }).not.toThrow()
+
+      expect(() => {
+        validateStorageAccess(defaultServices, defaultParams)
       }).not.toThrow()
     })
 
@@ -66,7 +101,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, defaultParams)
+        requireObjectStoreService(defaultServices, defaultParams)
       }).toThrow("Redirect to: /projects/proj-1")
     })
 
@@ -74,7 +109,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       vi.mocked(getServiceIndex).mockReturnValue({})
 
       try {
-        checkServiceAvailability([], defaultParams)
+        requireObjectStoreService([], defaultParams)
       } catch {
         // Expected to throw
       }
@@ -95,33 +130,38 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
+        validateStorageAccess(defaultServices, { ...defaultParams, provider: "swift" })
       }).not.toThrow()
     })
 
-    it("throws redirect when swift is not available but provider is 'swift'", () => {
+    it("throws notFound when swift is not available but provider is 'swift'", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           ceph: true,
         },
       })
 
-      expect(() => {
-        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets")
+      const caught = expectNotFound(() =>
+        validateStorageAccess(defaultServices, { ...defaultParams, provider: "swift" })
+      )
+      expect(caught.data).toEqual({ reason: "provider-unavailable" })
+      expect(redirect).not.toHaveBeenCalled()
     })
 
-    it("does not throw when ceph is not in catalog but cephFallbackEnabled is true", () => {
+    it("throws notFound when ceph is in neither catalog type", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           swift: true,
         },
       })
 
-      // cephFallbackEnabled is hardcoded to true, so Ceph is always available
-      expect(() => {
-        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "ceph" })
-      }).not.toThrow()
+      // The removed Ceph availability fallback (D6) is gone — ceph is genuinely absent from this fixture,
+      // so it must 404 rather than render a page whose every backend call fails.
+      const caught = expectNotFound(() =>
+        validateStorageAccess(defaultServices, { ...defaultParams, provider: "ceph", storageType: "buckets" })
+      )
+      expect(caught.data).toEqual({ reason: "provider-unavailable" })
+      expect(redirect).not.toHaveBeenCalled()
     })
   })
 
@@ -130,7 +170,7 @@ describe("Storage Route - checkServiceAvailability", () => {
       vi.mocked(getServiceIndex).mockReturnValue({})
 
       expect(() => {
-        checkServiceAvailability([], defaultParams)
+        requireObjectStoreService([], defaultParams)
       }).toThrow()
     })
 
@@ -142,20 +182,12 @@ describe("Storage Route - checkServiceAvailability", () => {
       const params = {
         projectId: "test-proj",
         provider: "swift",
+        storageType: "containers",
       }
 
-      try {
-        checkServiceAvailability(defaultServices, params)
-      } catch {
-        // Expected
-      }
-
-      // The implementation spreads `params` and overrides `provider`,
-      // so the call receives exactly { projectId, provider: "ceph" }.
-      expect(redirect).toHaveBeenCalledWith({
-        to: "/projects/$projectId/storage/$provider/$storageType",
-        params: { projectId: "test-proj", provider: "ceph", storageType: "buckets" },
-      })
+      const caught = expectNotFound(() => validateStorageAccess(defaultServices, params))
+      expect(caught.data).toEqual({ reason: "provider-unavailable" })
+      expect(redirect).not.toHaveBeenCalled()
     })
   })
 
@@ -169,20 +201,22 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, defaultParams)
+        validateStorageAccess(defaultServices, defaultParams)
       }).not.toThrow()
     })
 
-    it("redirects to ceph when object-store exists but swift is missing", () => {
+    it("throws notFound when object-store exists but swift is missing", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": {
           ceph: true,
         },
       })
 
-      expect(() => {
-        checkServiceAvailability(defaultServices, { ...defaultParams, provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-1/storage/ceph/buckets")
+      const caught = expectNotFound(() =>
+        validateStorageAccess(defaultServices, { ...defaultParams, provider: "swift" })
+      )
+      expect(caught.data).toEqual({ reason: "provider-unavailable" })
+      expect(redirect).not.toHaveBeenCalled()
     })
   })
 
@@ -312,37 +346,249 @@ describe("Storage Route - checkServiceAvailability", () => {
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "swift" })
+        validateStorageAccess(defaultServices, { provider: "swift", storageType: "containers" })
       }).not.toThrow()
     })
 
-    it("does not throw when provider is ceph and cephFallbackEnabled is true (even without ceph in catalog)", () => {
+    it("throws notFound when ceph is in neither catalog type (even without ceph in catalog)", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": { swift: true },
       })
 
-      // cephFallbackEnabled is true, so navigating to /ceph should work even without Ceph in catalog
-      expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-1", provider: "ceph" })
-      }).not.toThrow()
+      // The removed Ceph availability fallback (D6) is gone — navigating to /ceph now 404s instead of
+      // silently rendering a page whose every backend call fails.
+      const caught = expectNotFound(() =>
+        validateStorageAccess(defaultServices, { provider: "ceph", storageType: "buckets" })
+      )
+      expect(caught.data).toEqual({ reason: "provider-unavailable" })
+      expect(redirect).not.toHaveBeenCalled()
     })
 
     it("redirects to project overview when no storage service is available", () => {
       vi.mocked(getServiceIndex).mockReturnValue({})
 
       expect(() => {
-        checkServiceAvailability([], { projectId: "proj-2", provider: "swift" })
+        requireObjectStoreService([], { projectId: "proj-2" })
       }).toThrow("Redirect to: /projects/proj-2")
     })
 
-    it("redirects swift provider to ceph when only ceph is available", () => {
+    it("throws notFound when object-store exists but only ceph is available (swift requested)", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { ceph: true },
+      })
+
+      const caught = expectNotFound(() =>
+        validateStorageAccess(defaultServices, { provider: "swift", storageType: "containers" })
+      )
+      expect(caught.data).toEqual({ reason: "provider-unavailable" })
+      expect(redirect).not.toHaveBeenCalled()
+    })
+  })
+
+  describe("Invalid provider (issue #1081)", () => {
+    it.each(["nope", "", "__proto__", "Swift"])("throws notFound with reason provider-not-found for %j", (provider) => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true, ceph: true },
+      })
+
+      const caught = expectNotFound(() =>
+        validateStorageAccess(defaultServices, { ...defaultParams, provider, storageType: "containers" })
+      )
+      expect(caught.data).toEqual({ reason: "provider-not-found" })
+      expect(redirect).not.toHaveBeenCalled()
+    })
+  })
+
+  describe("Canonical storageType enforcement (issue #1081)", () => {
+    beforeEach(() => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+        "object-store-ceph": { ceph: true },
+      })
+    })
+
+    it.each([
+      ["swift", "buckets"],
+      ["ceph", "containers"],
+      ["swift", "objects"],
+    ])("throws notFound with reason storage-type-mismatch for %s + %s", (provider, storageType) => {
+      const caught = expectNotFound(() =>
+        validateStorageAccess(defaultServices, { ...defaultParams, provider, storageType })
+      )
+      expect(caught.data).toEqual({ reason: "storage-type-mismatch" })
+      expect(redirect).not.toHaveBeenCalled()
+    })
+
+    it("does not throw for the canonical swift + containers pair", () => {
+      expect(() => {
+        validateStorageAccess(defaultServices, { ...defaultParams, provider: "swift", storageType: "containers" })
+      }).not.toThrow()
+      expect(redirect).not.toHaveBeenCalled()
+    })
+
+    it("does not throw for the canonical ceph + buckets pair", () => {
+      expect(() => {
+        validateStorageAccess(defaultServices, { ...defaultParams, provider: "ceph", storageType: "buckets" })
+      }).not.toThrow()
+      expect(redirect).not.toHaveBeenCalled()
+    })
+  })
+
+  describe("Catalog lookup by service name (D6)", () => {
+    it("does not throw when ceph is registered only as object-store-ceph (the case broken before D6)", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store-ceph": { ceph: true },
+      })
+
+      expect(() => {
+        validateStorageAccess(defaultServices, { ...defaultParams, provider: "ceph", storageType: "buckets" })
+      }).not.toThrow()
+    })
+
+    it("does not throw when ceph is registered as object-store (either catalog type works)", () => {
       vi.mocked(getServiceIndex).mockReturnValue({
         "object-store": { ceph: true },
       })
 
       expect(() => {
-        checkServiceAvailability(defaultServices, { projectId: "proj-3", provider: "swift" })
-      }).toThrow("Redirect to: /projects/proj-3/storage/ceph/buckets")
+        validateStorageAccess(defaultServices, { ...defaultParams, provider: "ceph", storageType: "buckets" })
+      }).not.toThrow()
+    })
+
+    it("throws notFound provider-unavailable for ceph when only swift is registered", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store": { swift: true },
+      })
+
+      const caught = expectNotFound(() =>
+        validateStorageAccess(defaultServices, { ...defaultParams, provider: "ceph", storageType: "buckets" })
+      )
+      expect(caught.data).toEqual({ reason: "provider-unavailable" })
+    })
+
+    it("throws notFound provider-unavailable for swift when only object-store-ceph is registered, without redirecting", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        "object-store-ceph": { ceph: true },
+      })
+
+      const caught = expectNotFound(() => validateStorageAccess(defaultServices, defaultParams))
+      expect(caught.data).toEqual({ reason: "provider-unavailable" })
+
+      // An object store exists (ceph), just not swift — requireObjectStoreService must
+      // not redirect here.
+      expect(() => {
+        requireObjectStoreService(defaultServices, defaultParams)
+      }).not.toThrow()
+      expect(redirect).not.toHaveBeenCalled()
+    })
+
+    it("redirects to project overview when the name appears only as a catalog type, not a service name", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({
+        ceph: { rgw: true },
+      })
+
+      expect(() => {
+        requireObjectStoreService(defaultServices, defaultParams)
+      }).toThrow("Redirect to: /projects/proj-1")
+    })
+  })
+
+  describe("guardStorageRoute — check ordering", () => {
+    // The composer exists to own the order the two checks run in. Routes call only it, so
+    // these are the tests that keep a future storage route from getting the order wrong.
+    it("redirects (does not 404) when the project has no object storage AND the provider is invalid", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({})
+
+      // Both checks would fire. The capability check runs first, so the user is sent
+      // somewhere useful instead of being shown a 404 for a project that could never
+      // serve this page in the first place.
+      expect(() => {
+        guardStorageRoute([], { projectId: "proj-1", provider: "nope", storageType: "nope" })
+      }).toThrow("Redirect to: /projects/proj-1")
+    })
+
+    it("falls through to the address check when the project does have object storage", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({ "object-store": { swift: true } })
+
+      const caught = expectNotFound(() =>
+        guardStorageRoute(defaultServices, { projectId: "proj-1", provider: "swift", storageType: "buckets" })
+      )
+      expect(caught.data).toEqual({ reason: "storage-type-mismatch" })
+      expect(redirect).not.toHaveBeenCalled()
+    })
+
+    it("does not throw on a canonical, available pairing", () => {
+      vi.mocked(getServiceIndex).mockReturnValue({ "object-store": { swift: true } })
+
+      expect(() => {
+        guardStorageRoute(defaultServices, defaultParams)
+      }).not.toThrow()
+    })
+  })
+
+  describe("Route lifecycle ordering", () => {
+    const makeContext = (queryResult: unknown) => ({
+      trpcClient: {
+        auth: {
+          getAvailableServices: {
+            query: vi.fn().mockResolvedValue(queryResult),
+          },
+        },
+      },
+    })
+
+    // `loader` is typed as `RouteLoaderFn | RouteLoaderObject`; this route defines it as
+    // a plain function, so cast the union away to call it directly in the test.
+    const callLoader = (context: unknown, params: unknown) =>
+      (Route.options.loader as (ctx: unknown) => Promise<unknown>)({ context, params })
+
+    it("the loader queries getAvailableServices exactly once (D8 — no duplicate fetch)", async () => {
+      vi.mocked(getServiceIndex).mockReturnValue({ "object-store": { swift: true } })
+      const context = makeContext(defaultServices)
+
+      await callLoader(context, defaultParams)
+
+      expect(context.trpcClient.auth.getAvailableServices.query).toHaveBeenCalledTimes(1)
+    })
+
+    it("the redirect wins over notFound when provider and storageType are invalid too", async () => {
+      // Both guards live in one loader; requireObjectStoreService runs first and
+      // short-circuits, so "this project has no object storage at all" stays a redirect
+      // to the overview instead of turning into a 404 for the bad provider.
+      vi.mocked(getServiceIndex).mockReturnValue({})
+      const context = makeContext([])
+
+      await expect(callLoader(context, { projectId: "proj-1", provider: "nope", storageType: "nope" })).rejects.toThrow(
+        "Redirect to: /projects/proj-1"
+      )
+    })
+
+    it("tolerates an undefined query result", async () => {
+      vi.mocked(getServiceIndex).mockReturnValue({})
+      const context = makeContext(undefined)
+
+      await expect(callLoader(context, defaultParams)).rejects.toThrow("Redirect to: /projects/proj-1")
+    })
+
+    it("reports a missing tRPC client instead of redirecting as if the project had no storage", async () => {
+      // The line above is the catalog genuinely coming back empty; this is the client not
+      // being there at all. Treating the second as the first would send the user to the
+      // project overview and leave the wiring bug invisible.
+      vi.mocked(getServiceIndex).mockReturnValue({})
+
+      await expect(callLoader({ trpcClient: undefined }, defaultParams)).rejects.toThrow(
+        "trpcClient is not available in route context"
+      )
+    })
+
+    it("throws notFound for an invalid provider once the project does have object storage", async () => {
+      vi.mocked(getServiceIndex).mockReturnValue({ "object-store": { swift: true } })
+      const context = makeContext(defaultServices)
+
+      const caught = await expectNotFoundAsync(
+        callLoader(context, { projectId: "proj-1", provider: "nope", storageType: "containers" })
+      )
+      expect(caught.data).toEqual({ reason: "provider-not-found" })
     })
   })
 })

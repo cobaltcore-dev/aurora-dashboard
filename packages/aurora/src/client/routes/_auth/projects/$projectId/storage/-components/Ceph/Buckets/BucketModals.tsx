@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { toast } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { STORAGE_PROVIDER, asStorageProvider, storageTypeFor } from "@/client/utils/storageProviders"
 import { EnableVersioningModal } from "./EnableVersioningModal"
 import { SuspendVersioningModal } from "./SuspendVersioningModal"
 import { BucketPolicyModal } from "./BucketPolicyModal"
@@ -38,7 +39,6 @@ export type ModalType =
 interface BucketModalsProps {
   bucketName: string
   provider?: string
-  storageType?: string
   activeModal: ModalType | null
   onClose: () => void
 }
@@ -52,9 +52,13 @@ interface BucketModalsProps {
  * - Empty Bucket / Delete Versions
  * - Delete Bucket
  */
-export const BucketModals = ({ bucketName, provider, storageType, activeModal, onClose }: BucketModalsProps) => {
+export const BucketModals = ({ bucketName, provider, activeModal, onClose }: BucketModalsProps) => {
   const navigate = useNavigate()
   const projectId = useProjectId()
+
+  // storageType is always derived from the resolved provider, never defaulted independently.
+  const resolvedProvider = asStorageProvider(provider, STORAGE_PROVIDER.CEPH)
+  const resolvedStorageType = storageTypeFor(resolvedProvider)
 
   const handleDeleteBucketSuccess = (bucketName: string) => {
     const { message, ...options } = getBucketDeletedToast(bucketName)
@@ -64,8 +68,8 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
       to: "/projects/$projectId/storage/$provider/$storageType",
       params: {
         projectId: projectId ?? "",
-        provider: provider ?? "ceph",
-        storageType: storageType ?? "buckets",
+        provider: resolvedProvider,
+        storageType: resolvedStorageType,
       },
     })
   }
@@ -225,7 +229,7 @@ export const BucketModals = ({ bucketName, provider, storageType, activeModal, o
  *
  * @returns Object with openModal function and BucketModals component
  */
-export const useBucketModals = (bucketName: string, provider?: string, storageType?: string) => {
+export const useBucketModals = (bucketName: string, provider?: string) => {
   const [activeModal, setActiveModal] = useState<ModalType | null>(null)
 
   const openModal = (modal: ModalType) => setActiveModal(modal)
@@ -233,13 +237,7 @@ export const useBucketModals = (bucketName: string, provider?: string, storageTy
   const closeModal = () => setActiveModal(null)
 
   const ModalsComponent = () => (
-    <BucketModals
-      bucketName={bucketName}
-      provider={provider}
-      storageType={storageType}
-      activeModal={activeModal}
-      onClose={closeModal}
-    />
+    <BucketModals bucketName={bucketName} provider={provider} activeModal={activeModal} onClose={closeModal} />
   )
 
   return {

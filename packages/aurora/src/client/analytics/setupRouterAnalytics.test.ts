@@ -382,4 +382,39 @@ describe("setupRouterAnalytics", () => {
       },
     })
   })
+
+  // ─── issue #1081: no user-controlled URL segment reaches the analytics action name ──
+  it("does not interpolate an unknown provider into the analytics action name", () => {
+    const onTrackEvent = vi.fn()
+    const mockRouter = createMockRouter({
+      onTrackEvent,
+      matches: [
+        {
+          routeId: "/_auth/projects/$projectId/storage/$provider/$storageType",
+          staticData: {
+            section: "storage",
+            service: "containers",
+            analytics: {
+              name: "storage.objectstore.list",
+            },
+          },
+          params: {
+            provider: "lolnope",
+          },
+        },
+      ],
+      pathname: "/projects/abc-123/storage/lolnope/containers",
+    })
+
+    setupRouterAnalytics(mockRouter as unknown as Parameters<typeof setupRouterAnalytics>[0])
+    mockRouter._triggerOnResolved()
+
+    expect(onTrackEvent).toHaveBeenCalledWith({
+      source: "router",
+      action: "storage.objectstore.list",
+      metadata: {
+        pathname: "/projects/abc-123/storage/lolnope/containers",
+      },
+    })
+  })
 })

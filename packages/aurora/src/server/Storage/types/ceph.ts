@@ -109,6 +109,10 @@ export const deleteBucketInputSchema = projectScopedInputSchema.extend({
   bucketName: z.string().min(1),
 })
 
+export const headBucketInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+})
+
 // ============================================================================
 // BUCKET TYPES
 // ============================================================================

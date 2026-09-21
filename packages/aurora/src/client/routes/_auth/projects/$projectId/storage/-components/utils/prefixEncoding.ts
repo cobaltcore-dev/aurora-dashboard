@@ -2,6 +2,9 @@
  * Prefix encoding utilities for S3/Swift object storage
  *
  * Handles base64 encoding/decoding of folder prefixes to safely carry "/" chars in URLs.
+ *
+ * Shared by both providers' object browsers: the `prefix` search param has one spelling,
+ * so a link produced by one must be readable by the other.
  */
 
 export const encodePrefix = (prefix: string): string => {

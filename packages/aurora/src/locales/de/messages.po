@@ -512,7 +512,13 @@ msgstr ""
 msgid "Back"
 msgstr "Zurück"
 
+msgid "Back to Bucket Root"
+msgstr ""
+
 msgid "Back to Buckets"
+msgstr ""
+
+msgid "Back to Container Root"
 msgstr ""
 
 msgid "Back to Containers"
@@ -603,6 +609,9 @@ msgid "Bucket name must not start with reserved prefix \"{prefix}\""
 msgstr ""
 
 msgid "Bucket name must start and end with a letter or number"
+msgstr ""
+
+msgid "Bucket Not Found"
 msgstr ""
 
 msgid "Bucket Policy"
@@ -766,6 +775,9 @@ msgstr "Container-Name ist erforderlich"
 
 msgid "Container name must be {maxContainerNameLength} characters or fewer"
 msgstr "Container-Name muss {maxContainerNameLength} Zeichen oder weniger haben"
+
+msgid "Container Not Found"
+msgstr ""
 
 msgid "Container quotas"
 msgstr "Container-Quotas"
@@ -2042,6 +2054,9 @@ msgstr ""
 msgid "Folder name:"
 msgstr ""
 
+msgid "Folder Not Found"
+msgstr ""
+
 msgid "folder-name"
 msgstr "folder-name"
 
@@ -2082,6 +2097,9 @@ msgid "Get Involved"
 msgstr "Mitmachen"
 
 msgid "Go to Home"
+msgstr ""
+
+msgid "Go to Project"
 msgstr ""
 
 msgid "Go to Project Home"
@@ -2707,6 +2725,9 @@ msgstr "Object Storage (Ceph)"
 
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"
+
+msgid "Object Storage Not Found"
+msgstr ""
 
 msgid "Object Type"
 msgstr "Objekttyp"
@@ -3737,7 +3758,13 @@ msgstr ""
 msgid "This action will permanently delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
 msgstr ""
 
+msgid "This address is not valid for this object storage service."
+msgstr ""
+
 msgid "This bucket cannot be deleted yet. Do the following to be able to delete the bucket:"
+msgstr ""
+
+msgid "This bucket does not exist or is not accessible in this project."
 msgstr ""
 
 msgid "This bucket does not have a policy attached."
@@ -3752,6 +3779,9 @@ msgstr ""
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
 msgstr "Dieser Container scheint leer zu sein — die Objekt-Anzahl ist möglicherweise aufgrund einer kürzlichen Operation noch nicht synchronisiert."
 
+msgid "This container does not exist or is not accessible in this project."
+msgstr ""
+
 msgid "This container is already empty."
 msgstr "Dieser Container ist bereits leer."
 
@@ -3760,6 +3790,12 @@ msgstr "Dies kann auf unzureichende Berechtigungen oder ein vorübergehendes Ser
 
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "Dieser Metadata-Key existiert bereits. Bitte verwenden Sie einen anderen Key."
+
+msgid "This folder does not exist or is not accessible in this bucket."
+msgstr ""
+
+msgid "This folder does not exist or is not accessible in this container."
+msgstr ""
 
 msgid "This folder is empty — use New Folder to create one."
 msgstr "Dieser Ordner ist leer — verwenden Sie \"Neuer Ordner\", um einen zu erstellen."
@@ -3798,6 +3834,9 @@ msgid "This member already has access to this image."
 msgstr "Dieses Mitglied hat bereits Zugriff auf dieses Image."
 
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
+msgstr ""
+
+msgid "This object storage service does not exist or is not available for this project."
 msgstr ""
 
 msgid "This project already has access"

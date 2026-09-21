@@ -1,5 +1,6 @@
 import { isRouteInfo } from "../routes/routeInfo"
 import { createAuroraRouter } from "../router"
+import { isStorageProvider } from "@/client/utils/storageProviders"
 
 /**
  * Sets up analytics tracking for router navigation events.
@@ -51,10 +52,12 @@ export function setupRouterAnalytics(router: ReturnType<typeof createAuroraRoute
       if (analytics?.name) {
         action = analytics.name
 
-        // For object-store routes, replace "objectstore" with the actual provider (swift/ceph)
+        // For object-store routes, replace "objectstore" with the actual provider (swift/ceph).
+        // `provider` is a raw URL segment. Without this guard any visitor can mint an
+        // arbitrary analytics action name (`storage.<anything>.list`) just by editing the URL.
         if (analytics.name.includes("storage.objectstore") && deepestMatch.params) {
           const { provider } = deepestMatch.params as Record<string, string>
-          if (provider) {
+          if (isStorageProvider(provider)) {
             action = analytics.name.replace("objectstore", provider)
           }
         }

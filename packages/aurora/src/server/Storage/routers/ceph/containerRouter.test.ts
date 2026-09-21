@@ -112,6 +112,62 @@ describe("buckets.list", () => {
 })
 
 // ============================================================================
+// buckets.head
+// ============================================================================
+
+describe("buckets.head", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("reports existence with a single request", async () => {
+    mockSend.mockResolvedValueOnce({ $metadata: { httpStatusCode: 200 } })
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.head({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+    })
+
+    expect(result).toEqual({ exists: true })
+    expect(mockSend).toHaveBeenCalledTimes(1)
+  })
+
+  // HeadBucket answers with a bare status, so the SDK raises `NotFound` rather than the
+  // `NoSuchBucket` code the body-carrying operations produce. Callers route on NOT_FOUND,
+  // so a miss here would surface as a 500 and read as "something broke".
+  it("maps the SDK's bodiless NotFound to NOT_FOUND", async () => {
+    mockSend.mockRejectedValueOnce(Object.assign(new Error("NotFound"), { name: "NotFound" }))
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.containers.head({ project_id: TEST_PROJECT_ID, bucketName: "no-such-bucket" })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+  })
+
+  it("keeps a denied bucket distinct from a missing one", async () => {
+    mockSend.mockRejectedValueOnce(Object.assign(new Error("Forbidden"), { name: "Forbidden" }))
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.containers.head({ project_id: TEST_PROJECT_ID, bucketName: TEST_BUCKET_NAME })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" })
+  })
+
+  it("requires credentials", async () => {
+    const ctx = createMockContext({ hasCredentials: false })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.containers.head({ project_id: TEST_PROJECT_ID, bucketName: TEST_BUCKET_NAME })
+    ).rejects.toThrow(TRPCError)
+  })
+})
+
+// ============================================================================
 // buckets.create
 // ============================================================================
 

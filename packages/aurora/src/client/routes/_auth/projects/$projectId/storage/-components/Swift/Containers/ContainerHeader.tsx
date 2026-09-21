@@ -1,10 +1,11 @@
 import { useState } from "react"
-import { useNavigate, useParams } from "@tanstack/react-router"
+import { useLoaderData, useNavigate, useParams } from "@tanstack/react-router"
 import { useLingui } from "@lingui/react/macro"
 import { toast, Status } from "@cloudoperators/juno-ui-components"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { trpcReact } from "@/client/trpcClient"
 import type { ContainerSummary } from "@/server/Storage/types/swift"
+import type { ContainerProbe } from "../../utils/containerExistence"
 import { ContainerHeaderActions, type ContainerModalType } from "./ContainerHeaderActions"
 import { ManageContainerAccessModal } from "./ManageContainerAccessModal"
 import { EditContainerMetadataModal } from "./EditContainerMetadataModal"
@@ -41,6 +42,9 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
   const [activeModal, setActiveModal] = useState<ContainerModalType | null>(null)
   const closeModal = () => setActiveModal(null)
 
+  const { containerInfo: seededContainerInfo, fetchedAt } = (useLoaderData({ strict: false }) ??
+    {}) as Partial<ContainerProbe>
+
   // The four modals genuinely consume container.count / container.bytes
   // (DeleteContainerModal's non-empty guard, EmptyContainerModal's object-count
   // hint, EditContainerMetadataModal's read-only size/count display) - unlike
@@ -51,7 +55,11 @@ export const ContainerHeader = ({ containerName }: ContainerHeaderProps) => {
   // identical queries the modals below issue.
   const { data: containerInfo, error: containerInfoError } = trpcReact.storage.swift.getContainerMetadata.useQuery(
     { project_id: projectId, container: containerName },
-    { enabled: !!projectId && !!containerName }
+    {
+      enabled: !!projectId && !!containerName,
+      initialData: seededContainerInfo,
+      initialDataUpdatedAt: fetchedAt,
+    }
   )
 
   const container: ContainerSummary | null = containerInfo
