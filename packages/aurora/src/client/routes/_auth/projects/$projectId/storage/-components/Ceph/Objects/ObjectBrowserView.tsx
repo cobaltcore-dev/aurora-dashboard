@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, startTransition, useMemo } from "react"
+import { useState, useEffect, useCallback, useRef, startTransition, useMemo } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { plural } from "@lingui/core/macro"
 import {
@@ -18,6 +18,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
 import { useCephPermissions } from "../hooks/useCephPermissions"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
@@ -58,6 +59,7 @@ import {
   getObjectUploadErrorToast,
 } from "./ObjectToastNotifications"
 import { encodePrefix, decodePrefix } from "../../utils/prefixEncoding"
+import { STORAGE_PROVIDER, asStorageProvider, storageTypeFor } from "@/client/utils/storageProviders"
 
 interface ObjectBrowserViewProps {
   bucketName: string
@@ -73,6 +75,9 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const { provider, storageType } = Route.useParams()
   const { prefix: encodedPrefix, sortBy, sortDirection, search: searchParam = "", tab = "all" } = Route.useSearch()
   const currentPrefix = decodePrefix(encodedPrefix)
+
+  const resolvedProvider = asStorageProvider(provider, STORAGE_PROVIDER.CEPH)
+  const resolvedStorageType = storageTypeFor(resolvedProvider)
 
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined)
   const [keyMarker, setKeyMarker] = useState<string | undefined>(undefined)
@@ -150,6 +155,23 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     }
   )
 
+  const resetFolderState = useCallback(() => {
+    setContinuationToken(undefined)
+    setKeyMarker(undefined)
+    setVersionIdMarker(undefined)
+    setAllObjects([])
+    setAllFolders([])
+    setAllVersions([])
+    setHasMore(false)
+    setSelectedItems([])
+  }, [])
+
+  const [lastPrefix, setLastPrefix] = useState(currentPrefix)
+  if (lastPrefix !== currentPrefix) {
+    setLastPrefix(currentPrefix)
+    resetFolderState()
+  }
+
   const { data, isLoading, isFetching, error } = trpcReact.storage.ceph.objects.list.useQuery(
     {
       project_id: projectId ?? "",
@@ -205,15 +227,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   }, [data, continuationToken, keyMarker, currentPrefix, tab])
 
   const navigateToPrefix = (prefix: string) => {
-    // Reset pagination when navigating
-    setContinuationToken(undefined)
-    setKeyMarker(undefined)
-    setVersionIdMarker(undefined)
-    setAllObjects([])
-    setAllFolders([])
-    setAllVersions([])
-    setHasMore(false)
-    setSelectedItems([])
+    resetFolderState()
     navigate({
       search: (prev) => ({
         ...prev,
@@ -224,14 +238,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   const navigateToBuckets = () => {
     // Reset pagination/accumulated state before leaving the bucket
-    setContinuationToken(undefined)
-    setKeyMarker(undefined)
-    setVersionIdMarker(undefined)
-    setAllObjects([])
-    setAllFolders([])
-    setAllVersions([])
-    setHasMore(false)
-    setSelectedItems([])
+    resetFolderState()
 
     navigate({
       to: "/projects/$projectId/storage/$provider/$storageType",
@@ -593,6 +600,30 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   if (error) {
     const errorMessage = error.message
     return <Status status="error" title={t`Failed to Load Objects`} body={errorMessage} />
+  }
+
+  const folderIsMissing =
+    tab === "all" &&
+    currentPrefix !== "" &&
+    !isLoading &&
+    !continuationToken &&
+    !!data &&
+    !data.isTruncated &&
+    data.objects.length === 0 &&
+    data.folders.length === 0
+
+  if (folderIsMissing) {
+    return (
+      <RouteIdLevelDefaultError
+        errorTitle={t`Folder Not Found`}
+        errorDescription={t`This folder does not exist or is not accessible in this bucket.`}
+        action={
+          <Button variant="primary" onClick={() => navigateToPrefix("")}>
+            {t`Back to Bucket Root`}
+          </Button>
+        }
+      />
+    )
   }
 
   return (
@@ -973,8 +1004,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
             to: "/projects/$projectId/storage/$provider/$storageType",
             params: {
               projectId: projectId ?? "",
-              provider: (provider as string) ?? "ceph",
-              storageType: (storageType as string) ?? "buckets",
+              provider: resolvedProvider,
+              storageType: resolvedStorageType,
             },
           })
         }}

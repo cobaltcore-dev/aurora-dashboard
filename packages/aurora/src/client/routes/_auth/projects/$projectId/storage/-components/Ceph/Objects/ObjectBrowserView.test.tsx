@@ -96,6 +96,8 @@ vi.mock("@tanstack/react-router", async () => {
   return {
     ...actual,
     useNavigate: () => vi.fn(),
+    // Read by RouteIdLevelDefaultError, which this view renders for a folder that isn't there.
+    useParams: () => ({ projectId: "test-project-id" }),
     useRouteContext: () => ({
       onTrackEvent: vi.fn(),
     }),
@@ -835,5 +837,178 @@ describe("ObjectBrowserView - Permission gating", () => {
     expect(table).toHaveAttribute("data-can-delete-folder", "false")
     expect(table).toHaveAttribute("data-can-delete-version", "false")
     expect(table).toHaveAttribute("data-can-restore-version", "false")
+  })
+})
+
+/**
+ * Per-folder state must not outlive its folder. `navigateToPrefix` clears it for a click on a
+ * folder row, but the prefix also changes without it — browser back/forward, a deep link, a
+ * hand-edited `?prefix=` — and a selection that survives that keeps the bulk actions pointed
+ * at objects from the folder the user just left.
+ */
+describe("ObjectBrowserView - state carried across a folder change", () => {
+  // "tmp/" — the URL carries the prefix base64-encoded.
+  const TMP_PREFIX = "dG1wLw=="
+
+  const lastListQueryInput = () => {
+    const calls = vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mock.calls
+    // The component also runs a probe query with maxKeys: 1; the browse query is the 1000 one.
+    const browseCalls = calls.filter((call) => (call[0] as { maxKeys?: number })?.maxKeys === 1000)
+    return browseCalls[browseCalls.length - 1][0] as { prefix?: string; continuationToken?: string }
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    resetMockSearch()
+    mockCephPermissions = { ...mockCephPermissions, canDeleteObject: true }
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: mockObjectsData,
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+  })
+
+  it("drops the selection when the prefix changes outside navigateToPrefix", async () => {
+    const user = userEvent.setup()
+    const { rerender } = render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    // The mocked listing is the same in both folders, so "select all" being checked after
+    // the change can only mean the previous folder's selection survived.
+    await user.click(screen.getByTestId("select-all-objects"))
+    expect(screen.getByTestId("select-all-objects")).toBeChecked()
+
+    // What a back/forward or a hand-edited address looks like from here: a new prefix, and
+    // nothing else.
+    resetMockSearch({ prefix: TMP_PREFIX })
+    rerender(<ObjectBrowserView bucketName="test-bucket" />)
+
+    expect(screen.getByTestId("select-all-objects")).not.toBeChecked()
+  })
+
+  it("shows the new folder's listing when its data is already in the cache", () => {
+    const { rerender } = render(<ObjectBrowserView bucketName="test-bucket" />)
+    expect(screen.getByTestId("objects-info-block")).toHaveTextContent(/4 items/i)
+
+    resetMockSearch({ prefix: TMP_PREFIX })
+    rerender(<ObjectBrowserView bucketName="test-bucket" />)
+
+    // The mocked query answers immediately, as React Query does when it serves a listing
+    // visited a moment ago — going back out of a folder, most of all. The reset must not
+    // outrun that data and leave the browser empty.
+    expect(screen.getByTestId("objects-info-block")).toHaveTextContent(/4 items/i)
+  })
+
+  it("keeps the selection across a re-render that does not change the folder", async () => {
+    const user = userEvent.setup()
+    const { rerender } = render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    await user.click(screen.getByTestId("select-all-objects"))
+    rerender(<ObjectBrowserView bucketName="test-bucket" />)
+
+    expect(screen.getByTestId("select-all-objects")).toBeChecked()
+  })
+
+  it("drops the pagination cursor when the prefix changes, so it is not replayed on the new folder", async () => {
+    const user = userEvent.setup()
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: { ...mockObjectsData, isTruncated: true, nextContinuationToken: "page-2" },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+    const { rerender } = render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    await user.click(screen.getByRole("button", { name: /load more/i }))
+    expect(lastListQueryInput().continuationToken).toBe("page-2")
+
+    resetMockSearch({ prefix: TMP_PREFIX })
+    rerender(<ObjectBrowserView bucketName="test-bucket" />)
+
+    // A continuation token belongs to the listing that produced it — sending it with another
+    // prefix asks the server to continue a listing that no longer exists.
+    expect(lastListQueryInput()).toMatchObject({ prefix: "tmp/", continuationToken: undefined })
+  })
+})
+
+/**
+ * A folder is not a stored thing — it is the common start of some keys — so the listing the
+ * view already has is what settles whether the one named in `?prefix=` exists at all.
+ */
+describe("ObjectBrowserView - a folder that isn't there", () => {
+  const TMP_PREFIX = "dG1wLw==" // "tmp/"
+
+  const emptyListing = {
+    data: { objects: [], folders: [], versions: [], isTruncated: false, nextContinuationToken: undefined },
+    isLoading: false,
+    error: null,
+    trpc: {},
+  } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    resetMockSearch()
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: mockObjectsData,
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+  })
+
+  it("reports a prefix that matches nothing as a missing folder, without the write actions", () => {
+    resetMockSearch({ prefix: TMP_PREFIX })
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue(emptyListing)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    expect(screen.getByText("Folder Not Found")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /back to bucket root/i })).toBeInTheDocument()
+    // The toolbar is gone with the table: Upload and Create Folder write to the prefix, and
+    // an invented one must not be turnable into a real folder.
+    expect(screen.queryByTestId("objects-table")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /upload object/i })).not.toBeInTheDocument()
+  })
+
+  it("leaves an empty bucket root alone — there is no prefix to disprove", () => {
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue(emptyListing)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    expect(screen.queryByText("Folder Not Found")).not.toBeInTheDocument()
+    expect(screen.getByTestId("objects-table")).toBeInTheDocument()
+  })
+
+  it("treats a folder holding only its own marker object as real", () => {
+    resetMockSearch({ prefix: TMP_PREFIX })
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      // What `CreateFolderModal` leaves behind for an empty folder: a zero-byte key that is
+      // the prefix itself. The rows filter it out, so only the raw response shows it.
+      data: {
+        objects: [{ key: "tmp/", size: 0, lastModified: "2024-01-15T10:30:00Z" }],
+        folders: [],
+        isTruncated: false,
+        nextContinuationToken: undefined,
+      },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    expect(screen.queryByText("Folder Not Found")).not.toBeInTheDocument()
+    expect(screen.getByTestId("objects-table")).toBeInTheDocument()
+  })
+
+  it("does not judge existence from the Deleted tab, which lists versions", () => {
+    resetMockSearch({ prefix: TMP_PREFIX, tab: "deleted" })
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue(emptyListing)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    expect(screen.queryByText("Folder Not Found")).not.toBeInTheDocument()
+    expect(screen.getByTestId("objects-table")).toBeInTheDocument()
   })
 })

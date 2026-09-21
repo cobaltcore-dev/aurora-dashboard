@@ -17,6 +17,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { useVirtualizedTableBody } from "@/client/hooks/useVirtualizedTableBody"
+import { STORAGE_PROVIDER, asStorageProvider, storageTypeFor } from "@/client/utils/storageProviders"
 import { CreateBucketModal } from "./CreateBucketModal"
 import { EmptyBucketModal } from "./EmptyBucketModal"
 import { DeleteBucketModal } from "./DeleteBucketModal"
@@ -55,9 +56,12 @@ export const BucketTableView = ({
   canEmptyBucket,
   canDeleteBucket,
 }: BucketTableViewProps) => {
-  const { projectId, provider, storageType } = useParams({ strict: false })
+  const { projectId, provider } = useParams({ strict: false })
   const { t } = useLingui()
   const navigate = useNavigate()
+
+  const resolvedProvider = asStorageProvider(provider, STORAGE_PROVIDER.CEPH)
+  const resolvedStorageType = storageTypeFor(resolvedProvider)
 
   const [scrollbarWidth, setScrollbarWidth] = useState(0)
   const [emptyModalBucket, setEmptyModalBucket] = useState<Bucket | null>(null)
@@ -179,8 +183,8 @@ export const BucketTableView = ({
                   to: "/projects/$projectId/storage/$provider/$storageType/$containerName/objects",
                   params: {
                     projectId: projectId ?? "",
-                    provider: (provider as string) ?? "ceph",
-                    storageType: (storageType as string) ?? "buckets",
+                    provider: resolvedProvider,
+                    storageType: resolvedStorageType,
                     containerName: bucket.name,
                   },
                 })

@@ -23,7 +23,7 @@ interface BucketHeaderProps {
  * - All bucket management modals
  */
 export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
-  const { projectId, provider, storageType } = useParams({
+  const { projectId, provider } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/",
   })
 
@@ -87,13 +87,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
         <Divider spacing="0" />
       </div>
 
-      <BucketModals
-        bucketName={bucketName}
-        provider={provider}
-        storageType={storageType}
-        activeModal={activeModal}
-        onClose={closeModal}
-      />
+      <BucketModals bucketName={bucketName} provider={provider} activeModal={activeModal} onClose={closeModal} />
     </>
   )
 }

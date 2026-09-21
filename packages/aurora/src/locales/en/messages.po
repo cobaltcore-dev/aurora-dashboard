@@ -512,8 +512,14 @@ msgstr "Auto-generated if not provided. Only alphanumeric, hyphens, underscores,
 msgid "Back"
 msgstr "Back"
 
+msgid "Back to Bucket Root"
+msgstr "Back to Bucket Root"
+
 msgid "Back to Buckets"
 msgstr "Back to Buckets"
+
+msgid "Back to Container Root"
+msgstr "Back to Container Root"
 
 msgid "Back to Containers"
 msgstr "Back to Containers"
@@ -604,6 +610,9 @@ msgstr "Bucket name must not start with reserved prefix \"{prefix}\""
 
 msgid "Bucket name must start and end with a letter or number"
 msgstr "Bucket name must start and end with a letter or number"
+
+msgid "Bucket Not Found"
+msgstr "Bucket Not Found"
 
 msgid "Bucket Policy"
 msgstr "Bucket Policy"
@@ -766,6 +775,9 @@ msgstr "Container name is required"
 
 msgid "Container name must be {maxContainerNameLength} characters or fewer"
 msgstr "Container name must be {maxContainerNameLength} characters or fewer"
+
+msgid "Container Not Found"
+msgstr "Container Not Found"
 
 msgid "Container quotas"
 msgstr "Container quotas"
@@ -2042,6 +2054,9 @@ msgstr "Folder name is too long (max 255 characters)"
 msgid "Folder name:"
 msgstr "Folder name:"
 
+msgid "Folder Not Found"
+msgstr "Folder Not Found"
+
 msgid "folder-name"
 msgstr "folder-name"
 
@@ -2083,6 +2098,9 @@ msgstr "Get Involved"
 
 msgid "Go to Home"
 msgstr "Go to Home"
+
+msgid "Go to Project"
+msgstr "Go to Project"
 
 msgid "Go to Project Home"
 msgstr "Go to Project Home"
@@ -2707,6 +2725,9 @@ msgstr "Object Storage (Ceph)"
 
 msgid "Object Storage (Swift)"
 msgstr "Object Storage (Swift)"
+
+msgid "Object Storage Not Found"
+msgstr "Object Storage Not Found"
 
 msgid "Object Type"
 msgstr "Object Type"
@@ -3737,8 +3758,14 @@ msgstr "This action will permanently delete all objects from {bucketName}. You m
 msgid "This action will permanently delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
 msgstr "This action will permanently delete all versions and delete markers. This will enable you to delete the bucket. This action cannot be undone."
 
+msgid "This address is not valid for this object storage service."
+msgstr "This address is not valid for this object storage service."
+
 msgid "This bucket cannot be deleted yet. Do the following to be able to delete the bucket:"
 msgstr "This bucket cannot be deleted yet. Do the following to be able to delete the bucket:"
+
+msgid "This bucket does not exist or is not accessible in this project."
+msgstr "This bucket does not exist or is not accessible in this project."
 
 msgid "This bucket does not have a policy attached."
 msgstr "This bucket does not have a policy attached."
@@ -3752,6 +3779,9 @@ msgstr "This bucket is already empty."
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
 msgstr "This container appears empty — the object count may not have synced yet due to a recent operation."
 
+msgid "This container does not exist or is not accessible in this project."
+msgstr "This container does not exist or is not accessible in this project."
+
 msgid "This container is already empty."
 msgstr "This container is already empty."
 
@@ -3760,6 +3790,12 @@ msgstr "This could be due to insufficient permissions or a temporary service iss
 
 msgid "This extra spec keys already exist. Please use different keys."
 msgstr "This extra spec keys already exist. Please use different keys."
+
+msgid "This folder does not exist or is not accessible in this bucket."
+msgstr "This folder does not exist or is not accessible in this bucket."
+
+msgid "This folder does not exist or is not accessible in this container."
+msgstr "This folder does not exist or is not accessible in this container."
 
 msgid "This folder is empty — use New Folder to create one."
 msgstr "This folder is empty — use New Folder to create one."
@@ -3799,6 +3835,9 @@ msgstr "This member already has access to this image."
 
 msgid "This object and all its versions will be permanently deleted and cannot be restored."
 msgstr "This object and all its versions will be permanently deleted and cannot be restored."
+
+msgid "This object storage service does not exist or is not available for this project."
+msgstr "This object storage service does not exist or is not available for this project."
 
 msgid "This project already has access"
 msgstr "This project already has access"

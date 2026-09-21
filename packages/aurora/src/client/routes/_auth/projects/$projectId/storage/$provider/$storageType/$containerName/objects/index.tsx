@@ -1,6 +1,16 @@
-import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router"
+import {
+  createFileRoute,
+  useNavigate,
+  useParams,
+  type ErrorComponentProps,
+  type NotFoundRouteComponent,
+} from "@tanstack/react-router"
+import type { ReactNode } from "react"
 import { Button } from "@cloudoperators/juno-ui-components"
-import { checkServiceAvailability } from "../../../../-components/utils/serviceAvailability"
+import { isTRPCClientError } from "@trpc/client"
+import { guardStorageRoute, type StorageNotFoundReason } from "../../../../-components/utils/serviceAvailability"
+import { CONTAINER_NOT_FOUND, requireContainerExists } from "../../../../-components/utils/containerExistence"
+import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { SwiftObjects } from "../../../../-components/Swift/Objects"
@@ -8,35 +18,11 @@ import { CephObjects } from "../../../../-components/Ceph/Objects"
 import { CephCorsRules, CephLifecycleRules } from "../../../../-components/Ceph/Buckets"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
-import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
 import { BucketHeader } from "../../../../-components/Ceph/Buckets/BucketHeader"
 import { ContainerHeader } from "../../../../-components/Swift/Containers/ContainerHeader"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
-
-function ObjectStorageErrorComponent() {
-  const { t } = useLingui()
-  const navigate = useNavigate()
-  const { projectId, provider, storageType } = Route.useParams()
-  const isCeph = provider === "ceph"
-
-  return (
-    <RouteIdLevelDefaultError
-      action={
-        <Button
-          variant="primary"
-          onClick={() =>
-            navigate({
-              to: "/projects/$projectId/storage/$provider/$storageType",
-              params: { projectId, provider, storageType },
-            })
-          }
-        >
-          {isCeph ? t`Back to Buckets` : t`Back to Containers`}
-        </Button>
-      }
-    />
-  )
-}
+import { StorageNotFound } from "../../../../-components/StorageNotFound"
+import { STORAGE_PROVIDER } from "@/client/utils/storageProviders"
 
 // Search params schema
 // - prefix: base64-encoded current folder path, safe to carry "/" chars in the URL
@@ -68,6 +54,100 @@ const objectsSearchSchema = z.object({
   lifecycleSearch: z.string().optional(),
 })
 
+/**
+ * "Back to Buckets"/"Back to Containers" — the exit both boundaries below want. The list
+ * is the one page that is certainly still there, so it beats `RouteIdLevelDefaultError`'s
+ * default "Go to Project Home", which leaves storage altogether.
+ *
+ * Returns undefined when the params aren't readable, so the caller falls back to that
+ * default rather than rendering a button that can't build a target.
+ */
+function useBackToContainerList(): ReactNode {
+  const { t } = useLingui()
+  const navigate = useNavigate()
+  const { projectId, provider, storageType } = useParams({ strict: false })
+
+  if (!projectId || !provider || !storageType) return undefined
+
+  return (
+    <Button
+      variant="primary"
+      onClick={() =>
+        navigate({
+          to: "/projects/$projectId/storage/$provider/$storageType",
+          params: { projectId, provider, storageType },
+        })
+      }
+    >
+      {provider === STORAGE_PROVIDER.CEPH ? t`Back to Buckets` : t`Back to Containers`}
+    </Button>
+  )
+}
+
+/**
+ * The route's single notFound boundary serves two unrelated 404s, so it dispatches on the
+ * reason the throw carried:
+ *
+ * - the address is wrong (bad provider, non-canonical storage-type) → `StorageNotFound`,
+ *   whose action leads out of storage entirely, because no storage page here is valid;
+ * - the address is fine but the container isn't there → `RouteIdLevelDefaultError`, whose
+ *   action leads back to the list, which is a page the user can actually use.
+ *
+ * (The router spreads the whole notFound error object into these props, so the reason
+ * arrives nested under `data` — see StorageNotFound for the three files that establish it.)
+ */
+function ObjectsNotFound({ data }: { data?: { reason?: StorageNotFoundReason | typeof CONTAINER_NOT_FOUND } }) {
+  const { t } = useLingui()
+  const { provider } = useParams({ strict: false })
+  const backToList = useBackToContainerList()
+
+  const reason = data?.reason
+
+  if (reason !== CONTAINER_NOT_FOUND) {
+    return <StorageNotFound data={reason ? { reason } : undefined} />
+  }
+
+  const isCeph = provider === STORAGE_PROVIDER.CEPH
+
+  return (
+    <RouteIdLevelDefaultError
+      errorTitle={isCeph ? t`Bucket Not Found` : t`Container Not Found`}
+      errorDescription={
+        isCeph
+          ? t`This bucket does not exist or is not accessible in this project.`
+          : t`This container does not exist or is not accessible in this project.`
+      }
+      action={backToList}
+    />
+  )
+}
+
+/**
+ * Route-level error boundary — for a request that failed, as opposed to a resource that
+ * isn't there. Deliberately a boundary of its own: #1304 points one component at both, and
+ * since that component hardcodes `code={404}` a 500 arrives labelled "Resource Not Found".
+ * The split is in what the two say, not in which component they use — `code` is what lets
+ * this one state the real status instead of inheriting that default.
+ *
+ * Catching here rather than letting it reach the root keeps everything the parent routes
+ * render — shell, nav, the breadcrumb trail up to this page — on screen, and lets the
+ * boundary reset when the user navigates.
+ */
+function ObjectsError({ error }: ErrorComponentProps) {
+  const { t } = useLingui()
+  const backToList = useBackToContainerList()
+  const trpcError = isTRPCClientError(error) ? error : undefined
+
+  return (
+    <RouteIdLevelDefaultError
+      code={trpcError?.data?.httpStatus ?? null}
+      errorTitle={t`Unable to Load Content`}
+      errorDescription={trpcError?.message ?? t`An unexpected error occurred.`}
+      action={backToList}
+    />
+  )
+}
+
 export const Route = createFileRoute(
   "/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects/"
 )({
@@ -85,21 +165,16 @@ export const Route = createFileRoute(
   component: () => {
     return <ObjectsDashboard />
   },
-  notFoundComponent: ObjectStorageErrorComponent,
-  errorComponent: ObjectStorageErrorComponent,
-  loader: async ({ context }) => {
+  notFoundComponent: ObjectsNotFound as NotFoundRouteComponent,
+  errorComponent: ObjectsError,
+  loader: async ({ context, params }) => {
     const { trpcClient } = context
-    const availableServices = await trpcClient?.auth.getAvailableServices.query()
-
-    return {
-      client: trpcClient,
-      availableServices,
+    if (!trpcClient) {
+      throw new Error("trpcClient is not available in route context")
     }
-  },
-  beforeLoad: async ({ context, params }) => {
-    const { trpcClient } = context
-    const availableServices = await trpcClient?.auth.getAvailableServices.query()
-    checkServiceAvailability(availableServices!, params)
+    const availableServices = (await trpcClient.auth.getAvailableServices.query()) ?? []
+    const provider = guardStorageRoute(availableServices, params)
+    return requireContainerExists(trpcClient, { ...params, provider })
   },
 })
 
@@ -119,12 +194,12 @@ export function ObjectsDashboard() {
 
   return (
     <>
-      {provider === "ceph" && <BucketHeader bucketName={containerName} />}
-      {provider === "swift" && <ContainerHeader containerName={containerName} />}
+      {provider === STORAGE_PROVIDER.CEPH && <BucketHeader bucketName={containerName} />}
+      {provider === STORAGE_PROVIDER.SWIFT && <ContainerHeader containerName={containerName} />}
       {/* Ceph gets extra breathing room below its header from BucketHeader's own
           tabs block; Swift has no such block, so pad the content wrapper directly
           to avoid the overflow menu sitting too close to the toolbar below it. */}
-      <div className={provider === "swift" ? "pt-4" : undefined}>
+      <div className={provider === STORAGE_PROVIDER.SWIFT ? "pt-4" : undefined}>
         {projectId ? (
           <ErrorBoundary
             resetKeys={[projectId, provider, containerName, prefix, sortBy, sortDirection, search, view]}
@@ -136,9 +211,9 @@ export function ObjectsDashboard() {
           >
             {(() => {
               switch (provider) {
-                case "swift":
+                case STORAGE_PROVIDER.SWIFT:
                   return <SwiftObjects provider={provider} containerName={containerName} />
-                case "ceph":
+                case STORAGE_PROVIDER.CEPH:
                   if (view === "lifecycle-rules") {
                     return <CephLifecycleRules bucketName={containerName} />
                   }

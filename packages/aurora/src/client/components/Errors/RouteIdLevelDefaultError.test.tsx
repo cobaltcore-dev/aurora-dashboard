@@ -54,6 +54,31 @@ describe("RouteIdLevelDefaultError", () => {
     expect(mockNavigate).toHaveBeenCalledWith({ to: "/" })
   })
 
+  // Reused as an `errorComponent`, where the failure is rarely a 404 — so the status has
+  // to be overridable, and omittable when there is no server answer to report.
+  test("shows 404 by default, the given status when one is passed, and none for null", () => {
+    mockUseParams.mockReturnValue({ projectId: "project-id" })
+
+    const { rerender } = render(<RouteIdLevelDefaultError />, { wrapper: TestWrapper })
+    expect(screen.getByText("404")).toBeInTheDocument()
+
+    rerender(
+      <I18nProvider i18n={i18n}>
+        <RouteIdLevelDefaultError code={500} />
+      </I18nProvider>
+    )
+    expect(screen.getByText("500")).toBeInTheDocument()
+    expect(screen.queryByText("404")).not.toBeInTheDocument()
+
+    rerender(
+      <I18nProvider i18n={i18n}>
+        <RouteIdLevelDefaultError code={null} />
+      </I18nProvider>
+    )
+    expect(screen.queryByText("500")).not.toBeInTheDocument()
+    expect(screen.queryByText("404")).not.toBeInTheDocument()
+  })
+
   test("uses custom title, description, and action when provided", () => {
     mockUseParams.mockReturnValue({ projectId: "project-id" })
 

@@ -5,6 +5,7 @@ import { useRouteContext, useMatches, useParams } from "@tanstack/react-router"
 import ClipboardText from "../ClipboardText"
 import { Slot } from "../Slot"
 import { isRouteInfo } from "@/client/routes/routeInfo"
+import { STORAGE_PROVIDER } from "@/client/utils/storageProviders"
 
 interface ContentHeaderProps {
   title: string
@@ -23,8 +24,10 @@ export function ContentHeader({ title, projectId, description, actions, badges }
   const routeService = activeMatch && isRouteInfo(activeMatch.staticData) ? activeMatch.staticData.service : undefined
 
   // Storage routes share service: "containers" for both Swift and Ceph.
-  // Distinguish them by the $provider param.
-  const currentService = routeService === "containers" && provider === "ceph" ? "ceph-containers" : routeService
+  // Distinguish them by the $provider param. Both sides of this are nav service keys,
+  // not `$storageType` URL nouns — see STORAGE_TYPE.
+  const currentService =
+    routeService === "containers" && provider === STORAGE_PROVIDER.CEPH ? "ceph-containers" : routeService
 
   const slotActions =
     slots?.servicePageActions && currentService ? (

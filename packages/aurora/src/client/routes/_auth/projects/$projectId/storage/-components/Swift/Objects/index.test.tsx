@@ -849,3 +849,67 @@ describe("SwiftObjects (index)", () => {
     })
   })
 })
+
+/**
+ * Same rule as the Ceph browser: a folder exists only as the common start of some object
+ * names, so an empty listing for a non-empty prefix means there is no such folder.
+ */
+describe("SwiftObjects - a folder that isn't there", () => {
+  const DOCS_PREFIX = "ZG9jcy8=" // "docs/"
+
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    resetSearch()
+    trpcState = { objects: mockObjects, isLoading: false, error: null }
+    await act(async () => {
+      i18n.activate("en")
+    })
+  })
+
+  test("reports a prefix that matches nothing as a missing folder, without the write actions", () => {
+    mockUseSearch.mockReturnValue({ prefix: DOCS_PREFIX, sortBy: undefined, sortDirection: undefined, search: "" })
+    trpcState.objects = []
+
+    renderObjects()
+
+    expect(screen.getByText("Folder Not Found")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /back to container root/i })).toBeInTheDocument()
+    // Upload writes to `currentPrefix + name`, so it must not survive the message.
+    expect(screen.queryByTestId("objects-table-view")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /upload object/i })).not.toBeInTheDocument()
+  })
+
+  test("leaves an empty container root alone — there is no prefix to disprove", () => {
+    trpcState.objects = []
+
+    renderObjects()
+
+    expect(screen.queryByText("Folder Not Found")).not.toBeInTheDocument()
+    expect(screen.getByTestId("objects-table-view")).toBeInTheDocument()
+  })
+
+  test("treats a folder holding only its own directory marker as real", () => {
+    mockUseSearch.mockReturnValue({ prefix: DOCS_PREFIX, sortBy: undefined, sortDirection: undefined, search: "" })
+    // Swift's empty folder is a real object: the prefix itself, typed as a directory. The row
+    // builder drops it, so only the raw listing shows the folder is there.
+    trpcState.objects = [
+      { name: "docs/", bytes: 0, content_type: "application/directory", last_modified: "2024-01-01T08:00:00" },
+    ] as ObjectSummary[]
+
+    renderObjects()
+
+    expect(screen.queryByText("Folder Not Found")).not.toBeInTheDocument()
+    expect(screen.getByTestId("objects-table-view")).toBeInTheDocument()
+  })
+
+  test("the exit stays inside the container", async () => {
+    const user = userEvent.setup()
+    mockUseSearch.mockReturnValue({ prefix: DOCS_PREFIX, sortBy: undefined, sortDirection: undefined, search: "" })
+    trpcState.objects = []
+
+    renderObjects()
+    await user.click(screen.getByRole("button", { name: /back to container root/i }))
+
+    expect(mockNavigate).toHaveBeenCalledWith({ search: expect.any(Function) })
+  })
+})

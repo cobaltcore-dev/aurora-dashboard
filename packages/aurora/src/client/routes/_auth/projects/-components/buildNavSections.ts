@@ -2,6 +2,8 @@ import { getServiceIndex } from "@/server/Authentication/helpers"
 import { t } from "@lingui/core/macro"
 import type { NavigateFn } from "@tanstack/react-router"
 import type { ServiceExtension } from "@/client/AuroraApp"
+import { hasServiceByName } from "@/client/utils/serviceCatalog"
+import { STORAGE_PROVIDER, STORAGE_TYPE_BY_PROVIDER } from "@/client/utils/storageProviders"
 
 export type NavItem = {
   service: string
@@ -76,7 +78,7 @@ export function buildNavSections(
     : []
 
   const storageServices: NavItem[] = [
-    ...(serviceIndex?.["object-store"]?.["swift"] && isEnabled("containers")
+    ...(hasServiceByName(serviceIndex, STORAGE_PROVIDER.SWIFT) && isEnabled("containers")
       ? [
           {
             service: "containers",
@@ -84,13 +86,21 @@ export function buildNavSections(
             navigate: (nav: NavigateFn) =>
               nav({
                 to: "/projects/$projectId/storage/$provider/$storageType",
-                params: { projectId, provider: "swift", storageType: "containers" },
+                params: {
+                  projectId,
+                  provider: STORAGE_PROVIDER.SWIFT,
+                  storageType: STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.SWIFT],
+                },
               }),
-            params: { projectId, provider: "swift", storageType: "containers" },
+            params: {
+              projectId,
+              provider: STORAGE_PROVIDER.SWIFT,
+              storageType: STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.SWIFT],
+            },
           },
         ]
       : []),
-    ...(serviceIndex?.["object-store-ceph"]?.["ceph"] && isEnabled("ceph-containers")
+    ...(hasServiceByName(serviceIndex, STORAGE_PROVIDER.CEPH) && isEnabled("ceph-containers")
       ? [
           {
             service: "ceph-containers",
@@ -98,9 +108,17 @@ export function buildNavSections(
             navigate: (nav: NavigateFn) =>
               nav({
                 to: "/projects/$projectId/storage/$provider/$storageType",
-                params: { projectId, provider: "ceph", storageType: "buckets" },
+                params: {
+                  projectId,
+                  provider: STORAGE_PROVIDER.CEPH,
+                  storageType: STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.CEPH],
+                },
               }),
-            params: { projectId, provider: "ceph", storageType: "buckets" },
+            params: {
+              projectId,
+              provider: STORAGE_PROVIDER.CEPH,
+              storageType: STORAGE_TYPE_BY_PROVIDER[STORAGE_PROVIDER.CEPH],
+            },
           },
         ]
       : []),

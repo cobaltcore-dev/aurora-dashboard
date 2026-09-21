@@ -16,6 +16,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
+import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
 import { ObjectSummary } from "@/server/Storage/types/swift"
 import { parseSwiftDate } from "@/client/utils/formatSwiftDate"
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
@@ -48,25 +49,7 @@ import {
   getObjectsBulkDeletedToast,
   getObjectsBulkDeleteErrorToast,
 } from "./ObjectToastNotifications"
-
-// ── Prefix helpers ────────────────────────────────────────────────────────────
-
-const encodePrefix = (prefix: string): string => {
-  const bytes = new TextEncoder().encode(prefix)
-  const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join("")
-  return btoa(binString)
-}
-
-const decodePrefix = (encoded: string | undefined): string => {
-  if (!encoded) return ""
-  try {
-    const binString = atob(encoded)
-    const bytes = Uint8Array.from(binString, (char) => char.codePointAt(0)!)
-    return new TextDecoder().decode(bytes)
-  } catch {
-    return ""
-  }
-}
+import { encodePrefix, decodePrefix } from "../../utils/prefixEncoding"
 
 // ── Row types ─────────────────────────────────────────────────────────────────
 
@@ -399,6 +382,20 @@ export const SwiftObjects = ({ provider, containerName }: { provider: string; co
   // nothing while that happens (also covers the brief tick before navigation).
   if (error) {
     return null
+  }
+
+  if (currentPrefix !== "" && (objects ?? []).length === 0) {
+    return (
+      <RouteIdLevelDefaultError
+        errorTitle={t`Folder Not Found`}
+        errorDescription={t`This folder does not exist or is not accessible in this container.`}
+        action={
+          <Button variant="primary" onClick={() => navigateToPrefix("")}>
+            {t`Back to Container Root`}
+          </Button>
+        }
+      />
+    )
   }
 
   const hasSelection = selectedObjects.length > 0

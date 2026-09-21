@@ -17,9 +17,13 @@ vi.mock("@cloudoperators/juno-ui-components", async (importOriginal) => {
   }
 })
 
-// ─── Mock @tanstack/react-router (useParams + useNavigate only) ───────────────
+// ─── Mock @tanstack/react-router (useParams + useNavigate + useLoaderData) ────
 
 const mockNavigate = vi.fn()
+
+// Empty loader data by default: the header must work without a seed, since the route's
+// probe only returns one on the Swift path and only when the request succeeded.
+let mockLoaderData: unknown = {}
 
 vi.mock("@tanstack/react-router", async () => {
   const actual = await vi.importActual("@tanstack/react-router")
@@ -31,6 +35,7 @@ vi.mock("@tanstack/react-router", async () => {
       storageType: "containers",
     })),
     useNavigate: () => mockNavigate,
+    useLoaderData: vi.fn(() => mockLoaderData),
   }
 })
 
@@ -54,12 +59,14 @@ let mockContainerMetadata:
     }
   | undefined = undefined
 
+const useContainerMetadataQuery = vi.fn(() => ({ data: mockContainerMetadata }))
+
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
     storage: {
       swift: {
         getContainerMetadata: {
-          useQuery: () => ({ data: mockContainerMetadata }),
+          useQuery: (...args: unknown[]) => useContainerMetadataQuery(...(args as [])),
         },
       },
     },
@@ -180,6 +187,32 @@ describe("ContainerHeader", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockContainerMetadata = undefined
+    mockLoaderData = {}
+  })
+
+  // The route loader already made this exact HEAD to decide whether the container exists;
+  // seeding the query with its answer is what keeps the page at one request instead of two.
+  test("seeds the metadata query with the loader's answer, timestamp included", () => {
+    mockLoaderData = { containerInfo: { objectCount: 7, bytesUsed: 2048 }, fetchedAt: 1_700_000_000_000 }
+
+    renderHeader()
+
+    expect(useContainerMetadataQuery).toHaveBeenCalledWith(
+      { project_id: "test-project", container: "alpha" },
+      expect.objectContaining({
+        initialData: { objectCount: 7, bytesUsed: 2048 },
+        initialDataUpdatedAt: 1_700_000_000_000,
+      })
+    )
+  })
+
+  test("asks for the metadata normally when the loader carried no answer", () => {
+    renderHeader()
+
+    expect(useContainerMetadataQuery).toHaveBeenCalledWith(
+      { project_id: "test-project", container: "alpha" },
+      expect.objectContaining({ initialData: undefined })
+    )
   })
 
   test("renders the container name as the title", () => {

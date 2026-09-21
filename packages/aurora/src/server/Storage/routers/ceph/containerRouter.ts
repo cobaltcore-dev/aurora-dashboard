@@ -2,6 +2,7 @@ import {
   ListBucketsCommand,
   CreateBucketCommand,
   DeleteBucketCommand,
+  HeadBucketCommand,
   ListObjectsV2Command,
   PutBucketVersioningCommand,
 } from "@aws-sdk/client-s3"
@@ -13,6 +14,7 @@ import {
   listContainersInputSchema,
   createBucketInputSchema,
   deleteBucketInputSchema,
+  headBucketInputSchema,
   type Bucket,
   type S3Status,
   type CreateBucketOutput,
@@ -126,6 +128,32 @@ export const containerRouter = {
       return bucketsWithMetadata
     } catch (error) {
       throw mapS3ErrorToTRPCError(error, { operation: "list containers" })
+    }
+  }),
+
+  /**
+   * Existence probe for a single bucket — one HeadBucket request, no body.
+   *
+   * Exists for route guards that must answer "is there such a bucket?" before rendering a
+   * bucket page. `list` would answer it too, but ListBuckets only returns buckets the
+   * caller *owns*: a bucket reachable through a policy would read as missing. HeadBucket
+   * asks about the bucket itself, so 404 means 404 and 403 means 403.
+   *
+   * @throws TRPCError NOT_FOUND - bucket does not exist (SDK error name `NotFound`)
+   * @throws TRPCError FORBIDDEN - no credentials, or the bucket exists but is not readable
+   */
+  head: cephProtectedProcedure.input(headBucketInputSchema).query(async ({ ctx, input }): Promise<{ exists: true }> => {
+    const s3 = ctx.getCephClient()
+    const { bucketName } = input
+
+    try {
+      await s3.send(new HeadBucketCommand({ Bucket: bucketName }))
+      return { exists: true }
+    } catch (error) {
+      throw mapS3ErrorToTRPCError(error, {
+        operation: "head bucket",
+        bucket: bucketName,
+      })
     }
   }),
 

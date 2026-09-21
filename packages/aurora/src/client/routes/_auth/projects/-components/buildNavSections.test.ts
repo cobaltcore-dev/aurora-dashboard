@@ -66,6 +66,18 @@ describe("buildNavSections", () => {
     }
   })
 
+  describe("Ceph catalog lookup by service name (D6/D9)", () => {
+    it("shows the Ceph nav item when Ceph is registered under the object-store type (not just object-store-ceph)", () => {
+      const services = [
+        { type: "image", name: "glance" },
+        { type: "object-store", name: "ceph" },
+      ]
+      const sections = buildNavSections("proj-1", services)
+      const storage = sections.find((s) => s.section === "storage")
+      expect(storage?.services.map((s) => s.service)).toContain("ceph-containers")
+    })
+  })
+
   describe("serviceExtensions", () => {
     it("adds a service nav item in the services section when its service is in the catalog", () => {
       const services = [...ALL_SERVICES, { type: "custom-service", name: "custom-provider" }]

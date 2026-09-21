@@ -8,6 +8,8 @@ interface S3ErrorShape {
 }
 
 const S3_ERROR_MAP: Record<string, TRPCError["code"]> = {
+  NotFound: "NOT_FOUND",
+  Forbidden: "FORBIDDEN",
   NoSuchBucket: "NOT_FOUND",
   NoSuchKey: "NOT_FOUND",
   NoSuchUpload: "NOT_FOUND",

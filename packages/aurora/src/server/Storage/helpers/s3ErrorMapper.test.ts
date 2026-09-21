@@ -26,6 +26,25 @@ describe("mapS3ErrorToTRPCError", () => {
       )
     })
 
+    // HEAD responses carry no XML body, so there is no `Code` for the SDK to read and it
+    // falls back to a status-derived `name`. Without these two rows a HeadBucket miss would
+    // map to INTERNAL_SERVER_ERROR and callers could not act on it.
+    it("maps the bodiless NotFound (HEAD) to NOT_FOUND", () => {
+      const error = Object.assign(new Error("NotFound"), { name: "NotFound" })
+
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
+        expect.objectContaining({ code: "NOT_FOUND" })
+      )
+    })
+
+    it("maps the bodiless Forbidden (HEAD) to FORBIDDEN", () => {
+      const error = Object.assign(new Error("Forbidden"), { name: "Forbidden" })
+
+      expect(() => mapS3ErrorToTRPCError(error, { operation: TEST_OPERATION, bucket: TEST_BUCKET })).toThrow(
+        expect.objectContaining({ code: "FORBIDDEN" })
+      )
+    })
+
     it("maps NoSuchKey to NOT_FOUND", () => {
       const error = Object.assign(new Error("The specified key does not exist"), { Code: "NoSuchKey" })
 
