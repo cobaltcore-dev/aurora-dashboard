@@ -154,6 +154,7 @@ export const CephBuckets = () => {
     {
       project_id: projectId,
       includeMetadata: true, // Fetch full metadata for table view with sorting
+      searchTerm: searchParam, // Server-side filtering
     },
     {
       enabled: !!projectId,
@@ -196,10 +197,8 @@ export const CephBuckets = () => {
     })
   }
 
-  // Filter buckets based on search term
-  const filteredBuckets = (buckets || []).filter((bucket) =>
-    bucket.name.toLowerCase().includes(searchParam.toLowerCase())
-  )
+  // Buckets are already filtered server-side via searchTerm
+  const filteredBuckets = buckets || []
 
   // Apply sorting to filtered buckets
   const sortedBuckets = sortBuckets(filteredBuckets)

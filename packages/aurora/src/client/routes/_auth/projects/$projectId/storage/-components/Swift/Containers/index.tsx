@@ -169,6 +169,7 @@ export const SwiftContainers = () => {
   } = trpcReact.storage.swift.listContainers.useQuery({
     project_id: projectId,
     format: "json",
+    searchTerm: searchParam, // Server-side filtering
   })
 
   // Fetch account metadata for quota information
@@ -218,10 +219,8 @@ export const SwiftContainers = () => {
     })
   }
 
-  // Filter containers based on search term
-  const filteredContainers = (containers || []).filter((container) =>
-    container.name.toLowerCase().includes(searchParam.toLowerCase())
-  )
+  // Containers are already filtered server-side via searchTerm
+  const filteredContainers = containers || []
 
   // Apply sorting to filtered containers
   const sortedContainers = sortContainers(filteredContainers)

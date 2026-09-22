@@ -125,7 +125,7 @@ export const imageRouter = {
 
         // Filter by name (search)
         if (hasSearchTerm) {
-          filteredImages = filterBySearchParams(filteredImages, queryInput.name, ["name"])
+          filteredImages = filterBySearchParams(filteredImages, queryInput.name, ["id", "name", "owner", "size"])
         }
 
         // Filter by visibility (unless "all")
@@ -241,7 +241,7 @@ export const imageRouter = {
 
         // Filter by name (search)
         if (queryInput.name && queryInput.name.trim()) {
-          filteredImages = filterBySearchParams(filteredImages, queryInput.name, ["name"])
+          filteredImages = filterBySearchParams(filteredImages, queryInput.name, ["id", "name", "owner", "size"])
         }
 
         // Filter by visibility (unless "all")
@@ -1003,7 +1003,7 @@ export const imageRouter = {
 
         // Step 5: Apply BFF-side filters (name search, status, disk_format, container_format, protected)
         if (name) {
-          filteredImages = filterBySearchParams(filteredImages, name, ["name"])
+          filteredImages = filterBySearchParams(filteredImages, name, ["id", "name"])
         }
         if (status) {
           const statusValues = parseMultiValue(status)

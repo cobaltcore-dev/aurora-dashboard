@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
 import { Project, projectResponseSchema, projectsResponseSchema } from "../types/models"
 import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
+import { filterBySearchParams } from "../../helpers/filterBySearchParams"
 
 /**
  * Helper function to call Identity API endpoints directly
@@ -182,6 +183,70 @@ export const projectRouter = {
       projects.sort((a, b) => a.name.localeCompare(b.name))
 
       return projects
+    }),
+
+  /**
+   * List projects with unified search functionality
+   *
+   * Returns all projects that the authenticated user has access to,
+   * filtered by ID, name, and description using the standard filterBySearchParams helper.
+   * This endpoint provides consistent search behavior with other resources in the system.
+   */
+  listProjectsWithSearch: protectedProcedure
+    .input(
+      z.object({
+        searchTerm: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }): Promise<Project[] | undefined> => {
+      if (!ctx.openstack) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "No authenticated session",
+        })
+      }
+
+      const token = ctx.openstack.getToken()
+      if (!token?.authToken) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "No auth token available",
+        })
+      }
+
+      const [response, domainsResponse] = await Promise.all([
+        callIdentityAPI(ctx.identityEndpoint, token.authToken, "auth/projects"),
+        callIdentityAPI(ctx.identityEndpoint, token.authToken, "auth/domains").catch(() => null),
+      ])
+
+      const data = await response.json()
+      const parsedData = projectsResponseSchema.safeParse(data)
+
+      if (!parsedData.success) {
+        console.error("Zod Parsing Error:", parsedData.error.message)
+        return undefined
+      }
+
+      const domainsData = domainsResponse ? await domainsResponse.json().catch(() => null) : null
+      const domainsResponseSchema = z.object({ domains: z.array(z.object({ id: z.string(), name: z.string() })) })
+      const parsedDomains = domainsResponseSchema.safeParse(domainsData)
+      const domainMap = new Map<string, string>(
+        (parsedDomains.success ? parsedDomains.data.domains : []).map((d) => [d.id, d.name])
+      )
+
+      const projectsWithDomain = parsedData.data.projects.map((project) => ({
+        ...project,
+        domain_name: project.domain_id ? (domainMap.get(project.domain_id) ?? undefined) : undefined,
+      }))
+
+      // Apply search filter using standard helper
+      return filterBySearchParams(projectsWithDomain, input.searchTerm, [
+        "id",
+        "name",
+        "description",
+        "domain_name",
+        "domain_id",
+      ])
     }),
 
   getProject: protectedProcedure
