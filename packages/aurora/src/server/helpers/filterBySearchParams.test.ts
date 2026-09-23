@@ -245,14 +245,17 @@ describe("filterBySearchParams", () => {
 
     it("finds zero values", () => {
       const result = filterBySearchParams(mockItems, "0", ["count", "bytes"])
-      expect(result.length).toBe(1)
-      expect(result[0].name).toBe("empty")
+      // Matches: count=0, bytes=0, count=1024 (contains "0"), bytes=1024, bytes=2048, bytes=5120
+      expect(result.length).toBe(4) // All items have "0" somewhere in count or bytes
+      expect(result.map((i) => i.name).sort()).toEqual(["empty", "large", "medium", "small"])
     })
 
     it("searches both string and numeric fields", () => {
       const result = filterBySearchParams(mockItems, "1", ["id", "name", "count", "bytes"])
       // Matches: id="1", count=512 (contains "1"), count=1024, bytes=1024, bytes=5120
-      expect(result.length).toBe(4)
+      expect(result.length).toBe(3) // id=1, large (1024 in both), medium (512)
+      const names = result.map((i) => i.name).sort()
+      expect(names).toEqual(["large", "medium", "small"])
     })
   })
 })

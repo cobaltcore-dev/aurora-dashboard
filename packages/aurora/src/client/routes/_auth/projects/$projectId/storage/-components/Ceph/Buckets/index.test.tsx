@@ -391,12 +391,16 @@ describe("CephBuckets (index)", () => {
 
   describe("Search filtering", () => {
     test("filters buckets by search term from URL param", () => {
+      // With server-side search, server returns only matching buckets
+      trpcState.buckets = [mockBuckets[0]]
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "bucket-1" })
       renderBuckets()
       expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-bucket-count", "1")
     })
 
     test("search filtering is case-insensitive", () => {
+      // With server-side search, server returns only matching buckets
+      trpcState.buckets = [mockBuckets[0]]
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "BUCKET-1" })
       renderBuckets()
       expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-bucket-count", "1")
