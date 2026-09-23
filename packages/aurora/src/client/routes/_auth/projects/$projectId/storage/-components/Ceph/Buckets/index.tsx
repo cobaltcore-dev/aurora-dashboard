@@ -272,8 +272,8 @@ export const CephBuckets = () => {
   const selectedBucketSummaries = (buckets || []).filter((c) => selectedBuckets.includes(c.name))
   const hasSelection = selectedBucketSummaries.length > 0
   const selectedCount = selectedBucketSummaries.length
+  // With server-side search, we only have the filtered results
   const totalCount = (buckets || []).length
-  const filteredCount = filteredBuckets.length
 
   // Select-all operates on the currently displayed (filtered + sorted) rows.
   const displayedNames = sortedBuckets.map((c) => c.name)
@@ -380,15 +380,7 @@ export const CephBuckets = () => {
             )}
 
             <div className="text-theme-light flex items-center gap-1" data-testid="buckets-info-block">
-              {searchParam.trim() ? (
-                <Plural
-                  value={totalCount}
-                  one={`${filteredCount} of ${totalCount} bucket`}
-                  other={`${filteredCount} of ${totalCount} buckets`}
-                />
-              ) : (
-                <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
-              )}
+              <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
             </div>
           </Stack>
         </DataGridToolbar>

@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server"
 import { protectedProcedure } from "../../trpc"
 import { Project, projectResponseSchema, projectsResponseSchema } from "../types/models"
 import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
-import { filterBySearchParams } from "../../helpers/filterBySearchParams"
+import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 
 /**
  * Helper function to call Identity API endpoints directly

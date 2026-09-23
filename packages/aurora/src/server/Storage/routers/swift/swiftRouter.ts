@@ -23,7 +23,7 @@ import {
   generateTempUrlSignature,
   constructTempUrl,
 } from "../../helpers/swiftHelpers"
-import { filterBySearchParams } from "../../../helpers/filterBySearchParams"
+import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import {
   listContainersInputSchema,
   updateAccountMetadataInputSchema,

@@ -271,9 +271,8 @@ export const SwiftContainers = () => {
   const hasSelection = selectedContainerSummaries.length > 0
   const selectedCount = selectedContainerSummaries.length
 
+  // With server-side search, we only have the filtered results
   const totalCount = (containers || []).length
-  const filteredCount = filteredContainers.length
-  const isFiltered = filteredCount !== totalCount
 
   // Select-all operates on the currently displayed (filtered + sorted) rows.
   const displayedNames = sortedContainers.map((c) => c.name)
@@ -384,15 +383,7 @@ export const SwiftContainers = () => {
             )}
 
             <div className="text-theme-light ml-auto flex items-center gap-1" data-testid="containers-info-block">
-              {isFiltered ? (
-                <Plural
-                  value={filteredCount}
-                  one={`${filteredCount} of ${totalCount} container`}
-                  other={`${filteredCount} of ${totalCount} containers`}
-                />
-              ) : (
-                <Plural value={totalCount} one={`${totalCount} container`} other={`${totalCount} containers`} />
-              )}
+              <Plural value={totalCount} one={`${totalCount} container`} other={`${totalCount} containers`} />
               {quotaBytes > 0 && (
                 <>
                   <span>,</span>

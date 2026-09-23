@@ -374,11 +374,12 @@ describe("CephBuckets (index)", () => {
       expect(screen.getByText(/3 buckets/i)).toBeInTheDocument()
     })
 
-    test("shows filtered count when search is active", () => {
+    test("shows bucket count when search is active", () => {
+      // With server-side search, server returns only matching buckets
+      trpcState.buckets = [mockBuckets[0]]
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "bucket-1" })
       renderBuckets()
-      // Plural 'one' form: "1 of 3 bucket" (singular)
-      expect(screen.getByText(/1 of 3 bucket/i)).toBeInTheDocument()
+      expect(screen.getByText(/1 bucket$/i)).toBeInTheDocument()
     })
 
     test("shows total count when search is cleared", () => {

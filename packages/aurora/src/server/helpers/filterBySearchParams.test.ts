@@ -221,4 +221,38 @@ describe("filterBySearchParams", () => {
       expect(result[0].id).toBe("sg-12345")
     })
   })
+
+  describe("filters numeric fields", () => {
+    const mockItems = [
+      { id: "1", name: "small", count: 42, bytes: 1024 },
+      { id: "2", name: "medium", count: 512, bytes: 2048 },
+      { id: "3", name: "large", count: 1024, bytes: 5120 },
+      { id: "4", name: "empty", count: 0, bytes: 0 },
+    ]
+
+    it("finds exact numeric match", () => {
+      const result = filterBySearchParams(mockItems, "42", ["count", "bytes"])
+      expect(result.length).toBe(1)
+      expect(result[0].name).toBe("small")
+    })
+
+    it("finds partial numeric match", () => {
+      const result = filterBySearchParams(mockItems, "512", ["count", "bytes"])
+      expect(result.length).toBe(2)
+      const names = result.map((i) => i.name).sort()
+      expect(names).toEqual(["large", "medium"])
+    })
+
+    it("finds zero values", () => {
+      const result = filterBySearchParams(mockItems, "0", ["count", "bytes"])
+      expect(result.length).toBe(1)
+      expect(result[0].name).toBe("empty")
+    })
+
+    it("searches both string and numeric fields", () => {
+      const result = filterBySearchParams(mockItems, "1", ["id", "name", "count", "bytes"])
+      // Matches: id="1", count=512 (contains "1"), count=1024, bytes=1024, bytes=5120
+      expect(result.length).toBe(4)
+    })
+  })
 })

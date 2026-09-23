@@ -20,7 +20,7 @@ import {
   type CreateBucketOutput,
 } from "../../types/ceph"
 import { S3_MAX_KEYS_PER_REQUEST } from "../../constants"
-import { filterBySearchParams } from "../../../helpers/filterBySearchParams"
+import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 
 export const containerRouter = {
   status: cephProcedure.input(projectScopedInputSchema).query(async ({ ctx }): Promise<S3Status> => {
