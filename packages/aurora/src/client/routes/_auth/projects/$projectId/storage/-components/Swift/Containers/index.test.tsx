@@ -613,6 +613,8 @@ describe("SwiftContainers (List)", () => {
     })
 
     test("filters containers by search param from URL", () => {
+      // With server-side search, server returns only matching containers
+      trpcState.containers = [mockContainers[0]]
       mockContainersUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "alpha" })
       renderList()
       expect(screen.getByTestId("container-row-alpha")).toBeInTheDocument()
@@ -621,6 +623,8 @@ describe("SwiftContainers (List)", () => {
     })
 
     test("search filtering is case-insensitive", () => {
+      // With server-side search, server returns only matching containers
+      trpcState.containers = [mockContainers[0]]
       mockContainersUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "ALPHA" })
       renderList()
       expect(screen.getByTestId("container-row-alpha")).toBeInTheDocument()
