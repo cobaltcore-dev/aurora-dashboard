@@ -160,6 +160,7 @@ export const listContainersInputSchema = baseAccountInputSchema.extend({
   reverse: z.boolean().optional(),
   format: z.enum(["json", "xml", "plain"]).optional().default("json"),
   xNewest: z.boolean().optional(), // X-Newest header for getting most recent replica
+  searchTerm: z.string().optional(),
 })
 
 // Update account metadata input schema
