@@ -77,6 +77,13 @@ export const SwiftContainers = () => {
     setLocalSearchTerm(searchParam)
   }, [searchParam])
 
+  // Clear selections when search changes — server-filtered results may exclude
+  // previously selected containers, breaking bulk actions if hidden selections
+  // remain in state while selectedContainerSummaries is empty.
+  useEffect(() => {
+    setSelectedContainers([])
+  }, [searchParam])
+
   const handleCreateSuccess = (containerName: string) => {
     const { message, ...options } = getContainerCreatedToast(containerName)
     toast.success(message, options)

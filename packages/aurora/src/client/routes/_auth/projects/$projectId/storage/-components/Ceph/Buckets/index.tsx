@@ -76,6 +76,13 @@ export const CephBuckets = () => {
     setLocalSearchTerm(searchParam)
   }, [searchParam])
 
+  // Clear selections when search changes — server-filtered results may exclude
+  // previously selected buckets, breaking bulk actions if hidden selections
+  // remain in state while selectedBucketSummaries is empty.
+  useEffect(() => {
+    setSelectedBuckets([])
+  }, [searchParam])
+
   const handleCreateSuccess = (bucketName: string) => {
     const { message, ...options } = getBucketCreatedToast(bucketName)
 
