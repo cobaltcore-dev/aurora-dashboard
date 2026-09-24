@@ -34,6 +34,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   const {
     data: bucketState,
     isLoading: isLoadingBucketState,
+    isFetching: isFetchingBucketState,
     error: bucketStateError,
   } = trpcReact.storage.ceph.containers.getState.useQuery(
     { project_id: projectId ?? "", bucketName: bucket?.name ?? "" },
@@ -115,7 +116,7 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
   const isPartialScan = bucketState?.isPartialScan ?? false
   const cannotDelete = hasCurrentObjects || hasVersionsInVersionedBucket || isPartialScan
   const errorMessage = bucketStateError?.message
-  const isLoading = isLoadingBucketState
+  const isLoading = isLoadingBucketState || isFetchingBucketState
 
   return (
     <Modal
@@ -144,6 +145,9 @@ export const DeleteBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError 
       disableConfirmButton={
         deleteBucketMutation.isPending || isLoading || !!bucketStateError || confirmName.trim() !== bucket.name
       }
+      disableCancelButton={deleteBucketMutation.isPending}
+      disableCloseButton={deleteBucketMutation.isPending}
+      closeOnEsc={!deleteBucketMutation.isPending}
     >
       <Stack direction="vertical" gap="6">
         {bucketStateError && (

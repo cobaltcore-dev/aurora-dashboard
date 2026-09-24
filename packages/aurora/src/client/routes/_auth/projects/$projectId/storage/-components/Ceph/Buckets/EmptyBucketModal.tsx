@@ -10,6 +10,7 @@ import {
   Stack,
   Checkbox,
   Status,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
@@ -21,15 +22,15 @@ interface EmptyBucketModalProps {
   bucket: Bucket | null
   onClose: () => void
   onSuccess?: (bucketName: string, deletedCount: number) => void
-  onError?: (bucketName: string, errorMessage: string) => void
 }
 
-export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }: EmptyBucketModalProps) => {
+export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess }: EmptyBucketModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
   const [deleteVersionsAndMarkers, setDeleteVersionsAndMarkers] = useState(false)
+  const [mutationError, setMutationError] = useState<string | null>(null)
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
@@ -49,6 +50,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   const {
     data: bucketState,
     isLoading: isLoadingBucketState,
+    isFetching: isFetchingBucketState,
     error: bucketStateError,
   } = trpcReact.storage.ceph.containers.getState.useQuery(
     {
@@ -81,7 +83,6 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
     onSettled: () => {
       invalidateBucketQueries(utils)
-      handleClose()
     },
   })
 
@@ -90,6 +91,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     setConfirmName("")
     setNameError(null)
     setDeleteVersionsAndMarkers(false)
+    setMutationError(null)
     emptyBucketMutation.reset()
     resetTracking()
     onClose()
@@ -99,6 +101,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     const value = e.target.value
     setConfirmName(value)
     if (nameError) setNameError(null)
+    if (mutationError) setMutationError(null)
   }
 
   const handleSubmit = () => {
@@ -108,6 +111,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       return
     }
 
+    setMutationError(null)
     markSubmitted()
 
     // Capture bucket name before async operation to avoid dereferencing null bucket in callbacks
@@ -125,9 +129,10 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       {
         onSuccess: (deletedCount) => {
           onSuccess?.(bucketName, deletedCount)
+          handleClose()
         },
         onError: (error) => {
-          onError?.(bucketName, error.message)
+          setMutationError(error.message)
         },
       }
     )
@@ -140,7 +145,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   if (!isOpen || !bucket) return null
 
   const bucketName = bucket.name
-  const isLoading = isLoadingBucketState
+  const isLoading = isLoadingBucketState || (isFetchingBucketState && !mutationError)
   const hasQueryError = !!bucketStateError
 
   // If bucket is empty with only delete markers, show "Delete Versions" UI
@@ -156,12 +161,23 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
         cancelButtonLabel={t`Cancel`}
         size="small"
         disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name || hasQueryError}
+        disableCancelButton={emptyBucketMutation.isPending}
+        disableCloseButton={emptyBucketMutation.isPending}
+        closeOnEsc={!emptyBucketMutation.isPending}
       >
         <Stack direction="vertical" gap="6">
           {hasQueryError && (
-            <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
+            <Message variant="error" role="alert" aria-live="assertive" data-testid="empty-bucket-state-error">
               <Trans>Unable to verify bucket versioning status and contents. Try again.</Trans>
-            </div>
+            </Message>
+          )}
+
+          {mutationError && (
+            <EmptyBucketErrorMessage
+              title={isBucketEmptyWithVersions ? t`Failed to Delete Versions` : t`Failed to Empty Bucket`}
+              bucketName={bucketName}
+              errorMessage={mutationError}
+            />
           )}
 
           <p className="text-theme-default m-0">
@@ -206,17 +222,25 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
           </ModalFooter>
         }
       >
-        {hasQueryError ? (
-          <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
-            {/* One query now answers both, so there is no longer a partial-failure case to
-                distinguish — versioning status and contents fail or succeed together. */}
-            <Trans>Unable to verify bucket versioning status and contents. Try again.</Trans>
-          </div>
-        ) : (
-          <p className="text-theme-default py-2">
-            <Trans>This bucket is already empty.</Trans>
-          </p>
-        )}
+        <Stack direction="vertical" gap="6">
+          {mutationError && (
+            <EmptyBucketErrorMessage
+              title={t`Failed to Empty Bucket`}
+              bucketName={bucketName}
+              errorMessage={mutationError}
+            />
+          )}
+
+          {hasQueryError ? (
+            <Message variant="error" role="alert" aria-live="assertive" data-testid="empty-bucket-state-error">
+              <Trans>Unable to verify bucket versioning status and contents. Try again.</Trans>
+            </Message>
+          ) : (
+            <p className="text-theme-default py-2">
+              <Trans>This bucket is already empty.</Trans>
+            </p>
+          )}
+        </Stack>
       </Modal>
     )
   }
@@ -232,16 +256,29 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name || hasQueryError}
+      disableConfirmButton={
+        emptyBucketMutation.isPending || isLoading || confirmName.trim() !== bucket.name || hasQueryError
+      }
+      disableCancelButton={emptyBucketMutation.isPending}
+      disableCloseButton={emptyBucketMutation.isPending}
+      closeOnEsc={!emptyBucketMutation.isPending}
     >
       {isLoading ? (
         <Status status="progress" title={t`Checking Bucket Contents...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="6">
           {hasQueryError && (
-            <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
+            <Message variant="error" role="alert" aria-live="assertive" data-testid="empty-bucket-state-error">
               <Trans>Unable to verify bucket versioning status and contents. Try again.</Trans>
-            </div>
+            </Message>
+          )}
+
+          {mutationError && (
+            <EmptyBucketErrorMessage
+              title={isBucketEmptyWithVersions ? t`Failed to Delete Versions` : t`Failed to Empty Bucket`}
+              bucketName={bucketName}
+              errorMessage={mutationError}
+            />
           )}
 
           <p className="text-theme-default m-0">
@@ -283,3 +320,23 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     </Modal>
   )
 }
+
+const EmptyBucketErrorMessage = ({
+  title,
+  bucketName,
+  errorMessage,
+}: {
+  title: string
+  bucketName: string
+  errorMessage: string
+}) => (
+  <Message variant="error" title={title} role="alert" aria-live="assertive" data-testid="empty-bucket-error">
+    <EmptyBucketErrorBody bucketName={bucketName} errorMessage={errorMessage} />
+  </Message>
+)
+
+const EmptyBucketErrorBody = ({ bucketName, errorMessage }: { bucketName: string; errorMessage: string }) => (
+  <Trans>
+    Could not empty bucket "{bucketName}": {errorMessage}
+  </Trans>
+)

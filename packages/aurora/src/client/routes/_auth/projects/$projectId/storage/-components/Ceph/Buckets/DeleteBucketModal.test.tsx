@@ -56,6 +56,7 @@ const { mockInvalidate, mockMutate, mockReset, mockState } = vi.hoisted(() => {
     mutationError: null as string | null,
     isPending: false,
     isLoadingBucketState: false,
+    isFetchingBucketState: false,
     bucketState: {
       isVersioningEnabled: false,
       isEmpty: true,
@@ -99,11 +100,12 @@ vi.mock("@/client/trpcClient", () => ({
           getState: {
             useQuery: (_params: unknown, options: { enabled: boolean }) => {
               if (!options.enabled) {
-                return { data: undefined, isLoading: false, error: null }
+                return { data: undefined, isLoading: false, isFetching: false, error: null }
               }
               return {
                 data: mockState.bucketState,
                 isLoading: mockState.isLoadingBucketState,
+                isFetching: mockState.isFetchingBucketState,
                 error: mockState.bucketStateError ? { message: mockState.bucketStateError } : null,
               }
             },
@@ -168,6 +170,7 @@ describe("DeleteBucketModal", () => {
     mockState.capturedOptions = {}
     mockState.isPending = false
     mockState.isLoadingBucketState = false
+    mockState.isFetchingBucketState = false
     mockState.bucketState = {
       isVersioningEnabled: false,
       isEmpty: true,
@@ -259,6 +262,19 @@ describe("DeleteBucketModal", () => {
       renderModal()
 
       expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
+    })
+
+    test("shows the progress state while a background refetch of the bucket state is in flight", () => {
+      // Cache is already warm (isLoading: false) but a refetch is in flight — the verdict
+      // rendered off the stale cache entry must not be trusted while it's being re-verified.
+      mockState.bucketState = { ...mockState.bucketState, isEmpty: true }
+      mockState.isLoadingBucketState = false
+      mockState.isFetchingBucketState = true
+      renderModal()
+
+      expect(screen.getByText(/Checking Bucket Contents.../)).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
+      expect(screen.queryByText(/This bucket cannot be deleted yet/)).not.toBeInTheDocument()
     })
   })
 

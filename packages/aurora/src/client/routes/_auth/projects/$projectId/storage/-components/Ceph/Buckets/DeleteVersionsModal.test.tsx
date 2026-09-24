@@ -5,7 +5,6 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { DeleteVersionsModal } from "./DeleteVersionsModal"
-import type { PartialVersionDeleteOutcome } from "./BucketToastNotifications"
 import type { Bucket } from "@/server/Storage/types/ceph"
 
 // ─── Mock useProjectId ────────────────────────────────────────────────────────
@@ -33,6 +32,7 @@ const mockReset = vi.fn()
 const mockInvalidate = vi.fn()
 const mockInvalidateDeletedContent = vi.fn()
 let mutationOptions: { onSettled?: () => void } = {}
+const mockMutationState = { isPending: false }
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
@@ -56,7 +56,7 @@ vi.mock("@/client/trpcClient", () => ({
               return {
                 mutate: mockMutate,
                 reset: mockReset,
-                isPending: false,
+                isPending: mockMutationState.isPending,
               }
             },
           },
@@ -79,27 +79,16 @@ const renderModal = ({
   bucket = testBucket,
   onClose = vi.fn(),
   onSuccess = vi.fn(),
-  onError = vi.fn(),
-  onPartial = vi.fn(),
 }: {
   isOpen?: boolean
   bucket?: Bucket | null
   onClose?: () => void
   onSuccess?: (bucketName: string, deletedCount: number) => void
-  onError?: (bucketName: string, errorMessage: string) => void
-  onPartial?: (bucketName: string, outcome: PartialVersionDeleteOutcome) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <DeleteVersionsModal
-          isOpen={isOpen}
-          bucket={bucket}
-          onClose={onClose}
-          onSuccess={onSuccess}
-          onError={onError}
-          onPartial={onPartial}
-        />
+        <DeleteVersionsModal isOpen={isOpen} bucket={bucket} onClose={onClose} onSuccess={onSuccess} />
       </PortalProvider>
     </I18nProvider>
   )
@@ -116,6 +105,7 @@ describe("DeleteVersionsModal", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     mockOnTrackEvent.mockClear()
+    mockMutationState.isPending = false
     await act(async () => {
       i18n.activate("en")
     })
@@ -180,73 +170,79 @@ describe("DeleteVersionsModal", () => {
     // contradicting itself. A run that deleted something is partial, not failed.
     const user = userEvent.setup({ delay: null })
     const onSuccess = vi.fn()
-    const onError = vi.fn()
-    const onPartial = vi.fn()
-    renderModal({ onSuccess, onError, onPartial })
+    const onClose = vi.fn()
+    renderModal({ onSuccess, onClose })
 
     await confirmBucketName(user)
     await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
 
     const [, callbacks] = mockMutate.mock.calls[0]
-    callbacks.onSuccess({
-      errors: [{ key: "b.txt", versionId: "v2", code: "AccessDenied", message: "Access Denied" }],
-      deletedCount: 1,
-      errorCount: 1,
-      isPartial: false,
+    act(() => {
+      callbacks.onSuccess({
+        errors: [{ key: "b.txt", versionId: "v2", code: "AccessDenied", message: "Access Denied" }],
+        deletedCount: 1,
+        errorCount: 1,
+        isPartial: false,
+      })
     })
 
     expect(onSuccess).not.toHaveBeenCalled()
-    expect(onError).not.toHaveBeenCalled()
-    expect(onPartial).toHaveBeenCalledWith(testBucket.name, {
-      deletedCount: 1,
-      errorCount: 1,
-      errors: [{ key: "b.txt", versionId: "v2", code: "AccessDenied", message: "Access Denied" }],
-      incomplete: false,
-    })
+    expect(onClose).not.toHaveBeenCalled()
+    const outcomeMessage = screen.getByTestId("delete-versions-outcome")
+    expect(outcomeMessage).toBeInTheDocument()
+    expect(screen.getByText("Versions Partially Deleted")).toBeInTheDocument()
+    // The dialog stays open so the report and the retry surface are both still there.
+    expect(screen.getByRole("dialog")).toBeInTheDocument()
   })
 
   test("reports a plain error when nothing was deleted and keys failed", async () => {
     const user = userEvent.setup({ delay: null })
     const onSuccess = vi.fn()
-    const onError = vi.fn()
-    const onPartial = vi.fn()
-    renderModal({ onSuccess, onError, onPartial })
+    const onClose = vi.fn()
+    renderModal({ onSuccess, onClose })
 
     await confirmBucketName(user)
     await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
 
     const [, callbacks] = mockMutate.mock.calls[0]
-    callbacks.onSuccess({
-      errors: [{ key: "b.txt", versionId: "v2", code: "AccessDenied", message: "Access Denied" }],
-      deletedCount: 0,
-      errorCount: 1,
-      isPartial: false,
+    act(() => {
+      callbacks.onSuccess({
+        errors: [{ key: "b.txt", versionId: "v2", code: "AccessDenied", message: "Access Denied" }],
+        deletedCount: 0,
+        errorCount: 1,
+        isPartial: false,
+      })
     })
 
     expect(onSuccess).not.toHaveBeenCalled()
-    expect(onPartial).not.toHaveBeenCalled()
-    expect(onError).toHaveBeenCalledWith(testBucket.name, expect.stringContaining("b.txt"))
+    expect(onClose).not.toHaveBeenCalled()
+    expect(screen.getByText("Failed to Delete Versions")).toBeInTheDocument()
+    expect(screen.getByTestId("delete-versions-outcome")).toHaveTextContent("b.txt")
+    expect(screen.getByRole("dialog")).toBeInTheDocument()
   })
 
   test("reports success when the mutation resolves with errorCount === 0", async () => {
     const user = userEvent.setup({ delay: null })
     const onSuccess = vi.fn()
-    const onError = vi.fn()
-    renderModal({ onSuccess, onError })
+    const onClose = vi.fn()
+    renderModal({ onSuccess, onClose })
 
     await confirmBucketName(user)
     await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
 
     const [, callbacks] = mockMutate.mock.calls[0]
-    callbacks.onSuccess({
-      errors: [],
-      deletedCount: 1,
-      errorCount: 0,
-      isPartial: false,
+    act(() => {
+      callbacks.onSuccess({
+        errors: [],
+        deletedCount: 1,
+        errorCount: 0,
+        isPartial: false,
+      })
     })
 
-    expect(onError).not.toHaveBeenCalled()
     expect(onSuccess).toHaveBeenCalledWith(testBucket.name, 1)
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(screen.queryByTestId("delete-versions-outcome")).not.toBeInTheDocument()
   })
 
   test("warns instead of reporting success when the wipe did not reach the end of the bucket", async () => {
@@ -255,29 +251,26 @@ describe("DeleteVersionsModal", () => {
     // partial result, not a failure, so it must not borrow the error channel.
     const user = userEvent.setup({ delay: null })
     const onSuccess = vi.fn()
-    const onError = vi.fn()
-    const onPartial = vi.fn()
-    renderModal({ onSuccess, onError, onPartial })
+    const onClose = vi.fn()
+    renderModal({ onSuccess, onClose })
 
     await confirmBucketName(user)
     await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
 
     const [, callbacks] = mockMutate.mock.calls[0]
-    callbacks.onSuccess({
-      errors: [],
-      deletedCount: 42,
-      errorCount: 0,
-      isPartial: true,
+    act(() => {
+      callbacks.onSuccess({
+        errors: [],
+        deletedCount: 42,
+        errorCount: 0,
+        isPartial: true,
+      })
     })
 
     expect(onSuccess).not.toHaveBeenCalled()
-    expect(onError).not.toHaveBeenCalled()
-    expect(onPartial).toHaveBeenCalledWith(testBucket.name, {
-      deletedCount: 42,
-      errorCount: 0,
-      errors: [],
-      incomplete: true,
-    })
+    expect(onClose).not.toHaveBeenCalled()
+    expect(screen.getByText("Versions Partially Deleted")).toBeInTheDocument()
+    expect(screen.getByTestId("delete-versions-outcome")).toHaveTextContent(/Run Delete Versions again/)
   })
 
   test("keeps both the failures and the incomplete scan when a run carries each", async () => {
@@ -287,54 +280,157 @@ describe("DeleteVersionsModal", () => {
     // dropped the "run it again" half of the report - the half the user has to act on.
     const user = userEvent.setup({ delay: null })
     const onSuccess = vi.fn()
-    const onError = vi.fn()
-    const onPartial = vi.fn()
-    renderModal({ onSuccess, onError, onPartial })
+    const onClose = vi.fn()
+    renderModal({ onSuccess, onClose })
 
     await confirmBucketName(user)
     await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
 
     const [, callbacks] = mockMutate.mock.calls[0]
-    callbacks.onSuccess({
-      errors: [{ key: "b.txt", code: "NoCurrentVersion", message: "No version flagged as current" }],
-      deletedCount: 12,
-      errorCount: 1,
-      isPartial: true,
+    act(() => {
+      callbacks.onSuccess({
+        errors: [{ key: "b.txt", code: "NoCurrentVersion", message: "No version flagged as current" }],
+        deletedCount: 12,
+        errorCount: 1,
+        isPartial: true,
+      })
     })
 
     expect(onSuccess).not.toHaveBeenCalled()
-    expect(onError).not.toHaveBeenCalled()
-    expect(onPartial).toHaveBeenCalledWith(testBucket.name, {
-      deletedCount: 12,
-      errorCount: 1,
-      errors: [{ key: "b.txt", code: "NoCurrentVersion", message: "No version flagged as current" }],
-      incomplete: true,
-    })
+    expect(onClose).not.toHaveBeenCalled()
+    const outcomeMessage = screen.getByTestId("delete-versions-outcome")
+    expect(outcomeMessage).toHaveTextContent("b.txt")
+    expect(outcomeMessage).toHaveTextContent(/Run Delete Versions again/)
   })
 
   test("reports a partial result, not a failure, when nothing was deleted but the scan stopped early", async () => {
     // Zero deletions alone is not proof of a clean failure: if the scan never reached the end,
-    // the bucket still has to be reprocessed, so routing this to onError would drop the only
-    // actionable part of the message.
+    // the bucket still has to be reprocessed, so this must not render as the error title.
     const user = userEvent.setup({ delay: null })
     const onSuccess = vi.fn()
-    const onError = vi.fn()
-    const onPartial = vi.fn()
-    renderModal({ onSuccess, onError, onPartial })
+    const onClose = vi.fn()
+    renderModal({ onSuccess, onClose })
 
     await confirmBucketName(user)
     await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
 
     const [, callbacks] = mockMutate.mock.calls[0]
-    callbacks.onSuccess({
-      errors: [{ key: "b.txt", code: "TooManyVersions", message: "Key has too many versions" }],
-      deletedCount: 0,
-      errorCount: 1,
-      isPartial: true,
+    act(() => {
+      callbacks.onSuccess({
+        errors: [{ key: "b.txt", code: "TooManyVersions", message: "Key has too many versions" }],
+        deletedCount: 0,
+        errorCount: 1,
+        isPartial: true,
+      })
     })
 
-    expect(onError).not.toHaveBeenCalled()
-    expect(onPartial).toHaveBeenCalledWith(testBucket.name, expect.objectContaining({ incomplete: true }))
+    expect(screen.queryByText("Failed to Delete Versions")).not.toBeInTheDocument()
+    expect(screen.getByText("Versions Partially Deleted")).toBeInTheDocument()
+  })
+
+  test("reports a plain error when the mutation itself fails", async () => {
+    const user = userEvent.setup({ delay: null })
+    const onSuccess = vi.fn()
+    const onClose = vi.fn()
+    renderModal({ onSuccess, onClose })
+
+    await confirmBucketName(user)
+    await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
+
+    const [, callbacks] = mockMutate.mock.calls[0]
+    act(() => {
+      callbacks.onError({ message: "Network error" })
+    })
+
+    expect(onSuccess).not.toHaveBeenCalled()
+    expect(onClose).not.toHaveBeenCalled()
+    expect(screen.getByText("Failed to Delete Versions")).toBeInTheDocument()
+    expect(screen.getByTestId("delete-versions-outcome")).toHaveTextContent("Network error")
+  })
+
+  test("keeps the Delete Versions button live after a failed run so retrying needs no extra step", async () => {
+    const user = userEvent.setup({ delay: null })
+    renderModal()
+
+    await confirmBucketName(user)
+    await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
+
+    const [, callbacks] = mockMutate.mock.calls[0]
+    act(() => {
+      callbacks.onError({ message: "Network error" })
+    })
+
+    expect(screen.getByRole("button", { name: /Delete Versions/i })).not.toBeDisabled()
+  })
+
+  test("the outcome Message is an accessible live region", async () => {
+    const user = userEvent.setup({ delay: null })
+    renderModal()
+
+    await confirmBucketName(user)
+    await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
+
+    const [, callbacks] = mockMutate.mock.calls[0]
+    act(() => {
+      callbacks.onError({ message: "Network error" })
+    })
+
+    const outcomeMessage = screen.getByTestId("delete-versions-outcome")
+    expect(outcomeMessage).toHaveAttribute("role", "alert")
+    expect(outcomeMessage).toHaveAttribute("aria-live", "assertive")
+  })
+
+  test("clears the previous outcome once the user resubmits", async () => {
+    const user = userEvent.setup({ delay: null })
+    renderModal()
+
+    await confirmBucketName(user)
+    await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
+
+    const [, firstCallbacks] = mockMutate.mock.calls[0]
+    act(() => {
+      firstCallbacks.onError({ message: "Network error" })
+    })
+
+    expect(screen.getByTestId("delete-versions-outcome")).toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
+
+    expect(screen.queryByTestId("delete-versions-outcome")).not.toBeInTheDocument()
+  })
+
+  test("disables Cancel and the close button while the mutation is in flight", () => {
+    mockMutationState.isPending = true
+    renderModal()
+
+    expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled()
+    expect(screen.getByRole("button", { name: /close/i })).toBeDisabled()
+  })
+
+  test("ignores Escape while the mutation is in flight", async () => {
+    // juno's Modal gates its Esc handler on `closeable && closeOnEsc` alone - it never looks at
+    // `disableCancelButton` / `disableCloseButton`. Without `closeOnEsc={!isPending}` one keypress
+    // would still discard the outcome report those two props exist to protect.
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    mockMutationState.isPending = true
+    renderModal({ onClose })
+
+    await user.keyboard("{Escape}")
+
+    expect(onClose).not.toHaveBeenCalled()
+  })
+
+  test("closes on Escape when no mutation is in flight", async () => {
+    // The counterpart to the case above: proves the Esc path is genuinely wired up, so the test
+    // above is checking a guard rather than a key that never worked here in the first place.
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    renderModal({ onClose })
+
+    await user.keyboard("{Escape}")
+
+    expect(onClose).toHaveBeenCalled()
   })
 
   test("refreshes the deleted-content indicators, which this mutation is the biggest mover of", () => {
@@ -347,12 +443,24 @@ describe("DeleteVersionsModal", () => {
 
     expect(mockInvalidateDeletedContent).toHaveBeenCalledTimes(1)
   })
+
+  test("does not close the modal when the mutation settles", () => {
+    // Closing used to be unconditional in `onSettled`. Now only a clean success closes the
+    // modal - a failed or partial run has to stay open to report itself.
+    const onClose = vi.fn()
+    renderModal({ onClose })
+
+    mutationOptions.onSettled?.()
+
+    expect(onClose).not.toHaveBeenCalled()
+  })
 })
 
 describe("DeleteVersionsModal - Analytics tracking", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     mockOnTrackEvent.mockClear()
+    mockMutationState.isPending = false
     await act(async () => {
       i18n.activate("en")
     })
@@ -394,6 +502,9 @@ describe("DeleteVersionsModal - Analytics tracking", () => {
     expect(mockOnClose).toHaveBeenCalled()
   })
 
+  // After a failed submission, `markSubmitted()` has already run, so a manual close at that
+  // point correctly does not re-track `.close` - the user did submit. Not a bug, just a
+  // consequence of tracking submission rather than outcome.
   test("does not track .close event on successful submit", async () => {
     const user = userEvent.setup({ delay: null })
     renderModal()

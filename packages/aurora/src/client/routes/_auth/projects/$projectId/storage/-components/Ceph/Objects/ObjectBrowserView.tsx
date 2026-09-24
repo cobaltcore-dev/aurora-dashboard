@@ -32,6 +32,11 @@ import { SuspendVersioningModal } from "../Buckets/SuspendVersioningModal"
 import { BucketPolicyModal } from "../Buckets/BucketPolicyModal"
 import { DeleteBucketPolicyModal } from "../Buckets/DeleteBucketPolicyModal"
 import { EmptyBucketModal } from "../Buckets/EmptyBucketModal"
+import {
+  getBucketEmptiedToast,
+  getBucketDeletedToast,
+  getBucketDeleteErrorToast,
+} from "../Buckets/BucketToastNotifications"
 import { DeleteBucketModal } from "../Buckets/DeleteBucketModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
@@ -995,11 +1000,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         onClose={() => setIsEmptyBucketModalOpen(false)}
         onSuccess={(bucketName, deletedCount) => {
           setIsEmptyBucketModalOpen(false)
-          toast.success(t`Successfully emptied bucket "${bucketName}". ${deletedCount} objects deleted.`)
-        }}
-        onError={(bucketName, errorMessage) => {
-          setIsEmptyBucketModalOpen(false)
-          toast.error(t`Failed to empty bucket "${bucketName}": ${errorMessage}`)
+          const { message, ...options } = getBucketEmptiedToast(bucketName, deletedCount)
+          toast.success(message, options)
         }}
       />
 
@@ -1012,7 +1014,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         }}
         onClose={() => setIsDeleteBucketModalOpen(false)}
         onSuccess={(bucketName) => {
-          toast.success(t`Successfully deleted bucket "${bucketName}".`)
+          const { message, ...options } = getBucketDeletedToast(bucketName)
+          toast.success(message, options)
           // Navigate back to buckets list
           navigate({
             to: "/projects/$projectId/storage/$provider/$storageType",
@@ -1024,7 +1027,8 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
           })
         }}
         onError={(bucketName, errorMessage) => {
-          toast.error(t`Failed to delete bucket "${bucketName}": ${errorMessage}`)
+          const { message, ...options } = getBucketDeleteErrorToast(bucketName, errorMessage)
+          toast.error(message, options)
         }}
       />
     </div>

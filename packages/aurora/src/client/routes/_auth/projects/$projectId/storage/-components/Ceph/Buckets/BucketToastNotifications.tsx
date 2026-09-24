@@ -1,8 +1,6 @@
 import { ReactNode } from "react"
 import { NotificationOptions } from "@cloudoperators/juno-ui-components"
 import { Trans, Plural } from "@lingui/react/macro"
-import type { DeleteObjectError } from "@/server/Storage/types/ceph"
-import { formatBulkDeleteErrors } from "../Objects/utils/bulkDeleteErrors"
 
 type ToastReturnType = { message: ReactNode } & NotificationOptions
 
@@ -34,15 +32,6 @@ export const getBucketEmptiedToast = (bucketName: string, deletedCount: number):
         Bucket "{bucketName}" was successfully emptied. {deletedCount} objects deleted.
       </Trans>
     ),
-})
-
-export const getBucketEmptyErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
-  message: <Trans>Failed to Empty Bucket</Trans>,
-  description: (
-    <Trans>
-      Could not empty bucket "{bucketName}": {errorMessage}
-    </Trans>
-  ),
 })
 
 export const getBucketDeletedToast = (bucketName: string): ToastReturnType => ({
@@ -163,91 +152,6 @@ export const getVersionsDeletedToast = (bucketName: string, deletedCount: number
       </Trans>
     ),
 })
-
-export const getVersionsDeleteErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
-  message: <Trans>Failed to Delete Versions</Trans>,
-  description: (
-    <Trans>
-      Could not delete versions from bucket "{bucketName}": {errorMessage}
-    </Trans>
-  ),
-})
-
-/**
- * A run of `deleteNonCurrentVersions` that neither failed outright nor completed cleanly.
- *
- * `errorCount` and `incomplete` are independent, not alternatives: the server records a
- * per-key error *and* sets `isPartial` for every key it had to skip (NoCurrentVersion,
- * MissingVersionId, TooManyVersions), so the two co-occur in the most ordinary partial run.
- * Both have to reach the user - the error list tells them what to look at, `incomplete`
- * tells them the operation has to be run again.
- */
-export interface PartialVersionDeleteOutcome {
-  deletedCount: number
-  errorCount: number
-  /** Itemised failures; the server caps this at MAX_REPORTED_DELETE_ERRORS while errorCount stays exact. */
-  errors: DeleteObjectError[]
-  /** The scan stopped before the end of the bucket, so non-current versions may survive. */
-  incomplete: boolean
-}
-
-/** Itemised failures spelled out in the toast before it collapses the rest into a count. */
-const MAX_LISTED_DELETE_ERRORS = 3
-
-export const getVersionsPartiallyDeletedToast = (
-  bucketName: string,
-  outcome: PartialVersionDeleteOutcome
-): ToastReturnType => {
-  const { deletedCount, errorCount, errors, incomplete } = outcome
-  const listedErrors = errors.slice(0, MAX_LISTED_DELETE_ERRORS)
-  const listed = formatBulkDeleteErrors(listedErrors)
-  const unlisted = errorCount - listedErrors.length
-
-  return {
-    message: <Trans>Versions Partially Deleted</Trans>,
-    description: (
-      <>
-        <Trans>
-          Deleted {deletedCount} <Plural value={deletedCount} one="version" other="versions" /> from bucket "
-          {bucketName}".
-        </Trans>{" "}
-        {errorCount > 0 &&
-          (listedErrors.length > 0 ? (
-            <>
-              <Trans>
-                {errorCount} <Plural value={errorCount} one="item" other="items" /> could not be deleted: {listed}
-              </Trans>{" "}
-            </>
-          ) : (
-            <>
-              <Trans>
-                {errorCount} <Plural value={errorCount} one="item" other="items" /> could not be deleted.
-              </Trans>{" "}
-            </>
-          ))}
-        {unlisted > 0 && (
-          <>
-            <Trans>
-              {unlisted} further <Plural value={unlisted} one="failure is" other="failures are" /> not listed here.
-            </Trans>{" "}
-          </>
-        )}
-        {incomplete && (
-          <Trans>
-            The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again.
-          </Trans>
-        )}
-      </>
-    ),
-    // A stable id so re-running - which is exactly what this toast asks for - replaces the
-    // previous report instead of stacking another one that never goes away.
-    id: `versions-partial-${bucketName}`,
-    // duration: Infinity — this toast asks the user to run the action again. The 4s default
-    // is not enough to read it, let alone act on it. Dismissed by the user, not by a timer
-    // (same reasoning as the object-download toast in Objects/stores/objectDownloadStore.ts).
-    duration: Infinity,
-  }
-}
 
 // ── CORS configuration operations ──────────────────────────────────────────
 

@@ -1679,9 +1679,6 @@ msgstr "{failedCount} von {totalCount} Image(s) konnten nicht gelöscht werden. 
 msgid "Failed to Delete Bucket"
 msgstr ""
 
-msgid "Failed to delete bucket \"{bucketName}\": {errorMessage}"
-msgstr ""
-
 msgid "Failed to Delete Container"
 msgstr "Fehler beim Löschen des Containers"
 
@@ -1749,9 +1746,6 @@ msgid "Failed to Download Object"
 msgstr "Fehler beim Herunterladen des Objekts"
 
 msgid "Failed to Empty Bucket"
-msgstr ""
-
-msgid "Failed to empty bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
 msgid "Failed to Empty Container"
@@ -3506,16 +3500,10 @@ msgstr ""
 msgid "Successfully deleted {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich gelöscht"
 
-msgid "Successfully deleted bucket \"{bucketName}\"."
-msgstr ""
-
 msgid "Successfully emptied {emptiedCount} {emptiedCount, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}."
 msgstr ""
 
 msgid "Successfully emptied {emptiedCount} of {totalBuckets} {totalBuckets, plural, one {bucket} other {buckets}}, deleting {totalDeleted} {totalDeleted, plural, one {object} other {objects}}. {errorsLength} {errorsLength, plural, one {bucket} other {buckets}} failed."
-msgstr ""
-
-msgid "Successfully emptied bucket \"{bucketName}\". {deletedCount} objects deleted."
 msgstr ""
 
 msgid "Suggested Images"

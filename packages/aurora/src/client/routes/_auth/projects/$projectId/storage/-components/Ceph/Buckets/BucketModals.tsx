@@ -20,10 +20,7 @@ import {
   getBucketPolicyDeletedToast,
   getBucketPolicyDeleteErrorToast,
   getVersionsDeletedToast,
-  getVersionsDeleteErrorToast,
-  getVersionsPartiallyDeletedToast,
   getBucketEmptiedToast,
-  getBucketEmptyErrorToast,
   getBucketDeletedToast,
   getBucketDeleteErrorToast,
 } from "./BucketToastNotifications"
@@ -169,11 +166,6 @@ export const BucketModals = ({ bucketName, provider, activeModal, onClose }: Buc
           toast.success(message, options)
           onClose()
         }}
-        onError={(bucketName, errorMessage) => {
-          const { message, ...options } = getBucketEmptyErrorToast(bucketName, errorMessage)
-          toast.error(message, options)
-          onClose()
-        }}
       />
 
       {/*
@@ -212,16 +204,6 @@ export const BucketModals = ({ bucketName, provider, activeModal, onClose }: Buc
         onSuccess={(bucketName, deletedCount) => {
           const { message, ...options } = getVersionsDeletedToast(bucketName, deletedCount)
           toast.success(message, options)
-          onClose()
-        }}
-        onError={(bucketName, errorMessage) => {
-          const { message, ...options } = getVersionsDeleteErrorToast(bucketName, errorMessage)
-          toast.error(message, options)
-          onClose()
-        }}
-        onPartial={(bucketName, outcome) => {
-          const { message, ...options } = getVersionsPartiallyDeletedToast(bucketName, outcome)
-          toast.warning(message, options)
           onClose()
         }}
       />

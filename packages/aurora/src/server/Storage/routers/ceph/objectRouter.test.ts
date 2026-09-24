@@ -1576,6 +1576,62 @@ describe("objects.deleteNonCurrentVersions", () => {
     consoleErrorSpy.mockRestore()
   })
 
+  it("processes a key that overflows the buffer only on its final page", async () => {
+    // A fully-read group is processed by the size of the key, not the size of the buffer -
+    // the S3_MAX_BUFFERED_VERSIONS_PER_KEY check only guards what is carried between pages
+    // (`pendingItems`), and that check is never run against a group on its last page (the
+    // `if (response.IsTruncated ...)` branch simply isn't entered). 20 truncated pages carry
+    // exactly S3_MAX_BUFFERED_VERSIONS_PER_KEY (20 000) records forward without ever exceeding
+    // the limit; the 21st, final page merges one more page's worth on top (21 000 total) and is
+    // processed whole because it is no longer truncated.
+    const pagesToCarryTheLimit = S3_MAX_BUFFERED_VERSIONS_PER_KEY / S3_MAX_KEYS_PER_REQUEST
+    let listCall = 0
+    mockSend.mockImplementation((command) => {
+      if (command.input?.Delete) {
+        return Promise.resolve({ Deleted: command.input.Delete.Objects, Errors: [] })
+      }
+      listCall++
+      if (listCall <= pagesToCarryTheLimit) {
+        return Promise.resolve({
+          Versions: Array.from({ length: S3_MAX_KEYS_PER_REQUEST }, (_, i) => ({
+            Key: "hot-key",
+            VersionId: `v-${listCall}-${i}`,
+            IsLatest: false,
+          })),
+          DeleteMarkers: [],
+          IsTruncated: true,
+          NextKeyMarker: "hot-key",
+          NextVersionIdMarker: `v-${listCall}-last`,
+        })
+      }
+      // Final page: not truncated, so the buffer check never runs against the merged group.
+      // One record is flagged IsLatest so the group resolves to a normal version (not a
+      // delete marker), keeping it out of NoCurrentVersion territory.
+      return Promise.resolve({
+        Versions: Array.from({ length: S3_MAX_KEYS_PER_REQUEST }, (_, i) => ({
+          Key: "hot-key",
+          VersionId: `v-final-${i}`,
+          IsLatest: i === 0,
+        })),
+        DeleteMarkers: [],
+        IsTruncated: false,
+      })
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.errors.some((error) => error.code === "TooManyVersions")).toBe(false)
+    expect(result.isPartial).toBe(false)
+    // 21 000 records merged, minus the one flagged IsLatest that is kept as the current version.
+    expect(result.deletedCount).toBe(20_999)
+  })
+
   it("does nothing when the bucket has no non-current versions or delete markers", async () => {
     mockSend.mockResolvedValueOnce({
       Versions: [],
