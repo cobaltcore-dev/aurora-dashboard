@@ -3705,10 +3705,10 @@ msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr ""
 
 msgid "There are no buckets available in this project."
-msgstr ""
+msgstr "Für dieses Projekt sind keine Buckets verfügbar."
 
 msgid "There are no containers available in this project."
-msgstr ""
+msgstr "Für dieses Projekt sind keine Container verfügbar."
 
 msgid "There Are No CORS Rules for This Bucket"
 msgstr ""

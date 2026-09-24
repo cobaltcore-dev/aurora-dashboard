@@ -404,7 +404,7 @@ export const SwiftContainers = () => {
             </div>
             {/* ARIA live region for screen readers */}
             <div className="sr-only" aria-live="polite" aria-atomic="true">
-              {searchParam ? (
+              {searchParam?.trim() ? (
                 <Plural
                   value={totalCount}
                   one={`Found ${totalCount} container matching "${searchParam}"`}
