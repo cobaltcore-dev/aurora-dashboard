@@ -196,10 +196,9 @@ export const BucketModals = ({ bucketName, provider, activeModal, onClose }: Buc
 
       {/*
         DeleteVersionsModal receives a placeholder bucket object with count: 0, bytes: 0.
-        This is intentional - the modal fetches real-time bucket state (versions, delete markers)
-        via its own queries when opened. The placeholder only provides the bucket name for
-        API calls and UI display. This ensures the modal always shows fresh data and avoids
-        stale metadata from the parent component.
+        Unlike EmptyBucketModal/DeleteBucketModal above, it doesn't query anything itself -
+        it unconditionally scans and cleans up the whole bucket's version history on submit.
+        The placeholder only provides the bucket name for the mutation and the confirmation UI.
       */}
       <DeleteVersionsModal
         isOpen={activeModal === "deleteVersions"}

@@ -24,7 +24,6 @@ describe("BucketHeaderActions", () => {
     versioningStatus: { status: "Suspended" as const },
     hasPolicy: true,
     hasOldVersionsOrDeleteMarkers: true,
-    isBucketEmpty: false,
     onOpenModal: vi.fn(),
     canUpdateVersioning: true,
     canUpdatePolicy: true,
@@ -155,11 +154,25 @@ describe("BucketHeaderActions", () => {
     expect(screen.queryByText("Delete Policy")).not.toBeInTheDocument()
   })
 
-  it("hides Empty Bucket when isBucketEmpty is true", async () => {
-    render(<BucketHeaderActions {...defaultProps} isBucketEmpty={true} />, { wrapper: Wrapper })
+  it("shows Empty Bucket regardless of bucket state — it is permission-gated only", async () => {
+    // canEmptyBucket alone decides visibility now; the modal itself has a live
+    // "already empty" branch, so row-level gating on stale/partial data is not needed here.
+    render(<BucketHeaderActions {...defaultProps} hasOldVersionsOrDeleteMarkers={false} />, {
+      wrapper: Wrapper,
+    })
     await openMenu()
 
-    expect(screen.queryByText("Empty Bucket")).not.toBeInTheDocument()
-    expect(screen.getByText("Delete Bucket")).toBeInTheDocument()
+    expect(screen.getByText("Empty Bucket")).toBeInTheDocument()
+  })
+
+  it("hides Delete Versions when no old versions or delete markers are confirmed", async () => {
+    // Fail-closed by design: the action permanently deletes current objects too, so an
+    // unconfirmed/partial bucket scan must never be what makes it appear.
+    render(<BucketHeaderActions {...defaultProps} hasOldVersionsOrDeleteMarkers={false} />, {
+      wrapper: Wrapper,
+    })
+    await openMenu()
+
+    expect(screen.queryByText("Delete Versions")).not.toBeInTheDocument()
   })
 })

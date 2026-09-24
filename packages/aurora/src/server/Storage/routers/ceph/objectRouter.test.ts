@@ -4,6 +4,7 @@ import { Readable } from "node:stream"
 import { objectRouter } from "./objectRouter"
 import { createCallerFactory, auroraRouter } from "../../../trpc"
 import { createMockContext, TEST_PROJECT_ID } from "./mockContext"
+import { S3_MAX_BUFFERED_VERSIONS_PER_KEY, S3_MAX_KEYS_PER_REQUEST } from "../../constants"
 
 // ============================================================================
 // MOCK AWS SDK S3 CLIENT
@@ -1242,6 +1243,429 @@ describe("objects.deleteVersionsBulk", () => {
     // Second 500 are reported as errors
     expect(result.errorCount).toBe(500)
     expect(result.errors.every((e) => e.code === "RequestFailed")).toBe(true)
+  })
+})
+
+// ============================================================================
+// objects.deleteNonCurrentVersions
+// ============================================================================
+
+describe("objects.deleteNonCurrentVersions", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("keeps the current version and deletes only old versions for a key with history", async () => {
+    // Single page, single key: v3 is current, v2/v1 are old.
+    mockSend.mockResolvedValueOnce({
+      Versions: [
+        { Key: "a.txt", VersionId: "v3", IsLatest: true },
+        { Key: "a.txt", VersionId: "v2", IsLatest: false },
+        { Key: "a.txt", VersionId: "v1", IsLatest: false },
+      ],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+    mockSend.mockResolvedValueOnce({
+      Deleted: [
+        { Key: "a.txt", VersionId: "v2" },
+        { Key: "a.txt", VersionId: "v1" },
+      ],
+      Errors: [],
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.deletedCount).toBe(2)
+    expect(result.errorCount).toBe(0)
+    expect(mockSend).toHaveBeenCalledTimes(2)
+    expect(mockSend.mock.calls[1][0].input.Delete.Objects).toEqual([
+      { Key: "a.txt", VersionId: "v2" },
+      { Key: "a.txt", VersionId: "v1" },
+    ])
+  })
+
+  it("deletes the entire group, including the marker, when the current record is a delete marker", async () => {
+    mockSend.mockResolvedValueOnce({
+      Versions: [{ Key: "b.txt", VersionId: "v1", IsLatest: false }],
+      DeleteMarkers: [{ Key: "b.txt", VersionId: "dm1", IsLatest: true }],
+      IsTruncated: false,
+    })
+    mockSend.mockResolvedValueOnce({
+      Deleted: [
+        { Key: "b.txt", VersionId: "v1" },
+        { Key: "b.txt", VersionId: "dm1", DeleteMarker: true },
+      ],
+      Errors: [],
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.deletedCount).toBe(2)
+    expect(result.errorCount).toBe(0)
+    const deletedKeys = mockSend.mock.calls[1][0].input.Delete.Objects
+    expect(deletedKeys).toEqual(
+      expect.arrayContaining([
+        { Key: "b.txt", VersionId: "v1" },
+        { Key: "b.txt", VersionId: "dm1" },
+      ])
+    )
+    expect(deletedKeys).toHaveLength(2)
+  })
+
+  it("does not resurrect a deleted object whose oldest version arrives on the next page", async () => {
+    // Key "k" has DM(latest), V2, V1 - but V1 only arrives on page 2 because the
+    // page boundary fell in the middle of this key's version history. A naive
+    // implementation would delete DM+V2 right after page 1 and then see V1 come
+    // back on page 2 already re-flagged IsLatest=true by S3, "saving" it. This
+    // implementation must defer the last group of a truncated page and only
+    // decide once the whole key has been seen - so all three must be deleted.
+    mockSend.mockResolvedValueOnce({
+      Versions: [{ Key: "k", VersionId: "v2", IsLatest: false }],
+      DeleteMarkers: [{ Key: "k", VersionId: "dm", IsLatest: true }],
+      IsTruncated: true,
+      NextKeyMarker: "k",
+      NextVersionIdMarker: "v2",
+    })
+    // Nothing was deleted after page 1 (correctly deferred), so v1 genuinely
+    // still is not latest when page 2 is fetched.
+    mockSend.mockResolvedValueOnce({
+      Versions: [{ Key: "k", VersionId: "v1", IsLatest: false }],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+    mockSend.mockResolvedValueOnce({
+      Deleted: [
+        { Key: "k", VersionId: "v2" },
+        { Key: "k", VersionId: "dm", DeleteMarker: true },
+        { Key: "k", VersionId: "v1" },
+      ],
+      Errors: [],
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    // Exactly 2 list pages, then exactly 1 delete call - proving nothing was
+    // deleted between page 1 and page 2.
+    expect(mockSend).toHaveBeenCalledTimes(3)
+    expect(mockSend.mock.calls[2][0].input.Delete.Objects).toEqual(
+      expect.arrayContaining([
+        { Key: "k", VersionId: "v2" },
+        { Key: "k", VersionId: "dm" },
+        { Key: "k", VersionId: "v1" },
+      ])
+    )
+    expect(mockSend.mock.calls[2][0].input.Delete.Objects).toHaveLength(3)
+    expect(result.deletedCount).toBe(3)
+    expect(result.errorCount).toBe(0)
+  })
+
+  it("defers the key S3 continues on, not the one that happens to sort last locally", async () => {
+    // S3 orders keys by raw byte value, so "A" comes before "a" and the key that
+    // continues onto page 2 is "a" (NextKeyMarker says so). Locale collation
+    // orders these the other way round, so an implementation that re-sorts with
+    // localeCompare would hold back "A" and act on "a" while half of its history
+    // is still unread - the exact resurrection this deferral exists to prevent.
+    mockSend.mockResolvedValueOnce({
+      Versions: [
+        { Key: "A", VersionId: "upper-v2", IsLatest: true },
+        { Key: "A", VersionId: "upper-v1", IsLatest: false },
+        { Key: "a", VersionId: "lower-v2", IsLatest: false },
+      ],
+      DeleteMarkers: [{ Key: "a", VersionId: "lower-dm", IsLatest: true }],
+      IsTruncated: true,
+      NextKeyMarker: "a",
+      NextVersionIdMarker: "lower-v2",
+    })
+    mockSend.mockResolvedValueOnce({
+      Deleted: [{ Key: "A", VersionId: "upper-v1" }],
+      Errors: [],
+    })
+    mockSend.mockResolvedValueOnce({
+      Versions: [{ Key: "a", VersionId: "lower-v1", IsLatest: false }],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+    mockSend.mockResolvedValueOnce({
+      Deleted: [
+        { Key: "a", VersionId: "lower-dm", DeleteMarker: true },
+        { Key: "a", VersionId: "lower-v2" },
+        { Key: "a", VersionId: "lower-v1" },
+      ],
+      Errors: [],
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    // Page 1 may only act on "A", which is complete: its old version goes, its
+    // current version stays.
+    expect(mockSend.mock.calls[1][0].input.Delete.Objects).toEqual([{ Key: "A", VersionId: "upper-v1" }])
+    // "a" is only decided after page 2, and then goes entirely - marker included.
+    expect(mockSend.mock.calls[3][0].input.Delete.Objects).toEqual(
+      expect.arrayContaining([
+        { Key: "a", VersionId: "lower-dm" },
+        { Key: "a", VersionId: "lower-v2" },
+        { Key: "a", VersionId: "lower-v1" },
+      ])
+    )
+    expect(mockSend.mock.calls[3][0].input.Delete.Objects).toHaveLength(3)
+    expect(result.deletedCount).toBe(4)
+  })
+
+  it("skips an entry that has no VersionId instead of issuing a version-less delete", async () => {
+    // A DeleteObjects entry without VersionId creates a new delete marker on a
+    // versioned bucket rather than removing anything, which would hide a live
+    // object. S3 always reports a VersionId, so this only guards a malformed
+    // response - but the safe direction is to skip.
+    mockSend.mockResolvedValueOnce({
+      Versions: [
+        { Key: "k", VersionId: "v2", IsLatest: true },
+        { Key: "k", VersionId: undefined, IsLatest: false },
+        { Key: "k", VersionId: "v1", IsLatest: false },
+      ],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+    mockSend.mockResolvedValueOnce({
+      Deleted: [{ Key: "k", VersionId: "v1" }],
+      Errors: [],
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(mockSend.mock.calls[1][0].input.Delete.Objects).toEqual([{ Key: "k", VersionId: "v1" }])
+  })
+
+  it("still deletes the last key's old versions when a truncated page carries no NextKeyMarker", async () => {
+    // The deferral guard must mirror the loop's exit condition: a page marked
+    // IsTruncated but missing NextKeyMarker ends the scan, so deferring its
+    // last key-group would drop those versions silently - never deleted, never
+    // reported in `errors`, and the mutation would still resolve as a success.
+    // Malformed per the S3 spec, but Ceph RGW is not AWS.
+    mockSend.mockResolvedValueOnce({
+      Versions: [
+        { Key: "k", VersionId: "v2", IsLatest: true },
+        { Key: "k", VersionId: "v1", IsLatest: false },
+      ],
+      DeleteMarkers: [],
+      IsTruncated: true,
+      NextKeyMarker: undefined,
+    })
+    mockSend.mockResolvedValueOnce({
+      Deleted: [{ Key: "k", VersionId: "v1" }],
+      Errors: [],
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(mockSend.mock.calls[1][0].input.Delete.Objects).toEqual([{ Key: "k", VersionId: "v1" }])
+    expect(mockSend.mock.calls[1][0].input.Delete.Objects).toEqual([{ Key: "k", VersionId: "v1" }])
+    expect(result.deletedCount).toBe(1)
+    // Stopping there was right, but the bucket was not walked to its end.
+    expect(result.isPartial).toBe(true)
+  })
+
+  it("keeps every version of a key group that has no record flagged as current", async () => {
+    // S3 always flags exactly one record per key as IsLatest, and the cross-page deferral is what
+    // guarantees a group is whole before it is judged. If that record is missing anyway, the old
+    // code read it as "this key has no current version" and queued the whole group - the live
+    // object included - for deletion by explicit VersionId, which leaves no delete marker to
+    // restore from. The safe direction for an unreadable group is to touch none of it.
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    mockSend.mockResolvedValueOnce({
+      Versions: [
+        { Key: "k", VersionId: "v2", IsLatest: false },
+        { Key: "k", VersionId: "v1", IsLatest: false },
+      ],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    // The listing call and nothing else - no DeleteObjects was issued at all.
+    expect(mockSend).toHaveBeenCalledTimes(1)
+    expect(result.deletedCount).toBe(0)
+    expect(result.errorCount).toBe(1)
+    expect(result.errors[0]).toMatchObject({ key: "k", code: "NoCurrentVersion" })
+    expect(result.isPartial).toBe(true)
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it("abandons a key whose versions overflow the buffer instead of accumulating them", async () => {
+    // Judging a key group needs the whole group in memory at once, so a key that spans pages is
+    // buffered until it ends. A key rewritten hundreds of thousands of times would otherwise let
+    // one tenant grow the shared BFF's heap without bound.
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    const pagesToOverflow = Math.ceil(S3_MAX_BUFFERED_VERSIONS_PER_KEY / S3_MAX_KEYS_PER_REQUEST) + 1
+    let call = 0
+    mockSend.mockImplementation(() => {
+      call++
+      if (call > pagesToOverflow) {
+        return Promise.resolve({ Versions: [], DeleteMarkers: [], IsTruncated: false })
+      }
+      return Promise.resolve({
+        Versions: Array.from({ length: S3_MAX_KEYS_PER_REQUEST }, (_, i) => ({
+          Key: "hot-key",
+          VersionId: `v-${call}-${i}`,
+          IsLatest: false,
+        })),
+        DeleteMarkers: [],
+        IsTruncated: true,
+        NextKeyMarker: "hot-key",
+        NextVersionIdMarker: `v-${call}-last`,
+      })
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.errors.some((error) => error.code === "TooManyVersions")).toBe(true)
+    expect(result.isPartial).toBe(true)
+    // Abandoned, not guessed at: nothing belonging to that key was deleted.
+    expect(result.deletedCount).toBe(0)
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it("does nothing when the bucket has no non-current versions or delete markers", async () => {
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [],
+      IsTruncated: false,
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.deletedCount).toBe(0)
+    expect(result.errorCount).toBe(0)
+    // Only the listing call - no DeleteObjects call was needed.
+    expect(mockSend).toHaveBeenCalledTimes(1)
+  })
+
+  it("stops without throwing when the request is aborted mid-scan", async () => {
+    const controller = new AbortController()
+    mockSend.mockImplementationOnce(() => {
+      controller.abort()
+      return Promise.resolve({
+        Versions: [{ Key: "a.txt", VersionId: "v2", IsLatest: false }],
+        DeleteMarkers: [],
+        IsTruncated: true,
+        NextKeyMarker: "a.txt",
+        NextVersionIdMarker: "v2",
+      })
+    })
+
+    const ctx = createMockContext({ abortSignal: controller.signal })
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.deletedCount).toBe(0)
+    expect(result.errorCount).toBe(0)
+    // Exactly 1 listing call - the abort was observed before fetching page 2
+    // (and the single returned group was deferred as a truncated page's last
+    // group, so no delete was attempted either).
+    expect(mockSend).toHaveBeenCalledTimes(1)
+  })
+
+  it("surfaces errorCount when DeleteObjects partially fails", async () => {
+    mockSend.mockResolvedValueOnce({
+      Versions: [
+        { Key: "a.txt", VersionId: "v2", IsLatest: true },
+        { Key: "a.txt", VersionId: "v1", IsLatest: false },
+      ],
+      DeleteMarkers: [{ Key: "b.txt", VersionId: "dm1", IsLatest: true }],
+      IsTruncated: false,
+    })
+    mockSend.mockResolvedValueOnce({
+      Deleted: [{ Key: "a.txt", VersionId: "v1" }],
+      Errors: [{ Key: "b.txt", VersionId: "dm1", Code: "AccessDenied", Message: "Access Denied" }],
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.deletedCount).toBe(1)
+    expect(result.errorCount).toBe(1)
+    expect(result.errors[0]).toMatchObject({ key: "b.txt", versionId: "dm1", code: "AccessDenied" })
+  })
+
+  it("maps AccessDenied from the version scan to FORBIDDEN", async () => {
+    const s3Error = Object.assign(new Error("Access Denied"), { Code: "AccessDenied" })
+    mockSend.mockRejectedValue(s3Error)
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.objects.deleteNonCurrentVersions({
+        project_id: TEST_PROJECT_ID,
+        containerName: TEST_BUCKET_NAME,
+      })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" })
   })
 })
 

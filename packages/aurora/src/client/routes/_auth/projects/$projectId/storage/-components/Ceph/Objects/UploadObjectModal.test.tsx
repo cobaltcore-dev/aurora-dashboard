@@ -40,6 +40,19 @@ vi.mock("@/client/trpcClient", () => ({
               invalidate: mockInvalidate,
             },
           },
+          containers: {
+            list: {
+              invalidate: mockInvalidate,
+            },
+            getState: {
+              invalidate: mockInvalidate,
+            },
+          },
+          versioning: {
+            checkDeletedContent: {
+              invalidate: mockInvalidate,
+            },
+          },
         },
       },
     }),

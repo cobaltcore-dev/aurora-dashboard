@@ -4,7 +4,9 @@ import {
   DeleteBucketCommand,
   HeadBucketCommand,
   ListObjectsV2Command,
+  ListObjectVersionsCommand,
   PutBucketVersioningCommand,
+  GetBucketVersioningCommand,
 } from "@aws-sdk/client-s3"
 import { cephProtectedProcedure, cephProcedure } from "../../cephProcedure"
 import { mapS3ErrorToTRPCError } from "../../helpers/s3ErrorMapper"
@@ -15,11 +17,14 @@ import {
   createBucketInputSchema,
   deleteBucketInputSchema,
   headBucketInputSchema,
+  bucketStateInputSchema,
+  bucketStateOutputSchema,
   type Bucket,
   type S3Status,
   type CreateBucketOutput,
+  type BucketState,
 } from "../../types/ceph"
-import { S3_MAX_KEYS_PER_REQUEST } from "../../constants"
+import { S3_MAX_KEYS_PER_REQUEST, S3_MAX_SCAN_PAGES } from "../../constants"
 
 export const containerRouter = {
   status: cephProcedure.input(projectScopedInputSchema).query(async ({ ctx }): Promise<S3Status> => {
@@ -155,6 +160,156 @@ export const containerRouter = {
         bucket: bucketName,
       })
     }
+  }),
+
+  /**
+   * Authoritative bucket emptiness/version state.
+   *
+   * Replaces three separate client-side probes (`useBucketInfo`, `DeleteBucketModal`,
+   * `EmptyBucketModal`) that each read only the first page of `objects.list` and derived
+   * `isBucketEmpty`/`hasOldVersionsOrDeleteMarkers` from it — silently wrong for buckets whose
+   * first 100 (or 1000) entries don't tell the whole story.
+   *
+   * Cost, honestly:
+   *  - unversioned bucket: **exactly two** requests, whatever its size. Without a version
+   *    history there is nothing to scan, so both history flags are false by definition.
+   *  - versioned bucket with both an old version (or delete marker) and a surviving real
+   *    version: **three** — one page settles both history flags and the scan stops.
+   *  - versioned bucket whose history is clean: the scan has nothing to find and no way to know
+   *    that early, so it runs to the end of the bucket or to `S3_MAX_SCAN_PAGES`.
+   *  - versioned bucket holding *only* delete markers, with no surviving non-current version —
+   *    what a `NoncurrentVersionExpiration` lifecycle rule leaves behind once it has expired the
+   *    real versions: same cost as the clean-history shape, and for the same reason. The scan
+   *    sees `hasOldVersionsOrDeleteMarkers` on page one but can only prove `hasOnlyDeleteMarkers`
+   *    by reaching the end, since any later page could still hold a real version.
+   *
+   * The last two are the shapes that cost real round-trips. Both are bounded, and in both the
+   * scan is doing work that has an answer to produce — it is not spinning to re-learn something
+   * already known. Callers that force `staleTime: 0` (the two destructive modals, deliberately)
+   * pay it on every open.
+   *
+   * `isEmpty` is deliberately established by its own one-key `ListObjectsV2` rather than by the
+   * scan: that command lists current objects only, so it answers emptiness exactly, in one
+   * request, on a bucket of any size. That matters beyond speed — emptiness gates "Delete
+   * Bucket", and deriving it from a scan that may be truncated left large buckets permanently
+   * unconfirmable and therefore permanently undeletable, with a "refresh and try again" that
+   * could never succeed.
+   *
+   * Versioning status is read from S3 here, not taken from client input, so the answer can't be
+   * computed against a stale client-cached status. It is also returned raw as `status`, so a
+   * caller needing the three-way value has no reason to issue a second `GetBucketVersioning`
+   * against `versioning.getStatus` alongside this call.
+   *
+   * @throws TRPCError NOT_FOUND - bucket does not exist
+   * @throws TRPCError FORBIDDEN - no credentials or access denied
+   */
+  getState: cephProtectedProcedure.input(bucketStateInputSchema).query(async ({ ctx, input }): Promise<BucketState> => {
+    const s3 = ctx.getCephClient()
+    const { bucketName } = input
+    let status: "Enabled" | "Suspended" | "Unversioned"
+    let isVersioningEnabled: boolean
+    let isEmpty: boolean
+    try {
+      const [versioningResponse, currentObjectsResponse] = await Promise.all([
+        s3.send(new GetBucketVersioningCommand({ Bucket: bucketName }), { abortSignal: ctx.req.signal }),
+        s3.send(new ListObjectsV2Command({ Bucket: bucketName, MaxKeys: 1 }), { abortSignal: ctx.req.signal }),
+      ])
+      status = (versioningResponse.Status as "Enabled" | "Suspended" | undefined) ?? "Unversioned"
+      isVersioningEnabled = status === "Enabled" || status === "Suspended"
+      isEmpty = (currentObjectsResponse.KeyCount ?? currentObjectsResponse.Contents?.length ?? 0) === 0
+    } catch (error) {
+      console.error("getState: failed to read bucket versioning status or emptiness", {
+        bucket: bucketName,
+        error,
+      })
+      throw mapS3ErrorToTRPCError(error, { operation: "get bucket state", bucket: bucketName })
+    }
+
+    if (!isVersioningEnabled) {
+      return bucketStateOutputSchema.parse({
+        status,
+        isVersioningEnabled: false,
+        isEmpty,
+        hasOnlyDeleteMarkers: false,
+        hasOldVersionsOrDeleteMarkers: false,
+        isPartialScan: false,
+      })
+    }
+
+    let hasOldVersionOrDeleteMarker = false
+    let hasRealVersion = false
+    let anyEntrySeen = false
+    let keyMarker: string | undefined
+    let versionIdMarker: string | undefined
+    let pages = 0
+    let isPartialScan = false
+
+    while (true) {
+      if (ctx.req.signal?.aborted) {
+        isPartialScan = true
+        break
+      }
+
+      let response
+      try {
+        response = await s3.send(
+          new ListObjectVersionsCommand({
+            Bucket: bucketName,
+            MaxKeys: S3_MAX_KEYS_PER_REQUEST,
+            KeyMarker: keyMarker,
+            VersionIdMarker: versionIdMarker,
+          }),
+          { abortSignal: ctx.req.signal }
+        )
+      } catch (error) {
+        if (ctx.req.signal?.aborted) {
+          isPartialScan = true
+          break
+        }
+        console.error("getState: version scan failed", { bucket: bucketName, pages, error })
+        throw mapS3ErrorToTRPCError(error, { operation: "get bucket state", bucket: bucketName })
+      }
+
+      for (const v of response.Versions ?? []) {
+        anyEntrySeen = true
+        hasRealVersion = true
+        if (!v.IsLatest) {
+          hasOldVersionOrDeleteMarker = true
+        }
+      }
+
+      if ((response.DeleteMarkers?.length ?? 0) > 0) {
+        anyEntrySeen = true
+        hasOldVersionOrDeleteMarker = true
+      }
+
+      pages++
+
+      if (hasOldVersionOrDeleteMarker && hasRealVersion) {
+        break
+      }
+
+      if (!response.IsTruncated || !response.NextKeyMarker) {
+        break
+      }
+
+      if (pages >= S3_MAX_SCAN_PAGES) {
+        isPartialScan = true
+        break
+      }
+
+      keyMarker = response.NextKeyMarker
+      versionIdMarker = response.NextVersionIdMarker
+    }
+
+    return bucketStateOutputSchema.parse({
+      status,
+      isVersioningEnabled,
+      isEmpty,
+      hasOnlyDeleteMarkers: !isPartialScan && anyEntrySeen && !hasRealVersion,
+      hasOldVersionsOrDeleteMarkers: hasOldVersionOrDeleteMarker,
+      isPartialScan,
+    })
   }),
 
   /**

@@ -5,6 +5,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { validateFolderName } from "./utils/objectValidation"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 interface CreateFolderModalProps {
   bucketName: string
@@ -41,10 +42,7 @@ export function CreateFolderModal({ bucketName, currentPrefix, isOpen, onClose, 
 
   const createFolderMutation = trpcReact.storage.ceph.objects.createFolder.useMutation({
     onSuccess: (_data, variables) => {
-      // Invalidate all object list queries to refresh the view
-      utils.storage.ceph.objects.list.invalidate()
-      // Invalidate bucket list to update object count
-      utils.storage.ceph.containers.list.invalidate()
+      invalidateBucketQueries(utils)
       // Use the exact path that was submitted (with trailing slash for display)
       const submittedFullPath = variables.folderPath.endsWith("/") ? variables.folderPath : `${variables.folderPath}/`
       onSuccess(submittedFullPath)

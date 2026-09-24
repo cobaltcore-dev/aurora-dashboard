@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server"
 import { containerRouter } from "./containerRouter"
 import { createCallerFactory, auroraRouter } from "../../../trpc"
 import { createMockContext, TEST_PROJECT_ID } from "./mockContext"
+import { S3_MAX_SCAN_PAGES } from "../../constants"
 
 // ============================================================================
 // MOCK AWS SDK S3 CLIENT
@@ -297,6 +298,286 @@ describe("buckets.create", () => {
         project_id: TEST_PROJECT_ID,
         bucketName: TEST_BUCKET_NAME,
         enableVersioning: false,
+      })
+    ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN", message: "NO_CEPH_CREDENTIALS" }))
+  })
+})
+
+// ============================================================================
+// buckets.getState
+// ============================================================================
+
+describe("buckets.getState", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  /**
+   * getState opens with two parallel requests, issued in this order: GetBucketVersioning, then a
+   * one-key ListObjectsV2 that answers emptiness exactly. Only after those does the version scan
+   * (if any) start, so every mocked scan page comes third or later.
+   */
+  const mockOpeningCalls = ({ status, isEmpty }: { status?: string; isEmpty: boolean }) => {
+    mockSend.mockResolvedValueOnce({ Status: status, $metadata: { httpStatusCode: 200 } })
+    mockSend.mockResolvedValueOnce({
+      KeyCount: isEmpty ? 0 : 1,
+      Contents: isEmpty ? [] : [{ Key: "a.txt" }],
+      $metadata: { httpStatusCode: 200 },
+    })
+  }
+
+  it("early-exits on the first page once an old version and a real version are both seen", async () => {
+    mockOpeningCalls({ status: "Enabled", isEmpty: false })
+    mockSend.mockResolvedValueOnce({
+      Versions: [
+        { Key: "a.txt", VersionId: "v2", IsLatest: true },
+        { Key: "a.txt", VersionId: "v1", IsLatest: false },
+      ],
+      DeleteMarkers: [],
+      IsTruncated: true,
+      NextKeyMarker: "a.txt",
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.getState({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.status).toBe("Enabled")
+    expect(result.isVersioningEnabled).toBe(true)
+    expect(result.isPartialScan).toBe(false)
+    expect(result.hasOldVersionsOrDeleteMarkers).toBe(true)
+    expect(result.isEmpty).toBe(false)
+    // 2 opening calls + exactly 1 listing page, even though IsTruncated is still true
+    expect(mockSend).toHaveBeenCalledTimes(3)
+  })
+
+  it("reports the raw three-way versioning status, so no caller needs a second GetBucketVersioning", async () => {
+    // "Suspended" is the case that makes this worth returning: `isVersioningEnabled` covers it
+    // together with "Enabled", but the bucket header renders a different badge for each, and it
+    // used to pay a separate `versioning.getStatus` round-trip to tell them apart.
+    mockOpeningCalls({ status: "Suspended", isEmpty: false })
+    mockSend.mockResolvedValueOnce({
+      Versions: [
+        { Key: "a.txt", VersionId: "v2", IsLatest: true },
+        { Key: "a.txt", VersionId: "v1", IsLatest: false },
+      ],
+      DeleteMarkers: [],
+      IsTruncated: false,
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.getState({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.status).toBe("Suspended")
+    // A suspended bucket keeps whatever history it accumulated while enabled, so it is still
+    // scanned - the two flags below are the proof that it was.
+    expect(result.isVersioningEnabled).toBe(true)
+    expect(result.hasOldVersionsOrDeleteMarkers).toBe(true)
+  })
+
+  it("detects a bucket with only delete markers", async () => {
+    mockOpeningCalls({ status: "Enabled", isEmpty: true })
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [{ Key: "a.txt", VersionId: "dm-1", IsLatest: true }],
+      IsTruncated: false,
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.getState({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.isEmpty).toBe(true)
+    expect(result.hasOnlyDeleteMarkers).toBe(true)
+    expect(result.hasOldVersionsOrDeleteMarkers).toBe(true)
+    expect(result.isPartialScan).toBe(false)
+  })
+
+  it("skips the version scan entirely on an unversioned bucket, whatever its size", async () => {
+    // An unversioned bucket cannot hold a non-current version or a delete marker, so both
+    // history flags are false by definition and there is nothing for a scan to discover.
+    // Paging through its current objects only re-learns what ListObjectsV2 already answered.
+    mockOpeningCalls({ status: undefined, isEmpty: false })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.getState({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+    })
+
+    // S3 omits Status entirely for a bucket where versioning was never configured.
+    expect(result.status).toBe("Unversioned")
+    expect(result.isVersioningEnabled).toBe(false)
+    expect(result.isEmpty).toBe(false)
+    expect(result.hasOldVersionsOrDeleteMarkers).toBe(false)
+    expect(result.hasOnlyDeleteMarkers).toBe(false)
+    expect(result.isPartialScan).toBe(false)
+    // Exactly the two opening calls - no ListObjectVersions at all.
+    expect(mockSend).toHaveBeenCalledTimes(2)
+  })
+
+  it("reports emptiness exactly even when the version scan is cut short", async () => {
+    // Regression: emptiness used to be derived from the same bounded scan as the history flags,
+    // so a bucket too large to scan came back "not fully checked" on every field. DeleteBucketModal
+    // blocks on isPartialScan, so such a bucket became permanently undeletable, with a "refresh and
+    // try again" that could never succeed. ListObjectsV2 settles emptiness in one request instead.
+    mockOpeningCalls({ status: "Enabled", isEmpty: true })
+    let call = 0
+    mockSend.mockImplementation(() => {
+      call++
+      return Promise.resolve({
+        Versions: [{ Key: `k-${call}`, VersionId: "v1", IsLatest: true }],
+        DeleteMarkers: [],
+        IsTruncated: true,
+        NextKeyMarker: `k-${call}`,
+        $metadata: { httpStatusCode: 200 },
+      })
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.getState({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.isPartialScan).toBe(true)
+    // Unaffected by the truncated scan - it has its own, exact source.
+    expect(result.isEmpty).toBe(true)
+  })
+
+  it("does not claim a bucket holds only delete markers when the scan was cut short", async () => {
+    // Seeing nothing but delete markers across a truncated scan cannot distinguish "there are no
+    // real versions" from "the real versions are on a page we never read". EmptyBucketModal treats
+    // hasOnlyDeleteMarkers as "already emptied", so the unknown has to collapse to false.
+    mockOpeningCalls({ status: "Enabled", isEmpty: true })
+    let call = 0
+    mockSend.mockImplementation(() => {
+      call++
+      return Promise.resolve({
+        Versions: [],
+        DeleteMarkers: [{ Key: `k-${call}`, VersionId: "dm", IsLatest: true }],
+        IsTruncated: true,
+        NextKeyMarker: `k-${call}`,
+        $metadata: { httpStatusCode: 200 },
+      })
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.getState({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.isPartialScan).toBe(true)
+    expect(result.hasOnlyDeleteMarkers).toBe(false)
+    // The one thing a truncated scan did prove stays true.
+    expect(result.hasOldVersionsOrDeleteMarkers).toBe(true)
+  })
+
+  it("stops at the page ceiling without resolving the history flags", async () => {
+    mockOpeningCalls({ status: "Enabled", isEmpty: true })
+    let call = 0
+    mockSend.mockImplementation(() => {
+      call++
+      return Promise.resolve({
+        Versions: [],
+        DeleteMarkers: [],
+        IsTruncated: true,
+        NextKeyMarker: `key-${call}`,
+        $metadata: { httpStatusCode: 200 },
+      })
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.getState({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.isPartialScan).toBe(true)
+    expect(result.isEmpty).toBe(true)
+    // 2 opening calls + S3_MAX_SCAN_PAGES listing calls
+    expect(mockSend).toHaveBeenCalledTimes(S3_MAX_SCAN_PAGES + 2)
+  })
+
+  it("stops without throwing when the request is aborted mid-scan", async () => {
+    mockOpeningCalls({ status: "Enabled", isEmpty: false })
+    const controller = new AbortController()
+    mockSend.mockImplementationOnce(() => {
+      controller.abort()
+      return Promise.resolve({
+        Versions: [],
+        DeleteMarkers: [],
+        IsTruncated: true,
+        NextKeyMarker: "next",
+        $metadata: { httpStatusCode: 200 },
+      })
+    })
+
+    const ctx = createMockContext({ abortSignal: controller.signal })
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.getState({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.isPartialScan).toBe(true)
+    // 2 opening calls + exactly 1 listing page before the abort is observed
+    expect(mockSend).toHaveBeenCalledTimes(3)
+  })
+
+  it("maps AccessDenied from the version scan to FORBIDDEN and logs it", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    mockOpeningCalls({ status: "Enabled", isEmpty: false })
+    mockSend.mockRejectedValueOnce(Object.assign(new Error("Access denied"), { Code: "AccessDenied" }))
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.containers.getState({
+        project_id: TEST_PROJECT_ID,
+        bucketName: TEST_BUCKET_NAME,
+      })
+    ).rejects.toMatchObject({ code: "FORBIDDEN" })
+    expect(consoleErrorSpy).toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it("throws FORBIDDEN when no credentials exist", async () => {
+    const ctx = createMockContext({ hasCredentials: false })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.ceph.containers.getState({
+        project_id: TEST_PROJECT_ID,
+        bucketName: TEST_BUCKET_NAME,
       })
     ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN", message: "NO_CEPH_CREDENTIALS" }))
   })

@@ -113,12 +113,65 @@ export const headBucketInputSchema = projectScopedInputSchema.extend({
   bucketName: existingBucketNameSchema,
 })
 
+/**
+ * Authoritative bucket emptiness/version state, computed server-side by a single bounded scan
+ * (`containerRouter.getState`) — replaces three separate client-side probes that each only
+ * looked at the first page of `objects.list`.
+ */
+export const bucketStateInputSchema = projectScopedInputSchema.extend({
+  bucketName: existingBucketNameSchema,
+})
+
+export const bucketStateOutputSchema = z.object({
+  /**
+   * Raw versioning status, straight from `GetBucketVersioning` — the same value
+   * `versioning.getStatus` reports.
+   *
+   * Exposed here so a caller that needs to tell "Suspended" from "Unversioned" (the bucket
+   * header renders a different badge for each) does not have to issue a second
+   * `GetBucketVersioning` alongside this one. `isVersioningEnabled` below is the collapsed
+   * form most callers actually want.
+   */
+  status: z.enum(["Enabled", "Suspended", "Unversioned"]),
+  isVersioningEnabled: z.boolean(),
+  /**
+   * No current (non-delete-marker) objects. Always exact, never affected by `isPartialScan`:
+   * it comes from a dedicated one-key `ListObjectsV2`, which by definition lists only current
+   * objects and omits delete markers, so "no keys returned" *is* emptiness.
+   *
+   * Deliberately a boolean, not a count - no caller ever needed more than the yes/no, and a
+   * one-key probe has no count to give.
+   */
+  isEmpty: z.boolean(),
+  /**
+   * Every key in the bucket is hidden behind a delete marker: versioning is on, the scan saw
+   * entries, and none of them was a real (non-delete-marker) version.
+   *
+   * Forced to `false` under `isPartialScan`, because a truncated scan that happened to see only
+   * delete markers cannot tell "no real versions exist" from "no real versions yet".
+   */
+  hasOnlyDeleteMarkers: z.boolean(),
+  /** At least one non-current version or delete marker exists. Reliable when true. */
+  hasOldVersionsOrDeleteMarkers: z.boolean(),
+  /**
+   * True when the version-history scan hit the page ceiling (or was aborted) before it could
+   * rule the history flags in either direction.
+   *
+   * It says nothing about `isEmpty` or `isVersioningEnabled`, which are established by their own
+   * single requests. Of the two flags it does cover, `hasOldVersionsOrDeleteMarkers: true`
+   * remains reliable - finding one such entry is proof - while `false` means "none found so
+   * far", and `hasOnlyDeleteMarkers` is forced to `false` outright.
+   */
+  isPartialScan: z.boolean(),
+})
+
 // ============================================================================
 // BUCKET TYPES
 // ============================================================================
 
 export type Bucket = z.infer<typeof containerSchema>
 export type CreateBucketOutput = z.infer<typeof createBucketOutputSchema>
+export type BucketState = z.infer<typeof bucketStateOutputSchema>
 
 // ============================================================================
 // S3 STATUS SCHEMAS
@@ -244,6 +297,18 @@ export const deleteVersionsBulkInputSchema = projectScopedInputSchema.extend({
     .max(10000), // UI limit before server-side chunking (S3 limit is 1000 per request)
 })
 
+/**
+ * Input schema for deleting every non-current version and delete marker in a
+ * bucket, while keeping each key's current live version intact (the "Delete
+ * Versions" bucket action). See objectRouter.deleteNonCurrentVersions.
+ *
+ * Unlike deleteVersionsBulk, the caller doesn't enumerate versions - the whole
+ * bucket is scanned server-side - so the input is just the bucket name.
+ */
+export const deleteNonCurrentVersionsInputSchema = projectScopedInputSchema.extend({
+  containerName: existingBucketNameSchema,
+})
+
 /** One key S3 reported as deleted. Mirrors the SDK's DeletedObject shape. */
 export const deletedObjectSchema = z.object({
   key: z.string(),
@@ -270,6 +335,33 @@ export const deleteObjectsBulkOutputSchema = z.object({
   errors: z.array(deleteObjectErrorSchema),
   deletedCount: z.number().int().nonnegative(),
   errorCount: z.number().int().nonnegative(),
+})
+
+/**
+ * Result of `objects.deleteNonCurrentVersions`.
+ *
+ * Deliberately NOT `deleteObjectsBulkOutputSchema`: that shape carries a `deleted`
+ * entry per key, which suits the bulk procedures (the caller enumerated the keys,
+ * so the list is bounded by its own input) but not this one, which scans the whole
+ * bucket. A bucket with a million non-current versions would have sent back a
+ * million-element array that the only consumer never reads. Counts carry the same
+ * information for a per-bucket wipe.
+ *
+ * `errors` is capped at MAX_REPORTED_DELETE_ERRORS entries for the same reason;
+ * `errorCount` stays exact, so the UI can say "N failed" while listing a sample.
+ */
+export const deleteNonCurrentVersionsOutputSchema = z.object({
+  errors: z.array(deleteObjectErrorSchema),
+  deletedCount: z.number().int().nonnegative(),
+  errorCount: z.number().int().nonnegative(),
+  /**
+   * The scan did not reach the end of the bucket, so non-current versions may
+   * survive. Set when the request was aborted or when S3 returned a truncated
+   * page without a continuation marker. The counts remain accurate for what was
+   * actually deleted - this flag only denies that the wipe was exhaustive, which
+   * a bare success count would otherwise imply.
+   */
+  isPartial: z.boolean(),
 })
 
 /**
@@ -357,9 +449,11 @@ export type S3ObjectDetails = z.infer<typeof s3ObjectDetailsSchema>
 export type CopyObjectOutput = z.infer<typeof copyObjectOutputSchema>
 export type DeleteObjectsBulkInput = z.infer<typeof deleteObjectsBulkInputSchema>
 export type DeleteVersionsBulkInput = z.infer<typeof deleteVersionsBulkInputSchema>
+export type DeleteNonCurrentVersionsInput = z.infer<typeof deleteNonCurrentVersionsInputSchema>
 export type DeletedObject = z.infer<typeof deletedObjectSchema>
 export type DeleteObjectError = z.infer<typeof deleteObjectErrorSchema>
 export type DeleteObjectsBulkOutput = z.infer<typeof deleteObjectsBulkOutputSchema>
+export type DeleteNonCurrentVersionsOutput = z.infer<typeof deleteNonCurrentVersionsOutputSchema>
 
 // ============================================================================
 // SERVICE INFO SCHEMAS (CLUSTER LIMITS & CAPABILITIES)

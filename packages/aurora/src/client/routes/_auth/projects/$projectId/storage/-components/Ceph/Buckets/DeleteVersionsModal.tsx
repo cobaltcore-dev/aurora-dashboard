@@ -5,6 +5,8 @@ import { Modal, TextInput, Stack } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
+import { formatBulkDeleteErrors } from "../Objects/utils/bulkDeleteErrors"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 interface DeleteVersionsModalProps {
   isOpen: boolean
@@ -27,11 +29,9 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
 
   const utils = trpcReact.useUtils()
 
-  const deleteVersionsMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
+  const deleteVersionsMutation = trpcReact.storage.ceph.objects.deleteNonCurrentVersions.useMutation({
     onSettled: () => {
-      // Invalidate both containers.list (to update bucket metadata) and objects.list (to refresh empty state)
-      utils.storage.ceph.containers.list.invalidate()
-      utils.storage.ceph.objects.list.invalidate()
+      invalidateBucketQueries(utils)
       handleClose()
     },
   })
@@ -63,16 +63,37 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
     // Capture bucket name before async operation to avoid dereferencing null bucket in callbacks
     const bucketName = bucket.name
 
-    // Always delete all versions and delete markers (includeVersionsAndDeleteMarkers: true)
     deleteVersionsMutation.mutate(
       {
         project_id: projectId,
         containerName: bucketName,
-        includeVersionsAndDeleteMarkers: true,
       },
       {
-        onSuccess: (deletedCount) => {
-          onSuccess?.(bucketName, deletedCount)
+        onSuccess: (result) => {
+          // S3's DeleteObjects can fail some keys while succeeding on others in the
+          // same HTTP 200 response (see deleteObjectsBulkOutputSchema) - treat any
+          // failure as an error rather than reporting a silent partial success.
+          if (result.errorCount > 0) {
+            const { errorCount } = result
+            const errorMessage =
+              result.errors.length > 0
+                ? formatBulkDeleteErrors(result.errors)
+                : t`${errorCount} item(s) could not be deleted`
+            onError?.(bucketName, errorMessage)
+            return
+          }
+          // The scan stopped before the end of the bucket (aborted, or a malformed truncated
+          // page), so versions may survive. Reporting the count alone would read as a completed
+          // wipe - the same "incomplete presented as complete" this branch removed elsewhere.
+          if (result.isPartial) {
+            const { deletedCount } = result
+            onError?.(
+              bucketName,
+              t`Deleted ${deletedCount} version(s), but the bucket was not processed completely. Some non-current versions may remain — run Delete Versions again.`
+            )
+            return
+          }
+          onSuccess?.(bucketName, result.deletedCount)
         },
         onError: (error) => {
           onError?.(bucketName, error.message)
@@ -102,8 +123,9 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
       <Stack direction="vertical" gap="6">
         <p className="text-theme-default m-0">
           <Trans>
-            This action will permanently delete all versions and delete markers. This will enable you to delete the
-            bucket. This action cannot be undone.
+            This action will permanently delete all non-current versions and delete markers in this bucket. Each
+            object's current version is kept, so nothing visible changes. Objects that are currently deleted will be
+            fully removed and can no longer be restored from the Deleted tab afterwards. This action cannot be undone.
           </Trans>
         </p>
 

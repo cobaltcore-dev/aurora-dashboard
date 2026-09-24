@@ -43,7 +43,15 @@ type MutationOptions = {
   onSettled?: () => void
 }
 
-const { mockInvalidate, mockMutate, mockReset, mockState, mockVersioningState, mockVersionCheckState } = vi.hoisted(
+interface MockBucketState {
+  isVersioningEnabled: boolean
+  isEmpty: boolean
+  hasOnlyDeleteMarkers: boolean
+  hasOldVersionsOrDeleteMarkers: boolean
+  isPartialScan: boolean
+}
+
+const { mockInvalidate, mockMutate, mockReset, mockState, mockVersioningState, mockBucketStateQuery } = vi.hoisted(
   () => {
     const mockState = {
       mutationError: null as string | null,
@@ -55,12 +63,14 @@ const { mockInvalidate, mockMutate, mockReset, mockState, mockVersioningState, m
       isLoading: false,
       error: null as { message: string } | null,
     }
-    const mockVersionCheckState = {
+    const mockBucketStateQuery = {
       data: {
-        versions: [] as { isLatest: boolean; isDeleteMarker: boolean }[],
-        objects: [] as unknown[],
-        folders: [] as unknown[],
-      },
+        isVersioningEnabled: false,
+        isEmpty: false,
+        hasOnlyDeleteMarkers: false,
+        hasOldVersionsOrDeleteMarkers: false,
+        isPartialScan: false,
+      } as MockBucketState,
       isLoading: false,
       error: null as { message: string } | null,
     }
@@ -80,7 +90,7 @@ const { mockInvalidate, mockMutate, mockReset, mockState, mockVersioningState, m
       mockReset: vi.fn(),
       mockState,
       mockVersioningState,
-      mockVersionCheckState,
+      mockBucketStateQuery,
     }
   }
 )
@@ -90,8 +100,9 @@ vi.mock("@/client/trpcClient", () => ({
     useUtils: () => ({
       storage: {
         ceph: {
-          containers: { list: { invalidate: mockInvalidate } },
+          containers: { list: { invalidate: mockInvalidate }, getState: { invalidate: mockInvalidate } },
           objects: { list: { invalidate: mockInvalidate } },
+          versioning: { checkDeletedContent: { invalidate: mockInvalidate } },
         },
       },
     }),
@@ -106,14 +117,16 @@ vi.mock("@/client/trpcClient", () => ({
             }),
           },
         },
-        objects: {
-          list: {
+        containers: {
+          getState: {
             useQuery: () => ({
-              data: mockVersionCheckState.data,
-              isLoading: mockVersionCheckState.isLoading,
-              error: mockVersionCheckState.error,
+              data: mockBucketStateQuery.data,
+              isLoading: mockBucketStateQuery.isLoading,
+              error: mockBucketStateQuery.error,
             }),
           },
+        },
+        objects: {
           deleteAll: {
             useMutation: (options: MutationOptions) => {
               mockState.capturedOptions = options ?? {}
@@ -178,10 +191,16 @@ describe("EmptyBucketModal", () => {
     mockVersioningState.error = null
     // Default to the mockNonEmptyBucket case (the default `bucket` in renderModal): the modal
     // no longer trusts bucket.count (list-cache metadata), so tests relying on a non-empty
-    // bucket must reflect that via live version-check data instead.
-    mockVersionCheckState.data = { versions: [{ isLatest: true, isDeleteMarker: false }], objects: [], folders: [] }
-    mockVersionCheckState.isLoading = false
-    mockVersionCheckState.error = null
+    // bucket must reflect that via live bucket-state data instead.
+    mockBucketStateQuery.data = {
+      isVersioningEnabled: false,
+      isEmpty: false,
+      hasOnlyDeleteMarkers: false,
+      hasOldVersionsOrDeleteMarkers: false,
+      isPartialScan: false,
+    }
+    mockBucketStateQuery.isLoading = false
+    mockBucketStateQuery.error = null
     await act(async () => {
       i18n.activate("en")
     })
@@ -206,9 +225,9 @@ describe("EmptyBucketModal", () => {
 
   describe("Warning message", () => {
     test("shows warning message when stale metadata says empty but live check finds objects", () => {
-      // bucket.count === 0 but the live objects.list query still reports a current object
+      // bucket.count === 0 but the live bucket-state query still reports a current object
       // (stale-cache / race scenario) — the modal must fall through to the normal flow
-      mockVersionCheckState.data = { versions: [{ isLatest: true, isDeleteMarker: false }], objects: [], folders: [] }
+      mockBucketStateQuery.data = { ...mockBucketStateQuery.data, isEmpty: false }
       renderModal({ bucket: mockEmptyBucket })
       expect(screen.getByText(/This action will permanently delete all objects/)).toBeInTheDocument()
       expect(screen.getByText(/This action cannot be undone/)).toBeInTheDocument()
@@ -232,14 +251,14 @@ describe("EmptyBucketModal", () => {
     })
 
     test("still shows confirmation input when metadata says empty but live check finds objects", () => {
-      // bucket.count === 0 but the live objects.list query still reports a current object
-      mockVersionCheckState.data = { versions: [{ isLatest: true, isDeleteMarker: false }], objects: [], folders: [] }
+      // bucket.count === 0 but the live bucket-state query still reports a current object
+      mockBucketStateQuery.data = { ...mockBucketStateQuery.data, isEmpty: false }
       renderModal({ bucket: mockEmptyBucket })
       expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeInTheDocument()
     })
 
     test("allows emptying bucket when count is 0 but live check finds objects", () => {
-      mockVersionCheckState.data = { versions: [{ isLatest: true, isDeleteMarker: false }], objects: [], folders: [] }
+      mockBucketStateQuery.data = { ...mockBucketStateQuery.data, isEmpty: false }
       renderModal({ bucket: mockEmptyBucket })
       expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).toBeInTheDocument()
     })
@@ -277,7 +296,13 @@ describe("EmptyBucketModal", () => {
 
   describe("Truly empty bucket (isTrulyEmpty)", () => {
     test("shows info-only view when bucket metadata and live check both report empty", () => {
-      mockVersionCheckState.data = { versions: [], objects: [], folders: [] }
+      mockBucketStateQuery.data = {
+        isVersioningEnabled: false,
+        isEmpty: true,
+        hasOnlyDeleteMarkers: false,
+        hasOldVersionsOrDeleteMarkers: false,
+        isPartialScan: false,
+      }
       const onClose = vi.fn()
       renderModal({ bucket: mockEmptyBucket, onClose })
 
@@ -288,7 +313,13 @@ describe("EmptyBucketModal", () => {
     })
 
     test("Close button calls onClose", async () => {
-      mockVersionCheckState.data = { versions: [], objects: [], folders: [] }
+      mockBucketStateQuery.data = {
+        isVersioningEnabled: false,
+        isEmpty: true,
+        hasOnlyDeleteMarkers: false,
+        hasOldVersionsOrDeleteMarkers: false,
+        isPartialScan: false,
+      }
       const user = userEvent.setup({ delay: null })
       const onClose = vi.fn()
       renderModal({ bucket: mockEmptyBucket, onClose })
@@ -300,8 +331,8 @@ describe("EmptyBucketModal", () => {
 
     test("falls through to normal destructive UI when live check finds objects despite stale empty metadata", () => {
       // Simulates the stale-cache/race scenario this fix targets: bucket.count/bytes say
-      // empty, but the live objects.list query still returns a current object.
-      mockVersionCheckState.data = { versions: [{ isLatest: true, isDeleteMarker: false }], objects: [], folders: [] }
+      // empty, but the live bucket-state query still reports a current object.
+      mockBucketStateQuery.data = { ...mockBucketStateQuery.data, isEmpty: false }
       renderModal({ bucket: mockEmptyBucket })
 
       expect(screen.queryByText("This bucket is already empty.")).not.toBeInTheDocument()
@@ -314,6 +345,58 @@ describe("EmptyBucketModal", () => {
 
       expect(screen.queryByText("This bucket is already empty.")).not.toBeInTheDocument()
       expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeInTheDocument()
+    })
+  })
+
+  describe("Partial scan (isPartialScan)", () => {
+    test("shows the normal destructive form — not Delete Versions, not already-empty — when the scan is partial", () => {
+      // Page ceiling hit before the scan could confirm anything: isEmpty/hasOnlyDeleteMarkers
+      // are technically "true" from the raw counters, but isPartialScan must veto both the
+      // "Delete Versions" and "already empty" branches.
+      mockVersioningState.data = { status: "Enabled" }
+      mockBucketStateQuery.data = {
+        isVersioningEnabled: true,
+        isEmpty: true,
+        hasOnlyDeleteMarkers: true,
+        hasOldVersionsOrDeleteMarkers: true,
+        isPartialScan: true,
+      }
+      renderModal({ bucket: mockEmptyBucket })
+
+      expect(screen.getByRole("heading", { name: "Empty Bucket" })).toBeInTheDocument()
+      expect(screen.queryByRole("heading", { name: "Delete Versions" })).not.toBeInTheDocument()
+      expect(screen.queryByText("This bucket is already empty.")).not.toBeInTheDocument()
+      expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Empty Bucket$/i })).toBeInTheDocument()
+    })
+
+    test("shows the Delete Versions branch when the scan is complete and only delete markers remain", async () => {
+      mockVersioningState.data = { status: "Enabled" }
+      mockBucketStateQuery.data = {
+        isVersioningEnabled: true,
+        isEmpty: true,
+        hasOnlyDeleteMarkers: true,
+        hasOldVersionsOrDeleteMarkers: true,
+        isPartialScan: false,
+      }
+      const user = userEvent.setup({ delay: null })
+      renderModal({ bucket: mockEmptyBucket })
+
+      expect(screen.getByRole("heading", { name: "Delete Versions" })).toBeInTheDocument()
+
+      const input = screen.getByLabelText(/Type the bucket name to confirm/i)
+      await user.clear(input)
+      await user.type(input, mockEmptyBucket.name)
+
+      const deleteVersionsButton = screen.getByRole("button", { name: /^Delete Versions$/i })
+      await user.click(deleteVersionsButton)
+
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalledWith(
+          expect.objectContaining({ includeVersionsAndDeleteMarkers: true }),
+          expect.anything()
+        )
+      })
     })
   })
 
@@ -422,7 +505,7 @@ describe("EmptyBucketModal", () => {
       )
     })
 
-    test("invalidates both containers and objects queries on success", async () => {
+    test("invalidates every bucket-scoped query on success, deleted-content indicators included", async () => {
       const user = userEvent.setup({ delay: null })
       renderModal()
 
@@ -435,7 +518,10 @@ describe("EmptyBucketModal", () => {
 
       await waitFor(
         () => {
-          expect(mockInvalidate).toHaveBeenCalledTimes(2)
+          // objects.list, containers.list, containers.getState, versioning.checkDeletedContent.
+          // The fourth matters here: emptying a bucket removes its delete markers, which is
+          // exactly what the deleted-content indicators report.
+          expect(mockInvalidate).toHaveBeenCalledTimes(4)
         },
         { timeout: 3000 }
       )

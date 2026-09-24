@@ -44,6 +44,11 @@ vi.mock("./ObjectsTableView", () => ({
       data-can-restore-version={String(props.canRestoreVersion)}
     >
       Objects Table
+      {(props.folders as Array<{ prefix: string }> | undefined)?.map((folder) => (
+        <div key={folder.prefix} data-testid={`folder-${folder.prefix}`}>
+          {folder.prefix}
+        </div>
+      ))}
     </div>
   ),
 }))
@@ -154,17 +159,7 @@ const mockObjectsData = {
 
 // Mock trpcClient
 vi.mock("@/client/trpcClient", () => {
-  const mockUseQuery = vi.fn((params) => {
-    // Different responses based on query parameters
-    // versionCheckData query has maxKeys: 1 and showVersions: true
-    if (params?.maxKeys === 1 && params?.showVersions === true) {
-      return {
-        data: { objects: [], folders: [], versions: [], isTruncated: false },
-        isLoading: false,
-        error: null,
-        trpc: {},
-      }
-    }
+  const mockUseQuery = vi.fn(() => {
     // Main objects.list query
     return {
       data: mockObjectsData,
@@ -186,6 +181,14 @@ vi.mock("@/client/trpcClient", () => {
       useUtils: vi.fn(() => ({
         storage: {
           ceph: {
+            containers: {
+              list: {
+                invalidate: vi.fn(),
+              },
+              getState: {
+                invalidate: vi.fn(),
+              },
+            },
             objects: {
               list: {
                 invalidate: vi.fn(),
@@ -210,6 +213,20 @@ vi.mock("@/client/trpcClient", () => {
             list: {
               useQuery: vi.fn(() => ({
                 data: [],
+                isLoading: false,
+                error: null,
+                trpc: {},
+              })),
+            },
+            getState: {
+              useQuery: vi.fn(() => ({
+                data: {
+                  isVersioningEnabled: false,
+                  isEmpty: true,
+                  hasOnlyDeleteMarkers: false,
+                  hasOldVersionsOrDeleteMarkers: false,
+                  isPartialScan: false,
+                },
                 isLoading: false,
                 error: null,
                 trpc: {},
@@ -658,12 +675,14 @@ describe("ObjectBrowserView - Folder filtering with versioning", () => {
           hasDeletedContent: false,
           isFolderDeleted: false,
           folderMarkerVersionId: "version-123", // Has a version
+          isPartialScan: false,
         },
         {
           prefix: "deleted-folder/",
           hasDeletedContent: false,
           isFolderDeleted: false,
           folderMarkerVersionId: undefined, // NO versions - permanently deleted
+          isPartialScan: false,
         },
         {
           prefix: "soft-deleted-folder/",
@@ -671,6 +690,7 @@ describe("ObjectBrowserView - Folder filtering with versioning", () => {
           isFolderDeleted: true,
           folderDeleteMarkerVersionId: "delete-marker-456",
           folderMarkerVersionId: "version-789",
+          isPartialScan: false,
         },
       ],
       isLoading: false,
@@ -680,14 +700,37 @@ describe("ObjectBrowserView - Folder filtering with versioning", () => {
 
     render(<ObjectBrowserView bucketName="test-bucket" />)
 
-    // The ObjectsTableView is mocked, so we can't test the actual folder rendering
-    // but the component should receive filtered folders (active-folder only)
-    // deleted-folder should be filtered out (no folderMarkerVersionId)
-    // soft-deleted-folder should be filtered out (isFolderDeleted = true)
-    expect(screen.getByTestId("objects-table")).toBeInTheDocument()
+    expect(screen.getByTestId("folder-active-folder/")).toBeInTheDocument()
+    expect(screen.queryByTestId("folder-deleted-folder/")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("folder-soft-deleted-folder/")).not.toBeInTheDocument()
+  })
+
+  it("asks for the bucket root as an explicit empty prefix, not as no prefix at all", () => {
+    // Regression guard: `prefix: currentPrefix || undefined` collapsed the root to undefined,
+    // which the procedure's input schema reads as "neither prefix nor folders given" and
+    // rejects - silently killing the deleted-content indicators on the default view.
+    vi.mocked(trpcReact.storage.ceph.versioning.getStatus.useQuery).mockReturnValue({
+      data: { status: "Enabled" },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.getStatus.useQuery>)
+
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: { objects: [], folders: [{ prefix: "a-folder/" }], isTruncated: false },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    const [input] = vi.mocked(trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery).mock.calls[0]
+    expect(input).toMatchObject({ bucket: "test-bucket", prefix: "" })
   })
 
   it("shows folders with delete markers in Deleted tab", () => {
+    resetMockSearch({ tab: "deleted" })
     // Mock versioning enabled
     vi.mocked(trpcReact.storage.ceph.versioning.getStatus.useQuery).mockReturnValue({
       data: { status: "Enabled" },
@@ -701,6 +744,7 @@ describe("ObjectBrowserView - Folder filtering with versioning", () => {
       data: {
         objects: [],
         folders: [{ prefix: "deleted-folder/" }],
+        versions: [],
         isTruncated: false,
       },
       isLoading: false,
@@ -717,6 +761,7 @@ describe("ObjectBrowserView - Folder filtering with versioning", () => {
           isFolderDeleted: true,
           folderDeleteMarkerVersionId: "delete-marker-123",
           folderMarkerVersionId: "version-456",
+          isPartialScan: false,
         },
       ],
       isLoading: false,
@@ -727,7 +772,175 @@ describe("ObjectBrowserView - Folder filtering with versioning", () => {
     render(<ObjectBrowserView bucketName="test-bucket" />)
 
     // In Deleted tab, folder with hasDeletedContent=true should be shown
-    expect(screen.getByTestId("objects-table")).toBeInTheDocument()
+    expect(screen.getByTestId("folder-deleted-folder/")).toBeInTheDocument()
+  })
+
+  it("All tab: shows a folder whose scan is partial rather than hiding it (fail-open, high risk)", () => {
+    vi.mocked(trpcReact.storage.ceph.versioning.getStatus.useQuery).mockReturnValue({
+      data: { status: "Enabled" },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.getStatus.useQuery>)
+
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: { objects: [], folders: [{ prefix: "unscanned-folder/" }], isTruncated: false },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+    // Scan hit the page ceiling before reaching this folder: no confirmed marker, not
+    // confirmed deleted either — must NOT be treated as "permanently deleted".
+    vi.mocked(trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery).mockReturnValue({
+      data: [
+        {
+          prefix: "unscanned-folder/",
+          hasDeletedContent: false,
+          isFolderDeleted: false,
+          folderMarkerVersionId: undefined,
+          isPartialScan: true,
+        },
+      ],
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery>)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    expect(screen.getByTestId("folder-unscanned-folder/")).toBeInTheDocument()
+  })
+
+  it("All tab: still hides a folder that is confirmed deleted by a complete scan", () => {
+    vi.mocked(trpcReact.storage.ceph.versioning.getStatus.useQuery).mockReturnValue({
+      data: { status: "Enabled" },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.getStatus.useQuery>)
+
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: { objects: [], folders: [{ prefix: "confirmed-deleted/" }], isTruncated: false },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+    vi.mocked(trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery).mockReturnValue({
+      data: [
+        {
+          prefix: "confirmed-deleted/",
+          hasDeletedContent: true,
+          isFolderDeleted: true,
+          folderDeleteMarkerVersionId: "dm-1",
+          folderMarkerVersionId: "v-1",
+          isPartialScan: false,
+        },
+      ],
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery>)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    expect(screen.queryByTestId("folder-confirmed-deleted/")).not.toBeInTheDocument()
+  })
+
+  it("Deleted tab: a partial scan with no confirmed deleted content is not shown or mislabeled", () => {
+    resetMockSearch({ tab: "deleted" })
+    vi.mocked(trpcReact.storage.ceph.versioning.getStatus.useQuery).mockReturnValue({
+      data: { status: "Enabled" },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.getStatus.useQuery>)
+
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: { objects: [], folders: [{ prefix: "unscanned-folder/" }], versions: [], isTruncated: false },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+    // Regression guard against the rejected "conservative fallback": an unresolved scan must
+    // never be treated as "has deleted content" in the Deleted tab.
+    vi.mocked(trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery).mockReturnValue({
+      data: [
+        {
+          prefix: "unscanned-folder/",
+          hasDeletedContent: false,
+          isFolderDeleted: false,
+          folderMarkerVersionId: undefined,
+          isPartialScan: true,
+        },
+      ],
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery>)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    expect(screen.queryByTestId("folder-unscanned-folder/")).not.toBeInTheDocument()
+  })
+
+  it("sends a stable checkDeletedContent input keyed on prefix, not on the accumulated folder list", () => {
+    vi.mocked(trpcReact.storage.ceph.versioning.getStatus.useQuery).mockReturnValue({
+      data: { status: "Enabled" },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.getStatus.useQuery>)
+
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: {
+        objects: [],
+        folders: [{ prefix: "folder1/" }],
+        isTruncated: true,
+        nextContinuationToken: "next-token",
+      },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    const calls = vi.mocked(trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery).mock.calls
+    expect(calls.length).toBeGreaterThan(0)
+    const inputs = calls.map((call) => call[0])
+    // Every render (including any triggered by "Load more" accumulating allFolders) must call
+    // checkDeletedContent with the exact same input — no `folders` array, no growing payload.
+    inputs.forEach((input) => {
+      expect(input).toEqual(inputs[0])
+      expect(input).not.toHaveProperty("folders")
+      expect(input).toMatchObject({ project_id: "test-project-id", bucket: "test-bucket" })
+    })
+  })
+
+  it("does not send a folders array even with more than 100 folders (no more BAD_REQUEST cap)", () => {
+    vi.mocked(trpcReact.storage.ceph.versioning.getStatus.useQuery).mockReturnValue({
+      data: { status: "Enabled" },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.versioning.getStatus.useQuery>)
+
+    const manyFolders = Array.from({ length: 150 }, (_, i) => ({ prefix: `folder-${i}/` }))
+    vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mockReturnValue({
+      data: { objects: [], folders: manyFolders, isTruncated: false },
+      isLoading: false,
+      error: null,
+      trpc: {},
+    } as ReturnType<typeof trpcReact.storage.ceph.objects.list.useQuery>)
+
+    render(<ObjectBrowserView bucketName="test-bucket" />)
+
+    const calls = vi.mocked(trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery).mock.calls
+    expect(calls.length).toBeGreaterThan(0)
+    expect(calls[calls.length - 1][0]).not.toHaveProperty("folders")
   })
 })
 
@@ -851,10 +1064,11 @@ describe("ObjectBrowserView - state carried across a folder change", () => {
   const TMP_PREFIX = "dG1wLw=="
 
   const lastListQueryInput = () => {
+    // objects.list is called exactly once per render, with maxKeys: 1000 — the bucket-state
+    // probes that used to also call it (useBucketInfo, DeleteBucketModal, EmptyBucketModal)
+    // were migrated to containers.getState, so there's no second call to filter out anymore.
     const calls = vi.mocked(trpcReact.storage.ceph.objects.list.useQuery).mock.calls
-    // The component also runs a probe query with maxKeys: 1; the browse query is the 1000 one.
-    const browseCalls = calls.filter((call) => (call[0] as { maxKeys?: number })?.maxKeys === 1000)
-    return browseCalls[browseCalls.length - 1][0] as { prefix?: string; continuationToken?: string }
+    return calls[calls.length - 1][0] as { prefix?: string; continuationToken?: string }
   }
 
   beforeEach(() => {

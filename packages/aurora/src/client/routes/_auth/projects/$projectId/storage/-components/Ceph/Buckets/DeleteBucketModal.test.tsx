@@ -43,20 +43,27 @@ type DeleteMutationOptions = {
   onSettled?: () => void
 }
 
+interface MockBucketState {
+  isVersioningEnabled: boolean
+  isEmpty: boolean
+  hasOnlyDeleteMarkers: boolean
+  hasOldVersionsOrDeleteMarkers: boolean
+  isPartialScan: boolean
+}
+
 const { mockInvalidate, mockMutate, mockReset, mockState } = vi.hoisted(() => {
   const mockState = {
     mutationError: null as string | null,
     isPending: false,
-    isLoading: false,
-    objectsData: { objects: [], folders: [], isTruncated: false, versions: [] } as {
-      objects: unknown[]
-      folders: unknown[]
-      isTruncated: boolean
-      versions?: unknown[]
-    },
-    objectsError: null as string | null,
-    versioningData: { status: "Unversioned" as "Enabled" | "Suspended" | "Unversioned", mfaDelete: undefined },
-    isLoadingVersioning: false,
+    isLoadingBucketState: false,
+    bucketState: {
+      isVersioningEnabled: false,
+      isEmpty: true,
+      hasOnlyDeleteMarkers: false,
+      hasOldVersionsOrDeleteMarkers: false,
+      isPartialScan: false,
+    } as MockBucketState,
+    bucketStateError: null as string | null,
     capturedOptions: {} as DeleteMutationOptions,
   }
   const mockMutate = vi.fn().mockImplementation((_variables: unknown, options?: DeleteMutationOptions) => {
@@ -88,35 +95,19 @@ vi.mock("@/client/trpcClient", () => ({
     }),
     storage: {
       ceph: {
-        versioning: {
-          getStatus: {
-            useQuery: (_params: unknown, options: { enabled: boolean }) => {
-              if (!options.enabled) {
-                return { data: undefined, isLoading: false, error: null }
-              }
-              return {
-                data: mockState.versioningData,
-                isLoading: mockState.isLoadingVersioning,
-                error: null,
-              }
-            },
-          },
-        },
-        objects: {
-          list: {
-            useQuery: (_params: unknown, options: { enabled: boolean }) => {
-              if (!options.enabled) {
-                return { data: undefined, isLoading: false, error: null }
-              }
-              return {
-                data: mockState.objectsData,
-                isLoading: mockState.isLoading,
-                error: mockState.objectsError ? { message: mockState.objectsError } : null,
-              }
-            },
-          },
-        },
         containers: {
+          getState: {
+            useQuery: (_params: unknown, options: { enabled: boolean }) => {
+              if (!options.enabled) {
+                return { data: undefined, isLoading: false, error: null }
+              }
+              return {
+                data: mockState.bucketState,
+                isLoading: mockState.isLoadingBucketState,
+                error: mockState.bucketStateError ? { message: mockState.bucketStateError } : null,
+              }
+            },
+          },
           delete: {
             useMutation: (options: DeleteMutationOptions) => {
               mockState.capturedOptions = options ?? {}
@@ -176,9 +167,15 @@ describe("DeleteBucketModal", () => {
     mockState.mutationError = null
     mockState.capturedOptions = {}
     mockState.isPending = false
-    mockState.isLoading = false
-    mockState.objectsData = { objects: [], folders: [], isTruncated: false }
-    mockState.objectsError = null
+    mockState.isLoadingBucketState = false
+    mockState.bucketState = {
+      isVersioningEnabled: false,
+      isEmpty: true,
+      hasOnlyDeleteMarkers: false,
+      hasOldVersionsOrDeleteMarkers: false,
+      isPartialScan: false,
+    }
+    mockState.bucketStateError = null
     await act(async () => {
       i18n.activate("en")
     })
@@ -241,7 +238,7 @@ describe("DeleteBucketModal", () => {
 
   describe("Loading state", () => {
     test("shows loading state when checking bucket contents", () => {
-      mockState.isLoading = true
+      mockState.isLoadingBucketState = true
       renderModal()
 
       expect(screen.getByText(/Checking Bucket Contents.../)).toBeInTheDocument()
@@ -251,14 +248,14 @@ describe("DeleteBucketModal", () => {
     })
 
     test("does not show warning message while loading", () => {
-      mockState.isLoading = true
+      mockState.isLoadingBucketState = true
       renderModal()
 
       expect(screen.queryByText(/This action is irreversible/)).not.toBeInTheDocument()
     })
 
     test("disables Delete button while loading", () => {
-      mockState.isLoading = true
+      mockState.isLoadingBucketState = true
       renderModal()
 
       expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()
@@ -267,7 +264,7 @@ describe("DeleteBucketModal", () => {
 
   describe("Non-empty bucket", () => {
     test("shows error message when bucket contains objects", () => {
-      mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
+      mockState.bucketState = { ...mockState.bucketState, isEmpty: false }
       renderModal({ bucket: mockNonEmptyBucket })
 
       expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
@@ -276,25 +273,21 @@ describe("DeleteBucketModal", () => {
     })
 
     test("shows same message for multiple objects", () => {
-      mockState.objectsData = {
-        objects: [{ key: "file1.txt" }, { key: "file2.txt" }, { key: "file3.txt" }] as never,
-        folders: [],
-        isTruncated: false,
-      }
+      mockState.bucketState = { ...mockState.bucketState, isEmpty: false }
       renderModal({ bucket: mockNonEmptyBucket })
 
       expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
     })
 
     test("does not show confirmation input for non-empty bucket", () => {
-      mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
+      mockState.bucketState = { ...mockState.bucketState, isEmpty: false }
       renderModal({ bucket: mockNonEmptyBucket })
 
       expect(screen.queryByLabelText(/Type the bucket name to confirm/i)).not.toBeInTheDocument()
     })
 
     test("renders Close button instead of Delete Bucket button", () => {
-      mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
+      mockState.bucketState = { ...mockState.bucketState, isEmpty: false }
       renderModal({ bucket: mockNonEmptyBucket })
 
       expect(screen.getByTestId("delete-has-objects-close-button")).toBeInTheDocument()
@@ -302,7 +295,7 @@ describe("DeleteBucketModal", () => {
     })
 
     test("calls onClose when Close is clicked", async () => {
-      mockState.objectsData = { objects: [{ key: "file.txt" }] as never, folders: [], isTruncated: false }
+      mockState.bucketState = { ...mockState.bucketState, isEmpty: false }
       const onClose = vi.fn()
       const user = userEvent.setup({ delay: null })
       renderModal({ bucket: mockNonEmptyBucket, onClose })
@@ -315,12 +308,12 @@ describe("DeleteBucketModal", () => {
 
   describe("Versioning logic", () => {
     test("shows only 'Empty the bucket' for unversioned bucket with objects", () => {
-      mockState.versioningData = { status: "Unversioned", mfaDelete: undefined }
-      mockState.objectsData = {
-        objects: [],
-        folders: [],
-        isTruncated: false,
-        versions: [{ key: "folder/", versionId: "null", isLatest: true, isDeleteMarker: false }] as never,
+      mockState.bucketState = {
+        isVersioningEnabled: false,
+        isEmpty: false,
+        hasOnlyDeleteMarkers: false,
+        hasOldVersionsOrDeleteMarkers: false,
+        isPartialScan: false,
       }
       renderModal({ bucket: mockNonEmptyBucket })
 
@@ -330,15 +323,12 @@ describe("DeleteBucketModal", () => {
     })
 
     test("shows both items for versioned bucket with objects and versions", () => {
-      mockState.versioningData = { status: "Enabled", mfaDelete: undefined }
-      mockState.objectsData = {
-        objects: [{ key: "file.txt" }] as never,
-        folders: [],
-        isTruncated: false,
-        versions: [
-          { key: "file.txt", versionId: "v1", isLatest: true, isDeleteMarker: false },
-          { key: "file.txt", versionId: "v2", isLatest: false, isDeleteMarker: false },
-        ] as never,
+      mockState.bucketState = {
+        isVersioningEnabled: true,
+        isEmpty: false,
+        hasOnlyDeleteMarkers: false,
+        hasOldVersionsOrDeleteMarkers: true,
+        isPartialScan: false,
       }
       renderModal({ bucket: mockNonEmptyBucket })
 
@@ -347,16 +337,13 @@ describe("DeleteBucketModal", () => {
       expect(screen.getByText(/Delete all versions and delete markers/)).toBeInTheDocument()
     })
 
-    test("shows only 'Delete all versions' for versioned bucket with only versions", () => {
-      mockState.versioningData = { status: "Enabled", mfaDelete: undefined }
-      mockState.objectsData = {
-        objects: [],
-        folders: [],
-        isTruncated: false,
-        versions: [
-          { key: "file.txt", versionId: "v1", isLatest: false, isDeleteMarker: false },
-          { key: "file.txt", versionId: "v2", isLatest: false, isDeleteMarker: false },
-        ] as never,
+    test("shows only 'Delete all versions' for versioned bucket with only old versions", () => {
+      mockState.bucketState = {
+        isVersioningEnabled: true,
+        isEmpty: true,
+        hasOnlyDeleteMarkers: false,
+        hasOldVersionsOrDeleteMarkers: true,
+        isPartialScan: false,
       }
       renderModal({ bucket: mockNonEmptyBucket })
 
@@ -366,12 +353,12 @@ describe("DeleteBucketModal", () => {
     })
 
     test("shows only 'Delete all versions' for bucket with only delete markers", () => {
-      mockState.versioningData = { status: "Suspended", mfaDelete: undefined }
-      mockState.objectsData = {
-        objects: [],
-        folders: [],
-        isTruncated: false,
-        versions: [{ key: "file.txt", versionId: "v1", isLatest: true, isDeleteMarker: true }] as never,
+      mockState.bucketState = {
+        isVersioningEnabled: true,
+        isEmpty: true,
+        hasOnlyDeleteMarkers: true,
+        hasOldVersionsOrDeleteMarkers: true,
+        isPartialScan: false,
       }
       renderModal({ bucket: mockNonEmptyBucket })
 
@@ -381,12 +368,12 @@ describe("DeleteBucketModal", () => {
     })
 
     test("allows deletion for empty unversioned bucket", () => {
-      mockState.versioningData = { status: "Unversioned", mfaDelete: undefined }
-      mockState.objectsData = {
-        objects: [],
-        folders: [],
-        isTruncated: false,
-        versions: [],
+      mockState.bucketState = {
+        isVersioningEnabled: false,
+        isEmpty: true,
+        hasOnlyDeleteMarkers: false,
+        hasOldVersionsOrDeleteMarkers: false,
+        isPartialScan: false,
       }
       renderModal()
 
@@ -396,17 +383,51 @@ describe("DeleteBucketModal", () => {
     })
   })
 
-  describe("Objects query error", () => {
-    test("shows error message when objects query fails", () => {
-      mockState.objectsError = "Failed to fetch objects"
+  describe("Partial scan", () => {
+    test("blocks deletion and shows a third reason when the scan could not be fully verified", () => {
+      mockState.bucketState = {
+        isVersioningEnabled: false,
+        isEmpty: true,
+        hasOnlyDeleteMarkers: false,
+        hasOldVersionsOrDeleteMarkers: false,
+        isPartialScan: true,
+      }
+      renderModal({ bucket: mockNonEmptyBucket })
+
+      expect(screen.getByText(/This bucket cannot be deleted yet/)).toBeInTheDocument()
+      expect(screen.getByText(/Bucket contents could not be fully verified/)).toBeInTheDocument()
+      expect(screen.queryByText(/Empty the bucket/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Delete all versions and delete markers/)).not.toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: /^Delete Bucket$/i })).not.toBeInTheDocument()
+      expect(screen.getByTestId("delete-has-objects-close-button")).toBeInTheDocument()
+    })
+
+    test("does not block deletion when the scan completed and the bucket is genuinely empty", () => {
+      mockState.bucketState = {
+        isVersioningEnabled: false,
+        isEmpty: true,
+        hasOnlyDeleteMarkers: false,
+        hasOldVersionsOrDeleteMarkers: false,
+        isPartialScan: false,
+      }
+      renderModal()
+
+      expect(screen.queryByText(/This bucket cannot be deleted yet/)).not.toBeInTheDocument()
+      expect(screen.getByLabelText(/Type the bucket name to confirm/i)).toBeInTheDocument()
+    })
+  })
+
+  describe("Bucket state query error", () => {
+    test("shows error message when the bucket-state query fails", () => {
+      mockState.bucketStateError = "Failed to fetch objects"
       renderModal()
 
       expect(screen.getByText(/Failed to Check Bucket Contents/)).toBeInTheDocument()
       expect(screen.getByText(/Failed to fetch objects/)).toBeInTheDocument()
     })
 
-    test("disables Delete button when objects query fails", () => {
-      mockState.objectsError = "Failed to fetch objects"
+    test("disables Delete button when the bucket-state query fails", () => {
+      mockState.bucketStateError = "Failed to fetch objects"
       renderModal()
 
       expect(screen.getByRole("button", { name: /^Delete Bucket$/i })).toBeDisabled()

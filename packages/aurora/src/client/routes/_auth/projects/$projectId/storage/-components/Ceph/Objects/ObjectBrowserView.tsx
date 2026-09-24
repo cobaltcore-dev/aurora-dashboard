@@ -33,7 +33,6 @@ import { BucketPolicyModal } from "../Buckets/BucketPolicyModal"
 import { DeleteBucketPolicyModal } from "../Buckets/DeleteBucketPolicyModal"
 import { EmptyBucketModal } from "../Buckets/EmptyBucketModal"
 import { DeleteBucketModal } from "../Buckets/DeleteBucketModal"
-import { DeleteVersionsModal } from "../Buckets/DeleteVersionsModal"
 import { useNavigate } from "@tanstack/react-router"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/$containerName/objects"
 import type { S3Object, S3FolderPrefix, S3ObjectVersion } from "@/server/Storage/types/ceph"
@@ -94,7 +93,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
   const [isDeletePolicyModalOpen, setIsDeletePolicyModalOpen] = useState(false)
   const [isEmptyBucketModalOpen, setIsEmptyBucketModalOpen] = useState(false)
   const [isDeleteBucketModalOpen, setIsDeleteBucketModalOpen] = useState(false)
-  const [isDeleteVersionsModalOpen, setIsDeleteVersionsModalOpen] = useState(false)
 
   const [selectedItems, setSelectedItems] = useState<{ key: string; versionId?: string }[]>([])
   const [isDeleteObjectsModalOpen, setIsDeleteObjectsModalOpen] = useState(false)
@@ -143,11 +141,19 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
   // Query to check which folders contain deleted content
   // Need this in both tabs: "deleted" to show deleted folders, "all" to hide deleted folders
+  //
+  // Sends the current directory's prefix rather than the accumulated folder array: the BFF
+  // scans that whole prefix in one paginated pass and attributes results to child folders
+  // itself, so this input never grows with "Load more" and the query key stays stable across
+  // pages — a fan-out keyed on `allFolders` used to restart the whole scan on every page.
   const { data: folderDeletedStatus } = trpcReact.storage.ceph.versioning.checkDeletedContent.useQuery(
     {
       project_id: projectId ?? "",
       bucket: bucketName,
-      folders: allFolders.map((f) => f.prefix),
+      // Sent as-is, including the empty string: "" is the bucket root, a real prefix the server
+      // resolves with `??`. Collapsing it to undefined would read as "no prefix given", which
+      // this query's input schema rejects - and the root is the default view.
+      prefix: currentPrefix,
     },
     {
       enabled: !!projectId && versioningStatus?.status === "Enabled" && allFolders.length > 0,
@@ -268,8 +274,22 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     stripPrefix(obj.key).toLowerCase().includes(searchParam.toLowerCase().trim())
   )
 
+  /**
+   * Folder status by prefix.
+   *
+   * `checkDeletedContent` returns one entry per folder it discovered under the scanned prefix,
+   * which is bounded by the bucket's contents rather than by what this view has loaded - a deep
+   * prefix can come back with thousands. A linear `.find` per rendered folder made that
+   * folders x statuses on every render, including every keystroke in the search box, since the
+   * lists below are plain expressions rather than memos.
+   */
+  const statusByPrefix = useMemo(
+    () => new Map(Array.isArray(folderDeletedStatus) ? folderDeletedStatus.map((s) => [s.prefix, s]) : []),
+    [folderDeletedStatus]
+  )
+
   // When showing deleted files: show the last real version before delete marker (the version we can restore)
-  const deletedFilesList = (() => {
+  const deletedFilesList = useMemo(() => {
     if (tab !== "deleted") return []
 
     // Group versions by key
@@ -308,24 +328,22 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     })
 
     return deletedFiles
-  })()
+  }, [tab, allVersions])
 
   // Filter folders based on deleted content check from BFF
   // Also add isDeleted flag to folders whose marker is deleted
   const deletedFoldersList: Array<
     S3FolderPrefix & { isDeleted?: boolean; deleteMarkerVersionId?: string; folderMarkerVersionId?: string }
-  > = (() => {
+  > = useMemo(() => {
     if (tab !== "deleted") {
       // In "All" tab, exclude folders that are deleted (have delete marker as latest version)
       // or have no versions at all (permanently deleted)
       if (!folderDeletedStatus || !Array.isArray(folderDeletedStatus)) return allFolders // Show all while loading or if no data
 
       const filtered = allFolders.filter((folder) => {
-        const status = folderDeletedStatus.find((s) => s.prefix === folder.prefix)
-        // No status? Show folder (we don't know if it's deleted)
+        const status = statusByPrefix.get(folder.prefix)
         if (!status) return true
-        // Has status? Show only if not deleted AND has versions
-        // If folderMarkerVersionId is undefined, the folder has no versions (was permanently deleted)
+        if (status.isPartialScan) return true
         return !status.isFolderDeleted && status.folderMarkerVersionId !== undefined
       })
 
@@ -334,14 +352,10 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
 
     if (!folderDeletedStatus || !Array.isArray(folderDeletedStatus)) return allFolders // Show all while loading or if no data
 
-    // In "Deleted" tab: Filter folders that have deleted content or are themselves deleted
     const foldersWithDeleted = allFolders
-      .filter((folder) => {
-        const status = folderDeletedStatus.find((s) => s.prefix === folder.prefix)
-        return status?.hasDeletedContent ?? false
-      })
+      .filter((folder) => statusByPrefix.get(folder.prefix)?.hasDeletedContent ?? false)
       .map((folder) => {
-        const status = folderDeletedStatus.find((s) => s.prefix === folder.prefix)
+        const status = statusByPrefix.get(folder.prefix)
         return {
           ...folder,
           isDeleted: status?.isFolderDeleted ?? false, // Add isDeleted flag for badge
@@ -351,7 +365,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       })
 
     return foldersWithDeleted
-  })()
+  }, [tab, allFolders, folderDeletedStatus, statusByPrefix])
 
   const filteredFolders = deletedFoldersList.filter((folder) =>
     stripPrefix(folder.prefix).toLowerCase().includes(searchParam.toLowerCase().trim())
@@ -1011,26 +1025,6 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
         }}
         onError={(bucketName, errorMessage) => {
           toast.error(t`Failed to delete bucket "${bucketName}": ${errorMessage}`)
-        }}
-      />
-
-      <DeleteVersionsModal
-        isOpen={isDeleteVersionsModalOpen}
-        bucket={{
-          name: bucketName,
-          count: 0,
-          bytes: 0,
-        }}
-        onClose={() => setIsDeleteVersionsModalOpen(false)}
-        onSuccess={(bucketName, deletedCount) => {
-          setIsDeleteVersionsModalOpen(false)
-          toast.success(
-            t`Successfully deleted ${deletedCount} versions and delete markers from bucket "${bucketName}".`
-          )
-        }}
-        onError={(bucketName, errorMessage) => {
-          setIsDeleteVersionsModalOpen(false)
-          toast.error(t`Failed to delete versions from bucket "${bucketName}": ${errorMessage}`)
         }}
       />
     </div>
