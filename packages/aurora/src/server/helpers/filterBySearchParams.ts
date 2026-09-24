@@ -26,7 +26,15 @@ export function filterBySearchParams<T extends Record<string, unknown>>(
   return items.filter((item) =>
     searchFields.some((field) => {
       const value = item[field]
-      return typeof value === "string" && value.toLowerCase().includes(searchLower)
+      // Handle strings
+      if (typeof value === "string") {
+        return value.toLowerCase().includes(searchLower)
+      }
+      // Handle numbers by converting to string
+      if (typeof value === "number") {
+        return value.toString().includes(searchLower)
+      }
+      return false
     })
   )
 }

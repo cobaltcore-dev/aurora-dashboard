@@ -30,21 +30,13 @@ export const Route = createFileRoute("/_auth/projects/")({
 })
 
 interface ProjectsContentProps {
-  search: string
+  searchTerm: string
 }
 
-function ProjectsContent({ search }: ProjectsContentProps) {
-  const [allProjects] = trpcReact.project.getAuthProjects.useSuspenseQuery()
-
-  const normalizedSearch = search.trim().toLowerCase()
-  const projects =
-    allProjects && normalizedSearch
-      ? allProjects.filter(
-          (project) =>
-            project.name?.toLowerCase().includes(normalizedSearch) ||
-            project.description?.toLowerCase().includes(normalizedSearch)
-        )
-      : allProjects
+function ProjectsContent({ searchTerm }: ProjectsContentProps) {
+  const [projects] = trpcReact.project.listProjectsWithSearch.useSuspenseQuery({
+    searchTerm: searchTerm.trim() || undefined,
+  })
 
   return <ProjectCardView projects={projects} />
 }
@@ -79,7 +71,7 @@ export function ProjectsOverview() {
         <ProjectsOverviewNavBar searchTerm={search} onSearch={handleSearch} />
         <div className="pt-5">
           <Suspense fallback={<Status status="progress" title={t`Loading...`} />}>
-            <ProjectsContent search={search} />
+            <ProjectsContent searchTerm={search} />
           </Suspense>
         </div>
       </ErrorBoundary>

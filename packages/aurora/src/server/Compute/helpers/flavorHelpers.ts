@@ -161,9 +161,24 @@ function handleHttpError(
 
 export function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean {
   const regex = new RegExp(searchTerm, "i")
-  const searchableValues = [flavor.id, flavor.name, flavor.description]
 
-  return searchableValues.some((value) => value != null && typeof value === "string" && regex.test(value))
+  // Search across all visible fields in the flavor list: id, name, description, vcpus, ram, disk, swap
+  const searchableValues = [
+    flavor.id,
+    flavor.name,
+    flavor.description,
+    flavor.vcpus,
+    flavor.ram,
+    flavor.disk,
+    flavor.swap,
+  ]
+
+  return searchableValues.some((value) => {
+    if (value == null) return false
+    if (typeof value === "string") return regex.test(value)
+    if (typeof value === "number") return regex.test(value.toString())
+    return false
+  })
 }
 
 export function filterAndSortFlavors(

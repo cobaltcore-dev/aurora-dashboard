@@ -67,6 +67,7 @@ export const floatingIpRouter = {
         const { floatingips } = parseOrThrow(FloatingIpListResponseSchema, data, "floatingIpRouter.list")
 
         return filterBySearchParams(floatingips, searchTerm, [
+          "id",
           "description",
           "floating_ip_address",
           "fixed_ip_address",
