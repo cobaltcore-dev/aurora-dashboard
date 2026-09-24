@@ -389,6 +389,18 @@ export const CephBuckets = () => {
             <div className="text-theme-light flex items-center gap-1" data-testid="buckets-info-block">
               <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
             </div>
+            {/* ARIA live region for screen readers */}
+            <div className="sr-only" aria-live="polite" aria-atomic="true">
+              {searchParam ? (
+                <Plural
+                  value={totalCount}
+                  one={`Found ${totalCount} bucket matching "${searchParam}"`}
+                  other={`Found ${totalCount} buckets matching "${searchParam}"`}
+                />
+              ) : (
+                <Plural value={totalCount} one={`${totalCount} bucket total`} other={`${totalCount} buckets total`} />
+              )}
+            </div>
           </Stack>
         </DataGridToolbar>
       </Stack>
@@ -408,6 +420,7 @@ export const CephBuckets = () => {
         hasAnyBulkAction={hasAnyBulkAction}
         canEmptyBucket={permissions.canEmptyBucket}
         canDeleteBucket={permissions.canDeleteBucket}
+        hasActiveSearch={!!searchParam}
       />
 
       <EmptyBucketsModal

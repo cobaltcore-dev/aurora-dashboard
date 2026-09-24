@@ -46,6 +46,7 @@ interface ContainerTableViewProps {
   // is dropped entirely and the grid renders one fewer column. Defaults to true
   // so existing callers that don't pass it keep the selectable layout.
   hasAnyBulkAction?: boolean
+  hasActiveSearch?: boolean
 }
 
 export const ContainerTableView = ({
@@ -67,6 +68,7 @@ export const ContainerTableView = ({
   selectedContainers,
   setSelectedContainers,
   hasAnyBulkAction = true,
+  hasActiveSearch = false,
 }: ContainerTableViewProps) => {
   const { projectId, provider, storageType } = useParams({
     from: "/_auth/projects/$projectId/storage/$provider/$storageType/",
@@ -149,8 +151,12 @@ export const ContainerTableView = ({
                 <DataGridCell colSpan={columnCount}>
                   <Status
                     status="empty"
-                    title={t`No containers found`}
-                    body={t`There are no containers available with the current search criteria. Try adjusting your search term.`}
+                    title={hasActiveSearch ? t`No containers matching search` : t`No containers found`}
+                    body={
+                      hasActiveSearch
+                        ? t`No containers match your search criteria. Try adjusting your search term.`
+                        : t`There are no containers available in this project.`
+                    }
                   />
                 </DataGridCell>
               </DataGridRow>

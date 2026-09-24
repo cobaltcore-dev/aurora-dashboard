@@ -3,7 +3,6 @@ import { TRPCError } from "@trpc/server"
 import { CreateFlavorInput, Flavor } from "../types/flavor"
 import { SignalOpenstackServiceType } from "@cobaltcore-dev/signal-openstack"
 import {
-  includesSearchTerm,
   fetchFlavors,
   filterAndSortFlavors,
   createFlavor,
@@ -72,107 +71,7 @@ const mockFlavors: Flavor[] = [
   },
 ]
 
-describe("includesSearchTerm", () => {
-  it("should return true if search term is in id", () => {
-    const flavor: Flavor = {
-      id: "test-123",
-      name: "flavor",
-      description: "description",
-      vcpus: 1,
-      ram: 128,
-      disk: 0,
-      swap: "0",
-      rxtx_factor: 1,
-      "OS-FLV-EXT-DATA:ephemeral": 0,
-    }
-
-    expect(includesSearchTerm(flavor, "test")).toBe(true)
-  })
-
-  it("should return true if search term is in name", () => {
-    const flavor: Flavor = {
-      id: "1",
-      name: "test flavor",
-      description: "description",
-      vcpus: 1,
-      ram: 128,
-      disk: 0,
-      swap: "0",
-      rxtx_factor: 1,
-      "OS-FLV-EXT-DATA:ephemeral": 0,
-    }
-
-    expect(includesSearchTerm(flavor, "test")).toBe(true)
-  })
-
-  it("should return true if search term is in description", () => {
-    const flavor: Flavor = {
-      id: "1",
-      name: "flavor",
-      description: "a test description",
-      vcpus: 1,
-      ram: 128,
-      disk: 0,
-      swap: "0",
-      rxtx_factor: 1,
-      "OS-FLV-EXT-DATA:ephemeral": 0,
-    }
-
-    expect(includesSearchTerm(flavor, "test")).toBe(true)
-  })
-
-  it("should be case insensitive", () => {
-    const flavor: Flavor = {
-      id: "1",
-      name: "TEST FLAVOR",
-      description: "description",
-      vcpus: 1,
-      ram: 128,
-      disk: 0,
-      swap: "0",
-      rxtx_factor: 1,
-      "OS-FLV-EXT-DATA:ephemeral": 0,
-    }
-
-    expect(includesSearchTerm(flavor, "test")).toBe(true)
-    expect(includesSearchTerm(flavor, "TEST")).toBe(true)
-    expect(includesSearchTerm(flavor, "TeSt")).toBe(true)
-  })
-
-  it("should return false if search term is not in any field", () => {
-    const flavor: Flavor = {
-      id: "1",
-      name: "flavor",
-      description: "description",
-      vcpus: 1,
-      ram: 128,
-      disk: 0,
-      swap: "0",
-      rxtx_factor: 1,
-      "OS-FLV-EXT-DATA:ephemeral": 0,
-    }
-
-    expect(includesSearchTerm(flavor, "notfound")).toBe(false)
-  })
-
-  it("should handle null and undefined values gracefully", () => {
-    const flavor: Flavor = {
-      id: "1",
-      name: "flavor",
-      description: null,
-      vcpus: 1,
-      ram: 128,
-      disk: 0,
-      swap: "0",
-      rxtx_factor: 1,
-      "OS-FLV-EXT-DATA:ephemeral": 0,
-    }
-
-    expect(includesSearchTerm(flavor, "test")).toBe(false)
-  })
-})
-
-describe("fetchFlavors", () => {
+describe("filterAndSortFlavors", () => {
   it("should return flavors if response is valid", async () => {
     const mockCompute = createMockCompute()
     mockCompute.get.mockResolvedValue({

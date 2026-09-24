@@ -38,6 +38,7 @@ interface BucketTableViewProps {
   hasAnyBulkAction?: boolean
   canEmptyBucket: boolean
   canDeleteBucket: boolean
+  hasActiveSearch?: boolean
 }
 
 export const BucketTableView = ({
@@ -55,6 +56,7 @@ export const BucketTableView = ({
   hasAnyBulkAction = true,
   canEmptyBucket,
   canDeleteBucket,
+  hasActiveSearch = false,
 }: BucketTableViewProps) => {
   const { projectId, provider } = useParams({ strict: false })
   const { t } = useLingui()
@@ -146,8 +148,12 @@ export const BucketTableView = ({
                 <DataGridCell colSpan={columnCount}>
                   <Status
                     status="empty"
-                    title={t`No buckets found`}
-                    body={t`There are no buckets available with the current search criteria. Try adjusting your search term.`}
+                    title={hasActiveSearch ? t`No buckets matching search` : t`No buckets found`}
+                    body={
+                      hasActiveSearch
+                        ? t`No buckets match your search criteria. Try adjusting your search term.`
+                        : t`There are no buckets available in this project.`
+                    }
                   />
                 </DataGridCell>
               </DataGridRow>

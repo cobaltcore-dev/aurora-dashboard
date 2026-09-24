@@ -402,6 +402,22 @@ export const SwiftContainers = () => {
               )}
               <ContainerLimitsTooltip serviceInfo={serviceInfo} accountInfo={accountInfo} />
             </div>
+            {/* ARIA live region for screen readers */}
+            <div className="sr-only" aria-live="polite" aria-atomic="true">
+              {searchParam ? (
+                <Plural
+                  value={totalCount}
+                  one={`Found ${totalCount} container matching "${searchParam}"`}
+                  other={`Found ${totalCount} containers matching "${searchParam}"`}
+                />
+              ) : (
+                <Plural
+                  value={totalCount}
+                  one={`${totalCount} container total`}
+                  other={`${totalCount} containers total`}
+                />
+              )}
+            </div>
           </Stack>
         </DataGridToolbar>
       </Stack>
@@ -425,6 +441,7 @@ export const SwiftContainers = () => {
         selectedContainers={selectedContainers}
         setSelectedContainers={setSelectedContainers}
         hasAnyBulkAction={hasAnyBulkAction}
+        hasActiveSearch={!!searchParam}
       />
 
       <EmptyContainersModal

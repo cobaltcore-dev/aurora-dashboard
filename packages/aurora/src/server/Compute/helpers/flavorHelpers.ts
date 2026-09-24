@@ -7,6 +7,7 @@ import {
   encodeOpenstackPathSegment,
   SignalOpenstackError,
 } from "@cobaltcore-dev/signal-openstack"
+import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 
 interface CreateFlavorResponse {
   flavor: Flavor
@@ -159,41 +160,24 @@ function handleHttpError(
   throw new TRPCError(errorConfig)
 }
 
-export function includesSearchTerm(flavor: Flavor, searchTerm: string): boolean {
-  const regex = new RegExp(searchTerm, "i")
-
-  // Search across all visible fields in the flavor list: id, name, description, vcpus, ram, disk, swap
-  const searchableValues = [
-    flavor.id,
-    flavor.name,
-    flavor.description,
-    flavor.vcpus,
-    flavor.ram,
-    flavor.disk,
-    flavor.swap,
-  ]
-
-  return searchableValues.some((value) => {
-    if (value == null) return false
-    if (typeof value === "string") return regex.test(value)
-    if (typeof value === "number") return regex.test(value.toString())
-    return false
-  })
-}
-
 export function filterAndSortFlavors(
   flavors: Flavor[],
   searchTerm: string,
   sortBy: keyof Flavor,
   sortDirection: string
 ): Flavor[] {
-  let result = flavors
+  // Use shared filterBySearchParams helper for consistent search behavior
+  const filtered = filterBySearchParams(flavors, searchTerm, [
+    "id",
+    "name",
+    "description",
+    "vcpus",
+    "ram",
+    "disk",
+    "swap",
+  ])
 
-  if (searchTerm) {
-    result = flavors.filter((flavor) => includesSearchTerm(flavor, searchTerm))
-  }
-
-  result.sort((a, b) => {
+  filtered.sort((a, b) => {
     const aValue = a[sortBy]
     const bValue = b[sortBy]
 
@@ -206,7 +190,7 @@ export function filterAndSortFlavors(
     return 0
   })
 
-  return result
+  return filtered
 }
 
 export async function getFlavorById(compute: SignalOpenstackServiceType, flavorId: string): Promise<Flavor> {
