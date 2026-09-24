@@ -7,6 +7,7 @@ import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBulkDeleteErrors } from "../Objects/utils/bulkDeleteErrors"
 import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
+import type { PartialVersionDeleteOutcome } from "./BucketToastNotifications"
 
 interface DeleteVersionsModalProps {
   isOpen: boolean
@@ -14,9 +15,17 @@ interface DeleteVersionsModalProps {
   onClose: () => void
   onSuccess?: (bucketName: string, deletedCount: number) => void
   onError?: (bucketName: string, errorMessage: string) => void
+  onPartial: (bucketName: string, outcome: PartialVersionDeleteOutcome) => void
 }
 
-export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onError }: DeleteVersionsModalProps) => {
+export const DeleteVersionsModal = ({
+  isOpen,
+  bucket,
+  onClose,
+  onSuccess,
+  onError,
+  onPartial,
+}: DeleteVersionsModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [confirmName, setConfirmName] = useState("")
@@ -70,30 +79,26 @@ export const DeleteVersionsModal = ({ isOpen, bucket, onClose, onSuccess, onErro
       },
       {
         onSuccess: (result) => {
-          // S3's DeleteObjects can fail some keys while succeeding on others in the
-          // same HTTP 200 response (see deleteObjectsBulkOutputSchema) - treat any
-          // failure as an error rather than reporting a silent partial success.
-          if (result.errorCount > 0) {
-            const { errorCount } = result
-            const errorMessage =
-              result.errors.length > 0
-                ? formatBulkDeleteErrors(result.errors)
-                : t`${errorCount} item(s) could not be deleted`
-            onError?.(bucketName, errorMessage)
-            return
-          }
-          // The scan stopped before the end of the bucket (aborted, or a malformed truncated
-          // page), so versions may survive. Reporting the count alone would read as a completed
-          // wipe - the same "incomplete presented as complete" this branch removed elsewhere.
-          if (result.isPartial) {
-            const { deletedCount } = result
+          const { deletedCount, errorCount, errors, isPartial } = result
+          // errorCount and isPartial are two independent dimensions, not alternatives. S3's
+          // DeleteObjects reports per-item failures inline in an otherwise successful HTTP 200
+          // (see deleteObjectsBulkOutputSchema), and the server additionally sets isPartial for
+          // every key it had to skip — so the ordinary partial run carries both. Testing one
+          // before the other dropped whichever came second, and the dropped half was usually
+          // "run it again", the whole reason this branch exists.
+          if (deletedCount === 0 && errorCount > 0 && !isPartial) {
+            // Nothing got through and the bucket was fully scanned: a plain failure.
             onError?.(
               bucketName,
-              t`Deleted ${deletedCount} version(s), but the bucket was not processed completely. Some non-current versions may remain — run Delete Versions again.`
+              errors.length > 0 ? formatBulkDeleteErrors(errors) : t`${errorCount} item(s) could not be deleted`
             )
             return
           }
-          onSuccess?.(bucketName, result.deletedCount)
+          if (errorCount > 0 || isPartial) {
+            onPartial(bucketName, { deletedCount, errorCount, errors, incomplete: isPartial })
+            return
+          }
+          onSuccess?.(bucketName, deletedCount)
         },
         onError: (error) => {
           onError?.(bucketName, error.message)

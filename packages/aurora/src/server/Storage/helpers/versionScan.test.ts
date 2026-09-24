@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { folderPrefixOf, isFolderCovered, longestCommonPrefix } from "./versionScan"
+import { folderPrefixOf, greatestKeyOnPage, isFolderCovered, longestCommonPrefix } from "./versionScan"
 
 describe("folderPrefixOf", () => {
   it("attributes the folder marker itself", () => {
@@ -76,5 +76,29 @@ describe("longestCommonPrefix", () => {
 
   it("does not climb when no folder equals the common prefix", () => {
     expect(longestCommonPrefix(["p/foo/", "p/foobar/"])).toBe("p/")
+  })
+})
+
+describe("greatestKeyOnPage", () => {
+  it("returns undefined for an empty page", () => {
+    expect(greatestKeyOnPage([], [])).toBeUndefined()
+    expect(greatestKeyOnPage(undefined, undefined)).toBeUndefined()
+  })
+
+  it("takes the greater key across both lists", () => {
+    // S3 sorts Versions and DeleteMarkers independently, so the last entry of either can win.
+    expect(greatestKeyOnPage([{ Key: "a/x" }, { Key: "b/y" }], [{ Key: "c/z" }])).toBe("c/z")
+    expect(greatestKeyOnPage([{ Key: "z/last" }], [{ Key: "b/y" }])).toBe("z/last")
+  })
+
+  it("ignores entries with no key", () => {
+    expect(greatestKeyOnPage([{ Key: undefined }, { Key: "a/x" }], undefined)).toBe("a/x")
+  })
+
+  it("produces a bound that leaves the folder holding that key uncovered", () => {
+    // The key group straddling the page boundary must never look fully scanned.
+    const stoppedAtKey = greatestKeyOnPage([{ Key: "m/mid.txt" }], [])
+    expect(isFolderCovered("m/", stoppedAtKey)).toBe(false)
+    expect(isFolderCovered("a/", stoppedAtKey)).toBe(true)
   })
 })

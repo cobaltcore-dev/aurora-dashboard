@@ -21,7 +21,7 @@ import {
   type CheckDeletedContentOutput,
 } from "../../types/versioning"
 import { mapS3ErrorToTRPCError } from "../../helpers/s3ErrorMapper"
-import { folderPrefixOf, isFolderCovered, longestCommonPrefix } from "../../helpers/versionScan"
+import { folderPrefixOf, greatestKeyOnPage, isFolderCovered, longestCommonPrefix } from "../../helpers/versionScan"
 import { S3_MAX_KEYS_PER_REQUEST, S3_MAX_SCAN_PAGES } from "../../constants"
 
 /**
@@ -467,8 +467,13 @@ export const versioningRouter = {
 
         pages++
 
-        if (!response.IsTruncated || !response.NextKeyMarker) {
+        if (!response.IsTruncated) {
           stoppedAtKey = undefined
+          break
+        }
+
+        if (!response.NextKeyMarker) {
+          stoppedAtKey = greatestKeyOnPage(response.Versions, response.DeleteMarkers) ?? keyMarker ?? ""
           break
         }
 

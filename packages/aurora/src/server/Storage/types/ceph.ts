@@ -155,8 +155,9 @@ export const bucketStateOutputSchema = z.object({
   /** At least one non-current version or delete marker exists. Reliable when true. */
   hasOldVersionsOrDeleteMarkers: z.boolean(),
   /**
-   * True when the version-history scan hit the page ceiling (or was aborted) before it could
-   * rule the history flags in either direction.
+   * True when the version-history scan stopped before it could rule the history flags in either
+   * direction: it hit the page ceiling, the request was aborted, or S3 returned a truncated
+   * page carrying no continuation marker to follow.
    *
    * It says nothing about `isEmpty` or `isVersioningEnabled`, which are established by their own
    * single requests. Of the two flags it does cover, `hasOldVersionsOrDeleteMarkers: true`
@@ -356,11 +357,14 @@ export const deleteNonCurrentVersionsOutputSchema = z.object({
   deletedCount: z.number().int().nonnegative(),
   errorCount: z.number().int().nonnegative(),
   /**
-   * The scan did not reach the end of the bucket, so non-current versions may
-   * survive. Set when the request was aborted or when S3 returned a truncated
-   * page without a continuation marker. The counts remain accurate for what was
-   * actually deleted - this flag only denies that the wipe was exhaustive, which
-   * a bare success count would otherwise imply.
+   * The run did not cover the whole bucket, so non-current versions may survive.
+   * Set when the request was aborted (including during the last page's deletes),
+   * when S3 returned a truncated page without a continuation marker, and when a
+   * key had to be skipped (NoCurrentVersion, MissingVersionId, TooManyVersions) -
+   * the last of which also records an entry in `errors`, so a caller must treat
+   * this flag and `errorCount` as independent rather than as alternatives.
+   * The counts remain accurate for what was actually deleted - this flag only
+   * denies that the wipe was exhaustive, which a bare success count would imply.
    */
   isPartial: z.boolean(),
 })

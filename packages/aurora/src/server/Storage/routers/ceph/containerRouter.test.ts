@@ -496,6 +496,36 @@ describe("buckets.getState", () => {
     expect(result.hasOldVersionsOrDeleteMarkers).toBe(true)
   })
 
+  it("treats a truncated page with no continuation marker as a partial scan", async () => {
+    // IsTruncated with no NextKeyMarker is an edge/malformed S3 response. Stopping is the
+    // only safe move, but it is not a finished scan — the two used to share one exit, so
+    // hasOnlyDeleteMarkers got asserted from a single page and EmptyBucketModal would then
+    // force the delete-versions branch over history it had never read.
+    mockOpeningCalls({ status: "Enabled", isEmpty: true })
+    mockSend.mockResolvedValueOnce({
+      Versions: [],
+      DeleteMarkers: [{ Key: "k-1", VersionId: "dm", IsLatest: true }],
+      IsTruncated: true,
+      NextKeyMarker: undefined,
+      $metadata: { httpStatusCode: 200 },
+    })
+
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.containers.getState({
+      project_id: TEST_PROJECT_ID,
+      bucketName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.isPartialScan).toBe(true)
+    expect(result.hasOnlyDeleteMarkers).toBe(false)
+    // The one thing the page did prove stays true.
+    expect(result.hasOldVersionsOrDeleteMarkers).toBe(true)
+    // isEmpty has its own exact source (ListObjectsV2 MaxKeys:1) and is unaffected.
+    expect(result.isEmpty).toBe(true)
+  })
+
   it("stops at the page ceiling without resolving the history flags", async () => {
     mockOpeningCalls({ status: "Enabled", isEmpty: true })
     let call = 0

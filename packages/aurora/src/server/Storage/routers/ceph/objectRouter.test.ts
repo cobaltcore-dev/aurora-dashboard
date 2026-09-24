@@ -1624,6 +1624,39 @@ describe("objects.deleteNonCurrentVersions", () => {
     // (and the single returned group was deferred as a truncated page's last
     // group, so no delete was attempted either).
     expect(mockSend).toHaveBeenCalledTimes(1)
+    expect(result.isPartial).toBe(true)
+  })
+
+  it("reports a partial run when the client aborts while the last page is being deleted", async () => {
+    const controller = new AbortController()
+    // Last page: nothing more to list.
+    mockSend.mockImplementationOnce(() =>
+      Promise.resolve({
+        Versions: [
+          { Key: "a.txt", VersionId: "v2", IsLatest: true },
+          { Key: "a.txt", VersionId: "v1", IsLatest: false },
+        ],
+        DeleteMarkers: [],
+        IsTruncated: false,
+      })
+    )
+    // The disconnect lands on the DeleteObjects call. bulkDeleteItems returns
+    // {deletedCount: 0, errors: []} - indistinguishable from a clean no-op.
+    mockSend.mockImplementationOnce(() => {
+      controller.abort()
+      return Promise.resolve({ Deleted: [], Errors: [] })
+    })
+
+    const ctx = createMockContext({ abortSignal: controller.signal })
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.ceph.objects.deleteNonCurrentVersions({
+      project_id: TEST_PROJECT_ID,
+      containerName: TEST_BUCKET_NAME,
+    })
+
+    expect(result.isPartial).toBe(true)
+    expect(result.errorCount).toBe(0)
   })
 
   it("surfaces errorCount when DeleteObjects partially fails", async () => {

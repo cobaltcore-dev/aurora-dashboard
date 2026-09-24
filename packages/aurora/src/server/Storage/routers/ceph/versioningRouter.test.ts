@@ -544,6 +544,90 @@ describe("versioningRouter", () => {
       expect(folderZ?.hasDeletedContent).toBe(false)
     })
 
+    it("treats a truncated page with no continuation marker as a partial scan", async () => {
+      // The folder's own marker sorts before its contents ("p/foo/" < "p/foo/x"), so it can be
+      // read on a page whose successors never arrive. That used to come back as
+      // hasDeletedContent: false with isPartialScan: false — confidently wrong rather than
+      // merely unknown.
+      mockSend.mockResolvedValueOnce({
+        Versions: [{ Key: "p/foo/", VersionId: "fv1", IsLatest: true, LastModified: TEST_DATE }],
+        DeleteMarkers: [],
+        IsTruncated: true,
+        NextKeyMarker: undefined,
+      })
+
+      const result = await caller.checkDeletedContent({
+        project_id: TEST_PROJECT_ID,
+        bucket: TEST_BUCKET_NAME,
+        prefix: "p/",
+        folders: ["p/foo/"],
+      })
+
+      expect(mockSend).toHaveBeenCalledTimes(1)
+      expect(result[0].isPartialScan).toBe(true)
+      expect(result[0].hasDeletedContent).toBe(false)
+      // The marker really was read, so this stays resolved.
+      expect(result[0].folderMarkerVersionId).toBe("fv1")
+    })
+
+    it("keeps folders closed out before a marker-less truncation reported as fully scanned", async () => {
+      // The stop point is the marker the last fetched page started from, so the fix is not a
+      // blanket "everything is partial": folders that sort strictly before it were read in full.
+      mockSend.mockResolvedValueOnce({
+        Versions: [],
+        DeleteMarkers: [],
+        IsTruncated: true,
+        // Constant marker strictly between "a/" and "z/" lexicographically.
+        NextKeyMarker: "m",
+      })
+      mockSend.mockResolvedValueOnce({
+        Versions: [],
+        DeleteMarkers: [],
+        IsTruncated: true,
+        NextKeyMarker: undefined,
+      })
+
+      const result = await caller.checkDeletedContent({
+        project_id: TEST_PROJECT_ID,
+        bucket: TEST_BUCKET_NAME,
+        prefix: "",
+        folders: ["a/", "z/"],
+      })
+
+      expect(mockSend).toHaveBeenCalledTimes(2)
+      expect(result.find((r) => r.prefix === "a/")?.isPartialScan).toBe(false)
+      expect(result.find((r) => r.prefix === "z/")?.isPartialScan).toBe(true)
+    })
+
+    it("credits the page it just read when a first page truncates with no marker", async () => {
+      // There is no previous marker to fall back to here, so the stop point comes from the
+      // page's own greatest key. Reporting "nothing is covered" instead would mark every
+      // folder in the view partial and, via ObjectBrowserView's neutral rendering, pull every
+      // deleted folder back into the All tab.
+      mockSend.mockResolvedValueOnce({
+        Versions: [
+          { Key: "a/", VersionId: "av1", IsLatest: true, LastModified: TEST_DATE },
+          { Key: "m/mid.txt", VersionId: "mv1", IsLatest: true, LastModified: TEST_DATE },
+        ],
+        DeleteMarkers: [],
+        IsTruncated: true,
+        NextKeyMarker: undefined,
+      })
+
+      const result = await caller.checkDeletedContent({
+        project_id: TEST_PROJECT_ID,
+        bucket: TEST_BUCKET_NAME,
+        prefix: "",
+        folders: ["a/", "z/"],
+      })
+
+      expect(mockSend).toHaveBeenCalledTimes(1)
+      // "a/" sorts entirely before the last key read, so it really was scanned in full.
+      expect(result.find((r) => r.prefix === "a/")?.isPartialScan).toBe(false)
+      // "z/" sorts after it and was never reached.
+      expect(result.find((r) => r.prefix === "z/")?.isPartialScan).toBe(true)
+    })
+
     it("reports isPartialScan: false for every folder once the scan runs to completion", async () => {
       mockSend.mockResolvedValueOnce({
         Versions: [],

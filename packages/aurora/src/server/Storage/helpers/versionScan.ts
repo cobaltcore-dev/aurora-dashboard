@@ -68,3 +68,29 @@ export function longestCommonPrefix(folders: string[]): string {
   const lastSlash = common.lastIndexOf("/")
   return lastSlash === -1 ? "" : common.slice(0, lastSlash + 1)
 }
+
+/**
+ * The lexicographically greatest key delivered by one listing page, or undefined for an
+ * empty page. S3 returns versions and delete markers as two separately sorted lists, so
+ * the last entry of either can be the greater one - this compares all of them rather than
+ * trusting that ordering.
+ *
+ * Used as the stop point when a page is truncated but carries no continuation marker. That
+ * page has already been folded into the caller's accumulator, so coverage genuinely extends
+ * to its last key; falling back to the marker the page *started* from would discard up to a
+ * full page of real coverage, and on a first-page truncation there is no such marker at all,
+ * which would mark every folder partial.
+ */
+export function greatestKeyOnPage(
+  versions: ReadonlyArray<{ Key?: string }> | undefined,
+  deleteMarkers: ReadonlyArray<{ Key?: string }> | undefined
+): string | undefined {
+  let greatest: string | undefined
+  for (const entries of [versions, deleteMarkers]) {
+    for (const entry of entries ?? []) {
+      const key = entry.Key
+      if (key !== undefined && (greatest === undefined || key > greatest)) greatest = key
+    }
+  }
+  return greatest
+}

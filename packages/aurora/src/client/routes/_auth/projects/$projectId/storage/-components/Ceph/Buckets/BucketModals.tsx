@@ -21,6 +21,7 @@ import {
   getBucketPolicyDeleteErrorToast,
   getVersionsDeletedToast,
   getVersionsDeleteErrorToast,
+  getVersionsPartiallyDeletedToast,
   getBucketEmptiedToast,
   getBucketEmptyErrorToast,
   getBucketDeletedToast,
@@ -216,6 +217,11 @@ export const BucketModals = ({ bucketName, provider, activeModal, onClose }: Buc
         onError={(bucketName, errorMessage) => {
           const { message, ...options } = getVersionsDeleteErrorToast(bucketName, errorMessage)
           toast.error(message, options)
+          onClose()
+        }}
+        onPartial={(bucketName, outcome) => {
+          const { message, ...options } = getVersionsPartiallyDeletedToast(bucketName, outcome)
+          toast.warning(message, options)
           onClose()
         }}
       />

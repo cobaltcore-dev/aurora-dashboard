@@ -160,7 +160,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
         <Stack direction="vertical" gap="6">
           {hasQueryError && (
             <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
-              <Trans>Unable to verify bucket versioning status and contents. Please try again.</Trans>
+              <Trans>Unable to verify bucket versioning status and contents. Try again.</Trans>
             </div>
           )}
 
@@ -210,7 +210,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
           <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
             {/* One query now answers both, so there is no longer a partial-failure case to
                 distinguish — versioning status and contents fail or succeed together. */}
-            <Trans>Unable to verify bucket versioning status and contents. Please try again.</Trans>
+            <Trans>Unable to verify bucket versioning status and contents. Try again.</Trans>
           </div>
         ) : (
           <p className="text-theme-default py-2">
@@ -240,7 +240,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
         <Stack direction="vertical" gap="6">
           {hasQueryError && (
             <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
-              <Trans>Unable to verify bucket versioning status and contents. Please try again.</Trans>
+              <Trans>Unable to verify bucket versioning status and contents. Try again.</Trans>
             </div>
           )}
 

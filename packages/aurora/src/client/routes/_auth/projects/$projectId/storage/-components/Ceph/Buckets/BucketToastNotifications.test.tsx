@@ -20,6 +20,7 @@ import {
   getBucketPolicyDeleteErrorToast,
   getVersionsDeletedToast,
   getVersionsDeleteErrorToast,
+  getVersionsPartiallyDeletedToast,
 } from "./BucketToastNotifications"
 
 // Helpers return the Juno NotificationManager shape: { message, description }.
@@ -275,6 +276,7 @@ describe("BucketToastNotifications", () => {
         getBucketPolicySaveErrorToast("b", "err"),
         getVersionsDeletedToast("b", 5),
         getVersionsDeleteErrorToast("b", "err"),
+        getVersionsPartiallyDeletedToast("b", { deletedCount: 1, errorCount: 0, errors: [], incomplete: true }),
       ]
       notifications.forEach((notification) => {
         expect(notification.message).toBeTruthy()
@@ -413,6 +415,89 @@ describe("BucketToastNotifications", () => {
       renderNotification(getVersionsDeleteErrorToast("my-bucket", "Network timeout"))
       expect(screen.getByText("Failed to Delete Versions")).toBeInTheDocument()
       expect(screen.getByText(/Could not delete versions from bucket "my-bucket": Network timeout/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getVersionsPartiallyDeletedToast", () => {
+    const outcome = (over: Partial<Parameters<typeof getVersionsPartiallyDeletedToast>[1]> = {}) => ({
+      deletedCount: 12,
+      errorCount: 0,
+      errors: [],
+      incomplete: false,
+      ...over,
+    })
+
+    it("reports the deleted count and the bucket", () => {
+      renderNotification(getVersionsPartiallyDeletedToast("my-bucket", outcome()))
+      expect(screen.getByText("Versions Partially Deleted")).toBeInTheDocument()
+      expect(screen.getByText(/Deleted 12 versions from bucket "my-bucket"/)).toBeInTheDocument()
+    })
+
+    it("uses the singular form for one version", () => {
+      renderNotification(getVersionsPartiallyDeletedToast("my-bucket", outcome({ deletedCount: 1 })))
+      expect(screen.getByText(/Deleted 1 version from/)).toBeInTheDocument()
+    })
+
+    it("asks the user to run the action again when the scan stopped early", () => {
+      renderNotification(getVersionsPartiallyDeletedToast("my-bucket", outcome({ incomplete: true })))
+      expect(screen.getByText(/did not reach the end of the bucket/)).toBeInTheDocument()
+      expect(screen.getByText(/Run Delete Versions again/)).toBeInTheDocument()
+    })
+
+    it("keeps the failures and the incomplete scan in one message", () => {
+      // The two are independent: the server records an error and sets isPartial for the same
+      // skipped key, so a report that shows only one of them is missing half the outcome.
+      renderNotification(
+        getVersionsPartiallyDeletedToast("my-bucket", {
+          deletedCount: 12,
+          errorCount: 1,
+          errors: [{ key: "b.txt", code: "NoCurrentVersion", message: "No version flagged as current" }],
+          incomplete: true,
+        })
+      )
+      expect(screen.getByText(/1 item could not be deleted/)).toBeInTheDocument()
+      expect(screen.getByText(/b\.txt/)).toBeInTheDocument()
+      expect(screen.getByText(/Run Delete Versions again/)).toBeInTheDocument()
+    })
+
+    it("spells out only the first few failures and counts the rest", () => {
+      // The server caps its itemised errors at 100 keys of up to 1024 chars each; spilling all
+      // of that into a toast that never auto-dismisses would bury the screen.
+      const errors = Array.from({ length: 10 }, (_, i) => ({
+        key: `object-${i}.txt`,
+        code: "AccessDenied",
+        message: "Access Denied",
+      }))
+      renderNotification(
+        getVersionsPartiallyDeletedToast("my-bucket", { deletedCount: 5, errorCount: 10, errors, incomplete: false })
+      )
+      expect(screen.getByText(/object-0\.txt/)).toBeInTheDocument()
+      expect(screen.getByText(/object-2\.txt/)).toBeInTheDocument()
+      expect(screen.queryByText(/object-3\.txt/)).not.toBeInTheDocument()
+      expect(screen.getByText(/7 further failures are not listed here/)).toBeInTheDocument()
+    })
+
+    it("falls back to the count when the server itemised nothing", () => {
+      renderNotification(
+        getVersionsPartiallyDeletedToast("my-bucket", {
+          deletedCount: 5,
+          errorCount: 3,
+          errors: [],
+          incomplete: false,
+        })
+      )
+      expect(screen.getByText(/3 items could not be deleted\./)).toBeInTheDocument()
+    })
+
+    it("stays on screen until dismissed", () => {
+      // The message asks the user to run the action again; the 4s NotificationManager
+      // default is not enough to read it, let alone act on it.
+      expect(getVersionsPartiallyDeletedToast("my-bucket", outcome()).duration).toBe(Infinity)
+    })
+
+    it("reuses one toast id per bucket so re-runs replace rather than stack", () => {
+      // With duration: Infinity and no id, every re-run would leave another permanent toast.
+      expect(getVersionsPartiallyDeletedToast("my-bucket", outcome()).id).toBe("versions-partial-my-bucket")
     })
   })
 })

@@ -143,6 +143,12 @@ msgstr "{emptiedCount, plural, one {# container was already empty.} other {# con
 msgid "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
 msgstr "{emptiedCount, plural, one {# container} other {# containers}} successfully emptied. {totalDeleted, plural, one {# object} other {# objects}} deleted in total."
 
+msgid "{errorCount} {errorCount, plural, one {item} other {items}} could not be deleted: {listed}"
+msgstr "{errorCount} {errorCount, plural, one {item} other {items}} could not be deleted: {listed}"
+
+msgid "{errorCount} {errorCount, plural, one {item} other {items}} could not be deleted."
+msgstr "{errorCount} {errorCount, plural, one {item} other {items}} could not be deleted."
+
 msgid "{errorCount} item(s) could not be deleted"
 msgstr "{errorCount} item(s) could not be deleted"
 
@@ -205,6 +211,9 @@ msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} it
 
 msgid "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{totalItemCount} item} other {{totalItemCount} items}}"
+
+msgid "{unlisted} further {unlisted, plural, one {failure is} other {failures are}} not listed here."
+msgstr "{unlisted} further {unlisted, plural, one {failure is} other {failures are}} not listed here."
 
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Edit metadata:</0> <1>{displayName}</1>"
@@ -1223,8 +1232,8 @@ msgstr "Delete Versions"
 msgid "Deleted"
 msgstr "Deleted"
 
-msgid "Deleted {deletedCount} version(s), but the bucket was not processed completely. Some non-current versions may remain — run Delete Versions again."
-msgstr "Deleted {deletedCount} version(s), but the bucket was not processed completely. Some non-current versions may remain — run Delete Versions again."
+msgid "Deleted {deletedCount} {deletedCount, plural, one {version} other {versions}} from bucket \"{bucketName}\"."
+msgstr "Deleted {deletedCount} {deletedCount, plural, one {version} other {versions}} from bucket \"{bucketName}\"."
 
 msgid "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
 msgstr "Deleted {successCount} image(s), but {failedCount} image(s) could not be deleted."
@@ -3650,6 +3659,9 @@ msgstr "The requested flavor could not be found. It may have been deleted or you
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr "The Resource you are looking for does not exist or is not accessible."
 
+msgid "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
+msgstr "The scan did not reach the end of the bucket, so non-current versions may remain. Run Delete Versions again."
+
 msgid "The selected images will be permanently deleted. This action cannot be undone."
 msgstr "The selected images will be permanently deleted. This action cannot be undone."
 
@@ -3965,8 +3977,8 @@ msgstr "Unable to Update Image Visibility"
 msgid "Unable to Upload Image File"
 msgstr "Unable to Upload Image File"
 
-msgid "Unable to verify bucket versioning status and contents. Please try again."
-msgstr "Unable to verify bucket versioning status and contents. Please try again."
+msgid "Unable to verify bucket versioning status and contents. Try again."
+msgstr "Unable to verify bucket versioning status and contents. Try again."
 
 msgid "Unknown domain"
 msgstr "Unknown domain"
@@ -4102,6 +4114,9 @@ msgstr "Versions Deleted"
 
 msgid "Versions Deleted Permanently"
 msgstr "Versions Deleted Permanently"
+
+msgid "Versions Partially Deleted"
+msgstr "Versions Partially Deleted"
 
 msgid "Versions to delete:"
 msgstr "Versions to delete:"

@@ -297,7 +297,16 @@ export const containerRouter = {
         break
       }
 
-      if (!response.IsTruncated || !response.NextKeyMarker) {
+      if (!response.IsTruncated) {
+        break
+      }
+
+      // Truncated, but S3 handed back no continuation marker. Stopping is mandatory —
+      // resuming from the same marker would loop on the same page forever — but it is a
+      // stop, not a completed scan: the history past this page stays unread. Collapsing
+      // the two left hasOnlyDeleteMarkers below asserted off a single page.
+      if (!response.NextKeyMarker) {
+        isPartialScan = true
         break
       }
 

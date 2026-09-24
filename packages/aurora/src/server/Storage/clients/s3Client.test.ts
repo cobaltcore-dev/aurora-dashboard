@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { createS3Client } from "./s3Client"
 import { S3Client } from "@aws-sdk/client-s3"
+import { S3_CONNECTION_TIMEOUT_MS } from "../constants"
 
 // ============================================================================
 // MOCK DATA / TEST CONSTANTS
@@ -27,6 +28,42 @@ describe("createS3Client", () => {
       const client = createS3Client(TEST_ACCESS, TEST_SECRET, TEST_ENDPOINT, TEST_REGION)
 
       expect(client.config.forcePathStyle).toBe(true)
+    })
+
+    it("applies the Ceph connection timeout to the underlying HTTP handler", async () => {
+      // The SDK accepts requestHandler as either an HttpHandler instance or the
+      // NodeHttpHandler constructor options (NodeHttpHandler.create branches on
+      // `typeof x.handle === "function"`), and this file passes the options object.
+      // Pin the resulting behaviour so an SDK upgrade that narrowed that contract
+      // would fail here rather than silently drop the timeout.
+      const client = createS3Client(TEST_ACCESS, TEST_SECRET, TEST_ENDPOINT, TEST_REGION)
+
+      const handler = (await client.config.requestHandler) as unknown as {
+        handle: (request: unknown, options: { abortSignal: AbortSignal }) => Promise<unknown>
+        httpHandlerConfigs: () => { connectionTimeout?: number }
+      }
+
+      // NodeHttpHandler resolves its config lazily, on the first handle() call, and
+      // httpHandlerConfigs() reports {} until then. An already-aborted signal forces
+      // that resolution and rejects before any socket is opened.
+      const controller = new AbortController()
+      controller.abort()
+      await expect(
+        handler.handle(
+          {
+            protocol: "https:",
+            hostname: "test-ceph.example.com",
+            port: 443,
+            method: "GET",
+            path: "/",
+            headers: {},
+            query: {},
+          },
+          { abortSignal: controller.signal }
+        )
+      ).rejects.toThrow()
+
+      expect(handler.httpHandlerConfigs().connectionTimeout).toBe(S3_CONNECTION_TIMEOUT_MS)
     })
 
     it("uses provided access key, secret key, endpoint, and region", async () => {

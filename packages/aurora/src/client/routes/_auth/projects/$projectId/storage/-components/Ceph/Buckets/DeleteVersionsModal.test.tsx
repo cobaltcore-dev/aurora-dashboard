@@ -5,6 +5,7 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { DeleteVersionsModal } from "./DeleteVersionsModal"
+import type { PartialVersionDeleteOutcome } from "./BucketToastNotifications"
 import type { Bucket } from "@/server/Storage/types/ceph"
 
 // ─── Mock useProjectId ────────────────────────────────────────────────────────
@@ -79,12 +80,14 @@ const renderModal = ({
   onClose = vi.fn(),
   onSuccess = vi.fn(),
   onError = vi.fn(),
+  onPartial = vi.fn(),
 }: {
   isOpen?: boolean
   bucket?: Bucket | null
   onClose?: () => void
   onSuccess?: (bucketName: string, deletedCount: number) => void
   onError?: (bucketName: string, errorMessage: string) => void
+  onPartial?: (bucketName: string, outcome: PartialVersionDeleteOutcome) => void
 } = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -95,6 +98,7 @@ const renderModal = ({
           onClose={onClose}
           onSuccess={onSuccess}
           onError={onError}
+          onPartial={onPartial}
         />
       </PortalProvider>
     </I18nProvider>
@@ -171,11 +175,14 @@ describe("DeleteVersionsModal", () => {
     expect(screen.getByText(/Bucket name does not match/i)).toBeInTheDocument()
   })
 
-  test("reports an error instead of success when the mutation resolves with errorCount > 0", async () => {
+  test("reports a partial result when some keys failed but others were deleted", async () => {
+    // "Failed to Delete Versions" over a body reading "Deleted 1 version(s)" is the title
+    // contradicting itself. A run that deleted something is partial, not failed.
     const user = userEvent.setup({ delay: null })
     const onSuccess = vi.fn()
     const onError = vi.fn()
-    renderModal({ onSuccess, onError })
+    const onPartial = vi.fn()
+    renderModal({ onSuccess, onError, onPartial })
 
     await confirmBucketName(user)
     await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
@@ -189,6 +196,35 @@ describe("DeleteVersionsModal", () => {
     })
 
     expect(onSuccess).not.toHaveBeenCalled()
+    expect(onError).not.toHaveBeenCalled()
+    expect(onPartial).toHaveBeenCalledWith(testBucket.name, {
+      deletedCount: 1,
+      errorCount: 1,
+      errors: [{ key: "b.txt", versionId: "v2", code: "AccessDenied", message: "Access Denied" }],
+      incomplete: false,
+    })
+  })
+
+  test("reports a plain error when nothing was deleted and keys failed", async () => {
+    const user = userEvent.setup({ delay: null })
+    const onSuccess = vi.fn()
+    const onError = vi.fn()
+    const onPartial = vi.fn()
+    renderModal({ onSuccess, onError, onPartial })
+
+    await confirmBucketName(user)
+    await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
+
+    const [, callbacks] = mockMutate.mock.calls[0]
+    callbacks.onSuccess({
+      errors: [{ key: "b.txt", versionId: "v2", code: "AccessDenied", message: "Access Denied" }],
+      deletedCount: 0,
+      errorCount: 1,
+      isPartial: false,
+    })
+
+    expect(onSuccess).not.toHaveBeenCalled()
+    expect(onPartial).not.toHaveBeenCalled()
     expect(onError).toHaveBeenCalledWith(testBucket.name, expect.stringContaining("b.txt"))
   })
 
@@ -215,11 +251,13 @@ describe("DeleteVersionsModal", () => {
 
   test("warns instead of reporting success when the wipe did not reach the end of the bucket", async () => {
     // A count on its own reads as "the version history is gone". It isn't: the scan stopped
-    // early, so old versions may survive and the user has to run the action again.
+    // early, so old versions may survive and the user has to run the action again. That is a
+    // partial result, not a failure, so it must not borrow the error channel.
     const user = userEvent.setup({ delay: null })
     const onSuccess = vi.fn()
     const onError = vi.fn()
-    renderModal({ onSuccess, onError })
+    const onPartial = vi.fn()
+    renderModal({ onSuccess, onError, onPartial })
 
     await confirmBucketName(user)
     await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
@@ -233,7 +271,70 @@ describe("DeleteVersionsModal", () => {
     })
 
     expect(onSuccess).not.toHaveBeenCalled()
-    expect(onError).toHaveBeenCalledWith(testBucket.name, expect.stringContaining("not processed completely"))
+    expect(onError).not.toHaveBeenCalled()
+    expect(onPartial).toHaveBeenCalledWith(testBucket.name, {
+      deletedCount: 42,
+      errorCount: 0,
+      errors: [],
+      incomplete: true,
+    })
+  })
+
+  test("keeps both the failures and the incomplete scan when a run carries each", async () => {
+    // The server records a per-key error *and* sets isPartial for every key it skips
+    // (NoCurrentVersion, MissingVersionId, TooManyVersions), so this combination is the
+    // ordinary partial run, not a corner case. Branching on errorCount before isPartial
+    // dropped the "run it again" half of the report - the half the user has to act on.
+    const user = userEvent.setup({ delay: null })
+    const onSuccess = vi.fn()
+    const onError = vi.fn()
+    const onPartial = vi.fn()
+    renderModal({ onSuccess, onError, onPartial })
+
+    await confirmBucketName(user)
+    await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
+
+    const [, callbacks] = mockMutate.mock.calls[0]
+    callbacks.onSuccess({
+      errors: [{ key: "b.txt", code: "NoCurrentVersion", message: "No version flagged as current" }],
+      deletedCount: 12,
+      errorCount: 1,
+      isPartial: true,
+    })
+
+    expect(onSuccess).not.toHaveBeenCalled()
+    expect(onError).not.toHaveBeenCalled()
+    expect(onPartial).toHaveBeenCalledWith(testBucket.name, {
+      deletedCount: 12,
+      errorCount: 1,
+      errors: [{ key: "b.txt", code: "NoCurrentVersion", message: "No version flagged as current" }],
+      incomplete: true,
+    })
+  })
+
+  test("reports a partial result, not a failure, when nothing was deleted but the scan stopped early", async () => {
+    // Zero deletions alone is not proof of a clean failure: if the scan never reached the end,
+    // the bucket still has to be reprocessed, so routing this to onError would drop the only
+    // actionable part of the message.
+    const user = userEvent.setup({ delay: null })
+    const onSuccess = vi.fn()
+    const onError = vi.fn()
+    const onPartial = vi.fn()
+    renderModal({ onSuccess, onError, onPartial })
+
+    await confirmBucketName(user)
+    await user.click(screen.getByRole("button", { name: /Delete Versions/i }))
+
+    const [, callbacks] = mockMutate.mock.calls[0]
+    callbacks.onSuccess({
+      errors: [{ key: "b.txt", code: "TooManyVersions", message: "Key has too many versions" }],
+      deletedCount: 0,
+      errorCount: 1,
+      isPartial: true,
+    })
+
+    expect(onError).not.toHaveBeenCalled()
+    expect(onPartial).toHaveBeenCalledWith(testBucket.name, expect.objectContaining({ incomplete: true }))
   })
 
   test("refreshes the deleted-content indicators, which this mutation is the biggest mover of", () => {

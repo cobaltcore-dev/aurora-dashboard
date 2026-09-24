@@ -998,7 +998,12 @@ export const objectRouter = {
         }
 
         if (!response.IsTruncated || !response.NextKeyMarker) {
-          if (response.IsTruncated) isPartial = true
+          // Truncated without a usable continuation marker, or aborted while this page's
+          // deletes were in flight. bulkDeleteItems breaks out silently on abort — no
+          // deletion recorded, no error recorded — so this is the last place that can say
+          // the run did not cover the bucket. A false positive is harmless: isPartial means
+          // "not vouching for completeness", and the cost is one re-run.
+          if (response.IsTruncated || ctx.req.signal?.aborted) isPartial = true
           break
         }
 
