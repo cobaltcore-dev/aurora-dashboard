@@ -179,8 +179,14 @@ msgstr "{selectedCount, plural, one {Container leeren} other {# Container leeren
 msgid "{skippedRuleCount, plural, one {# lifecycle rule on this bucket could not be read and is hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete it. Fix it with an external S3 tool (e.g. the AWS CLI) first, then reload this page.} other {# lifecycle rules on this bucket could not be read and are hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete them. Fix them with an external S3 tool (e.g. the AWS CLI) first, then reload this page.}}"
 msgstr ""
 
+msgid "{totalCount, plural, one {{totalCount} bucket total} other {{totalCount} buckets total}}"
+msgstr ""
+
 msgid "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{totalCount} Bucket} other {{totalCount} Buckets}}"
+
+msgid "{totalCount, plural, one {{totalCount} container total} other {{totalCount} containers total}}"
+msgstr ""
 
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} Container} other {{totalCount} Container}}"
@@ -196,6 +202,12 @@ msgstr "{totalCount, plural, one {Bucket leeren} other {Buckets leeren}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{totalCount, plural, one {Container leeren} other {# Container leeren}}"
+
+msgid "{totalCount, plural, one {Found {totalCount} bucket matching \"{searchParam}\"} other {Found {totalCount} buckets matching \"{searchParam}\"}}"
+msgstr ""
+
+msgid "{totalCount, plural, one {Found {totalCount} container matching \"{searchParam}\"} other {Found {totalCount} containers matching \"{searchParam}\"}}"
+msgstr ""
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} von {totalItemCount} Element} other {{filteredItemCount} von {totalItemCount} Elementen}}"
@@ -2561,8 +2573,20 @@ msgstr "Nein"
 msgid "No buckets found"
 msgstr ""
 
+msgid "No buckets match your search criteria. Try adjusting your search term."
+msgstr ""
+
+msgid "No buckets matching search"
+msgstr ""
+
 msgid "No containers found"
 msgstr "Keine Container gefunden"
+
+msgid "No containers match your search criteria. Try adjusting your search term."
+msgstr ""
+
+msgid "No containers matching search"
+msgstr ""
 
 msgid "No CORS rules found"
 msgstr ""
@@ -3680,11 +3704,11 @@ msgstr ""
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr ""
 
-msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
-msgstr ""
+msgid "There are no buckets available in this project."
+msgstr "Für dieses Projekt sind keine Buckets verfügbar."
 
-msgid "There are no containers available with the current search criteria. Try adjusting your search term."
-msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuchen Sie, Ihren Suchbegriff anzupassen."
+msgid "There are no containers available in this project."
+msgstr "Für dieses Projekt sind keine Container verfügbar."
 
 msgid "There Are No CORS Rules for This Bucket"
 msgstr ""

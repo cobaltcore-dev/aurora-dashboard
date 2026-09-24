@@ -179,8 +179,14 @@ msgstr "{selectedCount, plural, one {Empty Container} other {Empty # Containers}
 msgid "{skippedRuleCount, plural, one {# lifecycle rule on this bucket could not be read and is hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete it. Fix it with an external S3 tool (e.g. the AWS CLI) first, then reload this page.} other {# lifecycle rules on this bucket could not be read and are hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete them. Fix them with an external S3 tool (e.g. the AWS CLI) first, then reload this page.}}"
 msgstr "{skippedRuleCount, plural, one {# lifecycle rule on this bucket could not be read and is hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete it. Fix it with an external S3 tool (e.g. the AWS CLI) first, then reload this page.} other {# lifecycle rules on this bucket could not be read and are hidden from this table. Saving any change here replaces the entire lifecycle configuration, which would permanently delete them. Fix them with an external S3 tool (e.g. the AWS CLI) first, then reload this page.}}"
 
+msgid "{totalCount, plural, one {{totalCount} bucket total} other {{totalCount} buckets total}}"
+msgstr "{totalCount, plural, one {{totalCount} bucket total} other {{totalCount} buckets total}}"
+
 msgid "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} buckets}}"
 msgstr "{totalCount, plural, one {{totalCount} bucket} other {{totalCount} buckets}}"
+
+msgid "{totalCount, plural, one {{totalCount} container total} other {{totalCount} containers total}}"
+msgstr "{totalCount, plural, one {{totalCount} container total} other {{totalCount} containers total}}"
 
 msgid "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
 msgstr "{totalCount, plural, one {{totalCount} container} other {{totalCount} containers}}"
@@ -196,6 +202,12 @@ msgstr "{totalCount, plural, one {Empty Bucket} other {Empty Buckets}}"
 
 msgid "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
 msgstr "{totalCount, plural, one {Empty Container} other {Empty # Containers}}"
+
+msgid "{totalCount, plural, one {Found {totalCount} bucket matching \"{searchParam}\"} other {Found {totalCount} buckets matching \"{searchParam}\"}}"
+msgstr "{totalCount, plural, one {Found {totalCount} bucket matching \"{searchParam}\"} other {Found {totalCount} buckets matching \"{searchParam}\"}}"
+
+msgid "{totalCount, plural, one {Found {totalCount} container matching \"{searchParam}\"} other {Found {totalCount} containers matching \"{searchParam}\"}}"
+msgstr "{totalCount, plural, one {Found {totalCount} container matching \"{searchParam}\"} other {Found {totalCount} containers matching \"{searchParam}\"}}"
 
 msgid "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
 msgstr "{totalItemCount, plural, one {{filteredItemCount} of {totalItemCount} item} other {{filteredItemCount} of {totalItemCount} items}}"
@@ -2561,8 +2573,20 @@ msgstr "No"
 msgid "No buckets found"
 msgstr "No buckets found"
 
+msgid "No buckets match your search criteria. Try adjusting your search term."
+msgstr "No buckets match your search criteria. Try adjusting your search term."
+
+msgid "No buckets matching search"
+msgstr "No buckets matching search"
+
 msgid "No containers found"
 msgstr "No containers found"
+
+msgid "No containers match your search criteria. Try adjusting your search term."
+msgstr "No containers match your search criteria. Try adjusting your search term."
+
+msgid "No containers matching search"
+msgstr "No containers matching search"
 
 msgid "No CORS rules found"
 msgstr "No CORS rules found"
@@ -3680,11 +3704,11 @@ msgstr "The text must match \"release\" in lowercase."
 msgid "There are {bucketsCount} buckets, start typing to search"
 msgstr "There are {bucketsCount} buckets, start typing to search"
 
-msgid "There are no buckets available with the current search criteria. Try adjusting your search term."
-msgstr "There are no buckets available with the current search criteria. Try adjusting your search term."
+msgid "There are no buckets available in this project."
+msgstr "There are no buckets available in this project."
 
-msgid "There are no containers available with the current search criteria. Try adjusting your search term."
-msgstr "There are no containers available with the current search criteria. Try adjusting your search term."
+msgid "There are no containers available in this project."
+msgstr "There are no containers available in this project."
 
 msgid "There Are No CORS Rules for This Bucket"
 msgstr "There Are No CORS Rules for This Bucket"

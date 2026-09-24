@@ -1,6 +1,6 @@
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, act, waitFor } from "@testing-library/react"
+import { render, screen, act, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -371,7 +371,8 @@ describe("CephBuckets (index)", () => {
 
     test("shows total bucket count when no search is active", () => {
       renderBuckets()
-      expect(screen.getByText(/3 buckets/i)).toBeInTheDocument()
+      const infoBlock = screen.getByTestId("buckets-info-block")
+      expect(within(infoBlock).getByText(/3 buckets/i)).toBeInTheDocument()
     })
 
     test("shows bucket count when search is active", () => {
@@ -379,13 +380,15 @@ describe("CephBuckets (index)", () => {
       trpcState.buckets = [mockBuckets[0]]
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "bucket-1" })
       renderBuckets()
-      expect(screen.getByText(/1 bucket$/i)).toBeInTheDocument()
+      const infoBlock = screen.getByTestId("buckets-info-block")
+      expect(within(infoBlock).getByText(/1 bucket$/i)).toBeInTheDocument()
     })
 
     test("shows total count when search is cleared", () => {
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "" })
       renderBuckets()
-      expect(screen.getByText(/3 buckets/i)).toBeInTheDocument()
+      const infoBlock = screen.getByTestId("buckets-info-block")
+      expect(within(infoBlock).getByText(/3 buckets/i)).toBeInTheDocument()
     })
   })
 

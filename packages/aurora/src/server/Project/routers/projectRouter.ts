@@ -129,63 +129,6 @@ export const projectRouter = {
   }),
 
   /**
-   * Search projects with optional text filtering
-   *
-   * Returns all projects that the authenticated user has access to,
-   * filtered by the optional search term. Uses the OpenStack /v3/auth/projects
-   * endpoint which works with any valid token.
-   */
-  searchProjects: protectedProcedure
-    .input(
-      z
-        .object({
-          search: z.string().optional(),
-        })
-        .optional()
-    )
-    .query(async ({ ctx, input }): Promise<Project[] | undefined> => {
-      if (!ctx.openstack) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "No authenticated session",
-        })
-      }
-
-      const token = ctx.openstack.getToken()
-      if (!token?.authToken) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "No auth token available",
-        })
-      }
-
-      const response = await callIdentityAPI(ctx.identityEndpoint, token.authToken, "auth/projects")
-      const data = await response.json()
-      const parsedData = projectsResponseSchema.safeParse(data)
-
-      if (!parsedData.success) {
-        console.error("Zod Parsing Error:", parsedData.error.format())
-        return undefined
-      }
-
-      let projects = parsedData.data.projects
-
-      // Apply text search filter if provided
-      if (input?.search && input.search.trim() !== "") {
-        const searchTermLower = input.search.toLowerCase()
-        projects = projects.filter(
-          (project) =>
-            project.name.toLowerCase().includes(searchTermLower) ||
-            (project.description && project.description.toLowerCase().includes(searchTermLower))
-        )
-      }
-
-      projects.sort((a, b) => a.name.localeCompare(b.name))
-
-      return projects
-    }),
-
-  /**
    * List projects with unified search functionality
    *
    * Returns all projects that the authenticated user has access to,

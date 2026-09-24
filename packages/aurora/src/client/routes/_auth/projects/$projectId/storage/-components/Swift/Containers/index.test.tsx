@@ -644,7 +644,7 @@ describe("SwiftContainers (List)", () => {
       trpcState.containers = []
       mockContainersUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "nonexistent" })
       renderList()
-      expect(screen.getByText(/No containers found/i)).toBeInTheDocument()
+      expect(screen.getByText(/No containers matching search/i)).toBeInTheDocument()
     })
   })
 

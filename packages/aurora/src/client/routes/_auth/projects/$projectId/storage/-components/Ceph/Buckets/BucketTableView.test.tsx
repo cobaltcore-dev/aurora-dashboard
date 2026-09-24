@@ -105,6 +105,7 @@ const renderTableView = ({
   setSelectedBuckets = vi.fn(),
   canEmptyBucket = true,
   canDeleteBucket = true,
+  hasActiveSearch = false,
 }: Partial<{
   buckets: Bucket[]
   createModalOpen: boolean
@@ -118,6 +119,7 @@ const renderTableView = ({
   setSelectedBuckets: (buckets: string[]) => void
   canEmptyBucket: boolean
   canDeleteBucket: boolean
+  hasActiveSearch: boolean
 }> = {}) =>
   render(
     <I18nProvider i18n={i18n}>
@@ -135,6 +137,7 @@ const renderTableView = ({
           setSelectedBuckets={setSelectedBuckets}
           canEmptyBucket={canEmptyBucket}
           canDeleteBucket={canDeleteBucket}
+          hasActiveSearch={hasActiveSearch}
         />
       </PortalProvider>
     </I18nProvider>
@@ -159,9 +162,14 @@ describe("BucketTableView", () => {
       expect(screen.getByRole("status")).toBeInTheDocument()
     })
 
-    test("shows helpful message in empty state", () => {
-      renderTableView({ buckets: [] })
-      expect(screen.getByText(/There are no buckets available with the current search criteria/)).toBeInTheDocument()
+    test("shows helpful message in empty state without search", () => {
+      renderTableView({ buckets: [], hasActiveSearch: false })
+      expect(screen.getByText(/There are no buckets available in this project/)).toBeInTheDocument()
+    })
+
+    test("shows search-specific message in empty state with active search", () => {
+      renderTableView({ buckets: [], hasActiveSearch: true })
+      expect(screen.getByText(/No buckets match your search criteria/)).toBeInTheDocument()
     })
   })
 
