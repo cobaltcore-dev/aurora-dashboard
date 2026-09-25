@@ -281,6 +281,7 @@ describe("flavorRouter", () => {
         swap: 128,
         rxtx_factor: 1.0,
         "OS-FLV-EXT-DATA:ephemeral": 0,
+        description: "Test flavor description",
       },
     }
 
@@ -317,6 +318,7 @@ describe("flavorRouter", () => {
           swap: 128,
           rxtx_factor: 1.0,
           "OS-FLV-EXT-DATA:ephemeral": 0,
+          description: "Test flavor description",
         },
         undefined // microversion parameter
       )

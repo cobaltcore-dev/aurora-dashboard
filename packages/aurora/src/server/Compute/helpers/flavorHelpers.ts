@@ -350,7 +350,6 @@ export async function createFlavor(
   microversion?: string
 ): Promise<Flavor> {
   const requestBody = { flavor: flavorData }
-  console.log("Creating flavor with data:", JSON.stringify(requestBody, null, 2))
 
   // If flavor has description and microversion is provided, use it
   const headers: Record<string, string> = {}
@@ -369,17 +368,18 @@ export async function createFlavor(
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
-    console.error("OpenStack API error response:", error)
-    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     const statusCode = getStatusCodeFromError(error)
 
     // Preserve the original error message for retry logic to inspect
-    if (statusCode === 400 && errorMessage.includes("description")) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: errorMessage,
-        cause: error,
-      })
+    if (statusCode === 400) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
+      if (errorMessage.includes("description")) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: errorMessage,
+          cause: error,
+        })
+      }
     }
 
     handleHttpError(statusCode, CREATE_FLAVOR_STATUS_MAP, ERROR_CODES.CREATE_FLAVOR_FAILED)
@@ -394,7 +394,6 @@ export async function createFlavor(
     const jsonData = JSON.parse(rawData) as CreateFlavorResponse
     return jsonData.flavor
   } catch (error) {
-    console.error("Error parsing flavor response:", error)
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.CREATE_FLAVOR_FAILED,
