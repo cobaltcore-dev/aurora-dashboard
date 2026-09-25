@@ -77,13 +77,6 @@ export const SwiftContainers = () => {
     setLocalSearchTerm(searchParam)
   }, [searchParam])
 
-  // Clear selections when search changes — server-filtered results may exclude
-  // previously selected containers, breaking bulk actions if hidden selections
-  // remain in state while selectedContainerSummaries is empty.
-  useEffect(() => {
-    setSelectedContainers([])
-  }, [searchParam])
-
   const handleCreateSuccess = (containerName: string) => {
     const { message, ...options } = getContainerCreatedToast(containerName)
     toast.success(message, options)
@@ -176,7 +169,6 @@ export const SwiftContainers = () => {
   } = trpcReact.storage.swift.listContainers.useQuery({
     project_id: projectId,
     format: "json",
-    searchTerm: searchParam, // Server-side filtering
   })
 
   // Fetch account metadata for quota information
@@ -226,8 +218,10 @@ export const SwiftContainers = () => {
     })
   }
 
-  // Containers are already filtered server-side via searchTerm
-  const filteredContainers = containers || []
+  // Filter containers based on search term
+  const filteredContainers = (containers || []).filter((container) =>
+    container.name.toLowerCase().includes(searchParam.toLowerCase())
+  )
 
   // Apply sorting to filtered containers
   const sortedContainers = sortContainers(filteredContainers)
@@ -278,8 +272,9 @@ export const SwiftContainers = () => {
   const hasSelection = selectedContainerSummaries.length > 0
   const selectedCount = selectedContainerSummaries.length
 
-  // With server-side search, we only have the filtered results
   const totalCount = (containers || []).length
+  const filteredCount = filteredContainers.length
+  const isFiltered = filteredCount !== totalCount
 
   // Select-all operates on the currently displayed (filtered + sorted) rows.
   const displayedNames = sortedContainers.map((c) => c.name)
@@ -390,7 +385,15 @@ export const SwiftContainers = () => {
             )}
 
             <div className="text-theme-light ml-auto flex items-center gap-1" data-testid="containers-info-block">
-              <Plural value={totalCount} one={`${totalCount} container`} other={`${totalCount} containers`} />
+              {isFiltered ? (
+                <Plural
+                  value={filteredCount}
+                  one={`${filteredCount} of ${totalCount} container`}
+                  other={`${filteredCount} of ${totalCount} containers`}
+                />
+              ) : (
+                <Plural value={totalCount} one={`${totalCount} container`} other={`${totalCount} containers`} />
+              )}
               {quotaBytes > 0 && (
                 <>
                   <span>,</span>
