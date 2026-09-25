@@ -428,7 +428,7 @@ describe("createFlavor", () => {
 
     const result = await createFlavor(compute, flavorData)
     expect(result).toEqual(mockFlavor)
-    expect(compute.post).toHaveBeenCalledWith("flavors", { flavor: flavorData })
+    expect(compute.post).toHaveBeenCalledWith("flavors", { flavor: flavorData }, undefined)
   })
 
   it("should throw BAD_REQUEST for 400 status", async () => {

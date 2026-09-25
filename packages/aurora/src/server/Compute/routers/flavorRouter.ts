@@ -50,12 +50,12 @@ export const flavorRouter = {
           versionString = currentVersion?.version || "2.1"
         }
 
-        // Parse version (e.g., "2.55" -> 2.55)
-        const version = parseFloat(versionString)
+        // Parse version components to handle dotted versions like 2.100
+        const [major, minor] = versionString.split(".").map(Number)
 
         return {
           version: versionString,
-          supportsDescription: version >= 2.55,
+          supportsDescription: major > 2 || (major === 2 && minor >= 55),
         }
       } catch (error) {
         // Default to not supporting description if we can't determine version
@@ -214,8 +214,8 @@ export const flavorRouter = {
           }
 
           detectedVersion = versionString
-          const version = parseFloat(versionString)
-          supportsDescription = version >= 2.55
+          const [major, minor] = versionString.split(".").map(Number)
+          supportsDescription = major > 2 || (major === 2 && minor >= 55)
         } catch {
           supportsDescription = false
         }
