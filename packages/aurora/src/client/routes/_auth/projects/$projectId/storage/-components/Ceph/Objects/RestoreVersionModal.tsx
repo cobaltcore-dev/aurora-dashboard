@@ -7,6 +7,7 @@ import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import type { DeleteObjectsBulkOutput } from "@/server/Storage/types/ceph"
 import { formatBulkDeleteErrors } from "./utils/bulkDeleteErrors"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 interface RestoreVersionModalProps {
   isOpen: boolean
@@ -46,10 +47,7 @@ export const RestoreVersionModal = ({
   const isFolder = objectKey.endsWith("/")
 
   const invalidateAfterRestore = () => {
-    utils.storage.ceph.versioning.listObjectVersions.invalidate()
-    utils.storage.ceph.versioning.checkDeletedContent.invalidate()
-    utils.storage.ceph.objects.list.invalidate()
-    utils.storage.ceph.containers.list.invalidate()
+    invalidateBucketQueries(utils, { objectVersions: true })
   }
 
   // versioning.restoreVersion either succeeds or rejects — no per-item results.

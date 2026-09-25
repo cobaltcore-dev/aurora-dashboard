@@ -16,6 +16,7 @@ import {
 import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-icons/md"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useCopyMoveModalState } from "./hooks/useCopyMoveModalState"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 const MAX_COMBO_OPTIONS = 50
 
@@ -154,8 +155,7 @@ export const CopyObjectModal = ({
 
   const copyMutation = trpcReact.storage.ceph.objects.copy.useMutation({
     onSuccess: () => {
-      utils.storage.ceph.objects.list.invalidate()
-      utils.storage.ceph.containers.list.invalidate()
+      invalidateBucketQueries(utils)
       const targetKey = `${modalState.currentPrefix}${displayName}`
       onSuccess?.(submittedKeyRef.current, modalState.targetBucket, targetKey, targetExists)
       handleClose()

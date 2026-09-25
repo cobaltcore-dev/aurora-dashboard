@@ -30,7 +30,7 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
   const [activeModal, setActiveModal] = useState<ModalType | null>(null)
 
   // Fetch bucket information
-  const { versioningStatus, policyData, hasOldVersionsOrDeleteMarkers, isBucketEmpty } = useBucketInfo({
+  const { versioningStatus, policyData, hasOldVersionsOrDeleteMarkers } = useBucketInfo({
     bucketName,
     enabled: true,
   })
@@ -67,7 +67,6 @@ export const BucketHeader = ({ bucketName }: BucketHeaderProps) => {
       versioningStatus={versioningStatus}
       hasPolicy={Boolean(policyData?.policy)}
       hasOldVersionsOrDeleteMarkers={hasOldVersionsOrDeleteMarkers}
-      isBucketEmpty={isBucketEmpty}
       onOpenModal={openModal}
       canUpdateVersioning={permissions.canUpdateVersioning}
       canUpdatePolicy={permissions.canUpdatePolicy}

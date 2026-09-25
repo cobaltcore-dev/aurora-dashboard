@@ -7,6 +7,7 @@ import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import type { DeleteObjectsBulkOutput } from "@/server/Storage/types/ceph"
 import { formatBulkDeleteErrors } from "./utils/bulkDeleteErrors"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 interface DeleteVersionModalProps {
   isOpen: boolean
@@ -56,10 +57,7 @@ export const DeleteVersionModal = ({
     onSuccess: (result: DeleteObjectsBulkOutput) => {
       // Invalidate regardless of outcome: on a partial failure some versions really
       // were deleted, so the cached lists are stale either way.
-      utils.storage.ceph.versioning.listObjectVersions.invalidate()
-      utils.storage.ceph.versioning.checkDeletedContent.invalidate()
-      utils.storage.ceph.objects.list.invalidate()
-      utils.storage.ceph.containers.list.invalidate()
+      invalidateBucketQueries(utils, { objectVersions: true })
       // deleteVersionsBulk resolves even when S3 refused individual versions: those
       // come back in `errors` on an HTTP 200, not as a thrown error.
       if (result.errorCount > 0) {

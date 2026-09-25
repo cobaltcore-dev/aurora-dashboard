@@ -101,6 +101,9 @@ vi.mock("@/client/trpcClient", () => ({
             list: {
               invalidate: mockInvalidate,
             },
+            getState: {
+              invalidate: mockInvalidate,
+            },
           },
         },
       },

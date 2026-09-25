@@ -155,7 +155,8 @@ describe("ObjectVersionHistoryModal", () => {
     expect(screen.getByText("Last Modified")).toBeInTheDocument()
     expect(screen.getByText("Size")).toBeInTheDocument()
     expect(screen.getByText("ETag")).toBeInTheDocument()
-    expect(screen.getByText("Actions")).toBeInTheDocument()
+    // The row-action column is deliberately unlabelled, like the one in `ObjectsTableView`.
+    expect(screen.queryByText("Actions")).not.toBeInTheDocument()
   })
 
   it("displays version data", () => {

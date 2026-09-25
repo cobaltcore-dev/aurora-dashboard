@@ -5,6 +5,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import type { DeleteObjectsBulkOutput } from "@/server/Storage/types/ceph"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 interface DeleteObjectsModalProps {
   bucketName: string
@@ -47,9 +48,7 @@ export function DeleteObjectsModal({
 
   const deleteBulkMutation = trpcReact.storage.ceph.objects.deleteBulk.useMutation({
     onSuccess: (res) => {
-      utils.storage.ceph.objects.list.invalidate()
-      utils.storage.ceph.containers.list.invalidate()
-      utils.storage.ceph.versioning.checkDeletedContent.invalidate()
+      invalidateBucketQueries(utils)
       onDeleted(
         res.deleted.map((d) => d.key),
         res.errorCount
@@ -65,9 +64,7 @@ export function DeleteObjectsModal({
 
   const deleteVersionsBulkMutation = trpcReact.storage.ceph.objects.deleteVersionsBulk.useMutation({
     onSuccess: (res) => {
-      utils.storage.ceph.objects.list.invalidate()
-      utils.storage.ceph.containers.list.invalidate()
-      utils.storage.ceph.versioning.checkDeletedContent.invalidate()
+      invalidateBucketQueries(utils)
       onDeleted(
         res.deleted.map((d) => d.key),
         res.errorCount

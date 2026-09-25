@@ -10,26 +10,27 @@ import {
   Stack,
   Checkbox,
   Status,
+  Message,
 } from "@cloudoperators/juno-ui-components"
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
-import { calculateBucketState } from "../hooks/bucketStateHelpers"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 interface EmptyBucketModalProps {
   isOpen: boolean
   bucket: Bucket | null
   onClose: () => void
   onSuccess?: (bucketName: string, deletedCount: number) => void
-  onError?: (bucketName: string, errorMessage: string) => void
 }
 
-export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }: EmptyBucketModalProps) => {
+export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess }: EmptyBucketModalProps) => {
   const { t } = useLingui()
   const projectId = useProjectId()
   const [confirmName, setConfirmName] = useState("")
   const [nameError, setNameError] = useState<string | null>(null)
   const [deleteVersionsAndMarkers, setDeleteVersionsAndMarkers] = useState(false)
+  const [mutationError, setMutationError] = useState<string | null>(null)
 
   const { trackClose, markSubmitted, resetTracking } = useModalTracking({
     isOpen,
@@ -38,15 +39,23 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
 
   const utils = trpcReact.useUtils()
 
-  // Query versioning status for the bucket
+  // Query authoritative bucket state (versioning status, current objects, old versions/delete
+  // markers) — a single bounded server-side scan. Always runs (regardless of versioning status)
+  // to get accurate live data for the truly-empty check below — bucket.count from the list
+  // cache can be stale.
+  //
+  // This carries the versioning status too, so there is no separate `versioning.getStatus`
+  // query beside it: `getState` issues `GetBucketVersioning` anyway, and with staleTime: 0 a
+  // second one would be a guaranteed duplicate round-trip on every open of this modal.
   const {
-    data: versioningStatus,
-    isLoading: isLoadingVersioning,
-    error: versioningError,
-  } = trpcReact.storage.ceph.versioning.getStatus.useQuery(
+    data: bucketState,
+    isLoading: isLoadingBucketState,
+    isFetching: isFetchingBucketState,
+    error: bucketStateError,
+  } = trpcReact.storage.ceph.containers.getState.useQuery(
     {
       project_id: projectId ?? "",
-      bucket: bucket?.name ?? "",
+      bucketName: bucket?.name ?? "",
     },
     {
       enabled: !!projectId && !!bucket && isOpen,
@@ -56,45 +65,15 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     }
   )
 
-  // Query to check if bucket has versions/delete markers. Always runs (regardless of
-  // versioning status) to get accurate live data for the truly-empty check below —
-  // bucket.count from the list cache can be stale.
-  // Use maxKeys=100 to get enough data - with maxKeys=1 we might miss current objects
-  // if the first result is a delete marker
-  const {
-    data: versionCheckData,
-    isLoading: isLoadingVersionCheck,
-    error: versionCheckError,
-  } = trpcReact.storage.ceph.objects.list.useQuery(
-    {
-      project_id: projectId ?? "",
-      containerName: bucket?.name ?? "",
-      maxKeys: 100,
-      delimiter: "",
-      showVersions: true,
-    },
-    {
-      enabled: !!projectId && !!bucket && isOpen,
-      // App-wide default staleTime is 60s (see App.tsx) — override it so every
-      // open of this modal re-verifies live instead of serving cached data.
-      staleTime: 0,
-    }
-  )
-
-  // Check bucket state using shared helper. Pass 0 instead of bucket.count (list-cache
-  // metadata, can be stale) — this modal exists specifically to be the live, authoritative
-  // check, so it must rely on allVersions from the fresh query above, not the cached count.
-  const isVersioningEnabled = versioningStatus?.status === "Enabled" || versioningStatus?.status === "Suspended"
-  const allVersions = versionCheckData?.versions ?? []
-  const { isBucketEmpty, hasOnlyDeleteMarkers, hasOldVersionsOrDeleteMarkers } = calculateBucketState(
-    allVersions,
-    isVersioningEnabled,
-    0
-  )
-  // objects.list only returns the first page (maxKeys: 100). If it's truncated, allVersions
-  // is incomplete and can't be trusted to classify the bucket as empty/delete-markers-only —
-  // fall back to the standard destructive form instead of risking a wrong "safe" branch.
-  const isVersionDataComplete = !versionCheckData?.isTruncated
+  const versioningStatus = bucketState ? { status: bucketState.status } : undefined
+  const isBucketEmpty = bucketState?.isEmpty ?? false
+  const hasOnlyDeleteMarkers = bucketState?.hasOnlyDeleteMarkers ?? false
+  const hasOldVersionsOrDeleteMarkers = bucketState?.hasOldVersionsOrDeleteMarkers ?? false
+  // The scan hit its page ceiling (or hasn't resolved yet) and couldn't confirm every flag —
+  // same guard as before (`isVersionDataComplete`), sourced from the server's honest
+  // `isPartialScan` rather than inferred from `isTruncated` on a first-page-only probe. Fall
+  // back to the standard destructive form instead of risking a wrong "safe" branch.
+  const isVersionDataComplete = !(bucketState?.isPartialScan ?? true)
   const isBucketEmptyWithVersions = isVersionDataComplete && isBucketEmpty && hasOnlyDeleteMarkers
   // Bucket has zero current objects AND zero versions/delete markers of any kind —
   // genuinely nothing to empty (unlike isBucketEmptyWithVersions, which still has
@@ -103,10 +82,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
 
   const emptyBucketMutation = trpcReact.storage.ceph.objects.deleteAll.useMutation({
     onSettled: () => {
-      // Invalidate both containers.list (to update bucket metadata) and objects.list (to refresh empty state)
-      utils.storage.ceph.containers.list.invalidate()
-      utils.storage.ceph.objects.list.invalidate()
-      handleClose()
+      invalidateBucketQueries(utils)
     },
   })
 
@@ -115,6 +91,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     setConfirmName("")
     setNameError(null)
     setDeleteVersionsAndMarkers(false)
+    setMutationError(null)
     emptyBucketMutation.reset()
     resetTracking()
     onClose()
@@ -124,6 +101,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     const value = e.target.value
     setConfirmName(value)
     if (nameError) setNameError(null)
+    if (mutationError) setMutationError(null)
   }
 
   const handleSubmit = () => {
@@ -133,6 +111,7 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       return
     }
 
+    setMutationError(null)
     markSubmitted()
 
     // Capture bucket name before async operation to avoid dereferencing null bucket in callbacks
@@ -150,9 +129,10 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       {
         onSuccess: (deletedCount) => {
           onSuccess?.(bucketName, deletedCount)
+          handleClose()
         },
         onError: (error) => {
-          onError?.(bucketName, error.message)
+          setMutationError(error.message)
         },
       }
     )
@@ -165,8 +145,8 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
   if (!isOpen || !bucket) return null
 
   const bucketName = bucket.name
-  const isLoading = isLoadingVersioning || isLoadingVersionCheck
-  const hasQueryError = !!versioningError || !!versionCheckError
+  const isLoading = isLoadingBucketState || (isFetchingBucketState && !mutationError)
+  const hasQueryError = !!bucketStateError
 
   // If bucket is empty with only delete markers, show "Delete Versions" UI
   if (isBucketEmptyWithVersions && !isLoading) {
@@ -181,12 +161,23 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
         cancelButtonLabel={t`Cancel`}
         size="small"
         disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name || hasQueryError}
+        disableCancelButton={emptyBucketMutation.isPending}
+        disableCloseButton={emptyBucketMutation.isPending}
+        closeOnEsc={!emptyBucketMutation.isPending}
       >
         <Stack direction="vertical" gap="6">
           {hasQueryError && (
-            <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
-              <Trans>Unable to verify bucket versioning status. Please try again.</Trans>
-            </div>
+            <Message variant="error" role="alert" aria-live="assertive" data-testid="empty-bucket-state-error">
+              <Trans>Unable to verify bucket versioning status and contents. Try again.</Trans>
+            </Message>
+          )}
+
+          {mutationError && (
+            <EmptyBucketErrorMessage
+              title={isBucketEmptyWithVersions ? t`Failed to Delete Versions` : t`Failed to Empty Bucket`}
+              bucketName={bucketName}
+              errorMessage={mutationError}
+            />
           )}
 
           <p className="text-theme-default m-0">
@@ -231,21 +222,25 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
           </ModalFooter>
         }
       >
-        {hasQueryError ? (
-          <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
-            {versioningError && versionCheckError ? (
-              <Trans>Unable to verify bucket versioning status and contents. Please try again.</Trans>
-            ) : versioningError ? (
-              <Trans>Unable to verify bucket versioning status. Please try again.</Trans>
-            ) : (
-              <Trans>Unable to verify bucket contents. Please try again.</Trans>
-            )}
-          </div>
-        ) : (
-          <p className="text-theme-default py-2">
-            <Trans>This bucket is already empty.</Trans>
-          </p>
-        )}
+        <Stack direction="vertical" gap="6">
+          {mutationError && (
+            <EmptyBucketErrorMessage
+              title={t`Failed to Empty Bucket`}
+              bucketName={bucketName}
+              errorMessage={mutationError}
+            />
+          )}
+
+          {hasQueryError ? (
+            <Message variant="error" role="alert" aria-live="assertive" data-testid="empty-bucket-state-error">
+              <Trans>Unable to verify bucket versioning status and contents. Try again.</Trans>
+            </Message>
+          ) : (
+            <p className="text-theme-default py-2">
+              <Trans>This bucket is already empty.</Trans>
+            </p>
+          )}
+        </Stack>
       </Modal>
     )
   }
@@ -261,16 +256,29 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
       onConfirm={handleSubmit}
       cancelButtonLabel={t`Cancel`}
       size="small"
-      disableConfirmButton={emptyBucketMutation.isPending || confirmName.trim() !== bucket.name || hasQueryError}
+      disableConfirmButton={
+        emptyBucketMutation.isPending || isLoading || confirmName.trim() !== bucket.name || hasQueryError
+      }
+      disableCancelButton={emptyBucketMutation.isPending}
+      disableCloseButton={emptyBucketMutation.isPending}
+      closeOnEsc={!emptyBucketMutation.isPending}
     >
       {isLoading ? (
         <Status status="progress" title={t`Checking Bucket Contents...`} className="mt-0" />
       ) : (
         <Stack direction="vertical" gap="6">
           {hasQueryError && (
-            <div className="bg-theme-danger-10 text-theme-danger rounded p-4">
-              <Trans>Unable to verify bucket versioning status. Please try again.</Trans>
-            </div>
+            <Message variant="error" role="alert" aria-live="assertive" data-testid="empty-bucket-state-error">
+              <Trans>Unable to verify bucket versioning status and contents. Try again.</Trans>
+            </Message>
+          )}
+
+          {mutationError && (
+            <EmptyBucketErrorMessage
+              title={isBucketEmptyWithVersions ? t`Failed to Delete Versions` : t`Failed to Empty Bucket`}
+              bucketName={bucketName}
+              errorMessage={mutationError}
+            />
           )}
 
           <p className="text-theme-default m-0">
@@ -312,3 +320,23 @@ export const EmptyBucketModal = ({ isOpen, bucket, onClose, onSuccess, onError }
     </Modal>
   )
 }
+
+const EmptyBucketErrorMessage = ({
+  title,
+  bucketName,
+  errorMessage,
+}: {
+  title: string
+  bucketName: string
+  errorMessage: string
+}) => (
+  <Message variant="error" title={title} role="alert" aria-live="assertive" data-testid="empty-bucket-error">
+    <EmptyBucketErrorBody bucketName={bucketName} errorMessage={errorMessage} />
+  </Message>
+)
+
+const EmptyBucketErrorBody = ({ bucketName, errorMessage }: { bucketName: string; errorMessage: string }) => (
+  <Trans>
+    Could not empty bucket "{bucketName}": {errorMessage}
+  </Trans>
+)

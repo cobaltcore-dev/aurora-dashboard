@@ -1,4 +1,5 @@
 import { S3Client } from "@aws-sdk/client-s3"
+import { S3_CONNECTION_TIMEOUT_MS } from "../constants"
 
 /**
  * Creates an S3Client configured for Ceph RGW.
@@ -28,5 +29,8 @@ export function createS3Client(access: string, secret: string, endpoint: string,
       secretAccessKey: secret,
     },
     forcePathStyle: true,
+    requestHandler: {
+      connectionTimeout: S3_CONNECTION_TIMEOUT_MS,
+    },
   })
 }

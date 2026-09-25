@@ -8,7 +8,6 @@ interface BucketHeaderActionsProps {
   }
   hasPolicy: boolean
   hasOldVersionsOrDeleteMarkers: boolean
-  isBucketEmpty: boolean
   onOpenModal: (modal: ModalType) => void
   canUpdateVersioning: boolean
   canUpdatePolicy: boolean
@@ -33,7 +32,6 @@ export const BucketHeaderActions = ({
   versioningStatus,
   hasPolicy,
   hasOldVersionsOrDeleteMarkers,
-  isBucketEmpty,
   onOpenModal,
   canUpdateVersioning,
   canUpdatePolicy,
@@ -49,14 +47,13 @@ export const BucketHeaderActions = ({
   const canSuspendVersioning = versioningState === "Enabled"
   const canToggleVersioning = canEnableVersioning || canSuspendVersioning
   const canShowDeletePolicy = hasPolicy && canDeletePolicy
-  const canShowEmptyBucket = !isBucketEmpty && canEmptyBucket
   const canShowDeleteVersions = hasOldVersionsOrDeleteMarkers && canDeleteVersions
 
   const hasAnyAction =
     canToggleVersioning ||
     canUpdatePolicy ||
     canShowDeletePolicy ||
-    canShowEmptyBucket ||
+    canEmptyBucket ||
     canShowDeleteVersions ||
     canDeleteBucket
 
@@ -80,7 +77,7 @@ export const BucketHeaderActions = ({
           <PopupMenuItem label={hasPolicy ? t`Edit Policy` : t`Add Policy`} onClick={() => onOpenModal("policy")} />
         )}
         {canShowDeletePolicy && <PopupMenuItem label={t`Delete Policy`} onClick={() => onOpenModal("deletePolicy")} />}
-        {canShowEmptyBucket && <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />}
+        {canEmptyBucket && <PopupMenuItem label={t`Empty Bucket`} onClick={() => onOpenModal("emptyBucket")} />}
         {canShowDeleteVersions && (
           <PopupMenuItem label={t`Delete Versions`} onClick={() => onOpenModal("deleteVersions")} />
         )}

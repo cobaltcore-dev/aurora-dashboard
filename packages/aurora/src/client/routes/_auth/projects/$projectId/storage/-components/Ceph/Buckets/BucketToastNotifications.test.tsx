@@ -6,7 +6,6 @@ import {
   getBucketCreatedToast,
   getBucketCreateErrorToast,
   getBucketEmptiedToast,
-  getBucketEmptyErrorToast,
   getBucketDeletedToast,
   getBucketDeleteErrorToast,
   getBucketsEmptyCompleteToast,
@@ -19,7 +18,6 @@ import {
   getBucketPolicyDeletedToast,
   getBucketPolicyDeleteErrorToast,
   getVersionsDeletedToast,
-  getVersionsDeleteErrorToast,
 } from "./BucketToastNotifications"
 
 // Helpers return the Juno NotificationManager shape: { message, description }.
@@ -132,32 +130,6 @@ describe("BucketToastNotifications", () => {
     })
   })
 
-  describe("getBucketEmptyErrorToast", () => {
-    it("returns notification with correct structure", () => {
-      const toast = getBucketEmptyErrorToast("my-bucket", "Internal Server Error")
-      expect(toast.message).toBeDefined()
-      expect(toast.description).toBeDefined()
-    })
-
-    it("renders correct error message content", () => {
-      renderNotification(getBucketEmptyErrorToast("my-bucket", "Internal Server Error"))
-      expect(screen.getByText("Failed to Empty Bucket")).toBeInTheDocument()
-      expect(screen.getByText(/my-bucket/)).toBeInTheDocument()
-      expect(screen.getByText(/Could not empty bucket/)).toBeInTheDocument()
-      expect(screen.getByText(/Internal Server Error/)).toBeInTheDocument()
-    })
-
-    it("handles different error messages", () => {
-      renderNotification(getBucketEmptyErrorToast("my-bucket", "Bulk delete failed"))
-      expect(screen.getByText(/Bulk delete failed/)).toBeInTheDocument()
-    })
-
-    it("handles empty error message", () => {
-      renderNotification(getBucketEmptyErrorToast("my-bucket", ""))
-      expect(screen.getByText("Failed to Empty Bucket")).toBeInTheDocument()
-    })
-  })
-
   describe("getBucketDeletedToast", () => {
     it("returns notification with correct structure", () => {
       const toast = getBucketDeletedToast("my-bucket")
@@ -261,7 +233,6 @@ describe("BucketToastNotifications", () => {
         getBucketCreatedToast("b"),
         getBucketCreateErrorToast("b", "err"),
         getBucketEmptiedToast("b", 5),
-        getBucketEmptyErrorToast("b", "err"),
         getBucketDeletedToast("b"),
         getBucketDeleteErrorToast("b", "err"),
         getBucketsEmptyCompleteToast(3, 100, []),
@@ -274,7 +245,6 @@ describe("BucketToastNotifications", () => {
         getBucketPolicySavedToast("b"),
         getBucketPolicySaveErrorToast("b", "err"),
         getVersionsDeletedToast("b", 5),
-        getVersionsDeleteErrorToast("b", "err"),
       ]
       notifications.forEach((notification) => {
         expect(notification.message).toBeTruthy()
@@ -405,14 +375,6 @@ describe("BucketToastNotifications", () => {
     it("renders correct message for zero versions", () => {
       renderNotification(getVersionsDeletedToast("my-bucket", 0))
       expect(screen.getByText(/No versions to delete in bucket "my-bucket"/)).toBeInTheDocument()
-    })
-  })
-
-  describe("getVersionsDeleteErrorToast", () => {
-    it("renders correct error message", () => {
-      renderNotification(getVersionsDeleteErrorToast("my-bucket", "Network timeout"))
-      expect(screen.getByText("Failed to Delete Versions")).toBeInTheDocument()
-      expect(screen.getByText(/Could not delete versions from bucket "my-bucket": Network timeout/)).toBeInTheDocument()
     })
   })
 })

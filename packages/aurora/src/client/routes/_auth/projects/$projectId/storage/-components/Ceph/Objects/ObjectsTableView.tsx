@@ -599,7 +599,7 @@ export function ObjectsTableView({
                                   <>
                                     {canRestoreVersion && (
                                       <PopupMenuItem
-                                        label={t`Restore`}
+                                        label={t`Restore Folder`}
                                         onClick={() => {
                                           // For folders, restoring means deleting the delete marker
                                           if (row.deleteMarkerVersionId) {
@@ -652,7 +652,7 @@ export function ObjectsTableView({
                                 <>
                                   {canRestoreVersion && (
                                     <PopupMenuItem
-                                      label={t`Restore`}
+                                      label={t`Restore Version`}
                                       onClick={() => {
                                         if (row.kind === "version") {
                                           setRestoreTarget({

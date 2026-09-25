@@ -15,6 +15,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 interface DeleteObjectModalProps {
   bucketName: string
@@ -77,10 +78,7 @@ export function DeleteObjectModal({
 
   const deleteMutation = trpcReact.storage.ceph.objects.delete.useMutation({
     onSuccess: () => {
-      utils.storage.ceph.objects.list.invalidate()
-      utils.storage.ceph.containers.list.invalidate()
-
-      utils.storage.ceph.versioning.checkDeletedContent.invalidate()
+      invalidateBucketQueries(utils)
       onSuccess(objectKey)
       handleClose()
     },
