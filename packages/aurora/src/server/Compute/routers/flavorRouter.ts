@@ -18,6 +18,14 @@ import { TRPCError } from "@trpc/server"
 import { ERROR_CODES } from "../../errorCodes"
 import { validateAndEncodeResourceId, SignalOpenstackError } from "@cobaltcore-dev/signal-openstack"
 
+/**
+ * Check if a Nova API microversion supports the description field (>= 2.55)
+ */
+function supportsDescriptionField(microversion: string): boolean {
+  const [major, minor] = microversion.split(".").map(Number)
+  return major > 2 || (major === 2 && minor >= 55)
+}
+
 export const flavorRouter = {
   getComputeApiVersion: projectScopedProcedure
     .input(
@@ -51,11 +59,9 @@ export const flavorRouter = {
         }
 
         // Parse version components to handle dotted versions like 2.100
-        const [major, minor] = versionString.split(".").map(Number)
-
         return {
           version: versionString,
-          supportsDescription: major > 2 || (major === 2 && minor >= 55),
+          supportsDescription: supportsDescriptionField(versionString),
         }
       } catch (error) {
         // Default to not supporting description if we can't determine version
@@ -214,8 +220,7 @@ export const flavorRouter = {
           }
 
           detectedVersion = versionString
-          const [major, minor] = versionString.split(".").map(Number)
-          supportsDescription = major > 2 || (major === 2 && minor >= 55)
+          supportsDescription = supportsDescriptionField(versionString)
         } catch {
           supportsDescription = false
         }

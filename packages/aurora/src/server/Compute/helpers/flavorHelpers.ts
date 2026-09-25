@@ -210,6 +210,14 @@ export function filterAndSortFlavors(
 }
 
 /**
+ * Check if a Nova API microversion supports the description field (>= 2.55)
+ */
+function supportsDescriptionField(microversion: string): boolean {
+  const [major, minor] = microversion.split(".").map(Number)
+  return major > 2 || (major === 2 && minor >= 55)
+}
+
+/**
  * Detect the maximum supported Nova API microversion
  */
 async function getMaxMicroversion(compute: SignalOpenstackServiceType): Promise<string> {
@@ -257,9 +265,9 @@ export async function getFlavorById(compute: SignalOpenstackServiceType, flavorI
   try {
     // Detect max microversion and request with it if >= 2.55 (for description support)
     const maxVersion = await getMaxMicroversion(compute)
-    const [major, minor] = maxVersion.split(".").map(Number)
-    const supportsDescription = major > 2 || (major === 2 && minor >= 55)
-    const options = supportsDescription ? { headers: { "OpenStack-API-Version": `compute ${maxVersion}` } } : undefined
+    const options = supportsDescriptionField(maxVersion)
+      ? { headers: { "OpenStack-API-Version": `compute ${maxVersion}` } }
+      : undefined
 
     response = await compute.get(`flavors/${encodedId}`, options)
   } catch (error) {
@@ -302,9 +310,7 @@ export async function fetchFlavors(compute: SignalOpenstackServiceType, isPublic
   try {
     // Detect max microversion and request with it if >= 2.55 (for description support)
     const maxVersion = await getMaxMicroversion(compute)
-    const [major, minor] = maxVersion.split(".").map(Number)
-    const supportsDescription = major > 2 || (major === 2 && minor >= 55)
-    const options = supportsDescription
+    const options = supportsDescriptionField(maxVersion)
       ? {
           queryParams: { is_public: isPublic },
           headers: { "OpenStack-API-Version": `compute ${maxVersion}` },
@@ -354,13 +360,8 @@ export async function createFlavor(
 
   // If flavor has description and microversion is provided, use it
   const headers: Record<string, string> = {}
-  if (microversion && flavorData.description) {
-    const [major, minor] = microversion.split(".").map(Number)
-    const supportsDescription = major > 2 || (major === 2 && minor >= 55)
-    // Only send header if version supports description (>= 2.55)
-    if (supportsDescription) {
-      headers["OpenStack-API-Version"] = `compute ${microversion}`
-    }
+  if (microversion && flavorData.description && supportsDescriptionField(microversion)) {
+    headers["OpenStack-API-Version"] = `compute ${microversion}`
   }
 
   let response
