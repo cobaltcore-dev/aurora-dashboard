@@ -613,8 +613,6 @@ describe("SwiftContainers (List)", () => {
     })
 
     test("filters containers by search param from URL", () => {
-      // With server-side search, server returns only matching containers
-      trpcState.containers = [mockContainers[0]]
       mockContainersUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "alpha" })
       renderList()
       expect(screen.getByTestId("container-row-alpha")).toBeInTheDocument()
@@ -623,8 +621,6 @@ describe("SwiftContainers (List)", () => {
     })
 
     test("search filtering is case-insensitive", () => {
-      // With server-side search, server returns only matching containers
-      trpcState.containers = [mockContainers[0]]
       mockContainersUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "ALPHA" })
       renderList()
       expect(screen.getByTestId("container-row-alpha")).toBeInTheDocument()
@@ -640,8 +636,6 @@ describe("SwiftContainers (List)", () => {
     })
 
     test("shows empty state when no containers match search param", () => {
-      // With server-side search, the server returns empty results
-      trpcState.containers = []
       mockContainersUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "nonexistent" })
       renderList()
       expect(screen.getByText(/No containers found/i)).toBeInTheDocument()
@@ -724,13 +718,11 @@ describe("SwiftContainers (List)", () => {
       expect(infoBlock.textContent).toContain("1 container")
     })
 
-    test("shows container count when search filter is active", () => {
-      // With server-side search, we only show the count of returned results
-      trpcState.containers = [mockContainers[0]]
+    test("shows 'X of Y containers' when search filter is active", () => {
       mockContainersUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "alpha" })
       renderList()
       const infoBlock = screen.getByTestId("containers-info-block")
-      expect(infoBlock.textContent).toContain("1 container")
+      expect(infoBlock.textContent).toContain("1 of 3 container")
     })
 
     test("shows just count (not X of Y) when search matches all containers", () => {

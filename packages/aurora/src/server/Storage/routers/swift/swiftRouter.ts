@@ -23,7 +23,6 @@ import {
   generateTempUrlSignature,
   constructTempUrl,
 } from "../../helpers/swiftHelpers"
-import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 import {
   listContainersInputSchema,
   updateAccountMetadataInputSchema,
@@ -131,7 +130,7 @@ export const swiftRouter = {
     .query(async ({ input, ctx }): Promise<ContainerSummary[]> => {
       return withErrorHandling(async () => {
         // Extract project_id - used for rescoping, not for OpenStack API
-        const { account, xNewest, searchTerm, ...queryInput } = input
+        const { account, xNewest, ...queryInput } = input
         const openstackSession = ctx.openstack
         const swift = openstackSession?.service("swift")
 
@@ -165,7 +164,7 @@ export const swiftRouter = {
           throw handleZodParsingError(parsedData.error, "list containers")
         }
 
-        return filterBySearchParams(parsedData.data, searchTerm, ["name", "count", "bytes", "last_modified"])
+        return parsedData.data
       }, "list containers")
     }),
 
