@@ -37,4 +37,5 @@ export type CreateFlavorInput = {
   rxtx_factor?: number
   "OS-FLV-EXT-DATA:ephemeral"?: number
   "os-flavor-access:is_public"?: boolean
+  description?: string
 }

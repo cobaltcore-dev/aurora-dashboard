@@ -312,6 +312,7 @@ export async function createFlavor(
   flavorData: CreateFlavorInput
 ): Promise<Flavor> {
   const requestBody = { flavor: flavorData }
+  console.log("Creating flavor with data:", JSON.stringify(requestBody, null, 2))
   let response
 
   try {
@@ -319,11 +320,14 @@ export async function createFlavor(
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
+    console.error("OpenStack API error response:", error)
     const statusCode = getStatusCodeFromError(error)
     handleHttpError(statusCode, CREATE_FLAVOR_STATUS_MAP, ERROR_CODES.CREATE_FLAVOR_FAILED)
   }
 
   if (!response.ok) {
+    const errorBody = await response.text()
+    console.error("OpenStack returned 400. Response body:", errorBody)
     handleHttpError(response.status, CREATE_FLAVOR_STATUS_MAP, ERROR_CODES.CREATE_FLAVOR_FAILED)
   }
 

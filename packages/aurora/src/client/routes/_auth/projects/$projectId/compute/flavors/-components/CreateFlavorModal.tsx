@@ -321,7 +321,6 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 id="rxtx_factor"
                 name="rxtx_factor"
                 label={t`RX/TX Factor`}
-                defaultValue={1}
                 value={String(newFlavor.rxtx_factor || "")}
                 onChange={(e) => handleNumericInputChange("rxtx_factor", Number(e.target.value))}
                 onBlur={handleBlur}

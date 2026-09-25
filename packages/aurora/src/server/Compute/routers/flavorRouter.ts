@@ -13,7 +13,7 @@ import {
   removeTenantAccess,
   getFlavorById,
 } from "../helpers/flavorHelpers"
-import { Flavor } from "../types/flavor"
+import { Flavor, CreateFlavorInput } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
 import { ERROR_CODES } from "../../errorCodes"
 import { validateAndEncodeResourceId, SignalOpenstackError } from "@cobaltcore-dev/signal-openstack"
@@ -131,6 +131,7 @@ export const flavorRouter = {
           rxtx_factor: z.number().optional(),
           "OS-FLV-EXT-DATA:ephemeral": z.number().optional(),
           "os-flavor-access:is_public": z.boolean().optional(),
+          description: z.string().optional(),
         }),
       })
     )
@@ -147,7 +148,7 @@ export const flavorRouter = {
           })
         }
 
-        const flavorData = {
+        const flavorData: CreateFlavorInput = {
           ...flavor,
           "OS-FLV-EXT-DATA:ephemeral": flavor["OS-FLV-EXT-DATA:ephemeral"] || 0,
         }
