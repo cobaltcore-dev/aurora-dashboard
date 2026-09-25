@@ -3071,9 +3071,6 @@ msgstr "Reserved keys: web-index, web-listings, quota-count, quota-bytes"
 msgid "Resource Not Found"
 msgstr "Resource Not Found"
 
-msgid "Restore"
-msgstr "Restore"
-
 msgid "Restore Folder"
 msgstr "Restore Folder"
 

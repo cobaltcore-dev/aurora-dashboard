@@ -19,7 +19,9 @@ interface InvalidateBucketQueriesOptions {
  * meant remembering all of them: when bucket state moved server-side into
  * `containers.getState`, every one of those call sites kept invalidating `objects.list` and
  * silently went on showing pre-mutation state in the bucket menu for the length of its
- * staleTime. One place to add the next query.
+ * staleTime. One place to add the next query - for the mutations that change bucket contents.
+ * The versioning flag has its own list, `invalidateVersioningStatusQueries`, which overlaps
+ * this one at `containers.getState`.
  *
  * Every bucket-wide query is invalidated unconditionally, with no per-call-site opt-in: the one
  * flag that existed was answered inconsistently at four of thirteen sites on its first day, and
@@ -45,6 +47,10 @@ export function invalidateBucketQueries(utils: CephUtils, options: InvalidateBuc
     // into an old one - flipping `hasOldVersionsOrDeleteMarkers` from false to true. Skipping the
     // invalidation for those would leave "Delete Versions" hidden on a bucket that now has
     // versions to delete: the same staleness this helper exists to prevent.
+    //
+    // The one query named by two lists: `invalidateVersioningStatusQueries` also invalidates it,
+    // for the status-only mutations that move the versioning flag without touching contents. A
+    // new query that reports both belongs in both lists - neither is "the" place for it.
     utils.storage.ceph.containers.getState.invalidate(),
     // Drives the per-folder deleted-content indicators and the "Deleted" tab.
     //

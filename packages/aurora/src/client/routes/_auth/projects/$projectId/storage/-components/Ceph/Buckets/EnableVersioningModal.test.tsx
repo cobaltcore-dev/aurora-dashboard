@@ -28,14 +28,19 @@ vi.mock("@tanstack/react-router", () => ({
 
 const mockMutate = vi.fn()
 const mockReset = vi.fn()
-const mockInvalidate = vi.fn()
+const mockInvalidateGetStatus = vi.fn()
+const mockInvalidateGetState = vi.fn()
+// Captured so a test can drive the real `onSuccess` the component hands to `useMutation`; the
+// mutation mock below never calls it on its own.
+let mockMutationOptions: { onSuccess?: () => void } = {}
 
 vi.mock("@/client/trpcClient", () => ({
   trpcReact: {
     useUtils: () => ({
       storage: {
         ceph: {
-          versioning: { getStatus: { invalidate: mockInvalidate } },
+          containers: { getState: { invalidate: mockInvalidateGetState } },
+          versioning: { getStatus: { invalidate: mockInvalidateGetStatus } },
         },
       },
     }),
@@ -43,11 +48,10 @@ vi.mock("@/client/trpcClient", () => ({
       ceph: {
         versioning: {
           setStatus: {
-            useMutation: () => ({
-              mutate: mockMutate,
-              reset: mockReset,
-              isPending: false,
-            }),
+            useMutation: (options: { onSuccess?: () => void } = {}) => {
+              mockMutationOptions = options
+              return { mutate: mockMutate, reset: mockReset, isPending: false }
+            },
           },
         },
       },
@@ -156,5 +160,30 @@ describe("EnableVersioningModal - Analytics tracking", () => {
     expect(mockOnTrackEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({ action: "storage.ceph.bucket.versioning.enable.close" })
     )
+  })
+})
+
+describe("EnableVersioningModal - cache invalidation", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    await act(async () => {
+      i18n.activate("en")
+    })
+  })
+
+  test("refreshes both queries the versioning status is read from", async () => {
+    renderModal()
+
+    await act(async () => {
+      mockMutationOptions.onSuccess?.()
+    })
+
+    expect(mockInvalidateGetStatus).toHaveBeenCalledTimes(1)
+    // `useBucketInfo` reads the status from `containers.getState`, not from `getStatus`, so the
+    // bucket header's badge and its Enable/Suspend menu kept the pre-mutation value when only
+    // `getStatus` was invalidated - and kept it until another mutation invalidated the query, the
+    // view remounted or the network reconnected: a mounted observer does not refetch on going
+    // stale, and `refetchOnWindowFocus` is off globally.
+    expect(mockInvalidateGetState).toHaveBeenCalledTimes(1)
   })
 })

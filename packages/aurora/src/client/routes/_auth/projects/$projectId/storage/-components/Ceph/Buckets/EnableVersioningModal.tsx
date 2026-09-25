@@ -4,6 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { Modal, Stack, Checkbox } from "@cloudoperators/juno-ui-components"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
+import { invalidateVersioningStatusQueries } from "../hooks/invalidateVersioningStatusQueries"
 
 interface EnableVersioningModalProps {
   isOpen: boolean
@@ -33,7 +34,7 @@ export const EnableVersioningModal = ({
 
   const enableMutation = trpcReact.storage.ceph.versioning.setStatus.useMutation({
     onSuccess: () => {
-      utils.storage.ceph.versioning.getStatus.invalidate()
+      invalidateVersioningStatusQueries(utils)
       onSuccess?.(bucketName)
     },
     onError: (error) => {
