@@ -466,7 +466,7 @@ export const bucketPolicyStatementSchema = z
       .union([
         z.string(), // "*" for public
         z.object({
-          AWS: z.union([z.string(), z.array(z.string())]).optional(), // AWS account/user ARNs
+          AWS: z.union([z.string(), z.array(z.string())]).optional(), // user/tenant/account ARNs, or "*"
           Service: z.union([z.string(), z.array(z.string())]).optional(),
           Federated: z.union([z.string(), z.array(z.string())]).optional(),
         }),
@@ -482,18 +482,16 @@ export const bucketPolicyStatementSchema = z
           })
         }
 
-        // Validate AWS principal ARN format
-        if (typeof val === "object" && val.AWS) {
-          const arns = Array.isArray(val.AWS) ? val.AWS : [val.AWS]
-          for (const arn of arns) {
-            if (arn !== "*" && !/^arn:aws:iam::\d{12}:(?:root|user\/.+|role\/.+)$/.test(arn)) {
-              ctx.addIssue({
-                code: "custom",
-                message: `Invalid AWS principal ARN format: ${arn}. Expected arn:aws:iam::ACCOUNT-ID:root or arn:aws:iam::ACCOUNT-ID:(user|role)/NAME`,
-              })
-            }
-          }
-        }
+        // The contents of AWS/Service/Federated are deliberately left unvalidated: Ceph RGW,
+        // not AWS, is the authority on principal syntax here. Where an AWS ARN carries a
+        // 12-digit account id, an RGW one carries a tenant, an RGW account id, or nothing:
+        //   arn:aws:iam::<tenant>:user/<uid>      (with Keystone, <tenant> is the project UUID)
+        //   arn:aws:iam:::user/<uid>
+        //   arn:aws:iam::RGW<17 digits>:user/<name>
+        // and a :<subuser> suffix is allowed on any of them. Re-implementing that grammar
+        // produced nothing but false rejections of policies RGW had already accepted; RGW
+        // answers MalformedPolicy for the ones it genuinely won't take.
+        // @see https://docs.ceph.com/en/latest/radosgw/account/#principals
       }),
     NotPrincipal: z
       .union([

@@ -58,15 +58,19 @@ function validateResourceARNsMatchBucket(policy: BucketPolicyDocument, bucketNam
     const resources = Array.isArray(statement.Resource) ? statement.Resource : [statement.Resource]
 
     for (const resource of resources) {
-      // ARN format: arn:aws:s3:::bucket-name or arn:aws:s3:::bucket-name/*
-      const arnRegex = /^arn:aws:s3:::([^/]+)/
+      // ARN format: arn:aws:s3:::bucket-name or arn:aws:s3:::bucket-name/*, and — because RGW
+      // buckets live in a tenant — arn:aws:s3::tenant:bucket-name. The tenant segment itself is
+      // not checked against this project: the policy is attached to *this* bucket, so a resource
+      // naming another tenant's bucket grants nothing here, and hard-coding what a tenant looks
+      // like is exactly the assumption that broke principal validation.
+      const arnRegex = /^arn:aws:s3::[^:/]*:([^/]+)/
       const match = resource.match(arnRegex)
 
       // Reject resources that don't match S3 bucket ARN pattern (includes "*" and non-S3 ARNs)
       if (!match) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: `Policy Resource '${resource}' is not a valid S3 bucket ARN for bucket '${bucketName}'. Expected: arn:aws:s3:::${bucketName} or arn:aws:s3:::${bucketName}/*`,
+          message: `Policy Resource '${resource}' is not a valid S3 bucket ARN for bucket '${bucketName}'. Expected: arn:aws:s3:::${bucketName}, arn:aws:s3:::${bucketName}/* or arn:aws:s3::TENANT:${bucketName}`,
         })
       }
 
@@ -110,6 +114,24 @@ function validatePolicySemantics(policy: BucketPolicyDocument): void {
 }
 
 /**
+ * Best-effort parse of a policy document RGW has already accepted and stored.
+ *
+ * Reading is not the place to enforce our schema. Whatever is in the bucket is live and
+ * enforced by RGW right now; failing the read over a shape we don't recognise would hide a
+ * working policy from the very editor meant to fix it. So the raw text is always returned and
+ * this only decides whether a structured view is available alongside it.
+ */
+function parseStoredPolicy(policyText: string): BucketPolicyDocument | null {
+  try {
+    const result = bucketPolicyDocumentSchema.safeParse(JSON.parse(policyText))
+    return result.success ? result.data : null
+  } catch {
+    // Not JSON at all — still the user's document to see and repair.
+    return null
+  }
+}
+
+/**
  * tRPC router for S3 bucket policy operations.
  *
  * Provides endpoints for:
@@ -123,8 +145,9 @@ export const bucketPolicyRouter = {
   /**
    * Get the current bucket policy.
    *
-   * Returns the policy as both a parsed object and raw JSON string.
-   * Returns null if no policy is set (not an error).
+   * Returns the policy as both a parsed object and raw JSON string. `policyText` is always the
+   * document exactly as RGW stored it; `policy` is null when no policy is set, and also when the
+   * stored document doesn't fit our schema — the editor shows the raw text either way.
    *
    * @throws TRPCError NOT_FOUND - bucket does not exist
    * @throws TRPCError FORBIDDEN - no credentials or access denied
@@ -149,11 +172,7 @@ export const bucketPolicyRouter = {
           return { policy: null, policyText: null }
         }
 
-        // Parse and validate
-        const policyObj = JSON.parse(policyText)
-        const policy = bucketPolicyDocumentSchema.parse(policyObj)
-
-        return { policy, policyText }
+        return { policy: parseStoredPolicy(policyText), policyText }
       } catch (error) {
         // NoSuchBucketPolicy is not an error - it means no policy set
         const s3Error = error as { name?: string; Code?: string }
