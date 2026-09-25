@@ -307,15 +307,19 @@ describe("flavorRouter", () => {
       const result = await caller.flavor.createFlavor(validFlavorInput)
 
       expect(mockCtx.rescopeSession).toHaveBeenCalledWith({ projectId: "test-project-123" })
-      expect(flavorHelpers.createFlavor).toHaveBeenCalledWith(expect.objectContaining({ post: expect.any(Function) }), {
-        name: "test-flavor",
-        vcpus: 2,
-        ram: 4096,
-        disk: 20,
-        swap: 128,
-        rxtx_factor: 1.0,
-        "OS-FLV-EXT-DATA:ephemeral": 0,
-      })
+      expect(flavorHelpers.createFlavor).toHaveBeenCalledWith(
+        expect.objectContaining({ post: expect.any(Function) }),
+        {
+          name: "test-flavor",
+          vcpus: 2,
+          ram: 4096,
+          disk: 20,
+          swap: 128,
+          rxtx_factor: 1.0,
+          "OS-FLV-EXT-DATA:ephemeral": 0,
+        },
+        undefined // microversion parameter
+      )
       expect(result).toEqual(mockCreatedFlavor)
     })
 

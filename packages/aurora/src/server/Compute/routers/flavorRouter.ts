@@ -35,19 +35,31 @@ export const flavorRouter = {
           })
         }
 
-        // Make a simple GET request to check the API version from headers
-        const response = await compute.get("flavors?limit=1")
-        const versionHeader = response.headers.get("x-openstack-nova-api-version") || "2.1"
+        // Query the version discovery endpoint to get the max microversion
+        const response = await compute.get("")
+        const data = await response.json()
+
+        // The response can be either { version: {...} } or { versions: [...] }
+        let versionString = "2.1"
+        if (data.version) {
+          // Single version object (when already at /v2.1/)
+          versionString = data.version.version || "2.1"
+        } else if (data.versions) {
+          // Multiple versions array (at root /compute/)
+          const currentVersion = data.versions.find((v: { status: string }) => v.status === "CURRENT")
+          versionString = currentVersion?.version || "2.1"
+        }
 
         // Parse version (e.g., "2.55" -> 2.55)
-        const version = parseFloat(versionHeader)
+        const version = parseFloat(versionString)
 
         return {
-          version: versionHeader,
+          version: versionString,
           supportsDescription: version >= 2.55,
         }
-      } catch {
+      } catch (error) {
         // Default to not supporting description if we can't determine version
+        console.error("Failed to detect Nova version:", error)
         return {
           version: "2.1",
           supportsDescription: false,
@@ -185,10 +197,24 @@ export const flavorRouter = {
 
         // Check if description is supported (microversion 2.55+)
         let supportsDescription = false
+        let detectedVersion = "2.1"
         try {
-          const versionResponse = await compute.get("flavors?limit=1")
-          const versionHeader = versionResponse.headers.get("x-openstack-nova-api-version") || "2.1"
-          const version = parseFloat(versionHeader)
+          const versionResponse = await compute.get("")
+          const versionData = await versionResponse.json()
+
+          // The response can be either { version: {...} } or { versions: [...] }
+          let versionString = "2.1"
+          if (versionData.version) {
+            // Single version object (when already at /v2.1/)
+            versionString = versionData.version.version || "2.1"
+          } else if (versionData.versions) {
+            // Multiple versions array (at root /compute/)
+            const currentVersion = versionData.versions.find((v: { status: string }) => v.status === "CURRENT")
+            versionString = currentVersion?.version || "2.1"
+          }
+
+          detectedVersion = versionString
+          const version = parseFloat(versionString)
           supportsDescription = version >= 2.55
         } catch {
           supportsDescription = false
@@ -207,7 +233,7 @@ export const flavorRouter = {
           "OS-FLV-EXT-DATA:ephemeral": flavor["OS-FLV-EXT-DATA:ephemeral"] || 0,
         }
 
-        const result = await createFlavor(compute, flavorData)
+        const result = await createFlavor(compute, flavorData, supportsDescription ? detectedVersion : undefined)
         return result
       } catch (error) {
         if (error instanceof TRPCError) {
