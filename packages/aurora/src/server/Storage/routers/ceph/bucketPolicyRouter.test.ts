@@ -34,6 +34,30 @@ const VALID_POLICY = {
 
 const VALID_POLICY_JSON = JSON.stringify(VALID_POLICY)
 
+// A policy of the shape RGW actually stores in a Keystone-backed deployment: the principal is
+// qualified by a tenant (the project UUID), not by a 12-digit AWS account id.
+const TENANT_PRINCIPAL_POLICY = {
+  Version: "2012-10-17",
+  Statement: [
+    {
+      Sid: "GrantOtherProject",
+      Effect: "Allow",
+      Principal: {
+        AWS: [
+          "arn:aws:iam::941afaee693a4155ac815be75f17b259:user/941afaee693a4155ac815be75f17b259",
+          "arn:aws:iam::usfolks:user/fred:subuser",
+          "arn:aws:iam:::user/anonymous",
+          "arn:aws:iam::RGW33567154695143645:user/rgwuser",
+        ],
+      },
+      Action: ["s3:GetObject", "s3:ListBucket"],
+      Resource: ["arn:aws:s3:::my-test-bucket", "arn:aws:s3:::my-test-bucket/*"],
+    },
+  ],
+}
+
+const TENANT_PRINCIPAL_POLICY_JSON = JSON.stringify(TENANT_PRINCIPAL_POLICY)
+
 const COMPLEX_POLICY = {
   Version: "2012-10-17",
   Id: "MyBucketPolicy",
@@ -130,6 +154,58 @@ describe("bucketPolicyRouter", () => {
       expect(result.policyText).toBeNull()
     })
 
+    it("should return a policy whose principals are tenant-qualified RGW ARNs", async () => {
+      mockSend.mockResolvedValueOnce({
+        Policy: TENANT_PRINCIPAL_POLICY_JSON,
+      })
+
+      const result = await caller.get({
+        project_id: TEST_PROJECT_ID,
+        bucketName: TEST_BUCKET_NAME,
+      })
+
+      expect(result.policy).not.toBeNull()
+      expect(result.policyText).toBe(TENANT_PRINCIPAL_POLICY_JSON)
+    })
+
+    it("should still return the raw text when the stored policy does not fit our schema", async () => {
+      // RGW accepted and is enforcing this document; a field we don't model must not make the
+      // policy invisible to the editor.
+      const unknownShape = JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Principal: "*",
+            Action: "s3:GetObject",
+            Resource: "arn:aws:s3:::my-test-bucket/*",
+            SomeFutureRGWField: "value",
+          },
+        ],
+      })
+      mockSend.mockResolvedValueOnce({ Policy: unknownShape })
+
+      const result = await caller.get({
+        project_id: TEST_PROJECT_ID,
+        bucketName: TEST_BUCKET_NAME,
+      })
+
+      expect(result.policy).toBeNull()
+      expect(result.policyText).toBe(unknownShape)
+    })
+
+    it("should still return the raw text when the stored policy is not valid JSON", async () => {
+      mockSend.mockResolvedValueOnce({ Policy: "{ not json" })
+
+      const result = await caller.get({
+        project_id: TEST_PROJECT_ID,
+        bucketName: TEST_BUCKET_NAME,
+      })
+
+      expect(result.policy).toBeNull()
+      expect(result.policyText).toBe("{ not json")
+    })
+
     it("should return null when policy is empty", async () => {
       mockSend.mockResolvedValueOnce({
         Policy: null,
@@ -210,6 +286,75 @@ describe("bucketPolicyRouter", () => {
 
       expect(result).toBe(true)
       expect(mockSend).toHaveBeenCalledOnce()
+    })
+
+    it("should set a policy with tenant-qualified principal ARNs", async () => {
+      // Own bucket name: checkPolicySetRateLimit counts every attempt on a project+bucket key,
+      // so adding calls on TEST_BUCKET_NAME would starve the tests further down this describe.
+      const bucket = "tenant-principal-set-bucket"
+      mockSend.mockResolvedValueOnce({})
+
+      const result = await caller.set({
+        project_id: TEST_PROJECT_ID,
+        bucketName: bucket,
+        policy: JSON.stringify({
+          ...TENANT_PRINCIPAL_POLICY,
+          Statement: [
+            {
+              ...TENANT_PRINCIPAL_POLICY.Statement[0],
+              Resource: [`arn:aws:s3:::${bucket}`, `arn:aws:s3:::${bucket}/*`],
+            },
+          ],
+        }),
+      })
+
+      expect(result).toBe(true)
+      expect(mockSend).toHaveBeenCalledOnce()
+    })
+
+    it("should accept a tenant-qualified Resource ARN for this bucket", async () => {
+      const bucket = "tenant-resource-set-bucket"
+      mockSend.mockResolvedValueOnce({})
+
+      const result = await caller.set({
+        project_id: TEST_PROJECT_ID,
+        bucketName: bucket,
+        policy: JSON.stringify({
+          Version: "2012-10-17",
+          Statement: [
+            {
+              Effect: "Allow",
+              Principal: { AWS: "arn:aws:iam::usfolks:user/fred" },
+              Action: "s3:GetObject",
+              Resource: `arn:aws:s3::941afaee693a4155ac815be75f17b259:${bucket}/*`,
+            },
+          ],
+        }),
+      })
+
+      expect(result).toBe(true)
+      expect(mockSend).toHaveBeenCalledOnce()
+    })
+
+    it("should still reject a tenant-qualified Resource ARN naming a different bucket", async () => {
+      await expect(
+        caller.set({
+          project_id: TEST_PROJECT_ID,
+          bucketName: "tenant-resource-mismatch-bucket",
+          policy: JSON.stringify({
+            Version: "2012-10-17",
+            Statement: [
+              {
+                Effect: "Allow",
+                Principal: "*",
+                Action: "s3:GetObject",
+                Resource: "arn:aws:s3::usfolks:someone-elses-bucket/*",
+              },
+            ],
+          }),
+        })
+      ).rejects.toThrow(TRPCError)
+      expect(mockSend).not.toHaveBeenCalled()
     })
 
     it("should throw BAD_REQUEST with invalid JSON", async () => {
