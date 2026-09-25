@@ -256,6 +256,7 @@ function EditSpecModalInner({
               status="empty"
               title={t`No Metadata Properties Found`}
               body={t`Click "Add Property" to create one.`}
+              className="m-0"
             />
           ) : (
             <DescriptionList className="mb-6 grid-cols-2" alignTerms="left">

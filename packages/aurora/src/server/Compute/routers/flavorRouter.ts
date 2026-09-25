@@ -12,13 +12,59 @@ import {
   addTenantAccess,
   removeTenantAccess,
   getFlavorById,
+  supportsDescriptionField,
 } from "../helpers/flavorHelpers"
-import { Flavor } from "../types/flavor"
+import { Flavor, CreateFlavorInput } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
 import { ERROR_CODES } from "../../errorCodes"
 import { validateAndEncodeResourceId, SignalOpenstackError } from "@cobaltcore-dev/signal-openstack"
 
 export const flavorRouter = {
+  getComputeApiVersion: projectScopedProcedure
+    .input(
+      z.object({
+        project_id: z.string(),
+      })
+    )
+    .query(async ({ ctx }) => {
+      try {
+        const compute = ctx.openstack?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        // Query the version discovery endpoint to get the max microversion
+        const response = await compute.get("")
+        const data = await response.json()
+
+        // The response can be either { version: {...} } or { versions: [...] }
+        let versionString = "2.1"
+        if (data.version) {
+          // Single version object (when already at /v2.1/)
+          versionString = data.version.version || "2.1"
+        } else if (data.versions) {
+          // Multiple versions array (at root /compute/)
+          const currentVersion = data.versions.find((v: { status: string }) => v.status === "CURRENT")
+          versionString = currentVersion?.version || "2.1"
+        }
+
+        // Parse version components to handle dotted versions like 2.100
+        return {
+          version: versionString,
+          supportsDescription: supportsDescriptionField(versionString),
+        }
+      } catch (error) {
+        // Default to not supporting description if we can't determine version
+        console.error("Failed to detect Nova version:", error)
+        return {
+          version: "2.1",
+          supportsDescription: false,
+        }
+      }
+    }),
   getFlavorById: projectScopedProcedure
     .input(
       z.object({
@@ -131,6 +177,7 @@ export const flavorRouter = {
           rxtx_factor: z.number().optional(),
           "OS-FLV-EXT-DATA:ephemeral": z.number().optional(),
           "os-flavor-access:is_public": z.boolean().optional(),
+          description: z.string().optional(),
         }),
       })
     )
@@ -147,12 +194,44 @@ export const flavorRouter = {
           })
         }
 
-        const flavorData = {
-          ...flavor,
+        // Check if description is supported (microversion 2.55+)
+        let supportsDescription = false
+        let detectedVersion = "2.1"
+        try {
+          const versionResponse = await compute.get("")
+          const versionData = await versionResponse.json()
+
+          // The response can be either { version: {...} } or { versions: [...] }
+          let versionString = "2.1"
+          if (versionData.version) {
+            // Single version object (when already at /v2.1/)
+            versionString = versionData.version.version || "2.1"
+          } else if (versionData.versions) {
+            // Multiple versions array (at root /compute/)
+            const currentVersion = versionData.versions.find((v: { status: string }) => v.status === "CURRENT")
+            versionString = currentVersion?.version || "2.1"
+          }
+
+          detectedVersion = versionString
+          supportsDescription = supportsDescriptionField(versionString)
+        } catch {
+          supportsDescription = false
+        }
+
+        // Remove description if not supported
+        const flavorToSend = supportsDescription ? flavor : { ...flavor }
+        if (!supportsDescription) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { description, ...rest } = flavorToSend
+          Object.assign(flavorToSend, rest)
+        }
+
+        const flavorData: CreateFlavorInput = {
+          ...flavorToSend,
           "OS-FLV-EXT-DATA:ephemeral": flavor["OS-FLV-EXT-DATA:ephemeral"] || 0,
         }
 
-        const result = await createFlavor(compute, flavorData)
+        const result = await createFlavor(compute, flavorData, supportsDescription ? detectedVersion : undefined)
         return result
       } catch (error) {
         if (error instanceof TRPCError) {
