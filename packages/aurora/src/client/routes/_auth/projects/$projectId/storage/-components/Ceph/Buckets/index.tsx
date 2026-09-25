@@ -75,13 +75,6 @@ export const CephBuckets = () => {
     setLocalSearchTerm(searchParam)
   }, [searchParam])
 
-  // Clear selections when search changes — server-filtered results may exclude
-  // previously selected buckets, breaking bulk actions if hidden selections
-  // remain in state while selectedBucketSummaries is empty.
-  useEffect(() => {
-    setSelectedBuckets([])
-  }, [searchParam])
-
   const handleCreateSuccess = (bucketName: string) => {
     const { message, ...options } = getBucketCreatedToast(bucketName)
 
@@ -154,7 +147,6 @@ export const CephBuckets = () => {
     {
       project_id: projectId,
       includeMetadata: true, // Fetch full metadata for table view with sorting
-      searchTerm: searchParam, // Server-side filtering
     },
     {
       enabled: !!projectId,
@@ -197,8 +189,10 @@ export const CephBuckets = () => {
     })
   }
 
-  // Buckets are already filtered server-side via searchTerm
-  const filteredBuckets = buckets || []
+  // Filter buckets based on search term
+  const filteredBuckets = (buckets || []).filter((bucket) =>
+    bucket.name.toLowerCase().includes(searchParam.toLowerCase())
+  )
 
   // Apply sorting to filtered buckets
   const sortedBuckets = sortBuckets(filteredBuckets)
@@ -272,8 +266,8 @@ export const CephBuckets = () => {
   const selectedBucketSummaries = (buckets || []).filter((c) => selectedBuckets.includes(c.name))
   const hasSelection = selectedBucketSummaries.length > 0
   const selectedCount = selectedBucketSummaries.length
-  // With server-side search, we only have the filtered results
   const totalCount = (buckets || []).length
+  const filteredCount = filteredBuckets.length
 
   // Select-all operates on the currently displayed (filtered + sorted) rows.
   const displayedNames = sortedBuckets.map((c) => c.name)
@@ -380,7 +374,15 @@ export const CephBuckets = () => {
             )}
 
             <div className="text-theme-light flex items-center gap-1" data-testid="buckets-info-block">
-              <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
+              {searchParam.trim() ? (
+                <Plural
+                  value={totalCount}
+                  one={`${filteredCount} of ${totalCount} bucket`}
+                  other={`${filteredCount} of ${totalCount} buckets`}
+                />
+              ) : (
+                <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
+              )}
             </div>
           </Stack>
         </DataGridToolbar>

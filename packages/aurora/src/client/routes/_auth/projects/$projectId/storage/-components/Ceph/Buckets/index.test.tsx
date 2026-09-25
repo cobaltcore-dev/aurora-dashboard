@@ -373,12 +373,11 @@ describe("CephBuckets (index)", () => {
       expect(screen.getByText(/3 buckets/i)).toBeInTheDocument()
     })
 
-    test("shows bucket count when search is active", () => {
-      // With server-side search, server returns only matching buckets
-      trpcState.buckets = [mockBuckets[0]]
+    test("shows filtered count when search is active", () => {
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "bucket-1" })
       renderBuckets()
-      expect(screen.getByText(/1 bucket$/i)).toBeInTheDocument()
+      // Plural 'one' form: "1 of 3 bucket" (singular)
+      expect(screen.getByText(/1 of 3 bucket/i)).toBeInTheDocument()
     })
 
     test("shows total count when search is cleared", () => {
@@ -390,16 +389,12 @@ describe("CephBuckets (index)", () => {
 
   describe("Search filtering", () => {
     test("filters buckets by search term from URL param", () => {
-      // With server-side search, server returns only matching buckets
-      trpcState.buckets = [mockBuckets[0]]
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "bucket-1" })
       renderBuckets()
       expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-bucket-count", "1")
     })
 
     test("search filtering is case-insensitive", () => {
-      // With server-side search, server returns only matching buckets
-      trpcState.buckets = [mockBuckets[0]]
       mockUseSearch.mockReturnValue({ sortBy: undefined, sortDirection: undefined, search: "BUCKET-1" })
       renderBuckets()
       expect(screen.getByTestId("bucket-table-view")).toHaveAttribute("data-bucket-count", "1")

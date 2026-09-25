@@ -54,7 +54,6 @@ export const containerSchema = z.object({
 
 export const listContainersInputSchema = projectScopedInputSchema.extend({
   includeMetadata: z.boolean().optional().default(false),
-  searchTerm: z.string().optional(),
 })
 
 /**

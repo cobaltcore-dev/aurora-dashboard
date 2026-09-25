@@ -25,7 +25,6 @@ import {
   type BucketState,
 } from "../../types/ceph"
 import { S3_MAX_KEYS_PER_REQUEST, S3_MAX_SCAN_PAGES } from "../../constants"
-import { filterBySearchParams } from "@/server/helpers/filterBySearchParams"
 
 export const containerRouter = {
   status: cephProcedure.input(projectScopedInputSchema).query(async ({ ctx }): Promise<S3Status> => {
@@ -43,14 +42,14 @@ export const containerRouter = {
    */
   list: cephProtectedProcedure.input(listContainersInputSchema).query(async ({ input, ctx }): Promise<Bucket[]> => {
     const s3 = ctx.getCephClient()
-    const { includeMetadata, searchTerm } = input
+    const { includeMetadata } = input
     try {
       const response = await s3.send(new ListBucketsCommand({}))
       const buckets = response.Buckets ?? []
 
       // If metadata not requested, return buckets with basic info only (fast path)
       if (!includeMetadata) {
-        const basicBuckets = buckets.map((bucket) =>
+        return buckets.map((bucket) =>
           containerSchema.parse({
             name: bucket.Name ?? "",
             count: 0,
@@ -59,7 +58,6 @@ export const containerRouter = {
             creationDate: bucket.CreationDate?.toISOString(),
           })
         )
-        return filterBySearchParams(basicBuckets, searchTerm, ["name"])
       }
 
       // Fetch metadata for each bucket with controlled concurrency (slow path)
@@ -132,13 +130,7 @@ export const containerRouter = {
         bucketsWithMetadata.push(...batchResults)
       }
 
-      return filterBySearchParams(bucketsWithMetadata, searchTerm, [
-        "name",
-        "count",
-        "bytes",
-        "last_modified",
-        "creationDate",
-      ])
+      return bucketsWithMetadata
     } catch (error) {
       throw mapS3ErrorToTRPCError(error, { operation: "list containers" })
     }
