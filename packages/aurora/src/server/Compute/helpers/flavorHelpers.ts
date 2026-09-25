@@ -212,7 +212,7 @@ export function filterAndSortFlavors(
 /**
  * Check if a Nova API microversion supports the description field (>= 2.55)
  */
-function supportsDescriptionField(microversion: string): boolean {
+export function supportsDescriptionField(microversion: string): boolean {
   const [major, minor] = microversion.split(".").map(Number)
   return major > 2 || (major === 2 && minor >= 55)
 }

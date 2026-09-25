@@ -12,19 +12,12 @@ import {
   addTenantAccess,
   removeTenantAccess,
   getFlavorById,
+  supportsDescriptionField,
 } from "../helpers/flavorHelpers"
 import { Flavor, CreateFlavorInput } from "../types/flavor"
 import { TRPCError } from "@trpc/server"
 import { ERROR_CODES } from "../../errorCodes"
 import { validateAndEncodeResourceId, SignalOpenstackError } from "@cobaltcore-dev/signal-openstack"
-
-/**
- * Check if a Nova API microversion supports the description field (>= 2.55)
- */
-function supportsDescriptionField(microversion: string): boolean {
-  const [major, minor] = microversion.split(".").map(Number)
-  return major > 2 || (major === 2 && minor >= 55)
-}
 
 export const flavorRouter = {
   getComputeApiVersion: projectScopedProcedure
