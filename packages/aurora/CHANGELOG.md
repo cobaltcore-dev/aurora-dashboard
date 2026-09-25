@@ -1,5 +1,42 @@
 # @cobaltcore-dev/aurora
 
+## 2.1.0
+
+### Minor Changes
+
+- 6ce6aea: Expand search to cover all visible columns across resources
+
+  - **Flavors**: Search now includes vcpus, ram, disk, and swap in addition to id, name, and description
+  - **Images**: Search now includes owner and size
+  - **Projects**: Search now includes domain_name and domain_id
+  - **Ceph Buckets**: Search now includes count, bytes, last_modified and creationDate
+  - **Swift Containers**: Search now includes count, bytes, and last_modified
+
+- dc918d4: An invalid or unavailable object-storage provider/storage-type URL (e.g. `/storage/swift/buckets`, `/storage/garbage/garbage`) now renders a real in-shell 404 (`Status status="error" code={404}`, inside `AuroraLayout`/breadcrumbs) instead of silently rendering the wrong list or bouncing to a fallback provider. Copy differs by cause: a bad address (mismatched `storageType`) says the page doesn't exist; a missing/unavailable provider says the object storage service isn't available for the project. The "no object store at all" case is unchanged and still redirects to the project overview, and that redirect always wins over any 404 condition. Both storage routes — the list and the deeper objects route — apply the same rule: the objects route used to silently rewrite a mismatched `storageType` to the canonical one (e.g. `/storage/ceph/containers/<bucket>/objects` → `/storage/ceph/buckets/<bucket>/objects`), and now 404s like everything else. The app never generated such a URL, so that redirect normalized nothing in practice while making one route the sole exception to the rule.
+
+  Provider lookup (`swift`/`ceph`) now resolves by service **name** across all catalog types, matching how the backend already resolves services, instead of indexing the catalog by a hardcoded type string. This is what made the `CEPH_FALLBACK_ENABLED` workaround removable: it existed only to paper over Ceph being registered in the catalog under `object-store-ceph` rather than `object-store`, which the old guard never checked. A Ceph-only project (no Swift at all) now reaches `/storage/ceph/buckets` instead of being redirected to the project overview, and the nav/project-overview also pick up Ceph registered under either catalog type. A deployment where Ceph is genuinely absent from the catalog now gets an honest 404 instead of a page whose every backend call fails.
+
+  Opening a container or bucket that does not exist now renders a 404 page offering a way back to the list, instead of mounting the detail page and letting each part of it fail on its own. Previously the page rendered for a name that isn't there: for Ceph that meant eight requests (bucket list, versioning, policy, CORS, lifecycle, two object listings, permissions) all answering 404, ending in a raw error banner under a header that still offered Delete and Empty for a bucket that doesn't exist; for Swift, a banner plus a toast and a bounce back to the list. The route now settles existence with a single request before rendering — a Swift `HEAD` on the container, or a new `storage.ceph.containers.head` procedure (one S3 `HeadBucket`, which — unlike listing buckets — also sees a bucket the project can read but doesn't own). Only a `NOT_FOUND` answer produces the 404: a permission denial, a missing Ceph EC2 credential (which has its own credential prompt further down the page), or a server error still render the page so it can report the real problem. The Swift check costs nothing extra: it is the same `HEAD` the container header already needed for its object count and size, and its answer is passed on as loader data to seed that query rather than being fetched twice.
+
+  A request that fails on a container or bucket page — as opposed to a container that isn't there — now states the status the server actually answered with and offers the way back to that provider's list, instead of showing no status at all and a single exit that left the project entirely. The shared route-level error component it renders through hardcoded a 404, which would have labelled every failure "Resource Not Found"; it now takes the status as a prop, defaulting to 404 so its other call sites render exactly as before.
+
+  Opening a folder that does not exist — a `prefix` in the URL that no object name starts with — now says so, instead of presenting an empty folder that can be written to. Both object browsers answer it from the listing they already load, so no extra request is made: an existing but empty folder is a real stored object (a zero-byte marker in Ceph, a `application/directory` object in Swift), and its absence is what distinguishes the two cases. The toolbar goes with the table, which closes a side door: Upload and Create Folder write to `<current prefix>/<name>`, so an invented path could previously be made real from the address bar — including a folder several levels deep at once, which the "no slashes in a folder name" rule otherwise prevents. The Deleted tab is not used to judge existence, since a live folder can legitimately have no versions.
+
+  An address under `/storage/<provider>/<type>/` that matches no page — a truncated link such as `.../buckets/my-bucket`, or a mistyped tail such as `.../buckets/my-bucket/object` — now gets a storage-aware 404 leading back to that provider's bucket or container list, instead of a generic one whose only exit was the project overview.
+
+  Selection and pagination in the Ceph object browser no longer survive a change of folder made outside the folder list. Clicking a folder row already cleared them; arriving at another folder any other way — browser back/forward, a deep link, an edited `prefix` in the address bar — did not, because that path only changes the URL. The visible effect was a bulk action still armed after the move: the count stayed, and Delete targeted objects from the folder just left (their full paths were at least shown in the confirmation). Along with it, a pagination cursor from the previous folder could be sent with the new one's listing, which asks the server to continue a listing that no longer exists.
+
+  A `prefix` value that is valid base64 but not valid UTF-8 no longer reaches the Swift object browser as a real folder path — it was decoded into replacement characters and produced an empty listing for a folder that cannot exist. It now falls back to the container root, as it already did in Ceph.
+
+  Analytics on the storage routes no longer interpolates a raw, unvalidated `$provider` URL segment into the emitted event name — previously any URL could mint an arbitrary `storage.<anything>.list` action, and this change makes such a URL stay on screen instead of redirecting away, so an unknown provider now falls back to the literal `objectstore`. The browser tab title on an unknown-provider 404 no longer reads "Storage Overview", a page that doesn't exist.
+
+  Each storage route now fetches the service catalog once per navigation instead of twice: both guards run in a single `loader`, which replaces the previous `beforeLoad` + `loader` pair that queried `getAvailableServices` separately.
+
+### Patch Changes
+
+- 9775e4b: Detect the real cause of a failed project/domain rescope. Keystone returns HTTP 401 both when the base token is no longer valid (session changed/revoked in another tab) and when the requested scope cannot be authorized (project/domain missing or no role). These are now distinguished: an invalid base token surfaces as UNAUTHORIZED ("session changed") while a still-valid base token surfaces as NOT_FOUND ("Project Not Accessible"), instead of always showing a generic "Session Expired" message.
+- 6ce6aea: Clear selections when server-side search changes in Swift containers and Ceph buckets
+
 ## 2.0.0
 
 ### Major Changes
