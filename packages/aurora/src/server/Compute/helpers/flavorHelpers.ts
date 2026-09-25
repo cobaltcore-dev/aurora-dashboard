@@ -320,9 +320,18 @@ export async function createFlavor(
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
+    // Re-throw the original error with the message intact so retry logic can inspect it
     console.error("OpenStack API error response:", error)
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     const statusCode = getStatusCodeFromError(error)
-    handleHttpError(statusCode, CREATE_FLAVOR_STATUS_MAP, ERROR_CODES.CREATE_FLAVOR_FAILED)
+
+    // Throw with original message preserved
+    const trpcError = new TRPCError({
+      code: statusCode === 400 ? "BAD_REQUEST" : "INTERNAL_SERVER_ERROR",
+      message: errorMessage,
+      cause: error,
+    })
+    throw trpcError
   }
 
   if (!response.ok) {

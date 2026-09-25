@@ -39,6 +39,17 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
   const [errors, setErrors] = useState<FieldErrors>({})
   const [isLoading, setIsLoading] = useState(false)
   const [generalError, setGeneralError] = useState<string | null>(null)
+  const [supportsDescription, setSupportsDescription] = useState(false)
+
+  // Check if Nova API supports description field (microversion 2.55+)
+  React.useEffect(() => {
+    if (isOpen) {
+      client.compute.getComputeApiVersion
+        .query({ project_id: project })
+        .then((result) => setSupportsDescription(result.supportsDescription))
+        .catch(() => setSupportsDescription(false))
+    }
+  }, [isOpen, client, project])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -229,17 +240,19 @@ export const CreateFlavorModal: React.FC<CreateFlavorModalProps> = ({
                 required
               />
             </FormRow>
-            <FormRow>
-              <TextInput
-                id="description"
-                name="description"
-                label={t`Description`}
-                value={newFlavor.description || ""}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                errortext={errors.description}
-              />
-            </FormRow>
+            {supportsDescription && (
+              <FormRow>
+                <TextInput
+                  id="description"
+                  name="description"
+                  label={t`Description`}
+                  value={newFlavor.description || ""}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  errortext={errors.description}
+                />
+              </FormRow>
+            )}
             <FormRow>
               <Checkbox
                 name="os-flavor-access:is_public"

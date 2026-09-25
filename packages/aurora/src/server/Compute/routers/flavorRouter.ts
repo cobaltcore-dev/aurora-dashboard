@@ -19,6 +19,41 @@ import { ERROR_CODES } from "../../errorCodes"
 import { validateAndEncodeResourceId, SignalOpenstackError } from "@cobaltcore-dev/signal-openstack"
 
 export const flavorRouter = {
+  getComputeApiVersion: projectScopedProcedure
+    .input(
+      z.object({
+        project_id: z.string(),
+      })
+    )
+    .query(async ({ ctx }) => {
+      try {
+        const compute = ctx.openstack?.service("compute")
+        if (!compute) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: ERROR_CODES.COMPUTE_SERVICE_UNAVAILABLE,
+          })
+        }
+
+        // Make a simple GET request to check the API version from headers
+        const response = await compute.get("flavors?limit=1")
+        const versionHeader = response.headers.get("x-openstack-nova-api-version") || "2.1"
+
+        // Parse version (e.g., "2.55" -> 2.55)
+        const version = parseFloat(versionHeader)
+
+        return {
+          version: versionHeader,
+          supportsDescription: version >= 2.55,
+        }
+      } catch {
+        // Default to not supporting description if we can't determine version
+        return {
+          version: "2.1",
+          supportsDescription: false,
+        }
+      }
+    }),
   getFlavorById: projectScopedProcedure
     .input(
       z.object({
@@ -148,8 +183,27 @@ export const flavorRouter = {
           })
         }
 
+        // Check if description is supported (microversion 2.55+)
+        let supportsDescription = false
+        try {
+          const versionResponse = await compute.get("flavors?limit=1")
+          const versionHeader = versionResponse.headers.get("x-openstack-nova-api-version") || "2.1"
+          const version = parseFloat(versionHeader)
+          supportsDescription = version >= 2.55
+        } catch {
+          supportsDescription = false
+        }
+
+        // Remove description if not supported
+        const flavorToSend = supportsDescription ? flavor : { ...flavor }
+        if (!supportsDescription) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { description, ...rest } = flavorToSend
+          Object.assign(flavorToSend, rest)
+        }
+
         const flavorData: CreateFlavorInput = {
-          ...flavor,
+          ...flavorToSend,
           "OS-FLV-EXT-DATA:ephemeral": flavor["OS-FLV-EXT-DATA:ephemeral"] || 0,
         }
 
