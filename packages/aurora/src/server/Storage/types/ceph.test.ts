@@ -926,10 +926,43 @@ describe("Ceph Object Storage Schema Validation", () => {
         expect(bucketPolicyStatementSchema.safeParse(input).success).toBe(true)
       })
 
-      it("should reject a Principal object with an invalid AWS ARN format", () => {
+      // RGW principals are not AWS principals: the account field holds a tenant, an RGW account
+      // id, or nothing at all, and a :subuser suffix is allowed. Validating the ARN grammar here
+      // rejected policies RGW had already accepted, so the grammar is left to RGW.
+      // @see https://docs.ceph.com/en/latest/radosgw/account/#principals
+      it.each([
+        ["tenant (Keystone project UUID)", "arn:aws:iam::941afaee693a4155ac815be75f17b259:user/alice"],
+        ["tenant name", "arn:aws:iam::usfolks:user/fred"],
+        ["tenant with subuser", "arn:aws:iam::usfolks:user/fred:subuser"],
+        ["empty tenant", "arn:aws:iam:::user/anonymous"],
+        ["RGW account id", "arn:aws:iam::RGW33567154695143645:user/rgwuser"],
+        ["tenant root", "arn:aws:iam::usfolks:root"],
+      ])("should validate a Principal object with a Ceph %s ARN", (_label, arn) => {
         const input = {
           Effect: "Allow",
-          Principal: { AWS: "not-an-arn" },
+          Principal: { AWS: arn },
+          Action: "s3:GetObject",
+          Resource: "arn:aws:s3:::bucket/*",
+        }
+        expect(bucketPolicyStatementSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should validate a Principal object with an array of mixed-form ARNs", () => {
+        const input = {
+          Effect: "Allow",
+          Principal: {
+            AWS: ["arn:aws:iam::usfolks:user/fred", "arn:aws:iam::123456789012:root", "*"],
+          },
+          Action: "s3:GetObject",
+          Resource: "arn:aws:s3:::bucket/*",
+        }
+        expect(bucketPolicyStatementSchema.safeParse(input).success).toBe(true)
+      })
+
+      it("should reject a Principal whose AWS value is not a string or array of strings", () => {
+        const input = {
+          Effect: "Allow",
+          Principal: { AWS: 123 },
           Action: "s3:GetObject",
           Resource: "arn:aws:s3:::bucket/*",
         }
