@@ -4,7 +4,6 @@ import {
   DescriptionTerm,
   DescriptionDefinition,
   Container,
-  ContentHeading,
   Stack,
   Message,
   Box,
@@ -123,7 +122,7 @@ export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) =>
 
   return (
     <Container px={false} py>
-      <ContentHeading>{t`General Image Data`}</ContentHeading>
+      <h2>{t`General Image Data`}</h2>
       <TwoColumnDescriptionList items={items} />
     </Container>
   )
@@ -148,7 +147,7 @@ export const SecuritySection: React.FC<{ image: GlanceImage; currentProjectId?: 
 
   return (
     <Container px={false} py>
-      <ContentHeading>{t`Security`}</ContentHeading>
+      <h2>{t`Security`}</h2>
       <TwoColumnDescriptionList items={items} />
     </Container>
   )
@@ -182,7 +181,7 @@ export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ imag
 
   return (
     <Container px={false} py>
-      <ContentHeading>{t`Custom Properties / Metadata`}</ContentHeading>
+      <h2>{t`Custom Properties / Metadata`}</h2>
       {hasProperties ? (
         <DescriptionList alignTerms="right" className="grid-cols-4">
           {customProperties.map(([key, value]) => (
@@ -285,7 +284,7 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
               {t`Details`}
             </button>
             <button className={getTabClassName(activeTab === "sharing")} onClick={() => onTabChange?.("sharing")}>
-              {t`Sharing Details`}
+              {t`Manage Access`}
             </button>
           </Stack>
         </div>
@@ -300,7 +299,9 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
         </>
       )}
 
-      {activeTab === "sharing" && showTabs && <SharingDetailsTab image={image} permissions={permissions} />}
+      {activeTab === "sharing" && showTabs && (
+        <SharingDetailsTab image={image} permissions={permissions} currentProjectId={currentProjectId} />
+      )}
     </Stack>
   )
 }

@@ -151,33 +151,47 @@ export function ImageTableRow({
               {!isExternalImage && permissions.canUpdate && (
                 <>
                   <PopupMenuItem
-                    label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate` : t`Deactivate`}
-                    onClick={() => onActivationStatusChange(image)}
+                    label={t`Show Details`}
+                    onClick={() =>
+                      navigate({
+                        to: "/projects/$projectId/compute/images/$imageId",
+                        params: { projectId, imageId: id },
+                      })
+                    }
                   />
                   <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
                   <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
-                  {image.visibility === IMAGE_VISIBILITY.SHARED &&
-                    isImageOwner &&
-                    (permissions.canCreateMember || permissions.canDeleteMember) && (
-                      <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
-                    )}
+                  <PopupMenuItem
+                    label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate` : t`Deactivate`}
+                    onClick={() => onActivationStatusChange(image)}
+                  />
                   {image.visibility === IMAGE_VISIBILITY.PRIVATE && (
                     <PopupMenuItem
                       label={t`Set to "Shared"`}
                       onClick={() => onUpdateVisibility(image.id, IMAGE_VISIBILITY.SHARED, imageName)}
                     />
                   )}
+                  {image.visibility === IMAGE_VISIBILITY.SHARED &&
+                    isImageOwner &&
+                    (permissions.canCreateMember || permissions.canDeleteMember) && (
+                      <>
+                        <PopupMenuSectionSeparator />
+                        <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
+                      </>
+                    )}
                 </>
               )}
-              <PopupMenuItem
-                label={t`Show Details`}
-                onClick={() =>
-                  navigate({
-                    to: "/projects/$projectId/compute/images/$imageId",
-                    params: { projectId, imageId: id },
-                  })
-                }
-              />
+              {isExternalImage && (
+                <PopupMenuItem
+                  label={t`Show Details`}
+                  onClick={() =>
+                    navigate({
+                      to: "/projects/$projectId/compute/images/$imageId",
+                      params: { projectId, imageId: id },
+                    })
+                  }
+                />
+              )}
               {!isExternalImage && permissions.canDelete && !image.protected && (
                 <>
                   <PopupMenuSectionSeparator />

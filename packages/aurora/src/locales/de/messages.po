@@ -653,6 +653,9 @@ msgstr "Abbrechen"
 msgid "Cancel upload"
 msgstr "Upload abbrechen"
 
+msgid "Cancel Upload"
+msgstr ""
+
 msgid "Cannot be combined with Tag Filters"
 msgstr ""
 
@@ -3370,9 +3373,6 @@ msgstr "Vom Projekt geteilt"
 
 msgid "Shared:"
 msgstr "Geteilt:"
-
-msgid "Sharing Details"
-msgstr "Freigabe-Details"
 
 msgid "Show ACLs Preview"
 msgstr "ACLs-Vorschau anzeigen"

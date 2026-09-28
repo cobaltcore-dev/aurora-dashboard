@@ -182,7 +182,6 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
             label={t`Add Project Access`}
             data-testid="addMemberButton"
             onClick={() => setIsAddingMember(true)}
-            variant="primary"
             disabled={isAddingMember}
           />
         </Stack>

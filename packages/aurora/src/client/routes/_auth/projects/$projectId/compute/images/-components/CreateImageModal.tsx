@@ -31,6 +31,7 @@ interface CreateImageModalProps {
   isLoading?: boolean
   isUploadPending?: boolean
   uploadProgressPercent?: number
+  onCancelUpload?: () => void
 }
 
 interface ImageProperties {
@@ -62,6 +63,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
   isLoading = false,
   isUploadPending = false,
   uploadProgressPercent,
+  onCancelUpload,
 }) => {
   const { t } = useLingui()
 
@@ -376,13 +378,22 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
       )}
 
       {isLoading && !!uploadProgressPercent && (
-        <div className="bg-neutral-quaternary mt-4 w-full rounded-full">
-          <div
-            className="bg-theme-info flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium text-white"
-            style={{ width: `${uploadProgressPercent}%` }}
-          >
-            {uploadProgressPercent}%
+        <div className="mt-4">
+          <div className="bg-neutral-quaternary w-full rounded-full">
+            <div
+              className="bg-theme-info flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium text-white"
+              style={{ width: `${uploadProgressPercent}%` }}
+            >
+              {uploadProgressPercent}%
+            </div>
           </div>
+          {onCancelUpload && (
+            <div className="mt-4 flex justify-center">
+              <Button onClick={onCancelUpload} variant="subdued">
+                <Trans>Cancel Upload</Trans>
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
@@ -526,7 +537,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                     />
                   </div>
 
-                  <Button variant="primary" onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
+                  <Button onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
                     <Trans>Add</Trans>
                   </Button>
                 </Stack>

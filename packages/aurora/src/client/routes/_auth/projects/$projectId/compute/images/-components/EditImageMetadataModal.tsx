@@ -232,9 +232,7 @@ function EditImageMetadataModalInner({
               <Button
                 label={t`Add Property`}
                 onClick={() => setIsAddingNew(true)}
-                variant="primary"
                 disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                icon="addCircle"
               />
             </Stack>
           )}

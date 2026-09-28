@@ -373,31 +373,16 @@ function RouteComponent() {
             {!isSharedWithMe && permissions.canUpdate && (
               <>
                 <PopupMenuItem
-                  label={isDeactivated ? t`Activate` : t`Deactivate`}
-                  onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
-                />
-                <PopupMenuItem
                   onClick={() => setEditMetadataModalOpen(true)}
                   label={t`Edit Metadata`}
                   disabled={isLoading}
                 />
+                <PopupMenuItem
+                  label={isDeactivated ? t`Activate Image` : t`Deactivate Image`}
+                  onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
+                />
               </>
             )}
-            {!isSharedWithMe &&
-              isImageOwner &&
-              image.visibility === IMAGE_VISIBILITY.SHARED &&
-              (permissions.canCreateMember || permissions.canDeleteMember) && (
-                <PopupMenuItem
-                  label={t`Manage Access`}
-                  onClick={() =>
-                    navigate({
-                      to: "/projects/$projectId/compute/images/$imageId",
-                      params: { projectId, imageId: image.id },
-                      search: { tab: "sharing" },
-                    })
-                  }
-                />
-              )}
             {canRejectSharedImage && (
               <PopupMenuItem label={t`Reject`} onClick={() => handleMemberStatusChange("rejected")} />
             )}
@@ -407,7 +392,7 @@ function RouteComponent() {
             {!isSharedWithMe && permissions.canDelete && !image.protected && (
               <>
                 <PopupMenuSectionSeparator />
-                <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
+                <PopupMenuItem label={t`Delete Image`} onClick={() => setDeleteModalOpen(true)} />
               </>
             )}
           </PopupMenuOptions>
