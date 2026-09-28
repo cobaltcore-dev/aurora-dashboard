@@ -39,6 +39,9 @@ describe("CreateFlavorModal", () => {
 
   const mockClient = {
     compute: {
+      getComputeApiVersion: {
+        query: vi.fn().mockResolvedValue({ version: "2.55", supportsDescription: true }),
+      },
       createFlavor: {
         mutate: vi.fn().mockResolvedValue({}),
       },
@@ -149,6 +152,9 @@ describe("CreateFlavorModal", () => {
   it("displays translated error message when creation fails", async () => {
     const mockClientWithError = {
       compute: {
+        getComputeApiVersion: {
+          query: vi.fn().mockResolvedValue({ version: "2.55", supportsDescription: true }),
+        },
         createFlavor: {
           mutate: vi.fn().mockRejectedValue(new Error("CREATE_FLAVOR_CONFLICT")),
         },
@@ -192,6 +198,9 @@ describe("CreateFlavorModal", () => {
   it("displays generic error message for unknown error codes", async () => {
     const mockClientWithError = {
       compute: {
+        getComputeApiVersion: {
+          query: vi.fn().mockResolvedValue({ version: "2.55", supportsDescription: true }),
+        },
         createFlavor: {
           mutate: vi.fn().mockRejectedValue(new Error("UNKNOWN_ERROR")),
         },

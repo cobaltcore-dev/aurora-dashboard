@@ -209,6 +209,35 @@ export function filterAndSortFlavors(
   return result
 }
 
+/**
+ * Check if a Nova API microversion supports the description field (>= 2.55)
+ */
+export function supportsDescriptionField(microversion: string): boolean {
+  const [major, minor] = microversion.split(".").map(Number)
+  return major > 2 || (major === 2 && minor >= 55)
+}
+
+/**
+ * Detect the maximum supported Nova API microversion
+ */
+async function getMaxMicroversion(compute: SignalOpenstackServiceType): Promise<string> {
+  try {
+    const response = await compute.get("")
+    const data = await response.json()
+
+    // The response can be either { version: {...} } or { versions: [...] }
+    if (data.version) {
+      return data.version.version || "2.1"
+    } else if (data.versions) {
+      const currentVersion = data.versions.find((v: { status: string }) => v.status === "CURRENT")
+      return currentVersion?.version || "2.1"
+    }
+  } catch {
+    // Fallback to 2.1 if detection fails
+  }
+  return "2.1"
+}
+
 export async function getFlavorById(compute: SignalOpenstackServiceType, flavorId: string): Promise<Flavor> {
   if (!flavorId || flavorId.trim() === "") {
     throw new TRPCError({
@@ -234,7 +263,13 @@ export async function getFlavorById(compute: SignalOpenstackServiceType, flavorI
   let response
 
   try {
-    response = await compute.get(`flavors/${encodedId}`)
+    // Detect max microversion and request with it if >= 2.55 (for description support)
+    const maxVersion = await getMaxMicroversion(compute)
+    const options = supportsDescriptionField(maxVersion)
+      ? { headers: { "OpenStack-API-Version": `compute ${maxVersion}` } }
+      : undefined
+
+    response = await compute.get(`flavors/${encodedId}`, options)
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
@@ -273,7 +308,16 @@ export async function fetchFlavors(compute: SignalOpenstackServiceType, isPublic
   let response
 
   try {
-    response = await compute.get("flavors/detail", { queryParams: { is_public: isPublic } })
+    // Detect max microversion and request with it if >= 2.55 (for description support)
+    const maxVersion = await getMaxMicroversion(compute)
+    const options = supportsDescriptionField(maxVersion)
+      ? {
+          queryParams: { is_public: isPublic },
+          headers: { "OpenStack-API-Version": `compute ${maxVersion}` },
+        }
+      : { queryParams: { is_public: isPublic } }
+
+    response = await compute.get("flavors/detail", options)
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
@@ -309,17 +353,38 @@ export async function fetchFlavors(compute: SignalOpenstackServiceType, isPublic
 
 export async function createFlavor(
   compute: SignalOpenstackServiceType,
-  flavorData: CreateFlavorInput
+  flavorData: CreateFlavorInput,
+  microversion?: string
 ): Promise<Flavor> {
   const requestBody = { flavor: flavorData }
+
+  // If flavor has description and microversion is provided, use it
+  const headers: Record<string, string> = {}
+  if (microversion && flavorData.description && supportsDescriptionField(microversion)) {
+    headers["OpenStack-API-Version"] = `compute ${microversion}`
+  }
+
   let response
 
   try {
-    response = await compute.post("flavors", requestBody)
+    response = await compute.post("flavors", requestBody, Object.keys(headers).length ? { headers } : undefined)
   } catch (error) {
     if (error instanceof TRPCError) throw error
 
     const statusCode = getStatusCodeFromError(error)
+
+    // Preserve the original error message for retry logic to inspect
+    if (statusCode === 400) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
+      if (errorMessage.includes("description")) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: errorMessage,
+          cause: error,
+        })
+      }
+    }
+
     handleHttpError(statusCode, CREATE_FLAVOR_STATUS_MAP, ERROR_CODES.CREATE_FLAVOR_FAILED)
   }
 
@@ -332,7 +397,6 @@ export async function createFlavor(
     const jsonData = JSON.parse(rawData) as CreateFlavorResponse
     return jsonData.flavor
   } catch (error) {
-    console.error("Error parsing flavor response:", error)
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: ERROR_CODES.CREATE_FLAVOR_FAILED,
