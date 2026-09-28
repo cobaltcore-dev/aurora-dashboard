@@ -144,8 +144,11 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     }
   )
 
-  // Query to check which folders contain deleted content
-  // Need this in both tabs: "deleted" to show deleted folders, "all" to hide deleted folders
+  // Query to check which folders contain deleted content.
+  // This is a data source for the Deleted tab only - the All tab's listing from
+  // `objects.list` is already accurate (see `deletedFoldersList` below), so running this scan
+  // there would be pure overhead: up to `S3_MAX_SCAN_PAGES` (20) paginated
+  // ListObjectVersions requests against the whole prefix on every folder view.
   //
   // Sends the current directory's prefix rather than the accumulated folder array: the BFF
   // scans that whole prefix in one paginated pass and attributes results to child folders
@@ -161,7 +164,7 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
       prefix: currentPrefix,
     },
     {
-      enabled: !!projectId && versioningStatus?.status === "Enabled" && allFolders.length > 0,
+      enabled: !!projectId && tab === "deleted" && versioningStatus?.status === "Enabled" && allFolders.length > 0,
       staleTime: 30 * 1000, // Cache for 30 seconds
     }
   )
@@ -335,24 +338,21 @@ export function ObjectBrowserView({ bucketName }: ObjectBrowserViewProps) {
     return deletedFiles
   }, [tab, allVersions])
 
-  // Filter folders based on deleted content check from BFF
-  // Also add isDeleted flag to folders whose marker is deleted
+  // Add isDeleted flag to folders whose marker is deleted (Deleted tab only)
   const deletedFoldersList: Array<
     S3FolderPrefix & { isDeleted?: boolean; deleteMarkerVersionId?: string; folderMarkerVersionId?: string }
   > = useMemo(() => {
     if (tab !== "deleted") {
-      // In "All" tab, exclude folders that are deleted (have delete marker as latest version)
-      // or have no versions at all (permanently deleted)
-      if (!folderDeletedStatus || !Array.isArray(folderDeletedStatus)) return allFolders // Show all while loading or if no data
-
-      const filtered = allFolders.filter((folder) => {
-        const status = statusByPrefix.get(folder.prefix)
-        if (!status) return true
-        if (status.isPartialScan) return true
-        return !status.isFolderDeleted && status.folderMarkerVersionId !== undefined
-      })
-
-      return filtered
+      // The All tab renders exactly what ListObjectsV2 returned. That listing only ever
+      // surfaces current (non-delete-marker) versions, so a CommonPrefix showing up here
+      // already means the folder has live content - a folder whose contents are entirely
+      // covered by delete markers simply never appears in `allFolders` in the first place.
+      // No secondary check against `checkDeletedContent` is needed or run for this tab (see
+      // that query's `enabled` flag above): the old check required a zero-byte `folder/`
+      // marker object, which only Aurora's "Create folder" button writes, so any folder
+      // populated by another S3 client had no marker and was hidden here even though it had
+      // live content.
+      return allFolders
     }
 
     if (!folderDeletedStatus || !Array.isArray(folderDeletedStatus)) return allFolders // Show all while loading or if no data
