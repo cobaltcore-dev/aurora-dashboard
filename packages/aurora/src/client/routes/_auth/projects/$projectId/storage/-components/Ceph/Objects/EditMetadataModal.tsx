@@ -16,6 +16,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
 import { validateMetadataKey } from "./utils/objectValidation"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -162,7 +163,7 @@ export const EditMetadataModal = ({
         containerName: bucketName,
         objectKey: objectKeyRef.current,
       })
-      utils.storage.ceph.objects.list.invalidate()
+      invalidateBucketQueries(utils)
       onSuccess?.(objectKeyRef.current)
       handleClose()
     },

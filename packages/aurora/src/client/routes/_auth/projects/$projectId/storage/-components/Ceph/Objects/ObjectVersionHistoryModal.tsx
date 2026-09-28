@@ -152,9 +152,7 @@ export const ObjectVersionHistoryModal = ({
                 <DataGridHeadCell>
                   <Trans>ETag</Trans>
                 </DataGridHeadCell>
-                <DataGridHeadCell>
-                  <Trans>Actions</Trans>
-                </DataGridHeadCell>
+                <DataGridHeadCell />
               </DataGridRow>
 
               {versions.map((version: ObjectVersion) => {
@@ -212,7 +210,7 @@ export const ObjectVersionHistoryModal = ({
                             <PopupMenuOptions>
                               {!isDeleteMarker && !isLatest && canRestoreVersion && (
                                 <PopupMenuItem
-                                  label={t`Restore`}
+                                  label={t`Restore Version`}
                                   onClick={() => {
                                     setRestoreTarget({
                                       versionId: version.versionId,

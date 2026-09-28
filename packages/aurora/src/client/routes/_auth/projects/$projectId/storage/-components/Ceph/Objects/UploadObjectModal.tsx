@@ -5,6 +5,7 @@ import { MdCloudUpload } from "react-icons/md"
 import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { cn } from "@/client/utils/cn"
 import { formatBytesBinary } from "@/client/utils/formatBytes"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 interface UploadObjectModalProps {
   isOpen: boolean
@@ -143,8 +144,7 @@ export const UploadObjectModal = ({
         signal: controller.signal,
       })
 
-      // Invalidate every list variant (matches the other Ceph object modals).
-      utils.storage.ceph.objects.list.invalidate()
+      invalidateBucketQueries(utils)
       onSuccess?.(submittedNameRef.current)
       resetAndClose()
     } catch (err) {

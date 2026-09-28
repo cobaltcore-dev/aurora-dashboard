@@ -34,15 +34,6 @@ export const getBucketEmptiedToast = (bucketName: string, deletedCount: number):
     ),
 })
 
-export const getBucketEmptyErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
-  message: <Trans>Failed to Empty Bucket</Trans>,
-  description: (
-    <Trans>
-      Could not empty bucket "{bucketName}": {errorMessage}
-    </Trans>
-  ),
-})
-
 export const getBucketDeletedToast = (bucketName: string): ToastReturnType => ({
   message: <Trans>Bucket Deleted</Trans>,
   description: <Trans>Bucket "{bucketName}" was successfully deleted.</Trans>,
@@ -160,15 +151,6 @@ export const getVersionsDeletedToast = (bucketName: string, deletedCount: number
         Successfully deleted {deletedCount} versions from bucket "{bucketName}".
       </Trans>
     ),
-})
-
-export const getVersionsDeleteErrorToast = (bucketName: string, errorMessage: string): ToastReturnType => ({
-  message: <Trans>Failed to Delete Versions</Trans>,
-  description: (
-    <Trans>
-      Could not delete versions from bucket "{bucketName}": {errorMessage}
-    </Trans>
-  ),
 })
 
 // ── CORS configuration operations ──────────────────────────────────────────

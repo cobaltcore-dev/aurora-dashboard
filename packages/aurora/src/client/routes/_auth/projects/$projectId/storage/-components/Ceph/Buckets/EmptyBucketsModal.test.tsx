@@ -27,7 +27,14 @@ vi.mock("@tanstack/react-router", () => ({
 
 // ─── tRPC mock ────────────────────────────────────────────────────────────────
 
-const { mockInvalidateContainers, mockInvalidateObjects, mockMutateAsync, mockReset, mockState } = vi.hoisted(() => {
+const {
+  mockInvalidateContainers,
+  mockInvalidateContainerState,
+  mockInvalidateObjects,
+  mockMutateAsync,
+  mockReset,
+  mockState,
+} = vi.hoisted(() => {
   const mockState = {
     isPending: false,
     shouldFail: false,
@@ -42,6 +49,7 @@ const { mockInvalidateContainers, mockInvalidateObjects, mockMutateAsync, mockRe
   })
   return {
     mockInvalidateContainers: vi.fn(),
+    mockInvalidateContainerState: vi.fn(),
     mockInvalidateObjects: vi.fn(),
     mockMutateAsync,
     mockReset: vi.fn(),
@@ -54,8 +62,12 @@ vi.mock("@/client/trpcClient", () => ({
     useUtils: () => ({
       storage: {
         ceph: {
-          containers: { list: { invalidate: mockInvalidateContainers } },
+          containers: {
+            list: { invalidate: mockInvalidateContainers },
+            getState: { invalidate: mockInvalidateContainerState },
+          },
           objects: { list: { invalidate: mockInvalidateObjects } },
+          versioning: { checkDeletedContent: { invalidate: vi.fn() } },
         },
       },
     }),
@@ -264,6 +276,7 @@ describe("EmptyBucketsModal", () => {
       await waitFor(
         () => {
           expect(mockInvalidateContainers).toHaveBeenCalledTimes(1)
+          expect(mockInvalidateContainerState).toHaveBeenCalledTimes(1)
           expect(mockInvalidateObjects).toHaveBeenCalledTimes(1)
         },
         { timeout: 3000 }
@@ -361,6 +374,7 @@ describe("EmptyBucketsModal", () => {
       await waitFor(
         () => {
           expect(mockInvalidateContainers).not.toHaveBeenCalled()
+          expect(mockInvalidateContainerState).not.toHaveBeenCalled()
           expect(mockInvalidateObjects).not.toHaveBeenCalled()
         },
         { timeout: 3000 }
@@ -382,6 +396,7 @@ describe("EmptyBucketsModal", () => {
       await waitFor(
         () => {
           expect(mockInvalidateContainers).toHaveBeenCalledTimes(1)
+          expect(mockInvalidateContainerState).toHaveBeenCalledTimes(1)
           expect(mockInvalidateObjects).toHaveBeenCalledTimes(1)
         },
         { timeout: 3000 }

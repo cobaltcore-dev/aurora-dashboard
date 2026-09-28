@@ -18,6 +18,7 @@ import { MdFolder, MdDescription, MdCreateNewFolder, MdArrowBack } from "react-i
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useCopyMoveModalState } from "./hooks/useCopyMoveModalState"
 import { validateObjectName } from "./utils/objectValidation"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 const MAX_COMBO_OPTIONS = 50
 
@@ -165,8 +166,7 @@ export const MoveObjectModal = ({
 
   const deleteMutation = trpcReact.storage.ceph.objects.delete.useMutation({
     onSuccess: () => {
-      utils.storage.ceph.objects.list.invalidate()
-      utils.storage.ceph.containers.list.invalidate()
+      invalidateBucketQueries(utils)
       // Use captured target values instead of recomputing from mutable state
       onSuccess?.(submittedKeyRef.current, submittedTargetBucketRef.current, submittedTargetKeyRef.current)
     },

@@ -436,7 +436,7 @@ describe("ObjectsTableView", () => {
       expect(screen.getByText("Delete Folder")).toBeInTheDocument()
     })
 
-    it("on a deleted folder row, shows Restore but hides Delete Folder when canDeleteVersion is false", async () => {
+    it("on a deleted folder row, shows Restore Folder but hides Delete Folder when canDeleteVersion is false", async () => {
       const user = userEvent.setup()
       render(
         <ObjectsTableView
@@ -452,11 +452,11 @@ describe("ObjectsTableView", () => {
       const row = screen.getByTestId("folder-row-documents/")
       await user.click(within(row).getByRole("button", { name: /more/i }))
 
-      expect(screen.getByText("Restore")).toBeInTheDocument()
+      expect(screen.getByText("Restore Folder")).toBeInTheDocument()
       expect(screen.queryByText("Delete Folder")).not.toBeInTheDocument()
     })
 
-    it("on a deleted file row, shows Restore but hides Delete Object when canDeleteVersion is false", async () => {
+    it("on a deleted file row, shows Restore Version but hides Delete Object when canDeleteVersion is false", async () => {
       const user = userEvent.setup()
       const versions = [
         {
@@ -485,7 +485,7 @@ describe("ObjectsTableView", () => {
       const row = screen.getByTestId("object-row-file1.txt")
       await user.click(within(row).getByRole("button", { name: /more/i }))
 
-      expect(screen.getByText("Restore")).toBeInTheDocument()
+      expect(screen.getByText("Restore Version")).toBeInTheDocument()
       expect(screen.queryByText("Delete Object")).not.toBeInTheDocument()
     })
 

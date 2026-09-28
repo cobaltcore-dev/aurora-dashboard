@@ -127,6 +127,51 @@ export const listObjectVersionsInputSchema = projectScopedInputSchema.extend({
   key: z.string().min(1),
 })
 
+/**
+ * Input schema for the folder deleted-content probe.
+ *
+ * `prefix` is the parent the folders live under and is what the scan actually uses. `folders`
+ * is the pre-existing shape, kept for backward compatibility: when `prefix` is absent the scan
+ * falls back to the folders' common *parent* prefix, which may be the whole bucket.
+ *
+ * The two refinements below exist because this procedure's whole contract is "never guess": a
+ * result carries `isPartialScan: false` to mean "this answer is reliable". Both rejected shapes
+ * would have produced exactly that stamp on folders the scan never looked at.
+ */
+export const checkDeletedContentInputSchema = projectScopedInputSchema
+  .extend({
+    bucket: z.string().min(1),
+    prefix: z.string().optional(),
+    folders: z.array(z.string()).max(1000).optional(),
+  })
+  .refine((input) => input.prefix !== undefined || (input.folders?.length ?? 0) > 0, {
+    message: "Either prefix or a non-empty folders array is required",
+    path: ["prefix"],
+  })
+  .refine((input) => input.folders?.every((folder) => folder.startsWith(input.prefix ?? "")) ?? true, {
+    message: "Every folder must live under prefix",
+    path: ["folders"],
+  })
+
+/**
+ * Per-folder result of the deleted-content probe.
+ *
+ * `isPartialScan` marks a folder the bounded scan could not rule on. Callers must render it
+ * neutrally: substituting `hasDeletedContent: true` would flag every large healthy folder as
+ * containing junk, and leaving `folderMarkerVersionId` undefined would hide a live folder from
+ * the main listing.
+ */
+export const checkDeletedContentOutputSchema = z.array(
+  z.object({
+    prefix: z.string(),
+    hasDeletedContent: z.boolean(),
+    isFolderDeleted: z.boolean(),
+    folderDeleteMarkerVersionId: z.string().optional(),
+    folderMarkerVersionId: z.string().optional(),
+    isPartialScan: z.boolean(),
+  })
+)
+
 // ============================================================================
 // VERSIONING TYPES
 // ============================================================================
@@ -137,3 +182,5 @@ export type RestoreVersionOutput = z.infer<typeof restoreVersionOutputSchema>
 
 // Note: ListVersionsInput and ListVersionsOutput are defined in the service layer
 // to avoid the project_id requirement. The router layer uses the schema versions above.
+
+export type CheckDeletedContentOutput = z.infer<typeof checkDeletedContentOutputSchema>

@@ -27,7 +27,9 @@ import {
   deleteObjectInputSchema,
   deleteObjectsBulkInputSchema,
   deleteObjectsBulkOutputSchema,
+  deleteNonCurrentVersionsOutputSchema,
   deleteVersionsBulkInputSchema,
+  deleteNonCurrentVersionsInputSchema,
   createFolderInputSchema,
   copyObjectInputSchema,
   copyObjectOutputSchema,
@@ -40,10 +42,11 @@ import {
   type S3ObjectDetails,
   type CopyObjectOutput,
   type DeleteObjectsBulkOutput,
+  type DeleteNonCurrentVersionsOutput,
   type DeletedObject,
   type DeleteObjectError,
 } from "../../types/ceph"
-import { S3_MAX_KEYS_PER_REQUEST } from "../../constants"
+import { S3_MAX_KEYS_PER_REQUEST, S3_MAX_BUFFERED_VERSIONS_PER_KEY, MAX_REPORTED_DELETE_ERRORS } from "../../constants"
 import { z } from "zod"
 import EventEmitter from "node:events"
 
@@ -779,6 +782,255 @@ export const objectRouter = {
       const uniqueVersions = Array.from(new Map(versions.map((v) => [`${v.key}|${v.versionId}`, v])).values())
 
       return bulkDeleteItems(s3, containerName, uniqueVersions, ctx.req.signal, "delete versions")
+    }),
+
+  /**
+   * Delete every non-current version and delete marker in a bucket, keeping
+   * each key's current live version intact ("Delete Versions" bucket action).
+   *
+   * Deliberately NOT built on top of `deleteAll` (which the "Empty Bucket"
+   * checkbox also uses): that procedure's full-wipe branch discards
+   * `IsLatest` entirely and re-scans from scratch whenever a page is
+   * exhausted, specifically so it can catch delete markers created by its
+   * own non-versioned-delete branch. Bolting a third "keep the latest"
+   * mode onto that already-intricate loop would risk regressing the other
+   * two. This procedure keeps its own single-pass scan instead.
+   *
+   * ⚠️ IsLatest correctness across pages:
+   * `IsLatest` is computed by S3 at *list time*, not stored permanently. If a
+   * key's versions are split across two list pages and we deleted anything
+   * from that key after page 1 but before fetching page 2, the remaining
+   * version would be re-evaluated as IsLatest=true on page 2 - resurrecting
+   * a version (or worse, a deleted object) that should have stayed removed.
+   * To avoid this, a key's records are only ever acted on once its full
+   * group has been seen: the last key-group on every truncated page is
+   * buffered (`pendingKey`/`pendingItems`) and merged with the next page's
+   * leading group (S3 returns Versions/DeleteMarkers sorted by key, so a
+   * split key's remaining records always appear at the very start of the
+   * next page) before that group is decided on and deleted.
+   *
+   * Per completed key-group: if the current (IsLatest) record is a regular
+   * version, every other record in the group is deleted and the current
+   * version is kept. If the current record is a delete marker, the entire
+   * group - including the marker - is deleted, since a versioned bucket has
+   * no other way to represent "this key was deleted" once its history is
+   * gone; keeping the marker without its superseded versions would leave the
+   * key listed in the "Deleted" tab with nothing left to restore.
+   *
+   * No second pass is needed (unlike `deleteAll`'s full-wipe branch): every
+   * deletion here targets a specific `VersionId`, which never creates a new
+   * delete marker, so nothing new can appear behind the scan as it
+   * progresses. One pass over the bucket is exhaustive.
+   *
+   * @throws TRPCError NOT_FOUND - bucket does not exist
+   * @throws TRPCError FORBIDDEN - no credentials or access denied
+   */
+  deleteNonCurrentVersions: cephProtectedProcedure
+    .input(deleteNonCurrentVersionsInputSchema)
+    .mutation(async ({ ctx, input }): Promise<DeleteNonCurrentVersionsOutput> => {
+      const s3 = ctx.getCephClient!()
+      const { containerName } = input
+
+      type VersionEntry = { Key: string; VersionId?: string; IsLatest: boolean; isDeleteMarker: boolean }
+      type KeyGroup = { key: string; items: VersionEntry[] }
+
+      const errors: DeleteObjectError[] = []
+      let deletedCount = 0
+      let errorCount = 0
+      let isPartial = false
+
+      const recordErrors = (newErrors: DeleteObjectError[]) => {
+        errorCount += newErrors.length
+        for (const error of newErrors) {
+          if (errors.length >= MAX_REPORTED_DELETE_ERRORS) break
+          errors.push(error)
+        }
+      }
+
+      let keyMarker: string | undefined
+      let versionIdMarker: string | undefined
+      let pendingKey: string | undefined
+      let pendingItems: VersionEntry[] = []
+      let sameMarkerCount = 0
+      const MAX_SAME_MARKER = 5
+      let skipKey: string | undefined
+
+      while (true) {
+        if (ctx.req.signal?.aborted) {
+          isPartial = true
+          break
+        }
+
+        let response
+        try {
+          response = await s3.send(
+            new ListObjectVersionsCommand({
+              Bucket: containerName,
+              MaxKeys: S3_MAX_KEYS_PER_REQUEST,
+              KeyMarker: keyMarker,
+              VersionIdMarker: versionIdMarker,
+            }),
+            { abortSignal: ctx.req.signal }
+          )
+        } catch (error) {
+          if (ctx.req.signal?.aborted) {
+            isPartial = true
+            break
+          }
+          throw mapS3ErrorToTRPCError(error, {
+            operation: "delete non-current versions",
+            bucket: containerName,
+          })
+        }
+
+        const combined: VersionEntry[] = [
+          ...(response.Versions ?? []).map((v) => ({
+            Key: v.Key ?? "",
+            VersionId: v.VersionId,
+            IsLatest: v.IsLatest ?? false,
+            isDeleteMarker: false,
+          })),
+          ...(response.DeleteMarkers ?? []).map((dm) => ({
+            Key: dm.Key ?? "",
+            VersionId: dm.VersionId,
+            IsLatest: dm.IsLatest ?? false,
+            isDeleteMarker: true,
+          })),
+        ].sort((a, b) => (a.Key < b.Key ? -1 : a.Key > b.Key ? 1 : 0))
+
+        const pageGroups: KeyGroup[] = []
+        for (const item of combined) {
+          const last = pageGroups[pageGroups.length - 1]
+          if (last && last.key === item.Key) {
+            last.items.push(item)
+          } else {
+            pageGroups.push({ key: item.Key, items: [item] })
+          }
+        }
+
+        if (pendingItems.length > 0) {
+          if (pageGroups.length > 0 && pageGroups[0].key === pendingKey) {
+            pageGroups[0].items = [...pendingItems, ...pageGroups[0].items]
+          } else {
+            pageGroups.unshift({ key: pendingKey!, items: pendingItems })
+          }
+          pendingItems = []
+          pendingKey = undefined
+        }
+
+        if (skipKey !== undefined) {
+          const remaining = pageGroups.filter((group) => group.key !== skipKey)
+          if (remaining.length === pageGroups.length) skipKey = undefined
+          pageGroups.length = 0
+          pageGroups.push(...remaining)
+        }
+
+        let groupsToProcess = pageGroups
+        if (response.IsTruncated && response.NextKeyMarker && pageGroups.length > 0) {
+          const markerIndex = pageGroups.findIndex((group) => group.key === response.NextKeyMarker)
+          const index = markerIndex >= 0 ? markerIndex : pageGroups.length - 1
+          const deferredGroup = pageGroups[index]
+          groupsToProcess = pageGroups.filter((_, i) => i !== index)
+
+          if (deferredGroup.items.length > S3_MAX_BUFFERED_VERSIONS_PER_KEY) {
+            console.error(
+              `[deleteNonCurrentVersions] Abandoning key with more than ${S3_MAX_BUFFERED_VERSIONS_PER_KEY} versions in bucket ${containerName}`
+            )
+            recordErrors([
+              {
+                key: deferredGroup.key,
+                code: "TooManyVersions",
+                message: `Key has more than ${S3_MAX_BUFFERED_VERSIONS_PER_KEY} versions and was skipped`,
+              },
+            ])
+            isPartial = true
+            skipKey = deferredGroup.key
+          } else {
+            pendingKey = deferredGroup.key
+            pendingItems = deferredGroup.items
+          }
+        }
+
+        const itemsToDelete: DeleteItem[] = []
+        for (const group of groupsToProcess) {
+          const current = group.items.find((item) => item.IsLatest)
+          if (current === undefined) {
+            console.error(`[deleteNonCurrentVersions] Skipping key with no current version in bucket ${containerName}`)
+            recordErrors([
+              {
+                key: group.key,
+                code: "NoCurrentVersion",
+                message: "No version flagged as current; skipped to avoid deleting the live object",
+              },
+            ])
+            isPartial = true
+            continue
+          }
+          const keepCurrentVersion = !current.isDeleteMarker
+          for (const item of group.items) {
+            if (keepCurrentVersion && item === current) continue
+            if (!item.VersionId) {
+              console.error(`[deleteNonCurrentVersions] Skipping item without VersionId in bucket ${containerName}`)
+              recordErrors([
+                {
+                  key: item.Key,
+                  code: "MissingVersionId",
+                  message: "Version record carried no VersionId; skipped to avoid creating a delete marker",
+                },
+              ])
+              isPartial = true
+              continue
+            }
+            itemsToDelete.push({ key: item.Key, versionId: item.VersionId })
+          }
+        }
+
+        if (itemsToDelete.length > 0) {
+          const pageResult = await bulkDeleteItems(
+            s3,
+            containerName,
+            itemsToDelete,
+            ctx.req.signal,
+            "delete non-current versions"
+          )
+          deletedCount += pageResult.deletedCount
+          recordErrors(pageResult.errors)
+        }
+
+        if (!response.IsTruncated || !response.NextKeyMarker) {
+          // Truncated without a usable continuation marker, or aborted while this page's
+          // deletes were in flight. bulkDeleteItems breaks out silently on abort — no
+          // deletion recorded, no error recorded — so this is the last place that can say
+          // the run did not cover the bucket. A false positive is harmless: isPartial means
+          // "not vouching for completeness", and the cost is one re-run.
+          if (response.IsTruncated || ctx.req.signal?.aborted) isPartial = true
+          break
+        }
+
+        const currentMarkerKey = `${keyMarker ?? ""}:${versionIdMarker ?? ""}`
+        const newMarkerKey = `${response.NextKeyMarker ?? ""}:${response.NextVersionIdMarker ?? ""}`
+        if (currentMarkerKey === newMarkerKey) {
+          sameMarkerCount++
+          if (sameMarkerCount >= MAX_SAME_MARKER) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: `Pagination stalled: markers not advancing after ${MAX_SAME_MARKER} iterations while deleting non-current versions from bucket ${containerName}.`,
+            })
+          }
+        } else {
+          sameMarkerCount = 0
+        }
+
+        keyMarker = response.NextKeyMarker
+        versionIdMarker = response.NextVersionIdMarker
+      }
+
+      return deleteNonCurrentVersionsOutputSchema.parse({
+        errors,
+        deletedCount,
+        errorCount,
+        isPartial,
+      })
     }),
 
   /**

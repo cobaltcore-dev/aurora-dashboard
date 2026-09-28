@@ -7,6 +7,7 @@ import { Modal, Status, Stack, Form, FormSection, TextInput } from "@cloudoperat
 import { Bucket } from "@/server/Storage/types/ceph"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useModalTracking } from "@/client/hooks/useModalTracking"
+import { invalidateBucketQueries } from "../hooks/invalidateBucketQueries"
 
 const MAX_VISIBLE = 20
 
@@ -73,8 +74,7 @@ export const EmptyBucketsModal = ({ isOpen, buckets, onClose, onComplete }: Empt
       }
 
       if (emptiedCount > 0) {
-        await utils.storage.ceph.containers.list.invalidate()
-        await utils.storage.ceph.objects.list.invalidate()
+        await invalidateBucketQueries(utils)
       }
 
       onComplete?.({ emptiedCount, totalDeleted, errors })

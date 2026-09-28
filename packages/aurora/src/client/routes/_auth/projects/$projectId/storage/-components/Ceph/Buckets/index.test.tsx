@@ -133,7 +133,6 @@ vi.mock("./BucketToastNotifications", () => ({
   getBucketCreatedToast: vi.fn(() => ({ message: null, description: null })),
   getBucketCreateErrorToast: vi.fn(() => ({ message: null, description: null })),
   getBucketEmptiedToast: vi.fn(() => ({ message: null, description: null })),
-  getBucketEmptyErrorToast: vi.fn(() => ({ message: null, description: null })),
   getBucketDeletedToast: vi.fn(() => ({ message: null, description: null })),
   getBucketDeleteErrorToast: vi.fn(() => ({ message: null, description: null })),
   getBucketsEmptyCompleteToast: vi.fn(() => ({ message: null, description: null })),

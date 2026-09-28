@@ -21,6 +21,7 @@ interface MockContextOptions {
   hasCredentials?: boolean
   endpoint?: string
   region?: string
+  abortSignal?: AbortSignal
 }
 
 type MockIdentity = {
@@ -38,7 +39,9 @@ export const createMockContext = (options: MockContextOptions = {}): MockContext
     hasCredentials = true,
     endpoint = "https://test-ceph.example.com",
     region = "test-region",
+    abortSignal,
   } = options
+  const signal = abortSignal ?? new AbortController().signal
 
   const credBlob = JSON.stringify({ access: TEST_ACCESS, secret: TEST_SECRET })
 
@@ -112,9 +115,9 @@ export const createMockContext = (options: MockContextOptions = {}): MockContext
   }
 
   return {
-    req: { headers: {} },
+    req: { headers: {}, signal },
     res: {} as Partial<FastifyReply>,
-    signal: new AbortController().signal,
+    signal,
     validateSession: vi.fn().mockReturnValue(!shouldFailAuth),
     identityEndpoint: "http://identity.example.com/",
     cephRegion: TEST_CEPH_REGION,
