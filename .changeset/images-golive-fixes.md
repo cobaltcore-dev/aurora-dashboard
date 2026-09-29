@@ -4,7 +4,7 @@
 
 - Change button variants from primary to default in Images modals (Add Property, Add Project Access, Add tag buttons)
 - Fix EditImageDetailsModal not closing after save by awaiting onSave promise
-- Add Cancel Upload button to CreateImageModal during file upload
+- Make image upload cancellable: the footer "Cancel Upload" button aborts the in-flight upload, deletes the orphaned image, and closes the modal; the "Create Image" button is hidden during upload
 - Reorder overflow menu items (bulk actions, single image row, detail page hamburger)
 - Add separator after "Edit Metadata" in Images list hamburger menu
 - Rename menu items to "Activate Image"/"Deactivate Image" and "Delete Image"

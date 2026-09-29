@@ -58,6 +58,11 @@ export const getImageFileUploadErrorToast = (
   ),
 })
 
+export const getImageUploadCancelledToast = (): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Upload Cancelled</Trans>,
+  description: <Trans>The image upload was cancelled.</Trans>,
+})
+
 export const getImageDeletedToast = (imageName: string): { message: ReactNode } & NotificationOptions => ({
   message: <Trans>Image Instance</Trans>,
   description: <Trans>Image instance "{imageName}" has been deleted</Trans>,

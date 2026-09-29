@@ -356,43 +356,46 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     onClose()
   }
 
+  // During an active upload, repurpose the modal's footer Cancel button to
+  // cancel the upload (and close). Outside of upload it behaves normally.
+  const isUploading = isLoading && isUploadPending
+  // Creating the image record (before the upload starts) is a brief,
+  // non-cancellable step — disable the cancel action then.
+  const isCreatingOnly = isLoading && !isUploadPending
+  const handleModalCancel = isUploading ? onCancelUpload : isLoading ? undefined : handleClose
+
   return (
     <Modal
       open={isOpen}
-      onCancel={isLoading ? undefined : handleClose}
+      onCancel={handleModalCancel}
       size="large"
       title={t`Create New Image`}
-      onConfirm={handleSubmit}
-      confirmButtonLabel={t`Create Image`}
-      cancelButtonLabel={t`Cancel`}
+      onConfirm={isLoading ? undefined : handleSubmit}
+      confirmButtonLabel={isLoading ? undefined : t`Create Image`}
+      cancelButtonLabel={isUploading ? t`Cancel Upload` : t`Cancel`}
       disableConfirmButton={isLoading || !isFormValid}
-      closeable={!isLoading}
+      disableCancelButton={isCreatingOnly}
+      closeable
+      disableCloseButton={isLoading}
       closeOnEsc={!isLoading}
     >
-      {isLoading && !uploadProgressPercent && (
-        <Status
-          status="progress"
-          title={isUploadPending ? t`Pending File Upload...` : t`Creating Image...`}
-          className="mt-4"
-        />
-      )}
-
-      {isLoading && !!uploadProgressPercent && (
+      {isLoading && (
         <div className="mt-4">
-          <div className="bg-neutral-quaternary w-full rounded-full">
-            <div
-              className="bg-theme-info flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium text-white"
-              style={{ width: `${uploadProgressPercent}%` }}
-            >
-              {uploadProgressPercent}%
+          {uploadProgressPercent ? (
+            <div className="bg-neutral-quaternary w-full rounded-full">
+              <div
+                className="bg-theme-info flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium text-white"
+                style={{ width: `${uploadProgressPercent}%` }}
+              >
+                {uploadProgressPercent}%
+              </div>
             </div>
-          </div>
-          {onCancelUpload && (
-            <div className="mt-4 flex justify-center">
-              <Button onClick={onCancelUpload} variant="subdued">
-                <Trans>Cancel Upload</Trans>
-              </Button>
-            </div>
+          ) : (
+            <Status
+              status="progress"
+              title={isUploadPending ? t`Uploading File...` : t`Creating Image...`}
+              className="mt-0"
+            />
           )}
         </div>
       )}

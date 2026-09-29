@@ -2843,9 +2843,6 @@ msgstr "Partial Delete Success"
 msgid "Pending"
 msgstr "Pending"
 
-msgid "Pending File Upload..."
-msgstr "Pending File Upload..."
-
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Please enter a valid number of minutes greater than 0"
 
@@ -3626,6 +3623,9 @@ msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
 
+msgid "The image upload was cancelled."
+msgstr "The image upload was cancelled."
+
 msgid "The lifecycle configuration has changed. Please refresh and try again."
 msgstr "The lifecycle configuration has changed. Please refresh and try again."
 
@@ -4012,6 +4012,9 @@ msgstr "Upload object to:"
 
 msgid "Upload of \"{objectName}\" was cancelled."
 msgstr "Upload of \"{objectName}\" was cancelled."
+
+msgid "Uploading File..."
+msgstr "Uploading File..."
 
 msgid "Uploading..."
 msgstr "Uploading..."

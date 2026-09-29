@@ -1,4 +1,4 @@
-import { useState, ReactNode } from "react"
+import { useState, useRef, ReactNode } from "react"
 import { useProjectId } from "@/client/hooks"
 import type { CreateImageInput, GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import {
@@ -46,6 +46,7 @@ import {
   getBulkDeactivatePartialToast,
   getImageCreateErrorToast,
   getImageFileUploadErrorToast,
+  getImageUploadCancelledToast,
   getImageVisibilityUpdatedToast,
   getImageVisibilityUpdateErrorToast,
 } from "./ImageToastNotifications"
@@ -130,6 +131,8 @@ export function ImageListView({
   const [isCreateInProgress, setCreateInProgress] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
   const [isUploadPending, setIsUploadPending] = useState(false)
+  const uploadAbortControllerRef = useRef<AbortController | null>(null)
+  const uploadCancelledRef = useRef(false)
   const { t } = useLingui()
 
   const utils = trpcReact.useUtils()
@@ -286,10 +289,16 @@ export function ImageListView({
 
       // Step 2: Upload file via octetInputParser with metadata in custom headers.
       // trpcClient (vanilla) is used so we can pass operation context with headers.
+      // An AbortController lets the user cancel the in-flight upload; aborting
+      // drops the HTTP connection, which the server maps to an aborted request.
+      const abortController = new AbortController()
+      uploadAbortControllerRef.current = abortController
+      uploadCancelledRef.current = false
       setUploadId(createdImage.id)
       setIsUploadPending(true)
 
       await trpcClient.compute.uploadImage.mutate(file, {
+        signal: abortController.signal,
         context: {
           headers: {
             "x-project-id": projectId,
@@ -309,6 +318,12 @@ export function ImageListView({
       // Trigger manual refetch through member status change handler
       onMemberStatusChanged()
     } catch (error) {
+      // A user-initiated cancellation is not an error — the toast is shown by
+      // handleCancelUpload, so swallow it here.
+      if (uploadCancelledRef.current) {
+        return
+      }
+
       // Show error notification based on failure point
       if (error instanceof TRPCClientError && error.data?.path === "compute.createImage") {
         const { message, ...options } = getImageCreateErrorToast(imageName, error.message)
@@ -322,10 +337,32 @@ export function ImageListView({
       }
     } finally {
       // Complete creation and close modal
+      uploadAbortControllerRef.current = null
       setCreateInProgress(false)
       setCreateModalOpen(false)
       setIsUploadPending(false)
       setUploadId(null)
+    }
+  }
+
+  const handleCancelUpload = async () => {
+    const orphanedImageId = uploadId
+    uploadCancelledRef.current = true
+    uploadAbortControllerRef.current?.abort()
+
+    const { message, ...options } = getImageUploadCancelledToast()
+    toast.info(message, options)
+    // handleCreate's finally block resets state and closes the modal.
+
+    // The image record was already created in Step 1 before the upload started.
+    // Aborting only stops the file transfer, so delete the now-orphaned image.
+    if (orphanedImageId) {
+      try {
+        await deleteImageMutation.mutateAsync({ project_id: projectId, imageId: orphanedImageId })
+        onImageDeleted(orphanedImageId)
+      } catch {
+        // Best-effort cleanup; if it fails the image simply remains in the list.
+      }
     }
   }
 
@@ -786,6 +823,7 @@ export function ImageListView({
           isLoading={createImageMutation.isPending || isUploadPending || isCreateInProgress}
           isUploadPending={isUploadPending && !!uploadId}
           uploadProgressPercent={data?.percent}
+          onCancelUpload={handleCancelUpload}
         />
       </div>
     </>

@@ -2843,9 +2843,6 @@ msgstr "Teilweise erfolgreich gelöscht"
 msgid "Pending"
 msgstr "Ausstehend"
 
-msgid "Pending File Upload..."
-msgstr ""
-
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
@@ -3626,6 +3623,9 @@ msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {errorMessage}"
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
+msgid "The image upload was cancelled."
+msgstr ""
+
 msgid "The lifecycle configuration has changed. Please refresh and try again."
 msgstr ""
 
@@ -4012,6 +4012,9 @@ msgstr "Objekt hochladen nach:"
 
 msgid "Upload of \"{objectName}\" was cancelled."
 msgstr "Upload von \"{objectName}\" wurde abgebrochen."
+
+msgid "Uploading File..."
+msgstr ""
 
 msgid "Uploading..."
 msgstr "Wird hochgeladen..."
