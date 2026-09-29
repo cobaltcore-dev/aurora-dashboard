@@ -161,24 +161,22 @@ export function ImageTableRow({
                   />
                   <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
                   <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
-                  <PopupMenuItem
-                    label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate` : t`Deactivate`}
-                    onClick={() => onActivationStatusChange(image)}
-                  />
+                  <PopupMenuSectionSeparator />
+                  {image.visibility === IMAGE_VISIBILITY.SHARED &&
+                    isImageOwner &&
+                    (permissions.canCreateMember || permissions.canDeleteMember) && (
+                      <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
+                    )}
                   {image.visibility === IMAGE_VISIBILITY.PRIVATE && (
                     <PopupMenuItem
                       label={t`Set to "Shared"`}
                       onClick={() => onUpdateVisibility(image.id, IMAGE_VISIBILITY.SHARED, imageName)}
                     />
                   )}
-                  {image.visibility === IMAGE_VISIBILITY.SHARED &&
-                    isImageOwner &&
-                    (permissions.canCreateMember || permissions.canDeleteMember) && (
-                      <>
-                        <PopupMenuSectionSeparator />
-                        <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
-                      </>
-                    )}
+                  <PopupMenuItem
+                    label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate Image` : t`Deactivate Image`}
+                    onClick={() => onActivationStatusChange(image)}
+                  />
                 </>
               )}
               {isExternalImage && (
@@ -195,7 +193,7 @@ export function ImageTableRow({
               {!isExternalImage && permissions.canDelete && !image.protected && (
                 <>
                   <PopupMenuSectionSeparator />
-                  <PopupMenuItem label={t`Delete`} onClick={() => onDelete(image)} />
+                  <PopupMenuItem label={t`Delete Image`} onClick={() => onDelete(image)} />
                 </>
               )}
             </PopupMenuOptions>

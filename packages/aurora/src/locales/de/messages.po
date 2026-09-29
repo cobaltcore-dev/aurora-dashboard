@@ -3158,9 +3158,6 @@ msgstr "Metadata speichern"
 msgid "Saving Image Details..."
 msgstr ""
 
-msgid "Saving Metadata..."
-msgstr ""
-
 msgid "Saving..."
 msgstr "Wird gespeichert..."
 

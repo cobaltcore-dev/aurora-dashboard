@@ -259,8 +259,8 @@ describe("ImageTableRow", () => {
 
       expect(await screen.findByText("Edit Details")).toBeInTheDocument()
       expect(screen.getByText("Edit Metadata")).toBeInTheDocument()
-      expect(screen.getByText("Deactivate")).toBeInTheDocument()
-      expect(screen.getByText("Delete")).toBeInTheDocument()
+      expect(screen.getByText("Deactivate Image")).toBeInTheDocument()
+      expect(screen.getByText("Delete Image")).toBeInTheDocument()
     })
 
     it("hides Delete for a protected image", async () => {
@@ -272,7 +272,7 @@ describe("ImageTableRow", () => {
       openRowMenu()
 
       expect(await screen.findByText("Edit Details")).toBeInTheDocument()
-      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Image")).not.toBeInTheDocument()
     })
 
     it("forwards Edit Details and Delete clicks to the parent callbacks", async () => {
@@ -291,7 +291,7 @@ describe("ImageTableRow", () => {
       expect(onEditDetails).toHaveBeenCalledWith(image)
 
       openRowMenu()
-      fireEvent.click(await screen.findByText("Delete"))
+      fireEvent.click(await screen.findByText("Delete Image"))
       expect(onDelete).toHaveBeenCalledWith(image)
     })
 

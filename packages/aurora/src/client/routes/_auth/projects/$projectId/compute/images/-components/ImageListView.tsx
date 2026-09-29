@@ -436,6 +436,7 @@ export function ImageListView({
   const closeEditMetadataModal = () => {
     setSelectedImage(null)
     setEditMetadataModalOpen(false)
+    utils.compute.listImagesWithPagination.invalidate()
   }
 
   const closeDeleteModal = () => {
@@ -716,11 +717,12 @@ export function ImageListView({
               isLoading={updateImageMutation.isPending}
             />
             <EditImageMetadataModal
+              key="edit-metadata-modal"
+              client={trpcClient}
               isOpen={editMetadataModalOpen}
               onClose={closeEditMetadataModal}
               image={selectedImage}
-              onSave={handleSaveEdit}
-              isLoading={updateImageMutation.isPending}
+              projectId={projectId}
             />
             <DeleteImageModal
               image={selectedImage}

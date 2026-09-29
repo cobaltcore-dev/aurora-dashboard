@@ -14,7 +14,7 @@ import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { trpcReact } from "@/client/trpcClient"
+import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import { ImageDetailsView } from "./-components/ImageDetailsView"
 import { EditImageDetailsModal } from "./-components/EditImageDetailsModal"
@@ -444,13 +444,19 @@ function RouteComponent() {
         />
       )}
 
-      {editMetadataModalOpen && (
+      {editMetadataModalOpen && trpcClient && projectId && image && (
         <EditImageMetadataModal
+          key="edit-metadata-modal"
+          client={trpcClient}
           image={image}
           isOpen={editMetadataModalOpen}
-          isLoading={updateImageMutation.isPending}
-          onClose={() => setEditMetadataModalOpen(false)}
-          onSave={handleSaveEdit}
+          onClose={() => {
+            setEditMetadataModalOpen(false)
+            // Invalidate queries only when modal closes to refresh with server data
+            utils.compute.getImageById.invalidate({ project_id: projectId, imageId })
+            utils.compute.listImagesWithPagination.invalidate()
+          }}
+          projectId={projectId}
         />
       )}
 
