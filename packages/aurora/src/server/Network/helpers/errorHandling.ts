@@ -54,7 +54,7 @@ export const DEFAULT_HANDLERS: ErrorHandlerMap = {
     }),
 }
 
-type ResourceName = "Port" | "Network" | "Floating IP"
+type ResourceName = "Port" | "Network" | "Floating IP" | "Router"
 
 export const ErrorHandler = (resourceName: ResourceName, customHandlers?: Partial<ErrorHandlerMap>) => {
   const handlers = { ...DEFAULT_HANDLERS, ...customHandlers }

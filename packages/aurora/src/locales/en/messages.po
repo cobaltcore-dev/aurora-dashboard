@@ -545,6 +545,9 @@ msgstr "Back to Floating IPs"
 msgid "Back to Images"
 msgstr "Back to Images"
 
+msgid "Back to Routers"
+msgstr "Back to Routers"
+
 msgid "Back to Security Groups"
 msgstr "Back to Security Groups"
 
@@ -3097,6 +3100,12 @@ msgstr "Root Disk must be an integer ≥ 0."
 
 msgid "Router ID"
 msgstr "Router ID"
+
+msgid "Routers"
+msgstr "Routers"
+
+msgid "Routers list coming soon."
+msgstr "Routers list coming soon."
 
 msgid "rule"
 msgstr "rule"
