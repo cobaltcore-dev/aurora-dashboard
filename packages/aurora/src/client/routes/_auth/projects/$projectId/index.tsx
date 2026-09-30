@@ -82,6 +82,13 @@ function RouteComponent() {
         to: `${base}/network/floatingips`,
         service: "floatingips",
       })
+    if (isEnabled("routers"))
+      cards.push({
+        group: t`Network`,
+        label: t`Routers`,
+        to: `${base}/network/routers`,
+        service: "routers",
+      })
   }
   if (hasServiceByName(serviceIndex, STORAGE_PROVIDER.SWIFT) && isEnabled("containers"))
     cards.push({

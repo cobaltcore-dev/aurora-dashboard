@@ -74,6 +74,17 @@ export function buildNavSections(
               },
             ]
           : []),
+        ...(isEnabled("routers")
+          ? [
+              {
+                service: "routers",
+                label: t`Routers`,
+                navigate: (nav: NavigateFn) =>
+                  nav({ to: "/projects/$projectId/network/routers", params: { projectId } }),
+                params: { projectId },
+              },
+            ]
+          : []),
       ]
     : []
 
