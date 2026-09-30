@@ -52,7 +52,7 @@ describe("ServiceLevelDefaultError", () => {
 
     render(<ServiceLevelDefaultError />, { wrapper: TestWrapper })
 
-    expect(screen.getByText("Service not found")).toBeInTheDocument()
+    expect(screen.getByText("Service Not Found")).toBeInTheDocument()
     expect(screen.getByText(/"netrowk\/floatingips"/)).toBeInTheDocument()
   })
 
@@ -64,7 +64,7 @@ describe("ServiceLevelDefaultError", () => {
 
     render(<ServiceLevelDefaultError />, { wrapper: TestWrapper })
 
-    expect(screen.getByText("Service not found")).toBeInTheDocument()
+    expect(screen.getByText("Service Not Found")).toBeInTheDocument()
     expect(screen.getByText(/^This service doesn't exist in this project\./)).toBeInTheDocument()
     expect(screen.queryByText(/undefined/)).not.toBeInTheDocument()
   })
@@ -74,7 +74,7 @@ describe("ServiceLevelDefaultError", () => {
 
     render(<ServiceLevelDefaultError />, { wrapper: TestWrapper })
 
-    expect(screen.getByText("Page not found")).toBeInTheDocument()
+    expect(screen.getByText("Page Not Found")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Go to Home" })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Go to Project Home" })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole("button", { name: "Go to Home" }))

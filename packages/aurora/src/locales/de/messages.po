@@ -2825,9 +2825,6 @@ msgstr "Eigentümer-Projekt-ID"
 msgid "Owning Project ID"
 msgstr "Eigentümer-Projekt-ID"
 
-msgid "Page not found"
-msgstr ""
-
 msgid "Page Not Found"
 msgstr "Seite nicht gefunden"
 
@@ -3329,7 +3326,7 @@ msgstr "Der Server hat ein unerwartetes Datenformat für Flavor-Details zurückg
 msgid "Server returned unexpected data format."
 msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 
-msgid "Service not found"
+msgid "Service Not Found"
 msgstr ""
 
 msgid "Services"
