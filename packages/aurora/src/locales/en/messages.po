@@ -332,8 +332,8 @@ msgstr "Access key created"
 msgid "Access key deleted"
 msgstr "Access key deleted"
 
-msgid "Access Key ID"
-msgstr "Access Key ID"
+msgid "Access key ID"
+msgstr "Access key ID"
 
 msgid "Access Keys"
 msgstr "Access Keys"
@@ -983,8 +983,8 @@ msgstr "Could not enable versioning for bucket \"{bucketName}\": {errorMessage}"
 msgid "Could Not Load Access Keys"
 msgstr "Could Not Load Access Keys"
 
-msgid "Could not load secret"
-msgstr "Could not load secret"
+msgid "Could not load the secret. Hide and reveal it again to retry."
+msgstr "Could not load the secret. Hide and reveal it again to retry."
 
 msgid "Could not move \"{displayName}\": {errorMessage}"
 msgstr "Could not move \"{displayName}\": {errorMessage}"
@@ -2444,6 +2444,9 @@ msgstr "Loading Preview..."
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
+msgid "Loading the secret…"
+msgstr "Loading the secret…"
+
 msgid "Loading Versions..."
 msgstr "Loading Versions..."
 
@@ -3257,8 +3260,11 @@ msgstr "Search security groups..."
 msgid "Search..."
 msgstr "Search..."
 
-msgid "Secret Access Key"
-msgstr "Secret Access Key"
+msgid "Secret access key"
+msgstr "Secret access key"
+
+msgid "Secret copied to clipboard."
+msgstr "Secret copied to clipboard."
 
 msgid "Security"
 msgstr "Security"

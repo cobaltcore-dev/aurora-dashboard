@@ -240,8 +240,18 @@ describe("ManageCredentialsModal", () => {
   })
 
   describe("Secret display", () => {
-    test("fetches and shows every key's secret as soon as the modal opens", async () => {
+    // SecretText conceals by drawing a blurred cover over a textarea that still holds the value,
+    // so a field revealed on open would be decoration - the secret is in the DOM either way.
+    // Fetching only on the reveal is what turns the cover into something real, and it also means
+    // a user who opens the modal to copy an endpoint never pulls a secret at all.
+    test("fetches nothing until the user reveals a key, then fills that key's field", async () => {
+      const user = userEvent.setup()
       renderModal()
+
+      expect(mockRevealMutateAsync).not.toHaveBeenCalled()
+      expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue("")
+
+      await user.click(screen.getByRole("button", { name: "Reveal" }))
 
       await waitFor(() => {
         expect(mockRevealMutateAsync).toHaveBeenCalledWith({
@@ -249,15 +259,27 @@ describe("ManageCredentialsModal", () => {
           credentialId: TEST_CREDENTIAL_ID,
         })
       })
-      expect(await screen.findByText(TEST_SECRET)).toBeInTheDocument()
-      // The reveal control is gone - there is nothing left to click.
-      expect(screen.queryByRole("button", { name: "Show" })).not.toBeInTheDocument()
-      expect(screen.queryByRole("button", { name: "Hide" })).not.toBeInTheDocument()
+      await waitFor(() => expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue(TEST_SECRET))
+    })
+
+    // Hiding leaves the value in component state, so the toggle is free to use after the first
+    // reveal - it must not spend a request per press.
+    test("hiding and revealing the same key again does not refetch it", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.click(screen.getByRole("button", { name: "Reveal" }))
+      await waitFor(() => expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue(TEST_SECRET))
+
+      await user.click(screen.getByRole("button", { name: "Hide" }))
+      await user.click(screen.getByRole("button", { name: "Reveal" }))
+
+      expect(mockRevealMutateAsync).toHaveBeenCalledTimes(1)
     })
 
     // One key failing to load is not a reason to blank the other, and not a modal-wide error
-    // either: the row that couldn't be filled is where the user needs to be told.
-    test("reports a failed secret in its own row and still shows the other key's", async () => {
+    // either: the field that couldn't be filled is where the user needs to be told.
+    test("reports a failed secret on its own key and still fills the other", async () => {
       mockState.credentials = [
         { id: TEST_CREDENTIAL_ID, access: TEST_ACCESS, user_id: "user-1", project_id: mockProjectId },
         { id: "cred-2", access: "AKIASECONDKEY000000", user_id: "user-1", project_id: mockProjectId },
@@ -268,10 +290,38 @@ describe("ManageCredentialsModal", () => {
           throw new Error("Credential not found")
         })
 
+      const user = userEvent.setup()
       renderModal()
 
-      expect(await screen.findByText(TEST_SECRET)).toBeInTheDocument()
-      expect(await screen.findByText("Could not load secret")).toBeInTheDocument()
+      const [firstReveal, secondReveal] = screen.getAllByRole("button", { name: "Reveal" })
+      await user.click(firstReveal)
+      await user.click(secondReveal)
+
+      await waitFor(() => expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue(TEST_SECRET))
+      expect(await screen.findByText(/Could not load the secret/)).toBeInTheDocument()
+      expect(screen.getByTestId("secret-cred-2")).toHaveValue("")
+    })
+
+    // A failure releases the id again, so the toggle is a retry rather than a control that has
+    // permanently stopped doing anything for that key.
+    test("revealing again after a failure retries the fetch", async () => {
+      mockRevealMutateAsync
+        .mockImplementationOnce(async () => {
+          throw new Error("Credential not found")
+        })
+        .mockImplementationOnce(async () => mockState.revealResult)
+
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.click(screen.getByRole("button", { name: "Reveal" }))
+      expect(await screen.findByText(/Could not load the secret/)).toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "Hide" }))
+      await user.click(screen.getByRole("button", { name: "Reveal" }))
+
+      await waitFor(() => expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue(TEST_SECRET))
+      expect(mockRevealMutateAsync).toHaveBeenCalledTimes(2)
     })
 
     // A failed permission lookup is not a denial. The hook falls back to all-false permissions on
@@ -287,13 +337,11 @@ describe("ManageCredentialsModal", () => {
 
     // Closing the modal does not abort a request already in flight, and the modal stays mounted,
     // so the completion handler still runs. It must not repopulate state handleClose just cleared.
-    // The reopened modal's own fetch is held pending here, so anything on screen could only have
-    // come from the stale one.
     test("drops a secret that arrives after the modal was closed", async () => {
       let resolveReveal: (value: CredentialWithSecret) => void = () => {}
-      mockRevealMutateAsync
-        .mockImplementationOnce(() => new Promise<CredentialWithSecret>((resolve) => (resolveReveal = resolve)))
-        .mockImplementationOnce(() => new Promise<CredentialWithSecret>(() => {}))
+      mockRevealMutateAsync.mockImplementationOnce(
+        () => new Promise<CredentialWithSecret>((resolve) => (resolveReveal = resolve))
+      )
 
       const user = userEvent.setup()
       const onClose = vi.fn()
@@ -306,7 +354,9 @@ describe("ManageCredentialsModal", () => {
       )
       const { rerender } = render(modal(true))
 
+      await user.click(screen.getByRole("button", { name: "Reveal" }))
       await waitFor(() => expect(mockRevealMutateAsync).toHaveBeenCalledTimes(1))
+
       await user.click(screen.getByRole("button", { name: "Close" }))
       rerender(modal(false))
 
@@ -322,14 +372,15 @@ describe("ManageCredentialsModal", () => {
 
       rerender(modal(true))
 
-      expect(screen.queryByText(TEST_SECRET)).not.toBeInTheDocument()
+      expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue("")
     })
 
     // `handleClose` is not the only way out: Escape reaches Juno's Modal through the focus trap's
     // `escapeDeactivates`, which ignores `disableCancelButton`/`disableCloseButton`, and a parent
     // may drop `isOpen` on its own. Either way the per-opening bookkeeping has to be reset on the
-    // way in, or an id marked "already fetched" with no secret behind it strands that row.
+    // way in, or an id marked "already fetched" with no secret behind it strands that field.
     test("a close that bypasses handleClose still leaves the next opening able to fetch", async () => {
+      const user = userEvent.setup()
       const onClose = vi.fn()
       const modal = (isOpen: boolean) => (
         <I18nProvider i18n={i18n}>
@@ -340,22 +391,25 @@ describe("ManageCredentialsModal", () => {
       )
       const { rerender } = render(modal(true))
 
+      await user.click(screen.getByRole("button", { name: "Reveal" }))
       await waitFor(() => expect(mockRevealMutateAsync).toHaveBeenCalledTimes(1))
 
       // Closed by the parent - no Close click, so `handleClose` never runs.
       rerender(modal(false))
       rerender(modal(true))
 
+      await user.click(screen.getByRole("button", { name: "Reveal" }))
       await waitFor(() => expect(mockRevealMutateAsync).toHaveBeenCalledTimes(2))
-      expect(await screen.findByText(TEST_SECRET)).toBeInTheDocument()
+      await waitFor(() => expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue(TEST_SECRET))
     })
 
-    test("closing clears the secrets and reopening fetches them again", async () => {
+    test("closing clears the revealed secret and reopening starts concealed again", async () => {
       const user = userEvent.setup()
       const onClose = vi.fn()
       const { rerender } = renderModal({ onClose })
 
-      expect(await screen.findByText(TEST_SECRET)).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: "Reveal" }))
+      await waitFor(() => expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue(TEST_SECRET))
       expect(mockRevealMutateAsync).toHaveBeenCalledTimes(1)
 
       // Close (onCancel wired to the modal's Close button)
@@ -378,8 +432,8 @@ describe("ManageCredentialsModal", () => {
         </I18nProvider>
       )
 
-      expect(await screen.findByText(TEST_SECRET)).toBeInTheDocument()
-      await waitFor(() => expect(mockRevealMutateAsync).toHaveBeenCalledTimes(2))
+      expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue("")
+      expect(screen.getByRole("button", { name: "Reveal" })).toBeInTheDocument()
     })
   })
 
@@ -405,6 +459,28 @@ describe("ManageCredentialsModal", () => {
       // A second key changes no bucket, so the expensive `includeMetadata` listing is left alone.
       expect(mockInvalidateContainersList).not.toHaveBeenCalled()
       expect(mockInvalidateStatus).not.toHaveBeenCalled()
+    })
+
+    // `create` is the one moment a user has to see a secret, and it returns the value itself -
+    // so the new key comes up open, and no reveal request is spent re-reading what we were handed.
+    test("a newly created key comes up revealed, without a reveal request", async () => {
+      const user = userEvent.setup()
+      mockState.createResult = {
+        id: "cred-2",
+        access: "AKIANEWKEY0000000002",
+        secret: "new-secret-value",
+        user_id: "user-1",
+        project_id: mockProjectId,
+      }
+      renderModal()
+
+      await user.click(screen.getByRole("button", { name: "Create Access Key" }))
+
+      await waitFor(() => expect(screen.getByTestId("secret-cred-2")).toHaveValue("new-secret-value"))
+      expect(mockRevealMutateAsync).not.toHaveBeenCalled()
+      // Open, not concealed: its toggle offers Hide. The pre-existing key still offers Reveal.
+      expect(screen.getByRole("button", { name: "Hide" })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Reveal" })).toBeInTheDocument()
     })
 
     test("creating the project's first key refreshes the bucket listing", async () => {
@@ -501,13 +577,13 @@ describe("ManageCredentialsModal", () => {
   })
 
   describe("Empty state", () => {
-    test("shows an empty status with column headers still visible when there are no keys", () => {
+    test("shows an empty status and no key card when there are no keys", () => {
       mockState.credentials = []
       renderModal()
 
       expect(screen.getByText("No Access Keys")).toBeInTheDocument()
-      expect(screen.getByText("Access Key ID")).toBeInTheDocument()
-      expect(screen.getByText("Secret Access Key")).toBeInTheDocument()
+      expect(screen.queryByRole("button", { name: "Reveal" })).not.toBeInTheDocument()
+      expect(screen.queryByText("Access key ID")).not.toBeInTheDocument()
     })
   })
 
@@ -520,13 +596,13 @@ describe("ManageCredentialsModal", () => {
       expect(screen.getByText("eu-de-1")).toBeInTheDocument()
     })
 
-    test("shows an error status when status fails, but the key table still renders", () => {
+    test("shows an error status when status fails, but the keys still render", () => {
       mockState.statusError = { message: "Ceph service not found in OpenStack service catalog" }
       renderModal()
 
       expect(screen.getByText("Connection Details Unavailable")).toBeInTheDocument()
-      expect(screen.getByText("Access Key ID")).toBeInTheDocument()
       expect(screen.getByText(TEST_ACCESS)).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Reveal" })).toBeInTheDocument()
     })
   })
 })

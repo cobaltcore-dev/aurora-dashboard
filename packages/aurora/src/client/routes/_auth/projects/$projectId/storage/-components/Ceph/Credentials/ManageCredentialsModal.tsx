@@ -8,13 +8,11 @@ import {
   Message,
   Status,
   Button,
+  Box,
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
-  DataGrid,
-  DataGridRow,
-  DataGridHeadCell,
-  DataGridCell,
+  SecretText,
   Spinner,
   toast,
 } from "@cloudoperators/juno-ui-components"
@@ -35,10 +33,15 @@ interface ManageCredentialsModalProps {
  * Lets the user see/create/delete their own EC2 (S3) credentials in this project, plus the
  * connection details (endpoint/region) any S3 client needs alongside them.
  *
- * Secrets are shown outright rather than behind a reveal control: every key here belongs to the
- * caller, and `resolveEC2Credential` already reads the same secret on every Ceph request. They
- * are still fetched one key at a time through the `reveal` mutation instead of being folded into
- * `list`, so nothing puts them in the TanStack Query cache.
+ * Each secret sits in a `SecretText`, concealed until the user asks for it, and is fetched only
+ * at that moment. The two halves go together: `SecretText` conceals with a blur overlay over a
+ * textarea that still holds the value, so fetching every secret as the modal opens would put all
+ * of them in the DOM behind a covering that is not a boundary. Fetching on reveal makes the
+ * concealment mean what it looks like, and costs one request per key the user actually opens
+ * rather than one per key that exists.
+ *
+ * Secrets never reach the TanStack Query cache regardless: `list` strips them server-side and
+ * `reveal` is a mutation, so they live only in this component's state and go when it closes.
  *
  * Mounted once, outside every early `return` in `CephBuckets` (see index.tsx): deleting the last
  * credential flips the page underneath into the `NO_CEPH_CREDENTIALS` branch, and the modal must
@@ -77,6 +80,12 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
 
   const [revealedSecrets, setRevealedSecrets] = useState<Record<string, string>>({})
   const [failedSecretIds, setFailedSecretIds] = useState<Record<string, true>>({})
+  const [loadingSecretIds, setLoadingSecretIds] = useState<Record<string, true>>({})
+  // Keys created during this opening, which come up already revealed: `create` is the one moment
+  // the user has to see a secret, and its value arrives in the response rather than from `reveal`.
+  // Entries are never removed while the modal stays open, so creating a second key doesn't flip
+  // `reveal` back to false on the first one and conceal it under the user.
+  const [newlyCreatedIds, setNewlyCreatedIds] = useState<Record<string, true>>({})
   // Which row is mid-delete. The ref is what the mutation callbacks read: they can run in the same
   // tick as the click that started them, before a state update has been rendered.
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -101,11 +110,12 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
 
   const createMutation = trpcReact.storage.ceph.ec2Credentials.create.useMutation({
     onSuccess: (credential) => {
-      // The secret comes back from `create` itself, so put it straight into state instead of
-      // letting the effect below spend another request re-reading what we already have.
+      // The secret comes back from `create` itself, so put it straight into state rather than
+      // spending a `reveal` request re-reading what we already have.
       requestedSecretIds.current.add(credential.id)
       if (isOpenRef.current) {
         setRevealedSecrets((prev) => ({ ...prev, [credential.id]: credential.secret }))
+        setNewlyCreatedIds((prev) => ({ ...prev, [credential.id]: true }))
       }
       invalidateCredentialQueries(utils, { projectId: projectId ?? "", mutation: "create" })
 
@@ -151,8 +161,8 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
     },
   })
 
-  // Deliberately excludes the secret fetches below: those run on their own as the modal opens, and
-  // blocking Close/Create/Delete on them would gate the whole modal behind a background request.
+  // Deliberately excludes the secret fetches below: those belong to one key's reveal control, and
+  // blocking Close/Create/Delete on them would gate the whole modal behind one row's request.
   const isBusy = createMutation.isPending || deleteMutation.isPending
   const atLimit = credentials.length >= EC2_CREDENTIALS_MAX_PER_PROJECT
 
@@ -160,6 +170,8 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
     trackClose()
     setRevealedSecrets({})
     setFailedSecretIds({})
+    setLoadingSecretIds({})
+    setNewlyCreatedIds({})
     requestedSecretIds.current.clear()
     deletingIdRef.current = null
     setDeletingId(null)
@@ -181,40 +193,49 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
   // `handleClose` clears the two refs below, but it is not the only way this modal can close: a
   // parent could drop `isOpen` on its own, and a mutation settling after that close would then
   // write into bookkeeping nobody is going to clear again. Resetting on the way *in* makes each
-  // opening independent of how the last one ended. Declared before the fetch effect so it runs
-  // first on the commit that opens the modal.
+  // opening independent of how the last one ended.
   useEffect(() => {
     if (!isOpen) return
     requestedSecretIds.current.clear()
     deletingIdRef.current = null
   }, [isOpen])
 
-  // Fetch the secret of every key the list brings in. `list` still doesn't carry secrets - keeping
-  // them out of the query cache is the entire reason `reveal` is a mutation - so this costs one
-  // request per key, capped at EC2_CREDENTIALS_MAX_PER_PROJECT. A failure is recorded per key
-  // rather than raised as a modal-wide error: the other key's secret is unaffected, and the row
-  // itself is where the user finds out.
-  useEffect(() => {
-    if (!isOpen || !projectId) return
+  // Runs on the SecretText's own Reveal, once per key. `requestedSecretIds` makes it once and not
+  // once per toggle: the value stays in state after a Hide, so re-revealing costs nothing. A
+  // failure is recorded against that one key rather than raised as a modal-wide error - the other
+  // key is unaffected, and the field itself is where the user finds out - and releases its id
+  // again, so a second Reveal is a retry rather than a no-op against a permanently poisoned entry.
+  const handleRevealSecret = (credentialId: string) => {
+    if (!projectId) return
+    if (requestedSecretIds.current.has(credentialId)) return
 
-    const missing = credentials.filter((credential) => !requestedSecretIds.current.has(credential.id))
-    if (missing.length === 0) return
+    requestedSecretIds.current.add(credentialId)
+    setFailedSecretIds((prev) => {
+      const next = { ...prev }
+      delete next[credentialId]
+      return next
+    })
+    setLoadingSecretIds((prev) => ({ ...prev, [credentialId]: true }))
 
-    for (const { id } of missing) {
-      requestedSecretIds.current.add(id)
-      revealSecret({ project_id: projectId, credentialId: id })
-        .then((credential) => {
-          if (isOpenRef.current) {
-            setRevealedSecrets((prev) => ({ ...prev, [credential.id]: credential.secret }))
-          }
+    revealSecret({ project_id: projectId, credentialId })
+      .then((credential) => {
+        if (!isOpenRef.current) return
+        setRevealedSecrets((prev) => ({ ...prev, [credential.id]: credential.secret }))
+      })
+      .catch(() => {
+        requestedSecretIds.current.delete(credentialId)
+        if (!isOpenRef.current) return
+        setFailedSecretIds((prev) => ({ ...prev, [credentialId]: true }))
+      })
+      .finally(() => {
+        if (!isOpenRef.current) return
+        setLoadingSecretIds((prev) => {
+          const next = { ...prev }
+          delete next[credentialId]
+          return next
         })
-        .catch(() => {
-          if (isOpenRef.current) {
-            setFailedSecretIds((prev) => ({ ...prev, [id]: true }))
-          }
-        })
-    }
-  }, [isOpen, projectId, credentials, revealSecret])
+      })
+  }
 
   // Deletes on the click, with no confirmation step, matching how a row is removed from the metadata
   // tables that live inside modals (flavors' EditSpecModal, Ceph Objects' EditMetadataModal). The
@@ -231,7 +252,11 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
     <Modal
       title={t`Manage S3 Credentials`}
       open={isOpen}
-      size="xl"
+      // `large` (40rem), not the `xl` this modal used to need: that width existed so a
+      // three-column key table could hold a 40-char access key and a 56-char secret side by side.
+      // The keys are stacked cards now and the secret is a full-width SecretText, so the extra
+      // 588px only stretched a textarea nothing fills.
+      size="large"
       onCancel={handleClose}
       cancelButtonLabel={t`Close`}
       disableCancelButton={isBusy}
@@ -310,51 +335,33 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
             </Message>
           )}
 
-          {/* The action column is sized by its buttons: an equal third would be wasted on it while
-            the 40-char access key and the 56-char secret beside it run into each other. */}
+          {/* One Box per key rather than a DataGrid: SecretText is a textarea with its own button
+              row, some 120px tall, which a table row can only accommodate by growing to match and
+              putting a form control inside a cell. With a ceiling of two keys the table was only
+              ever buying column alignment for two one-line values, and the secret is no longer
+              one of them. */}
           {isLoadingCredentials ? (
             <Status status="progress" title={t`Loading Access Keys...`} />
           ) : listError ? (
             <Status status="error" title={t`Could Not Load Access Keys`} body={listError.message} />
+          ) : credentials.length === 0 ? (
+            <Status
+              status="empty"
+              title={t`No Access Keys`}
+              body={t`Create an access key to connect an S3 client to this project.`}
+            />
           ) : (
-            <DataGrid columns={3} minContentColumns={[2]} className="mb-6">
-              <DataGridRow>
-                <DataGridHeadCell>
-                  <Trans>Access Key ID</Trans>
-                </DataGridHeadCell>
-                <DataGridHeadCell>
-                  <Trans>Secret Access Key</Trans>
-                </DataGridHeadCell>
-                <DataGridHeadCell></DataGridHeadCell>
-              </DataGridRow>
-              {credentials.length === 0 ? (
-                <DataGridRow>
-                  <DataGridCell colSpan={3}>
-                    <Status
-                      status="empty"
-                      title={t`No Access Keys`}
-                      body={t`Create an access key to connect an S3 client to this project.`}
-                    />
-                  </DataGridCell>
-                </DataGridRow>
-              ) : (
-                credentials.map((credential) => (
-                  <DataGridRow key={credential.id}>
-                    <DataGridCell>
-                      <ClipboardText text={credential.access} />
-                    </DataGridCell>
-                    <DataGridCell>
-                      {revealedSecrets[credential.id] ? (
-                        <ClipboardText text={revealedSecrets[credential.id]} />
-                      ) : failedSecretIds[credential.id] ? (
-                        <span className="text-theme-danger">
-                          <Trans>Could not load secret</Trans>
+            <Stack direction="vertical" gap="3" className="mb-6">
+              {credentials.map((credential) => (
+                <Box key={credential.id}>
+                  <Stack direction="vertical" gap="3">
+                    <Stack direction="horizontal" alignment="center" distribution="between" gap="2">
+                      <Stack direction="vertical" gap="0">
+                        <span className="text-theme-light text-xs">
+                          <Trans>Access key ID</Trans>
                         </span>
-                      ) : (
-                        <Trans>Loading…</Trans>
-                      )}
-                    </DataGridCell>
-                    <DataGridCell>
+                        <ClipboardText text={credential.access} />
+                      </Stack>
                       {deleteMutation.isPending && deletingId === credential.id ? (
                         <Spinner variant="primary" size="small" />
                       ) : (
@@ -370,11 +377,32 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
                           />
                         )
                       )}
-                    </DataGridCell>
-                  </DataGridRow>
-                ))
-              )}
-            </DataGrid>
+                    </Stack>
+
+                    {/* `readOnly` is what drops SecretText's Clear and Paste buttons, leaving the
+                        two that mean something for a value the user can only look at. The secret
+                        is empty until Reveal fetches it, so Copy stays disabled until then of its
+                        own accord. */}
+                    <SecretText
+                      label={t`Secret access key`}
+                      value={revealedSecrets[credential.id] ?? ""}
+                      readOnly
+                      reveal={!!newlyCreatedIds[credential.id]}
+                      onReveal={() => handleRevealSecret(credential.id)}
+                      copyConfirmtext={t`Secret copied to clipboard.`}
+                      helptext={loadingSecretIds[credential.id] ? t`Loading the secret…` : undefined}
+                      errortext={
+                        failedSecretIds[credential.id]
+                          ? t`Could not load the secret. Hide and reveal it again to retry.`
+                          : undefined
+                      }
+                      invalid={!!failedSecretIds[credential.id]}
+                      data-testid={`secret-${credential.id}`}
+                    />
+                  </Stack>
+                </Box>
+              ))}
+            </Stack>
           )}
         </Stack>
       </FormSection>
