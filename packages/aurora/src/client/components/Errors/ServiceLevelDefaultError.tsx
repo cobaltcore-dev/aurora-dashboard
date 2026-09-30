@@ -34,12 +34,12 @@ export const ServiceLevelDefaultError = () => {
 
   const body = (() => {
     if (!projectId) {
-      return t`We couldn't find the page you're looking for. It may have been moved, or the address may be incorrect.`
+      return t`The requested URL does not exist or may have moved. Check the URL or return to the home page.`
     }
     if (enteredService) {
-      return t`The service "${enteredService}" doesn't exist in this project. Check the URL, or return to your project home.`
+      return t`The service "${enteredService}" doesn't exist in this project. Check the URL, or return to the project home.`
     }
-    return t`This service doesn't exist in this project. Check the URL, or return to your project home.`
+    return t`This service doesn't exist in this project. Check the URL, or return to the project home.`
   })()
 
   return (

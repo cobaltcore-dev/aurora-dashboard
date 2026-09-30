@@ -3641,6 +3641,9 @@ msgstr ""
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
 
+msgid "The requested URL does not exist or may have moved. Check the URL or return to the home page."
+msgstr ""
+
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr ""
 
@@ -3659,7 +3662,7 @@ msgstr ""
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
-msgid "The service \"{enteredService}\" doesn't exist in this project. Check the URL, or return to your project home."
+msgid "The service \"{enteredService}\" doesn't exist in this project. Check the URL, or return to the project home."
 msgstr ""
 
 msgid "The specified project does not exist or you don't have permission to share with it."
@@ -3866,7 +3869,7 @@ msgstr ""
 msgid "This security group is already shared with the specified project."
 msgstr "Diese Sicherheitsgruppe ist bereits mit dem angegebenen Projekt geteilt."
 
-msgid "This service doesn't exist in this project. Check the URL, or return to your project home."
+msgid "This service doesn't exist in this project. Check the URL, or return to the project home."
 msgstr ""
 
 msgid "This tenant already has access to the flavor."
@@ -4123,9 +4126,6 @@ msgstr "Sichtbarkeit"
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "Wir entwickeln das Aurora-Dashboard, um Ihnen einen besseren Service zu bieten. Ihr Feedback ist von unschätzbarem Wert, um ein Werkzeug zu gestalten, das den einzigartigen Bedürfnissen von Unternehmen wie Ihrem gerecht wird. Bleiben Sie in Verbindung und begleiten Sie uns, während wir das Cloud-Management neu definieren."
-
-msgid "We couldn't find the page you're looking for. It may have been moved, or the address may be incorrect."
-msgstr ""
 
 msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
 msgstr "Willkommen beim <0>Aurora-Dashboard</0>, Ihrer Cloud-Management-Lösung der nächsten Generation. Wir sind bestrebt, die Art und Weise, wie Sie mit Ihrer Cloud-Infrastruktur interagieren und diese verwalten, zu vereinfachen. Mit Effizienz, Skalierbarkeit und Benutzerfreundlichkeit im Kern konzipiert, ermöglicht Aurora Ihnen, Prozesse zu optimieren und das volle Potenzial Ihrer Cloud-Ressourcen auszuschöpfen."
