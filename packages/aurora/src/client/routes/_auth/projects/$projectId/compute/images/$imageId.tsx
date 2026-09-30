@@ -161,7 +161,9 @@ function RouteComponent() {
 
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
     onSuccess: (updatedImage) => {
-      utils.compute.getImageById.setData({ project_id: projectId, imageId }, updatedImage)
+      utils.compute.getImageById.setData({ project_id: projectId, imageId }, (prev) =>
+        prev ? { ...prev, ...updatedImage } : updatedImage
+      )
       utils.compute.listImagesWithPagination.invalidate()
     },
   })
@@ -186,7 +188,12 @@ function RouteComponent() {
 
   const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
     onSuccess: (updatedImage) => {
-      utils.compute.getImageById.setData({ project_id: projectId, imageId }, updatedImage)
+      // Glance's PATCH response can omit fields such as `owner`. Merge into the
+      // existing cached image so owner-gated UI (Edit Details, Manage Access)
+      // isn't lost when only visibility changes.
+      utils.compute.getImageById.setData({ project_id: projectId, imageId }, (prev) =>
+        prev ? { ...prev, ...updatedImage } : updatedImage
+      )
     },
   })
 
@@ -349,22 +356,17 @@ function RouteComponent() {
   const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
   const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
   const isMemberAccepted = myMemberData?.status === "accepted"
-  const isImageOwner = image.owner === projectId
 
   const canRejectSharedImage = isSharedWithMe && isMemberAccepted && permissions.canUpdateMember
   const canUpdateOwnImage = !isSharedWithMe && permissions.canUpdate
   const canDeleteOwnImage = !isSharedWithMe && permissions.canDelete && !image.protected
-  const canManageSharing =
-    !isSharedWithMe &&
-    isImageOwner &&
-    image.visibility === IMAGE_VISIBILITY.SHARED &&
-    (permissions.canCreateMember || permissions.canDeleteMember)
   const canSetToShared = canUpdateOwnImage && isPrivate
 
   // Each flag maps 1:1 to a rendered menu item below. hasMoreActions is derived
   // from the same flags so the trigger icon never shows an empty menu.
-  const hasMoreActions =
-    canUpdateOwnImage || canRejectSharedImage || canManageSharing || canSetToShared || canDeleteOwnImage
+  // Note: "Manage Access" is intentionally NOT in this menu — the detail page
+  // exposes it as a dedicated tab instead.
+  const hasMoreActions = canUpdateOwnImage || canRejectSharedImage || canSetToShared || canDeleteOwnImage
 
   const headerActions = (hasMoreActions || (!isSharedWithMe && permissions.canUpdate)) && (
     <Stack gap="0.5" alignment="center">
@@ -384,13 +386,7 @@ function RouteComponent() {
             {canRejectSharedImage && (
               <PopupMenuItem label={t`Reject`} onClick={() => handleMemberStatusChange("rejected")} />
             )}
-            {(canManageSharing || canSetToShared) && <PopupMenuSectionSeparator />}
-            {canManageSharing && (
-              <PopupMenuItem
-                label={t`Manage Access`}
-                onClick={() => navigate({ search: { tab: "sharing" } as unknown as true })}
-              />
-            )}
+            {canSetToShared && <PopupMenuSectionSeparator />}
             {canSetToShared && (
               <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
             )}
