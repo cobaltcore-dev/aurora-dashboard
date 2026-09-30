@@ -3845,10 +3845,10 @@ msgstr ""
 msgid "This project already has access"
 msgstr "Dieses Projekt hat bereits Zugriff"
 
-msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
+msgid "This project doesn't exist or is not accessible from your current domain. Select a project from your current domain."
 msgstr ""
 
-msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Please select a project from your current domain."
+msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Select a project from your current domain."
 msgstr ""
 
 msgid "This property is reserved and cannot be modified"
@@ -4238,7 +4238,7 @@ msgstr ""
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
 
-msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue."
+msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr ""
 
 msgid "YYYY-MM-DD HH:mm:ss"
