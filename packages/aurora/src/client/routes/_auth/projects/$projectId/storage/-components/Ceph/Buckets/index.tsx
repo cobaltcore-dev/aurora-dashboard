@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, startTransition } from "react"
+import { useState, useEffect, useRef, startTransition, type ReactNode } from "react"
 import { Plural, Trans, useLingui } from "@lingui/react/macro"
 import { plural } from "@lingui/core/macro"
 import { useNavigate } from "@tanstack/react-router"
@@ -8,6 +8,7 @@ import { Bucket } from "@/server/Storage/types/ceph"
 import { trpcReact } from "@/client/trpcClient"
 import {
   Button,
+  ButtonRow,
   Checkbox,
   DataGridToolbar,
   PopupMenu,
@@ -28,12 +29,12 @@ import {
   getBucketsEmptyCompleteToast,
 } from "./BucketToastNotifications"
 import { EmptyBucketsModal } from "./EmptyBucketsModal"
-import { CredentialPrompt } from "./CredentialPrompt"
+import { CredentialPrompt } from "../Credentials/CredentialPrompt"
+import { ManageCredentialsModal } from "../Credentials/ManageCredentialsModal"
 import { useProjectId } from "@/client/hooks/useProjectId"
 import { useCephPermissions } from "../hooks/useCephPermissions"
 import { Route } from "@/client/routes/_auth/projects/$projectId/storage/$provider/$storageType/index"
 
-export { CredentialPrompt } from "./CredentialPrompt"
 export { CreateBucketModal } from "./CreateBucketModal"
 export { DeleteBucketModal } from "./DeleteBucketModal"
 export { DeleteBucketPolicyModal } from "./DeleteBucketPolicyModal"
@@ -59,6 +60,7 @@ export const CephBuckets = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [emptyAllModalOpen, setEmptyAllModalOpen] = useState(false)
   const [selectedBuckets, setSelectedBuckets] = useState<string[]>([])
+  const [credentialsModalOpen, setCredentialsModalOpen] = useState(false)
 
   // Local mirror of the committed search term so typing stays responsive while
   // the URL commit is debounced (see Zone 2 SearchInput below).
@@ -221,195 +223,236 @@ export const CephBuckets = () => {
     })
   }
 
-  // Handle loading state
-  if (isLoading) {
-    return <Status status="progress" title={t`Loading Buckets...`} />
-  }
+  // Rendered below into a single unconditional return, alongside ManageCredentialsModal.
+  // Early `return`s here would unmount that modal the moment this state changes underneath
+  // it - which happens, for example, the instant the last credential is deleted from inside
+  // the (still open) modal and this query flips to the NO_CEPH_CREDENTIALS error branch.
+  let content: ReactNode
 
-  // Handle error state
-  if (error) {
+  if (isLoading) {
+    content = <Status status="progress" title={t`Loading Buckets...`} />
+  } else if (error) {
     const errorMessage = error.message
 
-    // Check if this is a NO_CEPH_CREDENTIALS error
     if (errorMessage === "NO_CEPH_CREDENTIALS") {
-      return <CredentialPrompt onSuccess={() => window.location.reload()} />
-    }
-
-    // Render error message based on error type
-    const isAccessDenied = errorMessage.includes("Access denied") || errorMessage.includes("AccessDenied")
-    const isAuthError = errorMessage.includes("Invalid access key") || errorMessage.includes("InvalidAccessKeyId")
-
-    return (
-      <div>
-        <p className="text-theme-default text-sm">
-          {isAccessDenied ? (
-            <Trans>
-              Your credentials are valid but you don't have permission to perform this operation. Please contact your
-              administrator to grant you the necessary permissions.
-            </Trans>
-          ) : isAuthError ? (
-            <Trans>
-              Your S3 credentials are invalid or expired. Please try creating new credentials or contact your
-              administrator.
-            </Trans>
-          ) : (
-            <Trans>Failed to Load Buckets: {errorMessage}</Trans>
-          )}
-        </p>
-      </div>
-    )
-  }
-
-  // Resolve selected Bucket objects from the full unfiltered list so
-  // the modal always operates on what was actually selected — not the filtered
-  // subset currently visible in the table.
-  const selectedBucketSummaries = (buckets || []).filter((c) => selectedBuckets.includes(c.name))
-  const hasSelection = selectedBucketSummaries.length > 0
-  const selectedCount = selectedBucketSummaries.length
-  const totalCount = (buckets || []).length
-  const filteredCount = filteredBuckets.length
-
-  // Select-all operates on the currently displayed (filtered + sorted) rows.
-  const displayedNames = sortedBuckets.map((c) => c.name)
-  const allSelected = displayedNames.length > 0 && displayedNames.every((n) => selectedBuckets.includes(n))
-  const someSelected = displayedNames.some((n) => selectedBuckets.includes(n))
-  const handleToggleSelectAll = () => {
-    if (allSelected) {
-      setSelectedBuckets((prev) => prev.filter((n) => !displayedNames.includes(n)))
+      content = <CredentialPrompt onManageCredentials={() => setCredentialsModalOpen(true)} />
     } else {
-      setSelectedBuckets((prev) => [...new Set([...prev, ...displayedNames])])
+      const isAccessDenied = errorMessage.includes("Access denied") || errorMessage.includes("AccessDenied")
+      // RGW returns InvalidAccessKeyId when the key backing this session no longer exists in
+      // Keystone (deleted by this user elsewhere, or by an admin) or its blob failed to decrypt.
+      // EC2 credentials carry no expiry (no `expires_at`/`created_at` on the Keystone object),
+      // so "expired" is never an accurate description of this failure.
+      const isAuthError = errorMessage.includes("Invalid access key") || errorMessage.includes("InvalidAccessKeyId")
+
+      if (isAuthError) {
+        content = (
+          <Status
+            status="error"
+            title={t`S3 Credentials No Longer Valid`}
+            body={t`They may have been deleted. Create new credentials to continue.`}
+            action={
+              <ButtonRow>
+                <Button onClick={() => setCredentialsModalOpen(true)}>
+                  <Trans>Manage Credentials</Trans>
+                </Button>
+              </ButtonRow>
+            }
+          />
+        )
+      } else {
+        content = (
+          <div>
+            <p className="text-theme-default text-sm">
+              {isAccessDenied ? (
+                <Trans>
+                  Your credentials are valid but you don't have permission to perform this operation. Please contact
+                  your administrator to grant you the necessary permissions.
+                </Trans>
+              ) : (
+                <Trans>Failed to Load Buckets: {errorMessage}</Trans>
+              )}
+            </p>
+          </div>
+        )
+      }
     }
+  } else {
+    // Resolve selected Bucket objects from the full unfiltered list so
+    // the modal always operates on what was actually selected — not the filtered
+    // subset currently visible in the table.
+    const selectedBucketSummaries = (buckets || []).filter((c) => selectedBuckets.includes(c.name))
+    const hasSelection = selectedBucketSummaries.length > 0
+    const selectedCount = selectedBucketSummaries.length
+    const totalCount = (buckets || []).length
+    const filteredCount = filteredBuckets.length
+
+    // Select-all operates on the currently displayed (filtered + sorted) rows.
+    const displayedNames = sortedBuckets.map((c) => c.name)
+    const allSelected = displayedNames.length > 0 && displayedNames.every((n) => selectedBuckets.includes(n))
+    const someSelected = displayedNames.some((n) => selectedBuckets.includes(n))
+    const handleToggleSelectAll = () => {
+      if (allSelected) {
+        setSelectedBuckets((prev) => prev.filter((n) => !displayedNames.includes(n)))
+      } else {
+        setSelectedBuckets((prev) => [...new Set([...prev, ...displayedNames])])
+      }
+    }
+
+    content = (
+      <>
+        <Stack direction="vertical">
+          {/* Zone 1 — sort controls, the credentials overflow menu, and the create action
+              (plain Stack, no background) */}
+          <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+            <Stack gap="0.5" alignment="center">
+              <SortInput
+                options={sortSettings.options}
+                sortBy={sortSettings.sortBy}
+                sortDirection={sortSettings.sortDirection ?? "asc"}
+                selectClassName="min-w-40"
+                onSortByChange={(value) =>
+                  handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
+                }
+                onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
+              />
+            </Stack>
+            <Stack gap="0.5" alignment="center">
+              <PopupMenu className="flex items-center">
+                <PopupMenuToggle as="div">
+                  <Button icon="moreVert" title={t`More Actions`} aria-label={t`More Actions`} />
+                </PopupMenuToggle>
+                <PopupMenuOptions>
+                  {/* Not permission-gated: opening the modal is a read. Mutations inside it are
+                      gated (see the useCephPermissions docblock — reads are deliberately never
+                      gated). */}
+                  <PopupMenuItem
+                    label={t`Manage Credentials`}
+                    onClick={() => setCredentialsModalOpen(true)}
+                    data-testid="manage-credentials-action"
+                  />
+                </PopupMenuOptions>
+              </PopupMenu>
+              {permissions.canCreateBucket && (
+                <Button variant="primary" className="whitespace-nowrap" onClick={() => setCreateModalOpen(true)}>
+                  <Trans>Create Bucket</Trans>
+                </Button>
+              )}
+            </Stack>
+          </Stack>
+
+          {/* Zone 2 — debounced search. DataGridToolbar provides the background.
+              Ceph buckets expose no filterable dimensions yet, so there is no
+              FiltersInput / SelectedFilters here. When filter dimensions are added,
+              add FiltersInput alongside the search (switch the inner Stack to
+              distribution="between") and render SelectedFilters below. */}
+          <DataGridToolbar>
+            <Stack direction="vertical" gap="2">
+              <Stack distribution="end" alignment="center">
+                <SearchInput
+                  placeholder={t`Search buckets...`}
+                  data-testid="searchbar"
+                  value={localSearchTerm}
+                  onInput={(e) => {
+                    const v = e.currentTarget.value
+                    setLocalSearchTerm(v)
+                    clearTimeout(debounceTimer.current)
+                    debounceTimer.current = window.setTimeout(() => handleSearchChange(v), 500)
+                  }}
+                  onSearch={(v) => {
+                    clearTimeout(debounceTimer.current)
+                    handleSearchChange(typeof v === "string" ? v : "")
+                  }}
+                  onClear={() => {
+                    clearTimeout(debounceTimer.current)
+                    setLocalSearchTerm("")
+                    handleSearchChange("")
+                  }}
+                />
+              </Stack>
+            </Stack>
+          </DataGridToolbar>
+
+          {/* Zone 3 — bulk actions (gated) plus the bucket count. The bar also hosts the
+              count info, which must always be visible, so it always renders; only the
+              bulk controls are gated. */}
+          <DataGridToolbar>
+            <Stack distribution="between" gap="2" alignment="center" className="text-sm">
+              {hasAnyBulkAction ? (
+                <Stack gap="2" alignment="center">
+                  <Checkbox
+                    checked={allSelected}
+                    indeterminate={someSelected && !allSelected}
+                    onChange={handleToggleSelectAll}
+                  />
+                  <PopupMenu className="flex items-center">
+                    <PopupMenuToggle as="div">
+                      <Button disabled={!hasSelection} size="small" icon="moreVert" label={t`Actions`} />
+                    </PopupMenuToggle>
+                    {hasSelection && (
+                      <PopupMenuOptions>
+                        <PopupMenuItem
+                          disabled={!hasSelection}
+                          label={i18n._(
+                            plural(selectedCount, {
+                              one: "Empty Bucket",
+                              other: "Empty Buckets",
+                            })
+                          )}
+                          onClick={() => setEmptyAllModalOpen(true)}
+                        />
+                      </PopupMenuOptions>
+                    )}
+                  </PopupMenu>
+                </Stack>
+              ) : (
+                <span />
+              )}
+
+              <div className="text-theme-light flex items-center gap-1" data-testid="buckets-info-block">
+                {searchParam.trim() ? (
+                  <Plural
+                    value={totalCount}
+                    one={`${filteredCount} of ${totalCount} bucket`}
+                    other={`${filteredCount} of ${totalCount} buckets`}
+                  />
+                ) : (
+                  <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
+                )}
+              </div>
+            </Stack>
+          </DataGridToolbar>
+        </Stack>
+
+        <BucketTableView
+          buckets={sortedBuckets}
+          createModalOpen={createModalOpen}
+          setCreateModalOpen={setCreateModalOpen}
+          onCreateSuccess={handleCreateSuccess}
+          existingBuckets={buckets}
+          onEmptySuccess={handleEmptySuccess}
+          onDeleteSuccess={handleDeleteSuccess}
+          onDeleteError={handleDeleteError}
+          selectedBuckets={selectedBuckets}
+          setSelectedBuckets={setSelectedBuckets}
+          hasAnyBulkAction={hasAnyBulkAction}
+          canEmptyBucket={permissions.canEmptyBucket}
+          canDeleteBucket={permissions.canDeleteBucket}
+        />
+
+        <EmptyBucketsModal
+          isOpen={emptyAllModalOpen}
+          buckets={selectedBucketSummaries}
+          onClose={() => setEmptyAllModalOpen(false)}
+          onComplete={handleEmptyAllComplete}
+        />
+      </>
+    )
   }
 
   return (
     <div className="relative">
-      <Stack direction="vertical">
-        {/* Zone 1 — sort controls and the create action (plain Stack, no background) */}
-        <Stack distribution="end" alignment="center" gap="2" className="pb-2">
-          <Stack gap="0.5" alignment="center">
-            <SortInput
-              options={sortSettings.options}
-              sortBy={sortSettings.sortBy}
-              sortDirection={sortSettings.sortDirection ?? "asc"}
-              selectClassName="min-w-40"
-              onSortByChange={(value) =>
-                handleSortChange({ ...sortSettings, sortBy: value, sortDirection: sortSettings.sortDirection })
-              }
-              onSortDirectionChange={(direction) => handleSortChange({ ...sortSettings, sortDirection: direction })}
-            />
-          </Stack>
-          {permissions.canCreateBucket && (
-            <Button variant="primary" className="whitespace-nowrap" onClick={() => setCreateModalOpen(true)}>
-              <Trans>Create Bucket</Trans>
-            </Button>
-          )}
-        </Stack>
-
-        {/* Zone 2 — debounced search. DataGridToolbar provides the background.
-            Ceph buckets expose no filterable dimensions yet, so there is no
-            FiltersInput / SelectedFilters here. When filter dimensions are added,
-            add FiltersInput alongside the search (switch the inner Stack to
-            distribution="between") and render SelectedFilters below. */}
-        <DataGridToolbar>
-          <Stack direction="vertical" gap="2">
-            <Stack distribution="end" alignment="center">
-              <SearchInput
-                placeholder={t`Search buckets...`}
-                data-testid="searchbar"
-                value={localSearchTerm}
-                onInput={(e) => {
-                  const v = e.currentTarget.value
-                  setLocalSearchTerm(v)
-                  clearTimeout(debounceTimer.current)
-                  debounceTimer.current = window.setTimeout(() => handleSearchChange(v), 500)
-                }}
-                onSearch={(v) => {
-                  clearTimeout(debounceTimer.current)
-                  handleSearchChange(typeof v === "string" ? v : "")
-                }}
-                onClear={() => {
-                  clearTimeout(debounceTimer.current)
-                  setLocalSearchTerm("")
-                  handleSearchChange("")
-                }}
-              />
-            </Stack>
-          </Stack>
-        </DataGridToolbar>
-
-        {/* Zone 3 — bulk actions (gated) plus the bucket count. The bar also hosts the
-            count info, which must always be visible, so it always renders; only the
-            bulk controls are gated. */}
-        <DataGridToolbar>
-          <Stack distribution="between" gap="2" alignment="center" className="text-sm">
-            {hasAnyBulkAction ? (
-              <Stack gap="2" alignment="center">
-                <Checkbox
-                  checked={allSelected}
-                  indeterminate={someSelected && !allSelected}
-                  onChange={handleToggleSelectAll}
-                />
-                <PopupMenu className="flex items-center">
-                  <PopupMenuToggle as="div">
-                    <Button disabled={!hasSelection} size="small" icon="moreVert" label={t`Actions`} />
-                  </PopupMenuToggle>
-                  {hasSelection && (
-                    <PopupMenuOptions>
-                      <PopupMenuItem
-                        disabled={!hasSelection}
-                        label={i18n._(
-                          plural(selectedCount, {
-                            one: "Empty Bucket",
-                            other: "Empty Buckets",
-                          })
-                        )}
-                        onClick={() => setEmptyAllModalOpen(true)}
-                      />
-                    </PopupMenuOptions>
-                  )}
-                </PopupMenu>
-              </Stack>
-            ) : (
-              <span />
-            )}
-
-            <div className="text-theme-light flex items-center gap-1" data-testid="buckets-info-block">
-              {searchParam.trim() ? (
-                <Plural
-                  value={totalCount}
-                  one={`${filteredCount} of ${totalCount} bucket`}
-                  other={`${filteredCount} of ${totalCount} buckets`}
-                />
-              ) : (
-                <Plural value={totalCount} one={`${totalCount} bucket`} other={`${totalCount} buckets`} />
-              )}
-            </div>
-          </Stack>
-        </DataGridToolbar>
-      </Stack>
-
-      <BucketTableView
-        buckets={sortedBuckets}
-        createModalOpen={createModalOpen}
-        setCreateModalOpen={setCreateModalOpen}
-        onCreateSuccess={handleCreateSuccess}
-        existingBuckets={buckets}
-        onEmptySuccess={handleEmptySuccess}
-        onDeleteSuccess={handleDeleteSuccess}
-        onDeleteError={handleDeleteError}
-        selectedBuckets={selectedBuckets}
-        setSelectedBuckets={setSelectedBuckets}
-        hasAnyBulkAction={hasAnyBulkAction}
-        canEmptyBucket={permissions.canEmptyBucket}
-        canDeleteBucket={permissions.canDeleteBucket}
-      />
-
-      <EmptyBucketsModal
-        isOpen={emptyAllModalOpen}
-        buckets={selectedBucketSummaries}
-        onClose={() => setEmptyAllModalOpen(false)}
-        onComplete={handleEmptyAllComplete}
-      />
+      {content}
+      <ManageCredentialsModal isOpen={credentialsModalOpen} onClose={() => setCredentialsModalOpen(false)} />
     </div>
   )
 }

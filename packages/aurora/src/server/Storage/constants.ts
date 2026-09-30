@@ -66,3 +66,24 @@ export const S3_MAX_BUFFERED_VERSIONS_PER_KEY = 20_000
  * individual error rows.
  */
 export const MAX_REPORTED_DELETE_ERRORS = 100
+
+/**
+ * Maximum number of EC2 (S3) credentials one user may hold in one project.
+ *
+ * Mirrors AWS's two-access-key limit: two is exactly enough to rotate without downtime
+ * (create the new key, migrate clients, delete the old one) and not enough to accumulate
+ * a zoo of forgotten keys nobody can attribute. Keystone and RGW impose no limit of their
+ * own, so this is the only ceiling that exists.
+ *
+ * All of a user's keys in a project map to the SAME RGW identity — an extra key grants no
+ * extra access, which is why exceeding the limit by one on a race is harmless (see
+ * ec2CredentialRouter.create).
+ */
+export const EC2_CREDENTIALS_MAX_PER_PROJECT = 2
+
+/**
+ * Machine-readable marker thrown by `ec2Credentials.create` when the per-project key limit
+ * is reached. Mirrors the NO_CEPH_CREDENTIALS convention in `cephProcedure.ts`: the client
+ * branches on this constant instead of matching prose that i18n/refactors would break.
+ */
+export const EC2_CREDENTIAL_LIMIT_REACHED = "EC2_CREDENTIAL_LIMIT_REACHED" as const

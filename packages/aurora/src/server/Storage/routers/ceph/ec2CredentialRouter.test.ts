@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { TRPCError } from "@trpc/server"
+import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import { ec2CredentialRouter } from "./ec2CredentialRouter"
 import { createCallerFactory, auroraRouter } from "../../../trpc"
+import { EC2_CREDENTIAL_LIMIT_REACHED } from "../../constants"
 import {
   createMockContext as createBaseMockContext,
   TEST_PROJECT_ID,
@@ -166,6 +168,184 @@ describe("ec2Credentials.list", () => {
 })
 
 // ============================================================================
+// ec2Credentials.reveal
+// ============================================================================
+
+describe("ec2Credentials.reveal", () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it("returns the credential including its secret for the owner", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.s3.ec2Credentials.reveal({
+      project_id: TEST_PROJECT_ID,
+      credentialId: TEST_CREDENTIAL_ID,
+    })
+
+    expect(result).toEqual({
+      id: TEST_CREDENTIAL_ID,
+      access: TEST_ACCESS,
+      secret: TEST_SECRET,
+      user_id: TEST_USER_ID,
+      project_id: TEST_PROJECT_ID,
+    })
+  })
+
+  it("does not call del", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.storage.s3.ec2Credentials.reveal({
+      project_id: TEST_PROJECT_ID,
+      credentialId: TEST_CREDENTIAL_ID,
+    })
+
+    expect(ctx.mockIdentity.del).not.toHaveBeenCalled()
+  })
+
+  it("throws NOT_FOUND when credential belongs to another user", async () => {
+    const ctx = createMockContext()
+    const otherUserCredential = { ...rawCredential, user_id: "other-user-id" }
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+      if (path === `credentials/${TEST_CREDENTIAL_ID}`) {
+        return Promise.resolve({ ok: true, json: vi.fn().mockResolvedValue({ credential: otherUserCredential }) })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "NOT_FOUND", message: "Credential not found" }))
+  })
+
+  it("throws NOT_FOUND when credential belongs to another project", async () => {
+    const ctx = createMockContext()
+    const otherProjectCredential = { ...rawCredential, project_id: "other-project-id" }
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+      if (path === `credentials/${TEST_CREDENTIAL_ID}`) {
+        return Promise.resolve({ ok: true, json: vi.fn().mockResolvedValue({ credential: otherProjectCredential }) })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "NOT_FOUND", message: "Credential not found" }))
+  })
+
+  it("throws NOT_FOUND on 404 from Keystone", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation(() =>
+      Promise.resolve({ ok: false, status: 404 })
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "NOT_FOUND", message: "Credential not found" }))
+  })
+
+  // signal-openstack rejects on any non-2xx rather than resolving with `ok: false`
+  // (packages/signal-openstack/src/client.ts), so this is the shape a real Keystone 404 has.
+  it("throws NOT_FOUND when the identity service rejects with a 404", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new SignalOpenstackApiError("Could not find credential", 404)
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "NOT_FOUND", message: "Credential not found" }))
+  })
+
+  it("propagates a non-404 rejection from the identity service", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new SignalOpenstackApiError("Keystone exploded", 500)
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow()
+  })
+
+  it("throws NOT_FOUND when the credential is not an EC2 one", async () => {
+    const ctx = createMockContext()
+    const certCredential = { ...rawCredential, type: "cert" }
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+      if (path === `credentials/${TEST_CREDENTIAL_ID}`) {
+        return Promise.resolve({ ok: true, json: vi.fn().mockResolvedValue({ credential: certCredential }) })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "NOT_FOUND", message: "Credential not found" }))
+  })
+
+  it("throws UNAUTHORIZED on 401 from Keystone", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation(() =>
+      Promise.resolve({ ok: false, status: 401 })
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "Authentication failed" }))
+  })
+
+  it("throws FORBIDDEN on 403 from Keystone", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation(() =>
+      Promise.resolve({ ok: false, status: 403 })
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN", message: "Access denied" }))
+  })
+
+  it("throws INTERNAL_SERVER_ERROR when the credential blob is invalid JSON", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+      if (path === `credentials/${TEST_CREDENTIAL_ID}`) {
+        return Promise.resolve({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ credential: { ...rawCredential, blob: "invalid-json{" } }),
+        })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: expect.stringContaining("Failed to parse EC2 credential blob"),
+    })
+  })
+
+  it("throws UNAUTHORIZED when the session is invalid", async () => {
+    const ctx = createMockContext(true)
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "The session is invalid" }))
+  })
+})
+
+// ============================================================================
 // ec2Credentials.create
 // ============================================================================
 
@@ -235,7 +415,7 @@ describe("ec2Credentials.create", () => {
 
     await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
       code: "INTERNAL_SERVER_ERROR",
-      message: expect.stringContaining("Failed to parse created credential response"),
+      message: expect.stringContaining("Failed to parse EC2 credential blob"),
     })
   })
 
@@ -251,7 +431,82 @@ describe("ec2Credentials.create", () => {
 
     await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
       code: "INTERNAL_SERVER_ERROR",
-      message: expect.stringContaining("Created credential has invalid format"),
+      message: expect.stringContaining("Invalid EC2 credential format"),
+    })
+  })
+
+  describe("per-project credential limit", () => {
+    const mockExistingCredentials = (
+      ctx: ReturnType<typeof createMockContext>,
+      credentials: Array<typeof rawCredential>
+    ) => {
+      ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+        if (path === "credentials") {
+          return Promise.resolve({ ok: true, json: vi.fn().mockResolvedValue({ credentials }) })
+        }
+        return Promise.resolve({ ok: false, status: 404 })
+      })
+    }
+
+    it("creates when zero credentials exist yet", async () => {
+      const ctx = createMockContext()
+      mockExistingCredentials(ctx, [])
+      const caller = createCaller(ctx)
+
+      await caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })
+
+      expect(ctx.mockIdentity.post).toHaveBeenCalled()
+    })
+
+    it("creates when one credential already exists", async () => {
+      const ctx = createMockContext()
+      mockExistingCredentials(ctx, [rawCredential])
+      const caller = createCaller(ctx)
+
+      await caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })
+
+      expect(ctx.mockIdentity.post).toHaveBeenCalled()
+    })
+
+    it("throws CONFLICT/EC2_CREDENTIAL_LIMIT_REACHED when two credentials already exist, without calling post", async () => {
+      const ctx = createMockContext()
+      mockExistingCredentials(ctx, [rawCredential, { ...rawCredential, id: "cred-2" }])
+      const caller = createCaller(ctx)
+
+      await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
+        code: "CONFLICT",
+        message: EC2_CREDENTIAL_LIMIT_REACHED,
+      })
+      expect(ctx.mockIdentity.post).not.toHaveBeenCalled()
+    })
+
+    it("does not count credentials belonging to other projects toward the limit", async () => {
+      const ctx = createMockContext()
+      mockExistingCredentials(ctx, [
+        { ...rawCredential, id: "other-cred-1", project_id: "other-project" },
+        { ...rawCredential, id: "other-cred-2", project_id: "other-project" },
+      ])
+      const caller = createCaller(ctx)
+
+      await caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })
+
+      expect(ctx.mockIdentity.post).toHaveBeenCalled()
+    })
+
+    it("throws INTERNAL_SERVER_ERROR when the pre-check listing fails, without calling post", async () => {
+      const ctx = createMockContext()
+      ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+        if (path === "credentials") {
+          return Promise.resolve({ ok: false, status: 500 })
+        }
+        return Promise.resolve({ ok: false, status: 404 })
+      })
+      const caller = createCaller(ctx)
+
+      await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
+        code: "INTERNAL_SERVER_ERROR",
+      })
+      expect(ctx.mockIdentity.post).not.toHaveBeenCalled()
     })
   })
 })
@@ -298,6 +553,71 @@ describe("ec2Credentials.delete", () => {
     })
 
     expect(result).toEqual({ success: true })
+  })
+
+  // The real failure shape: a 404 arrives as a rejection, not as `ok: false`. Without handling
+  // it here the documented idempotency of delete would surface as NOT_FOUND instead of success.
+  it("returns success when the ownership fetch rejects with a 404", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new SignalOpenstackApiError("Could not find credential", 404)
+    )
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.s3.ec2Credentials.delete({
+      project_id: TEST_PROJECT_ID,
+      credentialId: TEST_CREDENTIAL_ID,
+    })
+
+    expect(result).toEqual({ success: true })
+    expect(ctx.mockIdentity.del).not.toHaveBeenCalled()
+  })
+
+  it("returns success when the credential disappears between the check and the delete", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.del as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new SignalOpenstackApiError("Could not find credential", 404)
+    )
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.s3.ec2Credentials.delete({
+      project_id: TEST_PROJECT_ID,
+      credentialId: TEST_CREDENTIAL_ID,
+    })
+
+    expect(result).toEqual({ success: true })
+  })
+
+  it("propagates a non-404 rejection from the delete call", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.del as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new SignalOpenstackApiError("Keystone exploded", 500)
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow()
+  })
+
+  it("does not delete a credential of another type", async () => {
+    const ctx = createMockContext()
+    const certCredential = { ...rawCredential, type: "cert" }
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+      if (path === `credentials/${TEST_CREDENTIAL_ID}`) {
+        return Promise.resolve({ ok: true, json: vi.fn().mockResolvedValue({ credential: certCredential }) })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    })
+    const caller = createCaller(ctx)
+
+    const result = await caller.storage.s3.ec2Credentials.delete({
+      project_id: TEST_PROJECT_ID,
+      credentialId: TEST_CREDENTIAL_ID,
+    })
+
+    expect(result).toEqual({ success: true })
+    expect(ctx.mockIdentity.del).not.toHaveBeenCalled()
   })
 
   it("throws INTERNAL_SERVER_ERROR on non-404 failure", async () => {

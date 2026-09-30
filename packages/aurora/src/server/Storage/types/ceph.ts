@@ -17,11 +17,15 @@ export const ec2CredentialWithSecretSchema = ec2CredentialSchema.extend({
   secret: z.string(),
 })
 
-export const listEc2CredentialsInputSchema = projectScopedInputSchema
-
-export const createEc2CredentialInputSchema = projectScopedInputSchema
-
-export const deleteEc2CredentialInputSchema = projectScopedInputSchema.extend({
+/**
+ * Input for the procedures that address one existing credential: `reveal` and `delete`.
+ *
+ * One schema, not one per procedure. `list` and `create` take `projectScopedInputSchema` as it
+ * comes and are given it directly in the router, so a named alias for each would only be a second
+ * name for the same object - which is what the three aliases this replaced turned out to be, two
+ * of them referenced by nothing but their own test.
+ */
+export const ec2CredentialIdInputSchema = projectScopedInputSchema.extend({
   credentialId: z.string().min(1),
 })
 
@@ -180,6 +184,10 @@ export type BucketState = z.infer<typeof bucketStateOutputSchema>
 
 export const s3StatusSchema = z.object({
   hasCredentials: z.boolean(),
+  /** Base S3 endpoint of the Ceph RGW for this region (Swift path suffix stripped). */
+  endpoint: z.string(),
+  /** Ceph-compatible region identifier the S3 client signs with. */
+  region: z.string(),
 })
 
 // ============================================================================

@@ -1,0 +1,26 @@
+---
+"@cobaltcore-dev/aurora": minor
+---
+
+Added a "Manage Credentials" modal for Ceph/S3 Object Storage, so a user can finally see, create, and delete their own EC2 (S3) access keys instead of only ever seeing a secret once, at creation time, if they happened to catch it before the toast/page reload discarded it.
+
+The modal is reachable from two places: the overflow ("More Actions") menu next to "Create Bucket" on the bucket list, and the rewritten "S3 Object Storage: Setup Required" empty state (which no longer creates a credential itself or reloads the page — it just opens the same modal). A third entry point was added to the previously dead-end "invalid credentials" error branch, which now offers a "Manage Credentials" action instead of prose with nowhere to go.
+
+Inside the modal:
+
+- **Access Keys** lists every EC2 credential the user holds in the project, showing the access key ID in full (it's the only way to tell two keys apart — Keystone's EC2 credential object carries no name/label). Each key's secret is shown alongside it, fetched as the modal opens through a new `storage.ceph.ec2Credentials.reveal` mutation — one request per key, at most two. `list` still strips secrets, and `reveal` is a mutation rather than a query on purpose: a query result lands in and survives inside the TanStack Query cache (visible in devtools) until the query is garbage-collected, whereas a mutation result is never cached and is dropped by `reset()` — so a secret lives only in the modal's own state and is gone the moment it closes, in every code path, not just the ones that remember to call `removeQueries`. A key whose secret fails to load says so in its own row, leaving the other key unaffected.
+- **Connection Details** shows the S3 endpoint and region, sourced from an extended `storage.ceph.containers.status`, which now also returns `endpoint`/`region` (previously only `hasCredentials`). This procedure intentionally does not require existing credentials, so Connection Details renders correctly even for a user who has none yet.
+- **Creating** a key shows its secret immediately, inline — this is the only time a newly created secret is displayed automatically, since it's also the user's only confirmation the key was actually created. A toast alongside it names the new access key and says where to find it again ("More Actions", then "Manage Credentials"): the very first key in a project is created from the empty state by someone who has never seen this modal and reached it through a menu they had no reason to open, so without that pointer the modal is a dead end found by accident and the secret reads like a one-time reveal.
+- **Deleting** a key happens on the click of the row's trash button, with no confirmation step — the same as removing a row from the metadata tables that live inside modals elsewhere in the dashboard. A spinner replaces the button while the request is in flight, and a toast names the deleted access key afterwards. That a deleted key stops working immediately, and that the section holds at most two keys, is stated once in the section's standing description rather than in banners.
+- A user may hold at most **two** EC2 credentials per project (mirrors AWS's own two-access-key limit — enough to rotate a key without downtime, not enough to accumulate an unaccountable pile of them). The "Create Access Key" button, which sits above the key table rather than in the modal footer, disables at the limit; the server enforces it independently and answers a third attempt with `CONFLICT`/`EC2_CREDENTIAL_LIMIT_REACHED`.
+
+Behaviour changes worth noting for consumers:
+
+- `storage.ceph.containers.status` now returns `endpoint` and `region` alongside `hasCredentials`. Purely additive for consumers, who only ever see the shape through `AuroraRouter`.
+- New public procedure: `storage.ceph.ec2Credentials.reveal`.
+- `storage.ceph.ec2Credentials.create` can now fail with `CONFLICT` (`EC2_CREDENTIAL_LIMIT_REACHED`) once the caller already holds two credentials in the project.
+- New permission key `storage:credentials:delete`. **Operators with a forked `storage.json` should add `"storage:credential_delete": "rule:storage_viewer"` (or their own equivalent rule)** — otherwise the "Delete" action on access keys stays hidden. This PR also hardens `createPermissionRouter` so a single missing/misconfigured rule no longer fails an entire `canUser` batch (it previously threw and took down every other permission requested alongside it); the missing rule now just resolves to `false` for that one key, same as before this PR for any other Ceph permission.
+- `resolveEC2Credential` (used internally on every Ceph request to pick which credential to sign with) now sorts by credential `id` instead of taking whatever Keystone returns first, so which of a user's up-to-two keys the BFF authenticates as is stable across requests instead of depending on Keystone's unspecified response order. EC2 credentials carry no timestamp, so this is a deterministic choice, not a "most recent" one — there is still no concept of an "active" key.
+- Files under `Ceph/Buckets/-components/CredentialPrompt.*` moved to a new `Ceph/Credentials/` directory alongside the new modal; nothing under `Ceph/Buckets/` imports this from outside the package.
+
+Swift is unaffected — it does not use EC2 credentials.
