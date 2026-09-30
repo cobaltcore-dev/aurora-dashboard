@@ -63,6 +63,21 @@ export const getImageUploadCancelledToast = (): { message: ReactNode } & Notific
   description: <Trans>The image upload was cancelled.</Trans>,
 })
 
+export const getImageMetadataPropertyCreatedToast = (): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Property Created</Trans>,
+  description: <Trans>Property was successfully created.</Trans>,
+})
+
+export const getImageMetadataPropertyUpdatedToast = (): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Property Updated</Trans>,
+  description: <Trans>Property was successfully updated.</Trans>,
+})
+
+export const getImageMetadataPropertyDeletedToast = (): { message: ReactNode } & NotificationOptions => ({
+  message: <Trans>Property Deleted</Trans>,
+  description: <Trans>Property was successfully deleted.</Trans>,
+})
+
 export const getImageDeletedToast = (imageName: string): { message: ReactNode } & NotificationOptions => ({
   message: <Trans>Image Instance</Trans>,
   description: <Trans>Image instance "{imageName}" has been deleted</Trans>,

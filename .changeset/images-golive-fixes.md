@@ -15,3 +15,8 @@
 - Rename "Sharing Details" tab to "Manage Access"
 - Fix Add Project Access failing with validation error - pass currentProjectId to SharingDetailsTab
 - Change section headings from ContentHeading to h2 in Images and Flavors detail views
+- Fix image detail-page more-actions menu: render "Manage Access" for shared-image owners, order "Deactivate Image" after "Set to Shared"/"Manage Access", and never show the menu trigger for an empty menu
+- Keep "Show Details" available for owned images regardless of update permission (gate only mutation actions)
+- Use RFC 6902 `add`+`remove` (not `replace`) when renaming a metadata key
+- Reset the upload-cancel flag after each create so a later failure is not mistaken for a cancellation, and clean up the orphaned image only after the aborted upload settles (surfacing cleanup failures)
+- Move image metadata toast copy into ImageToastNotifications helpers

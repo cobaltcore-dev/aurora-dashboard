@@ -308,5 +308,20 @@ describe("ImageTableRow", () => {
 
       expect(onUpdateVisibility).toHaveBeenCalledWith("img-1", "shared", "Ubuntu 24.04")
     })
+
+    it("keeps Show Details available for an owned image without update permission", async () => {
+      renderRow({
+        image: makeImage({ visibility: "private" }),
+        permissions: { ...noPermissions, canUpdate: false },
+      })
+
+      openRowMenu()
+
+      expect(await screen.findByText("Show Details")).toBeInTheDocument()
+      // Mutation actions must not appear without update permission.
+      expect(screen.queryByText("Edit Details")).not.toBeInTheDocument()
+      expect(screen.queryByText("Edit Metadata")).not.toBeInTheDocument()
+      expect(screen.queryByText("Deactivate Image")).not.toBeInTheDocument()
+    })
   })
 })

@@ -359,37 +359,48 @@ function RouteComponent() {
     isImageOwner &&
     image.visibility === IMAGE_VISIBILITY.SHARED &&
     (permissions.canCreateMember || permissions.canDeleteMember)
+  const canSetToShared = canUpdateOwnImage && isPrivate
 
-  const hasMoreActions = canRejectSharedImage || canUpdateOwnImage || canDeleteOwnImage || canManageSharing
+  // Each flag maps 1:1 to a rendered menu item below. hasMoreActions is derived
+  // from the same flags so the trigger icon never shows an empty menu.
+  const hasMoreActions =
+    canUpdateOwnImage || canRejectSharedImage || canManageSharing || canSetToShared || canDeleteOwnImage
 
   const headerActions = (hasMoreActions || (!isSharedWithMe && permissions.canUpdate)) && (
     <Stack gap="0.5" alignment="center">
-      {(hasMoreActions || (!isSharedWithMe && permissions.canUpdate)) && (
+      {hasMoreActions && (
         <PopupMenu className="flex items-center">
           <PopupMenuToggle as="div">
             <Button icon="moreVert" title={t`More Actions`} disabled={isLoading} />
           </PopupMenuToggle>
           <PopupMenuOptions>
-            {!isSharedWithMe && permissions.canUpdate && (
-              <>
-                <PopupMenuItem
-                  onClick={() => setEditMetadataModalOpen(true)}
-                  label={t`Edit Metadata`}
-                  disabled={isLoading}
-                />
-                <PopupMenuItem
-                  label={isDeactivated ? t`Activate Image` : t`Deactivate Image`}
-                  onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
-                />
-              </>
+            {canUpdateOwnImage && (
+              <PopupMenuItem
+                onClick={() => setEditMetadataModalOpen(true)}
+                label={t`Edit Metadata`}
+                disabled={isLoading}
+              />
             )}
             {canRejectSharedImage && (
               <PopupMenuItem label={t`Reject`} onClick={() => handleMemberStatusChange("rejected")} />
             )}
-            {!isSharedWithMe && permissions.canUpdate && isPrivate && (
+            {(canManageSharing || canSetToShared) && <PopupMenuSectionSeparator />}
+            {canManageSharing && (
+              <PopupMenuItem
+                label={t`Manage Access`}
+                onClick={() => navigate({ search: { tab: "sharing" } as unknown as true })}
+              />
+            )}
+            {canSetToShared && (
               <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
             )}
-            {!isSharedWithMe && permissions.canDelete && !image.protected && (
+            {canUpdateOwnImage && (
+              <PopupMenuItem
+                label={isDeactivated ? t`Activate Image` : t`Deactivate Image`}
+                onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
+              />
+            )}
+            {canDeleteOwnImage && (
               <>
                 <PopupMenuSectionSeparator />
                 <PopupMenuItem label={t`Delete Image`} onClick={() => setDeleteModalOpen(true)} />

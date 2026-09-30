@@ -277,6 +277,7 @@ export function ImageListView({
 
   const handleCreate = async (imageData: Omit<CreateImageInput, "project_id">, file: File) => {
     const imageName = imageData.name || "Unnamed"
+    let createdImageId: string | null = null
 
     try {
       setCreateInProgress(true)
@@ -286,6 +287,7 @@ export function ImageListView({
         project_id: projectId,
         ...imageData,
       })
+      createdImageId = createdImage.id
 
       // Step 2: Upload file via octetInputParser with metadata in custom headers.
       // trpcClient (vanilla) is used so we can pass operation context with headers.
@@ -318,9 +320,21 @@ export function ImageListView({
       // Trigger manual refetch through member status change handler
       onMemberStatusChanged()
     } catch (error) {
-      // A user-initiated cancellation is not an error — the toast is shown by
-      // handleCancelUpload, so swallow it here.
+      // A user-initiated cancellation is not a failure. We reach this branch only
+      // once the aborted upload promise has rejected, so the transfer has fully
+      // terminated and it is safe to clean up the orphaned image record here
+      // (avoids racing the still-running upload).
       if (uploadCancelledRef.current) {
+        if (createdImageId) {
+          try {
+            await deleteImageMutation.mutateAsync({ project_id: projectId, imageId: createdImageId })
+            onImageDeleted(createdImageId)
+          } catch (cleanupError) {
+            const cleanupMessage = (cleanupError as FastifyError)?.message ?? ""
+            const { message, ...options } = getImageDeleteErrorToast(createdImageId, cleanupMessage)
+            toast.error(message, options)
+          }
+        }
         return
       }
 
@@ -336,8 +350,10 @@ export function ImageListView({
         toast.error(message, options)
       }
     } finally {
-      // Complete creation and close modal
+      // Complete creation and close modal. Reset the cancellation flag so a later
+      // create request is not mistaken for a cancellation.
       uploadAbortControllerRef.current = null
+      uploadCancelledRef.current = false
       setCreateInProgress(false)
       setCreateModalOpen(false)
       setIsUploadPending(false)
@@ -345,25 +361,16 @@ export function ImageListView({
     }
   }
 
-  const handleCancelUpload = async () => {
-    const orphanedImageId = uploadId
+  const handleCancelUpload = () => {
+    // Flag the cancellation and abort the transfer. handleCreate's catch block
+    // runs once the aborted upload rejects and performs the orphan cleanup, so
+    // we never race the still-running upload from here.
     uploadCancelledRef.current = true
     uploadAbortControllerRef.current?.abort()
 
     const { message, ...options } = getImageUploadCancelledToast()
     toast.info(message, options)
     // handleCreate's finally block resets state and closes the modal.
-
-    // The image record was already created in Step 1 before the upload started.
-    // Aborting only stops the file transfer, so delete the now-orphaned image.
-    if (orphanedImageId) {
-      try {
-        await deleteImageMutation.mutateAsync({ project_id: projectId, imageId: orphanedImageId })
-        onImageDeleted(orphanedImageId)
-      } catch {
-        // Best-effort cleanup; if it fails the image simply remains in the list.
-      }
-    }
   }
 
   const handleDelete = async (deletedImage: GlanceImage) => {

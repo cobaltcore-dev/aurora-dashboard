@@ -147,18 +147,23 @@ export function ImageTableRow({
                 </>
               )}
 
-              {/* Own image: full actions */}
+              {/* Show Details is available for any image the user can view,
+                  regardless of update permission. */}
+              {!isExternalImage && (
+                <PopupMenuItem
+                  label={t`Show Details`}
+                  onClick={() =>
+                    navigate({
+                      to: "/projects/$projectId/compute/images/$imageId",
+                      params: { projectId, imageId: id },
+                    })
+                  }
+                />
+              )}
+
+              {/* Own image: mutation actions gated on update permission */}
               {!isExternalImage && permissions.canUpdate && (
                 <>
-                  <PopupMenuItem
-                    label={t`Show Details`}
-                    onClick={() =>
-                      navigate({
-                        to: "/projects/$projectId/compute/images/$imageId",
-                        params: { projectId, imageId: id },
-                      })
-                    }
-                  />
                   <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
                   <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
                   <PopupMenuSectionSeparator />

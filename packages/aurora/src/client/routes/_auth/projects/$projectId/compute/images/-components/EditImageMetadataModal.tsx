@@ -15,6 +15,11 @@ import {
 import { GlanceImage } from "@/server/Compute/types/image"
 import { TrpcClient } from "@/client/trpcClient"
 import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
+import {
+  getImageMetadataPropertyCreatedToast,
+  getImageMetadataPropertyUpdatedToast,
+  getImageMetadataPropertyDeletedToast,
+} from "./ImageToastNotifications"
 
 interface EditImageMetadataModalProps {
   client: TrpcClient
@@ -137,9 +142,8 @@ function EditImageMetadataModalInner({
       setIsAddingNew(false)
       setErrors({})
       setValidationMessage(null)
-      toast.success(t`Property Created`, {
-        description: t`Property was successfully created.`,
-      })
+      const { message, ...options } = getImageMetadataPropertyCreatedToast()
+      toast.success(message, options)
     } catch (error) {
       const errorMsg = translateError(error instanceof Error ? error.message : "Failed to create property")
       setValidationMessage(errorMsg)
@@ -182,14 +186,16 @@ function EditImageMetadataModalInner({
     setOperationInProgress(true)
     try {
       const trimmedValue = entry.value.trim()
-      const operations: Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> = [
-        { op: "replace", path: `/${entry.key.trim()}`, value: trimmedValue },
-      ]
-
-      // If key changed, delete old key
-      if (entry.originalKey && entry.originalKey !== entry.key.trim()) {
-        operations.push({ op: "remove", path: `/${entry.originalKey}` })
-      }
+      const trimmedKey = entry.key.trim()
+      const keyChanged = entry.originalKey !== undefined && entry.originalKey !== trimmedKey
+      // A renamed key is a new JSON Pointer, so "replace" (RFC 6902) would fail.
+      // Use "add" for the new key + "remove" for the old; "replace" only when unchanged.
+      const operations: Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> = keyChanged
+        ? [
+            { op: "add", path: `/${trimmedKey}`, value: trimmedValue },
+            { op: "remove", path: `/${entry.originalKey}` },
+          ]
+        : [{ op: "replace", path: `/${trimmedKey}`, value: trimmedValue }]
 
       await client.compute.updateImage.mutate({ project_id: projectId, imageId, operations })
 
@@ -208,9 +214,8 @@ function EditImageMetadataModalInner({
       )
       setErrors({})
       setValidationMessage(null)
-      toast.success(t`Property Updated`, {
-        description: t`Property was successfully updated.`,
-      })
+      const { message, ...options } = getImageMetadataPropertyUpdatedToast()
+      toast.success(message, options)
     } catch (error) {
       const errorMsg = translateError(error instanceof Error ? error.message : "Failed to update property")
       setValidationMessage(errorMsg)
@@ -242,9 +247,8 @@ function EditImageMetadataModalInner({
       setMetadata((prev) => prev.filter((_, i) => i !== index))
       setErrors({})
       setValidationMessage(null)
-      toast.success(t`Property Deleted`, {
-        description: t`Property was successfully deleted.`,
-      })
+      const { message, ...options } = getImageMetadataPropertyDeletedToast()
+      toast.success(message, options)
     } catch (error) {
       const errorMsg = translateError(error instanceof Error ? error.message : "Failed to delete property")
       setValidationMessage(errorMsg)
