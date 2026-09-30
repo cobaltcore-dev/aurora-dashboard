@@ -2825,6 +2825,9 @@ msgstr "Owner Project ID"
 msgid "Owning Project ID"
 msgstr "Owning Project ID"
 
+msgid "Page not found"
+msgstr "Page not found"
+
 msgid "Page Not Found"
 msgstr "Page Not Found"
 
@@ -3326,6 +3329,9 @@ msgstr "Server returned unexpected data format for flavor details."
 msgid "Server returned unexpected data format."
 msgstr "Server returned unexpected data format."
 
+msgid "Service not found"
+msgstr "Service not found"
+
 msgid "Services"
 msgstr "Services"
 
@@ -3656,6 +3662,9 @@ msgstr "The selected objects will be permanently deleted. This action cannot be 
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "The selected objects will be permanently deleted. This cannot be undone."
 
+msgid "The service \"{enteredService}\" doesn't exist in this project. Check the URL, or return to your project home."
+msgstr "The service \"{enteredService}\" doesn't exist in this project. Check the URL, or return to your project home."
+
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
 
@@ -3859,6 +3868,9 @@ msgstr "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty
 
 msgid "This security group is already shared with the specified project."
 msgstr "This security group is already shared with the specified project."
+
+msgid "This service doesn't exist in this project. Check the URL, or return to your project home."
+msgstr "This service doesn't exist in this project. Check the URL, or return to your project home."
 
 msgid "This tenant already has access to the flavor."
 msgstr "This tenant already has access to the flavor."
@@ -4114,6 +4126,9 @@ msgstr "Visibility"
 
 msgid "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
 msgstr "We are building Aurora Dashboard to serve you better. Your feedback is invaluable in shaping a tool that meets the unique needs of businesses like yours. Stay connected and join us as we redefine cloud management."
+
+msgid "We couldn't find the page you're looking for. It may have been moved, or the address may be incorrect."
+msgstr "We couldn't find the page you're looking for. It may have been moved, or the address may be incorrect."
 
 msgid "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
 msgstr "Welcome to <0>Aurora Dashboard</0>, your next-generation cloud management solution. We are dedicated to simplifying how you interact with and manage your cloud infrastructure. Designed with efficiency, scalability, and usability at its core, Aurora empowers you to streamline operations and unlock the full potential of your cloud resources."
