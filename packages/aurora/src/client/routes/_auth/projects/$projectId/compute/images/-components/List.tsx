@@ -12,6 +12,7 @@ import {
   PopupMenuItem,
   PopupMenuToggle,
   PopupMenuOptions,
+  PopupMenuSectionSeparator,
   DataGridToolbar,
   SearchInput,
   Checkbox,
@@ -334,11 +335,11 @@ function ImagesContent({
                   <Button size="small" icon="moreVert" label={t`Actions`} />
                 </PopupMenuToggle>
                 <PopupMenuOptions>
-                  {permissions.canDelete && (
+                  {permissions.canUpdate && (
                     <PopupMenuItem
-                      disabled={isDeleteAllDisabled}
-                      label={t`Delete Selected`}
-                      onClick={() => setDeleteAllModalOpen(true)}
+                      disabled={isActivateAllDisabled}
+                      label={t`Activate Selected`}
+                      onClick={() => setActivateAllModalOpen(true)}
                     />
                   )}
                   {permissions.canUpdate && (
@@ -348,12 +349,15 @@ function ImagesContent({
                       onClick={() => setDeactivateAllModalOpen(true)}
                     />
                   )}
-                  {permissions.canUpdate && (
-                    <PopupMenuItem
-                      disabled={isActivateAllDisabled}
-                      label={t`Activate Selected`}
-                      onClick={() => setActivateAllModalOpen(true)}
-                    />
+                  {permissions.canDelete && (
+                    <>
+                      <PopupMenuSectionSeparator />
+                      <PopupMenuItem
+                        disabled={isDeleteAllDisabled}
+                        label={t`Delete Selected`}
+                        onClick={() => setDeleteAllModalOpen(true)}
+                      />
+                    </>
                   )}
                 </PopupMenuOptions>
               </PopupMenu>
@@ -363,8 +367,6 @@ function ImagesContent({
       )}
       <ImageListView
         images={paginatedImages}
-        suggestedImages={memberStatusView === "pending" ? paginatedImages : []}
-        acceptedImages={memberStatusView === "accepted" ? paginatedImages : []}
         permissions={permissions}
         isFetching={isFetching}
         currentPage={safePage}

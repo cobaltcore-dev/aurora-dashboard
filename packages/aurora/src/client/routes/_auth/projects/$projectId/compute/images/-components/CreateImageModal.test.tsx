@@ -581,7 +581,7 @@ describe("CreateImageModal", () => {
 
       const spinners = screen.getAllByRole("progressbar")
       expect(spinners.length).toBeGreaterThan(0)
-      expect(screen.getByText("Pending File Upload...")).toBeInTheDocument()
+      expect(screen.getByText("Uploading File...")).toBeInTheDocument()
     })
 
     test("should display upload progress bar when uploadProgressPercent is provided", async () => {
@@ -645,6 +645,74 @@ describe("CreateImageModal", () => {
       })
 
       expect(screen.getByText("100%")).toBeInTheDocument()
+    })
+
+    test("shows Cancel Upload during a pending upload even without progress", async () => {
+      const onCancelUpload = vi.fn()
+      await act(async () => {
+        render(
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <CreateImageModal
+                isOpen={true}
+                onClose={mockOnClose}
+                onCreate={mockOnCreate}
+                isLoading={true}
+                isUploadPending={true}
+                onCancelUpload={onCancelUpload}
+              />
+            </PortalProvider>
+          </I18nProvider>
+        )
+      })
+
+      const cancelButton = screen.getByRole("button", { name: /Cancel Upload/i })
+      expect(cancelButton).toBeInTheDocument()
+
+      fireEvent.click(cancelButton)
+      expect(onCancelUpload).toHaveBeenCalledTimes(1)
+    })
+
+    test("does not show Cancel Upload while only creating the image", async () => {
+      await act(async () => {
+        render(
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <CreateImageModal
+                isOpen={true}
+                onClose={mockOnClose}
+                onCreate={mockOnCreate}
+                isLoading={true}
+                isUploadPending={false}
+                onCancelUpload={vi.fn()}
+              />
+            </PortalProvider>
+          </I18nProvider>
+        )
+      })
+
+      expect(screen.queryByRole("button", { name: /Cancel Upload/i })).not.toBeInTheDocument()
+    })
+
+    test("hides the Create Image button while loading", async () => {
+      await act(async () => {
+        render(
+          <I18nProvider i18n={i18n}>
+            <PortalProvider>
+              <CreateImageModal
+                isOpen={true}
+                onClose={mockOnClose}
+                onCreate={mockOnCreate}
+                isLoading={true}
+                isUploadPending={true}
+                onCancelUpload={vi.fn()}
+              />
+            </PortalProvider>
+          </I18nProvider>
+        )
+      })
+
+      expect(screen.queryByRole("button", { name: /Create Image/i })).not.toBeInTheDocument()
     })
   })
 })

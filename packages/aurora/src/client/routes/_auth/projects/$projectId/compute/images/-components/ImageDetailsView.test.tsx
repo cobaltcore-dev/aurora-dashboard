@@ -199,7 +199,7 @@ describe("ImageDetailsView", () => {
     it("should render custom properties heading", () => {
       setup(<CustomPropertiesSection image={mockImage} />)
 
-      expect(screen.getByText("Custom Properties / Metadata")).toBeInTheDocument()
+      expect(screen.getByText("Metadata")).toBeInTheDocument()
     })
 
     it("should display message when no custom properties exist", () => {
@@ -327,7 +327,7 @@ describe("ImageDetailsView", () => {
 
       expect(screen.getByText("General Image Data")).toBeInTheDocument()
       expect(screen.getByText("Security")).toBeInTheDocument()
-      expect(screen.getByText("Custom Properties / Metadata")).toBeInTheDocument()
+      expect(screen.getByText("Metadata")).toBeInTheDocument()
     })
 
     it("should render sections in correct order", () => {
@@ -336,7 +336,7 @@ describe("ImageDetailsView", () => {
       const headings = container.querySelectorAll("h1, h2, h3, h4, h5, h6")
       const headingTexts = Array.from(headings).map((h) => h.textContent)
 
-      expect(headingTexts).toEqual(["General Image Data", "Security", "Custom Properties / Metadata"])
+      expect(headingTexts).toEqual(["General Image Data", "Security", "Metadata"])
     })
 
     it("should pass image prop to all child components", () => {
