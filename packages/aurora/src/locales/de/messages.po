@@ -3635,14 +3635,14 @@ msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die
 msgid "The page you are looking for does not exist."
 msgstr "Die gesuchte Seite existiert nicht."
 
+msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
+msgstr ""
+
 msgid "The project you are looking for doesn't exist or you don't have access to it."
 msgstr ""
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
-
-msgid "The requested URL does not exist or may have moved. Check the URL or return to the home page."
-msgstr ""
 
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr ""
@@ -3662,7 +3662,7 @@ msgstr ""
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
 
-msgid "The service \"{enteredService}\" doesn't exist in this project. Check the URL, or return to the project home."
+msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
 msgstr ""
 
 msgid "The specified project does not exist or you don't have permission to share with it."
@@ -3868,9 +3868,6 @@ msgstr ""
 
 msgid "This security group is already shared with the specified project."
 msgstr "Diese Sicherheitsgruppe ist bereits mit dem angegebenen Projekt geteilt."
-
-msgid "This service doesn't exist in this project. Check the URL, or return to the project home."
-msgstr ""
 
 msgid "This tenant already has access to the flavor."
 msgstr "Dieses Projekt hat bereits Zugriff auf den Flavor."

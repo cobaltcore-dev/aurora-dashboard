@@ -3635,14 +3635,14 @@ msgstr "The object will be moved to this path. Navigate folders above to change 
 msgid "The page you are looking for does not exist."
 msgstr "The page you are looking for does not exist."
 
+msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
+msgstr "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
+
 msgid "The project you are looking for doesn't exist or you don't have access to it."
 msgstr "The project you are looking for doesn't exist or you don't have access to it."
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
-
-msgid "The requested URL does not exist or may have moved. Check the URL or return to the home page."
-msgstr "The requested URL does not exist or may have moved. Check the URL or return to the home page."
 
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr "The Resource you are looking for does not exist or is not accessible."
@@ -3662,8 +3662,8 @@ msgstr "The selected objects will be permanently deleted. This action cannot be 
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "The selected objects will be permanently deleted. This cannot be undone."
 
-msgid "The service \"{enteredService}\" doesn't exist in this project. Check the URL, or return to the project home."
-msgstr "The service \"{enteredService}\" doesn't exist in this project. Check the URL, or return to the project home."
+msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
+msgstr "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
@@ -3868,9 +3868,6 @@ msgstr "This rule uses Date or ExpiredObjectDeleteMarker expiration. Leave empty
 
 msgid "This security group is already shared with the specified project."
 msgstr "This security group is already shared with the specified project."
-
-msgid "This service doesn't exist in this project. Check the URL, or return to the project home."
-msgstr "This service doesn't exist in this project. Check the URL, or return to the project home."
 
 msgid "This tenant already has access to the flavor."
 msgstr "This tenant already has access to the flavor."
