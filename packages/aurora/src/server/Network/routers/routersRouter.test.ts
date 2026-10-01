@@ -39,6 +39,7 @@ const defaultPorts = [
   {
     id: "port-if-1",
     name: "",
+    device_id: "router-1",
     network_id: "net-1",
     device_owner: "network:router_interface",
     status: "ACTIVE",
@@ -49,6 +50,7 @@ const defaultPorts = [
   {
     id: "port-gw",
     name: "",
+    device_id: "router-1",
     network_id: "ext-net-1",
     device_owner: "network:router_gateway",
     status: "ACTIVE",
@@ -57,6 +59,7 @@ const defaultPorts = [
   {
     id: "port-snat",
     name: "",
+    device_id: "router-1",
     network_id: "net-1",
     device_owner: "network:router_centralized_snat",
     status: "ACTIVE",
@@ -69,7 +72,10 @@ const defaultSubnets = [
   { id: "ext-subnet-1", name: "FloatingIP-sap-01", cidr: "172.24.4.0/24" },
 ]
 
-const defaultNetworks = [{ id: "ext-net-1", name: "FloatingIP-external-01" }]
+const defaultNetworks = [
+  { id: "ext-net-1", name: "FloatingIP-external-01" },
+  { id: "net-1", name: "private-net" },
+]
 
 const defaultExtensions = [{ alias: "dvr" }, { alias: "extraroute" }, { alias: "l3-ha" }]
 
@@ -90,6 +96,7 @@ const createMockContext = (opts?: {
   statusText?: string
   subnetsFail?: boolean
   networksFail?: boolean
+  portsFail?: boolean
   mockRouters?: unknown[]
   mockPorts?: unknown[]
   mockSubnets?: unknown[]
@@ -103,6 +110,7 @@ const createMockContext = (opts?: {
     statusText,
     subnetsFail = false,
     networksFail = false,
+    portsFail = false,
     mockRouters = defaultRouters,
     mockPorts = defaultPorts,
     mockSubnets = defaultSubnets,
@@ -128,7 +136,19 @@ const createMockContext = (opts?: {
         networksFail ? response({}, { ok: false, status: 403 }) : response({ networks: defaultNetworks }, { ok: true })
       )
     }
-    if (url.startsWith("v2.0/ports")) return Promise.resolve(response({ ports: mockPorts }))
+    if (url.startsWith("v2.0/ports")) {
+      if (portsFail) return Promise.resolve(response({}, { ok: false, status: 500 }))
+      // Honour device_id / device_owner filters like Neutron does
+      const params = new URLSearchParams(url.split("?")[1])
+      const deviceIds = params.getAll("device_id")
+      const deviceOwners = params.getAll("device_owner")
+      const ports = (mockPorts as Array<{ device_id?: string; device_owner: string }>).filter(
+        (port) =>
+          (deviceIds.length === 0 || deviceIds.includes(port.device_id ?? "")) &&
+          (deviceOwners.length === 0 || deviceOwners.includes(port.device_owner))
+      )
+      return Promise.resolve(response({ ports }))
+    }
     if (url.startsWith("v2.0/extensions")) return Promise.resolve(response({ extensions: mockExtensions }))
     if (url.startsWith("v2.0/routers/")) return Promise.resolve(response({ router: mockRouters[0] }))
     return Promise.resolve(response({ routers: mockRouters }))
@@ -268,10 +288,12 @@ describe("routersRouter.list", () => {
       await caller.routers.list({ project_id: TEST_PROJECT_ID })
 
       const urls: string[] = ctx.__networkGetMock.mock.calls.map((call: unknown[]) => call[0] as string)
-      expect(urls).toHaveLength(3)
+      // routers, interface ports, networks, subnets
+      expect(urls).toHaveLength(4)
 
+      // external and private network names are resolved in the same request
       const networks = splitUrl(urls.find((url) => url.startsWith("v2.0/networks"))!)
-      expect(networks.params.getAll("id")).toEqual(["ext-net-1"])
+      expect(networks.params.getAll("id")).toEqual(["ext-net-1", "net-1"])
       expect(networks.params.getAll("fields")).toEqual(["id", "name"])
 
       const subnets = splitUrl(urls.find((url) => url.startsWith("v2.0/subnets"))!)
@@ -286,7 +308,8 @@ describe("routersRouter.list", () => {
       const result = await caller.routers.list({ project_id: TEST_PROJECT_ID, has_gateway: false })
 
       expect(result.map((r) => r.id)).toEqual(["router-2"])
-      expect(ctx.__networkGetMock).toHaveBeenCalledTimes(1)
+      // routers + interface ports only: router-2 has neither gateway nor interfaces, so no name lookups
+      expect(ctx.__networkGetMock).toHaveBeenCalledTimes(2)
     })
 
     it("still returns routers with IDs only when name lookups fail", async () => {
@@ -305,6 +328,83 @@ describe("routersRouter.list", () => {
       const result = await caller.routers.list({ project_id: TEST_PROJECT_ID })
 
       expect(result[1].external_gateway_info).toBeNull()
+    })
+  })
+
+  describe("private networks", () => {
+    it("adds the private networks of each router with names", async () => {
+      const caller = createCaller(createMockContext())
+
+      const [router1, router2] = await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      expect(router1.private_networks).toEqual([{ network_id: "net-1", network_name: "private-net" }])
+      expect(router2.private_networks).toEqual([])
+    })
+
+    it("queries interface ports of all listed routers in one request", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx)
+
+      await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      const { path, params } = splitUrl(ctx.__networkGetMock.mock.calls[1][0] as string)
+      expect(path).toBe("v2.0/ports")
+      expect(params.getAll("device_id")).toEqual(["router-1", "router-2"])
+      expect(params.getAll("device_owner")).toEqual([
+        "network:router_interface",
+        "network:router_interface_distributed",
+        "network:ha_router_replicated_interface",
+      ])
+      expect(params.getAll("fields")).toEqual(["id", "device_id", "device_owner", "network_id"])
+    })
+
+    it("deduplicates networks with multiple interfaces on the same router", async () => {
+      const secondInterface = { ...defaultPorts[0], id: "port-if-2", fixed_ips: [] }
+      const caller = createCaller(createMockContext({ mockPorts: [...defaultPorts, secondInterface] }))
+
+      const [router1] = await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      expect(router1.private_networks).toEqual([{ network_id: "net-1", network_name: "private-net" }])
+    })
+
+    it("splits the ports request into chunks of 50 router IDs", async () => {
+      const manyRouters = Array.from({ length: 51 }, (_, i) => ({ ...defaultRouters[1], id: `router-${i}` }))
+      const ctx = createMockContext({ mockRouters: manyRouters })
+      const caller = createCaller(ctx)
+
+      await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      const portRequests = ctx.__networkGetMock.mock.calls
+        .map((call: unknown[]) => call[0] as string)
+        .filter((url: string) => url.startsWith("v2.0/ports"))
+      expect(portRequests.map((url: string) => splitUrl(url).params.getAll("device_id").length)).toEqual([50, 1])
+    })
+
+    it("leaves private_networks undefined when interface ports can't be fetched", async () => {
+      const caller = createCaller(createMockContext({ portsFail: true }))
+
+      const [router1] = await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      expect(router1.private_networks).toBeUndefined()
+      // gateway names are still resolved
+      expect(router1.external_gateway_info?.network_name).toBe("FloatingIP-external-01")
+    })
+
+    it("keeps private network IDs when network names can't be fetched", async () => {
+      const caller = createCaller(createMockContext({ networksFail: true }))
+
+      const [router1] = await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      expect(router1.private_networks).toEqual([{ network_id: "net-1", network_name: undefined }])
+    })
+
+    it("makes no extra requests when no routers are listed", async () => {
+      const ctx = createMockContext({ mockRouters: [] })
+      const caller = createCaller(ctx)
+
+      await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      expect(ctx.__networkGetMock).toHaveBeenCalledTimes(1)
     })
   })
 

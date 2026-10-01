@@ -10,6 +10,8 @@ import {
   RouterListItem,
   NetworkSummary,
   NetworkSummaryListResponseSchema,
+  RouterInterfacePortSummary,
+  RouterInterfacePortSummaryListResponseSchema,
   RouterInterface,
   RouterInterfaceInfo,
   RouterExtensionFlags,
@@ -36,6 +38,10 @@ import {
   collectSubnetIds,
   collectGatewayIds,
   applyGatewayNames,
+  applyPrivateNetworks,
+  groupPrivateNetworkIdsByRouter,
+  chunk,
+  ROUTER_INTERFACE_DEVICE_OWNERS,
   isRouterInterfacePort,
   getRouterExtensionFlags,
 } from "../helpers/routerHelpers"
@@ -45,6 +51,9 @@ const ROUTERS_BASE_URL = "v2.0/routers"
 const PORTS_BASE_URL = "v2.0/ports"
 const SUBNETS_BASE_URL = "v2.0/subnets"
 const NETWORKS_BASE_URL = "v2.0/networks"
+
+/** Max router IDs per ports request (~2.5 KB of device_id params), keeps URLs well below proxy limits */
+const ROUTER_INTERFACE_PORTS_CHUNK_SIZE = 50
 const EXTENSIONS_BASE_URL = "v2.0/extensions"
 
 const LIST_ROUTERS_QUERY_KEY_MAP: Record<string, string> = {
@@ -100,11 +109,42 @@ const fetchSubnetSummaries = async (network: NetworkService, ids: string[]): Pro
 }
 
 /**
+ * Best-effort lookup of the interface ports of many routers: one request per chunk of router IDs,
+ * filtered by device_owner so gateway and SNAT ports are not transferred.
+ * Returns null on any failure so callers can leave private networks unresolved.
+ */
+const fetchRouterInterfacePorts = async (
+  network: NetworkService,
+  routerIds: string[]
+): Promise<RouterInterfacePortSummary[] | null> => {
+  if (routerIds.length === 0) return []
+  try {
+    const portChunks = await Promise.all(
+      chunk(routerIds, ROUTER_INTERFACE_PORTS_CHUNK_SIZE).map(async (ids) => {
+        const params = appendQueryParamsFromObject({
+          device_id: ids,
+          device_owner: [...ROUTER_INTERFACE_DEVICE_OWNERS],
+          fields: ["id", "device_id", "device_owner", "network_id"],
+        })
+        const response = await network.get(withQuery(PORTS_BASE_URL, params))
+        if (!response.ok) throw new Error(`Failed to list router interface ports (HTTP ${response.status})`)
+        const data = await response.json()
+        return parseOrThrow(RouterInterfacePortSummaryListResponseSchema, data, "routersRouter.list.ports").ports
+      })
+    )
+    return portChunks.flat()
+  } catch {
+    return null
+  }
+}
+
+/**
  * tRPC router for OpenStack Neutron Routers (L3).
  *
  * Currently exposes:
  * - list: GET /v2.0/routers List routers with sorting and filtering; BFF-side search, status and has_gateway filters.
- *   External gateways are enriched with network/subnet names (GET /v2.0/networks, /v2.0/subnets).
+ *   Adds private networks (GET /v2.0/ports by device_id) and resolves external/private network and
+ *   external subnet names (GET /v2.0/networks, /v2.0/subnets).
  * - getById: GET /v2.0/routers/{router_id} Show router details.
  * - create: POST /v2.0/routers Create router (optionally with external gateway).
  * - update: PUT /v2.0/routers/{router_id} Update name, description, admin state, extra routes, etc.
@@ -142,14 +182,29 @@ export const routersRouter = {
           ["id", "name", "description"]
         )
 
-        // Resolve external network/subnet names: two batched requests for the whole list, not per router
-        const { networkIds, subnetIds } = collectGatewayIds(filteredRouters)
+        // All lookups below are batched for the whole list (not per router) and best-effort.
+        // 1. Private networks: interface ports of the listed routers
+        const interfacePorts = await fetchRouterInterfacePorts(
+          network,
+          filteredRouters.map((router) => router.id)
+        )
+        const privateNetworkIdsByRouter = interfacePorts ? groupPrivateNetworkIdsByRouter(interfacePorts) : null
+
+        // 2. Names: one networks request (external + private) and one subnets request (external)
+        const { networkIds: gatewayNetworkIds, subnetIds } = collectGatewayIds(filteredRouters)
+        const privateNetworkIds = [...(privateNetworkIdsByRouter?.values() ?? [])].flat()
+        const networkIds = [...new Set([...gatewayNetworkIds, ...privateNetworkIds])]
+
         const [networks, subnets] = await Promise.all([
           fetchNetworkSummaries(network, networkIds),
           fetchSubnetSummaries(network, subnetIds),
         ])
 
-        return applyGatewayNames(filteredRouters, networks, subnets)
+        return applyPrivateNetworks(
+          applyGatewayNames(filteredRouters, networks, subnets),
+          privateNetworkIdsByRouter,
+          networks
+        )
       }, "list routers")
     }),
 

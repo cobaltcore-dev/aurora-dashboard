@@ -8,6 +8,7 @@ import type {
   RouterInterface,
   SubnetSummary,
   NetworkSummary,
+  RouterInterfacePortSummary,
   ExternalGatewayInfoInput,
   RouterExtensionFlags,
 } from "../types/router"
@@ -193,8 +194,58 @@ export const ROUTER_INTERFACE_DEVICE_OWNERS: ReadonlySet<string> = new Set([
   "network:ha_router_replicated_interface",
 ])
 
-export const isRouterInterfacePort = (port: RouterPort): boolean =>
+export const isRouterInterfacePort = (port: Pick<RouterPort, "device_owner">): boolean =>
   ROUTER_INTERFACE_DEVICE_OWNERS.has(port.device_owner)
+
+/** Splits items into chunks of at most `size` items (e.g. to keep query strings short). */
+export const chunk = <T>(items: T[], size: number): T[][] => {
+  if (size < 1) throw new Error("Chunk size must be at least 1")
+  const chunks: T[][] = []
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size))
+  }
+  return chunks
+}
+
+/**
+ * Groups interface ports by router (device_id) into unique private network IDs, preserving first-seen order.
+ * Non-interface ports (gateway, SNAT) are ignored.
+ */
+export const groupPrivateNetworkIdsByRouter = (ports: RouterInterfacePortSummary[]): Map<string, string[]> => {
+  const byRouter = new Map<string, Set<string>>()
+
+  for (const port of ports) {
+    if (!isRouterInterfacePort(port)) continue
+    const networkIds = byRouter.get(port.device_id) ?? new Set<string>()
+    networkIds.add(port.network_id)
+    byRouter.set(port.device_id, networkIds)
+  }
+
+  return new Map([...byRouter].map(([routerId, networkIds]) => [routerId, [...networkIds]]))
+}
+
+/**
+ * Adds `private_networks` (with names where known) to each router.
+ * When `privateNetworkIdsByRouter` is null (lookup failed), routers are returned unchanged,
+ * so `private_networks` stays undefined and the UI can tell "unknown" from "none".
+ */
+export const applyPrivateNetworks = (
+  routers: RouterListItem[],
+  privateNetworkIdsByRouter: Map<string, string[]> | null,
+  networks: NetworkSummary[] = []
+): RouterListItem[] => {
+  if (!privateNetworkIdsByRouter) return routers
+
+  const networkNames = new Map(networks.map((network) => [network.id, network.name || undefined]))
+
+  return routers.map((router) => ({
+    ...router,
+    private_networks: (privateNetworkIdsByRouter.get(router.id) ?? []).map((networkId) => ({
+      network_id: networkId,
+      network_name: networkNames.get(networkId),
+    })),
+  }))
+}
 
 export const collectSubnetIds = (ports: RouterPort[]): string[] => [
   ...new Set(ports.flatMap((port) => port.fixed_ips.map((fixedIp) => fixedIp.subnet_id))),

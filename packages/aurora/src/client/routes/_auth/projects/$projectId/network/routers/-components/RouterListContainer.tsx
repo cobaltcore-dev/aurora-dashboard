@@ -65,7 +65,7 @@ export const RouterListContainer = ({
 
   return (
     <>
-      <DataGrid columns={6} minContentColumns={[5]} className="routers" data-testid="routers-table">
+      <DataGrid columns={7} minContentColumns={[6]} className="routers" data-testid="routers-table">
         <DataGridRow>
           <DataGridHeadCell>
             <Trans>Name</Trans>
@@ -78,6 +78,9 @@ export const RouterListContainer = ({
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>External Subnet</Trans>
+          </DataGridHeadCell>
+          <DataGridHeadCell>
+            <Trans>Private Network</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>Status</Trans>
@@ -126,6 +129,21 @@ export const RouterListContainer = ({
                     "–"
                   )}
                 </DataGridCell>
+                <DataGridCell>
+                  {router.private_networks && router.private_networks.length > 0 ? (
+                    <div className="flex flex-col gap-1">
+                      {router.private_networks.map((privateNetwork) => (
+                        <TwoLineCell
+                          key={privateNetwork.network_id}
+                          primary={privateNetwork.network_name || privateNetwork.network_id}
+                          secondary={privateNetwork.network_name ? privateNetwork.network_id : undefined}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    "–"
+                  )}
+                </DataGridCell>
                 <DataGridCell>{router.status}</DataGridCell>
                 <DataGridCell onClick={(e) => e.stopPropagation()}>
                   <PopupMenu>
@@ -139,7 +157,7 @@ export const RouterListContainer = ({
           })
         ) : (
           <DataGridRow>
-            <DataGridCell colSpan={6}>
+            <DataGridCell colSpan={7}>
               <Status
                 status="empty"
                 title={t`No routers found`}

@@ -68,14 +68,27 @@ Applied BFF-side (not sent to Neutron):
 
 Returns `RouterListItem[]`: routers from the Neutron envelope `{ routers: [...] }` with the external gateway enriched with names.
 
-#### External Gateway Name Enrichment
+#### Private Networks and Name Enrichment
 
-The router object only references the external network and subnets by ID. After BFF-side filtering, the BFF resolves names for the remaining routers with **two batched requests for the whole list** (not per router):
+The router object only references the external network and subnets by ID, and contains no information about the internal (private) networks it is attached to. After BFF-side filtering, the BFF enriches the remaining routers with **batched requests for the whole list** (not per router):
 
-- `GET /v2.0/networks?id=...&fields=id&fields=name` - sets `external_gateway_info.network_name`
-- `GET /v2.0/subnets?id=...&fields=id&fields=name` - sets `external_gateway_info.external_fixed_ips[].subnet_name`
+1. **Private networks** - `GET /v2.0/ports?device_id=...&device_owner=...&fields=id&fields=device_id&fields=device_owner&fields=network_id`
+   - `device_id` lists the router IDs, in chunks of 50 IDs per request to keep URLs short.
+   - `device_owner` is restricted to interface ports (`network:router_interface`, `network:router_interface_distributed`, `network:ha_router_replicated_interface`), so gateway and SNAT ports are not returned.
+   - Network IDs are grouped per router and deduplicated into `private_networks`.
+2. **Names** - in parallel:
+   - `GET /v2.0/networks?id=...&fields=id&fields=name` - one request for external **and** private networks; sets `external_gateway_info.network_name` and `private_networks[].network_name`
+   - `GET /v2.0/subnets?id=...&fields=id&fields=name` - sets `external_gateway_info.external_fixed_ips[].subnet_name`
 
-No lookup is made when no router has a gateway. Lookups are best-effort: if a request fails (e.g. external subnets are not visible to the user under the Neutron policy), the list is still returned and the names stay undefined, so the UI falls back to IDs.
+No request is made when there is nothing to look up. All lookups are best-effort, so the list is always returned:
+
+| Failed lookup | Result                                                                                                         |
+| ------------- | -------------------------------------------------------------------------------------------------------------- |
+| Ports         | `private_networks` is `undefined` (unknown), gateway names still resolved                                      |
+| Networks      | Network names are `undefined`, UI shows network IDs                                                            |
+| Subnets       | Subnet names are `undefined`, UI shows subnet IDs (e.g. external subnets not visible under the Neutron policy) |
+
+`private_networks: []` means the router has no interfaces.
 
 #### Error Handling
 
@@ -477,7 +490,7 @@ type Router = {
 
 ### RouterListItem
 
-Returned by `list`. Same as `Router`, with names added to the external gateway when they can be resolved.
+Returned by `list`. Same as `Router`, with names added to the external gateway and the router's private networks, when they can be resolved.
 
 ```typescript
 type RouterListItem = Omit<Router, "external_gateway_info"> & {
@@ -487,6 +500,8 @@ type RouterListItem = Omit<Router, "external_gateway_info"> & {
         external_fixed_ips?: { subnet_id: string; ip_address: string; subnet_name?: string }[]
       })
     | null
+  // [] = no interfaces, undefined = interfaces could not be resolved
+  private_networks?: { network_id: string; network_name?: string }[]
 }
 ```
 
@@ -558,6 +573,8 @@ type RouterInterface = {
 - `isRouterInterfacePort(port)` / `buildRouterInterfaces(ports, subnets)` - interface filtering and subnet enrichment
 - `collectSubnetIds(ports)` - unique subnet IDs for the batched subnets request
 - `collectGatewayIds(routers)` / `applyGatewayNames(routers, networks, subnets)` - external network/subnet name enrichment for `list`
+- `groupPrivateNetworkIdsByRouter(ports)` / `applyPrivateNetworks(routers, idsByRouter, networks)` - private networks for `list`
+- `chunk(items, size)` - splits router IDs for the batched ports requests
 - `getRouterExtensionFlags(aliases)` - maps extension aliases to `RouterExtensionFlags`
 
 ### Request Builders
@@ -622,10 +639,12 @@ UI actions are gated via `network.canUser` using the existing keys in `permissio
 - Zod validation for all request/response types
 - Router-specific error handling on top of the shared network error handler
 - Routing setup, side navigation entry and project overview card
+- Routers list view (Name, Project, External Network, External Subnet, Private Network, Status) with search, sorting and pagination
+- External network/subnet names and private networks in `list` via batched lookups
 - Backend unit and procedure tests
 
 ### 🚧 Planned
 
-- Routers list view (Name/ID, External Gateway, Distributed, Admin State, Status) with sorting and filters
+- Routers list view filters (status, has gateway) and "Showing X of Y" summary
 - Router detail view (Basic Info, External Gateway, Extra Routes, Router Interfaces, Advanced attributes)
 - Write operations in the UI (create, edit, gateway, interfaces, delete)

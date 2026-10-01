@@ -9,6 +9,7 @@ import {
   RouterPortSchema,
   ExtensionListResponseSchema,
   NetworkSummaryListResponseSchema,
+  RouterInterfacePortSummaryListResponseSchema,
   RouterQueryParametersSchema,
   RouterIdInputSchema,
   RouterCreateRequestSchema,
@@ -172,6 +173,23 @@ describe("OpenStack Router Schema Validation", () => {
 
     it("rejects an unknown port status", () => {
       expect(RouterPortSchema.safeParse({ ...port, status: "UNKNOWN" }).success).toBe(false)
+    })
+  })
+
+  describe("RouterInterfacePortSummaryListResponseSchema", () => {
+    it("validates reduced interface ports", () => {
+      const result = RouterInterfacePortSummaryListResponseSchema.safeParse({
+        ports: [{ id: "port-1", device_id: "router-1", device_owner: "network:router_interface", network_id: "net-1" }],
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it("requires device_id and network_id", () => {
+      expect(
+        RouterInterfacePortSummaryListResponseSchema.safeParse({
+          ports: [{ id: "port-1", device_owner: "network:router_interface" }],
+        }).success
+      ).toBe(false)
     })
   })
 

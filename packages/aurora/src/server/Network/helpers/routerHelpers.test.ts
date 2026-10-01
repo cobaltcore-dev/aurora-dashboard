@@ -9,6 +9,9 @@ import {
   collectSubnetIds,
   collectGatewayIds,
   applyGatewayNames,
+  applyPrivateNetworks,
+  groupPrivateNetworkIdsByRouter,
+  chunk,
   isRouterInterfacePort,
   getRouterExtensionFlags,
 } from "./routerHelpers"
@@ -341,5 +344,76 @@ describe("applyGatewayNames", () => {
   it("returns routers without gateway unchanged", () => {
     const router = makeRouter()
     expect(applyGatewayNames([router])).toEqual([router])
+  })
+})
+
+describe("chunk", () => {
+  it("splits items into chunks of the given size", () => {
+    expect(chunk([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]])
+  })
+
+  it("returns a single chunk when items fit", () => {
+    expect(chunk([1, 2], 50)).toEqual([[1, 2]])
+  })
+
+  it("returns no chunks for an empty array", () => {
+    expect(chunk([], 50)).toEqual([])
+  })
+
+  it("throws for a size below 1", () => {
+    expect(() => chunk([1], 0)).toThrow()
+  })
+})
+
+describe("groupPrivateNetworkIdsByRouter", () => {
+  const port = (overrides: Record<string, string>) => ({
+    id: "p",
+    device_id: "router-1",
+    device_owner: "network:router_interface",
+    network_id: "net-1",
+    ...overrides,
+  })
+
+  it("groups unique network IDs by router, preserving order", () => {
+    const result = groupPrivateNetworkIdsByRouter([
+      port({ id: "p1", network_id: "net-2" }),
+      port({ id: "p2", network_id: "net-1" }),
+      port({ id: "p3", network_id: "net-2" }),
+      port({ id: "p4", device_id: "router-2", device_owner: "network:router_interface_distributed" }),
+    ])
+
+    expect(Object.fromEntries(result)).toEqual({ "router-1": ["net-2", "net-1"], "router-2": ["net-1"] })
+  })
+
+  it("ignores gateway and SNAT ports", () => {
+    const result = groupPrivateNetworkIdsByRouter([
+      port({ device_owner: "network:router_gateway", network_id: "ext-net-1" }),
+      port({ device_owner: "network:router_centralized_snat" }),
+    ])
+
+    expect(result.size).toBe(0)
+  })
+})
+
+describe("applyPrivateNetworks", () => {
+  const routers = [makeRouter({ id: "router-1" }), makeRouter({ id: "router-2" })]
+
+  it("adds private networks with names and [] for routers without interfaces", () => {
+    const result = applyPrivateNetworks(routers, new Map([["router-1", ["net-1", "net-2"]]]), [
+      { id: "net-1", name: "private-net" },
+    ])
+
+    expect(result[0].private_networks).toEqual([
+      { network_id: "net-1", network_name: "private-net" },
+      { network_id: "net-2", network_name: undefined },
+    ])
+    expect(result[1].private_networks).toEqual([])
+  })
+
+  it("returns routers unchanged when the lookup failed", () => {
+    const result = applyPrivateNetworks(routers, null)
+
+    expect(result).toEqual(routers)
+    expect(result[0].private_networks).toBeUndefined()
   })
 })

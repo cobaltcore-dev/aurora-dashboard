@@ -2930,6 +2930,9 @@ msgstr "Privat"
 msgid "Private flavors could not be loaded. You may be seeing an incomplete list."
 msgstr "Private Flavors konnten nicht geladen werden. Die angezeigte Liste ist möglicherweise unvollständig."
 
+msgid "Private Network"
+msgstr ""
+
 msgid "Project"
 msgstr "Projekt"
 

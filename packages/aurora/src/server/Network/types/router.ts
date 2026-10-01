@@ -122,7 +122,23 @@ export const SubnetSummaryListResponseSchema = z.object({
   subnets: z.array(SubnetSummarySchema),
 })
 
-/** Reduced network schema, only the fields needed to label the external gateway network. */
+/**
+ * Reduced port schema for resolving the private networks of many routers at once.
+ * Used by GET /v2.0/ports?device_id=...&device_owner=...&fields=id&fields=device_id&fields=device_owner&fields=network_id
+ */
+export const RouterInterfacePortSummarySchema = z.object({
+  id: z.string(),
+  /** The ID of the router owning the interface */
+  device_id: z.string(),
+  device_owner: z.string(),
+  network_id: z.string(),
+})
+
+export const RouterInterfacePortSummaryListResponseSchema = z.object({
+  ports: z.array(RouterInterfacePortSummarySchema),
+})
+
+/** Reduced network schema, only the fields needed to label external and private networks. */
 export const NetworkSummarySchema = z.object({
   id: z.string(),
   name: z.string().nullable().optional(),
@@ -250,11 +266,13 @@ export type RouterInterfaceInfo = z.infer<typeof RouterInterfaceInfoSchema>
 export type RouterPort = z.infer<typeof RouterPortSchema>
 export type SubnetSummary = z.infer<typeof SubnetSummarySchema>
 export type NetworkSummary = z.infer<typeof NetworkSummarySchema>
+export type RouterInterfacePortSummary = z.infer<typeof RouterInterfacePortSummarySchema>
 export type ExternalFixedIp = z.infer<typeof ExternalFixedIpSchema>
 
 /**
  * Router as returned by `list`: the external gateway is enriched with the external network name
- * and the subnet names of its fixed IPs. Names are undefined when they can't be resolved.
+ * and the subnet names of its fixed IPs, and the router's private networks are added.
+ * Names are undefined when they can't be resolved.
  */
 export type RouterListItem = Omit<Router, "external_gateway_info"> & {
   external_gateway_info?:
@@ -263,6 +281,17 @@ export type RouterListItem = Omit<Router, "external_gateway_info"> & {
         external_fixed_ips?: Array<ExternalFixedIp & { subnet_name?: string }>
       })
     | null
+  /**
+   * Internal (private) networks the router is attached to via interfaces, deduplicated.
+   * `[]` = no interfaces, `undefined` = interfaces could not be resolved.
+   */
+  private_networks?: RouterPrivateNetwork[]
+}
+
+/** A private network attached to a router via an interface port. */
+export interface RouterPrivateNetwork {
+  network_id: string
+  network_name?: string
 }
 
 export type RouterQueryParameters = z.infer<typeof RouterQueryParametersSchema>
