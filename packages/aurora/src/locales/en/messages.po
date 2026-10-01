@@ -1286,6 +1286,9 @@ msgstr "Detaching..."
 msgid "Details"
 msgstr "Details"
 
+msgid "Details for router {routerId} coming soon."
+msgstr "Details for router {routerId} coming soon."
+
 msgid "Device ID"
 msgstr "Device ID"
 
@@ -1613,6 +1616,9 @@ msgstr "Expose Headers"
 msgid "External Network"
 msgstr "External Network"
 
+msgid "External Subnet"
+msgstr "External Subnet"
+
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Extra spec key is required and cannot be empty."
 
@@ -1837,6 +1843,9 @@ msgstr "Failed to Load Objects"
 
 msgid "Failed to Load Policy"
 msgstr "Failed to Load Policy"
+
+msgid "Failed to Load Routers"
+msgstr "Failed to Load Routers"
 
 msgid "Failed to Load Security Groups"
 msgstr "Failed to Load Security Groups"
@@ -2405,6 +2414,9 @@ msgstr "Loading preview..."
 msgid "Loading Preview..."
 msgstr "Loading Preview..."
 
+msgid "Loading Routers..."
+msgstr "Loading Routers..."
+
 msgid "Loading Security Group Details..."
 msgstr "Loading Security Group Details..."
 
@@ -2656,6 +2668,9 @@ msgstr "No projects available."
 
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
+
+msgid "No routers found"
+msgstr "No routers found"
 
 msgid "No Rules Found"
 msgstr "No Rules Found"
@@ -3098,14 +3113,14 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk must be an integer ≥ 0."
 
+msgid "Router Details"
+msgstr "Router Details"
+
 msgid "Router ID"
 msgstr "Router ID"
 
 msgid "Routers"
 msgstr "Routers"
-
-msgid "Routers list coming soon."
-msgstr "Routers list coming soon."
 
 msgid "rule"
 msgstr "rule"
@@ -3199,6 +3214,9 @@ msgstr "Search objects..."
 
 msgid "Search RBAC policies..."
 msgstr "Search RBAC policies..."
+
+msgid "Search routers..."
+msgstr "Search routers..."
 
 msgid "Search rules..."
 msgstr "Search rules..."
@@ -3721,6 +3739,9 @@ msgstr "There Are No Lifecycle Rules for This Bucket"
 
 msgid "There are no RBAC policies for this security group"
 msgstr "There are no RBAC policies for this security group"
+
+msgid "There are no routers available for this project with the current filters applied. Try adjusting your filter criteria."
+msgstr "There are no routers available for this project with the current filters applied. Try adjusting your filter criteria."
 
 msgid "There are no rules for this security group"
 msgstr "There are no rules for this security group"

@@ -1286,6 +1286,9 @@ msgstr ""
 msgid "Details"
 msgstr "Details"
 
+msgid "Details for router {routerId} coming soon."
+msgstr ""
+
 msgid "Device ID"
 msgstr "Geräte-ID"
 
@@ -1613,6 +1616,9 @@ msgstr ""
 msgid "External Network"
 msgstr "Externes Netzwerk"
 
+msgid "External Subnet"
+msgstr ""
+
 msgid "Extra spec key is required and cannot be empty."
 msgstr "Der Key für die Extra-Spec ist erforderlich und darf nicht leer sein."
 
@@ -1836,6 +1842,9 @@ msgid "Failed to Load Objects"
 msgstr ""
 
 msgid "Failed to Load Policy"
+msgstr ""
+
+msgid "Failed to Load Routers"
 msgstr ""
 
 msgid "Failed to Load Security Groups"
@@ -2405,6 +2414,9 @@ msgstr "Vorschau wird geladen..."
 msgid "Loading Preview..."
 msgstr ""
 
+msgid "Loading Routers..."
+msgstr ""
+
 msgid "Loading Security Group Details..."
 msgstr "Security Group-Details werden geladen..."
 
@@ -2656,6 +2668,9 @@ msgstr "Keine Projekte verfügbar."
 
 msgid "No projects have access to this image yet. Click \"Add Project Access\" to grant access."
 msgstr "Noch kein Projekt hat Zugriff auf dieses Image. Klicken Sie auf \"Projektzugriff hinzufügen\", um Zugriff zu gewähren."
+
+msgid "No routers found"
+msgstr ""
 
 msgid "No Rules Found"
 msgstr ""
@@ -3098,13 +3113,13 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 
+msgid "Router Details"
+msgstr ""
+
 msgid "Router ID"
 msgstr "Router-ID"
 
 msgid "Routers"
-msgstr ""
-
-msgid "Routers list coming soon."
 msgstr ""
 
 msgid "rule"
@@ -3198,6 +3213,9 @@ msgid "Search objects..."
 msgstr "Objekte suchen..."
 
 msgid "Search RBAC policies..."
+msgstr ""
+
+msgid "Search routers..."
 msgstr ""
 
 msgid "Search rules..."
@@ -3721,6 +3739,9 @@ msgstr ""
 
 msgid "There are no RBAC policies for this security group"
 msgstr "Für diese Security Group sind keine RBAC-Richtlinien vorhanden"
+
+msgid "There are no routers available for this project with the current filters applied. Try adjusting your filter criteria."
+msgstr ""
 
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"

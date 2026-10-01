@@ -35,6 +35,7 @@ import { Route as AuthProjectsProjectIdComputeImagesIndexRouteImport } from "./r
 import { Route as AuthProjectsProjectIdComputeImagesImageIdRouteImport } from "./routes/_auth/projects/$projectId/compute/images/$imageId"
 import { Route as AuthProjectsProjectIdNetworkFloatingipsIndexRouteImport } from "./routes/_auth/projects/$projectId/network/floatingips/index"
 import { Route as AuthProjectsProjectIdNetworkRoutersIndexRouteImport } from "./routes/_auth/projects/$projectId/network/routers/index"
+import { Route as AuthProjectsProjectIdNetworkRoutersRouterIdRouteImport } from "./routes/_auth/projects/$projectId/network/routers/$routerId"
 import { Route as AuthProjectsProjectIdNetworkSecuritygroupsIndexRouteImport } from "./routes/_auth/projects/$projectId/network/securitygroups/index"
 import { Route as AuthProjectsProjectIdServicesServiceTypeIndexRouteImport } from "./routes/_auth/projects/$projectId/services/$serviceType/index"
 import { Route as AuthProjectsProjectIdServicesServiceTypeSplatRouteImport } from "./routes/_auth/projects/$projectId/services/$serviceType/$"
@@ -192,6 +193,12 @@ const AuthProjectsProjectIdNetworkRoutersIndexRoute =
     path: "/",
     getParentRoute: () => AuthProjectsProjectIdNetworkRoutersRoute,
   } as any)
+const AuthProjectsProjectIdNetworkRoutersRouterIdRoute =
+  AuthProjectsProjectIdNetworkRoutersRouterIdRouteImport.update({
+    id: "/$routerId",
+    path: "/$routerId",
+    getParentRoute: () => AuthProjectsProjectIdNetworkRoutersRoute,
+  } as any)
 const AuthProjectsProjectIdNetworkSecuritygroupsIndexRoute =
   AuthProjectsProjectIdNetworkSecuritygroupsIndexRouteImport.update({
     id: "/",
@@ -268,6 +275,7 @@ export interface FileRoutesByFullPath {
   "/projects/$projectId/storage/": typeof AuthProjectsProjectIdStorageIndexRoute
   "/projects/$projectId/compute/flavors/$flavorId": typeof AuthProjectsProjectIdComputeFlavorsFlavorIdRoute
   "/projects/$projectId/compute/images/$imageId": typeof AuthProjectsProjectIdComputeImagesImageIdRoute
+  "/projects/$projectId/network/routers/$routerId": typeof AuthProjectsProjectIdNetworkRoutersRouterIdRoute
   "/projects/$projectId/services/$serviceType/$": typeof AuthProjectsProjectIdServicesServiceTypeSplatRoute
   "/projects/$projectId/storage/$provider/$storageType": typeof AuthProjectsProjectIdStorageProviderStorageTypeRouteWithChildren
   "/projects/$projectId/compute/flavors/": typeof AuthProjectsProjectIdComputeFlavorsIndexRoute
@@ -294,6 +302,7 @@ export interface FileRoutesByTo {
   "/projects/$projectId/storage": typeof AuthProjectsProjectIdStorageIndexRoute
   "/projects/$projectId/compute/flavors/$flavorId": typeof AuthProjectsProjectIdComputeFlavorsFlavorIdRoute
   "/projects/$projectId/compute/images/$imageId": typeof AuthProjectsProjectIdComputeImagesImageIdRoute
+  "/projects/$projectId/network/routers/$routerId": typeof AuthProjectsProjectIdNetworkRoutersRouterIdRoute
   "/projects/$projectId/services/$serviceType/$": typeof AuthProjectsProjectIdServicesServiceTypeSplatRoute
   "/projects/$projectId/compute/flavors": typeof AuthProjectsProjectIdComputeFlavorsIndexRoute
   "/projects/$projectId/compute/images": typeof AuthProjectsProjectIdComputeImagesIndexRoute
@@ -330,6 +339,7 @@ export interface FileRoutesById {
   "/_auth/projects/$projectId/storage/": typeof AuthProjectsProjectIdStorageIndexRoute
   "/_auth/projects/$projectId/compute/flavors/$flavorId": typeof AuthProjectsProjectIdComputeFlavorsFlavorIdRoute
   "/_auth/projects/$projectId/compute/images/$imageId": typeof AuthProjectsProjectIdComputeImagesImageIdRoute
+  "/_auth/projects/$projectId/network/routers/$routerId": typeof AuthProjectsProjectIdNetworkRoutersRouterIdRoute
   "/_auth/projects/$projectId/services/$serviceType/$": typeof AuthProjectsProjectIdServicesServiceTypeSplatRoute
   "/_auth/projects/$projectId/storage/$provider/$storageType": typeof AuthProjectsProjectIdStorageProviderStorageTypeRouteWithChildren
   "/_auth/projects/$projectId/compute/flavors/": typeof AuthProjectsProjectIdComputeFlavorsIndexRoute
@@ -367,6 +377,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/storage/"
     | "/projects/$projectId/compute/flavors/$flavorId"
     | "/projects/$projectId/compute/images/$imageId"
+    | "/projects/$projectId/network/routers/$routerId"
     | "/projects/$projectId/services/$serviceType/$"
     | "/projects/$projectId/storage/$provider/$storageType"
     | "/projects/$projectId/compute/flavors/"
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | "/projects/$projectId/storage"
     | "/projects/$projectId/compute/flavors/$flavorId"
     | "/projects/$projectId/compute/images/$imageId"
+    | "/projects/$projectId/network/routers/$routerId"
     | "/projects/$projectId/services/$serviceType/$"
     | "/projects/$projectId/compute/flavors"
     | "/projects/$projectId/compute/images"
@@ -428,6 +440,7 @@ export interface FileRouteTypes {
     | "/_auth/projects/$projectId/storage/"
     | "/_auth/projects/$projectId/compute/flavors/$flavorId"
     | "/_auth/projects/$projectId/compute/images/$imageId"
+    | "/_auth/projects/$projectId/network/routers/$routerId"
     | "/_auth/projects/$projectId/services/$serviceType/$"
     | "/_auth/projects/$projectId/storage/$provider/$storageType"
     | "/_auth/projects/$projectId/compute/flavors/"
@@ -632,6 +645,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthProjectsProjectIdNetworkRoutersIndexRouteImport
       parentRoute: typeof AuthProjectsProjectIdNetworkRoutersRoute
     }
+    "/_auth/projects/$projectId/network/routers/$routerId": {
+      id: "/_auth/projects/$projectId/network/routers/$routerId"
+      path: "/$routerId"
+      fullPath: "/projects/$projectId/network/routers/$routerId"
+      preLoaderRoute: typeof AuthProjectsProjectIdNetworkRoutersRouterIdRouteImport
+      parentRoute: typeof AuthProjectsProjectIdNetworkRoutersRoute
+    }
     "/_auth/projects/$projectId/network/securitygroups/": {
       id: "/_auth/projects/$projectId/network/securitygroups/"
       path: "/"
@@ -710,11 +730,14 @@ const AuthProjectsProjectIdNetworkFloatingipsRouteWithChildren =
   )
 
 interface AuthProjectsProjectIdNetworkRoutersRouteChildren {
+  AuthProjectsProjectIdNetworkRoutersRouterIdRoute: typeof AuthProjectsProjectIdNetworkRoutersRouterIdRoute
   AuthProjectsProjectIdNetworkRoutersIndexRoute: typeof AuthProjectsProjectIdNetworkRoutersIndexRoute
 }
 
 const AuthProjectsProjectIdNetworkRoutersRouteChildren: AuthProjectsProjectIdNetworkRoutersRouteChildren =
   {
+    AuthProjectsProjectIdNetworkRoutersRouterIdRoute:
+      AuthProjectsProjectIdNetworkRoutersRouterIdRoute,
     AuthProjectsProjectIdNetworkRoutersIndexRoute:
       AuthProjectsProjectIdNetworkRoutersIndexRoute,
   }
