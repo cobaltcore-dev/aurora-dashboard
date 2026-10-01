@@ -141,32 +141,11 @@ describe("ImageMemberRow", () => {
     })
   })
 
-  describe("Deletion Confirmation", () => {
-    it("should show confirmation button when delete is clicked", () => {
+  describe("Deletion", () => {
+    it("should call onDelete immediately when delete button is clicked", () => {
       setup(mockMember, false, true)
       const deleteButton = screen.getByTestId(`remove-${mockMember.member_id}`)
       fireEvent.click(deleteButton)
-
-      const confirmButton = screen.getByRole("button", { name: /Remove/i })
-      expect(confirmButton).toBeInTheDocument()
-      expect(confirmButton).toHaveAttribute("title", "Remove member access")
-    })
-
-    it("should not call onDelete when initial delete button is clicked", () => {
-      setup(mockMember, false, true)
-      const deleteButton = screen.getByTestId(`remove-${mockMember.member_id}`)
-      fireEvent.click(deleteButton)
-
-      expect(mockOnDelete).not.toHaveBeenCalled()
-    })
-
-    it("should call onDelete when confirmation button is clicked", () => {
-      setup(mockMember, false, true)
-      const deleteButton = screen.getByTestId(`remove-${mockMember.member_id}`)
-      fireEvent.click(deleteButton)
-
-      const confirmButton = screen.getByRole("button", { name: /Remove/i })
-      fireEvent.click(confirmButton)
 
       expect(mockOnDelete).toHaveBeenCalledTimes(1)
     })
@@ -207,33 +186,6 @@ describe("ImageMemberRow", () => {
       setup(mockMember, false, true)
       const deleteButton = screen.getByTestId(`remove-${mockMember.member_id}`)
       expect(deleteButton).toHaveAttribute("aria-label", `Remove access for ${mockMember.member_id}`)
-    })
-
-    it("should have correct data-testid for confirmation button", () => {
-      setup(mockMember, false, true)
-      const deleteButton = screen.getByTestId(`remove-${mockMember.member_id}`)
-      fireEvent.click(deleteButton)
-
-      const confirmButton = screen.getByTestId("confirm-removal")
-      expect(confirmButton).toBeInTheDocument()
-    })
-
-    it("should have correct aria-label for confirmation button", () => {
-      setup(mockMember, false, true)
-      const deleteButton = screen.getByTestId(`remove-${mockMember.member_id}`)
-      fireEvent.click(deleteButton)
-
-      const confirmButton = screen.getByTestId("confirm-removal")
-      expect(confirmButton).toHaveAttribute("aria-label", "Remove member access")
-    })
-
-    it("should have primary-danger variant for confirmation button", () => {
-      setup(mockMember, false, true)
-      const deleteButton = screen.getByTestId(`remove-${mockMember.member_id}`)
-      fireEvent.click(deleteButton)
-
-      const confirmButton = screen.getByTestId("confirm-removal")
-      expect(confirmButton).toHaveClass("juno-button-primary-danger")
     })
   })
 

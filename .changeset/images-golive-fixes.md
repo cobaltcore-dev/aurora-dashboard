@@ -21,3 +21,6 @@
 - Reset the upload-cancel flag after each create so a later failure is not mistaken for a cancellation, and clean up the orphaned image only after the aborted upload settles (surfacing cleanup failures)
 - Move image metadata toast copy into ImageToastNotifications helpers
 - Preserve owner-gated controls (Edit Details, Manage Access tab) after changing visibility by merging the update response into the cached image instead of replacing it
+- Classify "shared with me" consistently in the image list and detail view via server-side member status (pending/accepted) instead of a client-side owner comparison, so owner actions appear the same in both views (including for multi-project admins)
+- Render the image detail Metadata section with the shared TwoColumnDescriptionList component
+- Remove the two-step confirmation when removing project access in Manage Access; the remove action now applies immediately

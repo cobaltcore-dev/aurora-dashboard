@@ -55,8 +55,6 @@ import { IMAGE_STATUSES } from "../../-constants/filters"
 
 interface ImagePageProps {
   images: GlanceImage[]
-  suggestedImages: GlanceImage[]
-  acceptedImages: GlanceImage[]
   permissions: {
     canCreate: boolean
     canDelete: boolean
@@ -92,8 +90,6 @@ interface ImagePageProps {
 
 export function ImageListView({
   images,
-  suggestedImages,
-  acceptedImages,
   permissions,
   isFetching,
   currentPage = 1,
@@ -134,6 +130,21 @@ export function ImageListView({
   const uploadAbortControllerRef = useRef<AbortController | null>(null)
   const uploadCancelledRef = useRef(false)
   const { t } = useLingui()
+
+  // Determine "shared with me" per image the same way the detail page does:
+  // via server-side member status (which reliably filters owner!==project),
+  // not by the active tab or a client-side owner comparison. One query per
+  // status; results become an O(1) id lookup for every row in any view.
+  const sharedPendingQuery = trpcReact.compute.listSharedImagesByMemberStatus.useQuery(
+    { project_id: projectId, memberStatus: "pending" },
+    { retry: false }
+  )
+  const sharedAcceptedQuery = trpcReact.compute.listSharedImagesByMemberStatus.useQuery(
+    { project_id: projectId, memberStatus: "accepted" },
+    { retry: false }
+  )
+  const pendingSharedIds = new Set((sharedPendingQuery.data ?? []).map((img) => img.id))
+  const acceptedSharedIds = new Set((sharedAcceptedQuery.data ?? []).map((img) => img.id))
 
   const utils = trpcReact.useUtils()
 
@@ -682,8 +693,8 @@ export function ImageListView({
                 <ImageTableRow
                   image={image}
                   isSelected={selectedImages.includes(image.id)}
-                  isPending={!!suggestedImages.find(({ id: imageId }) => imageId === image.id)}
-                  isAccepted={!!acceptedImages.find(({ id: imageId }) => imageId === image.id)}
+                  isPending={pendingSharedIds.has(image.id)}
+                  isAccepted={acceptedSharedIds.has(image.id)}
                   key={image.id}
                   permissions={permissions}
                   onEditDetails={openEditDetailsModal}

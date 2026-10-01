@@ -64,7 +64,7 @@ export function ImageTableRow({
   showSelectColumn = false,
 }: ImageTableRowProps) {
   const { t } = useLingui()
-  const { id, name, status, visibility, size, disk_format, created_at, owner } = image
+  const { id, name, status, visibility, size, disk_format, created_at } = image
   const imageName = name || t`Unnamed`
 
   const { projectId } = useParams({
@@ -98,7 +98,6 @@ export function ImageTableRow({
     }
   }
 
-  const isImageOwner = projectId === owner
   const isExternalImage = isPending || isAccepted
   const isMutating = updateMemberMutation.isPending
 
@@ -168,7 +167,6 @@ export function ImageTableRow({
                   <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
                   <PopupMenuSectionSeparator />
                   {image.visibility === IMAGE_VISIBILITY.SHARED &&
-                    isImageOwner &&
                     (permissions.canCreateMember || permissions.canDeleteMember) && (
                       <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
                     )}

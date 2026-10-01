@@ -1091,9 +1091,6 @@ msgstr "Benutzerdefiniert"
 msgid "Custom duration (minutes)"
 msgstr "Benutzerdefinierte Dauer (Minuten)"
 
-msgid "Custom Properties / Metadata"
-msgstr "Benutzerdefinierte Eigenschaften / Metadaten"
-
 msgid "Date:"
 msgstr ""
 
@@ -3058,9 +3055,6 @@ msgstr "Entfernen"
 
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Zugriff für {memberIdDisplay} entfernen"
-
-msgid "Remove member access"
-msgstr "Mitgliedszugriff entfernen"
 
 msgid "Remove Policy"
 msgstr "Richtlinie entfernen"

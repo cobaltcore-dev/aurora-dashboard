@@ -367,8 +367,6 @@ function ImagesContent({
       )}
       <ImageListView
         images={paginatedImages}
-        suggestedImages={memberStatusView === "pending" ? paginatedImages : []}
-        acceptedImages={memberStatusView === "accepted" ? paginatedImages : []}
         permissions={permissions}
         isFetching={isFetching}
         currentPage={safePage}

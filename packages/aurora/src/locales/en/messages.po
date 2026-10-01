@@ -1091,9 +1091,6 @@ msgstr "Custom"
 msgid "Custom duration (minutes)"
 msgstr "Custom duration (minutes)"
 
-msgid "Custom Properties / Metadata"
-msgstr "Custom Properties / Metadata"
-
 msgid "Date:"
 msgstr "Date:"
 
@@ -3058,9 +3055,6 @@ msgstr "Remove"
 
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Remove access for {memberIdDisplay}"
-
-msgid "Remove member access"
-msgstr "Remove member access"
 
 msgid "Remove Policy"
 msgstr "Remove Policy"

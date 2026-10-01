@@ -1,15 +1,5 @@
 import React, { useState } from "react"
-import {
-  DescriptionList,
-  DescriptionTerm,
-  DescriptionDefinition,
-  Container,
-  Stack,
-  Message,
-  Box,
-  Button,
-  ButtonRow,
-} from "@cloudoperators/juno-ui-components"
+import { Container, Stack, Message, Box, Button, ButtonRow } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { GlanceImage, ImageMember, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
@@ -22,6 +12,7 @@ import { ImageMembersTable } from "./ImageMembersTable"
 interface ImageDetailsViewProps {
   image: GlanceImage
   currentProjectId?: string
+  isSharedWithMe?: boolean
   activeTab?: "details" | "sharing"
   onTabChange?: (tab: "details" | "sharing") => void
   permissions?: {
@@ -128,13 +119,12 @@ export const GeneralImageData: React.FC<{ image: GlanceImage }> = ({ image }) =>
   )
 }
 
-export const SecuritySection: React.FC<{ image: GlanceImage; currentProjectId?: string }> = ({
+export const SecuritySection: React.FC<{ image: GlanceImage; isSharedWithMe?: boolean }> = ({
   image,
-  currentProjectId,
+  isSharedWithMe = false,
 }) => {
   const { t } = useLingui()
 
-  const isSharedWithMe = image.visibility === "shared" && image.owner !== undefined && image.owner !== currentProjectId
   const items = [
     {
       label: isSharedWithMe ? t`Shared by Project` : t`Owner Project ID`,
@@ -179,32 +169,29 @@ export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ imag
 
   const hasProperties = customProperties.length > 0
 
+  const items = customProperties.map(([key, value]) => ({
+    label: key,
+    value:
+      value === null || value === undefined ? (
+        <span>null</span>
+      ) : typeof value === "object" ? (
+        <span className="break-all">{JSON.stringify(value)}</span>
+      ) : typeof value === "boolean" ? (
+        value ? (
+          t`True`
+        ) : (
+          t`False`
+        )
+      ) : (
+        <span className="break-all">{String(value)}</span>
+      ),
+  }))
+
   return (
     <Container px={false} py>
-      <h2>{t`Custom Properties / Metadata`}</h2>
+      <h2>{t`Metadata`}</h2>
       {hasProperties ? (
-        <DescriptionList alignTerms="right" className="grid-cols-4">
-          {customProperties.map(([key, value]) => (
-            <React.Fragment key={key}>
-              <DescriptionTerm className="col-span-1">{key}</DescriptionTerm>
-              <DescriptionDefinition className="col-span-1">
-                {value === null || value === undefined ? (
-                  <span>null</span>
-                ) : typeof value === "object" ? (
-                  <span className="break-all">{JSON.stringify(value)}</span>
-                ) : typeof value === "boolean" ? (
-                  value ? (
-                    t`True`
-                  ) : (
-                    t`False`
-                  )
-                ) : (
-                  <span className="break-all">{String(value)}</span>
-                )}
-              </DescriptionDefinition>
-            </React.Fragment>
-          ))}
-        </DescriptionList>
+        <TwoColumnDescriptionList items={items} />
       ) : (
         <p className="text-theme-light">{t`No custom properties defined`}</p>
       )}
@@ -251,6 +238,7 @@ const SharingDetailsTab: React.FC<ImageDetailsViewProps> = ({ image, permissions
 export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
   image,
   currentProjectId,
+  isSharedWithMe = false,
   activeTab = "details",
   onTabChange,
   permissions,
@@ -261,9 +249,9 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
 }) => {
   const { t } = useLingui()
 
-  const isSharedWithMe = image.visibility === "shared" && image.owner !== undefined && image.owner !== currentProjectId
-  const isImageOwner = image.owner === currentProjectId
-  const showTabs = isImageOwner && image.visibility === "shared"
+  // Owner = shared image that is not shared *with* me.
+  const isImageOwner = image.visibility === "shared" && !isSharedWithMe
+  const showTabs = isImageOwner
 
   return (
     <Stack direction="vertical" gap="6">
@@ -294,7 +282,7 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
         <>
           {actions}
           <GeneralImageData image={image} />
-          <SecuritySection image={image} currentProjectId={currentProjectId} />
+          <SecuritySection image={image} isSharedWithMe={isSharedWithMe} />
           <CustomPropertiesSection image={image} />
         </>
       )}

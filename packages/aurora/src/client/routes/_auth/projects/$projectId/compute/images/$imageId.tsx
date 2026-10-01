@@ -197,13 +197,16 @@ function RouteComponent() {
     },
   })
 
-  const isSharedWithMe =
-    image?.visibility === IMAGE_VISIBILITY.SHARED && image?.owner !== undefined && image?.owner !== projectId
+  // "Shared with me" = image is shared AND this project is a member. Owner
+  // equality (image.owner === projectId) is unreliable, so derive from members.
+  const isShared = image?.visibility === IMAGE_VISIBILITY.SHARED
 
   const { data: myMemberData } = trpcReact.compute.getImageMember.useQuery(
     { project_id: projectId, imageId: imageId, memberId: projectId },
-    { enabled: isSharedWithMe && !!imageId && !!projectId }
+    { enabled: isShared && !!imageId && !!projectId, retry: false }
   )
+
+  const isSharedWithMe = isShared && !!myMemberData
 
   const updateMemberMutation = trpcReact.compute.updateImageMember.useMutation({
     onSuccess: () => {
@@ -424,6 +427,7 @@ function RouteComponent() {
           key={image.id}
           image={image}
           currentProjectId={projectId}
+          isSharedWithMe={isSharedWithMe}
           activeTab={tab ?? "details"}
           onTabChange={(newTab) =>
             navigate({
