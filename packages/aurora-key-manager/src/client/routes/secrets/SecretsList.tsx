@@ -19,7 +19,7 @@ import type { Secret } from "../../../server/types"
 const PAGE_SIZE = 50
 
 const SORT_FIELDS = [
-  { value: "created", label: "Created" },
+  { value: "created", label: "Created At" },
   { value: "name", label: "Name" },
 ]
 

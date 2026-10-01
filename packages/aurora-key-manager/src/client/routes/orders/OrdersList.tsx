@@ -1,5 +1,13 @@
 import { useState } from "react"
-import { Button, DataGridToolbar, Message, Pagination, Select, SelectOption } from "@cloudoperators/juno-ui-components"
+import {
+  Button,
+  Message,
+  Pagination,
+  Select,
+  SelectOption,
+  SortButton,
+  Stack,
+} from "@cloudoperators/juno-ui-components"
 import { trpc } from "../../trpc"
 import { usePermissions } from "../../usePermissions"
 import { OrdersListContainer } from "./-table/OrdersListContainer"
@@ -8,10 +16,7 @@ import type { Order } from "../../../server/types"
 
 const PAGE_SIZE = 50
 
-const SORT_OPTIONS = [
-  { value: "created:desc", label: "Newest first" },
-  { value: "created:asc", label: "Oldest first" },
-]
+const SORT_FIELDS = [{ value: "created", label: "Created At" }]
 
 interface OrdersListProps {
   projectId: string
@@ -31,6 +36,9 @@ export function OrdersList({ projectId, sort, page, onSortChange, onPageChange, 
     "key-manager:orders:create",
     "key-manager:orders:delete",
   ])
+
+  // Split combined "field:dir" sort param into parts for the two controls
+  const [sortField, sortDir] = (sort || "created:desc").split(":") as [string, "asc" | "desc"]
 
   const utils = trpc.useUtils()
   const { data, isLoading, isError, error } = trpc.keyManager.listOrders.useQuery(
@@ -52,39 +60,42 @@ export function OrdersList({ projectId, sort, page, onSortChange, onPageChange, 
 
   return (
     <>
-      <div className="bg-theme-background-lvl-1 flex w-full items-center gap-4 p-4">
-        <div className="flex shrink-0 items-center gap-2">
-          <Select
-            label="Sort by"
-            value={sort || "created:desc"}
-            onChange={(v) => onSortChange(typeof v === "string" ? v : "created:desc")}
-            className="min-w-40"
-          >
-            {SORT_OPTIONS.map((o) => (
-              <SelectOption key={o.value} value={o.value} label={o.label} />
-            ))}
-          </Select>
-        </div>
-        <div className="ml-auto">
-          {permissions["key-manager:orders:create"] && (
-            <Button variant="primary" onClick={() => setShowCreate(true)}>
-              Create Order
-            </Button>
-          )}
-        </div>
-      </div>
+      <Stack direction="vertical" className="juno-pattern-datagrid-outer">
+        <Stack direction="vertical" className="juno-pattern-datagrid-header">
+          {/* Zone 1: Sort controls + Create — bare Stack, no DataGridToolbar background */}
+          <Stack distribution="end" alignment="center" gap="2" className="jn:pb-2">
+            <Stack gap="0.5">
+              <Select
+                label="Sort by"
+                value={sortField}
+                onChange={(v) => onSortChange(`${typeof v === "string" ? v : "created"}:${sortDir}`)}
+                className="jn:min-w-40"
+              >
+                {SORT_FIELDS.map((f) => (
+                  <SelectOption key={f.value} value={f.value} label={f.label} />
+                ))}
+              </Select>
+              <SortButton order={sortDir} onChange={(dir) => onSortChange(`${sortField}:${dir}`)} />
+            </Stack>
+            {permissions["key-manager:orders:create"] && (
+              <Button variant="primary" onClick={() => setShowCreate(true)}>
+                Create Order
+              </Button>
+            )}
+          </Stack>
+          {/* No Zone 2 — Barbican orders API has no search capability */}
+        </Stack>
 
-      <DataGridToolbar />
-
-      <OrdersListContainer
-        orders={data?.orders ?? []}
-        isLoading={isLoading}
-        isError={isError}
-        error={error}
-        canDelete={permissions["key-manager:orders:delete"]}
-        onShowDetails={onShowDetail}
-        onDelete={setDeleteTarget}
-      />
+        <OrdersListContainer
+          orders={data?.orders ?? []}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          canDelete={permissions["key-manager:orders:delete"]}
+          onShowDetails={onShowDetail}
+          onDelete={setDeleteTarget}
+        />
+      </Stack>
 
       {totalPages > 1 && (
         <div className="flex justify-center py-4">

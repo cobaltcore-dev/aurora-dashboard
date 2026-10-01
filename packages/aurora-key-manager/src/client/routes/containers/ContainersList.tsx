@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Button, DataGridToolbar, Message, Pagination, SearchInput } from "@cloudoperators/juno-ui-components"
+import { Button, DataGridToolbar, Message, Pagination, SearchInput, Stack } from "@cloudoperators/juno-ui-components"
 import { trpc } from "../../trpc"
 import { usePermissions } from "../../usePermissions"
 import { ContainersListContainer } from "./-table/ContainersListContainer"
@@ -54,34 +54,41 @@ export function ContainersList({
 
   return (
     <>
-      <div className="bg-theme-background-lvl-1 flex w-full items-center gap-4 p-4">
-        <div className="ml-auto flex items-center gap-3">
-          <SearchInput
-            placeholder="Search by name..."
-            value={search}
-            onSearch={(v) => onSearchChange(typeof v === "string" ? v : "")}
-            onClear={() => onSearchChange("")}
-            onInput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
-          />
-          {permissions["key-manager:containers:create"] && (
-            <Button variant="primary" onClick={() => setShowCreate(true)}>
-              Create Container
-            </Button>
-          )}
-        </div>
-      </div>
+      <Stack direction="vertical" className="juno-pattern-datagrid-outer">
+        <Stack direction="vertical" className="juno-pattern-datagrid-header">
+          {/* Zone 1: Create button — bare Stack, no DataGridToolbar background */}
+          <Stack distribution="end" alignment="center" gap="2" className="jn:pb-2">
+            {permissions["key-manager:containers:create"] && (
+              <Button variant="primary" onClick={() => setShowCreate(true)}>
+                Create Container
+              </Button>
+            )}
+          </Stack>
 
-      <DataGridToolbar />
+          {/* Zone 2: Search — no filters or sort available for Barbican containers */}
+          <DataGridToolbar>
+            <Stack distribution="end" alignment="center">
+              <SearchInput
+                placeholder="Search by name..."
+                value={search}
+                onSearch={(v) => onSearchChange(typeof v === "string" ? v : "")}
+                onClear={() => onSearchChange("")}
+                onInput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
+              />
+            </Stack>
+          </DataGridToolbar>
+        </Stack>
 
-      <ContainersListContainer
-        containers={data?.containers ?? []}
-        isLoading={isLoading}
-        isError={isError}
-        error={error}
-        canDelete={permissions["key-manager:containers:delete"]}
-        onShowDetails={onShowDetail}
-        onDelete={setDeleteTarget}
-      />
+        <ContainersListContainer
+          containers={data?.containers ?? []}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          canDelete={permissions["key-manager:containers:delete"]}
+          onShowDetails={onShowDetail}
+          onDelete={setDeleteTarget}
+        />
+      </Stack>
 
       {totalPages > 1 && (
         <div className="flex justify-center py-4">
