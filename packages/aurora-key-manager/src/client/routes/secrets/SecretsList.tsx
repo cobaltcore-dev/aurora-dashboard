@@ -7,6 +7,8 @@ import {
   SearchInput,
   Select,
   SelectOption,
+  SortButton,
+  Stack,
 } from "@cloudoperators/juno-ui-components"
 import { trpc } from "../../trpc"
 import { usePermissions } from "../../usePermissions"
@@ -16,11 +18,9 @@ import type { Secret } from "../../../server/types"
 
 const PAGE_SIZE = 50
 
-const SORT_OPTIONS = [
-  { value: "created:desc", label: "Newest first" },
-  { value: "created:asc", label: "Oldest first" },
-  { value: "name:asc", label: "Name A–Z" },
-  { value: "name:desc", label: "Name Z–A" },
+const SORT_FIELDS = [
+  { value: "created", label: "Created" },
+  { value: "name", label: "Name" },
 ]
 
 interface SecretsListProps {
@@ -53,6 +53,9 @@ export function SecretsList({
     "key-manager:secrets:delete",
   ])
 
+  // Split combined "field:dir" sort param into parts for the two controls
+  const [sortField, sortDir] = (sort || "created:desc").split(":") as [string, "asc" | "desc"]
+
   const utils = trpc.useUtils()
   const { data, isLoading, isError, error } = trpc.keyManager.listSecrets.useQuery(
     {
@@ -74,46 +77,54 @@ export function SecretsList({
 
   return (
     <>
-      <div className="bg-theme-background-lvl-1 flex w-full items-center gap-4 p-4">
-        <div className="flex shrink-0 items-center gap-2">
-          <Select
-            label="Sort by"
-            value={sort || "created:desc"}
-            onChange={(v) => onSortChange(typeof v === "string" ? v : "created:desc")}
-            className="min-w-40"
-          >
-            {SORT_OPTIONS.map((o) => (
-              <SelectOption key={o.value} value={o.value} label={o.label} />
-            ))}
-          </Select>
-        </div>
-        <div className="ml-auto flex items-center gap-3">
-          <SearchInput
-            placeholder="Search by name..."
-            value={search}
-            onSearch={(v) => onSearchChange(typeof v === "string" ? v : "")}
-            onClear={() => onSearchChange("")}
-            onInput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
-          />
-          {permissions["key-manager:secrets:create"] && (
-            <Button variant="primary" onClick={() => setShowCreate(true)}>
-              Create Secret
-            </Button>
-          )}
-        </div>
-      </div>
+      <Stack direction="vertical" className="juno-pattern-datagrid-outer">
+        <Stack direction="vertical" className="juno-pattern-datagrid-header">
+          {/* Zone 1: Sort controls + Create — bare Stack, no DataGridToolbar background */}
+          <Stack distribution="end" alignment="center" gap="2" className="jn:pb-2">
+            <Stack gap="0.5">
+              <Select
+                label="Sort by"
+                value={sortField}
+                onChange={(v) => onSortChange(`${typeof v === "string" ? v : "created"}:${sortDir}`)}
+                className="jn:min-w-40"
+              >
+                {SORT_FIELDS.map((f) => (
+                  <SelectOption key={f.value} value={f.value} label={f.label} />
+                ))}
+              </Select>
+              <SortButton order={sortDir} onChange={(dir) => onSortChange(`${sortField}:${dir}`)} />
+            </Stack>
+            {permissions["key-manager:secrets:create"] && (
+              <Button variant="primary" onClick={() => setShowCreate(true)}>
+                Create Secret
+              </Button>
+            )}
+          </Stack>
 
-      <DataGridToolbar />
+          {/* Zone 2: Search — no filters available, left side intentionally empty */}
+          <DataGridToolbar>
+            <Stack distribution="end" alignment="center">
+              <SearchInput
+                placeholder="Search by name..."
+                value={search}
+                onSearch={(v) => onSearchChange(typeof v === "string" ? v : "")}
+                onClear={() => onSearchChange("")}
+                onInput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
+              />
+            </Stack>
+          </DataGridToolbar>
+        </Stack>
 
-      <SecretsListContainer
-        secrets={data?.secrets ?? []}
-        isLoading={isLoading}
-        isError={isError}
-        error={error}
-        canDelete={permissions["key-manager:secrets:delete"]}
-        onShowDetails={onShowDetail}
-        onDelete={setDeleteTarget}
-      />
+        <SecretsListContainer
+          secrets={data?.secrets ?? []}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          canDelete={permissions["key-manager:secrets:delete"]}
+          onShowDetails={onShowDetail}
+          onDelete={setDeleteTarget}
+        />
+      </Stack>
 
       {totalPages > 1 && (
         <div className="flex justify-center py-4">
