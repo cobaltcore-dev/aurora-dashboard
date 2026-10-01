@@ -27,3 +27,5 @@ export {
 export type { AuroraRouter, AuroraRouterWithCustom } from "./routers"
 export { validateOpenstackService } from "./helpers/validateOpenstackService"
 export { parseOrThrow } from "./Network/helpers"
+export { createPermissionRouter } from "./policies/createPermissionRouter"
+export type { ServicePolicyConfig, EngineDef, PolicyMapping } from "./policies/createPermissionRouter"

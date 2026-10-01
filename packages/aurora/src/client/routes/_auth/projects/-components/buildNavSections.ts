@@ -145,6 +145,7 @@ export function buildNavSections(
     ["compute", { section: "compute", label: t`Compute`, services: computeServices }],
     ["network", { section: "network", label: t`Network`, services: networkServices }],
     ["storage", { section: "storage", label: t`Storage`, services: storageServices }],
+    ["authorization", { section: "authorization", label: t`Authorization`, services: [] }],
     ["services", { section: "services", label: t`Services`, services: [] }],
   ])
 
@@ -154,7 +155,11 @@ export function buildNavSections(
     if (enabledServices && !enabledServices.includes(extension.serviceType)) continue
     if (deniedServices?.includes(extension.serviceType)) continue
 
-    sectionMap.get("services")?.services.push({
+    const targetSection = extension.navSection ?? "services"
+    if (!sectionMap.has(targetSection)) {
+      sectionMap.set(targetSection, { section: targetSection, label: targetSection, services: [] })
+    }
+    sectionMap.get(targetSection)?.services.push({
       service: extension.serviceType,
       label: extension.label,
       navigate: (nav: NavigateFn) =>

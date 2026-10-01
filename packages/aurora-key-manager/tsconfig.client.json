@@ -1,0 +1,18 @@
+{
+  "extends": "@cobaltcore-dev/aurora-config/typescript/tsconfig.lib.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "jsx": "react-jsx",
+    "rootDir": "src/client",
+    "outDir": "dist/client",
+    "skipLibCheck": true,
+    "strict": true,
+    "declaration": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "ignoreDeprecations": "6.0"
+  },
+  "include": ["src/client", "src/server/index.ts"],
+  "exclude": ["node_modules", "dist"]
+}
