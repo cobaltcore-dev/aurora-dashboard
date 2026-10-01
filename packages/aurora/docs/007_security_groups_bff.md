@@ -47,14 +47,20 @@ Retrieves a list of security groups with optional pagination, sorting, and filte
 | `sort_dir`     | enum    | Sort direction (`asc`, `desc`)                                   | -       |
 | `name`         | string  | Filter by name                                                   | -       |
 | `description`  | string  | Filter by description                                            | -       |
-| `project_id`   | string  | Filter by project ID                                             | -       |
-| `tenant_id`    | string  | Filter by tenant ID                                              | -       |
+| `project_id`   | string  | **Required.** Scoped project; sent only on the own-side request  | -       |
 | `shared`       | boolean | Filter by shared status                                          | -       |
+| `stateful`     | boolean | **BFF-side** filter by stateful flag (missing flag = stateful)   | -       |
 | `tags`         | string  | Filter by tags (comma-separated)                                 | -       |
 | `tags_any`     | string  | Filter by any tags                                               | -       |
 | `not_tags`     | string  | Exclude tags                                                     | -       |
 | `not_tags_any` | string  | Exclude any tags                                                 | -       |
 | `searchTerm`   | string  | **BFF-side** client search (filters by name, description, or ID) | -       |
+
+#### List semantics (own ∪ shared)
+
+Every view is built from two sources: own groups (`project_id` = the scoped project, `shared=false`) and shared groups (`shared=true`). Without a `shared` filter both are fetched and merged; an explicit `shared` picks one side, so filtered lists are always subsets of the unfiltered list.
+`project_id` is always sent on the own-side request, because admin tokens are not limited to the scoped project by Neutron. `tenant_id` (a Neutron alias of `project_id`) is not part of the input and is stripped like any unknown key, so the scope cannot be overridden.
+Deduplication, `stateful` and `searchTerm` filtering, and sorting (`sort_key`/`sort_dir`, not forwarded to Neutron) are applied in the BFF for every view.
 
 #### Response
 

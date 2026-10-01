@@ -502,6 +502,255 @@ describe("securityGroupRouter.list", () => {
       expect(result[2].name).toBe("alpha")
     })
   })
+
+  describe("Explicit shared filter (admin token)", () => {
+    type FixtureGroup = SecurityGroup & { sharedWith: string[] }
+
+    const makeGroup = (
+      id: string,
+      name: string,
+      project_id: string,
+      extra: Partial<FixtureGroup> = {}
+    ): FixtureGroup => ({
+      id,
+      name,
+      project_id,
+      shared: false,
+      stateful: true,
+      security_group_rules: [],
+      sharedWith: [],
+      ...extra,
+    })
+
+    const adminFixture: FixtureGroup[] = [
+      makeGroup("sg-default-1", "default", "proj-1"),
+      makeGroup("sg-default-2", "default", "proj-2"),
+      makeGroup("sg-default-3", "default", "proj-3"),
+      makeGroup("sg-default-4", "default", "proj-4"),
+      makeGroup("sg-manila", "manila-service", "proj-1"),
+      makeGroup("sg-shared-wide", "shared-wide", "proj-2", { sharedWith: ["*"] }),
+      makeGroup("sg-own-wide", "own-wide", "proj-1", { sharedWith: ["*"] }),
+      makeGroup("sg-shared-to-proj1", "shared-to-proj1", "proj-3", { sharedWith: ["proj-1"] }),
+      makeGroup("sg-shared-to-proj9", "shared-to-proj9", "proj-4", { sharedWith: ["proj-9"] }),
+      makeGroup("sg-stateless-own", "stateless-own", "proj-1", { stateful: false }),
+    ]
+
+    /**
+     * Emulates the observed Neutron behaviour for an admin token: without a project_id filter every
+     * project's groups are returned; `shared` is evaluated relative to the requesting project.
+     */
+    const createNeutronListMock = (opts: {
+      requestingProjectId: string
+      groups: FixtureGroup[]
+      /** Models Neutron returning the project's own groups regardless of `shared` when filtered by project_id */
+      projectFilterIgnoresShared?: boolean
+    }) => {
+      const { requestingProjectId, groups, projectFilterIgnoresShared = false } = opts
+      const requestedUrls: string[] = []
+
+      const isSharedWithRequester = (g: FixtureGroup) =>
+        g.sharedWith.includes("*") || g.sharedWith.includes(requestingProjectId)
+
+      const mockOpenstackSession = {
+        service: vi.fn().mockImplementation((serviceName: string) => {
+          if (serviceName !== "network") {
+            return null
+          }
+          return {
+            get: vi.fn().mockImplementation((url: string) => {
+              requestedUrls.push(url)
+              const params = new URL(url, "http://x").searchParams
+              const projectFilter = params.get("project_id")
+              const sharedFilter = params.get("shared")
+
+              let matches = groups
+              if (projectFilter) {
+                matches = matches.filter((g) => g.project_id === projectFilter)
+              }
+              if (projectFilter && projectFilterIgnoresShared) {
+                // own groups are returned unfiltered by `shared`
+              } else if (sharedFilter === "true") {
+                matches = matches.filter(isSharedWithRequester)
+              } else if (sharedFilter === "false") {
+                matches = matches.filter((g) => !isSharedWithRequester(g))
+              }
+
+              const security_groups = matches.map(({ sharedWith: _sharedWith, ...sg }) => ({
+                ...sg,
+                shared: isSharedWithRequester({ ...sg, sharedWith: _sharedWith }),
+              }))
+              return Promise.resolve({
+                ok: true,
+                json: vi.fn().mockResolvedValue({ security_groups }),
+              })
+            }),
+          }
+        }),
+      }
+
+      const ctx = {
+        validateSession: vi.fn().mockReturnValue(true),
+        identityEndpoint: "http://identity.example.com/",
+        imageMetadataExcludedProperties: [],
+        openstack: mockOpenstackSession,
+        createSession: vi.fn(),
+        terminateSession: vi.fn(),
+        rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
+      } as unknown as AuroraPortalContext
+
+      return { ctx, requestedUrls }
+    }
+
+    const setup = (groups: FixtureGroup[] = adminFixture, projectFilterIgnoresShared = false) =>
+      createNeutronListMock({ requestingProjectId: "proj-1", groups, projectFilterIgnoresShared })
+
+    const queryOf = (url: string) => new URL(url, "http://x").searchParams
+    const ids = (list: SecurityGroup[]) => list.map((g) => g.id)
+
+    it("shared=false sends project_id and returns only own groups", async () => {
+      const { ctx, requestedUrls } = setup()
+      const caller = createCaller(ctx)
+
+      const result = await caller.securityGroup.list({ project_id: "proj-1", shared: false })
+
+      expect(requestedUrls).toHaveLength(1)
+      const query = queryOf(requestedUrls[0])
+      expect(query.get("project_id")).toBe("proj-1")
+      expect(query.get("shared")).toBe("false")
+      expect(ids(result).sort()).toEqual(["sg-default-1", "sg-manila", "sg-stateless-own"])
+      expect(result.filter((g) => g.name === "default")).toHaveLength(1)
+    })
+
+    it("shared=true sends a single shared=true request", async () => {
+      const { ctx, requestedUrls } = setup()
+      const caller = createCaller(ctx)
+
+      const result = await caller.securityGroup.list({ project_id: "proj-1", shared: true })
+
+      expect(requestedUrls).toHaveLength(1)
+      const query = queryOf(requestedUrls[0])
+      expect(query.get("shared")).toBe("true")
+      expect(query.has("project_id")).toBe(false)
+      expect(ids(result).sort()).toEqual(["sg-own-wide", "sg-shared-to-proj1", "sg-shared-wide"])
+    })
+
+    it("lists an own group that is also shared once, in the shared partition", async () => {
+      const { ctx } = setup()
+      const caller = createCaller(ctx)
+
+      const all = ids(await caller.securityGroup.list({ project_id: "proj-1" }))
+      const yes = ids(await caller.securityGroup.list({ project_id: "proj-1", shared: true }))
+      const no = ids(await caller.securityGroup.list({ project_id: "proj-1", shared: false }))
+
+      expect(all.filter((id) => id === "sg-own-wide")).toHaveLength(1)
+      expect(yes).toContain("sg-own-wide")
+      expect(no).not.toContain("sg-own-wide")
+    })
+
+    it("deduplicates a group returned by both the own and the shared request", async () => {
+      const { ctx } = setup(adminFixture, true)
+
+      const result = await createCaller(ctx).securityGroup.list({ project_id: "proj-1" })
+
+      expect(ids(result).filter((id) => id === "sg-own-wide")).toHaveLength(1)
+      expect(new Set(ids(result)).size).toBe(result.length)
+    })
+
+    it("filtered results are subsets of the unfiltered list", async () => {
+      const sharedValues = [undefined, true, false]
+      const statefulValues = [undefined, true, false]
+
+      const run = async (shared?: boolean, stateful?: boolean) => {
+        const { ctx } = setup()
+        const result = await createCaller(ctx).securityGroup.list({ project_id: "proj-1", shared, stateful })
+        return ids(result)
+      }
+
+      for (const stateful of statefulValues) {
+        const all = new Set(await run(undefined, stateful))
+        const yes = await run(true, stateful)
+        const no = await run(false, stateful)
+
+        for (const id of [...yes, ...no]) {
+          expect(all.has(id)).toBe(true)
+        }
+        expect(yes.filter((id) => no.includes(id))).toEqual([])
+        expect(new Set([...yes, ...no])).toEqual(all)
+      }
+
+      for (const shared of sharedValues) {
+        const all = new Set(await run(shared, undefined))
+        for (const stateful of [true, false]) {
+          for (const id of await run(shared, stateful)) {
+            expect(all.has(id)).toBe(true)
+          }
+        }
+      }
+    })
+
+    it("explicit filter sorts in the BFF", async () => {
+      const reversed = [...adminFixture].reverse()
+
+      const asc = setup(reversed)
+      const ascResult = await createCaller(asc.ctx).securityGroup.list({
+        project_id: "proj-1",
+        shared: false,
+        sort_key: "name",
+        sort_dir: "asc",
+      })
+      expect(ascResult.map((g) => g.name)).toEqual(["default", "manila-service", "stateless-own"])
+
+      const desc = setup(reversed)
+      const descResult = await createCaller(desc.ctx).securityGroup.list({
+        project_id: "proj-1",
+        shared: false,
+        sort_key: "name",
+        sort_dir: "desc",
+      })
+      expect(descResult.map((g) => g.name)).toEqual(["stateless-own", "manila-service", "default"])
+
+      for (const url of [...asc.requestedUrls, ...desc.requestedUrls]) {
+        expect(url).not.toContain("sort_key")
+        expect(url).not.toContain("sort_dir")
+      }
+    })
+
+    it("explicit filter combines with stateful and searchTerm", async () => {
+      const statefulCase = setup()
+      const stateless = await createCaller(statefulCase.ctx).securityGroup.list({
+        project_id: "proj-1",
+        shared: false,
+        stateful: false,
+      })
+      expect(ids(stateless)).toEqual(["sg-stateless-own"])
+
+      const searchCase = setup()
+      const searched = await createCaller(searchCase.ctx).securityGroup.list({
+        project_id: "proj-1",
+        shared: false,
+        searchTerm: "MANILA",
+      })
+      expect(ids(searched)).toEqual(["sg-manila"])
+    })
+
+    it("never forwards a caller-supplied tenant_id to Neutron", async () => {
+      const { ctx, requestedUrls } = setup()
+      const caller = createCaller(ctx)
+
+      // tenant_id is a Neutron alias of project_id; forwarding it could widen the own-side scope
+      const input = { project_id: "proj-1", tenant_id: "proj-2" } as unknown as Parameters<
+        typeof caller.securityGroup.list
+      >[0]
+      for (const shared of [undefined, true, false]) {
+        await caller.securityGroup.list({ ...input, shared })
+      }
+
+      expect(requestedUrls).toHaveLength(4)
+      for (const url of requestedUrls) {
+        expect(queryOf(url).has("tenant_id")).toBe(false)
+      }
+    })
+  })
 })
 describe("securityGroupRouter.getById", () => {
   beforeEach(() => {
