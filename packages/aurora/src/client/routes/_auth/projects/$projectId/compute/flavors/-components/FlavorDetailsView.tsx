@@ -1,6 +1,5 @@
 import {
   Stack,
-  ContentHeading,
   DescriptionList,
   DescriptionTerm,
   DescriptionDefinition,
@@ -72,9 +71,9 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
     <Stack direction="vertical" gap="6" className="mt-6">
       <Stack direction="horizontal" gap="6" className="grid grid-cols-2">
         <Stack direction="vertical" gap="2">
-          <ContentHeading>
+          <h2>
             <Trans>Flavor Information</Trans>
-          </ContentHeading>
+          </h2>
           <DescriptionList alignTerms="right">
             {basicInfoItems.map(({ label, value }, index) => (
               <Fragment key={`basic-${index}`}>
@@ -88,9 +87,9 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
         </Stack>
 
         <Stack direction="vertical" gap="2">
-          <ContentHeading>
+          <h2>
             <Trans>Hardware Specifications</Trans>
-          </ContentHeading>
+          </h2>
           <DescriptionList alignTerms="right">
             {hardwareSpecItems.map(({ label, value }, index) => (
               <Fragment key={`hardware-${index}`}>
@@ -106,9 +105,9 @@ export function FlavorDetailsView({ flavor, canListSpecs = false }: FlavorDetail
 
       {canListSpecs && (
         <Stack direction="vertical" gap="2">
-          <ContentHeading>
+          <h2>
             <Trans>Metadata</Trans>
-          </ContentHeading>
+          </h2>
           {isLoading ? (
             <Status status="progress" />
           ) : isError ? (

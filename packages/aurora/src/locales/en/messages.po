@@ -653,6 +653,9 @@ msgstr "Cancel"
 msgid "Cancel upload"
 msgstr "Cancel upload"
 
+msgid "Cancel Upload"
+msgstr "Cancel Upload"
+
 msgid "Cannot be combined with Tag Filters"
 msgstr "Cannot be combined with Tag Filters"
 
@@ -1087,9 +1090,6 @@ msgstr "Custom"
 
 msgid "Custom duration (minutes)"
 msgstr "Custom duration (minutes)"
-
-msgid "Custom Properties / Metadata"
-msgstr "Custom Properties / Metadata"
 
 msgid "Date:"
 msgstr "Date:"
@@ -2840,9 +2840,6 @@ msgstr "Partial Delete Success"
 msgid "Pending"
 msgstr "Pending"
 
-msgid "Pending File Upload..."
-msgstr "Pending File Upload..."
-
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Please enter a valid number of minutes greater than 0"
 
@@ -3059,9 +3056,6 @@ msgstr "Remove"
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Remove access for {memberIdDisplay}"
 
-msgid "Remove member access"
-msgstr "Remove member access"
-
 msgid "Remove Policy"
 msgstr "Remove Policy"
 
@@ -3154,9 +3148,6 @@ msgstr "Save Metadata"
 
 msgid "Saving Image Details..."
 msgstr "Saving Image Details..."
-
-msgid "Saving Metadata..."
-msgstr "Saving Metadata..."
 
 msgid "Saving..."
 msgstr "Saving..."
@@ -3370,9 +3361,6 @@ msgstr "Shared by Project"
 
 msgid "Shared:"
 msgstr "Shared:"
-
-msgid "Sharing Details"
-msgstr "Sharing Details"
 
 msgid "Show ACLs Preview"
 msgstr "Show ACLs Preview"
@@ -3628,6 +3616,9 @@ msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
+
+msgid "The image upload was cancelled."
+msgstr "The image upload was cancelled."
 
 msgid "The lifecycle configuration has changed. Please refresh and try again."
 msgstr "The lifecycle configuration has changed. Please refresh and try again."
@@ -4015,6 +4006,9 @@ msgstr "Upload object to:"
 
 msgid "Upload of \"{objectName}\" was cancelled."
 msgstr "Upload of \"{objectName}\" was cancelled."
+
+msgid "Uploading File..."
+msgstr "Uploading File..."
 
 msgid "Uploading..."
 msgstr "Uploading..."

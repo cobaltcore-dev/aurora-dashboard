@@ -653,6 +653,9 @@ msgstr "Abbrechen"
 msgid "Cancel upload"
 msgstr "Upload abbrechen"
 
+msgid "Cancel Upload"
+msgstr ""
+
 msgid "Cannot be combined with Tag Filters"
 msgstr ""
 
@@ -1087,9 +1090,6 @@ msgstr "Benutzerdefiniert"
 
 msgid "Custom duration (minutes)"
 msgstr "Benutzerdefinierte Dauer (Minuten)"
-
-msgid "Custom Properties / Metadata"
-msgstr "Benutzerdefinierte Eigenschaften / Metadaten"
 
 msgid "Date:"
 msgstr ""
@@ -2840,9 +2840,6 @@ msgstr "Teilweise erfolgreich gelöscht"
 msgid "Pending"
 msgstr "Ausstehend"
 
-msgid "Pending File Upload..."
-msgstr ""
-
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
@@ -3059,9 +3056,6 @@ msgstr "Entfernen"
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Zugriff für {memberIdDisplay} entfernen"
 
-msgid "Remove member access"
-msgstr "Mitgliedszugriff entfernen"
-
 msgid "Remove Policy"
 msgstr "Richtlinie entfernen"
 
@@ -3153,9 +3147,6 @@ msgid "Save Metadata"
 msgstr "Metadata speichern"
 
 msgid "Saving Image Details..."
-msgstr ""
-
-msgid "Saving Metadata..."
 msgstr ""
 
 msgid "Saving..."
@@ -3370,9 +3361,6 @@ msgstr "Vom Projekt geteilt"
 
 msgid "Shared:"
 msgstr "Geteilt:"
-
-msgid "Sharing Details"
-msgstr "Freigabe-Details"
 
 msgid "Show ACLs Preview"
 msgstr "ACLs-Vorschau anzeigen"
@@ -3628,6 +3616,9 @@ msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {errorMessage}"
 
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: {errorMessage}"
+
+msgid "The image upload was cancelled."
+msgstr ""
 
 msgid "The lifecycle configuration has changed. Please refresh and try again."
 msgstr ""
@@ -4015,6 +4006,9 @@ msgstr "Objekt hochladen nach:"
 
 msgid "Upload of \"{objectName}\" was cancelled."
 msgstr "Upload von \"{objectName}\" wurde abgebrochen."
+
+msgid "Uploading File..."
+msgstr ""
 
 msgid "Uploading..."
 msgstr "Wird hochgeladen..."
