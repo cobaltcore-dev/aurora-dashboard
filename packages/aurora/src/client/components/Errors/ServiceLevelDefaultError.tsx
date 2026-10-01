@@ -20,8 +20,13 @@ export const ServiceLevelDefaultError = () => {
 
   return (
     <Status
-      code={404}
       status="error"
+      title={projectId ? t`Service Not Found` : t`Page Not Found`}
+      body={
+        projectId
+          ? t`The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home.`
+          : t`The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page.`
+      }
       action={
         <Button variant="primary" onClick={navigateToProjectId}>
           {projectId ? t`Go to Project Home` : t`Go to Home`}

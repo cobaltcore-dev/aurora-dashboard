@@ -3326,6 +3326,9 @@ msgstr "Der Server hat ein unerwartetes Datenformat für Flavor-Details zurückg
 msgid "Server returned unexpected data format."
 msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 
+msgid "Service Not Found"
+msgstr ""
+
 msgid "Services"
 msgstr "Services"
 
@@ -3632,6 +3635,9 @@ msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die
 msgid "The page you are looking for does not exist."
 msgstr "Die gesuchte Seite existiert nicht."
 
+msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
+msgstr ""
+
 msgid "The project you are looking for doesn't exist or you don't have access to it."
 msgstr ""
 
@@ -3655,6 +3661,9 @@ msgstr ""
 
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
+
+msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
+msgstr ""
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "Das angegebene Projekt existiert nicht oder Sie haben keine Berechtigung, es zu teilen."
@@ -3836,10 +3845,10 @@ msgstr ""
 msgid "This project already has access"
 msgstr "Dieses Projekt hat bereits Zugriff"
 
-msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
+msgid "This project doesn't exist or is not accessible from your current domain. Select a project from your current domain."
 msgstr ""
 
-msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Please select a project from your current domain."
+msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Select a project from your current domain."
 msgstr ""
 
 msgid "This property is reserved and cannot be modified"
@@ -4226,7 +4235,7 @@ msgstr ""
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
 
-msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue."
+msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr ""
 
 msgid "YYYY-MM-DD HH:mm:ss"
