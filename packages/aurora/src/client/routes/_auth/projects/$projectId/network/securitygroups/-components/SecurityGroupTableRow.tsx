@@ -65,11 +65,7 @@ export function SecurityGroupTableRow({
           <Checkbox checked={isSelected} onChange={() => onSelect?.(sg)} />
         </DataGridCell>
       )}
-      <DataGridCell>
-        <div>
-          <p className="text-md">{sg.name}</p>
-        </div>
-      </DataGridCell>
+      <DataGridCell>{sg.name}</DataGridCell>
       <DataGridCell>{sg.description || t`—`}</DataGridCell>
       <DataGridCell>
         <BooleanValue value={sg.shared} />

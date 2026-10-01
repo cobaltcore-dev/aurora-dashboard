@@ -99,6 +99,8 @@ describe("SecurityGroupTableRow", () => {
       })
 
       expect(screen.getByText("Security group for web servers")).toBeInTheDocument()
+      // The name is rendered directly in its cell, without a wrapper element
+      expect(screen.getByText("web-servers")).toHaveClass("juno-datagrid-cell")
     })
 
     it("renders a missing stateful flag as Yes, matching Neutron's default", async () => {
