@@ -122,6 +122,16 @@ export const SubnetSummaryListResponseSchema = z.object({
   subnets: z.array(SubnetSummarySchema),
 })
 
+/** Reduced network schema, only the fields needed to label the external gateway network. */
+export const NetworkSummarySchema = z.object({
+  id: z.string(),
+  name: z.string().nullable().optional(),
+})
+
+export const NetworkSummaryListResponseSchema = z.object({
+  networks: z.array(NetworkSummarySchema),
+})
+
 export const ExtensionListResponseSchema = z.object({
   extensions: z.array(
     z.object({
@@ -239,6 +249,21 @@ export type ExtraRoute = z.infer<typeof ExtraRouteSchema>
 export type RouterInterfaceInfo = z.infer<typeof RouterInterfaceInfoSchema>
 export type RouterPort = z.infer<typeof RouterPortSchema>
 export type SubnetSummary = z.infer<typeof SubnetSummarySchema>
+export type NetworkSummary = z.infer<typeof NetworkSummarySchema>
+export type ExternalFixedIp = z.infer<typeof ExternalFixedIpSchema>
+
+/**
+ * Router as returned by `list`: the external gateway is enriched with the external network name
+ * and the subnet names of its fixed IPs. Names are undefined when they can't be resolved.
+ */
+export type RouterListItem = Omit<Router, "external_gateway_info"> & {
+  external_gateway_info?:
+    | (Omit<ExternalGatewayInfo, "external_fixed_ips"> & {
+        network_name?: string
+        external_fixed_ips?: Array<ExternalFixedIp & { subnet_name?: string }>
+      })
+    | null
+}
 
 export type RouterQueryParameters = z.infer<typeof RouterQueryParametersSchema>
 export type ExternalGatewayInfoInput = z.infer<typeof ExternalGatewayInfoInputSchema>

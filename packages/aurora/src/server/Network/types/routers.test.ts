@@ -8,6 +8,7 @@ import {
   RouterInterfaceInfoSchema,
   RouterPortSchema,
   ExtensionListResponseSchema,
+  NetworkSummaryListResponseSchema,
   RouterQueryParametersSchema,
   RouterIdInputSchema,
   RouterCreateRequestSchema,
@@ -171,6 +172,19 @@ describe("OpenStack Router Schema Validation", () => {
 
     it("rejects an unknown port status", () => {
       expect(RouterPortSchema.safeParse({ ...port, status: "UNKNOWN" }).success).toBe(false)
+    })
+  })
+
+  describe("NetworkSummaryListResponseSchema", () => {
+    it("validates networks with and without a name", () => {
+      const result = NetworkSummaryListResponseSchema.safeParse({
+        networks: [{ id: "ext-net-1", name: "public" }, { id: "ext-net-2", name: null }, { id: "ext-net-3" }],
+      })
+      expect(result.success).toBe(true)
+    })
+
+    it("rejects networks without id", () => {
+      expect(NetworkSummaryListResponseSchema.safeParse({ networks: [{ name: "public" }] }).success).toBe(false)
     })
   })
 

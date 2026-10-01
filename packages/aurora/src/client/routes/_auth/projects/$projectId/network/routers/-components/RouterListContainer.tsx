@@ -12,10 +12,10 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useEffect, useState } from "react"
 import { useParams, useNavigate, useLoaderData } from "@tanstack/react-router"
-import type { Router } from "@/server/Network/types/router"
+import type { RouterListItem } from "@/server/Network/types/router"
 
 interface RouterListContainerProps {
-  routers?: Router[]
+  routers?: RouterListItem[]
   currentPage?: number
   totalPages?: number
   onPageChange?: (page: number) => void
@@ -50,7 +50,7 @@ export const RouterListContainer = ({
   // Routers are listed for the current project, so its name can be shown next to the ID
   const { crumbProject } = useLoaderData({ from: "/_auth/projects/$projectId" })
 
-  const openDetails = (router: Router) =>
+  const openDetails = (router: RouterListItem) =>
     navigate({
       to: "/projects/$projectId/network/routers/$routerId",
       params: { projectId, routerId: router.id },
@@ -101,7 +101,16 @@ export const RouterListContainer = ({
                     secondary={projectName ? router.project_id : undefined}
                   />
                 </DataGridCell>
-                <DataGridCell>{gateway ? <TwoLineCell primary={gateway.network_id} /> : "–"}</DataGridCell>
+                <DataGridCell>
+                  {gateway ? (
+                    <TwoLineCell
+                      primary={gateway.network_name || gateway.network_id}
+                      secondary={gateway.network_name ? gateway.network_id : undefined}
+                    />
+                  ) : (
+                    "–"
+                  )}
+                </DataGridCell>
                 <DataGridCell>
                   {gateway?.external_fixed_ips && gateway.external_fixed_ips.length > 0 ? (
                     <div className="flex flex-col gap-1">
@@ -109,7 +118,7 @@ export const RouterListContainer = ({
                         <TwoLineCell
                           key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}
                           primary={fixedIp.ip_address}
-                          secondary={fixedIp.subnet_id}
+                          secondary={fixedIp.subnet_name || fixedIp.subnet_id}
                         />
                       ))}
                     </div>

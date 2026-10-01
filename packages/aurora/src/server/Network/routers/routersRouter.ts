@@ -7,6 +7,9 @@ import { omit } from "@/server/helpers/object"
 import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
 import {
   Router,
+  RouterListItem,
+  NetworkSummary,
+  NetworkSummaryListResponseSchema,
   RouterInterface,
   RouterInterfaceInfo,
   RouterExtensionFlags,
@@ -31,6 +34,8 @@ import {
   filterRoutersByBffParams,
   buildRouterInterfaces,
   collectSubnetIds,
+  collectGatewayIds,
+  applyGatewayNames,
   isRouterInterfacePort,
   getRouterExtensionFlags,
 } from "../helpers/routerHelpers"
@@ -39,6 +44,7 @@ import { getNetworkService, parseOrThrow } from "../helpers/index"
 const ROUTERS_BASE_URL = "v2.0/routers"
 const PORTS_BASE_URL = "v2.0/ports"
 const SUBNETS_BASE_URL = "v2.0/subnets"
+const NETWORKS_BASE_URL = "v2.0/networks"
 const EXTENSIONS_BASE_URL = "v2.0/extensions"
 
 const LIST_ROUTERS_QUERY_KEY_MAP: Record<string, string> = {
@@ -57,11 +63,48 @@ const routerUrl = (routerId: string, action?: "add_router_interface" | "remove_r
   return action ? `${ROUTERS_BASE_URL}/${encodedId}/${action}` : `${ROUTERS_BASE_URL}/${encodedId}`
 }
 
+type NetworkService = ReturnType<typeof getNetworkService>
+
+/**
+ * Best-effort lookup of network names by ID in a single request.
+ * Returns [] on any failure (e.g. not visible to the user) so callers fall back to IDs.
+ */
+const fetchNetworkSummaries = async (network: NetworkService, ids: string[]): Promise<NetworkSummary[]> => {
+  if (ids.length === 0) return []
+  try {
+    const params = appendQueryParamsFromObject({ id: ids, fields: ["id", "name"] })
+    const response = await network.get(withQuery(NETWORKS_BASE_URL, params))
+    if (!response.ok) return []
+    const data = await response.json()
+    return parseOrThrow(NetworkSummaryListResponseSchema, data, "routersRouter.list.networks").networks
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Best-effort lookup of subnet names by ID in a single request.
+ * Returns [] on any failure (e.g. external subnets not visible to the user) so callers fall back to IDs.
+ */
+const fetchSubnetSummaries = async (network: NetworkService, ids: string[]): Promise<SubnetSummary[]> => {
+  if (ids.length === 0) return []
+  try {
+    const params = appendQueryParamsFromObject({ id: ids, fields: ["id", "name"] })
+    const response = await network.get(withQuery(SUBNETS_BASE_URL, params))
+    if (!response.ok) return []
+    const data = await response.json()
+    return parseOrThrow(SubnetSummaryListResponseSchema, data, "routersRouter.list.subnets").subnets
+  } catch {
+    return []
+  }
+}
+
 /**
  * tRPC router for OpenStack Neutron Routers (L3).
  *
  * Currently exposes:
  * - list: GET /v2.0/routers List routers with sorting and filtering; BFF-side search, status and has_gateway filters.
+ *   External gateways are enriched with network/subnet names (GET /v2.0/networks, /v2.0/subnets).
  * - getById: GET /v2.0/routers/{router_id} Show router details.
  * - create: POST /v2.0/routers Create router (optionally with external gateway).
  * - update: PUT /v2.0/routers/{router_id} Update name, description, admin state, extra routes, etc.
@@ -77,27 +120,38 @@ const routerUrl = (routerId: string, action?: "add_router_interface" | "remove_r
  * External networks for the gateway selector are served by floatingIpRouter.listExternalNetworks.
  */
 export const routersRouter = {
-  list: projectScopedProcedure.input(RouterQueryParametersSchema).query(async ({ input, ctx }): Promise<Router[]> => {
-    return withErrorHandling(async () => {
-      const { searchTerm, status, has_gateway, ...openstackFilters } = input
-      const network = getNetworkService(ctx)
+  list: projectScopedProcedure
+    .input(RouterQueryParametersSchema)
+    .query(async ({ input, ctx }): Promise<RouterListItem[]> => {
+      return withErrorHandling(async () => {
+        const { searchTerm, status, has_gateway, ...openstackFilters } = input
+        const network = getNetworkService(ctx)
 
-      const queryParams = appendQueryParamsFromObject(openstackFilters, { keyMap: LIST_ROUTERS_QUERY_KEY_MAP })
-      const response = await network.get(withQuery(ROUTERS_BASE_URL, queryParams))
-      if (!response.ok) {
-        throw RouterErrorHandlers.list(response)
-      }
+        const queryParams = appendQueryParamsFromObject(openstackFilters, { keyMap: LIST_ROUTERS_QUERY_KEY_MAP })
+        const response = await network.get(withQuery(ROUTERS_BASE_URL, queryParams))
+        if (!response.ok) {
+          throw RouterErrorHandlers.list(response)
+        }
 
-      const data = await response.json()
-      const { routers } = parseOrThrow(RouterListResponseSchema, data, "routersRouter.list")
+        const data = await response.json()
+        const { routers } = parseOrThrow(RouterListResponseSchema, data, "routersRouter.list")
 
-      return filterBySearchParams(filterRoutersByBffParams(routers, { status, has_gateway }), searchTerm, [
-        "id",
-        "name",
-        "description",
-      ])
-    }, "list routers")
-  }),
+        const filteredRouters = filterBySearchParams(
+          filterRoutersByBffParams(routers, { status, has_gateway }),
+          searchTerm,
+          ["id", "name", "description"]
+        )
+
+        // Resolve external network/subnet names: two batched requests for the whole list, not per router
+        const { networkIds, subnetIds } = collectGatewayIds(filteredRouters)
+        const [networks, subnets] = await Promise.all([
+          fetchNetworkSummaries(network, networkIds),
+          fetchSubnetSummaries(network, subnetIds),
+        ])
+
+        return applyGatewayNames(filteredRouters, networks, subnets)
+      }, "list routers")
+    }),
 
   getById: projectScopedProcedure.input(RouterIdInputSchema).query(async ({ input, ctx }): Promise<Router> => {
     return withErrorHandling(async () => {

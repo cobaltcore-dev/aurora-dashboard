@@ -66,7 +66,16 @@ Applied BFF-side (not sent to Neutron):
 
 #### Response
 
-Returns `Router[]` from the Neutron envelope `{ routers: [...] }`.
+Returns `RouterListItem[]`: routers from the Neutron envelope `{ routers: [...] }` with the external gateway enriched with names.
+
+#### External Gateway Name Enrichment
+
+The router object only references the external network and subnets by ID. After BFF-side filtering, the BFF resolves names for the remaining routers with **two batched requests for the whole list** (not per router):
+
+- `GET /v2.0/networks?id=...&fields=id&fields=name` - sets `external_gateway_info.network_name`
+- `GET /v2.0/subnets?id=...&fields=id&fields=name` - sets `external_gateway_info.external_fixed_ips[].subnet_name`
+
+No lookup is made when no router has a gateway. Lookups are best-effort: if a request fails (e.g. external subnets are not visible to the user under the Neutron policy), the list is still returned and the names stay undefined, so the UI falls back to IDs.
 
 #### Error Handling
 
@@ -466,6 +475,21 @@ type Router = {
 }
 ```
 
+### RouterListItem
+
+Returned by `list`. Same as `Router`, with names added to the external gateway when they can be resolved.
+
+```typescript
+type RouterListItem = Omit<Router, "external_gateway_info"> & {
+  external_gateway_info?:
+    | (ExternalGatewayInfo & {
+        network_name?: string
+        external_fixed_ips?: { subnet_id: string; ip_address: string; subnet_name?: string }[]
+      })
+    | null
+}
+```
+
 ### ExternalGatewayInfo
 
 ```typescript
@@ -533,6 +557,7 @@ type RouterInterface = {
 - `filterRoutersByBffParams(routers, { status, has_gateway })` - BFF-side list filters
 - `isRouterInterfacePort(port)` / `buildRouterInterfaces(ports, subnets)` - interface filtering and subnet enrichment
 - `collectSubnetIds(ports)` - unique subnet IDs for the batched subnets request
+- `collectGatewayIds(routers)` / `applyGatewayNames(routers, networks, subnets)` - external network/subnet name enrichment for `list`
 - `getRouterExtensionFlags(aliases)` - maps extension aliases to `RouterExtensionFlags`
 
 ### Request Builders

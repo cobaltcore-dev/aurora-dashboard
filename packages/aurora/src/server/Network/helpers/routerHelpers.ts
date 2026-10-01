@@ -3,9 +3,11 @@ import { ErrorHandler } from "./errorHandling"
 import { HTTP_STATUS_ERROR_MAP } from "./index"
 import type {
   Router,
+  RouterListItem,
   RouterPort,
   RouterInterface,
   SubnetSummary,
+  NetworkSummary,
   ExternalGatewayInfoInput,
   RouterExtensionFlags,
 } from "../types/router"
@@ -133,6 +135,53 @@ export const filterRoutersByBffParams = (
     if (has_gateway !== undefined && Boolean(router.external_gateway_info) !== has_gateway) return false
     return true
   })
+
+/** Unique external network and subnet IDs referenced by the routers' external gateways. */
+export const collectGatewayIds = (routers: Router[]): { networkIds: string[]; subnetIds: string[] } => {
+  const networkIds = new Set<string>()
+  const subnetIds = new Set<string>()
+
+  for (const router of routers) {
+    const gateway = router.external_gateway_info
+    if (!gateway) continue
+    networkIds.add(gateway.network_id)
+    for (const fixedIp of gateway.external_fixed_ips ?? []) {
+      subnetIds.add(fixedIp.subnet_id)
+    }
+  }
+
+  return { networkIds: [...networkIds], subnetIds: [...subnetIds] }
+}
+
+/**
+ * Enriches the routers' external gateways with network and subnet names.
+ * IDs without a matching (or with an empty) name are left without a name, so the UI can fall back to the ID.
+ */
+export const applyGatewayNames = (
+  routers: Router[],
+  networks: NetworkSummary[] = [],
+  subnets: SubnetSummary[] = []
+): RouterListItem[] => {
+  const networkNames = new Map(networks.map((network) => [network.id, network.name || undefined]))
+  const subnetNames = new Map(subnets.map((subnet) => [subnet.id, subnet.name || undefined]))
+
+  return routers.map((router) => {
+    const gateway = router.external_gateway_info
+    if (!gateway) return router
+
+    return {
+      ...router,
+      external_gateway_info: {
+        ...gateway,
+        network_name: networkNames.get(gateway.network_id),
+        external_fixed_ips: gateway.external_fixed_ips?.map((fixedIp) => ({
+          ...fixedIp,
+          subnet_name: subnetNames.get(fixedIp.subnet_id),
+        })),
+      },
+    }
+  })
+}
 
 /**
  * Device owners of ports that represent router interfaces towards internal subnets.

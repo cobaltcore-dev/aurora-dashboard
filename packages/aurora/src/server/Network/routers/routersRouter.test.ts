@@ -64,7 +64,12 @@ const defaultPorts = [
   },
 ]
 
-const defaultSubnets = [{ id: "subnet-1", name: "private-subnet", cidr: "10.0.0.0/24" }]
+const defaultSubnets = [
+  { id: "subnet-1", name: "private-subnet", cidr: "10.0.0.0/24" },
+  { id: "ext-subnet-1", name: "FloatingIP-sap-01", cidr: "172.24.4.0/24" },
+]
+
+const defaultNetworks = [{ id: "ext-net-1", name: "FloatingIP-external-01" }]
 
 const defaultExtensions = [{ alias: "dvr" }, { alias: "extraroute" }, { alias: "l3-ha" }]
 
@@ -84,6 +89,7 @@ const createMockContext = (opts?: {
   httpStatus?: number
   statusText?: string
   subnetsFail?: boolean
+  networksFail?: boolean
   mockRouters?: unknown[]
   mockPorts?: unknown[]
   mockSubnets?: unknown[]
@@ -96,6 +102,7 @@ const createMockContext = (opts?: {
     httpStatus = 200,
     statusText,
     subnetsFail = false,
+    networksFail = false,
     mockRouters = defaultRouters,
     mockPorts = defaultPorts,
     mockSubnets = defaultSubnets,
@@ -114,6 +121,11 @@ const createMockContext = (opts?: {
     if (url.startsWith("v2.0/subnets")) {
       return Promise.resolve(
         subnetsFail ? response({}, { ok: false, status: 500 }) : response({ subnets: mockSubnets }, { ok: true })
+      )
+    }
+    if (url.startsWith("v2.0/networks")) {
+      return Promise.resolve(
+        networksFail ? response({}, { ok: false, status: 403 }) : response({ networks: defaultNetworks }, { ok: true })
       )
     }
     if (url.startsWith("v2.0/ports")) return Promise.resolve(response({ ports: mockPorts }))
@@ -233,6 +245,67 @@ describe("routersRouter.list", () => {
     expect(params.has("searchTerm")).toBe(false)
     expect(params.has("status")).toBe(false)
     expect(params.has("has_gateway")).toBe(false)
+  })
+
+  describe("external gateway name enrichment", () => {
+    it("adds external network and subnet names to the gateway", async () => {
+      const caller = createCaller(createMockContext())
+
+      const [router] = await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      expect(router.external_gateway_info?.network_name).toBe("FloatingIP-external-01")
+      expect(router.external_gateway_info?.external_fixed_ips?.[0]).toEqual({
+        subnet_id: "ext-subnet-1",
+        ip_address: "172.24.4.10",
+        subnet_name: "FloatingIP-sap-01",
+      })
+    })
+
+    it("resolves names with one batched networks request and one batched subnets request", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx)
+
+      await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      const urls: string[] = ctx.__networkGetMock.mock.calls.map((call: unknown[]) => call[0] as string)
+      expect(urls).toHaveLength(3)
+
+      const networks = splitUrl(urls.find((url) => url.startsWith("v2.0/networks"))!)
+      expect(networks.params.getAll("id")).toEqual(["ext-net-1"])
+      expect(networks.params.getAll("fields")).toEqual(["id", "name"])
+
+      const subnets = splitUrl(urls.find((url) => url.startsWith("v2.0/subnets"))!)
+      expect(subnets.params.getAll("id")).toEqual(["ext-subnet-1"])
+      expect(subnets.params.getAll("fields")).toEqual(["id", "name"])
+    })
+
+    it("only resolves names for routers left after BFF-side filtering", async () => {
+      const ctx = createMockContext()
+      const caller = createCaller(ctx)
+
+      const result = await caller.routers.list({ project_id: TEST_PROJECT_ID, has_gateway: false })
+
+      expect(result.map((r) => r.id)).toEqual(["router-2"])
+      expect(ctx.__networkGetMock).toHaveBeenCalledTimes(1)
+    })
+
+    it("still returns routers with IDs only when name lookups fail", async () => {
+      const caller = createCaller(createMockContext({ networksFail: true, subnetsFail: true }))
+
+      const [router] = await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      expect(router.external_gateway_info?.network_id).toBe("ext-net-1")
+      expect(router.external_gateway_info?.network_name).toBeUndefined()
+      expect(router.external_gateway_info?.external_fixed_ips?.[0].subnet_name).toBeUndefined()
+    })
+
+    it("keeps routers without gateway unchanged", async () => {
+      const caller = createCaller(createMockContext())
+
+      const result = await caller.routers.list({ project_id: TEST_PROJECT_ID })
+
+      expect(result[1].external_gateway_info).toBeNull()
+    })
   })
 
   describe("BFF-side filtering", () => {

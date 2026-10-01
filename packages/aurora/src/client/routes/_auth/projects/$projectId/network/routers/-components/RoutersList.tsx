@@ -7,7 +7,7 @@ import { Stack, DataGridToolbar, SearchInput, Status } from "@cloudoperators/jun
 import { SortInput } from "@/client/components/ListToolbar/SortInput"
 import { SortSettings } from "@/client/components/ListToolbar/types"
 import { TrpcClient } from "@/client/trpcClient"
-import type { Router, RouterQueryParameters } from "@/server/Network/types/router"
+import type { RouterListItem, RouterQueryParameters } from "@/server/Network/types/router"
 import type { RoutersSearchParams } from "@/client/routes/_auth/projects/$projectId/network/routers/index"
 import { RouterListContainer } from "./RouterListContainer"
 
@@ -26,7 +26,7 @@ type RequiredSortSettings = {
   sortDirection: "asc" | "desc"
 }
 
-type RoutersResult = { routers: Router[]; listError?: string }
+type RoutersResult = { routers: RouterListItem[]; listError?: string }
 
 const createRoutersPromise = (
   client: TrpcClient,

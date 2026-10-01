@@ -7,6 +7,8 @@ import {
   filterRoutersByBffParams,
   buildRouterInterfaces,
   collectSubnetIds,
+  collectGatewayIds,
+  applyGatewayNames,
   isRouterInterfacePort,
   getRouterExtensionFlags,
 } from "./routerHelpers"
@@ -268,5 +270,76 @@ describe("getRouterExtensionFlags", () => {
 
   it("returns all flags false when no extensions are enabled", () => {
     expect(Object.values(getRouterExtensionFlags([])).every((flag) => flag === false)).toBe(true)
+  })
+})
+
+describe("collectGatewayIds", () => {
+  it("returns unique network and subnet IDs across router gateways", () => {
+    const routers = [
+      makeRouter({
+        id: "a",
+        external_gateway_info: {
+          network_id: "ext-net-1",
+          external_fixed_ips: [
+            { subnet_id: "ext-subnet-1", ip_address: "172.24.4.10" },
+            { subnet_id: "ext-subnet-v6", ip_address: "2001:db8::10" },
+          ],
+        },
+      }),
+      makeRouter({
+        id: "b",
+        external_gateway_info: {
+          network_id: "ext-net-1",
+          external_fixed_ips: [{ subnet_id: "ext-subnet-1", ip_address: "172.24.4.11" }],
+        },
+      }),
+      makeRouter({ id: "c" }),
+    ]
+
+    expect(collectGatewayIds(routers)).toEqual({
+      networkIds: ["ext-net-1"],
+      subnetIds: ["ext-subnet-1", "ext-subnet-v6"],
+    })
+  })
+
+  it("returns empty arrays when no router has a gateway", () => {
+    expect(collectGatewayIds([makeRouter()])).toEqual({ networkIds: [], subnetIds: [] })
+  })
+})
+
+describe("applyGatewayNames", () => {
+  const routerWithGateway = makeRouter({
+    external_gateway_info: {
+      network_id: "ext-net-1",
+      enable_snat: true,
+      external_fixed_ips: [{ subnet_id: "ext-subnet-1", ip_address: "172.24.4.10" }],
+    },
+  })
+
+  it("adds network and subnet names and keeps the other gateway fields", () => {
+    const [router] = applyGatewayNames(
+      [routerWithGateway],
+      [{ id: "ext-net-1", name: "public" }],
+      [{ id: "ext-subnet-1", name: "public-subnet" }]
+    )
+
+    expect(router.external_gateway_info).toEqual({
+      network_id: "ext-net-1",
+      enable_snat: true,
+      network_name: "public",
+      external_fixed_ips: [{ subnet_id: "ext-subnet-1", ip_address: "172.24.4.10", subnet_name: "public-subnet" }],
+    })
+  })
+
+  it("leaves names undefined when they are unknown or empty", () => {
+    const [router] = applyGatewayNames([routerWithGateway], [{ id: "ext-net-1", name: "" }], [])
+
+    expect(router.external_gateway_info?.network_name).toBeUndefined()
+    expect(router.external_gateway_info?.external_fixed_ips?.[0].subnet_name).toBeUndefined()
+  })
+
+  it("returns routers without gateway unchanged", () => {
+    const router = makeRouter()
+    expect(applyGatewayNames([router])).toEqual([router])
   })
 })
