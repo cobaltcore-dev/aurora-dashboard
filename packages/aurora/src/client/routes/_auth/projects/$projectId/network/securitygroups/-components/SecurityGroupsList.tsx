@@ -250,98 +250,103 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
     <>
       <ContentHeader title={t`Security Groups`} projectId={projectId} />
 
-      <div className="relative">
-        {/* Non-blocking error banner for refetch failures with cached data */}
-        {isError && securityGroups.length > 0 && (
-          <Message variant="error" className="mb-4">
-            {listError}
-          </Message>
-        )}
+      {/* Non-blocking error banner for refetch failures with cached data */}
+      {isError && securityGroups.length > 0 && (
+        <Message variant="error" className="mb-4">
+          {listError}
+        </Message>
+      )}
 
-        <Stack distribution="end" alignment="center" gap="2" className="pb-2">
-          <Stack gap="2">
-            <SortInput
-              options={sortSettings.options}
-              sortBy={sortSettings.sortBy}
-              sortDirection={sortSettings.sortDirection ?? "asc"}
-              selectClassName="min-w-40"
-              onSortByChange={(v) =>
-                handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
-              }
-              onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
-            />
-            {permissions.canCreate && (
-              <Button onClick={() => setCreateModalOpen(true)} variant="primary" className="whitespace-nowrap">
-                <Trans>Create Security Group</Trans>
-              </Button>
-            )}
+      <Stack direction="vertical" className="juno-pattern-datagrid-outer">
+        <Stack direction="vertical" className="juno-pattern-datagrid-header">
+          {/* Zone 1: sort + primary action */}
+          <Stack distribution="end" alignment="center" gap="2" className="pb-2">
+            <Stack gap="2">
+              <SortInput
+                options={sortSettings.options}
+                sortBy={sortSettings.sortBy}
+                sortDirection={sortSettings.sortDirection ?? "asc"}
+                selectClassName="min-w-40"
+                onSortByChange={(v) =>
+                  handleSortChange({ ...sortSettings, sortBy: v, sortDirection: sortSettings.sortDirection })
+                }
+                onSortDirectionChange={(dir) => handleSortChange({ ...sortSettings, sortDirection: dir })}
+              />
+              {permissions.canCreate && (
+                <Button onClick={() => setCreateModalOpen(true)} variant="primary" className="whitespace-nowrap">
+                  <Trans>Create Security Group</Trans>
+                </Button>
+              )}
+            </Stack>
           </Stack>
+
+          {/* Zone 2: filters, search, active filter pills */}
+          <DataGridToolbar>
+            <Stack direction="vertical" gap="2">
+              <Stack distribution="between" alignment="center">
+                <FiltersInput
+                  filters={filterSettings.filters}
+                  selectClassName="sm:min-w-40"
+                  comboboxClassName="sm:min-w-40"
+                  onChange={(selected) => {
+                    const newSelected = applyFilterSelection(
+                      filterSettings.selectedFilters || [],
+                      selected,
+                      filterSettings.filters
+                    )
+                    if (newSelected === (filterSettings.selectedFilters || [])) return
+                    handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
+                  }}
+                />
+                <SearchInput
+                  // The wrapper is inline-block/w-auto and the input reserves pr-16 for its icons, so at
+                  // the browser's default input width this placeholder gets cut off mid-ellipsis.
+                  className="w-60 sm:w-68"
+                  placeholder={t`Search security groups...`}
+                  data-testid="searchbar"
+                  value={localSearchTerm}
+                  onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                    const v = e.currentTarget.value
+                    setLocalSearchTerm(v)
+                    clearTimeout(debounceTimer.current)
+                    debounceTimer.current = window.setTimeout(() => {
+                      debounceTimer.current = undefined
+                      handleSearchChange(v)
+                    }, SEARCH_DEBOUNCE_MS)
+                  }}
+                  onSearch={(v) => {
+                    clearTimeout(debounceTimer.current)
+                    debounceTimer.current = undefined
+                    handleSearchChange(typeof v === "string" ? v : "")
+                  }}
+                  onClear={() => {
+                    clearTimeout(debounceTimer.current)
+                    debounceTimer.current = undefined
+                    setLocalSearchTerm("")
+                    handleSearchChange("")
+                  }}
+                />
+              </Stack>
+              {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
+                <SelectedFilters
+                  selectedFilters={filterSettings.selectedFilters}
+                  filters={filterSettings.filters}
+                  onDelete={(filterToRemove) =>
+                    handleFilterChange({
+                      ...filterSettings,
+                      selectedFilters: (filterSettings.selectedFilters || []).filter(
+                        (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
+                      ),
+                    })
+                  }
+                  onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
+                />
+              )}
+            </Stack>
+          </DataGridToolbar>
         </Stack>
 
-        <DataGridToolbar>
-          <Stack direction="vertical" gap="2">
-            <Stack distribution="between" alignment="center">
-              <FiltersInput
-                filters={filterSettings.filters}
-                selectClassName="sm:min-w-40"
-                comboboxClassName="sm:min-w-40"
-                onChange={(selected) => {
-                  const newSelected = applyFilterSelection(
-                    filterSettings.selectedFilters || [],
-                    selected,
-                    filterSettings.filters
-                  )
-                  if (newSelected === (filterSettings.selectedFilters || [])) return
-                  handleFilterChange({ ...filterSettings, selectedFilters: newSelected })
-                }}
-              />
-              <SearchInput
-                // The wrapper is inline-block/w-auto and the input reserves pr-16 for its icons, so at
-                // the browser's default input width this placeholder gets cut off mid-ellipsis.
-                className="w-60 sm:w-68"
-                placeholder={t`Search security groups...`}
-                data-testid="searchbar"
-                value={localSearchTerm}
-                onInput={(e: React.FormEvent<HTMLInputElement>) => {
-                  const v = e.currentTarget.value
-                  setLocalSearchTerm(v)
-                  clearTimeout(debounceTimer.current)
-                  debounceTimer.current = window.setTimeout(() => {
-                    debounceTimer.current = undefined
-                    handleSearchChange(v)
-                  }, SEARCH_DEBOUNCE_MS)
-                }}
-                onSearch={(v) => {
-                  clearTimeout(debounceTimer.current)
-                  debounceTimer.current = undefined
-                  handleSearchChange(typeof v === "string" ? v : "")
-                }}
-                onClear={() => {
-                  clearTimeout(debounceTimer.current)
-                  debounceTimer.current = undefined
-                  setLocalSearchTerm("")
-                  handleSearchChange("")
-                }}
-              />
-            </Stack>
-            {filterSettings.selectedFilters && filterSettings.selectedFilters.length > 0 && (
-              <SelectedFilters
-                selectedFilters={filterSettings.selectedFilters}
-                filters={filterSettings.filters}
-                onDelete={(filterToRemove) =>
-                  handleFilterChange({
-                    ...filterSettings,
-                    selectedFilters: (filterSettings.selectedFilters || []).filter(
-                      (f) => !(f.name === filterToRemove.name && f.value === filterToRemove.value)
-                    ),
-                  })
-                }
-                onClear={() => handleFilterChange({ ...filterSettings, selectedFilters: [] })}
-              />
-            )}
-          </Stack>
-        </DataGridToolbar>
-
+        {/* Renders <DataGrid> as a direct child; its Edit/Delete modals portal and add no in-flow DOM */}
         <SecurityGroupListContainer
           securityGroups={securityGroups}
           isLoading={isLoading}
@@ -359,18 +364,18 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
           hasAnyBulkAction={false}
           onClearUpdateError={handleClearUpdateError}
         />
+      </Stack>
 
-        <CreateSecurityGroupModal
-          isOpen={createModalOpen}
-          onClose={() => {
-            setCreateError(null)
-            setCreateModalOpen(false)
-          }}
-          onCreate={handleCreateSecurityGroup}
-          isLoading={createSecurityGroupMutation.isPending}
-          error={createError}
-        />
-      </div>
+      <CreateSecurityGroupModal
+        isOpen={createModalOpen}
+        onClose={() => {
+          setCreateError(null)
+          setCreateModalOpen(false)
+        }}
+        onCreate={handleCreateSecurityGroup}
+        isLoading={createSecurityGroupMutation.isPending}
+        error={createError}
+      />
     </>
   )
 }

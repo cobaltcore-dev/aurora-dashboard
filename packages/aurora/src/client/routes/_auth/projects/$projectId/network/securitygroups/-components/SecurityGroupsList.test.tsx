@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
@@ -43,7 +43,7 @@ vi.mock("./SecurityGroupListContainer", () => ({
     onDeleteSecurityGroup?: (id: string) => void
     onUpdateSecurityGroup?: (id: string, data: { name: string }) => Promise<void>
   }) => (
-    <div>
+    <div data-testid="sg-list-container">
       <button onClick={() => onDeleteSecurityGroup?.("sg-123")}>Delete group</button>
       <button onClick={() => onUpdateSecurityGroup?.("sg-123", { name: "updated" })}>Update group</button>
     </div>
@@ -121,6 +121,23 @@ describe("SecurityGroups", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     i18n.activate("en")
+  })
+
+  it("composes the DataGrid header per the Juno pattern", () => {
+    const { container } = renderList()
+
+    const outer = container.querySelector(".juno-pattern-datagrid-outer")
+    expect(outer).not.toBeNull()
+    const zones = Array.from(outer!.children)
+
+    const header = zones[0]
+    expect(header).toHaveClass("juno-pattern-datagrid-header")
+    expect(within(header as HTMLElement).getByTestId("searchbar")).toBeInTheDocument()
+    expect(within(header as HTMLElement).getByRole("button", { name: "Create Security Group" })).toBeInTheDocument()
+
+    expect(zones[zones.length - 1]).toBe(within(container).getByTestId("sg-list-container"))
+    // The old `div.relative` wrapper around the list is gone: the outer Stack is a top-level zone
+    expect(outer!.parentElement!.querySelector(":scope > div.relative")).toBeNull()
   })
 
   it("shows a success toast with the group name after deletion", async () => {
