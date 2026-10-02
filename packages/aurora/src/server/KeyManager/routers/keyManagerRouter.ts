@@ -266,7 +266,11 @@ export const keyManagerRouter = {
       const params = new URLSearchParams()
       params.set("offset", String(input.offset))
       params.set("limit", String(input.limit))
-      if (input.sort) params.set("sort", input.sort)
+      if (input.sort) {
+        const [sortKey, sortDir] = input.sort.split(":")
+        if (sortKey) params.set("sort_key", sortKey)
+        if (sortDir) params.set("sort_dir", sortDir)
+      }
       const res = await km.get(`v1/orders?${params}`).catch((e: unknown) => {
         throw mapKmError(e, "list orders")
       })
