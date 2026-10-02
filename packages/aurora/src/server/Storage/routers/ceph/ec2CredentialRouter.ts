@@ -239,10 +239,12 @@ export const ec2CredentialRouter = {
    * (`middleware/resolveEC2Credential.ts`), so exposing it to its own owner adds no new
    * disclosure surface.
    *
-   * Modelled as a mutation rather than a query on purpose: a tRPC query result lands in the
-   * TanStack Query cache, where the secret would survive the modal being closed and show up
-   * in devtools. Mutation results never enter the query cache and are dropped by reset().
-   * Same trick as `objects.generatePresignedUrl`.
+   * Modelled as a mutation rather than a query on purpose: a query is the shape React Query
+   * caches by default, and a secret in that cache would outlive the modal that asked for it and
+   * show up in devtools. Same trick as `objects.generatePresignedUrl`. A mutation is not a cache
+   * guarantee on its own, though - `useMutation` keeps its answer in the MutationCache for
+   * `gcTime` after the observer lets go - so the client calls this one through the vanilla tRPC
+   * client, which caches nothing. See `ManageCredentialsModal`.
    */
   reveal: projectScopedProcedure
     .input(ec2CredentialIdInputSchema)

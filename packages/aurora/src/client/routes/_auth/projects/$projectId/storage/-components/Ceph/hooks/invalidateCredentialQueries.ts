@@ -31,19 +31,37 @@ export async function invalidateCredentialQueries(
   utils: CephUtils,
   { projectId, mutation }: InvalidateCredentialQueriesOptions
 ) {
-  // The key table itself. Always: every mutation here adds or removes a row. Awaited, because
-  // the count below is read out of what it puts in the cache.
-  await utils.storage.ceph.ec2Credentials.list.invalidate()
-
-  const count = utils.storage.ceph.ec2Credentials.list.getData({ project_id: projectId })?.length
+  // The key table itself. Always: every mutation here adds or removes a row.
+  //
+  // Refetched rather than invalidated, and the count below is read out of what came back instead
+  // of out of the cache afterwards. The two are not the same thing when the refresh fails: the
+  // cache then still holds the pre-mutation list, which reads as a perfectly good count and sends
+  // the decision below the wrong way — a first key whose refresh failed looks like no key at all,
+  // and the page behind the modal stays on "Setup Required" over a project that now has one.
+  // `fetch` either answers with the new list or throws.
+  //
+  // `staleTime: 0` because the client's default is 60s (App.tsx) and this list was almost
+  // certainly read inside that window: without it, this would hand back the pre-mutation list
+  // without asking the server at all. `retry: false` matches how `ManageCredentialsModal` reads
+  // the same query, and keeps a failure from holding this up for three backoffs.
+  let count: number | undefined
+  try {
+    const credentials = await utils.storage.ceph.ec2Credentials.list.fetch(
+      { project_id: projectId },
+      { staleTime: 0, retry: false }
+    )
+    count = credentials.length
+  } catch {
+    count = undefined
+  }
 
   // After a create, exactly one key means it was the project's first. After a delete, none means
   // the one just removed was the last. Both are read from the post-refetch cache, so neither
   // depends on what the caller could see when it started.
   //
-  // No count at all - the refetch failed and nothing was cached before it - refreshes the listing
-  // rather than skipping it: a needless refetch costs time, a missed one leaves the page behind
-  // the modal showing "Setup Required" over a project that now has a key, until a manual reload.
+  // No count at all - the refresh above failed - refreshes the listing rather than skipping it: a
+  // needless refetch costs time, a missed one leaves the page behind the modal showing "Setup
+  // Required" over a project that now has a key, until a manual reload.
   const hasCredentialsChanged = count === undefined || (mutation === "create" ? count === 1 : count === 0)
 
   if (!hasCredentialsChanged) return

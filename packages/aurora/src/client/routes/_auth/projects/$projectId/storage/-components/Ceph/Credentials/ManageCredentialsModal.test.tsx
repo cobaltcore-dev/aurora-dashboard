@@ -56,11 +56,10 @@ type Credential = { id: string; access: string; user_id: string; project_id: str
 type CredentialWithSecret = Credential & { secret: string }
 
 const {
-  mockInvalidateList,
+  mockRefetchList,
   mockInvalidateContainersList,
   mockInvalidateStatus,
   mockRevealMutateAsync,
-  mockRevealReset,
   mockCreateMutate,
   mockCreateReset,
   mockDeleteMutate,
@@ -76,7 +75,6 @@ const {
     statusError: null as { message: string } | null,
     revealResult: null as CredentialWithSecret | null,
     revealError: null as Error | null,
-    isRevealPending: false,
     // No secret: `create` answers without one, and the component has nothing to do with it.
     createResult: null as Credential | null,
     createError: null as string | null,
@@ -90,11 +88,10 @@ const {
     deleteOptions: {} as { onSuccess?: () => void; onError?: (err: { message: string }) => void },
   }
 
-  const mockInvalidateList = vi.fn()
+  const mockRefetchList = vi.fn()
   const mockInvalidateContainersList = vi.fn()
   const mockInvalidateStatus = vi.fn()
 
-  const mockRevealReset = vi.fn()
   const mockRevealMutateAsync = vi.fn().mockImplementation(async () => {
     if (mockState.revealError) throw mockState.revealError
     return mockState.revealResult
@@ -125,11 +122,10 @@ const {
   })
 
   return {
-    mockInvalidateList,
+    mockRefetchList,
     mockInvalidateContainersList,
     mockInvalidateStatus,
     mockRevealMutateAsync,
-    mockRevealReset,
     mockCreateMutate,
     mockCreateReset,
     mockDeleteMutate,
@@ -139,17 +135,24 @@ const {
 })
 
 vi.mock("@/client/trpcClient", () => ({
+  // `reveal` is the one call the component makes through the vanilla client rather than a React
+  // hook - see its comment there - so it is mocked separately from the `trpcReact` tree below.
+  trpcClient: {
+    storage: { ceph: { ec2Credentials: { reveal: { mutate: mockRevealMutateAsync } } } },
+  },
   trpcReact: {
     useUtils: () => ({
       storage: {
         ceph: {
           ec2Credentials: {
             list: {
-              invalidate: mockInvalidateList,
-              // The helper decides from the post-refetch cache, not from the component's copy.
-              // The mutation mocks below keep `mockState.credentials` in step, so reading it here
-              // is what a settled refetch would have left behind.
-              getData: () => mockState.credentials,
+              // The helper refetches the key table and decides from what comes back, not from the
+              // component's copy. The mutation mocks below keep `mockState.credentials` in step,
+              // so resolving with it is what a settled refetch would have answered.
+              fetch: (...args: unknown[]) => {
+                mockRefetchList(...args)
+                return Promise.resolve(mockState.credentials)
+              },
             },
           },
           containers: {
@@ -167,13 +170,6 @@ vi.mock("@/client/trpcClient", () => ({
               data: mockState.credentials,
               isLoading: mockState.isLoadingCredentials,
               error: mockState.listError,
-            }),
-          },
-          reveal: {
-            useMutation: () => ({
-              mutateAsync: mockRevealMutateAsync,
-              isPending: mockState.isRevealPending,
-              reset: mockRevealReset,
             }),
           },
           create: {
@@ -233,7 +229,6 @@ describe("ManageCredentialsModal", () => {
       project_id: mockProjectId,
     }
     mockState.revealError = null
-    mockState.isRevealPending = false
     mockState.createResult = null
     mockState.createError = null
     mockState.isCreatePending = false
@@ -469,6 +464,51 @@ describe("ManageCredentialsModal", () => {
       expect(secretField()).not.toHaveValue(TEST_SECRET)
     })
 
+    // The modal never closes here, so the opening counter lets this one through: a reveal fired
+    // before the delete lands afterwards and writes the secret of a key that is gone. Nothing
+    // renders it - the row has been removed - which is exactly the problem: no Hide can reach it
+    // and it sits in state until the modal is closed. The test observes that state by putting the
+    // row back afterwards, which is the only way to see a value the UI itself no longer shows.
+    test("drops a secret that arrives after its own key was deleted", async () => {
+      let resolveReveal: (value: CredentialWithSecret) => void = () => {}
+      mockRevealMutateAsync.mockImplementationOnce(
+        () => new Promise<CredentialWithSecret>((resolve) => (resolveReveal = resolve))
+      )
+
+      const user = userEvent.setup()
+      const modal = () => (
+        <I18nProvider i18n={i18n}>
+          <PortalProvider>
+            <ManageCredentialsModal isOpen onClose={vi.fn()} />
+          </PortalProvider>
+        </I18nProvider>
+      )
+      const credential = mockState.credentials[0]
+      const { rerender } = render(modal())
+
+      await user.click(screen.getByTestId(`toggle-secret-${TEST_CREDENTIAL_ID}`))
+      await waitFor(() => expect(mockRevealMutateAsync).toHaveBeenCalledTimes(1))
+
+      await user.click(screen.getByTestId(`delete-credential-${TEST_CREDENTIAL_ID}`))
+      await user.click(screen.getByRole("button", { name: "Delete Access Key" }))
+      expect(screen.queryByTestId(`secret-${TEST_CREDENTIAL_ID}`)).not.toBeInTheDocument()
+
+      await act(async () => {
+        resolveReveal({
+          id: TEST_CREDENTIAL_ID,
+          access: TEST_ACCESS,
+          secret: TEST_SECRET,
+          user_id: "user-1",
+          project_id: mockProjectId,
+        })
+      })
+
+      mockState.credentials = [credential]
+      rerender(modal())
+
+      expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).not.toHaveValue(TEST_SECRET)
+    })
+
     // `handleClose` is not the only way out: Escape reaches Juno's Modal through the focus trap's
     // `escapeDeactivates`, which ignores `disableCancelButton`/`disableCloseButton`, and a parent
     // may drop `isOpen` on its own. Either way the next opening has to be able to fetch again.
@@ -548,7 +588,7 @@ describe("ManageCredentialsModal", () => {
       await user.click(screen.getByRole("button", { name: "Create Access Key" }))
 
       expect(mockCreateMutate).toHaveBeenCalledWith({ project_id: mockProjectId })
-      expect(mockInvalidateList).toHaveBeenCalled()
+      expect(mockRefetchList).toHaveBeenCalled()
       await waitFor(() => expect(toast.success).toHaveBeenCalled())
 
       // Nothing in the component's own state changes on a create now that the secret is dropped,
@@ -739,7 +779,7 @@ describe("ManageCredentialsModal", () => {
       await waitFor(() => {
         expect(toast.success).toHaveBeenCalled()
       })
-      expect(mockInvalidateList).toHaveBeenCalled()
+      expect(mockRefetchList).toHaveBeenCalled()
       // The fixture holds one key, so this delete empties the project: 1 -> 0.
       expect(mockInvalidateContainersList).toHaveBeenCalled()
       // Its only reader takes endpoint/region from it, and those don't move.
@@ -757,7 +797,7 @@ describe("ManageCredentialsModal", () => {
       await user.click(screen.getByTestId(`delete-credential-${TEST_CREDENTIAL_ID}`))
       await user.click(confirmDelete())
 
-      expect(mockInvalidateList).toHaveBeenCalled()
+      expect(mockRefetchList).toHaveBeenCalled()
       expect(mockInvalidateContainersList).not.toHaveBeenCalled()
     })
 
@@ -788,7 +828,7 @@ describe("ManageCredentialsModal", () => {
       // covered in CredentialToastNotifications.test.tsx, where the rest of the toasts are.
       await waitFor(() => expect(toast.error).toHaveBeenCalled())
       expect(toast.success).not.toHaveBeenCalled()
-      expect(mockInvalidateList).toHaveBeenCalled()
+      expect(mockRefetchList).toHaveBeenCalled()
     })
 
     test("hides the delete button when the user lacks permission, and says who to ask", () => {

@@ -160,7 +160,7 @@ Instead of a tRPC input, it takes the project id from the `x-upload-project-id` 
 storage.ceph
   ├── ec2Credentials
   │   ├── list()        → Ec2Credential[]
-  │   ├── create()      → Ec2CredentialWithSecret (CONFLICT once the caller already holds 2)
+  │   ├── create()      → Ec2Credential (no secret — only `reveal` returns one)
   │   ├── reveal(id)    → Ec2CredentialWithSecret (mutation, not query — see below)
   │   └── delete(id)    → { success: true }
   ├── containers
@@ -276,7 +276,7 @@ const { secret } = await trpc.storage.ceph.ec2Credentials.reveal.mutate({
 
 Returns one credential **including its secret**, for its owner only. Unlike an Application Credential (whose secret is hashed and never recoverable), an EC2 credential's blob is stored encrypted and decrypted on every read — the BFF already reads this exact secret on every single Ceph request (see `middleware/resolveEC2Credential.ts`), so exposing it back to its own owner on request adds no new disclosure surface.
 
-Modelled as a **mutation**, not a query, on purpose: a tRPC query's result lands in the TanStack Query cache, where the secret would survive the UI that requested it being closed and would show up in React Query Devtools. A mutation's result never enters the query cache and is dropped by `reset()`. (Same pattern as `objects.generatePresignedUrl`.)
+Modelled as a **mutation**, not a query, on purpose: a query is the shape React Query caches by default, and the secret would then survive the UI that requested it being closed and show up in React Query Devtools. (Same pattern as `objects.generatePresignedUrl`.) That alone is not enough on the client, though — `useMutation` keeps its answer in the **MutationCache** for `gcTime` (five minutes by default) after `reset()` detaches the observer — so `ManageCredentialsModal` calls this procedure through the vanilla tRPC client, which caches nothing at all.
 
 Ownership is checked the same way as `delete` (see below). The status Keystone answered with is the status the caller gets — a 404 is "no such credential", a 403 a permission problem, a 401 an authentication one. The one answer this router decides for itself is a credential Keystone _does_ return whose `user_id`/`project_id` are not the caller's (possible under a permissive legacy policy): that is refused as `NOT_FOUND` rather than read, so no secret of somebody else's leaves the server.
 
