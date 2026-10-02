@@ -145,7 +145,29 @@ export function buildNavSections(
     ["compute", { section: "compute", label: t`Compute`, services: computeServices }],
     ["network", { section: "network", label: t`Network`, services: networkServices }],
     ["storage", { section: "storage", label: t`Storage`, services: storageServices }],
-    ["authorization", { section: "authorization", label: t`Authorization`, services: [] }],
+    [
+      "authorization",
+      {
+        section: "authorization",
+        label: t`Authorization`,
+        services: [
+          ...(serviceIndex["key-manager"]?.["barbican"]
+            ? [
+                {
+                  service: "key-manager",
+                  label: t`Key Manager`,
+                  navigate: (nav: NavigateFn) =>
+                    nav({
+                      to: "/projects/$projectId/authorization/key-manager/secrets/",
+                      params: { projectId },
+                    }),
+                  params: { projectId },
+                },
+              ]
+            : []),
+        ],
+      },
+    ],
     ["services", { section: "services", label: t`Services`, services: [] }],
   ])
 

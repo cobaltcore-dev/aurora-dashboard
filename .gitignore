@@ -10,6 +10,7 @@ dist-ssr
 server/dist
 public/dist
 .claude
+!.claude/skills/
 CLAUDE*
 .out-of-code-insights
 
