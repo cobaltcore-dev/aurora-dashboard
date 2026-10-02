@@ -5,7 +5,6 @@ import { projectScopedProcedure, projectScopedInputSchema } from "../../../trpc"
 import type { AuroraPortalContext } from "../../../context"
 import { toEc2Credential, toEc2CredentialWithSecret } from "../../helpers/ec2CredentialMapper"
 import { ec2CredentialIdInputSchema, type Ec2Credential, type Ec2CredentialWithSecret } from "../../types/ceph"
-import { EC2_CREDENTIALS_MAX_PER_PROJECT, EC2_CREDENTIAL_LIMIT_REACHED } from "../../constants"
 
 // ============================================================================
 // INTERNAL TYPES (raw Identity API response shapes)
@@ -31,30 +30,63 @@ interface CredentialCreateResponse {
 type ProjectScopedContext = AuroraPortalContext & { openstack: NonNullable<AuroraPortalContext["openstack"]> }
 
 /**
+ * Rejects with the answer the identity service's own status calls for, so one Keystone status does
+ * not come to mean two different things depending on which call produced it. Reached from both
+ * shapes a refusal can arrive in - a thrown SignalOpenstackApiError, which is what the real client
+ * produces, and a resolved non-ok response - and from both procedures that talk to Keystone.
+ *
+ * 404 is not handled here: what "not there" means is the caller's decision, and both of them make
+ * it right before calling this, in the one line where it reads as a decision.
+ *
+ * `whatFailed` names the call for the one answer that has nothing to report but our own failure.
+ * It is not decoration: the client prints this message verbatim in a toast, so a shared sentence
+ * would have a failed delete explain itself as a credential it could not read for verification -
+ * an operation that had already succeeded by then.
+ */
+function rejectForIdentityStatus(status: number | undefined, whatFailed: string): never {
+  if (status === 401) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Authentication failed" })
+  }
+  if (status === 403) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" })
+  }
+  throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: whatFailed })
+}
+
+function credentialNotFound(): TRPCError {
+  return new TRPCError({ code: "NOT_FOUND", message: "Credential not found" })
+}
+
+/**
  * Fetches one credential and verifies it belongs to the caller.
  *
- * Both user_id and project_id come from the (already rescoped) token, never from input —
- * that is what makes the check an authorization check and not a filter the caller controls.
- * When this check is the one that rejects, it answers NOT_FOUND rather than FORBIDDEN, so its
- * answer alone can't be used to confirm that a credential ID exists (IDOR hardening, #1182).
+ * What the identity service answers is what the caller gets: 404 means "no such credential", 403
+ * a permission problem, 401 an authentication one. This router does not rewrite one into another,
+ * and under the modern default policy (`identity:get_credential` =
+ * `user_id:%target.credential.user_id%`) that is the whole story - Keystone refuses another user's
+ * credential itself, and its refusal is what travels back. Rewriting a 403 into NOT_FOUND would
+ * hide nothing anyway (`ctx.openstack` is the caller's own rescoped session, so the same request
+ * answers them the same way made directly) while making a misconfigured rule look like an empty
+ * account rather than the permission problem an operator can go and fix.
  *
- * That is the guarantee, and it is narrower than "existence is never observable". It only holds
- * for credentials Keystone lets us read in the first place. Under the modern default policy
- * (`identity:get_credential` = `user_id:%target.credential.user_id%`) Keystone refuses another
- * user's credential itself: a nonexistent id comes back 404 and becomes NOT_FOUND here, an
- * existing one someone else owns comes back 403 and becomes FORBIDDEN — distinguishable, and
- * deliberately left that way. Folding 403 into NOT_FOUND would close nothing, because the same
- * two answers are what Keystone gives any holder of that token directly, and it would make a
- * genuinely misconfigured `identity:get_credential` rule look like an empty account instead of a
- * permission problem an operator can find.
+ * One answer this function decides for itself: a credential the identity service *does* return but
+ * whose user_id or project_id is not the caller's. That happens on a permissive legacy policy
+ * (`admin_or_owner` with a broad token), and here "do what the backend does" would mean handing
+ * over somebody else's secret, so it is refused instead - never parsed, never returned. The
+ * refusal is NOT_FOUND rather than FORBIDDEN (IDOR hardening, #1182); worth knowing that this
+ * conceals less than it looks, for the same reason as above - the caller holds the token that
+ * would answer the question directly.
+ *
+ * Both ids come from the (already rescoped) token, never from input - that is what makes the
+ * check an authorization check and not a filter the caller controls.
  *
  * Only `type: "ec2"` credentials are in scope. A user's Keystone account can hold credentials of
  * other types in the same project, and this router presents itself as S3 access-key management —
  * so anything else is reported the same way a missing credential is, rather than being deleted or
  * parsed as an EC2 blob.
  *
- * Returns null when the credential isn't there (or isn't an EC2 one), letting the caller choose
- * its own semantics: `delete` treats it as idempotent success, `reveal` as NOT_FOUND.
+ * Returns null when the credential isn't there (or isn't an EC2 one). Both callers answer that
+ * with NOT_FOUND - `delete` as well, which is deliberate: see its own docblock.
  */
 async function fetchOwnedCredential(ctx: ProjectScopedContext, credentialId: string): Promise<RawCredential | null> {
   const userId = ctx.openstack.getToken()?.tokenData.user?.id
@@ -71,35 +103,31 @@ async function fetchOwnedCredential(ctx: ProjectScopedContext, credentialId: str
   const identityService = ctx.openstack.service("identity")
 
   // 1. Fetch credential to verify ownership.
-  //    signal-openstack's `request()` rejects with SignalOpenstackApiError on every non-2xx
-  //    answer instead of resolving with `ok: false` (client.ts), so "no such credential"
-  //    arrives here as a throw. The `!ok` branch below covers identity service implementations
-  //    that resolve instead; both shapes mean the same thing at this point.
+  //    signal-openstack's `request()` rejects with SignalOpenstackApiError on every non-2xx answer
+  //    instead of resolving with `ok: false` (client.ts), so this is the path every refusal from
+  //    the identity service actually takes - the `!ok` branch below is for identity service
+  //    implementations that resolve instead. Both shapes carry the same status and are translated
+  //    the same way, which is the point: the status the service answered with is the one the
+  //    caller sees.
   let getResponse
   try {
     getResponse = await identityService.get(`credentials/${credentialId}`)
   } catch (error) {
-    if (error instanceof SignalOpenstackApiError && error.statusCode === 404) {
-      return null
+    if (error instanceof SignalOpenstackApiError) {
+      // Not there - the caller decides what that means.
+      if (error.statusCode === 404) {
+        return null
+      }
+      rejectForIdentityStatus(error.statusCode, "Failed to fetch credential for verification")
     }
     throw error
   }
 
   if (!getResponse.ok) {
     if (getResponse.status === 404) {
-      // Not there — the caller decides what that means.
       return null
     }
-    if (getResponse.status === 401) {
-      throw new TRPCError({ code: "UNAUTHORIZED", message: "Authentication failed" })
-    }
-    if (getResponse.status === 403) {
-      throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" })
-    }
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to fetch credential for verification",
-    })
+    rejectForIdentityStatus(getResponse.status, "Failed to fetch credential for verification")
   }
 
   const credentialData: { credential: RawCredential } = await getResponse.json()
@@ -107,10 +135,7 @@ async function fetchOwnedCredential(ctx: ProjectScopedContext, credentialId: str
 
   // 2. Verify ownership - return NOT_FOUND to prevent enumeration
   if (credential.user_id !== userId || credential.project_id !== projectId) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Credential not found",
-    })
+    throw credentialNotFound()
   }
 
   // 3. Not an EC2 credential: outside this router's remit, same answer as "not there".
@@ -158,44 +183,25 @@ export const ec2CredentialRouter = {
 
   /**
    * Creates a new EC2 credential for the current user scoped to the given project.
-   * The secret key is returned exactly once in this response and never stored.
    *
-   * Enforces EC2_CREDENTIALS_MAX_PER_PROJECT: once a user already holds that many
-   * credentials in this project, creation is refused with CONFLICT/EC2_CREDENTIAL_LIMIT_REACHED.
+   * The secret is generated here and handed to Keystone, but deliberately not returned: the UI
+   * shows a new key concealed like any other and reads it through `reveal`, so a secret in this
+   * response would be a value crossing the wire that nothing consumes. `reveal` remains the one
+   * procedure that hands a secret out.
+   *
+   * No ceiling on how many a user may hold: neither Keystone nor RGW imposes one, and all of a
+   * user's keys in a project map to the same RGW identity, so an extra key grants no extra access
+   * and costs no quota. A limit here would only be this router refusing what the backend allows.
    */
   create: projectScopedProcedure
     .input(projectScopedInputSchema)
-    .mutation(async ({ ctx, input }): Promise<Ec2CredentialWithSecret> => {
+    .mutation(async ({ ctx, input }): Promise<Ec2Credential> => {
       const userId = ctx.openstack.getToken()?.tokenData.user?.id
       if (!userId) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "User ID not found in token" })
       }
 
       const identityService = ctx.openstack.service("identity")
-
-      const listResponse = await identityService.get("credentials", {
-        queryParams: { user_id: userId, type: "ec2" },
-      })
-      if (!listResponse.ok) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to verify the existing credential count",
-        })
-      }
-      const existing: CredentialsListResponse = await listResponse.json()
-      const existingForProject = (existing.credentials ?? []).filter(
-        (c) => c.type === "ec2" && c.project_id === input.project_id
-      )
-      if (existingForProject.length >= EC2_CREDENTIALS_MAX_PER_PROJECT) {
-        throw new TRPCError({ code: "CONFLICT", message: EC2_CREDENTIAL_LIMIT_REACHED })
-      }
-
-      // Check-then-create, not atomic: Keystone offers no uniqueness/count constraint on
-      // credentials, so two concurrent creates can both pass this check and leave three keys.
-      // Deliberately not compensated by deleting the key we just made — all of a user's keys
-      // in a project map to the same RGW identity, so one extra key grants nothing and costs
-      // no quota, while a destructive rollback on a race is a strictly worse failure mode.
-      // The UI additionally disables Create at the limit.
 
       const access = randomBytes(20).toString("hex").toUpperCase()
       const secret = randomBytes(40).toString("base64")
@@ -220,7 +226,7 @@ export const ec2CredentialRouter = {
 
       const data: CredentialCreateResponse = await response.json()
 
-      return toEc2CredentialWithSecret(data.credential)
+      return toEc2Credential(data.credential)
     }),
 
   /**
@@ -243,7 +249,7 @@ export const ec2CredentialRouter = {
     .mutation(async ({ ctx, input }): Promise<Ec2CredentialWithSecret> => {
       const credential = await fetchOwnedCredential(ctx, input.credentialId)
       if (!credential) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Credential not found" })
+        throw credentialNotFound()
       }
 
       return toEc2CredentialWithSecret(credential)
@@ -252,33 +258,52 @@ export const ec2CredentialRouter = {
   /**
    * Deletes an EC2 credential by ID.
    * Verifies ownership before deletion to prevent IDOR attacks.
+   *
+   * Deliberately NOT idempotent: a credential that is not there answers NOT_FOUND rather than
+   * success. Reporting a deletion this procedure did not perform is a lie the UI then repeats in a
+   * toast naming a key nobody deleted, and it hides the one case worth seeing — someone else
+   * removing that key while this screen was open. The caller is told what the identity service
+   * actually said, and the UI refreshes the list either way, so the table stops showing the key
+   * regardless of which answer came back.
+   *
+   * NOT_FOUND here is the same answer `fetchOwnedCredential` gives for a credential owned by
+   * somebody else, which keeps the two indistinguishable (the anti-enumeration property from
+   * #1182) — it is not weakened by this change, only extended to one more case.
    */
   delete: projectScopedProcedure
     .input(ec2CredentialIdInputSchema)
     .mutation(async ({ ctx, input }): Promise<{ success: true }> => {
       const credential = await fetchOwnedCredential(ctx, input.credentialId)
       if (!credential) {
-        // Already gone (or never existed): idempotent delete is success.
-        return { success: true }
+        throw credentialNotFound()
       }
 
       const identityService = ctx.openstack.service("identity")
 
+      // `signal-openstack`'s `request()` rejects on every non-2xx rather than resolving with
+      // `ok: false` (client.ts), so a 404 arrives here as a throw. The `!ok` branch below covers
+      // identity service implementations that resolve instead; both mean the same thing.
+      let deleteResponse
       try {
-        const deleteResponse = await identityService.del(`credentials/${input.credentialId}`)
-
-        if (!deleteResponse.ok && deleteResponse.status !== 404) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to delete EC2 credential",
-          })
-        }
+        deleteResponse = await identityService.del(`credentials/${input.credentialId}`)
       } catch (error) {
-        // Deleted by someone else between the ownership check and this call — still success.
-        if (error instanceof SignalOpenstackApiError && error.statusCode === 404) {
-          return { success: true }
+        // Translated the same way as the read above, so a Keystone status means the same thing
+        // whichever call produced it. A 404 here is a credential someone else deleted between the
+        // ownership check and this call.
+        if (error instanceof SignalOpenstackApiError) {
+          if (error.statusCode === 404) {
+            throw credentialNotFound()
+          }
+          rejectForIdentityStatus(error.statusCode, "Failed to delete EC2 credential")
         }
         throw error
+      }
+
+      if (!deleteResponse.ok) {
+        if (deleteResponse.status === 404) {
+          throw credentialNotFound()
+        }
+        rejectForIdentityStatus(deleteResponse.status, "Failed to delete EC2 credential")
       }
 
       return { success: true }

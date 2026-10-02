@@ -235,9 +235,9 @@ const credentials = await trpc.storage.ceph.ec2Credentials.list.query({
 
 #### `create`
 
-Creates a new EC2 credential for the current user scoped to the given project. **The secret key is returned exactly once** in this response and never stored or shown again.
+Creates a new EC2 credential for the current user scoped to the given project. **The secret key is not returned.** It is generated here and handed to Keystone, but the response carries only the public half: a new key is read back through [`reveal`](#reveal) like any other, so returning it here would be a secret crossing the wire that nothing consumes.
 
-Enforces `EC2_CREDENTIALS_MAX_PER_PROJECT` (currently 2, mirroring AWS's own two-access-key limit): once the caller already holds that many credentials in this project, the mutation throws `CONFLICT` with `message: "EC2_CREDENTIAL_LIMIT_REACHED"` instead of creating a third one. The check is a plain list-then-compare against Keystone (no atomic constraint exists there), so a race between two concurrent creates can leave three keys — deliberately not compensated for, since every key a user holds in a project maps to the same RGW identity, so one extra key grants no extra access.
+No ceiling on how many credentials a user may hold. Neither Keystone nor RGW imposes one, and every key a user holds in a project maps to the same RGW identity, so an extra key grants no extra access and costs no quota — a limit here would only be this router refusing what the backend allows. (An earlier version capped this at two per project and answered `CONFLICT` / `EC2_CREDENTIAL_LIMIT_REACHED`; both the constant and that error are gone.) Nothing is read before the create either, so it costs one Keystone call.
 
 **Input:**
 
@@ -250,11 +250,7 @@ Enforces `EC2_CREDENTIALS_MAX_PER_PROJECT` (currently 2, mirroring AWS's own two
 **Output:**
 
 ```typescript
-Ec2CredentialWithSecret
-
-interface Ec2CredentialWithSecret extends Ec2Credential {
-  secret: string // Secret access key
-}
+Ec2Credential // same shape as `list` returns: { id, access, user_id, project_id }
 ```
 
 **Example:**
@@ -264,12 +260,15 @@ const credential = await trpc.storage.ceph.ec2Credentials.create.mutate({
   project_id: "abc123",
 })
 
-// Save the secret immediately!
 console.log("Access Key:", credential.access)
-console.log("Secret Key:", credential.secret)
+// The secret is read separately, when and if it is wanted:
+const { secret } = await trpc.storage.ceph.ec2Credentials.reveal.mutate({
+  project_id: "abc123",
+  credentialId: credential.id,
+})
 ```
 
-**Important:** Display the secret key to the user immediately and instruct them to save it securely — but note that unlike an Application Credential's secret, this one is _not_ unrecoverable: see `reveal` below.
+**Important:** there is nothing to catch here. Unlike an Application Credential's secret, an EC2 credential's is not unrecoverable — `reveal` returns it to its owner at any later point, which is why `create` does not have to.
 
 ---
 
@@ -279,7 +278,7 @@ Returns one credential **including its secret**, for its owner only. Unlike an A
 
 Modelled as a **mutation**, not a query, on purpose: a tRPC query's result lands in the TanStack Query cache, where the secret would survive the UI that requested it being closed and would show up in React Query Devtools. A mutation's result never enters the query cache and is dropped by `reset()`. (Same pattern as `objects.generatePresignedUrl`.)
 
-Ownership is checked the same way as `delete` (see below) — a credential belonging to another user or project answers `NOT_FOUND`, not `FORBIDDEN`, so the response can't be used to confirm that a credential ID exists.
+Ownership is checked the same way as `delete` (see below). The status Keystone answered with is the status the caller gets — a 404 is "no such credential", a 403 a permission problem, a 401 an authentication one. The one answer this router decides for itself is a credential Keystone _does_ return whose `user_id`/`project_id` are not the caller's (possible under a permissive legacy policy): that is refused as `NOT_FOUND` rather than read, so no secret of somebody else's leaves the server.
 
 **Input:**
 
@@ -306,7 +305,7 @@ console.log("Secret Key:", credential.secret)
 
 #### `delete`
 
-Deletes an EC2 credential by ID. Returns success even if the credential is not found (idempotent).
+Deletes an EC2 credential by ID. Deliberately **not** idempotent: a credential that is not there answers `NOT_FOUND`. Reporting a deletion that did not happen is a lie the UI repeats in a toast naming a key nobody deleted, and it hides the one case worth seeing — somebody else removing that key while the screen was open. `NOT_FOUND` is also the answer for a credential owned by someone else, so the two stay indistinguishable.
 
 **Input:**
 
@@ -332,6 +331,7 @@ await trpc.storage.ceph.ec2Credentials.delete.mutate({
   project_id: "abc123",
   credentialId: "cred-uuid",
 })
+// Throws NOT_FOUND if that credential is already gone.
 ```
 
 ---

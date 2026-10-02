@@ -48,16 +48,22 @@ describe("CredentialPrompt", () => {
     expect(onManageCredentials).toHaveBeenCalledTimes(1)
   })
 
-  test("renders content in a centered vertical stack", () => {
+  // The same component the bucket list's other full-page states are built from. `status="empty"`
+  // is what makes the container a `role="status"`; `"error"` would render a `role="alert"`, which
+  // is not what "you have not set this up yet" is.
+  test("renders as a Status with role=status, not an alert", () => {
     const { container } = renderCredentialPrompt()
-    const stack = container.querySelector(".juno-stack")
-    expect(stack).toBeInTheDocument()
-    expect(stack).toHaveClass("jn:flex", "jn:flex-col")
+    const status = container.querySelector(".juno-status")
+
+    expect(status).toBeInTheDocument()
+    expect(status).toHaveAttribute("role", "status")
   })
 
-  test("title uses heading style", () => {
-    renderCredentialPrompt()
-    const title = screen.getByText("S3 Object Storage: Setup Required")
-    expect(title.tagName).toBe("H2")
+  test("the button sits in the Status action area", () => {
+    const { container } = renderCredentialPrompt()
+
+    expect(container.querySelector(".juno-status-action")).toContainElement(
+      screen.getByRole("button", { name: "Manage Credentials" })
+    )
   })
 })

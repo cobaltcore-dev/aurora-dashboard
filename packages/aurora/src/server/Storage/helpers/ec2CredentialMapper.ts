@@ -51,8 +51,8 @@ export function toEc2Credential(raw: RawEc2Credential): Ec2Credential {
 }
 
 /**
- * Same as {@link toEc2Credential}, for the two paths that are allowed to hand the secret back:
- * `create` (which returns the key it just made) and `reveal`.
+ * Same as {@link toEc2Credential}, for `reveal` - the one path that hands the secret back. Even
+ * `create` does not: it generates the secret, stores it in Keystone and answers without it.
  */
 export function toEc2CredentialWithSecret(raw: RawEc2Credential): Ec2CredentialWithSecret {
   const blob = parseBlob(raw)

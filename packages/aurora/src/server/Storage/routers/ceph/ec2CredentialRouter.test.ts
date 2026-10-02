@@ -3,7 +3,6 @@ import { TRPCError } from "@trpc/server"
 import { SignalOpenstackApiError } from "@cobaltcore-dev/signal-openstack"
 import { ec2CredentialRouter } from "./ec2CredentialRouter"
 import { createCallerFactory, auroraRouter } from "../../../trpc"
-import { EC2_CREDENTIAL_LIMIT_REACHED } from "../../constants"
 import {
   createMockContext as createBaseMockContext,
   TEST_PROJECT_ID,
@@ -262,7 +261,7 @@ describe("ec2Credentials.reveal", () => {
     ).rejects.toThrow(new TRPCError({ code: "NOT_FOUND", message: "Credential not found" }))
   })
 
-  it("propagates a non-404 rejection from the identity service", async () => {
+  it("answers INTERNAL_SERVER_ERROR when the identity service rejects with something else", async () => {
     const ctx = createMockContext()
     ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockRejectedValue(
       new SignalOpenstackApiError("Keystone exploded", 500)
@@ -271,7 +270,9 @@ describe("ec2Credentials.reveal", () => {
 
     await expect(
       caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
-    ).rejects.toThrow()
+    ).rejects.toThrow(
+      new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to fetch credential for verification" })
+    )
   })
 
   it("throws NOT_FOUND when the credential is not an EC2 one", async () => {
@@ -290,7 +291,35 @@ describe("ec2Credentials.reveal", () => {
     ).rejects.toThrow(new TRPCError({ code: "NOT_FOUND", message: "Credential not found" }))
   })
 
-  it("throws UNAUTHORIZED on 401 from Keystone", async () => {
+  // The status the identity service answered with is the status the caller gets. Each of these is
+  // asserted in both shapes a refusal can arrive in - the rejection a real signal-openstack client
+  // produces, and the resolved non-ok response the `!ok` branch exists for - because an answer that
+  // survives only one of the two is how a 403 came to reach the UI as a generic failure.
+  it("answers UNAUTHORIZED when the identity service rejects with a 401", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new SignalOpenstackApiError("The request you have made requires authentication.", 401)
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "Authentication failed" }))
+  })
+
+  it("answers FORBIDDEN when the identity service rejects with a 403", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new SignalOpenstackApiError("You are not authorized to perform the requested action.", 403)
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.reveal({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN", message: "Access denied" }))
+  })
+
+  it("answers UNAUTHORIZED on a resolved 401 from the identity service", async () => {
     const ctx = createMockContext()
     ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation(() =>
       Promise.resolve({ ok: false, status: 401 })
@@ -302,7 +331,7 @@ describe("ec2Credentials.reveal", () => {
     ).rejects.toThrow(new TRPCError({ code: "UNAUTHORIZED", message: "Authentication failed" }))
   })
 
-  it("throws FORBIDDEN on 403 from Keystone", async () => {
+  it("answers FORBIDDEN on a resolved 403 from the identity service", async () => {
     const ctx = createMockContext()
     ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation(() =>
       Promise.resolve({ ok: false, status: 403 })
@@ -352,7 +381,10 @@ describe("ec2Credentials.reveal", () => {
 describe("ec2Credentials.create", () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it("returns new credential including secret key", async () => {
+  // `create` generates the secret and hands it to Keystone, but answers without it: the UI shows
+  // a new key concealed like any other and reads it through `reveal`. Asserted with `toEqual` so
+  // an added field fails here rather than silently putting a secret back on the wire.
+  it("returns the new credential without its secret", async () => {
     const ctx = createMockContext()
     const caller = createCaller(ctx)
 
@@ -361,10 +393,10 @@ describe("ec2Credentials.create", () => {
     expect(result).toEqual({
       id: TEST_CREDENTIAL_ID,
       access: TEST_ACCESS,
-      secret: TEST_SECRET,
       user_id: TEST_USER_ID,
       project_id: TEST_PROJECT_ID,
     })
+    expect(result).not.toHaveProperty("secret")
   })
 
   it("calls POST with correct structure (access/secret generated locally)", async () => {
@@ -419,12 +451,14 @@ describe("ec2Credentials.create", () => {
     })
   })
 
-  it("throws INTERNAL_SERVER_ERROR when created credential blob is missing secret", async () => {
+  // `access` and not `secret`: the create path reads the blob through `toEc2Credential`, which
+  // has no secret to validate. A blob missing its secret is `reveal`'s problem, and tested there.
+  it("throws INTERNAL_SERVER_ERROR when created credential blob is missing the access key", async () => {
     const ctx = createMockContext()
     ;(ctx.mockIdentity.post as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({
-        credential: { ...rawCredential, blob: JSON.stringify({ access: TEST_ACCESS }) },
+        credential: { ...rawCredential, blob: JSON.stringify({ secret: TEST_SECRET }) },
       }),
     })
     const caller = createCaller(ctx)
@@ -435,79 +469,25 @@ describe("ec2Credentials.create", () => {
     })
   })
 
-  describe("per-project credential limit", () => {
-    const mockExistingCredentials = (
-      ctx: ReturnType<typeof createMockContext>,
-      credentials: Array<typeof rawCredential>
-    ) => {
-      ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
-        if (path === "credentials") {
-          return Promise.resolve({ ok: true, json: vi.fn().mockResolvedValue({ credentials }) })
-        }
-        return Promise.resolve({ ok: false, status: 404 })
-      })
-    }
-
-    it("creates when zero credentials exist yet", async () => {
-      const ctx = createMockContext()
-      mockExistingCredentials(ctx, [])
-      const caller = createCaller(ctx)
-
-      await caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })
-
-      expect(ctx.mockIdentity.post).toHaveBeenCalled()
+  // No ceiling on how many keys a user may hold, so `create` does not read the existing list at
+  // all - it posts straight to Keystone. Keystone and RGW impose no limit of their own, and all of
+  // a user's keys in a project map to the same RGW identity, so an extra key grants no extra
+  // access. Asserting the absent GET and not only the present POST, because the pre-check this
+  // replaces was a round trip on every create.
+  it("creates without first reading the existing credentials, however many there are", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        credentials: [rawCredential, { ...rawCredential, id: "cred-2" }, { ...rawCredential, id: "cred-3" }],
+      }),
     })
+    const caller = createCaller(ctx)
 
-    it("creates when one credential already exists", async () => {
-      const ctx = createMockContext()
-      mockExistingCredentials(ctx, [rawCredential])
-      const caller = createCaller(ctx)
+    await caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })
 
-      await caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })
-
-      expect(ctx.mockIdentity.post).toHaveBeenCalled()
-    })
-
-    it("throws CONFLICT/EC2_CREDENTIAL_LIMIT_REACHED when two credentials already exist, without calling post", async () => {
-      const ctx = createMockContext()
-      mockExistingCredentials(ctx, [rawCredential, { ...rawCredential, id: "cred-2" }])
-      const caller = createCaller(ctx)
-
-      await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
-        code: "CONFLICT",
-        message: EC2_CREDENTIAL_LIMIT_REACHED,
-      })
-      expect(ctx.mockIdentity.post).not.toHaveBeenCalled()
-    })
-
-    it("does not count credentials belonging to other projects toward the limit", async () => {
-      const ctx = createMockContext()
-      mockExistingCredentials(ctx, [
-        { ...rawCredential, id: "other-cred-1", project_id: "other-project" },
-        { ...rawCredential, id: "other-cred-2", project_id: "other-project" },
-      ])
-      const caller = createCaller(ctx)
-
-      await caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })
-
-      expect(ctx.mockIdentity.post).toHaveBeenCalled()
-    })
-
-    it("throws INTERNAL_SERVER_ERROR when the pre-check listing fails, without calling post", async () => {
-      const ctx = createMockContext()
-      ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
-        if (path === "credentials") {
-          return Promise.resolve({ ok: false, status: 500 })
-        }
-        return Promise.resolve({ ok: false, status: 404 })
-      })
-      const caller = createCaller(ctx)
-
-      await expect(caller.storage.s3.ec2Credentials.create({ project_id: TEST_PROJECT_ID })).rejects.toMatchObject({
-        code: "INTERNAL_SERVER_ERROR",
-      })
-      expect(ctx.mockIdentity.post).not.toHaveBeenCalled()
-    })
+    expect(ctx.mockIdentity.post).toHaveBeenCalled()
+    expect(ctx.mockIdentity.get).not.toHaveBeenCalled()
   })
 })
 
@@ -542,50 +522,83 @@ describe("ec2Credentials.delete", () => {
     expect(ctx.mockIdentity.del).toHaveBeenCalledWith(`credentials/${TEST_CREDENTIAL_ID}`)
   })
 
-  it("returns success when credential is already gone (404)", async () => {
+  // Not idempotent on purpose: a credential that is not there is reported as NOT_FOUND, not as a
+  // deletion that happened. The three cases below are the three shapes "not there" arrives in.
+  it("throws NOT_FOUND when the credential is already gone (404 on the delete call)", async () => {
     const ctx = createMockContext()
     ;(ctx.mockIdentity.del as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: false, status: 404 })
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.s3.ec2Credentials.delete({
-      project_id: TEST_PROJECT_ID,
-      credentialId: TEST_CREDENTIAL_ID,
-    })
-
-    expect(result).toEqual({ success: true })
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
   })
 
-  // The real failure shape: a 404 arrives as a rejection, not as `ok: false`. Without handling
-  // it here the documented idempotency of delete would surface as NOT_FOUND instead of success.
-  it("returns success when the ownership fetch rejects with a 404", async () => {
+  // The real failure shape: a 404 arrives as a rejection, not as `ok: false`. Without handling it
+  // here this would surface as an opaque 500 rather than as the NOT_FOUND the client reports.
+  it("throws NOT_FOUND when the ownership fetch rejects with a 404", async () => {
     const ctx = createMockContext()
     ;(ctx.mockIdentity.get as ReturnType<typeof vi.fn>).mockRejectedValue(
       new SignalOpenstackApiError("Could not find credential", 404)
     )
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.s3.ec2Credentials.delete({
-      project_id: TEST_PROJECT_ID,
-      credentialId: TEST_CREDENTIAL_ID,
-    })
-
-    expect(result).toEqual({ success: true })
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
     expect(ctx.mockIdentity.del).not.toHaveBeenCalled()
   })
 
-  it("returns success when the credential disappears between the check and the delete", async () => {
+  // The delete call answers with the same translation as the ownership read before it, so a
+  // Keystone status does not mean one thing on the way in and another on the way out. A 403 here
+  // used to escape as a raw SignalOpenstackApiError, reaching the user as an opaque 500 - and now
+  // as the text of a toast, which is why it is worth a test of its own.
+  // The message travels into a toast verbatim, so a failed delete must not explain itself as a
+  // credential that could not be read for verification - that read had already succeeded.
+  it("names the delete, not the ownership read, when the delete call fails for another reason", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.del as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new SignalOpenstackApiError("Keystone exploded", 500)
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to delete EC2 credential" }))
+  })
+
+  it("answers FORBIDDEN when the delete call is refused with a 403", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.del as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new SignalOpenstackApiError("You are not authorized to perform the requested action.", 403)
+    )
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN", message: "Access denied" }))
+  })
+
+  it("answers FORBIDDEN on a resolved 403 from the delete call", async () => {
+    const ctx = createMockContext()
+    ;(ctx.mockIdentity.del as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: false, status: 403 })
+    const caller = createCaller(ctx)
+
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toThrow(new TRPCError({ code: "FORBIDDEN", message: "Access denied" }))
+  })
+
+  it("throws NOT_FOUND when the credential disappears between the check and the delete", async () => {
     const ctx = createMockContext()
     ;(ctx.mockIdentity.del as ReturnType<typeof vi.fn>).mockRejectedValue(
       new SignalOpenstackApiError("Could not find credential", 404)
     )
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.s3.ec2Credentials.delete({
-      project_id: TEST_PROJECT_ID,
-      credentialId: TEST_CREDENTIAL_ID,
-    })
-
-    expect(result).toEqual({ success: true })
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
   })
 
   it("propagates a non-404 rejection from the delete call", async () => {
@@ -600,6 +613,8 @@ describe("ec2Credentials.delete", () => {
     ).rejects.toThrow()
   })
 
+  // Reported the same way a missing credential is, and crucially not deleted: this router presents
+  // itself as S3 key management, and a `cert` credential is outside that remit.
   it("does not delete a credential of another type", async () => {
     const ctx = createMockContext()
     const certCredential = { ...rawCredential, type: "cert" }
@@ -611,12 +626,9 @@ describe("ec2Credentials.delete", () => {
     })
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.s3.ec2Credentials.delete({
-      project_id: TEST_PROJECT_ID,
-      credentialId: TEST_CREDENTIAL_ID,
-    })
-
-    expect(result).toEqual({ success: true })
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
     expect(ctx.mockIdentity.del).not.toHaveBeenCalled()
   })
 
@@ -729,13 +741,10 @@ describe("ec2Credentials.delete", () => {
     })
     const caller = createCaller(ctx)
 
-    const result = await caller.storage.s3.ec2Credentials.delete({
-      project_id: TEST_PROJECT_ID,
-      credentialId: TEST_CREDENTIAL_ID,
-    })
-
-    // Idempotent: 404 on GET returns success without calling DELETE
-    expect(result).toEqual({ success: true })
+    await expect(
+      caller.storage.s3.ec2Credentials.delete({ project_id: TEST_PROJECT_ID, credentialId: TEST_CREDENTIAL_ID })
+    ).rejects.toMatchObject({ code: "NOT_FOUND" })
+    // Same answer as a credential owned by someone else, so the two stay indistinguishable.
     expect(ctx.mockIdentity.del).not.toHaveBeenCalled()
   })
 

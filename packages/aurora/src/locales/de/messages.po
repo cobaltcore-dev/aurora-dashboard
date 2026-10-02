@@ -323,7 +323,13 @@ msgstr ""
 msgid "Access key \"{accessKey}\" is ready to use. You can find it again any time under More Actions, Manage Credentials."
 msgstr ""
 
+msgid "Access key \"{accessKey}\" was not deleted: {reason}"
+msgstr ""
+
 msgid "Access key \"{accessKey}\" was permanently deleted."
+msgstr ""
+
+msgid "Access key <0>{accessKey}</0> will be permanently deleted."
 msgstr ""
 
 msgid "Access key created"
@@ -332,7 +338,13 @@ msgstr ""
 msgid "Access key deleted"
 msgstr ""
 
+msgid "Access key ID"
+msgstr ""
+
 msgid "Access Key ID"
+msgstr ""
+
+msgid "Access key not deleted"
 msgstr ""
 
 msgid "Access Keys"
@@ -473,7 +485,7 @@ msgstr ""
 msgid "Also delete all versions and all delete markers"
 msgstr ""
 
-msgid "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access. A project allows at most {EC2_CREDENTIALS_MAX_PER_PROJECT} access keys per user. Delete an existing key to create a new one."
+msgid "An access key stops working the moment it is deleted. Any S3 client still configured with it loses access."
 msgstr ""
 
 msgid "An object with this name already exists at the destination and will be overwritten."
@@ -902,9 +914,6 @@ msgstr ""
 msgid "Could not copy \"{objectName}\": {errorMessage}"
 msgstr "\"{objectName}\" konnte nicht kopiert werden: {errorMessage}"
 
-msgid "Could not create an access key: you already hold the maximum of {EC2_CREDENTIALS_MAX_PER_PROJECT}. Delete one first."
-msgstr ""
-
 msgid "Could not create bucket \"{bucketName}\": {errorMessage}"
 msgstr ""
 
@@ -983,7 +992,7 @@ msgstr ""
 msgid "Could Not Load Access Keys"
 msgstr ""
 
-msgid "Could not load secret"
+msgid "Could not load the secret for access key \"{access}\". Try again."
 msgstr ""
 
 msgid "Could not move \"{displayName}\": {errorMessage}"
@@ -1173,6 +1182,9 @@ msgid "Delete {specKey}"
 msgstr "Lösche {specKey}"
 
 msgid "Delete Access Key"
+msgstr ""
+
+msgid "Delete access key {access}"
 msgstr ""
 
 msgid "Delete All Versions"
@@ -2165,6 +2177,9 @@ msgstr "Hardware-Spezifikationen"
 msgid "Hi"
 msgstr "Hallo"
 
+msgid "Hide"
+msgstr ""
+
 msgid "Hide ACLs Preview"
 msgstr "ACLs-Vorschau ausblenden"
 
@@ -2281,6 +2296,9 @@ msgstr ""
 
 msgid "IP Version"
 msgstr "IP-Version"
+
+msgid "It stops working immediately: any S3 client still configured with it loses access. The key cannot be restored - a replacement is a new key, with a new secret."
+msgstr ""
 
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 msgstr ""
@@ -3137,6 +3155,9 @@ msgstr ""
 msgid "Restore Version"
 msgstr ""
 
+msgid "Reveal"
+msgstr ""
+
 msgid "Root"
 msgstr "Root"
 
@@ -3256,6 +3277,9 @@ msgstr ""
 
 msgid "Search..."
 msgstr "Suchen..."
+
+msgid "Secret access key"
+msgstr ""
 
 msgid "Secret Access Key"
 msgstr ""
@@ -3893,6 +3917,9 @@ msgstr "Dies ist ein öffentlicher Flavor. Alle Projekte haben Zugriff darauf."
 msgid "This is a public image. All users have access to it. Explicit sharing is not needed."
 msgstr "Dies ist ein öffentliches Image. Alle Benutzer haben Zugriff darauf. Eine explizite Freigabe ist nicht erforderlich."
 
+msgid "This is the last access key in this project. Without one, S3 Object Storage is out of reach here in the dashboard as well as from any S3 client. The buckets and their contents are not deleted, and creating a new key restores access to them."
+msgstr ""
+
 msgid "This key is reserved and managed separately"
 msgstr "Dieser Schlüssel ist reserviert und wird separat verwaltet"
 
@@ -4259,6 +4286,9 @@ msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor zu erstellen."
 msgid "You don't have permission to create flavors in this project."
 msgstr "Sie sind nicht berechtigt, Flavors zu erstellen. Bitte melden Sie sich erneut an."
 
+msgid "You don't have permission to create or delete S3 access keys. Contact your administrator to request access."
+msgstr ""
+
 msgid "You don't have permission to create S3 access keys. Contact your administrator to request access."
 msgstr ""
 
@@ -4267,6 +4297,9 @@ msgstr "Sie haben keine Berechtigung, Metadata für diesen Flavor zu löschen."
 
 msgid "You don't have permission to delete flavors in this project."
 msgstr "Sie haben keine Berechtigung, Flavors in diesem Projekt zu löschen."
+
+msgid "You don't have permission to delete S3 access keys. Contact your administrator to request access."
+msgstr ""
 
 msgid "You don't have permission to remove tenant access from this flavor."
 msgstr "Sie haben keine Berechtigung, Projektzugriffe von diesem Flavor zu entfernen."

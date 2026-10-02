@@ -2,7 +2,11 @@ import { describe, it, expect, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { I18nProvider } from "@lingui/react"
 import { i18n } from "@lingui/core"
-import { getCredentialCreatedToast, getCredentialDeletedToast } from "./CredentialToastNotifications"
+import {
+  getCredentialCreatedToast,
+  getCredentialDeletedToast,
+  getCredentialDeleteErrorToast,
+} from "./CredentialToastNotifications"
 
 type CredentialNotification = ReturnType<typeof getCredentialDeletedToast>
 
@@ -50,6 +54,17 @@ describe("CredentialToastNotifications", () => {
       expect(screen.getByText("Access key deleted")).toBeInTheDocument()
       expect(screen.getByText(/AKIAIOSFODNN7EXAMPLE/)).toBeInTheDocument()
       expect(screen.getByText(/was permanently deleted/)).toBeInTheDocument()
+    })
+  })
+
+  describe("getCredentialDeleteErrorToast", () => {
+    // Whatever the identity service answered, verbatim - not a sentence of our own. The common
+    // case is the key already being gone, which used to be reported as a successful deletion.
+    it("names the key and repeats the reason the server gave", () => {
+      renderNotification(getCredentialDeleteErrorToast("AKIAIOSFODNN7EXAMPLE", "Credential not found"))
+      expect(screen.getByText("Access key not deleted")).toBeInTheDocument()
+      expect(screen.getByText(/AKIAIOSFODNN7EXAMPLE/)).toBeInTheDocument()
+      expect(screen.getByText(/Credential not found/)).toBeInTheDocument()
     })
   })
 })
