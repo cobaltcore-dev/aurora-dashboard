@@ -65,7 +65,8 @@ export function useImageActions({ image, permissions, myMemberData }: ImageActio
   const canDelete = isOwnImage && permissions.canDelete && !isProtected
   const canAccept = isPendingShared && permissions.canUpdateMember
   const canReject = (isPendingShared || isAcceptedShared) && permissions.canUpdateMember
-  const canManageAccess = isOwnImage && isSharedVisibility && (permissions.canCreateMember || permissions.canDeleteMember)
+  const canManageAccess =
+    isOwnImage && isSharedVisibility && (permissions.canCreateMember || permissions.canDeleteMember)
   const canSetToShared = isOwnImage && isPrivate && permissions.canUpdate
   const canActivate = isOwnImage && isDeactivated && permissions.canUpdate
   const canDeactivate = isOwnImage && !isDeactivated && permissions.canUpdate

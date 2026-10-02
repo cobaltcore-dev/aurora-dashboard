@@ -345,7 +345,13 @@ function RouteComponent() {
     myMemberData,
   })
 
-  const hasMoreActions = actions.canEditMetadata || actions.canSetToShared || actions.canActivate || actions.canDeactivate || actions.canDelete || actions.canManageAccess
+  const hasMoreActions =
+    actions.canEditMetadata ||
+    actions.canSetToShared ||
+    actions.canActivate ||
+    actions.canDeactivate ||
+    actions.canDelete ||
+    actions.canManageAccess
 
   const headerActions = (hasMoreActions || actions.canEditDetails) && (
     <Stack gap="0.5" alignment="center">
@@ -362,7 +368,9 @@ function RouteComponent() {
                 disabled={isLoading}
               />
             )}
-            {(actions.canManageAccess || actions.canSetToShared || actions.canActivate || actions.canDeactivate) && <PopupMenuSectionSeparator />}
+            {(actions.canManageAccess || actions.canSetToShared || actions.canActivate || actions.canDeactivate) && (
+              <PopupMenuSectionSeparator />
+            )}
             {actions.canManageAccess && (
               <PopupMenuItem
                 onClick={() => setManageAccessModalOpen(true)}
@@ -374,16 +382,10 @@ function RouteComponent() {
               <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
             )}
             {actions.canActivate && (
-              <PopupMenuItem
-                label={t`Activate Image`}
-                onClick={() => setActivateModalOpen(true)}
-              />
+              <PopupMenuItem label={t`Activate Image`} onClick={() => setActivateModalOpen(true)} />
             )}
             {actions.canDeactivate && (
-              <PopupMenuItem
-                label={t`Deactivate Image`}
-                onClick={() => setDeactivateModalOpen(true)}
-              />
+              <PopupMenuItem label={t`Deactivate Image`} onClick={() => setDeactivateModalOpen(true)} />
             )}
             {actions.canDelete && (
               <>
