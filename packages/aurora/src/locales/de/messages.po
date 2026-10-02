@@ -838,6 +838,9 @@ msgstr ""
 msgid "Container Deleted"
 msgstr "Container gelöscht"
 
+msgid "Container Detail"
+msgstr ""
+
 msgid "Container Emptied"
 msgstr "Container geleert"
 
@@ -879,6 +882,9 @@ msgstr "Container aktualisiert"
 
 msgid "Container:"
 msgstr "Container:"
+
+msgid "Containers"
+msgstr ""
 
 msgid "Containers Emptied"
 msgstr "Container geleert"
@@ -2359,6 +2365,18 @@ msgstr "Hauptmerkmale"
 msgid "Key is required"
 msgstr "Schlüssel ist erforderlich"
 
+msgid "Key Manager"
+msgstr ""
+
+msgid "Key Manager Containers"
+msgstr ""
+
+msgid "Key Manager Orders"
+msgstr ""
+
+msgid "Key Manager Secrets"
+msgstr ""
+
 msgid "Key must contain at least one alphanumeric character"
 msgstr "Schlüssel muss mindestens ein alphanumerisches Zeichen enthalten"
 
@@ -2938,6 +2956,12 @@ msgstr ""
 msgid "or drag and drop"
 msgstr "oder per Drag & Drop"
 
+msgid "Order Detail"
+msgstr ""
+
+msgid "Orders"
+msgstr ""
+
 msgid "Other Actions"
 msgstr ""
 
@@ -3347,6 +3371,12 @@ msgid "Secret access key"
 msgstr ""
 
 msgid "Secret Access Key"
+msgstr ""
+
+msgid "Secret Detail"
+msgstr ""
+
+msgid "Secrets"
 msgstr ""
 
 msgid "Security"

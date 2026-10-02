@@ -838,6 +838,9 @@ msgstr "Container Created with Warnings"
 msgid "Container Deleted"
 msgstr "Container Deleted"
 
+msgid "Container Detail"
+msgstr "Container Detail"
+
 msgid "Container Emptied"
 msgstr "Container Emptied"
 
@@ -879,6 +882,9 @@ msgstr "Container Updated"
 
 msgid "Container:"
 msgstr "Container:"
+
+msgid "Containers"
+msgstr "Containers"
 
 msgid "Containers Emptied"
 msgstr "Containers Emptied"
@@ -2359,6 +2365,18 @@ msgstr "Key Features"
 msgid "Key is required"
 msgstr "Key is required"
 
+msgid "Key Manager"
+msgstr "Key Manager"
+
+msgid "Key Manager Containers"
+msgstr "Key Manager Containers"
+
+msgid "Key Manager Orders"
+msgstr "Key Manager Orders"
+
+msgid "Key Manager Secrets"
+msgstr "Key Manager Secrets"
+
 msgid "Key must contain at least one alphanumeric character"
 msgstr "Key must contain at least one alphanumeric character"
 
@@ -2938,6 +2956,12 @@ msgstr "Optional. Up to 255 characters."
 msgid "or drag and drop"
 msgstr "or drag and drop"
 
+msgid "Order Detail"
+msgstr "Order Detail"
+
+msgid "Orders"
+msgstr "Orders"
+
 msgid "Other Actions"
 msgstr "Other Actions"
 
@@ -3348,6 +3372,12 @@ msgstr "Secret access key"
 
 msgid "Secret Access Key"
 msgstr "Secret Access Key"
+
+msgid "Secret Detail"
+msgstr "Secret Detail"
+
+msgid "Secrets"
+msgstr "Secrets"
 
 msgid "Security"
 msgstr "Security"

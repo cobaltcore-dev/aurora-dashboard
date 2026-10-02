@@ -1,6 +1,5 @@
 import path from "path"
 import { createServer } from "@cobaltcore-dev/aurora/server"
-import { registerRouter as keyManagerRegisterRouter } from "@cobaltcore-dev/aurora-key-manager/server"
 
 const rawPort = process.env.PORT ?? "4005"
 if (!/^\d+$/.test(rawPort)) {
@@ -12,8 +11,6 @@ if (PORT < 1 || PORT > 65535) {
 }
 
 const isProduction = process.env.NODE_ENV === "production"
-// In production the build copies src/policies → dist/policies.
-// In development tsx runs from source so src/policies is used directly.
 const policyDir = isProduction ? path.resolve(__dirname, "../../dist/policies") : path.resolve(__dirname, "../policies")
 
 createServer({
@@ -28,7 +25,6 @@ createServer({
   cookieDomain: process.env.COOKIE_DOMAIN || undefined,
   insecureCookies: process.env.INSECURE_COOKIES ? process.env.INSECURE_COOKIES.toLowerCase() === "true" : undefined,
   policyDir,
-  routers: [keyManagerRegisterRouter({ policyDir }).appRouter],
 })
   .then((server) => server.listen({ host: "0.0.0.0", port: PORT }))
   .then((address) => console.log(`Server listening on ${address}`))
