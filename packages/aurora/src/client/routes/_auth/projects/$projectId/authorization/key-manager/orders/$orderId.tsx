@@ -25,7 +25,7 @@ function OrderDetailPage() {
       orderId={orderId}
       onBack={() => {
         void navigate({
-          to: "/projects/$projectId/authorization/key-manager/orders/",
+          to: "/projects/$projectId/authorization/key-manager/orders",
           params: { projectId },
         })
       }}

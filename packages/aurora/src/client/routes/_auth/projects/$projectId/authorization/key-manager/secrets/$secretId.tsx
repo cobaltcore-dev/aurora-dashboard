@@ -25,7 +25,7 @@ function SecretDetailPage() {
       secretId={secretId}
       onBack={() => {
         void navigate({
-          to: "/projects/$projectId/authorization/key-manager/secrets/",
+          to: "/projects/$projectId/authorization/key-manager/secrets",
           params: { projectId },
         })
       }}

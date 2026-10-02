@@ -33,14 +33,14 @@ function ContainersListPage() {
 
   const handleSearch = (value: string) => {
     void navigate({
-      to: "/projects/$projectId/authorization/key-manager/containers/",
+      to: "/projects/$projectId/authorization/key-manager/containers",
       params: { projectId },
       search: { search: value || undefined, page: undefined },
     })
   }
   const handlePageChange = (newPage: number) => {
     void navigate({
-      to: "/projects/$projectId/authorization/key-manager/containers/",
+      to: "/projects/$projectId/authorization/key-manager/containers",
       params: { projectId },
       search: { search: search || undefined, page: newPage === 1 ? undefined : newPage },
     })

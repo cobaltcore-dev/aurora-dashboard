@@ -25,7 +25,7 @@ function ContainerDetailPage() {
       containerId={containerId}
       onBack={() => {
         void navigate({
-          to: "/projects/$projectId/authorization/key-manager/containers/",
+          to: "/projects/$projectId/authorization/key-manager/containers",
           params: { projectId },
         })
       }}

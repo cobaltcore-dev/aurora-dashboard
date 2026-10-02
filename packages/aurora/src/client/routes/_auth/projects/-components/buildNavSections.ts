@@ -158,7 +158,7 @@ export function buildNavSections(
                   label: t`Key Manager`,
                   navigate: (nav: NavigateFn) =>
                     nav({
-                      to: "/projects/$projectId/authorization/key-manager/secrets/",
+                      to: "/projects/$projectId/authorization/key-manager/secrets",
                       params: { projectId },
                     }),
                   params: { projectId },
