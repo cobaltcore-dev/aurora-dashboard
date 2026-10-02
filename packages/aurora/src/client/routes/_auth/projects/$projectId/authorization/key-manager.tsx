@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, useNavigate, useMatch } from "@tanstack/react-router"
+import { createFileRoute, Outlet, redirect, isRedirect, useNavigate, useMatch } from "@tanstack/react-router"
 import { TabNavigation, TabNavigationItem, Button } from "@cloudoperators/juno-ui-components"
 import { getServiceIndex } from "@/server/Authentication/helpers"
 import { msg } from "@lingui/core/macro"
@@ -39,9 +39,15 @@ export const Route = createFileRoute("/_auth/projects/$projectId/authorization/k
   beforeLoad: async ({ context, params }) => {
     const { trpcClient } = context
     const { projectId } = params
-    const availableServices = await trpcClient?.auth.getAvailableServices.query()
-    const serviceIndex = getServiceIndex(availableServices ?? [])
-    if (!serviceIndex["key-manager"]?.["barbican"]) {
+    try {
+      const availableServices = await trpcClient?.auth.getAvailableServices.query()
+      const serviceIndex = getServiceIndex(availableServices ?? [])
+      if (!serviceIndex["key-manager"]?.["barbican"]) {
+        throw redirect({ to: "/projects/$projectId", params: { projectId } })
+      }
+    } catch (err) {
+      if (isRedirect(err)) throw err
+      // Network/tRPC error — redirect to project page rather than showing the error component
       throw redirect({ to: "/projects/$projectId", params: { projectId } })
     }
   },
