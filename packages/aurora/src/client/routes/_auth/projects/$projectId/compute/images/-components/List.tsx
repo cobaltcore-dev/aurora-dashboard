@@ -4,7 +4,7 @@ import { Trans, useLingui } from "@lingui/react/macro"
 import { TrpcClient, trpcReact } from "@/client/trpcClient"
 import { GlanceImage } from "@/server/Compute/types/image"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { Route } from "../index"
+import { useProjectId } from "@/client/hooks"
 import {
   Button,
   Stack,
@@ -142,7 +142,7 @@ function ImagesContent({
   onMemberStatusChanged,
 }: ImagesContentProps) {
   const { t } = useLingui()
-  const { projectId } = Route.useParams()
+  const projectId = useProjectId()
   const imagesData = use(imagesPromise)
   const permissions = use(permissionsPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
@@ -203,10 +203,8 @@ function ImagesContent({
   const imageById = new Map(pageImages.map((image: GlanceImage) => [image.id, image]))
   const selectedImageObjects = validSelectedImages.map((id) => imageById.get(id)).filter(Boolean) as GlanceImage[]
 
-  // Filter out shared images from bulk operations (security: users shouldn't be able to bulk-modify images they don't own)
-  const ownedSelectedImages = selectedImageObjects.filter(
-    (image) => !pendingSharedIds.has(image.id) && !acceptedSharedIds.has(image.id)
-  )
+  // Bulk mutations are available only for images owned by the current project
+  const ownedSelectedImages = selectedImageObjects.filter((image) => image.owner === projectId)
 
   const deletableImages = ownedSelectedImages.filter((image) => image.protected !== true)
   const protectedImages = ownedSelectedImages.filter((image) => image.protected === true)

@@ -28,6 +28,7 @@ export const ImageMemberFormRow: React.FC<ImageMemberFormRowProps> = ({
       <DataGridCell></DataGridCell>
       <DataGridCell className="pl-0">
         <TextInput
+          label={t`Project ID`}
           value={memberId}
           onChange={(e) => onMemberIdChange(e.target.value)}
           errortext={errors.memberId}

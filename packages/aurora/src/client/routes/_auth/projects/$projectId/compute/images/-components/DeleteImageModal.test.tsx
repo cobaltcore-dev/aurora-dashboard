@@ -71,7 +71,7 @@ describe("DeleteImageModal", () => {
 
   it("should call onDelete and onClose when the delete button is clicked", async () => {
     setup(true)
-    const confirmInput = screen.getByPlaceholderText("delete")
+    const confirmInput = screen.getByLabelText("Type \\"delete\\" to confirm")
     await act(async () => {
       fireEvent.change(confirmInput, { target: { value: "delete" } })
     })
@@ -93,7 +93,7 @@ describe("DeleteImageModal", () => {
 
   it("should enable the delete button when confirmation text matches", () => {
     setup(true)
-    const confirmInput = screen.getByPlaceholderText("delete")
+    const confirmInput = screen.getByLabelText("Type \\"delete\\" to confirm")
     fireEvent.change(confirmInput, { target: { value: "delete" } })
     const deleteButton = screen.getByRole("button", { name: /Delete Image/i })
     expect(deleteButton).not.toBeDisabled()
@@ -101,7 +101,7 @@ describe("DeleteImageModal", () => {
 
   it("should show error when confirmation text does not match on submit", () => {
     setup(true)
-    const confirmInput = screen.getByPlaceholderText("delete")
+    const confirmInput = screen.getByLabelText("Type \\"delete\\" to confirm")
     fireEvent.change(confirmInput, { target: { value: "delete" } })
     fireEvent.change(confirmInput, { target: { value: "wrong" } })
     const deleteButton = screen.getByRole("button", { name: /Delete/i })
@@ -117,7 +117,7 @@ describe("DeleteImageModal", () => {
 
   it("should disable the delete button when isDisabled is true", () => {
     setup(true, false, true)
-    const confirmInput = screen.getByPlaceholderText("delete")
+    const confirmInput = screen.getByLabelText("Type \\"delete\\" to confirm")
     fireEvent.change(confirmInput, { target: { value: "delete" } })
     const deleteButton = screen.getByRole("button", { name: /Delete/i })
     expect(deleteButton).toBeDisabled()
