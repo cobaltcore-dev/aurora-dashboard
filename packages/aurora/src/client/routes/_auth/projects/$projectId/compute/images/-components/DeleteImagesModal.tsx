@@ -240,7 +240,6 @@ export const DeleteImagesModal: React.FC<DeleteImagesModalProps> = ({
                   errortext={
                     field.state.meta.errors.map((e) => (typeof e === "string" ? e : e?.message)).join(", ") || undefined
                   }
-                  placeholder="delete"
                   autoFocus
                   disabled={isLoading}
                   required

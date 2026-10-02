@@ -334,7 +334,6 @@ function EditImageMetadataModalInner({
                           setValidationMessage(null)
                         }
                       }}
-                      placeholder={t`Property Key`}
                       invalid={!!errors.newKey}
                       autoFocus
                       disabled={operationInProgress}
@@ -356,7 +355,6 @@ function EditImageMetadataModalInner({
                               setValidationMessage(null)
                             }
                           }}
-                          placeholder={t`Value`}
                           invalid={!!errors.newValue}
                           disabled={operationInProgress}
                         />

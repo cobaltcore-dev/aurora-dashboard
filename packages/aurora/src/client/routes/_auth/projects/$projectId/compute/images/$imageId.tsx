@@ -9,7 +9,7 @@ import {
   PopupMenuSectionSeparator,
   toast,
 } from "@cloudoperators/juno-ui-components/index"
-import { createFileRoute, redirect, useNavigate, useParams, useSearch } from "@tanstack/react-router"
+import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router"
 import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
@@ -22,7 +22,8 @@ import { EditImageMetadataModal } from "./-components/EditImageMetadataModal"
 import { DeleteImageModal } from "./-components/DeleteImageModal"
 import { ActivateImageModal } from "./-components/ActivateImageModal"
 import { DeactivateImageModal } from "./-components/DeactivateImageModal"
-import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../-constants/filters"
+import { ManageImageAccessModal } from "./-components/ManageImageAccessModal"
+import { IMAGE_VISIBILITY } from "../-constants/filters"
 import { GlanceImage, MemberStatus } from "@/server/Compute/types/image"
 import { TRPCClientError } from "@trpc/client"
 import { InferrableClientTypes } from "@trpc/server/unstable-core-do-not-import"
@@ -39,7 +40,9 @@ import {
 } from "./-components/ImageToastNotifications"
 import { useState } from "react"
 import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
+import { useImageActions } from "./-hooks/useImageActions"
 import { RouteIdLevelDefaultError } from "@/client/components/Errors/RouteIdLevelDefaultError"
+import { convertToJsonPatchOperations } from "./-utils/imageHelpers"
 
 function ImageErrorComponent() {
   const { t } = useLingui()
@@ -117,9 +120,6 @@ function RouteComponent() {
   const { projectId, imageId } = useParams({
     from: "/_auth/projects/$projectId/compute/images/$imageId",
   })
-  const { tab } = useSearch({
-    from: "/_auth/projects/$projectId/compute/images/$imageId",
-  })
 
   const navigate = useNavigate()
   const { t } = useLingui()
@@ -158,6 +158,7 @@ function RouteComponent() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [activateModalOpen, setActivateModalOpen] = useState(false)
   const [deactivateModalOpen, setDeactivateModalOpen] = useState(false)
+  const [manageAccessModalOpen, setManageAccessModalOpen] = useState(false)
 
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
     onSuccess: (updatedImage) => {
@@ -206,8 +207,6 @@ function RouteComponent() {
     { enabled: isShared && !!imageId && !!projectId, retry: false }
   )
 
-  const isSharedWithMe = isShared && !!myMemberData
-
   const updateMemberMutation = trpcReact.compute.updateImageMember.useMutation({
     onSuccess: () => {
       utils.compute.getImageMember.invalidate({ project_id: projectId, imageId: imageId, memberId: projectId })
@@ -242,23 +241,6 @@ function RouteComponent() {
     deactivateImageMutation.isPending ||
     reactivateImageMutation.isPending ||
     updateImageVisibilityMutation.isPending
-
-  const convertToJsonPatchOperations = (
-    updatedProperties: Partial<GlanceImage>,
-    originalImage: GlanceImage
-  ): Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> => {
-    const operations: Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> = []
-    Object.entries(updatedProperties).forEach(([key, value]) => {
-      const path = `/${key}`
-      if (value === null || value === undefined) {
-        if (key in originalImage) operations.push({ op: "remove", path })
-      } else {
-        const propertyExists = key in originalImage
-        operations.push({ op: propertyExists ? "replace" : "add", path, value })
-      }
-    })
-    return operations
-  }
 
   const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>): Promise<boolean> => {
     if (!image) return false
@@ -356,22 +338,22 @@ function RouteComponent() {
     return <ImageErrorComponent />
   }
 
-  const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
-  const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
-  const isMemberAccepted = myMemberData?.status === "accepted"
+  // Use centralized actions hook
+  const actions = useImageActions({
+    image,
+    permissions,
+    myMemberData,
+  })
 
-  const canRejectSharedImage = isSharedWithMe && isMemberAccepted && permissions.canUpdateMember
-  const canUpdateOwnImage = !isSharedWithMe && permissions.canUpdate
-  const canDeleteOwnImage = !isSharedWithMe && permissions.canDelete && !image.protected
-  const canSetToShared = canUpdateOwnImage && isPrivate
+  const hasMoreActions =
+    actions.canEditMetadata ||
+    actions.canSetToShared ||
+    actions.canActivate ||
+    actions.canDeactivate ||
+    actions.canDelete ||
+    actions.canManageAccess
 
-  // Each flag maps 1:1 to a rendered menu item below. hasMoreActions is derived
-  // from the same flags so the trigger icon never shows an empty menu.
-  // Note: "Manage Access" is intentionally NOT in this menu — the detail page
-  // exposes it as a dedicated tab instead.
-  const hasMoreActions = canUpdateOwnImage || canRejectSharedImage || canSetToShared || canDeleteOwnImage
-
-  const headerActions = (hasMoreActions || (!isSharedWithMe && permissions.canUpdate)) && (
+  const headerActions = (hasMoreActions || actions.canEditDetails) && (
     <Stack gap="0.5" alignment="center">
       {hasMoreActions && (
         <PopupMenu className="flex items-center">
@@ -379,27 +361,33 @@ function RouteComponent() {
             <Button icon="moreVert" title={t`More Actions`} disabled={isLoading} />
           </PopupMenuToggle>
           <PopupMenuOptions>
-            {canUpdateOwnImage && (
+            {actions.canEditMetadata && (
               <PopupMenuItem
                 onClick={() => setEditMetadataModalOpen(true)}
                 label={t`Edit Metadata`}
                 disabled={isLoading}
               />
             )}
-            {canRejectSharedImage && (
-              <PopupMenuItem label={t`Reject`} onClick={() => handleMemberStatusChange("rejected")} />
+            {(actions.canManageAccess || actions.canSetToShared || actions.canActivate || actions.canDeactivate) && (
+              <PopupMenuSectionSeparator />
             )}
-            {canSetToShared && <PopupMenuSectionSeparator />}
-            {canSetToShared && (
-              <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
-            )}
-            {canUpdateOwnImage && (
+            {actions.canManageAccess && (
               <PopupMenuItem
-                label={isDeactivated ? t`Activate Image` : t`Deactivate Image`}
-                onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
+                onClick={() => setManageAccessModalOpen(true)}
+                label={t`Manage Access`}
+                disabled={isLoading}
               />
             )}
-            {canDeleteOwnImage && (
+            {actions.canSetToShared && (
+              <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
+            )}
+            {actions.canActivate && (
+              <PopupMenuItem label={t`Activate Image`} onClick={() => setActivateModalOpen(true)} />
+            )}
+            {actions.canDeactivate && (
+              <PopupMenuItem label={t`Deactivate Image`} onClick={() => setDeactivateModalOpen(true)} />
+            )}
+            {actions.canDelete && (
               <>
                 <PopupMenuSectionSeparator />
                 <PopupMenuItem label={t`Delete Image`} onClick={() => setDeleteModalOpen(true)} />
@@ -409,7 +397,7 @@ function RouteComponent() {
         </PopupMenu>
       )}
 
-      {!isSharedWithMe && permissions.canUpdate && (
+      {actions.canEditDetails && (
         <Button onClick={() => setEditDetailsModalOpen(true)} variant="primary" disabled={isLoading}>
           <Trans>Edit Details</Trans>
         </Button>
@@ -426,14 +414,7 @@ function RouteComponent() {
         <ImageDetailsView
           key={image.id}
           image={image}
-          currentProjectId={projectId}
-          isSharedWithMe={isSharedWithMe}
-          activeTab={tab ?? "details"}
-          onTabChange={(newTab) =>
-            navigate({
-              search: { tab: newTab === "details" ? undefined : newTab } as unknown as true,
-            })
-          }
+          isSharedWithMe={actions.isSharedWithMe}
           permissions={{
             canCreateMember: permissions.canCreateMember,
             canDeleteMember: permissions.canDeleteMember,
@@ -499,6 +480,18 @@ function RouteComponent() {
           isLoading={deactivateImageMutation.isPending}
           onClose={() => setDeactivateModalOpen(false)}
           onDeactivate={handleDeactivate}
+        />
+      )}
+
+      {manageAccessModalOpen && (
+        <ManageImageAccessModal
+          image={image}
+          isOpen={manageAccessModalOpen}
+          onClose={() => setManageAccessModalOpen(false)}
+          permissions={{
+            canCreateMember: permissions.canCreateMember,
+            canDeleteMember: permissions.canDeleteMember,
+          }}
         />
       )}
     </>
