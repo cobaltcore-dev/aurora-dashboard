@@ -25,17 +25,16 @@ export const ImageMemberFormRow: React.FC<ImageMemberFormRowProps> = ({
 
   return (
     <DataGridRow>
-      <DataGridCell className="break-all">{imageId}</DataGridCell>
+      <DataGridCell></DataGridCell>
       <DataGridCell className="pl-0">
         <TextInput
           value={memberId}
           onChange={(e) => onMemberIdChange(e.target.value)}
-          placeholder={t`Enter project ID`}
           errortext={errors.memberId}
           required
         />
       </DataGridCell>
-      <DataGridCell></DataGridCell>
+      <DataGridCell className="break-all">{imageId}</DataGridCell>
       <DataGridCell>
         <ButtonRow>
           <Button icon="check" onClick={onSave} variant="primary" title={t`Add Member`} disabled={isLoading} />

@@ -51,6 +51,7 @@ import {
   getImageVisibilityUpdateErrorToast,
 } from "./ImageToastNotifications"
 import { ManageImageAccessModal } from "./ManageImageAccessModal"
+import { convertToJsonPatchOperations } from "../-utils/imageHelpers"
 import { IMAGE_STATUSES } from "../../-constants/filters"
 
 interface ImagePageProps {
@@ -86,6 +87,8 @@ interface ImagePageProps {
   onImageDeleted: (imageIds: string | string[]) => void
   onMemberStatusChanged: () => void
   hasAnyBulkAction: boolean
+  pendingSharedIds: Set<string>
+  acceptedSharedIds: Set<string>
 }
 
 export function ImageListView({
@@ -114,6 +117,8 @@ export function ImageListView({
   onImageDeleted,
   onMemberStatusChanged,
   hasAnyBulkAction,
+  pendingSharedIds,
+  acceptedSharedIds,
 }: ImagePageProps) {
   const projectId = useProjectId()
 
@@ -130,21 +135,6 @@ export function ImageListView({
   const uploadAbortControllerRef = useRef<AbortController | null>(null)
   const uploadCancelledRef = useRef(false)
   const { t } = useLingui()
-
-  // Determine "shared with me" per image the same way the detail page does:
-  // via server-side member status (which reliably filters owner!==project),
-  // not by the active tab or a client-side owner comparison. One query per
-  // status; results become an O(1) id lookup for every row in any view.
-  const sharedPendingQuery = trpcReact.compute.listSharedImagesByMemberStatus.useQuery(
-    { project_id: projectId, memberStatus: "pending" },
-    { retry: false }
-  )
-  const sharedAcceptedQuery = trpcReact.compute.listSharedImagesByMemberStatus.useQuery(
-    { project_id: projectId, memberStatus: "accepted" },
-    { retry: false }
-  )
-  const pendingSharedIds = new Set((sharedPendingQuery.data ?? []).map((img) => img.id))
-  const acceptedSharedIds = new Set((sharedAcceptedQuery.data ?? []).map((img) => img.id))
 
   const utils = trpcReact.useUtils()
 
@@ -225,41 +215,6 @@ export function ImageListView({
       const { message, ...options } = getImageVisibilityUpdateErrorToast(imageName, errorMessage)
       toast.error(message, options)
     }
-  }
-
-  /**
-   * Converts partial image properties to OpenStack JSON Patch operations
-   * Determines whether to use 'add', 'replace', or 'remove' based on original image state
-   */
-  const convertToJsonPatchOperations = (
-    updatedProperties: Partial<GlanceImage>,
-    originalImage: GlanceImage
-  ): Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> => {
-    const operations: Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> = []
-
-    Object.entries(updatedProperties).forEach(([key, value]) => {
-      const path = `/${key}`
-
-      if (value === null || value === undefined) {
-        // Remove operation for null/undefined values (only if property exists)
-        if (key in originalImage) {
-          operations.push({ op: "remove", path })
-        }
-      } else {
-        // Check if property exists in original image
-        const propertyExists = key in originalImage
-
-        if (propertyExists) {
-          // Use 'replace' for existing properties
-          operations.push({ op: "replace", path, value })
-        } else {
-          // Use 'add' for new properties
-          operations.push({ op: "add", path, value })
-        }
-      }
-    })
-
-    return operations
   }
 
   const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>): Promise<boolean> => {

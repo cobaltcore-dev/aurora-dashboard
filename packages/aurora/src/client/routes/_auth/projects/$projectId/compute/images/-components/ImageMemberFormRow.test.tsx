@@ -55,14 +55,14 @@ describe("ImageMemberFormRow", () => {
 
   it("should call onMemberIdChange when input value changes", () => {
     setup()
-    const input = screen.getByPlaceholderText("Enter project ID") as HTMLInputElement
+    const input = screen.getByRole("textbox") as HTMLInputElement
     fireEvent.change(input, { target: { value: "new-member-id" } })
     expect(mockOnMemberIdChange).toHaveBeenCalledWith("new-member-id")
   })
 
   it("should handle multiple input changes", () => {
     setup()
-    const input = screen.getByPlaceholderText("Enter project ID") as HTMLInputElement
+    const input = screen.getByRole("textbox") as HTMLInputElement
 
     fireEvent.change(input, { target: { value: "first-change" } })
     expect(mockOnMemberIdChange).toHaveBeenCalledWith("first-change")
@@ -158,9 +158,9 @@ describe("ImageMemberFormRow", () => {
     expect(screen.getByDisplayValue("updated-member")).toBeInTheDocument()
   })
 
-  it("should have placeholder text on input", () => {
+  it("should render input field", () => {
     setup()
-    const input = screen.getByPlaceholderText("Enter project ID")
+    const input = screen.getByRole("textbox")
     expect(input).toBeInTheDocument()
   })
 
@@ -178,7 +178,7 @@ describe("ImageMemberFormRow", () => {
 
   it("should handle empty memberId", () => {
     setup("")
-    const input = screen.getByPlaceholderText("Enter project ID") as HTMLInputElement
+    const input = screen.getByRole("textbox") as HTMLInputElement
     expect(input.value).toBe("")
   })
 

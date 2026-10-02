@@ -182,17 +182,6 @@ export function ImageTableRow({
                   />
                 </>
               )}
-              {isExternalImage && (
-                <PopupMenuItem
-                  label={t`Show Details`}
-                  onClick={() =>
-                    navigate({
-                      to: "/projects/$projectId/compute/images/$imageId",
-                      params: { projectId, imageId: id },
-                    })
-                  }
-                />
-              )}
               {!isExternalImage && permissions.canDelete && !image.protected && (
                 <>
                   <PopupMenuSectionSeparator />
