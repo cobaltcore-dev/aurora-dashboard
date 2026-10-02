@@ -232,6 +232,15 @@ msgstr "{totalItemCount, plural, one {{totalItemCount} Element} other {{totalIte
 msgid "{unlisted} further {unlisted, plural, one {failure is} other {failures are}} not listed here."
 msgstr ""
 
+msgid "← Back to Containers"
+msgstr ""
+
+msgid "← Back to Orders"
+msgstr ""
+
+msgid "← Back to Secrets"
+msgstr ""
+
 msgid "<0>Edit metadata:</0> <1>{displayName}</1>"
 msgstr "<0>Metadaten bearbeiten:</0> <1>{displayName}</1>"
 
@@ -472,6 +481,9 @@ msgstr ""
 msgid "After restoring, this version's content will become the new latest version."
 msgstr ""
 
+msgid "Algorithm"
+msgstr ""
+
 msgid "All"
 msgstr ""
 
@@ -553,6 +565,9 @@ msgstr ""
 msgid "Apply this rule only to objects with this prefix (leave empty for all objects)"
 msgstr ""
 
+msgid "Are you sure you want to delete"
+msgstr ""
+
 msgid "Are you sure you want to delete {ruleCount, plural, one {# CORS rule} other {# CORS rules}} from bucket <0>{bucketName}</0>?"
 msgstr ""
 
@@ -563,6 +578,9 @@ msgid "Are you sure you want to delete <0>{ruleDisplayName}</0> from bucket <1>{
 msgstr ""
 
 msgid "Are you sure you want to delete lifecycle rule <0>{displayName}</0> from bucket <1>{bucketName}</1>?"
+msgstr ""
+
+msgid "Are you sure you want to delete the"
 msgstr ""
 
 msgid "Are you sure you want to delete the policy for bucket <0>{bucketName}</0>?"
@@ -620,6 +638,7 @@ msgid "Back to Images"
 msgstr "Zurück zu Images"
 
 msgid "Back to Routers"
+msgid "Back to Key Manager"
 msgstr ""
 
 msgid "Back to Security Groups"
@@ -627,6 +646,9 @@ msgstr "Zurück zu Security Groups"
 
 msgid "Basic Info"
 msgstr "Grundlegende Informationen"
+
+msgid "Bit Length"
+msgstr ""
 
 msgid "Boot RAM"
 msgstr "Boot-RAM"
@@ -838,7 +860,7 @@ msgstr ""
 msgid "Container Deleted"
 msgstr "Container gelöscht"
 
-msgid "Container Detail"
+msgid "Container Details"
 msgstr ""
 
 msgid "Container Emptied"
@@ -897,6 +919,9 @@ msgstr ""
 
 msgid "Content type"
 msgstr "Content type"
+
+msgid "Content Types"
+msgstr ""
 
 msgid "Copied to clipboard!"
 msgstr "In die Zwischenablage kopiert!"
@@ -1123,6 +1148,16 @@ msgstr "Neuen Ordner hier erstellen"
 msgid "Create New Image"
 msgstr "Neues Image erstellen"
 
+
+msgid "Create Order"
+msgstr ""
+
+msgid "Create S3 Credentials"
+msgstr ""
+
+msgid "Create Secret"
+msgstr ""
+
 msgid "Create Security Group"
 msgstr "Security Group erstellen"
 
@@ -1145,6 +1180,9 @@ msgid "Creating Security Group..."
 msgstr ""
 
 msgid "Creating..."
+msgstr ""
+
+msgid "Creator ID"
 msgstr ""
 
 msgid "Current location:"
@@ -1279,6 +1317,9 @@ msgstr "Objekt löschen:"
 msgid "Delete Objects"
 msgstr ""
 
+msgid "Delete Order"
+msgstr ""
+
 msgid "Delete Policy"
 msgstr ""
 
@@ -1290,6 +1331,9 @@ msgstr ""
 
 msgid "Delete Rule"
 msgstr "Regel löschen"
+
+msgid "Delete Secret"
+msgstr ""
 
 msgid "Delete Security Group \"{securityGroupName}\""
 msgstr "Security Group \"{securityGroupName}\" löschen"
@@ -1852,6 +1896,9 @@ msgstr ""
 msgid "Failed to Load Buckets"
 msgstr ""
 
+msgid "Failed to Load Container"
+msgstr ""
+
 msgid "Failed to Load Container ACLs"
 msgstr ""
 
@@ -1865,6 +1912,9 @@ msgid "Failed to Load Container Properties"
 msgstr ""
 
 msgid "Failed to Load Container Properties: {errorMessage}"
+msgstr ""
+
+msgid "Failed to Load Containers"
 msgstr ""
 
 msgid "Failed to Load CORS Configuration"
@@ -1906,10 +1956,23 @@ msgstr ""
 msgid "Failed to Load Objects"
 msgstr ""
 
+msgid "Failed to Load Order"
+msgstr ""
+
+msgid "Failed to Load Orders"
+msgstr ""
+
+msgid "Failed to load payload."
+msgstr ""
+
 msgid "Failed to Load Policy"
 msgstr ""
 
 msgid "Failed to Load Routers"
+msgid "Failed to Load Secret"
+msgstr ""
+
+msgid "Failed to Load Secrets"
 msgstr ""
 
 msgid "Failed to Load Security Groups"
@@ -2446,6 +2509,9 @@ msgstr ""
 msgid "Loading Container Properties..."
 msgstr ""
 
+msgid "Loading Container..."
+msgstr ""
+
 msgid "Loading Containers..."
 msgstr "Container werden geladen..."
 
@@ -2497,6 +2563,15 @@ msgstr ""
 msgid "Loading Objects..."
 msgstr "Objekte werden geladen..."
 
+msgid "Loading Order..."
+msgstr ""
+
+msgid "Loading Orders..."
+msgstr ""
+
+msgid "Loading payload..."
+msgstr ""
+
 msgid "Loading Permissions..."
 msgstr ""
 
@@ -2513,6 +2588,10 @@ msgid "Loading Router Details..."
 msgstr ""
 
 msgid "Loading Routers..."
+msgid "Loading Secret..."
+msgstr ""
+
+msgid "Loading Secrets..."
 msgstr ""
 
 msgid "Loading Security Group Details..."
@@ -2593,6 +2672,9 @@ msgstr "Mitglied \"{memberIdToRemove}\" wurde erfolgreich entfernt."
 msgid "Member \"{trimmedMemberId}\" has been added successfully."
 msgstr "Mitglied \"{trimmedMemberId}\" wurde erfolgreich hinzugefügt."
 
+msgid "Meta"
+msgstr ""
+
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -2632,6 +2714,9 @@ msgstr "Minimaler RAM muss 0 oder größer sein"
 msgid "Minimum RAM required to boot this image"
 msgstr "Minimaler RAM, der zum Booten dieses Images erforderlich ist"
 
+msgid "Mode"
+msgstr ""
+
 msgid "More Actions"
 msgstr "Weitere Aktionen"
 
@@ -2659,6 +2744,12 @@ msgstr "Muss eine gültige PQDN oder FQDN sein (nur alphanumerische Zeichen und 
 msgid "Must be a whole number, 0 or greater"
 msgstr "Muss eine ganze Zahl sein, 0 oder größer"
 
+msgid "My container"
+msgstr ""
+
+msgid "My secret"
+msgstr ""
+
 msgid "my-bucket-name"
 msgstr ""
 
@@ -2667,6 +2758,9 @@ msgstr "keine Angabe"
 
 msgid "Name"
 msgstr "Name"
+
+msgid "Name (optional)"
+msgstr ""
 
 msgid "Name must be 2-50 characters long."
 msgstr "Der Name muss 2-50 Zeichen lang sein."
@@ -2684,6 +2778,7 @@ msgid "Network ID"
 msgstr "Netzwerk-ID"
 
 msgid "Network Name"
+msgid "Never"
 msgstr ""
 
 msgid "New Folder"
@@ -2712,6 +2807,9 @@ msgstr ""
 
 msgid "No containers found"
 msgstr "Keine Container gefunden"
+
+msgid "No Containers Found"
+msgstr ""
 
 msgid "No CORS rules found"
 msgstr ""
@@ -2773,6 +2871,9 @@ msgstr "Keine Objekte entsprechen Ihrer Suche. Versuchen Sie, Ihren Suchbegriff 
 msgid "No objects were deleted: {errorMessage}"
 msgstr ""
 
+msgid "No Orders Found"
+msgstr ""
+
 msgid "No policies match your search"
 msgstr "Keine Richtlinien entsprechen Ihrer Suche"
 
@@ -2801,6 +2902,9 @@ msgid "No routers match your search. Clear the search to view all routers."
 msgstr ""
 
 msgid "No Rules Found"
+msgstr ""
+
+msgid "No Secrets Found"
 msgstr ""
 
 msgid "No security groups found"
@@ -2956,7 +3060,16 @@ msgstr ""
 msgid "or drag and drop"
 msgstr "oder per Drag & Drop"
 
-msgid "Order Detail"
+msgid "order"
+msgstr ""
+
+msgid "Order"
+msgstr ""
+
+msgid "Order Meta"
+msgstr ""
+
+msgid "Order Not Found"
 msgstr ""
 
 msgid "Orders"
@@ -2991,6 +3104,12 @@ msgstr "Teilweise erfolgreich deaktiviert"
 
 msgid "Partial Delete Success"
 msgstr "Teilweise erfolgreich gelöscht"
+
+msgid "Payload"
+msgstr ""
+
+msgid "Payload (optional)"
+msgstr ""
 
 msgid "Pending"
 msgstr "Ausstehend"
@@ -3182,6 +3301,7 @@ msgid "Read ACLs — Preview"
 msgstr "Lese-ACLs — Vorschau"
 
 msgid "Region"
+msgid "Reference"
 msgstr ""
 
 msgid "Reject"
@@ -3239,6 +3359,7 @@ msgid "Restore Version"
 msgstr ""
 
 msgid "Reveal"
+msgid "Reveal Payload"
 msgstr ""
 
 msgid "Root"
@@ -3374,6 +3495,25 @@ msgid "Secret Access Key"
 msgstr ""
 
 msgid "Secret Detail"
+msgid "Secret"
+msgstr ""
+
+msgid "Secret Details"
+msgstr ""
+
+msgid "Secret ID"
+msgstr ""
+
+msgid "Secret Not Found"
+msgstr ""
+
+msgid "Secret Ref"
+msgstr ""
+
+msgid "Secret Type"
+msgstr ""
+
+msgid "Secret value..."
 msgstr ""
 
 msgid "Secrets"
@@ -3667,6 +3807,9 @@ msgstr ""
 msgid "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen Groß- und Kleinschreibung unterscheidend."
 
+msgid "Sub Status"
+msgstr ""
+
 msgid "Subnet"
 msgstr "Subnet"
 
@@ -3916,6 +4059,9 @@ msgstr ""
 msgid "There are no containers available with the current search criteria. Try adjusting your search term."
 msgstr "Mit den aktuellen Suchkriterien sind keine Container verfügbar. Versuchen Sie, Ihren Suchbegriff anzupassen."
 
+msgid "There are no containers in this project. Create one to group your secrets."
+msgstr ""
+
 msgid "There Are No CORS Rules for This Bucket"
 msgstr ""
 
@@ -3935,6 +4081,7 @@ msgid "There Are No Lifecycle Rules for This Bucket"
 msgstr ""
 
 msgid "There are no pending shared images for this project with the current filters applied. Try adjusting your filter criteria or check the All Images tab."
+msgid "There are no orders in this project. Create one to request secret generation."
 msgstr ""
 
 msgid "There are no RBAC policies for this security group"
@@ -3945,6 +4092,9 @@ msgstr ""
 
 msgid "There are no rules for this security group"
 msgstr "Es gibt keine Regeln für diese Sicherheitsgruppe"
+
+msgid "There are no secrets in this project. Create one to get started."
+msgstr ""
 
 msgid "There are no security groups available for this project with the current filters applied. Try adjusting your filter criteria or create a new security group to get started."
 msgstr "Für dieses Projekt sind mit den aktuellen Filtern keine Sicherheitsgruppen verfügbar. Passen Sie Ihre Filterkriterien an oder erstellen Sie eine neue Sicherheitsgruppe."
@@ -4016,6 +4166,9 @@ msgid "This bucket does not have any CORS rules."
 msgstr ""
 
 msgid "This bucket is already empty."
+msgstr ""
+
+msgid "This cannot be undone."
 msgstr ""
 
 msgid "This container appears empty — the object count may not have synced yet due to a recent operation."
@@ -4222,10 +4375,17 @@ msgstr ""
 msgid "Unknown Error"
 msgstr ""
 
+msgid "unnamed"
+msgstr ""
+
 msgid "Unnamed"
 msgstr "Unbenannt"
 
 msgid "UP"
+msgid "Unnamed Container"
+msgstr ""
+
+msgid "Unnamed Secret"
 msgstr ""
 
 msgid "Update object"
@@ -4233,6 +4393,9 @@ msgstr "Objekt aktualisieren"
 
 msgid "Update Security Group"
 msgstr "Security Group aktualisieren"
+
+msgid "Updated"
+msgstr ""
 
 msgid "Updated At"
 msgstr "Aktualisiert am"

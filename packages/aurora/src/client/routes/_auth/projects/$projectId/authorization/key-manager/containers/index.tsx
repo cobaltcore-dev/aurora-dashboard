@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { z } from "zod"
 import { t, msg } from "@lingui/core/macro"
+import { useLingui } from "@lingui/react/macro"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { ContainersList } from "./-components/ContainersList"
 import { uuidFromRef } from "../-components/utils"
 import type { Container } from "@/server/KeyManager/types/keyManager"
@@ -24,6 +26,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/authorization/k
 })
 
 function ContainersListPage() {
+  const { t } = useLingui()
   const { projectId } = Route.useParams() as { projectId: string }
   const { search = "", page = 1 } = Route.useSearch()
   const navigate = useNavigate()
@@ -50,13 +53,16 @@ function ContainersListPage() {
   }
 
   return (
-    <ContainersList
-      projectId={projectId}
-      search={search}
-      page={page}
-      onSearchChange={handleSearch}
-      onPageChange={handlePageChange}
-      onShowDetail={handleShowDetail}
-    />
+    <>
+      <ContentHeader title={t`Key Manager`} projectId={projectId} />
+      <ContainersList
+        projectId={projectId}
+        search={search}
+        page={page}
+        onSearchChange={handleSearch}
+        onPageChange={handlePageChange}
+        onShowDetail={handleShowDetail}
+      />
+    </>
   )
 }

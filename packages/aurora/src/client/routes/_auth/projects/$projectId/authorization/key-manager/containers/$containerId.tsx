@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { msg } from "@lingui/core/macro"
+import { trpcReact } from "@/client/trpcClient"
+import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import { ContainerDetail } from "./-components/ContainerDetail"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 
@@ -7,7 +8,6 @@ export const Route = createFileRoute("/_auth/projects/$projectId/authorization/k
   staticData: {
     section: "authorization",
     service: "key-manager",
-    crumb: { text: msg`Container Detail` },
   } satisfies RouteInfo,
   component: ContainerDetailPage,
 })
@@ -15,6 +15,9 @@ export const Route = createFileRoute("/_auth/projects/$projectId/authorization/k
 function ContainerDetailPage() {
   const { projectId, containerId } = Route.useParams() as { projectId: string; containerId: string }
   const navigate = useNavigate()
+
+  const { data: container } = trpcReact.keyManager.getContainer.useQuery({ project_id: projectId, containerId })
+  useSetBreadcrumb(Route.id, container?.name ?? containerId)
 
   return (
     <ContainerDetail

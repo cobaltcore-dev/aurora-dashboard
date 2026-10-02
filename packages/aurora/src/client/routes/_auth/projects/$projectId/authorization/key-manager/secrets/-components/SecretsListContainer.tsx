@@ -1,4 +1,5 @@
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell, Status } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 import { SECRETS_COLUMNS, SECRETS_COLUMN_COUNT } from "./constants"
 import { SecretTableRow } from "./SecretTableRow"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
@@ -22,12 +23,14 @@ export function SecretsListContainer({
   onShowDetails,
   onDelete,
 }: SecretsListContainerProps) {
+  const { t } = useLingui()
+
   if (isLoading) {
-    return <Status status="progress" title="Loading Secrets..." />
+    return <Status status="progress" title={t`Loading Secrets...`} />
   }
 
   if (isError) {
-    return <Status status="error" title={error?.message ?? "Failed to Load Secrets"} />
+    return <Status status="error" title={error?.message ?? t`Failed to Load Secrets`} />
   }
 
   return (
@@ -52,8 +55,8 @@ export function SecretsListContainer({
           <DataGridCell colSpan={SECRETS_COLUMN_COUNT}>
             <Status
               status="empty"
-              title="No Secrets Found"
-              body="There are no secrets in this project. Create one to get started."
+              title={t`No Secrets Found`}
+              body={t`There are no secrets in this project. Create one to get started.`}
             />
           </DataGridCell>
         </DataGridRow>
