@@ -34,21 +34,21 @@ function SecretsListPage() {
 
   const handleSearch = (value: string) => {
     void navigate({
-      to: "/projects/$projectId/authorization/key-manager/secrets/",
+      to: "/projects/$projectId/authorization/key-manager/secrets",
       params: { projectId },
       search: { search: value || undefined, sort: sort || undefined, page: undefined },
     })
   }
   const handleSort = (value: string) => {
     void navigate({
-      to: "/projects/$projectId/authorization/key-manager/secrets/",
+      to: "/projects/$projectId/authorization/key-manager/secrets",
       params: { projectId },
       search: { search: search || undefined, sort: value, page: undefined },
     })
   }
   const handlePageChange = (newPage: number) => {
     void navigate({
-      to: "/projects/$projectId/authorization/key-manager/secrets/",
+      to: "/projects/$projectId/authorization/key-manager/secrets",
       params: { projectId },
       search: { search: search || undefined, sort: sort || undefined, page: newPage === 1 ? undefined : newPage },
     })

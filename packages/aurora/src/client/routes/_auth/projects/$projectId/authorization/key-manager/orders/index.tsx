@@ -33,14 +33,14 @@ function OrdersListPage() {
 
   const handleSort = (value: string) => {
     void navigate({
-      to: "/projects/$projectId/authorization/key-manager/orders/",
+      to: "/projects/$projectId/authorization/key-manager/orders",
       params: { projectId },
       search: { sort: value, page: undefined },
     })
   }
   const handlePageChange = (newPage: number) => {
     void navigate({
-      to: "/projects/$projectId/authorization/key-manager/orders/",
+      to: "/projects/$projectId/authorization/key-manager/orders",
       params: { projectId },
       search: { sort: sort || undefined, page: newPage === 1 ? undefined : newPage },
     })

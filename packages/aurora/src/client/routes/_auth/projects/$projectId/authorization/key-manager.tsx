@@ -18,7 +18,7 @@ const KeyManagerErrorComponent = () => {
           variant="primary"
           onClick={() =>
             navigate({
-              to: "/projects/$projectId/authorization/key-manager/secrets/",
+              to: "/projects/$projectId/authorization/key-manager/secrets",
               params: { projectId },
             })
           }
@@ -75,9 +75,9 @@ function KeyManagerLayout() {
   const activeTab = isContainersRoute ? "containers" : isOrdersRoute ? "orders" : "secrets"
 
   const tabPaths = {
-    secrets: "/projects/$projectId/authorization/key-manager/secrets/",
-    containers: "/projects/$projectId/authorization/key-manager/containers/",
-    orders: "/projects/$projectId/authorization/key-manager/orders/",
+    secrets: "/projects/$projectId/authorization/key-manager/secrets",
+    containers: "/projects/$projectId/authorization/key-manager/containers",
+    orders: "/projects/$projectId/authorization/key-manager/orders",
   } as const
 
   return (
