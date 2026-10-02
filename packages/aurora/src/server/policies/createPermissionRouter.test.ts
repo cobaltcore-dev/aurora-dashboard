@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { createPermissionRouter } from "./createPermissionRouter"
+import { createCallerFactory, router } from "../trpc"
+import type { AuroraPortalContext } from "../context"
 import type { PolicyEngine } from "@cobaltcore-dev/policy-engine"
-// import type { AuroraPortalContext } from "@/server/context"
 
 // Mock loadPolicyEngine
 vi.mock("./policyEngineLoader", () => ({
@@ -216,5 +217,73 @@ describe("createPermissionRouter", () => {
     ).toThrowError(
       "Configuration error: Permission 'images:list' references engine 'image', but no such engine is configured. Available engines: compute"
     )
+  })
+
+  describe("fail-closed behavior when a rule is missing", () => {
+    const buildCaller = () => {
+      const TEST_MAPPINGS = {
+        "test:known": { engine: "test", rule: "known:rule" },
+        "test:missing": { engine: "test", rule: "missing:rule" },
+      } as const
+
+      const testRouter = createPermissionRouter({
+        policyDir: "/test/policies",
+        engines: { test: { fileName: "test.yaml" } },
+        mappings: TEST_MAPPINGS,
+      })
+
+      const createCaller = createCallerFactory(router(testRouter))
+
+      const mockOpenstackSession = {
+        getToken: vi.fn(() => ({
+          tokenData: {
+            project: { id: "test-project-id", name: "Test Project", domain: { id: "default", name: "Default" } },
+            user: { id: "test-user-id", name: "test-user", domain: { id: "default", name: "Default" } },
+            roles: [],
+          },
+        })),
+      }
+
+      const mockContext = {
+        rescopeSession: vi.fn().mockResolvedValue(mockOpenstackSession),
+        validateSession: vi.fn().mockResolvedValue(true),
+        openstack: mockOpenstackSession,
+      } as unknown as AuroraPortalContext
+
+      return createCaller(mockContext)
+    }
+
+    it("returns false for the key whose rule is missing (no _default), true for the rest, without throwing", async () => {
+      const { loadPolicyEngine } = await import("./policyEngineLoader")
+      vi.mocked(loadPolicyEngine).mockReturnValueOnce({
+        policy: vi.fn(() => ({
+          check: vi.fn((rule: string) => {
+            if (rule === "missing:rule") {
+              throw new Error("Rule 'missing:rule' not found and no _default rule available")
+            }
+            return true
+          }),
+        })),
+      } as unknown as PolicyEngine)
+
+      // `warn`, not `error`: a missing rule is a documented deployment state, and ~20 keys are
+      // checked per page load, so error-level here would be one line per key per view.
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+
+      const caller = buildCaller()
+
+      const result = await caller.canUser({
+        project_id: "test-project-id",
+        permission: ["test:known", "test:missing"],
+      })
+
+      expect(result).toEqual([true, false])
+      expect(consoleWarnSpy).toHaveBeenCalled()
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
+
+      consoleWarnSpy.mockRestore()
+      consoleErrorSpy.mockRestore()
+    })
   })
 })

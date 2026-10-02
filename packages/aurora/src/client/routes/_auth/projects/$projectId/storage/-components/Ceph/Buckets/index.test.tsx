@@ -99,6 +99,16 @@ vi.mock("./BucketTableView", () => ({
   ),
 }))
 
+vi.mock("../Credentials/ManageCredentialsModal", () => ({
+  ManageCredentialsModal: vi.fn(({ isOpen, onClose }) =>
+    isOpen ? (
+      <div data-testid="manage-credentials-modal">
+        <button onClick={onClose}>CloseCredentials</button>
+      </div>
+    ) : null
+  ),
+}))
+
 vi.mock("./EmptyBucketsModal", () => ({
   EmptyBucketsModal: vi.fn(({ isOpen, buckets, onClose, onComplete }) => {
     return isOpen ? (
@@ -202,6 +212,7 @@ let mockPermissions = {
   canUpdateLifecycle: true,
   canDeleteLifecycle: true,
   canCreateCredential: true,
+  canDeleteCredential: true,
 }
 
 vi.mock("../hooks/useCephPermissions", () => ({
@@ -249,6 +260,7 @@ describe("CephBuckets (index)", () => {
       canUpdateLifecycle: true,
       canDeleteLifecycle: true,
       canCreateCredential: true,
+      canDeleteCredential: true,
     }
     await act(async () => {
       i18n.activate("en")
@@ -258,7 +270,7 @@ describe("CephBuckets (index)", () => {
   // The bulk-empty flow now lives in the Zone 3 "Actions" popup: select rows,
   // open the (otherwise disabled) Actions menu, then click the singular/plural
   // "Empty Bucket(s)" item to open the modal.
-  const actionsButton = () => screen.getByRole("button", { name: /Actions/i })
+  const actionsButton = () => screen.getByRole("button", { name: /^Actions/ })
 
   const selectOne = async (user: ReturnType<typeof userEvent.setup>) => {
     await user.click(screen.getByTestId("simulate-select-bucket"))
@@ -308,6 +320,74 @@ describe("CephBuckets (index)", () => {
     })
   })
 
+  describe("Credentials", () => {
+    test("renders CredentialPrompt on NO_CEPH_CREDENTIALS, with the modal mounted in the same tree", async () => {
+      trpcState.error = { message: "NO_CEPH_CREDENTIALS" }
+      trpcState.buckets = undefined
+      const user = userEvent.setup()
+      renderBuckets()
+
+      expect(screen.getByText("S3 Object Storage: Setup Required")).toBeInTheDocument()
+      expect(screen.queryByTestId("manage-credentials-modal")).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "Manage Credentials" }))
+      expect(screen.getByTestId("manage-credentials-modal")).toBeInTheDocument()
+    })
+
+    test("does not reload the page when credentials are missing", () => {
+      const reloadSpy = vi.fn()
+      Object.defineProperty(window, "location", {
+        configurable: true,
+        value: { ...window.location, reload: reloadSpy },
+      })
+
+      trpcState.error = { message: "NO_CEPH_CREDENTIALS" }
+      trpcState.buckets = undefined
+      renderBuckets()
+
+      expect(reloadSpy).not.toHaveBeenCalled()
+    })
+
+    test("shows an actionable error with a Manage Credentials button for invalid credentials", async () => {
+      trpcState.error = { message: "InvalidAccessKeyId" }
+      trpcState.buckets = undefined
+      const user = userEvent.setup()
+      renderBuckets()
+
+      expect(screen.queryByText(/expired/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Please/)).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "Manage Credentials" }))
+      expect(screen.getByTestId("manage-credentials-modal")).toBeInTheDocument()
+    })
+
+    test("Zone 1 has a Manage Credentials menu item that opens the modal", async () => {
+      const user = userEvent.setup()
+      renderBuckets()
+
+      expect(screen.queryByTestId("manage-credentials-modal")).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "More Actions" }))
+      await user.click(await screen.findByTestId("manage-credentials-action"))
+
+      expect(screen.getByTestId("manage-credentials-modal")).toBeInTheDocument()
+    })
+
+    test("closing the credentials modal hides it", async () => {
+      const user = userEvent.setup()
+      renderBuckets()
+
+      await user.click(screen.getByRole("button", { name: "More Actions" }))
+      await user.click(await screen.findByTestId("manage-credentials-action"))
+      expect(screen.getByTestId("manage-credentials-modal")).toBeInTheDocument()
+
+      await user.click(screen.getByRole("button", { name: "CloseCredentials" }))
+      await waitFor(() => {
+        expect(screen.queryByTestId("manage-credentials-modal")).not.toBeInTheDocument()
+      })
+    })
+  })
+
   describe("Rendering", () => {
     test("renders BucketTableView", () => {
       renderBuckets()
@@ -326,12 +406,12 @@ describe("CephBuckets (index)", () => {
 
     test("renders the Actions button", () => {
       renderBuckets()
-      expect(screen.getByRole("button", { name: /Actions/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Actions/ })).toBeInTheDocument()
     })
 
     test("Actions button is disabled when no buckets are selected", () => {
       renderBuckets()
-      expect(screen.getByRole("button", { name: /Actions/i })).toBeDisabled()
+      expect(screen.getByRole("button", { name: /^Actions/ })).toBeDisabled()
     })
 
     test("passes selectedBuckets and setSelectedBuckets to BucketTableView", () => {

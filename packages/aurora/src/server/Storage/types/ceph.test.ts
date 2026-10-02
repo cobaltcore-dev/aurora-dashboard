@@ -3,9 +3,7 @@ import {
   // EC2 credential schemas
   ec2CredentialSchema,
   ec2CredentialWithSecretSchema,
-  listEc2CredentialsInputSchema,
-  createEc2CredentialInputSchema,
-  deleteEc2CredentialInputSchema,
+  ec2CredentialIdInputSchema,
   // Container / bucket schemas
   containerSchema,
   listContainersInputSchema,
@@ -109,40 +107,21 @@ describe("Ceph Object Storage Schema Validation", () => {
       })
     })
 
-    describe("listEc2CredentialsInputSchema", () => {
-      it("should validate with project_id", () => {
-        const result = listEc2CredentialsInputSchema.safeParse({ project_id: projectId })
-        expect(result.success).toBe(true)
-      })
-
-      it("should reject without project_id", () => {
-        const result = listEc2CredentialsInputSchema.safeParse({})
-        expect(result.success).toBe(false)
-      })
-    })
-
-    describe("createEc2CredentialInputSchema", () => {
-      it("should validate with project_id", () => {
-        const result = createEc2CredentialInputSchema.safeParse({ project_id: projectId })
-        expect(result.success).toBe(true)
-      })
-    })
-
-    describe("deleteEc2CredentialInputSchema", () => {
+    describe("ec2CredentialIdInputSchema", () => {
       it("should validate with project_id and credentialId", () => {
         const input = { project_id: projectId, credentialId: "cred-1" }
-        const result = deleteEc2CredentialInputSchema.safeParse(input)
+        const result = ec2CredentialIdInputSchema.safeParse(input)
         expect(result.success).toBe(true)
       })
 
       it("should reject missing credentialId", () => {
-        const result = deleteEc2CredentialInputSchema.safeParse({ project_id: projectId })
+        const result = ec2CredentialIdInputSchema.safeParse({ project_id: projectId })
         expect(result.success).toBe(false)
       })
 
       it("should reject empty credentialId", () => {
         const input = { project_id: projectId, credentialId: "" }
-        const result = deleteEc2CredentialInputSchema.safeParse(input)
+        const result = ec2CredentialIdInputSchema.safeParse(input)
         expect(result.success).toBe(false)
       })
     })
@@ -321,15 +300,33 @@ describe("Ceph Object Storage Schema Validation", () => {
   describe("S3 Status Schema", () => {
     describe("s3StatusSchema", () => {
       it("should validate hasCredentials true", () => {
-        expect(s3StatusSchema.safeParse({ hasCredentials: true }).success).toBe(true)
+        expect(
+          s3StatusSchema.safeParse({ hasCredentials: true, endpoint: "https://ceph.example.com", region: "eu-de-1" })
+            .success
+        ).toBe(true)
       })
 
       it("should validate hasCredentials false", () => {
-        expect(s3StatusSchema.safeParse({ hasCredentials: false }).success).toBe(true)
+        expect(
+          s3StatusSchema.safeParse({ hasCredentials: false, endpoint: "https://ceph.example.com", region: "eu-de-1" })
+            .success
+        ).toBe(true)
       })
 
       it("should reject missing hasCredentials", () => {
-        expect(s3StatusSchema.safeParse({}).success).toBe(false)
+        expect(s3StatusSchema.safeParse({ endpoint: "https://ceph.example.com", region: "eu-de-1" }).success).toBe(
+          false
+        )
+      })
+
+      it("should reject missing endpoint", () => {
+        expect(s3StatusSchema.safeParse({ hasCredentials: true, region: "eu-de-1" }).success).toBe(false)
+      })
+
+      it("should reject missing region", () => {
+        expect(s3StatusSchema.safeParse({ hasCredentials: true, endpoint: "https://ceph.example.com" }).success).toBe(
+          false
+        )
       })
     })
   })

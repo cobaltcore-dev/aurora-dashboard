@@ -291,6 +291,24 @@ await trpc.storage.canUser.query({
 
 ---
 
+## 🛡️ Missing rules in the policy file
+
+A permission key can be mapped in `mappings` and still have no matching rule in the policy
+file that is actually loaded — `policyDir` is supplied by the consumer via `createServer()`,
+so operators run their own files, and a file written before a newly added key won't define
+that rule until they adopt it.
+
+In that case `canUser` returns **`false` for that key alone**, and the rest of the requested
+keys are evaluated normally. The denial is written to the server log naming the permission and
+the rule. This matters because `canUser` evaluates a whole batch in one call: a caller asking
+for twenty keys would otherwise lose all twenty because of one unmapped rule.
+
+Only that specific failure is absorbed. Any other error raised while evaluating a rule — a
+malformed expression, a bug in the evaluator — propagates, so a real fault stays visible
+instead of being reported to the client as "no permission".
+
+---
+
 ## 🎨 Benefits Summary
 
 ### For Developers

@@ -136,19 +136,28 @@ describe("resolveEC2Credential", () => {
     expect(result).toBeNull()
   })
 
-  it("picks first matching credential when multiple exist", async () => {
+  it("picks the same credential deterministically (sorted by id) regardless of API response order", async () => {
     const ctx = createMockContext()
     const secondCredBlob = JSON.stringify({ access: "SECOND_ACCESS", secret: "SECOND_SECRET" })
+    const secondCredential = { ...rawCredential, id: "cred-2", blob: secondCredBlob }
+
+    // "cred-2" sorts before "cred-abc-123" (localeCompare on id), so it must win regardless of
+    // the order Keystone happens to return credentials in - that unspecified order is exactly
+    // what made the old `.find` non-deterministic.
     ctx.mockIdentity.get.mockResolvedValue({
       ok: true,
-      json: vi.fn().mockResolvedValue({
-        credentials: [rawCredential, { ...rawCredential, id: "cred-2", blob: secondCredBlob }],
-      }),
+      json: vi.fn().mockResolvedValue({ credentials: [rawCredential, secondCredential] }),
     })
+    const resultWithOriginalFirst = await resolveEC2Credential(ctx)
 
-    const result = await resolveEC2Credential(ctx)
+    ctx.mockIdentity.get.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ credentials: [secondCredential, rawCredential] }),
+    })
+    const resultWithSecondFirst = await resolveEC2Credential(ctx)
 
-    expect(result?.access).toBe(TEST_ACCESS)
-    expect(result?.credentialId).toBe(TEST_CREDENTIAL_ID)
+    expect(resultWithOriginalFirst?.credentialId).toBe("cred-2")
+    expect(resultWithOriginalFirst?.access).toBe("SECOND_ACCESS")
+    expect(resultWithSecondFirst).toEqual(resultWithOriginalFirst)
   })
 })

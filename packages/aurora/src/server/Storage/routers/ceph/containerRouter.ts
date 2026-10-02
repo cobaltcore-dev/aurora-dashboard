@@ -27,8 +27,14 @@ import {
 import { S3_MAX_KEYS_PER_REQUEST, S3_MAX_SCAN_PAGES } from "../../constants"
 
 export const containerRouter = {
+  /**
+   * Reports whether the user has EC2 credentials in this project, plus the S3 endpoint/region
+   * they'd use if they did. Deliberately built on `cephProcedure` (not `cephProtectedProcedure`):
+   * the UI needs endpoint/region to render Connection Details even when `hasCredentials` is
+   * false (e.g. the empty state in ManageCredentialsModal, or CredentialPrompt).
+   */
   status: cephProcedure.input(projectScopedInputSchema).query(async ({ ctx }): Promise<S3Status> => {
-    return { hasCredentials: !!ctx.cephCredentials }
+    return { hasCredentials: !!ctx.cephCredentials, endpoint: ctx.cephEndpoint, region: ctx.cephRegion }
   }),
 
   /**
