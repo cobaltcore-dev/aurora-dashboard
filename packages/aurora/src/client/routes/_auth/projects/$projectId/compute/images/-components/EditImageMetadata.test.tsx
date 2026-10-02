@@ -29,39 +29,42 @@ const MOCK_EXCLUDED_PROPERTIES = [
 
 vi.mock("@/client/trpcClient", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/client/trpcClient")>()
-  return {
-    ...actual,
-    trpcReact: {
-      compute: {
-        getImageMetadataExcludedProperties: {
-          useQuery: () => ({ data: MOCK_EXCLUDED_PROPERTIES }),
-        },
+  return { ...actual }
+})
+
+const makeMockClient = () =>
+  ({
+    compute: {
+      getImageMetadataExcludedProperties: {
+        query: vi.fn().mockResolvedValue(MOCK_EXCLUDED_PROPERTIES),
+      },
+      updateImage: {
+        mutate: vi.fn().mockResolvedValue({}),
       },
     },
-  }
-})
+  }) as unknown as import("@/client/trpcClient").TrpcClient
 
 const renderMetadataModal = (
   isOpen = true,
   mockOnClose = vi.fn(),
   mockImage: GlanceImage,
-  mockOnSave = vi.fn(),
-  isLoading = false
+  client = makeMockClient()
 ) => {
-  return render(
+  const result = render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
         <EditImageMetadataModal
+          client={client}
           image={mockImage}
           isOpen={isOpen}
-          isLoading={isLoading}
           canEdit={true}
           onClose={mockOnClose}
-          onSave={mockOnSave}
+          projectId="test-project"
         />
       </PortalProvider>
     </I18nProvider>
   )
+  return { ...result, client }
 }
 
 describe("EditImageMetadataModal", () => {
@@ -92,26 +95,30 @@ describe("EditImageMetadataModal", () => {
 
   // ── Metadata display ────────────────────────────────────────────────────────
 
-  test("displays custom metadata properties and excludes system properties", () => {
+  test("displays custom metadata properties and excludes system properties", async () => {
     renderMetadataModal(true, vi.fn(), mockImage)
-    expect(screen.getByText("custom_property")).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText("custom_property")).toBeInTheDocument()
+    })
     expect(screen.getByText("custom_value")).toBeInTheDocument()
     expect(screen.queryByText("name")).not.toBeInTheDocument()
     expect(screen.queryByText("Test Image")).not.toBeInTheDocument()
   })
 
-  test("shows empty state when no custom metadata exists", () => {
+  test("shows empty state when no custom metadata exists", async () => {
     const emptyImage = { id: "test", name: "Test" } as GlanceImage
     renderMetadataModal(true, vi.fn(), emptyImage)
-    expect(screen.getByText(/No custom metadata properties/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/No custom metadata properties/i)).toBeInTheDocument()
+    })
   })
 
   // ── Add property ────────────────────────────────────────────────────────────
 
   test("adds new property successfully", async () => {
-    const mockOnSave = vi.fn()
-    renderMetadataModal(true, vi.fn(), mockImage, mockOnSave)
+    const { client } = renderMetadataModal(true, vi.fn(), mockImage)
 
+    await waitFor(() => expect(screen.getByRole("button", { name: /Add Property/i })).toBeInTheDocument())
     fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
 
     const keyInput = screen.getByPlaceholderText("Property Key")
@@ -124,13 +131,21 @@ describe("EditImageMetadataModal", () => {
     fireEvent.click(saveButtons[0])
 
     await waitFor(() => {
+      expect(client.compute.updateImage.mutate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operations: [{ op: "add", path: "/new_key", value: "new_value" }],
+        })
+      )
+    })
+    await waitFor(() => {
       expect(screen.getByText("new_key")).toBeInTheDocument()
     })
   })
 
-  test("cancels adding new property", () => {
+  test("cancels adding new property", async () => {
     renderMetadataModal(true, vi.fn(), mockImage)
 
+    await waitFor(() => expect(screen.getByRole("button", { name: /Add Property/i })).toBeInTheDocument())
     fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
     expect(screen.getByPlaceholderText("Property Key")).toBeInTheDocument()
 
@@ -143,10 +158,12 @@ describe("EditImageMetadataModal", () => {
   // ── Edit & delete ───────────────────────────────────────────────────────────
 
   test("edits existing property", async () => {
-    renderMetadataModal(true, vi.fn(), mockImage)
+    const { client } = renderMetadataModal(true, vi.fn(), mockImage)
 
+    await waitFor(() => expect(screen.getByText("custom_property")).toBeInTheDocument())
+    // A-Z sort: another_property comes first, custom_property second
     const editButtons = screen.getAllByTitle(/Edit/i).filter((el) => el.tagName.toLowerCase() === "button")
-    fireEvent.click(editButtons[0])
+    fireEvent.click(editButtons[1])
 
     const inputs = screen.getAllByDisplayValue("custom_value")
     fireEvent.change(inputs[0], { target: { value: "updated_value" } })
@@ -155,50 +172,54 @@ describe("EditImageMetadataModal", () => {
     fireEvent.click(saveButtons[0])
 
     await waitFor(() => {
+      expect(client.compute.updateImage.mutate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operations: [{ op: "replace", path: "/custom_property", value: "updated_value" }],
+        })
+      )
+    })
+    await waitFor(() => {
       expect(screen.getByText("updated_value")).toBeInTheDocument()
     })
   })
 
   test("deletes property", async () => {
-    renderMetadataModal(true, vi.fn(), mockImage)
+    const { client } = renderMetadataModal(true, vi.fn(), mockImage)
 
-    expect(screen.getByText("custom_property")).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText("custom_property")).toBeInTheDocument())
 
+    // A-Z sort: another_property first, custom_property second
     const deleteButtons = screen.getAllByTitle(/Delete/i).filter((el) => el.tagName.toLowerCase() === "button")
-    fireEvent.click(deleteButtons[0])
+    fireEvent.click(deleteButtons[1])
 
+    await waitFor(() => {
+      expect(client.compute.updateImage.mutate).toHaveBeenCalledWith(
+        expect.objectContaining({ operations: [{ op: "remove", path: "/custom_property" }] })
+      )
+    })
     await waitFor(() => {
       expect(screen.queryByText("custom_property")).not.toBeInTheDocument()
     })
   })
 
-  // ── Save & cancel ───────────────────────────────────────────────────────────
+  // ── Close ───────────────────────────────────────────────────────────────────
 
-  test("calls onSave with only changed metadata when Save Changes is clicked", async () => {
-    const mockOnSave = vi.fn().mockResolvedValue(true)
-    renderMetadataModal(true, vi.fn(), mockImage, mockOnSave)
-
-    const deleteButtons = screen.getAllByTitle(/Delete/i).filter((el) => el.tagName.toLowerCase() === "button")
-    fireEvent.click(deleteButtons[0])
-
-    fireEvent.click(screen.getByRole("button", { name: /Save Changes/i }))
-
-    await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ custom_property: null }))
-    })
-  })
-
-  test("calls onClose when Cancel button is clicked", () => {
+  test("calls onClose when Close button is clicked", async () => {
     const mockOnClose = vi.fn()
     renderMetadataModal(true, mockOnClose, mockImage)
 
-    fireEvent.click(screen.getByRole("button", { name: /Cancel/i }))
+    await waitFor(() => expect(screen.getByText("custom_property")).toBeInTheDocument())
+    const closeButton = screen
+      .getAllByRole("button", { name: /Close/i })
+      .find((el) => el.textContent?.trim() === "Close")
+    fireEvent.click(closeButton!)
     expect(mockOnClose).toHaveBeenCalled()
   })
 
   test("trims whitespace from key and value when saving", async () => {
     renderMetadataModal(true, vi.fn(), mockImage)
 
+    await waitFor(() => expect(screen.getByRole("button", { name: /Add Property/i })).toBeInTheDocument())
     fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
 
     const keyInput = screen.getByPlaceholderText("Property Key")
@@ -214,12 +235,5 @@ describe("EditImageMetadataModal", () => {
       expect(screen.getByText("trimmed_key")).toBeInTheDocument()
       expect(screen.getByText("trimmed_value")).toBeInTheDocument()
     })
-  })
-
-  // ── Loading state ───────────────────────────────────────────────────────────
-
-  test("shows loading spinner when isLoading is true", () => {
-    renderMetadataModal(true, vi.fn(), mockImage, vi.fn(), true)
-    expect(screen.getByRole("progressbar")).toBeInTheDocument()
   })
 })

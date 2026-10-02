@@ -32,6 +32,12 @@ vi.mock("@tanstack/react-router", () => ({
 }))
 
 vi.mock("@/client/trpcClient", () => ({
+  trpcClient: {
+    compute: {
+      getImageMetadataExcludedProperties: { query: vi.fn().mockResolvedValue([]) },
+      updateImage: { mutate: vi.fn() },
+    },
+  },
   trpcReact: {
     useUtils: () => ({
       compute: {

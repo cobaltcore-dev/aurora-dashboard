@@ -689,6 +689,9 @@ msgstr "Cancel"
 msgid "Cancel upload"
 msgstr "Cancel upload"
 
+msgid "Cancel Upload"
+msgstr "Cancel Upload"
+
 msgid "Cannot be combined with Tag Filters"
 msgstr "Cannot be combined with Tag Filters"
 
@@ -1129,9 +1132,6 @@ msgstr "Custom"
 
 msgid "Custom duration (minutes)"
 msgstr "Custom duration (minutes)"
-
-msgid "Custom Properties / Metadata"
-msgstr "Custom Properties / Metadata"
 
 msgid "Date:"
 msgstr "Date:"
@@ -2909,9 +2909,6 @@ msgstr "Partial Delete Success"
 msgid "Pending"
 msgstr "Pending"
 
-msgid "Pending File Upload..."
-msgstr "Pending File Upload..."
-
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Please enter a valid number of minutes greater than 0"
 
@@ -3131,9 +3128,6 @@ msgstr "Remove"
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Remove access for {memberIdDisplay}"
 
-msgid "Remove member access"
-msgstr "Remove member access"
-
 msgid "Remove Policy"
 msgstr "Remove Policy"
 
@@ -3232,9 +3226,6 @@ msgstr "Save Metadata"
 
 msgid "Saving Image Details..."
 msgstr "Saving Image Details..."
-
-msgid "Saving Metadata..."
-msgstr "Saving Metadata..."
 
 msgid "Saving..."
 msgstr "Saving..."
@@ -3419,6 +3410,9 @@ msgstr "Server returned unexpected data format for flavor details."
 msgid "Server returned unexpected data format."
 msgstr "Server returned unexpected data format."
 
+msgid "Service Not Found"
+msgstr "Service Not Found"
+
 msgid "Services"
 msgstr "Services"
 
@@ -3454,9 +3448,6 @@ msgstr "Shared by Project"
 
 msgid "Shared:"
 msgstr "Shared:"
-
-msgid "Sharing Details"
-msgstr "Sharing Details"
 
 msgid "Show ACLs Preview"
 msgstr "Show ACLs Preview"
@@ -3713,6 +3704,9 @@ msgstr "The image \"{imageName}\" could not be created: {errorMessage}"
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "The image \"{imageName}\" could not be updated: {errorMessage}"
 
+msgid "The image upload was cancelled."
+msgstr "The image upload was cancelled."
+
 msgid "The lifecycle configuration has changed. Please refresh and try again."
 msgstr "The lifecycle configuration has changed. Please refresh and try again."
 
@@ -3724,6 +3718,9 @@ msgstr "The object will be moved to this path. Navigate folders above to change 
 
 msgid "The page you are looking for does not exist."
 msgstr "The page you are looking for does not exist."
+
+msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
+msgstr "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
 
 msgid "The project you are looking for doesn't exist or you don't have access to it."
 msgstr "The project you are looking for doesn't exist or you don't have access to it."
@@ -3748,6 +3745,9 @@ msgstr "The selected objects will be permanently deleted. This action cannot be 
 
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "The selected objects will be permanently deleted. This cannot be undone."
+
+msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
+msgstr "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "The specified project does not exist or you don't have permission to share with it."
@@ -3935,11 +3935,11 @@ msgstr "This object storage service does not exist or is not available for this 
 msgid "This project already has access"
 msgstr "This project already has access"
 
-msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
-msgstr "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
+msgid "This project doesn't exist or is not accessible from your current domain. Select a project from your current domain."
+msgstr "This project doesn't exist or is not accessible from your current domain. Select a project from your current domain."
 
-msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Please select a project from your current domain."
-msgstr "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Please select a project from your current domain."
+msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Select a project from your current domain."
+msgstr "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Select a project from your current domain."
 
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
@@ -4102,6 +4102,9 @@ msgstr "Upload object to:"
 
 msgid "Upload of \"{objectName}\" was cancelled."
 msgstr "Upload of \"{objectName}\" was cancelled."
+
+msgid "Uploading File..."
+msgstr "Uploading File..."
 
 msgid "Uploading..."
 msgstr "Uploading..."
@@ -4322,8 +4325,8 @@ msgstr "Your credentials are valid but you don't have permission to perform this
 msgid "Your session has expired. Please log in again."
 msgstr "Your session has expired. Please log in again."
 
-msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue."
-msgstr "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue."
+msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
+msgstr "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 
 msgid "YYYY-MM-DD HH:mm:ss"
 msgstr "YYYY-MM-DD HH:mm:ss"

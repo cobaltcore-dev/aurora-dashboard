@@ -259,8 +259,8 @@ describe("ImageTableRow", () => {
 
       expect(await screen.findByText("Edit Details")).toBeInTheDocument()
       expect(screen.getByText("Edit Metadata")).toBeInTheDocument()
-      expect(screen.getByText("Deactivate")).toBeInTheDocument()
-      expect(screen.getByText("Delete")).toBeInTheDocument()
+      expect(screen.getByText("Deactivate Image")).toBeInTheDocument()
+      expect(screen.getByText("Delete Image")).toBeInTheDocument()
     })
 
     it("hides Delete for a protected image", async () => {
@@ -272,7 +272,7 @@ describe("ImageTableRow", () => {
       openRowMenu()
 
       expect(await screen.findByText("Edit Details")).toBeInTheDocument()
-      expect(screen.queryByText("Delete")).not.toBeInTheDocument()
+      expect(screen.queryByText("Delete Image")).not.toBeInTheDocument()
     })
 
     it("forwards Edit Details and Delete clicks to the parent callbacks", async () => {
@@ -291,7 +291,7 @@ describe("ImageTableRow", () => {
       expect(onEditDetails).toHaveBeenCalledWith(image)
 
       openRowMenu()
-      fireEvent.click(await screen.findByText("Delete"))
+      fireEvent.click(await screen.findByText("Delete Image"))
       expect(onDelete).toHaveBeenCalledWith(image)
     })
 
@@ -307,6 +307,21 @@ describe("ImageTableRow", () => {
       fireEvent.click(await screen.findByText('Set to "Shared"'))
 
       expect(onUpdateVisibility).toHaveBeenCalledWith("img-1", "shared", "Ubuntu 24.04")
+    })
+
+    it("keeps Show Details available for an owned image without update permission", async () => {
+      renderRow({
+        image: makeImage({ visibility: "private" }),
+        permissions: { ...noPermissions, canUpdate: false },
+      })
+
+      openRowMenu()
+
+      expect(await screen.findByText("Show Details")).toBeInTheDocument()
+      // Mutation actions must not appear without update permission.
+      expect(screen.queryByText("Edit Details")).not.toBeInTheDocument()
+      expect(screen.queryByText("Edit Metadata")).not.toBeInTheDocument()
+      expect(screen.queryByText("Deactivate Image")).not.toBeInTheDocument()
     })
   })
 })

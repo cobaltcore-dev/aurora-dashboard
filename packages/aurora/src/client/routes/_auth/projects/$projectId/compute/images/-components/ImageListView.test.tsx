@@ -38,6 +38,7 @@ vi.mock("@/client/trpcClient", () => ({
       createImage: { useMutation: () => mockMutation },
       updateImageVisibility: { useMutation: () => mockMutation },
       updateImageMember: { useMutation: () => mockMutation },
+      listSharedImagesByMemberStatus: { useQuery: () => ({ data: [] }) },
       watchUploadProgress: { useSubscription: () => ({ data: undefined }) },
     },
   },
@@ -73,8 +74,6 @@ const makeImage = (i: number): GlanceImage =>
 const makeImages = (count: number): GlanceImage[] => Array.from({ length: count }, (_, i) => makeImage(i + 1))
 
 const defaultProps = {
-  suggestedImages: [],
-  acceptedImages: [],
   permissions: mockPermissions,
   selectedImages: [],
   setSelectedImages: vi.fn(),

@@ -14,7 +14,7 @@ import { z } from "zod"
 import type { RouteInfo } from "@/client/routes/routeInfo"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { getServiceIndex } from "@/server/Authentication/helpers"
-import { trpcReact } from "@/client/trpcClient"
+import { trpcClient, trpcReact } from "@/client/trpcClient"
 import { useSetBreadcrumb } from "@/client/hooks/useSetBreadcrumb"
 import { ImageDetailsView } from "./-components/ImageDetailsView"
 import { EditImageDetailsModal } from "./-components/EditImageDetailsModal"
@@ -161,7 +161,9 @@ function RouteComponent() {
 
   const updateImageMutation = trpcReact.compute.updateImage.useMutation({
     onSuccess: (updatedImage) => {
-      utils.compute.getImageById.setData({ project_id: projectId, imageId }, updatedImage)
+      utils.compute.getImageById.setData({ project_id: projectId, imageId }, (prev) =>
+        prev ? { ...prev, ...updatedImage } : updatedImage
+      )
       utils.compute.listImagesWithPagination.invalidate()
     },
   })
@@ -186,17 +188,25 @@ function RouteComponent() {
 
   const updateImageVisibilityMutation = trpcReact.compute.updateImageVisibility.useMutation({
     onSuccess: (updatedImage) => {
-      utils.compute.getImageById.setData({ project_id: projectId, imageId }, updatedImage)
+      // Glance's PATCH response can omit fields such as `owner`. Merge into the
+      // existing cached image so owner-gated UI (Edit Details, Manage Access)
+      // isn't lost when only visibility changes.
+      utils.compute.getImageById.setData({ project_id: projectId, imageId }, (prev) =>
+        prev ? { ...prev, ...updatedImage } : updatedImage
+      )
     },
   })
 
-  const isSharedWithMe =
-    image?.visibility === IMAGE_VISIBILITY.SHARED && image?.owner !== undefined && image?.owner !== projectId
+  // "Shared with me" = image is shared AND this project is a member. Owner
+  // equality (image.owner === projectId) is unreliable, so derive from members.
+  const isShared = image?.visibility === IMAGE_VISIBILITY.SHARED
 
   const { data: myMemberData } = trpcReact.compute.getImageMember.useQuery(
     { project_id: projectId, imageId: imageId, memberId: projectId },
-    { enabled: isSharedWithMe && !!imageId && !!projectId }
+    { enabled: isShared && !!imageId && !!projectId, retry: false }
   )
+
+  const isSharedWithMe = isShared && !!myMemberData
 
   const updateMemberMutation = trpcReact.compute.updateImageMember.useMutation({
     onSuccess: () => {
@@ -349,65 +359,50 @@ function RouteComponent() {
   const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
   const isPrivate = image.visibility === IMAGE_VISIBILITY.PRIVATE
   const isMemberAccepted = myMemberData?.status === "accepted"
-  const isImageOwner = image.owner === projectId
 
   const canRejectSharedImage = isSharedWithMe && isMemberAccepted && permissions.canUpdateMember
   const canUpdateOwnImage = !isSharedWithMe && permissions.canUpdate
   const canDeleteOwnImage = !isSharedWithMe && permissions.canDelete && !image.protected
-  const canManageSharing =
-    !isSharedWithMe &&
-    isImageOwner &&
-    image.visibility === IMAGE_VISIBILITY.SHARED &&
-    (permissions.canCreateMember || permissions.canDeleteMember)
+  const canSetToShared = canUpdateOwnImage && isPrivate
 
-  const hasMoreActions = canRejectSharedImage || canUpdateOwnImage || canDeleteOwnImage || canManageSharing
+  // Each flag maps 1:1 to a rendered menu item below. hasMoreActions is derived
+  // from the same flags so the trigger icon never shows an empty menu.
+  // Note: "Manage Access" is intentionally NOT in this menu — the detail page
+  // exposes it as a dedicated tab instead.
+  const hasMoreActions = canUpdateOwnImage || canRejectSharedImage || canSetToShared || canDeleteOwnImage
 
   const headerActions = (hasMoreActions || (!isSharedWithMe && permissions.canUpdate)) && (
     <Stack gap="0.5" alignment="center">
-      {(hasMoreActions || (!isSharedWithMe && permissions.canUpdate)) && (
+      {hasMoreActions && (
         <PopupMenu className="flex items-center">
           <PopupMenuToggle as="div">
             <Button icon="moreVert" title={t`More Actions`} disabled={isLoading} />
           </PopupMenuToggle>
           <PopupMenuOptions>
-            {!isSharedWithMe && permissions.canUpdate && (
-              <>
-                <PopupMenuItem
-                  label={isDeactivated ? t`Activate` : t`Deactivate`}
-                  onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
-                />
-                <PopupMenuItem
-                  onClick={() => setEditMetadataModalOpen(true)}
-                  label={t`Edit Metadata`}
-                  disabled={isLoading}
-                />
-              </>
+            {canUpdateOwnImage && (
+              <PopupMenuItem
+                onClick={() => setEditMetadataModalOpen(true)}
+                label={t`Edit Metadata`}
+                disabled={isLoading}
+              />
             )}
-            {!isSharedWithMe &&
-              isImageOwner &&
-              image.visibility === IMAGE_VISIBILITY.SHARED &&
-              (permissions.canCreateMember || permissions.canDeleteMember) && (
-                <PopupMenuItem
-                  label={t`Manage Access`}
-                  onClick={() =>
-                    navigate({
-                      to: "/projects/$projectId/compute/images/$imageId",
-                      params: { projectId, imageId: image.id },
-                      search: { tab: "sharing" },
-                    })
-                  }
-                />
-              )}
             {canRejectSharedImage && (
               <PopupMenuItem label={t`Reject`} onClick={() => handleMemberStatusChange("rejected")} />
             )}
-            {!isSharedWithMe && permissions.canUpdate && isPrivate && (
+            {canSetToShared && <PopupMenuSectionSeparator />}
+            {canSetToShared && (
               <PopupMenuItem label={t`Set to "Shared"`} onClick={() => handleUpdateVisibility("shared")} />
             )}
-            {!isSharedWithMe && permissions.canDelete && !image.protected && (
+            {canUpdateOwnImage && (
+              <PopupMenuItem
+                label={isDeactivated ? t`Activate Image` : t`Deactivate Image`}
+                onClick={() => (isDeactivated ? setActivateModalOpen(true) : setDeactivateModalOpen(true))}
+              />
+            )}
+            {canDeleteOwnImage && (
               <>
                 <PopupMenuSectionSeparator />
-                <PopupMenuItem label={t`Delete`} onClick={() => setDeleteModalOpen(true)} />
+                <PopupMenuItem label={t`Delete Image`} onClick={() => setDeleteModalOpen(true)} />
               </>
             )}
           </PopupMenuOptions>
@@ -432,6 +427,7 @@ function RouteComponent() {
           key={image.id}
           image={image}
           currentProjectId={projectId}
+          isSharedWithMe={isSharedWithMe}
           activeTab={tab ?? "details"}
           onTabChange={(newTab) =>
             navigate({
@@ -459,13 +455,19 @@ function RouteComponent() {
         />
       )}
 
-      {editMetadataModalOpen && (
+      {editMetadataModalOpen && trpcClient && projectId && image && (
         <EditImageMetadataModal
+          key="edit-metadata-modal"
+          client={trpcClient}
           image={image}
           isOpen={editMetadataModalOpen}
-          isLoading={updateImageMutation.isPending}
-          onClose={() => setEditMetadataModalOpen(false)}
-          onSave={handleSaveEdit}
+          onClose={() => {
+            setEditMetadataModalOpen(false)
+            // Invalidate queries only when modal closes to refresh with server data
+            utils.compute.getImageById.invalidate({ project_id: projectId, imageId })
+            utils.compute.listImagesWithPagination.invalidate()
+          }}
+          projectId={projectId}
         />
       )}
 

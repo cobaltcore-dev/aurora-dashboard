@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import { useLingui } from "@lingui/react/macro"
 import { DataGridRow, DataGridCell, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { MEMBER_STATUSES } from "../../-constants/filters"
@@ -20,22 +20,6 @@ interface ImageMemberRowProps {
 
 export const ImageMemberRow: React.FC<ImageMemberRowProps> = ({ member, isDeleting, onDelete, canDelete }) => {
   const { t } = useLingui()
-  const [confirm, setConfirm] = useState(false)
-
-  useEffect(() => {
-    if (confirm) {
-      const timer = setTimeout(() => {
-        setConfirm(false)
-      }, 3000)
-
-      return () => clearTimeout(timer)
-    }
-  }, [confirm])
-
-  const handleConfirmDelete = () => {
-    setConfirm(false)
-    onDelete()
-  }
 
   const getStatusLabel = (status: string): string => {
     switch (status) {
@@ -68,33 +52,18 @@ export const ImageMemberRow: React.FC<ImageMemberRowProps> = ({ member, isDeleti
       return <></>
     }
 
-    if (confirm) {
-      return (
-        <Button
-          variant="primary-danger"
-          onClick={handleConfirmDelete}
-          title={t`Remove member access`}
-          aria-label={t`Remove member access`}
-          data-testid="confirm-removal"
-          disabled={isDeleting}
-        >
-          {t`Remove`}
-        </Button>
-      )
-    } else {
-      const memberIdDisplay = member.member_id
+    const memberIdDisplay = member.member_id
 
-      return (
-        <Button
-          icon="deleteForever"
-          onClick={() => setConfirm(true)}
-          title={t`Remove access for ${memberIdDisplay}`}
-          aria-label={t`Remove access for ${memberIdDisplay}`}
-          data-testid={`remove-${memberIdDisplay}`}
-          disabled={isDeleting}
-        />
-      )
-    }
+    return (
+      <Button
+        icon="deleteForever"
+        onClick={onDelete}
+        title={t`Remove access for ${memberIdDisplay}`}
+        aria-label={t`Remove access for ${memberIdDisplay}`}
+        data-testid={`remove-${memberIdDisplay}`}
+        disabled={isDeleting}
+      />
+    )
   }
 
   return (
