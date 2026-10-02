@@ -1,35 +1,36 @@
 import { Modal, ModalFooter, Button, Message } from "@cloudoperators/juno-ui-components"
 import { useState } from "react"
+import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { uuidFromRef, copyToClipboard } from "../../-components/utils"
+import { uuidFromRef } from "../../-components/utils"
+import ClipboardText from "@/client/components/ClipboardText"
 import type { Secret } from "@/server/KeyManager/types/keyManager"
 
 export function SecretDetailModal({ secret, onClose }: { secret: Secret; onClose: () => void }) {
+  const { t } = useLingui()
   const secretId = uuidFromRef(secret.secret_ref)
   return (
-    <Modal open size="large" title={secret.name ?? "Secret Details"} onCancel={onClose}>
+    <Modal open size="large" title={secret.name ?? t`Secret Details`} onCancel={onClose}>
       <dl className="juno-dl">
-        <dt>ID</dt>
+        <dt>{t`ID`}</dt>
         <dd>
-          {secretId}
-          <Button size="small" variant="subdued" onClick={() => copyToClipboard(secretId)} label="Copy" />
+          <ClipboardText text={secretId} />
         </dd>
-        <dt>Reference</dt>
+        <dt>{t`Reference`}</dt>
         <dd>
-          {secret.secret_ref}
-          <Button size="small" variant="subdued" onClick={() => copyToClipboard(secret.secret_ref)} label="Copy" />
+          <ClipboardText text={secret.secret_ref} />
         </dd>
-        <dt>Type</dt>
+        <dt>{t`Type`}</dt>
         <dd>{secret.secret_type}</dd>
-        <dt>Algorithm</dt>
+        <dt>{t`Algorithm`}</dt>
         <dd>{secret.algorithm ?? "—"}</dd>
-        <dt>Bit Length</dt>
+        <dt>{t`Bit Length`}</dt>
         <dd>{secret.bit_length ?? "—"}</dd>
-        <dt>Mode</dt>
+        <dt>{t`Mode`}</dt>
         <dd>{secret.mode ?? "—"}</dd>
-        <dt>Status</dt>
+        <dt>{t`Status`}</dt>
         <dd>{secret.status}</dd>
-        <dt>Content Types</dt>
+        <dt>{t`Content Types`}</dt>
         <dd>
           {secret.content_types
             ? Object.entries(secret.content_types)
@@ -37,15 +38,15 @@ export function SecretDetailModal({ secret, onClose }: { secret: Secret; onClose
                 .join(", ")
             : "—"}
         </dd>
-        <dt>Expiration</dt>
-        <dd>{secret.expiration ?? "Never"}</dd>
-        <dt>Created</dt>
+        <dt>{t`Expiration`}</dt>
+        <dd>{secret.expiration ?? t`Never`}</dd>
+        <dt>{t`Created`}</dt>
         <dd>{new Date(secret.created).toLocaleString()}</dd>
-        <dt>Updated</dt>
+        <dt>{t`Updated`}</dt>
         <dd>{new Date(secret.updated).toLocaleString()}</dd>
       </dl>
       <ModalFooter>
-        <Button onClick={onClose} label="Close" />
+        <Button onClick={onClose} label={t`Close`} />
       </ModalFooter>
     </Modal>
   )
@@ -60,6 +61,7 @@ export function CreateSecretModal({
   onClose: () => void
   onSuccess: () => void
 }) {
+  const { t } = useLingui()
   const [name, setName] = useState("")
   const [secretType, setSecretType] = useState("opaque")
   const [payload, setPayload] = useState("")
@@ -74,7 +76,7 @@ export function CreateSecretModal({
   return (
     <Modal
       open
-      title="Create Secret"
+      title={t`Create Secret`}
       onCancel={onClose}
       onConfirm={() =>
         createMutation.mutate({
@@ -85,8 +87,8 @@ export function CreateSecretModal({
           payload_content_type: payload ? "text/plain" : undefined,
         })
       }
-      confirmButtonLabel={createMutation.isPending ? "Creating..." : "Create"}
-      cancelButtonLabel="Cancel"
+      confirmButtonLabel={createMutation.isPending ? t`Creating...` : t`Create`}
+      cancelButtonLabel={t`Cancel`}
       disableConfirmButton={createMutation.isPending}
     >
       {createMutation.error && (
@@ -96,32 +98,32 @@ export function CreateSecretModal({
       )}
       <div className="flex flex-col gap-2">
         <label>
-          Name (optional)
+          {t`Name (optional)`}
           <input
             className="juno-input"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="My secret"
+            placeholder={t`My secret`}
           />
         </label>
         <label>
-          Type
+          {t`Type`}
           <select className="juno-select" value={secretType} onChange={(e) => setSecretType(e.target.value)}>
-            {["opaque", "symmetric", "public", "private", "passphrase", "certificate"].map((t) => (
-              <option key={t} value={t}>
-                {t}
+            {["opaque", "symmetric", "public", "private", "passphrase", "certificate"].map((type) => (
+              <option key={type} value={type}>
+                {type}
               </option>
             ))}
           </select>
         </label>
         <label>
-          Payload (optional)
+          {t`Payload (optional)`}
           <textarea
             className="juno-textarea"
             value={payload}
             onChange={(e) => setPayload(e.target.value)}
             rows={4}
-            placeholder="Secret value..."
+            placeholder={t`Secret value...`}
           />
         </label>
       </div>
@@ -138,6 +140,7 @@ export function DeleteSecretModal({
   secret: Secret
   onClose: () => void
 }) {
+  const { t } = useLingui()
   const secretId = uuidFromRef(secret.secret_ref)
   const utils = trpcReact.useUtils()
   const deleteMutation = trpcReact.keyManager.deleteSecret.useMutation({
@@ -150,12 +153,12 @@ export function DeleteSecretModal({
   return (
     <Modal
       open
-      title="Delete Secret"
+      title={t`Delete Secret`}
       onCancel={onClose}
       onConfirm={() => deleteMutation.mutate({ project_id: projectId, secretId })}
-      confirmButtonLabel={deleteMutation.isPending ? "Deleting..." : "Delete"}
+      confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}
       confirmButtonVariant="primary-danger"
-      cancelButtonLabel="Cancel"
+      cancelButtonLabel={t`Cancel`}
       disableConfirmButton={deleteMutation.isPending}
     >
       {deleteMutation.error && (
@@ -164,7 +167,7 @@ export function DeleteSecretModal({
         </Message>
       )}
       <p>
-        Are you sure you want to delete <strong>{secret.name ?? secretId}</strong>? This cannot be undone.
+        {t`Are you sure you want to delete`} <strong>{secret.name ?? secretId}</strong>? {t`This cannot be undone.`}
       </p>
     </Modal>
   )

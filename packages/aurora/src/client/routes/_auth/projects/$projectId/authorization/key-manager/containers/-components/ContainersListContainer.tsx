@@ -1,4 +1,5 @@
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell, Status } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 import { CONTAINERS_COLUMNS, CONTAINERS_COLUMN_COUNT } from "./constants"
 import { ContainerTableRow } from "./ContainerTableRow"
 import type { Container } from "@/server/KeyManager/types/keyManager"
@@ -22,12 +23,14 @@ export function ContainersListContainer({
   onShowDetails,
   onDelete,
 }: ContainersListContainerProps) {
+  const { t } = useLingui()
+
   if (isLoading) {
-    return <Status status="progress" title="Loading Containers..." />
+    return <Status status="progress" title={t`Loading Containers...`} />
   }
 
   if (isError) {
-    return <Status status="error" title={error?.message ?? "Failed to Load Containers"} />
+    return <Status status="error" title={error?.message ?? t`Failed to Load Containers`} />
   }
 
   return (
@@ -52,8 +55,8 @@ export function ContainersListContainer({
           <DataGridCell colSpan={CONTAINERS_COLUMN_COUNT}>
             <Status
               status="empty"
-              title="No Containers Found"
-              body="There are no containers in this project. Create one to group your secrets."
+              title={t`No Containers Found`}
+              body={t`There are no containers in this project. Create one to group your secrets.`}
             />
           </DataGridCell>
         </DataGridRow>

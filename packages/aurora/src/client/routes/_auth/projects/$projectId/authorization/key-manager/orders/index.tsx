@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { z } from "zod"
 import { t, msg } from "@lingui/core/macro"
+import { useLingui } from "@lingui/react/macro"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
 import { OrdersList } from "./-components/OrdersList"
 import { uuidFromRef } from "../-components/utils"
 import type { Order } from "@/server/KeyManager/types/keyManager"
@@ -24,6 +26,7 @@ export const Route = createFileRoute("/_auth/projects/$projectId/authorization/k
 })
 
 function OrdersListPage() {
+  const { t } = useLingui()
   const { projectId } = Route.useParams() as { projectId: string }
   const { sort = "created:desc", page = 1 } = Route.useSearch()
   const navigate = useNavigate()
@@ -50,13 +53,16 @@ function OrdersListPage() {
   }
 
   return (
-    <OrdersList
-      projectId={projectId}
-      sort={sort}
-      page={page}
-      onSortChange={handleSort}
-      onPageChange={handlePageChange}
-      onShowDetail={handleShowDetail}
-    />
+    <>
+      <ContentHeader title={t`Key Manager`} projectId={projectId} />
+      <OrdersList
+        projectId={projectId}
+        sort={sort}
+        page={page}
+        onSortChange={handleSort}
+        onPageChange={handlePageChange}
+        onShowDetail={handleShowDetail}
+      />
+    </>
   )
 }

@@ -1,6 +1,9 @@
 import { Button, Status } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { copyToClipboard, uuidFromRef } from "../../-components/utils"
+import { ContentHeader } from "@/client/components/ContentHeader/ContentHeader"
+import ClipboardText from "@/client/components/ClipboardText"
+import { uuidFromRef } from "../../-components/utils"
 
 interface OrderDetailProps {
   projectId: string
@@ -9,6 +12,7 @@ interface OrderDetailProps {
 }
 
 export function OrderDetail({ projectId, orderId, onBack }: OrderDetailProps) {
+  const { t } = useLingui()
   const {
     data: order,
     isLoading,
@@ -19,41 +23,42 @@ export function OrderDetail({ projectId, orderId, onBack }: OrderDetailProps) {
     orderId,
   })
 
-  if (isLoading) return <Status status="progress" title="Loading Order..." />
-  if (isError) return <Status status="error" title={error?.message ?? "Failed to Load Order"} />
-  if (!order) return <Status status="empty" title="Order Not Found" />
+  if (isLoading) return <Status status="progress" title={t`Loading Order...`} />
+  if (isError) return <Status status="error" title={error?.message ?? t`Failed to Load Order`} />
+  if (!order) return <Status status="empty" title={t`Order Not Found`} />
 
   return (
     <div className="max-w-3xl">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Order: {order.type}</h2>
-        <Button variant="subdued" onClick={onBack}>
-          ← Back to Orders
-        </Button>
-      </div>
+      <ContentHeader
+        title={`${t`Order`}: ${order.type}`}
+        projectId={projectId}
+        actions={
+          <Button variant="subdued" onClick={onBack}>
+            {t`← Back to Orders`}
+          </Button>
+        }
+      />
 
       <dl className="juno-dl">
-        <dt>ID</dt>
-        <dd className="flex items-center gap-2">
-          {orderId}
-          <Button size="small" variant="subdued" onClick={() => copyToClipboard(orderId)} label="Copy" />
+        <dt>{t`ID`}</dt>
+        <dd>
+          <ClipboardText text={orderId} />
         </dd>
 
-        <dt>Reference</dt>
-        <dd className="flex items-center gap-2">
-          {order.order_ref}
-          <Button size="small" variant="subdued" onClick={() => copyToClipboard(order.order_ref)} label="Copy" />
+        <dt>{t`Reference`}</dt>
+        <dd>
+          <ClipboardText text={order.order_ref} />
         </dd>
 
-        <dt>Type</dt>
+        <dt>{t`Type`}</dt>
         <dd>{order.type}</dd>
 
-        <dt>Status</dt>
+        <dt>{t`Status`}</dt>
         <dd>{order.status}</dd>
 
         {order.sub_status && (
           <>
-            <dt>Sub Status</dt>
+            <dt>{t`Sub Status`}</dt>
             <dd>
               {order.sub_status}
               {order.sub_status_message && ` — ${order.sub_status_message}`}
@@ -63,23 +68,22 @@ export function OrderDetail({ projectId, orderId, onBack }: OrderDetailProps) {
 
         {order.secret_ref && (
           <>
-            <dt>Secret</dt>
-            <dd className="flex items-center gap-2">
-              {uuidFromRef(order.secret_ref)}
-              <Button size="small" variant="subdued" onClick={() => copyToClipboard(order.secret_ref!)} label="Copy" />
+            <dt>{t`Secret`}</dt>
+            <dd>
+              <ClipboardText text={uuidFromRef(order.secret_ref)} />
             </dd>
           </>
         )}
 
-        <dt>Created</dt>
+        <dt>{t`Created`}</dt>
         <dd>{new Date(order.created).toLocaleString()}</dd>
 
-        <dt>Updated</dt>
+        <dt>{t`Updated`}</dt>
         <dd>{new Date(order.updated).toLocaleString()}</dd>
 
         {order.creator_id && (
           <>
-            <dt>Creator ID</dt>
+            <dt>{t`Creator ID`}</dt>
             <dd>{order.creator_id}</dd>
           </>
         )}
@@ -87,7 +91,7 @@ export function OrderDetail({ projectId, orderId, onBack }: OrderDetailProps) {
 
       {order.meta && Object.keys(order.meta).length > 0 && (
         <div className="mt-4">
-          <h3 className="mb-2 text-sm font-semibold">Order Meta</h3>
+          <h3 className="mb-2 text-sm font-semibold">{t`Order Meta`}</h3>
           <dl className="juno-dl">
             {Object.entries(order.meta).map(([key, value]) => (
               <span key={key}>

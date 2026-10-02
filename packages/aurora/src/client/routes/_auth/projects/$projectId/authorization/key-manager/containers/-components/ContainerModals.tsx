@@ -1,55 +1,50 @@
 import { useState } from "react"
 import { Modal, ModalFooter, Button, Message } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 import { trpcReact } from "@/client/trpcClient"
-import { uuidFromRef, copyToClipboard } from "../../-components/utils"
+import { uuidFromRef } from "../../-components/utils"
+import ClipboardText from "@/client/components/ClipboardText"
 import type { Container } from "@/server/KeyManager/types/keyManager"
 
 export function ContainerDetailModal({ container, onClose }: { container: Container; onClose: () => void }) {
+  const { t } = useLingui()
   const containerId = uuidFromRef(container.container_ref)
   return (
-    <Modal open size="large" title={container.name ?? "Container Details"} onCancel={onClose}>
+    <Modal open size="large" title={container.name ?? t`Container Details`} onCancel={onClose}>
       <dl className="juno-dl">
-        <dt>ID</dt>
+        <dt>{t`ID`}</dt>
         <dd>
-          {containerId}
-          <Button size="small" variant="subdued" onClick={() => copyToClipboard(containerId)} label="Copy" />
+          <ClipboardText text={containerId} />
         </dd>
-        <dt>Reference</dt>
+        <dt>{t`Reference`}</dt>
         <dd>
-          {container.container_ref}
-          <Button
-            size="small"
-            variant="subdued"
-            onClick={() => copyToClipboard(container.container_ref)}
-            label="Copy"
-          />
+          <ClipboardText text={container.container_ref} />
         </dd>
-        <dt>Type</dt>
+        <dt>{t`Type`}</dt>
         <dd>{container.type}</dd>
-        <dt>Status</dt>
+        <dt>{t`Status`}</dt>
         <dd>{container.status}</dd>
-        <dt>Secrets</dt>
+        <dt>{t`Secrets`}</dt>
         <dd>
           {container.secret_refs.length === 0 ? (
-            "None"
+            t`None`
           ) : (
             <ul>
               {container.secret_refs.map((ref) => (
                 <li key={ref.secret_ref}>
-                  <strong>{ref.name}</strong>: {ref.secret_ref}
-                  <Button size="small" variant="subdued" onClick={() => copyToClipboard(ref.secret_ref)} label="Copy" />
+                  <strong>{ref.name}</strong>: <ClipboardText text={ref.secret_ref} />
                 </li>
               ))}
             </ul>
           )}
         </dd>
-        <dt>Created</dt>
+        <dt>{t`Created`}</dt>
         <dd>{new Date(container.created).toLocaleString()}</dd>
-        <dt>Updated</dt>
+        <dt>{t`Updated`}</dt>
         <dd>{new Date(container.updated).toLocaleString()}</dd>
       </dl>
       <ModalFooter>
-        <Button onClick={onClose} label="Close" />
+        <Button onClick={onClose} label={t`Close`} />
       </ModalFooter>
     </Modal>
   )
@@ -64,6 +59,7 @@ export function CreateContainerModal({
   onClose: () => void
   onSuccess: () => void
 }) {
+  const { t } = useLingui()
   const [name, setName] = useState("")
   const [type, setType] = useState<"generic" | "rsa" | "certificate">("generic")
 
@@ -77,11 +73,11 @@ export function CreateContainerModal({
   return (
     <Modal
       open
-      title="Create Container"
+      title={t`Create Container`}
       onCancel={onClose}
       onConfirm={() => createMutation.mutate({ project_id: projectId, name: name || undefined, type, secret_refs: [] })}
-      confirmButtonLabel={createMutation.isPending ? "Creating..." : "Create"}
-      cancelButtonLabel="Cancel"
+      confirmButtonLabel={createMutation.isPending ? t`Creating...` : t`Create`}
+      cancelButtonLabel={t`Cancel`}
       disableConfirmButton={createMutation.isPending}
     >
       {createMutation.error && (
@@ -91,16 +87,16 @@ export function CreateContainerModal({
       )}
       <div className="flex flex-col gap-2">
         <label>
-          Name (optional)
+          {t`Name (optional)`}
           <input
             className="juno-input"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="My container"
+            placeholder={t`My container`}
           />
         </label>
         <label>
-          Type
+          {t`Type`}
           <select
             className="juno-select"
             value={type}
@@ -125,6 +121,7 @@ export function DeleteContainerModal({
   container: Container
   onClose: () => void
 }) {
+  const { t } = useLingui()
   const containerId = uuidFromRef(container.container_ref)
   const utils = trpcReact.useUtils()
   const deleteMutation = trpcReact.keyManager.deleteContainer.useMutation({
@@ -137,12 +134,12 @@ export function DeleteContainerModal({
   return (
     <Modal
       open
-      title="Delete Container"
+      title={t`Delete Container`}
       onCancel={onClose}
       onConfirm={() => deleteMutation.mutate({ project_id: projectId, containerId })}
-      confirmButtonLabel={deleteMutation.isPending ? "Deleting..." : "Delete"}
+      confirmButtonLabel={deleteMutation.isPending ? t`Deleting...` : t`Delete`}
       confirmButtonVariant="primary-danger"
-      cancelButtonLabel="Cancel"
+      cancelButtonLabel={t`Cancel`}
       disableConfirmButton={deleteMutation.isPending}
     >
       {deleteMutation.error && (
@@ -151,7 +148,8 @@ export function DeleteContainerModal({
         </Message>
       )}
       <p>
-        Are you sure you want to delete <strong>{container.name ?? containerId}</strong>? This cannot be undone.
+        {t`Are you sure you want to delete`} <strong>{container.name ?? containerId}</strong>?{" "}
+        {t`This cannot be undone.`}
       </p>
     </Modal>
   )

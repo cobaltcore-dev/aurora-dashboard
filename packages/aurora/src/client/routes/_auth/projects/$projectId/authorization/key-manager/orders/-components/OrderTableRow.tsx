@@ -5,8 +5,9 @@ import {
   PopupMenuItem,
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 import { uuidFromRef } from "../../-components/utils"
-import { CopyText } from "../../-components/CopyText"
+import ClipboardText from "@/client/components/ClipboardText"
 import type { Order } from "@/server/KeyManager/types/keyManager"
 
 interface OrderTableRowProps {
@@ -17,12 +18,13 @@ interface OrderTableRowProps {
 }
 
 export function OrderTableRow({ order, canDelete, onShowDetails, onDelete }: OrderTableRowProps) {
+  const { t } = useLingui()
   const id = uuidFromRef(order.order_ref)
   return (
     <DataGridRow>
       <DataGridCell>
         <div className="text-xs opacity-60">
-          <CopyText text={id} />
+          <ClipboardText text={id} />
         </div>
       </DataGridCell>
       <DataGridCell>{order.type}</DataGridCell>
@@ -30,8 +32,8 @@ export function OrderTableRow({ order, canDelete, onShowDetails, onDelete }: Ord
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuOptions>
-            <PopupMenuItem label="Show Details" onClick={() => onShowDetails(order)} />
-            {canDelete && <PopupMenuItem label="Delete" onClick={() => onDelete(order)} />}
+            <PopupMenuItem label={t`Show Details`} onClick={() => onShowDetails(order)} />
+            {canDelete && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(order)} />}
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>

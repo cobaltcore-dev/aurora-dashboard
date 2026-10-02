@@ -1,4 +1,5 @@
 import { DataGrid, DataGridHeadCell, DataGridRow, DataGridCell, Status } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 import { ORDERS_COLUMNS, ORDERS_COLUMN_COUNT } from "./constants"
 import { OrderTableRow } from "./OrderTableRow"
 import type { Order } from "@/server/KeyManager/types/keyManager"
@@ -22,12 +23,14 @@ export function OrdersListContainer({
   onShowDetails,
   onDelete,
 }: OrdersListContainerProps) {
+  const { t } = useLingui()
+
   if (isLoading) {
-    return <Status status="progress" title="Loading Orders..." />
+    return <Status status="progress" title={t`Loading Orders...`} />
   }
 
   if (isError) {
-    return <Status status="error" title={error?.message ?? "Failed to Load Orders"} />
+    return <Status status="error" title={error?.message ?? t`Failed to Load Orders`} />
   }
 
   return (
@@ -52,8 +55,8 @@ export function OrdersListContainer({
           <DataGridCell colSpan={ORDERS_COLUMN_COUNT}>
             <Status
               status="empty"
-              title="No Orders Found"
-              body="There are no orders in this project. Create one to request secret generation."
+              title={t`No Orders Found`}
+              body={t`There are no orders in this project. Create one to request secret generation.`}
             />
           </DataGridCell>
         </DataGridRow>

@@ -5,8 +5,9 @@ import {
   PopupMenuItem,
   PopupMenuOptions,
 } from "@cloudoperators/juno-ui-components"
+import { useLingui } from "@lingui/react/macro"
 import { uuidFromRef } from "../../-components/utils"
-import { CopyText } from "../../-components/CopyText"
+import ClipboardText from "@/client/components/ClipboardText"
 import type { Container } from "@/server/KeyManager/types/keyManager"
 
 interface ContainerTableRowProps {
@@ -17,13 +18,14 @@ interface ContainerTableRowProps {
 }
 
 export function ContainerTableRow({ container, canDelete, onShowDetails, onDelete }: ContainerTableRowProps) {
+  const { t } = useLingui()
   const id = uuidFromRef(container.container_ref)
   return (
     <DataGridRow>
       <DataGridCell>
-        <div>{container.name ?? <em>unnamed</em>}</div>
+        <div>{container.name ?? <em>{t`unnamed`}</em>}</div>
         <div className="text-xs opacity-60">
-          <CopyText text={id} />
+          <ClipboardText text={id} />
         </div>
       </DataGridCell>
       <DataGridCell>{container.type}</DataGridCell>
@@ -31,8 +33,8 @@ export function ContainerTableRow({ container, canDelete, onShowDetails, onDelet
       <DataGridCell onClick={(e: React.MouseEvent) => e.stopPropagation()} className="items-end pr-0">
         <PopupMenu>
           <PopupMenuOptions>
-            <PopupMenuItem label="Show Details" onClick={() => onShowDetails(container)} />
-            {canDelete && <PopupMenuItem label="Delete" onClick={() => onDelete(container)} />}
+            <PopupMenuItem label={t`Show Details`} onClick={() => onShowDetails(container)} />
+            {canDelete && <PopupMenuItem label={t`Delete`} onClick={() => onDelete(container)} />}
           </PopupMenuOptions>
         </PopupMenu>
       </DataGridCell>
