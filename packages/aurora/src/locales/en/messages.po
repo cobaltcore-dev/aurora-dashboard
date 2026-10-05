@@ -404,6 +404,9 @@ msgstr "Add Rule"
 msgid "Add Security Group Rule"
 msgstr "Add Security Group Rule"
 
+msgid "Admin State"
+msgstr "Admin State"
+
 msgid "After {abortDays} days"
 msgstr "After {abortDays} days"
 
@@ -1286,9 +1289,6 @@ msgstr "Detaching..."
 msgid "Details"
 msgstr "Details"
 
-msgid "Details for router {routerId} coming soon."
-msgstr "Details for router {routerId} coming soon."
-
 msgid "Device ID"
 msgstr "Device ID"
 
@@ -1327,6 +1327,9 @@ msgstr "DNS name must be at most 63 characters."
 
 msgid "Done"
 msgstr "Done"
+
+msgid "DOWN"
+msgstr "DOWN"
 
 msgid "Download {rowDisplayName}"
 msgstr "Download {rowDisplayName}"
@@ -1484,6 +1487,9 @@ msgstr "Enable versioning"
 msgid "Enable Versioning"
 msgstr "Enable Versioning"
 
+msgid "Enabled"
+msgstr "Enabled"
+
 msgid "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 msgstr "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 
@@ -1574,6 +1580,9 @@ msgstr "Error Loading Floating IP"
 msgid "Error Loading Image"
 msgstr "Error Loading Image"
 
+msgid "Error Loading Router"
+msgstr "Error Loading Router"
+
 msgid "Error Loading Security Group"
 msgstr "Error Loading Security Group"
 
@@ -1613,8 +1622,14 @@ msgstr "Expires in {selectedPresetLabel} — at {expiresAtFormatted}"
 msgid "Expose Headers"
 msgstr "Expose Headers"
 
+msgid "External Fixed IPs"
+msgstr "External Fixed IPs"
+
 msgid "External Network"
 msgstr "External Network"
+
+msgid "External Networks"
+msgstr "External Networks"
 
 msgid "External Subnet"
 msgstr "External Subnet"
@@ -1826,6 +1841,9 @@ msgstr "Failed to Load Floating IPs"
 msgid "Failed to Load Images"
 msgstr "Failed to Load Images"
 
+msgid "Failed to Load Internal Networks"
+msgstr "Failed to Load Internal Networks"
+
 msgid "Failed to Load Lifecycle Configuration"
 msgstr "Failed to Load Lifecycle Configuration"
 
@@ -1957,6 +1975,9 @@ msgstr "Filter by"
 
 msgid "Fixed IP Address"
 msgstr "Fixed IP Address"
+
+msgid "Fixed IPs"
+msgstr "Fixed IPs"
 
 msgid "Flavor \"{name}\" was successfully created."
 msgstr "Flavor \"{name}\" was successfully created."
@@ -2237,6 +2258,9 @@ msgstr "Inside a project, objects are stored in containers. Containers are where
 msgid "Insufficient permissions"
 msgstr "Insufficient permissions"
 
+msgid "Internal Networks"
+msgstr "Internal Networks"
+
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Invalid file format. Supported formats: {supportedFileFormats}"
 
@@ -2257,6 +2281,9 @@ msgstr "IP Restricted"
 
 msgid "IP Version"
 msgstr "IP Version"
+
+msgid "IP:"
+msgstr "IP:"
 
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 msgstr "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
@@ -2381,6 +2408,9 @@ msgstr "Loading Image Details..."
 msgid "Loading Images..."
 msgstr "Loading Images..."
 
+msgid "Loading Internal Networks..."
+msgstr "Loading Internal Networks..."
+
 msgid "Loading Lifecycle Configuration..."
 msgstr "Loading Lifecycle Configuration..."
 
@@ -2413,6 +2443,9 @@ msgstr "Loading preview..."
 
 msgid "Loading Preview..."
 msgstr "Loading Preview..."
+
+msgid "Loading Router Details..."
+msgstr "Loading Router Details..."
 
 msgid "Loading Routers..."
 msgstr "Loading Routers..."
@@ -2573,6 +2606,9 @@ msgstr "Network & Routing"
 msgid "Network ID"
 msgstr "Network ID"
 
+msgid "Network Name"
+msgstr "Network Name"
+
 msgid "New Folder"
 msgstr "New Folder"
 
@@ -2612,6 +2648,9 @@ msgstr "No custom metadata. Click \"Add Property\" to create one."
 msgid "No custom properties defined"
 msgstr "No custom properties defined"
 
+msgid "No External Gateway"
+msgstr "No External Gateway"
+
 msgid "No flavor selected for deletion."
 msgstr "No flavor selected for deletion."
 
@@ -2623,6 +2662,9 @@ msgstr "No Floating IPs Found"
 
 msgid "No images found"
 msgstr "No images found"
+
+msgid "No Internal Networks"
+msgstr "No Internal Networks"
 
 msgid "No Lifecycle Rules Matching the Current Search Criteria."
 msgstr "No Lifecycle Rules Matching the Current Search Criteria."
@@ -3116,11 +3158,11 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk must be an integer ≥ 0."
 
-msgid "Router Details"
-msgstr "Router Details"
-
 msgid "Router ID"
 msgstr "Router ID"
+
+msgid "Router Not Found"
+msgstr "Router Not Found"
 
 msgid "Routers"
 msgstr "Routers"
@@ -3443,6 +3485,9 @@ msgstr "Size:"
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 
+msgid "SNAT"
+msgstr "SNAT"
+
 msgid "Some Objects Could Not Be Deleted"
 msgstr "Some Objects Could Not Be Deleted"
 
@@ -3505,6 +3550,9 @@ msgstr "Stored as X-Object-Meta-* headers. Keys are case-insensitive."
 
 msgid "Subnet"
 msgstr "Subnet"
+
+msgid "Subnet ID:"
+msgstr "Subnet ID:"
 
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
 msgstr "Successfully activated {successCount} of {totalCount} image(s)"
@@ -3676,6 +3724,9 @@ msgstr "The project you are looking for doesn't exist or you don't have access t
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "The requested flavor could not be found. It may have been deleted or you may not have access to it."
+
+msgid "The requested router could not be found. It may have been deleted or you may not have access to it."
+msgstr "The requested router could not be found. It may have been deleted or you may not have access to it."
 
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr "The Resource you are looking for does not exist or is not accessible."
@@ -3887,6 +3938,12 @@ msgstr "This project doesn't exist or is not accessible from your current domain
 msgid "This property is reserved and cannot be modified"
 msgstr "This property is reserved and cannot be modified"
 
+msgid "This router has no interfaces attached to internal networks."
+msgstr "This router has no interfaces attached to internal networks."
+
+msgid "This router is not connected to an external network."
+msgstr "This router is not connected to an external network."
+
 msgid "This rule has {noncurrentTransitionCount} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 msgstr "This rule has {noncurrentTransitionCount} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 
@@ -3940,6 +3997,9 @@ msgstr "Try again"
 
 msgid "Try Again"
 msgstr "Try Again"
+
+msgid "Type"
+msgstr "Type"
 
 msgid "Type \"{CONFIRM_WORD}\" to confirm"
 msgstr "Type \"{CONFIRM_WORD}\" to confirm"
@@ -4012,6 +4072,9 @@ msgstr "Unknown Error"
 
 msgid "Unnamed"
 msgstr "Unnamed"
+
+msgid "UP"
+msgstr "UP"
 
 msgid "Update object"
 msgstr "Update object"

@@ -404,6 +404,9 @@ msgstr "Regel hinzufügen"
 msgid "Add Security Group Rule"
 msgstr "Sicherheitsgruppenregel hinzufügen"
 
+msgid "Admin State"
+msgstr ""
+
 msgid "After {abortDays} days"
 msgstr ""
 
@@ -1286,9 +1289,6 @@ msgstr ""
 msgid "Details"
 msgstr "Details"
 
-msgid "Details for router {routerId} coming soon."
-msgstr ""
-
 msgid "Device ID"
 msgstr "Geräte-ID"
 
@@ -1326,6 +1326,9 @@ msgid "DNS name must be at most 63 characters."
 msgstr "Der DNS-Name darf höchstens 63 Zeichen lang sein."
 
 msgid "Done"
+msgstr ""
+
+msgid "DOWN"
 msgstr ""
 
 msgid "Download {rowDisplayName}"
@@ -1484,6 +1487,9 @@ msgstr ""
 msgid "Enable Versioning"
 msgstr ""
 
+msgid "Enabled"
+msgstr ""
+
 msgid "Ensure ACL entries are valid — correct project IDs, user IDs, and formats are your responsibility. Invalid entries may silently grant or deny unintended access."
 msgstr "Stellen Sie sicher, dass ACL-Einträge gültig sind — korrekte Projekt-IDs, Benutzer-IDs und Formate liegen in Ihrer Verantwortung. Ungültige Einträge können stillschweigend unbeabsichtigten Zugriff gewähren oder verweigern."
 
@@ -1574,6 +1580,9 @@ msgstr ""
 msgid "Error Loading Image"
 msgstr ""
 
+msgid "Error Loading Router"
+msgstr ""
+
 msgid "Error Loading Security Group"
 msgstr ""
 
@@ -1613,8 +1622,14 @@ msgstr "Läuft ab in {selectedPresetLabel} — um {expiresAtFormatted}"
 msgid "Expose Headers"
 msgstr ""
 
+msgid "External Fixed IPs"
+msgstr ""
+
 msgid "External Network"
 msgstr "Externes Netzwerk"
+
+msgid "External Networks"
+msgstr ""
 
 msgid "External Subnet"
 msgstr ""
@@ -1826,6 +1841,9 @@ msgstr ""
 msgid "Failed to Load Images"
 msgstr ""
 
+msgid "Failed to Load Internal Networks"
+msgstr ""
+
 msgid "Failed to Load Lifecycle Configuration"
 msgstr ""
 
@@ -1957,6 +1975,9 @@ msgstr "Filtern nach"
 
 msgid "Fixed IP Address"
 msgstr "Feste IP-Adresse"
+
+msgid "Fixed IPs"
+msgstr ""
 
 msgid "Flavor \"{name}\" was successfully created."
 msgstr ""
@@ -2237,6 +2258,9 @@ msgstr "Innerhalb eines Projekts werden Objekte in Containern gespeichert. Conta
 msgid "Insufficient permissions"
 msgstr ""
 
+msgid "Internal Networks"
+msgstr ""
+
 msgid "Invalid file format. Supported formats: {supportedFileFormats}"
 msgstr "Ungültiges Dateiformat. Unterstützte Formate: {supportedFileFormats}"
 
@@ -2257,6 +2281,9 @@ msgstr ""
 
 msgid "IP Version"
 msgstr "IP-Version"
+
+msgid "IP:"
+msgstr ""
 
 msgid "Keep multiple versions of objects. Cannot be fully disabled once enabled, only suspended."
 msgstr ""
@@ -2381,6 +2408,9 @@ msgstr "Image-Details werden geladen..."
 msgid "Loading Images..."
 msgstr "Lädt Images..."
 
+msgid "Loading Internal Networks..."
+msgstr ""
+
 msgid "Loading Lifecycle Configuration..."
 msgstr ""
 
@@ -2412,6 +2442,9 @@ msgid "Loading preview..."
 msgstr "Vorschau wird geladen..."
 
 msgid "Loading Preview..."
+msgstr ""
+
+msgid "Loading Router Details..."
 msgstr ""
 
 msgid "Loading Routers..."
@@ -2573,6 +2606,9 @@ msgstr "Netzwerk & Routing"
 msgid "Network ID"
 msgstr "Netzwerk-ID"
 
+msgid "Network Name"
+msgstr ""
+
 msgid "New Folder"
 msgstr "Neuer Ordner"
 
@@ -2612,6 +2648,9 @@ msgstr "Keine benutzerdefinierten Metadaten. Klicken Sie auf \"Eigenschaft hinzu
 msgid "No custom properties defined"
 msgstr "Keine benutzerdefinierten Eigenschaften definiert"
 
+msgid "No External Gateway"
+msgstr ""
+
 msgid "No flavor selected for deletion."
 msgstr "Kein Flavor für die Löschung ausgewählt."
 
@@ -2623,6 +2662,9 @@ msgstr ""
 
 msgid "No images found"
 msgstr "Keine Images gefunden"
+
+msgid "No Internal Networks"
+msgstr ""
 
 msgid "No Lifecycle Rules Matching the Current Search Criteria."
 msgstr ""
@@ -3116,11 +3158,11 @@ msgstr "Root Disk (GiB)"
 msgid "Root Disk must be an integer ≥ 0."
 msgstr "Root Disk muss eine ganze Zahl ≥ 0 sein."
 
-msgid "Router Details"
-msgstr ""
-
 msgid "Router ID"
 msgstr "Router-ID"
+
+msgid "Router Not Found"
+msgstr ""
 
 msgid "Routers"
 msgstr ""
@@ -3443,6 +3485,9 @@ msgstr ""
 msgid "Size: {policySize} / {MAX_POLICY_SIZE} bytes"
 msgstr ""
 
+msgid "SNAT"
+msgstr ""
+
 msgid "Some Objects Could Not Be Deleted"
 msgstr ""
 
@@ -3505,6 +3550,9 @@ msgstr "Gespeichert als X-Object-Meta-*-Header. Schlüssel sind nicht zwischen G
 
 msgid "Subnet"
 msgstr "Subnet"
+
+msgid "Subnet ID:"
+msgstr ""
 
 msgid "Successfully activated {successCount} of {totalCount} image(s)"
 msgstr "{successCount} von {totalCount} Image(s) erfolgreich aktiviert"
@@ -3676,6 +3724,9 @@ msgstr ""
 
 msgid "The requested flavor could not be found. It may have been deleted or you may not have access to it."
 msgstr "Der angeforderte Flavor konnte nicht gefunden werden. Er wurde möglicherweise gelöscht oder Sie haben keinen Zugriff darauf."
+
+msgid "The requested router could not be found. It may have been deleted or you may not have access to it."
+msgstr ""
 
 msgid "The Resource you are looking for does not exist or is not accessible."
 msgstr ""
@@ -3887,6 +3938,12 @@ msgstr ""
 msgid "This property is reserved and cannot be modified"
 msgstr "Diese Eigenschaft ist reserviert und kann nicht geändert werden"
 
+msgid "This router has no interfaces attached to internal networks."
+msgstr ""
+
+msgid "This router is not connected to an external network."
+msgstr ""
+
 msgid "This rule has {noncurrentTransitionCount} noncurrent version transition(s) configured. Transitions cannot be edited in this UI. Changing other fields will preserve the existing transitions."
 msgstr ""
 
@@ -3940,6 +3997,9 @@ msgstr "Erneut versuchen"
 
 msgid "Try Again"
 msgstr "Erneut versuchen"
+
+msgid "Type"
+msgstr ""
 
 msgid "Type \"{CONFIRM_WORD}\" to confirm"
 msgstr "Geben Sie \"{CONFIRM_WORD}\" zur Bestätigung ein"
@@ -4012,6 +4072,9 @@ msgstr ""
 
 msgid "Unnamed"
 msgstr "Unbenannt"
+
+msgid "UP"
+msgstr ""
 
 msgid "Update object"
 msgstr "Objekt aktualisieren"
