@@ -116,7 +116,7 @@ Retrieves a single router.
 
 #### Response
 
-Returns a single `Router` object.
+Returns `RouterDetails`: the `Router` with the external gateway enriched with `network_name` and `external_fixed_ips[].subnet_name`, using the same best-effort networks/subnets lookup as `list` (two requests; none when the router has no gateway).
 
 #### Error Handling
 
@@ -408,7 +408,7 @@ Lists the router's internal interfaces for the detail view.
 #### Important Notes
 
 - Only interface ports are returned: `network:router_interface`, `network:router_interface_distributed`, `network:ha_router_replicated_interface`. The gateway port (`network:router_gateway`) and DVR SNAT ports (`network:router_centralized_snat`) are excluded.
-- Fixed IPs are enriched with subnet name and CIDR in a single batched subnets request. If that request fails, interfaces are still returned with subnet IDs only.
+- Interfaces are enriched with the network name, and fixed IPs with subnet name and CIDR, using one batched networks request and one batched subnets request in parallel. If a request fails, interfaces are still returned with IDs only.
 - No subnets request is made when the router has no interfaces.
 
 #### Response
@@ -544,6 +544,7 @@ type RouterInterface = {
   port_id: string
   port_name: string
   network_id: string
+  network_name?: string // undefined if network enrichment failed
   device_owner: string
   status: "ACTIVE" | "DOWN" | "BUILD" | "ERROR"
   admin_state_up?: boolean
@@ -586,10 +587,11 @@ type RouterInterface = {
 
 ### Routes
 
-| Route                                         | Description                                              |
-| --------------------------------------------- | -------------------------------------------------------- |
-| `/_auth/projects/$projectId/network/routers`  | Layout route: breadcrumb and route-level error component |
-| `/_auth/projects/$projectId/network/routers/` | Routers list (placeholder)                               |
+| Route                                                  | Description                                                            |
+| ------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `/_auth/projects/$projectId/network/routers`           | Layout route: breadcrumb and route-level error component               |
+| `/_auth/projects/$projectId/network/routers/`          | Routers list                                                           |
+| `/_auth/projects/$projectId/network/routers/$routerId` | Router details: overview, External Networks and Internal Networks tabs |
 
 ### Navigation
 
@@ -641,10 +643,11 @@ UI actions are gated via `network.canUser` using the existing keys in `permissio
 - Routing setup, side navigation entry and project overview card
 - Routers list view (Name, Project, External Network, External Subnet, Private Network, Status) with search, sorting and pagination
 - External network/subnet names and private networks in `list` via batched lookups
+- Router details view (overview, External Networks and Internal Networks tabs)
 - Backend unit and procedure tests
 
 ### 🚧 Planned
 
 - Routers list view filters (status, has gateway) and "Showing X of Y" summary
-- Router detail view (Basic Info, External Gateway, Extra Routes, Router Interfaces, Advanced attributes)
+- Router detail view: Extra Routes and Advanced attributes sections
 - Write operations in the UI (create, edit, gateway, interfaces, delete)

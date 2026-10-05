@@ -494,6 +494,47 @@ describe("routersRouter.getById", () => {
     expect(result.external_gateway_info?.external_fixed_ips?.[0].ip_address).toBe("172.24.4.10")
   })
 
+  it("adds external network and subnet names to the gateway", async () => {
+    const caller = createCaller(createMockContext())
+
+    const result = await caller.routers.getById({ project_id: TEST_PROJECT_ID, router_id: "router-1" })
+
+    expect(result.external_gateway_info?.network_name).toBe("FloatingIP-external-01")
+    expect(result.external_gateway_info?.external_fixed_ips?.[0].subnet_name).toBe("FloatingIP-sap-01")
+  })
+
+  it("resolves gateway names with one networks and one subnets request", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    await caller.routers.getById({ project_id: TEST_PROJECT_ID, router_id: "router-1" })
+
+    const urls: string[] = ctx.__networkGetMock.mock.calls.map((call: unknown[]) => call[0] as string)
+    expect(urls).toHaveLength(3)
+    expect(splitUrl(urls.find((url) => url.startsWith("v2.0/networks"))!).params.getAll("id")).toEqual(["ext-net-1"])
+    expect(splitUrl(urls.find((url) => url.startsWith("v2.0/subnets"))!).params.getAll("id")).toEqual(["ext-subnet-1"])
+  })
+
+  it("makes no name lookups for a router without gateway", async () => {
+    const ctx = createMockContext({ mockRouters: [defaultRouters[1]] })
+    const caller = createCaller(ctx)
+
+    const result = await caller.routers.getById({ project_id: TEST_PROJECT_ID, router_id: "router-2" })
+
+    expect(result.external_gateway_info).toBeNull()
+    expect(ctx.__networkGetMock).toHaveBeenCalledTimes(1)
+  })
+
+  it("still returns the router with IDs only when name lookups fail", async () => {
+    const caller = createCaller(createMockContext({ networksFail: true, subnetsFail: true }))
+
+    const result = await caller.routers.getById({ project_id: TEST_PROJECT_ID, router_id: "router-1" })
+
+    expect(result.external_gateway_info?.network_id).toBe("ext-net-1")
+    expect(result.external_gateway_info?.network_name).toBeUndefined()
+    expect(result.external_gateway_info?.external_fixed_ips?.[0].subnet_name).toBeUndefined()
+  })
+
   it("throws NOT_FOUND with a friendly message when Neutron returns 404", async () => {
     const caller = createCaller(createMockContext({ httpStatus: 404, statusText: "Not Found" }))
 
@@ -859,6 +900,31 @@ describe("routersRouter.listInterfaces", () => {
     expect(path).toBe("v2.0/subnets")
     expect(params.getAll("id")).toEqual(["subnet-1"])
     expect(params.getAll("fields")).toEqual(["id", "name", "cidr"])
+  })
+
+  it("adds the network name to each interface", async () => {
+    const ctx = createMockContext()
+    const caller = createCaller(ctx)
+
+    const [iface] = await caller.routers.listInterfaces({ project_id: TEST_PROJECT_ID, router_id: "router-1" })
+
+    expect(iface.network_id).toBe("net-1")
+    expect(iface.network_name).toBe("private-net")
+
+    const networksUrl = (ctx.__networkGetMock.mock.calls as unknown[][])
+      .map((call) => call[0] as string)
+      .find((url) => url.startsWith("v2.0/networks"))!
+    expect(splitUrl(networksUrl).params.getAll("id")).toEqual(["net-1"])
+    expect(splitUrl(networksUrl).params.getAll("fields")).toEqual(["id", "name"])
+  })
+
+  it("still returns interfaces with network IDs when the networks request fails", async () => {
+    const caller = createCaller(createMockContext({ networksFail: true }))
+
+    const [iface] = await caller.routers.listInterfaces({ project_id: TEST_PROJECT_ID, router_id: "router-1" })
+
+    expect(iface.network_id).toBe("net-1")
+    expect(iface.network_name).toBeUndefined()
   })
 
   it("still returns interfaces when the subnets request fails", async () => {

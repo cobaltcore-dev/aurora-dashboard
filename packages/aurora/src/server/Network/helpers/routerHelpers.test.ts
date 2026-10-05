@@ -245,6 +245,16 @@ describe("buildRouterInterfaces", () => {
     })
   })
 
+  it("adds the network name when known", () => {
+    const [iface] = buildRouterInterfaces([makePort()], [], [{ id: "net-1", name: "private-net" }])
+    expect(iface.network_name).toBe("private-net")
+  })
+
+  it("leaves the network name undefined when unknown or empty", () => {
+    expect(buildRouterInterfaces([makePort()])[0].network_name).toBeUndefined()
+    expect(buildRouterInterfaces([makePort()], [], [{ id: "net-1", name: "" }])[0].network_name).toBeUndefined()
+  })
+
   it("leaves subnet name/CIDR undefined without enrichment", () => {
     const [iface] = buildRouterInterfaces([makePort()])
     expect(iface.fixed_ips[0].subnet_name).toBeUndefined()

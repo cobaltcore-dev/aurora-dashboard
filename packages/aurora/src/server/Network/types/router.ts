@@ -288,6 +288,9 @@ export type RouterListItem = Omit<Router, "external_gateway_info"> & {
   private_networks?: RouterPrivateNetwork[]
 }
 
+/** Router as returned by `getById`: external gateway enriched with network and subnet names. */
+export type RouterDetails = Omit<RouterListItem, "private_networks">
+
 /** A private network attached to a router via an interface port. */
 export interface RouterPrivateNetwork {
   network_id: string
@@ -301,11 +304,13 @@ export type RouterUpdateRequest = z.infer<typeof RouterUpdateRequestSchema>
 export type RouterSetGatewayRequest = z.infer<typeof RouterSetGatewayRequestSchema>
 export type RouterInterfaceRequest = z.infer<typeof RouterInterfaceRequestSchema>
 
-/** Router interface as returned to the UI: a port enriched with subnet name/CIDR */
+/** Router interface as returned to the UI: a port enriched with network name and subnet name/CIDR */
 export interface RouterInterface {
   port_id: string
   port_name: string
   network_id: string
+  /** Undefined when the network name can't be resolved */
+  network_name?: string
   device_owner: string
   status: RouterPort["status"]
   admin_state_up?: boolean

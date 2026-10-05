@@ -8,6 +8,7 @@ import { validateAndEncodeResourceId } from "@cobaltcore-dev/signal-openstack"
 import {
   Router,
   RouterListItem,
+  RouterDetails,
   NetworkSummary,
   NetworkSummaryListResponseSchema,
   RouterInterfacePortSummary,
@@ -85,7 +86,7 @@ const fetchNetworkSummaries = async (network: NetworkService, ids: string[]): Pr
     const response = await network.get(withQuery(NETWORKS_BASE_URL, params))
     if (!response.ok) return []
     const data = await response.json()
-    return parseOrThrow(NetworkSummaryListResponseSchema, data, "routersRouter.list.networks").networks
+    return parseOrThrow(NetworkSummaryListResponseSchema, data, "routersRouter.networks").networks
   } catch {
     return []
   }
@@ -95,14 +96,18 @@ const fetchNetworkSummaries = async (network: NetworkService, ids: string[]): Pr
  * Best-effort lookup of subnet names by ID in a single request.
  * Returns [] on any failure (e.g. external subnets not visible to the user) so callers fall back to IDs.
  */
-const fetchSubnetSummaries = async (network: NetworkService, ids: string[]): Promise<SubnetSummary[]> => {
+const fetchSubnetSummaries = async (
+  network: NetworkService,
+  ids: string[],
+  fields: Array<"id" | "name" | "cidr"> = ["id", "name"]
+): Promise<SubnetSummary[]> => {
   if (ids.length === 0) return []
   try {
-    const params = appendQueryParamsFromObject({ id: ids, fields: ["id", "name"] })
+    const params = appendQueryParamsFromObject({ id: ids, fields })
     const response = await network.get(withQuery(SUBNETS_BASE_URL, params))
     if (!response.ok) return []
     const data = await response.json()
-    return parseOrThrow(SubnetSummaryListResponseSchema, data, "routersRouter.list.subnets").subnets
+    return parseOrThrow(SubnetSummaryListResponseSchema, data, "routersRouter.subnets").subnets
   } catch {
     return []
   }
@@ -145,7 +150,8 @@ const fetchRouterInterfacePorts = async (
  * - list: GET /v2.0/routers List routers with sorting and filtering; BFF-side search, status and has_gateway filters.
  *   Adds private networks (GET /v2.0/ports by device_id) and resolves external/private network and
  *   external subnet names (GET /v2.0/networks, /v2.0/subnets).
- * - getById: GET /v2.0/routers/{router_id} Show router details.
+ * - getById: GET /v2.0/routers/{router_id} Show router details, external gateway enriched with
+ *   network/subnet names (GET /v2.0/networks, /v2.0/subnets).
  * - create: POST /v2.0/routers Create router (optionally with external gateway).
  * - update: PUT /v2.0/routers/{router_id} Update name, description, admin state, extra routes, etc.
  * - setGateway: PUT /v2.0/routers/{router_id} with external_gateway_info.
@@ -154,7 +160,8 @@ const fetchRouterInterfacePorts = async (
  * - removeInterface: PUT /v2.0/routers/{router_id}/remove_router_interface Detach a subnet or port.
  * - delete: DELETE /v2.0/routers/{router_id} Delete router.
  *
- * - listInterfaces: GET /v2.0/ports?device_id={router_id} Router interfaces enriched with subnet name/CIDR.
+ * - listInterfaces: GET /v2.0/ports?device_id={router_id} Router interfaces enriched with network name
+ *   and subnet name/CIDR.
  * - listExtensions: GET /v2.0/extensions Flags for router-related extensions (dvr, extraroute, l3-ha, ...).
  *
  * External networks for the gateway selector are served by floatingIpRouter.listExternalNetworks.
@@ -208,7 +215,7 @@ export const routersRouter = {
       }, "list routers")
     }),
 
-  getById: projectScopedProcedure.input(RouterIdInputSchema).query(async ({ input, ctx }): Promise<Router> => {
+  getById: projectScopedProcedure.input(RouterIdInputSchema).query(async ({ input, ctx }): Promise<RouterDetails> => {
     return withErrorHandling(async () => {
       const { router_id } = input
       const network = getNetworkService(ctx)
@@ -219,7 +226,17 @@ export const routersRouter = {
       }
 
       const data = await response.json()
-      return parseOrThrow(RouterResponseSchema, data, "routersRouter.getById").router
+      const router = parseOrThrow(RouterResponseSchema, data, "routersRouter.getById").router
+
+      // Best-effort gateway names, same as in `list`
+      const { networkIds, subnetIds } = collectGatewayIds([router])
+      const [networks, subnets] = await Promise.all([
+        fetchNetworkSummaries(network, networkIds),
+        fetchSubnetSummaries(network, subnetIds),
+      ])
+
+      const [routerWithNames] = applyGatewayNames([router], networks, subnets)
+      return routerWithNames
     }, "show router details")
   }),
 
@@ -378,27 +395,16 @@ export const routersRouter = {
         const { ports } = parseOrThrow(RouterPortListResponseSchema, portsData, "routersRouter.listInterfaces")
         const interfacePorts = ports.filter(isRouterInterfacePort)
 
-        // Enrich with subnet name/CIDR. Degrade gracefully (IDs only) if subnets can't be fetched.
-        let subnets: SubnetSummary[] = []
+        // Enrich with subnet name/CIDR and network name in parallel.
+        // Degrade gracefully (IDs only) if the lookups fail.
         const subnetIds = collectSubnetIds(interfacePorts)
-        if (subnetIds.length > 0) {
-          try {
-            const subnetParams = appendQueryParamsFromObject({ id: subnetIds, fields: ["id", "name", "cidr"] })
-            const subnetsResponse = await network.get(withQuery(SUBNETS_BASE_URL, subnetParams))
-            if (subnetsResponse.ok) {
-              const subnetsData = await subnetsResponse.json()
-              subnets = parseOrThrow(
-                SubnetSummaryListResponseSchema,
-                subnetsData,
-                "routersRouter.listInterfaces.subnets"
-              ).subnets
-            }
-          } catch {
-            subnets = []
-          }
-        }
+        const networkIds = [...new Set(interfacePorts.map((port) => port.network_id))]
+        const [subnets, networks] = await Promise.all([
+          fetchSubnetSummaries(network, subnetIds, ["id", "name", "cidr"]),
+          fetchNetworkSummaries(network, networkIds),
+        ])
 
-        return buildRouterInterfaces(interfacePorts, subnets)
+        return buildRouterInterfaces(interfacePorts, subnets, networks)
       }, "list router interfaces")
     }),
 

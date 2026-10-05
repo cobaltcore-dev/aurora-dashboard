@@ -251,13 +251,19 @@ export const collectSubnetIds = (ports: RouterPort[]): string[] => [
   ...new Set(ports.flatMap((port) => port.fixed_ips.map((fixedIp) => fixedIp.subnet_id))),
 ]
 
-export const buildRouterInterfaces = (ports: RouterPort[], subnets: SubnetSummary[] = []): RouterInterface[] => {
+export const buildRouterInterfaces = (
+  ports: RouterPort[],
+  subnets: SubnetSummary[] = [],
+  networks: NetworkSummary[] = []
+): RouterInterface[] => {
   const subnetsById = new Map(subnets.map((subnet) => [subnet.id, subnet]))
+  const networkNames = new Map(networks.map((network) => [network.id, network.name || undefined]))
 
   return ports.filter(isRouterInterfacePort).map((port) => ({
     port_id: port.id,
     port_name: port.name,
     network_id: port.network_id,
+    network_name: networkNames.get(port.network_id),
     device_owner: port.device_owner,
     status: port.status,
     admin_state_up: port.admin_state_up,
