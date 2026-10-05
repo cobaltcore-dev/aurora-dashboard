@@ -674,15 +674,6 @@ msgstr "Cannot move to the same location. Please select a different bucket, fold
 msgid "Capabilities"
 msgstr "Capabilities"
 
-msgid "Certificate Authority \"{pcaName}\" was successfully deleted."
-msgstr ""
-
-msgid "Certificate Authority Deleted"
-msgstr ""
-
-msgid "Certificate Imported"
-msgstr ""
-
 msgid "Change the name, destination container, or folder to move this object."
 msgstr "Ändern Sie den Namen, den Ziel-Container oder den Ordner, um dieses Objekt zu verschieben."
 
@@ -3657,9 +3648,6 @@ msgid "The container's settings could not be applied."
 msgstr ""
 
 msgid "The CORS configuration has changed. Please refresh and try again."
-msgstr ""
-
-msgid "The externally signed certificate was successfully imported."
 msgstr ""
 
 msgid "The extra spec could not be found. It may have already been deleted."
