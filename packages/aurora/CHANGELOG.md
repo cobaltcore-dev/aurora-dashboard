@@ -1,5 +1,49 @@
 # @cobaltcore-dev/aurora
 
+## 2.1.1
+
+### Patch Changes
+
+- c0cee59: Improve image management UX with accessibility and consistency fixes
+
+  - Move "Manage Access" from tab navigation to overflow menu for better consistency with list view
+  - Reorder ImageMembersTable columns to match logical flow: Status, Project ID, Image ID, Actions
+  - Add member sorting: pending first, then accepted, then rejected, alphabetically within groups
+  - Remove redundant Accept/Reject actions from overflow menu (already in SharedImageBox)
+  - Add Reject button for accepted shared images in SharedImageBox
+  - Remove all placeholder text from image forms for cleaner UI
+  - Improve overflow menu item order to match list view pattern
+  - Show "Show Details" first, then Accept/Reject for external shared images
+  - Don't show Accept/Reject for own images accidentally shared back to owner
+  - Remove header actions for external shared images (buttons already in SharedImageBox)
+  - Remove status colors in Manage Access modal
+  - Change Metadata section to use standard DescriptionList instead of two-column layout
+
+- bf1e354: - Change button variants from primary to default in Images modals (Add Property, Add Project Access, Add tag buttons)
+  - Fix EditImageDetailsModal not closing after save by awaiting onSave promise
+  - Make image upload cancellable: the footer "Cancel Upload" button aborts the in-flight upload, deletes the orphaned image, and closes the modal; the "Create Image" button is hidden during upload
+  - Reorder overflow menu items (bulk actions, single image row, detail page hamburger)
+  - Add separator after "Edit Metadata" in Images list hamburger menu
+  - Rename menu items to "Activate Image"/"Deactivate Image" and "Delete Image"
+  - Reorder menu: "Deactivate Image" now appears after "Manage Access" or "Set to Shared"
+  - Rework Edit Metadata modal to match Flavors: each add/edit/delete persists immediately via the tRPC client, no Save Changes button, no full-service reload during edits, queries refresh only on close
+  - New metadata entries appear on top, existing entries sorted A–Z
+  - Fix input field width in Edit Metadata modal to use full available space
+  - Rename "Sharing Details" tab to "Manage Access"
+  - Fix Add Project Access failing with validation error - pass currentProjectId to SharingDetailsTab
+  - Change section headings from ContentHeading to h2 in Images and Flavors detail views
+  - Fix image detail-page more-actions menu: order "Deactivate Image" after "Set to Shared", and never show the menu trigger for an empty menu. "Manage Access" is not in this menu — the detail page exposes it as a dedicated tab
+  - Keep "Show Details" available for owned images regardless of update permission (gate only mutation actions)
+  - Use RFC 6902 `add`+`remove` (not `replace`) when renaming a metadata key
+  - Reset the upload-cancel flag after each create so a later failure is not mistaken for a cancellation, and clean up the orphaned image only after the aborted upload settles (surfacing cleanup failures)
+  - Move image metadata toast copy into ImageToastNotifications helpers
+  - Preserve owner-gated controls (Edit Details, Manage Access tab) after changing visibility by merging the update response into the cached image instead of replacing it
+  - Classify "shared with me" consistently in the image list and detail view via server-side member status (pending/accepted) instead of a client-side owner comparison, so owner actions appear the same in both views (including for multi-project admins)
+  - Render the image detail Metadata section with the shared TwoColumnDescriptionList component
+  - Remove the two-step confirmation when removing project access in Manage Access; the remove action now applies immediately
+- c63bad9: Fixed the Security Groups `Shared` filter returning groups from all projects for admin users (e.g. several `default` groups). Filtered lists are now always a subset of the unfiltered list, and sorting/search behave the same with and without filters. Aligned the list's DataGrid header with the Juno pattern and simplified the Name cell markup. `network.securityGroup.list` no longer accepts `tenant_id`; the scope always comes from `project_id`.
+- d01c26b: Improved the not-found messaging in the router's default not-found component (`ServiceLevelDefaultError`). The title and body now reflect the context: inside a project an unmatched route reads as "Service Not Found", while an unmatched top-level route reads as "Page Not Found", each with a matching body and recovery action.
+
 ## 2.1.0
 
 ### Minor Changes
