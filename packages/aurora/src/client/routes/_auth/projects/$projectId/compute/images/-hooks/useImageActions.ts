@@ -3,6 +3,7 @@ import { IMAGE_STATUSES, IMAGE_VISIBILITY } from "../../-constants/filters"
 
 export interface ImageActionsInput {
   image: GlanceImage
+  projectId: string
   permissions: {
     canUpdate: boolean
     canDelete: boolean
@@ -46,11 +47,11 @@ export interface ImageActions {
  *
  * Eliminates duplicate permission logic across ImageTableRow, $imageId, and ImageListView.
  */
-export function useImageActions({ image, permissions, myMemberData }: ImageActionsInput): ImageActions {
+export function useImageActions({ image, projectId, permissions, myMemberData }: ImageActionsInput): ImageActions {
   // Derived state
   const isShared = image.visibility === IMAGE_VISIBILITY.SHARED
   const isSharedWithMe = isShared && !!myMemberData
-  const isOwnImage = !isSharedWithMe
+  const isOwnImage = image.owner === projectId
   const isPendingShared = isSharedWithMe && myMemberData?.status === "pending"
   const isAcceptedShared = isSharedWithMe && myMemberData?.status === "accepted"
   const isDeactivated = image.status === IMAGE_STATUSES.DEACTIVATED
@@ -63,8 +64,8 @@ export function useImageActions({ image, permissions, myMemberData }: ImageActio
   const canEditDetails = isOwnImage && permissions.canUpdate
   const canEditMetadata = isOwnImage && permissions.canUpdate
   const canDelete = isOwnImage && permissions.canDelete && !isProtected
-  const canAccept = isPendingShared && permissions.canUpdateMember
-  const canReject = (isPendingShared || isAcceptedShared) && permissions.canUpdateMember
+  const canAccept = isPendingShared && !isOwnImage && permissions.canUpdateMember
+  const canReject = (isPendingShared || isAcceptedShared) && !isOwnImage && permissions.canUpdateMember
   const canManageAccess =
     isOwnImage && isSharedVisibility && (permissions.canCreateMember || permissions.canDeleteMember)
   const canSetToShared = isOwnImage && isPrivate && permissions.canUpdate

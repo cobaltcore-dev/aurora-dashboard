@@ -341,6 +341,7 @@ function RouteComponent() {
   // Use centralized actions hook
   const actions = useImageActions({
     image,
+    projectId,
     permissions,
     myMemberData,
   })

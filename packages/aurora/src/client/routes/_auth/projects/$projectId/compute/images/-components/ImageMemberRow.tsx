@@ -34,19 +34,6 @@ export const ImageMemberRow: React.FC<ImageMemberRowProps> = ({ member, isDeleti
     }
   }
 
-  const getStatusVariant = (status: string): string => {
-    switch (status) {
-      case MEMBER_STATUSES.PENDING:
-        return "warning"
-      case MEMBER_STATUSES.ACCEPTED:
-        return "success"
-      case MEMBER_STATUSES.REJECTED:
-        return "danger"
-      default:
-        return "default"
-    }
-  }
-
   const deleteButton = () => {
     if (!canDelete) {
       return <></>
@@ -68,9 +55,7 @@ export const ImageMemberRow: React.FC<ImageMemberRowProps> = ({ member, isDeleti
 
   return (
     <DataGridRow>
-      <DataGridCell className={`break-all text-theme-${getStatusVariant(member.status)}`}>
-        {getStatusLabel(member.status)}
-      </DataGridCell>
+      <DataGridCell className="break-all">{getStatusLabel(member.status)}</DataGridCell>
       <DataGridCell className="break-all">{member.member_id}</DataGridCell>
       <DataGridCell className="break-all">{member.image_id}</DataGridCell>
       <DataGridCell>
