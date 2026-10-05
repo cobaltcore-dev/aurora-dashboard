@@ -109,9 +109,11 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
   // gone, where no Hide can reach it and only closing the modal clears it. The delete's own cleanup
   // cannot catch it either: it can only drop a secret that has already arrived.
   //
-  // Filled on a successful delete, not when one is started, so a delete that fails and leaves the
-  // key in place still shows the secret its Reveal was fetching. An id is dropped again when that
-  // row's Reveal is clicked, which is what keeps this from outliving the key's id.
+  // Filled once a delete has established that the key is gone - on success, and on the `NOT_FOUND`
+  // that means someone else removed it first - rather than when one is started, so a delete that
+  // fails and leaves the key in place still shows the secret its Reveal was fetching. An id is
+  // dropped again when that row's Reveal is clicked, which is what keeps this from outliving the
+  // key's id.
   const abandonedRevealsRef = useRef<Set<string>>(new Set())
 
   // Only the secrets revealed right now. A key leaves this map on Hide, on delete and on close,
@@ -149,6 +151,21 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
   // Same client `LoginForm` sends the password through, and for the same reason.
   const revealSecret = trpcClient.storage.ceph.ec2Credentials.reveal.mutate
 
+  // Everything this component remembers about one key's secret, dropped at once. Two steps rather
+  // than one because a secret can be in either of two places: already here, or still in flight -
+  // and the second one can only be refused on arrival, not erased.
+  //
+  // Called from the two delete outcomes that mean the key is gone, and from nowhere else: Hide
+  // clears the first half only, deliberately, because that row is still there to reveal again.
+  const discardSecretOf = (credentialId: string) => {
+    setRevealedSecrets((prev) => {
+      const next = { ...prev }
+      delete next[credentialId]
+      return next
+    })
+    abandonedRevealsRef.current.add(credentialId)
+  }
+
   const createMutation = trpcReact.storage.ceph.ec2Credentials.create.useMutation({
     onSuccess: (credential) => {
       // The secret `create` answers with is deliberately dropped: a new key appears concealed,
@@ -174,14 +191,7 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
 
       const deleted = deletingRef.current
       if (deleted) {
-        setRevealedSecrets((prev) => {
-          const next = { ...prev }
-          delete next[deleted.id]
-          return next
-        })
-        // The line above only reaches a secret that is already here. One still in flight would
-        // land afterwards and put itself back, into a row that no longer exists - see the ref.
-        abandonedRevealsRef.current.add(deleted.id)
+        discardSecretOf(deleted.id)
         const { message, ...options } = getCredentialDeletedToast(deleted.access)
         toast.success(message, options)
       }
@@ -195,6 +205,13 @@ export const ManageCredentialsModal = ({ isOpen, onClose }: ManageCredentialsMod
       // whichever way it goes, and the successful one above is already a toast.
       const { message, ...options } = getCredentialDeleteErrorToast(failed?.access ?? "", err.message)
       toast.error(message, options)
+
+      // The one failure that still means the key is gone: another tab, or an administrator,
+      // removed it first. Its row disappears with the refresh below, taking its Hide with it, so
+      // its secret is discarded exactly as a successful delete discards one - otherwise the value
+      // would sit in state, unreachable, until the modal is closed. Every other failure leaves the
+      // key on screen, and with it the secret its Reveal asked for.
+      if (failed && err.data?.code === "NOT_FOUND") discardSecretOf(failed.id)
 
       // Refreshed even though nothing was deleted. The commonest failure is NOT_FOUND - the key
       // was already gone - and leaving its row on screen would be a worse lie than the silent

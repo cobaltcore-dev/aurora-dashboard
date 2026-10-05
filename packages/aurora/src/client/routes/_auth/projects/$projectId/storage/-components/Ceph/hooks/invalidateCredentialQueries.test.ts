@@ -5,13 +5,14 @@ import { trpcReact } from "@/client/trpcClient"
 const projectId = "project-1"
 
 const credentialsFetch = vi.fn()
+const credentialsCancel = vi.fn()
 const containersList = vi.fn()
 const containersStatus = vi.fn()
 
 const utils = {
   storage: {
     ceph: {
-      ec2Credentials: { list: { fetch: credentialsFetch } },
+      ec2Credentials: { list: { fetch: credentialsFetch, cancel: credentialsCancel } },
       containers: {
         list: { invalidate: containersList },
         status: { invalidate: containersStatus },
@@ -23,9 +24,37 @@ const utils = {
 const withKeys = (count: number) =>
   credentialsFetch.mockResolvedValue(Array.from({ length: count }, (_, i) => ({ id: `k${i}` })))
 
+/** The unconditional refresh - every bucket listing, metadata and all. */
+const refreshedEveryListing = () => containersList.mock.calls.some((call) => call.length === 0)
+
+/** The narrow one: only listings that are currently showing an error. */
+const refreshedErroredListings = () =>
+  containersList.mock.calls.filter((call) => typeof call[1]?.predicate === "function").map((call) => call[1].predicate)
+
 describe("invalidateCredentialQueries", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  it("cancels a key-table request already in flight before reading the list", async () => {
+    const order: string[] = []
+    credentialsCancel.mockImplementation(async () => {
+      order.push("cancel")
+    })
+    credentialsFetch.mockImplementation(async () => {
+      order.push("fetch")
+      return [{ id: "k0" }]
+    })
+
+    await invalidateCredentialQueries(utils, { projectId, mutation: "create" })
+
+    // `fetch` joins a request that is already running instead of starting one, and that request
+    // may predate the mutation this call reports on - `staleTime: 0` refuses a cached answer, not
+    // a shared one. The `invalidate` this replaced cancelled by default.
+    expect(order).toEqual(["cancel", "fetch"])
+    expect(credentialsCancel).toHaveBeenCalledWith({ project_id: projectId })
+    credentialsCancel.mockReset()
+    credentialsFetch.mockReset()
   })
 
   it("refreshes the key table on any mutation", async () => {
@@ -71,13 +100,13 @@ describe("invalidateCredentialQueries", () => {
     expect(containersList).toHaveBeenCalledTimes(1)
   })
 
-  it("leaves the bucket listing alone for a second key", async () => {
+  it("does not re-scan the bucket listing for a second key", async () => {
     withKeys(2)
     await invalidateCredentialQueries(utils, { projectId, mutation: "create" })
 
     // The page reads this one with `includeMetadata: true` - a ListObjectsV2 per bucket. A second
     // key changes no bucket, no object and no size.
-    expect(containersList).not.toHaveBeenCalled()
+    expect(refreshedEveryListing()).toBe(false)
   })
 
   it("refreshes the bucket listing when the deleted key was the last", async () => {
@@ -87,11 +116,24 @@ describe("invalidateCredentialQueries", () => {
     expect(containersList).toHaveBeenCalledTimes(1)
   })
 
-  it("leaves the bucket listing alone when a key remains after the delete", async () => {
+  it("does not re-scan the bucket listing when a key remains after the delete", async () => {
     withKeys(1)
     await invalidateCredentialQueries(utils, { projectId, mutation: "delete" })
 
-    expect(containersList).not.toHaveBeenCalled()
+    expect(refreshedEveryListing()).toBe(false)
+  })
+
+  it("still refreshes a bucket listing that is showing an error", async () => {
+    withKeys(2)
+    await invalidateCredentialQueries(utils, { projectId, mutation: "create" })
+
+    // "S3 Credentials No Longer Valid" is reached with a key already in Keystone, so creating a
+    // replacement is 1 -> 2 and deleting the broken one is 2 -> 1 - neither a transition by the
+    // count rule. Without this the page would sit on its cached error over a working key.
+    const predicates = refreshedErroredListings()
+    expect(predicates).toHaveLength(1)
+    expect(predicates[0]({ state: { status: "error" } })).toBe(true)
+    expect(predicates[0]({ state: { status: "success" } })).toBe(false)
   })
 
   it("refreshes the bucket listing when the key table could not be refreshed", async () => {

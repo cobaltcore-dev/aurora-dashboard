@@ -57,6 +57,7 @@ type CredentialWithSecret = Credential & { secret: string }
 
 const {
   mockRefetchList,
+  mockCancelList,
   mockInvalidateContainersList,
   mockInvalidateStatus,
   mockRevealMutateAsync,
@@ -81,14 +82,21 @@ const {
     isCreatePending: false,
     isDeletePending: false,
     deleteError: null as string | null,
+    // The tRPC error code that comes with `deleteError`. Only the component's NOT_FOUND branch
+    // reads it - that is the one failure where the key is gone all the same.
+    deleteErrorCode: null as string | null,
     createOptions: {} as {
       onSuccess?: (cred: Credential) => void
       onError?: (err: { message: string }) => void
     },
-    deleteOptions: {} as { onSuccess?: () => void; onError?: (err: { message: string }) => void },
+    deleteOptions: {} as {
+      onSuccess?: () => void
+      onError?: (err: { message: string; data?: { code: string } }) => void
+    },
   }
 
   const mockRefetchList = vi.fn()
+  const mockCancelList = vi.fn().mockResolvedValue(undefined)
   const mockInvalidateContainersList = vi.fn()
   const mockInvalidateStatus = vi.fn()
 
@@ -112,7 +120,10 @@ const {
   const mockDeleteReset = vi.fn()
   const mockDeleteMutate = vi.fn().mockImplementation(({ credentialId }: { credentialId: string }) => {
     if (mockState.deleteError) {
-      mockState.deleteOptions.onError?.({ message: mockState.deleteError })
+      mockState.deleteOptions.onError?.({
+        message: mockState.deleteError,
+        data: mockState.deleteErrorCode ? { code: mockState.deleteErrorCode } : undefined,
+      })
     } else {
       // Simulate the list query being refetched (via the real onSuccess's invalidate call) by
       // dropping the deleted credential, the same way the create mock appends the new one.
@@ -123,6 +134,7 @@ const {
 
   return {
     mockRefetchList,
+    mockCancelList,
     mockInvalidateContainersList,
     mockInvalidateStatus,
     mockRevealMutateAsync,
@@ -153,6 +165,10 @@ vi.mock("@/client/trpcClient", () => ({
                 mockRefetchList(...args)
                 return Promise.resolve(mockState.credentials)
               },
+              // The helper cancels whatever request is already in flight before reading the list,
+              // so that `fetch` starts one rather than joining a request that predates the
+              // mutation. Nothing here is in flight, so the mock just settles.
+              cancel: mockCancelList,
             },
           },
           containers: {
@@ -206,6 +222,14 @@ const renderModal = ({ isOpen = true, onClose = vi.fn() }: { isOpen?: boolean; o
     </I18nProvider>
   )
 
+/**
+ * Whether the bucket listing was re-scanned wholesale - the expensive `includeMetadata` read the
+ * page behind the modal makes. The helper also makes a narrow refresh, carrying a predicate that
+ * matches only listings currently showing an error; that one is not a re-scan of a working page,
+ * and is covered where the helper itself is tested.
+ */
+const rescannedBucketListing = () => mockInvalidateContainersList.mock.calls.some((call) => call.length === 0)
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("ManageCredentialsModal", () => {
@@ -234,6 +258,7 @@ describe("ManageCredentialsModal", () => {
     mockState.isCreatePending = false
     mockState.isDeletePending = false
     mockState.deleteError = null
+    mockState.deleteErrorCode = null
     mockState.createOptions = {}
     mockState.deleteOptions = {}
     await act(async () => {
@@ -603,7 +628,7 @@ describe("ManageCredentialsModal", () => {
       expect(mockRevealMutateAsync).not.toHaveBeenCalled()
 
       // A second key changes no bucket, so the expensive `includeMetadata` listing is left alone.
-      expect(mockInvalidateContainersList).not.toHaveBeenCalled()
+      expect(rescannedBucketListing()).toBe(false)
       expect(mockInvalidateStatus).not.toHaveBeenCalled()
     })
 
@@ -621,7 +646,7 @@ describe("ManageCredentialsModal", () => {
       await user.click(screen.getByRole("button", { name: "Create Access Key" }))
 
       // 0 -> 1 is when `containers.list` stops throwing NO_CEPH_CREDENTIALS behind the modal.
-      expect(mockInvalidateContainersList).toHaveBeenCalled()
+      await waitFor(() => expect(rescannedBucketListing()).toBe(true))
     })
 
     test("reports a failed create in the modal's message without closing it", async () => {
@@ -781,12 +806,12 @@ describe("ManageCredentialsModal", () => {
       })
       expect(mockRefetchList).toHaveBeenCalled()
       // The fixture holds one key, so this delete empties the project: 1 -> 0.
-      expect(mockInvalidateContainersList).toHaveBeenCalled()
+      await waitFor(() => expect(rescannedBucketListing()).toBe(true))
       // Its only reader takes endpoint/region from it, and those don't move.
       expect(mockInvalidateStatus).not.toHaveBeenCalled()
     })
 
-    test("deleting a key that is not the last leaves the bucket listing alone", async () => {
+    test("deleting a key that is not the last does not re-scan the bucket listing", async () => {
       const user = userEvent.setup()
       mockState.credentials = [
         { id: TEST_CREDENTIAL_ID, access: TEST_ACCESS, user_id: "user-1", project_id: mockProjectId },
@@ -798,7 +823,7 @@ describe("ManageCredentialsModal", () => {
       await user.click(confirmDelete())
 
       expect(mockRefetchList).toHaveBeenCalled()
-      expect(mockInvalidateContainersList).not.toHaveBeenCalled()
+      expect(rescannedBucketListing()).toBe(false)
     })
 
     // The dialog's only job is confirming: it closes on confirm and the row's spinner carries the
@@ -829,6 +854,46 @@ describe("ManageCredentialsModal", () => {
       await waitFor(() => expect(toast.error).toHaveBeenCalled())
       expect(toast.success).not.toHaveBeenCalled()
       expect(mockRefetchList).toHaveBeenCalled()
+    })
+
+    // NOT_FOUND is a failed delete whose key is gone all the same - another tab, or an
+    // administrator, got there first. The refresh above takes its row away, and with it the Hide
+    // that is otherwise the only way to drop a revealed secret, so this failure discards it
+    // exactly as a successful delete does.
+    test("discards the revealed secret when the key turns out to be already gone", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.click(screen.getByTestId(`toggle-secret-${TEST_CREDENTIAL_ID}`))
+      await waitFor(() => expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue(TEST_SECRET))
+
+      mockState.deleteError = "Credential not found"
+      mockState.deleteErrorCode = "NOT_FOUND"
+
+      await user.click(screen.getByTestId(`delete-credential-${TEST_CREDENTIAL_ID}`))
+      await user.click(confirmDelete())
+
+      await waitFor(() => expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).not.toHaveValue(TEST_SECRET))
+    })
+
+    // The other side of the same decision: every other failure leaves the key on screen, so the
+    // secret its Reveal was asked for stays too. Dropping it would undo something the user did ask
+    // for, over a key that is still there to Hide it with.
+    test("keeps the revealed secret when a delete fails and the key stays", async () => {
+      const user = userEvent.setup()
+      renderModal()
+
+      await user.click(screen.getByTestId(`toggle-secret-${TEST_CREDENTIAL_ID}`))
+      await waitFor(() => expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue(TEST_SECRET))
+
+      mockState.deleteError = "Identity service unavailable"
+      mockState.deleteErrorCode = "INTERNAL_SERVER_ERROR"
+
+      await user.click(screen.getByTestId(`delete-credential-${TEST_CREDENTIAL_ID}`))
+      await user.click(confirmDelete())
+
+      await waitFor(() => expect(toast.error).toHaveBeenCalled())
+      expect(screen.getByTestId(`secret-${TEST_CREDENTIAL_ID}`)).toHaveValue(TEST_SECRET)
     })
 
     test("hides the delete button when the user lacks permission, and says who to ask", () => {
