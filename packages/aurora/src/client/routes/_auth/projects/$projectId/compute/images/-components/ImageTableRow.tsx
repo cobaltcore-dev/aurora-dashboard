@@ -64,7 +64,7 @@ export function ImageTableRow({
   showSelectColumn = false,
 }: ImageTableRowProps) {
   const { t } = useLingui()
-  const { id, name, status, visibility, size, disk_format, created_at, owner } = image
+  const { id, name, status, visibility, size, disk_format, created_at } = image
   const imageName = name || t`Unnamed`
 
   const { projectId } = useParams({
@@ -98,8 +98,8 @@ export function ImageTableRow({
     }
   }
 
-  const isImageOwner = projectId === owner
   const isExternalImage = isPending || isAccepted
+  const isOwnImage = image.owner === projectId
   const isMutating = updateMemberMutation.isPending
 
   return (
@@ -135,8 +135,18 @@ export function ImageTableRow({
         ) : (
           <PopupMenu>
             <PopupMenuOptions>
-              {isExternalImage && permissions.canUpdateMember && (
+              {isExternalImage && !isOwnImage && permissions.canUpdateMember && (
                 <>
+                  <PopupMenuItem
+                    label={t`Show Details`}
+                    onClick={() =>
+                      navigate({
+                        to: "/projects/$projectId/compute/images/$imageId",
+                        params: { projectId, imageId: id },
+                      })
+                    }
+                  />
+                  <PopupMenuSectionSeparator />
                   {isPending && (
                     <PopupMenuItem
                       label={t`Accept`}
@@ -147,17 +157,27 @@ export function ImageTableRow({
                 </>
               )}
 
-              {/* Own image: full actions */}
+              {/* Show Details is available for any image the user can view,
+                  regardless of update permission. */}
+              {!isExternalImage && (
+                <PopupMenuItem
+                  label={t`Show Details`}
+                  onClick={() =>
+                    navigate({
+                      to: "/projects/$projectId/compute/images/$imageId",
+                      params: { projectId, imageId: id },
+                    })
+                  }
+                />
+              )}
+
+              {/* Own image: mutation actions gated on update permission */}
               {!isExternalImage && permissions.canUpdate && (
                 <>
-                  <PopupMenuItem
-                    label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate` : t`Deactivate`}
-                    onClick={() => onActivationStatusChange(image)}
-                  />
                   <PopupMenuItem label={t`Edit Details`} onClick={() => onEditDetails(image)} />
                   <PopupMenuItem label={t`Edit Metadata`} onClick={() => onEditMetadata(image)} />
+                  <PopupMenuSectionSeparator />
                   {image.visibility === IMAGE_VISIBILITY.SHARED &&
-                    isImageOwner &&
                     (permissions.canCreateMember || permissions.canDeleteMember) && (
                       <PopupMenuItem label={t`Manage Access`} onClick={() => onManageAccess(image)} />
                     )}
@@ -167,21 +187,16 @@ export function ImageTableRow({
                       onClick={() => onUpdateVisibility(image.id, IMAGE_VISIBILITY.SHARED, imageName)}
                     />
                   )}
+                  <PopupMenuItem
+                    label={image.status === IMAGE_STATUSES.DEACTIVATED ? t`Activate Image` : t`Deactivate Image`}
+                    onClick={() => onActivationStatusChange(image)}
+                  />
                 </>
               )}
-              <PopupMenuItem
-                label={t`Show Details`}
-                onClick={() =>
-                  navigate({
-                    to: "/projects/$projectId/compute/images/$imageId",
-                    params: { projectId, imageId: id },
-                  })
-                }
-              />
               {!isExternalImage && permissions.canDelete && !image.protected && (
                 <>
                   <PopupMenuSectionSeparator />
-                  <PopupMenuItem label={t`Delete`} onClick={() => onDelete(image)} />
+                  <PopupMenuItem label={t`Delete Image`} onClick={() => onDelete(image)} />
                 </>
               )}
             </PopupMenuOptions>

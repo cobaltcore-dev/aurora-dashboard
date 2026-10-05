@@ -1,4 +1,4 @@
-import { useState, ReactNode } from "react"
+import { useState, useRef, ReactNode } from "react"
 import { useProjectId } from "@/client/hooks"
 import type { CreateImageInput, GlanceImage, ImageVisibility } from "@/server/Compute/types/image"
 import {
@@ -46,16 +46,16 @@ import {
   getBulkDeactivatePartialToast,
   getImageCreateErrorToast,
   getImageFileUploadErrorToast,
+  getImageUploadCancelledToast,
   getImageVisibilityUpdatedToast,
   getImageVisibilityUpdateErrorToast,
 } from "./ImageToastNotifications"
 import { ManageImageAccessModal } from "./ManageImageAccessModal"
+import { convertToJsonPatchOperations } from "../-utils/imageHelpers"
 import { IMAGE_STATUSES } from "../../-constants/filters"
 
 interface ImagePageProps {
   images: GlanceImage[]
-  suggestedImages: GlanceImage[]
-  acceptedImages: GlanceImage[]
   permissions: {
     canCreate: boolean
     canDelete: boolean
@@ -87,12 +87,12 @@ interface ImagePageProps {
   onImageDeleted: (imageIds: string | string[]) => void
   onMemberStatusChanged: () => void
   hasAnyBulkAction: boolean
+  pendingSharedIds: Set<string>
+  acceptedSharedIds: Set<string>
 }
 
 export function ImageListView({
   images,
-  suggestedImages,
-  acceptedImages,
   permissions,
   isFetching,
   currentPage = 1,
@@ -117,6 +117,8 @@ export function ImageListView({
   onImageDeleted,
   onMemberStatusChanged,
   hasAnyBulkAction,
+  pendingSharedIds,
+  acceptedSharedIds,
 }: ImagePageProps) {
   const projectId = useProjectId()
 
@@ -130,6 +132,8 @@ export function ImageListView({
   const [isCreateInProgress, setCreateInProgress] = useState(false)
   const [uploadId, setUploadId] = useState<string | null>(null)
   const [isUploadPending, setIsUploadPending] = useState(false)
+  const uploadAbortControllerRef = useRef<AbortController | null>(null)
+  const uploadCancelledRef = useRef(false)
   const { t } = useLingui()
 
   const utils = trpcReact.useUtils()
@@ -213,41 +217,6 @@ export function ImageListView({
     }
   }
 
-  /**
-   * Converts partial image properties to OpenStack JSON Patch operations
-   * Determines whether to use 'add', 'replace', or 'remove' based on original image state
-   */
-  const convertToJsonPatchOperations = (
-    updatedProperties: Partial<GlanceImage>,
-    originalImage: GlanceImage
-  ): Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> => {
-    const operations: Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> = []
-
-    Object.entries(updatedProperties).forEach(([key, value]) => {
-      const path = `/${key}`
-
-      if (value === null || value === undefined) {
-        // Remove operation for null/undefined values (only if property exists)
-        if (key in originalImage) {
-          operations.push({ op: "remove", path })
-        }
-      } else {
-        // Check if property exists in original image
-        const propertyExists = key in originalImage
-
-        if (propertyExists) {
-          // Use 'replace' for existing properties
-          operations.push({ op: "replace", path, value })
-        } else {
-          // Use 'add' for new properties
-          operations.push({ op: "add", path, value })
-        }
-      }
-    })
-
-    return operations
-  }
-
   const handleSaveEdit = async (updatedProperties: Partial<GlanceImage>): Promise<boolean> => {
     if (!selectedImage) return false
 
@@ -274,6 +243,7 @@ export function ImageListView({
 
   const handleCreate = async (imageData: Omit<CreateImageInput, "project_id">, file: File) => {
     const imageName = imageData.name || "Unnamed"
+    let createdImageId: string | null = null
 
     try {
       setCreateInProgress(true)
@@ -283,13 +253,20 @@ export function ImageListView({
         project_id: projectId,
         ...imageData,
       })
+      createdImageId = createdImage.id
 
       // Step 2: Upload file via octetInputParser with metadata in custom headers.
       // trpcClient (vanilla) is used so we can pass operation context with headers.
+      // An AbortController lets the user cancel the in-flight upload; aborting
+      // drops the HTTP connection, which the server maps to an aborted request.
+      const abortController = new AbortController()
+      uploadAbortControllerRef.current = abortController
+      uploadCancelledRef.current = false
       setUploadId(createdImage.id)
       setIsUploadPending(true)
 
       await trpcClient.compute.uploadImage.mutate(file, {
+        signal: abortController.signal,
         context: {
           headers: {
             "x-project-id": projectId,
@@ -309,6 +286,24 @@ export function ImageListView({
       // Trigger manual refetch through member status change handler
       onMemberStatusChanged()
     } catch (error) {
+      // A user-initiated cancellation is not a failure. We reach this branch only
+      // once the aborted upload promise has rejected, so the transfer has fully
+      // terminated and it is safe to clean up the orphaned image record here
+      // (avoids racing the still-running upload).
+      if (uploadCancelledRef.current) {
+        if (createdImageId) {
+          try {
+            await deleteImageMutation.mutateAsync({ project_id: projectId, imageId: createdImageId })
+            onImageDeleted(createdImageId)
+          } catch (cleanupError) {
+            const cleanupMessage = (cleanupError as FastifyError)?.message ?? ""
+            const { message, ...options } = getImageDeleteErrorToast(createdImageId, cleanupMessage)
+            toast.error(message, options)
+          }
+        }
+        return
+      }
+
       // Show error notification based on failure point
       if (error instanceof TRPCClientError && error.data?.path === "compute.createImage") {
         const { message, ...options } = getImageCreateErrorToast(imageName, error.message)
@@ -321,12 +316,27 @@ export function ImageListView({
         toast.error(message, options)
       }
     } finally {
-      // Complete creation and close modal
+      // Complete creation and close modal. Reset the cancellation flag so a later
+      // create request is not mistaken for a cancellation.
+      uploadAbortControllerRef.current = null
+      uploadCancelledRef.current = false
       setCreateInProgress(false)
       setCreateModalOpen(false)
       setIsUploadPending(false)
       setUploadId(null)
     }
+  }
+
+  const handleCancelUpload = () => {
+    // Flag the cancellation and abort the transfer. handleCreate's catch block
+    // runs once the aborted upload rejects and performs the orphan cleanup, so
+    // we never race the still-running upload from here.
+    uploadCancelledRef.current = true
+    uploadAbortControllerRef.current?.abort()
+
+    const { message, ...options } = getImageUploadCancelledToast()
+    toast.info(message, options)
+    // handleCreate's finally block resets state and closes the modal.
   }
 
   const handleDelete = async (deletedImage: GlanceImage) => {
@@ -436,6 +446,7 @@ export function ImageListView({
   const closeEditMetadataModal = () => {
     setSelectedImage(null)
     setEditMetadataModalOpen(false)
+    utils.compute.listImagesWithPagination.invalidate()
   }
 
   const closeDeleteModal = () => {
@@ -637,8 +648,8 @@ export function ImageListView({
                 <ImageTableRow
                   image={image}
                   isSelected={selectedImages.includes(image.id)}
-                  isPending={!!suggestedImages.find(({ id: imageId }) => imageId === image.id)}
-                  isAccepted={!!acceptedImages.find(({ id: imageId }) => imageId === image.id)}
+                  isPending={pendingSharedIds.has(image.id)}
+                  isAccepted={acceptedSharedIds.has(image.id)}
                   key={image.id}
                   permissions={permissions}
                   onEditDetails={openEditDetailsModal}
@@ -716,11 +727,12 @@ export function ImageListView({
               isLoading={updateImageMutation.isPending}
             />
             <EditImageMetadataModal
+              key="edit-metadata-modal"
+              client={trpcClient}
               isOpen={editMetadataModalOpen}
               onClose={closeEditMetadataModal}
               image={selectedImage}
-              onSave={handleSaveEdit}
-              isLoading={updateImageMutation.isPending}
+              projectId={projectId}
             />
             <DeleteImageModal
               image={selectedImage}
@@ -784,6 +796,7 @@ export function ImageListView({
           isLoading={createImageMutation.isPending || isUploadPending || isCreateInProgress}
           isUploadPending={isUploadPending && !!uploadId}
           uploadProgressPercent={data?.percent}
+          onCancelUpload={handleCancelUpload}
         />
       </div>
     </>

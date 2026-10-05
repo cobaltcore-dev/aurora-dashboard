@@ -63,6 +63,18 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
   const shouldShowEmptyState = !imageMembers || imageMembers.length === 0
   const isLoading = createMemberMutation.isPending || deleteMemberMutation.isPending
 
+  // Sort members: pending first, then accepted, then rejected, alphabetically by member_id within each group
+  const sortedMembers = imageMembers
+    ? [...imageMembers].sort((a, b) => {
+        const statusOrder = { pending: 0, accepted: 1, rejected: 2 }
+        const aOrder = statusOrder[a.status as keyof typeof statusOrder] ?? 3
+        const bOrder = statusOrder[b.status as keyof typeof statusOrder] ?? 3
+
+        if (aOrder !== bOrder) return aOrder - bOrder
+        return a.member_id.localeCompare(b.member_id)
+      })
+    : []
+
   const validateForm = (): boolean => {
     const trimmedMemberId = memberId.trim()
     const newErrors: { memberId?: string } = {}
@@ -150,9 +162,9 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
     return (
       <DataGrid columns={4}>
         <DataGridRow>
-          <DataGridHeadCell>{t`Image ID`}</DataGridHeadCell>
-          <DataGridHeadCell>{t`Project ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
+          <DataGridHeadCell>{t`Project ID`}</DataGridHeadCell>
+          <DataGridHeadCell>{t`Image ID`}</DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
 
@@ -182,7 +194,6 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
             label={t`Add Project Access`}
             data-testid="addMemberButton"
             onClick={() => setIsAddingMember(true)}
-            variant="primary"
             disabled={isAddingMember}
           />
         </Stack>
@@ -190,9 +201,9 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
 
       <DataGrid columns={4}>
         <DataGridRow>
-          <DataGridHeadCell>{t`Image ID`}</DataGridHeadCell>
-          <DataGridHeadCell>{t`Project ID`}</DataGridHeadCell>
           <DataGridHeadCell>{t`Status`}</DataGridHeadCell>
+          <DataGridHeadCell>{t`Project ID`}</DataGridHeadCell>
+          <DataGridHeadCell>{t`Image ID`}</DataGridHeadCell>
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
 
@@ -212,7 +223,7 @@ export const ImageMembersTable: React.FC<ImageMembersTableProps> = ({
           />
         )}
 
-        {imageMembers?.map((member, index) => (
+        {sortedMembers.map((member, index) => (
           <ImageMemberRow
             key={`${member.member_id}-${index}`}
             member={member}

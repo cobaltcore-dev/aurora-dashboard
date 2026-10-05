@@ -58,8 +58,10 @@ async function fetchSecurityGroupsWithParams(
  * tRPC router for OpenStack Neutron Security Groups.
  *
  * Currently exposes:
- * - list: GET /v2.0/security-groups - Fetches both own and shared security groups by default.
- *   User can explicitly filter by shared=true/false. Now uses projectScopedProcedure for automatic token rescoping.
+ * - list: GET /v2.0/security-groups - Every view is built from own (project-scoped, shared=false) and
+ *   shared (shared=true) groups. Both are fetched by default; an explicit shared=true/false picks one side.
+ *   Deduplication, stateful/search filtering and sorting happen in the BFF. Uses projectScopedProcedure
+ *   for automatic token rescoping.
  * - getById: GET /v2.0/security-groups/{security_group_id} to fetch a single security group with rules.
  *   Includes BFF-side search filtering by name, description, or id.
  * - create: POST /v2.0/security-groups to create a new security group.
@@ -75,48 +77,21 @@ export const securityGroupRouter = {
         // ctx.openstack is already rescoped to the project by projectScopedProcedure
         const network = getNetworkService(ctx)
 
-        // If user explicitly filters by shared, use single request with all params
-        if (shared !== undefined) {
-          const securityGroups = await fetchSecurityGroupsWithParams(network, {
-            ...queryInput,
-            shared,
-            sort_key,
-            sort_dir,
-          })
-          return filterBySearchParams(filterSecurityGroupsByStateful(securityGroups, stateful), searchTerm, [
-            "name",
-            "description",
-            "id",
-          ])
-        }
+        // "All" = own ∪ shared. An explicit `shared` filter selects one side, so every filtered view is a
+        // subset of "All". project_id must stay on the own-side request: for admin tokens Neutron does not
+        // scope to the token's project and would return every project's non-shared groups (#1321).
+        const fetchOwn = () => fetchSecurityGroupsWithParams(network, { ...queryInput, project_id, shared: false })
+        const fetchShared = () => fetchSecurityGroupsWithParams(network, { ...queryInput, shared: true })
 
-        // When fetching both own and shared groups, we need to:
-        // 1. Fetch ALL items from both sources
-        // 2. Merge and deduplicate
-        // 3. Apply global sort in-memory
-        const [ownGroups, sharedGroups] = await Promise.all([
-          fetchSecurityGroupsWithParams(network, {
-            ...queryInput,
-            project_id,
-            shared: false,
-          }),
-          fetchSecurityGroupsWithParams(network, {
-            ...queryInput,
-            shared: true,
-          }),
-        ])
+        const requests = shared === undefined ? [fetchOwn(), fetchShared()] : [shared ? fetchShared() : fetchOwn()]
+        const fetched = (await Promise.all(requests)).flat()
 
-        // Merge and deduplicate
-        let combined = deduplicateSecurityGroupsById<SecurityGroup>([...ownGroups, ...sharedGroups])
+        // Filtering and sorting happen in the BFF, identically for every view
+        let result = deduplicateSecurityGroupsById<SecurityGroup>(fetched)
+        result = filterSecurityGroupsByStateful<SecurityGroup>(result, stateful)
+        result = filterBySearchParams<SecurityGroup>(result, searchTerm, ["name", "description", "id"])
 
-        // Apply BFF-side filters
-        combined = filterSecurityGroupsByStateful<SecurityGroup>(combined, stateful)
-        combined = filterBySearchParams<SecurityGroup>(combined, searchTerm, ["name", "description", "id"])
-
-        // Apply global sort
-        combined = sortSecurityGroups<SecurityGroup>(combined, sort_key, sort_dir)
-
-        return combined
+        return sortSecurityGroups<SecurityGroup>(result, sort_key, sort_dir)
       }, "list security groups")
     }),
 

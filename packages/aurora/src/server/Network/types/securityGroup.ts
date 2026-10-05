@@ -57,7 +57,6 @@ export const listSecurityGroupsInputSchema = projectScopedInputSchema.extend({
   // Basic filtering
   name: z.string().optional(),
   description: z.string().optional(),
-  tenant_id: z.string().optional(),
   shared: z.boolean().optional(),
 
   // Tag-based filtering (string values follow Neutron semantics)

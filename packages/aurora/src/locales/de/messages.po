@@ -659,6 +659,9 @@ msgstr "Abbrechen"
 msgid "Cancel upload"
 msgstr "Upload abbrechen"
 
+msgid "Cancel Upload"
+msgstr ""
+
 msgid "Cannot be combined with Tag Filters"
 msgstr ""
 
@@ -1085,9 +1088,6 @@ msgstr "Benutzerdefiniert"
 msgid "Custom duration (minutes)"
 msgstr "Benutzerdefinierte Dauer (Minuten)"
 
-msgid "Custom Properties / Metadata"
-msgstr "Benutzerdefinierte Eigenschaften / Metadaten"
-
 msgid "Date:"
 msgstr ""
 
@@ -1277,9 +1277,6 @@ msgstr "Das Trennen dieser Floating IP hebt die Zuordnung zum aktuellen Port auf
 msgid "Detaching..."
 msgstr ""
 
-msgid "Details"
-msgstr "Details"
-
 msgid "Device ID"
 msgstr "Geräte-ID"
 
@@ -1382,14 +1379,8 @@ msgstr ""
 msgid "e.g. PROJECT_ID:USER_ID"
 msgstr "z. B. PROJECT_ID:USER_ID"
 
-msgid "e.g. Ubuntu 22.04 LTS"
-msgstr ""
-
 msgid "e.g., b90f9c4bc76140e18540b2cec1299e2a"
 msgstr "z. B. b90f9c4bc76140e18540b2cec1299e2a"
-
-msgid "e.g., production, linux, ubuntu"
-msgstr "z. B. production, linux, ubuntu"
 
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -2891,9 +2882,6 @@ msgstr "Teilweise erfolgreich gelöscht"
 msgid "Pending"
 msgstr "Ausstehend"
 
-msgid "Pending File Upload..."
-msgstr ""
-
 msgid "Please enter a valid number of minutes greater than 0"
 msgstr "Bitte geben Sie eine gültige Anzahl von Minuten größer als 0 ein"
 
@@ -3000,9 +2988,6 @@ msgid "Property Created"
 msgstr ""
 
 msgid "Property Deleted"
-msgstr ""
-
-msgid "Property Key"
 msgstr ""
 
 msgid "Property Updated"
@@ -3113,9 +3098,6 @@ msgstr "Entfernen"
 msgid "Remove access for {memberIdDisplay}"
 msgstr "Zugriff für {memberIdDisplay} entfernen"
 
-msgid "Remove member access"
-msgstr "Mitgliedszugriff entfernen"
-
 msgid "Remove Policy"
 msgstr "Richtlinie entfernen"
 
@@ -3215,9 +3197,6 @@ msgstr "Metadata speichern"
 msgid "Saving Image Details..."
 msgstr ""
 
-msgid "Saving Metadata..."
-msgstr ""
-
 msgid "Saving..."
 msgstr "Wird gespeichert..."
 
@@ -3238,9 +3217,6 @@ msgstr "Flavors suchen..."
 
 msgid "Search floating IPs..."
 msgstr ""
-
-msgid "Search images..."
-msgstr "Images suchen..."
 
 msgid "Search lifecycle rules..."
 msgstr ""
@@ -3398,6 +3374,9 @@ msgstr "Der Server hat ein unerwartetes Datenformat für Flavor-Details zurückg
 msgid "Server returned unexpected data format."
 msgstr "Der Server hat ein unerwartetes Datenformat zurückgegeben."
 
+msgid "Service Not Found"
+msgstr ""
+
 msgid "Services"
 msgstr "Services"
 
@@ -3433,9 +3412,6 @@ msgstr "Vom Projekt geteilt"
 
 msgid "Shared:"
 msgstr "Geteilt:"
-
-msgid "Sharing Details"
-msgstr "Freigabe-Details"
 
 msgid "Show ACLs Preview"
 msgstr "ACLs-Vorschau anzeigen"
@@ -3695,6 +3671,9 @@ msgstr "Das Image \"{imageName}\" konnte nicht erstellt werden: {errorMessage}"
 msgid "The image \"{imageName}\" could not be updated: {errorMessage}"
 msgstr "Das Image \"{imageName}\" konnte nicht aktualisiert werden: {errorMessage}"
 
+msgid "The image upload was cancelled."
+msgstr ""
+
 msgid "The lifecycle configuration has changed. Please refresh and try again."
 msgstr ""
 
@@ -3706,6 +3685,9 @@ msgstr "Das Objekt wird zu diesem Pfad verschoben. Navigieren Sie oben durch die
 
 msgid "The page you are looking for does not exist."
 msgstr "Die gesuchte Seite existiert nicht."
+
+msgid "The page you're looking for doesn't exist or may have moved. Check the URL or return to the home page."
+msgstr ""
 
 msgid "The project you are looking for doesn't exist or you don't have access to it."
 msgstr ""
@@ -3733,6 +3715,9 @@ msgstr ""
 
 msgid "The selected objects will be permanently deleted. This cannot be undone."
 msgstr "Die ausgewählten Objekte werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
+
+msgid "The service you're looking for doesn't exist or may have moved. Check the URL or return to the project home."
+msgstr ""
 
 msgid "The specified project does not exist or you don't have permission to share with it."
 msgstr "Das angegebene Projekt existiert nicht oder Sie haben keine Berechtigung, es zu teilen."
@@ -3917,10 +3902,10 @@ msgstr ""
 msgid "This project already has access"
 msgstr "Dieses Projekt hat bereits Zugriff"
 
-msgid "This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain."
+msgid "This project doesn't exist or is not accessible from your current domain. Select a project from your current domain."
 msgstr ""
 
-msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Please select a project from your current domain."
+msgid "This project doesn't exist or is not accessible from your current domain. Your current domain is {domainName}. Select a project from your current domain."
 msgstr ""
 
 msgid "This property is reserved and cannot be modified"
@@ -4099,6 +4084,9 @@ msgstr "Objekt hochladen nach:"
 
 msgid "Upload of \"{objectName}\" was cancelled."
 msgstr "Upload von \"{objectName}\" wurde abgebrochen."
+
+msgid "Uploading File..."
+msgstr ""
 
 msgid "Uploading..."
 msgstr "Wird hochgeladen..."
@@ -4316,7 +4304,7 @@ msgstr ""
 msgid "Your session has expired. Please log in again."
 msgstr "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
 
-msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue."
+msgid "Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue."
 msgstr ""
 
 msgid "YYYY-MM-DD HH:mm:ss"

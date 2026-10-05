@@ -31,6 +31,7 @@ interface CreateImageModalProps {
   isLoading?: boolean
   isUploadPending?: boolean
   uploadProgressPercent?: number
+  onCancelUpload?: () => void
 }
 
 interface ImageProperties {
@@ -62,6 +63,7 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
   isLoading = false,
   isUploadPending = false,
   uploadProgressPercent,
+  onCancelUpload,
 }) => {
   const { t } = useLingui()
 
@@ -354,35 +356,47 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
     onClose()
   }
 
+  // During an active upload, repurpose the modal's footer Cancel button to
+  // cancel the upload (and close). Outside of upload it behaves normally.
+  const isUploading = isLoading && isUploadPending
+  // Creating the image record (before the upload starts) is a brief,
+  // non-cancellable step — disable the cancel action then.
+  const isCreatingOnly = isLoading && !isUploadPending
+  const handleModalCancel = isUploading ? onCancelUpload : isLoading ? undefined : handleClose
+
   return (
     <Modal
       open={isOpen}
-      onCancel={isLoading ? undefined : handleClose}
+      onCancel={handleModalCancel}
       size="large"
       title={t`Create New Image`}
-      onConfirm={handleSubmit}
-      confirmButtonLabel={t`Create Image`}
-      cancelButtonLabel={t`Cancel`}
+      onConfirm={isLoading ? undefined : handleSubmit}
+      confirmButtonLabel={isLoading ? undefined : t`Create Image`}
+      cancelButtonLabel={isUploading ? t`Cancel Upload` : t`Cancel`}
       disableConfirmButton={isLoading || !isFormValid}
-      closeable={!isLoading}
+      disableCancelButton={isCreatingOnly}
+      closeable
+      disableCloseButton={isLoading}
       closeOnEsc={!isLoading}
     >
-      {isLoading && !uploadProgressPercent && (
-        <Status
-          status="progress"
-          title={isUploadPending ? t`Pending File Upload...` : t`Creating Image...`}
-          className="mt-4"
-        />
-      )}
-
-      {isLoading && !!uploadProgressPercent && (
-        <div className="bg-neutral-quaternary mt-4 w-full rounded-full">
-          <div
-            className="bg-theme-info flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium text-white"
-            style={{ width: `${uploadProgressPercent}%` }}
-          >
-            {uploadProgressPercent}%
-          </div>
+      {isLoading && (
+        <div className="mt-4">
+          {uploadProgressPercent ? (
+            <div className="bg-neutral-quaternary w-full rounded-full">
+              <div
+                className="bg-theme-info flex h-4 items-center justify-center rounded-full p-0.5 text-center text-xs leading-none font-medium text-white"
+                style={{ width: `${uploadProgressPercent}%` }}
+              >
+                {uploadProgressPercent}%
+              </div>
+            </div>
+          ) : (
+            <Status
+              status="progress"
+              title={isUploadPending ? t`Uploading File...` : t`Creating Image...`}
+              className="mt-0"
+            />
+          )}
         </div>
       )}
 
@@ -504,7 +518,6 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                 onBlur={handleBlur}
                 required
                 errortext={errors.name}
-                placeholder={t`e.g. Ubuntu 22.04 LTS`}
                 disabled={isLoading}
               />
             </FormRow>
@@ -521,12 +534,11 @@ export const CreateImageModal: React.FC<CreateImageModalProps> = ({
                       onChange={handleTagsInputChange}
                       onKeyDown={handleTagKeyPress}
                       helptext={t`Press Enter or click Add to add a tag`}
-                      placeholder={t`e.g. production`}
                       disabled={isLoading}
                     />
                   </div>
 
-                  <Button variant="primary" onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
+                  <Button onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
                     <Trans>Add</Trans>
                   </Button>
                 </Stack>

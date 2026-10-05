@@ -28,6 +28,8 @@ describe("ServiceLevelDefaultError", () => {
 
     render(<ServiceLevelDefaultError />, { wrapper: TestWrapper })
 
+    expect(screen.getByText("Service Not Found")).toBeInTheDocument()
+    expect(screen.getByText(/the project home/)).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Go to Project Home" })).toBeInTheDocument()
     fireEvent.click(screen.getByRole("button", { name: "Go to Project Home" }))
 
@@ -42,6 +44,8 @@ describe("ServiceLevelDefaultError", () => {
 
     render(<ServiceLevelDefaultError />, { wrapper: TestWrapper })
 
+    expect(screen.getByText("Page Not Found")).toBeInTheDocument()
+    expect(screen.getByText(/the home page/)).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Go to Home" })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Go to Project Home" })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole("button", { name: "Go to Home" }))

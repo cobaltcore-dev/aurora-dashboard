@@ -1,9 +1,10 @@
 import { use, Suspense, useState, startTransition, useEffect, useRef, ReactNode, useCallback } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Trans, useLingui } from "@lingui/react/macro"
-import { TrpcClient } from "@/client/trpcClient"
+import { TrpcClient, trpcReact } from "@/client/trpcClient"
 import { GlanceImage } from "@/server/Compute/types/image"
 import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useProjectId } from "@/client/hooks"
 import {
   Button,
   Stack,
@@ -12,6 +13,7 @@ import {
   PopupMenuItem,
   PopupMenuToggle,
   PopupMenuOptions,
+  PopupMenuSectionSeparator,
   DataGridToolbar,
   SearchInput,
   Checkbox,
@@ -140,10 +142,23 @@ function ImagesContent({
   onMemberStatusChanged,
 }: ImagesContentProps) {
   const { t } = useLingui()
+  const projectId = useProjectId()
   const imagesData = use(imagesPromise)
   const permissions = use(permissionsPromise)
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm)
   const debounceTimer = useRef<number | undefined>(undefined)
+
+  // Fetch shared images to determine ownership for bulk actions
+  const sharedPendingQuery = trpcReact.compute.listSharedImagesByMemberStatus.useQuery(
+    { project_id: projectId, memberStatus: "pending" },
+    { retry: false }
+  )
+  const sharedAcceptedQuery = trpcReact.compute.listSharedImagesByMemberStatus.useQuery(
+    { project_id: projectId, memberStatus: "accepted" },
+    { retry: false }
+  )
+  const pendingSharedIds = new Set((sharedPendingQuery.data ?? []).map((img) => img.id))
+  const acceptedSharedIds = new Set((sharedAcceptedQuery.data ?? []).map((img) => img.id))
 
   useEffect(() => () => clearTimeout(debounceTimer.current), [])
 
@@ -188,10 +203,13 @@ function ImagesContent({
   const imageById = new Map(pageImages.map((image: GlanceImage) => [image.id, image]))
   const selectedImageObjects = validSelectedImages.map((id) => imageById.get(id)).filter(Boolean) as GlanceImage[]
 
-  const deletableImages = selectedImageObjects.filter((image) => image.protected !== true)
-  const protectedImages = selectedImageObjects.filter((image) => image.protected === true)
-  const activeImages = selectedImageObjects.filter((image) => image.status === IMAGE_STATUSES.ACTIVE)
-  const deactivatedImages = selectedImageObjects.filter((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
+  // Bulk mutations are available only for images owned by the current project
+  const ownedSelectedImages = selectedImageObjects.filter((image) => image.owner === projectId)
+
+  const deletableImages = ownedSelectedImages.filter((image) => image.protected !== true)
+  const protectedImages = ownedSelectedImages.filter((image) => image.protected === true)
+  const activeImages = ownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.ACTIVE)
+  const deactivatedImages = ownedSelectedImages.filter((image) => image.status === IMAGE_STATUSES.DEACTIVATED)
 
   const isDeleteAllDisabled =
     !permissions.canDelete ||
@@ -269,7 +287,6 @@ function ImagesContent({
               }}
             />
             <SearchInput
-              placeholder={t`Search images...`}
               data-testid="searchbar"
               value={localSearchTerm}
               onInput={(e: React.FormEvent<HTMLInputElement>) => {
@@ -334,11 +351,11 @@ function ImagesContent({
                   <Button size="small" icon="moreVert" label={t`Actions`} />
                 </PopupMenuToggle>
                 <PopupMenuOptions>
-                  {permissions.canDelete && (
+                  {permissions.canUpdate && (
                     <PopupMenuItem
-                      disabled={isDeleteAllDisabled}
-                      label={t`Delete Selected`}
-                      onClick={() => setDeleteAllModalOpen(true)}
+                      disabled={isActivateAllDisabled}
+                      label={t`Activate Selected`}
+                      onClick={() => setActivateAllModalOpen(true)}
                     />
                   )}
                   {permissions.canUpdate && (
@@ -348,12 +365,15 @@ function ImagesContent({
                       onClick={() => setDeactivateAllModalOpen(true)}
                     />
                   )}
-                  {permissions.canUpdate && (
-                    <PopupMenuItem
-                      disabled={isActivateAllDisabled}
-                      label={t`Activate Selected`}
-                      onClick={() => setActivateAllModalOpen(true)}
-                    />
+                  {permissions.canDelete && (
+                    <>
+                      <PopupMenuSectionSeparator />
+                      <PopupMenuItem
+                        disabled={isDeleteAllDisabled}
+                        label={t`Delete Selected`}
+                        onClick={() => setDeleteAllModalOpen(true)}
+                      />
+                    </>
                   )}
                 </PopupMenuOptions>
               </PopupMenu>
@@ -363,8 +383,6 @@ function ImagesContent({
       )}
       <ImageListView
         images={paginatedImages}
-        suggestedImages={memberStatusView === "pending" ? paginatedImages : []}
-        acceptedImages={memberStatusView === "accepted" ? paginatedImages : []}
         permissions={permissions}
         isFetching={isFetching}
         currentPage={safePage}
@@ -388,6 +406,8 @@ function ImagesContent({
         onImageDeleted={onImageDeleted}
         onMemberStatusChanged={onMemberStatusChanged}
         hasAnyBulkAction={permissions.canDelete || permissions.canUpdate}
+        pendingSharedIds={pendingSharedIds}
+        acceptedSharedIds={acceptedSharedIds}
       />
     </>
   )
@@ -466,6 +486,17 @@ export const Images = ({ client, project }: ImagesProps) => {
   )
   const [permissionsPromise] = useState(() => createPermissionsPromise(client, project))
 
+  // Compute effective filters based on member status view
+  // When viewing pending/accepted tabs, visibility filter is not applicable
+  const computeEffectiveFilters = useCallback(
+    (memberStatus: "all" | "pending" | "accepted" | undefined, selectedFilters: FilterSettings["selectedFilters"]) => {
+      return memberStatus === "pending" || memberStatus === "accepted"
+        ? (selectedFilters || []).filter((f) => f.name !== "visibility")
+        : selectedFilters || []
+    },
+    []
+  )
+
   const handleImageUpdated = useCallback((updatedImage: GlanceImage) => {
     setImageOverrides((prev) => new Map(prev).set(updatedImage.id, updatedImage))
   }, [])
@@ -485,10 +516,7 @@ export const Images = ({ client, project }: ImagesProps) => {
     const urlMemberStatus = searchParams.memberStatus ?? "all"
     const urlMemberStatusFilter = urlMemberStatus === "all" ? undefined : urlMemberStatus
     startTransition(() => {
-      const effectiveFilters =
-        urlMemberStatus === "pending" || urlMemberStatus === "accepted"
-          ? (filterSettings.selectedFilters || []).filter((f) => f.name !== "visibility")
-          : filterSettings.selectedFilters || []
+      const effectiveFilters = computeEffectiveFilters(urlMemberStatus, filterSettings.selectedFilters)
       const marker = pageMarkers.get(currentPage)
       const newPromise = createImagesPromise(
         client,
@@ -534,10 +562,7 @@ export const Images = ({ client, project }: ImagesProps) => {
     const urlMemberStatus = searchParams.memberStatus ?? "all"
     const urlMemberStatusFilter = urlMemberStatus === "all" ? undefined : urlMemberStatus
     startTransition(() => {
-      const effectiveFilters =
-        urlMemberStatus === "pending" || urlMemberStatus === "accepted"
-          ? (urlFilters || []).filter((f) => f.name !== "visibility")
-          : urlFilters || []
+      const effectiveFilters = computeEffectiveFilters(urlMemberStatus, urlFilters)
       const marker = pageMarkers.get(urlPage)
 
       // If we don't have a marker for this page and it's not page 1, navigate to page 1

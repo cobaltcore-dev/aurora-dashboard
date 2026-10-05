@@ -117,7 +117,7 @@ function RouteComponent() {
           <Status
             status="error"
             title={t`Session Changed`}
-            body={t`Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Please log in again to continue.`}
+            body={t`Your session was changed or ended in another browser tab. This can happen if you logged out or switched to a different account or domain elsewhere. Log in again to continue.`}
             action={
               <Button variant="primary" onClick={() => navigate({ to: "/" })}>
                 <Trans>Sign in</Trans>
@@ -130,8 +130,8 @@ function RouteComponent() {
 
     if (code === "NOT_FOUND") {
       const bodyText = domainName
-        ? t`This project doesn't exist or is not accessible from your current domain. Your current domain is ${domainName}. Please select a project from your current domain.`
-        : t`This project doesn't exist or is not accessible from your current domain. Please select a project from your current domain.`
+        ? t`This project doesn't exist or is not accessible from your current domain. Your current domain is ${domainName}. Select a project from your current domain.`
+        : t`This project doesn't exist or is not accessible from your current domain. Select a project from your current domain.`
 
       return (
         <Container className="py-8">

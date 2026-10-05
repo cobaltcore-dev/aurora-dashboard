@@ -1,6 +1,5 @@
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import { useLingui } from "@lingui/react/macro"
-import { useProjectId } from "@/client/hooks"
 import {
   Modal,
   Button,
@@ -10,18 +9,25 @@ import {
   DescriptionTerm,
   DescriptionDefinition,
   TextInput,
+  Message,
+  toast,
 } from "@cloudoperators/juno-ui-components"
 import { GlanceImage } from "@/server/Compute/types/image"
-import { trpcReact } from "@/client/trpcClient"
+import { TrpcClient } from "@/client/trpcClient"
+import { useErrorTranslation } from "@/client/utils/useErrorTranslation"
+import {
+  getImageMetadataPropertyCreatedToast,
+  getImageMetadataPropertyUpdatedToast,
+  getImageMetadataPropertyDeletedToast,
+} from "./ImageToastNotifications"
 
 interface EditImageMetadataModalProps {
+  client: TrpcClient
   image: GlanceImage
   isOpen: boolean
-  isLoading?: boolean
   canEdit?: boolean
   onClose: () => void
-  onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
-  onSuccess?: () => void
+  projectId: string
 }
 
 interface MetadataEntry {
@@ -31,6 +37,7 @@ interface MetadataEntry {
   isEditing?: boolean
   originalKey?: string
   originalValue?: string
+  editingValue?: string
 }
 
 function toStrValue(value: unknown): string {
@@ -46,37 +53,39 @@ function buildInitialMetadata(image: GlanceImage, excludedProperties: Set<string
       const strValue = toStrValue(value)
       return { key, value: strValue, isNew: false, isEditing: false, originalKey: key, originalValue: strValue }
     })
+    .sort((a, b) => a.key.localeCompare(b.key)) // Sort ascending A-Z
 }
 
 // Inner component receives already-computed initialMetadata so useState is seeded correctly
 function EditImageMetadataModalInner({
-  isLoading,
+  client,
   onClose,
-  onSave,
-  onSuccess,
   initialMetadata,
   excludedProperties,
   canEdit = true,
+  projectId,
+  imageId,
 }: {
-  isLoading: boolean
+  client: TrpcClient
   onClose: () => void
-  onSave: (metadata: Record<string, string | null>) => Promise<boolean> | boolean
-  onSuccess?: () => void
   initialMetadata: MetadataEntry[]
   excludedProperties: Set<string>
   canEdit?: boolean
+  projectId: string
+  imageId: string
 }) {
   const { t } = useLingui()
+  const { translateError } = useErrorTranslation()
 
   const [metadata, setMetadata] = useState<MetadataEntry[]>(initialMetadata)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newKey, setNewKey] = useState("")
   const [newValue, setNewValue] = useState("")
+  const [operationInProgress, setOperationInProgress] = useState(false)
+  const [validationMessage, setValidationMessage] = useState<string | null>(null)
 
-  const isSubmitDisabled =
-    metadata.every((entry) => !entry.isNew && entry.key === entry.originalKey && entry.value === entry.originalValue) &&
-    initialMetadata.length === metadata.length
+  const isModalDisabled = operationInProgress || isAddingNew || metadata.some((e) => e.isEditing)
 
   const validateKey = (key: string, originalKey?: string, rowIndex?: number): string | null => {
     const normalized = key?.trim().toLowerCase()
@@ -96,21 +105,51 @@ function EditImageMetadataModalInner({
     return null
   }
 
-  const handleAddNew = () => {
+  const handleAddNew = async () => {
     const keyError = validateKey(newKey, undefined, metadata.length)
     if (keyError) {
-      setErrors({ newKey: keyError })
+      setErrors({ newKey: "error" })
+      setValidationMessage(keyError)
       return
     }
     if (!newValue.trim()) {
-      setErrors({ newValue: t`Value is required` })
+      setErrors({ newValue: "error" })
+      setValidationMessage(t`Value is required`)
       return
     }
-    setMetadata((prev) => [{ key: newKey.trim(), value: newValue.trim(), isNew: true, isEditing: false }, ...prev])
-    setNewKey("")
-    setNewValue("")
-    setIsAddingNew(false)
-    setErrors({})
+
+    setOperationInProgress(true)
+    try {
+      await client.compute.updateImage.mutate({
+        project_id: projectId,
+        imageId,
+        operations: [{ op: "add", path: `/${newKey.trim()}`, value: newValue.trim() }],
+      })
+
+      setMetadata((prev) => [
+        {
+          key: newKey.trim(),
+          value: newValue.trim(),
+          isNew: false,
+          isEditing: false,
+          originalKey: newKey.trim(),
+          originalValue: newValue.trim(),
+        },
+        ...prev,
+      ])
+      setNewKey("")
+      setNewValue("")
+      setIsAddingNew(false)
+      setErrors({})
+      setValidationMessage(null)
+      const { message, ...options } = getImageMetadataPropertyCreatedToast()
+      toast.success(message, options)
+    } catch (error) {
+      const errorMsg = translateError(error instanceof Error ? error.message : "Failed to create property")
+      setValidationMessage(errorMsg)
+    } finally {
+      setOperationInProgress(false)
+    }
   }
 
   const handleCancelAdd = () => {
@@ -118,44 +157,104 @@ function EditImageMetadataModalInner({
     setNewValue("")
     setIsAddingNew(false)
     setErrors({})
+    setValidationMessage(null)
   }
 
   const handleEdit = (index: number) => {
     setMetadata((prev) =>
-      prev.map((entry, i) => (i === index ? { ...entry, isEditing: true } : { ...entry, isEditing: false }))
+      prev.map((entry, i) =>
+        i === index ? { ...entry, isEditing: true, editingValue: entry.value } : { ...entry, isEditing: false }
+      )
     )
     setIsAddingNew(false)
   }
 
-  const handleSaveEdit = (index: number) => {
+  const handleSaveEdit = async (index: number) => {
     const entry = metadata[index]
     const keyError = validateKey(entry.key, entry.originalKey, index)
     if (keyError) {
-      setErrors({ [`edit-${index}`]: keyError })
+      setErrors({ [`edit-${index}`]: "error" })
+      setValidationMessage(keyError)
       return
     }
     if (!entry.value.trim()) {
-      setErrors({ [`edit-${index}`]: t`Value is required` })
+      setErrors({ [`edit-${index}`]: "error" })
+      setValidationMessage(t`Value is required`)
       return
     }
-    setMetadata((prev) =>
-      prev.map((e, i) => (i === index ? { ...e, isEditing: false, key: e.key.trim(), value: e.value.trim() } : e))
-    )
-    setErrors({})
+
+    setOperationInProgress(true)
+    try {
+      const trimmedValue = entry.value.trim()
+      const trimmedKey = entry.key.trim()
+      const keyChanged = entry.originalKey !== undefined && entry.originalKey !== trimmedKey
+      // A renamed key is a new JSON Pointer, so "replace" (RFC 6902) would fail.
+      // Use "add" for the new key + "remove" for the old; "replace" only when unchanged.
+      const operations: Array<{ op: "add" | "replace" | "remove"; path: string; value?: unknown }> = keyChanged
+        ? [
+            { op: "add", path: `/${trimmedKey}`, value: trimmedValue },
+            { op: "remove", path: `/${entry.originalKey}` },
+          ]
+        : [{ op: "replace", path: `/${trimmedKey}`, value: trimmedValue }]
+
+      await client.compute.updateImage.mutate({ project_id: projectId, imageId, operations })
+
+      setMetadata((prev) =>
+        prev.map((e, i) =>
+          i === index
+            ? {
+                key: entry.key.trim(),
+                value: trimmedValue,
+                isEditing: false,
+                originalKey: entry.key.trim(),
+                originalValue: trimmedValue,
+              }
+            : e
+        )
+      )
+      setErrors({})
+      setValidationMessage(null)
+      const { message, ...options } = getImageMetadataPropertyUpdatedToast()
+      toast.success(message, options)
+    } catch (error) {
+      const errorMsg = translateError(error instanceof Error ? error.message : "Failed to update property")
+      setValidationMessage(errorMsg)
+    } finally {
+      setOperationInProgress(false)
+    }
   }
 
   const handleCancelEdit = (index: number) => {
     setMetadata((prev) =>
       prev.map((e, i) =>
-        i === index ? { ...e, isEditing: false, key: e.originalKey ?? e.key, value: e.originalValue ?? e.value } : e
+        i === index ? { ...e, isEditing: false, key: e.originalKey ?? e.key, value: e.editingValue ?? e.value } : e
       )
     )
     setErrors({})
+    setValidationMessage(null)
   }
 
-  const handleDelete = (index: number) => {
-    setMetadata((prev) => prev.filter((_, i) => i !== index))
-    setErrors({})
+  const handleDelete = async (index: number) => {
+    const entry = metadata[index]
+    setOperationInProgress(true)
+
+    try {
+      await client.compute.updateImage.mutate({
+        project_id: projectId,
+        imageId,
+        operations: [{ op: "remove", path: `/${entry.key}` }],
+      })
+      setMetadata((prev) => prev.filter((_, i) => i !== index))
+      setErrors({})
+      setValidationMessage(null)
+      const { message, ...options } = getImageMetadataPropertyDeletedToast()
+      toast.success(message, options)
+    } catch (error) {
+      const errorMsg = translateError(error instanceof Error ? error.message : "Failed to delete property")
+      setValidationMessage(errorMsg)
+    } finally {
+      setOperationInProgress(false)
+    }
   }
 
   const handleKeyChange = (index: number, value: string) => {
@@ -166,6 +265,7 @@ function EditImageMetadataModalInner({
         delete next[`edit-${index}`]
         return next
       })
+      setValidationMessage(null)
     }
   }
 
@@ -177,39 +277,19 @@ function EditImageMetadataModalInner({
         delete next[`edit-${index}`]
         return next
       })
-    }
-  }
-
-  const handleSubmit = async () => {
-    const metadataObject: Record<string, string> = {}
-    const removedEntries = Object.fromEntries(
-      initialMetadata
-        .filter(
-          (entry) =>
-            !metadata.map((item) => item.originalKey).includes(entry.originalKey) ||
-            !metadata.map((item) => item.key).includes(entry.key)
-        )
-        .map((entry) => [entry.key, null])
-    )
-    metadata
-      .filter((entry) => entry.isNew || entry.value !== entry.originalValue || entry.key !== entry.originalKey)
-      .forEach((entry) => {
-        metadataObject[entry.key] = entry.value
-      })
-    const success = await onSave({ ...metadataObject, ...removedEntries })
-    if (success) {
-      onClose()
-      onSuccess?.()
+      setValidationMessage(null)
     }
   }
 
   const handleClose = () => {
-    setMetadata(initialMetadata)
-    setIsAddingNew(false)
-    setNewKey("")
-    setNewValue("")
-    setErrors({})
-    onClose()
+    if (!operationInProgress) {
+      setIsAddingNew(false)
+      setNewKey("")
+      setNewValue("")
+      setErrors({})
+      setValidationMessage(null)
+      onClose()
+    }
   }
 
   return (
@@ -218,58 +298,50 @@ function EditImageMetadataModalInner({
       onCancel={handleClose}
       size="xl"
       title={canEdit ? t`Edit Metadata` : t`Show Metadata`}
-      onConfirm={canEdit ? handleSubmit : undefined}
-      confirmButtonLabel={canEdit ? t`Save Changes` : undefined}
-      cancelButtonLabel={t`Cancel`}
-      disableConfirmButton={isLoading || isAddingNew || metadata.some((e) => e.isEditing) || isSubmitDisabled}
+      cancelButtonLabel={t`Close`}
+      disableCancelButton={operationInProgress}
     >
-      {isLoading ? (
-        <Status status="progress" title={t`Saving Metadata...`} className="mt-0" />
-      ) : (
-        <div>
-          {canEdit && (
-            <Stack direction="horizontal" className="mb-4 justify-end p-2">
-              <Button
-                label={t`Add Property`}
-                onClick={() => setIsAddingNew(true)}
-                variant="primary"
-                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                icon="addCircle"
-              />
-            </Stack>
-          )}
-          {metadata.length === 0 && !isAddingNew ? (
-            <p className="jn:text-theme-light py-8 text-center">
-              {canEdit
-                ? t`No custom metadata properties found. Click "Add Property" to create one.`
-                : t`No custom metadata properties found.`}
-            </p>
-          ) : (
-            <DescriptionList className="mb-6" alignTerms="left">
-              <>
-                {isAddingNew && (
-                  <>
-                    <DescriptionTerm>
-                      <TextInput
-                        value={newKey}
-                        onChange={(e) => {
-                          setNewKey(e.target.value)
-                          if (errors.newKey) {
-                            setErrors((prev) => {
-                              const next = { ...prev }
-                              delete next.newKey
-                              return next
-                            })
-                          }
-                        }}
-                        placeholder={t`Property Key`}
-                        errortext={errors.newKey}
-                        invalid={!!errors.newKey}
-                        autoFocus
-                      />
-                    </DescriptionTerm>
-                    <DescriptionDefinition>
-                      <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+      <div>
+        {validationMessage && <Message variant="error" text={validationMessage} className="mb-4" />}
+
+        {canEdit && (
+          <Stack direction="horizontal" className="mb-4 justify-end p-2">
+            <Button label={t`Add Property`} onClick={() => setIsAddingNew(true)} disabled={isModalDisabled} />
+          </Stack>
+        )}
+        {metadata.length === 0 && !isAddingNew ? (
+          <p className="jn:text-theme-light py-8 text-center">
+            {canEdit
+              ? t`No custom metadata properties found. Click "Add Property" to create one.`
+              : t`No custom metadata properties found.`}
+          </p>
+        ) : (
+          <DescriptionList className="mb-6" alignTerms="left">
+            <>
+              {isAddingNew && (
+                <>
+                  <DescriptionTerm>
+                    <TextInput
+                      value={newKey}
+                      onChange={(e) => {
+                        setNewKey(e.target.value)
+                        if (errors.newKey) {
+                          setErrors((prev) => {
+                            const next = { ...prev }
+                            delete next.newKey
+                            return next
+                          })
+                          setValidationMessage(null)
+                        }
+                      }}
+                      invalid={!!errors.newKey}
+                      autoFocus
+                      disabled={operationInProgress}
+                    />
+                  </DescriptionTerm>
+                  <DescriptionDefinition>
+                    <Stack direction="horizontal" gap="2" alignment="center" className="justify-between">
+                      <div className="flex-1">
                         <TextInput
                           value={newValue}
                           onChange={(e) => {
@@ -280,133 +352,172 @@ function EditImageMetadataModalInner({
                                 delete next.newValue
                                 return next
                               })
+                              setValidationMessage(null)
                             }
                           }}
-                          placeholder={t`Value`}
-                          errortext={errors.newValue}
+                          invalid={!!errors.newValue}
+                          disabled={operationInProgress}
                         />
-                        <Stack direction="horizontal" gap="2">
+                      </div>
+                      <Stack direction="horizontal" gap="2" className="shrink-0">
+                        <Button
+                          size="small"
+                          variant="primary"
+                          onClick={() => {
+                            console.log("Save button clicked")
+                            handleAddNew()
+                          }}
+                          icon="check"
+                          title={t`Save`}
+                          disabled={!newKey.trim() || operationInProgress}
+                        />
+                        <Button
+                          size="small"
+                          variant="subdued"
+                          onClick={handleCancelAdd}
+                          icon="close"
+                          title={t`Discard`}
+                          disabled={operationInProgress}
+                        />
+                      </Stack>
+                    </Stack>
+                  </DescriptionDefinition>
+                </>
+              )}
+            </>
+
+            <>
+              {metadata.map((entry, index) => (
+                <React.Fragment key={`${entry.originalKey}-${index}`}>
+                  <DescriptionTerm>
+                    {entry.isEditing ? (
+                      <TextInput
+                        value={entry.key}
+                        onChange={(e) => handleKeyChange(index, e.target.value)}
+                        invalid={!!errors[`edit-${index}`]}
+                        disabled={operationInProgress}
+                      />
+                    ) : (
+                      <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
+                        {entry.key}
+                      </span>
+                    )}
+                  </DescriptionTerm>
+                  <DescriptionDefinition className="flex items-center justify-between gap-2">
+                    {entry.isEditing ? (
+                      <>
+                        <div className="flex-1">
+                          <TextInput
+                            value={entry.value}
+                            onChange={(e) => handleValueChange(index, e.target.value)}
+                            invalid={!!errors[`edit-${index}`]}
+                            disabled={operationInProgress}
+                          />
+                        </div>
+                        <Stack direction="horizontal" gap="2" className="shrink-0">
                           <Button
                             size="small"
                             variant="primary"
-                            onClick={handleAddNew}
+                            onClick={() => handleSaveEdit(index)}
                             icon="check"
                             title={t`Save`}
-                            disabled={!newKey.trim()}
+                            disabled={operationInProgress}
                           />
                           <Button
                             size="small"
                             variant="subdued"
-                            onClick={handleCancelAdd}
+                            onClick={() => handleCancelEdit(index)}
                             icon="close"
                             title={t`Discard`}
+                            disabled={operationInProgress}
                           />
                         </Stack>
-                      </Stack>
-                    </DescriptionDefinition>
-                  </>
-                )}
-              </>
-
-              <>
-                {metadata.map((entry, index) => (
-                  <React.Fragment key={`${entry.originalKey}-${index}`}>
-                    <DescriptionTerm>
-                      {entry.isEditing ? (
-                        <TextInput
-                          value={entry.key}
-                          onChange={(e) => handleKeyChange(index, e.target.value)}
-                          errortext={errors[`edit-${index}`]}
-                          invalid={!!errors[`edit-${index}`]}
-                        />
-                      ) : (
-                        <span className="jn:text-theme-high block max-w-xs truncate" title={entry.key}>
-                          {entry.key}
+                      </>
+                    ) : (
+                      <>
+                        <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
+                          {entry.value}
                         </span>
-                      )}
-                    </DescriptionTerm>
-                    <DescriptionDefinition className="flex items-center justify-between gap-2">
-                      {entry.isEditing ? (
-                        <>
-                          <TextInput value={entry.value} onChange={(e) => handleValueChange(index, e.target.value)} />
+                        {canEdit && (
                           <Stack direction="horizontal" gap="2">
                             <Button
                               size="small"
-                              variant="primary"
-                              onClick={() => handleSaveEdit(index)}
-                              icon="check"
-                              title={t`Save`}
+                              variant="subdued"
+                              onClick={() => handleEdit(index)}
+                              icon="edit"
+                              data-testid={`edit-${entry.key}`}
+                              title={t`Edit`}
+                              disabled={isModalDisabled}
                             />
                             <Button
                               size="small"
-                              variant="subdued"
-                              onClick={() => handleCancelEdit(index)}
-                              icon="close"
-                              title={t`Discard`}
+                              onClick={() => handleDelete(index)}
+                              icon="deleteForever"
+                              aria-label={t`Delete`}
+                              data-testid={`delete-${entry.key}`}
+                              title={t`Delete`}
+                              disabled={isModalDisabled}
                             />
                           </Stack>
-                        </>
-                      ) : (
-                        <>
-                          <span className="jn:text-theme-default block max-w-md truncate" title={entry.value}>
-                            {entry.value}
-                          </span>
-                          {canEdit && (
-                            <Stack direction="horizontal" gap="2">
-                              <Button
-                                size="small"
-                                variant="subdued"
-                                onClick={() => handleEdit(index)}
-                                icon="edit"
-                                data-testid={`edit-${entry.key}`}
-                                title={t`Edit`}
-                                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                              />
-                              <Button
-                                size="small"
-                                onClick={() => handleDelete(index)}
-                                icon="deleteForever"
-                                aria-label={t`Delete`}
-                                data-testid={`delete-${entry.key}`}
-                                title={t`Delete`}
-                                disabled={isAddingNew || metadata.some((e) => e.isEditing)}
-                              />
-                            </Stack>
-                          )}
-                        </>
-                      )}
-                    </DescriptionDefinition>
-                  </React.Fragment>
-                ))}
-              </>
-            </DescriptionList>
-          )}
-        </div>
-      )}
+                        )}
+                      </>
+                    )}
+                  </DescriptionDefinition>
+                </React.Fragment>
+              ))}
+            </>
+          </DescriptionList>
+        )}
+      </div>
     </Modal>
   )
 }
 
 export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
+  client,
   image,
   isOpen,
-  isLoading = false,
   canEdit = true,
   onClose,
-  onSave,
+  projectId,
 }) => {
   const { t } = useLingui()
-  const projectId = useProjectId()
-  const {
-    data: excludedPropertiesData,
-    isLoading: isLoadingExcluded,
-    isError: isErrorExcluded,
-  } = trpcReact.compute.getImageMetadataExcludedProperties.useQuery(
-    { project_id: projectId },
-    {
-      enabled: isOpen,
+  const { translateError } = useErrorTranslation()
+
+  const [excludedPropertiesData, setExcludedPropertiesData] = useState<string[] | null>(null)
+  const [isLoadingExcluded, setIsLoadingExcluded] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!isOpen || !projectId) {
+      setExcludedPropertiesData(null)
+      setLoadError(null)
+      return
     }
-  )
+
+    let cancelled = false
+    setIsLoadingExcluded(true)
+    setLoadError(null)
+
+    const loadData = async () => {
+      try {
+        const data = await client.compute.getImageMetadataExcludedProperties.query({ project_id: projectId })
+        if (cancelled) return
+        setExcludedPropertiesData(data)
+      } catch (error) {
+        if (cancelled) return
+        setLoadError(error instanceof Error ? error.message : "Failed to Load Metadata Configuration")
+      } finally {
+        if (!cancelled) setIsLoadingExcluded(false)
+      }
+    }
+
+    loadData()
+    return () => {
+      cancelled = true
+    }
+  }, [isOpen, projectId])
+
   const excludedProperties = useMemo(
     () => new Set((excludedPropertiesData ?? []).map((s) => s.toLowerCase())),
     [excludedPropertiesData]
@@ -426,23 +537,28 @@ export const EditImageMetadataModal: React.FC<EditImageMetadataModalProps> = ({
     )
   }
 
-  if (isErrorExcluded) {
+  if (loadError) {
     return (
       <Modal open onCancel={onClose} size="xl" title={canEdit ? t`Edit Metadata` : t`Show Metadata`}>
-        <Status status="error" title={t`Failed to Load Metadata Configuration`} className="mt-0" />
+        <Status
+          status="error"
+          title={t`Failed to Load Metadata Configuration`}
+          body={translateError(loadError)}
+          className="mt-0"
+        />
       </Modal>
     )
   }
 
   return (
     <EditImageMetadataModalInner
-      key={`${image.id}-${image.updated_at}-${excludedProperties.size}`}
-      isLoading={isLoading}
+      client={client}
       onClose={onClose}
-      onSave={onSave}
       initialMetadata={initialMetadata}
       excludedProperties={excludedProperties}
       canEdit={canEdit}
+      projectId={projectId}
+      imageId={image.id}
     />
   )
 }

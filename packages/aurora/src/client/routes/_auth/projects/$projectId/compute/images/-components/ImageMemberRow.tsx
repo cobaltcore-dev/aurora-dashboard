@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import { useLingui } from "@lingui/react/macro"
 import { DataGridRow, DataGridCell, Button, Stack, Spinner } from "@cloudoperators/juno-ui-components"
 import { MEMBER_STATUSES } from "../../-constants/filters"
@@ -20,22 +20,6 @@ interface ImageMemberRowProps {
 
 export const ImageMemberRow: React.FC<ImageMemberRowProps> = ({ member, isDeleting, onDelete, canDelete }) => {
   const { t } = useLingui()
-  const [confirm, setConfirm] = useState(false)
-
-  useEffect(() => {
-    if (confirm) {
-      const timer = setTimeout(() => {
-        setConfirm(false)
-      }, 3000)
-
-      return () => clearTimeout(timer)
-    }
-  }, [confirm])
-
-  const handleConfirmDelete = () => {
-    setConfirm(false)
-    onDelete()
-  }
 
   const getStatusLabel = (status: string): string => {
     switch (status) {
@@ -50,60 +34,30 @@ export const ImageMemberRow: React.FC<ImageMemberRowProps> = ({ member, isDeleti
     }
   }
 
-  const getStatusVariant = (status: string): string => {
-    switch (status) {
-      case MEMBER_STATUSES.PENDING:
-        return "warning"
-      case MEMBER_STATUSES.ACCEPTED:
-        return "success"
-      case MEMBER_STATUSES.REJECTED:
-        return "danger"
-      default:
-        return "default"
-    }
-  }
-
   const deleteButton = () => {
     if (!canDelete) {
       return <></>
     }
 
-    if (confirm) {
-      return (
-        <Button
-          variant="primary-danger"
-          onClick={handleConfirmDelete}
-          title={t`Remove member access`}
-          aria-label={t`Remove member access`}
-          data-testid="confirm-removal"
-          disabled={isDeleting}
-        >
-          {t`Remove`}
-        </Button>
-      )
-    } else {
-      const memberIdDisplay = member.member_id
+    const memberIdDisplay = member.member_id
 
-      return (
-        <Button
-          icon="deleteForever"
-          onClick={() => setConfirm(true)}
-          title={t`Remove access for ${memberIdDisplay}`}
-          aria-label={t`Remove access for ${memberIdDisplay}`}
-          data-testid={`remove-${memberIdDisplay}`}
-          disabled={isDeleting}
-        />
-      )
-    }
+    return (
+      <Button
+        icon="deleteForever"
+        onClick={onDelete}
+        title={t`Remove access for ${memberIdDisplay}`}
+        aria-label={t`Remove access for ${memberIdDisplay}`}
+        data-testid={`remove-${memberIdDisplay}`}
+        disabled={isDeleting}
+      />
+    )
   }
 
   return (
     <DataGridRow>
-      <DataGridCell className="break-all">{member.image_id}</DataGridCell>
+      <DataGridCell className="break-all">{getStatusLabel(member.status)}</DataGridCell>
       <DataGridCell className="break-all">{member.member_id}</DataGridCell>
-      <DataGridCell className={`break-all text-theme-${getStatusVariant(member.status)}`}>
-        {getStatusLabel(member.status)}
-      </DataGridCell>
+      <DataGridCell className="break-all">{member.image_id}</DataGridCell>
       <DataGridCell>
         {isDeleting ? (
           <Stack distribution="center" alignment="center">

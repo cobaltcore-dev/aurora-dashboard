@@ -184,7 +184,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateForm()) {
@@ -202,7 +202,7 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
       ...(image.min_ram !== properties.min_ram ? { min_ram: properties.min_ram } : {}),
     }
 
-    onSave(updatedProperties)
+    await onSave(updatedProperties)
   }
 
   const handleClose = () => {
@@ -251,10 +251,9 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
                       onChange={handleTagsInputChange}
                       onKeyDown={handleTagKeyPress}
                       helptext={t`Enter a tag and press Enter or click Add`}
-                      placeholder={t`e.g., production, linux, ubuntu`}
                     />
                   </div>
-                  <Button variant="primary" onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
+                  <Button onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
                     <Trans>Add</Trans>
                   </Button>
                 </Stack>

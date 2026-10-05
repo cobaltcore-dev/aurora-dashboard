@@ -97,7 +97,7 @@ describe("DeleteImagesModal", () => {
 
   it("should call onDelete when delete button is clicked with correct confirmation", async () => {
     setup(true, false, mockDeletableImages, mockProtectedImages)
-    const confirmInput = screen.getByPlaceholderText("delete")
+    const confirmInput = screen.getByLabelText('Type "delete" to confirm')
     await act(async () => {
       fireEvent.change(confirmInput, { target: { value: "delete" } })
     })
@@ -117,7 +117,7 @@ describe("DeleteImagesModal", () => {
 
   it("should enable delete button when confirmation text matches", () => {
     setup(true)
-    const confirmInput = screen.getByPlaceholderText("delete")
+    const confirmInput = screen.getByLabelText('Type "delete" to confirm')
     fireEvent.change(confirmInput, { target: { value: "delete" } })
     const deleteButton = screen.getByRole("button", { name: /Delete Images/i })
     expect(deleteButton).not.toBeDisabled()
@@ -125,7 +125,7 @@ describe("DeleteImagesModal", () => {
 
   it("should disable the delete button when isLoading is true", () => {
     setup(true, true)
-    const confirmInput = screen.getByPlaceholderText("delete")
+    const confirmInput = screen.getByLabelText('Type "delete" to confirm')
     fireEvent.change(confirmInput, { target: { value: "delete" } })
     const deleteButton = screen.getByRole("button", { name: /Deleting.../i })
     expect(deleteButton).toBeDisabled()
@@ -146,7 +146,7 @@ describe("DeleteImagesModal", () => {
       { id: "protected-2", name: "Protected 2", protected: true } as GlanceImage,
     ]
     setup(true, false, deletableImgs, protectedImgs)
-    const confirmInput = screen.getByPlaceholderText("delete")
+    const confirmInput = screen.getByLabelText('Type "delete" to confirm')
     await act(async () => {
       fireEvent.change(confirmInput, { target: { value: "delete" } })
     })
