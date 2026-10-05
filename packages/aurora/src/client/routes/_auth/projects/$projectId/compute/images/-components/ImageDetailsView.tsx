@@ -1,5 +1,14 @@
 import React from "react"
-import { Container, Stack, Button, ButtonRow, Box } from "@cloudoperators/juno-ui-components"
+import {
+  Container,
+  Stack,
+  Button,
+  ButtonRow,
+  Box,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+} from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { GlanceImage, ImageMember, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
@@ -166,29 +175,32 @@ export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ imag
 
   const hasProperties = customProperties.length > 0
 
-  const items = customProperties.map(([key, value]) => ({
-    label: key,
-    value:
-      value === null || value === undefined ? (
-        <span>null</span>
-      ) : typeof value === "object" ? (
-        <span className="break-all">{JSON.stringify(value)}</span>
-      ) : typeof value === "boolean" ? (
-        value ? (
-          t`True`
-        ) : (
-          t`False`
-        )
-      ) : (
-        <span className="break-all">{String(value)}</span>
-      ),
-  }))
-
   return (
     <Container px={false} py>
       <h2>{t`Metadata`}</h2>
       {hasProperties ? (
-        <TwoColumnDescriptionList items={items} />
+        <DescriptionList>
+          {customProperties.map(([key, value]) => (
+            <React.Fragment key={key}>
+              <DescriptionTerm>{key}</DescriptionTerm>
+              <DescriptionDefinition>
+                {value === null || value === undefined ? (
+                  <span>null</span>
+                ) : typeof value === "object" ? (
+                  <span className="break-all">{JSON.stringify(value)}</span>
+                ) : typeof value === "boolean" ? (
+                  value ? (
+                    t`True`
+                  ) : (
+                    t`False`
+                  )
+                ) : (
+                  <span className="break-all">{String(value)}</span>
+                )}
+              </DescriptionDefinition>
+            </React.Fragment>
+          ))}
+        </DescriptionList>
       ) : (
         <p className="text-theme-light">{t`No custom properties defined`}</p>
       )}
