@@ -137,7 +137,6 @@ export const DeleteImageModal: React.FC<DeleteImageModalProps> = ({
                   label={t`Type "delete" to confirm`}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="delete"
                   autoFocus
                   disabled={isLoading}
                   required

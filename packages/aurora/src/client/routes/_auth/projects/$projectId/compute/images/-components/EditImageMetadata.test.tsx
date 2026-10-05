@@ -121,8 +121,9 @@ describe("EditImageMetadataModal", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: /Add Property/i })).toBeInTheDocument())
     fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
 
-    const keyInput = screen.getByPlaceholderText("Property Key")
-    const valueInput = screen.getByPlaceholderText("Value")
+    const inputs = screen.getAllByRole("textbox")
+    const keyInput = inputs[0]
+    const valueInput = inputs[1]
 
     fireEvent.change(keyInput, { target: { value: "new_key" } })
     fireEvent.change(valueInput, { target: { value: "new_value" } })
@@ -147,12 +148,17 @@ describe("EditImageMetadataModal", () => {
 
     await waitFor(() => expect(screen.getByRole("button", { name: /Add Property/i })).toBeInTheDocument())
     fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
-    expect(screen.getByPlaceholderText("Property Key")).toBeInTheDocument()
+
+    const inputsBefore = screen.getAllByRole("textbox")
+    expect(inputsBefore.length).toBeGreaterThan(0)
 
     const discardButtons = screen.getAllByTitle(/Discard/i).filter((el) => el.tagName.toLowerCase() === "button")
     fireEvent.click(discardButtons[0])
 
-    expect(screen.queryByPlaceholderText("Property Key")).not.toBeInTheDocument()
+    await waitFor(() => {
+      const inputsAfter = screen.queryAllByRole("textbox")
+      expect(inputsAfter.length).toBe(0)
+    })
   })
 
   // ── Edit & delete ───────────────────────────────────────────────────────────
@@ -222,8 +228,9 @@ describe("EditImageMetadataModal", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: /Add Property/i })).toBeInTheDocument())
     fireEvent.click(screen.getByRole("button", { name: /Add Property/i }))
 
-    const keyInput = screen.getByPlaceholderText("Property Key")
-    const valueInput = screen.getByPlaceholderText("Value")
+    const inputs = screen.getAllByRole("textbox")
+    const keyInput = inputs[0]
+    const valueInput = inputs[1]
 
     fireEvent.change(keyInput, { target: { value: "  trimmed_key  " } })
     fireEvent.change(valueInput, { target: { value: "  trimmed_value  " } })

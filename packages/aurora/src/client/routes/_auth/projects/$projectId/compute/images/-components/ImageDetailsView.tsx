@@ -1,20 +1,24 @@
-import React, { useState } from "react"
-import { Container, Stack, Message, Box, Button, ButtonRow } from "@cloudoperators/juno-ui-components"
+import React from "react"
+import {
+  Container,
+  Stack,
+  Button,
+  ButtonRow,
+  Box,
+  DescriptionList,
+  DescriptionTerm,
+  DescriptionDefinition,
+} from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { GlanceImage, ImageMember, MemberStatus } from "@/server/Compute/types/image"
 import { SizeDisplay } from "./SizeDisplay"
-import { trpcReact } from "@/client/trpcClient"
 import { MEMBER_STATUSES } from "../../-constants/filters"
 import ClipboardText from "@/client/components/ClipboardText"
 import { TwoColumnDescriptionList } from "@/client/components/TwoColumnDescriptionList"
-import { ImageMembersTable } from "./ImageMembersTable"
 
 interface ImageDetailsViewProps {
   image: GlanceImage
-  currentProjectId?: string
   isSharedWithMe?: boolean
-  activeTab?: "details" | "sharing"
-  onTabChange?: (tab: "details" | "sharing") => void
   permissions?: {
     canCreateMember: boolean
     canDeleteMember: boolean
@@ -74,12 +78,14 @@ const SharedImageBox: React.FC<{
         </li>
       </ul>
 
-      {canUpdateMember && (isPending || isRejected) && (
+      {canUpdateMember && (isPending || isRejected || myMemberData.status === MEMBER_STATUSES.ACCEPTED) && (
         <ButtonRow>
-          <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading}>
-            <Trans>Accept</Trans>
-          </Button>
-          {isPending && (
+          {(isPending || isRejected) && (
+            <Button onClick={() => onStatusChange(MEMBER_STATUSES.ACCEPTED)} disabled={isLoading}>
+              <Trans>Accept</Trans>
+            </Button>
+          )}
+          {(isPending || myMemberData.status === MEMBER_STATUSES.ACCEPTED) && (
             <Button onClick={() => onStatusChange(MEMBER_STATUSES.REJECTED)} disabled={isLoading}>
               <Trans>Reject</Trans>
             </Button>
@@ -169,29 +175,32 @@ export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ imag
 
   const hasProperties = customProperties.length > 0
 
-  const items = customProperties.map(([key, value]) => ({
-    label: key,
-    value:
-      value === null || value === undefined ? (
-        <span>null</span>
-      ) : typeof value === "object" ? (
-        <span className="break-all">{JSON.stringify(value)}</span>
-      ) : typeof value === "boolean" ? (
-        value ? (
-          t`True`
-        ) : (
-          t`False`
-        )
-      ) : (
-        <span className="break-all">{String(value)}</span>
-      ),
-  }))
-
   return (
     <Container px={false} py>
       <h2>{t`Metadata`}</h2>
       {hasProperties ? (
-        <TwoColumnDescriptionList items={items} />
+        <DescriptionList>
+          {customProperties.map(([key, value]) => (
+            <React.Fragment key={key}>
+              <DescriptionTerm>{key}</DescriptionTerm>
+              <DescriptionDefinition>
+                {value === null || value === undefined ? (
+                  <span>null</span>
+                ) : typeof value === "object" ? (
+                  <span className="break-all">{JSON.stringify(value)}</span>
+                ) : typeof value === "boolean" ? (
+                  value ? (
+                    t`True`
+                  ) : (
+                    t`False`
+                  )
+                ) : (
+                  <span className="break-all">{String(value)}</span>
+                )}
+              </DescriptionDefinition>
+            </React.Fragment>
+          ))}
+        </DescriptionList>
       ) : (
         <p className="text-theme-light">{t`No custom properties defined`}</p>
       )}
@@ -199,60 +208,15 @@ export const CustomPropertiesSection: React.FC<{ image: GlanceImage }> = ({ imag
   )
 }
 
-const getTabClassName = (active: boolean) => {
-  const base = "px-6 py-3 font-semibold border-b-2 transition-colors"
-  return active
-    ? `${base} border-theme-accent text-theme-highest`
-    : `${base} border-transparent text-theme-secondary hover:text-theme-high`
-}
-
-const SharingDetailsTab: React.FC<ImageDetailsViewProps> = ({ image, permissions, currentProjectId }) => {
-  const [isAddingMember, setIsAddingMember] = useState(false)
-  const [message, setMessage] = useState<{ text: string; type: "error" | "info" } | null>(null)
-
-  const { data: imageMembers, isLoading: isMembersLoading } = trpcReact.compute.listImageMembers.useQuery(
-    { project_id: currentProjectId!, imageId: image.id },
-    { enabled: !!image.id && !!currentProjectId }
-  )
-
-  return (
-    <Container px={false} py>
-      {message && (
-        <Message text={message.text} variant={message.type} onDismiss={() => setMessage(null)} className="mb-4" />
-      )}
-      <ImageMembersTable
-        image={image}
-        imageMembers={imageMembers}
-        isMembersLoading={isMembersLoading}
-        canAdd={permissions?.canCreateMember ?? false}
-        canRemove={permissions?.canDeleteMember ?? false}
-        isAddingMember={isAddingMember}
-        setIsAddingMember={setIsAddingMember}
-        setMessage={setMessage}
-        projectId={currentProjectId!}
-      />
-    </Container>
-  )
-}
-
 export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
   image,
-  currentProjectId,
   isSharedWithMe = false,
-  activeTab = "details",
-  onTabChange,
   permissions,
   myMemberData,
   onMemberStatusChange,
   isMemberStatusChanging,
   actions,
 }) => {
-  const { t } = useLingui()
-
-  // Owner = shared image that is not shared *with* me.
-  const isImageOwner = image.visibility === "shared" && !isSharedWithMe
-  const showTabs = isImageOwner
-
   return (
     <Stack direction="vertical" gap="6">
       {isSharedWithMe && myMemberData && onMemberStatusChange && (
@@ -265,31 +229,10 @@ export const ImageDetailsView: React.FC<ImageDetailsViewProps> = ({
         />
       )}
 
-      {showTabs && (
-        <div className="border-theme-background-lvl-3 border-b">
-          <Stack direction="horizontal" gap="0">
-            <button className={getTabClassName(activeTab === "details")} onClick={() => onTabChange?.("details")}>
-              {t`Details`}
-            </button>
-            <button className={getTabClassName(activeTab === "sharing")} onClick={() => onTabChange?.("sharing")}>
-              {t`Manage Access`}
-            </button>
-          </Stack>
-        </div>
-      )}
-
-      {(activeTab === "details" || !showTabs) && (
-        <>
-          {actions}
-          <GeneralImageData image={image} />
-          <SecuritySection image={image} isSharedWithMe={isSharedWithMe} />
-          <CustomPropertiesSection image={image} />
-        </>
-      )}
-
-      {activeTab === "sharing" && showTabs && (
-        <SharingDetailsTab image={image} permissions={permissions} currentProjectId={currentProjectId} />
-      )}
+      {actions}
+      <GeneralImageData image={image} />
+      <SecuritySection image={image} isSharedWithMe={isSharedWithMe} />
+      <CustomPropertiesSection image={image} />
     </Stack>
   )
 }

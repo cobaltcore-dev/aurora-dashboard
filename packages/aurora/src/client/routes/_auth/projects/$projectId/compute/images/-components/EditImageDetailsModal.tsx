@@ -251,7 +251,6 @@ export const EditImageDetailsModal: React.FC<EditImageDetailsModalProps> = ({
                       onChange={handleTagsInputChange}
                       onKeyDown={handleTagKeyPress}
                       helptext={t`Enter a tag and press Enter or click Add`}
-                      placeholder={t`e.g., production, linux, ubuntu`}
                     />
                   </div>
                   <Button onClick={handleAddTag} disabled={isLoading || tagsInput.trim() === ""}>
