@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { useLingui } from "@lingui/react/macro"
 import {
   Modal,
   Form,
@@ -7,15 +7,12 @@ import {
   FormSection,
   TextInput,
   Checkbox,
-  Button,
-  ButtonRow,
-  Spinner,
-  ModalFooter,
   Textarea,
   Message,
   Status,
 } from "@cloudoperators/juno-ui-components"
 import { CreateSecurityGroupInput } from "@/server/Network/types/securityGroup"
+import { validateSecurityGroupField, SecurityGroupFormField, SecurityGroupFieldErrors } from "./securityGroupValidation"
 
 interface CreateSecurityGroupModalProps {
   isOpen: boolean
@@ -37,6 +34,8 @@ const defaultSecurityGroupValues: SecurityGroupProperties = {
   stateful: true,
 }
 
+const VALIDATED_FIELDS: SecurityGroupFormField[] = ["name", "description"]
+
 export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> = ({
   isOpen,
   onClose,
@@ -47,7 +46,7 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
   const { t } = useLingui()
 
   const [properties, setProperties] = useState<SecurityGroupProperties>({ ...defaultSecurityGroupValues })
-  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [errors, setErrors] = useState<SecurityGroupFieldErrors>({})
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -57,31 +56,37 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }))
+    // Clear error for this field when user changes the value
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }))
+  }
 
-    if (errors[name]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev }
-        delete newErrors[name]
-        return newErrors
-      })
-    }
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    const field = name as SecurityGroupFormField
+    setErrors((prev) => ({
+      ...prev,
+      [field]: validateSecurityGroupField(field, value, t),
+    }))
   }
 
   const validateForm = (): boolean => {
-    const newErrors: { [key: string]: string } = {}
-
-    if (!properties.name || properties.name.trim() === "") {
-      newErrors.name = t`Security group name is required`
-    }
+    const newErrors: SecurityGroupFieldErrors = {}
+    VALIDATED_FIELDS.forEach((field) => {
+      const fieldError = validateSecurityGroupField(field, properties[field], t)
+      if (fieldError) newErrors[field] = fieldError
+    })
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const isFormValid = () => VALIDATED_FIELDS.every((field) => !validateSecurityGroupField(field, properties[field], t))
 
-    if (!validateForm()) {
+  const handleSubmit = async () => {
+    if (isLoading || !validateForm()) {
       return
     }
 
@@ -91,8 +96,12 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
       stateful: properties.stateful,
     }
 
-    await onCreate(securityGroupData)
-    handleClose()
+    try {
+      await onCreate(securityGroupData)
+      handleClose()
+    } catch {
+      // Keep the modal open with the user's input; the parent passes the message via `error`
+    }
   }
 
   const handleClose = () => {
@@ -107,74 +116,64 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
       onCancel={handleClose}
       size="large"
       title={t`Create Security Group`}
-      modalFooter={
-        <ModalFooter className="flex justify-end">
-          <ButtonRow>
-            <Button variant="default" onClick={handleClose} disabled={isLoading}>
-              <Trans>Cancel</Trans>
-            </Button>
-            <Button
-              variant="primary"
-              onClick={(e) => {
-                handleSubmit(e)
-              }}
-              disabled={isLoading}
-              data-testid="create-security-group-button"
-            >
-              {isLoading ? <Spinner size="small" /> : <Trans>Create Security Group</Trans>}
-            </Button>
-          </ButtonRow>
-        </ModalFooter>
-      }
+      onConfirm={handleSubmit}
+      cancelButtonLabel={t`Cancel`}
+      confirmButtonLabel={t`Create Security Group`}
+      disableConfirmButton={!isFormValid() || isLoading}
+      disableCancelButton={isLoading}
+      disableCloseButton={isLoading}
     >
-      {/* Error Message */}
-      {error && (
-        <Message dismissible={false} variant="error" className="mb-4">
-          {error}
-        </Message>
-      )}
-
       {isLoading && <Status status="progress" title={t`Creating Security Group...`} className="mt-0" />}
 
       {!isLoading && (
-        <Form className="mb-6">
-          <FormSection className="mb-6">
-            <FormRow className="mb-6">
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleSubmit()
+          }}
+        >
+          {error && (
+            <FormRow>
+              <Message dismissible={false} variant="error" text={error} />
+            </FormRow>
+          )}
+
+          <FormSection>
+            <FormRow>
               <TextInput
                 id="name"
                 name="name"
                 label={t`Name`}
                 value={properties.name}
                 onChange={handleInputChange}
+                onBlur={handleBlur}
                 required
                 errortext={errors.name}
-                placeholder={t`Type name`}
-                disabled={isLoading}
+                helptext={t`1-255 characters. "default" is reserved.`}
               />
             </FormRow>
 
-            <FormRow className="mb-6">
+            <FormRow>
               <Textarea
                 id="description"
                 name="description"
                 label={t`Description`}
                 value={properties.description}
                 onChange={handleInputChange}
-                placeholder={t`Description`}
-                disabled={isLoading}
+                onBlur={handleBlur}
+                errortext={errors.description}
                 rows={3}
               />
             </FormRow>
 
-            <FormRow className="mb-0">
+            <FormRow>
               <Checkbox
                 id="stateful"
                 name="stateful"
                 label={t`Stateful`}
                 checked={properties.stateful}
                 onChange={handleInputChange}
-                disabled={isLoading}
-                helptext={t`Stateful security groups track connection state. This setting cannot be changed after creation.`}
+                helptext={t`Stateful groups track connections, so return traffic is allowed automatically. In a stateless group, return traffic needs its own rules. Cannot be changed after creation.`}
               />
             </FormRow>
           </FormSection>

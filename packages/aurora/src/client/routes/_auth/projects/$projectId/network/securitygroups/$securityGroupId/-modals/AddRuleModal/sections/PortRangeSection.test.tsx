@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import { i18n } from "@lingui/core"
@@ -13,16 +13,20 @@ import { createRuleFormSchema } from "../validation/formSchema"
 
 function TestWrapper({
   disabled = false,
+  readOnly = false,
   defaultPortFrom = "",
   defaultPortTo = "",
 }: {
   disabled?: boolean
+  readOnly?: boolean
   defaultPortFrom?: string
   defaultPortTo?: string
 }) {
   const form = useForm({
     defaultValues: {
       ...DEFAULT_VALUES,
+      ruleType: "custom-tcp",
+      protocol: "tcp" as string | null,
       portFrom: defaultPortFrom,
       portTo: defaultPortTo,
     },
@@ -35,7 +39,7 @@ function TestWrapper({
   return (
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <PortRangeSection form={form} disabled={disabled} />
+        <PortRangeSection form={form} disabled={disabled} readOnly={readOnly} />
       </PortalProvider>
     </I18nProvider>
   )
@@ -60,9 +64,8 @@ describe("PortRangeSection", () => {
 
     test("renders help text", () => {
       render(<TestWrapper />)
-      expect(
-        screen.getByText(/Enter a single port, or define a range by also filling "Port \(to\)"/i)
-      ).toBeInTheDocument()
+      expect(screen.getByText("Single port or start of a range, 1-65535.")).toBeInTheDocument()
+      expect(screen.getByText("End of the range. Leave empty for a single port.")).toBeInTheDocument()
     })
   })
 
@@ -154,6 +157,82 @@ describe("PortRangeSection", () => {
         const portToInput = screen.getByLabelText(/Port \(to\)/i) as HTMLInputElement
         expect(portToInput.value).toBe("")
       })
+    })
+  })
+
+  describe("Validation", () => {
+    test("shows the required error when Port (from) is left empty", async () => {
+      render(<TestWrapper />)
+
+      fireEvent.blur(screen.getByLabelText(/Port \(from\)/i))
+
+      expect(await screen.findByText("Port (from) is required")).toBeInTheDocument()
+    })
+
+    test("shows the range error once Port (from) is left", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper />)
+
+      const portFromInput = screen.getByLabelText(/Port \(from\)/i)
+      await user.type(portFromInput, "70000")
+      expect(screen.queryByText("For TCP/UDP: port must be between 1 and 65535")).not.toBeInTheDocument()
+
+      fireEvent.blur(portFromInput)
+      expect(await screen.findByText("For TCP/UDP: port must be between 1 and 65535")).toBeInTheDocument()
+    })
+
+    test("shows the order error under Port (from) once Port (to) is left", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultPortFrom="9090" />)
+
+      const portToInput = screen.getByLabelText(/Port \(to\)/i)
+      await user.type(portToInput, "80")
+      expect(screen.queryByText('"Port (from)" must be less than "Port (to)"')).not.toBeInTheDocument()
+
+      fireEvent.blur(portToInput)
+      expect(await screen.findByText('"Port (from)" must be less than "Port (to)"')).toBeInTheDocument()
+    })
+
+    test("hides the error while the port is edited", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultPortFrom="70000" />)
+
+      const portFromInput = screen.getByLabelText(/Port \(from\)/i)
+      fireEvent.blur(portFromInput)
+      expect(await screen.findByText("For TCP/UDP: port must be between 1 and 65535")).toBeInTheDocument()
+
+      await user.type(portFromInput, "{Backspace}")
+      expect(screen.queryByText("For TCP/UDP: port must be between 1 and 65535")).not.toBeInTheDocument()
+    })
+  })
+
+  describe("Read-only (preset) state", () => {
+    test("shows the preset port in disabled fields", () => {
+      render(<TestWrapper readOnly defaultPortFrom="80" />)
+
+      const portFromInput = screen.getByLabelText(/Port \(from\)/i)
+      const portToInput = screen.getByLabelText(/Port \(to\)/i)
+      expect(portFromInput).toHaveValue("80")
+      expect(portFromInput).toBeDisabled()
+      expect(portToInput).toHaveValue("")
+      expect(portToInput).toBeDisabled()
+    })
+
+    test("shows a preset port range", () => {
+      render(<TestWrapper readOnly defaultPortFrom="1" defaultPortTo="65535" />)
+
+      expect(screen.getByLabelText(/Port \(from\)/i)).toHaveValue("1")
+      expect(screen.getByLabelText(/Port \(to\)/i)).toHaveValue("65535")
+    })
+
+    test("explains how to change the ports instead of the input hints", () => {
+      render(<TestWrapper readOnly defaultPortFrom="80" />)
+
+      expect(
+        screen.getByText("Set by the preset. Use a custom TCP or UDP rule to change the ports.")
+      ).toBeInTheDocument()
+      expect(screen.queryByText("Single port or start of a range, 1-65535.")).not.toBeInTheDocument()
+      expect(screen.queryByText("End of the range. Leave empty for a single port.")).not.toBeInTheDocument()
     })
   })
 

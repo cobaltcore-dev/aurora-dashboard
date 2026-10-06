@@ -1,7 +1,7 @@
 import { FormRow, TextInput, Select, SelectOption, RadioGroup, Radio } from "@cloudoperators/juno-ui-components"
 import { useLingui } from "@lingui/react/macro"
-import { DEFAULT_IPV4_CIDR, DEFAULT_IPV6_CIDR } from "../constants"
 import type { AddRuleFormApi } from "../AddRuleModal"
+import { useRuleFieldError, hideRuleFieldError } from "../validation/fieldErrors"
 
 interface RemoteSourceSectionProps {
   form: AddRuleFormApi
@@ -11,27 +11,22 @@ interface RemoteSourceSectionProps {
 
 export function RemoteSourceSection({ form, disabled = false, availableSecurityGroups }: RemoteSourceSectionProps) {
   const { t } = useLingui()
+  const remoteCidrError = useRuleFieldError(form, "remoteCidr")
+  const remoteSecurityGroupError = useRuleFieldError(form, "remoteSecurityGroupId")
 
   return (
     <>
       {/* Remote Source Type Toggle */}
       <form.Field name="remoteSourceType" mode="value">
         {(remoteSourceTypeField) => (
-          <FormRow className="mb-1">
+          <FormRow>
             <RadioGroup
               name="remoteSourceType"
-              label={t`Remote Source`}
+              label={t`Remote`}
               selected={remoteSourceTypeField.state.value}
-              onChange={(value) => {
-                const newValue = String(value) as "cidr" | "security_group"
-                remoteSourceTypeField.handleChange(newValue)
-
-                // Auto-set ethertype to IPv4 when remote source is NOT security group
-                if (newValue !== "security_group") {
-                  form.setFieldValue("ethertype", "IPv4")
-                }
-              }}
+              onChange={(value) => remoteSourceTypeField.handleChange(String(value) as "cidr" | "security_group")}
               disabled={disabled}
+              helptext={t`The other end of the traffic: where it comes from (ingress) or where it goes to (egress). CIDR is recommended.`}
             >
               <div className="flex gap-4">
                 <Radio value="cidr" label={t`CIDR`} />
@@ -48,22 +43,22 @@ export function RemoteSourceSection({ form, disabled = false, availableSecurityG
           remoteSourceTypeField.state.value === "cidr" ? (
             <form.Field name="remoteCidr">
               {(remoteCidrField) => (
-                <form.Field name="ethertype">
-                  {(ethertypeField) => (
-                    <FormRow className="mb-6">
-                      <TextInput
-                        id="remoteCidr"
-                        name="remoteCidr"
-                        label={t`Remote IP Prefix`}
-                        value={remoteCidrField.state.value}
-                        onChange={(e) => remoteCidrField.handleChange(e.target.value)}
-                        errortext={remoteCidrField.state.meta.errors[0]?.message}
-                        placeholder={ethertypeField.state.value === "IPv4" ? DEFAULT_IPV4_CIDR : DEFAULT_IPV6_CIDR}
-                        disabled={disabled}
-                      />
-                    </FormRow>
-                  )}
-                </form.Field>
+                <FormRow>
+                  <TextInput
+                    id="remoteCidr"
+                    name="remoteCidr"
+                    label={t`Remote IP Prefix`}
+                    value={remoteCidrField.state.value}
+                    onChange={(e) => {
+                      remoteCidrField.handleChange(e.target.value)
+                      hideRuleFieldError(form, "remoteCidr")
+                    }}
+                    onBlur={remoteCidrField.handleBlur}
+                    errortext={remoteCidrError}
+                    helptext={t`IPv4 or IPv6 CIDR, e.g. 10.0.0.0/24 or ::/0. Leave empty to allow any IPv4 address.`}
+                    disabled={disabled}
+                  />
+                </FormRow>
               )}
             </form.Field>
           ) : null
@@ -76,16 +71,18 @@ export function RemoteSourceSection({ form, disabled = false, availableSecurityG
           remoteSourceTypeField.state.value === "security_group" ? (
             <form.Field name="remoteSecurityGroupId">
               {(remoteSecurityGroupIdField) => (
-                <FormRow className="mb-6">
+                <FormRow>
                   <Select
                     id="remoteSecurityGroupId"
                     label={t`Remote Security Group`}
                     value={remoteSecurityGroupIdField.state.value}
                     onChange={(value) => remoteSecurityGroupIdField.handleChange(String(value))}
-                    errortext={remoteSecurityGroupIdField.state.meta.errors[0]?.message}
+                    placeholder={t`Select a security group...`}
+                    required
+                    errortext={remoteSecurityGroupError}
+                    helptext={t`Applies to traffic to or from any instance in the selected group.`}
                     disabled={disabled}
                   >
-                    <SelectOption value="" label={t`Select a security group...`} />
                     {availableSecurityGroups.map((sg) => (
                       <SelectOption key={sg.id} value={sg.id} label={sg.name || sg.id} />
                     ))}

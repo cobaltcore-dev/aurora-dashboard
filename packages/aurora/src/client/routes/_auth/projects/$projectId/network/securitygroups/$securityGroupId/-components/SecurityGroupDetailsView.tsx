@@ -32,6 +32,8 @@ interface SecurityGroupDetailsViewProps {
   onCreateRule?: (ruleData: Omit<CreateSecurityGroupRuleInput, "project_id">) => Promise<void>
   isCreatingRule?: boolean
   createRuleError?: string | null
+  onClearCreateRuleError?: () => void
+  onClearDeleteRuleError?: () => void
   availableSecurityGroups?: Array<{ id: string; name: string | null }>
   currentProjectId: string
   permissions: SecurityGroupPermissions
@@ -47,6 +49,8 @@ export function SecurityGroupDetailsView({
   onCreateRule,
   isCreatingRule = false,
   createRuleError = null,
+  onClearCreateRuleError,
+  onClearDeleteRuleError,
   availableSecurityGroups = [],
   currentProjectId,
   permissions,
@@ -84,6 +88,8 @@ export function SecurityGroupDetailsView({
               onCreateRule={permissions.canCreateRule ? onCreateRule : undefined}
               isCreatingRule={isCreatingRule}
               createRuleError={createRuleError}
+              onClearCreateRuleError={onClearCreateRuleError}
+              onClearDeleteRuleError={onClearDeleteRuleError}
               availableSecurityGroups={availableSecurityGroups}
               canCreateRule={permissions.canCreateRule}
               canDeleteRule={permissions.canDeleteRule}

@@ -1,16 +1,17 @@
 import { act, renderHook } from "@testing-library/react"
 import { toast } from "@cloudoperators/juno-ui-components"
 import { describe, it, expect, beforeEach, vi } from "vitest"
+import { trpcReact } from "@/client/trpcClient"
 import { useSecurityGroupDetails } from "./useSecurityGroupDetails"
 
 const mockProjectId = "project-owner"
 
 const { mockMutations, mockInvalidate } = vi.hoisted(() => ({
   mockMutations: {
-    update: { mutateAsync: vi.fn(), options: {} as Record<string, unknown> },
-    deleteGroup: { mutateAsync: vi.fn(), options: {} as Record<string, unknown> },
-    deleteRule: { mutateAsync: vi.fn(), options: {} as Record<string, unknown> },
-    createRule: { mutateAsync: vi.fn(), options: {} as Record<string, unknown> },
+    update: { mutateAsync: vi.fn(), reset: vi.fn(), options: {} as Record<string, unknown> },
+    deleteGroup: { mutateAsync: vi.fn(), reset: vi.fn(), options: {} as Record<string, unknown> },
+    deleteRule: { mutate: vi.fn(), reset: vi.fn(), options: {} as Record<string, unknown> },
+    createRule: { mutateAsync: vi.fn(), reset: vi.fn(), options: {} as Record<string, unknown> },
   },
   mockInvalidate: vi.fn(),
 }))
@@ -72,22 +73,9 @@ vi.mock("@/client/trpcClient", () => ({
 
 vi.mock("../../-components/SecurityGroupToastNotifications", () => ({
   getSecurityGroupDeletedToast: (name: string) => ({ message: "group deleted", description: name }),
-  getSecurityGroupDeleteErrorToast: (errorMessage: string) => ({
-    message: "group delete error",
-    description: errorMessage,
-  }),
   getSecurityGroupUpdatedToast: (name: string) => ({ message: "updated", description: name }),
-  getSecurityGroupUpdateErrorToast: (errorMessage: string) => ({ message: "update error", description: errorMessage }),
   getSecurityGroupRuleCreatedToast: () => ({ message: "created", description: "rule created" }),
-  getSecurityGroupRuleCreateErrorToast: (errorMessage: string) => ({
-    message: "create error",
-    description: errorMessage,
-  }),
   getSecurityGroupRuleDeletedToast: () => ({ message: "deleted", description: "rule deleted" }),
-  getSecurityGroupRuleDeleteErrorToast: (errorMessage: string) => ({
-    message: "delete error",
-    description: errorMessage,
-  }),
 }))
 
 const filterControls = {
@@ -112,7 +100,7 @@ describe("useSecurityGroupDetails", () => {
 
     await act(async () => {
       await result.current.handleUpdate("sg-456", { name: "updated-name" })
-      await result.current.handleDeleteRule("rule-123")
+      result.current.handleDeleteRule("rule-123")
       await result.current.handleCreateRule({
         security_group_id: "sg-123",
         direction: "ingress",
@@ -128,7 +116,7 @@ describe("useSecurityGroupDetails", () => {
       securityGroupId: "sg-456",
       name: "updated-name",
     })
-    expect(mockMutations.deleteRule.mutateAsync).toHaveBeenCalledWith({
+    expect(mockMutations.deleteRule.mutate).toHaveBeenCalledWith({
       project_id: mockProjectId,
       ruleId: "rule-123",
     })
@@ -157,5 +145,67 @@ describe("useSecurityGroupDetails", () => {
     expect(success).toHaveBeenCalledTimes(3)
     expect(success).toHaveBeenCalledWith("updated", { description: "renamed-sg" })
     expect(mockInvalidate).toHaveBeenCalled()
+  })
+
+  it("finds rules by their remote CIDR", () => {
+    vi.mocked(trpcReact.network.securityGroup.getById.useQuery).mockReturnValue({
+      data: {
+        name: "web-sg",
+        security_group_rules: [
+          { id: "rule-office", direction: "ingress", ethertype: "IPv4", remote_ip_prefix: "10.0.0.0/24" },
+          { id: "rule-any", direction: "ingress", ethertype: "IPv4", remote_ip_prefix: "0.0.0.0/0" },
+        ],
+      },
+    } as never)
+
+    const { result } = renderHook(() =>
+      useSecurityGroupDetails({
+        securityGroupId: "sg-123",
+        filterControls: { ...(filterControls as object), searchTerm: "10.0.0" } as never,
+      })
+    )
+
+    expect(result.current.filteredAndSortedRules.map((rule) => rule.id)).toEqual(["rule-office"])
+  })
+
+  it("finds rules by the name of their remote group", () => {
+    vi.mocked(trpcReact.network.securityGroup.getById.useQuery).mockReturnValue({
+      data: {
+        name: "web-sg",
+        security_group_rules: [
+          { id: "rule-db", direction: "ingress", ethertype: "IPv4", remote_group_id: "sg-db" },
+          { id: "rule-cache", direction: "ingress", ethertype: "IPv4", remote_group_id: "sg-cache" },
+        ],
+      },
+    } as never)
+
+    const { result } = renderHook(() =>
+      useSecurityGroupDetails({
+        securityGroupId: "sg-123",
+        filterControls: { ...(filterControls as object), searchTerm: "DATA" } as never,
+        securityGroups: [
+          { id: "sg-db", name: "database" },
+          { id: "sg-cache", name: "cache" },
+        ],
+      })
+    )
+
+    expect(result.current.filteredAndSortedRules.map((rule) => rule.id)).toEqual(["rule-db"])
+  })
+
+  it("discards a modal's error when the modal closes", () => {
+    const { result } = renderHook(() => useSecurityGroupDetails({ securityGroupId: "sg-123", filterControls }))
+
+    act(() => {
+      result.current.handleCloseEditModal()
+      result.current.handleCloseDeleteModal()
+      result.current.clearCreateRuleError()
+      result.current.clearDeleteRuleError()
+    })
+
+    expect(mockMutations.update.reset).toHaveBeenCalled()
+    expect(mockMutations.deleteGroup.reset).toHaveBeenCalled()
+    expect(mockMutations.createRule.reset).toHaveBeenCalled()
+    expect(mockMutations.deleteRule.reset).toHaveBeenCalled()
   })
 })

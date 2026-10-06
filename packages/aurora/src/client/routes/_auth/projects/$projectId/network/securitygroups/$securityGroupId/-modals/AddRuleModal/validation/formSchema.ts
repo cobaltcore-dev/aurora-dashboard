@@ -1,6 +1,16 @@
 import { z } from "zod"
-import { validatePortRange, validateIcmpTypeCode, isValidCIDR, detectCIDRFamily } from "./validationHelpers"
-import { CUSTOM_TCP_RULE, CUSTOM_UDP_RULE, OTHER_PROTOCOL_RULE, ICMP_MIN, ICMP_MAX } from "../constants"
+import { validatePortRange, validateIcmpTypeCode, isValidCIDR } from "./validationHelpers"
+import {
+  CUSTOM_TCP_RULE,
+  CUSTOM_UDP_RULE,
+  OTHER_PROTOCOL_RULE,
+  ICMP_MIN,
+  ICMP_MAX,
+  RULE_DESCRIPTION_MAX_LENGTH,
+  hasIcmpFields,
+  normalizeProtocol,
+  isValidProtocolFormat,
+} from "../constants"
 
 /**
  * Zod schema for AddRuleModal form validation.
@@ -21,7 +31,9 @@ export const createRuleFormSchema = z
     ethertype: z.enum(["IPv4", "IPv6"]),
 
     // Optional description
-    description: z.string(),
+    description: z.string().refine((value) => value.trim().length <= RULE_DESCRIPTION_MAX_LENGTH, {
+      message: `Description must be at most ${RULE_DESCRIPTION_MAX_LENGTH} characters long.`,
+    }),
 
     // Protocol field - string for custom protocols, null for none
     protocol: z.string().nullable(),
@@ -42,17 +54,26 @@ export const createRuleFormSchema = z
   .superRefine((data, ctx) => {
     // Determine which validations apply based on protocol and rule type
     const isTcpUdp = data.protocol === "tcp" || data.protocol === "udp"
-    const isIcmp = data.protocol === "icmp" || data.protocol === "ipv6-icmp"
+    const isIcmp = hasIcmpFields(data.ruleType, data.protocol)
     const isCustomProtocol = data.ruleType === OTHER_PROTOCOL_RULE
     const showPortFields = isTcpUdp && [CUSTOM_TCP_RULE, CUSTOM_UDP_RULE].includes(data.ruleType)
 
-    // Validation 1: Protocol is required for "other-protocol" rule type
-    if (isCustomProtocol && !data.protocol) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Protocol is required",
-        path: ["protocol"],
-      })
+    // Validation 1: Protocol is required for "other-protocol" rule type, as a name or a number 0-255
+    if (isCustomProtocol) {
+      const protocol = normalizeProtocol(data.protocol)
+      if (!protocol) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Protocol is required",
+          path: ["protocol"],
+        })
+      } else if (!isValidProtocolFormat(protocol)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Enter a protocol name (e.g. gre) or a protocol number from 0 to 255",
+          path: ["protocol"],
+        })
+      }
     }
 
     // Validation 2: Port validation (only if port fields are visible)
@@ -117,7 +138,7 @@ export const createRuleFormSchema = z
       }
     }
 
-    // Validation 3: ICMP validation (only if ICMP protocol is selected)
+    // Validation 3: ICMP validation (only if the ICMP fields are visible)
     if (isIcmp) {
       // Parse values
       const icmpType = data.icmpType ? parseInt(data.icmpType, 10) : null
@@ -174,26 +195,24 @@ export const createRuleFormSchema = z
       }
     }
 
-    // Validation 4: CIDR validation (only if CIDR remote source is selected)
-    if (data.remoteSourceType === "cidr" && data.remoteCidr) {
-      // Validate CIDR format
-      if (!isValidCIDR(data.remoteCidr)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Invalid CIDR format. Examples: 0.0.0.0/0 (IPv4) or ::/0 (IPv6)",
-          path: ["remoteCidr"],
-        })
-      } else {
-        // Validate ethertype matches CIDR family
-        const cidrFamily = detectCIDRFamily(data.remoteCidr)
-        if (cidrFamily && cidrFamily !== data.ethertype) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `CIDR family (${cidrFamily}) must match Ethertype (${data.ethertype})`,
-            path: ["remoteCidr"],
-          })
-        }
-      }
+    // Validation 4: CIDR validation (only if CIDR remote source is selected).
+    // The ethertype is derived from the CIDR on submit, so there is no family mismatch to check.
+    if (data.remoteSourceType === "cidr" && data.remoteCidr && !isValidCIDR(data.remoteCidr)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid CIDR format. Examples: 0.0.0.0/0 (IPv4) or ::/0 (IPv6)",
+        path: ["remoteCidr"],
+      })
+    }
+
+    // Validation 5: Remote security group is required when it is the selected remote source.
+    // Without it the rule would be sent with no remote at all, i.e. open to any address.
+    if (data.remoteSourceType === "security_group" && !data.remoteSecurityGroupId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Remote security group is required",
+        path: ["remoteSecurityGroupId"],
+      })
     }
   })
 

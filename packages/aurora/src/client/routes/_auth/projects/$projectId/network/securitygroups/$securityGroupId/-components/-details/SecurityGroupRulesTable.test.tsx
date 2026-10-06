@@ -171,10 +171,10 @@ describe("SecurityGroupRulesTable", () => {
       expect(screen.getAllByText("Description").length).toBeGreaterThan(0)
       expect(screen.getAllByText("Ethertype").length).toBeGreaterThan(0)
       expect(screen.getAllByText("Protocol").length).toBeGreaterThan(0)
-      expect(screen.getByText("Range")).toBeInTheDocument()
+      expect(screen.getByText("Port Range")).toBeInTheDocument()
+      expect(screen.getByText("Remote")).toBeInTheDocument()
       // The actions column head cell is intentionally left blank
       expect(screen.queryByText("Actions")).not.toBeInTheDocument()
-      // Note: "Remote Source" column was removed in linter updates
     })
 
     it("renders Add rule button when onCreateRule provided", () => {
@@ -617,7 +617,7 @@ describe("SecurityGroupRulesTable", () => {
     })
   })
 
-  describe("Range column", () => {
+  describe("Port Range column", () => {
     const renderRule = (rule: Partial<SecurityGroupRule>) =>
       render(
         <SecurityGroupRulesTable
@@ -685,6 +685,90 @@ describe("SecurityGroupRulesTable", () => {
 
       renderRule({ protocol: "1", port_range_min: 8, port_range_max: 0 })
       expect(screen.getByText("Type: 8, Code: 0")).toBeInTheDocument()
+    })
+  })
+
+  describe("Remote column", () => {
+    const renderRule = (rule: Partial<SecurityGroupRule>) =>
+      render(
+        <SecurityGroupRulesTable
+          rules={[{ id: "rule-remote", direction: "ingress", ethertype: "IPv4", protocol: "tcp", ...rule }]}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          securityGroupId="sg-current"
+          availableSecurityGroups={[
+            { id: "sg-current", name: "web (this group)" },
+            { id: "sg-db", name: "db" },
+          ]}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+    it("shows the CIDR of an IP prefix remote", () => {
+      renderRule({ remote_ip_prefix: "10.0.0.5/32" })
+
+      expect(screen.getByText("10.0.0.5/32")).toBeInTheDocument()
+    })
+
+    it("shows a remote group by name", () => {
+      renderRule({ remote_group_id: "sg-db" })
+
+      expect(screen.getByText("db")).toBeInTheDocument()
+    })
+
+    it("marks the current group", () => {
+      renderRule({ remote_group_id: "sg-current" })
+
+      expect(screen.getByText("web (this group)")).toBeInTheDocument()
+    })
+
+    it("falls back to the ID of a group outside the project's list", () => {
+      renderRule({ remote_group_id: "sg-foreign" })
+
+      expect(screen.getByText("sg-foreign")).toBeInTheDocument()
+    })
+
+    it("shows an address group remote", () => {
+      renderRule({ remote_address_group_id: "ag-1" })
+
+      expect(screen.getByText("Address group: ag-1")).toBeInTheDocument()
+    })
+
+    it("shows Any for a rule without a remote", () => {
+      renderRule({})
+
+      expect(screen.getByText("Any")).toBeInTheDocument()
+    })
+  })
+
+  describe("Closing modals", () => {
+    it("discards the Add Rule error when the modal closes", async () => {
+      const user = userEvent.setup()
+      const onClearCreateRuleError = vi.fn()
+      render(
+        <SecurityGroupRulesTable
+          rules={mockRules}
+          onDeleteRule={vi.fn()}
+          isDeletingRule={false}
+          deleteError={null}
+          securityGroupId="sg-current"
+          onCreateRule={vi.fn()}
+          createRuleError="Security group rule already exists."
+          onClearCreateRuleError={onClearCreateRuleError}
+          canCreateRule={true}
+          canDeleteRule={true}
+        />,
+        { wrapper: createWrapper() }
+      )
+
+      await user.click(screen.getByRole("button", { name: "Add Rule" }))
+      expect(screen.getByText("Security group rule already exists.")).toBeInTheDocument()
+      await user.click(screen.getByRole("button", { name: "Cancel" }))
+
+      expect(onClearCreateRuleError).toHaveBeenCalled()
     })
   })
 })

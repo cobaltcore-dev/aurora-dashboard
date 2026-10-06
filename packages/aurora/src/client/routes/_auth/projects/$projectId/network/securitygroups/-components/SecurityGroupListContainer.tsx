@@ -28,6 +28,7 @@ interface SecurityGroupListContainerProps {
   currentProjectId?: string
   hasAnyBulkAction?: boolean
   onClearUpdateError?: () => void
+  onClearDeleteError?: () => void
 }
 
 export const SecurityGroupListContainer = ({
@@ -45,6 +46,7 @@ export const SecurityGroupListContainer = ({
   currentProjectId,
   hasAnyBulkAction = false,
   onClearUpdateError,
+  onClearDeleteError,
 }: SecurityGroupListContainerProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
@@ -56,10 +58,6 @@ export const SecurityGroupListContainer = ({
   const prevIsUpdatingRef = useRef<boolean>(false)
 
   const handleEdit = (sg: SecurityGroup) => {
-    // Clear error when selecting a different security group
-    if (selectedSecurityGroup && selectedSecurityGroup.id !== sg.id && onClearUpdateError) {
-      onClearUpdateError()
-    }
     setSelectedSecurityGroup(sg)
     setEditModalOpen(true)
   }
@@ -76,14 +74,17 @@ export const SecurityGroupListContainer = ({
     })
   }
 
+  // Closing a modal discards its error, so that it is not shown again the next time the modal opens
   const closeEditModal = () => {
     setSelectedSecurityGroup(null)
     setEditModalOpen(false)
+    onClearUpdateError?.()
   }
 
   const closeDeleteDialog = () => {
     setSelectedSecurityGroup(null)
     setDeleteDialogOpen(false)
+    onClearDeleteError?.()
   }
 
   // Close delete dialog when deletion completes successfully

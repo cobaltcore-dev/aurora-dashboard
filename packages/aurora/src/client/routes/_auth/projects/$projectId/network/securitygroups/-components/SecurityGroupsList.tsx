@@ -14,12 +14,7 @@ import { CreateSecurityGroupModal } from "./-modals/CreateSecurityGroupModal"
 import { useSecurityGroupPermissions } from "../-hooks/useSecurityGroupPermissions"
 import { parseFiltersFromUrl, buildUrlSearchParams, applyFilterSelection } from "../urlHelpers"
 import { buildSecurityGroupFilterParams, buildSecurityGroupFilters } from "../filterConfig"
-import {
-  getSecurityGroupDeletedToast,
-  getSecurityGroupDeleteErrorToast,
-  getSecurityGroupUpdatedToast,
-  getSecurityGroupUpdateErrorToast,
-} from "./SecurityGroupToastNotifications"
+import { getSecurityGroupDeletedToast, getSecurityGroupUpdatedToast } from "./SecurityGroupToastNotifications"
 
 const SEARCH_DEBOUNCE_MS = 500
 
@@ -146,8 +141,6 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
     },
     onError: (error) => {
       setDeleteError(error.message || t`Failed to delete security group`)
-      const { message, ...options } = getSecurityGroupDeleteErrorToast(error.message)
-      toast.error(message, options)
     },
   })
 
@@ -159,18 +152,13 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
     },
     onError: (error) => {
       setUpdateError(error.message || t`Failed to update security group`)
-      const { message, ...options } = getSecurityGroupUpdateErrorToast(error.message)
-      toast.error(message, options)
     },
   })
 
   const handleCreateSecurityGroup = async (securityGroupData: Omit<CreateSecurityGroupInput, "project_id">) => {
     setCreateError(null)
-    try {
-      await createSecurityGroupMutation.mutateAsync({ project_id: projectId, ...securityGroupData })
-    } catch {
-      // onError handles error state and UI feedback
-    }
+    // Rejects on failure so the modal stays open; onError sets the message it shows
+    await createSecurityGroupMutation.mutateAsync({ project_id: projectId, ...securityGroupData })
   }
 
   const handleDeleteSecurityGroup = (securityGroupId: string) => {
@@ -363,6 +351,7 @@ export const SecurityGroups = ({ project: projectId }: SecurityGroupsProps) => {
           currentProjectId={projectId}
           hasAnyBulkAction={false}
           onClearUpdateError={handleClearUpdateError}
+          onClearDeleteError={() => setDeleteError(null)}
         />
       </Stack>
 
