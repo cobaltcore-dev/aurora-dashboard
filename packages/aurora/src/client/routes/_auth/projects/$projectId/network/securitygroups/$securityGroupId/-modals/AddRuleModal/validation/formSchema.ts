@@ -163,11 +163,12 @@ export const createRuleFormSchema = z
 
       // Step 2: Check OpenStack requirement (Type required when Code is specified)
       // https://opendev.org/openstack/neutron/src/branch/master/neutron/db/securitygroups_db.py
+      // The error goes under Code: that is the field the user has just filled and left
       if (data.icmpCode && !data.icmpType) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "ICMP type is required when ICMP code is specified",
-          path: ["icmpType"],
+          path: ["icmpCode"],
         })
       }
 

@@ -107,6 +107,7 @@ describe("CreateSecurityGroupModal", () => {
     test("explains the limits of every field", () => {
       renderModal()
       expect(screen.getByText('1-255 characters. "default" is reserved.')).toBeInTheDocument()
+      expect(screen.getByText("Optional. Up to 255 characters.")).toBeInTheDocument()
       expect(screen.getByText(/In a stateless group, return traffic needs its own rules/)).toBeInTheDocument()
     })
   })

@@ -27,6 +27,7 @@ export function DescriptionSection({ form, disabled = false }: DescriptionSectio
             }}
             onBlur={field.handleBlur}
             errortext={descriptionError}
+            helptext={t`Optional. Up to 255 characters.`}
             disabled={disabled}
             rows={3}
           />

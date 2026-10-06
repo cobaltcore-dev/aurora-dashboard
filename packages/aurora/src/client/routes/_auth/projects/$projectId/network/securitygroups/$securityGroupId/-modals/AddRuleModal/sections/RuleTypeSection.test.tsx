@@ -94,6 +94,20 @@ describe("RuleTypeSection", () => {
       expect(screen.getByRole("option", { name: "Custom TCP Rule" })).toBeInTheDocument()
       expect(screen.queryByRole("option", { name: "Select a rule type..." })).not.toBeInTheDocument()
     })
+
+    test("shows the required error when the select is left without a choice", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper defaultRuleType="" />)
+
+      // Opening the list is not leaving the field
+      await user.click(screen.getByLabelText(/^Rule Type/i))
+      expect(screen.queryByText("Rule type is required")).not.toBeInTheDocument()
+
+      await user.keyboard("{Escape}")
+      await user.tab()
+
+      expect(await screen.findByText("Rule type is required")).toBeInTheDocument()
+    })
   })
 
   describe("User interactions", () => {

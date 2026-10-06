@@ -273,6 +273,20 @@ describe("EditSecurityGroupModal", () => {
       })
     })
 
+    test("removes the description when the field is cleared", async () => {
+      const onUpdate = vi.fn().mockResolvedValue(undefined)
+      const user = userEvent.setup()
+      renderModal({ onUpdate })
+
+      expect(screen.getByText("Optional. Up to 255 characters.")).toBeInTheDocument()
+      await user.clear(screen.getByLabelText(/Description/i))
+      await user.click(getConfirmButton())
+
+      await waitFor(() => {
+        expect(onUpdate).toHaveBeenCalledWith("sg-123", { name: "existing-sg", description: "" })
+      })
+    })
+
     test("calls onUpdate with trimmed values", async () => {
       const onUpdate = vi.fn().mockResolvedValue(undefined)
       const user = userEvent.setup()
@@ -293,25 +307,6 @@ describe("EditSecurityGroupModal", () => {
         expect(onUpdate).toHaveBeenCalledWith("sg-123", {
           name: "updated-name",
           description: "updated description",
-        })
-      })
-    })
-
-    test("calls onUpdate with undefined description when empty", async () => {
-      const onUpdate = vi.fn().mockResolvedValue(undefined)
-      const user = userEvent.setup()
-      renderModal({ onUpdate })
-
-      const descriptionTextarea = screen.getByLabelText(/Description/i)
-      await user.clear(descriptionTextarea)
-
-      const submitButton = getConfirmButton()
-      await user.click(submitButton)
-
-      await waitFor(() => {
-        expect(onUpdate).toHaveBeenCalledWith("sg-123", {
-          name: "existing-sg",
-          description: undefined,
         })
       })
     })

@@ -162,6 +162,7 @@ export const CreateSecurityGroupModal: React.FC<CreateSecurityGroupModalProps> =
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 errortext={errors.description}
+                helptext={t`Optional. Up to 255 characters.`}
                 rows={3}
               />
             </FormRow>

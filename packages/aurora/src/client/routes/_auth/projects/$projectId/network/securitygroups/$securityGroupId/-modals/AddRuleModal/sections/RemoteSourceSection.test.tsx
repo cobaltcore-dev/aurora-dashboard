@@ -200,6 +200,21 @@ describe("RemoteSourceSection", () => {
       expect(await screen.findByText("Remote security group is required")).toBeInTheDocument()
     })
 
+    test("shows the required error when the select is left without a choice", async () => {
+      const user = userEvent.setup()
+      const mockGroups = [{ id: "sg-1", name: "Group 1" }]
+      render(<TestWrapper defaultRemoteSourceType="security_group" availableSecurityGroups={mockGroups} />)
+
+      // Opening the list is not leaving the field
+      await user.click(screen.getByLabelText(/Remote Security Group/i))
+      expect(screen.queryByText("Remote security group is required")).not.toBeInTheDocument()
+
+      await user.keyboard("{Escape}")
+      await user.tab()
+
+      expect(await screen.findByText("Remote security group is required")).toBeInTheDocument()
+    })
+
     test("does not require a group in CIDR mode", async () => {
       const user = userEvent.setup()
       render(<TestWrapper />)

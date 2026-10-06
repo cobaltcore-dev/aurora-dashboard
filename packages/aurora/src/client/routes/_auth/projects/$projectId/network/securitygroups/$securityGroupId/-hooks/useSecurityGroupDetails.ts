@@ -4,7 +4,7 @@ import { trpcReact } from "@/client/trpcClient"
 import { useProjectId } from "@/client/hooks"
 import type { UpdateSecurityGroupInput, CreateSecurityGroupRuleInput } from "@/server/Network/types/securityGroup"
 import type { RulesFilterControls } from "../-components/SecurityGroupDetailsView"
-import { getRuleRemote, type SecurityGroupOption } from "../-components/ruleRemote"
+import { getRuleRemote, useFormatRuleRemote, type SecurityGroupOption } from "../-components/ruleRemote"
 import {
   getSecurityGroupDeletedToast,
   getSecurityGroupUpdatedToast,
@@ -45,6 +45,8 @@ export function useSecurityGroupDetails({
   )
 
   // Client-side filtering and sorting of rules
+  const formatRuleRemote = useFormatRuleRemote()
+
   const filteredAndSortedRules = useMemo(() => {
     const allRules = securityGroupQuery.data?.security_group_rules || []
     let result = allRules
@@ -78,16 +80,14 @@ export function useSecurityGroupDetails({
     // Filter by search term
     if (filterControls.searchTerm) {
       const searchLower = filterControls.searchTerm.toLowerCase()
-      result = result.filter((rule) => {
-        const remote = getRuleRemote(rule, securityGroups)
-        return (
+      result = result.filter(
+        (rule) =>
           rule.description?.toLowerCase().includes(searchLower) ||
           rule.protocol?.toLowerCase().includes(searchLower) ||
           rule.ethertype?.toLowerCase().includes(searchLower) ||
-          (remote.kind === "cidr" && remote.cidr.toLowerCase().includes(searchLower)) ||
-          (remote.kind === "group" && Boolean(remote.name?.toLowerCase().includes(searchLower)))
-        )
-      })
+          // The remote as the Remote column shows it, so whatever the table displays can be searched for
+          formatRuleRemote(getRuleRemote(rule, securityGroups)).toLowerCase().includes(searchLower)
+      )
     }
 
     // Sort
@@ -102,7 +102,7 @@ export function useSecurityGroupDetails({
     }
 
     return result
-  }, [securityGroupQuery.data?.security_group_rules, filterControls, securityGroups])
+  }, [securityGroupQuery.data?.security_group_rules, filterControls, securityGroups, formatRuleRemote])
 
   // Update mutation
   const updateMutation = trpcReact.network.securityGroup.update.useMutation({

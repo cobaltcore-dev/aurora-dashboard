@@ -106,7 +106,8 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
       // Prepare base update data without stateful
       const updateData: Omit<UpdateSecurityGroupInput, "securityGroupId" | "project_id"> = {
         name: properties.name.trim(),
-        description: properties.description.trim() || undefined,
+        // An empty string, not undefined: the update leaves out undefined fields, so the old description would stay
+        description: properties.description.trim(),
       }
 
       // Note: We deliberately do NOT include 'stateful' field here
@@ -178,6 +179,7 @@ export const EditSecurityGroupModal: React.FC<EditSecurityGroupModalProps> = ({
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 errortext={errors.description}
+                helptext={t`Optional. Up to 255 characters.`}
                 rows={3}
               />
             </FormRow>

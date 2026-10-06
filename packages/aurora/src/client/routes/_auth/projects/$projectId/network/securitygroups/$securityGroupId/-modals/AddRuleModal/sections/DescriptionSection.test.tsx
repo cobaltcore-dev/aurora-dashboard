@@ -54,6 +54,11 @@ describe("DescriptionSection", () => {
       expect(screen.getByLabelText(/Description/i)).toBeInTheDocument()
     })
 
+    test("explains that it is optional and its limit", () => {
+      render(<TestWrapper />)
+      expect(screen.getByText("Optional. Up to 255 characters.")).toBeInTheDocument()
+    })
+
     test("renders without placeholder text", () => {
       render(<TestWrapper />)
       const textarea = screen.getByLabelText(/Description/i)

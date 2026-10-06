@@ -2780,6 +2780,9 @@ msgstr "Optional identifier for this rule (max 255 characters)."
 msgid "Optional unique identifier for the rule (max 255 characters)"
 msgstr "Optional unique identifier for the rule (max 255 characters)"
 
+msgid "Optional. Up to 255 characters."
+msgstr "Optional. Up to 255 characters."
+
 msgid "or drag and drop"
 msgstr "or drag and drop"
 

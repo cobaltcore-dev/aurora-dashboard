@@ -59,6 +59,7 @@ export function RuleTypeSection({ form, disabled = false }: RuleTypeSectionProps
               form.setFieldValue("icmpType", "")
               form.setFieldValue("icmpCode", "")
             }}
+            onBlur={field.handleBlur}
             disabled={disabled}
             placeholder={t`Select a rule type...`}
             required

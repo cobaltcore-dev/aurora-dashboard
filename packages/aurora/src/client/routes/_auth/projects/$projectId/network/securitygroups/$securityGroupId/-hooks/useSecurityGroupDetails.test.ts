@@ -1,10 +1,16 @@
+import { createElement, type ReactNode } from "react"
 import { act, renderHook } from "@testing-library/react"
+import { i18n } from "@lingui/core"
+import { I18nProvider } from "@lingui/react"
 import { toast } from "@cloudoperators/juno-ui-components"
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import { trpcReact } from "@/client/trpcClient"
 import { useSecurityGroupDetails } from "./useSecurityGroupDetails"
 
 const mockProjectId = "project-owner"
+
+// The rules search matches the remote as the table formats it, which needs Lingui
+const wrapper = ({ children }: { children: ReactNode }) => createElement(I18nProvider, { i18n }, children)
 
 const { mockMutations, mockInvalidate } = vi.hoisted(() => ({
   mockMutations: {
@@ -96,7 +102,9 @@ describe("useSecurityGroupDetails", () => {
   })
 
   it("passes project and resource data to mutation handlers", async () => {
-    const { result } = renderHook(() => useSecurityGroupDetails({ securityGroupId: "sg-123", filterControls }))
+    const { result } = renderHook(() => useSecurityGroupDetails({ securityGroupId: "sg-123", filterControls }), {
+      wrapper,
+    })
 
     await act(async () => {
       await result.current.handleUpdate("sg-456", { name: "updated-name" })
@@ -132,7 +140,7 @@ describe("useSecurityGroupDetails", () => {
   })
 
   it("registers success callbacks that show operation toasts", () => {
-    renderHook(() => useSecurityGroupDetails({ securityGroupId: "sg-123", filterControls }))
+    renderHook(() => useSecurityGroupDetails({ securityGroupId: "sg-123", filterControls }), { wrapper })
     const success = vi.spyOn(toast, "success")
 
     ;(mockMutations.update.options.onSuccess as (data: unknown, variables: { name?: string }) => void)(
@@ -158,11 +166,13 @@ describe("useSecurityGroupDetails", () => {
       },
     } as never)
 
-    const { result } = renderHook(() =>
-      useSecurityGroupDetails({
-        securityGroupId: "sg-123",
-        filterControls: { ...(filterControls as object), searchTerm: "10.0.0" } as never,
-      })
+    const { result } = renderHook(
+      () =>
+        useSecurityGroupDetails({
+          securityGroupId: "sg-123",
+          filterControls: { ...(filterControls as object), searchTerm: "10.0.0" } as never,
+        }),
+      { wrapper }
     )
 
     expect(result.current.filteredAndSortedRules.map((rule) => rule.id)).toEqual(["rule-office"])
@@ -179,22 +189,54 @@ describe("useSecurityGroupDetails", () => {
       },
     } as never)
 
-    const { result } = renderHook(() =>
-      useSecurityGroupDetails({
-        securityGroupId: "sg-123",
-        filterControls: { ...(filterControls as object), searchTerm: "DATA" } as never,
-        securityGroups: [
-          { id: "sg-db", name: "database" },
-          { id: "sg-cache", name: "cache" },
-        ],
-      })
+    const { result } = renderHook(
+      () =>
+        useSecurityGroupDetails({
+          securityGroupId: "sg-123",
+          filterControls: { ...(filterControls as object), searchTerm: "DATA" } as never,
+          securityGroups: [
+            { id: "sg-db", name: "database" },
+            { id: "sg-cache", name: "cache" },
+          ],
+        }),
+      { wrapper }
     )
 
     expect(result.current.filteredAndSortedRules.map((rule) => rule.id)).toEqual(["rule-db"])
   })
 
+  it("finds rules by every remote the Remote column shows", () => {
+    vi.mocked(trpcReact.network.securityGroup.getById.useQuery).mockReturnValue({
+      data: {
+        name: "web-sg",
+        security_group_rules: [
+          { id: "rule-foreign", direction: "ingress", ethertype: "IPv4", remote_group_id: "sg-foreign" },
+          { id: "rule-address", direction: "ingress", ethertype: "IPv4", remote_address_group_id: "ag-1" },
+          { id: "rule-open", direction: "ingress", ethertype: "IPv4" },
+        ],
+      },
+    } as never)
+
+    const search = (searchTerm: string) =>
+      renderHook(
+        () =>
+          useSecurityGroupDetails({
+            securityGroupId: "sg-123",
+            filterControls: { ...(filterControls as object), searchTerm } as never,
+          }),
+        { wrapper }
+      ).result.current.filteredAndSortedRules.map((rule) => rule.id)
+
+    // A group outside the project's list is shown, and found, by its ID
+    expect(search("sg-foreign")).toEqual(["rule-foreign"])
+    expect(search("address group")).toEqual(["rule-address"])
+    expect(search("any")).toEqual(["rule-open"])
+  })
+
   it("discards a modal's error when the modal closes", () => {
-    const { result } = renderHook(() => useSecurityGroupDetails({ securityGroupId: "sg-123", filterControls }))
+    const { result } = renderHook(() => useSecurityGroupDetails({ securityGroupId: "sg-123", filterControls }), {
+      wrapper,
+    })
 
     act(() => {
       result.current.handleCloseEditModal()

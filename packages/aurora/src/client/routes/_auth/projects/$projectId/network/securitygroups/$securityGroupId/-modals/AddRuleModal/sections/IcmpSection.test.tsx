@@ -156,6 +156,19 @@ describe("IcmpSection", () => {
       await user.clear(typeInput)
       expect(screen.queryByText("ICMP type must be between 0 and 255")).not.toBeInTheDocument()
     })
+    test("asks for a type under Code when a code is entered first", async () => {
+      const user = userEvent.setup()
+      render(<TestWrapper />)
+
+      const codeInput = screen.getByLabelText(/ICMP Code/i)
+      await user.type(codeInput, "0")
+      fireEvent.blur(codeInput)
+      expect(await screen.findByText("ICMP type is required when ICMP code is specified")).toBeInTheDocument()
+
+      // Entering the type resolves it
+      await user.type(screen.getByLabelText(/ICMP Type/i), "3")
+      expect(screen.queryByText("ICMP type is required when ICMP code is specified")).not.toBeInTheDocument()
+    })
   })
 
   describe("Initial values", () => {
