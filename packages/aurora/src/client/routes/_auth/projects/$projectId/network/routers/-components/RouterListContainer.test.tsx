@@ -7,14 +7,10 @@ import { PortalProvider } from "@cloudoperators/juno-ui-components"
 import type { RouterListItem } from "@/server/Network/types/router"
 import { RouterListContainer } from "./RouterListContainer"
 
-vi.mock("@tanstack/react-router", () => ({
-  useLoaderData: () => ({ crumbProject: { name: "My Project" } }),
-}))
-
 vi.mock("./RouterTableRow", () => ({
-  RouterTableRow: ({ router, currentProjectName }: { router: RouterListItem; currentProjectName?: string }) => (
+  RouterTableRow: ({ router }: { router: RouterListItem }) => (
     <div role="row" data-testid={`router-row-${router.id}`}>
-      {router.name} | {currentProjectName}
+      {router.name}
     </div>
   ),
 }))
@@ -56,17 +52,31 @@ describe("RouterListContainer", () => {
       render(<RouterListContainer routers={mockRouters} />, { wrapper: TestWrapper })
 
       expect(screen.getByText("Name")).toBeInTheDocument()
-      expect(screen.getByText("Project")).toBeInTheDocument()
       expect(screen.getByText("External Network")).toBeInTheDocument()
       expect(screen.getByText("External Subnet")).toBeInTheDocument()
       expect(screen.getByText("Private Network")).toBeInTheDocument()
       expect(screen.getByText("Status")).toBeInTheDocument()
     })
 
-    it("renders 6 data columns and 1 actions column", () => {
+    it("renders 5 data columns and 1 actions column", () => {
       render(<RouterListContainer routers={mockRouters} />, { wrapper: TestWrapper })
 
-      expect(screen.getAllByRole("columnheader")).toHaveLength(7)
+      expect(screen.getAllByRole("columnheader")).toHaveLength(6)
+    })
+
+    it("does not render a Project column", () => {
+      render(<RouterListContainer routers={mockRouters} />, { wrapper: TestWrapper })
+
+      expect(screen.queryByText("Project")).not.toBeInTheDocument()
+    })
+
+    it("aligns cells to the top", () => {
+      // With cellVerticalAlignment="top", Juno renders cells without the vertical centering class
+      render(<RouterListContainer routers={[]} />, { wrapper: TestWrapper })
+
+      const cell = screen.getByRole("gridcell")
+      expect(cell).toHaveClass("juno-datagrid-cell")
+      expect(cell).not.toHaveClass("jn:justify-center")
     })
 
     it("renders column headers in the empty state as well", () => {
@@ -83,12 +93,6 @@ describe("RouterListContainer", () => {
       expect(screen.getByTestId("router-row-router-1")).toBeInTheDocument()
       expect(screen.getByTestId("router-row-router-2")).toBeInTheDocument()
       expect(screen.getAllByRole("row")).toHaveLength(3) // 1 header row + 2 data rows
-    })
-
-    it("passes the current project name to each row", () => {
-      render(<RouterListContainer routers={mockRouters} />, { wrapper: TestWrapper })
-
-      expect(screen.getByTestId("router-row-router-1")).toHaveTextContent("edge-router | My Project")
     })
 
     it("does not render the empty state when routers are present", () => {

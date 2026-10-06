@@ -641,7 +641,7 @@ UI actions are gated via `network.canUser` using the existing keys in `permissio
 - Zod validation for all request/response types
 - Router-specific error handling on top of the shared network error handler
 - Routing setup, side navigation entry and project overview card
-- Routers list view (Name, Project, External Network, External Subnet, Private Network, Status) with search, sorting and pagination
+- Routers list view (Name, External Network, External Subnet, Private Network, Status) with search, sorting and pagination; only the router's own ID is shown in the list, related IDs are on the details page
 - External network/subnet names and private networks in `list` via batched lookups
 - Router details view (overview, External Networks and Internal Networks tabs)
 - Backend unit and procedure tests

@@ -12,11 +12,9 @@ import { useProjectId } from "@/client/hooks"
 
 interface RouterTableRowProps {
   router: RouterListItem
-  /** Name of the current project, shown for routers owned by it */
-  currentProjectName?: string
 }
 
-/** Primary value on top, secondary (usually an ID) below in a lighter color. */
+/** Primary value on top, optional secondary value below in a lighter color. */
 const TwoLineCell = ({ primary, secondary }: { primary: string; secondary?: string }) => (
   <div className="flex min-w-0 flex-col">
     <span className="break-all">{primary}</span>
@@ -24,13 +22,16 @@ const TwoLineCell = ({ primary, secondary }: { primary: string; secondary?: stri
   </div>
 )
 
-export const RouterTableRow = ({ router, currentProjectName }: RouterTableRowProps) => {
+/**
+ * Only the router's own ID is shown in the list; IDs of related entities (networks, subnets) are shown
+ * on the details page. A related entity's ID is only used as a fallback when its name can't be resolved.
+ */
+export const RouterTableRow = ({ router }: RouterTableRowProps) => {
   const { t } = useLingui()
   const navigate = useNavigate()
   const projectId = useProjectId()
 
   const gateway = router.external_gateway_info
-  const projectName = router.project_id === projectId ? currentProjectName : undefined
 
   const navigateToDetailsPage = () => {
     navigate({
@@ -45,20 +46,7 @@ export const RouterTableRow = ({ router, currentProjectName }: RouterTableRowPro
         <TwoLineCell primary={router.name || router.id} secondary={router.name ? router.id : undefined} />
       </DataGridCell>
       <DataGridCell>
-        <TwoLineCell
-          primary={projectName || router.project_id}
-          secondary={projectName ? router.project_id : undefined}
-        />
-      </DataGridCell>
-      <DataGridCell>
-        {gateway ? (
-          <TwoLineCell
-            primary={gateway.network_name || gateway.network_id}
-            secondary={gateway.network_name ? gateway.network_id : undefined}
-          />
-        ) : (
-          "–"
-        )}
+        {gateway ? <span className="break-all">{gateway.network_name || gateway.network_id}</span> : "–"}
       </DataGridCell>
       <DataGridCell>
         {gateway?.external_fixed_ips && gateway.external_fixed_ips.length > 0 ? (
@@ -67,7 +55,7 @@ export const RouterTableRow = ({ router, currentProjectName }: RouterTableRowPro
               <TwoLineCell
                 key={`${fixedIp.subnet_id}-${fixedIp.ip_address}`}
                 primary={fixedIp.ip_address}
-                secondary={fixedIp.subnet_name || fixedIp.subnet_id}
+                secondary={fixedIp.subnet_name}
               />
             ))}
           </div>
@@ -79,11 +67,9 @@ export const RouterTableRow = ({ router, currentProjectName }: RouterTableRowPro
         {router.private_networks && router.private_networks.length > 0 ? (
           <div className="flex flex-col gap-1">
             {router.private_networks.map((privateNetwork) => (
-              <TwoLineCell
-                key={privateNetwork.network_id}
-                primary={privateNetwork.network_name || privateNetwork.network_id}
-                secondary={privateNetwork.network_name ? privateNetwork.network_id : undefined}
-              />
+              <span key={privateNetwork.network_id} className="break-all">
+                {privateNetwork.network_name || privateNetwork.network_id}
+              </span>
             ))}
           </div>
         ) : (

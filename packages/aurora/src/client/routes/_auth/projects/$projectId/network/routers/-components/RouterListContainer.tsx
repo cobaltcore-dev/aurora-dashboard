@@ -8,7 +8,6 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { Trans, useLingui } from "@lingui/react/macro"
 import { useEffect, useState } from "react"
-import { useLoaderData } from "@tanstack/react-router"
 import type { RouterListItem } from "@/server/Network/types/router"
 import { RouterTableRow } from "./RouterTableRow"
 
@@ -32,9 +31,6 @@ export const RouterListContainer = ({
     setInputPage(currentPage.toString())
   }, [currentPage])
 
-  // Routers are listed for the current project, so its name can be shown next to the ID
-  const { crumbProject } = useLoaderData({ from: "/_auth/projects/$projectId" })
-
   const updateCurrentPage = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       onPageChange?.(newPage)
@@ -44,13 +40,17 @@ export const RouterListContainer = ({
 
   return (
     <>
-      <DataGrid columns={7} minContentColumns={[6]} className="routers" data-testid="routers-table">
+      {/* Top-aligned cells keep rows scannable when a column lists multiple items (e.g. external subnets) */}
+      <DataGrid
+        columns={6}
+        minContentColumns={[5]}
+        cellVerticalAlignment="top"
+        className="routers"
+        data-testid="routers-table"
+      >
         <DataGridRow>
           <DataGridHeadCell>
             <Trans>Name</Trans>
-          </DataGridHeadCell>
-          <DataGridHeadCell>
-            <Trans>Project</Trans>
           </DataGridHeadCell>
           <DataGridHeadCell>
             <Trans>External Network</Trans>
@@ -68,12 +68,10 @@ export const RouterListContainer = ({
         </DataGridRow>
 
         {routers && routers.length > 0 ? (
-          routers.map((router) => (
-            <RouterTableRow key={router.id} router={router} currentProjectName={crumbProject?.name} />
-          ))
+          routers.map((router) => <RouterTableRow key={router.id} router={router} />)
         ) : (
           <DataGridRow>
-            <DataGridCell colSpan={7}>
+            <DataGridCell colSpan={6}>
               <Status
                 status="empty"
                 title={t`No routers found`}

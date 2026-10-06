@@ -40,11 +40,11 @@ const routerWithoutConnections: RouterListItem = {
   private_networks: [],
 }
 
-const renderComponent = (router: RouterListItem = mockRouter, currentProjectName?: string) =>
+const renderComponent = (router: RouterListItem = mockRouter) =>
   render(
     <I18nProvider i18n={i18n}>
       <PortalProvider>
-        <RouterTableRow router={router} currentProjectName={currentProjectName} />
+        <RouterTableRow router={router} />
       </PortalProvider>
     </I18nProvider>
   )
@@ -85,6 +85,15 @@ describe("RouterTableRow", () => {
       })
     })
 
+    it("does not render the project", async () => {
+      renderComponent()
+
+      await waitFor(() => {
+        expect(screen.getByText("edge-router")).toBeInTheDocument()
+      })
+      expect(screen.queryByText("proj-1")).not.toBeInTheDocument()
+    })
+
     it("renders the status", async () => {
       renderComponent()
 
@@ -94,42 +103,14 @@ describe("RouterTableRow", () => {
     })
   })
 
-  describe("Project column", () => {
-    it("renders the current project name with the project ID when the router belongs to it", async () => {
-      renderComponent(mockRouter, "My Project")
-
-      await waitFor(() => {
-        expect(screen.getByText("My Project")).toBeInTheDocument()
-      })
-      expect(screen.getByText("proj-1")).toBeInTheDocument()
-    })
-
-    it("renders only the project ID when the router belongs to another project", async () => {
-      renderComponent({ ...mockRouter, project_id: "other-project" }, "My Project")
-
-      await waitFor(() => {
-        expect(screen.getByText("other-project")).toBeInTheDocument()
-      })
-      expect(screen.queryByText("My Project")).not.toBeInTheDocument()
-    })
-
-    it("renders only the project ID when the project name is unknown", async () => {
-      renderComponent(mockRouter)
-
-      await waitFor(() => {
-        expect(screen.getByText("proj-1")).toBeInTheDocument()
-      })
-    })
-  })
-
   describe("External gateway columns", () => {
-    it("renders the external network name with its ID", async () => {
+    it("renders the external network name without its ID", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("FloatingIP-external-01")).toBeInTheDocument()
       })
-      expect(screen.getByText("ext-net-1")).toBeInTheDocument()
+      expect(screen.queryByText("ext-net-1")).not.toBeInTheDocument()
     })
 
     it("falls back to the external network ID when the name is unknown", async () => {
@@ -143,16 +124,17 @@ describe("RouterTableRow", () => {
       })
     })
 
-    it("renders the external IP with the subnet name", async () => {
+    it("renders the external IP with the subnet name and without the subnet ID", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("172.24.4.10")).toBeInTheDocument()
       })
       expect(screen.getByText("FloatingIP-sap-01")).toBeInTheDocument()
+      expect(screen.queryByText("ext-subnet-1")).not.toBeInTheDocument()
     })
 
-    it("falls back to the subnet ID when the subnet name is unknown", async () => {
+    it("renders only the external IP when the subnet name is unknown", async () => {
       renderComponent({
         ...mockRouter,
         external_gateway_info: {
@@ -162,8 +144,9 @@ describe("RouterTableRow", () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByText("ext-subnet-1")).toBeInTheDocument()
+        expect(screen.getByText("172.24.4.10")).toBeInTheDocument()
       })
+      expect(screen.queryByText("ext-subnet-1")).not.toBeInTheDocument()
     })
 
     it("renders all external fixed IPs", async () => {
@@ -186,13 +169,13 @@ describe("RouterTableRow", () => {
   })
 
   describe("Private network column", () => {
-    it("renders the private network name with its ID", async () => {
+    it("renders the private network name without its ID", async () => {
       renderComponent()
 
       await waitFor(() => {
         expect(screen.getByText("private-net")).toBeInTheDocument()
       })
-      expect(screen.getByText("net-1")).toBeInTheDocument()
+      expect(screen.queryByText("net-1")).not.toBeInTheDocument()
     })
 
     it("renders all private networks", async () => {
