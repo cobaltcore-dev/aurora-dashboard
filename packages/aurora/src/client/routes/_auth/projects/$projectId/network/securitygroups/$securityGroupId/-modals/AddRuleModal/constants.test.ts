@@ -6,6 +6,9 @@ describe("normalizeProtocol", () => {
     [" GRE ", "gre"],
     ["IPv6-ICMP", "ipv6-icmp"],
     ["47", "47"],
+    ["01", "1"],
+    ["058", "58"],
+    ["000", "0"],
     ["   ", null],
     ["", null],
     [null, null],
@@ -33,9 +36,12 @@ describe("hasIcmpFields", () => {
     expect(hasIcmpFields("all-icmp", "icmp")).toBe(false)
   })
 
-  test.each(["icmp", "ICMP", " ipv6-icmp ", "icmpv6", "1", "58"])("is true for Other Protocol with %j", (protocol) => {
-    expect(hasIcmpFields("other-protocol", protocol)).toBe(true)
-  })
+  test.each(["icmp", "ICMP", " ipv6-icmp ", "icmpv6", "1", "58", "01", "058"])(
+    "is true for Other Protocol with %j",
+    (protocol) => {
+      expect(hasIcmpFields("other-protocol", protocol)).toBe(true)
+    }
+  )
 
   test("is false for Other Protocol with a non-ICMP protocol", () => {
     expect(hasIcmpFields("other-protocol", "gre")).toBe(false)

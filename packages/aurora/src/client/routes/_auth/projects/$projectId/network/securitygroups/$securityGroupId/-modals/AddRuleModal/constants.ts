@@ -8,8 +8,14 @@ export const CUSTOM_UDP_RULE = "custom-udp"
 export const CUSTOM_ICMP_RULE = "custom-icmp"
 export const OTHER_PROTOCOL_RULE = "other-protocol"
 
-/** Neutron matches protocol names case-insensitively; send and compare them trimmed and lowercased */
-export const normalizeProtocol = (protocol: string | null): string | null => protocol?.trim().toLowerCase() || null
+/**
+ * Neutron matches protocol names case-insensitively and reads a protocol number as an integer, so "01" is ICMP.
+ * Send and compare names trimmed and lowercased, and numbers without leading zeros.
+ */
+export const normalizeProtocol = (protocol: string | null): string | null => {
+  const normalized = protocol?.trim().toLowerCase() || null
+  return normalized && /^\d+$/.test(normalized) ? String(Number(normalized)) : normalized
+}
 
 /**
  * A protocol Neutron can accept: an IP protocol number 0-255, or a name such as "gre" or "ipv6-icmp".

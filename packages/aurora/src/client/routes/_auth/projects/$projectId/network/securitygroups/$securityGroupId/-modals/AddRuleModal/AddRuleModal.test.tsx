@@ -25,6 +25,7 @@ vi.mock("./sections/RuleTypeSection", () => ({
         <option value="custom-tcp">Custom TCP</option>
         <option value="custom-icmp">Custom ICMP</option>
         <option value="all-icmp">All ICMP</option>
+        <option value="other-protocol">Other Protocol</option>
       </select>
     </div>
   ),
@@ -42,7 +43,13 @@ vi.mock("./sections/DirectionEthertypeSection", () => ({
 }))
 
 vi.mock("./sections/ProtocolSection", () => ({
-  ProtocolSection: () => <div data-testid="protocol-section">Protocol Section</div>,
+  ProtocolSection: ({ form }: { form: AddRuleFormApi }) => (
+    <div data-testid="protocol-section">
+      <button type="button" onClick={() => form.setFieldValue("protocol", "01")}>
+        Use protocol 01
+      </button>
+    </div>
+  ),
 }))
 
 vi.mock("./sections/PortRangeSection", () => ({
@@ -54,7 +61,19 @@ vi.mock("./sections/PortRangeSection", () => ({
 }))
 
 vi.mock("./sections/IcmpSection", () => ({
-  IcmpSection: () => <div data-testid="icmp-section">ICMP Section</div>,
+  IcmpSection: ({ form }: { form: AddRuleFormApi }) => (
+    <div data-testid="icmp-section">
+      <button
+        type="button"
+        onClick={() => {
+          form.setFieldValue("icmpType", "8")
+          form.setFieldValue("icmpCode", "0")
+        }}
+      >
+        Use echo request
+      </button>
+    </div>
+  ),
 }))
 
 vi.mock("./sections/RemoteSourceSection", () => ({
@@ -330,6 +349,22 @@ describe("AddRuleModal", () => {
       expect(payload.protocol).toBe("icmp")
       expect(payload.port_range_min).toBeUndefined()
       expect(payload.port_range_max).toBeUndefined()
+    })
+
+    test("keeps the ICMP type and code for a protocol number with leading zeros", async () => {
+      const onCreate = vi.fn().mockResolvedValue(undefined)
+      const user = userEvent.setup()
+      renderModal({ onCreate })
+
+      await user.selectOptions(screen.getByTestId("rule-type-select"), "other-protocol")
+      await user.click(screen.getByRole("button", { name: "Use protocol 01" }))
+      await user.click(screen.getByRole("button", { name: "Use echo request" }))
+      await user.click(getAddRuleButton())
+
+      await waitFor(() => expect(onCreate).toHaveBeenCalled())
+      expect(onCreate.mock.calls[0][0]).toEqual(
+        expect.objectContaining({ protocol: "1", port_range_min: 8, port_range_max: 0 })
+      )
     })
   })
 
